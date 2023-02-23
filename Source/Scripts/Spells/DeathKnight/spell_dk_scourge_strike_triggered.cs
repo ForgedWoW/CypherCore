@@ -16,15 +16,18 @@ public class spell_dk_scourge_strike_trigger : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-    private void SingleTarget(List<WorldObject> targets)
+    private void GetTargetUnit(List<WorldObject> targets)
     {
-        targets.Clear();
-        var unit = GetExplTargetUnit();
-        targets.Add(unit);
+        if (!GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
+		{
+            targets.RemoveIf((WorldObject target) => {
+                return GetExplTargetUnit() != target;
+            });
+        }
     }
 
     public override void Register()
 	{
-        SpellEffects.Add(new ObjectAreaTargetSelectHandler(SingleTarget, 1, Targets.UnitDestAreaEnemy));
+        SpellEffects.Add(new ObjectAreaTargetSelectHandler(GetTargetUnit, 1, Targets.UnitDestAreaEnemy));
     }
 }

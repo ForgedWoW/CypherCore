@@ -22,7 +22,8 @@ internal class spell_dk_vile_contagion : SpellScript, ISpellOnHit
 	public void OnHit()
 	{
 		var target = GetHitUnit();
-		List<Unit> exclude = new List<Unit>{target};
+		List<Unit> exclude = new();
+		exclude.Add(target);
 		if (target != null) {
 			var pustules = target.GetAura(DeathKnightSpells.FESTERING_WOUND);
 			if(pustules != null) {
@@ -36,4 +37,8 @@ internal class spell_dk_vile_contagion : SpellScript, ISpellOnHit
 			}
 		}
 	}
+
+
+	// List<WorldObject> targets = new();
+	// SearchChainTargets(targets, (uint) maxTargets - 1, target, targetType.GetObjectType(), targetType.GetCheckType(), spellEffectInfo, targetType.GetTarget() == Targets.UnitChainhealAlly);
 }
