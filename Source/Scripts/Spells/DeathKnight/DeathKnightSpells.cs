@@ -94,8 +94,7 @@ namespace Scripts.Spells.DeathKnight
 		public const uint DeathStrikeOffhand = 66188;
 		public const uint ENHANCED_DEATH_COIL = 157343;
 		public const uint EPIDEMIC = 207317;
-		public const uint EPIDEMIC_DAMAGE_AOE = 215969;
-		public const uint EPIDEMIC_DAMAGE_SINGLE = 212739;
+		public const uint EPIDEMIC_DAMAGE = 212739;
 		public const uint FESTERING_WOUND_DAMAGE = 194311;
 		public const uint FROST = 137006;
 		public const uint FROSTSCYTHE = 207230;
@@ -150,7 +149,6 @@ namespace Scripts.Spells.DeathKnight
 		public const uint OBLITERATION = 281238;
 		public const uint OSSUARY_MOD_MAX_POWER = 219786;
 		public const uint OSSUARY_MOD_POWER_COST = 219788;
-		public const uint OUTBREAK_PERIODIC = 196782;
 		public const uint PERDITION = 123981;
 		public const uint PESTILENCE = 277234;
 		public const uint PILLAR_OF_FROST = 51271;
@@ -240,6 +238,7 @@ namespace Scripts.Spells.DeathKnight
         public const uint DEATH_AND_DECAY_CLEAVE = 188290;
         public const uint DEATH_AND_DECAY = 43265;
 		public const uint DEATH_ROT_AURA = 377540;
+        public const uint DEATH_ROT = 377537;
         public const uint REPLENISHING_WOUNDS = 377585;
         public const uint BURSTING_SORES = 207264;
         public const uint BURSTING_SORES_DAMAGE = 207267;
