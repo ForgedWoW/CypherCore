@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
-[Script] // 47541 - Death Coil
+[SpellScript(47541)]
 internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
@@ -44,11 +44,8 @@ internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
 				var suddenDoom = caster.GetAura(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM_AURA);
 				if (suddenDoom != null)
 				{
-					suddenDoom.ModStackAmount(-1);
                     if (caster.HasAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH))
-                    {
                         caster.AddAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH_AURA, target);
-                    }
                 }
 			}
 		}
