@@ -18,12 +18,8 @@ public class spell_dk_scourge_strike_trigger : SpellScript, IHasSpellEffects
 
     private void GetTargetUnit(List<WorldObject> targets)
     {
-        if (!GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
-		{
-            targets.RemoveIf((WorldObject target) => {
-                return GetExplTargetUnit() != target;
-            });
-        }
+        targets.Clear();
+        targets.Add(GetExplTargetUnit());
     }
 
     public override void Register()
