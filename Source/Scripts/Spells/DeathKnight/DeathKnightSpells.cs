@@ -86,8 +86,6 @@ namespace Scripts.Spells.DeathKnight
 		public const uint DEFILE_MASTERY = 218100;
 		public const uint DESECRATED_GROUND = 118009;
 		public const uint DESECRATED_GROUND_IMMUNE = 115018;
-		public const uint DeathAndDecayDamage = 52212;
-		public const uint DeathCoilDamage = 47632;
 		public const uint DeathGripDummy = 243912;
 		public const uint DeathGripJump = 49575;
 		public const uint DeathGripTaunt = 51399;
@@ -215,6 +213,7 @@ namespace Scripts.Spells.DeathKnight
 		public const uint spell_dk_raise_dead_GHOUL = 52150;
 		public const uint spell_dk_soul_reaper = 343294;
 
+        public const uint DEATH_COIL = 47541;
         public const uint HARBINGER_OF_THE_DOOM = 276023;
         public const uint DEATH_COIL_SUDDEN_DOOM_AURA = 81340;
         public const uint DEATH_COIL_SUDDEN_DOOM = 49530;
@@ -236,17 +235,16 @@ namespace Scripts.Spells.DeathKnight
         public const uint DT_GHOUL_HUDDLE = 91837;
         public const uint DT_COMMANDER = 390260;
         public const uint DT_COMMANDER_BUFF = 390264;
-
-		public const uint UNHOLY_AURA = 377445;
+        
+        public const uint UNHOLY_AURA = 377445;
         public const uint DEATH_AND_DECAY_CLEAVE = 188290;
+        public const uint DEATH_AND_DECAY = 43265;
 		public const uint DEATH_ROT_AURA = 377540;
         public const uint REPLENISHING_WOUNDS = 377585;
         public const uint BURSTING_SORES = 207264;
         public const uint BURSTING_SORES_DAMAGE = 207267;
         public const uint PESTILENT_PUSTULES = 194917;
         public const uint PESTILENT_PUSTULES_RUNE = 220211;
-
-        public List<WorldObject> saveTargets;
 
         public static uint[] ArmyTransforms =
 		{
