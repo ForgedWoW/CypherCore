@@ -1669,7 +1669,7 @@ namespace Game.Entities
             Cell cell = new Cell(pair);
             cell.SetNoCreate();
 
-            AllFriendlyUnitsInRange check = new AllFriendlyUnitsInRange(ToUnit(), maxSearchRange);
+            AnyFriendlyUnitInObjectRangeCheck check = new AnyFriendlyUnitInObjectRangeCheck(this, ToUnit(), maxSearchRange);
             UnitListSearcher searcher = new UnitListSearcher(this, unitList, check, GridType.All);
 
             cell.Visit(pair, searcher, GetMap(), this, maxSearchRange);
@@ -1690,14 +1690,9 @@ namespace Game.Entities
 
         public void GetEnemiesWithinRange(List<Unit> unitList, float maxSearchRange)
         {
-            CellCoord pair = new CellCoord((uint)GetPositionX(), (uint)GetPositionY());
-            Cell cell = new Cell(pair);
-            cell.SetNoCreate();
-
-            AllAttackableUnitsInRange check = new AllAttackableUnitsInRange(ToUnit(), maxSearchRange);
-            UnitListSearcher searcher = new UnitListSearcher(this, unitList, check, GridType.All);
-
-            cell.Visit(pair, searcher, GetMap(), this, maxSearchRange);
+            var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(this, ToUnit(), maxSearchRange);
+            var searcher = new UnitListSearcher(this, unitList, u_check, GridType.All);
+            Cell.VisitGrid(this, searcher, maxSearchRange);
         }
 
         public void GetEnemiesWithinRangeWithOwnedAura(List<Unit> unitList, float maxSearchRange, uint auraId)
