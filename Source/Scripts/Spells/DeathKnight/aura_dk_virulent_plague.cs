@@ -14,14 +14,6 @@ public class aura_dk_virulent_plague : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		var eruptionChances = GetEffectInfo(1).BasePoints;
-
-		if (RandomHelper.randChance(eruptionChances))
-			GetAura().Remove(AuraRemoveMode.Death);
-	}
-
 	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
 		var removeMode = GetTargetApplication().GetRemoveMode();
@@ -37,7 +29,6 @@ public class aura_dk_virulent_plague : AuraScript, IHasAuraEffects
 
 	public override void Register()
 	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }
