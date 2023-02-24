@@ -1,18 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
 namespace Scripts.EasternKingdoms.Deadmines.Spells
 {
-    [SpellScript(new uint[]{ 89268, 89740, 90561, 90562, 90563, 90564, 90565, 90582, 90583, 90584, 90585, 90586 })]
+    [SpellScript(89268, 89740, 90561, 90562, 90563, 90564, 90565, 90582, 90583, 90584, 90585, 90586)]
     public class spell_captain_cookie_throw_food_targeting : SpellScript, ISpellAfterHit
     {
         public void AfterHit()

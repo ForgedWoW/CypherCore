@@ -128,7 +128,8 @@ namespace Scripts.Spells.Warlock
 		public const uint GLYPH_OF_SOULWELL_VISUAL = 34145;
 		public const uint GLYPH_OF_SOUL_SWAP = 56226;
 		public const uint GLYPH_OF_SUCCUBUS = 56250;
-		public const uint GRIMOIRE_FELGUARD = 111898;
+        public const uint GRAND_WARLOCKS_DESIGN = 56250;
+        public const uint GRIMOIRE_FELGUARD = 111898;
 		public const uint GRIMOIRE_FELHUNTER = 111897;
 		public const uint GRIMOIRE_IMP = 111859;
 		public const uint GRIMOIRE_OF_SACRIFICE = 108503;
@@ -298,7 +299,10 @@ namespace Scripts.Spells.Warlock
 		public const uint STOLEN_POWER_COUNTER = 211529;
 		public const uint SUCCUBUS_WHIPLASH = 6360;
 		public const uint SUMMON_DREADSTALKER = 193332;
-		public const uint SUPPLANT_DEMONIC_COMMAND = 119904;
+		public const uint SUMMON_INFERNAL = 1122;
+        public const uint SUMMON_DEMONIC_TYRANT = 265187;
+        public const uint SUMMON_DARKGLARE = 205180;
+        public const uint SUPPLANT_DEMONIC_COMMAND = 119904;
 		public const uint SWEET_SOULS = 199220;
 		public const uint SWEET_SOULS_HEAL = 199221;
 		public const uint T14_BONUS = 123141;

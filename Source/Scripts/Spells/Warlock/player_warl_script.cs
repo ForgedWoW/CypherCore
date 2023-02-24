@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
@@ -27,6 +28,29 @@ namespace Scripts.Spells.Warlock
             PowerOverwhelming(player, shardCost);
             RitualOfRuin(player, shardCost);
             RainOfChaos(player, shardCost);
+            GrandWarlocksDesign(player, shardCost);
+        }
+
+        private void GrandWarlocksDesign(Player player, int shardCost) 
+        {
+            if (shardCost > 0 && player.TryGetAura(WarlockSpells.GRAND_WARLOCKS_DESIGN, out var grandDesign))
+            {
+                for (int i = 0; i < shardCost; i++)
+                    switch (player.GetPrimarySpecialization())
+                    {
+                        case TalentSpecialization.WarlockAffliction:
+                            player.GetSpellHistory().ModifyCooldown(WarlockSpells.SUMMON_DARKGLARE, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(0).Amount));
+                            break;
+
+                        case TalentSpecialization.WarlockDemonology:
+                            player.GetSpellHistory().ModifyCooldown(WarlockSpells.SUMMON_DEMONIC_TYRANT, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(1).Amount));
+                            break;
+
+                        case TalentSpecialization.WarlockDestruction:
+                            player.GetSpellHistory().ModifyCooldown(WarlockSpells.SUMMON_INFERNAL, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(2).Amount));
+                            break;
+                    }
+            }
         }
 
         private void RainOfChaos(Player player, int shardCost)
