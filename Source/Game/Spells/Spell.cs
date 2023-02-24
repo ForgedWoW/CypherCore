@@ -22,7 +22,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.ISpell;
-using static Game.AI.SmartEvent;
 
 namespace Game.Spells
 {
