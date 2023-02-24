@@ -5,7 +5,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
-using static Game.AI.SmartAction;
 
 namespace Scripts.Spells.Warlock
 {

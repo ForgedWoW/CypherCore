@@ -9,10 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
-[SpellScript(new uint[]
-             {
-	             24858, 102560, 197625
-             })]
+[SpellScript(24858, 102560, 197625)]
 public class aura_dru_astral_form : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
