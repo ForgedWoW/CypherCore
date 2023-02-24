@@ -19,8 +19,7 @@ namespace Game.Scripting
 
         public string GetName() { return _name; }
 
-        // Do not override this in scripts; it should be overridden by the various script Type classes. It indicates
-        // whether or not this script Type must be assigned in the database.
+        // It indicates whether or not this script Type must be assigned in the database.
         public virtual bool IsDatabaseBound() { return false; }
 
         public static T GetInstanceAI<T>(WorldObject obj) where T : class

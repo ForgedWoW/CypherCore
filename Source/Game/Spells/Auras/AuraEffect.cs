@@ -841,6 +841,7 @@ namespace Game.Spells
         public int GetMiscValue() { return _effectInfo.MiscValue; }
         public AuraType GetAuraType() { return _effectInfo.ApplyAuraName; }
         public double GetAmount() { return _amount; }
+        public double Amount { get { return _amount; } }
         public float AmountAsFloat { get { return (float)_amount; } }
         public int AmountAsInt { get { return (int)_amount; } }
         public uint AmountAsUInt { get { return (uint)_amount; } }

@@ -5,6 +5,7 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
+using static Game.AI.SmartAction;
 
 namespace Scripts.Spells.Warlock
 {
@@ -26,9 +27,18 @@ namespace Scripts.Spells.Warlock
 
             PowerOverwhelming(player, shardCost);
             RitualOfRuin(player, shardCost);
+            RainOfChaos(player, shardCost);
         }
 
-        private static void PowerOverwhelming(Player player, int shardCost)
+        private void RainOfChaos(Player player, int shardCost)
+        {
+            if (shardCost > 0 && player.TryGetAura(WarlockSpells.RAIN_OF_CHAOS, out var raidOfChaos))
+                for (int i = 0; i < shardCost; i++)
+                    if (RandomHelper.randChance(raidOfChaos.GetEffect(0).Amount))
+                        player.CastSpell(WarlockSpells.RAIN_OF_CHAOS_INFERNAL, true);
+        }
+
+        private void PowerOverwhelming(Player player, int shardCost)
         {
             if (shardCost <= 0 || !player.HasAura(WarlockSpells.POWER_OVERWHELMING))
                 return;
@@ -39,7 +49,7 @@ namespace Scripts.Spells.Warlock
                 player.AddAura(WarlockSpells.POWER_OVERWHELMING_AURA, player);
         }
 
-        private static void RitualOfRuin(Player player, int shardCost)
+        private void RitualOfRuin(Player player, int shardCost)
         {
             if (shardCost <= 0 || !player.HasAura(WarlockSpells.RITUAL_OF_RUIN))
                 return;
@@ -57,11 +67,6 @@ namespace Scripts.Spells.Warlock
             }
 
             player.VariableStorage.Set(WarlockSpells.RITUAL_OF_RUIN.ToString(), soulShardsSpent);
-        }
-
-        public void OnProc(ProcEventInfo info)
-        {
-            
         }
     }
 }

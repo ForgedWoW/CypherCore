@@ -229,7 +229,9 @@ namespace Scripts.Spells.Warlock
 		public const uint PYROCLASM = 123686;
 		public const uint PYROGENICS = 387095;
 		public const uint RAGING_SOUL = 148463;
-		public const uint RAIN_OF_FIRE = 5740;
+        public const uint RAIN_OF_CHAOS = 266086;
+        public const uint RAIN_OF_CHAOS_INFERNAL = 335236;
+        public const uint RAIN_OF_FIRE = 5740;
 		public const uint RAIN_OF_FIRE_DAMAGE = 42223;
 		public const uint RAIN_OF_FIRE_ENERGIZE = 270548;
 		public const uint RITUAL_OF_RUIN = 387156;
