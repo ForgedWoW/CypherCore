@@ -108,18 +108,6 @@ InstanceServerPort = 8086
 BindIP = "0.0.0.0"
 
 #
-#    ThreadPool
-#        Description: Number of threads to be used for the global thread pool
-#                     The thread pool is currently used for:
-#                      - Signal handling (NYI)
-#                      - Remote access (NYI)
-#                      - Core freeze check (NYI)
-#                      - World socket networking (NYI)
-#        Default:     2
-
-ThreadPool = 2
-
-#
 #    MySQLExecutable
 #        Description: The path to your MySQL CLI binary.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe"
