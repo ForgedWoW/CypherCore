@@ -54,7 +54,17 @@ namespace Scripts.Spells.Warlock
 
         public void OnCast()
         {
-            GetCaster()?.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+            if (!TryGetCaster(out Unit caster))
+                return;
+
+            caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+            BurnToAshes(caster);
+        }
+
+        private void BurnToAshes(Unit caster)
+        {
+            if (caster.HasAura(WarlockSpells.BURN_TO_ASHES))
+                caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
         }
     }
 }

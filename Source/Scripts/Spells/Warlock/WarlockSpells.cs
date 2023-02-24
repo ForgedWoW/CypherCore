@@ -15,8 +15,10 @@ namespace Scripts.Spells.Warlock
 		public const uint BACKDRAFT = 117828;
 		public const uint BACKDRAFT_AURA = 196406;
 		public const uint BANE_OF_DOOM_EFFECT = 18662;
-		public const uint BURNING_RUSH = 111400;
-		public const uint CALL_DREADSTALKERS = 104316;
+        public const uint BURN_TO_ASHES = 387153;
+        public const uint BURN_TO_ASHES_INCINERATE = 387153;
+        public const uint BURNING_RUSH = 111400;
+        public const uint CALL_DREADSTALKERS = 104316;
 		public const uint CALL_DREADSTALKERS_SUMMON = 193331;
 		public const uint CASTING_CIRCLE = 221703;
 		public const uint CHANNEL_DEMONFIRE_ACTIVATOR = 228312;

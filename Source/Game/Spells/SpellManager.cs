@@ -4693,9 +4693,9 @@ namespace Game.Entities
         }
 
         // SpellInfo object management
-        public bool HasSpellInfo(uint spellId, Difficulty difficulty)
+        public bool HasSpellInfo(uint spellId, Difficulty difficulty = Difficulty.None)
         {
-            return mSpellInfoMap.TryGetValue(spellId, out var kvp) && kvp.ContainsKey(difficulty);
+            return GetSpellInfo(spellId, difficulty) != null;
         }
 
         //Extra Shit

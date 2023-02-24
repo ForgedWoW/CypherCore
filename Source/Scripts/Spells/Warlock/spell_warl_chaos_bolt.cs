@@ -40,14 +40,7 @@ namespace Scripts.Spells.Warlock
 
 		public void OnHit()
         {
-            var p = GetCaster().ToPlayer();
-
-            if (p == null)
-                return;
-
-            var target = GetExplTargetUnit();
-
-            if (target == null)
+            if (!TryGetCaster(out Player p) || !TryGetExplTargetUnit(out var target))
                 return;
 
             MadnessOfTheAzjaqir(p);
@@ -58,7 +51,7 @@ namespace Scripts.Spells.Warlock
 
         private void MadnessOfTheAzjaqir(Unit caster)
         {
-            if (caster.HasAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR) && Global.SpellMgr.TryGetSpellInfo(WarlockSpells.MADNESS_OF_THE_AZJAQIR_AURA_VALUES, out var av))
+            if (caster.HasAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR) && Global.SpellMgr.HasSpellInfo(WarlockSpells.MADNESS_OF_THE_AZJAQIR_AURA_VALUES))
                 caster.AddAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR_CHAOS_BOLT_AURA, caster);
         }
 
@@ -85,7 +78,7 @@ namespace Scripts.Spells.Warlock
                 return;
 
             var havocDamageBase = havoc.GetEffect(0).m_baseAmount * .01; // .6 or 60% by default.
-            var dmg = (uint)((cryHavoc.GetEffect(0).GetAmount() * .01) * (cryHavocDmgSpll.GetEffect(1).BonusCoefficient * (GetHitDamage() * havocDamageBase)));
+            var dmg = (cryHavoc.GetEffect(0).GetAmount() * .01) * (cryHavocDmgSpll.GetEffect(1).BonusCoefficient * (GetHitDamage() * havocDamageBase));
 
             var spellInfo = cryHavoc.GetSpellInfo();
 
@@ -111,22 +104,10 @@ namespace Scripts.Spells.Warlock
 
         private void InternalCombustion(Player p, Unit target)
         {
-            var internalCombustion = p.GetAura(WarlockSpells.INTERNAL_COMBUSTION_TALENT_AURA);
-
-            if (internalCombustion == null)
+            if (!p.TryGetAura(WarlockSpells.INTERNAL_COMBUSTION_TALENT_AURA, out var internalCombustion) || 
+                !target.TryGetAura(WarlockSpells.IMMOLATE_DOT, out var immolationAura) ||
+                !immolationAura.GetEffect(0).TryGetEstimatedAmount(out var dmgPerTick))
                 return;
-
-            var immolationAura = target.GetAura(WarlockSpells.IMMOLATE_DOT);
-
-            if (immolationAura == null)
-                return;
-
-            var estAmount = immolationAura.GetEffect(0).GetEstimatedAmount();
-
-            if (!estAmount.HasValue)
-                return;
-
-            var dmgPerTick = (int)estAmount.Value;
 
             var duration = immolationAura.GetDuration();
             var modDur = (int)(internalCombustion.GetEffect(0).m_baseAmount * Time.InMilliseconds);
@@ -153,8 +134,20 @@ namespace Scripts.Spells.Warlock
 
         public void OnCast()
         {
-            GetCaster()?.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
-            GetCaster()?.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+            if (!TryGetCaster(out Unit caster))
+                return;
+
+            caster.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
+            caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+
+            BurnToAshes(caster);
+        }
+
+        private void BurnToAshes(Unit caster)
+        {
+            if (caster.TryGetAura(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
+                for (int i = 0; i != burnToAshes.GetEffect(2).AmountAsInt; i++)
+                    caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
         }
     }
 }

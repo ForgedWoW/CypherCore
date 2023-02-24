@@ -12,15 +12,26 @@ namespace Scripts.Spells.Warlock
     {
         public void OnCast()
         {
-            GetCaster()?.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
-            GetCaster()?.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
-            MadnessOfTheAzjaqir(GetCaster());
+            if (!TryGetCaster(out Unit caster))
+                return;
+
+            caster.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
+            caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+            MadnessOfTheAzjaqir(caster);
+            BurnToAshes(caster);
         }
 
         private void MadnessOfTheAzjaqir(Unit caster)
         {
             if (caster.HasAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR))
                 caster.AddAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR_RAIN_OF_FIRE_AURA, caster);
+        }
+
+        private void BurnToAshes(Unit caster)
+        {
+            if (caster.TryGetAura(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
+                for (int i = 0; i != burnToAshes.GetEffect(2).AmountAsInt; i++)
+                    caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
         }
     }
 }

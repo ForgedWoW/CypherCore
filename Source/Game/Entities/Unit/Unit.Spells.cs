@@ -2483,6 +2483,16 @@ namespace Game.Entities
             return m_appliedAuras.Count;
         }
 
+        /// <summary>
+        ///     Will add the aura to the unit. If the aura exists and it has a stack amount, a stack will be added up to the max stack amount.
+        /// </summary>
+        /// <param name="spellId">Spell id of the aura to add</param>
+        /// <returns>The aura and its applications.</returns>
+        public Aura AddAura(uint spellId)
+        {
+            return AddAura(spellId, this);
+        }
+
         public Aura AddAura(uint spellId, Unit target)
         {
             if (target == null)

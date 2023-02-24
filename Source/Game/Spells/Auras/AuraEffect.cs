@@ -852,7 +852,7 @@ namespace Game.Spells
         public void SetAmount(int amount) { SetAmount((double)amount); }
         public void SetAmount(uint amount) { SetAmount((double)amount); }
         public double? GetEstimatedAmount() { return _estimatedAmount; }
-
+        public bool TryGetEstimatedAmount(out double amount) { amount = _estimatedAmount.HasValue ? _estimatedAmount.Value : 0; return _estimatedAmount.HasValue; }
         public int GetPeriodicTimer() { return _periodicTimer; }
         public void SetPeriodicTimer(int periodicTimer) { _periodicTimer = periodicTimer; }
 

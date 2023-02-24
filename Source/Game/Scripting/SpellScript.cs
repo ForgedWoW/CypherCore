@@ -181,6 +181,8 @@ namespace Game.Scripting
         //
         // methods useable during all spell handling phases
         public Unit GetCaster() { return _spell.GetCaster().ToUnit(); }
+        public bool TryGetCaster(out Unit result) { result = _spell.GetCaster()?.ToUnit(); return result != null; }
+        public bool TryGetCaster(out Player result) { result = _spell.GetCaster()?.ToPlayer(); return result != null; }
         public GameObject GetGObjCaster() { return _spell.GetCaster().ToGameObject(); }
         public Unit GetOriginalCaster() { return _spell.GetOriginalCaster(); }
         public SpellInfo GetSpellInfo() { return _spell.GetSpellInfo(); }
@@ -221,6 +223,7 @@ namespace Game.Scripting
 
         // returns: Unit which was selected as an explicit spell Target or null if there's no Target
         public Unit GetExplTargetUnit() { return _spell.m_targets.GetUnitTarget(); }
+        public bool TryGetExplTargetUnit(out Unit target) { target = _spell.m_targets.GetUnitTarget(); return target != null; }
 
         // returns: GameObject which was selected as an explicit spell Target or null if there's no Target
         public GameObject GetExplTargetGObj() { return _spell.m_targets.GetGOTarget(); }
