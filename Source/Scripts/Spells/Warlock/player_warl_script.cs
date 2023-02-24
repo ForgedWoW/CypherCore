@@ -6,11 +6,12 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
     [Script]
-    internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower
+    internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage
     {
         public Class PlayerClass { get; } = Class.Warlock;
 
@@ -90,6 +91,33 @@ namespace Scripts.Spells.Warlock
             }
 
             player.VariableStorage.Set(WarlockSpells.RITUAL_OF_RUIN.ToString(), soulShardsSpent);
+        }
+
+        public void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto)
+        {
+            if (spellProto == null || 
+                spellProto.DmgClass != SpellDmgClass.Magic ||
+                !caster.TryGetAura(WarlockSpells.MASTERY_CHAOTIC_ENERGIES, out var chaoticEnergies)) 
+                return;
+
+            var dmgPct = chaoticEnergies.GetEffect(0).Amount / 2;
+
+            MathFunctions.AddPct(ref damage, dmgPct);
+
+            if (caster.HasAura(WarlockSpells.MASTERY_CHAOTIC_ENERGIES) && 
+                (spellProto.Id == WarlockSpells.CHAOS_BOLT ||
+                spellProto.Id == WarlockSpells.SHADOWBURN ||
+                spellProto.Id == WarlockSpells.RAIN_OF_FIRE_DAMAGE))
+            {
+                MathFunctions.AddPct(ref damage, dmgPct);
+            }
+            else
+            {
+                var rand = RandomHelper.DRand(0, dmgPct);
+
+                if (rand != 0)
+                    MathFunctions.AddPct(ref damage, rand);
+            }
         }
     }
 }

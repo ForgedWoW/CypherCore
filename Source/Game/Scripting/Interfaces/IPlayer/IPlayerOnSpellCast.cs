@@ -7,7 +7,9 @@ using Game.Spells;
 
 namespace Game.Scripting.Interfaces.IPlayer
 {
-    // Called in Spell.Cast.
+    /// <summary>
+    ///     Called when the player casts a spell
+    /// </summary>
     public interface IPlayerOnSpellCast : IScriptObject, IClassRescriction
     {
         void OnSpellCast(Player player, Spell spell, bool skipCheck);

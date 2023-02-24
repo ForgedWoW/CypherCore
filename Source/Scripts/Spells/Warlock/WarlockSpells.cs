@@ -23,7 +23,7 @@ namespace Scripts.Spells.Warlock
 		public const uint CASTING_CIRCLE = 221703;
 		public const uint CHANNEL_DEMONFIRE_ACTIVATOR = 228312;
 		public const uint CHANNEL_DEMONFIRE_DAMAGE = 196448;
-		public const uint COMMAND_DEMON_OVERRIDER = 119904;
+        public const uint COMMAND_DEMON_OVERRIDER = 119904;
 		public const uint COMPOUNDING_HORROR = 199281;
 		public const uint COMPOUNDING_HORROR_DAMAGE = 231489;
 		public const uint CONFLAGRATE = 17962;
@@ -193,6 +193,7 @@ namespace Scripts.Spells.Warlock
         public const uint MADNESS_OF_THE_AZJAQIR_RAIN_OF_FIRE_AURA = 387413;
         public const uint MADNESS_OF_THE_AZJAQIR_SHADOWBURN_AURA = 387414;
 		public const uint MASTER_RITUALIST = 387165;
+		public const uint MASTERY_CHAOTIC_ENERGIES = 77220;
         public const uint MAYHEM = 387506;
 		public const uint METAMORPHOSIS = 103958;
 		public const uint METAMORPHOSIS_ADDITIONAL_AURA = 54879;
