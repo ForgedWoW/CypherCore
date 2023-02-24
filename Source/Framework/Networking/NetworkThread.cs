@@ -97,7 +97,7 @@ namespace Framework.Networking
 
                         SocketRemoved(socket);
 
-                        --_connections;
+                        Interlocked.Decrement(ref _connections);
                         _Sockets.Remove(socket);
                     }
                 }
