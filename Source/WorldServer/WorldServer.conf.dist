@@ -508,7 +508,7 @@ AddonChannel = 1
 
 #
 #    MapUpdate.Threads
-#        Description: Number of threads to update maps.
+#        Description: Max Number of threads to update maps.
 #        Default:     10
 
 MapUpdate.Threads = 10
