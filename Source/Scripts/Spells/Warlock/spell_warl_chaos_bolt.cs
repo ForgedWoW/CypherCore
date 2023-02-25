@@ -10,11 +10,10 @@ using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(116858)] // 116858 - Chaos Bolt
+    [SpellScript(116858)] // 116858 - Chaos Bolt
 	internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
 	{
 		public override bool Load()

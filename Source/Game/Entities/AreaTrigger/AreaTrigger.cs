@@ -494,7 +494,7 @@ namespace Game.Entities
 
         void HandleUnitEnterExit(List<Unit> newTargetList)
         {
-            List<ObjectGuid> exitUnits = _insideUnits.ToList();
+            HashSet<ObjectGuid> exitUnits = _insideUnits.ToHashSet();
             _insideUnits.Clear();
 
             List<Unit> enteringUnits = new();
@@ -1105,7 +1105,7 @@ namespace Game.Entities
 
         public void Delay(int delaytime) { SetDuration(GetDuration() - delaytime); }
 
-        public List<ObjectGuid> GetInsideUnits() { return _insideUnits; }
+        public HashSet<ObjectGuid> GetInsideUnits() { return _insideUnits; }
 
         public AreaTriggerCreateProperties GetCreateProperties() { return _areaTriggerCreateProperties; }
 
@@ -1152,7 +1152,7 @@ namespace Game.Entities
 
         AreaTriggerCreateProperties _areaTriggerCreateProperties;
         AreaTriggerTemplate _areaTriggerTemplate;
-        List<ObjectGuid> _insideUnits = new();
+        HashSet<ObjectGuid> _insideUnits = new();
 
         AreaTriggerAI _ai;
 
