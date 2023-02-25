@@ -118,6 +118,8 @@ namespace Game.Entities
             if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots" , false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
                 SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
+            if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
+                GetSession().GetCollectionMgr().AddToy(193588, true, true);
         }
 
         public override void Dispose()
@@ -334,6 +336,9 @@ namespace Game.Entities
             // Adds the extra bag slots for having an authenticator.
             if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
                 SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
+
+            if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
+                GetSession().GetCollectionMgr().AddToy(193588, true, true);
 
             return true;
         }

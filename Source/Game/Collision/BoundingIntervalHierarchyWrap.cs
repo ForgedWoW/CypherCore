@@ -17,9 +17,9 @@ namespace Game.Collision
         public void Remove(T obj)
         {
             ++unbalanced_times;
-            uint Idx;
+            int Idx;
             if (m_obj2Idx.TryGetValue(obj, out Idx))
-                m_objects[(int)Idx] = null;
+                m_objects[Idx] = null;
             else
                 m_objects_to_push.Remove(obj);
         }
@@ -53,7 +53,7 @@ namespace Game.Collision
 
         BIH m_tree = new();
         List<T> m_objects = new();
-        Dictionary<T, uint> m_obj2Idx = new();
+        Dictionary<T, int> m_obj2Idx = new();
         HashSet<T> m_objects_to_push = new();
         int unbalanced_times;
 

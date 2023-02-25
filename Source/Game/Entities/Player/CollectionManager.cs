@@ -76,7 +76,7 @@ namespace Game.Entities
         {
             if (UpdateAccountToys(itemId, isFavourite, hasFanfare))
             {
-                _owner.GetPlayer().AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
+                _owner.GetPlayer()?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
                 return true;
             }
 

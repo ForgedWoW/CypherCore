@@ -912,6 +912,14 @@ CharacterCreating.DisableAlliedRaceAchievementRequirement = 0
 SkipCinematics = 0
 
 #
+#    player.addHearthstoneToCollection
+#        Description: Adds hearthstone item 193588 to all collections.
+#        Default:     0 - Disabled
+#					  1 - Enabled
+
+player.addHearthstoneToCollection = 0
+
+#
 #    MaxPlayerLevel
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
