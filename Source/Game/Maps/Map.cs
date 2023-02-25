@@ -750,9 +750,8 @@ namespace Game.Maps
             // Process necessary scripts
             if (!m_scriptSchedule.Empty())
             {
-                i_scriptLock = true;
-                ScriptsProcess();
-                i_scriptLock = false;
+                lock (i_scriptLock)
+                    ScriptsProcess();
             }
 
             _weatherUpdateTimer.Update(diff);
@@ -3875,11 +3874,10 @@ namespace Game.Maps
                 Global.MapMgr.IncreaseScheduledScriptsCount();
             }
             // If one of the effects should be immediate, launch the script execution
-            if (immedScript && !i_scriptLock)
+            if (immedScript)
             {
-                i_scriptLock = true;
-                ScriptsProcess();
-                i_scriptLock = false;
+                lock (i_scriptLock)
+                    ScriptsProcess();
             }
         }
 
@@ -3903,11 +3901,10 @@ namespace Game.Maps
             Global.MapMgr.IncreaseScheduledScriptsCount();
 
             // If effects should be immediate, launch the script execution
-            if (delay == 0 && !i_scriptLock)
+            if (delay == 0)
             {
-                i_scriptLock = true;
-                ScriptsProcess();
-                i_scriptLock = false;
+                lock (i_scriptLock)
+                    ScriptsProcess();
             }
         }
 
@@ -4792,7 +4789,7 @@ namespace Game.Maps
         public Dictionary<ulong, CreatureGroup> CreatureGroupHolder = new();
         internal uint i_InstanceId;
         long i_gridExpiry;
-        bool i_scriptLock;
+        object i_scriptLock = new();
 
         public int m_VisibilityNotifyPeriod;
         public float m_VisibleDistance;
