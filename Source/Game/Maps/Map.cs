@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Game.Maps
 {
@@ -37,8 +39,9 @@ namespace Game.Maps
 
         public IEnumerable<uint> GridYKeys(uint x)
         {
-            if (_grids.TryGetValue(x, out var yGrid))
-                return yGrid.Keys.ToList();
+            lock(_grids)
+                if (_grids.TryGetValue(x, out var yGrid))
+                    return yGrid.Keys.ToList();
 
             return Enumerable.Empty<uint>();
         }
@@ -179,9 +182,20 @@ namespace Game.Maps
 
         public void LoadAllCells()
         {
+            int numbTasks = 0;
+            Semaphore s = new Semaphore(50, 50);
+
             for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
                 for (uint cellY = 0; cellY < MapConst.TotalCellsPerMap; cellY++)
-                    LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells);
+                {
+                    s.WaitOne();
+                    Task.Run(() =>
+                    {
+                        LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells);
+                        s.Release();
+                    });
+
+                }
         }
 
         public virtual void InitVisibilityDistance()
@@ -313,7 +327,8 @@ namespace Game.Maps
                 int gx = (int)((MapConst.MaxGrids - 1) - p.X_coord);
                 int gy = (int)((MapConst.MaxGrids - 1) - p.Y_coord);
 
-                m_terrain.LoadMapAndVMap(gx, gy);
+                if (gx > -1 && gy > -1)
+                    m_terrain.LoadMapAndVMap(gx, gy);
             }
         }
 
@@ -340,7 +355,7 @@ namespace Game.Maps
             EnsureGridCreated(new GridCoord(cell.GetGridX(), cell.GetGridY()));
             Grid grid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
-            if (!IsGridObjectDataLoaded(cell.GetGridX(), cell.GetGridY()))
+            if (grid != null && !IsGridObjectDataLoaded(cell.GetGridX(), cell.GetGridY()))
             {
                 Log.outDebug(LogFilter.Maps, "Loading grid[{0}, {1}] for map {2} instance {3}", cell.GetGridX(),
                     cell.GetGridY(), GetId(), i_InstanceId);
@@ -358,6 +373,9 @@ namespace Game.Maps
 
         public virtual void LoadGridObjects(Grid grid, Cell cell)
         {
+            if (grid == null)
+                return;
+
             ObjectGridLoader loader = new(grid, this, cell, GridType.Grid);
             loader.LoadN();
         }
@@ -1526,7 +1544,8 @@ namespace Game.Maps
             }
 
             Cypher.Assert(i_objectsToRemove.Empty());
-            _grids.Remove(x, y);
+            lock (_grids)
+                _grids.Remove(x, y);
 
             int gx = (int)((MapConst.MaxGrids - 1) - x);
             int gy = (int)((MapConst.MaxGrids - 1) - y);
@@ -1876,7 +1895,8 @@ namespace Game.Maps
                 return;
             }
 
-            _grids.Add(x, y, grid);
+            lock (_grids)
+                _grids.Add(x, y, grid);
         }
 
         void SendObjectUpdates()
@@ -3518,20 +3538,29 @@ namespace Game.Maps
             if (x > MapConst.MaxGrids || y > MapConst.MaxGrids)
                 return null;
 
-            if (_grids.TryGetValue(x, out var ygrid) && ygrid.TryGetValue(y, out var grid))
-                return grid;
+            lock (_grids)
+                if (_grids.TryGetValue(x, out var ygrid) && ygrid.TryGetValue(y, out var grid))
+                    return grid;
 
             return null;
         }
 
         private bool IsGridObjectDataLoaded(uint x, uint y)
         {
-            return GetGrid(x, y).IsGridObjectDataLoaded();
+            var grid = GetGrid(x, y);
+
+            if (grid == null)
+                return false;
+
+            return grid.IsGridObjectDataLoaded();
         }
 
         void SetGridObjectDataLoaded(bool pLoaded, uint x, uint y)
         {
-            GetGrid(x, y).SetGridObjectDataLoaded(pLoaded);
+            var grid = GetGrid(x, y);
+
+            if (grid != null)
+                grid.SetGridObjectDataLoaded(pLoaded);
         }
 
         public AreaTrigger GetAreaTrigger(ObjectGuid guid)

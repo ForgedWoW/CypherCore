@@ -40,6 +40,11 @@ namespace Game
                 }
             }
 
+            inspectResult.TalentTraits = new TraitInspectInfo();
+            inspectResult.TalentTraits.Config = new TraitConfigPacket(player.GetTraitConfig((int)(uint)player.m_activePlayerData.ActiveCombatTraitConfigID));
+            inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.m_activePlayerData.ActiveCombatTraitConfigID;
+            inspectResult.TalentTraits.Level = (int)player.GetLevel();
+
             Guild guild = Global.GuildMgr.GetGuildById(player.GetGuildId());
             if (guild)
             {

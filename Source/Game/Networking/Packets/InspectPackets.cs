@@ -331,7 +331,9 @@ namespace Game.Networking.Packets
         {
             data.WriteInt32(Level);
             data.WriteInt32(ChrSpecializationID);
-            Config.Write(data);
+
+            if (Config != null)
+                Config.Write(data);
         }
     }
 

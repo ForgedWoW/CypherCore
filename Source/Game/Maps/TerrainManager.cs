@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
+using Framework.Database;
 using Game.Collision;
 using Game.DataStorage;
 using Game.Entities;
@@ -19,11 +20,24 @@ namespace Game.Maps
         // parent map links
         MultiMap<uint, uint> _parentMapData = new();
 
+        HashSet<uint> _keepLoaded = new HashSet<uint>();
+
         TerrainManager() { }
 
         public void InitializeParentMapData(MultiMap<uint, uint> mapData)
         {
             _parentMapData = mapData;
+
+            SQLResult result = DB.World.Query("SELECT mapid FROM map_keeploaded");
+
+            if (!result.IsEmpty())
+            {
+                do
+                {
+                    _keepLoaded.Add(result.Read<uint>(0));
+                }
+                while (result.NextRow());
+            }
         }
 
         public TerrainInfo LoadTerrain(uint mapId)
@@ -104,7 +118,7 @@ namespace Game.Maps
 
         TerrainInfo LoadTerrainImpl(uint mapId)
         {
-            TerrainInfo rootTerrain = new TerrainInfo(mapId);
+            TerrainInfo rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId));
 
             rootTerrain.DiscoverGridMapFiles();
 
@@ -123,12 +137,17 @@ namespace Game.Maps
 
             return TerrainInfo.ExistMap(mapid, gx, gy) && TerrainInfo.ExistVMap(mapid, gx, gy);
         }
+
+        public bool KeepMapLoaded(uint mapid)
+        {
+            return _keepLoaded.Contains(mapid);
+        }
     }
 
     public class TerrainInfo
     {
         uint _mapId;
-
+        bool _keepLoaded = false;
         TerrainInfo _parentTerrain;
         List<TerrainInfo> _childTerrain = new();
 
@@ -144,9 +163,10 @@ namespace Game.Maps
         // global garbage collection timer
         TimeTracker _cleanupTimer;
 
-        public TerrainInfo(uint mapId)
+        public TerrainInfo(uint mapId, bool keeLoaded)
         {
             _mapId = mapId;
+            _keepLoaded = keeLoaded;
             _cleanupTimer = new TimeTracker(RandomHelper.RandTime(CleanupInterval / 2, CleanupInterval));
 
             for (var i = 0; i < MapConst.MaxGrids; ++i)
@@ -342,12 +362,18 @@ namespace Game.Maps
 
         public void UnloadMap(int gx, int gy)
         {
+            if (_keepLoaded)
+                return;
+
             --_referenceCountFromMap[gx][gy];
             // unload later
         }
 
         public void UnloadMapImpl(int gx, int gy)
         {
+            if (_keepLoaded)
+                return;
+
             _gridMap[gx][gy] = null;
             Global.VMapMgr.UnloadMap(GetId(), gx, gy);
             Global.MMapMgr.UnloadMap(GetId(), gx, gy);
@@ -384,6 +410,9 @@ namespace Game.Maps
 
         public void CleanUpGrids(uint diff)
         {
+            if (_keepLoaded)
+                return;
+
             _cleanupTimer.Update(diff);
             if (!_cleanupTimer.Passed())
                 return;
