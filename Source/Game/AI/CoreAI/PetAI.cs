@@ -8,6 +8,7 @@ using Game.Movement;
 using Game.Spells;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Game.AI
 {
@@ -453,6 +454,26 @@ namespace Game.AI
                 default:
                     break;
             }
+        }
+
+        public void StartAttackOnOwnersInCombatWith()
+        {
+            if (!me.TryGetOwner(out Player owner))
+                return;
+
+            var summon = me.ToTempSummon();
+
+            if (summon != null)
+            {
+                var attack = owner.GetSelectedUnit();
+
+                if (attack == null)
+                    attack = owner.GetAttackers().FirstOrDefault();
+
+                if (attack != null)
+                    summon.Attack(attack, true);
+            }
+
         }
 
         public bool CanAttack(Unit victim)

@@ -24,8 +24,7 @@ namespace Scripts.Pets
 
             public npc_warlock_doomguard(Creature creature) : base(creature)
             {
-                Unit owner = me.GetOwner();
-                if (owner == null)
+                if (!me.TryGetOwner(out Player owner))
                     return;
 
                 creature.SetLevel(owner.GetLevel());
@@ -40,6 +39,7 @@ namespace Scripts.Pets
                     summon.SetCanFollowOwner(true);
                     summon.GetMotionMaster().Clear();
                     summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+                    StartAttackOnOwnersInCombatWith();
                 }
             }
 

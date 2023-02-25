@@ -231,6 +231,19 @@ namespace Game.Scripting
         // returns: Item which was selected as an explicit spell Target or null if there's no Target
         public Item GetExplTargetItem() { return _spell.m_targets.GetItemTarget(); }
 
+        public Position TargetPosition
+        {
+            get 
+            {
+                Position pos = GetExplTargetWorldObject();
+
+                if (pos == null)
+                    pos = _spell.m_targets.GetDst().Position;
+
+                return pos;
+            }
+        }
+
         public long GetUnitTargetCountForEffect(int effect)
         {
             if (!IsAfterTargetSelectionPhase())

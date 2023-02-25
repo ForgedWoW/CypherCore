@@ -597,6 +597,12 @@ namespace System.Collections.Generic
             return dict.TryGetValue(key1, out var innerDict) && innerDict.ContainsKey(key2);
         }
 
+        public static bool TryGetValue<TKey1, TKey2, TVal>(this Dictionary<TKey1, Dictionary<TKey2, TVal>> dict, TKey1 key1, TKey2 key2, out TVal val)
+        {
+            val = default;
+            return dict.TryGetValue(key1, out var innerDict) && innerDict.TryGetValue(key2, out val);
+        }
+
         public static ManyToOneLookup<TKey, TValue> ToManyToOneLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
             var manyToOne = new ManyToOneLookup<TKey, TValue>(keyComparer, valueComparer);

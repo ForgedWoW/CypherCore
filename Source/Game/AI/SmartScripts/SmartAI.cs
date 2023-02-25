@@ -436,6 +436,26 @@ namespace Game.AI
                 _OOCReached = true;
         }
 
+        public void StartAttackOnOwnersInCombatWith()
+        {
+            if (!me.TryGetOwner(out Player owner))
+                return;
+
+            var summon = me.ToTempSummon();
+
+            if (summon != null)
+            {
+                var attack = owner.GetSelectedUnit();
+
+                if (attack == null)
+                    attack = owner.GetAttackers().FirstOrDefault();
+
+                if (attack != null)
+                    summon.Attack(attack, true);
+            }
+
+        }
+
         public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
         {
             if (_evadeDisabled)

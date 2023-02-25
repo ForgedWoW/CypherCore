@@ -10,6 +10,7 @@ using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
@@ -137,16 +138,24 @@ namespace Scripts.Spells.Warlock
             if (!TryGetCaster(out Unit caster))
                 return;
 
-            caster.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
             caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
-
+            RitualOfRuin(caster);
             BurnToAshes(caster);
+        }
+
+        private void RitualOfRuin(Unit caster)
+        {
+            if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
+            {
+                caster.RemoveAura(ror);
+                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, new CastSpellExtraArgs(true).AddSpellMod(SpellValueMod.Duration, 8000));
+            }
         }
 
         private void BurnToAshes(Unit caster)
         {
-            if (caster.TryGetAura(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
-                for (int i = 0; i != burnToAshes.GetEffect(2).AmountAsInt; i++)
+            if (caster.HasAura(WarlockSpells.BURN_TO_ASHES) && Global.SpellMgr.TryGetSpellInfo(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
+                for (int i = 0; i != burnToAshes.GetEffect(2).BasePoints; i++)
                     caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
         }
     }

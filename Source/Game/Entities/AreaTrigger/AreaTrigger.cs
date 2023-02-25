@@ -494,18 +494,17 @@ namespace Game.Entities
 
         void HandleUnitEnterExit(List<Unit> newTargetList)
         {
-            List<ObjectGuid> exitUnits = _insideUnits;
+            List<ObjectGuid> exitUnits = _insideUnits.ToList();
             _insideUnits.Clear();
 
             List<Unit> enteringUnits = new();
 
             foreach (Unit unit in newTargetList)
             {
-                if (!exitUnits.Remove(unit.GetGUID())) { // erase(key_type) returns number of elements erased
+                if (!exitUnits.Remove(unit.GetGUID())) // erase(key_type) returns number of elements erased
                     enteringUnits.Add(unit);
-                } else {
-                    _insideUnits.Add(unit.GetGUID());
-                }
+
+                _insideUnits.Add(unit.GetGUID()); // if the unit is in the new target list we need to add it. This broke rain of fire.
             }
 
             // Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks

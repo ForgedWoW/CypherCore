@@ -16,13 +16,13 @@ namespace Scripts.Pets
     {
 
         [CreatureScript(89)]
-        public class npc_warlock_infernal : ScriptedAI
+        public class npc_warlock_infernal : SmartAI
         {
             public Position spawnPos = new();
 
             public npc_warlock_infernal(Creature creature) : base(creature)
             {
-                if (!me.TryGetOwner(out var owner))
+                if (!me.TryGetOwner(out Player owner))
                     return;
 
                 if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
@@ -37,9 +37,7 @@ namespace Scripts.Pets
 
                 if (summon != null)
                 {
-                    summon.SetCanFollowOwner(true);
-                    summon.GetMotionMaster().Clear();
-                    summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+                    StartAttackOnOwnersInCombatWith();
                 }
             }
 
@@ -51,7 +49,7 @@ namespace Scripts.Pets
                 me.SetReactState(ReactStates.Passive);
 
                 // melee Damage
-                if (me.TryGetOwner(out var owner) && owner.TryGetAsPlayer(out var player))
+                if (me.TryGetOwner(out Player owner) && owner.TryGetAsPlayer(out var player))
                 {
                     bool isLordSummon = me.GetEntry() == 108452;
 
@@ -89,21 +87,13 @@ namespace Scripts.Pets
                 if (!me.HasAura(WarlockSpells.IMMOLATION))
                     DoCast(WarlockSpells.IMMOLATION);
 
-                // "The Infernal deals strong area of effect Damage, and will be drawn to attack targets near the impact point"
-                if (!me.GetVictim())
-                {
-                    Unit preferredTarget = me.GetAttackerForHelper();
-
-                    if (preferredTarget != null)
-                        me.GetAI().AttackStart(preferredTarget);
-                }
-
-                DoMeleeAttackIfReady();
+                //DoMeleeAttackIfReady();
+                base.UpdateAI(UnnamedParameter);
             }
 
             public override void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra)
             {
-                if (me != damageInfo.Attacker || !me.TryGetOwner(out var owner))
+                if (me != damageInfo.Attacker || !me.TryGetOwner(out Player owner))
                     return;
 
                 if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))

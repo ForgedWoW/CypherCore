@@ -18,8 +18,7 @@ namespace Scripts.Pets
         {
             public npc_warlock_soul_effigy(Creature creature) : base(creature)
             {
-                Unit owner = me.GetOwner();
-                if (owner == null)
+                if (!me.TryGetOwner(out Player owner))
                     return;
 
                 creature.SetLevel(owner.GetLevel());

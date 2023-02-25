@@ -22,8 +22,7 @@ namespace Scripts.Pets
 
             public npc_warlock_dreadstalker(Creature creature) : base(creature)
             {
-                Unit owner = me.GetOwner();
-                if (owner == null || owner.ToPlayer() == null)
+                if (!me.TryGetOwner(out Player owner))
                     return;
 
                 creature.SetLevel(owner.GetLevel());
@@ -36,6 +35,7 @@ namespace Scripts.Pets
                 if (summon != null)
                 {
                     summon.SetCanFollowOwner(true);
+                    StartAttackOnOwnersInCombatWith();
                 }
             }
 

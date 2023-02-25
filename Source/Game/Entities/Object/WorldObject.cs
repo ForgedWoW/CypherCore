@@ -1775,6 +1775,7 @@ namespace Game.Entities
         }
 
         public bool TryGetOwner(out Unit owner) { owner = GetOwner(); return owner != null; }
+        public bool TryGetOwner(out Player owner) { owner = GetOwner()?.ToPlayer(); return owner != null; }
 
         public virtual Unit GetCharmerOrOwner()
         {

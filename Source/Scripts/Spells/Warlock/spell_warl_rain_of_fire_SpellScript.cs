@@ -1,13 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-    [SpellScript(5740)] // 5740 - Rain of Fire Updated 7.1.5
+    [SpellScript(5740)]
     internal class spell_warl_rain_of_fire_SpellScript : SpellScript, ISpellOnCast
     {
         public void OnCast()
@@ -15,10 +17,19 @@ namespace Scripts.Spells.Warlock
             if (!TryGetCaster(out Unit caster))
                 return;
 
-            caster.RemoveAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA);
             caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+            RitualOfRuin(caster);
             MadnessOfTheAzjaqir(caster);
             BurnToAshes(caster);
+        }
+
+        private void RitualOfRuin(Unit caster)
+        {
+            if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
+            {
+                caster.RemoveAura(ror);
+                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, new CastSpellExtraArgs(true).AddSpellMod(SpellValueMod.Duration, 8000));
+            }
         }
 
         private void MadnessOfTheAzjaqir(Unit caster)
@@ -29,8 +40,8 @@ namespace Scripts.Spells.Warlock
 
         private void BurnToAshes(Unit caster)
         {
-            if (caster.TryGetAura(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
-                for (int i = 0; i != burnToAshes.GetEffect(2).AmountAsInt; i++)
+            if (caster.HasAura(WarlockSpells.BURN_TO_ASHES) && Global.SpellMgr.TryGetSpellInfo(WarlockSpells.BURN_TO_ASHES, out var burnToAshes))
+                for (int i = 0; i != burnToAshes.GetEffect(2).BasePoints; i++)
                     caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
         }
     }
