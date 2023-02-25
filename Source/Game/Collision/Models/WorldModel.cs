@@ -12,11 +12,11 @@ namespace Game.Collision
 {
     public struct MeshTriangle
     {
-        public uint idx0;
-        public uint idx1;
-        public uint idx2;
+        public int idx0;
+        public int idx1;
+        public int idx2;
 
-        public MeshTriangle(uint na, uint nb, uint nc)
+        public MeshTriangle(int na, int nb, int nc)
         {
             idx0 = na;
             idx1 = nb;

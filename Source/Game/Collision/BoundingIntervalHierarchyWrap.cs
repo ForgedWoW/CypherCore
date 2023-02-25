@@ -40,14 +40,14 @@ namespace Game.Collision
         public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
         {
             Balance();
-            MDLCallback temp_cb = new(intersectCallback, m_objects.ToArray(), (uint)m_objects.Count);
+            MDLCallback temp_cb = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
             m_tree.IntersectRay(ray, temp_cb, ref maxDist, true);
         }
 
         public void IntersectPoint(Vector3 point, WorkerCallback intersectCallback)
         {
             Balance();
-            MDLCallback callback = new(intersectCallback, m_objects.ToArray(), (uint)m_objects.Count);
+            MDLCallback callback = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
             m_tree.IntersectPoint(point, callback);
         }
 
@@ -61,9 +61,9 @@ namespace Game.Collision
         {
             T[] objects;
             WorkerCallback _callback;
-            uint objects_size;
+            int objects_size;
 
-            public MDLCallback(WorkerCallback callback, T[] objects_array, uint size)
+            public MDLCallback(WorkerCallback callback, T[] objects_array, int size)
             {
                 objects = objects_array;
                 _callback = callback;
@@ -71,7 +71,7 @@ namespace Game.Collision
             }
 
             /// Intersect ray
-            public override bool Invoke(Ray ray, uint idx, ref float maxDist, bool stopAtFirst)
+            public override bool Invoke(Ray ray, int idx, ref float maxDist, bool stopAtFirst)
             {
                 if (idx >= objects_size)
                     return false;
@@ -83,7 +83,7 @@ namespace Game.Collision
             }
 
             /// Intersect point
-            public override void Invoke(Vector3 p, uint idx)
+            public override void Invoke(Vector3 p, int idx)
             {
                 if (idx >= objects_size)
                     return;

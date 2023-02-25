@@ -5,6 +5,7 @@ using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -20,7 +21,7 @@ namespace Game.Collision
         void InitEmpty()
         {
             tree= new uint[3];
-            objects = Array.Empty<uint>();
+            objects = Array.Empty<int>();
             // create space for the first node
             tree[0] = (3u << 30); // dummy leaf
         }
@@ -91,9 +92,9 @@ namespace Game.Collision
                     else
                     {
                         // move to the right most
-                        int t = (int)dat.indices[i];
+                        var t = dat.indices[i];
                         dat.indices[i] = dat.indices[right];
-                        dat.indices[right] = (uint)t;
+                        dat.indices[right] = t;
                         right--;
                         if (clipR > minb)
                             clipR = minb;
@@ -268,7 +269,7 @@ namespace Game.Collision
             tree = reader.ReadArray<uint>(treeSize);
 
             var count = reader.ReadUInt32();
-            objects = reader.ReadArray<uint>(count);
+            objects = reader.ReadArray<uint>(count).Cast<int>().ToArray();
 
             return true;
         }
@@ -284,12 +285,12 @@ namespace Game.Collision
             buildData dat;
             dat.maxPrims = (int)leafSize;
             dat.numPrims = (uint)primitives.Count;
-            dat.indices = new uint[dat.numPrims];
+            dat.indices = new int[dat.numPrims];
             dat.primBound = new AxisAlignedBox[dat.numPrims];
             bounds = primitives[0].GetBounds();
             for (int i = 0; i < dat.numPrims; ++i)
             {
-                dat.indices[i] = (uint)i;
+                dat.indices[i] = i;
                 dat.primBound[i] = primitives[i].GetBounds();
                 bounds.merge(dat.primBound[i]);
             }
@@ -297,7 +298,7 @@ namespace Game.Collision
             BuildStats stats = new();
             BuildHierarchy(tempTree, dat, stats);
 
-            objects = new uint[dat.numPrims];
+            objects = new int[dat.numPrims];
             for (int i = 0; i < dat.numPrims; ++i)
                 objects[i] = dat.indices[i];
 
@@ -538,7 +539,7 @@ namespace Game.Collision
 
         struct buildData
         {
-            public uint[] indices;
+            public int[] indices;
             public AxisAlignedBox[] primBound;
             public uint numPrims;
             public int maxPrims;
@@ -597,7 +598,7 @@ namespace Game.Collision
 
         AxisAlignedBox bounds;
         uint[] tree;
-        uint[] objects;
+        int[] objects;
 
         [StructLayout(LayoutKind.Explicit)]
         public struct FloatToIntConverter

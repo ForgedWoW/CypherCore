@@ -11,9 +11,9 @@ namespace Game.Collision
 {
     public class WorkerCallback
     {
-        public virtual void Invoke(Vector3 point, uint entry) { }
+        public virtual void Invoke(Vector3 point, int entry) { }
         public virtual void Invoke(Vector3 point, GameObjectModel obj) { }
-        public virtual bool Invoke(Ray ray, uint entry, ref float distance, bool pStopAtFirstHit) { return false; }
+        public virtual bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit) { return false; }
         public virtual bool Invoke(Ray r, IModel obj, ref float distance) { return false; }
     }
 
@@ -52,15 +52,15 @@ namespace Game.Collision
         public GroupModel hit;
         public float zDist;
         Vector3 zVec;
-        public override void Invoke(Vector3 point, uint entry)
+        public override void Invoke(Vector3 point, int entry)
         {
             float group_Z;
-            if (prims[(int)entry].IsInsideObject(point, zVec, out group_Z))
+            if (prims[entry].IsInsideObject(point, zVec, out group_Z))
             {
                 if (group_Z < zDist)
                 {
                     zDist = group_Z;
-                    hit = prims[(int)entry];
+                    hit = prims[entry];
                 }
             }
         }
@@ -73,9 +73,9 @@ namespace Game.Collision
             models = mod;
             hit = false;
         }
-        public override bool Invoke(Ray ray, uint entry, ref float distance, bool pStopAtFirstHit)
+        public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
         {
-            bool result = models[(int)entry].IntersectRay(ray, ref distance, pStopAtFirstHit);
+            bool result = models[entry].IntersectRay(ray, ref distance, pStopAtFirstHit);
             if (result) hit = true;
             return hit;
         }
@@ -91,9 +91,9 @@ namespace Game.Collision
             triangles = tris;
             hit = false;
         }
-        public override bool Invoke(Ray ray, uint entry, ref float distance, bool pStopAtFirstHit)
+        public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit)
         {
-            hit = IntersectTriangle(triangles[(int)entry], vertices, ray, ref distance) || hit;
+            hit = IntersectTriangle(triangles[entry], vertices, ray, ref distance) || hit;
             return hit;
         }
 
@@ -158,7 +158,7 @@ namespace Game.Collision
             hit = false;
             flags = ignoreFlags;
         }
-        public override bool Invoke(Ray ray, uint entry, ref float distance, bool pStopAtFirstHit = true)
+        public override bool Invoke(Ray ray, int entry, ref float distance, bool pStopAtFirstHit = true)
         {
             if (prims[entry] == null)
                 return false;
@@ -180,7 +180,7 @@ namespace Game.Collision
         {
             prims = val;
         }
-        public override void Invoke(Vector3 point, uint entry)
+        public override void Invoke(Vector3 point, int entry)
         {
             if (prims[entry] == null)
                 return;
@@ -201,7 +201,7 @@ namespace Game.Collision
             result = false;
         }
 
-        public override void Invoke(Vector3 point, uint entry)
+        public override void Invoke(Vector3 point, int entry)
         {
             if (prims[entry] != null && prims[entry].GetLocationInfo(point, locInfo))
                 result = true;
