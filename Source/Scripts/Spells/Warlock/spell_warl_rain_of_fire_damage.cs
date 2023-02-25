@@ -20,7 +20,7 @@ namespace Scripts.Spells.Warlock
             if (caster.TryGetAura(WarlockSpells.INFERNO_AURA, out var inferno))
             {
                 if (RandomHelper.randChance(inferno.GetEffect(0).GetBaseAmount()))
-                    caster.ModifyPower(PowerType.SoulShards, 10);
+                    caster.ModifyPower(PowerType.SoulShards, 1);
             }
         }
     }
