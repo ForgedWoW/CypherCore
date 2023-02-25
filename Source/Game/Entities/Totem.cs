@@ -82,11 +82,16 @@ namespace Game.Entities
                 CastSpell(this, GetSpell(1), true);
         }
 
-        public override void UnSummon(uint msTime = 0)
+        public override void UnSummon()
         {
-            if (msTime != 0)
+            UnSummon(TimeSpan.Zero);
+        }
+
+        public override void UnSummon(TimeSpan msTime)
+        {
+            if (msTime != TimeSpan.Zero)
             {
-                m_Events.AddEvent(new ForcedUnsummonDelayEvent(this), m_Events.CalculateTime(TimeSpan.FromMilliseconds(msTime)));
+                m_Events.AddEvent(new ForcedUnsummonDelayEvent(this), m_Events.CalculateTime(msTime));
                 return;
             }
 

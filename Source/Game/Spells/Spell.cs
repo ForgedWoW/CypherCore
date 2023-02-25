@@ -7381,6 +7381,9 @@ namespace Game.Spells
                 case SpellValueMod.Duration:
                     m_spellValue.Duration = (int)value;
                     break;
+                case SpellValueMod.SummonDuration:
+                    m_spellValue.SummonDuration = value;
+                    break;
             }
         }
 
@@ -8913,6 +8916,7 @@ namespace Game.Spells
         public float DurationMul;
         public float CriticalChance;
         public int? Duration;
+        public double? SummonDuration;
     }
 
     // Spell modifier (used for modify other spells)

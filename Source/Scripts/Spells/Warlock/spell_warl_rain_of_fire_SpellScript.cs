@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
@@ -28,7 +29,7 @@ namespace Scripts.Spells.Warlock
             if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
             {
                 caster.RemoveAura(ror);
-                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, new CastSpellExtraArgs(true).AddSpellMod(SpellValueMod.Duration, 8000));
+                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
             }
         }
 

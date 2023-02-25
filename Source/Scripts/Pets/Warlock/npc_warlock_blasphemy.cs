@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using Framework.Constants;
 using Game.AI;
@@ -36,6 +37,8 @@ namespace Scripts.Pets
                 if (summon != null)
                 {
                     StartAttackOnOwnersInCombatWith();
+                    if (owner.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
+                        summon.UnSummon(TimeSpan.FromSeconds(avatar.GetEffect(0).Amount));
                 }
 
                 creature.m_Events.AddRepeatEventAtOffset(() =>

@@ -199,6 +199,11 @@ namespace Game.Scripting
             return _aura.GetMaxDuration();
         }
 
+        public void SetMaxDuration(double duration)
+        {
+            _aura.SetMaxDuration(duration);
+        }
+
         public void SetMaxDuration(int duration)
         {
             _aura.SetMaxDuration(duration);

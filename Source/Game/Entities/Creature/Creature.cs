@@ -2038,7 +2038,7 @@ namespace Game.Entities
         {
             TempSummon summon = ToTempSummon();
             if (summon != null)
-                summon.UnSummon((uint)msTimeToDespawn.TotalMilliseconds);
+                summon.UnSummon(TimeSpan.FromMilliseconds(msTimeToDespawn.TotalMilliseconds));
             else
                 ForcedDespawn((uint)msTimeToDespawn.TotalMilliseconds, forceRespawnTimer);
         }

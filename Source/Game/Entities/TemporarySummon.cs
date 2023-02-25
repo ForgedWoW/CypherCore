@@ -311,13 +311,18 @@ namespace Game.Entities
             m_type = type;
         }
 
-        public virtual void UnSummon(uint msTime = 0)
+        public virtual void UnSummon()
         {
-            if (msTime != 0)
+            UnSummon(TimeSpan.Zero);
+        }
+
+        public virtual void UnSummon(TimeSpan msTime)
+        {
+            if (msTime != TimeSpan.Zero)
             {
                 ForcedUnsummonDelayEvent pEvent = new(this);
 
-                m_Events.AddEvent(pEvent, m_Events.CalculateTime(TimeSpan.FromMilliseconds(msTime)));
+                m_Events.AddEvent(pEvent, m_Events.CalculateTime(msTime));
                 return;
             }
 

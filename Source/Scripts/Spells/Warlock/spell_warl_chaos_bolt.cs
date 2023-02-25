@@ -148,7 +148,7 @@ namespace Scripts.Spells.Warlock
             if (caster.TryGetAura(WarlockSpells.RITUAL_OF_RUIN_FREE_CAST_AURA, out var ror))
             {
                 caster.RemoveAura(ror);
-                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, new CastSpellExtraArgs(true).AddSpellMod(SpellValueMod.Duration, 8000));
+                caster.CastSpell(TargetPosition, WarlockSpells.SUMMON_BLASPHEMY, true);
             }
         }
 

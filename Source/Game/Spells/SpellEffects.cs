@@ -1455,6 +1455,9 @@ namespace Game.Spells
 
             int duration = m_spellInfo.CalcDuration(caster);
 
+            if (m_spellValue.SummonDuration.HasValue)
+                duration = (int)m_spellValue.SummonDuration.Value;
+
             Unit unitCaster = GetUnitCasterForEffectHandlers();
 
             TempSummon summon = null;
