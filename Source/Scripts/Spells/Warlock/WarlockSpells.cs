@@ -26,6 +26,7 @@ namespace Scripts.Spells.Warlock
 		public const uint CASTING_CIRCLE = 221703;
 		public const uint CHANNEL_DEMONFIRE_ACTIVATOR = 228312;
 		public const uint CHANNEL_DEMONFIRE_DAMAGE = 196448;
+        public const uint CHAOS_TEAR = 394243;
         public const uint COMMAND_DEMON_OVERRIDER = 119904;
 		public const uint COMPOUNDING_HORROR = 199281;
 		public const uint COMPOUNDING_HORROR_DAMAGE = 231489;
@@ -88,8 +89,8 @@ namespace Scripts.Spells.Warlock
 		public const uint DEVOURER_OF_LIFE_PROC = 215165;
 		public const uint DEVOUR_MAGIC_HEAL = 19658;
 		public const uint DIABOLIC_EMBERS = 387173;
-        public const uint DIMENSIONAL_RIFT = 196586;
-		public const uint DISRUPTED_NETHER = 114736;
+        public const uint DIMENSIONAL_RIFT = 387976;
+        public const uint DISRUPTED_NETHER = 114736;
 		public const uint DOOM = 603;
 		public const uint DOOMGUARD_SHADOW_LOCK = 171138;
 		public const uint DOOM_DOUBLED = 218572;
@@ -260,7 +261,8 @@ namespace Scripts.Spells.Warlock
 		public const uint SHADOW_BOLT_SHOULSHARD = 194192;
 		public const uint SHADOW_EMBRACE = 32388;
 		public const uint SHADOW_EMBRACE_TARGET_DEBUFF = 32390;
-		public const uint SHADOW_TRANCE = 17941;
+        public const uint SHADOWY_TEAR = 394235;
+        public const uint SHADOW_TRANCE = 17941;
 		public const uint SHADOW_WARD = 6229;
 		public const uint SHARPENED_DREADFANGS = 211123;
 		public const uint SHARPENED_DREADFANGS_BUFF = 215111;
@@ -338,7 +340,8 @@ namespace Scripts.Spells.Warlock
 		public const uint UNSTABLE_AFFLICTION_DOT5 = 233499;
 		public const uint UNSTABLE_AFFLICTION_ENERGIZE = 31117;
 		public const uint UNSTABLE_AFFLICTION_RANK2 = 231791;
-		public const uint VOIDWALKER_SUFFERING = 17735;
+        public const uint UNSTABLE_TEAR = 387979;
+        public const uint VOIDWALKER_SUFFERING = 17735;
 		public const uint WILD_IMP_SUMMON = 104317;
 		public const uint WRATH_OF_CONSUMPTION_PROC = 199646;
 		public const uint WRITHE_IN_AGONY = 196102;

@@ -85,7 +85,7 @@ namespace System.Collections.Generic
 
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
         {
-            return source.OrderBy(x => Guid.NewGuid());
+            return source.OrderBy(x => Random.Shared.Next());
         }
 
         public static void Swap<T>(this T[] array, int position1, int position2)
@@ -138,10 +138,14 @@ namespace System.Collections.Generic
         {
             return source.SelectRandom(1).Single();
         }
-
         public static IEnumerable<T> SelectRandom<T>(this IEnumerable<T> source, uint count)
         {
             return source.Shuffle().Take((int)count);
+        }
+
+        public static IEnumerable<T> SelectRandom<T>(this IEnumerable<T> source, int count)
+        {
+            return source.Shuffle().Take(count);
         }
 
         public static T SelectRandomElementByWeight<T>(this IEnumerable<T> sequence, Func<T, float> weightSelector)
