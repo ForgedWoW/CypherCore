@@ -91,14 +91,16 @@ namespace BNetServer.Networking
                 {
                     var realmId = new RealmId(lastPlayerCharactersResult.Read<byte>(1), lastPlayerCharactersResult.Read<byte>(2), lastPlayerCharactersResult.Read<uint>(3));
 
-                    LastPlayedCharacterInfo lastPlayedCharacter = new();
-                    lastPlayedCharacter.RealmId = realmId;
-                    lastPlayedCharacter.CharacterName = lastPlayerCharactersResult.Read<string>(4);
-                    lastPlayedCharacter.CharacterGUID = lastPlayerCharactersResult.Read<ulong>(5);
-                    lastPlayedCharacter.LastPlayedTime = lastPlayerCharactersResult.Read<uint>(6);
+                    if (RealmManager.Instance.GetRealm(realmId)?.Flags.HasFlag(RealmFlags.Offline) == false)
+                    {
+                        LastPlayedCharacterInfo lastPlayedCharacter = new();
+                        lastPlayedCharacter.RealmId = realmId;
+                        lastPlayedCharacter.CharacterName = lastPlayerCharactersResult.Read<string>(4);
+                        lastPlayedCharacter.CharacterGUID = lastPlayerCharactersResult.Read<ulong>(5);
+                        lastPlayedCharacter.LastPlayedTime = lastPlayerCharactersResult.Read<uint>(6);
 
-                    accountInfo.GameAccounts[lastPlayerCharactersResult.Read<uint>(0)].LastPlayedCharacters[realmId.GetSubRegionAddress()] = lastPlayedCharacter;
-
+                        accountInfo.GameAccounts[lastPlayerCharactersResult.Read<uint>(0)].LastPlayedCharacters[realmId.GetSubRegionAddress()] = lastPlayedCharacter;
+                    }
                 } while (lastPlayerCharactersResult.NextRow());
             }
 
