@@ -710,9 +710,6 @@ namespace Game.Entities
             DuelComplete(DuelCompleteType.Interrupted);
 
             base.CleanupsBeforeDelete(finalCleanup);
-
-            if (GetTransport() != null)
-                GetTransport().RemovePassenger(this);
         }
 
         public override void AddToWorld()

@@ -620,6 +620,7 @@ namespace Game
                         else
                             SendCharCreate(ResponseCodes.CharCreateError);
 
+                        newChar.CleanupsBeforeDelete();
                         newChar.Dispose();
                     });
                 }
