@@ -2010,8 +2010,8 @@ namespace Game.Entities
 
         public void LearnCustomSpells()
         {
-            if (!WorldConfig.GetBoolValue(WorldCfg.StartAllSpells))
-                return;
+            //if (!WorldConfig.GetBoolValue(WorldCfg.StartAllSpells)) // this is not all spells, just custom ones.
+            //    return;
 
             // learn default race/class spells
             PlayerInfo info = Global.ObjectMgr.GetPlayerInfo(GetRace(), GetClass());

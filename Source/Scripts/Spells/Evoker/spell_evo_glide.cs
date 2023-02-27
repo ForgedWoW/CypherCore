@@ -24,6 +24,9 @@ internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 		if (!caster.IsFalling())
 			return SpellCastResult.NotOnGround;
 
+		if (caster.HasAura(372014))
+			return SpellCastResult.DontReport; // SpellCastResult.NotShapeshift;
+
 		return SpellCastResult.SpellCastOk;
 	}
 

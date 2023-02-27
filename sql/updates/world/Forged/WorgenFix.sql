@@ -1,0 +1,1 @@
+UPDATE `world`.`playercreateinfo_cast_spell` SET `classMask`=0 WHERE  `raceMask`=2097152 AND `classMask`=1437 AND `createMode`=0 AND `spell`=72792;

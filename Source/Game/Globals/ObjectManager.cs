@@ -6733,8 +6733,6 @@ namespace Game
                                             playerInfo.customSpells.Add(spellId);
                                             ++count;
                                         }
-                                        // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
-                                        // Either split the masks per class, or per race, which kind of kills the point yet.
                                     }
                                 }
                             }

@@ -284,7 +284,7 @@ namespace Game.Entities
 
         public ItemContext itemContext;
         public List<PlayerCreateInfoItem> item = new();
-        public List<uint> customSpells = new();
+        public HashSet<uint> customSpells = new();
         public List<uint>[] castSpells = new List<uint>[(int)PlayerCreateMode.Max];
         public List<PlayerCreateInfoAction> action = new();
         public List<SkillRaceClassInfoRecord> skills = new();
