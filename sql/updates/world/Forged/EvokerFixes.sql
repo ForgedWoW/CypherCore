@@ -15,7 +15,7 @@ UPDATE `world`.`playercreateinfo_action` SET `class`=0 WHERE  `race`=70 AND `cla
 UPDATE `world`.`playercreateinfo_action` SET `class`=0 WHERE  `race`=52 AND `class`=13 AND `button`=3;
 UPDATE `world`.`playercreateinfo_action` SET `class`=0 WHERE  `race`=52 AND `class`=13 AND `button`=10;
 
-DELETE FROM `playercreateinfo_spell_custom` WHERE `racemask`=98304 AND `classmask`=0 AND `Spell`=351624;
-INSERT INTO `playercreateinfo_spell_custom` (`racemask`, `classmask`, `Spell`, `Note`) VALUES (98304, 0, 351624, 'Dracthyr Form');
-
-
+DELETE FROM `playercreateinfo_spell_custom` WHERE `racemask`=98304 AND `classmask`=0 AND `Spell`=351239;
+INSERT INTO `playercreateinfo_spell_custom` (`racemask`, `classmask`, `Spell`, `Note`) VALUES (98304, 0, 351239, 'Dracthyr Visage');
+DELETE FROM `playercreateinfo_spell_custom` WHERE `racemask`=98304 AND `classmask`=0 AND `Spell`=360022;
+INSERT INTO `playercreateinfo_spell_custom` (`racemask`, `classmask`, `Spell`, `Note`) VALUES (98304, 0, 360022, 'Chosen Identity');
