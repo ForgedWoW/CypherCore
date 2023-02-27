@@ -9,12 +9,12 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(358733)] // 358733 - Glide (Racial)
+[SpellScript(EvokerSpells.GLIDE)] // 358733 - Glide (Racial)
 internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 {
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(EvokerSpells.GlideKnockback, EvokerSpells.Hover, EvokerSpells.SoarRacial);
+		return ValidateSpellInfo(EvokerSpells.GLIDE_KNOCKBACK, EvokerSpells.HOVER, EvokerSpells.SOAR_RACIAL);
 	}
 
 	public SpellCastResult CheckCast()
@@ -24,7 +24,7 @@ internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 		if (!caster.IsFalling())
 			return SpellCastResult.NotOnGround;
 
-		if (caster.HasAura(372014))
+		if (caster.HasAura(EvokerSpells.VISAGE))
 			return SpellCastResult.DontReport; // SpellCastResult.NotShapeshift;
 
 		return SpellCastResult.SpellCastOk;
@@ -37,9 +37,9 @@ internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 		if (caster == null)
 			return;
 
-		caster.CastSpell(caster, EvokerSpells.GlideKnockback, true);
+		caster.CastSpell(caster, EvokerSpells.GLIDE_KNOCKBACK, true);
 
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.Hover, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SoarRacial, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 }

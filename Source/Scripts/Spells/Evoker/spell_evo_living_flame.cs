@@ -17,7 +17,7 @@ class spell_evo_living_flame : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(EvokerSpells.LivingFlameDamage, EvokerSpells.LivingFlameHeal, EvokerSpells.EnergizingFlame);
+		return ValidateSpellInfo(EvokerSpells.LIVING_FLAME_DAMAGE, EvokerSpells.LIVING_FLAME_HEAL, EvokerSpells.ENERGIZING_FLAME);
 	}
 
 	void HandleHitTarget(int effIndex)
@@ -26,9 +26,9 @@ class spell_evo_living_flame : SpellScript, IHasSpellEffects
 		var hitUnit = GetHitUnit();
 
 		if (caster.IsFriendlyTo(hitUnit))
-			caster.CastSpell(hitUnit, EvokerSpells.LivingFlameHeal, true);
+			caster.CastSpell(hitUnit, EvokerSpells.LIVING_FLAME_HEAL, true);
 		else
-			caster.CastSpell(hitUnit, EvokerSpells.LivingFlameDamage, true);
+			caster.CastSpell(hitUnit, EvokerSpells.LIVING_FLAME_DAMAGE, true);
 	}
 
 	void HandleLaunchTarget(int effIndex)
@@ -38,7 +38,7 @@ class spell_evo_living_flame : SpellScript, IHasSpellEffects
 		if (caster.IsFriendlyTo(GetHitUnit()))
 			return;
 
-		var auraEffect = caster.GetAuraEffect(EvokerSpells.EnergizingFlame, 0);
+		var auraEffect = caster.GetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0);
 
 		if (auraEffect != null)
 		{
