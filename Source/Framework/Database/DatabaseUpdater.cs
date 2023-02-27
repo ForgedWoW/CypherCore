@@ -348,6 +348,13 @@ namespace Framework.Database
 
             } while (result.NextRow());
 
+
+            var moreFiles = ConfigMgr.GetDefaultValue($"Updates.{_database.GetType().Name}.Path", "");
+            
+            if (!string.IsNullOrEmpty(moreFiles) && Directory.Exists(moreFiles))
+                foreach (var file in GetFilesFromDirectory(moreFiles, State.RELEASED))
+                    fileList.Add(file);
+
             return fileList;
         }
 

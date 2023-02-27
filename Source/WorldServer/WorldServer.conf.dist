@@ -1513,6 +1513,12 @@ Updates.EnableDatabases = 15
 
 Updates.SourcePath  = "../../../"
 
+ #	Any additional update paths you want to include
+Updates.LoginDatabase.Path = ""
+Updates.CharacterDatabase.Path = ""
+Updates.WorldDatabase.Path = ""
+Updates.HotfixDatabase.Path = ""
+
 #
 #    Updates.AutoSetup
 #        Description: Auto populate empty databases.
