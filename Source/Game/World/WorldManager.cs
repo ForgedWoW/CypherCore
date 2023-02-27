@@ -14,6 +14,8 @@ using Game.Entities;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
+using Game.Scripting;
+using Game.Scripting.Interfaces.IServer;
 using Game.Scripting.Interfaces.IWorld;
 using Game.Spells;
 using System;
@@ -1121,6 +1123,8 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading phase names...");
             Global.ObjectMgr.LoadPhaseNames();
+
+            ScriptManager.Instance.ForEach<IServerLoadComplete>(s => s.LoadComplete());
         }
 
         public void LoadConfigSettings(bool reload = false)
