@@ -8,6 +8,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Realm;
 using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
 using System;
 
 namespace BNetServer.Networking
@@ -90,8 +91,8 @@ namespace BNetServer.Networking
                 do
                 {
                     var realmId = new RealmId(lastPlayerCharactersResult.Read<byte>(1), lastPlayerCharactersResult.Read<byte>(2), lastPlayerCharactersResult.Read<uint>(3));
-
-                    if (RealmManager.Instance.GetRealm(realmId)?.Flags.HasFlag(RealmFlags.Offline) == false)
+                    var realm = RealmManager.Instance.GetRealm(realmId);
+                    if (realm != null && !realm.Flags.HasFlag(RealmFlags.Offline) && realm.Timezone != 26 && realm.Timezone != 28 && realm.Timezone != 1) // dont save dev realms, they change
                     {
                         LastPlayedCharacterInfo lastPlayedCharacter = new();
                         lastPlayedCharacter.RealmId = realmId;
