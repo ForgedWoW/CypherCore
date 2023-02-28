@@ -105,7 +105,7 @@ namespace Game
             user.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.ItemUse);
 
             SpellCastTargets targets = new(user, packet.Cast);
-            
+
             // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
             if (!Global.ScriptMgr.RunScriptRet<IItemOnUse>(p => p.OnUse(user, item, targets, packet.Cast.CastID), item.GetScriptId()))
             {
@@ -715,6 +715,24 @@ namespace Game
                 return;
 
             player.CastSpell(player, spellKeyboundOverride.Data);
+        }
+
+        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
+        void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
+        {
+            Log.outInfo(LogFilter.Spells, "");
+        }
+
+        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
+        void HandleSpellEmpowerReStart(SpellEmpowerRelease packet)
+        {
+            Log.outInfo(LogFilter.Spells, "");
+        }
+
+        [WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]
+        void HandleSpellEmpowerReStart(SpellEmpowerMinHold packet)
+        {
+            Log.outInfo(LogFilter.Spells, "");
         }
     }
 }

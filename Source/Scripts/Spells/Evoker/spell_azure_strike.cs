@@ -27,7 +27,7 @@ public class spell_azure_strike : SpellScript, ISpellOnHit
 		if (caster != null && target != null)
 		{
 			var damage = GetHitDamage();
-			var bp0    = (int)(damage + (damage * 0.5f)); // Damage + 50% of damage
+			var bp0    = (damage + (damage * 0.5f)); // Damage + 50% of damage
 			caster.CastSpell(target, 362969, bp0);
 		}
 	}
