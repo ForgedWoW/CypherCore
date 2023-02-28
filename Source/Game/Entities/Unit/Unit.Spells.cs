@@ -1163,6 +1163,50 @@ namespace Game.Entities
             SendCombatLogMessage(data);
         }
 
+        public void SendPlaySpellVisual(Unit target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime, float launchDelay)
+        {
+            PlaySpellVisual playSpellVisual = new PlaySpellVisual();
+            playSpellVisual.Source = GetGUID();
+            playSpellVisual.Target = target.GetGUID();
+            playSpellVisual.TargetPosition = target.GetPosition();
+            playSpellVisual.SpellVisualID = spellVisualId;
+            playSpellVisual.TravelSpeed = travelSpeed;
+            playSpellVisual.MissReason = missReason;
+            playSpellVisual.ReflectStatus = reflectStatus;
+            playSpellVisual.SpeedAsTime = speedAsTime;
+            playSpellVisual.LaunchDelay = launchDelay;
+            SendMessageToSet(playSpellVisual, true);
+        }
+        public void SendPlaySpellVisual(in Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime, float launchDelay)
+        {
+            PlaySpellVisual playSpellVisual = new PlaySpellVisual();
+            playSpellVisual.Source = GetGUID();
+            playSpellVisual.TargetPosition = targetPosition;
+            playSpellVisual.SpellVisualID = spellVisualId;
+            playSpellVisual.TravelSpeed = travelSpeed;
+            playSpellVisual.MissReason = missReason;
+            playSpellVisual.ReflectStatus = reflectStatus;
+            playSpellVisual.SpeedAsTime = speedAsTime;
+            playSpellVisual.LaunchDelay = launchDelay;
+            SendMessageToSet(playSpellVisual, true);
+        }
+        public void SendCancelSpellVisual(uint id)
+        {
+            CancelSpellVisual cancelSpellVisual = new CancelSpellVisual();
+            cancelSpellVisual.Source = GetGUID();
+            cancelSpellVisual.SpellVisualID = id;
+            SendMessageToSet(cancelSpellVisual, true);
+        }
+
+        public void SendCancelSpellVisualKit(uint id)
+        {
+            CancelSpellVisualKit cancelSpellVisualKit = new CancelSpellVisualKit();
+            cancelSpellVisualKit.Source = GetGUID();
+            cancelSpellVisualKit.SpellVisualKitID = id;
+            SendMessageToSet(cancelSpellVisualKit, true);
+        }
+
+
         public void EnergizeBySpell(Unit victim, SpellInfo spellInfo, double damage, PowerType powerType)
         {
             EnergizeBySpell(victim, spellInfo, (int)damage, powerType);

@@ -70,7 +70,7 @@ namespace Game.Entities
             SkillType.TwoHandedMaces,   SkillType.Polearms,         SkillType.Swords,   SkillType.TwoHandedSwords,  SkillType.Warglaives,
             SkillType.Staves,           0,                          0,                  SkillType.FistWeapons,      0,
             SkillType.Daggers,          0,                          0,                  SkillType.Crossbows,        SkillType.Wands,
-            SkillType.Fishing
+            SkillType.ClassicFishing
         };
 
         static SkillType[] item_armor_skills =
@@ -84,15 +84,16 @@ namespace Game.Entities
             SkillType.Mining,        SkillType.Tailoring,      SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing,
             SkillType.Skinning,      SkillType.Jewelcrafting,  SkillType.Inscription, SkillType.Archaeology
         };
-            SkillType[] item_profession_skills =
-            {
-                SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking,
-                SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking,
-                SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing,
-                SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing,
-                SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology,
-                SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
-            };
+
+        SkillType[] item_profession_skills =
+        {
+            SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking,
+            SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking,
+            SkillType.Mining, SkillType.Tailoring, SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing,
+            SkillType.ClassicMining, SkillType.ClassicTailoring, SkillType.ClassicEngineering, SkillType.ClassicEnchanting, SkillType.ClassicFishing,
+            SkillType.Skinning, SkillType.Jewelcrafting, SkillType.Inscription, SkillType.Archaeology,
+            SkillType.ClassicSkinning, SkillType.ClassicJewelcrafting, SkillType.ClassicInscription
+        };
 
         public SkillType GetSkill()
         {

@@ -393,11 +393,45 @@ namespace Framework.Constants
                     return SkillType.KulTiranMining;
                 case LockType.DragonIslesEnchanting:
                     return SkillType.DragonIslesEnchanting;
-                case LockType.DragonIslesHerbalism:
-                    return SkillType.DragonIslesHerbalism;
                 case LockType.DragonIslesMining:
                     return SkillType.DragonIslesMining;
+                case LockType.LegionSkinning:
+                    return SkillType.LegionSkinning;
+                case LockType.ShadowlandsHerbalism:
+                    return SkillType.ShadowlandsHerbalism;
+                case LockType.ShadowlandsMining:
+                    return SkillType.ShadowlandsMining;
+                case LockType.CovenantNightFae:
+                    return SkillType.CovenantNightFae;
+                case LockType.CovenantVenthyr:
+                    return SkillType.CovenantVenthyr;
+                case LockType.CovenantNecrolord:
+                    return SkillType.CovenantNecrolord;
+                case LockType.CovenantKyrian:
+                    return SkillType.CovenantKyrian;
+                case LockType.ProfessionEngineering:
+                    return SkillType.Engineering;
+                case LockType.DragonIslesAlchemy25:
+                    return SkillType.DragonIslesAlchemy;
+                case LockType.DragonIslesBlacksmithing25:
+                    return SkillType.DragonIslesBlacksmithing;
+                case LockType.DragonIslesEnchanting25:
+                    return SkillType.DragonIslesEnchanting;
+                case LockType.DragonIslesEngineering25:
+                    return SkillType.DragonIslesEngineering;
+                case LockType.DragonIslesHerbalism:
+                case LockType.DragonIslesHerbalism25:
+                    return SkillType.DragonIslesHerbalism;
+                case LockType.DragonIslesInscription25:
+                    return SkillType.DragonIslesInscription;
+                case LockType.DragonIslesJewelcrafting25:
+                    return SkillType.DragonIslesJewelcrafting;
+                case LockType.DragonIslesLeatherworking25:
+                    return SkillType.DragonIslesLeatherworking;
+                case LockType.DragonIslesMining25:
+                    return SkillType.DragonIslesMining;
             }
+
             return SkillType.None;
         }
 

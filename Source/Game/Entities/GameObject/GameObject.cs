@@ -2010,7 +2010,7 @@ namespace Game.Entities
                             if (zone_skill == 0)
                                 Log.outError(LogFilter.Sql, "Fishable areaId {0} are not properly defined in `skill_fishing_base_level`.", subzone);
 
-                            int skill = player.GetSkillValue(SkillType.Fishing);
+                            int skill = player.GetSkillValue(SkillType.ClassicFishing);
 
                             int chance;
                             if (skill < zone_skill)

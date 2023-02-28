@@ -1346,7 +1346,7 @@ namespace Game.Entities
                 case SkillType.DraenorSkinning:
                 case SkillType.LegionSkinning:
                 case SkillType.KulTiranSkinning:
-                case SkillType.DragonIslesSkining:
+                case SkillType.DragonIslesSkinning:
                     if (WorldConfig.GetIntValue(WorldCfg.SkillChanceSkinningSteps) == 0)
                         return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gathering_skill_gain);
                     else
@@ -1385,9 +1385,9 @@ namespace Game.Entities
         {
             Log.outDebug(LogFilter.Player, "UpdateFishingSkill");
 
-            uint SkillValue = GetPureSkillValue(SkillType.Fishing);
+            uint SkillValue = GetPureSkillValue(SkillType.ClassicFishing);
 
-            if (SkillValue >= GetMaxSkillValue(SkillType.Fishing))
+            if (SkillValue >= GetMaxSkillValue(SkillType.ClassicFishing))
                 return false;
 
             byte stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(SkillValue);
@@ -1398,7 +1398,7 @@ namespace Game.Entities
                 m_fishingSteps = 0;
 
                 uint gathering_skill_gain = WorldConfig.GetUIntValue(WorldCfg.SkillGainGathering);
-                return UpdateSkillPro(SkillType.Fishing, 100 * 10, gathering_skill_gain);
+                return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gathering_skill_gain);
             }
 
             return false;
