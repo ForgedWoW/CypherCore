@@ -13,7 +13,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-    [SpellScript(new uint[] { 51505, 188196, 77472 })]
+    [SpellScript(new uint[] { 285452, 188196, 77472 })]
 	public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalculateMultiplier
     {
         public override bool Validate(SpellInfo spellInfo)
@@ -23,12 +23,15 @@ namespace Scripts.Spells.Shaman
 
         public void AfterCast()
         {
-            if (GetSpell().IsTriggered())
-                return;
-
             var player = GetCaster().ToPlayer();
 
-            if (player == null || !player.HasAura(ShamanSpells.PrimordialWaveAura))
+            if (player == null)
+                return;
+
+            if (GetSpell().IsTriggered() && !player.HasAura(ShamanSpells.LAVA_SURGE_CAST_TIME))
+                return;
+
+            if (!player.HasAura(ShamanSpells.PrimordialWaveAura))
                 return;
 
             var spec = player.GetPrimarySpecialization();

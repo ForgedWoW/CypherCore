@@ -162,7 +162,7 @@ namespace Scripts.Spells.Shaman
 		public const uint LIQUID_MAGMA_DAMAGE = 192231;
 		public const uint LavaBeam = 114074;
 		public const uint LavaBeamOverload = 114738;
-		public const uint LavaBurst = 51505;
+		public const uint LavaBurst = 285452;
 		public const uint LavaBurstBonusDamage = 71824;
 		public const uint LavaBurstOverload = 77451;
 		public const uint LavaBurstRank2 = 231721;
