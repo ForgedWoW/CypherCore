@@ -3456,28 +3456,18 @@ namespace Game.Spells
                 int reqValue;
                 if (targetLevel <= 10)
                     reqValue = 1;
-                else if (targetLevel < 20)
-                    reqValue = (targetLevel - 10) * 10;
-                else if (targetLevel <= 73)
-                    reqValue = targetLevel * 5;
-                else if (targetLevel < 80)
-                    reqValue = targetLevel * 10 - 365;
-                else if (targetLevel <= 84)
-                    reqValue = targetLevel * 5 + 35;
-                else if (targetLevel <= 87)
-                    reqValue = targetLevel * 15 - 805;
-                else if (targetLevel <= 92)
-                    reqValue = (targetLevel - 62) * 20;
-                else if (targetLevel <= 104)
-                    reqValue = targetLevel * 5 + 175;
-                else if (targetLevel <= 107)
-                    reqValue = targetLevel * 15 - 905;
-                else if (targetLevel <= 112)
-                    reqValue = (targetLevel - 72) * 20;
-                else if (targetLevel <= 122)
-                    reqValue = (targetLevel - 32) * 10;
+                else if (targetLevel < 16)
+                    reqValue = (targetLevel - 10) * 10; // 60-110
+                else if (targetLevel <= 23)
+                    reqValue = (int)(targetLevel * 4.8); // 110 - 185
+                else if (targetLevel < 39)
+                    reqValue = targetLevel * 10 - 205; // 185-225
+                else if (targetLevel <= 44)
+                    reqValue = targetLevel * 5 + 5; // 225-260
+                else if (targetLevel <= 52)
+                    reqValue = targetLevel * 5; // 260-300
                 else
-                    reqValue = 900;
+                    reqValue = 300;
 
                 // TODO: Specialize skillid for each expansion
                 // new db field?
@@ -5852,6 +5842,17 @@ namespace Game.Spells
             }
 
             item.SetState(ItemUpdateState.Changed, player);
+        }
+
+        [SpellEffectHandler(SpellEffectName.SetCovenant)]
+        public void EffectSetCovenant()
+        {
+            if (!unitTarget.TryGetAsPlayer(out var player))
+                return;
+
+            sbyte covenantId = 0; // TODO
+
+            player.SetCovenant(covenantId);
         }
 
     }

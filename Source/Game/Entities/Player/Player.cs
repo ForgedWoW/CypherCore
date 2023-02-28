@@ -7513,5 +7513,80 @@ namespace Game.Entities
 
         //Clears the Menu
         public void ClearGossipMenu() { PlayerTalkClass.ClearMenus(); }
+
+
+        public void SetCovenant(sbyte covenantId)
+        {
+            // General Additions
+            if (GetQuestStatus(CovenantQuests.ChoosingYourPurpose_fromOribos) == QuestStatus.Incomplete)
+            {
+                CompleteQuest(CovenantQuests.ChoosingYourPurpose_fromOribos);
+            }
+            if (GetQuestStatus(CovenantQuests.ChoosingYourPurpose_fromNathria) == QuestStatus.Incomplete)
+            {
+                CompleteQuest(CovenantQuests.ChoosingYourPurpose_fromNathria);
+            }
+            CastSpell(this, CovenantSpells.Remove_TBYB_Auras, true);
+            CastSpell(this, CovenantSpells.Create_Covenant_Garrison, true);
+            CastSpell(this, CovenantSpells.Start_Oribos_Intro_Quests, true);
+            CastSpell(this, CovenantSpells.Create_Garrison_Artifact_296, true);
+            CastSpell(this, CovenantSpells.Create_Garrison_Artifact_299, true);
+
+            // Specific Additions
+            switch (covenantId)
+            {
+                case Covenant.Kyrian:
+                    CastSpell(this, CovenantSpells.Become_A_Kyrian, true);
+                    LearnSpell(CovenantSpells.CA_Opening_Kyrian, true);
+                    LearnSpell(CovenantSpells.CA_Kyrian, true);
+                    break;
+                case Covenant.Venthyr:
+                    CastSpell(this, CovenantSpells.Become_A_Venthyr, true);
+                    LearnSpell(CovenantSpells.CA_Opening_Venthyr, true);
+                    LearnSpell(CovenantSpells.CA_Venthyr, true);
+                    break;
+                case Covenant.NightFae:
+                    CastSpell(this, CovenantSpells.Become_A_NightFae, true);
+                    LearnSpell(CovenantSpells.CA_Opening_NightFae, true);
+                    LearnSpell(CovenantSpells.CA_NightFae, true);
+                    break;
+                case Covenant.Necrolord:
+                    CastSpell(this, CovenantSpells.Become_A_Necrolord, true);
+                    LearnSpell(CovenantSpells.CA_Opening_Necrolord, true);
+                    LearnSpell(CovenantSpells.CA_Necrolord, true);
+                    break;
+            }
+
+            // TODO
+            // Save to DB
+            //ObjectGuid guid = GetGUID();
+            //var stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COVENANT);
+            //stmt.AddValue(0, covenantId);
+            //stmt.AddValue(1, guid.GetCounter());
+            //CharacterDatabase.Execute(stmt);
+
+            // UpdateField
+            SetUpdateFieldValue(m_values.ModifyValue(m_playerData).ModifyValue(m_playerData.CovenantID), covenantId);
+        }
+
+        //public sbyte GetCovenant()
+        //{
+        //    ObjectGuid guid = GetGUID();
+
+        //    var stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_COVENANT);
+        //    stmt.AddValue(0, guid.GetCounter());
+        //    var covenant = CharacterDatabase.Query(stmt);
+
+        //    if (covenant == null)
+        //    {
+        //        return 0;
+        //    }
+        //    Field[] fields = covenant.Fetch();
+        //    ushort _covenantId = fields[0].GetUInt16();
+
+        //    return (sbyte)_covenantId;
+        //}
+        
+
     }
 }

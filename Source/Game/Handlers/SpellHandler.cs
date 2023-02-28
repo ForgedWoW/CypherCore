@@ -717,14 +717,9 @@ namespace Game
             player.CastSpell(player, spellKeyboundOverride.Data);
         }
 
+        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
         [WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
         void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
-        {
-            Log.outInfo(LogFilter.Spells, "");
-        }
-
-        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
-        void HandleSpellEmpowerReStart(SpellEmpowerRelease packet)
         {
             Log.outInfo(LogFilter.Spells, "");
         }
