@@ -3198,16 +3198,16 @@ namespace Game.Entities
         public bool IsDestroyedObject() { return _isDestroyedObject; }
         public void SetDestroyedObject(bool destroyed) { _isDestroyedObject = destroyed; }
 
-        public bool IsCreature() { return GetTypeId() == TypeId.Unit; }
-        public bool IsPlayer() { return GetTypeId() == TypeId.Player; }
-        public bool IsGameObject() { return GetTypeId() == TypeId.GameObject; }
-        public bool IsItem() { return GetTypeId() == TypeId.Item; }
+        public bool IsCreature() { return ObjectTypeId == TypeId.Unit; }
+        public bool IsPlayer() { return ObjectTypeId == TypeId.Player; }
+        public bool IsGameObject() { return ObjectTypeId == TypeId.GameObject; }
+        public bool IsItem() { return ObjectTypeId == TypeId.Item; }
         public bool IsUnit() { return IsTypeMask(TypeMask.Unit); }
-        public bool IsCorpse() { return GetTypeId() == TypeId.Corpse; }
-        public bool IsDynObject() { return GetTypeId() == TypeId.DynamicObject; }
-        public bool IsAreaTrigger() { return GetTypeId() == TypeId.AreaTrigger; }
-        public bool IsConversation() { return GetTypeId() == TypeId.Conversation; }
-        public bool IsSceneObject() { return GetTypeId() == TypeId.SceneObject; }
+        public bool IsCorpse() { return ObjectTypeId == TypeId.Corpse; }
+        public bool IsDynObject() { return ObjectTypeId == TypeId.DynamicObject; }
+        public bool IsAreaTrigger() { return ObjectTypeId == TypeId.AreaTrigger; }
+        public bool IsConversation() { return ObjectTypeId == TypeId.Conversation; }
+        public bool IsSceneObject() { return ObjectTypeId == TypeId.SceneObject; }
 
         public Creature ToCreature() { return this as Creature; }
         public bool TryGetAsCreature(out Creature creature) { creature = ToCreature(); return creature != null; }

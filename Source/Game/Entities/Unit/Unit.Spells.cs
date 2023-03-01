@@ -1702,7 +1702,7 @@ namespace Game.Entities
         public void CastStop(uint except_spellid = 0)
         {
             for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
-                if (GetCurrentSpell(i) != null && GetCurrentSpell(i).m_spellInfo.Id != except_spellid)
+                if (m_currentSpells.TryGetValue(i, out var spell) && spell.m_spellInfo.Id != except_spellid)
                     InterruptSpell(i, false);
         }
 

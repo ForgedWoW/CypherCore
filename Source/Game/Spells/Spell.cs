@@ -2595,6 +2595,7 @@ namespace Game.Spells
                         }
                     }
 
+                    EndEmpoweredSpell();
                     SendChannelUpdate(0);
                     SendInterrupted(0);
                     SendCastResult(SpellCastResult.Interrupted);
@@ -3311,6 +3312,8 @@ namespace Game.Spells
 
                         if (m_timer > 0)
                         {
+                            UpdateEmpoweredSpell(difftime);
+
                             if (difftime >= m_timer)
                                 m_timer = 0;
                             else
@@ -3320,6 +3323,7 @@ namespace Game.Spells
 
                     if (m_timer == 0)
                     {
+                        EndEmpoweredSpell();
                         SendChannelUpdate(0);
                         Finish();
 
@@ -3333,6 +3337,71 @@ namespace Game.Spells
                 }
                 default:
                     break;
+            }
+        }
+
+        private void UpdateEmpoweredSpell(uint difftime)
+        {
+            if (IsEmpowered(out var p))
+            {
+                if (_empoweredSpellStage == 0 && _empoweredSpellDelta == 0 && m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
+                {
+                    ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
+                    SpellEmpowerSetStage stageZero = new SpellEmpowerSetStage();
+                    stageZero.Stage = 0;
+                    stageZero.Caster = p.GetGUID();
+                    stageZero.CastID = m_castId;
+                    p.SendPacket(stageZero);
+                }
+
+                _empoweredSpellDelta += difftime;
+
+                if (m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
+                {
+                    var nextStageId = _empoweredSpellStage + 1;
+
+                    if (m_spellInfo.EmpowerStages.TryGetValue(nextStageId, out var nextStage))
+                    {
+                        _empoweredSpellStage = nextStageId;
+                        _empoweredSpellDelta = 0;
+                        SpellEmpowerSetStage stageUpdate = new SpellEmpowerSetStage();
+                        stageUpdate.Stage = 0;
+                        stageUpdate.Caster = p.GetGUID();
+                        stageUpdate.CastID = m_castId;
+                        p.SendPacket(stageUpdate);
+                        ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
+                    }
+                }
+            }
+        }
+
+        public void EndEmpoweredSpell()
+        {
+            if (IsEmpowered(out var p) &&
+                m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // ensure stage is valid
+            {
+                var duration = m_spellInfo.GetDuration();
+                var timeCasted = m_spellInfo.GetDuration() - m_timer;
+
+                if (MathFunctions.GetPctOf(timeCasted, duration) < p.EmpoweredSpellMinHoldPct) // ensure we held for long enough
+                    return;
+
+                ForEachSpellScript<ISpellOnEpowerSpellEnd>(s => s.EmpowerSpellEnd(stageinfo, _empoweredSpellDelta));
+                SpellEmpowerStageUpdate stageUpdate = new SpellEmpowerStageUpdate();
+                stageUpdate.Caster = p.GetGUID();
+                stageUpdate.CastID = m_castId;
+                stageUpdate.TimeRemaining = m_timer;
+                var unusedDurations = new List<uint>();
+
+                var nextStage = _empoweredSpellStage + 1;
+                while (m_spellInfo.EmpowerStages.TryGetValue(nextStage, out var nextStageinfo))
+                {
+                    unusedDurations.Add(nextStageinfo.DurationMs);
+                    nextStage++;
+                }
+
+                stageUpdate.RemainingStageDurations = unusedDurations;
+                p.SendPacket(stageUpdate);
             }
         }
 
@@ -3899,17 +3968,19 @@ namespace Game.Spells
 
             m_caster.SendCombatLogMessage(packet);
 
-            if (m_spellInfo.EmpowerStages.Count > 0 && m_caster.TryGetAsPlayer(out var p))
+            if (IsEmpowered(out var p))
             {
+                ForEachSpellScript<ISpellOnEpowerSpellStart>(s => s.EmpowerSpellStart());
                 SpellEmpowerStart spellEmpowerSart = new();
                 spellEmpowerSart.CastID = packet.Cast.CastID;
                 spellEmpowerSart.Caster = packet.Cast.CasterGUID;
-                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
-                spellEmpowerSart.Targets = m_UniqueTargetInfo_Orgi.Select(t => t.TargetGUID).ToList();
-                spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
+                spellEmpowerSart.Targets = m_UniqueTargetInfo.Select(t => t.TargetGUID).ToList();
+                spellEmpowerSart.SpellID = m_spellInfo.Id;
                 spellEmpowerSart.Visual = packet.Cast.Visual;
+                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
                 spellEmpowerSart.FirstStageDuration = spellEmpowerSart.StageDurations.FirstOrDefault().Value;
                 spellEmpowerSart.FinalStageDuration = spellEmpowerSart.StageDurations.LastOrDefault().Value;
+                spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
 
                 uint schoolImmunityMask = p.GetSchoolImmunityMask();
                 ulong mechanicImmunityMask = p.GetMechanicImmunityMask();
@@ -8163,6 +8234,17 @@ namespace Game.Spells
             return Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.DontReportCastError);
         }
 
+        public bool IsEmpowered(out Player p)
+        {
+            p = null;
+            return m_spellInfo.EmpowerStages.Count > 0 && m_caster.TryGetAsPlayer(out p);
+        }
+
+        public bool IsEmpowered()
+        {
+            return m_spellInfo.EmpowerStages.Count > 0 && m_caster.IsPlayer();
+        }
+
         public SpellInfo GetTriggeredByAuraSpell() { return m_triggeredByAuraSpell; }
 
         public static implicit operator bool(Spell spell)
@@ -8285,6 +8367,10 @@ namespace Game.Spells
 
         SpellState m_spellState;
         int m_timer;
+
+        // Empower spell meta
+        uint _empoweredSpellStage;
+        uint _empoweredSpellDelta;
 
         SpellEvent _spellEvent;
         TriggerCastFlags _triggeredCastFlags;
