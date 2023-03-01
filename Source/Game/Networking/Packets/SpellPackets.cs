@@ -1088,6 +1088,29 @@ namespace Game.Networking.Packets
         public uint SpellID;
     }
 
+    public class SpellEmpowerStageUpdate : ServerPacket
+    {
+        public SpellEmpowerStageUpdate() : base(ServerOpcodes.SpellEmpowerUpdate, ConnectionType.Instance) { }
+
+        public override void Write()
+        {
+            _worldPacket.WritePackedGuid(CastID);
+            _worldPacket.WritePackedGuid(Caster);
+            _worldPacket.Write(TimeRemaining);
+            _worldPacket.Write((uint)RemainingStageDurations.Count);
+            _worldPacket.Write(Unk);
+
+            foreach (var stageDuration in RemainingStageDurations)
+                _worldPacket.Write(stageDuration);
+        }
+
+        public ObjectGuid CastID;
+        public ObjectGuid Caster;
+        public int TimeRemaining;
+        public bool Unk;
+        public List<uint> RemainingStageDurations = new();
+    }
+
     public class SpellEmpowerSetStage : ServerPacket
     {
         public SpellEmpowerSetStage() : base(ServerOpcodes.SpellEmpowerSetStage, ConnectionType.Instance) { }

@@ -717,17 +717,23 @@ namespace Game
             player.CastSpell(player, spellKeyboundOverride.Data);
         }
 
-        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
         [WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
         void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
         {
-            Log.outInfo(LogFilter.Spells, "");
+            GetPlayer().CastStop(packet.SpellID);
+        }
+
+        [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
+        void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
+        {
+            GetPlayer().CastStop(packet.SpellID);
+            GetPlayer().CastSpell(packet.SpellID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]
-        void HandleSpellEmpowerReStart(SpellEmpowerMinHold packet)
+        void HandleSpellEmpowerMinHoldPct(SpellEmpowerMinHold packet)
         {
-            Log.outInfo(LogFilter.Spells, "");
+            GetPlayer().EmpoweredSpellMinHoldPct = packet.HoldPct;
         }
     }
 }

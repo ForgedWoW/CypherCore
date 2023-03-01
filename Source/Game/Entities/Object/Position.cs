@@ -313,6 +313,11 @@ namespace Game.Entities
             return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.GetPositionX(), pos.GetPositionY()) < width;
         }
 
+        public bool IsDefault()
+        {
+            return posX == default && posY == default && posZ == default && Orientation == default;
+        }
+
         public override string ToString()
         {
             return $"X: {posX} Y: {posY} Z: {posZ} O: {Orientation}";

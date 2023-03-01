@@ -2595,6 +2595,7 @@ namespace Game.Spells
                         }
                     }
 
+                    EndEmpoweredSpell();
                     SendChannelUpdate(0);
                     SendInterrupted(0);
                     SendCastResult(SpellCastResult.Interrupted);
@@ -3276,39 +3277,7 @@ namespace Game.Spells
             switch (m_spellState)
             {
                 case SpellState.Preparing:
-                {
-                    if (m_timer > 0)
                     {
-                        if (difftime >= m_timer)
-                            m_timer = 0;
-                        else
-                            m_timer -= (int)difftime;
-                    }
-
-                    if (m_timer == 0 && !m_spellInfo.IsNextMeleeSwingSpell())
-                        // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
-                        Cast(m_casttime == 0);
-                    break;
-                }
-                case SpellState.Casting:
-                {
-                    if (m_timer != 0)
-                    {
-                        // check if there are alive targets left
-                        if (!UpdateChanneledTargetList())
-                        {
-                            Log.outDebug(LogFilter.Spells, "Channeled spell {0} is removed due to lack of targets", m_spellInfo.Id);
-                            m_timer = 0;
-
-                            // Also remove applied auras
-                            foreach (TargetInfo target in m_UniqueTargetInfo)
-                            {
-                                Unit unit = m_caster.GetGUID() == target.TargetGUID ? m_caster.ToUnit() : Global.ObjAccessor.GetUnit(m_caster, target.TargetGUID);
-                                if (unit)
-                                    unit.RemoveOwnedAura(m_spellInfo.Id, m_originalCasterGUID, 0, AuraRemoveMode.Cancel);
-                            }
-                        }
-
                         if (m_timer > 0)
                         {
                             if (difftime >= m_timer)
@@ -3316,23 +3285,123 @@ namespace Game.Spells
                             else
                                 m_timer -= (int)difftime;
                         }
-                    }
 
-                    if (m_timer == 0)
+                        if (m_timer == 0 && !m_spellInfo.IsNextMeleeSwingSpell())
+                            // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
+                            Cast(m_casttime == 0);
+                        break;
+                    }
+                case SpellState.Casting:
                     {
-                        SendChannelUpdate(0);
-                        Finish();
+                        if (m_timer != 0)
+                        {
+                            // check if there are alive targets left
+                            if (!UpdateChanneledTargetList())
+                            {
+                                Log.outDebug(LogFilter.Spells, "Channeled spell {0} is removed due to lack of targets", m_spellInfo.Id);
+                                m_timer = 0;
 
-                        // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
-                        Creature creatureCaster = m_caster.ToCreature();
-                        if (creatureCaster != null)
-                            if (creatureCaster.IsAIEnabled())
-                                creatureCaster.GetAI().OnChannelFinished(m_spellInfo);
+                                // Also remove applied auras
+                                foreach (TargetInfo target in m_UniqueTargetInfo)
+                                {
+                                    Unit unit = m_caster.GetGUID() == target.TargetGUID ? m_caster.ToUnit() : Global.ObjAccessor.GetUnit(m_caster, target.TargetGUID);
+                                    if (unit)
+                                        unit.RemoveOwnedAura(m_spellInfo.Id, m_originalCasterGUID, 0, AuraRemoveMode.Cancel);
+                                }
+                            }
+
+                            if (m_timer > 0)
+                            {
+                                UpdateEmpoweredSpell(difftime);
+
+                                if (difftime >= m_timer)
+                                    m_timer = 0;
+                                else
+                                    m_timer -= (int)difftime;
+                            }
+                        }
+
+                        if (m_timer == 0)
+                        {
+                            EndEmpoweredSpell();
+                            SendChannelUpdate(0);
+                            Finish();
+
+                            // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
+                            Creature creatureCaster = m_caster.ToCreature();
+                            if (creatureCaster != null)
+                                if (creatureCaster.IsAIEnabled())
+                                    creatureCaster.GetAI().OnChannelFinished(m_spellInfo);
+                        }
+                        break;
                     }
-                    break;
-                }
                 default:
                     break;
+            }
+        }
+
+        private void UpdateEmpoweredSpell(uint difftime)
+        {
+            if (IsEmpowered(out var p))
+            {
+                if (_empoweredSpellStage == 0 && _empoweredSpellDelta == 0 && m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
+                {
+                    ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
+                    SpellEmpowerSetStage stageZero = new SpellEmpowerSetStage();
+                    stageZero.Stage = 0;
+                    stageZero.Caster = p.GetGUID();
+                    stageZero.CastID = m_castId;
+                    p.SendPacket(stageZero);
+                }
+
+                _empoweredSpellDelta += difftime;
+
+                if (m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
+                {
+                    var nextStageId = _empoweredSpellStage + 1;
+
+                    if (m_spellInfo.EmpowerStages.TryGetValue(nextStageId, out var nextStage))
+                    {
+                        _empoweredSpellStage = nextStageId;
+                        _empoweredSpellDelta = 0;
+                        SpellEmpowerSetStage stageUpdate = new SpellEmpowerSetStage();
+                        stageUpdate.Stage = 0;
+                        stageUpdate.Caster = p.GetGUID();
+                        stageUpdate.CastID = m_castId;
+                        p.SendPacket(stageUpdate);
+                        ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
+                    }
+                }
+            }
+        }
+
+        public void EndEmpoweredSpell()
+        {
+            if (IsEmpowered(out var p) &&
+                m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // ensure stage is valid
+            {
+                var duration = m_spellInfo.GetDuration();
+                var timeCasted = m_spellInfo.GetDuration() - m_timer;
+
+                if (MathFunctions.GetPctOf(timeCasted, duration) < p.EmpoweredSpellMinHoldPct) // ensure we held for long enough
+                    return;
+
+                ForEachSpellScript<ISpellOnEpowerSpellEnd>(s => s.EmpowerSpellEnd(stageinfo, _empoweredSpellDelta));
+                SpellEmpowerStageUpdate stageUpdate = new SpellEmpowerStageUpdate();
+                stageUpdate.Caster = p.GetGUID();
+                stageUpdate.CastID = m_castId;
+                stageUpdate.TimeRemaining = m_timer;
+                var unusedDurations = new List<uint>();
+
+                var nextStage = _empoweredSpellStage + 1;
+                while (m_spellInfo.EmpowerStages.TryGetValue(nextStage, out var nextStageinfo))
+                {
+                    unusedDurations.Add(nextStageinfo.DurationMs);
+                    nextStage++;
+                }
+
+                stageUpdate.RemainingStageDurations = unusedDurations;
+                p.SendPacket(stageUpdate);
             }
         }
 
@@ -3899,17 +3968,19 @@ namespace Game.Spells
 
             m_caster.SendCombatLogMessage(packet);
 
-            if (m_spellInfo.EmpowerStages.Count > 0 && m_caster.TryGetAsPlayer(out var p))
+            if (IsEmpowered(out var p))
             {
+                ForEachSpellScript<ISpellOnEpowerSpellStart>(s => s.EmpowerSpellStart());
                 SpellEmpowerStart spellEmpowerSart = new();
                 spellEmpowerSart.CastID = packet.Cast.CastID;
                 spellEmpowerSart.Caster = packet.Cast.CasterGUID;
-                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
-                spellEmpowerSart.Targets = m_UniqueTargetInfo_Orgi.Select(t => t.TargetGUID).ToList();
-                spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
+                spellEmpowerSart.Targets = m_UniqueTargetInfo.Select(t => t.TargetGUID).ToList();
+                spellEmpowerSart.SpellID = m_spellInfo.Id;
                 spellEmpowerSart.Visual = packet.Cast.Visual;
+                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
                 spellEmpowerSart.FirstStageDuration = spellEmpowerSart.StageDurations.FirstOrDefault().Value;
                 spellEmpowerSart.FinalStageDuration = spellEmpowerSart.StageDurations.LastOrDefault().Value;
+                spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
 
                 uint schoolImmunityMask = p.GetSchoolImmunityMask();
                 ulong mechanicImmunityMask = p.GetMechanicImmunityMask();
@@ -8163,6 +8234,17 @@ namespace Game.Spells
             return Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.DontReportCastError);
         }
 
+        public bool IsEmpowered(out Player p)
+        {
+            p = null;
+            return m_spellInfo.EmpowerStages.Count > 0 && m_caster.TryGetAsPlayer(out p);
+        }
+
+        public bool IsEmpowered()
+        {
+            return m_spellInfo.EmpowerStages.Count > 0 && m_caster.IsPlayer();
+        }
+
         public SpellInfo GetTriggeredByAuraSpell() { return m_triggeredByAuraSpell; }
 
         public static implicit operator bool(Spell spell)
@@ -8285,6 +8367,10 @@ namespace Game.Spells
 
         SpellState m_spellState;
         int m_timer;
+
+        // Empower spell meta
+        uint _empoweredSpellStage;
+        uint _empoweredSpellDelta;
 
         SpellEvent _spellEvent;
         TriggerCastFlags _triggeredCastFlags;

@@ -4047,7 +4047,7 @@ namespace Game.Spells
         public SpellSchoolMask SchoolMask { get; set; }
         public uint ChargeCategoryId;
         public List<uint> Labels = new();
-        public Dictionary<uint, SpellEmpowerStageRecord> EmpowerStages = new();
+        public Dictionary<uint, SpellEmpowerStageRecord> EmpowerStages { get; set; } = new();
 
         // SpellScalingEntry
         public ScalingInfo Scaling;
