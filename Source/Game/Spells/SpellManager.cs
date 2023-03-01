@@ -2304,7 +2304,10 @@ namespace Game.Entities
                 data.Value.Visuals.Sort((left, right) => { return right.CasterPlayerConditionID.CompareTo(left.CasterPlayerConditionID); });
 
             foreach (var empwerRank in CliDB.SpellEmpowerStageStorage)
-                GetLoadHelper(CliDB.SpellEmpowerStorage[empwerRank.Value.SpellEmpowerID].SpellID, 0).EmpowerStages.Add(empwerRank.Value);
+                if (CliDB.SpellEmpowerStorage.TryGetValue(empwerRank.Value.SpellEmpowerID, out var empowerRecord))
+                    GetLoadHelper(empowerRecord.SpellID, 0).EmpowerStages.Add(empwerRank.Value);
+                else
+                    Log.outWarn(LogFilter.ServerLoading, $"SpellEmpowerStageStorage contains SpellEmpowerID: {empwerRank.Value.SpellEmpowerID} that is not found in SpellEmpowerStorage.");
 
             foreach (var data in loadData)
             {

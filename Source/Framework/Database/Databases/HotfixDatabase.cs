@@ -1184,7 +1184,7 @@ namespace Framework.Database
             PrepareStatement(HotfixStatements.SEL_SPELL_EMPOWER, "SELECT ID, SpellID, OtherValue FROM spell_empower  WHERE (`VerifiedBuild` > 0) = ?");
 
             // SpellEmpowerStage.db2
-            PrepareStatement(HotfixStatements.SEL_SPELL_EMPOWER_STAGE, "SELECT ID, SpellEmpowerStage, OtherValue FROM spell_empower_stage  WHERE (`VerifiedBuild` > 0) = ?");
+            PrepareStatement(HotfixStatements.SEL_SPELL_EMPOWER_STAGE, "SELECT ID, SpellEmpowerStage, SpellEmpowerID FROM spell_empower_stage  WHERE (`VerifiedBuild` > 0) = ?");
 
             // SpellEquippedItems.db2
             PrepareStatement(HotfixStatements.SEL_SPELL_EQUIPPED_ITEMS, "SELECT ID, SpellID, EquippedItemClass, EquippedItemInvTypes, EquippedItemSubclass" +

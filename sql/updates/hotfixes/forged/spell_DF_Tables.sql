@@ -23,7 +23,7 @@ CREATE TABLE `spell` (
 DROP TABLE IF EXISTS `spell_replacement`;
 CREATE TABLE `spell_replacement` (
   `ID` INT unsigned NOT NULL DEFAULT '0',
-  `SpellID` INT unsigned NOT NULL, DEFAULT '0'
+  `SpellID` INT unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=UTF8MB4_UNICODE_CI;
@@ -31,8 +31,8 @@ CREATE TABLE `spell_replacement` (
 DROP TABLE IF EXISTS `spell_empower`;
 CREATE TABLE `spell_empower` (
   `ID` INT unsigned NOT NULL DEFAULT '0',
-  `SpellID` INT unsigned NOT NULL, DEFAULT '0'
-  `OtherValue` INT unsigned NOT NULL, DEFAULT '0'
+  `SpellID` INT unsigned NOT NULL DEFAULT '0',
+  `OtherValue` INT unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=UTF8MB4_UNICODE_CI;
@@ -40,9 +40,9 @@ CREATE TABLE `spell_empower` (
 DROP TABLE IF EXISTS `spell_empower_stage`;
 CREATE TABLE `spell_empower_stage` (
   `ID` INT unsigned NOT NULL DEFAULT '0',
-  `Stage` INT unsigned NOT NULL, DEFAULT '0'
-  `DurationMs` INT unsigned NOT NULL, DEFAULT '0'
-  `SpellEmpowerID` INT unsigned NOT NULL, DEFAULT '0'
+  `SpellEmpowerStage` INT unsigned NOT NULL DEFAULT '0',
+  `DurationMs` INT unsigned NOT NULL DEFAULT '0',
+  `SpellEmpowerID` INT unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=UTF8MB4_UNICODE_CI;
