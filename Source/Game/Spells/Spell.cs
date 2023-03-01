@@ -3277,38 +3277,38 @@ namespace Game.Spells
             switch (m_spellState)
             {
                 case SpellState.Preparing:
+                {
+                    if (m_timer > 0)
                     {
-                        if (m_timer > 0)
-                        {
-                            if (difftime >= m_timer)
-                                m_timer = 0;
-                            else
-                                m_timer -= (int)difftime;
-                        }
-
-                        if (m_timer == 0 && !m_spellInfo.IsNextMeleeSwingSpell())
-                            // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
-                            Cast(m_casttime == 0);
-                        break;
+                        if (difftime >= m_timer)
+                            m_timer = 0;
+                        else
+                            m_timer -= (int)difftime;
                     }
-                case SpellState.Casting:
-                    {
-                        if (m_timer != 0)
-                        {
-                            // check if there are alive targets left
-                            if (!UpdateChanneledTargetList())
-                            {
-                                Log.outDebug(LogFilter.Spells, "Channeled spell {0} is removed due to lack of targets", m_spellInfo.Id);
-                                m_timer = 0;
 
-                                // Also remove applied auras
-                                foreach (TargetInfo target in m_UniqueTargetInfo)
-                                {
-                                    Unit unit = m_caster.GetGUID() == target.TargetGUID ? m_caster.ToUnit() : Global.ObjAccessor.GetUnit(m_caster, target.TargetGUID);
-                                    if (unit)
-                                        unit.RemoveOwnedAura(m_spellInfo.Id, m_originalCasterGUID, 0, AuraRemoveMode.Cancel);
-                                }
+                    if (m_timer == 0 && !m_spellInfo.IsNextMeleeSwingSpell())
+                        // don't CheckCast for instant spells - done in spell.prepare, skip duplicate checks, needed for range checks for example
+                        Cast(m_casttime == 0);
+                    break;
+                }
+                case SpellState.Casting:
+                {
+                    if (m_timer != 0)
+                    {
+                        // check if there are alive targets left
+                        if (!UpdateChanneledTargetList())
+                        {
+                            Log.outDebug(LogFilter.Spells, "Channeled spell {0} is removed due to lack of targets", m_spellInfo.Id);
+                            m_timer = 0;
+
+                            // Also remove applied auras
+                            foreach (TargetInfo target in m_UniqueTargetInfo)
+                            {
+                                Unit unit = m_caster.GetGUID() == target.TargetGUID ? m_caster.ToUnit() : Global.ObjAccessor.GetUnit(m_caster, target.TargetGUID);
+                                if (unit)
+                                    unit.RemoveOwnedAura(m_spellInfo.Id, m_originalCasterGUID, 0, AuraRemoveMode.Cancel);
                             }
+                        }
 
                         if (m_timer > 0)
                         {
@@ -3327,14 +3327,14 @@ namespace Game.Spells
                         SendChannelUpdate(0);
                         Finish();
 
-                            // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
-                            Creature creatureCaster = m_caster.ToCreature();
-                            if (creatureCaster != null)
-                                if (creatureCaster.IsAIEnabled())
-                                    creatureCaster.GetAI().OnChannelFinished(m_spellInfo);
-                        }
-                        break;
+                        // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
+                        Creature creatureCaster = m_caster.ToCreature();
+                        if (creatureCaster != null)
+                            if (creatureCaster.IsAIEnabled())
+                                creatureCaster.GetAI().OnChannelFinished(m_spellInfo);
                     }
+                    break;
+                }
                 default:
                     break;
             }
