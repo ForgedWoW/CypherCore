@@ -3904,7 +3904,7 @@ namespace Game.Spells
                 SpellEmpowerStart spellEmpowerSart = new();
                 spellEmpowerSart.CastID = packet.Cast.CastID;
                 spellEmpowerSart.Caster = packet.Cast.CasterGUID;
-                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs);
+                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration(); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
                 spellEmpowerSart.Targets = m_UniqueTargetInfo_Orgi.Select(t => t.TargetGUID).ToList();
                 spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
                 spellEmpowerSart.Visual = packet.Cast.Visual;
