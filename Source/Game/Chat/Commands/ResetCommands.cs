@@ -109,7 +109,7 @@ namespace Game.Chat
             if (pet)
                 pet.SynchronizeLevelWithOwner();
 
-            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(p => p.OnLevelChanged(target, oldLevel));
+            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(target.GetClass(), p => p.OnLevelChanged(target, oldLevel));
 
             return true;
         }

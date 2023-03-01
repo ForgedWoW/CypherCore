@@ -114,8 +114,13 @@ namespace Game.Entities
 
             m_groupUpdateTimer = new(5000);
 
+            ApplyCustomConfigs();
+        }
+
+        private void ApplyCustomConfigs()
+        {
             // Adds the extra bag slots for having an authenticator.
-            if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots" , false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
+            if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
                 SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
             if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
@@ -333,12 +338,7 @@ namespace Game.Entities
 
             GetThreatManager().Initialize();
 
-            // Adds the extra bag slots for having an authenticator.
-            if (ConfigMgr.GetDefaultValue("player.enableExtaBagSlots", false) && !HasPlayerLocalFlag(PlayerLocalFlags.AccountSecured))
-                SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
-
-            if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
-                GetSession().GetCollectionMgr().AddToy(193588, true, true);
+            ApplyCustomConfigs();
 
             return true;
         }
@@ -5048,7 +5048,7 @@ namespace Game.Entities
 
             PushQuests();
 
-            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(p => p.OnLevelChanged(this, oldLevel));
+            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(GetClass(), p => p.OnLevelChanged(this, oldLevel));
         }
 
         public bool CanParry()
