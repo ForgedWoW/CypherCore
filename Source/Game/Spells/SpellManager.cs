@@ -2303,6 +2303,9 @@ namespace Game.Entities
             foreach (var data in loadData)
                 data.Value.Visuals.Sort((left, right) => { return right.CasterPlayerConditionID.CompareTo(left.CasterPlayerConditionID); });
 
+            foreach (var empwerRank in CliDB.SpellEmpowerStageStorage)
+                GetLoadHelper(CliDB.SpellEmpowerStorage[empwerRank.Value.SpellEmpowerID].SpellID, 0).EmpowerRanks.Add(empwerRank.Value);
+
             foreach (var data in loadData)
             {
                 SpellNameRecord spellNameEntry = CliDB.SpellNameStorage.LookupByKey(data.Key.Id);
@@ -4884,6 +4887,7 @@ namespace Game.Entities
         public SpellTargetRestrictionsRecord TargetRestrictions;
         public SpellTotemsRecord Totems;
         public List<SpellXSpellVisualRecord> Visuals = new(); // only to group visuals when parsing sSpellXSpellVisualStore, not for loading
+        public List<SpellEmpowerStageRecord> EmpowerRanks = new();
     }
 
     public class SpellThreatEntry

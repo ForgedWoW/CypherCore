@@ -42,6 +42,7 @@ CREATE TABLE `spell_empower_stage` (
   `ID` INT unsigned NOT NULL DEFAULT '0',
   `Stage` INT unsigned NOT NULL, DEFAULT '0'
   `DurationMs` INT unsigned NOT NULL, DEFAULT '0'
+  `SpellEmpowerID` INT unsigned NOT NULL, DEFAULT '0'
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=UTF8MB4_UNICODE_CI;

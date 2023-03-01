@@ -239,6 +239,8 @@ namespace Game.Spells
 
             _spellSpecific = SpellSpecificType.Normal;
             _auraState = AuraStateType.None;
+
+            EmpowerRanks = data.EmpowerRanks.ToDictionary(a => a.Stage);
         }
 
         public SpellInfo(SpellNameRecord spellName, Difficulty difficulty, List<SpellEffectRecord> effects)
@@ -4045,6 +4047,7 @@ namespace Game.Spells
         public SpellSchoolMask SchoolMask { get; set; }
         public uint ChargeCategoryId;
         public List<uint> Labels = new();
+        public Dictionary<uint, SpellEmpowerStageRecord> EmpowerRanks = new();
 
         // SpellScalingEntry
         public ScalingInfo Scaling;
