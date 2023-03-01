@@ -3898,6 +3898,33 @@ namespace Game.Spells
             packet.LogData.Initialize(this);
 
             m_caster.SendCombatLogMessage(packet);
+
+            if (m_spellInfo.EmpowerStages.Count > 0 && m_caster.TryGetAsPlayer(out var p))
+            {
+                SpellEmpowerStart spellEmpowerSart = new();
+                spellEmpowerSart.CastID = packet.Cast.CastID;
+                spellEmpowerSart.Caster = packet.Cast.CasterGUID;
+                spellEmpowerSart.Duration = (uint)m_spellInfo.GetDuration();
+                spellEmpowerSart.Targets = m_UniqueTargetInfo_Orgi.Select(t => t.TargetGUID).ToList();
+                spellEmpowerSart.StageDurations = m_spellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
+                spellEmpowerSart.Visual = packet.Cast.Visual;
+                spellEmpowerSart.FirstStageDuration = spellEmpowerSart.StageDurations.FirstOrDefault().Value;
+                spellEmpowerSart.FinalStageDuration = spellEmpowerSart.StageDurations.LastOrDefault().Value;
+
+                uint schoolImmunityMask = p.GetSchoolImmunityMask();
+                ulong mechanicImmunityMask = p.GetMechanicImmunityMask();
+
+                if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
+                {
+                    SpellChannelStartInterruptImmunities interruptImmunities = new();
+                    interruptImmunities.SchoolImmunities = (int)schoolImmunityMask;
+                    interruptImmunities.Immunities = (int)mechanicImmunityMask;
+
+                    spellEmpowerSart.Immunities = interruptImmunities;
+                }
+
+                m_caster.SendMessageToSet(spellEmpowerSart, true);
+            }
         }
 
         // Writes miss and hit targets for a SMSG_SPELL_GO packet

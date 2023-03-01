@@ -1104,9 +1104,9 @@ namespace Game.Networking.Packets
         public uint Stage;
     }
 
-    public class SpellEmpowerSart : ServerPacket
+    public class SpellEmpowerStart : ServerPacket
     {
-        public SpellEmpowerSart() : base(ServerOpcodes.SpellEmpowerStart, ConnectionType.Instance) { }
+        public SpellEmpowerStart() : base(ServerOpcodes.SpellEmpowerStart, ConnectionType.Instance) { }
 
         public override void Write()
         {
