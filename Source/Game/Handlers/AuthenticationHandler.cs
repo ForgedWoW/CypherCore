@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Configuration;
 using Framework.Constants;
 using Game.Networking.Packets;
 
@@ -16,10 +17,11 @@ namespace Game
             if (code == BattlenetRpcErrorCode.Ok)
             {
                 response.SuccessInfo = new();
+                bool spoofXpck = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
 
                 response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-                response.SuccessInfo.ActiveExpansionLevel = (byte)GetExpansion();
-                response.SuccessInfo.AccountExpansionLevel = (byte)GetAccountExpansion();
+                response.SuccessInfo.ActiveExpansionLevel = spoofXpck ? (byte)Expansion.Dragonflight : (byte)GetExpansion();
+                response.SuccessInfo.AccountExpansionLevel = spoofXpck ? (byte)Expansion.Dragonflight : (byte)GetAccountExpansion();
                 response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
                 response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
 

@@ -47,18 +47,32 @@ namespace Framework.Configuration
 
         public static T GetDefaultValue<T>(string name, T defaultValue)
         {
+            if (_convertedVals.TryGetValue(name, out var val))
+                return (T)val; 
+
             string temp = _configList.LookupByKey(name);
 
             var type = typeof(T).IsEnum ? typeof(T).GetEnumUnderlyingType() : typeof(T);
 
             if (temp.IsEmpty())
-                return (T)Convert.ChangeType(defaultValue, type);
+            {
+                val = Convert.ChangeType(defaultValue, type);
+                _convertedVals[name] = val;
+                return (T)val;
+            }
 
             if (Type.GetTypeCode(typeof(T)) == TypeCode.Boolean && temp.IsNumber())
-                return (T)Convert.ChangeType(temp == "1", typeof(T));
+            {
+                val = Convert.ChangeType(temp == "1", typeof(T));
+                _convertedVals[name] = val;
+                return (T)val;
+            }
 
-            return (T)Convert.ChangeType(temp, type);
+            val = Convert.ChangeType(temp, type);
+            _convertedVals[name] = val;
+            return (T)val;
         }
+
 
         public static IEnumerable<string> GetKeysByString(string name)
         {
@@ -66,5 +80,6 @@ namespace Framework.Configuration
         }
 
         static Dictionary<string, string> _configList = new();
+        static Dictionary<string, object> _convertedVals = new Dictionary<string, object>();
     }
 }

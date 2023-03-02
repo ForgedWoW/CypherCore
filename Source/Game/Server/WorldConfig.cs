@@ -624,12 +624,12 @@ namespace Game
 
             if (reload)
             {
-                int val = GetDefaultValue("Expansion", (int)Expansion.WarlordsOfDraenor);
+                int val = GetDefaultValue("Expansion", (int)Expansion.Dragonflight);
                 if (val != (int)Values[WorldCfg.Expansion])
                     Log.outError(LogFilter.ServerLoading, "Expansion option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.Expansion]);
             }
             else
-                Values[WorldCfg.Expansion] = GetDefaultValue("Expansion", Expansion.WarlordsOfDraenor);
+                Values[WorldCfg.Expansion] = GetDefaultValue("Expansion", Expansion.Dragonflight);
 
             Values[WorldCfg.ChatFloodMessageCount] = GetDefaultValue("ChatFlood.MessageCount", 10);
             Values[WorldCfg.ChatFloodMessageDelay] = GetDefaultValue("ChatFlood.MessageDelay", 1);

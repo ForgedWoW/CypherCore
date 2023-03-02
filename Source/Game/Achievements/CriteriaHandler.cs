@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Game.Arenas;
@@ -1719,7 +1720,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.ServerExpansionEqualOrGreaterThan: // 92
-                    if (WorldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
+                    if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && WorldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasBattlePetJournalLock: // 93
