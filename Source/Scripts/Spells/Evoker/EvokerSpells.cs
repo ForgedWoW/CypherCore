@@ -6,7 +6,8 @@ namespace Scripts.Spells.Evoker
 	public struct EvokerSpells
 	{
 		public const uint ENERGIZING_FLAME = 400006;
-        public const uint FIRE_BREATH = 382266;
+        public const uint FIRE_BREATH = 357208;
+        public const uint FIRE_BREATH_2 = 382266;
         public const uint FIRE_BREATH_CHARGED = 357209;
         public const uint GLIDE = 358733;
 
