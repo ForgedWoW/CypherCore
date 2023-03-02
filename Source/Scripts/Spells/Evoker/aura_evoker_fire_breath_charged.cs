@@ -24,7 +24,7 @@ namespace Scripts.Spells.Evoker
 
         public AuraScriptHookType HookType { get; } = AuraScriptHookType.EffectCalcAmount;
 
-        public AuraEffectHandleModes Modes => throw new NotImplementedException();
+        public AuraEffectHandleModes Modes { get; } = AuraEffectHandleModes.Default;
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
@@ -52,4 +52,5 @@ namespace Scripts.Spells.Evoker
                     break;
             }
         }
+    }
 }
