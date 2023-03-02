@@ -46,12 +46,15 @@ namespace Scripts.Spells.Evoker
                 default:
                     break;
             }
-            var spell = GetSpell();
 
-            double damage = caster.CalculateSpellDamage(target, GetEffectInfo(1)) * multi;
-            var bonus = caster.SpellDamageBonusDone(target, spellInfo, damage, DamageEffectType.SpellDirect, GetEffectInfo(1), 1, spell);
-            damage = bonus + (bonus * spell.variance);
-            spell.damage += target.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
+            if (multi != 1)
+            {
+                var spell = GetSpell();
+                double damage = caster.CalculateSpellDamage(target, GetEffectInfo(1)) * multi;
+                var bonus = caster.SpellDamageBonusDone(target, spellInfo, damage, DamageEffectType.SpellDirect, GetEffectInfo(1), 1, spell);
+                damage = bonus + (bonus * spell.variance);
+                spell.damage += target.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
+            }
         }
 
         public override void Register()
