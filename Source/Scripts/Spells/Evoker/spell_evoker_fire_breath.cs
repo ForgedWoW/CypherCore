@@ -21,10 +21,10 @@ namespace Scripts.Spells.Evoker
 
         public void EmpowerSpellStageChange(SpellEmpowerStageRecord oldStage, SpellEmpowerStageRecord newStage)
         {
-            if (GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
-                aura.SetStackAmount((byte)newStage.Stage);
-            else if (GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura))
-                aura.SetStackAmount((byte)newStage.Stage);
+            if (!GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
+                GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura);
+
+            aura.EmpowerStage = newStage.Stage;
         }
     }
 }

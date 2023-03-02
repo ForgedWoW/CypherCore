@@ -21,18 +21,15 @@ namespace Scripts.Spells.Evoker
 
         private void CalcDirectDamage(int index)
         {
-            byte stage = 0;
             var caster = GetCaster();
             var target = GetHitUnit();
             var spellInfo = GetSpellInfo();
 
-            if (caster.TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
-                stage = aura.GetStackAmount();
-            else if (caster.TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura))
-                stage = aura.GetStackAmount();
+            if (!GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
+                GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura);
 
             int multi = 1;
-            switch (stage)
+            switch (aura.EmpowerStage)
             {
                 case 1:
                     multi = 3;

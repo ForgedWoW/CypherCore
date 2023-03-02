@@ -28,15 +28,12 @@ namespace Scripts.Spells.Evoker
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
-            byte stage = 0;
             var caster = GetCaster();
 
-            if (caster.TryGetAura(EvokerSpells.FIRE_BREATH, out var fbAura))
-                stage = fbAura.GetStackAmount();
-            else if (caster.TryGetAura(EvokerSpells.FIRE_BREATH_2, out fbAura))
-                stage = fbAura.GetStackAmount();
+            if (!GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var fbAura))
+                GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out fbAura);
 
-            switch (stage)
+            switch (fbAura.EmpowerStage)
             {
                 case 1:
                     GetAura().SetDuration(2000, true);
