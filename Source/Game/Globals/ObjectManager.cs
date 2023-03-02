@@ -23,6 +23,7 @@ using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -6529,7 +6530,7 @@ namespace Game
                             Log.outDebug(LogFilter.Sql, $"Invalid NPE intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                     }
 
-                    _playerInfo[Tuple.Create((Race)currentrace, (Class)currentclass)] = info;
+                    _playerInfo.Add((Race)currentrace, (Class)currentclass, info);
 
                     ++count;
                 } while (result.NextRow());
@@ -6562,8 +6563,7 @@ namespace Game
                         if (!characterLoadout.RaceMask.HasAnyFlag(SharedConst.GetMaskForRace(raceIndex)))
                             continue;
 
-                        var playerInfo = _playerInfo.LookupByKey(Tuple.Create((Race)raceIndex, (Class)characterLoadout.ChrClassID));
-                        if (playerInfo != null)
+                        if (_playerInfo.TryGetValue(raceIndex, (Class)characterLoadout.ChrClassID, out var playerInfo))
                         {
                             playerInfo.itemContext = (ItemContext)characterLoadout.ItemContext;
 
@@ -6676,8 +6676,7 @@ namespace Game
                                 {
                                     if (rcInfo.ClassMask == -1 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & rcInfo.ClassMask))
                                     {
-                                        PlayerInfo info = _playerInfo.LookupByKey(Tuple.Create(raceIndex, classIndex));
-                                        if (info != null)
+                                        if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
                                             info.skills.Add(rcInfo);
                                     }
                                 }
@@ -6727,8 +6726,7 @@ namespace Game
                                 {
                                     if (classMask == 0 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & classMask))
                                     {
-                                        PlayerInfo playerInfo = _playerInfo.LookupByKey(Tuple.Create(raceIndex, classIndex));
-                                        if (playerInfo != null)
+                                        if (_playerInfo.TryGetValue(raceIndex, classIndex, out var playerInfo))
                                         {
                                             playerInfo.customSpells.Add(spellId);
                                             ++count;
@@ -6790,8 +6788,7 @@ namespace Game
                                 {
                                     if (classMask == 0 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & classMask))
                                     {
-                                        PlayerInfo info = _playerInfo.LookupByKey(Tuple.Create(raceIndex, classIndex));
-                                        if (info != null)
+                                        if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
                                         {
                                             info.castSpells[playerCreateMode].Add(spellId);
                                             ++count;
@@ -6833,8 +6830,8 @@ namespace Game
                             Log.outError(LogFilter.Sql, "Wrong class {0} in `playercreateinfo_action` table, ignoring.", currentclass);
                             continue;
                         }
-                        PlayerInfo info = _playerInfo.LookupByKey(Tuple.Create(currentrace, currentclass));
-                        if (info != null)
+                        
+                        if (_playerInfo.TryGetValue(currentrace, currentclass, out var info))
                             info.action.Add(new PlayerCreateInfoAction(result.Read<byte>(2), result.Read<uint>(3), result.Read<byte>(4)));
 
                         ++count;
@@ -6907,8 +6904,7 @@ namespace Game
 
                     for (var race = 0; race < raceStatModifiers.Length; ++race)
                     {
-                        var playerInfo = _playerInfo.LookupByKey(Tuple.Create((Race)race, currentclass));
-                        if (playerInfo == null)
+                        if (!_playerInfo.TryGetValue((Race)race, currentclass, out var playerInfo))
                             continue;
 
                         for (var i = 0; i < (int)Stats.Max; i++)
@@ -6931,8 +6927,7 @@ namespace Game
                         if (CliDB.ChrClassesStorage.LookupByKey(_class) == null)
                             continue;
 
-                        var playerInfo = _playerInfo.LookupByKey(Tuple.Create(race, _class));
-                        if (playerInfo == null)
+                        if (!_playerInfo.TryGetValue(race, _class, out var playerInfo))
                             continue;
 
                         if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
@@ -7031,8 +7026,7 @@ namespace Game
         }
         void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
         {
-            var playerInfo = _playerInfo.LookupByKey(Tuple.Create((Race)race, (Class)class_));
-            if (playerInfo == null)
+            if (!_playerInfo.TryGetValue((Race)race, (Class)class_, out var playerInfo))
                 return;
 
             if (count > 0)
@@ -7054,12 +7048,14 @@ namespace Game
             if (classId >= Class.Max)
                 return null;
 
-            var info = _playerInfo.LookupByKey(Tuple.Create(raceId, classId));
-            if (info == null)
+            if (!_playerInfo.TryGetValue(raceId, classId, out var info))
                 return null;
 
             return info;
         }
+
+        public Dictionary<Race, Dictionary<Class, PlayerInfo>> PlayerInfos => _playerInfo;
+
         public void GetPlayerClassLevelInfo(Class _class, uint level, out uint baseMana)
         {
             baseMana = 0;
@@ -7083,8 +7079,7 @@ namespace Game
             if (level < 1 || race >= Race.Max || _class >= Class.Max)
                 return null;
 
-            PlayerInfo pInfo = _playerInfo.LookupByKey(Tuple.Create(race, _class));
-            if (pInfo == null)
+            if (!_playerInfo.TryGetValue(race, _class, out var pInfo))
                 return null;
 
             if (level <= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
@@ -7096,7 +7091,7 @@ namespace Game
         PlayerLevelInfo BuildPlayerLevelInfo(Race race, Class _class, uint level)
         {
             // base data (last known level)
-            var info = _playerInfo.LookupByKey(Tuple.Create(race, _class)).levelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1];
+            var info = _playerInfo[race][_class].levelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1];
 
             for (int lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1; lvl < level; ++lvl)
             {
@@ -11539,7 +11534,7 @@ namespace Game
         Dictionary<uint, ItemTemplate> ItemTemplateStorage = new();
 
         //Player
-        Dictionary<Tuple<Race, Class>, PlayerInfo> _playerInfo = new();
+        Dictionary<Race, Dictionary<Class, PlayerInfo>> _playerInfo = new();
 
         //Faction Change
         public Dictionary<uint, uint> FactionChangeAchievements = new();
