@@ -17,11 +17,11 @@ namespace Game
             if (code == BattlenetRpcErrorCode.Ok)
             {
                 response.SuccessInfo = new();
-                bool spoofXpck = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
+                bool forceRaceAndClass = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
 
                 response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-                response.SuccessInfo.ActiveExpansionLevel = spoofXpck ? (byte)Expansion.Dragonflight : (byte)GetExpansion();
-                response.SuccessInfo.AccountExpansionLevel = spoofXpck ? (byte)Expansion.Dragonflight : (byte)GetAccountExpansion();
+                response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)GetExpansion();
+                response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)GetAccountExpansion();
                 response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
                 response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
 
