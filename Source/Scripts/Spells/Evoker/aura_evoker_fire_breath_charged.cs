@@ -16,38 +16,40 @@ using static Game.Scripting.Interfaces.ISpell.EffectHandler;
 namespace Scripts.Spells.Evoker
 {
     [SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
-    internal class aura_evoker_fire_breath_charged : AuraScript, IAuraApplyHandler
+    internal class aura_evoker_fire_breath_charged : AuraScript, IHasAuraEffects
     {
-        public int EffectIndex { get; } = 1;
-
-        public AuraType AuraType { get; } = AuraType.PeriodicDamage;
-
-        public AuraScriptHookType HookType { get; } = AuraScriptHookType.EffectCalcAmount;
-
-        public AuraEffectHandleModes Modes { get; } = AuraEffectHandleModes.Default;
+        public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
             var caster = GetCaster();
 
-            if (!GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var fbAura))
-                GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out fbAura);
+            if (!caster.TryGetAura(EvokerSpells.FIRE_BREATH, out var fbAura))
+                caster.TryGetAura(EvokerSpells.FIRE_BREATH_2, out fbAura);
 
-            switch (fbAura.EmpowerStage)
+            if (fbAura != null)
             {
-                case 1:
-                    GetAura().SetDuration(2000, true);
-                    break;
-                case 2:
-                    GetAura().SetDuration(8000, true);
-                    break;
-                case 3:
-                    GetAura().SetDuration(2000, true);
-                    break;
-                default:
-                    GetAura().SetDuration(20000, true);
-                    break;
+                switch (fbAura.EmpowerStage)
+                {
+                    case 1:
+                        GetAura().SetDuration(2000, true);
+                        break;
+                    case 2:
+                        GetAura().SetDuration(8000, true);
+                        break;
+                    case 3:
+                        GetAura().SetDuration(2000, true);
+                        break;
+                    default:
+                        GetAura().SetDuration(20000, true);
+                        break;
+                }
             }
+        }
+
+        public override void Register()
+        {
+            AuraEffects.Add(new AuraEffectApplyHandler(Apply, 1, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
         }
     }
 }
