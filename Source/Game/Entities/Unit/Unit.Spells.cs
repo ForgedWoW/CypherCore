@@ -1704,7 +1704,7 @@ namespace Game.Entities
         public void CastStop(uint except_spellid = 0)
         {
             for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
-                if (m_currentSpells.TryGetValue(i, out var spell) && spell.m_spellInfo.Id != except_spellid)
+                if (m_currentSpells.TryGetValue(i, out var spell) && spell != null && spell.m_spellInfo.Id != except_spellid)
                     InterruptSpell(i, false);
         }
 
@@ -3582,7 +3582,8 @@ namespace Game.Entities
         // removes aura application from lists and unapplies effects
         public void _UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
         {
-            Cypher.Assert(aurApp.GetBase().GetApplicationOfTarget(GetGUID()) == aurApp);
+            if (aurApp.GetBase().GetApplicationOfTarget(GetGUID()) != aurApp)
+                return;
 
             //Check if aura was already removed, if so just return.
             if (!m_appliedAuras.Remove(aurApp))
