@@ -29,7 +29,7 @@ namespace Scripts.Spells.Warrior
 				{
 					var timeOffset = (int)(6 * i * aurEff.GetPeriod() / 25);
 					var loc        = GetTarget().MoveSpline.ComputePosition(timeOffset);
-					GetTarget().SendPlaySpellVisual(new Position(loc.X, loc.Y, loc.Z), 0.0f, Misc.SpellVisualBlazingCharge, 0, 0, 1.0f, true);
+					GetTarget().SendPlaySpellVisual(new Position(loc.X, loc.Y, loc.Z), Misc.SpellVisualBlazingCharge, 0, 0, 1.0f, true);
 				}
 		}
 	}
