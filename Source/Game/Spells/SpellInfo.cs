@@ -4354,10 +4354,11 @@ namespace Game.Spells
             bool max = HasMaxRadius();
             bool min = HasRadius();
 
-            if (max && !min)
+            if (!max && !min)
+                return null;
+            else if (max)
                 return MaxRadiusEntry;
-
-            if (min && !max)
+            else if (min)
                 return RadiusEntry;
 
             return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
