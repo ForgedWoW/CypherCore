@@ -609,6 +609,17 @@ namespace System.Collections.Generic
             return dict.TryGetValue(key, out var list) && list.Contains(val);
         }
 
+        public static bool AddRange<T>(this HashSet<T> set, IEnumerable<T> values)
+        {
+            bool added = true;
+
+            foreach (var item in values)
+                if (!set.Add(item))
+                    added = false;
+
+            return added;
+        }
+
         public static ManyToOneLookup<TKey, TValue> ToManyToOneLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
             var manyToOne = new ManyToOneLookup<TKey, TValue>(keyComparer, valueComparer);
