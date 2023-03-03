@@ -9,9 +9,9 @@ namespace Game.Movement
 {
     public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
     {
-        public RandomMovementGenerator(float spawnDist = 0.0f)
+        public RandomMovementGenerator(float spawnDist = 0.0f, TimeSpan duration = default)
         {
-            _timer = new TimeTracker();
+            _timer = new TimeTracker(duration);
             _reference = new();
             _wanderDistance = spawnDist;
 
@@ -70,6 +70,13 @@ namespace Game.Movement
             if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
                 SetRandomLocation(owner);
 
+            if (_timer.Passed())
+            {
+                RemoveFlag(MovementGeneratorFlags.Transitory);
+                AddFlag(MovementGeneratorFlags.InformEnabled);
+                return false;
+            }
+
             return true;
         }
 
@@ -90,6 +97,9 @@ namespace Game.Movement
                 // TODO: Research if this modification is needed, which most likely isnt
                 owner.SetWalk(false);
             }
+
+            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsAIEnabled() && owner.TryGetCreatureAI(out var ai))
+                ai.MovementInform(MovementGeneratorType.Random, 0);
         }
 
         public override void Pause(uint timer = 0)

@@ -494,6 +494,7 @@ namespace Game.AI
         // Should return true if the NPC is currently being escorted
         public virtual bool IsEscorted() { return false; }
 
+        // Called at waypoint reached or point movement finished
         public virtual void MovementInform(MovementGeneratorType type, uint id) { }
 
         // Called at reaching home after evade

@@ -125,4 +125,17 @@ namespace Framework.Constants
         SingleDirectional = 0, // always in a single direction
         Gravity = 1  // pushes/pulls away from a single point
     }
+
+    public enum MovementWalkRunSpeedSelectionMode
+    {
+        Default,
+        ForceRun,
+        ForceWalk
+    };
+
+    public enum MovementStopReason : byte
+    {
+        Finished,       // Movement finished either by arriving at location or successfully continuing it for requested duration
+        Interrupted
+    };
 }

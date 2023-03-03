@@ -1222,7 +1222,9 @@ namespace Game.Entities
 
         public IUnitAI GetBaseAI() { return i_AI; }
 
-        public bool TryGetAI(out IUnitAI ai) { ai = GetBaseAI(); return ai != null; }    
+        public bool TryGetAI(out IUnitAI ai) { ai = GetBaseAI(); return ai != null; }
+
+        public bool TryGetCreatureAI(out CreatureAI ai) { ai = GetAI() as CreatureAI; return ai != null; }
 
         public IUnitAI GetTopAI() { lock (i_AIs) return i_AIs.Count == 0 ? null : i_AIs.Peek(); }
 
