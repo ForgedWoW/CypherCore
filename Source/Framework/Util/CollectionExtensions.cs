@@ -627,14 +627,4 @@ namespace System.Collections.Generic
             return manyToOne;
         }
     }
-
-    public interface ICheck<in T>
-    {
-        bool Invoke(T obj);
-    }
-
-    public interface IDoWork<in T>
-    {
-        void Invoke(T obj);
-    }
 }
