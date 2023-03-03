@@ -1860,7 +1860,7 @@ namespace Game.Spells
 
             if (apply)
             {
-                target.SetUnitFlag(UnitFlags.Silenced);
+                target.SetSilencedSchoolMask((SpellSchoolMask)GetMiscValue());
 
                 // call functions which may have additional effects after changing state of unit
                 // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
@@ -1875,11 +1875,15 @@ namespace Game.Spells
             }
             else
             {
-                // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-                if (target.HasAuraType(AuraType.ModSilence) || target.HasAuraType(AuraType.ModPacifySilence))
-                    return;
+                int silenceSchoolMask = 0;
 
-                target.RemoveUnitFlag(UnitFlags.Silenced);
+                foreach (var eff in target.GetAuraEffectsByType(AuraType.ModSilence))
+                    silenceSchoolMask |= eff.GetMiscValue();
+
+                foreach (var eff in target.GetAuraEffectsByType(AuraType.ModPacifySilence))
+                    silenceSchoolMask |= eff.GetMiscValue();
+
+                target.ReplaceAllSilencedSchoolMask((uint)silenceSchoolMask);
             }
         }
 

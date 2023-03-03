@@ -170,6 +170,38 @@ namespace Game.Entities
 
         public bool IsThreatenedBy(Unit who) { return who != null && m_threatManager.IsThreatenedBy(who, true); }
 
+        public bool IsSilenced(uint schoolMask)
+        {
+            return (m_unitData.SilencedSchoolMask.GetValue() & schoolMask) != 0;
+        }
+
+        public bool IsSilenced(SpellSchoolMask schoolMask)
+        {
+            return IsSilenced((uint)schoolMask);
+        }
+
+        public void SetSilencedSchoolMask(uint schoolMask)
+        {
+            SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.SilencedSchoolMask), schoolMask);
+        }
+
+        public void SetSilencedSchoolMask(SpellSchoolMask schoolMask)
+        {
+            SetSilencedSchoolMask((uint)schoolMask);
+        }
+
+        public void ReplaceAllSilencedSchoolMask(uint schoolMask)
+        {
+            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.SilencedSchoolMask), schoolMask);
+        }
+
+
+        public void ReplaceAllSilencedSchoolMask(SpellSchoolMask schoolMask)
+        {
+            ReplaceAllSilencedSchoolMask((uint)schoolMask);
+        }
+
+
         public bool IsTargetableForAttack(bool checkFakeDeath = true)
         {
             if (!IsAlive())
