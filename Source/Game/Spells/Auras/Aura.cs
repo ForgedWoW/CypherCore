@@ -2523,7 +2523,7 @@ namespace Game.Spells
 
         public bool IsSingleTarget() { return m_isSingleTarget; }
         public void SetIsSingleTarget(bool val) { m_isSingleTarget = val; }
-        public uint EmpowerStage { get; set; } = 0;
+        public byte? EmpoweredStage { get; set; }
 
         public bool HasEffect(int index)
         {

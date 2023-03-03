@@ -336,7 +336,7 @@ namespace Game.DataStorage
     public sealed class SpellEmpowerStageRecord
     {
         public uint Id;
-        public uint Stage;
+        public byte Stage;
         public uint DurationMs;
         public uint SpellEmpowerID;
     }

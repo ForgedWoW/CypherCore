@@ -27,7 +27,7 @@ namespace Game.Spells
 {
     public partial class Spell : IDisposable
     {
-        public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = default, ObjectGuid originalCastId = default)
+        public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
         {
             m_spellInfo = info;
             m_caster = (info.HasAttribute(SpellAttr6.OriginateFromController) && caster.GetCharmerOrOwner() != null ? caster.GetCharmerOrOwner() : caster);
@@ -105,6 +105,7 @@ namespace Game.Spells
 
             m_targets = new SpellCastTargets();
             m_appliedMods = new List<Aura>();
+            EmpoweredStage = empoweredStage;
         }
 
         public virtual void Dispose()
@@ -3356,7 +3357,8 @@ namespace Game.Spells
 
                 if (m_spellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
                 {
-                    var nextStageId = _empoweredSpellStage + 1;
+                    var nextStageId = _empoweredSpellStage;
+                    nextStageId++;
 
                     if (m_spellInfo.EmpowerStages.TryGetValue(nextStageId, out var nextStage))
                     {
@@ -3391,7 +3393,8 @@ namespace Game.Spells
                 stageUpdate.TimeRemaining = m_timer;
                 var unusedDurations = new List<uint>();
 
-                var nextStage = _empoweredSpellStage + 1;
+                var nextStage = _empoweredSpellStage;
+                nextStage++;
                 while (m_spellInfo.EmpowerStages.TryGetValue(nextStage, out var nextStageinfo))
                 {
                     unusedDurations.Add(nextStageinfo.DurationMs);
@@ -8362,8 +8365,10 @@ namespace Game.Spells
         int m_timer;
 
         // Empower spell meta
-        uint _empoweredSpellStage;
+        byte _empoweredSpellStage;
         uint _empoweredSpellDelta;
+
+        public byte? EmpoweredStage;
 
         SpellEvent _spellEvent;
         readonly TriggerCastFlags _triggeredCastFlags;
@@ -9529,6 +9534,7 @@ namespace Game.Spells
         public int? OriginalCastItemLevel;
         public Dictionary<SpellValueMod, double> SpellValueOverrides = new();
         public object CustomArg;
+        public byte? EmpowerStage;
 
         public CastSpellExtraArgs() { }
 

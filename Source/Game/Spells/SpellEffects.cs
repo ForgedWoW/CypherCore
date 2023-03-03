@@ -642,6 +642,8 @@ namespace Game.Spells
             if (spellAura == null || unitTarget == null)
                 return;
 
+            spellAura.EmpoweredStage = EmpoweredStage;
+
             // register target/effect on aura
             AuraApplication aurApp = spellAura.GetApplicationOfTarget(unitTarget.GetGUID());
             if (aurApp == null)

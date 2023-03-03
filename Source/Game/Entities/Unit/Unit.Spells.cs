@@ -125,6 +125,9 @@ namespace Game.Entities
             var coeff = spellEffectInfo.BonusCoefficient;
             if (DoneAdvertisedBenefit != 0)
             {
+                if (spell != null)
+                    spell.ForEachSpellScript<ISpellCalculateBonusCoefficient>(a => coeff = a.CalcBonusCoefficient(coeff));
+
                 Player modOwner1 = GetSpellModOwner();
                 if (modOwner1)
                 {
@@ -436,6 +439,9 @@ namespace Game.Entities
             // Default calculation
             if (DoneAdvertisedBenefit != 0)
             {
+                if (spell != null)
+                    spell.ForEachSpellScript<ISpellCalculateBonusCoefficient>(a => coeff = a.CalcBonusCoefficient(coeff));
+
                 Player modOwner = GetSpellModOwner();
                 if (modOwner)
                 {

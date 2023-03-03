@@ -2451,9 +2451,9 @@ namespace Game.Entities
             return my_faction.IsNeutralToAll();
         }
 
-        public SpellCastResult CastSpell(uint spellId, bool triggered = false)
+        public SpellCastResult CastSpell(uint spellId, bool triggered = false, byte? empowerStage = null)
         {
-            return CastSpell(null, spellId, triggered);
+            return CastSpell(null, spellId, triggered, empowerStage);
         }
 
         public SpellCastResult CastSpell<T>(WorldObject target, T spellId, bool triggered = false) where T : struct, Enum
@@ -2475,9 +2475,10 @@ namespace Game.Entities
             return CastSpell(target, spellId, args);
         }
 
-        public SpellCastResult CastSpell(WorldObject target, uint spellId, bool triggered = false)
+        public SpellCastResult CastSpell(WorldObject target, uint spellId, bool triggered = false, byte? empowerStage = null)
         {
             CastSpellExtraArgs args = new(triggered);
+            args.EmpowerStage = empowerStage;
             return CastSpell(target, spellId, args);
         }
 
@@ -2548,7 +2549,7 @@ namespace Game.Entities
                 return SpellCastResult.BadTargets;
             }
 
-            Spell spell = new(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
+            Spell spell = new(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId, args.EmpowerStage);
             foreach (var pair in args.SpellValueOverrides)
                 spell.SetSpellValue(pair.Key, (float)pair.Value);
 

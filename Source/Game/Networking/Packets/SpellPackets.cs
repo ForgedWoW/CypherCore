@@ -1166,7 +1166,7 @@ namespace Game.Networking.Packets
         public uint FirstStageDuration;
         public uint FinalStageDuration;
         public List<ObjectGuid> Targets = new();
-        public Dictionary<uint, uint> StageDurations = new();
+        public Dictionary<byte, uint> StageDurations = new();
         public SpellChannelStartInterruptImmunities? Immunities;
         public SpellHealPrediction? HealPrediction;
     }

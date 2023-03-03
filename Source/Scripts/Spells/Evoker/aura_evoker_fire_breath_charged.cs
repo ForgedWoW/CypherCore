@@ -13,28 +13,20 @@ namespace Scripts.Spells.Evoker
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
-            var caster = GetCaster();
-
-            if (!caster.TryGetAura(EvokerSpells.FIRE_BREATH, out var fbAura))
-                caster.TryGetAura(EvokerSpells.FIRE_BREATH_2, out fbAura);
-
-            if (fbAura != null)
+            switch (GetAura().EmpoweredStage)
             {
-                switch (fbAura.EmpowerStage)
-                {
-                    case 1:
-                        GetAura().SetDuration(2000, true);
-                        break;
-                    case 2:
-                        GetAura().SetDuration(8000, true);
-                        break;
-                    case 3:
-                        GetAura().SetDuration(2000, true);
-                        break;
-                    default:
-                        GetAura().SetDuration(20000, true);
-                        break;
-                }
+                case 1:
+                    GetAura().SetDuration(14000, true);
+                    break;
+                case 2:
+                    GetAura().SetDuration(8000, true);
+                    break;
+                case 3:
+                    GetAura().SetDuration(2000, true);
+                    break;
+                default:
+                    GetAura().SetDuration(20000, true);
+                    break;
             }
         }
 
