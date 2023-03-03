@@ -607,6 +607,11 @@ namespace System.Collections.Generic
             return dict.TryGetValue(key1, out var innerDict) && innerDict.TryGetValue(key2, out val);
         }
 
+        public static bool Contains<TKey1, TVal>(this Dictionary<TKey1, List<TVal>> dict, TKey1 key, TVal val)
+        {
+            return dict.TryGetValue(key, out var list) && list.Contains(val);
+        }
+
         public static ManyToOneLookup<TKey, TValue> ToManyToOneLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
             var manyToOne = new ManyToOneLookup<TKey, TValue>(keyComparer, valueComparer);
@@ -621,15 +626,5 @@ namespace System.Collections.Generic
 
             return manyToOne;
         }
-    }
-
-    public interface ICheck<in T>
-    {
-        bool Invoke(T obj);
-    }
-
-    public interface IDoWork<in T>
-    {
-        void Invoke(T obj);
     }
 }
