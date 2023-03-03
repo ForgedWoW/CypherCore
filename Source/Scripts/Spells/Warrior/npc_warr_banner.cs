@@ -9,7 +9,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warrior
 {
-	[CreatureScript(119052)] //119052
+    [CreatureScript(119052)] //119052
 	public class npc_warr_banner : ScriptedAI
 	{
 		public npc_warr_banner(Creature creature) : base(creature)

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Realm;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Framework.Constants;
+using Framework.Realm;
 
 public class Realm : IEquatable<Realm>
 {
@@ -52,7 +52,7 @@ public class Realm : IEquatable<Realm>
         return ConfigIdByType[Type];
     }
 
-    uint[] ConfigIdByType =
+    readonly uint[] ConfigIdByType =
     {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
     };

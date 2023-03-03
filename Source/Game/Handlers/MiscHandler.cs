@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Constants;
 using Framework.IO;
 using Game.BattleGrounds;
@@ -14,10 +17,6 @@ using Game.Networking.Packets;
 using Game.PvP;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Scripting.Interfaces.IPlayer;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Game.AI.SmartAction;
 
 namespace Game
 {

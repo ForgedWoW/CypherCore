@@ -1,15 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Misc;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IOutdoorPvP;
-using System.Collections.Generic;
 
 namespace Game.PvP
 {
@@ -181,15 +179,15 @@ namespace Game.PvP
 
         // contains all initiated outdoor pvp events
         // used when initing / cleaning up
-        MultiMap<Map, OutdoorPvP> m_OutdoorPvPByMap = new();
+        readonly MultiMap<Map, OutdoorPvP> m_OutdoorPvPByMap = new();
 
         // maps the zone ids to an outdoor pvp event
         // used in player event handling
-        Dictionary<(Map map, uint zoneId), OutdoorPvP> m_OutdoorPvPMap = new();
+        readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> m_OutdoorPvPMap = new();
 
         // Holds the outdoor PvP templates
-        uint[] m_OutdoorMapIds = { 0, 530, 530, 530, 530, 1 };
-        Dictionary<OutdoorPvPTypes, uint> m_OutdoorPvPDatas = new();
+        readonly uint[] m_OutdoorMapIds = { 0, 530, 530, 530, 530, 1 };
+        readonly Dictionary<OutdoorPvPTypes, uint> m_OutdoorPvPDatas = new();
 
         // update interval
         uint m_UpdateTimer;

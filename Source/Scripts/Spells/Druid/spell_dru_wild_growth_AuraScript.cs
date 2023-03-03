@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script]
+    [Script]
 	internal class spell_dru_wild_growth_AuraScript : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

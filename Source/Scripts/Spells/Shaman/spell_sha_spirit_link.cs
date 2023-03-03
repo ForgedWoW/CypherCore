@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Spirit link
-	[SpellScript(98021)]
+    // Spirit link
+    [SpellScript(98021)]
 	public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

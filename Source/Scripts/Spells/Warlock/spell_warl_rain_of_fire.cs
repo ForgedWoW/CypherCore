@@ -15,7 +15,7 @@ namespace Scripts.Spells.Warlock
     {
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-		List<Unit> _auraUnits = new List<Unit>();
+        readonly List<Unit> _auraUnits = new List<Unit>();
 
         public void AuraRemoved()
         {

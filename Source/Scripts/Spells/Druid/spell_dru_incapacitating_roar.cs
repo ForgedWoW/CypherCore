@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 99 - Incapacitating Roar
+    [Script] // 99 - Incapacitating Roar
 	internal class spell_dru_incapacitating_roar : SpellScript, ISpellBeforeCast
 	{
 		public override bool Validate(SpellInfo spellInfo)

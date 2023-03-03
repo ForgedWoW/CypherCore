@@ -1,15 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Game.AI;
+using Game.DataStorage;
+using Game.Entities;
 
 namespace Game.Movement
 {
@@ -45,9 +44,9 @@ namespace Game.Movement
 
     class DelayedAction
     {
-        Action Action;
-        Func<bool> Validator;
-        MotionMasterDelayedActionType Type;
+        readonly Action Action;
+        readonly Func<bool> Validator;
+        readonly MotionMasterDelayedActionType Type;
 
         public DelayedAction(Action action, Func<bool> validator, MotionMasterDelayedActionType type)
         {
@@ -74,7 +73,7 @@ namespace Game.Movement
     {
         public const double gravity = 19.29110527038574;
         public const float SPEED_CHARGE = 42.0f;
-        static IdleMovementGenerator staticIdleMovement = new();
+        static readonly IdleMovementGenerator staticIdleMovement = new();
         static uint splineId;
 
         Unit _owner { get; }

@@ -6,7 +6,7 @@ namespace Game.Maps;
 class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
 {
     ObjectGuid _ownerGUID;
-    uint _entry;
+    readonly uint _entry;
 
     public ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint entry)
     {

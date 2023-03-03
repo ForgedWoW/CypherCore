@@ -13,9 +13,8 @@ namespace Framework.Networking
         volatile bool _stopped;
 
         Thread _thread;
-
-        List<TSocketType> _Sockets = new();
-        List<TSocketType> _newSockets = new();
+        readonly List<TSocketType> _Sockets = new();
+        readonly List<TSocketType> _newSockets = new();
 
         public void Stop()
         {

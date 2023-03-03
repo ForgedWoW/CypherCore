@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 211219 - The Expendables
-	[SpellScript(211219)]
+    // 211219 - The Expendables
+    [SpellScript(211219)]
 	public class spell_warlock_artifact_the_expendables : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

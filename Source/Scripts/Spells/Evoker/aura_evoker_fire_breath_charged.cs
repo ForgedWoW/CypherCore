@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Framework.Constants;
-using Game.DataStorage;
+﻿using Framework.Constants;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
-using static System.Net.Mime.MediaTypeNames;
-using static Game.Scripting.Interfaces.ISpell.EffectHandler;
 
 namespace Scripts.Spells.Evoker
 {

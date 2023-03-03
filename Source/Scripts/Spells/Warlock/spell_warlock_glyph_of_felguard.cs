@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 30146, 112870 - Summon Felguard, Summon Wrathguard
-	[SpellScript(new uint[]
+    // 30146, 112870 - Summon Felguard, Summon Wrathguard
+    [SpellScript(new uint[]
 	             {
 		             30146, 112870
 	             })]

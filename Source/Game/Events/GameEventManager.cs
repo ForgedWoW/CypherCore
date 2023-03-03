@@ -1,18 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.AI;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Maps.Interfaces;
-using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -1714,9 +1712,9 @@ namespace Game
         List<uint>[] mGameEventPoolIds;
         GameEventData[] mGameEvent;
         uint[] mGameEventBattlegroundHolidays;
-        Dictionary<uint, GameEventQuestToEventConditionNum> mQuestToEventConditions = new();
+        readonly Dictionary<uint, GameEventQuestToEventConditionNum> mQuestToEventConditions = new();
         List<(ulong guid, ulong npcflag)>[] mGameEventNPCFlags;
-        List<ushort> m_ActiveEvents = new();
+        readonly List<ushort> m_ActiveEvents = new();
         bool isSystemInit;
 
         public List<ulong>[] mGameEventCreatureGuids;
@@ -1823,8 +1821,8 @@ namespace Game
             }
         }
 
-        ushort _eventId;
-        bool _activate;
+        readonly ushort _eventId;
+        readonly bool _activate;
 
     }
 

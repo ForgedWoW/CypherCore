@@ -1,11 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using BNetServer.Networking;
-using Framework.Configuration;
-using Framework.Constants;
-using Framework.Web;
-using Google.Protobuf;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,13 +8,18 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using BNetServer.Networking;
+using Framework.Configuration;
+using Framework.Constants;
+using Framework.Web;
+using Google.Protobuf;
 
 namespace BNetServer
 {
     public class LoginServiceManager : Singleton<LoginServiceManager>
     {
-        ConcurrentDictionary<(uint ServiceHash, uint MethodId), BnetServiceHandler> serviceHandlers;
-        FormInputs formInputs;
+        readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), BnetServiceHandler> serviceHandlers;
+        readonly FormInputs formInputs;
         IPEndPoint externalAddress;
         IPEndPoint localAddress;
         X509Certificate2 certificate;
@@ -40,8 +40,7 @@ namespace BNetServer
             }
 
             string configuredAddress = ConfigMgr.GetDefaultValue("LoginREST.ExternalAddress", "127.0.0.1");
-            IPAddress address;
-            if (!IPAddress.TryParse(configuredAddress, out address))
+            if (!IPAddress.TryParse(configuredAddress, out IPAddress address))
             {
                 Log.outError(LogFilter.Network, $"Could not resolve LoginREST.ExternalAddress {configuredAddress}");
                 return;
@@ -138,9 +137,9 @@ namespace BNetServer
 
     public class BnetServiceHandler
     {
-        Delegate methodCaller;
-        Type requestType;
-        Type responseType;
+        readonly Delegate methodCaller;
+        readonly Type requestType;
+        readonly Type responseType;
 
         public BnetServiceHandler(MethodInfo info, ParameterInfo[] parameters)
         {

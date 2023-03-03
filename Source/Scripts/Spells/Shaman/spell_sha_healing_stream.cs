@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	[SpellScript(52042)]
+    [SpellScript(52042)]
 	public class spell_sha_healing_stream : SpellScript, ISpellOnHit
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)

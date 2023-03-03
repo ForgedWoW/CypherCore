@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 
 namespace Game.Chat
 {
@@ -88,8 +88,7 @@ namespace Game.Chat
 
             Player player = handler.GetSession().GetPlayer();
 
-            int n = 0;
-            if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out n))
+            if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out int n))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
                 return false;

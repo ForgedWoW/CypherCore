@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
@@ -16,12 +13,12 @@ namespace Game.Battlepay
     public class BattlepayManager 
     {
         private Purchase _actualTransaction = new Purchase();
-        private SortedDictionary<uint, BpayProduct> _existProducts = new SortedDictionary<uint, BpayProduct>();
+        private readonly SortedDictionary<uint, BpayProduct> _existProducts = new SortedDictionary<uint, BpayProduct>();
 
-        private WorldSession _session;
+        private readonly WorldSession _session;
         private ulong _purchaseIDCount;
         private ulong _distributionIDCount;
-        private string _walletName = "";
+        private readonly string _walletName = "";
 
         public BattlepayManager(WorldSession session)
         {

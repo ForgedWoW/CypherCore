@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Game.Arenas;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Constants;
+using Framework.Database;
+using Game.Arenas;
 using Game.BattleGrounds.Zones;
+using Game.DataStorage;
+using Game.Entities;
+using Game.Networking.Packets;
 
 namespace Game.BattleGrounds
 {
@@ -773,12 +773,12 @@ namespace Game.BattleGrounds
             return _battlegroundMapTemplates.LookupByKey(mapId);
         }
 
-        Dictionary<BattlegroundTypeId, BattlegroundData> bgDataStore = new();
-        Dictionary<BattlegroundQueueTypeId, BattlegroundQueue> m_BattlegroundQueues = new();
-        MultiMap<BattlegroundQueueTypeId, Battleground> m_BGFreeSlotQueue = new();
-        Dictionary<uint, BattlegroundTypeId> mBattleMastersMap = new();
-        Dictionary<BattlegroundTypeId, BattlegroundTemplate> _battlegroundTemplates = new();
-        Dictionary<uint, BattlegroundTemplate> _battlegroundMapTemplates = new();
+        readonly Dictionary<BattlegroundTypeId, BattlegroundData> bgDataStore = new();
+        readonly Dictionary<BattlegroundQueueTypeId, BattlegroundQueue> m_BattlegroundQueues = new();
+        readonly MultiMap<BattlegroundQueueTypeId, Battleground> m_BGFreeSlotQueue = new();
+        readonly Dictionary<uint, BattlegroundTypeId> mBattleMastersMap = new();
+        readonly Dictionary<BattlegroundTypeId, BattlegroundTemplate> _battlegroundTemplates = new();
+        readonly Dictionary<uint, BattlegroundTemplate> _battlegroundMapTemplates = new();
 
         struct ScheduledQueueUpdate
         {

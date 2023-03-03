@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -9,10 +13,6 @@ using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.DungeonFinding
 {
@@ -2105,17 +2105,19 @@ namespace Game.DungeonFinding
         uint m_lfgProposalId;  //< used as internal counter for proposals
         LfgOptions m_options;        //< Stores config options
 
-        Dictionary<byte, LFGQueue> QueuesStore = new();                     //< Queues
-        MultiMap<byte, uint> CachedDungeonMapStore = new(); //< Stores all dungeons by groupType
-        // Reward System
-        MultiMap<uint, LfgReward> RewardMapStore = new();                    //< Stores rewards for random dungeons
-        Dictionary<uint, LFGDungeonData> LfgDungeonStore = new();
+        readonly Dictionary<byte, LFGQueue> QueuesStore = new();                     //< Queues
+        readonly MultiMap<byte, uint> CachedDungeonMapStore = new(); //< Stores all dungeons by groupType
+                                                                    // Reward System
+
+        readonly MultiMap<uint, LfgReward> RewardMapStore = new();                    //< Stores rewards for random dungeons
+        readonly Dictionary<uint, LFGDungeonData> LfgDungeonStore = new();
+
         // Rolecheck - Proposal - Vote Kicks
-        Dictionary<ObjectGuid, LfgRoleCheck> RoleChecksStore = new();       //< Current Role checks
-        Dictionary<uint, LfgProposal> ProposalsStore = new();            //< Current Proposals
-        Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();          //< Current player kicks
-        Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();        //< Player data
-        Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();           //< Group data
+        readonly Dictionary<ObjectGuid, LfgRoleCheck> RoleChecksStore = new();       //< Current Role checks
+        readonly Dictionary<uint, LfgProposal> ProposalsStore = new();            //< Current Proposals
+        readonly Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();          //< Current player kicks
+        readonly Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();        //< Player data
+        readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();           //< Group data
     }
 
     public class LfgJoinResultData

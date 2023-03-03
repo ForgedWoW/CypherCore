@@ -1,26 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Cryptography;
-using Framework.IO;
-using Game.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Framework.Cryptography;
+using Framework.IO;
+using Game.Networking.Packets;
 
 namespace Game
 {
     class WardenWin : Warden
     {
         // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
-        static string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
-        static string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
-        static string _luaEvalPostfix = ",'GUILD')end";
+        static readonly string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
+        static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
+        static readonly string _luaEvalPostfix = ",'GUILD')end";
 
         uint _serverTicks;
-        CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
+        readonly CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
         List<ushort> _currentChecks = new();
 
         public WardenWin()
@@ -361,9 +361,9 @@ namespace Game
                 Log.outDebug(LogFilter.Warden, "Ticks diff {0}", ourTicks - newClientTicks);
             }
 
-            BigInteger rs;
-            WardenCheck rd;
-            WardenCheckType type;
+            //BigInteger rs;
+            //WardenCheck rd;
+            // WardenCheckType type; // TODO unused.
             ushort checkFailed = 0;
 
             foreach (var id in _currentChecks)

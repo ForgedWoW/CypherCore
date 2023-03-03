@@ -34,6 +34,6 @@ public class LocalizedDo : IDoWork<Player>
         action.Invoke(player);
     }
 
-    MessageBuilder _localizer;
+    readonly MessageBuilder _localizer;
     IDoWork<Player>[] _localizedCache = new IDoWork<Player>[(int)Locale.Total];     // 0 = default, i => i-1 locale index
 }

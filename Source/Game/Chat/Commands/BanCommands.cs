@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Net;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
-using System;
-using System.Net;
 
 namespace Game.Chat.Commands
 {

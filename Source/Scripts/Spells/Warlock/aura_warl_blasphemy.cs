@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(WarlockSpells.BLASPHEMY)]
+    [SpellScript(WarlockSpells.BLASPHEMY)]
 	public class aura_warl_blasphemy : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

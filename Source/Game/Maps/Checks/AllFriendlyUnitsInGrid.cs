@@ -18,5 +18,5 @@ class AllFriendlyUnitsInGrid : ICheck<Unit>
         return false;
     }
 
-    Unit unit;
+    readonly Unit unit;
 }

@@ -23,9 +23,9 @@ public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
         return false;
     }
 
-    Unit i_obj;
-    uint i_entry;
-    float i_range;
-    byte i_pct;
-    bool i_excludeSelf;
+    readonly Unit i_obj;
+    readonly uint i_entry;
+    readonly float i_range;
+    readonly byte i_pct;
+    readonly bool i_excludeSelf;
 }

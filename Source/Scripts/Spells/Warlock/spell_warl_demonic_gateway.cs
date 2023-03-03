@@ -11,8 +11,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonic Gateway - 111771
-	[SpellScript(111771)]
+    // Demonic Gateway - 111771
+    [SpellScript(111771)]
 	public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

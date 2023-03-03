@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 203974 - Earthwarden
+    [Script] // 203974 - Earthwarden
 	internal class spell_dru_earthwarden : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

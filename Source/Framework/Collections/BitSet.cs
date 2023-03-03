@@ -331,9 +331,9 @@ namespace System.Collections
         [Serializable]
         private class BitArrayEnumeratorSimple : IEnumerator, ICloneable
         {
-            private BitSet _bitarray;
+            private readonly BitSet _bitarray;
             private int _index;
-            private int _version;
+            private readonly int _version;
             private bool _currentElement;
 
             internal BitArrayEnumeratorSimple(BitSet bitarray)

@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace Game.Chat
 {
@@ -136,7 +136,7 @@ namespace Game.Chat
             return _commands;
         }
 
-        static SortedDictionary<string, ChatCommandNode> _commands = new();
+        static readonly SortedDictionary<string, ChatCommandNode> _commands = new();
     }
 
     public delegate bool HandleCommandDelegate(CommandHandler handler, StringArguments args);

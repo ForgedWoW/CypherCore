@@ -5,7 +5,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(17962)]
+    [SpellScript(17962)]
 	public class spell_warl_conflagrate_aura : SpellScript
 	{
 		public void OnHit()

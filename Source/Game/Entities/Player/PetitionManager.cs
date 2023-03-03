@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Constants;
+using Framework.Database;
 
 namespace Game.Entities
 {
     public class PetitionManager : Singleton<PetitionManager>
     {
-        Dictionary<ObjectGuid, Petition> _petitionStorage = new();
+        readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
         PetitionManager() { }
 

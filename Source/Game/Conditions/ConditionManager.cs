@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -11,9 +14,6 @@ using Game.Groups;
 using Game.Loots;
 using Game.Maps;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -3001,16 +3001,16 @@ namespace Game
             return false;
         }
 
-        Dictionary<ConditionSourceType, MultiMap<uint, Condition>> conditionStorage = new();
-        MultiMap<uint, Condition> conditionReferenceStorage = new();
-        Dictionary<uint, MultiMap<uint, Condition>> vehicleSpellConditionStorage = new();
-        Dictionary<uint, MultiMap<uint, Condition>> spellClickEventConditionStorage = new();
-        List<uint> spellsUsedInSpellClickConditions = new();
-        Dictionary<uint, MultiMap<uint, Condition>> npcVendorConditionContainerStorage = new();
-        Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> smartEventConditionStorage = new();
-        MultiMap<Tuple<uint, bool>, Condition> areaTriggerConditionContainerStorage = new();
-        Dictionary<uint, MultiMap<uint, Condition>> trainerSpellConditionContainerStorage = new();
-        MultiMap<(uint objectType, uint objectId), Condition> objectVisibilityConditionStorage = new();
+        readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> conditionStorage = new();
+        readonly MultiMap<uint, Condition> conditionReferenceStorage = new();
+        readonly Dictionary<uint, MultiMap<uint, Condition>> vehicleSpellConditionStorage = new();
+        readonly Dictionary<uint, MultiMap<uint, Condition>> spellClickEventConditionStorage = new();
+        readonly List<uint> spellsUsedInSpellClickConditions = new();
+        readonly Dictionary<uint, MultiMap<uint, Condition>> npcVendorConditionContainerStorage = new();
+        readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> smartEventConditionStorage = new();
+        readonly MultiMap<Tuple<uint, bool>, Condition> areaTriggerConditionContainerStorage = new();
+        readonly Dictionary<uint, MultiMap<uint, Condition>> trainerSpellConditionContainerStorage = new();
+        readonly MultiMap<(uint objectType, uint objectId), Condition> objectVisibilityConditionStorage = new();
 
         public string[] StaticSourceTypeData =
         {

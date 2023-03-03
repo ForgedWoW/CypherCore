@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 210706 - Gore
+    [Script] // 210706 - Gore
 	internal class spell_dru_gore : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

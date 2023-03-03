@@ -28,5 +28,5 @@ public class UpdaterNotifier : IGridNotifierWorldObject
         }
     }
 
-    uint i_timeDiff;
+    readonly uint i_timeDiff;
 }

@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class FieldOperations
@@ -17,8 +15,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
         //int fe_isnegative(const fe f)
         public static int fe_isnegative(ref FieldElement f)
         {
-            FieldElement fr;
-            fe_reduce(out fr, ref f);
+            fe_reduce(out FieldElement fr, ref f);
             return fr.x0 & 1;
         }
     }

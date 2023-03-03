@@ -22,7 +22,7 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
         return false;
     }
 
-    Unit i_obj;
-    float i_range;
-    uint i_spell;
+    readonly Unit i_obj;
+    readonly float i_range;
+    readonly uint i_spell;
 }

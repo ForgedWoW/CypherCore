@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -163,8 +163,7 @@ namespace Game
 
             for (int i = 0; i < voidStorageTransfer.Withdrawals.Length; ++i)
             {
-                byte slot;
-                VoidStorageItem itemVS = player.GetVoidStorageItem(voidStorageTransfer.Withdrawals[i].GetCounter(), out slot);
+                VoidStorageItem itemVS = player.GetVoidStorageItem(voidStorageTransfer.Withdrawals[i].GetCounter(), out byte slot);
                 if (itemVS == null)
                 {
                     Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - {0} {1} tried to withdraw an invalid item ({2})", player.GetGUID().ToString(), player.GetName(), voidStorageTransfer.Withdrawals[i].ToString());
@@ -212,8 +211,7 @@ namespace Game
                 return;
             }
 
-            byte oldSlot;
-            if (player.GetVoidStorageItem(swapVoidItem.VoidItemGuid.GetCounter(), out oldSlot) == null)
+            if (player.GetVoidStorageItem(swapVoidItem.VoidItemGuid.GetCounter(), out byte oldSlot) == null)
             {
                 Log.outDebug(LogFilter.Network, "WORLD: HandleVoidSwapItem - Player (GUID: {0}, name: {1}) requested swapping an invalid item (slot: {2}, itemid: {3}).", player.GetGUID().ToString(), player.GetName(), swapVoidItem.DstSlot, swapVoidItem.VoidItemGuid.ToString());
                 return;

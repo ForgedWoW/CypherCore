@@ -6,7 +6,7 @@ using Game.Entities;
 
 namespace Game.Networking.Packets.Bpay
 {
-  
+
 
     public class BattlePayBattlePetDelivered : ServerPacket
     {

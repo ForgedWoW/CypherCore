@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warlock
 {
-	// Immolate proc - 193541
-	[SpellScript(193541)]
+    // Immolate proc - 193541
+    [SpellScript(193541)]
 	public class spell_warl_immolate_aura : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

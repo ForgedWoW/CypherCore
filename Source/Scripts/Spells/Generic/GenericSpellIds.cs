@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Generic
 {
-	internal struct GenericSpellIds
+    internal struct GenericSpellIds
 	{
 		// Adaptivewarding
 		public const uint GenAdaptiveWardingFire = 28765;

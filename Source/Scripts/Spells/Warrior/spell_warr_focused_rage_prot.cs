@@ -12,8 +12,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//204488 - Focused Rage
-	[SpellScript(204488)]
+    //204488 - Focused Rage
+    [SpellScript(204488)]
 	public class spell_warr_focused_rage_prot : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

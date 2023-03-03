@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Burning Rush - 111400
-	[SpellScript(111400)]
+    // Burning Rush - 111400
+    [SpellScript(111400)]
 	public class aura_warl_burning_rush : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

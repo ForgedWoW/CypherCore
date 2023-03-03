@@ -23,7 +23,7 @@ class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
         return false;
     }
 
-    WorldObject i_obj;
-    GameObjectTypes i_type;
+    readonly WorldObject i_obj;
+    readonly GameObjectTypes i_type;
     float i_range;
 }

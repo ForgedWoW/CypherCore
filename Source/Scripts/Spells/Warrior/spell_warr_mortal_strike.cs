@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // 12294 - Mortal Strike 7.1.5
+    [Script] // 12294 - Mortal Strike 7.1.5
 	internal class spell_warr_mortal_strike : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

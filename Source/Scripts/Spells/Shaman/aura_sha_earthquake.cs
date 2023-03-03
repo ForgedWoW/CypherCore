@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 61882
-	[SpellScript(61882)]
+    // 61882
+    [SpellScript(61882)]
 	public class aura_sha_earthquake : AuraScript
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

@@ -47,10 +47,9 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return false;
 
-            bool value;
-            if (bool.TryParse(Current, out value))
+            if (bool.TryParse(Current, out bool value))
                 return value;
-            
+
             if ((Current == "1") || Current.Equals("y", StringComparison.OrdinalIgnoreCase) || Current.Equals("on", StringComparison.OrdinalIgnoreCase) || Current.Equals("yes", StringComparison.OrdinalIgnoreCase) || Current.Equals("true", StringComparison.OrdinalIgnoreCase))
                     return true;
             if ((Current == "0") || Current.Equals("n", StringComparison.OrdinalIgnoreCase) || Current.Equals("off", StringComparison.OrdinalIgnoreCase) || Current.Equals("no", StringComparison.OrdinalIgnoreCase) || Current.Equals("false", StringComparison.OrdinalIgnoreCase))
@@ -64,8 +63,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            char value;
-            if (char.TryParse(Current, out value))
+            if (char.TryParse(Current, out char value))
                 return value;
 
             return default;
@@ -76,8 +74,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            byte value;
-            if (byte.TryParse(Current, out value))
+            if (byte.TryParse(Current, out byte value))
                 return value;
 
             return default;
@@ -88,8 +85,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            sbyte value;
-            if (sbyte.TryParse(Current, out value))
+            if (sbyte.TryParse(Current, out sbyte value))
                 return value;
 
             return default;
@@ -100,8 +96,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            ushort value;
-            if (ushort.TryParse(Current, out value))
+            if (ushort.TryParse(Current, out ushort value))
                 return value;
 
             return default;
@@ -112,8 +107,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            short value;
-            if (short.TryParse(Current, out value))
+            if (short.TryParse(Current, out short value))
                 return value;
 
             return default;
@@ -124,8 +118,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            uint value;
-            if (uint.TryParse(Current, out value))
+            if (uint.TryParse(Current, out uint value))
                 return value;
 
             return default;
@@ -136,8 +129,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            int value;
-            if (int.TryParse(Current, out value))
+            if (int.TryParse(Current, out int value))
                 return value;
 
             return default;
@@ -148,8 +140,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            ulong value;
-            if (ulong.TryParse(Current, out value))
+            if (ulong.TryParse(Current, out ulong value))
                 return value;
 
             return default;
@@ -160,8 +151,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            long value;
-            if (long.TryParse(Current, out value))
+            if (long.TryParse(Current, out long value))
                 return value;
 
             return default;
@@ -172,8 +162,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            float value;
-            if (float.TryParse(Current, out value))
+            if (float.TryParse(Current, out float value))
                 return value;
 
             return default;
@@ -184,8 +173,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            double value;
-            if (double.TryParse(Current, out value))
+            if (double.TryParse(Current, out double value))
                 return value;
 
             return default;
@@ -196,8 +184,7 @@ namespace Framework.IO
             if (!MoveNext(delimiters))
                 return default;
 
-            decimal value;
-            if (decimal.TryParse(Current, out value))
+            if (decimal.TryParse(Current, out decimal value))
                 return value;
 
             return default;
@@ -281,7 +268,7 @@ namespace Framework.IO
             return m.Success;
         }
 
-        private string activestring;
+        private readonly string activestring;
         private int activeposition;
         private string Current;
     }

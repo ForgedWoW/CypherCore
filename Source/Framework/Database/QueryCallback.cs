@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Framework.Database
 {
@@ -69,10 +67,9 @@ namespace Framework.Database
         }
 
         QueryCallback _next;
-        PreparedStatementTask _awaitingTask;
-        ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
-
-        Action<ISqlOperation, Action<bool>> _queueAction;
+        readonly PreparedStatementTask _awaitingTask;
+        readonly ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
+        readonly Action<ISqlOperation, Action<bool>> _queueAction;
     }
 
 }

@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Grimoire of Service - 108501
-	[SpellScript(108501)]
+    // Grimoire of Service - 108501
+    [SpellScript(108501)]
 	internal class spell_warl_grimoire_of_service_aura : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

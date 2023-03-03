@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Ascendance (Water) - 114052
-	[SpellScript(114052)]
+    // Ascendance (Water) - 114052
+    [SpellScript(114052)]
 	public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

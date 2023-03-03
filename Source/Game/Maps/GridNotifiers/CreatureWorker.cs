@@ -8,8 +8,9 @@ namespace Game.Maps;
 public class CreatureWorker : IGridNotifierCreature
 {
     public GridType GridType { get; set; }
-    PhaseShift i_phaseShift;
-    IDoWork<Creature> Do;
+
+    readonly PhaseShift i_phaseShift;
+    readonly IDoWork<Creature> Do;
 
     public CreatureWorker(WorldObject searcher, IDoWork<Creature> _Do, GridType gridType)
     {

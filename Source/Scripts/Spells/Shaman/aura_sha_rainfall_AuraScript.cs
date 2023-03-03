@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 215864 Rainfall
-	[SpellScript(215864)]
+    // 215864 Rainfall
+    [SpellScript(215864)]
 	public class aura_sha_rainfall_AuraScript : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

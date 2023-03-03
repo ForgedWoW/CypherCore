@@ -23,6 +23,6 @@ class GameObjectFocusCheck : ICheck<GameObject>
         return go.IsWithinDist(_caster, dist);
     }
 
-    WorldObject _caster;
-    uint _focusId;
+    readonly WorldObject _caster;
+    readonly uint _focusId;
 }

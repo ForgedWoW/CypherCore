@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
@@ -9,10 +13,6 @@ using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.Chat
 {
@@ -194,7 +194,6 @@ namespace Game.Chat
         }
         public ulong ExtractLowGuidFromLink(StringArguments args, ref HighGuid guidHigh)
         {
-            int type;
 
             string[] guidKeys =
             {
@@ -205,7 +204,7 @@ namespace Game.Chat
             // |color|Hcreature:creature_guid|h[name]|h|r
             // |color|Hgameobject:go_guid|h[name]|h|r
             // |color|Hplayer:name|h[name]|h|r
-            string idS = ExtractKeyFromLink(args, guidKeys, out type);
+            string idS = ExtractKeyFromLink(args, guidKeys, out int type);
             if (string.IsNullOrEmpty(idS))
                 return 0;
 
@@ -247,7 +246,7 @@ namespace Game.Chat
             return 0;
         }
 
-        static string[] spellKeys =
+        static readonly string[] spellKeys =
         {
             "Hspell",                                               // normal spell
             "Htalent",                                              // talent spell
@@ -611,7 +610,7 @@ namespace Game.Chat
         public void SetSentErrorMessage(bool val) { _sentErrorMessage = val; }
 
         bool _sentErrorMessage;
-        WorldSession _session;
+        readonly WorldSession _session;
     }
 
     class AddonChannelCommandHandler : CommandHandler
@@ -765,7 +764,7 @@ namespace Game.Chat
 
     public class RemoteAccessHandler : CommandHandler
     {
-        Action<string> _reportToRA;
+        readonly Action<string> _reportToRA;
 
         public RemoteAccessHandler(Action<string> reportToRA) : base() 
         {

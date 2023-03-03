@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Numerics;
+using System.Security.Cryptography;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
 using Game.Networking.Packets;
-using System;
-using System.Numerics;
-using System.Security.Cryptography;
 
 namespace Game
 {

@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Soul Conduit - 215941
-	[SpellScript(215941)]
+    // Soul Conduit - 215941
+    [SpellScript(215941)]
 	public class spell_warl_soul_conduit : AuraScript, IHasAuraEffects, IAuraCheckProc
 	{
 		private int _refund = 0;

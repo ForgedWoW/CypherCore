@@ -8,8 +8,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//NPC ID : 106321
-	[CreatureScript(106321)]
+    //NPC ID : 106321
+    [CreatureScript(106321)]
 	public class npc_tailwind_totem : ScriptedAI
 	{
 		public npc_tailwind_totem(Creature creature) : base(creature)

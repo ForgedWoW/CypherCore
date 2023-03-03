@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
 
 namespace Game.Movement
 {
@@ -135,9 +134,8 @@ namespace Game.Movement
             if (seg_time > 0)
                 u = (time_point - spline.Length(point_index)) / (float)seg_time;
 
-            Vector3 c;
             float orientation = initialOrientation;
-            spline.Evaluate_Percent(point_index, u, out c);
+            spline.Evaluate_Percent(point_index, u, out Vector3 c);
 
             if (splineflags.HasFlag(SplineFlag.Parabolic))
                 ComputeParabolicElevation(time_point, ref c.Z);
@@ -156,8 +154,7 @@ namespace Game.Movement
             {
                 if (!splineflags.HasFlag(SplineFlag.OrientationFixed | SplineFlag.Falling | SplineFlag.Unknown_0x8))
                 {
-                    Vector3 hermite;
-                    spline.Evaluate_Derivative(point_Idx, u, out hermite);
+                    spline.Evaluate_Derivative(point_Idx, u, out Vector3 hermite);
                     if (hermite.X != 0f || hermite.Y != 0f)
                         orientation = MathF.Atan2(hermite.Y, hermite.X);
                 }
@@ -378,7 +375,8 @@ namespace Game.Movement
             {
                 startElevation = startelevation;
             }
-            float startElevation;
+
+            readonly float startElevation;
 
             public int Invoke(Spline<int> s, int i)
             {

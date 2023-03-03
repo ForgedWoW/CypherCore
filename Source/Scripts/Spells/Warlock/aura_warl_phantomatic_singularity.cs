@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 205179
-	[SpellScript(205179)]
+    // 205179
+    [SpellScript(205179)]
 	public class aura_warl_phantomatic_singularity : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

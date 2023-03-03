@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Shaman
 {
-	public struct ShamanSpells
+    public struct ShamanSpells
 	{
 		public const uint ANCESTRAL_AWAKENING = 52759;
 		public const uint ANCESTRAL_AWAKENING_PROC = 52752;

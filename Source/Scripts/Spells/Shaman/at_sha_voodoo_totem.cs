@@ -7,9 +7,9 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	// Spell 196935 - Voodoo Totem
-	// AT - 11577
-	[Script]
+    // Spell 196935 - Voodoo Totem
+    // AT - 11577
+    [Script]
 	public class at_sha_voodoo_totem : AreaTriggerAI
 	{
 		public at_sha_voodoo_totem(AreaTrigger areaTrigger) : base(areaTrigger)

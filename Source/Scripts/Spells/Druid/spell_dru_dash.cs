@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 1850 - Dash
+    [Script] // 1850 - Dash
 	public class spell_dru_dash : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

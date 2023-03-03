@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -13,11 +16,7 @@ using Game.Mails;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IAchievement;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Game.Achievements
 {
@@ -198,7 +197,7 @@ namespace Game.Achievements
 
     public class PlayerAchievementMgr : AchievementManager
     {
-        Player _owner;
+        readonly Player _owner;
 
         public PlayerAchievementMgr(Player owner)
         {
@@ -712,7 +711,7 @@ namespace Game.Achievements
 
     public class GuildAchievementMgr : AchievementManager
     {
-        Guild _owner;
+        readonly Guild _owner;
 
         public GuildAchievementMgr(Guild owner)
         {
@@ -1079,14 +1078,13 @@ namespace Game.Achievements
     public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
     {
         // store achievements by referenced achievement id to speed up lookup
-        MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
+        readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
         // store realm first achievements
-        Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
-
-        Dictionary<uint, AchievementReward> _achievementRewards = new();
-        Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
-        Dictionary<uint, uint> _achievementScripts = new();
+        readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
+        readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
+        readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
+        readonly Dictionary<uint, uint> _achievementScripts = new();
 
         AchievementGlobalMgr() { }
 

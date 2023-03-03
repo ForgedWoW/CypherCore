@@ -3,7 +3,6 @@
 
 using Framework.Constants;
 using Game.Spells;
-using Game.Spells;
 
 namespace Game.Scripting.Interfaces.IAura
 {

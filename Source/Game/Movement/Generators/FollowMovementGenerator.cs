@@ -4,23 +4,19 @@
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
     public class FollowMovementGenerator : MovementGenerator
     {
-        static uint CHECK_INTERVAL = 100;
-        static float FOLLOW_RANGE_TOLERANCE = 1.0f;
-
-        float _range;
+        static readonly uint CHECK_INTERVAL = 100;
+        static readonly float FOLLOW_RANGE_TOLERANCE = 1.0f;
+        readonly float _range;
         ChaseAngle _angle;
-
-        TimeTracker _checkTimer;
+        readonly TimeTracker _checkTimer;
         PathGenerator _path;
         Position _lastTargetPosition;
-
-        AbstractFollower _abstractFollower;
+        readonly AbstractFollower _abstractFollower;
 
         public FollowMovementGenerator(Unit target, float range, ChaseAngle angle)
         {
@@ -103,7 +99,6 @@ namespace Game.Movement
                     if (_path == null)
                         _path = new PathGenerator(owner);
 
-                    float x, y, z;
 
                     // select angle
                     float tAngle;
@@ -120,7 +115,7 @@ namespace Game.Movement
                             tAngle = _angle.LowerBound();
                     }
 
-                    target.GetNearPoint(owner, out x, out y, out z, _range, target.ToAbsoluteAngle(tAngle));
+                    target.GetNearPoint(owner, out float x, out float y, out float z, _range, target.ToAbsoluteAngle(tAngle));
 
                     if (owner.IsHovering())
                         owner.UpdateAllowedPositionZ(x, y, ref z);

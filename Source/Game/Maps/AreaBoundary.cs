@@ -16,7 +16,7 @@ namespace Game.Maps
 
         public virtual bool IsWithinBoundaryArea(Position pos) { return false; }
 
-        bool _isInvertedBoundary;
+        readonly bool _isInvertedBoundary;
 
         public class DoublePosition : Position
         {
@@ -53,9 +53,9 @@ namespace Game.Maps
                 return this;
             }
 
-            double doublePosX;
-            double doublePosY;
-            double doublePosZ;
+            readonly double doublePosX;
+            readonly double doublePosY;
+            readonly double doublePosZ;
         }
     }
 
@@ -75,10 +75,10 @@ namespace Game.Maps
             return !(pos.GetPositionX() < _minX || pos.GetPositionX() > _maxX || pos.GetPositionY() < _minY || pos.GetPositionY() > _maxY);
         }
 
-        float _minX;
-        float _maxX;
-        float _minY;
-        float _maxY;
+        readonly float _minX;
+        readonly float _maxX;
+        readonly float _minY;
+        readonly float _maxY;
     }
 
     public class CircleBoundary : AreaBoundary
@@ -101,8 +101,8 @@ namespace Game.Maps
             return offX * offX + offY * offY <= _radiusSq;
         }
 
-        DoublePosition _center;
-        double _radiusSq;
+        readonly DoublePosition _center;
+        readonly double _radiusSq;
     }
 
     public class EllipseBoundary : AreaBoundary
@@ -121,9 +121,9 @@ namespace Game.Maps
             return (offX * offX) * _scaleXSq + (offY * offY) <= _radiusYSq;
         }
 
-        DoublePosition _center;
-        double _radiusYSq;
-        double _scaleXSq;
+        readonly DoublePosition _center;
+        readonly double _radiusYSq;
+        readonly double _scaleXSq;
     }
 
     public class TriangleBoundary : AreaBoundary
@@ -153,15 +153,15 @@ namespace Game.Maps
             return ((sign1 == sign2) && (sign2 == sign3));
         }
 
-        DoublePosition _a;
-        DoublePosition _b;
-        DoublePosition _c;
-        double _abx;
-        double _bcx;
-        double _cax;
-        double _aby;
-        double _bcy;
-        double _cay;
+        readonly DoublePosition _a;
+        readonly DoublePosition _b;
+        readonly DoublePosition _c;
+        readonly double _abx;
+        readonly double _bcx;
+        readonly double _cax;
+        readonly double _aby;
+        readonly double _bcy;
+        readonly double _cay;
     }
 
     public class ParallelogramBoundary : AreaBoundary
@@ -191,14 +191,14 @@ namespace Game.Maps
             return ((sign1 == sign2) && (sign2 == sign3) && (sign3 == sign4));
         }
 
-        DoublePosition _a;
-        DoublePosition _b;
-        DoublePosition _d;
-        DoublePosition _c;
-        double _abx;
-        double _dax;
-        double _aby;
-        double _day;
+        readonly DoublePosition _a;
+        readonly DoublePosition _b;
+        readonly DoublePosition _d;
+        readonly DoublePosition _c;
+        readonly double _abx;
+        readonly double _dax;
+        readonly double _aby;
+        readonly double _day;
     }
 
     public class ZRangeBoundary : AreaBoundary
@@ -214,8 +214,8 @@ namespace Game.Maps
             return (_minZ <= pos.GetPositionZ() && pos.GetPositionZ() <= _maxZ);
         }
 
-        float _minZ;
-        float _maxZ;
+        readonly float _minZ;
+        readonly float _maxZ;
     }
 
     class BoundaryUnionBoundary : AreaBoundary
@@ -231,7 +231,7 @@ namespace Game.Maps
             return _b1.IsWithinBoundary(pos) || _b2.IsWithinBoundary(pos);
         }
 
-        AreaBoundary _b1;
-        AreaBoundary _b2;
+        readonly AreaBoundary _b1;
+        readonly AreaBoundary _b2;
     }
 }

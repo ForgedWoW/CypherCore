@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Loots;
-using System.Collections.Generic;
 
 namespace Game.Mails
 {
@@ -233,12 +233,11 @@ namespace Game.Mails
             return this;
         }
 
-        uint m_mailTemplateId;
+        readonly uint m_mailTemplateId;
         bool m_mailTemplateItemsNeed;
-        string m_subject;
-        string m_body;
-
-        Dictionary<ulong, Item> m_items = new();
+        readonly string m_subject;
+        readonly string m_body;
+        readonly Dictionary<ulong, Item> m_items = new();
 
         ulong m_money;
         ulong m_COD;

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Mails;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game.BlackMarket
 {
@@ -288,8 +288,8 @@ namespace Game.BlackMarket
 
         public long GetLastUpdate() { return _lastUpdate; }
 
-        Dictionary<uint, BlackMarketEntry> _auctions = new();
-        Dictionary<uint, BlackMarketTemplate> _templates = new();
+        readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
+        readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
         long _lastUpdate;
     }
 }

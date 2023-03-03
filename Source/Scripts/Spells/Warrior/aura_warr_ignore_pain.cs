@@ -12,8 +12,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//190456 - Ignore Pain
-	[SpellScript(190456)]
+    //190456 - Ignore Pain
+    [SpellScript(190456)]
 	public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
 	{
 		private int m_ExtraSpellCost;

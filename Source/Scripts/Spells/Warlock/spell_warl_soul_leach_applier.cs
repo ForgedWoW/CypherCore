@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Soul Leach appliers - 137046, 137044, 137043
-	[SpellScript(new uint[]
+    // Soul Leach appliers - 137046, 137044, 137043
+    [SpellScript(new uint[]
 	             {
 		             137046, 137044, 137043
 	             })]

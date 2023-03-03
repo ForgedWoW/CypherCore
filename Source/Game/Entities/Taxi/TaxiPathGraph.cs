@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Framework.Algorithms;
 using Framework.Collections;
 using Framework.Constants;
 using Game.DataStorage;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Game.Entities
 {
     public class TaxiPathGraph
     {
         static EdgeWeightedDigraph m_graph;
-        static List<TaxiNodesRecord> m_nodesByVertex = new();
-        static Dictionary<uint, uint> m_verticesByNode = new();
+        static readonly List<TaxiNodesRecord> m_nodesByVertex = new();
+        static readonly Dictionary<uint, uint> m_verticesByNode = new();
 
         static void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
         {
@@ -62,11 +62,9 @@ namespace Game.Entities
                     if (nodes[i - 1].Flags.HasAnyFlag(TaxiPathNodeFlags.Teleport))
                         continue;
 
-                    int uiMap1, uiMap2;
-                    Vector2 pos1, pos2;
 
-                    GetTaxiMapPosition(nodes[i - 1].Loc, nodes[i - 1].ContinentID, out pos1, out uiMap1);
-                    GetTaxiMapPosition(nodes[i].Loc, nodes[i].ContinentID, out pos2, out uiMap2);
+                    GetTaxiMapPosition(nodes[i - 1].Loc, nodes[i - 1].ContinentID, out Vector2 pos1, out int uiMap1);
+                    GetTaxiMapPosition(nodes[i].Loc, nodes[i].ContinentID, out Vector2 pos2, out int uiMap2);
 
                     if (uiMap1 != uiMap2)
                         continue;

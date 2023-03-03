@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
@@ -14,9 +17,6 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Game.Entities
 {
@@ -169,14 +169,13 @@ namespace Game.Entities
         {
             // send create update to player
             UpdateData upd = new(player.GetMapId());
-            UpdateObject packet;
 
             if (player.HaveAtClient(this))
                 BuildValuesUpdateBlockForPlayer(upd, player);
             else
                 BuildCreateUpdateBlockForPlayer(upd, player);
 
-            upd.BuildPacket(out packet);
+            upd.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
 
@@ -216,8 +215,7 @@ namespace Game.Entities
         {
             UpdateData updateData = new(target.GetMapId());
             BuildDestroyUpdateBlock(updateData);
-            UpdateObject packet;
-            updateData.BuildPacket(out packet);
+            updateData.BuildPacket(out UpdateObject packet);
             target.SendPacket(packet);
         }
 
@@ -3558,8 +3556,7 @@ namespace Game.Entities
 
         public Position GetRandomPoint(Position srcPos, float distance)
         {
-            float x, y, z;
-            GetRandomPoint(srcPos, distance, out x, out y, out z);
+            GetRandomPoint(srcPos, distance, out float x, out float y, out float z);
             return new Position(x, y, z, GetOrientation());
         }
 
@@ -3936,7 +3933,7 @@ namespace Game.Entities
         protected bool m_isActive;
         bool m_isFarVisible;
         float? m_visibilityDistanceOverride;
-        bool m_isWorldObject;
+        readonly bool m_isWorldObject;
         public ZoneScript m_zoneScript;
 
         ITransport m_transport;
@@ -4103,7 +4100,7 @@ namespace Game.Entities
 
     public class MovementForces
     {
-        List<MovementForce> _forces = new();
+        readonly List<MovementForce> _forces = new();
         float _modMagnitude = 1.0f;
 
         public List<MovementForce> GetForces() { return _forces; }
@@ -4189,7 +4186,7 @@ namespace Game.Entities
 
     class CombatLogSender : IDoWork<Player>
     {
-        CombatLogServerPacket i_message;
+        readonly CombatLogServerPacket i_message;
 
         public CombatLogSender(CombatLogServerPacket msg)
         {

@@ -21,6 +21,6 @@ class GameObjectInRangeCheck : ICheck<GameObject>
         else return false;
     }
 
-    float x, y, z, range;
-    uint entry;
+    readonly float x, y, z, range;
+    readonly uint entry;
 }

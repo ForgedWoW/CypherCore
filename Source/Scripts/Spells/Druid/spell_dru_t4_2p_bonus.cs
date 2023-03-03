@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	// 37288 - Mana Restore
-	[Script] // 37295 - Mana Restore
+    // 37288 - Mana Restore
+    [Script] // 37295 - Mana Restore
 	internal class spell_dru_t4_2p_bonus : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

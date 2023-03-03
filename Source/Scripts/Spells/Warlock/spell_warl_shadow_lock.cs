@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Shadow Lock - 171140
-	[SpellScript(171140)]
+    // Shadow Lock - 171140
+    [SpellScript(171140)]
 	public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

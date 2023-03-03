@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 48181 - Haunt
-	[SpellScript(48181)]
+    // 48181 - Haunt
+    [SpellScript(48181)]
 	public class aura_warl_haunt : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

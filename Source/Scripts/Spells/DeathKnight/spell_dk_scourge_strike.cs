@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Scripts.Spells.DemonHunter;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -26,8 +24,7 @@ public class spell_dk_scourge_strike : SpellScript, IHasSpellEffects
         {
             if (target != null)
             {
-                Unit tar;
-                target.TryGetAsUnit(out tar);
+                target.TryGetAsUnit(out Unit tar);
                 if (tar != null)
                 {
                     var festeringWoundAura = tar.GetAura(DeathKnightSpells.FESTERING_WOUND, GetCaster().GetGUID());

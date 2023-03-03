@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // 107570 - Storm Bolt
+    [Script] // 107570 - Storm Bolt
 	internal class spell_warr_storm_bolt : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

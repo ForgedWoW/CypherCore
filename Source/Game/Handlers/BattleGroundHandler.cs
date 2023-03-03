@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Arenas;
 using Game.BattleFields;
@@ -10,8 +12,6 @@ using Game.Entities;
 using Game.Groups;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -179,8 +179,7 @@ namespace Game
                 if (grp.GetLeaderGUID() != GetPlayer().GetGUID())
                     return;
 
-                ObjectGuid errorGuid;
-                err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out errorGuid);
+                err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out ObjectGuid errorGuid);
                 isPremade = (grp.GetMembersCount() >= bg.GetMinPlayersPerTeam());
 
                 BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
@@ -202,8 +201,7 @@ namespace Game
 
                     if (err != 0)
                     {
-                        BattlefieldStatusFailed battlefieldStatus;
-                        Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, err, errorGuid);
+                        Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, err, errorGuid);
                         member.SendPacket(battlefieldStatus);
                         continue;
                     }
@@ -271,8 +269,7 @@ namespace Game
             BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
 
             //we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue.RemovePlayer() function
-            GroupQueueInfo ginfo;
-            if (!bgQueue.GetPlayerGroupInfoData(GetPlayer().GetGUID(), out ginfo))
+            if (!bgQueue.GetPlayerGroupInfoData(GetPlayer().GetGUID(), out GroupQueueInfo ginfo))
             {
                 Log.outDebug(LogFilter.Battleground, "CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue (No player Group Info)!",
                     GetPlayerInfo(), battlefieldPort.Ticket.Id, battlefieldPort.Ticket.Type, battlefieldPort.Ticket.Time, battlefieldPort.AcceptedInvite);
@@ -322,8 +319,7 @@ namespace Game
                 if (!GetPlayer().IsDeserter())
                 {
                     // send bg command result to show nice message
-                    BattlefieldStatusFailed battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatus, bgQueueTypeId, GetPlayer(), battlefieldPort.Ticket.Id, GroupJoinBattlegroundResult.Deserters);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, bgQueueTypeId, GetPlayer(), battlefieldPort.Ticket.Id, GroupJoinBattlegroundResult.Deserters);
                     SendPacket(battlefieldStatus);
                     battlefieldPort.AcceptedInvite = false;
                     Log.outDebug(LogFilter.Battleground, "Player {0} ({1}) has a deserter debuff, do not port him to Battleground!", GetPlayer().GetName(), GetPlayer().GetGUID().ToString());
@@ -358,8 +354,7 @@ namespace Game
                 // stop taxi flight at port
                 GetPlayer().FinishTaxiFlight();
 
-                BattlefieldStatusActive battlefieldStatus;
-                Global.BattlegroundMgr.BuildBattlegroundStatusActive(out battlefieldStatus, bg, GetPlayer(), battlefieldPort.Ticket.Id, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), bg.GetArenaType());
+                Global.BattlegroundMgr.BuildBattlegroundStatusActive(out BattlefieldStatusActive battlefieldStatus, bg, GetPlayer(), battlefieldPort.Ticket.Id, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), bg.GetArenaType());
                 SendPacket(battlefieldStatus);
 
                 // remove BattlegroundQueue status from BGmgr
@@ -446,8 +441,7 @@ namespace Game
                 //we are sending update to player about queue - he can be invited there!
                 //get GroupQueueInfo for queue status
                 BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
-                GroupQueueInfo ginfo;
-                if (!bgQueue.GetPlayerGroupInfoData(GetPlayer().GetGUID(), out ginfo))
+                if (!bgQueue.GetPlayerGroupInfoData(GetPlayer().GetGUID(), out GroupQueueInfo ginfo))
                     continue;
 
                 if (ginfo.IsInvitedToBGInstanceGUID != 0)
@@ -456,8 +450,7 @@ namespace Game
                     if (!bg)
                         continue;
 
-                    BattlefieldStatusNeedConfirmation battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out battlefieldStatus, bg, GetPlayer(), i, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.GetMSTime(), ginfo.RemoveInviteTime), arenaType);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, GetPlayer(), i, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.GetMSTime(), ginfo.RemoveInviteTime), arenaType);
                     SendPacket(battlefieldStatus);
                 }
                 else
@@ -472,8 +465,7 @@ namespace Game
                         continue;
 
                     uint avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
-                    BattlefieldStatusQueued battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out battlefieldStatus, bg, GetPlayer(), i, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId, avgTime, arenaType, ginfo.Players.Count > 1);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out BattlefieldStatusQueued battlefieldStatus, bg, GetPlayer(), i, GetPlayer().GetBattlegroundQueueJoinTime(bgQueueTypeId), bgQueueTypeId, avgTime, arenaType, ginfo.Players.Count > 1);
                     SendPacket(battlefieldStatus);
                 }
             }
@@ -534,8 +526,7 @@ namespace Game
             uint avgTime = 0;
             GroupQueueInfo ginfo = null;
 
-            ObjectGuid errorGuid;
-            var err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, (uint)arenatype, (uint)arenatype, true, packet.TeamSizeIndex, out errorGuid);
+            var err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, (uint)arenatype, (uint)arenatype, true, packet.TeamSizeIndex, out ObjectGuid errorGuid);
             if (err == 0)
             {
                 Log.outDebug(LogFilter.Battleground, "Battleground: arena team id {0}, leader {1} queued with matchmaker rating {2} for type {3}", GetPlayer().GetArenaTeamId(packet.TeamSizeIndex), GetPlayer().GetName(), matchmakerRating, arenatype);
@@ -552,16 +543,14 @@ namespace Game
 
                 if (err != 0)
                 {
-                    BattlefieldStatusFailed battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, err, errorGuid);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, err, errorGuid);
                     member.SendPacket(battlefieldStatus);
                     continue;
                 }
 
                 if (!GetPlayer().CanJoinToBattleground(bg))
                 {
-                    BattlefieldStatusFailed battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, GroupJoinBattlegroundResult.BattlegroundJoinFailed, errorGuid);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, bgQueueTypeId, GetPlayer(), 0, GroupJoinBattlegroundResult.BattlegroundJoinFailed, errorGuid);
                     member.SendPacket(battlefieldStatus);
                     return;
                 }

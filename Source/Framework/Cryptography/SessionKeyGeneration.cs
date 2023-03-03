@@ -48,11 +48,11 @@ namespace Framework.Cryptography
             taken = 0;
         }
 
-        SHA256 sh;        
+        readonly SHA256 sh;        
         uint taken;
         byte[] o0 = new byte[32];
-        byte[] o1 = new byte[32];
-        byte[] o2 = new byte[32];
+        readonly byte[] o1 = new byte[32];
+        readonly byte[] o2 = new byte[32];
     }
 
     public class SessionKeyGenerator
@@ -98,10 +98,10 @@ namespace Framework.Cryptography
             taken = 0;
         }
 
-        SHA1 sh;
+        readonly SHA1 sh;
         uint taken;
         byte[] o0 = new byte[32];
-        byte[] o1 = new byte[32];
-        byte[] o2 = new byte[32];
+        readonly byte[] o1 = new byte[32];
+        readonly byte[] o2 = new byte[32];
     }
 }

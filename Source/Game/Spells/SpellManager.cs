@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
@@ -12,13 +17,6 @@ using Game.Extendability;
 using Game.Movement;
 using Game.Scripting.Interfaces.ISpellManager;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using static Game.ScriptNameContainer;
 
 namespace Game.Entities
 {
@@ -554,7 +552,7 @@ namespace Game.Entities
             return null;
         }
 
-        static Dictionary<int, PetAura> _defaultPetAuras = new();
+        static readonly Dictionary<int, PetAura> _defaultPetAuras = new();
         public Dictionary<int, PetAura> GetPetAuras(uint spell_id)
         {
             if (mSpellPetAuraMap.TryGetValue(spell_id, out var auras))
@@ -653,7 +651,7 @@ namespace Game.Entities
             return null;
         }
 
-        Dictionary<Difficulty, SpellInfo> _emptyDiffDict = new();
+        readonly Dictionary<Difficulty, SpellInfo> _emptyDiffDict = new();
 
         Dictionary<Difficulty, SpellInfo> _GetSpellInfo(uint spellId)
         {
@@ -1165,8 +1163,7 @@ namespace Game.Entities
 
             foreach (var group in groups)
             {
-                List<int> spells;
-                GetSetOfSpellsInSpellGroup((SpellGroup)group, out spells);
+                GetSetOfSpellsInSpellGroup((SpellGroup)group, out List<int> spells);
 
                 foreach (var spell in spells)
                 {
@@ -4810,37 +4807,39 @@ namespace Game.Entities
         }
 
         #region Fields
-        Dictionary<uint, SpellChainNode> mSpellChains = new();
-        MultiMap<uint, uint> mSpellsReqSpell = new();
-        MultiMap<uint, uint> mSpellReq = new();
-        Dictionary<uint, SpellLearnSkillNode> mSpellLearnSkills = new();
-        MultiMap<uint, SpellLearnSpellNode> mSpellLearnSpells = new();
-        Dictionary<KeyValuePair<uint, int>, SpellTargetPosition> mSpellTargetPositions = new();
-        MultiMap<uint, SpellGroup> mSpellSpellGroup = new();
-        MultiMap<SpellGroup, int> mSpellGroupSpell = new();
-        Dictionary<SpellGroup, SpellGroupStackRule> mSpellGroupStack = new();
-        MultiMap<SpellGroup, AuraType> mSpellSameEffectStack = new();
-        List<ServersideSpellName> mServersideSpellNames = new();
-        Dictionary<uint, Dictionary<Difficulty, SpellProcEntry>> mSpellProcMap = new();
-        Dictionary<uint, SpellThreatEntry> mSpellThreatMap = new();
-        Dictionary<uint, Dictionary<int, PetAura>> mSpellPetAuraMap = new();
-        MultiMap<(SpellLinkedType, uint), int> mSpellLinkedMap = new();
-        Dictionary<uint, SpellEnchantProcEntry> mSpellEnchantProcEventMap = new();
-        MultiMap<uint, SpellArea> mSpellAreaMap = new();
-        MultiMap<uint, SpellArea> mSpellAreaForQuestMap = new();
-        MultiMap<uint, SpellArea> mSpellAreaForQuestEndMap = new();
-        MultiMap<uint, SpellArea> mSpellAreaForAuraMap = new();
-        MultiMap<uint, SpellArea> mSpellAreaForAreaMap = new();
-        MultiMap<uint, SkillLineAbilityRecord> mSkillLineAbilityMap = new();
-        Dictionary<uint, MultiMap<uint, uint>> mPetLevelupSpellMap = new();
-        Dictionary<uint, PetDefaultSpellsEntry> mPetDefaultSpellsMap = new();           // only spells not listed in related mPetLevelupSpellMap entry
-        Dictionary<uint, Dictionary<Difficulty, SpellInfo>> mSpellInfoMap = new();
-        Dictionary<Tuple<uint, byte>, uint> mSpellTotemModel = new();
+        readonly Dictionary<uint, SpellChainNode> mSpellChains = new();
+        readonly MultiMap<uint, uint> mSpellsReqSpell = new();
+        readonly MultiMap<uint, uint> mSpellReq = new();
+        readonly Dictionary<uint, SpellLearnSkillNode> mSpellLearnSkills = new();
+        readonly MultiMap<uint, SpellLearnSpellNode> mSpellLearnSpells = new();
+        readonly Dictionary<KeyValuePair<uint, int>, SpellTargetPosition> mSpellTargetPositions = new();
+        readonly MultiMap<uint, SpellGroup> mSpellSpellGroup = new();
+        readonly MultiMap<SpellGroup, int> mSpellGroupSpell = new();
+        readonly Dictionary<SpellGroup, SpellGroupStackRule> mSpellGroupStack = new();
+        readonly MultiMap<SpellGroup, AuraType> mSpellSameEffectStack = new();
+        readonly List<ServersideSpellName> mServersideSpellNames = new();
+        readonly Dictionary<uint, Dictionary<Difficulty, SpellProcEntry>> mSpellProcMap = new();
+        readonly Dictionary<uint, SpellThreatEntry> mSpellThreatMap = new();
+        readonly Dictionary<uint, Dictionary<int, PetAura>> mSpellPetAuraMap = new();
+        readonly MultiMap<(SpellLinkedType, uint), int> mSpellLinkedMap = new();
+        readonly Dictionary<uint, SpellEnchantProcEntry> mSpellEnchantProcEventMap = new();
+        readonly MultiMap<uint, SpellArea> mSpellAreaMap = new();
+        readonly MultiMap<uint, SpellArea> mSpellAreaForQuestMap = new();
+        readonly MultiMap<uint, SpellArea> mSpellAreaForQuestEndMap = new();
+        readonly MultiMap<uint, SpellArea> mSpellAreaForAuraMap = new();
+        readonly MultiMap<uint, SpellArea> mSpellAreaForAreaMap = new();
+        readonly MultiMap<uint, SkillLineAbilityRecord> mSkillLineAbilityMap = new();
+        readonly Dictionary<uint, MultiMap<uint, uint>> mPetLevelupSpellMap = new();
+        readonly Dictionary<uint, PetDefaultSpellsEntry> mPetDefaultSpellsMap = new();           // only spells not listed in related mPetLevelupSpellMap entry
+        readonly Dictionary<uint, Dictionary<Difficulty, SpellInfo>> mSpellInfoMap = new();
+        readonly Dictionary<Tuple<uint, byte>, uint> mSpellTotemModel = new();
 
         public delegate void AuraEffectHandler(AuraEffect effect, AuraApplication aurApp, AuraEffectHandleModes mode, bool apply);
-        Dictionary<AuraType, AuraEffectHandler> AuraEffectHandlers = new();
+
+        readonly Dictionary<AuraType, AuraEffectHandler> AuraEffectHandlers = new();
         public delegate void SpellEffectHandler(Spell spell);
-        Dictionary<SpellEffectName, SpellEffectHandler> SpellEffectsHandlers = new();
+
+        readonly Dictionary<SpellEffectName, SpellEffectHandler> SpellEffectsHandlers = new();
 
         public MultiMap<uint, uint> PetFamilySpellsStorage = new();
         #endregion
@@ -5088,9 +5087,9 @@ namespace Game.Entities
             return damage;
         }
 
-        Dictionary<uint, uint> auras = new();
-        bool removeOnChangePet;
-        double damage;
+        readonly Dictionary<uint, uint> auras = new();
+        readonly bool removeOnChangePet;
+        readonly double damage;
     }
 
     public class SpellEnchantProcEntry

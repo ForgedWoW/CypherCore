@@ -1,20 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.Achievements;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Groups;
-using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IGuild;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Guilds
 {
@@ -2552,16 +2550,15 @@ namespace Game.Guilds
         EmblemInfo m_emblemInfo = new();
         uint m_accountsNumber;
         ulong m_bankMoney;
-
-        List<RankInfo> m_ranks = new();
-        Dictionary<ObjectGuid, Member> m_members = new();
-        List<BankTab> m_bankTabs = new();
+        readonly List<RankInfo> m_ranks = new();
+        readonly Dictionary<ObjectGuid, Member> m_members = new();
+        readonly List<BankTab> m_bankTabs = new();
 
         // These are actually ordered lists. The first element is the oldest entry.
-        LogHolder<EventLogEntry> m_eventLog = new();
-        LogHolder<BankEventLogEntry>[] m_bankEventLog = new LogHolder<BankEventLogEntry>[GuildConst.MaxBankTabs + 1];
-        LogHolder<NewsLogEntry> m_newsLog = new();
-        GuildAchievementMgr m_achievementSys;
+        readonly LogHolder<EventLogEntry> m_eventLog = new();
+        readonly LogHolder<BankEventLogEntry>[] m_bankEventLog = new LogHolder<BankEventLogEntry>[GuildConst.MaxBankTabs + 1];
+        readonly LogHolder<NewsLogEntry> m_newsLog = new();
+        readonly GuildAchievementMgr m_achievementSys;
         #endregion
 
         public static implicit operator bool(Guild guild)
@@ -2818,7 +2815,7 @@ namespace Game.Guilds
             Player FindConnectedPlayer() { return Global.ObjAccessor.FindConnectedPlayer(m_guid); }
 
             #region Fields
-            ulong m_guildId;
+            readonly ulong m_guildId;
             ObjectGuid m_guid;
             string m_name;
             uint m_zoneId;
@@ -2834,8 +2831,7 @@ namespace Game.Guilds
             string m_officerNote = "";
 
             List<uint> m_trackedCriteriaIds = new();
-
-            uint[] m_bankWithdraw = new uint[GuildConst.MaxBankTabs];
+            readonly uint[] m_bankWithdraw = new uint[GuildConst.MaxBankTabs];
             ulong m_bankWithdrawMoney;
             uint m_achievementPoints;
             ulong m_totalActivity;
@@ -2924,10 +2920,10 @@ namespace Game.Guilds
                 packet.Entry.Add(eventEntry);
             }
 
-            GuildEventLogTypes m_eventType;
-            ulong m_playerGuid1;
-            ulong m_playerGuid2;
-            byte m_newRank;
+            readonly GuildEventLogTypes m_eventType;
+            readonly ulong m_playerGuid1;
+            readonly ulong m_playerGuid2;
+            readonly byte m_newRank;
         }
 
         public class BankEventLogEntry : LogEntry
@@ -3023,12 +3019,12 @@ namespace Game.Guilds
                 packet.Entry.Add(bankLogEntry);
             }
 
-            GuildBankEventLogTypes m_eventType;
-            byte m_bankTabId;
-            ulong m_playerGuid;
-            ulong m_itemOrMoney;
-            ushort m_itemStackCount;
-            byte m_destTabId;
+            readonly GuildBankEventLogTypes m_eventType;
+            readonly byte m_bankTabId;
+            readonly ulong m_playerGuid;
+            readonly ulong m_itemOrMoney;
+            readonly ushort m_itemStackCount;
+            readonly byte m_destTabId;
         }
 
         public class NewsLogEntry : LogEntry
@@ -3105,16 +3101,16 @@ namespace Game.Guilds
                 newsPacket.NewsEvents.Add(newsEvent);
             }
 
-            GuildNews m_type;
+            readonly GuildNews m_type;
             ObjectGuid m_playerGuid;
             int m_flags;
-            uint m_value;
+            readonly uint m_value;
         }
 
         public class LogHolder<T> where T : LogEntry
         {
-            List<T> m_log = new();
-            uint m_maxRecords;
+            readonly List<T> m_log = new();
+            readonly uint m_maxRecords;
             uint m_nextGUID;
 
             public LogHolder()
@@ -3328,13 +3324,13 @@ namespace Game.Guilds
                 return tabId < GuildConst.MaxBankTabs ? m_bankTabRightsAndSlots[tabId].GetSlots() : 0;
             }
 
-            ulong m_guildId;
+            readonly ulong m_guildId;
             GuildRankId m_rankId;
             GuildRankOrder m_rankOrder;
             string m_name;
             GuildRankRights m_rights;
             uint m_bankMoneyPerDay;
-            GuildBankRightsAndSlots[] m_bankTabRightsAndSlots = new GuildBankRightsAndSlots[GuildConst.MaxBankTabs];
+            readonly GuildBankRightsAndSlots[] m_bankTabRightsAndSlots = new GuildBankRightsAndSlots[GuildConst.MaxBankTabs];
         }
 
         public class BankTab
@@ -3489,9 +3485,9 @@ namespace Game.Guilds
                 return true;
             }
 
-            ulong m_guildId;
-            byte m_tabId;
-            Item[] m_items = new Item[GuildConst.MaxBankSlots];
+            readonly ulong m_guildId;
+            readonly byte m_tabId;
+            readonly Item[] m_items = new Item[GuildConst.MaxBankSlots];
             string m_name;
             string m_icon;
             string m_text;

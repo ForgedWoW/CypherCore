@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 219415 - Dimension Ripper
-	[SpellScript(219415)]
+    // 219415 - Dimension Ripper
+    [SpellScript(219415)]
 	public class spell_warlock_artifact_dimension_ripper : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

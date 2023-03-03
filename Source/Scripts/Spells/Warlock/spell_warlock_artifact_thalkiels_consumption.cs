@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Thal'kiel's Consumption - 211714
-	[SpellScript(211714)]
+    // Thal'kiel's Consumption - 211714
+    [SpellScript(211714)]
 	public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpellEffects
 	{
 		private uint _damage = 0;

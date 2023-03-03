@@ -108,9 +108,8 @@ namespace Framework.Web
 
             foreach (var f in httpFields)
             {
-                object val;
 
-                if (headerValues.TryGetValue(f.Name.ToLower(), out val))
+                if (headerValues.TryGetValue(f.Name.ToLower(), out object val))
                 {
                     if (f.PropertyType == typeof(int))
                         f.SetValue(header, Convert.ChangeType(Convert.ToInt32(val), f.PropertyType));

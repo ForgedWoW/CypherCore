@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Framework.Constants;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -113,8 +113,7 @@ namespace Game.Collision
             // child bounds are defined in object space:
             Vector3 pModel = iInvRot.Multiply(point - iPos) * iInvScale;
             Vector3 zDirModel = iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
-            float zDist;
-            if (iModel.IntersectPoint(pModel, zDirModel, out zDist, info))
+            if (iModel.IntersectPoint(pModel, zDirModel, out float zDist, info))
             {
                 Vector3 modelGround = pModel + zDist * zDirModel;
                 float world_Z = (iInvRot.Multiply(modelGround) * iScale + iPos).Z;
@@ -140,10 +139,9 @@ namespace Game.Collision
             // child bounds are defined in object space:
             Vector3 pModel = iInvRot.Multiply(point - iPos) * iInvScale;
             Vector3 zDirModel = iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
-            float zDist;
 
             GroupLocationInfo groupInfo = new();
-            if (iModel.GetLocationInfo(pModel, zDirModel, out zDist, groupInfo))
+            if (iModel.GetLocationInfo(pModel, zDirModel, out float zDist, groupInfo))
             {
                 Vector3 modelGround = pModel + zDist * zDirModel;
                 float world_Z = (iInvRot.Multiply(modelGround) * iScale + iPos).Z;
@@ -162,8 +160,7 @@ namespace Game.Collision
             // child bounds are defined in object space:
             Vector3 pModel = iInvRot.Multiply(point - iPos) * iInvScale;
             //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-            float zDist;
-            if (info.hitModel.GetLiquidLevel(pModel, out zDist))
+            if (info.hitModel.GetLiquidLevel(pModel, out float zDist))
             {
                 // calculate world height (zDist in model coords):
                 // assume WMO not tilted (wouldn't make much sense anyway)

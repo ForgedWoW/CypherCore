@@ -8,8 +8,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	//204730 - Fear (effect)
-	[SpellScript(204730)]
+    //204730 - Fear (effect)
+    [SpellScript(204730)]
 	public class spell_warl_fear_buff : SpellScript, ISpellAfterHit
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)

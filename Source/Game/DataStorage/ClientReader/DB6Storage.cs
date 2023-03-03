@@ -1,11 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Framework.Dynamic;
-using Framework.IO;
-using Game.Extendability;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Framework.Constants;
+using Framework.Database;
+using Framework.Dynamic;
+using Framework.IO;
 
 namespace Game.DataStorage
 {
@@ -31,7 +30,7 @@ namespace Game.DataStorage
     public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
     {
         WDCHeader _header;
-        string _tableName = typeof(T).Name;
+        readonly string _tableName = typeof(T).Name;
         string _db2name;
 
         public void LoadData(string fullFileName, string db2Name)

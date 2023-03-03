@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//215571 Frothing Berserker
-	[SpellScript(215571)]
+    //215571 Frothing Berserker
+    [SpellScript(215571)]
 	public class spell_warr_frothing_berserker : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

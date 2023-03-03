@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
 
 namespace Game.AI
 {
@@ -376,8 +376,8 @@ namespace Game.AI
     public class PlayerAI : UnitAI
     {
         protected new Player me;
-        uint _selfSpec;
-        bool _isSelfHealer;
+        readonly uint _selfSpec;
+        readonly bool _isSelfHealer;
         bool _isSelfRangedAttacker;
 
         public PlayerAI(Player player) : base(player)
@@ -1363,7 +1363,7 @@ namespace Game.AI
 
     struct ValidTargetSelectPredicate : ICheck<Unit>
     {
-        IUnitAI _ai;
+        readonly IUnitAI _ai;
 
         public ValidTargetSelectPredicate(IUnitAI ai)
         {

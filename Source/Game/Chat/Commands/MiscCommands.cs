@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -12,9 +15,6 @@ using Game.Maps;
 using Game.Movement;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Chat
 {
@@ -24,10 +24,7 @@ namespace Game.Chat
         [CommandNonGroup("appear", RBACPermissions.CommandAppear)]
         static bool HandleAppearCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            ObjectGuid targetGuid;
-            string targetName;
-            if (!handler.ExtractPlayerTarget(args, out target, out targetGuid, out targetName))
+            if (!handler.ExtractPlayerTarget(args, out Player target, out ObjectGuid targetGuid, out string targetName))
                 return false;
 
             Player _player = handler.GetSession().GetPlayer();
@@ -107,8 +104,7 @@ namespace Game.Chat
                     _player.SaveRecallPosition(); // save only in non-flight case
 
                 // to point to see at target with same orientation
-                float x, y, z;
-                target.GetClosePoint(out x, out y, out z, _player.GetCombatReach(), 1.0f);
+                target.GetClosePoint(out float x, out float y, out float z, _player.GetCombatReach(), 1.0f);
 
                 _player.TeleportTo(target.GetMapId(), x, y, z, _player.GetAbsoluteAngle(target), TeleportToOptions.GMMode, target.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(_player, target);
@@ -125,8 +121,7 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.AppearingAt, nameLink);
 
                 // to point where player stay (if loaded)
-                WorldLocation loc;
-                if (!Player.LoadPositionFromDB(out loc, out _, targetGuid))
+                if (!Player.LoadPositionFromDB(out WorldLocation loc, out _, targetGuid))
                     return false;
 
                 // stop flight if need
@@ -621,8 +616,7 @@ namespace Game.Chat
             CellCoord cellCoord = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
             Cell cell = new(cellCoord);
 
-            uint zoneId, areaId;
-            obj.GetZoneAndAreaId(out zoneId, out areaId);
+            obj.GetZoneAndAreaId(out uint zoneId, out uint areaId);
             uint mapId = obj.GetMapId();
 
             MapRecord mapEntry = CliDB.MapStorage.LookupByKey(mapId);
@@ -676,8 +670,7 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.GridPosition, cell.GetGridX(), cell.GetGridY(), cell.GetCellX(), cell.GetCellY(), obj.GetInstanceId(),
                 zoneX, zoneY, groundZ, floorZ, map.GetMinHeight(obj.GetPhaseShift(), obj.GetPositionX(), obj.GetPositionY()), haveMap, haveVMap, haveMMap);
 
-            LiquidData liquidStatus;
-            ZLiquidStatus status = map.GetLiquidStatus(obj.GetPhaseShift(), obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), LiquidHeaderTypeFlags.AllLiquids, out liquidStatus);
+            ZLiquidStatus status = map.GetLiquidStatus(obj.GetPhaseShift(), obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidStatus);
 
             if (liquidStatus != null)
                 handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
@@ -774,9 +767,7 @@ namespace Game.Chat
         [CommandNonGroup("kick", RBACPermissions.CommandKick, true)]
         static bool HandleKickPlayerCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            string playerName;
-            if (!handler.ExtractPlayerTarget(args, out target, out _, out playerName))
+            if (!handler.ExtractPlayerTarget(args, out Player target, out _, out string playerName))
                 return false;
 
             if (handler.GetSession() != null && target == handler.GetSession().GetPlayer())
@@ -908,8 +899,7 @@ namespace Game.Chat
                 return true;
             }
 
-            float x, y, z;
-            unit.GetMotionMaster().GetDestination(out x, out y, out z);
+            unit.GetMotionMaster().GetDestination(out float x, out float y, out float z);
 
             var list = unit.GetMotionMaster().GetMovementGeneratorsInformation();
             foreach (MovementGeneratorInformation info in list)
@@ -1154,14 +1144,13 @@ namespace Game.Chat
             // Define ALL the player variables!
             Player target;
             ObjectGuid targetGuid;
-            string targetName;
             PreparedStatement stmt;
 
             // To make sure we get a target, we convert our guid to an omniversal...
             ObjectGuid parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
             // ... and make sure we get a target, somehow.
-            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out targetName))
+            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out string targetName))
             {
                 target = Global.ObjAccessor.FindPlayer(parseGUID);
                 targetGuid = parseGUID;
@@ -1563,8 +1552,7 @@ namespace Game.Chat
         [CommandNonGroup("recall", RBACPermissions.CommandRecall)]
         static bool HandleRecallCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            if (!handler.ExtractPlayerTarget(args, out target))
+            if (!handler.ExtractPlayerTarget(args, out Player target))
                 return false;
 
             // check online security
@@ -1588,8 +1576,7 @@ namespace Game.Chat
         [CommandNonGroup("repairitems", RBACPermissions.CommandRepairitems, true)]
         static bool HandleRepairitemsCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            if (!handler.ExtractPlayerTarget(args, out target))
+            if (!handler.ExtractPlayerTarget(args, out Player target))
                 return false;
 
             // check online security
@@ -1647,9 +1634,7 @@ namespace Game.Chat
         [CommandNonGroup("revive", RBACPermissions.CommandRevive, true)]
         static bool HandleReviveCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            ObjectGuid targetGuid;
-            if (!handler.ExtractPlayerTarget(args, out target, out targetGuid))
+            if (!handler.ExtractPlayerTarget(args, out Player target, out ObjectGuid targetGuid))
                 return false;
 
             if (target != null)
@@ -1739,10 +1724,7 @@ namespace Game.Chat
         [CommandNonGroup("summon", RBACPermissions.CommandSummon)]
         static bool HandleSummonCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            ObjectGuid targetGuid;
-            string targetName;
-            if (!handler.ExtractPlayerTarget(args, out target, out targetGuid, out targetName))
+            if (!handler.ExtractPlayerTarget(args, out Player target, out ObjectGuid targetGuid, out string targetName))
                 return false;
 
             Player _player = handler.GetSession().GetPlayer();
@@ -1825,8 +1807,7 @@ namespace Game.Chat
                     _player.SaveRecallPosition(); // save only in non-flight case
 
                 // before GM
-                float x, y, z;
-                _player.GetClosePoint(out x, out y, out z, target.GetCombatReach());
+                _player.GetClosePoint(out float x, out float y, out float z, target.GetCombatReach());
                 target.TeleportTo(_player.GetMapId(), x, y, z, target.GetOrientation(), 0, map.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(target, _player);
                 target.UpdateObjectVisibility();
@@ -1922,10 +1903,7 @@ namespace Game.Chat
         [CommandNonGroup("unmute", RBACPermissions.CommandUnmute, true)]
         static bool HandleUnmuteCommand(CommandHandler handler, StringArguments args)
         {
-            Player target;
-            ObjectGuid targetGuid;
-            string targetName;
-            if (!handler.ExtractPlayerTarget(args, out target, out targetGuid, out targetName))
+            if (!handler.ExtractPlayerTarget(args, out Player target, out ObjectGuid targetGuid, out string targetName))
                 return false;
 
             uint accountId = target ? target.GetSession().GetAccountId() : Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
@@ -2006,9 +1984,7 @@ namespace Game.Chat
             if (string.IsNullOrEmpty(loc))
                 location_str = loc;
 
-            Player player;
-            ObjectGuid targetGUID;
-            if (!handler.ExtractPlayerTarget(args, out player, out targetGUID))
+            if (!handler.ExtractPlayerTarget(args, out Player player, out ObjectGuid targetGUID))
                 return false;
 
             if (!player)
@@ -2196,11 +2172,10 @@ namespace Game.Chat
             }
 
             // Adding items
-            uint noSpaceForCount = 0;
 
             // check space and find places
             List<ItemPosCount> dest = new();
-            InventoryResult msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, (uint)count, out noSpaceForCount);
+            InventoryResult msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, (uint)count, out uint noSpaceForCount);
             if (msg != InventoryResult.Ok)                               // convert to possible store amount
                 count -= (int)noSpaceForCount;
 
@@ -2322,8 +2297,7 @@ namespace Game.Chat
                 return false;
 
             Player player = handler.GetSession().GetPlayer();
-            Player playerTarget = null;
-            if (!handler.ExtractPlayerTarget(args, out playerTarget))
+            if (!handler.ExtractPlayerTarget(args, out Player playerTarget))
                 return false;
 
             StringArguments tailArgs = new StringArguments(args.NextString(""));
@@ -2436,11 +2410,10 @@ namespace Game.Chat
             }
 
             // Adding items
-            uint noSpaceForCount = 0;
 
             // check space and find places
             List<ItemPosCount> dest = new();
-            InventoryResult msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, (uint)count, out noSpaceForCount);
+            InventoryResult msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, (uint)count, out uint noSpaceForCount);
             if (msg != InventoryResult.Ok)                               // convert to possible store amount
                 count -= (int)noSpaceForCount;
 

@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
 
 namespace Game.Collision
 {
@@ -109,10 +108,9 @@ namespace Game.Collision
                 var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
                 if (instanceTree != null)
                 {
-                    Vector3 resultPos;
                     Vector3 pos1 = ConvertPositionToInternalRep(x1, y1, z1);
                     Vector3 pos2 = ConvertPositionToInternalRep(x2, y2, z2);
-                    bool result = instanceTree.GetObjectHitPos(pos1, pos2, out resultPos, modifyDist);
+                    bool result = instanceTree.GetObjectHitPos(pos1, pos2, out Vector3 resultPos, modifyDist);
                     resultPos = ConvertPositionToInternalRep(resultPos.X, resultPos.Y, resultPos.Z);
                     rx = resultPos.X;
                     ry = resultPos.Y;
@@ -201,9 +199,7 @@ namespace Game.Collision
             if (Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
             {
                 data.floorZ = z;
-                int adtId, rootId, groupId;
-                uint flags;
-                if (GetAreaInfo(mapId, x, y, ref data.floorZ, out flags, out adtId, out rootId, out groupId))
+                if (GetAreaInfo(mapId, x, y, ref data.floorZ, out uint flags, out int adtId, out int rootId, out int groupId))
                     data.areaInfo = new(adtId, rootId, groupId, flags);
                 return data;
             }
@@ -309,13 +305,12 @@ namespace Game.Collision
         public bool IsHeightCalcEnabled() { return _enableHeightCalc; }
         public bool IsMapLoadingEnabled() { return _enableLineOfSightCalc || _enableHeightCalc; }
 
-        Dictionary<string, ManagedModel> iLoadedModelFiles = new();
-        Dictionary<uint, StaticMapTree> iInstanceMapTrees = new();
-        Dictionary<uint, uint> iParentMapData = new();
+        readonly Dictionary<string, ManagedModel> iLoadedModelFiles = new();
+        readonly Dictionary<uint, StaticMapTree> iInstanceMapTrees = new();
+        readonly Dictionary<uint, uint> iParentMapData = new();
         bool _enableLineOfSightCalc;
         bool _enableHeightCalc;
-
-        object LoadedModelFilesLock = new();
+        readonly object LoadedModelFilesLock = new();
     }
 
     public class ManagedModel

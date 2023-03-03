@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(6201)] // 6201 - Create Healthstone
+    [SpellScript(6201)] // 6201 - Create Healthstone
 	internal class spell_warl_create_healthstone : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

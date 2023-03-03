@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Grimoire of Synergy - 171975
-	[SpellScript(171975, "spell_warl_grimoire_of_synergy")]
+    // Grimoire of Synergy - 171975
+    [SpellScript(171975, "spell_warl_grimoire_of_synergy")]
 	public class spell_warl_grimoire_of_synergy_SpellScript : SpellScript, ISpellOnCast
 	{
 		public void OnCast()

@@ -7,7 +7,6 @@ using Framework.Dynamic;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces.ICreature;
 using Game.Spells;
 using Scripts.Spells.Warlock;
 

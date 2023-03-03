@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//18499
-	[SpellScript(18499)]
+    //18499
+    [SpellScript(18499)]
 	public class spell_warr_berzerker_rage : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

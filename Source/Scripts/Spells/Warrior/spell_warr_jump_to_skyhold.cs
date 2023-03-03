@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// Jump to Skyhold Jump - 192085
-	[SpellScript(192085)]
+    // Jump to Skyhold Jump - 192085
+    [SpellScript(192085)]
 	public class spell_warr_jump_to_skyhold : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

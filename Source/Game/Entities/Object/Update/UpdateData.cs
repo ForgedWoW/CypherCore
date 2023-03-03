@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.IO;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -12,9 +12,9 @@ namespace Game.Entities
     {
         uint MapId;
         uint BlockCount;
-        List<ObjectGuid> destroyGUIDs = new();
-        List<ObjectGuid> outOfRangeGUIDs = new();
-        ByteBuffer data = new();
+        readonly List<ObjectGuid> destroyGUIDs = new();
+        readonly List<ObjectGuid> outOfRangeGUIDs = new();
+        readonly ByteBuffer data = new();
 
         public UpdateData(uint mapId)
         {

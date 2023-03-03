@@ -4,16 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.DataStorage;
-using Framework.Constants;
 using Framework.Collections;
+using Framework.Constants;
+using Game.DataStorage;
 
 namespace Game.Chat
 {
     public class LanguageManager : Singleton<LanguageManager>
     {
-        MultiMap<uint, LanguageDesc> _langsMap = new();
-        MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
+        readonly MultiMap<uint, LanguageDesc> _langsMap = new();
+        readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
 
         LanguageManager() { }
 
@@ -234,7 +234,7 @@ namespace Game.Chat
             return c == '/' ? '\\' : char.ToUpper(c);
         }
 
-        static uint[] s_hashtable =
+        static readonly uint[] s_hashtable =
         {
             0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB,
             0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49,

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
+using Framework.Constants;
+using Game.Entities;
 
 namespace Game.Networking.Packets
 {
@@ -211,15 +211,15 @@ namespace Game.Networking.Packets
 
         ObjectGuid Guid;
         ObjectGuid WowAccountGuid;
-        uint VirtualRealmAddr;
-        uint NativeRealmAddr;
-        SocialFlag TypeFlags;
-        string Notes;
-        FriendStatus Status;
-        uint AreaID;
-        uint Level;
-        Class ClassID;
-        bool Mobile;
+        readonly uint VirtualRealmAddr;
+        readonly uint NativeRealmAddr;
+        readonly SocialFlag TypeFlags;
+        readonly string Notes;
+        readonly FriendStatus Status;
+        readonly uint AreaID;
+        readonly uint Level;
+        readonly Class ClassID;
+        readonly bool Mobile;
     }
 
     public struct QualifiedGUID

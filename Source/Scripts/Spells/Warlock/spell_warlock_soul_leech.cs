@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 108370 - Soul Leech
-	[SpellScript(108370)]
+    // 108370 - Soul Leech
+    [SpellScript(108370)]
 	public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

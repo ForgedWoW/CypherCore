@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Warrior
 {
-	internal struct WarriorSpells
+    internal struct WarriorSpells
 	{
 		public const uint ALLOW_RAGING_BLOW = 131116;
 		public const uint ANGER_MANAGEMENT = 152278;

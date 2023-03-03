@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Soul Leech aura - 228974
-	[SpellScript(228974)]
+    // Soul Leech aura - 228974
+    [SpellScript(228974)]
 	public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)

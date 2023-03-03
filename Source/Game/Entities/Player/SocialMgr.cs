@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
     public class SocialManager : Singleton<SocialManager>
     {
-        Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
+        readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
         SocialManager() { }
 

@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 171017 - Meteor Strike
-	[SpellScript(171017)]
+    // 171017 - Meteor Strike
+    [SpellScript(171017)]
 	public class spell_warlock_infernal_meteor_strike : SpellScript, ISpellOnCast
 	{
 		public void OnCast()

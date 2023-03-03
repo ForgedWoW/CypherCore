@@ -6,7 +6,7 @@ namespace Game.Maps;
 
 public class PacketSenderRef : IDoWork<Player>
 {
-    ServerPacket Data;
+    readonly ServerPacket Data;
 
     public PacketSenderRef(ServerPacket message)
     {

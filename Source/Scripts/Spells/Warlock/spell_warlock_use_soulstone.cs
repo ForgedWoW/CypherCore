@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 3026 - Use Soulstone
-	[SpellScript(3026)]
+    // 3026 - Use Soulstone
+    [SpellScript(3026)]
 	public class spell_warlock_use_soulstone : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Movement;
-using System;
-using System.Collections.Generic;
 
 namespace Game.AI
 {
@@ -185,8 +185,7 @@ namespace Game.AI
                                 if (_returnToStart)
                                 {
                                     Position respawnPosition = new();
-                                    float orientation;
-                                    me.GetRespawnPosition(out respawnPosition.posX, out respawnPosition.posY, out respawnPosition.posZ, out orientation);
+                                    me.GetRespawnPosition(out respawnPosition.posX, out respawnPosition.posY, out respawnPosition.posZ, out float orientation);
                                     respawnPosition.SetOrientation(orientation);
                                     me.GetMotionMaster().MovePoint(EscortPointIds.Home, respawnPosition);
                                     Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: returning to spawn location: {respawnPosition} ({me.GetGUID()})");
@@ -469,7 +468,7 @@ namespace Game.AI
 
         Quest _escortQuest; //generally passed in Start() when regular escort script.
 
-        WaypointPath _path;
+        readonly WaypointPath _path;
 
         bool _activeAttacker;      // obsolete, determined by faction.
         bool _running;             // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)

@@ -58,11 +58,9 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
         {
             byte[] h;
             byte[] checkr = new byte[32];
-            GroupElementP3 A;
-            GroupElementP2 R;
 
             if ((sig[sigoffset + 63] & 224) != 0) return false;
-            if (GroupOperations.ge_frombytes_negate_vartime(out A, pk, pkoffset) != 0)
+            if (GroupOperations.ge_frombytes_negate_vartime(out GroupElementP3 A, pk, pkoffset) != 0)
                 return false;
 
             var hasher = new Sha512();
@@ -89,7 +87,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 
             var sm32 = new byte[32];//todo: remove allocation
             Array.Copy(sig, sigoffset + 32, sm32, 0, 32);
-            GroupOperations.ge_double_scalarmult_vartime(out R, h, ref A, sm32);
+            GroupOperations.ge_double_scalarmult_vartime(out GroupElementP2 R, h, ref A, sm32);
             GroupOperations.ge_tobytes(checkr, 0, ref R);
             var result = CryptoBytes.ConstantTimeEquals(checkr, 0, sig, sigoffset, 32);
             CryptoBytes.Wipe(h);

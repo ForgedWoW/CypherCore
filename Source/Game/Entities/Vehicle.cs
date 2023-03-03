@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.AI;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Movement;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IVehicle;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.Entities
 {
@@ -405,8 +404,7 @@ namespace Game.Entities
                 {
                     Cypher.Assert(passenger.IsInWorld);
 
-                    float px, py, pz, po;
-                    passenger.m_movementInfo.transport.pos.GetPosition(out px, out py, out pz, out po);
+                    passenger.m_movementInfo.transport.pos.GetPosition(out float px, out float py, out float pz, out float po);
                     CalculatePassengerPosition(ref px, ref py, ref pz, ref po);
 
                     seatRelocation.Add(Tuple.Create(passenger, new Position(px, py, pz, po)));
@@ -583,13 +581,13 @@ namespace Game.Entities
         public VehicleRecord GetVehicleInfo() { return _vehicleInfo; }
         public uint GetCreatureEntry() { return _creatureEntry; }
 
-        Unit _me;
-        VehicleRecord _vehicleInfo;                   //< DBC data for vehicle
+        readonly Unit _me;
+        readonly VehicleRecord _vehicleInfo;                   //< DBC data for vehicle
 
-        uint _creatureEntry;                              //< Can be different than the entry of _me in case of players
+        readonly uint _creatureEntry;                              //< Can be different than the entry of _me in case of players
         Status _status;                                     //< Internal variable for sanity checks
 
-        List<VehicleJoinEvent> _pendingJoinEvents = new();
+        readonly List<VehicleJoinEvent> _pendingJoinEvents = new();
         public Dictionary<sbyte, VehicleSeat> Seats = new();
         public uint UsableSeatNum;    //< Number of seats that match VehicleSeatEntry.UsableByPlayer, used for proper display flags
 

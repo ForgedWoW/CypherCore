@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// Whirlwind - 190411
-	[SpellScript(190411)]
+    // Whirlwind - 190411
+    [SpellScript(190411)]
 	public class spell_warr_whirlwind : SpellScript, ISpellAfterCast
 	{
 		public void AfterCast()

@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	//197995
-	[SpellScript(197995)]
+    //197995
+    [SpellScript(197995)]
 	public class spell_sha_wellspring : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.BattlePets;
@@ -8,8 +10,6 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -168,8 +168,7 @@ namespace Game
             if (srcItem == null)
                 return;                                             // only at cheat
 
-            ushort dest;
-            InventoryResult msg = pl.CanEquipItem(ItemConst.NullSlot, out dest, srcItem, !srcItem.IsBag());
+            InventoryResult msg = pl.CanEquipItem(ItemConst.NullSlot, out ushort dest, srcItem, !srcItem.IsBag());
             if (msg != InventoryResult.Ok)
             {
                 pl.SendEquipError(msg, srcItem);

@@ -5,10 +5,10 @@ namespace Game.Maps;
 
 class MostHPPercentMissingInRange : ICheck<Unit>
 {
-    Unit _obj;
-    float _range;
-    float _minHpPct;
-    float _maxHpPct;
+    readonly Unit _obj;
+    readonly float _range;
+    readonly float _minHpPct;
+    readonly float _maxHpPct;
     float _hpPct;
 
     public MostHPPercentMissingInRange(Unit obj, float range, uint minHpPct, uint maxHpPct)

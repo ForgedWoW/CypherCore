@@ -9,7 +9,7 @@ namespace Framework.Dynamic
 {
     public class EventSystem
     {
-        List<double> _removeKeys = new List<double>();
+        readonly List<double> _removeKeys = new List<double>();
         public EventSystem()
         {
             m_time = 0;
@@ -161,7 +161,7 @@ namespace Framework.Dynamic
         }
 
         ulong m_time;
-        SortedDictionary<double, List<BasicEvent>> m_events = new();
+        readonly SortedDictionary<double, List<BasicEvent>> m_events = new();
     }
 
     public class BasicEvent
@@ -200,7 +200,7 @@ namespace Framework.Dynamic
 
     public class LambdaBasicEvent : BasicEvent
     {
-        Action _callback;
+        readonly Action _callback;
 
         public LambdaBasicEvent(Action callback) : base()
         {
@@ -223,8 +223,8 @@ namespace Framework.Dynamic
 
     public class RepeatEvent : BasicEvent 
     {
-        Func<TimeSpan> _event;
-        EventSystem _eventSystem;
+        readonly Func<TimeSpan> _event;
+        readonly EventSystem _eventSystem;
 
         public RepeatEvent(EventSystem eventSystem, Func<TimeSpan> func) : base()
         {

@@ -17,11 +17,10 @@ namespace Framework.Networking
 
     public abstract class SocketBase : ISocket, IDisposable
     {
-        Socket _socket;
-        IPEndPoint _remoteIPEndPoint;
-
-        SocketAsyncEventArgs receiveSocketAsyncEventArgsWithCallback;
-        SocketAsyncEventArgs receiveSocketAsyncEventArgs;
+        readonly Socket _socket;
+        readonly IPEndPoint _remoteIPEndPoint;
+        readonly SocketAsyncEventArgs receiveSocketAsyncEventArgsWithCallback;
+        readonly SocketAsyncEventArgs receiveSocketAsyncEventArgs;
 
         public delegate void SocketReadCallback(SocketAsyncEventArgs args);
 

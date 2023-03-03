@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 603 - Doom
-	public class spell_warlock_doom : AuraScript, IHasAuraEffects
+    // 603 - Doom
+    public class spell_warlock_doom : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 

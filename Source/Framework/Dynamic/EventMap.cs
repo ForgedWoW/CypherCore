@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Constants;
 
 namespace Framework.Dynamic
 {
@@ -317,6 +316,6 @@ namespace Framework.Dynamic
         /// - Bit 24 - 31: Phase
         /// - Pattern: 0xPPGGEEEE
         /// </summary>
-        MultiMap<TimeSpan, uint> _eventMap = new();
+        readonly MultiMap<TimeSpan, uint> _eventMap = new();
     }
 }

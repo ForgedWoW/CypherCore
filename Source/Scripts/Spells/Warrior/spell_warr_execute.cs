@@ -8,10 +8,10 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 163201  - Execute
-	// 217955  - Execute
-	// 281000  - Execute
-	[SpellScript(new uint[]
+    // 163201  - Execute
+    // 217955  - Execute
+    // 281000  - Execute
+    [SpellScript(new uint[]
 	             {
 		             163201, 217955, 281000
 	             })]

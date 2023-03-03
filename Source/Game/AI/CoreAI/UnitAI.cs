@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Combat;
 using Game.Entities;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.AI
 {
     public class UnitAI : IUnitAI
     {
-        static Dictionary<(uint id, Difficulty difficulty), AISpellInfoType> _aiSpellInfo = new();
+        static readonly Dictionary<(uint id, Difficulty difficulty), AISpellInfoType> _aiSpellInfo = new();
 
         protected Unit me { get; private set; }
 

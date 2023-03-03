@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Framework.Constants;
+using Game.Entities;
 
 namespace Game.DungeonFinding
 {
@@ -694,15 +694,14 @@ namespace Game.DungeonFinding
         }
 
         // Queue
-        Dictionary<ObjectGuid, LfgQueueData> QueueDataStore = new();
-        Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
-
-        Dictionary<uint, LfgWaitTime> waitTimesAvgStore = new();
-        Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
-        Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
-        Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
-        List<ObjectGuid> currentQueueStore = new();
-        List<ObjectGuid> newToQueueStore = new();
+        readonly Dictionary<ObjectGuid, LfgQueueData> QueueDataStore = new();
+        readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
+        readonly Dictionary<uint, LfgWaitTime> waitTimesAvgStore = new();
+        readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
+        readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
+        readonly Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
+        readonly List<ObjectGuid> currentQueueStore = new();
+        readonly List<ObjectGuid> newToQueueStore = new();
     }
 
     public class LfgCompatibilityData

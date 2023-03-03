@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Game.Entities;
+using Game.Networking.Packets;
 
 namespace Game.Movement
 {
@@ -327,7 +327,7 @@ namespace Game.Movement
         public List<Vector3> Path() { return args.path; }
 
         public MoveSplineInitArgs args = new();
-        Unit unit;
+        readonly Unit unit;
     }
 
     // Transforms coordinates from global to transport offsets
@@ -355,7 +355,7 @@ namespace Game.Movement
             return new Vector3(x, y, z);
         }
 
-        Unit _owner;
-        bool _transformForTransport;
+        readonly Unit _owner;
+        readonly bool _transformForTransport;
     }
 }

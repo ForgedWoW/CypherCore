@@ -7,7 +7,7 @@ namespace Game
 {
     public class UpdateTime
     {
-        uint[] _updateTimeDataTable = new uint[500];
+        readonly uint[] _updateTimeDataTable = new uint[500];
         uint _averageUpdateTime;
         uint _totalUpdateTime;
         uint _updateTimeTableIndex;

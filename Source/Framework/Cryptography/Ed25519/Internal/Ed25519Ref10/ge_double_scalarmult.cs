@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
-	internal static partial class GroupOperations
+    internal static partial class GroupOperations
 	{
 		private static void slide(sbyte[] r, byte[] a)
 		{
@@ -59,17 +57,14 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			sbyte[] aslide = new sbyte[256];
 			sbyte[] bslide = new sbyte[256];
 			GroupElementCached[] Ai = new GroupElementCached[8]; /* A,3A,5A,7A,9A,11A,13A,15A */
-			GroupElementP1P1 t;
-			GroupElementP3 u;
-			GroupElementP3 A2;
-			int i;
+            int i;
 
-			slide(aslide, a);
+            slide(aslide, a);
 			slide(bslide, b);
 
 			ge_p3_to_cached(out Ai[0], ref A);
-			ge_p3_dbl(out t, ref A); ge_p1p1_to_p3(out A2, ref t);
-			ge_add(out t, ref A2, ref Ai[0]); ge_p1p1_to_p3(out u, ref t); ge_p3_to_cached(out Ai[1], ref u);
+			ge_p3_dbl(out GroupElementP1P1 t, ref A); ge_p1p1_to_p3(out GroupElementP3 A2, ref t);
+			ge_add(out t, ref A2, ref Ai[0]); ge_p1p1_to_p3(out GroupElementP3 u, ref t); ge_p3_to_cached(out Ai[1], ref u);
 			ge_add(out t, ref A2, ref Ai[1]); ge_p1p1_to_p3(out u, ref t); ge_p3_to_cached(out Ai[2], ref u);
 			ge_add(out t, ref A2, ref Ai[2]); ge_p1p1_to_p3(out u, ref t); ge_p3_to_cached(out Ai[3], ref u);
 			ge_add(out t, ref A2, ref Ai[3]); ge_p1p1_to_p3(out u, ref t); ge_p3_to_cached(out Ai[4], ref u);

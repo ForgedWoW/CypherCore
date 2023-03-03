@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 40121 - Swift Flight Form (Passive)
+    [Script] // 40121 - Swift Flight Form (Passive)
 	internal class spell_dru_swift_flight_passive : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

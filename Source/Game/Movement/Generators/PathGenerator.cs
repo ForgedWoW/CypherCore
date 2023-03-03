@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
-using System;
-using System.Numerics;
 
 namespace Game.Movement
 {
@@ -35,8 +35,7 @@ namespace Game.Movement
 
         public bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false)
         {
-            float x, y, z;
-            _source.GetPosition(out x, out y, out z);
+            _source.GetPosition(out float x, out float y, out float z);
 
             if (!GridDefines.IsValidMapCoord(destX, destY, destZ) || !GridDefines.IsValidMapCoord(x, y, z))
                 return false;
@@ -890,8 +889,7 @@ namespace Game.Movement
 
         NavTerrainFlag GetNavTerrain(float x, float y, float z)
         {
-            LiquidData data;
-            ZLiquidStatus liquidStatus = _source.GetMap().GetLiquidStatus(_source.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out data, _source.GetCollisionHeight());
+            ZLiquidStatus liquidStatus = _source.GetMap().GetLiquidStatus(_source.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData data, _source.GetCollisionHeight());
             if (liquidStatus == ZLiquidStatus.NoWater)
                 return NavTerrainFlag.Ground;
 
@@ -942,9 +940,6 @@ namespace Game.Movement
                 return;
 
             int i = _pathPoints.Length - 1;
-            float x;
-            float y;
-            float z;
             float collisionHeight = _source.GetCollisionHeight();
             // find the first i s.t.:
             //  - _pathPoints[i] is still too close
@@ -957,7 +952,7 @@ namespace Game.Movement
                     break; // bingo!
 
                 // check if the shortened path is still in LoS with the target
-                _source.GetHitSpherePointFor(new Position(_pathPoints[i - 1].X, _pathPoints[i - 1].Y, _pathPoints[i - 1].Z + collisionHeight), out x, out y, out z);
+                _source.GetHitSpherePointFor(new Position(_pathPoints[i - 1].X, _pathPoints[i - 1].Y, _pathPoints[i - 1].Z + collisionHeight), out float x, out float y, out float z);
                 if (!_source.GetMap().IsInLineOfSight(_source.GetPhaseShift(), x, y, z, _pathPoints[i - 1].X, _pathPoints[i - 1].Y, _pathPoints[i - 1].Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
                 {
                     // whenver we find a point that is not in LoS anymore, simply use last valid path
@@ -1044,12 +1039,12 @@ namespace Game.Movement
         public void SetPathLengthLimit(float distance) { _pointPathLimit = Math.Min((uint)(distance / 4.0f), 74); }
         public void SetUseRaycast(bool useRaycast) { _useRaycast = useRaycast; }
 
-        ulong[] _pathPolyRefs = new ulong[74];
+        readonly ulong[] _pathPolyRefs = new ulong[74];
 
         uint _polyLength;
         uint _pointPathLimit;
         bool _useRaycast;     // use raycast if true for a straight line path
-        WorldObject _source;
+        readonly WorldObject _source;
         bool _forceDestination;
         bool _useStraightPath;
         Vector3[] _pathPoints;
@@ -1058,10 +1053,9 @@ namespace Game.Movement
         Vector3 _startPosition;
         Vector3 _endPosition;
         PathType pathType;
-
-        Detour.dtQueryFilter _filter = new();
-        Detour.dtNavMeshQuery _navMeshQuery;
-        Detour.dtNavMesh _navMesh;
+        readonly Detour.dtQueryFilter _filter = new();
+        readonly Detour.dtNavMeshQuery _navMeshQuery;
+        readonly Detour.dtNavMesh _navMesh;
     }
 
     [Flags]

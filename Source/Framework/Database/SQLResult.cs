@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using MySqlConnector;
 using System;
 using System.Runtime.CompilerServices;
+using MySqlConnector;
 
 namespace Framework.Database
 {
@@ -145,7 +145,7 @@ namespace Framework.Database
 
     public class SQLFields
     {
-        object[] _currentRow;
+        readonly object[] _currentRow;
 
         public SQLFields(object[] row) { _currentRow = row; }
 

@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	[SpellScript(new uint[]
+    [SpellScript(new uint[]
 	             {
 		             23922, 316523
 	             })]

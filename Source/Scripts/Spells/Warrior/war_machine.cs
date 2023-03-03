@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.Warrior
 {
-	//262231
-	[SpellScript(262231)]
+    //262231
+    [SpellScript(262231)]
 	public class war_machine : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreatureKill
 	{
 		public war_machine() : base("war_machine")

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Flametongue aura - 194084
-	[SpellScript(194084)]
+    // Flametongue aura - 194084
+    [SpellScript(194084)]
 	public class bfa_spell_flametongue_proc_attack : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

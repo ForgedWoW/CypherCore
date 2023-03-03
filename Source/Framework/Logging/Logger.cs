@@ -5,12 +5,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Bgs.Protocol.Channel.V1;
 
 class Logger
 {
-    ConcurrentQueue<LogMessage> _logQueue = new ConcurrentQueue<LogMessage>();
-    AutoResetEvent _logTrigger = new AutoResetEvent(false);
+    readonly ConcurrentQueue<LogMessage> _logQueue = new ConcurrentQueue<LogMessage>();
+    readonly AutoResetEvent _logTrigger = new AutoResetEvent(false);
 
     public Logger(string _name, LogLevel _level)
     {
@@ -68,7 +67,7 @@ class Logger
         _logTrigger.Set();
     }
 
-    string name;
+    readonly string name;
     LogLevel level;
-    Dictionary<byte, Appender> appenders = new();
+    readonly Dictionary<byte, Appender> appenders = new();
 }

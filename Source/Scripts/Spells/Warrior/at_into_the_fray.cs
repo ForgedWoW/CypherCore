@@ -8,9 +8,9 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warrior
 {
-	// 202603 Into the Fray
-	// MiscId - 5839
-	[Script]
+    // 202603 Into the Fray
+    // MiscId - 5839
+    [Script]
 	public class at_into_the_fray : AreaTriggerAI
 	{
 		public at_into_the_fray(AreaTrigger areatrigger) : base(areatrigger)

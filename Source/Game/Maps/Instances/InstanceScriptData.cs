@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.DataStorage;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Framework.Constants;
+using Game.DataStorage;
 
 namespace Game.Maps
 {
@@ -30,7 +30,7 @@ namespace Game.Maps
             AdditionalDataUnexpectedValueType
         }
 
-        InstanceScript _instance;
+        readonly InstanceScript _instance;
         JsonDocument _doc;
 
         public InstanceScriptDataReader(InstanceScript instance)
@@ -185,7 +185,7 @@ namespace Game.Maps
 
     class InstanceScriptDataWriter
     {
-        InstanceScript _instance;
+        readonly InstanceScript _instance;
         JsonObject _doc = new();
 
         public InstanceScriptDataWriter(InstanceScript instance)

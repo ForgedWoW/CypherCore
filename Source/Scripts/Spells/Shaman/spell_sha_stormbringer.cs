@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Shaman
 {
-	// Stormbringer - 201845
-	[SpellScript(201845)]
+    // Stormbringer - 201845
+    [SpellScript(201845)]
 	public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

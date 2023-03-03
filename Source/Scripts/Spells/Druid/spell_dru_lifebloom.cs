@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 33763 - Lifebloom
+    [Script] // 33763 - Lifebloom
 	internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

@@ -7,8 +7,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//5925
-	[CreatureScript(5925)]
+    //5925
+    [CreatureScript(5925)]
 	public class npc_grounding_totem : ScriptedAI
 	{
 		public npc_grounding_totem(Creature creature) : base(creature)

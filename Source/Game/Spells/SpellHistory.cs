@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Spells
 {
@@ -1067,13 +1067,13 @@ namespace Game.Spells
             }
         }
 
-        Unit _owner;
-        Dictionary<uint, CooldownEntry> _spellCooldowns = new();
+        readonly Unit _owner;
+        readonly Dictionary<uint, CooldownEntry> _spellCooldowns = new();
         Dictionary<uint, CooldownEntry> _spellCooldownsBeforeDuel = new();
-        Dictionary<uint, CooldownEntry> _categoryCooldowns = new();
-        DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
-        MultiMap<uint, ChargeEntry> _categoryCharges = new();
-        Dictionary<uint, DateTime> _globalCooldowns = new();
+        readonly Dictionary<uint, CooldownEntry> _categoryCooldowns = new();
+        readonly DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
+        readonly MultiMap<uint, ChargeEntry> _categoryCharges = new();
+        readonly Dictionary<uint, DateTime> _globalCooldowns = new();
 
         public class CooldownEntry
         {

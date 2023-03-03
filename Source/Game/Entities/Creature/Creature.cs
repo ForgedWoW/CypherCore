@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -12,9 +15,6 @@ using Game.Loots;
 using Game.Maps;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
@@ -164,8 +164,7 @@ namespace Game.Entities
                 if (IsFalling())
                     StopMoving();
 
-                float x, y, z, o;
-                GetRespawnPosition(out x, out y, out z, out o);
+                GetRespawnPosition(out float x, out float y, out float z, out float o);
 
                 // We were spawned on transport, calculate real position
                 if (IsSpawnedOnTransport())
@@ -325,9 +324,7 @@ namespace Game.Entities
 
             SetFaction(cInfo.Faction);
 
-            ulong npcFlags;
-            uint unitFlags, unitFlags2, unitFlags3, dynamicFlags;
-            ObjectManager.ChooseCreatureFlags(cInfo, out npcFlags, out unitFlags, out unitFlags2, out unitFlags3, out dynamicFlags, data);
+            ObjectManager.ChooseCreatureFlags(cInfo, out ulong npcFlags, out uint unitFlags, out uint unitFlags2, out uint unitFlags3, out uint dynamicFlags, data);
 
             if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
                 npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
@@ -1893,9 +1890,7 @@ namespace Game.Entities
                     CreatureData creatureData = GetCreatureData();
                     CreatureTemplate cInfo = GetCreatureTemplate();
 
-                    ulong npcFlags;
-                    uint unitFlags, unitFlags2, unitFlags3, dynamicFlags;
-                    ObjectManager.ChooseCreatureFlags(cInfo, out npcFlags, out unitFlags, out unitFlags2, out unitFlags3, out dynamicFlags, creatureData);
+                    ObjectManager.ChooseCreatureFlags(cInfo, out ulong npcFlags, out uint unitFlags, out uint unitFlags2, out uint unitFlags3, out uint dynamicFlags, creatureData);
 
                     if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
                         npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
@@ -3444,8 +3439,8 @@ namespace Game.Entities
 
 
         ObjectGuid m_victim;
-        List<ObjectGuid> m_assistants = new();
-        Unit m_owner;
+        readonly List<ObjectGuid> m_assistants = new();
+        readonly Unit m_owner;
     }
 
     public class ForcedDespawnDelayEvent : BasicEvent
@@ -3461,7 +3456,7 @@ namespace Game.Entities
             return true;
         }
 
-        Creature m_owner;
-        TimeSpan m_respawnTimer;
+        readonly Creature m_owner;
+        readonly TimeSpan m_respawnTimer;
     }
 }

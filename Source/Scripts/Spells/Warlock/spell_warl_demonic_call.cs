@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(new uint[]
+    [SpellScript(new uint[]
 	             {
 		             686, 6353, 103964, 205145
 	             })]

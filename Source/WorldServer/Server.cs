@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Threading;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -8,10 +12,6 @@ using Framework.Networking;
 using Game;
 using Game.Chat;
 using Game.Networking;
-using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Threading;
 
 namespace WorldServer
 {

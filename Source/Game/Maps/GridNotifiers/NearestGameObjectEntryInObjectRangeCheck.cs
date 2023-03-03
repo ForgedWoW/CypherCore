@@ -23,8 +23,8 @@ class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
         return false;
     }
 
-    WorldObject _obj;
-    uint _entry;
+    readonly WorldObject _obj;
+    readonly uint _entry;
     float _range;
-    bool _spawnedOnly;
+    readonly bool _spawnedOnly;
 }

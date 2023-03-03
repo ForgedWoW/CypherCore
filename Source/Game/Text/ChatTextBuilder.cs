@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
-using Framework.Dynamic;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game.Chat
 {
@@ -17,13 +16,13 @@ namespace Game.Chat
 
     public class ChatPacketSender : IDoWork<Player>
     {
-        ChatMsg Type;
-        Language Language;
-        WorldObject Sender;
-        WorldObject Receiver;
-        string Text;
-        uint AchievementId;
-        Locale Locale;
+        readonly ChatMsg Type;
+        readonly Language Language;
+        readonly WorldObject Sender;
+        readonly WorldObject Receiver;
+        readonly string Text;
+        readonly uint AchievementId;
+        readonly Locale Locale;
 
         // caches
         public ChatPkt UntranslatedPacket;
@@ -81,12 +80,12 @@ namespace Game.Chat
             return new ChatPacketSender(_msgType, bct != null ? (Language)bct.LanguageID : Language.Universal, _source, _target, bct != null ? Global.DB2Mgr.GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, locale);
         }
 
-        WorldObject _source;
-        ChatMsg _msgType;
-        uint _textId;
-        Gender _gender;
-        WorldObject _target;
-        uint _achievementId;
+        readonly WorldObject _source;
+        readonly ChatMsg _msgType;
+        readonly uint _textId;
+        readonly Gender _gender;
+        readonly WorldObject _target;
+        readonly uint _achievementId;
     }
 
     public class CustomChatTextBuilder : MessageBuilder
@@ -105,11 +104,11 @@ namespace Game.Chat
             return new ChatPacketSender(_msgType, _language, _source, _target, _text, 0, locale);
         }
 
-        WorldObject _source;
-        ChatMsg _msgType;
-        string _text;
-        Language _language;
-        WorldObject _target;
+        readonly WorldObject _source;
+        readonly ChatMsg _msgType;
+        readonly string _text;
+        readonly Language _language;
+        readonly WorldObject _target;
     }
 
     class CypherStringChatBuilder : MessageBuilder
@@ -133,10 +132,10 @@ namespace Game.Chat
                 return new ChatPacketSender(_msgType, Language.Universal, _source, _target, text, 0, locale);
         }
 
-        WorldObject _source;
-        ChatMsg _msgType;
-        CypherStrings _textId;
-        WorldObject _target;
-        object[] _args;
+        readonly WorldObject _source;
+        readonly ChatMsg _msgType;
+        readonly CypherStrings _textId;
+        readonly WorldObject _target;
+        readonly object[] _args;
     }
 }

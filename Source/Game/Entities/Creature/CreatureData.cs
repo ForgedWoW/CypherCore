@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Collections;
-using Framework.Constants;
 using System;
 using System.Collections.Generic;
-using Game.Networking.Packets;
+using Framework.Collections;
+using Framework.Constants;
 using Game.Maps;
+using Game.Networking.Packets;
 
 namespace Game.Entities
 {
@@ -445,7 +445,7 @@ namespace Game.Entities
 
     public class VendorItemData
     {
-        List<VendorItem> m_items = new();
+        readonly List<VendorItem> m_items = new();
 
         public VendorItem GetItem(uint slot)
         {

@@ -23,6 +23,6 @@ class NearestPlayerInObjectRangeCheck : ICheck<Player>
         return false;
     }
 
-    WorldObject i_obj;
+    readonly WorldObject i_obj;
     float i_range;
 }

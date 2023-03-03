@@ -1,22 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Framework.Collections
 {
     public class ManyToOneLookup<TKey, TValue>
     {
         ulong _index;
-        private Dictionary<TValue, ulong> _values;
-        private Dictionary<ulong, TValue> _valuesMap = new();
-        private MultiMap<TKey, ulong> _keys;
-        private MultiMap<ulong, TKey> _keysMap = new();
+        private readonly Dictionary<TValue, ulong> _values;
+        private readonly Dictionary<ulong, TValue> _valuesMap = new();
+        private readonly MultiMap<TKey, ulong> _keys;
+        private readonly MultiMap<ulong, TKey> _keysMap = new();
 
         public ManyToOneLookup()
         {

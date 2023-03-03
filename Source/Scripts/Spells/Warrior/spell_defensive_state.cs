@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//197690
-	[SpellScript(197690)]
+    //197690
+    [SpellScript(197690)]
 	public class spell_defensive_state : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

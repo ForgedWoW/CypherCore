@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 6358 - Seduction, 115268 - Mesmerize
-	[SpellScript(new uint[]
+    // 6358 - Seduction, 115268 - Mesmerize
+    [SpellScript(new uint[]
 	             {
 		             6358, 115268
 	             })]

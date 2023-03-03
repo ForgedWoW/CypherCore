@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonwrath damage - 193439
-	[SpellScript(193439)]
+    // Demonwrath damage - 193439
+    [SpellScript(193439)]
 	public class spell_warl_demonwrath : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Chat
 {

@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.BattleFields;
@@ -12,13 +15,9 @@ using Game.Loots;
 using Game.Maps;
 using Game.Networking.Packets;
 using Game.PvP;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
@@ -583,8 +582,7 @@ namespace Game.Entities
 
                 if (meleeAttackAuraEffect == null)
                 {
-                    CalcDamageInfo damageInfo;
-                    CalculateMeleeDamage(victim, out damageInfo, attType);
+                    CalculateMeleeDamage(victim, out CalcDamageInfo damageInfo, attType);
                     // Send log damage message to client
                     CheckEvade(damageInfo.Attacker, victim, ref damageInfo.Damage, ref damageInfo.Absorb);
 

@@ -1,9 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
 using Framework.Constants;
 using Framework.Database;
-using Framework.Dynamic;
 using Game.BattleGrounds;
 using Game.Collision;
 using Game.DataStorage;
@@ -13,18 +19,9 @@ using Game.Maps.Interfaces;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scenarios;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IMap;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IWorldState;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Game.Maps
 {
@@ -182,7 +179,6 @@ namespace Game.Maps
 
         public void LoadAllCells()
         {
-            int numbTasks = 0;
             Semaphore s = new Semaphore(50, 50);
 
             for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
@@ -576,8 +572,7 @@ namespace Game.Maps
                         var data = new UpdateData(GetId());
                         obj.BuildCreateUpdateBlockForPlayer(data, player);
                         player.m_visibleTransports.Add(obj.GetGUID());
-                        UpdateObject packet;
-                        data.BuildPacket(out packet);
+                        data.BuildPacket(out UpdateObject packet);
                         player.SendPacket(packet);
                     }
                 }
@@ -942,8 +937,7 @@ namespace Game.Maps
                 else
                     obj.BuildOutOfRangeUpdateBlock(data);
 
-                UpdateObject packet;
-                data.BuildPacket(out packet);
+                data.BuildPacket(out UpdateObject packet);
 
                 foreach (var player in GetPlayers())
                 {
@@ -1443,8 +1437,7 @@ namespace Game.Maps
 
         public bool CreatureRespawnRelocation(Creature c, bool diffGridOnly)
         {
-            float resp_x, resp_y, resp_z, resp_o;
-            c.GetRespawnPosition(out resp_x, out resp_y, out resp_z, out resp_o);
+            c.GetRespawnPosition(out float resp_x, out float resp_y, out float resp_z, out float resp_o);
             var resp_cell = new Cell(resp_x, resp_y);
 
             //creature will be unloaded with grid
@@ -1469,8 +1462,7 @@ namespace Game.Maps
 
         public bool GameObjectRespawnRelocation(GameObject go, bool diffGridOnly)
         {
-            float resp_x, resp_y, resp_z, resp_o;
-            go.GetRespawnPosition(out resp_x, out resp_y, out resp_z, out resp_o);
+            go.GetRespawnPosition(out float resp_x, out float resp_y, out float resp_z, out float resp_o);
             var resp_cell = new Cell(resp_x, resp_y);
 
             //GameObject will be unloaded with grid
@@ -1817,8 +1809,7 @@ namespace Game.Maps
                         passenger.BuildCreateUpdateBlockForPlayer(data, player);
                 }
             }
-            UpdateObject packet;
-            data.BuildPacket(out packet);
+            data.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
 
@@ -1835,8 +1826,7 @@ namespace Game.Maps
                 }
             }
 
-            UpdateObject packet;
-            transData.BuildPacket(out packet);
+            transData.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
 
@@ -1852,8 +1842,7 @@ namespace Game.Maps
                 }
             }
 
-            UpdateObject packet;
-            transData.BuildPacket(out packet);
+            transData.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
 
@@ -1882,8 +1871,7 @@ namespace Game.Maps
                 }
             }
 
-            UpdateObject packet;
-            transData.BuildPacket(out packet);
+            transData.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
 
@@ -1912,10 +1900,9 @@ namespace Game.Maps
                     obj.BuildUpdate(update_players);
                 }
 
-            UpdateObject packet;
             foreach (var iter in update_players)
             {
-                iter.Value.BuildPacket(out packet);
+                iter.Value.BuildPacket(out UpdateObject packet);
                 iter.Key.SendPacket(packet);
             }
         }
@@ -4781,69 +4768,61 @@ namespace Game.Maps
         internal object _mapLock = new();
 
         bool _creatureToMoveLock;
-        List<Creature> creaturesToMove = new();
+        readonly List<Creature> creaturesToMove = new();
 
         bool _gameObjectsToMoveLock;
-        List<GameObject> _gameObjectsToMove = new();
+        readonly List<GameObject> _gameObjectsToMove = new();
 
         bool _dynamicObjectsToMoveLock;
-        List<DynamicObject> _dynamicObjectsToMove = new();
+        readonly List<DynamicObject> _dynamicObjectsToMove = new();
 
         bool _areaTriggersToMoveLock;
-        List<AreaTrigger> _areaTriggersToMove = new();
-
-        DynamicMapTree _dynamicTree = new();
-
-        SortedSet<RespawnInfo> _respawnTimes = new(new CompareRespawnInfo());
-        Dictionary<ulong, RespawnInfo> _creatureRespawnTimesBySpawnId = new();
-        Dictionary<ulong, RespawnInfo> _gameObjectRespawnTimesBySpawnId = new();
-        List<uint> _toggledSpawnGroupIds = new();
+        readonly List<AreaTrigger> _areaTriggersToMove = new();
+        readonly DynamicMapTree _dynamicTree = new();
+        readonly SortedSet<RespawnInfo> _respawnTimes = new(new CompareRespawnInfo());
+        readonly Dictionary<ulong, RespawnInfo> _creatureRespawnTimesBySpawnId = new();
+        readonly Dictionary<ulong, RespawnInfo> _gameObjectRespawnTimesBySpawnId = new();
+        readonly List<uint> _toggledSpawnGroupIds = new();
         uint _respawnCheckTimer;
-        Dictionary<uint, uint> _zonePlayerCountMap = new();
-
-        List<Transport> _transports = new();
-        Dictionary<uint, Dictionary<uint, Grid>> _grids = new();
-        MapRecord i_mapRecord;
-        List<WorldObject> i_objectsToRemove = new();
-        Dictionary<WorldObject, bool> i_objectsToSwitch = new();
-        Difficulty i_spawnMode;
-        List<WorldObject> i_worldObjects = new();
+        readonly Dictionary<uint, uint> _zonePlayerCountMap = new();
+        readonly List<Transport> _transports = new();
+        readonly Dictionary<uint, Dictionary<uint, Grid>> _grids = new();
+        readonly MapRecord i_mapRecord;
+        readonly List<WorldObject> i_objectsToRemove = new();
+        readonly Dictionary<WorldObject, bool> i_objectsToSwitch = new();
+        readonly Difficulty i_spawnMode;
+        readonly List<WorldObject> i_worldObjects = new();
         protected List<WorldObject> m_activeNonPlayers = new();
         protected List<Player> m_activePlayers = new();
-        TerrainInfo m_terrain;
-
-        SortedDictionary<long, List<ScriptAction>> m_scriptSchedule = new();
-
-        BitSet marked_cells = new(MapConst.TotalCellsPerMap * MapConst.TotalCellsPerMap);
+        readonly TerrainInfo m_terrain;
+        readonly SortedDictionary<long, List<ScriptAction>> m_scriptSchedule = new();
+        readonly BitSet marked_cells = new(MapConst.TotalCellsPerMap * MapConst.TotalCellsPerMap);
         public Dictionary<ulong, CreatureGroup> CreatureGroupHolder = new();
         internal uint i_InstanceId;
         long i_gridExpiry;
-        object i_scriptLock = new();
+        readonly object i_scriptLock = new();
 
         public int m_VisibilityNotifyPeriod;
         public float m_VisibleDistance;
         internal uint m_unloadTimer;
-
-        Dictionary<uint, ZoneDynamicInfo> _zoneDynamicInfo = new();
-        IntervalTimer _weatherUpdateTimer;
-        Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
-        SpawnedPoolData _poolData;
-        Dictionary<ObjectGuid, WorldObject> _objectsStore = new();
-        MultiMap<ulong, Creature> _creatureBySpawnIdStore = new();
-        MultiMap<ulong, GameObject> _gameobjectBySpawnIdStore = new();
-        MultiMap<ulong, AreaTrigger> _areaTriggerBySpawnIdStore = new();
-        MultiMap<uint, Corpse> _corpsesByCell = new();
-        Dictionary<ObjectGuid, Corpse> _corpsesByPlayer = new();
-        List<Corpse> _corpseBones = new();
-
-        List<WorldObject> _updateObjects = new();
+        readonly Dictionary<uint, ZoneDynamicInfo> _zoneDynamicInfo = new();
+        readonly IntervalTimer _weatherUpdateTimer;
+        readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
+        readonly SpawnedPoolData _poolData;
+        readonly Dictionary<ObjectGuid, WorldObject> _objectsStore = new();
+        readonly MultiMap<ulong, Creature> _creatureBySpawnIdStore = new();
+        readonly MultiMap<ulong, GameObject> _gameobjectBySpawnIdStore = new();
+        readonly MultiMap<ulong, AreaTrigger> _areaTriggerBySpawnIdStore = new();
+        readonly MultiMap<uint, Corpse> _corpsesByCell = new();
+        readonly Dictionary<ObjectGuid, Corpse> _corpsesByPlayer = new();
+        readonly List<Corpse> _corpseBones = new();
+        readonly List<WorldObject> _updateObjects = new();
 
         public delegate void FarSpellCallback(Map map);
-        Queue<FarSpellCallback> _farSpellCallbacks = new();
 
-        MultiPersonalPhaseTracker _multiPersonalPhaseTracker = new();
-
-        Dictionary<int, int> _worldStateValues = new();
+        readonly Queue<FarSpellCallback> _farSpellCallbacks = new();
+        readonly MultiPersonalPhaseTracker _multiPersonalPhaseTracker = new();
+        readonly Dictionary<int, int> _worldStateValues = new();
         #endregion
     }
 
@@ -5268,8 +5247,8 @@ namespace Game.Maps
         InstanceScript i_data;
         uint i_script_id;
         InstanceScenario i_scenario;
-        InstanceLock i_instanceLock;
-        GroupInstanceReference i_owningGroupRef = new();
+        readonly InstanceLock i_instanceLock;
+        readonly GroupInstanceReference i_owningGroupRef = new();
         DateTime? i_instanceExpireEvent;
     }
 

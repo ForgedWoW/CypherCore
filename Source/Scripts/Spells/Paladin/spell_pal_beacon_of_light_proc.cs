@@ -1,16 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Scripts.Spells.Paladin
 {
@@ -48,7 +44,6 @@ namespace Scripts.Spells.Paladin
             //if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id != BEACON_OF_LIGHT_HEAL && eventInfo.GetSpellInfo()->Id != LIGHT_OF_THE_MARTYR && targetOfBeacon->IsWithinLOSInMap(ownerOfBeacon) && targetOfHeal->GetGUID() != targetOfBeacon->GetGUID())
             return true;
 
-            return false;
         }
 
         private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)

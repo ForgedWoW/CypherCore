@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 40442 - Druid Tier 6 Trinket
+    [Script] // 40442 - Druid Tier 6 Trinket
 	internal class spell_dru_item_t6_trinket : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

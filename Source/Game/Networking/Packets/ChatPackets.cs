@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
-using Game.Entities;
-using Game.Groups;
 using System;
 using System.Collections.Generic;
+using Framework.Constants;
+using Game.Entities;
+using Game.Groups;
 
 namespace Game.Networking.Packets
 {
@@ -358,7 +357,7 @@ namespace Game.Networking.Packets
             _worldPacket.WriteString(Name);
         }
 
-        string Name;
+        readonly string Name;
     }
 
     class ChatPlayerAmbiguous : ServerPacket
@@ -374,7 +373,7 @@ namespace Game.Networking.Packets
             _worldPacket.WriteString(Name);
         }
 
-        string Name;
+        readonly string Name;
     }
 
     class ChatRestricted : ServerPacket
@@ -389,7 +388,7 @@ namespace Game.Networking.Packets
             _worldPacket.WriteUInt8((byte)Reason);
         }
 
-        ChatRestrictionType Reason;
+        readonly ChatRestrictionType Reason;
     }
 
     class ChatServerMessage : ServerPacket

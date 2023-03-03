@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 199472 - Wrath of Consumption
-	[SpellScript(199472)]
+    // 199472 - Wrath of Consumption
+    [SpellScript(199472)]
 	public class spell_warlock_artifact_wrath_of_consumption : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

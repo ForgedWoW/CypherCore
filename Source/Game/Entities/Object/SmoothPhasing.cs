@@ -8,7 +8,7 @@ namespace Game.Entities
     public class SmoothPhasing
     {
         SmoothPhasingInfo smoothPhasingInfoSingle;
-        Dictionary<ObjectGuid, SmoothPhasingInfo> smoothPhasingInfoViewerDependent = new();
+        readonly Dictionary<ObjectGuid, SmoothPhasingInfo> smoothPhasingInfoViewerDependent = new();
 
         public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
         {

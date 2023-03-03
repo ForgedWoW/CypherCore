@@ -17,6 +17,6 @@ public class ObjectTypeIdCheck : ICheck<WorldObject>
         return (obj.GetTypeId() == _typeId) == _equals;
     }
 
-    TypeId _typeId;
-    bool _equals;
+    readonly TypeId _typeId;
+    readonly bool _equals;
 }

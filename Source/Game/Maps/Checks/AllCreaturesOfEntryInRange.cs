@@ -30,7 +30,7 @@ public class AllCreaturesOfEntryInRange : ICheck<Creature>
         return true;
     }
 
-    WorldObject m_pObject;
-    uint m_uiEntry;
-    float m_fRange;
+    readonly WorldObject m_pObject;
+    readonly uint m_uiEntry;
+    readonly float m_fRange;
 }

@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.BattleGrounds;
 using Game.DataStorage;
@@ -11,9 +14,6 @@ using Game.Movement;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -455,8 +455,7 @@ namespace Game
             plMover.UpdatePosition(dest, true);
             plMover.SetFallInformation(0, GetPlayer().GetPositionZ());
 
-            uint newzone, newarea;
-            plMover.GetZoneAndAreaId(out newzone, out newarea);
+            plMover.GetZoneAndAreaId(out uint newzone, out uint newarea);
             plMover.UpdateZone(newzone, newarea);
 
             // new zone

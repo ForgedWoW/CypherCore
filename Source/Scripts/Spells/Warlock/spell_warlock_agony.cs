@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 980 - Agony
-	[SpellScript(980)]
+    // 980 - Agony
+    [SpellScript(980)]
 	public class spell_warlock_agony : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

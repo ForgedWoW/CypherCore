@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//207498 ancestral protection
-	[SpellScript(207498)]
+    //207498 ancestral protection
+    [SpellScript(207498)]
 	public class spell_sha_ancestral_protection_totem_aura : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

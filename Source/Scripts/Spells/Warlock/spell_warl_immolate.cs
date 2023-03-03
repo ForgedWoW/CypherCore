@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(348)] // 348 - Immolate
+    [SpellScript(348)] // 348 - Immolate
 	internal class spell_warl_immolate : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -10,7 +10,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 50286 - Starfall (Dummy)
+    [Script] // 50286 - Starfall (Dummy)
 	internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

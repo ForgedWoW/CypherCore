@@ -9,8 +9,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//105427 Skyfury Totem
-	[CreatureScript(105427)]
+    //105427 Skyfury Totem
+    [CreatureScript(105427)]
 	public class npc_skyfury_totem : ScriptedAI
 	{
 		public npc_skyfury_totem(Creature creature) : base(creature)

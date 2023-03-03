@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Hand of Gul'Dan - 105174
-	[SpellScript(105174)]
+    // Hand of Gul'Dan - 105174
+    [SpellScript(105174)]
 	public class spell_warl_hand_of_guldan : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

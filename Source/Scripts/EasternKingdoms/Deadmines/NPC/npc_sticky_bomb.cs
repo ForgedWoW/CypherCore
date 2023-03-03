@@ -17,7 +17,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
             _instance = pCreature.GetInstanceScript();
         }
 
-        private InstanceScript _instance;
+        private readonly InstanceScript _instance;
 
         private uint _phase;
         private uint _uiTimer;

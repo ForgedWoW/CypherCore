@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// 1680 Whirlwind
-	[SpellScript(1680)]
+    // 1680 Whirlwind
+    [SpellScript(1680)]
 	public class spell_warr_wirlwind_dmg : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

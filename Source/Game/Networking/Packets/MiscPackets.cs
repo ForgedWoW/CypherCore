@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Game.Entities;
 
 namespace Game.Networking.Packets
 {
@@ -41,7 +40,7 @@ namespace Game.Networking.Packets
         }
 
         ObjectGuid BinderID;
-        uint AreaID;
+        readonly uint AreaID;
     }
 
     public class InvalidatePlayer : ServerPacket
@@ -564,9 +563,9 @@ namespace Game.Networking.Packets
             _worldPacket.FlushBits();
         }
 
-        bool Abrupt;
-        float Intensity;
-        WeatherState WeatherID;
+        readonly bool Abrupt;
+        readonly float Intensity;
+        readonly WeatherState WeatherID;
     }
 
     public class StandStateChange : ClientPacket
@@ -595,8 +594,8 @@ namespace Game.Networking.Packets
             _worldPacket.WriteUInt8((byte)State);
         }
 
-        uint AnimKitID;
-        UnitStandStateType State;
+        readonly uint AnimKitID;
+        readonly UnitStandStateType State;
     }
 
     public class SetAnimTier : ServerPacket
@@ -736,7 +735,7 @@ namespace Game.Networking.Packets
             _worldPacket.WriteUInt32(SoundKitID);
         }
 
-        uint SoundKitID;
+        readonly uint SoundKitID;
     }
 
     public class RandomRollClient : ClientPacket
@@ -1368,9 +1367,9 @@ namespace Game.Networking.Packets
                 _worldPacket.WriteInt32(Arg2.Value);
         }
 
-        GameError Error;
-        int? Arg;
-        int? Arg2;
+        readonly GameError Error;
+        readonly int? Arg;
+        readonly int? Arg2;
     }
 
     class AccountMountUpdate : ServerPacket

@@ -8,9 +8,10 @@ namespace Game.Maps;
 public class PlayerSearcher : IGridNotifierPlayer
 {
     public GridType GridType { get; set; }
-    PhaseShift i_phaseShift;
+
+    readonly PhaseShift i_phaseShift;
     Player i_object;
-    ICheck<Player> i_check;
+    readonly ICheck<Player> i_check;
 
     public PlayerSearcher(WorldObject searcher, ICheck<Player> check, GridType gridType)
     {

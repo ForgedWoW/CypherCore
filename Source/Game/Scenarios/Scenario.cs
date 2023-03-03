@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Achievements;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Scenarios
 {
@@ -357,10 +357,10 @@ namespace Game.Scenarios
         public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
         public override void SendAllData(Player receiver) { }
 
-        List<ObjectGuid> _players = new();
+        readonly List<ObjectGuid> _players = new();
         protected ScenarioData _data;
         ScenarioStepRecord _currentstep;
-        Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
+        readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
     }
 
     public enum ScenarioStepState

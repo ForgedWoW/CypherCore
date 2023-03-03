@@ -1,27 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
     class ChaseMovementGenerator : MovementGenerator
     {
-        static uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
+        static readonly uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
 
         ChaseRange? _range;
         ChaseAngle? _angle;
 
         PathGenerator _path;
         Position _lastTargetPosition;
-        TimeTracker _rangeCheckTimer;
-        bool _movingTowards = true;
+        readonly TimeTracker _rangeCheckTimer;
+        readonly bool _movingTowards = true;
         bool _mutualChase = true;
-
-        AbstractFollower _abstractFollower;
+        readonly AbstractFollower _abstractFollower;
 
         public ChaseMovementGenerator(Unit target, ChaseRange? range, ChaseAngle? angle)
         {

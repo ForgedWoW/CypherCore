@@ -7,7 +7,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warlock
 {
-	[Script] // 86211 - Soul Swap - Also acts as a dot container
+    [Script] // 86211 - Soul Swap - Also acts as a dot container
 	public class spell_warl_soul_swap_override : AuraScript
 	{
 		private readonly List<uint> _dotList = new();

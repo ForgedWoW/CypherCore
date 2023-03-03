@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IDynamicObject;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -102,8 +101,7 @@ namespace Game.Entities
             ITransport transport = caster.GetTransport();
             if (transport != null)
             {
-                float x, y, z, o;
-                pos.GetPosition(out x, out y, out z, out o);
+                pos.GetPosition(out float x, out float y, out float z, out float o);
                 transport.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
                 m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
@@ -310,7 +308,7 @@ namespace Game.Entities
         public override ObjectGuid GetOwnerGUID() { return GetCasterGUID(); }
         public float GetRadius() { return m_dynamicObjectData.Radius; }
 
-        DynamicObjectData m_dynamicObjectData;
+        readonly DynamicObjectData m_dynamicObjectData;
         Aura _aura;
         Aura _removedAura;
         Unit _caster;
@@ -319,9 +317,9 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            DynamicObject Owner;
-            ObjectFieldData ObjectMask = new();
-            DynamicObjectData DynamicObjectMask = new();
+            readonly DynamicObject Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly DynamicObjectData DynamicObjectMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
             {

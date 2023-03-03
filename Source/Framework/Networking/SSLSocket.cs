@@ -13,9 +13,9 @@ namespace Framework.Networking
 {
     public abstract class SSLSocket : ISocket, IDisposable
     {
-        Socket _socket;
+        readonly Socket _socket;
         internal SslStream _stream;
-        IPEndPoint _remoteEndPoint;
+        readonly IPEndPoint _remoteEndPoint;
         byte[] _receiveBuffer;
 
         protected SSLSocket(Socket socket)

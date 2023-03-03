@@ -50,7 +50,7 @@ using System;
 
 namespace Framework.IO
 {
-	public static partial class ZLib
+    public static partial class ZLib
 	{
 		#region deflate.h
 		// ===========================================================================

@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.BattlePets
 {
@@ -878,18 +878,18 @@ namespace Game.BattlePets
 
         public bool IsBattlePetSystemEnabled() { return GetSlot(BattlePetSlots.Slot0).Locked != true; }
 
-        WorldSession _owner;
+        readonly WorldSession _owner;
         bool _hasJournalLock;
-        ushort _trapLevel;
-        Dictionary<ulong, BattlePet> _pets = new();
-        List<BattlePetSlot> _slots = new();
+        new readonly ushort _trapLevel;
+        readonly Dictionary<ulong, BattlePet> _pets = new();
+        readonly List<BattlePetSlot> _slots = new();
 
         public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetBreedStates = new();
         public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetSpeciesStates = new();
-        static Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
-        static Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
-        static MultiMap<uint, byte> _availableBreedsPerSpecies = new();
-        static Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
+        static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
+        static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
+        static readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
+        static readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
     }
 
     public class BattlePet

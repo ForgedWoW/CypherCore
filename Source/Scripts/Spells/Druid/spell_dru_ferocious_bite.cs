@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 22568 - Ferocious Bite
+    [Script] // 22568 - Ferocious Bite
 	internal class spell_dru_ferocious_bite : SpellScript, IHasSpellEffects
 	{
 		private double _damageMultiplier = 0.0f;

@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Meteor Strike - 171152
-	[SpellScript(171152)]
+    // Meteor Strike - 171152
+    [SpellScript(171152)]
 	public class spell_warl_meteor_strike : SpellScript, ISpellAfterHit, ISpellCheckCast
 	{
 		public void AfterHit()

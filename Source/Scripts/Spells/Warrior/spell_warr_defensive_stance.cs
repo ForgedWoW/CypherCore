@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior
 {
-	// Defensive Stance - 71
-	[SpellScript(71)]
+    // Defensive Stance - 71
+    [SpellScript(71)]
 	public class spell_warr_defensive_stance : AuraScript, IAuraOnProc
 	{
 		private double _damageTaken = 0;

@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using Framework.Constants;
 using Framework.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
-using System.IO;
-using Game.Entities;
 
 namespace Game.DataStorage
 {
@@ -418,8 +416,7 @@ namespace Game.DataStorage
                 if (node.Flags.HasAnyFlag(TaxiNodeFlags.Alliance))
                     AllianceTaxiNodesMask[field] |= submask;
 
-                int uiMapId;
-                if (!Global.DB2Mgr.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId))
+                if (!Global.DB2Mgr.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out int uiMapId))
                     Global.DB2Mgr.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
 
                 if (uiMapId == 985 || uiMapId == 986)

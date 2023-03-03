@@ -8,8 +8,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//NPC ID : 106319
-	[CreatureScript(106319)]
+    //NPC ID : 106319
+    [CreatureScript(106319)]
 	public class npc_ember_totem : ScriptedAI
 	{
 		public npc_ember_totem(Creature creature) : base(creature)

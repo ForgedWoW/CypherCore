@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// 5246 - Intimidating Shout
-	[Script]
+    // 5246 - Intimidating Shout
+    [Script]
 	internal class spell_warr_intimidating_shout : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Frostbrand - 196834
-	[SpellScript(196834)]
+    // Frostbrand - 196834
+    [SpellScript(196834)]
 	public class bfa_spell_frostbrand : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

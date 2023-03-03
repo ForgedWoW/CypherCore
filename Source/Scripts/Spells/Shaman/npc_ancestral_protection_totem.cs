@@ -7,7 +7,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	[CreatureScript(78001)]
+    [CreatureScript(78001)]
 	//104818 - Ancestral Protection Totem
 	public class npc_ancestral_protection_totem : ScriptedAI
 	{

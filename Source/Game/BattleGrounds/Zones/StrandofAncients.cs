@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
 using Game.Networking.Packets;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Game.BattleGrounds.Zones
 {
@@ -282,8 +282,7 @@ namespace Game.BattleGrounds.Zones
                         UpdateData data = new(p.GetMapId());
                         GetBGObject(i).BuildValuesUpdateBlockForPlayer(data, p);
 
-                        UpdateObject pkt;
-                        data.BuildPacket(out pkt);
+                        data.BuildPacket(out UpdateObject pkt);
                         p.SendPacket(pkt);
                     }
                 }
@@ -971,8 +970,7 @@ namespace Game.BattleGrounds.Zones
                 if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatTwo).BuildCreateUpdateBlockForPlayer(transData, player);
 
-                UpdateObject packet;
-                transData.BuildPacket(out packet);
+                transData.BuildPacket(out UpdateObject packet);
                 player.SendPacket(packet);
             }
         }
@@ -987,8 +985,7 @@ namespace Game.BattleGrounds.Zones
                 if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatTwo).BuildOutOfRangeUpdateBlock(transData);
 
-                UpdateObject packet;
-                transData.BuildPacket(out packet);
+                transData.BuildPacket(out UpdateObject packet);
                 player.SendPacket(packet);
             }
         }
@@ -1053,14 +1050,17 @@ namespace Game.BattleGrounds.Zones
         uint EndRoundTimer;
         // For know if boats has start moving or not yet
         bool ShipsStarted;
+
         // Status of each gate (Destroy/Damage/Intact)
-        SAGateState[] GateStatus = new SAGateState[SAMiscConst.Gates.Length];
+        readonly SAGateState[] GateStatus = new SAGateState[SAMiscConst.Gates.Length];
         // Statu of battle (Start or not, and what round)
         SAStatus Status;
+
         // Team witch conntrol each graveyard
-        int[] GraveyardStatus = new int[SAGraveyards.Max];
+        readonly int[] GraveyardStatus = new int[SAGraveyards.Max];
+
         // Score of each round
-        SARoundScore[] RoundScores = new SARoundScore[2];
+        readonly SARoundScore[] RoundScores = new SARoundScore[2];
         // used for know we are in timer phase or not (used for worldstate update)
         bool TimerEnabled;
         // 5secs before starting the 1min countdown for second round
@@ -1071,7 +1071,7 @@ namespace Game.BattleGrounds.Zones
         bool SignaledRoundTwoHalfMin;
         // for know if second round has been init
         bool InitSecondRound;
-        Dictionary<uint/*id*/, uint/*timer*/> DemoliserRespawnList = new();
+        readonly Dictionary<uint/*id*/, uint/*timer*/> DemoliserRespawnList = new();
     }
 
     class BattlegroundSAScore : BattlegroundScore

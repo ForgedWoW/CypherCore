@@ -1,26 +1,23 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
-	internal static partial class FieldOperations
+    internal static partial class FieldOperations
 	{
 		internal static void fe_invert(out FieldElement result, ref FieldElement z)
 		{
-			FieldElement t0, t1, t2, t3;
-			int i;
+            int i;
 
-			/* qhasm: z2 = z1^2^1 */
-			/* asm 1: fe_sq(>z2=fe#1,<z1=fe#11); for (i = 1;i < 1;++i) fe_sq(>z2=fe#1,>z2=fe#1); */
-			/* asm 2: fe_sq(>z2=t0,<z1=z); for (i = 1;i < 1;++i) fe_sq(>z2=t0,>z2=t0); */
-			fe_sq(out t0, ref z); //for (i = 1; i < 1; ++i) fe_sq(out t0, ref t0);
+            /* qhasm: z2 = z1^2^1 */
+            /* asm 1: fe_sq(>z2=fe#1,<z1=fe#11); for (i = 1;i < 1;++i) fe_sq(>z2=fe#1,>z2=fe#1); */
+            /* asm 2: fe_sq(>z2=t0,<z1=z); for (i = 1;i < 1;++i) fe_sq(>z2=t0,>z2=t0); */
+            fe_sq(out FieldElement t0, ref z); //for (i = 1; i < 1; ++i) fe_sq(out t0, ref t0);
 
 			/* qhasm: z8 = z2^2^2 */
 			/* asm 1: fe_sq(>z8=fe#2,<z2=fe#1); for (i = 1;i < 2;++i) fe_sq(>z8=fe#2,>z8=fe#2); */
 			/* asm 2: fe_sq(>z8=t1,<z2=t0); for (i = 1;i < 2;++i) fe_sq(>z8=t1,>z8=t1); */
-			fe_sq(out t1, ref t0); for (i = 1; i < 2; ++i) fe_sq(out t1, ref t1);
+			fe_sq(out FieldElement t1, ref t0); for (i = 1; i < 2; ++i) fe_sq(out t1, ref t1);
 
 			/* qhasm: z9 = z1*z8 */
 			/* asm 1: fe_mul(>z9=fe#2,<z1=fe#11,<z8=fe#2); */
@@ -35,7 +32,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			/* qhasm: z22 = z11^2^1 */
 			/* asm 1: fe_sq(>z22=fe#3,<z11=fe#1); for (i = 1;i < 1;++i) fe_sq(>z22=fe#3,>z22=fe#3); */
 			/* asm 2: fe_sq(>z22=t2,<z11=t0); for (i = 1;i < 1;++i) fe_sq(>z22=t2,>z22=t2); */
-			fe_sq(out t2, ref t0); //for (i = 1; i < 1; ++i) fe_sq(out t2, ref t2);
+			fe_sq(out FieldElement t2, ref t0); //for (i = 1; i < 1; ++i) fe_sq(out t2, ref t2);
 
 			/* qhasm: z_5_0 = z9*z22 */
 			/* asm 1: fe_mul(>z_5_0=fe#2,<z9=fe#2,<z22=fe#3); */
@@ -65,7 +62,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			/* qhasm: z_40_20 = z_20_0^2^20 */
 			/* asm 1: fe_sq(>z_40_20=fe#4,<z_20_0=fe#3); for (i = 1;i < 20;++i) fe_sq(>z_40_20=fe#4,>z_40_20=fe#4); */
 			/* asm 2: fe_sq(>z_40_20=t3,<z_20_0=t2); for (i = 1;i < 20;++i) fe_sq(>z_40_20=t3,>z_40_20=t3); */
-			fe_sq(out t3, ref t2); for (i = 1; i < 20; ++i) fe_sq(out t3, ref t3);
+			fe_sq(out FieldElement t3, ref t2); for (i = 1; i < 20; ++i) fe_sq(out t3, ref t3);
 
 			/* qhasm: z_40_0 = z_40_20*z_20_0 */
 			/* asm 1: fe_mul(>z_40_0=fe#3,<z_40_20=fe#4,<z_20_0=fe#3); */

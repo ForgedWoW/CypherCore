@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Whiplash - 119909
-	[SpellScript(119909)]
+    // Whiplash - 119909
+    [SpellScript(119909)]
 	public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
 	{
 		public void AfterHit()

@@ -1,22 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
-using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Spells;
-using System;
-using System.Text;
-using System.Collections.Generic;
 
 namespace Game.Chat
 {
     [CommandGroup("lookup")]
     class LookupCommands
     {
-        static int maxResults = 50;
+        static readonly int maxResults = 50;
 
         [Command("area", RBACPermissions.CommandLookupArea, true)]
         static bool HandleLookupAreaCommand(CommandHandler handler, string namePart)

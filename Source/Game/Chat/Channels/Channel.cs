@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -8,9 +11,6 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Chat
 {
@@ -876,18 +876,16 @@ namespace Game.Chat
         bool _announceEnabled;
         bool _ownershipEnabled;
         bool _isOwnerInvisible;
-
-        ChannelFlags _channelFlags;
-        uint _channelId;
-        Team _channelTeam;
+        readonly ChannelFlags _channelFlags;
+        readonly uint _channelId;
+        readonly Team _channelTeam;
         ObjectGuid _channelGuid;
         ObjectGuid _ownerGuid;
-        string _channelName;
+        readonly string _channelName;
         string _channelPassword;
-        Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
-        List<ObjectGuid> _bannedStore = new();
-
-        AreaTableRecord _zoneEntry;
+        readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
+        readonly List<ObjectGuid> _bannedStore = new();
+        readonly AreaTableRecord _zoneEntry;
 
         public class PlayerInfo
         {

@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 199471 - Soul Flame
-	[SpellScript(199471)]
+    // 199471 - Soul Flame
+    [SpellScript(199471)]
 	public class spell_warlock_artifact_soul_flame : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

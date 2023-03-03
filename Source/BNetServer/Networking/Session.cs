@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using Bgs.Protocol;
 using Framework.Constants;
 using Framework.Database;
@@ -8,10 +12,6 @@ using Framework.IO;
 using Framework.Networking;
 using Framework.Realm;
 using Google.Protobuf;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
 
 namespace BNetServer.Networking
 {
@@ -24,13 +24,11 @@ namespace BNetServer.Networking
         string os;
         uint build;
         string ipCountry;
-
-        byte[] clientSecret;
+        readonly byte[] clientSecret;
         bool authed;
         uint requestToken;
-
-        AsyncCallbackProcessor<QueryCallback> queryProcessor;
-        Dictionary<uint, Action<CodedInputStream>> responseCallbacks;
+        readonly AsyncCallbackProcessor<QueryCallback> queryProcessor;
+        readonly Dictionary<uint, Action<CodedInputStream>> responseCallbacks;
 
         public Session(Socket socket) : base(socket)
         {

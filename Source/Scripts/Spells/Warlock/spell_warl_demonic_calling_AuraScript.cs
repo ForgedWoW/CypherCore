@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonic Calling - 205145
-	[SpellScript(205145)]
+    // Demonic Calling - 205145
+    [SpellScript(205145)]
 	public class spell_warl_demonic_calling_AuraScript : AuraScript, IAuraCheckProc
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -193,7 +193,7 @@ namespace Game.Collision
                 node.IntersectRay(ray, intersectCallback, ref max_dist);
         }
 
-        MultiMap<T, Node> memberTable = new();
-        Node[][] nodes = new Node[CELL_NUMBER][];
+        readonly MultiMap<T, Node> memberTable = new();
+        readonly Node[][] nodes = new Node[CELL_NUMBER][];
     }
 }

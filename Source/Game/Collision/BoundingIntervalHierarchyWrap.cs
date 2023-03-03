@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.GameMath;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -17,8 +17,7 @@ namespace Game.Collision
         public void Remove(T obj)
         {
             ++unbalanced_times;
-            int Idx;
-            if (m_obj2Idx.TryGetValue(obj, out Idx))
+            if (m_obj2Idx.TryGetValue(obj, out int Idx))
                 m_objects[Idx] = null;
             else
                 m_objects_to_push.Remove(obj);
@@ -51,17 +50,17 @@ namespace Game.Collision
             m_tree.IntersectPoint(point, callback);
         }
 
-        BIH m_tree = new();
-        List<T> m_objects = new();
-        Dictionary<T, int> m_obj2Idx = new();
-        HashSet<T> m_objects_to_push = new();
+        readonly BIH m_tree = new();
+        readonly List<T> m_objects = new();
+        readonly Dictionary<T, int> m_obj2Idx = new();
+        readonly HashSet<T> m_objects_to_push = new();
         int unbalanced_times;
 
         public class MDLCallback : WorkerCallback
         {
-            T[] objects;
-            WorkerCallback _callback;
-            int objects_size;
+            readonly T[] objects;
+            readonly WorkerCallback _callback;
+            readonly int objects_size;
 
             public MDLCallback(WorkerCallback callback, T[] objects_array, int size)
             {

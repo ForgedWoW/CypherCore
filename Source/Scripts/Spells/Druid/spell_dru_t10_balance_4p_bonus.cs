@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 70723 - Item - Druid T10 Balance 4P Bonus
+    [Script] // 70723 - Item - Druid T10 Balance 4P Bonus
 	internal class spell_dru_t10_balance_4p_bonus : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

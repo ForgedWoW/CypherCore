@@ -349,11 +349,11 @@ namespace Framework.Dynamic
         DateTime _now;
 
         // The Task Queue which contains all task objects.
-        TaskQueue _task_holder;
+        readonly TaskQueue _task_holder;
 
         // Contains all asynchronous tasks which will be invoked at
         // the next update tick.
-        List<Action> _asyncHolder;
+        readonly List<Action> _asyncHolder;
 
         predicate_t _predicate;
 
@@ -469,7 +469,7 @@ namespace Framework.Dynamic
             return container.Empty();
         }
 
-        SortedSet<TaskSchedulerTask> container = new();
+        readonly SortedSet<TaskSchedulerTask> container = new();
     }
 
     public class TaskContext
@@ -801,10 +801,10 @@ namespace Framework.Dynamic
         }
 
         // Associated task
-        TaskSchedulerTask _task;
+        readonly TaskSchedulerTask _task;
 
         // Owner
-        TaskScheduler _owner;
+        readonly TaskScheduler _owner;
 
         // Marks the task as consumed
         bool _consumed = true;

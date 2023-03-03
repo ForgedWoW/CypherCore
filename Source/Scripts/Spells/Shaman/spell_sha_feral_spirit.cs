@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// 51533 - Feral Spirit
-	[SpellScript(51533)]
+    // 51533 - Feral Spirit
+    [SpellScript(51533)]
 	public class spell_sha_feral_spirit : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

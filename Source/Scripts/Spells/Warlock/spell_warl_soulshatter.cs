@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(29858)] // 29858 - Soulshatter
+    [SpellScript(29858)] // 29858 - Soulshatter
 	internal class spell_warl_soulshatter : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

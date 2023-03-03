@@ -23,7 +23,7 @@ class AnyPlayerInPositionRangeCheck : ICheck<Player>
         return true;
     }
 
-    Position _pos;
-    float _range;
-    bool _reqAlive;
+    readonly Position _pos;
+    readonly float _range;
+    readonly bool _reqAlive;
 }

@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warlock
 {
-	// 108558 - Nightfall
-	[SpellScript(108558)]
+    // 108558 - Nightfall
+    [SpellScript(108558)]
 	public class spell_warlock_nightfall : AuraScript, IAuraOnProc, IAuraCheckProc
 	{
 		public void OnProc(ProcEventInfo UnnamedParameter)

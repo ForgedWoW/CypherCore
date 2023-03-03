@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 196277 - Implosion
-	[SpellScript(WarlockSpells.IMPLOSION)]
+    // 196277 - Implosion
+    [SpellScript(WarlockSpells.IMPLOSION)]
 	public class spell_warl_implosion : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

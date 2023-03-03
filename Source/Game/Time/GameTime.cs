@@ -5,7 +5,7 @@ using System;
 
 public class GameTime
 {
-    static long StartTime = Time.UnixTime;
+    static readonly long StartTime = Time.UnixTime;
 
     static long _gameTime = Time.UnixTime;
     static uint _gameMSTime = 0;

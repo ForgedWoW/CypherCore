@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//190456 - Ignore Pain
-	[SpellScript(190456)]
+    //190456 - Ignore Pain
+    [SpellScript(190456)]
 	public class spell_warr_ignore_pain : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

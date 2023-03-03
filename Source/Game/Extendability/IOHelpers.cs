@@ -6,15 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Scripting.Activators;
 
 namespace Game.Extendability
 {
     public static class IOHelpers
     {
-        private static Dictionary<string, List<Assembly>> _loadedAssemblies= new Dictionary<string, List<Assembly>>();
+        private static readonly Dictionary<string, List<Assembly>> _loadedAssemblies= new Dictionary<string, List<Assembly>>();
 
         public static List<Assembly> GetAllAssembliesInDir(string path, bool loadGameAssembly = true)
         {

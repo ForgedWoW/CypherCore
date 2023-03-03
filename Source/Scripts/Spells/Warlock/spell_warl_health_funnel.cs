@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(755)] // 755 - Health Funnel
+    [SpellScript(755)] // 755 - Health Funnel
 	internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

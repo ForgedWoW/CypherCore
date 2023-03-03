@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -11,8 +13,6 @@ using Game.Groups;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -549,8 +549,8 @@ namespace Game
             Cell.VisitGrid(source, worker, dist);
         }
 
-        Dictionary<uint, MultiMap<byte, CreatureTextEntry>> mTextMap = new();
-        Dictionary<CreatureTextId, CreatureTextLocale> mLocaleTextMap = new();
+        readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> mTextMap = new();
+        readonly Dictionary<CreatureTextId, CreatureTextLocale> mLocaleTextMap = new();
     }
 
     public class CreatureTextEntry
@@ -643,9 +643,9 @@ namespace Game
             sender.Invoke(player);
         }
 
-        Dictionary<Locale, ChatPacketSender> _packetCache = new();
-        MessageBuilder _builder;
-        ChatMsg _msgType;
+        readonly Dictionary<Locale, ChatPacketSender> _packetCache = new();
+        readonly MessageBuilder _builder;
+        readonly ChatMsg _msgType;
     }
 
     public class CreatureTextBuilder : MessageBuilder
@@ -667,13 +667,13 @@ namespace Game
             return new ChatPacketSender(_msgType, _language, _source, _target, text, 0, locale);
         }
 
-        WorldObject _source;
-        Gender _gender;
-        ChatMsg _msgType;
-        byte _textGroup;
-        uint _textId;
-        Language _language;
-        WorldObject _target;
+        readonly WorldObject _source;
+        readonly Gender _gender;
+        readonly ChatMsg _msgType;
+        readonly byte _textGroup;
+        readonly uint _textId;
+        readonly Language _language;
+        readonly WorldObject _target;
     }
 
     public class PlayerTextBuilder : MessageBuilder
@@ -698,13 +698,13 @@ namespace Game
             return chat;
         }
 
-        WorldObject _source;
-        WorldObject _talker;
-        Gender _gender;
-        ChatMsg _msgType;
-        byte _textGroup;
-        uint _textId;
-        Language _language;
-        WorldObject _target;
+        readonly WorldObject _source;
+        readonly WorldObject _talker;
+        readonly Gender _gender;
+        readonly ChatMsg _msgType;
+        readonly byte _textGroup;
+        readonly uint _textId;
+        readonly Language _language;
+        readonly WorldObject _target;
     }
 }

@@ -38,7 +38,7 @@ class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
         return true;
     }
 
-    Creature _me;
-    bool _useLOS;
-    bool _ignoreCivilians;
+    readonly Creature _me;
+    readonly bool _useLOS;
+    readonly bool _ignoreCivilians;
 }

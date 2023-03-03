@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Game.Achievements;
 using Game.Cache;
 using Game.DataStorage;
 using Game.Entities;
@@ -16,9 +18,6 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -1335,8 +1334,7 @@ namespace Game
         void HandleSetPlayerDeclinedNames(SetPlayerDeclinedNames packet)
         {
             // not accept declined names for unsupported languages
-            string name;
-            if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(packet.Player, out name))
+            if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(packet.Player, out string name))
             {
                 SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
                 return;
@@ -2881,7 +2879,7 @@ namespace Game
 
         uint GetAccountId() { return m_accountId; }
 
-        uint m_accountId;
+        readonly uint m_accountId;
         ObjectGuid m_guid;
     }
 

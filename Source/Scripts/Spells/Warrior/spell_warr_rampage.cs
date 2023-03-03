@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// Rampage damage dealers - 218617, 184707, 184709, 201364, 201363
-	[SpellScript(new uint[]
+    // Rampage damage dealers - 218617, 184707, 184709, 201364, 201363
+    [SpellScript(new uint[]
 	             {
 		             218617, 184707, 184709, 201364, 201363
 	             })]

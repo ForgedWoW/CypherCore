@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 23920 Spell Reflect
-	[SpellScript(23920)]
+    // 23920 Spell Reflect
+    [SpellScript(23920)]
 	public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

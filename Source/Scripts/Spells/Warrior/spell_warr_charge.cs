@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[SpellScript(100)] // 100 - Charge
+    [SpellScript(100)] // 100 - Charge
 	internal class spell_warr_charge : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -560,7 +560,7 @@ namespace Game.Collision
             public int sumDepth;
             public int minDepth;
             public int maxDepth;
-            int[] numLeavesN = new int[6];
+            readonly int[] numLeavesN = new int[6];
             int numBVH2;
 
             public BuildStats()

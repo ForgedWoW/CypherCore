@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Bgs.Protocol.Notification.V1;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
@@ -12,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Immolate Dot - 157736
-	[SpellScript(157736)]
+    // Immolate Dot - 157736
+    [SpellScript(157736)]
 	public class spell_warlock_immolate_dot : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

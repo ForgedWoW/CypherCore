@@ -16,5 +16,5 @@ public class AnyDeadUnitSpellTargetInRangeCheck<T> : AnyDeadUnitObjectInRangeChe
         return base.Invoke(obj) && i_check.Invoke(obj);
     }
 
-    WorldObjectSpellTargetCheck i_check;
+    readonly WorldObjectSpellTargetCheck i_check;
 }

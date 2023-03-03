@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// Frostbrand - 196834
-	[SpellScript(196834)]
+    // Frostbrand - 196834
+    [SpellScript(196834)]
 	public class bfa_spell_frostbrand_SpellScript : SpellScript, ISpellOnHit
 	{
 		public override bool Load()

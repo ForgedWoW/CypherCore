@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
 using Game.Maps.Interfaces;
-using System.Collections.Generic;
 
 namespace Game.Garrisons
 {
@@ -118,11 +118,11 @@ namespace Game.Garrisons
             }
         }
 
-        Cell i_cell;
-        Grid i_grid;
-        GarrisonMap i_map;
-        Garrison i_garrison;
+        readonly Cell i_cell;
+        readonly Grid i_grid;
+        readonly GarrisonMap i_map;
+        readonly Garrison i_garrison;
         uint i_gameObjects;
-        uint i_creatures;
+        readonly uint i_creatures;
     }
 }

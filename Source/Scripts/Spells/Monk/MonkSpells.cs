@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Monk
 {
-	internal struct MonkSpells
+    internal struct MonkSpells
 	{
 		public const uint BLACKOUT_KICK = 100784;
 		public const uint BLACKOUT_KICK_DOT = 128531;

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Collections;
-using Framework.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Framework.Collections;
+using Framework.Configuration;
 
 public class Log
 {
@@ -300,8 +300,7 @@ public class Log
         if (typeString.IsEmpty())
             return null;
 
-        LogFilter parentLogger;
-        if (!Enum.TryParse(typeString, out parentLogger))
+        if (!Enum.TryParse(typeString, out LogFilter parentLogger))
             return null;
 
         return GetLoggerByType(parentLogger);
@@ -346,9 +345,9 @@ public class Log
             appender.setRealmId(id);
     }
 
-    static Dictionary<byte, Appender> appenders = new();
-    static Dictionary<LogFilter, Logger> loggers = new();
-    static string m_logsDir;
+    static readonly Dictionary<byte, Appender> appenders = new();
+    static readonly Dictionary<LogFilter, Logger> loggers = new();
+    static readonly string m_logsDir;
     static byte AppenderId;
 
     static LogLevel lowestLogLevel;

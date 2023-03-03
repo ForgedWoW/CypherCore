@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using Framework.Constants;
+using Game.Entities;
 
 namespace Game.Networking
 {
@@ -81,7 +81,7 @@ namespace Game.Networking
             return _clientPacketTable.ContainsKey(opcode);
         }
 
-        static ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+        static readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
 
         public static bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
         {
@@ -135,8 +135,8 @@ namespace Game.Networking
             return delegate (WorldSession target, ClientPacket p) { d(target, (P1)p); };
         }
 
-        Action<WorldSession, ClientPacket> methodCaller;
-        Type packetType;
+        readonly Action<WorldSession, ClientPacket> methodCaller;
+        readonly Type packetType;
         public PacketProcessing ProcessingPlace { get; private set; }
         public SessionStatus sessionStatus { get; private set; }
     }

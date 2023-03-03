@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
-using System.Collections.Generic;
 
 namespace Game.Maps
 {
@@ -72,7 +72,7 @@ namespace Game.Maps
         }
 
         TimeTracker i_timer;
-        PeriodicTimer vis_Update;
+        readonly PeriodicTimer vis_Update;
 
         ushort i_unloadActiveLockCount; // lock from active object spawn points (prevent clone loading)
         bool i_unloadExplicitLock; // explicit manual lock or config setting
@@ -252,12 +252,12 @@ namespace Game.Maps
         }
 
         uint gridId;
-        uint gridX;
-        uint gridY;
-        GridInfo gridInfo;
+        readonly uint gridX;
+        readonly uint gridY;
+        readonly GridInfo gridInfo;
         GridState gridState;
         bool gridObjectDataLoaded;
-        GridCell[][] i_cells = new GridCell[MapConst.MaxCells][];
+        readonly GridCell[][] i_cells = new GridCell[MapConst.MaxCells][];
     }
 
     public class GridCell
@@ -345,12 +345,12 @@ namespace Game.Maps
         /// <summary>
         /// Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
         /// </summary>
-        MultiTypeContainer _objects;
+        readonly MultiTypeContainer _objects;
 
         /// <summary>
         /// Holds all Grid objects - GameObjects, Creatures(except pets), DynamicObject, Corpse(Bones), AreaTrigger, Conversation, SceneObject
         /// </summary>
-        MultiTypeContainer _container;
+        readonly MultiTypeContainer _container;
     }
 
     public class MultiTypeContainer

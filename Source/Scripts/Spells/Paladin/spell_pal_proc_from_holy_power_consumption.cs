@@ -6,12 +6,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Game.AI.SmartAction;
 
 namespace Scripts.Spells.Paladin
 {

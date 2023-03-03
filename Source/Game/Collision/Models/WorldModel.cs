@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Framework.Constants;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -158,9 +158,9 @@ namespace Game.Collision
         AxisAlignedBox iBound;
         uint iMogpFlags;
         uint iGroupWMOID;
-        List<Vector3> vertices = new();
-        List<MeshTriangle> triangles = new();
-        BIH meshTree = new();
+        readonly List<Vector3> vertices = new();
+        readonly List<MeshTriangle> triangles = new();
+        readonly BIH meshTree = new();
         WmoLiquid iLiquid;
 
         public GroupModel()
@@ -293,8 +293,8 @@ namespace Game.Collision
         public uint Flags;
 
         uint RootWMOID;
-        List<GroupModel> groupModels = new();
-        BIH groupTree = new();
+        readonly List<GroupModel> groupModels = new();
+        readonly BIH groupTree = new();
 
         public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags)
         {

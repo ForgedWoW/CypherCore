@@ -2,9 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Framework.Collections;
-using Google.Protobuf.WellKnownTypes;
 
 namespace System.Collections.Generic
 {
@@ -49,10 +47,9 @@ namespace System.Collections.Generic
         /// <returns>The value (if any).</returns>
         public static TValue LookupByKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, object key)
         {
-            TValue val;
             TKey newkey = (TKey)Convert.ChangeType(key, typeof(TKey));
 
-            return dict.TryGetValue(newkey, out val) ? val : default;
+            return dict.TryGetValue(newkey, out TValue val) ? val : default;
         }
 
         public static TValue LookupByKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)

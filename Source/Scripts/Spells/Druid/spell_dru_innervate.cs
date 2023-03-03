@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 29166 - Innervate
+    [Script] // 29166 - Innervate
 	internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
 	{
 		public SpellCastResult CheckCast()

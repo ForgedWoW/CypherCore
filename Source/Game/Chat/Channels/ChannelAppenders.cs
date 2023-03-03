@@ -37,8 +37,8 @@ namespace Game.Chat
             return sender;
         }
 
-        Channel _source;
-        IChannelAppender _modifier;
+        readonly Channel _source;
+        readonly IChannelAppender _modifier;
     }
 
     class ChannelNotifyJoinedBuilder : MessageBuilder
@@ -62,7 +62,7 @@ namespace Game.Chat
             return notify;
         }
 
-        Channel _source;
+        readonly Channel _source;
     }
 
     class ChannelNotifyLeftBuilder : MessageBuilder
@@ -84,8 +84,8 @@ namespace Game.Chat
             return notify;
         }
 
-        Channel _source;
-        bool _suspended;
+        readonly Channel _source;
+        readonly bool _suspended;
     }
 
     class ChannelSayBuilder : MessageBuilder
@@ -118,10 +118,10 @@ namespace Game.Chat
 
             return packet;
         }
-        
-        Channel _source;
-        Language _lang;
-        string _what;
+
+        readonly Channel _source;
+        readonly Language _lang;
+        readonly string _what;
         ObjectGuid _guid;
         ObjectGuid _channelGuid;
     }
@@ -155,10 +155,10 @@ namespace Game.Chat
             return packet;
         }
 
-        Channel _source;
-        Language _lang;
-        string _what;
-        string _prefix;
+        readonly Channel _source;
+        readonly Language _lang;
+        readonly string _what;
+        readonly string _prefix;
         ObjectGuid _guid;
     }
 
@@ -183,7 +183,7 @@ namespace Game.Chat
             return userlistAdd;
         }
 
-        Channel _source;
+        readonly Channel _source;
         ObjectGuid _guid;
     }
 
@@ -208,7 +208,7 @@ namespace Game.Chat
             return userlistUpdate;
         }
 
-        Channel _source;
+        readonly Channel _source;
         ObjectGuid _guid;
     }
 
@@ -232,7 +232,7 @@ namespace Game.Chat
             return userlistRemove;
         }
 
-        Channel _source;
+        readonly Channel _source;
         ObjectGuid _guid;
     }
 
@@ -285,7 +285,7 @@ namespace Game.Chat
             data.ChatChannelID = (int)_channel.GetChannelId();
         }
 
-        Channel _channel;
+        readonly Channel _channel;
     }
 
     struct YouLeftAppend : IChannelAppender
@@ -302,7 +302,7 @@ namespace Game.Chat
             data.ChatChannelID = (int)_channel.GetChannelId();
         }
 
-        Channel _channel;
+        readonly Channel _channel;
     }
 
     struct WrongPasswordAppend : IChannelAppender
@@ -374,7 +374,7 @@ namespace Game.Chat
             data.Sender = _playerName;
         }
 
-        string _playerName;
+        readonly string _playerName;
     }
 
     struct NotOwnerAppend : IChannelAppender
@@ -404,10 +404,9 @@ namespace Game.Chat
             data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty()) ? "Nobody" : _ownerName);
         }
 
-        Channel _channel;
+        readonly Channel _channel;
         ObjectGuid _ownerGuid;
-
-        string _ownerName;
+        readonly string _ownerName;
     }
 
     struct ModeChangeAppend : IChannelAppender
@@ -429,8 +428,8 @@ namespace Game.Chat
         }
 
         ObjectGuid _guid;
-        ChannelMemberFlags _oldFlags;
-        ChannelMemberFlags _newFlags;
+        readonly ChannelMemberFlags _oldFlags;
+        readonly ChannelMemberFlags _newFlags;
     }
 
     struct AnnouncementsOnAppend : IChannelAppender
@@ -555,7 +554,7 @@ namespace Game.Chat
             data.Sender = _playerName;
         }
 
-        string _playerName;
+        readonly string _playerName;
     }
 
     struct PlayerAlreadyMemberAppend : IChannelAppender
@@ -634,7 +633,7 @@ namespace Game.Chat
             data.Sender = _playerName;
         }
 
-        string _playerName;
+        readonly string _playerName;
     }
 
     struct PlayerInviteBannedAppend : IChannelAppender
@@ -651,7 +650,7 @@ namespace Game.Chat
             data.Sender = _playerName;
         }
 
-        string _playerName;
+        readonly string _playerName;
     }
 
     struct ThrottledAppend : IChannelAppender

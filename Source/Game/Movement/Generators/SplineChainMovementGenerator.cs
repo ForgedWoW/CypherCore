@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.AI;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Game.AI;
+using Game.Entities;
 
 namespace Game.Movement
 {
@@ -220,10 +220,10 @@ namespace Game.Movement
 
         public uint GetId() { return _id; }
 
-    uint _id;
-        List<SplineChainLink> _chain = new();
-        byte _chainSize;
-        bool _walk;
+        readonly uint _id;
+        readonly List<SplineChainLink> _chain = new();
+        readonly byte _chainSize;
+        readonly bool _walk;
         byte _nextIndex;
         byte _nextFirstWP; // only used for resuming
         uint _msToNext;

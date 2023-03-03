@@ -9,8 +9,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//60561
-	[CreatureScript(60561)]
+    //60561
+    [CreatureScript(60561)]
 	public class npc_earth_grab_totem : ScriptedAI
 	{
 		public npc_earth_grab_totem(Creature creature) : base(creature)

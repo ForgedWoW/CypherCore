@@ -1,21 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Guilds;
-using Game.Loots;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IGroup;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Groups
 {
@@ -478,7 +475,6 @@ namespace Game.Groups
             {
                 // Broadcast new player group member fields to rest of the group
                 UpdateData groupData = new(player.GetMapId());
-                UpdateObject groupDataPacket;
 
                 // Broadcast group members' fields to player
                 for (GroupReference refe = GetFirstMember(); refe != null; refe = refe.Next())
@@ -495,11 +491,10 @@ namespace Game.Groups
                         if (existingMember.HaveAtClient(player))
                         {
                             UpdateData newData = new(player.GetMapId());
-                            UpdateObject newDataPacket;
                             player.BuildValuesUpdateBlockForPlayerWithFlag(newData, UpdateFieldFlag.PartyMember, existingMember);
                             if (newData.HasData())
                             {
-                                newData.BuildPacket(out newDataPacket);
+                                newData.BuildPacket(out UpdateObject newDataPacket);
                                 existingMember.SendPacket(newDataPacket);
                             }
                         }
@@ -508,7 +503,7 @@ namespace Game.Groups
 
                 if (groupData.HasData())
                 {
-                    groupData.BuildPacket(out groupDataPacket);
+                    groupData.BuildPacket(out UpdateObject groupDataPacket);
                     player.SendPacket(groupDataPacket);
                 }
             }
@@ -1886,10 +1881,10 @@ namespace Game.Groups
         {
             m_recentInstances[mapId] = Tuple.Create(instanceOwner, instanceId);
         }
-        
-        List<MemberSlot> m_memberSlots = new();
-        GroupRefManager m_memberMgr = new();
-        List<Player> m_invitees = new();
+
+        readonly List<MemberSlot> m_memberSlots = new();
+        readonly GroupRefManager m_memberMgr = new();
+        readonly List<Player> m_invitees = new();
         ObjectGuid m_leaderGuid;
         byte m_leaderFactionGroup;
         string m_leaderName;
@@ -1900,25 +1895,25 @@ namespace Game.Groups
         Difficulty m_legacyRaidDifficulty;
         Battleground m_bgGroup;
         BattleField m_bfGroup;
-        ObjectGuid[] m_targetIcons = new ObjectGuid[MapConst.TargetIconsCount];
+        readonly ObjectGuid[] m_targetIcons = new ObjectGuid[MapConst.TargetIconsCount];
         LootMethod m_lootMethod;
         ItemQuality m_lootThreshold;
         ObjectGuid m_looterGuid;
         ObjectGuid m_masterLooterGuid;
-        Dictionary<uint, Tuple<ObjectGuid, uint>> m_recentInstances = new();
-        GroupInstanceRefManager m_ownedInstancesMgr = new();
+        readonly Dictionary<uint, Tuple<ObjectGuid, uint>> m_recentInstances = new();
+        readonly GroupInstanceRefManager m_ownedInstancesMgr = new();
         byte[] m_subGroupsCounts;
         ObjectGuid m_guid;
         uint m_dbStoreId;
         bool _isLeaderOffline;
-        TimeTracker _leaderOfflineTimer = new();
+        readonly TimeTracker _leaderOfflineTimer = new();
 
         // Ready Check
         bool m_readyCheckStarted;
         TimeSpan m_readyCheckTimer;
 
         // Raid markers
-        RaidMarker[] m_markers = new RaidMarker[MapConst.RaidMarkersCount];
+        readonly RaidMarker[] m_markers = new RaidMarker[MapConst.RaidMarkersCount];
         uint m_activeMarkers;
 
         public static implicit operator bool(Group group)

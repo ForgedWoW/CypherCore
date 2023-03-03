@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Framework.Web;
-using Framework.Serialization;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Timers;
-using System.Collections.Concurrent;
+using Framework.Constants;
+using Framework.Database;
 using Framework.Realm;
+using Framework.Serialization;
+using Framework.Web;
 
 public class RealmManager : Singleton<RealmManager>
 {
@@ -314,9 +314,9 @@ public class RealmManager : Singleton<RealmManager>
     public ICollection<Realm> GetRealms() { return _realms.Values; }
     List<string> GetSubRegions() { return _subRegions; }
 
-    List<RealmBuildInfo> _builds = new();
-    ConcurrentDictionary<RealmId, Realm> _realms = new();
-    List<string> _subRegions = new();
+    readonly List<RealmBuildInfo> _builds = new();
+    readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
+    readonly List<string> _subRegions = new();
     Timer _updateTimer;
 }
 

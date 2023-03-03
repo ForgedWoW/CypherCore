@@ -8,8 +8,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 5394 - Healing Stream Totem
-	[SpellScript(5394)]
+    // 5394 - Healing Stream Totem
+    [SpellScript(5394)]
 	public class spell_sha_healing_stream_totem : SpellScript, ISpellAfterCast
 	{
 		public void AfterCast()

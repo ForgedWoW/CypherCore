@@ -15,10 +15,10 @@ namespace Framework.Database
 
     class DatabaseWorker<T>
     {
-        volatile bool _cancelationToken;
-        AutoResetEvent _resetEvent = new AutoResetEvent(false);
-        ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
-        MySqlBase<T> _mySqlBase;
+        readonly bool _cancelationToken;
+        readonly AutoResetEvent _resetEvent = new AutoResetEvent(false);
+        readonly ConcurrentQueue<(ISqlOperation, Action<bool>)> _queue = new();
+        readonly MySqlBase<T> _mySqlBase;
 
         public DatabaseWorker(MySqlBase<T> mySqlBase)
         {

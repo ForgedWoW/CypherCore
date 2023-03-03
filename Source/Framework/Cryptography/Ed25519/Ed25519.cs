@@ -3,7 +3,6 @@
 
 using System;
 using Framework.Cryptography.Ed25519.Internal.Ed25519Ref10;
-using System.Diagnostics.Contracts;
 
 namespace Framework.Cryptography.Ed25519
 {
@@ -81,9 +80,7 @@ namespace Framework.Cryptography.Ed25519
         /// <returns></returns>
         public static byte[] PublicKeyFromSeed(byte[] privateKeySeed)
         {
-            byte[] privateKey;
-            byte[] publicKey;
-            KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
+            KeyPairFromSeed(out byte[] publicKey, out byte[] privateKey, privateKeySeed);
             CryptoBytes.Wipe(privateKey);
             return publicKey;
         }
@@ -95,9 +92,7 @@ namespace Framework.Cryptography.Ed25519
         /// <returns>Expanded form of the private key</returns>
         public static byte[] ExpandedPrivateKeyFromSeed(byte[] privateKeySeed)
         {
-            byte[] privateKey;
-            byte[] publicKey;
-            KeyPairFromSeed(out publicKey, out privateKey, privateKeySeed);
+            KeyPairFromSeed(out byte[] publicKey, out byte[] privateKey, privateKeySeed);
             CryptoBytes.Wipe(publicKey);
             return privateKey;
         }

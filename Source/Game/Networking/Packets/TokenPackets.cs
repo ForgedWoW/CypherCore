@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System.Collections.Generic;
+using Framework.Constants;
 
 namespace Game.Networking.Packets
 {
@@ -40,7 +40,7 @@ namespace Game.Networking.Packets
 
         public uint UnkInt; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
         public TokenResult Result;
-        List<AuctionableTokenInfo> AuctionableTokenAuctionableList = new();
+        readonly List<AuctionableTokenInfo> AuctionableTokenAuctionableList = new();
 
         struct AuctionableTokenInfo
         {

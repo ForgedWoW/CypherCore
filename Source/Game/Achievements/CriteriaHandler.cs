@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -15,17 +19,13 @@ using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Scripting.Interfaces.IAchievement;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Game.Achievements
 {
     public class CriteriaHandler
     {
         protected Dictionary<uint, CriteriaProgress> _criteriaProgress = new();
-        Dictionary<uint, uint /*ms time left*/> _timeCriteriaTrees = new();
+        readonly Dictionary<uint, uint /*ms time left*/> _timeCriteriaTrees = new();
 
         public virtual void Reset()
         {
@@ -1338,8 +1338,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerIsInArea: // 17
                 {
-                    uint zoneId, areaId;
-                    referencePlayer.GetZoneAndAreaId(out zoneId, out areaId);
+                    referencePlayer.GetZoneAndAreaId(out uint zoneId, out uint areaId);
                     if (zoneId != reqValue && areaId != reqValue)
                         return false;
                     break;
@@ -1348,8 +1347,7 @@ namespace Game.Achievements
                 {
                     if (refe == null)
                         return false;
-                    uint zoneId, areaId;
-                    refe.GetZoneAndAreaId(out zoneId, out areaId);
+                    refe.GetZoneAndAreaId(out uint zoneId, out uint areaId);
                     if (zoneId != reqValue && areaId != reqValue)
                         return false;
                     break;
@@ -3647,23 +3645,20 @@ namespace Game.Achievements
 
     public class CriteriaManager : Singleton<CriteriaManager>
     {
-        Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
-
-        Dictionary<uint, CriteriaTree> _criteriaTrees = new();
-        Dictionary<uint, Criteria> _criteria = new();
-        Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
-
-        MultiMap<uint, CriteriaTree> _criteriaTreeByCriteria = new();
+        readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
+        readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
+        readonly Dictionary<uint, Criteria> _criteria = new();
+        readonly Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
+        readonly MultiMap<uint, CriteriaTree> _criteriaTreeByCriteria = new();
 
         // store criterias by type to speed up lookup
-        MultiMap<CriteriaType, Criteria> _criteriasByType = new();
-        MultiMap<uint, Criteria>[] _criteriasByAsset = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
-        MultiMap<CriteriaType, Criteria> _guildCriteriasByType = new();
-        MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
-        MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
-
-        MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
-        MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
+        readonly MultiMap<CriteriaType, Criteria> _criteriasByType = new();
+        readonly MultiMap<uint, Criteria>[] _criteriasByAsset = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
+        readonly MultiMap<CriteriaType, Criteria> _guildCriteriasByType = new();
+        readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
+        readonly MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
+        readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
+        readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
 
         CriteriaManager()
         {
@@ -4692,7 +4687,7 @@ namespace Game.Achievements
     public class CriteriaDataSet
     {
         uint _criteriaId;
-        List<CriteriaData> _storage = new();
+        readonly List<CriteriaData> _storage = new();
 
         public void Add(CriteriaData data) { _storage.Add(data); }
 

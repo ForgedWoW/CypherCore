@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Numerics;
 using Framework.Collections;
 using Framework.Constants;
 using Game.Networking;
 using Game.Spells;
-using System;
-using System.Numerics;
 
 namespace Game.Entities
 {
@@ -368,13 +368,12 @@ namespace Game.Entities
 
         public UnitActionBarEntry GetCharmSpell(byte index) { return _charmspells[index]; }
 
-        Unit _unit;
-        UnitActionBarEntry[] PetActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
-        UnitActionBarEntry[] _charmspells = new UnitActionBarEntry[4];
+        readonly Unit _unit;
+        readonly UnitActionBarEntry[] PetActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
+        readonly UnitActionBarEntry[] _charmspells = new UnitActionBarEntry[4];
         CommandStates _CommandState;
         uint _petnumber;
-
-        ReactStates _oldReactState;
+        readonly ReactStates _oldReactState;
 
         bool _isCommandAttack;
         bool _isCommandFollow;

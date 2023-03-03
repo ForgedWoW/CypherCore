@@ -24,7 +24,7 @@ public class NearestAttackableUnitInObjectRangeCheck : ICheck<Unit>
         return false;
     }
 
-    WorldObject i_obj;
-    Unit i_funit;
+    readonly WorldObject i_obj;
+    readonly Unit i_funit;
     float i_range;
 }

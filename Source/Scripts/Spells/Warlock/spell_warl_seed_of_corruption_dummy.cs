@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(27243)] // 27243 - Seed of Corruption
+    [SpellScript(27243)] // 27243 - Seed of Corruption
 	internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

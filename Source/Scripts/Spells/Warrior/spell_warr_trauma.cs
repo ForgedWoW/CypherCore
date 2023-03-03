@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // 215538 - Trauma
+    [Script] // 215538 - Trauma
 	internal class spell_warr_trauma : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

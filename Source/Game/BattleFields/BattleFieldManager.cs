@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Database;
 using Game.Entities;
 using Game.Maps;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IBattlefield;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.BattleFields
 {
     public class BattleFieldManager : Singleton<BattleFieldManager>
     {
-        static uint[] BattlefieldIdToMapId = { 0, 571, 732 };
-        static uint[] BattlefieldIdToZoneId = { 0, 4197, 5095 }; // imitate World_PVP_Area.db2
-        static uint[] BattlefieldIdToScriptId = { 0, 0, 0 };
+        static readonly uint[] BattlefieldIdToMapId = { 0, 571, 732 };
+        static readonly uint[] BattlefieldIdToZoneId = { 0, 4197, 5095 }; // imitate World_PVP_Area.db2
+        static readonly uint[] BattlefieldIdToScriptId = { 0, 0, 0 };
 
         BattleFieldManager() { }
 
@@ -153,10 +152,11 @@ namespace Game.BattleFields
 
         // contains all initiated battlefield events
         // used when initing / cleaning up
-        MultiMap<Map, BattleField>  _battlefieldsByMap = new();
+        readonly MultiMap<Map, BattleField>  _battlefieldsByMap = new();
+
         // maps the zone ids to an battlefield event
         // used in player event handling
-        Dictionary<(Map map, uint zoneId), BattleField>  _battlefieldsByZone = new();
+        readonly Dictionary<(Map map, uint zoneId), BattleField>  _battlefieldsByZone = new();
         // update interval
         uint _updateTimer;
     }

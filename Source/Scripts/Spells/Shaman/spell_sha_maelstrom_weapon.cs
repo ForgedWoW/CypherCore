@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//187880 - Maelstrom Weapon
-	[SpellScript(187880)]
+    //187880 - Maelstrom Weapon
+    [SpellScript(187880)]
 	public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraCheckProc
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

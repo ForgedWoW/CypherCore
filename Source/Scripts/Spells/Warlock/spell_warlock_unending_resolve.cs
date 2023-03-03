@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 104773 - Unending Resolve
-	[SpellScript(104773)]
+    // 104773 - Unending Resolve
+    [SpellScript(104773)]
 	internal class spell_warlock_unending_resolve : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

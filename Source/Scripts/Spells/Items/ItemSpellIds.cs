@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Items
 {
-	internal struct ItemSpellIds
+    internal struct ItemSpellIds
 	{
 		//Aegisofpreservation
 		public const uint AegisHeal = 23781;

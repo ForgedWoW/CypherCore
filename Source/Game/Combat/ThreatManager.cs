@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Combat
 {
@@ -21,13 +21,12 @@ namespace Game.Combat
 
         public bool NeedClientUpdate;
         uint _updateTimer;
-        List<ThreatReference> _sortedThreatList = new();
-        Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
-        List<ThreatReference> _needsAIUpdate = new();
+        readonly List<ThreatReference> _sortedThreatList = new();
+        readonly Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
+        readonly List<ThreatReference> _needsAIUpdate = new();
         ThreatReference _currentVictimRef;
         ThreatReference _fixateRef;
-
-        Dictionary<ObjectGuid, ThreatReference> _threatenedByMe = new(); // these refs are entries for myself on other units' threat lists
+        readonly Dictionary<ObjectGuid, ThreatReference> _threatenedByMe = new(); // these refs are entries for myself on other units' threat lists
         public double[] _singleSchoolModifiers = new double[(int)SpellSchools.Max]; // most spells are single school - we pre-calculate these and store them
         public volatile Dictionary<SpellSchoolMask, double> _multiSchoolModifiers = new(); // these are calculated on demand
 
@@ -812,9 +811,9 @@ namespace Game.Combat
 
     public class ThreatReference : IComparable<ThreatReference>
     {
-        Creature _owner;
+        readonly Creature _owner;
         public ThreatManager _mgr;
-        Unit _victim;
+        readonly Unit _victim;
         public OnlineState Online;
         double _baseAmount;
         public int TempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers

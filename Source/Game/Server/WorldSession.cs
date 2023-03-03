@@ -1,13 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Numerics;
+using System.Text;
 using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Realm;
 using Game.Accounts;
-using Game.AI;
 using Game.BattleGrounds;
 using Game.Battlepay;
 using Game.BattlePets;
@@ -18,12 +23,6 @@ using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
-using System.Text;
 
 namespace Game
 {
@@ -245,9 +244,8 @@ namespace Game
             uint processedPackets = 0;
             long currentTime = GameTime.GetGameTime();
 
-            WorldPacket packet;
             //Check for any packets they was not recived yet.
-            while (m_Socket[(int)ConnectionType.Realm] != null && !_recvQueue.IsEmpty && (_recvQueue.TryPeek(out packet, updater) && packet != firstDelayedPacket) && _recvQueue.TryDequeue(out packet))
+            while (m_Socket[(int)ConnectionType.Realm] != null && !_recvQueue.IsEmpty && (_recvQueue.TryPeek(out WorldPacket packet, updater) && packet != firstDelayedPacket) && _recvQueue.TryDequeue(out packet))
             {
                 try
                 {
@@ -1100,9 +1098,9 @@ namespace Game
             return true;
         }
 
-        Policy _policy;
-        WorldSession Session;
-        Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
+        readonly Policy _policy;
+        readonly WorldSession Session;
+        readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
 
         enum Policy
         {

@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking.Packets;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Game.DataStorage
 {
@@ -367,9 +366,9 @@ namespace Game.DataStorage
             return _areaTriggerSpawnsBySpawnId.LookupByKey(spawnId);
         }
 
-        Dictionary<(uint mapId, uint cellId), SortedSet<ulong>> _areaTriggerSpawnsByLocation = new();
-        Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
-        Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
-        Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
+        readonly Dictionary<(uint mapId, uint cellId), SortedSet<ulong>> _areaTriggerSpawnsByLocation = new();
+        readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
+        readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
+        readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
     }
 }

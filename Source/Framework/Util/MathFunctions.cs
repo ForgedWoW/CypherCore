@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Framework.GameMath;
 
 public static class MathFunctions
 {
@@ -406,8 +406,7 @@ public static class MathFunctions
     }
     public static Matrix4x4 Inverse(this Matrix4x4 elt)
     {
-        Matrix4x4 kInverse;
-        elt.Inverse(out kInverse);
+        elt.Inverse(out Matrix4x4 kInverse);
         return kInverse;
     }
     public static bool Inverse(this Matrix4x4 elt, out Matrix4x4 rkInverse)

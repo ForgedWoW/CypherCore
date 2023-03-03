@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
-using Framework.IO;
 using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.Combat;
@@ -12,11 +15,6 @@ using Game.Maps;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using static Game.Garrisons.Garrison;
 
 namespace Game.Chat
 {
@@ -900,8 +898,8 @@ namespace Game.Chat
         [Command("spawnvehicle", RBACPermissions.CommandDebug)]
         static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
         {
-            float x, y, z, o = handler.GetPlayer().GetOrientation();
-            handler.GetPlayer().GetClosePoint(out x, out y, out z, handler.GetPlayer().GetCombatReach());
+            float o = handler.GetPlayer().GetOrientation();
+            handler.GetPlayer().GetClosePoint(out float x, out float y, out float z, handler.GetPlayer().GetCombatReach());
 
             if (id == 0)
                 return handler.GetPlayer().SummonCreature(entry, x, y, z, o);

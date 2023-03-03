@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 30108 - Unstable Affliction
-	[SpellScript(30108)]
+    // 30108 - Unstable Affliction
+    [SpellScript(30108)]
 	public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

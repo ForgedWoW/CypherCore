@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 12328, 18765, 35429 - Sweeping Strikes
-	[Script]
+    // 12328, 18765, 35429 - Sweeping Strikes
+    [Script]
 	internal class spell_warr_sweeping_strikes : AuraScript, IAuraCheckProc, IHasAuraEffects
 	{
 		private Unit _procTarget;

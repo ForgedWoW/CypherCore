@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // 97462 - Rallying Cry
+    [Script] // 97462 - Rallying Cry
 	internal class spell_warr_rallying_cry : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

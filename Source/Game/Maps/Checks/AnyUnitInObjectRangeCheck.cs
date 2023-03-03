@@ -20,7 +20,7 @@ public class AnyUnitInObjectRangeCheck : ICheck<Unit>
         return false;
     }
 
-    WorldObject i_obj;
-    float i_range;
-    bool i_check3D;
+    readonly WorldObject i_obj;
+    readonly float i_range;
+    readonly bool i_check3D;
 }

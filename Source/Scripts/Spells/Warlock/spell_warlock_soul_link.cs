@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 108446 - Soul Link
-	[SpellScript(108446)]
+    // 108446 - Soul Link
+    [SpellScript(108446)]
 	public class spell_warlock_soul_link : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

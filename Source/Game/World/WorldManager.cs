@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
@@ -18,12 +23,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IServer;
 using Game.Scripting.Interfaces.IWorld;
 using Game.Spells;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using static Game.Networking.Packets.SetupCurrency;
 
 namespace Game
 {
@@ -1920,13 +1919,11 @@ namespace Game
 
         public void UpdateSessions(uint diff)
         {
-            Tuple<WorldSocket, ulong> linkInfo;
-            while (_linkSocketQueue.TryDequeue(out linkInfo))
+            while (_linkSocketQueue.TryDequeue(out Tuple<WorldSocket, ulong> linkInfo))
                 ProcessLinkInstanceSocket(linkInfo);
 
             // Add new sessions
-            WorldSession sess;
-            while (addSessQueue.TryDequeue(out sess))
+            while (addSessQueue.TryDequeue(out WorldSession sess))
                 AddSession_(sess);
 
             // Then send an update signal to remaining ones
@@ -2546,8 +2543,7 @@ namespace Game
         ShutdownMask m_ShutdownMask;
         ShutdownExitCode m_ExitCode;
         public bool IsStopped;
-
-        Dictionary<byte, Autobroadcast> m_Autobroadcasts = new();
+        readonly Dictionary<byte, Autobroadcast> m_Autobroadcasts = new();
 
         CleaningFlags m_CleaningFlags;
 
@@ -2562,26 +2558,23 @@ namespace Game
         int m_visibility_notify_periodInArenas = SharedConst.DefaultVisibilityNotifyPeriod;
 
         bool m_isClosed;
-
-        Dictionary<WorldTimers, IntervalTimer> m_timers = new();
+        readonly Dictionary<WorldTimers, IntervalTimer> m_timers = new();
         long mail_timer;
         long mail_timer_expires;
         long blackmarket_timer;
-
-        ConcurrentDictionary<uint, WorldSession> m_sessions = new();
-        MultiMap<ObjectGuid, WorldSession> m_sessionsByBnetGuid = new();
-        Dictionary<uint, long> m_disconnects = new();
+        readonly ConcurrentDictionary<uint, WorldSession> m_sessions = new();
+        readonly MultiMap<ObjectGuid, WorldSession> m_sessionsByBnetGuid = new();
+        readonly Dictionary<uint, long> m_disconnects = new();
         uint m_maxActiveSessionCount;
         uint m_maxQueuedSessionCount;
         uint m_PlayerCount;
         uint m_MaxPlayerCount;
-
-        Dictionary<string, int> m_worldVariables = new();
+        readonly Dictionary<string, int> m_worldVariables = new();
         uint m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         Locale m_defaultDbcLocale;                     // from config for one from loaded DBC locales
         BitSet m_availableDbcLocaleMask;                       // by loaded DBC
-        List<string> m_motd = new();
+        readonly List<string> m_motd = new();
 
         // scheduled reset times
         long m_NextDailyQuestReset;
@@ -2591,24 +2584,18 @@ namespace Game
         long m_NextCalendarOldEventsDeletionTime;
         long m_NextGuildReset;
         long m_NextCurrencyReset;
-
-        List<WorldSession> m_QueuedPlayer = new();
-        ConcurrentQueue<WorldSession> addSessQueue = new();
-
-        ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
-
-        AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-
-        Realm _realm;
+        readonly List<WorldSession> m_QueuedPlayer = new();
+        readonly ConcurrentQueue<WorldSession> addSessQueue = new();
+        readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
+        readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+        readonly Realm _realm;
 
         string _dataPath;
-
-        WorldUpdateTime _worldUpdateTime;
+        readonly WorldUpdateTime _worldUpdateTime;
 
         string _guidWarningMsg;
         string _alertRestartReason;
-
-        object _guidAlertLock = new();
+        readonly object _guidAlertLock = new();
 
         bool _guidWarn;
         bool _guidAlert;
@@ -2699,8 +2686,8 @@ namespace Game
             return sender;
         }
 
-        uint i_textId;
-        object[] i_args;
+        readonly uint i_textId;
+        readonly object[] i_args;
 
         public class MultiplePacketSender : IDoWork<Player>
         {

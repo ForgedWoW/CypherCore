@@ -2,9 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Framework.Cryptography.Ed25519.Internal;
-using System.Diagnostics.Contracts;
 
 namespace Framework.Cryptography.Ed25519
 {
@@ -95,8 +93,7 @@ namespace Framework.Cryptography.Ed25519
         public void Finalize(ArraySegment<byte> output)
         {
             Update(_padding, 0, _padding.Length);
-            Array16<ulong> block;
-            ByteIntegerConverter.Array16LoadBigEndian64(out block, _buffer, 0);
+            ByteIntegerConverter.Array16LoadBigEndian64(out Array16<ulong> block, _buffer, 0);
             CryptoBytes.InternalWipe(_buffer, 0, _buffer.Length);
             int bytesInBuffer = (int)_totalBytes & (BlockSize - 1);
             if (bytesInBuffer > BlockSize - 16)

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// -51556 - Ancestral Awakening
-	[SpellScript(51556)]
+    // -51556 - Ancestral Awakening
+    [SpellScript(51556)]
 	public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

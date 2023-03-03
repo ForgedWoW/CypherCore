@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	[SpellScript(79206)]
+    [SpellScript(79206)]
 	public class spell_sha_spiritwalkers_grace : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

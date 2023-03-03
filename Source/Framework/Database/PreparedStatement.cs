@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Framework.Database
 {
@@ -94,8 +93,8 @@ namespace Framework.Database
 
     public class PreparedStatementTask : ISqlOperation
     {
-        PreparedStatement m_stmt;
-        bool _needsResult;
+        readonly PreparedStatement m_stmt;
+        readonly bool _needsResult;
         public SQLResult Result { get; private set; }
 
         public PreparedStatementTask(PreparedStatement stmt, bool needsResult = false)

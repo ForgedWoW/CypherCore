@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//188389
-	[SpellScript(188389)]
+    //188389
+    [SpellScript(188389)]
 	public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

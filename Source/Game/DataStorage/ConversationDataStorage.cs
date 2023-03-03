@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
+using Framework.Database;
 
 namespace Game.DataStorage
 {
@@ -176,8 +175,8 @@ namespace Game.DataStorage
             return _conversationLineTemplateStorage.LookupByKey(conversationLineId);
         }
 
-        Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
-        Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
+        readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
+        readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
 
         struct ConversationActorDbRow
         {

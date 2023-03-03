@@ -8,8 +8,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//8143
-	[CreatureScript(8143)]
+    //8143
+    [CreatureScript(8143)]
 	public class npc_sha_tremor_totem : ScriptedAI
 	{
 		public npc_sha_tremor_totem(Creature c) : base(c)

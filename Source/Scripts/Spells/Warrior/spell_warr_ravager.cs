@@ -9,9 +9,9 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// Ravager - 152277
-	// Ravager - 228920
-	[SpellScript(new uint[]
+    // Ravager - 152277
+    // Ravager - 228920
+    [SpellScript(new uint[]
 	             {
 		             152277, 228920
 	             })]

@@ -236,8 +236,7 @@ namespace Scripts.EasternKingdoms.MagistersTerrace.SelinFireheart
                 DoCast(crystal, SpellIds.FelCrystalDummy);
                 CrystalGUID = crystal.GetGUID();
 
-                float x, y, z;
-                crystal.GetClosePoint(out x, out y, out z, me.GetCombatReach(), SharedConst.ContactDistance);
+                crystal.GetClosePoint(out float x, out float y, out float z, me.GetCombatReach(), SharedConst.ContactDistance);
 
                 _events.SetPhase(PhaseIds.Drain);
                 me.SetWalk(false);

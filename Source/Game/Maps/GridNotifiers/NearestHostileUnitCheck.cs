@@ -29,7 +29,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
         return true;
     }
 
-    Creature me;
+    readonly Creature me;
     float m_range;
-    bool i_playerOnly;
+    readonly bool i_playerOnly;
 }

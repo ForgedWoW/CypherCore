@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Rogue
 {
-	public struct RogueSpells
+    public struct RogueSpells
 	{
 		public const uint ADRENALINE_RUSH = 13750;
 		public const uint ALACRITY = 193539;

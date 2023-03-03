@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 234877 - Curse of Shadows
-	[SpellScript(234877)]
+    // 234877 - Curse of Shadows
+    [SpellScript(234877)]
 	public class spell_warlock_curse_of_shadows : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

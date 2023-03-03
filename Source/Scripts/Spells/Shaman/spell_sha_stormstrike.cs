@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	//17364
-	[SpellScript(17364)]
+    //17364
+    [SpellScript(17364)]
 	public class spell_sha_stormstrike : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

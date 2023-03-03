@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 64380, 65941 - Shattering Throw
-	[SpellScript(new uint[]
+    // 64380, 65941 - Shattering Throw
+    [SpellScript(new uint[]
 	             {
 		             64380, 65941
 	             })]

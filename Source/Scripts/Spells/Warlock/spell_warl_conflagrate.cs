@@ -12,8 +12,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 17962 - Conflagrate
-	[SpellScript(17962)]
+    // 17962 - Conflagrate
+    [SpellScript(17962)]
 	public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -17,8 +17,7 @@ namespace Game.Chat
             if (args.Empty())
                 return false;
 
-            Player target;
-            if (!handler.ExtractPlayerTarget(args[0] != '"' ? args : null, out target))
+            if (!handler.ExtractPlayerTarget(args[0] != '"' ? args : null, out Player target))
                 return false;
 
             string guildName = handler.ExtractQuotedArg(args.NextString());
@@ -188,8 +187,7 @@ namespace Game.Chat
             // Display Guild Information
             handler.SendSysMessage(CypherStrings.GuildInfoName, guild.GetName(), guild.GetId()); // Guild Id + Name
 
-            string guildMasterName;
-            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(guild.GetLeaderGUID(), out guildMasterName))
+            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(guild.GetLeaderGUID(), out string guildMasterName))
                 handler.SendSysMessage(CypherStrings.GuildInfoGuildMaster, guildMasterName, guild.GetLeaderGUID().ToString()); // Guild Master
 
             // Format creation date

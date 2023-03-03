@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Framework.Constants;
 using Game.Entities;
-using static Game.AI.SmartTarget;
 
 namespace Game.Spells.Auras
 {
@@ -227,7 +225,7 @@ namespace Game.Spells.Auras
 
         public class AuraApplicationQuery
         {
-            AuraApplicationCollection _collection;
+            readonly AuraApplicationCollection _collection;
             bool _hasLoaded = false;
 
             public HashSet<Guid> Results { get; private set; } = new();

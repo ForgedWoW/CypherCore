@@ -11,9 +11,9 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//AT id : 3691
-	//Spell ID : 61882
-	[Script]
+    //AT id : 3691
+    //Spell ID : 61882
+    [Script]
 	public class at_sha_earthquake_totem : AreaTriggerAI
 	{
 		public int timeInterval;

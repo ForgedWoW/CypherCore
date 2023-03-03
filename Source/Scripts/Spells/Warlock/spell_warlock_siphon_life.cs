@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 63106 - Siphon Life @ Glyph of Siphon Life
-	[SpellScript(63106)]
+    // 63106 - Siphon Life @ Glyph of Siphon Life
+    [SpellScript(63106)]
 	public class spell_warlock_siphon_life : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

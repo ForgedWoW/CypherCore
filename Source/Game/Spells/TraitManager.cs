@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -16,16 +16,16 @@ namespace Game
         public static uint COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID = 384255u;
         public static uint MAX_COMBAT_TRAIT_CONFIGS = 10u;
 
-        static Dictionary<int, NodeGroup> _traitGroups = new();
-        static Dictionary<int, Node> _traitNodes = new();
-        static Dictionary<int, Tree> _traitTrees = new();
-        static int[] _skillLinesByClass = new int[(int)Class.Max];
-        static MultiMap<int, Tree> _traitTreesBySkillLine = new();
-        static MultiMap<int, Tree> _traitTreesByTraitSystem = new();
+        static readonly Dictionary<int, NodeGroup> _traitGroups = new();
+        static readonly Dictionary<int, Node> _traitNodes = new();
+        static readonly Dictionary<int, Tree> _traitTrees = new();
+        static readonly int[] _skillLinesByClass = new int[(int)Class.Max];
+        static readonly MultiMap<int, Tree> _traitTreesBySkillLine = new();
+        static readonly MultiMap<int, Tree> _traitTreesByTraitSystem = new();
         static int _configIdGenerator;
-        static MultiMap<int, TraitCurrencySourceRecord> _traitCurrencySourcesByCurrency = new();
-        static MultiMap<int, TraitDefinitionEffectPointsRecord> _traitDefinitionEffectPointModifiers = new();
-        static MultiMap<int, TraitTreeLoadoutEntryRecord> _traitTreeLoadoutsByChrSpecialization = new();
+        static readonly MultiMap<int, TraitCurrencySourceRecord> _traitCurrencySourcesByCurrency = new();
+        static readonly MultiMap<int, TraitDefinitionEffectPointsRecord> _traitDefinitionEffectPointModifiers = new();
+        static readonly MultiMap<int, TraitTreeLoadoutEntryRecord> _traitTreeLoadoutsByChrSpecialization = new();
 
         public static void Load()
         {
@@ -533,8 +533,6 @@ namespace Game
                 }
                 return foundTraitEntry;
             }
-
-            Dictionary<int, int> cachedCurrencies = null;
 
             foreach (Tree tree in trees)
             {

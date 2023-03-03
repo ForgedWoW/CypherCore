@@ -31,7 +31,7 @@ class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
         return true;
     }
 
-    Creature i_obj;
-    Unit i_enemy;
+    readonly Creature i_obj;
+    readonly Unit i_enemy;
     float i_range;
 }

@@ -232,8 +232,7 @@ namespace Game.BattleFields
 
                     if (player)
                     {
-                        float x, y, z;
-                        player.GetPosition(out x, out y, out z);
+                        player.GetPosition(out float x, out float y, out float z);
 
                         if (5500 > x &&
                             x > 5392 &&

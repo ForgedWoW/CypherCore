@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static Game.AI.SmartAction;
-using System.Text.RegularExpressions;
 
 namespace Game.Entities
 {
@@ -1262,8 +1260,7 @@ namespace Game.Entities
                 return;
 
             // Get base of Mana Pool in sBaseMPGameTable
-            uint basemana;
-            Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out basemana);
+            Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out uint basemana);
             double base_regen = basemana / 100.0f;
 
             base_regen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
@@ -1706,7 +1703,7 @@ namespace Game.Entities
             return result;
         }
 
-        float[] parry_cap =
+        readonly float[] parry_cap =
         {
             65.631440f,     // Warrior
             65.631440f,     // Paladin
@@ -1745,8 +1742,8 @@ namespace Game.Entities
             }
             SetUpdateFieldStatValue(m_values.ModifyValue(m_activePlayerData).ModifyValue(m_activePlayerData.ParryPercentage), (float)value);
         }
-        
-        float[] dodge_cap =
+
+        readonly float[] dodge_cap =
         {
             65.631440f,     // Warrior            
             65.631440f,     // Paladin

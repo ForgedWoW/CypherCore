@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	//210643 Totem Mastery
-	[SpellScript(210643)]
+    //210643 Totem Mastery
+    [SpellScript(210643)]
 	public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 	{
 		public void OnCast()

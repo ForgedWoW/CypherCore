@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// Ascendance (Water)(heal) - 114083
-	[SpellScript(114083)]
+    // Ascendance (Water)(heal) - 114083
+    [SpellScript(114083)]
 	public class spell_sha_ascendance_water_heal : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

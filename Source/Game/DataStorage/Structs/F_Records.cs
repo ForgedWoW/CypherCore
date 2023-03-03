@@ -35,7 +35,7 @@ namespace Game.DataStorage
 
     public sealed class FactionTemplateRecord
     {
-        static int MAX_FACTION_RELATIONS = 8;
+        static readonly int MAX_FACTION_RELATIONS = 8;
 
         public uint Id;
         public ushort Faction;

@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 61336 - Survival Instincts
+    [Script] // 61336 - Survival Instincts
 	internal class spell_dru_survival_instincts_AuraScript : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

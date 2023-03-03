@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Dynamic;
-using Game.Entities;
-using Game.Maps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Game.Entities;
+using Game.Maps;
 
 namespace Game
 {
@@ -23,7 +22,7 @@ namespace Game
 
     class PlayerPersonalPhasesTracker
     {
-        Dictionary<uint, PersonalPhaseSpawns> _spawns = new();
+        readonly Dictionary<uint, PersonalPhaseSpawns> _spawns = new();
 
         public void RegisterTrackedObject(uint phaseId, WorldObject obj)
         {
@@ -118,7 +117,7 @@ namespace Game
 
     public class MultiPersonalPhaseTracker
     {
-        Dictionary<ObjectGuid, PlayerPersonalPhasesTracker> _playerData = new();
+        readonly Dictionary<ObjectGuid, PlayerPersonalPhasesTracker> _playerData = new();
 
         public void LoadGrid(PhaseShift phaseShift, Grid grid, Map map, Cell cell)
         {

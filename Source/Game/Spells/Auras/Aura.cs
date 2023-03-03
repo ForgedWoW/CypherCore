@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.DataStorage;
@@ -10,12 +13,6 @@ using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.ISpell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using static Game.Maps.InstanceScriptDataReader;
 
 namespace Game.Spells
 {
@@ -53,10 +50,10 @@ namespace Game.Spells
 
     public class AuraApplication
     {
-        Unit _target;
-        Aura _base;
+        readonly Unit _target;
+        readonly Aura _base;
         AuraRemoveMode _removeMode;                  // Store info for know remove aura reason
-        byte _slot;                                   // Aura slot on unit
+        readonly byte _slot;                                   // Aura slot on unit
         AuraFlags _flags;                                  // Aura info flag
         uint _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate;
@@ -1226,8 +1223,7 @@ namespace Game.Spells
             var saBounds = Global.SpellMgr.GetSpellAreaForAuraMapBounds(GetId());
             if (saBounds != null)
             {
-                uint zone, area;
-                target.GetZoneAndAreaId(out zone, out area);
+                target.GetZoneAndAreaId(out uint zone, out uint area);
 
                 foreach (var spellArea in saBounds)
                 {
@@ -2004,10 +2000,10 @@ namespace Game.Spells
             return ae.AuraType == AuraType.Any || spellEffectInfo.ApplyAuraName == ae.AuraType;
         }
 
-        static List<IAuraScript> _dummy = new();
-        static List<(IAuraScript, IAuraEffectHandler)> _dummyAuraEffects = new();
+        static readonly List<IAuraScript> _dummy = new();
+        static readonly List<(IAuraScript, IAuraEffectHandler)> _dummyAuraEffects = new();
         readonly Dictionary<Type, List<IAuraScript>> m_auraScriptsByType = new Dictionary<Type, List<IAuraScript>>();
-        Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>>();
+        readonly Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>>();
 
         public List<IAuraScript> GetAuraScripts<T>() where T : IAuraScript
         {
@@ -2716,30 +2712,30 @@ namespace Game.Spells
 
         #region Fields
         List<AuraScript> m_loadedScripts = new();
-        SpellInfo m_spellInfo;
-        Difficulty m_castDifficulty;
+        readonly SpellInfo m_spellInfo;
+        readonly Difficulty m_castDifficulty;
         ObjectGuid m_castId;
         ObjectGuid m_casterGuid;
         ObjectGuid m_castItemGuid;
         uint m_castItemId;
         int m_castItemLevel;
         SpellCastVisual m_spellVisual;
-        long m_applyTime;
-        WorldObject m_owner;
+        readonly long m_applyTime;
+        readonly WorldObject m_owner;
 
         int m_maxDuration;                                // Max aura duration
         int m_duration;                                   // Current time
         int m_timeCla;                                    // Timer for power per sec calcultion
-        List<SpellPowerRecord> m_periodicCosts = new();// Periodic costs
+        readonly List<SpellPowerRecord> m_periodicCosts = new();// Periodic costs
         int m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
-        uint m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
+        readonly uint m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         byte m_procCharges;                                // Aura charges (0 for infinite)
         byte m_stackAmount;                                // Aura stack amount
 
         //might need to be arrays still
         Dictionary<int, AuraEffect> _effects;
-        Dictionary<ObjectGuid, AuraApplication> m_applications = new();
+        readonly Dictionary<ObjectGuid, AuraApplication> m_applications = new();
 
         bool m_isRemoved;
         bool m_isSingleTarget;                        // true if it's a single target spell and registered at caster - can change at spell steal for example
@@ -2750,8 +2746,7 @@ namespace Game.Spells
         DateTime m_procCooldown;
         DateTime m_lastProcAttemptTime;
         DateTime m_lastProcSuccessTime;
-
-        List<AuraApplication> _removedApplications = new();
+        readonly List<AuraApplication> _removedApplications = new();
         #endregion
     }
 
@@ -2920,7 +2915,7 @@ namespace Game.Spells
         public DiminishingGroup GetDiminishGroup() { return m_AuraDRGroup; }
 
         DiminishingGroup m_AuraDRGroup;              // Diminishing
-        Dictionary<ObjectGuid, uint> _staticApplications = new(); // non-area auras
+        readonly Dictionary<ObjectGuid, uint> _staticApplications = new(); // non-area auras
     }
 
     public class DynObjAura : Aura
@@ -2995,8 +2990,8 @@ namespace Game.Spells
             return true;
         }
 
-        Aura _base;
-        AuraRemoveMode _mode;
+        readonly Aura _base;
+        readonly AuraRemoveMode _mode;
     }
 
     public class AuraKey : IEquatable<AuraKey>

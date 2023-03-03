@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Game.BattleFields
 {
@@ -781,7 +781,7 @@ namespace Game.BattleFields
         protected uint m_DefenderTeam;
 
         // Map of the objectives belonging to this OutdoorPvP
-        Dictionary<uint, BfCapturePoint> m_capturePoints = new();
+        readonly Dictionary<uint, BfCapturePoint> m_capturePoints = new();
 
         // Players info maps
         protected List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];                      // Players in zone
@@ -815,9 +815,9 @@ namespace Game.BattleFields
         protected uint m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         protected bool m_StartGrouping;                                   // bool for know if all players in area has been invited
 
-        List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2];                       // Contain different raid group
+        readonly List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2];                       // Contain different raid group
 
-        Dictionary<int, ulong> m_Data64 = new();
+        readonly Dictionary<int, ulong> m_Data64 = new();
         protected Dictionary<int, uint> m_Data32 = new();
     }
 
@@ -965,8 +965,8 @@ namespace Game.BattleFields
 
         uint m_ControlTeam;
         uint m_GraveyardId;
-        ObjectGuid[] m_SpiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
-        List<ObjectGuid> m_ResurrectQueue = new();
+        readonly ObjectGuid[] m_SpiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
+        readonly List<ObjectGuid> m_ResurrectQueue = new();
         protected BattleField m_Bf;
     }
 
@@ -1265,7 +1265,7 @@ namespace Game.BattleFields
         uint GetTeamId() { return m_team; }
 
         // active Players in the area of the objective, 0 - alliance, 1 - horde
-        HashSet<ObjectGuid>[] m_activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
+        readonly HashSet<ObjectGuid>[] m_activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
 
         // Total shift needed to capture the objective
         float m_maxValue;

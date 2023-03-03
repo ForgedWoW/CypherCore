@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// Flametongue - 193796
-	[SpellScript(193796)]
+    // Flametongue - 193796
+    [SpellScript(193796)]
 	public class bfa_spell_flametongue : SpellScript, ISpellOnHit
 	{
 		public override bool Load()

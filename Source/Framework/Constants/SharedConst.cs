@@ -282,7 +282,7 @@ namespace Framework.Constants
             MaxVisibilityDistance
         };
 
-        static int[] raceBits =
+        static readonly int[] raceBits =
         {
             0, 0, 1, 2, 3, 4, 5, 6, 7, 8,
             9, 10, -1, -1, -1, -1, -1, -1, -1, -1,

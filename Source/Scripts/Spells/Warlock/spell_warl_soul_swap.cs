@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(86121)] // 86121 - Soul Swap
+    [SpellScript(86121)] // 86121 - Soul Swap
 	internal class spell_warl_soul_swap : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

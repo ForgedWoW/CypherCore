@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 8232 - Windfury Weapon
-	[SpellScript(8232)]
+    // 8232 - Windfury Weapon
+    [SpellScript(8232)]
 	public class spell_shaman_windfury_weapon : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

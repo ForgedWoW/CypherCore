@@ -88,7 +88,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
             me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.ImmuneToPc | UnitFlags.Stunned);
         }
 
-        private uint _eventId;
+        private readonly uint _eventId;
         private uint _step;
         private ObjectGuid _prototypeGUID;
 

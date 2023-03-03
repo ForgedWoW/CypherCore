@@ -7,7 +7,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	internal class spell_dru_eclipse_common
+    internal class spell_dru_eclipse_common
 	{
 		public static void SetSpellCount(Unit unitOwner, uint spellId, uint amount)
 		{

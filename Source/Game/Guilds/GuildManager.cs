@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Guilds;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -489,8 +489,8 @@ namespace Game
         public List<GuildReward> GetGuildRewards() { return guildRewards; }
 
         uint NextGuildId;
-        Dictionary<ulong, Guild> GuildStore = new();
-        List<GuildReward> guildRewards = new();
+        readonly Dictionary<ulong, Guild> GuildStore = new();
+        readonly List<GuildReward> guildRewards = new();
     }
 
     public class GuildReward

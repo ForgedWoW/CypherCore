@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 262161 Warbreaker
-	[SpellScript(262161)]
+    // 262161 Warbreaker
+    [SpellScript(262161)]
 	public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

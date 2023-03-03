@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Incinerate - 29722
-	[SpellScript(29722)]
+    // Incinerate - 29722
+    [SpellScript(29722)]
 	public class spell_warl_incinerate : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

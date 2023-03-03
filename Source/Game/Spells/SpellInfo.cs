@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.BattleGrounds;
@@ -8,10 +12,6 @@ using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Spells
 {
@@ -4012,7 +4012,8 @@ namespace Game.Spells
         public uint ProcCharges { get; set; }
         public uint ProcCooldown { get; set; }
         public float ProcBasePPM { get; set; }
-        List<SpellProcsPerMinuteModRecord> ProcPPMMods = new();
+
+        readonly List<SpellProcsPerMinuteModRecord> ProcPPMMods = new();
         public uint MaxLevel { get; set; }
         public uint BaseLevel { get; set; }
         public uint SpellLevel { get; set; }
@@ -4054,8 +4055,8 @@ namespace Game.Spells
         public SpellCastTargetFlags ExplicitTargetMask { get; set; }
         public SpellChainNode ChainEntry { get; set; }
 
-        List<SpellEffectInfo> _effects = new();
-        List<SpellXSpellVisualRecord> _visuals = new();
+        readonly List<SpellEffectInfo> _effects = new();
+        readonly List<SpellXSpellVisualRecord> _visuals = new();
         SpellSpecificType _spellSpecific;
         AuraStateType _auraState;
 
@@ -4519,7 +4520,7 @@ namespace Game.Spells
             public SpellTargetObjectTypes UsedTargetObjectType; // defines valid target object type for spell effect
         }
 
-        static StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
+        static readonly StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
         {
             // implicit target type           used target object type
             new StaticData(SpellEffectImplicitTargetTypes.None,     SpellTargetObjectTypes.None), // 0
@@ -4830,7 +4831,7 @@ namespace Game.Spells
         };
 
         #region Fields
-        SpellInfo _spellInfo;
+        readonly SpellInfo _spellInfo;
         public int EffectIndex;
 
         public SpellEffectName Effect;
@@ -4858,8 +4859,7 @@ namespace Game.Spells
         public List<Condition> ImplicitTargetConditions;
         public SpellEffectAttributes EffectAttributes;
         public ScalingInfo Scaling;
-
-        ImmunityInfo _immunityInfo;
+        readonly ImmunityInfo _immunityInfo;
         #endregion
 
         public struct ScalingInfo
@@ -5024,7 +5024,7 @@ namespace Game.Spells
             return targetMask;
         }
 
-        Targets _target;
+        readonly Targets _target;
 
         public struct StaticData
         {
@@ -5044,7 +5044,7 @@ namespace Game.Spells
             public SpellTargetDirectionTypes DirectionType; // direction for cone and dest targets
         }
 
-        static StaticData[] _data = new StaticData[(int)Targets.TotalSpellTargets]
+        static readonly StaticData[] _data = new StaticData[(int)Targets.TotalSpellTargets]
         {
             new StaticData(SpellTargetObjectTypes.None,         SpellTargetReferenceTypes.None,   SpellTargetSelectionCategories.Nyi,     SpellTargetCheckTypes.Default,  SpellTargetDirectionTypes.None),        // 0
             new StaticData(SpellTargetObjectTypes.Unit,         SpellTargetReferenceTypes.Caster, SpellTargetSelectionCategories.Default, SpellTargetCheckTypes.Default,  SpellTargetDirectionTypes.None),        // 1 TARGET_UNIT_CASTER

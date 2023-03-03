@@ -1,20 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
-	public static class MontgomeryOperations
+    public static class MontgomeryOperations
 	{
 		public static void scalarmult(
 			byte[] q, int qoffset,
 			byte[] n, int noffset,
 			byte[] p, int poffset)
 		{
-			FieldElement p0, q0;
-			FieldOperations.fe_frombytes2(out p0, p, poffset);
-			scalarmult(out q0, n, noffset, ref p0);
+            FieldOperations.fe_frombytes2(out FieldElement p0, p, poffset);
+            scalarmult(out FieldElement q0, n, noffset, ref p0);
 			FieldOperations.fe_tobytes(q, qoffset, ref q0);
 		}
 
@@ -24,18 +21,16 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			ref FieldElement p)
 		{
 			byte[] e = new byte[32];//ToDo: remove allocation
-			FieldElement x1, x2, x3;
-			FieldElement z2, z3;
-			FieldElement tmp0, tmp1;
+			FieldElement x1, x3;
 
-			for (int i = 0; i < 32; ++i)
-				e[i] = n[noffset + i];
-		    ScalarOperations.sc_clamp(e, 0);
+            for (int i = 0; i < 32; ++i)
+                e[i] = n[noffset + i];
+            ScalarOperations.sc_clamp(e, 0);
 			x1 = p;
-			FieldOperations.fe_1(out x2);
-			FieldOperations.fe_0(out z2);
+			FieldOperations.fe_1(out FieldElement x2);
+			FieldOperations.fe_0(out FieldElement z2);
 			x3 = x1;
-			FieldOperations.fe_1(out z3);
+			FieldOperations.fe_1(out FieldElement z3);
 
 			uint swap = 0;
 			for (int pos = 254; pos >= 0; --pos)
@@ -52,12 +47,12 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 				/* qhasm: D = X3-Z3 */
 				/* asm 1: fe_sub(>D=fe#5,<X3=fe#3,<Z3=fe#4); */
 				/* asm 2: fe_sub(>D=tmp0,<X3=x3,<Z3=z3); */
-				FieldOperations.fe_sub(out tmp0, ref  x3, ref  z3);
+				FieldOperations.fe_sub(out FieldElement tmp0, ref  x3, ref  z3);
 
 				/* qhasm: B = X2-Z2 */
 				/* asm 1: fe_sub(>B=fe#6,<X2=fe#1,<Z2=fe#2); */
 				/* asm 2: fe_sub(>B=tmp1,<X2=x2,<Z2=z2); */
-				FieldOperations.fe_sub(out tmp1, ref x2, ref z2);
+				FieldOperations.fe_sub(out FieldElement tmp1, ref x2, ref z2);
 
 				/* qhasm: A = X2+Z2 */
 				/* asm 1: fe_add(>A=fe#1,<X2=fe#1,<Z2=fe#2); */

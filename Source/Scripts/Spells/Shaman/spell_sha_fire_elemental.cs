@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// 198067
-	[SpellScript(198067)]
+    // 198067
+    [SpellScript(198067)]
 	public class spell_sha_fire_elemental : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

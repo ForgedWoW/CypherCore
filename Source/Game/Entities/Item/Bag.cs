@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -266,15 +266,15 @@ namespace Game.Entities
 
         void SetSlot(int slot, ObjectGuid guid) { SetUpdateFieldValue(ref m_values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid); }
 
-        ContainerData m_containerData;
+        readonly ContainerData m_containerData;
         Item[] m_bagslot = new Item[36];
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Bag Owner;
-            ObjectFieldData ObjectMask = new();
-            ItemData ItemMask = new();
-            ContainerData ContainerMask = new();
+            readonly Bag Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly ItemData ItemMask = new();
+            readonly ContainerData ContainerMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Bag owner)
             {

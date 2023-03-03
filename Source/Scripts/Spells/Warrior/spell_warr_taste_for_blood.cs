@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior
 {
-	// Taste for Blood - 206333
-	[SpellScript(206333)]
+    // Taste for Blood - 206333
+    [SpellScript(206333)]
 	public class spell_warr_taste_for_blood : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

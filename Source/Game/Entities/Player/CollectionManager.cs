@@ -1,28 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
 
 namespace Game.Entities
 {
     public class CollectionMgr
     {
-        static Dictionary<uint, uint> FactionSpecificMounts = new();
-
-        WorldSession _owner;
-        Dictionary<uint, ToyFlags> _toys = new();
-        Dictionary<uint, HeirloomData> _heirlooms = new();
-        Dictionary<uint, MountStatusFlags> _mounts = new();
+        static readonly Dictionary<uint, uint> FactionSpecificMounts = new();
+        readonly WorldSession _owner;
+        readonly Dictionary<uint, ToyFlags> _toys = new();
+        readonly Dictionary<uint, HeirloomData> _heirlooms = new();
+        readonly Dictionary<uint, MountStatusFlags> _mounts = new();
         BitSet _appearances;
-        MultiMap<uint, ObjectGuid> _temporaryAppearances = new();
-        Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
+        readonly MultiMap<uint, ObjectGuid> _temporaryAppearances = new();
+        readonly Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
         BitSet _transmogIllusions;
 
         public static void LoadMountDefinitions()
@@ -529,7 +528,7 @@ namespace Game.Entities
             }
         }
 
-        uint[] PlayerClassByArmorSubclass =
+        readonly uint[] PlayerClassByArmorSubclass =
         {
             (int)Class.ClassMaskAllPlayable,                                                                                        //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
             (1 << ((int)Class.Priest - 1)) | (1 << ((int)Class.Mage - 1)) | (1 << ((int)Class.Warlock - 1)),                                       //ITEM_SUBCLASS_ARMOR_CLOTH

@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 155835 - Bristling Fur
+    [Script] // 155835 - Bristling Fur
 	internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

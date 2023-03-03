@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Dynamic;
-using Game.Entities;
-using Game.Spells;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Game.Entities;
+using Game.Spells;
 
 namespace Game.Networking.Packets
 {
@@ -155,7 +154,7 @@ namespace Game.Networking.Packets
 
     public class SendUnlearnSpells : ServerPacket
     {
-        List<uint> Spells = new();
+        readonly List<uint> Spells = new();
 
         public SendUnlearnSpells() : base(ServerOpcodes.SendUnlearnSpells, ConnectionType.Instance) { }
 
@@ -1220,8 +1219,8 @@ namespace Game.Networking.Packets
             _worldPacket.WriteUInt32(LoadingScreenID);
         }
 
-        uint TeleportSpellID;
-        uint LoadingScreenID;
+        readonly uint TeleportSpellID;
+        readonly uint LoadingScreenID;
     }
 
     class MountResultPacket : ServerPacket
@@ -1349,7 +1348,7 @@ namespace Game.Networking.Packets
         double AttackPower;
         double SpellPower;
         uint Armor;
-        List<SpellLogPowerData> PowerData = new();
+        readonly List<SpellLogPowerData> PowerData = new();
     }
 
     class ContentTuningParams
@@ -1572,11 +1571,11 @@ namespace Game.Networking.Packets
         public ushort CastLevel = 1;
         public byte Applications = 1;
         public int ContentTuningID;
-        ContentTuningParams ContentTuning;
+        readonly ContentTuningParams ContentTuning;
         public ObjectGuid? CastUnit;
         public int? Duration;
         public int? Remaining;
-        float? TimeMod;
+        readonly float? TimeMod;
         public List<double> Points = new();
         public List<double> EstimatedPoints = new();
     }
@@ -2101,8 +2100,8 @@ namespace Game.Networking.Packets
         public int CategoryRecoveryTime;
         public float ModRate = 1.0f;
         public bool OnHold;
-        uint? unused622_1;   // This field is not used for anything in the client in 6.2.2.20444
-        uint? unused622_2;   // This field is not used for anything in the client in 6.2.2.20444
+        readonly uint? unused622_1;   // This field is not used for anything in the client in 6.2.2.20444
+        readonly uint? unused622_2;   // This field is not used for anything in the client in 6.2.2.20444
     }
 
     public class SpellChargeEntry

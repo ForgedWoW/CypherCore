@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
-	internal static partial class Ed25519Operations
+    internal static partial class Ed25519Operations
 	{
 		public static void crypto_sign(
 			byte[] sig, int sigoffset,
@@ -16,9 +16,8 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			byte[] ctx = null)
 		{
 			byte[] az, r, hram;
-			GroupElementP3 R;
-		    var hasher = new Sha512();
-			{
+            var hasher = new Sha512();
+            {
                 hasher.Update(sk, skoffset, 32);
 			    az = hasher.Finalize();
 			    ScalarOperations.sc_clamp(az, 0);
@@ -43,7 +42,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 				r = hasher.Finalize();
 
 				ScalarOperations.sc_reduce(r);
-				GroupOperations.ge_scalarmult_base(out R, r, 0);
+				GroupOperations.ge_scalarmult_base(out GroupElementP3 R, r, 0);
 				GroupOperations.ge_p3_tobytes(sig, sigoffset, ref R);
 
 				hasher.Init();

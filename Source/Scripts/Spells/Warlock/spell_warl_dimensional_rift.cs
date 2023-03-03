@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
@@ -14,7 +10,7 @@ namespace Scripts.Spells.Warlock
     {
         public List<ISpellEffect> SpellEffects { get; } = new List<ISpellEffect>();
 
-        private List<uint> _spells = new List<uint>()
+        private readonly List<uint> _spells = new List<uint>()
         {
             WarlockSpells.SHADOWY_TEAR,
             WarlockSpells.UNSTABLE_TEAR,

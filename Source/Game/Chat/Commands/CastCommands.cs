@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
-using Framework.IO;
 using Game.Entities;
 using Game.Spells;
-using System;
 
 namespace Game.Chat
 {
@@ -65,8 +64,7 @@ namespace Game.Chat
             if (!triggerFlags.HasValue)
                 return false;
 
-            float x, y, z;
-            handler.GetSession().GetPlayer().GetClosePoint(out x, out y, out z, dist);
+            handler.GetSession().GetPlayer().GetClosePoint(out float x, out float y, out float z, dist);
 
             handler.GetSession().GetPlayer().CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
 

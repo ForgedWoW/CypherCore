@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.DemonHunter
 {
-	internal struct DemonHunterSpells
+    internal struct DemonHunterSpells
 	{
 		public const uint ABYSSAL_STRIKE = 207550;
 		public const uint ANGUISH_DAMAGE = 202446;

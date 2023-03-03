@@ -44,11 +44,11 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
         return u.IsInMap(_source) && u.InSamePhase(_source) && u.IsWithinDoubleVerticalCylinder(_source, searchRadius, searchRadius);
     }
 
-    WorldObject _source;
-    Unit _refUnit;
-    float _range;
-    bool _raid;
-    bool _playerOnly;
-    bool i_incOwnRadius;
-    bool i_incTargetRadius;
+    readonly WorldObject _source;
+    readonly Unit _refUnit;
+    readonly float _range;
+    readonly bool _raid;
+    readonly bool _playerOnly;
+    readonly bool i_incOwnRadius;
+    readonly bool i_incTargetRadius;
 }

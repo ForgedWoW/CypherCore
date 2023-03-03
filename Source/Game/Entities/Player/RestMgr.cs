@@ -7,10 +7,10 @@ namespace Game.Entities
 {
     public class RestMgr
     {
-        Player _player;
+        readonly Player _player;
         long _restTime;
         uint _innAreaTriggerId;
-        double[] _restBonus = new double[(int)RestTypes.Max];
+        readonly double[] _restBonus = new double[(int)RestTypes.Max];
         RestFlag _restFlagMask;
 
         public RestMgr(Player player)

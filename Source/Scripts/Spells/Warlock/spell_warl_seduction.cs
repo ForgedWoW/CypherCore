@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(6358)] // 6358 - Seduction (Special Ability)
+    [SpellScript(6358)] // 6358 - Seduction (Special Ability)
 	internal class spell_warl_seduction : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// 188070 Healing Surge
-	[SpellScript(188070)]
+    // 188070 Healing Surge
+    [SpellScript(188070)]
 	public class spell_sha_healing_surge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

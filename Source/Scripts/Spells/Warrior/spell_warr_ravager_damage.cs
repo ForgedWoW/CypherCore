@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// Ravager Damage - 156287
-	[SpellScript(156287)]
+    // Ravager Damage - 156287
+    [SpellScript(156287)]
 	public class spell_warr_ravager_damage : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

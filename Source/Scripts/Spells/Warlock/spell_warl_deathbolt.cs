@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 264106 - Deathbolt
-	[SpellScript(264106)]
+    // 264106 - Deathbolt
+    [SpellScript(264106)]
 	public class spell_warl_deathbolt : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

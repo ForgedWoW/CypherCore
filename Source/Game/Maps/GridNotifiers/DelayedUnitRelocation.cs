@@ -51,8 +51,8 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
         }
     }
 
-    Map i_map;
-    Cell cell;
-    CellCoord p;
-    float i_radius;
+    readonly Map i_map;
+    readonly Cell cell;
+    readonly CellCoord p;
+    readonly float i_radius;
 }

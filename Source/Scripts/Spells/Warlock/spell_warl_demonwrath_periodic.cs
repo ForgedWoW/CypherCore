@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonwrath periodic - 193440
-	[SpellScript(193440)]
+    // Demonwrath periodic - 193440
+    [SpellScript(193440)]
 	public class spell_warl_demonwrath_periodic : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

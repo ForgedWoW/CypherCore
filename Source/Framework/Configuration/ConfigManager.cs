@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Framework.Collections;
 
 namespace Framework.Configuration
 {
@@ -79,7 +79,7 @@ namespace Framework.Configuration
             return _configList.Where(p => p.Key.Contains(name)).Select(p => p.Key);
         }
 
-        static Dictionary<string, string> _configList = new();
-        static Dictionary<string, object> _convertedVals = new Dictionary<string, object>();
+        static readonly Dictionary<string, string> _configList = new();
+        static readonly Dictionary<string, object> _convertedVals = new Dictionary<string, object>();
     }
 }

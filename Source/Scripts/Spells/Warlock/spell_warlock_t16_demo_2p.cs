@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 145072 - Item - Warlock T16 2P Bonus
-	[SpellScript(145072)]
+    // 145072 - Item - Warlock T16 2P Bonus
+    [SpellScript(145072)]
 	internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

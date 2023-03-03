@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Life Tap - 1454
-	[SpellScript(1454)]
+    // Life Tap - 1454
+    [SpellScript(1454)]
 	public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCast
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

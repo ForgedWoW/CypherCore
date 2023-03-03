@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//Second wind (triggered) - 202149
-	[SpellScript(202149)]
+    //Second wind (triggered) - 202149
+    [SpellScript(202149)]
 	public class spell_warr_second_wind_damaged : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

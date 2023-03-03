@@ -6,9 +6,9 @@ namespace Game.Maps;
 
 public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T : NoopCheckCustomizer
 {
-    WorldObject i_obj;
+    readonly WorldObject i_obj;
     FindCreatureOptions i_args;
-    T i_customizer;
+    readonly T i_customizer;
 
     public CreatureWithOptionsInObjectRangeCheck(WorldObject obj, T customizer, FindCreatureOptions args)
     {

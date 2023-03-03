@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game;
 using Game.Entities;
 using Game.Maps;
-using System;
-using System.Collections.Generic;
 
 public class ObjectAccessor : Singleton<ObjectAccessor>
 {
-    object _lockObject = new();
-
-    Dictionary<ObjectGuid, Player> _players = new();
+    readonly object _lockObject = new();
+    readonly Dictionary<ObjectGuid, Player> _players = new();
 
     ObjectAccessor() { }
 
@@ -261,5 +260,5 @@ class PlayerNameMapHolder
         return _playerNameMap.LookupByKey(name);
     }
 
-    static Dictionary<string, Player> _playerNameMap = new();
+    static readonly Dictionary<string, Player> _playerNameMap = new();
 }

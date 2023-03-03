@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 19483 - Immolation
-	public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
+    // 19483 - Immolation
+    public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 

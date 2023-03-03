@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 233494 - Contagion
-	[SpellScript(233494)]
+    // 233494 - Contagion
+    [SpellScript(233494)]
 	public class spell_warlock_contagion : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

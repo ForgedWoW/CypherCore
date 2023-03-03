@@ -1,20 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
-using Game.Maps;
-using Game.Misc;
-using Game.Networking;
-using Game.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Game.Chat;
+using Game.Entities;
+using Game.Groups;
+using Game.Maps;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game.PvP
 {
@@ -255,10 +252,9 @@ namespace Game.PvP
 
         // the map of the objectives belonging to this outdoorpvp
         public Dictionary<ulong, OPvPCapturePoint> m_capturePoints = new();
-        List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
+        readonly List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
         public OutdoorPvPTypes m_TypeId;
-
-        Map m_map;
+        readonly Map m_map;
     }
 
     public class OPvPCapturePoint
@@ -547,8 +543,8 @@ namespace Game.PvP
             return defenseMessage;
         }
 
-        uint _zoneId; // ZoneId
-        uint _id;     // BroadcastTextId
+        readonly uint _zoneId; // ZoneId
+        readonly uint _id;     // BroadcastTextId
     }
 
     public class go_type
@@ -578,6 +574,6 @@ namespace Game.PvP
 
         public uint entry;
         public uint map;
-        Position pos;
+        readonly Position pos;
     }
 }

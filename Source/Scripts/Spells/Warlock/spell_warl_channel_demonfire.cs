@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Channel Demonfire - 196447
-	[SpellScript(196447)]
+    // Channel Demonfire - 196447
+    [SpellScript(196447)]
 	public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

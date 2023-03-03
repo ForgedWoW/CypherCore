@@ -1,15 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Game.Accounts;
 using Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Game
 {
@@ -164,9 +162,8 @@ namespace Game
 
         public AccountOpResult ChangePassword(uint accountId, string newPassword)
         {
-            string username;
 
-            if (!GetName(accountId, out username))
+            if (!GetName(accountId, out string username))
                 return AccountOpResult.NameNotExist;                          // account doesn't exist
 
             if (newPassword.Length > MaxAccountLength)
@@ -275,9 +272,8 @@ namespace Game
 
         public bool CheckPassword(uint accountId, string password)
         {
-            string username;
 
-            if (!GetName(accountId, out username))
+            if (!GetName(accountId, out string username))
                 return false;
 
             PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
@@ -296,10 +292,9 @@ namespace Game
 
         public bool CheckEmail(uint accountId, string newEmail)
         {
-            string oldEmail;
 
             // We simply return false for a non-existing email
-            if (!GetEmail(accountId, out oldEmail))
+            if (!GetEmail(accountId, out string oldEmail))
                 return false;
 
             if (oldEmail == newEmail)

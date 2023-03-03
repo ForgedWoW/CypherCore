@@ -36,10 +36,10 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
         return !i_playerOnly || u.GetTypeId() == TypeId.Player;
     }
 
-    WorldObject i_obj;
-    Unit i_funit;
-    float i_range;
-    bool i_playerOnly;
-    bool i_incOwnRadius;
-    bool i_incTargetRadius;
+    readonly WorldObject i_obj;
+    readonly Unit i_funit;
+    readonly float i_range;
+    readonly bool i_playerOnly;
+    readonly bool i_incOwnRadius;
+    readonly bool i_incTargetRadius;
 }

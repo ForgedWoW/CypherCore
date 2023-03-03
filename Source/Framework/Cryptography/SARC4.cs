@@ -61,7 +61,7 @@ namespace Framework.Cryptography
             }
         }
 
-        byte[] _s;
+        readonly byte[] _s;
         byte _tmp;
         byte _tmp2;
     }

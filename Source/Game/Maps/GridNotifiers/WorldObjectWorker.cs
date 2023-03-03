@@ -10,8 +10,9 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
 {
     public GridType GridType { get; set; }
     public GridMapTypeMask Mask { get; set; }
-    PhaseShift i_phaseShift;
-    IDoWork<WorldObject> i_do;
+
+    readonly PhaseShift i_phaseShift;
+    readonly IDoWork<WorldObject> i_do;
 
     public WorldObjectWorker(WorldObject searcher, IDoWork<WorldObject> _do, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {

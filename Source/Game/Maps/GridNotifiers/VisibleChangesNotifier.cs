@@ -1,19 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Bgs.Protocol.Notification.V1;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
-using System.Collections.Generic;
-using static Game.AI.SmartTarget;
 
 namespace Game.Maps
 {
 
     public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer, IGridNotifierDynamicObject
     {
-        ICollection<WorldObject> i_objects;
+        readonly ICollection<WorldObject> i_objects;
         public GridType GridType { get; set; }
 
         public VisibleChangesNotifier(ICollection<WorldObject> objects, GridType gridType)

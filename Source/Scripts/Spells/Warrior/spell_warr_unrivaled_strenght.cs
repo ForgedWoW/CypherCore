@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//200860 Unrivaled Strenght
-	[SpellScript(200860)]
+    //200860 Unrivaled Strenght
+    [SpellScript(200860)]
 	public class spell_warr_unrivaled_strenght : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

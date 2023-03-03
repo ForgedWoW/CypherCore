@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Suffering - 119907
-	[SpellScript(119907)]
+    // Suffering - 119907
+    [SpellScript(119907)]
 	public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

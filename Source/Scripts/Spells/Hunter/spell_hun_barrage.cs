@@ -50,10 +50,8 @@ public class spell_hun_barrage : SpellScript, IHasSpellEffects, ISpellOnHit
 		if (player == null || target == null)
 			return;
 
-		double minDamage = 0.0f;
-		double maxDamage = 0.0f;
 
-		player.CalculateMinMaxDamage(WeaponAttackType.RangedAttack, true, true, out minDamage, out maxDamage);
+        player.CalculateMinMaxDamage(WeaponAttackType.RangedAttack, true, true, out double minDamage, out double maxDamage);
 
         double dmg = (minDamage + maxDamage) / 2 * 0.8f;
 

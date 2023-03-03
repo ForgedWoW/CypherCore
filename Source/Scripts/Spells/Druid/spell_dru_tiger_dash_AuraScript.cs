@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 252216 - Tiger Dash (Aura)
+    [Script] // 252216 - Tiger Dash (Aura)
 	internal class spell_dru_tiger_dash_AuraScript : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

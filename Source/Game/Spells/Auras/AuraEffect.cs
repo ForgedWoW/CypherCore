@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.BattleFields;
@@ -9,13 +13,7 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IUnit;
-using static Game.Entities.GameObjectTemplate;
 
 namespace Game.Spells
 {
@@ -915,9 +913,9 @@ namespace Game.Spells
         }
 
         #region Fields
-        Aura auraBase;
-        SpellInfo m_spellInfo;
-        SpellEffectInfo _effectInfo;
+        readonly Aura auraBase;
+        readonly SpellInfo m_spellInfo;
+        readonly SpellEffectInfo _effectInfo;
         SpellModifier m_spellmod;
 
         public double m_baseAmount;
@@ -4550,11 +4548,10 @@ namespace Game.Spells
             }
 
             //Adding items
-            uint noSpaceForCount;
             uint count = (uint)GetAmount();
 
             List<ItemPosCount> dest = new();
-            InventoryResult msg = plCaster.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, GetSpellEffectInfo().ItemType, count, out noSpaceForCount);
+            InventoryResult msg = plCaster.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, GetSpellEffectInfo().ItemType, count, out uint noSpaceForCount);
             if (msg != InventoryResult.Ok)
             {
                 count -= noSpaceForCount;

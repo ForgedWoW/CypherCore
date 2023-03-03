@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 108416 - Dark Pact
-	[SpellScript(108416)]
+    // 108416 - Dark Pact
+    [SpellScript(108416)]
 	public class spell_warlock_dark_pact : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

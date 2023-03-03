@@ -13,8 +13,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 1064 - Chain Heal
-	[SpellScript(1064)]
+    // 1064 - Chain Heal
+    [SpellScript(1064)]
 	public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

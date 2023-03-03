@@ -32,7 +32,7 @@ public class CallOfHelpCreatureInRangeDo : IDoWork<Creature>
         u.EngageWithTarget(i_enemy);
     }
 
-    Unit i_funit;
-    Unit i_enemy;
-    float i_range;
+    readonly Unit i_funit;
+    readonly Unit i_enemy;
+    readonly float i_range;
 }

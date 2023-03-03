@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonic Empowerment - 193396
-	[SpellScript(193396)]
+    // Demonic Empowerment - 193396
+    [SpellScript(193396)]
 	public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISpellOnCast
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

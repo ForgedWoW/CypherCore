@@ -71,7 +71,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
         }
     }
 
-    Dictionary<Player, UpdateData> updateData;
-    WorldObject worldObject;
-    List<ObjectGuid> plr_list = new();
+    readonly Dictionary<Player, UpdateData> updateData;
+    readonly WorldObject worldObject;
+    readonly List<ObjectGuid> plr_list = new();
 }

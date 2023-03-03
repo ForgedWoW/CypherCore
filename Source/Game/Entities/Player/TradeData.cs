@@ -158,14 +158,14 @@ namespace Game.Entities
         public uint GetServerStateIndex() { return m_serverStateIndex; }
         public void UpdateServerStateIndex() { m_serverStateIndex = RandomHelper.Rand32(); }
 
-        Player m_player;
-        Player m_trader;
+        readonly Player m_player;
+        readonly Player m_trader;
         bool m_accepted;
         bool m_acceptProccess;
         ulong m_money;
         uint m_spell;
         ObjectGuid m_spellCastItem;
-        ObjectGuid[] m_items = new ObjectGuid[(int)TradeSlots.Count];
+        readonly ObjectGuid[] m_items = new ObjectGuid[(int)TradeSlots.Count];
         uint m_clientStateIndex;
         uint m_serverStateIndex;
     }

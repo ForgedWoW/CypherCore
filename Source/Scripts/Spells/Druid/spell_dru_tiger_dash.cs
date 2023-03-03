@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 252216 - Tiger Dash
+    [Script] // 252216 - Tiger Dash
 	internal class spell_dru_tiger_dash : SpellScript, ISpellBeforeCast
 	{
 		public override bool Validate(SpellInfo spellInfo)

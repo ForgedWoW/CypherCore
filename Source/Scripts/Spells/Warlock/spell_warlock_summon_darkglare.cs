@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Summon Darkglare - 205180
-	[SpellScript(205180)]
+    // Summon Darkglare - 205180
+    [SpellScript(205180)]
 	public class spell_warlock_summon_darkglare : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

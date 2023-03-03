@@ -7,9 +7,9 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//AT ID : 5760
-	//Spell ID : 198839
-	[Script]
+    //AT ID : 5760
+    //Spell ID : 198839
+    [Script]
 	public class at_earthen_shield_totem : AreaTriggerAI
 	{
 		public int timeInterval;

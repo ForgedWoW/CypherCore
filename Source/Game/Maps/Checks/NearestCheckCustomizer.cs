@@ -4,7 +4,7 @@ namespace Game.Maps;
 
 class NearestCheckCustomizer : NoopCheckCustomizer
 {
-    WorldObject i_obj;
+    readonly WorldObject i_obj;
     float i_range;
 
     public NearestCheckCustomizer(WorldObject obj, float range)

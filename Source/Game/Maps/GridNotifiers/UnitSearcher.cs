@@ -7,9 +7,9 @@ namespace Game.Maps;
 
 public class UnitSearcher : IGridNotifierPlayer, IGridNotifierCreature
 {
-    PhaseShift i_phaseShift;
+    readonly PhaseShift i_phaseShift;
     Unit i_object;
-    ICheck<Unit> i_check;
+    readonly ICheck<Unit> i_check;
     public GridType GridType { get; set; }
 
     public UnitSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)

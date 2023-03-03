@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -22,14 +25,9 @@ using Game.Maps;
 using Game.Misc;
 using Game.Networking;
 using Game.Networking.Packets;
-using Game.PvP;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Entities
 {
@@ -306,9 +304,8 @@ namespace Game.Entities
                 Item pItem = GetItemByPos(InventorySlots.Bag0, i);
                 if (pItem != null)
                 {
-                    ushort eDest;
                     // equip offhand weapon/shield if it attempt equipped before main-hand weapon
-                    InventoryResult msg = CanEquipItem(ItemConst.NullSlot, out eDest, pItem, false);
+                    InventoryResult msg = CanEquipItem(ItemConst.NullSlot, out ushort eDest, pItem, false);
                     if (msg == InventoryResult.Ok)
                     {
                         RemoveItem(InventorySlots.Bag0, i, true);
@@ -516,8 +513,7 @@ namespace Game.Entities
                             _restMgr.RemoveRestFlag(RestFlag.Tavern);
                     }
 
-                    uint newzone, newarea;
-                    GetZoneAndAreaId(out newzone, out newarea);
+                    GetZoneAndAreaId(out uint newzone, out uint newarea);
 
                     if (m_zoneUpdateId != newzone)
                         UpdateZone(newzone, newarea);                // also update area
@@ -3205,8 +3201,7 @@ namespace Game.Entities
             if (!udata.HasData())
                 return;
 
-            UpdateObject packet;
-            udata.BuildPacket(out packet);
+            udata.BuildPacket(out UpdateObject packet);
             SendPacket(packet);
         }
 
@@ -4004,8 +3999,7 @@ namespace Game.Entities
             }
 
             // trigger update zone for alive state zone updates
-            uint newzone, newarea;
-            GetZoneAndAreaId(out newzone, out newarea);
+            GetZoneAndAreaId(out uint newzone, out uint newarea);
             UpdateZone(newzone, newarea);
             Global.OutdoorPvPMgr.HandlePlayerResurrects(this, newzone);
 
@@ -5333,8 +5327,7 @@ namespace Game.Entities
             UpdateVisibilityForPlayer();
 
             // update zone
-            uint newzone, newarea;
-            GetZoneAndAreaId(out newzone, out newarea);
+            GetZoneAndAreaId(out uint newzone, out uint newarea);
             UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
             GetSession().SendLoadCUFProfiles();
@@ -5472,8 +5465,7 @@ namespace Game.Entities
             if (reapplyMods)                                        //reapply stats values only on .reset stats (level) command
                 _RemoveAllStatBonuses();
 
-            uint basemana;
-            Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out basemana);
+            Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out uint basemana);
 
             PlayerLevelInfo info = Global.ObjectMgr.GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel());
 
@@ -6648,10 +6640,9 @@ namespace Game.Entities
 
             for (int i = 1; i < nodes.Count; ++i)
             {
-                uint path, cost;
 
                 lastnode = nodes[i];
-                Global.ObjectMgr.GetTaxiPath(prevnode, lastnode, out path, out cost);
+                Global.ObjectMgr.GetTaxiPath(prevnode, lastnode, out uint path, out uint cost);
 
                 if (path == 0)
                 {

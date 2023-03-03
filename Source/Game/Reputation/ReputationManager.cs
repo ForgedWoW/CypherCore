@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -882,7 +882,7 @@ namespace Game
         }
 
         #region Fields
-        Player _player;
+        readonly Player _player;
         byte _visibleFactionCount;
         byte _honoredFactionCount;
         byte _reveredFactionCount;
@@ -915,9 +915,8 @@ namespace Game
             CypherStrings.RepHated, CypherStrings.RepHostile, CypherStrings.RepUnfriendly, CypherStrings.RepNeutral,
             CypherStrings.RepFriendly, CypherStrings.RepHonored, CypherStrings.RepRevered, CypherStrings.RepExalted
         };
-
-        SortedDictionary<uint, FactionState> _factions = new();
-        Dictionary<uint, ReputationRank> _forcedReactions = new();
+        readonly SortedDictionary<uint, FactionState> _factions = new();
+        readonly Dictionary<uint, ReputationRank> _forcedReactions = new();
     }
 
     public class FactionState

@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
+    [Script] // 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
 	internal class spell_dru_eclipse_aura : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

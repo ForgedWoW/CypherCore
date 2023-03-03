@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 783 - Travel Form (dummy)
+    [Script] // 783 - Travel Form (dummy)
 	internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 	{
 		public override bool Validate(SpellInfo spellEntry)

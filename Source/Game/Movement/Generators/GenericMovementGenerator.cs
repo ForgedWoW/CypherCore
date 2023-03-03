@@ -1,20 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
     class GenericMovementGenerator : MovementGenerator
     {
-        Action<MoveSplineInit> _splineInit;
-        MovementGeneratorType _type;
-        uint _pointId;
-        TimeTracker _duration;
-
-        uint _arrivalSpellId;
+        readonly Action<MoveSplineInit> _splineInit;
+        readonly MovementGeneratorType _type;
+        readonly uint _pointId;
+        readonly TimeTracker _duration;
+        readonly uint _arrivalSpellId;
         ObjectGuid _arrivalSpellTargetGuid;
 
         public GenericMovementGenerator(Action<MoveSplineInit> initializer, MovementGeneratorType type, uint id, uint arrivalSpellId = 0, ObjectGuid arrivalSpellTargetGuid = default)

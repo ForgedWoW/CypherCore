@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Quest
 {
-	internal struct QuestSpellIds
+    internal struct QuestSpellIds
 	{
 		//Thaumaturgychannel        
 		public const uint ThaumaturgyChannel = 21029;

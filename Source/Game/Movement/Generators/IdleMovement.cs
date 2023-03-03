@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
@@ -126,10 +126,10 @@ namespace Game.Movement
 
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Rotate; }
 
-        uint _id;
+        readonly uint _id;
         uint _duration;
-        uint _maxDuration;
-        RotateDirection _direction;
+        readonly uint _maxDuration;
+        readonly RotateDirection _direction;
     }
 
     public class DistractMovementGenerator : MovementGenerator
@@ -205,7 +205,7 @@ namespace Game.Movement
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Distract; }
 
         uint _timer;
-        float _orientation;
+        readonly float _orientation;
     }
 
     public class AssistanceDistractMovementGenerator : DistractMovementGenerator

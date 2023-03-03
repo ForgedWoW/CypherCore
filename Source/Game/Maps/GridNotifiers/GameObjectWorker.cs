@@ -7,8 +7,8 @@ namespace Game.Maps;
 
 public class GameObjectWorker : IGridNotifierGameObject
 {
-    PhaseShift i_phaseShift;
-    IDoWork<GameObject> _do;
+    readonly PhaseShift i_phaseShift;
+    readonly IDoWork<GameObject> _do;
     public GridType GridType { get; set; }
 
     public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> @do, GridType gridType)

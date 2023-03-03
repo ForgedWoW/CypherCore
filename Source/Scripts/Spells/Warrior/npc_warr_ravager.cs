@@ -8,7 +8,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warrior
 {
-	[CreatureScript(76168)] // Ravager - 76168
+    [CreatureScript(76168)] // Ravager - 76168
 	public class npc_warr_ravager : ScriptedAI
 	{
 		public npc_warr_ravager(Creature creature) : base(creature)

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Framework.Configuration;
 
 namespace Framework.Database
 {
@@ -412,7 +412,7 @@ namespace Framework.Database
             }
         }
 
-        MySqlBase<T> _database;
+        readonly MySqlBase<T> _database;
     }
 
     public class AppliedFileEntry

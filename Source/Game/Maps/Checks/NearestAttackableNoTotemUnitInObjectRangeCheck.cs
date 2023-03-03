@@ -33,6 +33,6 @@ public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
         return true;
     }
 
-    WorldObject i_obj;
+    readonly WorldObject i_obj;
     float i_range;
 }

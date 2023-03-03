@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[SpellScript(23881)] // 23881 - Bloodthirst
+    [SpellScript(23881)] // 23881 - Bloodthirst
 	internal class spell_warr_bloodthirst : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnHit
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

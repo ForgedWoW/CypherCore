@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -16,10 +20,6 @@ using Game.Maps;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.Entities
 {
@@ -107,9 +107,8 @@ namespace Game.Entities
                             }
                             else if (IsEquipmentPos(InventorySlots.Bag0, slot))
                             {
-                                ushort dest;
 
-                                err = CanEquipItem(slot, out dest, item, false, false);
+                                err = CanEquipItem(slot, out ushort dest, item, false, false);
                                 if (err == InventoryResult.Ok)
                                     QuickEquipItem(dest, item);
                             }
@@ -1893,8 +1892,7 @@ namespace Game.Entities
             byte index;
             foreach (var aura in GetAuraQuery().CanBeSaved().GetResults())
             {
-                uint recalculateMask;
-                AuraKey key = aura.GenerateKey(out recalculateMask);
+                AuraKey key = aura.GenerateKey(out uint recalculateMask);
 
                 index = 0;
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_AURA);

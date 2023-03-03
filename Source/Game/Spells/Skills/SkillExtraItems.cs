@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Database;
 using Game.Entities;
-using System.Collections.Generic;
 
 namespace Game.Spells
 {
@@ -89,7 +89,7 @@ namespace Game.Spells
             return true;
         }
 
-        static Dictionary<uint, SkillExtraItemEntry> SkillExtraItemStorage = new();
+        static readonly Dictionary<uint, SkillExtraItemEntry> SkillExtraItemStorage = new();
     }
 
     class SkillExtraItemEntry
@@ -185,7 +185,7 @@ namespace Game.Spells
             return true;
         }
 
-        static Dictionary<uint, SkillPerfectItemEntry> SkillPerfectItemStorage = new();
+        static readonly Dictionary<uint, SkillPerfectItemEntry> SkillPerfectItemStorage = new();
     }
 
     // struct to store information about perfection procs

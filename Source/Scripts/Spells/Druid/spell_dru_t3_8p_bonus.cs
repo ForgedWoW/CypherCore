@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 28719 - Healing Touch
+    [Script] // 28719 - Healing Touch
 	internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

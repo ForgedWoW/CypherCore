@@ -1,16 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
-using Game.Scripting.BaseScripts;
 using Game.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Paladin
@@ -24,9 +19,8 @@ namespace Scripts.Spells.Paladin
             Player player = GetCaster().ToPlayer();
             if (player != null)
             {
-                int damage = (int)player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-                int dot_damage = (int)(damage * 0.23f * 6);
-                int dot_duration = 12;
+                var damage = player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+                var dot_damage = (damage * 0.23f * 6);
                 GetHitUnit().CastSpell(GetHitUnit(), PaladinSpells.EXORCISM_DF, damage);
 
                 if (GetHitUnit().HasAura(26573))

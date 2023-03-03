@@ -33,7 +33,7 @@ class AnyAssistCreatureInRangeCheck : ICheck<Creature>
         return true;
     }
 
-    Unit i_funit;
-    Unit i_enemy;
-    float i_range;
+    readonly Unit i_funit;
+    readonly Unit i_enemy;
+    readonly float i_range;
 }

@@ -8,10 +8,11 @@ namespace Game.Maps;
 public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifierDynamicObject, IGridNotifierCreature where T : IDoWork<Player>
 {
     public GridType GridType { get; set; }
-    Unit i_source;
-    T i_packetSender;
-    PhaseShift i_phaseShift;
-    float i_distSq;
+
+    readonly Unit i_source;
+    readonly T i_packetSender;
+    readonly PhaseShift i_phaseShift;
+    readonly float i_distSq;
 
     public MessageDistDelivererToHostile(Unit src, T packetSender, float dist, GridType gridType)
     {

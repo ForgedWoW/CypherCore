@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
-using Framework.Dynamic;
 using Game.AI;
 using Game.Maps;
 using Game.Movement;
@@ -10,11 +13,6 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IAreaTriggerEntity;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using static Game.AI.SmartEvent;
 
 namespace Game.Entities
 {
@@ -183,8 +181,7 @@ namespace Game.Entities
             ITransport transport = m_movementInfo.transport.guid.IsEmpty() ? caster.GetTransport() : null;
             if (transport != null)
             {
-                float x, y, z, o;
-                pos.GetPosition(out x, out y, out z, out o);
+                pos.GetPosition(out float x, out float y, out float z, out float o);
                 transport.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
                 m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
@@ -959,8 +956,7 @@ namespace Game.Entities
             float percentFromLastPoint = 0;
             _spline.ComputeIndex(currentTimePercent, ref lastPositionIndex, ref percentFromLastPoint);
 
-            Vector3 currentPosition;
-            _spline.Evaluate_Percent(lastPositionIndex, percentFromLastPoint, out currentPosition);
+            _spline.Evaluate_Percent(lastPositionIndex, percentFromLastPoint, out Vector3 currentPosition);
 
             float orientation = GetOrientation();
             if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasFaceMovementDir))
@@ -1123,7 +1119,7 @@ namespace Game.Entities
 
         public AreaTriggerOrbitInfo GetCircularMovementInfo() { return _orbitInfo; }
 
-        AreaTriggerFieldData m_areaTriggerData;
+        readonly AreaTriggerFieldData m_areaTriggerData;
 
         ulong _spawnId;
 
@@ -1142,7 +1138,7 @@ namespace Game.Entities
         Vector3 _rollPitchYaw;
         Vector3 _targetRollPitchYaw;
         List<Vector2> _polygonVertices;
-        Spline<int> _spline;
+        readonly Spline<int> _spline;
 
         bool _reachedDestination;
         int _lastSplineIndex;
@@ -1152,7 +1148,7 @@ namespace Game.Entities
 
         AreaTriggerCreateProperties _areaTriggerCreateProperties;
         AreaTriggerTemplate _areaTriggerTemplate;
-        HashSet<ObjectGuid> _insideUnits = new();
+        readonly HashSet<ObjectGuid> _insideUnits = new();
 
         AreaTriggerAI _ai;
 
@@ -1161,9 +1157,9 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            AreaTrigger Owner;
-            ObjectFieldData ObjectMask = new();
-            AreaTriggerFieldData AreaTriggerMask = new();
+            readonly AreaTrigger Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly AreaTriggerFieldData AreaTriggerMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(AreaTrigger owner)
             {

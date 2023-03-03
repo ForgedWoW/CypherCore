@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(92795)] //! Soul Swap Copy Spells - 92795 - Simply copies spell IDs.
+    [SpellScript(92795)] //! Soul Swap Copy Spells - 92795 - Simply copies spell IDs.
 	internal class spell_warl_soul_swap_dot_marker : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

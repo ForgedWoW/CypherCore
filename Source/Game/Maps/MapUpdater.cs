@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,13 +10,13 @@ namespace Game.Maps
 {
     public class MapUpdater
     {
-        AutoResetEvent _mapUpdateComplete = new AutoResetEvent(false);
-        AutoResetEvent _resetEvent = new AutoResetEvent(false);
-        AutoResetEvent _queueChanged = new AutoResetEvent(false);
-        ConcurrentQueue<MapUpdateRequest> _queue = new();
+        readonly AutoResetEvent _mapUpdateComplete = new AutoResetEvent(false);
+        readonly AutoResetEvent _resetEvent = new AutoResetEvent(false);
+        readonly AutoResetEvent _queueChanged = new AutoResetEvent(false);
+        readonly ConcurrentQueue<MapUpdateRequest> _queue = new();
         uint _workCount = 0;
         volatile bool _cancelationToken;
-        int _numThreads;
+        readonly int _numThreads;
         Exception _exc = null;
 
         public MapUpdater(int numThreads)
@@ -101,8 +100,8 @@ namespace Game.Maps
 
     public class MapUpdateRequest
     {
-        Map m_map;
-        uint m_diff;
+        readonly Map m_map;
+        readonly uint m_diff;
 
         public MapUpdateRequest(Map m, uint d)
         {

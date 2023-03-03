@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -9,8 +11,6 @@ using Game.Loots;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Game.Entities
 {
@@ -323,16 +323,15 @@ namespace Game.Entities
 
         public Loot loot;
         public Player lootRecipient;
-
-        CorpseType m_type;
+        readonly CorpseType m_type;
         long m_time;
         CellCoord _cellCoord;                                    // gride for corpse position for fast search
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Corpse Owner;
-            ObjectFieldData ObjectMask = new();
-            CorpseData CorpseMask = new();
+            readonly Corpse Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly CorpseData CorpseMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
             {

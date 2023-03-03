@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Numerics;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Game.Chat;
 using Game.Entities;
 using Game.Networking.Packets;
-using System.Numerics;
-using System.Text;
 
 namespace Game.SupportSystem
 {
@@ -73,9 +73,8 @@ namespace Game.SupportSystem
         public ObjectGuid GetAssignedToGUID() { return _assignedTo; }
         public string GetAssignedToName()
         {
-            string name;
             if (!_assignedTo.IsEmpty())
-                if (Global.CharacterCacheStorage.GetCharacterNameByGuid(_assignedTo, out name))
+                if (Global.CharacterCacheStorage.GetCharacterNameByGuid(_assignedTo, out string name))
                     return name;
 
             return "";

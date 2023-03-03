@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	//73899
-	[SpellScript(73899)]
+    //73899
+    [SpellScript(73899)]
 	public class spell_shaman_primal_strike : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

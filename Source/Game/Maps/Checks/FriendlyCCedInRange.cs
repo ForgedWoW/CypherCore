@@ -20,6 +20,6 @@ public class FriendlyCCedInRange : ICheck<Creature>
         return false;
     }
 
-    Unit i_obj;
-    float i_range;
+    readonly Unit i_obj;
+    readonly float i_range;
 }

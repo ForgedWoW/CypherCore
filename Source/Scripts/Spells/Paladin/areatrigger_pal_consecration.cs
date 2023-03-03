@@ -5,11 +5,6 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Scripts.Spells.Paladin
 {

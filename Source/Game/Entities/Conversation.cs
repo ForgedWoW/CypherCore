@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
@@ -8,10 +11,6 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static Game.AI.SmartAction;
 
 namespace Game.Entities
 {
@@ -293,21 +292,19 @@ namespace Game.Entities
         public override float GetStationaryO() { return _stationaryPosition.GetOrientation(); }
         void RelocateStationaryPosition(Position pos) { _stationaryPosition.Relocate(pos); }
 
-        ConversationData m_conversationData;
-
-        Position _stationaryPosition = new();
+        readonly ConversationData m_conversationData;
+        readonly Position _stationaryPosition = new();
         ObjectGuid _creatorGuid;
         TimeSpan _duration;
         uint _textureKitId;
-
-        Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
-        TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
+        readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
+        readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Conversation Owner;
-            ObjectFieldData ObjectMask = new();
-            ConversationData ConversationMask = new();
+            readonly Conversation Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly ConversationData ConversationMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
             {
@@ -328,9 +325,9 @@ namespace Game.Entities
 
     class ConversationActorFillVisitor
     {
-        Conversation _conversation;
-        Unit _creator;
-        Map _map;
+        readonly Conversation _conversation;
+        readonly Unit _creator;
+        readonly Map _map;
         ConversationActorTemplate _actor;
 
         public ConversationActorFillVisitor(Conversation conversation, Unit creator, Map map, ConversationActorTemplate actor)

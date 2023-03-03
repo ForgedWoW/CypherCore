@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
 using Game.Movement;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.AI
 {
     public class PetAI : CreatureAI
     {
-        List<ObjectGuid> _allySet = new();
+        readonly List<ObjectGuid> _allySet = new();
         uint _updateAlliesTimer;
 
         public PetAI(Creature creature) : base(creature)
@@ -353,9 +353,8 @@ namespace Game.AI
                 if (!me.GetCharmInfo().IsAtStay() && !me.GetCharmInfo().IsReturning())
                 {
                     // Return to previous position where stay was clicked
-                    float x, y, z;
 
-                    me.GetCharmInfo().GetStayPosition(out x, out y, out z);
+                    me.GetCharmInfo().GetStayPosition(out float x, out float y, out float z);
                     ClearCharmInfoFlags();
                     me.GetCharmInfo().SetIsReturning(true);
 

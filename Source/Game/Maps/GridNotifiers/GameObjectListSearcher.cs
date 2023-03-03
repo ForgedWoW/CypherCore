@@ -7,9 +7,9 @@ namespace Game.Maps;
 
 public class GameObjectListSearcher : IGridNotifierGameObject
 {
-    PhaseShift i_phaseShift;
-    List<GameObject> i_objects;
-    ICheck<GameObject> i_check;
+    readonly PhaseShift i_phaseShift;
+    readonly List<GameObject> i_objects;
+    readonly ICheck<GameObject> i_check;
     public GridType GridType { get; set; }
 
     public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)

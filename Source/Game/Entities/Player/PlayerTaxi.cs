@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Networking.Packets;
-using System.Collections.Generic;
-using System.Text;
-using System;
 
 namespace Game.Entities
 {
     public class PlayerTaxi
     {
         public byte[] m_taximask;
-        List<uint> m_TaxiDestinations = new();
+        readonly List<uint> m_TaxiDestinations = new();
         uint m_flightMasterFactionId;
 
         public void InitTaxiNodesForLevel(Race race, Class chrClass, uint level)
@@ -146,8 +146,7 @@ namespace Game.Entities
 
             for (int i = 1; i < m_TaxiDestinations.Count; ++i)
             {
-                uint path;
-                Global.ObjectMgr.GetTaxiPath(m_TaxiDestinations[i - 1], m_TaxiDestinations[i], out path, out _);
+                Global.ObjectMgr.GetTaxiPath(m_TaxiDestinations[i - 1], m_TaxiDestinations[i], out uint path, out _);
                 if (path == 0)
                     return false;
             }
@@ -180,9 +179,8 @@ namespace Game.Entities
             if (m_TaxiDestinations.Count < 2)
                 return 0;
 
-            uint path;
 
-            Global.ObjectMgr.GetTaxiPath(m_TaxiDestinations[0], m_TaxiDestinations[1], out path, out _);
+            Global.ObjectMgr.GetTaxiPath(m_TaxiDestinations[0], m_TaxiDestinations[1], out uint path, out _);
 
             return path;
         }

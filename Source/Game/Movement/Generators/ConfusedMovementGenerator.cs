@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
@@ -138,7 +138,7 @@ namespace Game.Movement
         public override void UnitSpeedChanged() { AddFlag(MovementGeneratorFlags.SpeedUpdatePending); }
 
         PathGenerator _path;
-        TimeTracker _timer;
+        readonly TimeTracker _timer;
         Position _reference;
     }
 }

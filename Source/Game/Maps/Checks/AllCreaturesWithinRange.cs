@@ -24,6 +24,6 @@ public class AllCreaturesWithinRange : ICheck<Creature>
         return true;
     }
 
-    WorldObject m_pObject;
-    float m_fRange;
+    readonly WorldObject m_pObject;
+    readonly float m_fRange;
 }

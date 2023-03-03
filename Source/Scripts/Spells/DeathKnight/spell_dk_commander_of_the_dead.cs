@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Bgs.Protocol.Notification.V1;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
-using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -18,7 +16,7 @@ namespace Scripts.Spells.DeathKnight;
 public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
 {
     public List<ISpellEffect> SpellEffects { get; } = new();
-    private List<WorldObject> saveTargets = new();
+    private readonly List<WorldObject> saveTargets = new();
     public override bool Validate(SpellInfo spellInfo) {
         return ValidateSpellInfo(DeathKnightSpells.DT_COMMANDER_BUFF);
     }

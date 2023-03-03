@@ -18,7 +18,7 @@ public class HeightDifferenceCheck : ICheck<WorldObject>
         return (unit.GetPositionZ() - _baseObject.GetPositionZ() > _difference) != _reverse;
     }
 
-    WorldObject _baseObject;
-    float _difference;
-    bool _reverse;
+    readonly WorldObject _baseObject;
+    readonly float _difference;
+    readonly bool _reverse;
 }

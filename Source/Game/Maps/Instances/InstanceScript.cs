@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.DataStorage;
@@ -8,9 +11,6 @@ using Game.Entities;
 using Game.Groups;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Maps
 {
@@ -982,16 +982,16 @@ namespace Game.Maps
 
         public InstanceMap instance;
         string headers;
-        Dictionary<uint, BossInfo> bosses = new();
-        List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
-        MultiMap<uint, DoorInfo> doors = new();
-        Dictionary<uint, MinionInfo> minions = new();
-        Dictionary<uint, uint> _creatureInfo = new();
-        Dictionary<uint, uint> _gameObjectInfo = new();
-        Dictionary<uint, ObjectGuid> _objectGuids = new();
+        readonly Dictionary<uint, BossInfo> bosses = new();
+        readonly List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
+        readonly MultiMap<uint, DoorInfo> doors = new();
+        readonly Dictionary<uint, MinionInfo> minions = new();
+        readonly Dictionary<uint, uint> _creatureInfo = new();
+        readonly Dictionary<uint, uint> _gameObjectInfo = new();
+        readonly Dictionary<uint, ObjectGuid> _objectGuids = new();
         uint completedEncounters; // DEPRECATED, REMOVE
-        List<InstanceSpawnGroupInfo> _instanceSpawnGroups = new();
-        List<uint> _activatedAreaTriggers = new();
+        readonly List<InstanceSpawnGroupInfo> _instanceSpawnGroups = new();
+        readonly List<uint> _activatedAreaTriggers = new();
         uint _entranceId;
         uint _temporaryEntranceId;
         uint _combatResurrectionTimer;

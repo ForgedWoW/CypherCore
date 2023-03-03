@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Networking.Packets;
-using Google.Protobuf;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Framework.Constants;
+using Game.Networking.Packets;
+using Google.Protobuf;
 
 namespace Game.Services
 {
     public class WorldServiceManager : Singleton<WorldServiceManager>
     {
-        ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> serviceHandlers;
+        readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> serviceHandlers;
 
         WorldServiceManager()
         {
@@ -58,9 +58,9 @@ namespace Game.Services
 
     public class WorldServiceHandler
     {
-        Delegate methodCaller;
-        Type requestType;
-        Type responseType;
+        readonly Delegate methodCaller;
+        readonly Type requestType;
+        readonly Type responseType;
 
         public WorldServiceHandler(MethodInfo info, ParameterInfo[] parameters)
         {

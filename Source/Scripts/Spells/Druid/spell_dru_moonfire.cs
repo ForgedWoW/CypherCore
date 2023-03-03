@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] //  8921 - Moonfire
+    [Script] //  8921 - Moonfire
 	internal class spell_dru_moonfire : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

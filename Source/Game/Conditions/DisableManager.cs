@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using System;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -22,7 +22,7 @@ namespace Game
             public List<uint> param1 = new();
         }
 
-        Dictionary<DisableType, Dictionary<uint, DisableData>> m_DisableMap = new();
+        readonly Dictionary<DisableType, Dictionary<uint, DisableData>> m_DisableMap = new();
 
         public void LoadDisables()
         {

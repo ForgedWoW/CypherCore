@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -9,8 +11,6 @@ using Game.DungeonFinding;
 using Game.Entities;
 using Game.Groups;
 using Game.Maps;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Chat
 {
@@ -138,7 +138,6 @@ namespace Game.Chat
             // Get ALL the variables!
             Player playerTarget;
             ObjectGuid guidTarget;
-            string nameTarget;
             string zoneName = "";
             string onlineState;
 
@@ -146,7 +145,7 @@ namespace Game.Chat
             ObjectGuid parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
             // ... and try to extract a player out of it.
-            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out nameTarget))
+            if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out string nameTarget))
             {
                 playerTarget = Global.ObjAccessor.FindPlayer(parseGUID);
                 guidTarget = parseGUID;
@@ -393,8 +392,7 @@ namespace Game.Chat
                     player.SaveRecallPosition(); // save only in non-flight case
 
                 // before GM
-                float x, y, z;
-                gmPlayer.GetClosePoint(out x, out y, out z, player.GetCombatReach());
+                gmPlayer.GetClosePoint(out float x, out float y, out float z, player.GetCombatReach());
                 player.TeleportTo(gmPlayer.GetMapId(), x, y, z, player.GetOrientation(), 0, gmPlayer.GetInstanceId());
             }
 

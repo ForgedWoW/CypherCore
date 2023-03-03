@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 16864 - Omen of Clarity
+    [Script] // 16864 - Omen of Clarity
 	internal class spell_dru_omen_of_clarity : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

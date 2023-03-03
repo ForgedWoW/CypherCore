@@ -1,15 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Framework.IO;
-using Game.Cache;
-using Game.DataStorage;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Framework.Constants;
+using Framework.Database;
+using Game.Cache;
+using Game.DataStorage;
+using Game.Entities;
 
 namespace Game.Chat
 {
@@ -419,8 +418,7 @@ namespace Game.Chat
             else
                 accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(player.GetGUID());
 
-            string accountName;
-            Global.AccountMgr.GetName(accountId, out accountName);
+            Global.AccountMgr.GetName(accountId, out string accountName);
 
             Player.DeleteFromDB(player.GetGUID(), accountId, true, true);
             handler.SendSysMessage(CypherStrings.CharacterDeleted, player.GetName(), player.GetGUID().ToString(), accountName, accountId);

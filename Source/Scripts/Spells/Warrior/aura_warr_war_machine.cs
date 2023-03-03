@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// War Machine 215556
-	[SpellScript(215556)]
+    // War Machine 215556
+    [SpellScript(215556)]
 	public class aura_warr_war_machine : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

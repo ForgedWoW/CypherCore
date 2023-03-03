@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Maps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -507,16 +507,14 @@ namespace Game
 
         public MultiMap<uint, uint> mQuestCreatureRelation = new();
         public MultiMap<uint, uint> mQuestGORelation = new();
-
-        Dictionary<uint, PoolTemplateData> mPoolTemplate = new();
-        Dictionary<uint, PoolGroup<Creature>> mPoolCreatureGroups = new();
-        Dictionary<uint, PoolGroup<GameObject>> mPoolGameobjectGroups = new();
-        Dictionary<uint, PoolGroup<Pool>> mPoolPoolGroups = new();
-        Dictionary<ulong, uint> mCreatureSearchMap = new();
-        Dictionary<ulong, uint> mGameobjectSearchMap = new();
-        Dictionary<ulong, uint> mPoolSearchMap = new();
-
-        MultiMap<uint, uint> mAutoSpawnPoolsPerMap = new();
+        readonly Dictionary<uint, PoolTemplateData> mPoolTemplate = new();
+        readonly Dictionary<uint, PoolGroup<Creature>> mPoolCreatureGroups = new();
+        readonly Dictionary<uint, PoolGroup<GameObject>> mPoolGameobjectGroups = new();
+        readonly Dictionary<uint, PoolGroup<Pool>> mPoolPoolGroups = new();
+        readonly Dictionary<ulong, uint> mCreatureSearchMap = new();
+        readonly Dictionary<ulong, uint> mGameobjectSearchMap = new();
+        readonly Dictionary<ulong, uint> mPoolSearchMap = new();
+        readonly MultiMap<uint, uint> mAutoSpawnPoolsPerMap = new();
     }
 
     public class PoolGroup<T>
@@ -794,16 +792,16 @@ namespace Game
         public uint GetPoolId() { return poolId; }
 
         uint poolId;
-        List<PoolObject> ExplicitlyChanced = new();
-        List<PoolObject> EqualChanced = new();
+        readonly List<PoolObject> ExplicitlyChanced = new();
+        readonly List<PoolObject> EqualChanced = new();
     }
 
     public class SpawnedPoolData
     {
-        Map mOwner;
-        List<ulong> mSpawnedCreatures = new();
-        List<ulong> mSpawnedGameobjects = new();
-        Dictionary<ulong, uint> mSpawnedPools = new();
+        readonly Map mOwner;
+        readonly List<ulong> mSpawnedCreatures = new();
+        readonly List<ulong> mSpawnedGameobjects = new();
+        readonly Dictionary<ulong, uint> mSpawnedPools = new();
 
         public SpawnedPoolData(Map owner)
         {

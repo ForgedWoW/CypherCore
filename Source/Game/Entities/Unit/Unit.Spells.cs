@@ -1,24 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.AI;
 using Game.BattleGrounds;
-using Game.DataStorage;
 using Game.Networking.Packets;
-using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
 using Game.Spells.Auras;
 using Game.Spells.Events;
-using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Text;
 
 namespace Game.Entities
 {

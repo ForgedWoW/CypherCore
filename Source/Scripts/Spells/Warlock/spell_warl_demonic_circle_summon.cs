@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(48018)] // 48018 - Demonic Circle: Summon
+    [SpellScript(48018)] // 48018 - Demonic Circle: Summon
 	internal class spell_warl_demonic_circle_summon : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

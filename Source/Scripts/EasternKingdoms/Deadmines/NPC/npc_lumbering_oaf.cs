@@ -23,10 +23,10 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
             _summons = new SummonList(pCreature);
         }
 
-        private InstanceScript _instance;
-        private SummonList _summons;
-        private EventMap _events = new EventMap();
-        private Vehicle _vehicle;
+        private readonly InstanceScript _instance;
+        private readonly SummonList _summons;
+        private readonly EventMap _events = new EventMap();
+        private readonly Vehicle _vehicle;
 
         public override void Reset()
         {

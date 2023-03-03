@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	[Script] // 48181 - Haunt
+    [Script] // 48181 - Haunt
 	internal class spell_warl_haunt : SpellScript, ISpellAfterHit
 	{
 		public void AfterHit()

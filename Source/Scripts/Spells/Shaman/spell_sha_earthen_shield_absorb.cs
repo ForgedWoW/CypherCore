@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//201633 - Earthen Shield
-	[SpellScript(201633)]
+    //201633 - Earthen Shield
+    [SpellScript(201633)]
 	public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

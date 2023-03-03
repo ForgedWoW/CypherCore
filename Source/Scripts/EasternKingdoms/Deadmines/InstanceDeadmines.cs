@@ -1,16 +1,14 @@
 // Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
-using Game.Mails;
 using Game.Maps;
-using System.Linq;
+using Game.Scripting;
 using Game.Scripting.BaseScripts;
 using Game.Scripting.Interfaces.IMap;
-using Game.Scripting;
 
 namespace Scripts.EasternKingdoms.Deadmines
 {
@@ -43,7 +41,7 @@ namespace Scripts.EasternKingdoms.Deadmines
                 // new(DMData.DATA_VANESSA_NIGHTMARE, 1081)
             };
 
-            private static DoorData[] _doorData =
+            private static readonly DoorData[] _doorData =
             {
                 new(DMGameObjects.GO_FACTORY_DOOR, DMData.DATA_GLUBTOK, DoorType.Passage),
                 new(DMGameObjects.GO_HEAVY_DOOR_HELIX, DMData.DATA_HELIX, DoorType.Passage),
@@ -52,7 +50,7 @@ namespace Scripts.EasternKingdoms.Deadmines
 
             };
 
-            private static ObjectData[] _creatureData =
+            private static readonly ObjectData[] _creatureData =
             {
                 new(DMCreatures.NPC_HELIX_GEARBREAKER, DMData.DATA_HELIX), 
                 new(DMCreatures.NPC_HELIX_NIGHTMARE, DMData.DATA_NIGHTMARE_HELIX), 
@@ -65,7 +63,7 @@ namespace Scripts.EasternKingdoms.Deadmines
                 new(DMCreatures.NPC_GLUBTOK_NIGHTMARE, DMData.DATA_NIGHTMARE_MECHANICAL)
             };
 
-            private static ObjectData[] _gameObjectData =
+            private static readonly ObjectData[] _gameObjectData =
             {
                 
             };

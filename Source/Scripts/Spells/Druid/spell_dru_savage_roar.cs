@@ -7,7 +7,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 52610 - Savage Roar
+    [Script] // 52610 - Savage Roar
 	internal class spell_dru_savage_roar : SpellScript, ISpellCheckCast
 	{
 		public SpellCastResult CheckCast()

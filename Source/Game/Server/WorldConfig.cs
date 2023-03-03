@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
 using Game.Scripting.Interfaces.IWorld;
-using System;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -1033,6 +1033,6 @@ namespace Game
             Values[confi] = value;
         }
 
-        static Dictionary<WorldCfg, object> Values = new();
+        static readonly Dictionary<WorldCfg, object> Values = new();
     }
 }

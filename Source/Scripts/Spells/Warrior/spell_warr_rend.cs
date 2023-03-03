@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 94009 - Rend
-	[SpellScript(94009)]
+    // 94009 - Rend
+    [SpellScript(94009)]
 	public class spell_warr_rend : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

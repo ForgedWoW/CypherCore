@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Conditions;
 using Game.DataStorage;
@@ -8,9 +11,6 @@ using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Loots
 {
@@ -225,10 +225,10 @@ namespace Game.Loots
 
     public class LootRoll
     {
-        static TimeSpan LOOT_ROLL_TIMEOUT = TimeSpan.FromMinutes(1);
+        static readonly TimeSpan LOOT_ROLL_TIMEOUT = TimeSpan.FromMinutes(1);
 
         Map m_map;
-        Dictionary<ObjectGuid, PlayerRollVote> m_rollVoteMap = new();
+        readonly Dictionary<ObjectGuid, PlayerRollVote> m_rollVoteMap = new();
         bool m_isStarted;
         LootItem m_lootItem;
         Loot m_loot;
@@ -1087,17 +1087,17 @@ namespace Game.Loots
         public ObjectGuid roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
         public LootType loot_type;                                     // required for achievement system
 
-        List<ObjectGuid> PlayersLooting = new();
-        MultiMap<ObjectGuid, NotNormalLootItem> PlayerFFAItems = new();
+        readonly List<ObjectGuid> PlayersLooting = new();
+        readonly MultiMap<ObjectGuid, NotNormalLootItem> PlayerFFAItems = new();
 
         // Loot GUID
         ObjectGuid _guid;
         ObjectGuid _owner;                                              // The WorldObject that holds this loot
         ItemContext _itemContext;
-        LootMethod _lootMethod;
-        Dictionary<uint, LootRoll> _rolls = new();                    // used if an item is under rolling
+        readonly LootMethod _lootMethod;
+        readonly Dictionary<uint, LootRoll> _rolls = new();                    // used if an item is under rolling
         ObjectGuid _lootMaster;
-        List<ObjectGuid> _allowedLooters = new();
+        readonly List<ObjectGuid> _allowedLooters = new();
         bool _wasOpened;                                                // true if at least one player received the loot content
         uint _dungeonEncounterId;
     }
@@ -1129,8 +1129,8 @@ namespace Game.Loots
             return _byOrder;
         }
 
-        List<ResultValue> _byOrder = new();
-        Dictionary<Item, int> _byItem = new();
+        readonly List<ResultValue> _byOrder = new();
+        readonly Dictionary<Item, int> _byItem = new();
 
         public struct ResultValue
         {

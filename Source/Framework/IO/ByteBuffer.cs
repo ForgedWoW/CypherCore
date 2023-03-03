@@ -507,6 +507,6 @@ namespace Framework.IO
         byte _bitPosition = 8;
         byte BitValue;
         BinaryWriter writeStream;
-        BinaryReader readStream;
+        readonly BinaryReader readStream;
     }
 }

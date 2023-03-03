@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 203964 - Galactic Guardian
+    [Script] // 203964 - Galactic Guardian
 	internal class spell_dru_galactic_guardian : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

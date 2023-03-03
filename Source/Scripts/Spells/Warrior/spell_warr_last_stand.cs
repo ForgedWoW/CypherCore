@@ -10,9 +10,9 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	/// Updated 8.3.7
-	// 12975 - Last Stand
-	[SpellScript(12975)]
+    /// Updated 8.3.7
+    // 12975 - Last Stand
+    [SpellScript(12975)]
 	public class spell_warr_last_stand : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 187837 - Lightning Bolt
-	[SpellScript(187837)]
+    // 187837 - Lightning Bolt
+    [SpellScript(187837)]
 	public class spell_sha_enhancement_lightning_bolt : SpellScript, IHasSpellEffects, ISpellOnTakePower
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

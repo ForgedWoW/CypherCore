@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Hunter
 {
-	internal struct HunterSpells
+    internal struct HunterSpells
 	{
 		public const uint AIMED_SHOT = 19434;
 		public const uint AMurderOfCrowsDamage = 131900;

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.BattlePets;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -215,9 +215,9 @@ namespace Game.Entities
             _greeting[(int)locale] = greeting;
         }
 
-        uint _id;
-        TrainerType _type;
-        List<TrainerSpell> _spells;
-        string[] _greeting = new string[(int)Locale.Total];
+        readonly uint _id;
+        readonly TrainerType _type;
+        readonly List<TrainerSpell> _spells;
+        readonly string[] _greeting = new string[(int)Locale.Total];
     }
 }

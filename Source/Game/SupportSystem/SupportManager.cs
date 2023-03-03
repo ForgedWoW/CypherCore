@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.Chat;
 using Game.Entities;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.SupportSystem
 {
@@ -358,9 +358,9 @@ namespace Game.SupportSystem
         bool _bugSystemStatus;
         bool _complaintSystemStatus;
         bool _suggestionSystemStatus;
-        Dictionary<uint, BugTicket> _bugTicketList = new();
-        Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
-        Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
+        readonly Dictionary<uint, BugTicket> _bugTicketList = new();
+        readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
+        readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
         uint _lastBugId;
         uint _lastComplaintId;
         uint _lastSuggestionId;

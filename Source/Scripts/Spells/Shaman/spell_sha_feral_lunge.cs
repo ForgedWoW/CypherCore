@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Feral Lunge - 196884
-	[SpellScript(196884)]
+    // Feral Lunge - 196884
+    [SpellScript(196884)]
 	public class spell_sha_feral_lunge : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

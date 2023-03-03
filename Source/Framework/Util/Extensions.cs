@@ -6,10 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Runtime.CompilerServices;
 
 namespace System
 {
@@ -308,8 +308,7 @@ namespace System
 
         public static T ToEnum<T>(this string str) where T : struct
         {
-            T value;
-            if (!Enum.TryParse(str, out value))
+            if (!Enum.TryParse(str, out T value))
                 return default;
 
             return value;
@@ -335,8 +334,7 @@ namespace System
 
         public static bool IsNumber(this string str)
         {
-            double value;
-            return double.TryParse(str, out value);
+            return double.TryParse(str, out double value);
         }
 
         public static int GetByteCount(this string str)

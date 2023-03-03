@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// 6343 - Thunder Clap
-	[SpellScript(6343)]
+    // 6343 - Thunder Clap
+    [SpellScript(6343)]
 	public class spell_warr_thunder_clap : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

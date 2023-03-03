@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//214871 - Odyn's fury
-	[SpellScript(214871)]
+    //214871 - Odyn's fury
+    [SpellScript(214871)]
 	internal class spell_warr_odyns_fury : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

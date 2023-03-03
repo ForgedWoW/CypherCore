@@ -9,8 +9,9 @@ namespace Game.Maps;
 public class PlayerWorker : IGridNotifierPlayer
 {
     public GridType GridType { get; set; }
-    PhaseShift i_phaseShift;
-    Action<Player> action;
+
+    readonly PhaseShift i_phaseShift;
+    readonly Action<Player> action;
 
     public PlayerWorker(WorldObject searcher, Action<Player> _action, GridType gridType)
     {

@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace Game.Chat
 {
@@ -333,7 +332,7 @@ namespace Game.Chat
     public struct ChatCommandResult
     {
         bool result;
-        dynamic value;
+        readonly dynamic value;
         string errorMessage;
 
         public ChatCommandResult(string _value = "")

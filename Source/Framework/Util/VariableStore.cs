@@ -1,17 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Framework.Util
 {
     public class VariableStore
     {
-        private Dictionary<string, object> _variables = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _variables = new Dictionary<string, object>();
 
         public T GetValue<T>(string key, T defaultValue)
         {

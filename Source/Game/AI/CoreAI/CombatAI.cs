@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
+using Framework.Constants;
+using Game.Entities;
 
 namespace Game.AI
 {
@@ -183,7 +183,7 @@ namespace Game.AI
 
     public class ArcherAI : CreatureAI
     {
-        float _minRange;
+        readonly float _minRange;
 
         public ArcherAI(Creature creature) : base(creature)
         {
@@ -234,7 +234,7 @@ namespace Game.AI
 
     public class TurretAI : CreatureAI
     {
-        float _minRange;
+        readonly float _minRange;
 
         public TurretAI(Creature creature) : base(creature)
         {

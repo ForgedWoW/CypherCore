@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 108415 - Soul Link 8.xx
-	[SpellScript(108415)]
+    // 108415 - Soul Link 8.xx
+    [SpellScript(108415)]
 	public class spell_warl_soul_link : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

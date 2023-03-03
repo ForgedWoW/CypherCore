@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 234153 - Drain Life
-	[SpellScript(234153)]
+    // 234153 - Drain Life
+    [SpellScript(234153)]
 	public class spell_warlock_drain_life : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

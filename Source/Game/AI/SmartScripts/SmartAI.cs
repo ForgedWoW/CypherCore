@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
 using Game.Maps;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.AI
 {
@@ -18,8 +18,7 @@ namespace Game.AI
         const int SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2;
 
         public uint EscortQuestID;
-
-        SmartScript _script = new();
+        readonly SmartScript _script = new();
 
         bool _isCharmed;
         uint _followCreditType;
@@ -33,7 +32,7 @@ namespace Game.AI
         SmartEscortState _escortState;
         uint _escortNPCFlags;
         uint _escortInvokerCheckTimer;
-        WaypointPath _path = new();
+        readonly WaypointPath _path = new();
         uint _currentWaypointNode;
         bool _waypointReached;
         uint _waypointPauseTimer;
@@ -52,7 +51,7 @@ namespace Game.AI
         uint _despawnState;
 
         // Vehicle conditions
-        bool _hasConditions;
+        readonly bool _hasConditions;
         uint _conditionsTimer;
 
         // Gossip
@@ -1117,7 +1116,7 @@ namespace Game.AI
 
     public class SmartGameObjectAI : GameObjectAI
     {
-        SmartScript _script = new();
+        readonly SmartScript _script = new();
 
         // Gossip
         bool _gossipReturn;
@@ -1238,7 +1237,7 @@ namespace Game.AI
 
     public class SmartAreaTriggerAI : AreaTriggerAI
     {
-        SmartScript _script = new();
+        readonly SmartScript _script = new();
 
         public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 

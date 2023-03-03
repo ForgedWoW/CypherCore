@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 215570 - Wrecking Ball
-	[SpellScript(215570)]
+    // 215570 - Wrecking Ball
+    [SpellScript(215570)]
 	public class spell_warr_wrecking_ball_effect : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

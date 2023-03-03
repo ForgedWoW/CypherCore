@@ -10,9 +10,10 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
 {
     public GridType GridType { get; set; }
     public GridMapTypeMask Mask { get; set; }
-    PhaseShift i_phaseShift;
+
+    readonly PhaseShift i_phaseShift;
     WorldObject i_object;
-    ICheck<WorldObject> i_check;
+    readonly ICheck<WorldObject> i_check;
 
     public WorldObjectLastSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {

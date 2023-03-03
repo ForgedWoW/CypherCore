@@ -31,6 +31,6 @@ class AllFriendlyUnitsInRange : ICheck<Unit>
         return true;
     }
 
-    Unit unit;
-    float i_range;
+    readonly Unit unit;
+    readonly float i_range;
 }

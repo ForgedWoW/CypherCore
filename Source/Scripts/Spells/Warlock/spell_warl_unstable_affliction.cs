@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(new uint[]
+    [SpellScript(new uint[]
 	             {
 		             30108, 34438, 34439, 35183
 	             })] // 30108, 34438, 34439, 35183 - Unstable Affliction

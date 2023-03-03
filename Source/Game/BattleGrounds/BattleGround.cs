@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Game.Chat;
@@ -12,10 +16,6 @@ using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.BattleGrounds
 {
@@ -874,8 +874,7 @@ namespace Game.BattleGrounds
                     }
                     if (SendPacket)
                     {
-                        BattlefieldStatusNone battlefieldStatus;
-                        Global.BattlegroundMgr.BuildBattlegroundStatusNone(out battlefieldStatus, player, player.GetBattlegroundQueueIndex(bgQueueTypeId), player.GetBattlegroundQueueJoinTime(bgQueueTypeId));
+                        Global.BattlegroundMgr.BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, player, player.GetBattlegroundQueueIndex(bgQueueTypeId), player.GetBattlegroundQueueJoinTime(bgQueueTypeId));
                         player.SendPacket(battlefieldStatus);
                     }
 
@@ -1267,9 +1266,8 @@ namespace Game.BattleGrounds
 
             foreach (var score in PlayerScores)
             {
-                PVPMatchStatistics.PVPMatchPlayerStatistics playerData;
 
-                score.Value.BuildPvPLogPlayerDataPacket(out playerData);
+                score.Value.BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData);
 
                 Player player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerData.PlayerGUID);
                 if (player)
@@ -2077,10 +2075,12 @@ namespace Game.BattleGrounds
 
         #region Fields
         protected Dictionary<ObjectGuid, BattlegroundScore> PlayerScores = new();                // Player scores
-        // Player lists, those need to be accessible by inherited classes
-        Dictionary<ObjectGuid, BattlegroundPlayer> m_Players = new();
+                                                                                                 // Player lists, those need to be accessible by inherited classes
+
+        readonly Dictionary<ObjectGuid, BattlegroundPlayer> m_Players = new();
+
         // Spirit Guide guid + Player list GUIDS
-        MultiMap<ObjectGuid, ObjectGuid> m_ReviveQueue = new();
+        readonly MultiMap<ObjectGuid, ObjectGuid> m_ReviveQueue = new();
 
         // these are important variables used for starting messages
         BattlegroundEventFlags m_Events;
@@ -2122,8 +2122,8 @@ namespace Game.BattleGrounds
         uint m_LastPlayerPositionBroadcast;
 
         // Player lists
-        List<ObjectGuid> m_ResurrectQueue = new();               // Player GUID
-        List<ObjectGuid> m_OfflineQueue = new();                  // Player GUID
+        readonly List<ObjectGuid> m_ResurrectQueue = new();               // Player GUID
+        readonly List<ObjectGuid> m_OfflineQueue = new();                  // Player GUID
 
         // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
         // Invited counters will be changed only when removing already invited player from queue, removing player from Battleground and inviting player to BG
@@ -2132,23 +2132,20 @@ namespace Game.BattleGrounds
         uint m_InvitedHorde;
 
         // Raid Group
-        Group[] m_BgRaids = new Group[SharedConst.PvpTeamsCount];                   // 0 - Team.Alliance, 1 - Team.Horde
+        readonly Group[] m_BgRaids = new Group[SharedConst.PvpTeamsCount];                   // 0 - Team.Alliance, 1 - Team.Horde
 
         // Players count by team
-        uint[] m_PlayersCount = new uint[SharedConst.PvpTeamsCount];
+        readonly uint[] m_PlayersCount = new uint[SharedConst.PvpTeamsCount];
 
         // Arena team ids by team
-        uint[] m_ArenaTeamIds = new uint[SharedConst.PvpTeamsCount];
-
-        uint[] m_ArenaTeamMMR = new uint[SharedConst.PvpTeamsCount];
+        readonly uint[] m_ArenaTeamIds = new uint[SharedConst.PvpTeamsCount];
+        readonly uint[] m_ArenaTeamMMR = new uint[SharedConst.PvpTeamsCount];
 
         // Start location
         BattlegroundMap m_Map;
-
-        BattlegroundTemplate _battlegroundTemplate;
+        readonly BattlegroundTemplate _battlegroundTemplate;
         PvpDifficultyRecord _pvpDifficultyEntry;
-
-        List<BattlegroundPlayerPosition> _playerPositions = new();
+        readonly List<BattlegroundPlayerPosition> _playerPositions = new();
         #endregion
     }
 

@@ -12,9 +12,9 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 52759 - Ancestral Awakening
-	/// Updated 4.3.4
-	[SpellScript(52759)]
+    // 52759 - Ancestral Awakening
+    /// Updated 4.3.4
+    [SpellScript(52759)]
 	public class spell_sha_ancestral_awakening_proc : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

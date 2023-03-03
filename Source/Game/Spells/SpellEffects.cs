@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.BattleGrounds;
@@ -18,10 +22,6 @@ using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
 using Game.Scripting.Interfaces.ISpell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Spells
 {
@@ -525,8 +525,7 @@ namespace Game.Spells
             if (unitTarget == null)
                 return;
 
-            float speedXY, speedZ;
-            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(unitTarget), out speedXY, out speedZ);
+            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(unitTarget), out float speedXY, out float speedZ);
             JumpArrivalCastArgs arrivalCast = new();
             arrivalCast.SpellId = effectInfo.TriggerSpell;
             arrivalCast.Target = unitTarget.GetGUID();
@@ -549,8 +548,7 @@ namespace Game.Spells
             if (!m_targets.HasDst())
                 return;
 
-            float speedXY, speedZ;
-            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(destTarget), out speedXY, out speedZ);
+            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(destTarget), out float speedXY, out float speedZ);
             JumpArrivalCastArgs arrivalCast = new();
             arrivalCast.SpellId = effectInfo.TriggerSpell;
             unitCaster.GetMotionMaster().MoveJump(destTarget, speedXY, speedZ, EventId.Jump, !m_targets.GetObjectTargetGUID().IsEmpty(), arrivalCast);
@@ -959,8 +957,7 @@ namespace Game.Spells
 
             // can the player store the new item?
             List<ItemPosCount> dest = new();
-            uint no_space;
-            InventoryResult msg = player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, newitemid, num_to_add, out no_space);
+            InventoryResult msg = player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, newitemid, num_to_add, out uint no_space);
             if (msg != InventoryResult.Ok)
             {
                 // convert to possible store amount
@@ -1369,11 +1366,10 @@ namespace Game.Spells
             }
             else if (Player.IsEquipmentPos(pos))
             {
-                ushort dest;
 
                 player.DestroyItem(m_CastItem.GetBagSlot(), m_CastItem.GetSlot(), true);
 
-                InventoryResult msg = player.CanEquipItem(m_CastItem.GetSlot(), out dest, pNewItem, true);
+                InventoryResult msg = player.CanEquipItem(m_CastItem.GetSlot(), out ushort dest, pNewItem, true);
 
                 if (msg == InventoryResult.Ok || msg == InventoryResult.ClientLockedOut)
                 {
@@ -2217,8 +2213,7 @@ namespace Game.Spells
 
                     Cypher.Assert(OldSummon.GetMap() == owner.GetMap());
 
-                    float px, py, pz;
-                    owner.GetClosePoint(out px, out py, out pz, OldSummon.GetCombatReach());
+                    owner.GetClosePoint(out float px, out float py, out float pz, OldSummon.GetCombatReach());
 
                     OldSummon.NearTeleportTo(px, py, pz, OldSummon.GetOrientation());
 
@@ -2238,8 +2233,7 @@ namespace Game.Spells
             if (petentry == 0)
                 petSlot = (PetSaveMode)damage;
 
-            float x, y, z;
-            owner.GetClosePoint(out x, out y, out z, owner.GetCombatReach());
+            owner.GetClosePoint(out float x, out float y, out float z, owner.GetCombatReach());
             Pet pet = owner.SummonPet(petentry, petSlot, x, y, z, owner.Orientation, 0, out bool isNew);
             if (pet == null)
                 return;
@@ -3777,8 +3771,7 @@ namespace Game.Spells
             if (!group || (group.IsRaidGroup() && !group.IsLeader(player.GetGUID()) && !group.IsAssistant(player.GetGUID())))
                 return;
 
-            float x, y, z;
-            destTarget.GetPosition(out x, out y, out z);
+            destTarget.GetPosition(out float x, out float y, out float z);
 
             group.AddRaidMarker((byte)damage, player.GetMapId(), x, y, z);
         }
@@ -4414,8 +4407,7 @@ namespace Game.Spells
                 return;
 
             // relocate
-            float px, py, pz;
-            unitTarget.GetClosePoint(out px, out py, out pz, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
+            unitTarget.GetClosePoint(out float px, out float py, out float pz, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
             pet.Relocate(px, py, pz, unitTarget.GetOrientation());
 
             // add to world
@@ -5895,17 +5887,17 @@ namespace Game.Spells
             return _charges > 0;
         }
 
-        Aura _aura;
-        int _chance;
+        readonly Aura _aura;
+        readonly int _chance;
         byte _charges;
     }
 
     class DelayedSpellTeleportEvent : BasicEvent
     {
-        Unit _target;
-        WorldLocation _targetDest;
-        TeleportToOptions _options;
-        uint _spellId;
+        readonly Unit _target;
+        readonly WorldLocation _targetDest;
+        readonly TeleportToOptions _options;
+        readonly uint _spellId;
 
         public DelayedSpellTeleportEvent(Unit target, WorldLocation targetDest, TeleportToOptions options, uint spellId)
         {

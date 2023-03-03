@@ -21,6 +21,6 @@ class NearestGameObjectCheck : ICheck<GameObject>
         return false;
     }
 
-    WorldObject i_obj;
+    readonly WorldObject i_obj;
     float i_range;
 }

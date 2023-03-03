@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 155580 - Lunar Inspiration
+    [Script] // 155580 - Lunar Inspiration
 	internal class spell_dru_lunar_inspiration : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

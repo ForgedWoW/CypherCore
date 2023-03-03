@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Networking;
 using Framework.Constants;
 using Framework.Database;
-using Game.Networking.Packets;
 using Game.DataStorage;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game.Entities
 {
@@ -530,10 +530,10 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            AzeriteItem Owner;
-            ObjectFieldData ObjectMask = new();
-            ItemData ItemMask = new();
-            AzeriteItemData AzeriteItemMask = new();
+            readonly AzeriteItem Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly ItemData ItemMask = new();
+            readonly AzeriteItemData AzeriteItemMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
             {

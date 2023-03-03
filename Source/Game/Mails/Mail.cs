@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.BlackMarket;
 using Game.Entities;
-using System.Collections.Generic;
 
 namespace Game.Mails
 {
@@ -90,8 +90,8 @@ namespace Game.Mails
         public Player GetPlayer() { return m_receiver; }
         public ulong GetPlayerGUIDLow() { return m_receiver_lowguid; }
 
-        Player m_receiver;
-        ulong m_receiver_lowguid;
+        readonly Player m_receiver;
+        readonly ulong m_receiver_lowguid;
     }
 
     public class MailSender
@@ -167,8 +167,8 @@ namespace Game.Mails
         public ulong GetSenderId() { return m_senderId; }
         public MailStationery GetStationery() { return m_stationery; }
 
-        MailMessageType m_messageType;
-        ulong m_senderId;                                  // player low guid or other object entry
-        MailStationery m_stationery;
+        readonly MailMessageType m_messageType;
+        readonly ulong m_senderId;                                  // player low guid or other object entry
+        readonly MailStationery m_stationery;
     }
 }

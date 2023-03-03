@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(198590)] // 198590 - Drain Soul
+    [SpellScript(198590)] // 198590 - Drain Soul
 	internal class aura_warl_drain_soul : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

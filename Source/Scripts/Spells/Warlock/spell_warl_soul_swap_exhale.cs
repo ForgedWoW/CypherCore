@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(86213)] // 86213 - Soul Swap Exhale
+    [SpellScript(86213)] // 86213 - Soul Swap Exhale
 	internal class spell_warl_soul_swap_exhale : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public override bool Validate(SpellInfo spellInfo)

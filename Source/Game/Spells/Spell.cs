@@ -919,14 +919,12 @@ namespace Game.Spells
                     float minDist = m_spellInfo.GetMinRange(true);
                     float maxDist = m_spellInfo.GetMaxRange(true);
                     float dis = (float)RandomHelper.NextDouble() * (maxDist - minDist) + minDist;
-                    float x, y, z;
                     float angle = (float)RandomHelper.NextDouble() * (MathFunctions.PI * 35.0f / 180.0f) - (float)(Math.PI * 17.5f / 180.0f);
-                    m_caster.GetClosePoint(out x, out y, out z, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
+                    m_caster.GetClosePoint(out float x, out float y, out float z, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
 
                     float ground = m_caster.GetMapHeight(x, y, z);
                     float liquidLevel = MapConst.VMAPInvalidHeightValue;
-                    LiquidData liquidData;
-                    if (m_caster.GetMap().GetLiquidStatus(m_caster.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out liquidData, m_caster.GetCollisionHeight()) != 0)
+                    if (m_caster.GetMap().GetLiquidStatus(m_caster.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidData, m_caster.GetCollisionHeight()) != 0)
                         liquidLevel = liquidData.level;
 
                     if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
@@ -4961,8 +4959,7 @@ namespace Game.Spells
             // Check for line of sight for spells with dest
             if (m_targets.HasDst())
             {
-                float x, y, z;
-                m_targets.GetDstPos().GetPosition(out x, out y, out z);
+                m_targets.GetDstPos().GetPosition(out float x, out float y, out float z);
 
                 if (!m_spellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, m_spellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !m_caster.IsWithinLOS(x, y, z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                     return SpellCastResult.LineOfSight;
@@ -5009,8 +5006,7 @@ namespace Game.Spells
             // zone check
             if (!m_caster.IsPlayer() || !m_caster.ToPlayer().IsGameMaster())
             {
-                uint zone, area;
-                m_caster.GetZoneAndAreaId(out zone, out area);
+                m_caster.GetZoneAndAreaId(out uint zone, out uint area);
 
                 SpellCastResult locRes = m_spellInfo.CheckLocation(m_caster.GetMapId(), zone, area, m_caster.ToPlayer());
                 if (locRes != SpellCastResult.SpellCastOk)
@@ -8053,9 +8049,9 @@ namespace Game.Spells
 
         List<SpellScript> m_loadedScripts = new();
         readonly Dictionary<Type, List<ISpellScript>> m_spellScriptsByType = new Dictionary<Type, List<ISpellScript>>();
-        static List<ISpellScript> _dummy = new();
-        static List<(ISpellScript, ISpellEffect)> _dummySpellEffects = new();
-        Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>>();
+        static readonly List<ISpellScript> _dummy = new();
+        static readonly List<(ISpellScript, ISpellEffect)> _dummySpellEffects = new();
+        readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>>();
 
         public List<ISpellScript> GetSpellScripts<T>() where T : ISpellScript
         {
@@ -8268,7 +8264,7 @@ namespace Game.Spells
         }
 
         #region Fields
-        Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
+        readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
         PathGenerator m_preGeneratedPath;
 
         public SpellInfo m_spellInfo;
@@ -8288,8 +8284,7 @@ namespace Game.Spells
         public SpellCustomErrors m_customError;
 
         public List<Aura> m_appliedMods;
-
-        WorldObject m_caster;
+        readonly WorldObject m_caster;
         public SpellValue m_spellValue;
         ObjectGuid m_originalCasterGUID;
         Unit m_originalCaster;
@@ -8302,7 +8297,7 @@ namespace Game.Spells
         List<SpellPowerCost> m_powerCost = new();
         int m_casttime;                                   // Calculated spell cast time initialized only in Spell.prepare
         int m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
-        bool m_canReflect;                                  // can reflect this spell?
+        readonly bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         byte m_runesState;
         byte m_delayAtDamageCount;
@@ -8318,7 +8313,7 @@ namespace Game.Spells
         bool m_executedCurrently;
         internal bool m_needComboPoints;
         uint m_applyMultiplierMask;
-        Dictionary<int, double> m_damageMultipliers = new();
+        readonly Dictionary<int, double> m_damageMultipliers = new();
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
         public Unit unitTarget;
@@ -8357,13 +8352,11 @@ namespace Game.Spells
         public List<TargetInfo> m_UniqueTargetInfo_Orgi = new();
         uint m_channelTargetEffectMask;                        // Mask req. alive targets
 
-        List<GOTargetInfo> m_UniqueGOTargetInfo = new();
-        List<ItemTargetInfo> m_UniqueItemInfo = new();
-        List<CorpseTargetInfo> m_UniqueCorpseTargetInfo = new();
-
-        Dictionary<int, SpellDestination> m_destTargets = new();
-
-        List<HitTriggerSpell> m_hitTriggerSpells = new();
+        readonly List<GOTargetInfo> m_UniqueGOTargetInfo = new();
+        readonly List<ItemTargetInfo> m_UniqueItemInfo = new();
+        readonly List<CorpseTargetInfo> m_UniqueCorpseTargetInfo = new();
+        readonly Dictionary<int, SpellDestination> m_destTargets = new();
+        readonly List<HitTriggerSpell> m_hitTriggerSpells = new();
 
         SpellState m_spellState;
         int m_timer;
@@ -8373,7 +8366,7 @@ namespace Game.Spells
         uint _empoweredSpellDelta;
 
         SpellEvent _spellEvent;
-        TriggerCastFlags _triggeredCastFlags;
+        readonly TriggerCastFlags _triggeredCastFlags;
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
@@ -8525,8 +8518,7 @@ namespace Game.Spells
         {
             if (!TransportGUID.IsEmpty())
             {
-                Position offset;
-                Position.GetPositionOffsetTo(pos, out offset);
+                Position.GetPositionOffsetTo(pos, out Position offset);
                 TransportOffset.RelocateOffset(offset);
             }
             Position.Relocate(pos);
@@ -9078,12 +9070,12 @@ namespace Game.Spells
     public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
     {
         internal WorldObject _caster;
-        WorldObject _referer;
+        readonly WorldObject _referer;
         internal SpellInfo _spellInfo;
-        SpellTargetCheckTypes _targetSelectionType;
-        ConditionSourceInfo _condSrcInfo;
-        List<Condition> _condList;
-        SpellTargetObjectTypes _objectType;
+        readonly SpellTargetCheckTypes _targetSelectionType;
+        readonly ConditionSourceInfo _condSrcInfo;
+        readonly List<Condition> _condList;
+        readonly SpellTargetObjectTypes _objectType;
 
         public WorldObjectSpellTargetCheck(WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
         {
@@ -9206,7 +9198,7 @@ namespace Game.Spells
     public class WorldObjectSpellNearbyTargetCheck : WorldObjectSpellTargetCheck
     {
         float _range;
-        Position _position;
+        readonly Position _position;
 
         public WorldObjectSpellNearbyTargetCheck(float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
             : base(caster, caster, spellInfo, selectionType, condList, objectType)
@@ -9229,8 +9221,8 @@ namespace Game.Spells
 
     public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
     {
-        float _range;
-        Position _position;
+        readonly float _range;
+        readonly Position _position;
 
         public WorldObjectSpellAreaTargetCheck(float range, Position position, WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
             : base(caster, referer, spellInfo, selectionType, condList, objectType)
@@ -9262,9 +9254,9 @@ namespace Game.Spells
 
     public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
     {
-        Position _coneSrc;
-        float _coneAngle;
-        float _lineWidth;
+        readonly Position _coneSrc;
+        readonly float _coneAngle;
+        readonly float _lineWidth;
 
         public WorldObjectSpellConeTargetCheck(Position coneSrc, float coneAngle, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
             : base(range, caster.GetPosition(), caster, caster, spellInfo, selectionType, condList, objectType)
@@ -9300,8 +9292,8 @@ namespace Game.Spells
 
     public class WorldObjectSpellTrajTargetCheck : WorldObjectSpellTargetCheck
     {
-        float _range;
-        Position _position;
+        readonly float _range;
+        readonly Position _position;
 
         public WorldObjectSpellTrajTargetCheck(float range, Position position, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
             : base(caster, caster, spellInfo, selectionType, condList, objectType)
@@ -9325,8 +9317,8 @@ namespace Game.Spells
 
     public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
     {
-        Position _position;
-        float _lineWidth;
+        readonly Position _position;
+        readonly float _lineWidth;
 
         public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
             : base(range, caster, caster, caster, spellInfo, selectionType, condList, objectType)
@@ -9435,7 +9427,7 @@ namespace Game.Spells
 
         public Spell GetSpell() { return m_Spell; }
 
-        Spell m_Spell;
+        readonly Spell m_Spell;
     }
     
     class ProcReflectDelayed : BasicEvent
@@ -9462,7 +9454,7 @@ namespace Game.Spells
             return true;
         }
 
-        Unit _victim;
+        readonly Unit _victim;
         ObjectGuid _casterGuid;
     }
 

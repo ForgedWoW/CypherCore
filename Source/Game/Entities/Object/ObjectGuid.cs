@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System;
 using System.Collections.Generic;
+using Framework.Constants;
 
 namespace Game.Entities
 {
@@ -411,7 +411,7 @@ namespace Game.Entities
     public class ObjectGuidGenerator
     {
         ulong _nextGuid;
-        HighGuid _highGuid;
+        readonly HighGuid _highGuid;
 
         public ObjectGuidGenerator(HighGuid highGuid, ulong start = 1)
         {
@@ -552,9 +552,9 @@ namespace Game.Entities
 
     class ObjectGuidInfo
     {
-        static Dictionary<HighGuid, string> Names = new();
-        static Dictionary<HighGuid, Func<HighGuid, ObjectGuid, string>> ClientFormatFunction = new();
-        static Dictionary<HighGuid, Func<HighGuid, string, ObjectGuid>> ClientParseFunction = new();
+        static readonly Dictionary<HighGuid, string> Names = new();
+        static readonly Dictionary<HighGuid, Func<HighGuid, ObjectGuid, string>> ClientFormatFunction = new();
+        static readonly Dictionary<HighGuid, Func<HighGuid, string, ObjectGuid>> ClientParseFunction = new();
 
         static ObjectGuidInfo()
         {

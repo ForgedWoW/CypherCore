@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Framework.Constants;
 
 namespace Game
 {
@@ -266,10 +266,9 @@ namespace Game
         public uint GetLoadedTilesCount() { return loadedTiles; }
         public int GetLoadedMapsCount() { return loadedMMaps.Count; }
 
-        Dictionary<uint, MMapData> loadedMMaps = new();
+        readonly Dictionary<uint, MMapData> loadedMMaps = new();
         uint loadedTiles;
-
-        Dictionary<uint, uint> parentMapData = new();
+        readonly Dictionary<uint, uint> parentMapData = new();
     }
 
     public class MMapData

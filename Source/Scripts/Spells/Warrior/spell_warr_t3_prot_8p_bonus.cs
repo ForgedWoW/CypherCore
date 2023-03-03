@@ -7,7 +7,7 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // 28845 - Cheat Death
+    [Script] // 28845 - Cheat Death
 	internal class spell_warr_t3_prot_8p_bonus : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

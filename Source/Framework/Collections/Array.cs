@@ -7,7 +7,7 @@ namespace System.Collections.Generic
 {
     public class Array<T> : List<T>
     {
-        int _limit;
+        readonly int _limit;
 
         public Array(int size) : base(size)
         {

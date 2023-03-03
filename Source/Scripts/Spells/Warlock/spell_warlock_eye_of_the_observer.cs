@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 212580 - Eye of the Observer
-	[SpellScript(212580)]
+    // 212580 - Eye of the Observer
+    [SpellScript(212580)]
 	public class spell_warlock_eye_of_the_observer : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

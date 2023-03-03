@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IScene;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
     public class SceneMgr
     {
-        Player _player;
-        Dictionary<uint, SceneTemplate> _scenesByInstance = new();
+        readonly Player _player;
+        readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
         uint _standaloneSceneInstanceID;
-        List<ServerPacket> _delayedScenes = new();
+        readonly List<ServerPacket> _delayedScenes = new();
         bool _isDebuggingScenes;
 
         public SceneMgr(Player player)

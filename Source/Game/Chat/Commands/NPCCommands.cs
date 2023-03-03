@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Loots;
 using Game.Maps;
 using Game.Movement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Framework.Collections;
-using Game.Loots;
 
 namespace Game.Chat
 {
@@ -421,8 +421,7 @@ namespace Game.Chat
             }
 
             // place pet before player
-            float x, y, z;
-            player.GetClosePoint(out x, out y, out z, creatureTarget.GetCombatReach(), SharedConst.ContactDistance);
+            player.GetClosePoint(out float x, out float y, out float z, creatureTarget.GetCombatReach(), SharedConst.ContactDistance);
             pet.Relocate(x, y, z, MathFunctions.PI - player.GetOrientation());
 
             // set pet to defensive mode by default (some classes can't control controlled pets in fact).

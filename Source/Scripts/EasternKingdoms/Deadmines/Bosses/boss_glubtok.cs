@@ -104,7 +104,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
         private bool _dying;
         private bool _transitionDone;
         private bool _lastElement;
-        private Creature _platter;
+        private readonly Creature _platter;
 
         public boss_glubtok(Creature creature) : base(creature, DMData.DATA_GLUBTOK)
         {
@@ -182,11 +182,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                 me.SetReactState(ReactStates.Passive);
                 me.AttackStop();
                 me.GetMotionMaster().Clear();
-                float x;
-                float y;
-                float z;
-                float o;
-                Phase2Pos.GetPosition(out x, out y, out z, out o);
+                Phase2Pos.GetPosition(out float x, out float y, out float z, out float o);
                 me.NearTeleportTo(x, y, z, o);
                 DoCast(Spells.TELEPORT_VISUAL);
                 ResetThreatList();

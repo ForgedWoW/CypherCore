@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.BattleGrounds;
@@ -10,10 +14,6 @@ using Game.Groups;
 using Game.Maps;
 using Game.Scripting.BaseScripts;
 using Game.Scripting.Interfaces.IMap;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
@@ -477,11 +477,11 @@ namespace Game.Entities
         public void DecreaseScheduledScriptCount(uint count) { _scheduledScripts -= count; }
         public bool IsScriptScheduled() { return _scheduledScripts > 0; }
 
-        Dictionary<(uint mapId, uint instanceId), Map> i_maps = new();
-        IntervalTimer i_timer = new();
-        object _mapsLock = new();
+        readonly Dictionary<(uint mapId, uint instanceId), Map> i_maps = new();
+        readonly IntervalTimer i_timer = new();
+        readonly object _mapsLock = new();
         uint i_gridCleanUpDelay;
-        BitSet _freeInstanceIds = new(1);
+        readonly BitSet _freeInstanceIds = new(1);
         uint _nextInstanceId;
         MapUpdater m_updater;
         uint _scheduledScripts;

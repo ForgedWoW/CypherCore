@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Felstorm - 119914
-	[SpellScript(119914)]
+    // Felstorm - 119914
+    [SpellScript(119914)]
 	public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 	{
 		public void AfterHit()

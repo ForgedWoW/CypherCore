@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	//5782 - Fear
-	[SpellScript(5782)]
+    //5782 - Fear
+    [SpellScript(5782)]
 	public class spell_warl_fear : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

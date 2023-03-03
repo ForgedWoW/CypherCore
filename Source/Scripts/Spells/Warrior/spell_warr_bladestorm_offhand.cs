@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// 95738 - Bladestorm Offhand
-	[SpellScript(95738)]
+    // 95738 - Bladestorm Offhand
+    [SpellScript(95738)]
 	public class spell_warr_bladestorm_offhand : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 52437 - Sudden Death
-	[Script]
+    // 52437 - Sudden Death
+    [Script]
 	internal class spell_warr_sudden_death : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
@@ -9,31 +13,22 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Mails;
 using Game.Networking.Packets;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IAuctionHouse;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
     public class AuctionManager : Singleton<AuctionManager>
     {
         const int MIN_AUCTION_TIME = 12 * Time.Hour;
-
-        AuctionHouseObject mHordeAuctions;
-        AuctionHouseObject mAllianceAuctions;
-        AuctionHouseObject mNeutralAuctions;
-        AuctionHouseObject mGoblinAuctions;
-
-        Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
-
-        Dictionary<ObjectGuid, Item> _itemsByGuid = new();
+        readonly AuctionHouseObject mHordeAuctions;
+        readonly AuctionHouseObject mAllianceAuctions;
+        readonly AuctionHouseObject mNeutralAuctions;
+        readonly AuctionHouseObject mGoblinAuctions;
+        readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
+        readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
 
         uint _replicateIdGenerator;
-
-        Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
+        readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
         DateTime _playerThrottleObjectsCleanupTime;
 
         AuctionManager()
@@ -1580,19 +1575,17 @@ namespace Game
                 TotalPrice += unitPrice * item.GetCount();
             }
         }
-        
-        AuctionHouseRecord _auctionHouse;
 
-        SortedList<uint, AuctionPosting> _itemsByAuctionId = new(); // ordered for replicate
-        SortedDictionary<AuctionsBucketKey, AuctionsBucketData> _buckets = new();// ordered for search by itemid only
-        Dictionary<ObjectGuid, CommodityQuote> _commodityQuotes = new();
-
-        MultiMap<ObjectGuid, uint> _playerOwnedAuctions = new();
-        MultiMap<ObjectGuid, uint> _playerBidderAuctions = new();
+        readonly AuctionHouseRecord _auctionHouse;
+        readonly SortedList<uint, AuctionPosting> _itemsByAuctionId = new(); // ordered for replicate
+        readonly SortedDictionary<AuctionsBucketKey, AuctionsBucketData> _buckets = new();// ordered for search by itemid only
+        readonly Dictionary<ObjectGuid, CommodityQuote> _commodityQuotes = new();
+        readonly MultiMap<ObjectGuid, uint> _playerOwnedAuctions = new();
+        readonly MultiMap<ObjectGuid, uint> _playerBidderAuctions = new();
 
         // Map of throttled players for GetAll, and throttle expiry time
         // Stored here, rather than player object to maintain persistence after logout
-        Dictionary<ObjectGuid, PlayerReplicateThrottleData> _replicateThrottleMap = new();
+        readonly Dictionary<ObjectGuid, PlayerReplicateThrottleData> _replicateThrottleMap = new();
     }
 
     public class AuctionPosting
@@ -1767,9 +1760,9 @@ namespace Game
                 return 0;
             }
 
-            Locale _locale;
-            AuctionSortDef[] _sorts;
-            int _sortCount;
+            readonly Locale _locale;
+            readonly AuctionSortDef[] _sorts;
+            readonly int _sortCount;
         }
     }
 
@@ -1876,9 +1869,9 @@ namespace Game
                 return 0;
             }
 
-            Locale _locale;
-            AuctionSortDef[] _sorts;
-            int _sortCount;
+            readonly Locale _locale;
+            readonly AuctionSortDef[] _sorts;
+            readonly int _sortCount;
         }
     }
 
@@ -1992,10 +1985,10 @@ namespace Game
 
     class AuctionsResultBuilder<T>
     {
-        uint _offset;
-        IComparer<T> _sorter;
-        AuctionHouseResultLimits _maxResults;
-        List<T> _items = new();
+        readonly uint _offset;
+        readonly IComparer<T> _sorter;
+        readonly AuctionHouseResultLimits _maxResults;
+        readonly List<T> _items = new();
         bool _hasMoreResults;
 
         public AuctionsResultBuilder(uint offset, IComparer<T> sorter, AuctionHouseResultLimits maxResults)

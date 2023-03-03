@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
 using Game.Networking.Packets;
-using System.Collections.Generic;
 
 namespace Game.Maps
 {
@@ -87,8 +87,7 @@ namespace Game.Maps
             if (!i_data.HasData())
                 return;
 
-            UpdateObject packet;
-            i_data.BuildPacket(out packet);
+            i_data.BuildPacket(out UpdateObject packet);
             i_player.SendPacket(packet);
 
             foreach (var obj in i_visibleNow)

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 195255 - Stormlash
-	[SpellScript(195255)]
+    // 195255 - Stormlash
+    [SpellScript(195255)]
 	public class aura_sha_stormlash : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

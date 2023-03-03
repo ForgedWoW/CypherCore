@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.IO;
 using Game.Entities;
 using Game.Maps;
 using Game.Movement;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Chat
 {
@@ -45,8 +45,7 @@ namespace Game.Chat
                 useRaycast = true;
 
             // unit locations
-            float x, y, z;
-            player.GetPosition(out x, out y, out z);
+            player.GetPosition(out float x, out float y, out float z);
 
             // path
             PathGenerator path = new(target);
@@ -87,8 +86,7 @@ namespace Game.Chat
             int gx = (int)(32 - player.GetPositionX() / MapConst.SizeofGrids);
             int gy = (int)(32 - player.GetPositionY() / MapConst.SizeofGrids);
 
-            float x, y, z;
-            player.GetPosition(out x, out y, out z);
+            player.GetPosition(out float x, out float y, out float z);
 
             handler.SendSysMessage("{0:D4}{1:D2}{2:D2}.mmtile", player.GetMapId(), gy, gx);
             handler.SendSysMessage("tileloc [{0}, {1}]", gx, gy);
@@ -232,8 +230,7 @@ namespace Game.Chat
                 uint paths = 0;
                 uint uStartTime = Time.GetMSTime();
 
-                float gx, gy, gz;
-                obj.GetPosition(out gx, out gy, out gz);
+                obj.GetPosition(out float gx, out float gy, out float gz);
                 foreach (var creature in creatureList)
                 {
                     PathGenerator path = new(creature);

@@ -10,7 +10,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	[Script] // 27285 - Seed of Corruption
+    [Script] // 27285 - Seed of Corruption
 	internal class spell_warl_seed_of_corruption : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

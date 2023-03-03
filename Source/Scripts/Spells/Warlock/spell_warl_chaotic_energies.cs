@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[Script] // 77220 - Mastery: Chaotic Energies
+    [Script] // 77220 - Mastery: Chaotic Energies
 	internal class spell_warl_chaotic_energies : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

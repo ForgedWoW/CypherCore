@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior
 {
-	// 203179 - Opportunity Strike
-	[SpellScript(203179)]
+    // 203179 - Opportunity Strike
+    [SpellScript(203179)]
 	public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
 	{
 		public void OnProc(ProcEventInfo eventInfo)

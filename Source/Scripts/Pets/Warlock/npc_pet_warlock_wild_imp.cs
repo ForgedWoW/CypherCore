@@ -7,8 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Spells;
 using Scripts.Spells.Warlock;
-using static Game.AI.SmartAction;
-using static Game.AI.SmartEvent;
 
 namespace Scripts.Pets
 {

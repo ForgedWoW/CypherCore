@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.GameMath;
 using System.Numerics;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -157,8 +157,8 @@ namespace Game.Collision
 
             return data;
         }
-        
-        DynTreeImpl impl;
+
+        readonly DynTreeImpl impl;
     }
 
     public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectModel>>
@@ -201,7 +201,7 @@ namespace Game.Collision
             }
         }
 
-        TimeTracker rebalance_timer;
+        readonly TimeTracker rebalance_timer;
         int unbalanced_times;
     }
 }

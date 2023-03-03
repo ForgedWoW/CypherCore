@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 5697 - Unending Breath
-	[SpellScript(5697)]
+    // 5697 - Unending Breath
+    [SpellScript(5697)]
 	internal class spell_warlock_unending_breath : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

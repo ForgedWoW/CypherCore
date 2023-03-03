@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using MySqlConnector;
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using MySqlConnector;
 
 namespace Framework.Database
 {
@@ -65,7 +64,7 @@ namespace Framework.Database
             return mySqlBase.DirectCommitTransaction(m_trans);
         }
 
-        SQLTransaction m_trans;
+        readonly SQLTransaction m_trans;
         public static object _deadlockLock = new();
     }
 
@@ -108,8 +107,7 @@ namespace Framework.Database
 
     public class TransactionCallback : ISqlCallback
     {
-
-        TransactionWithResultTask m_future;
+        readonly TransactionWithResultTask m_future;
         Action<bool> _callback;
 
         public TransactionCallback(TransactionWithResultTask future)

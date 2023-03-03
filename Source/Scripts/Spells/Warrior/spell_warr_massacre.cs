@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warrior
 {
-	//206315
-	[SpellScript(206315)]
+    //206315
+    [SpellScript(206315)]
 	public class spell_warr_massacre : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo procInfo)

@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// BloodBath - 12292
-	[SpellScript(12292)]
+    // BloodBath - 12292
+    [SpellScript(12292)]
 	public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

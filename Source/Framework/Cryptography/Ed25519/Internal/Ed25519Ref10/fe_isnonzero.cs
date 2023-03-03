@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class FieldOperations
@@ -21,8 +19,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
         // This code actually returns 0 if f==0 and 1 if f != 0
         internal static int fe_isnonzero(ref FieldElement f)
         {
-            FieldElement fr;
-            fe_reduce(out fr, ref f);
+            fe_reduce(out FieldElement fr, ref f);
             int differentBits = 0;
             differentBits |= fr.x0;
             differentBits |= fr.x1;

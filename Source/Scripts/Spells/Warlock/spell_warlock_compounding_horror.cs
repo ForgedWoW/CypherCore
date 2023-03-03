@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 231489 - Compounding Horror
-	[SpellScript(231489)]
+    // 231489 - Compounding Horror
+    [SpellScript(231489)]
 	internal class spell_warlock_compounding_horror : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

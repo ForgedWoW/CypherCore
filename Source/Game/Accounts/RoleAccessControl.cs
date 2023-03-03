@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Constants;
+using Framework.Database;
 
 namespace Game.Accounts
 {
     public class RBACData
     {
-        uint _id;                                        // Account id
-        string _name;                                 // Account name
-        int _realmId;                                    // RealmId Affected
+        readonly uint _id;                                        // Account id
+        readonly string _name;                                 // Account name
+        readonly int _realmId;                                    // RealmId Affected
         byte _secLevel;                                   // Account SecurityLevel
-        List<uint> _grantedPerms = new();             // Granted permissions
-        List<uint> _deniedPerms = new();              // Denied permissions
+        readonly List<uint> _grantedPerms = new();             // Granted permissions
+        readonly List<uint> _deniedPerms = new();              // Denied permissions
         List<uint> _globalPerms = new();              // Calculated permissions
 
         public RBACData(uint id, string name, int realmId, byte secLevel = 255)
@@ -335,9 +335,9 @@ namespace Game.Accounts
 
     public class RBACPermission
     {
-        uint _id;                                 // id of the object
-        string _name;                             // name of the object
-        List<uint> _perms = new();     // Set of permissions
+        readonly uint _id;                                 // id of the object
+        readonly string _name;                             // name of the object
+        readonly List<uint> _perms = new();     // Set of permissions
 
         public RBACPermission(uint id = 0, string name = "")
         {

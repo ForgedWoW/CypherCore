@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// Flametongue Attack - 10444
-	[SpellScript(10444)]
+    // Flametongue Attack - 10444
+    [SpellScript(10444)]
 	public class bfa_spell_flametongue_attack_damage : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

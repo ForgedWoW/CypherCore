@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Hand of Guldan damage - 86040
-	[SpellScript(86040)]
+    // Hand of Guldan damage - 86040
+    [SpellScript(86040)]
 	internal class spell_warl_hand_of_guldan_damage : SpellScript, IHasSpellEffects
 	{
 		private int _soulshards = 1;

@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Maps
 {
@@ -15,10 +14,10 @@ namespace Game.Maps
 
     public class InstanceLockManager : Singleton<InstanceLockManager>
     {
-        object _lockObject = new();
-        Dictionary<ObjectGuid, Dictionary<InstanceLockKey, InstanceLock>> _temporaryInstanceLocksByPlayer = new(); // locks stored here before any boss gets killed
-        Dictionary<ObjectGuid, Dictionary<InstanceLockKey, InstanceLock>> _instanceLocksByPlayer = new();
-        Dictionary<uint, SharedInstanceLockData> _instanceLockDataById = new();
+        readonly object _lockObject = new();
+        readonly Dictionary<ObjectGuid, Dictionary<InstanceLockKey, InstanceLock>> _temporaryInstanceLocksByPlayer = new(); // locks stored here before any boss gets killed
+        readonly Dictionary<ObjectGuid, Dictionary<InstanceLockKey, InstanceLock>> _instanceLocksByPlayer = new();
+        readonly Dictionary<uint, SharedInstanceLockData> _instanceLockDataById = new();
         bool _unloading;
 
         InstanceLockManager() { }
@@ -463,12 +462,12 @@ namespace Game.Maps
 
     public class InstanceLock
     {
-        uint _mapId;
-        Difficulty _difficultyId;
+        readonly uint _mapId;
+        readonly Difficulty _difficultyId;
         uint _instanceId;
         DateTime _expiryTime;
         bool _extended;
-        InstanceLockData _data = new();
+        readonly InstanceLockData _data = new();
         bool _isInUse;
 
         public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
@@ -544,7 +543,7 @@ namespace Game.Maps
         /// One shared by everyone, which is the real state used by instance
         /// and one for each player that shows in UI that might have less encounters completed
         /// </summary>
-        SharedInstanceLockData _sharedData;
+        readonly SharedInstanceLockData _sharedData;
 
         public SharedInstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId, SharedInstanceLockData sharedData) : base(mapId, difficultyId, expiryTime, instanceId)
         {

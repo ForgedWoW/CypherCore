@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Demonbolt - 157695
-	[SpellScript(157695)]
+    // Demonbolt - 157695
+    [SpellScript(157695)]
 	public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 	{
 		private int _summons = 0;

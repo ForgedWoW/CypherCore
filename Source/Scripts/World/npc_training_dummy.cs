@@ -9,9 +9,6 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Spells;
-using Scripts.World.NpcSpecial;
-using static System.Net.Mime.MediaTypeNames;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_glubtok;
 
 namespace Scripts.World.NpcSpecial
 {

@@ -9,9 +9,9 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 221711 - Essence Drain
-	// Called by Drain Soul (198590) and Drain Life (234153)
-	[SpellScript(221711)]
+    // 221711 - Essence Drain
+    // Called by Drain Soul (198590) and Drain Life (234153)
+    [SpellScript(221711)]
 	public class spell_warlock_essence_drain : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

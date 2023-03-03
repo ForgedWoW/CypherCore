@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Constants;
+using Game.Networking;
 
 namespace Game.Entities
 {
     public class UpdateFieldHolder
     {
-        UpdateMask _changesMask = new((int)TypeId.Max);
+        readonly UpdateMask _changesMask = new((int)TypeId.Max);
 
         public UpdateFieldHolder(WorldObject owner) { }
 
@@ -510,8 +510,8 @@ namespace Game.Entities
 
     public class DynamicUpdateFieldSetter<T> : IUpdateField<T> where T : new()
     {
-        DynamicUpdateField<T> _dynamicUpdateField;
-        int _index;
+        readonly DynamicUpdateField<T> _dynamicUpdateField;
+        readonly int _index;
 
         public DynamicUpdateFieldSetter(DynamicUpdateField<T> dynamicUpdateField, int index)
         {

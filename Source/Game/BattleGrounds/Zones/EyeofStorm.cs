@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Framework.Constants;
 using System.Collections.Generic;
+using Framework.Constants;
+using Game.Entities;
 using Game.Networking.Packets;
-using Game.DataStorage;
 
 namespace Game.BattleGrounds.Zones
 {
@@ -907,10 +906,9 @@ namespace Game.BattleGrounds.Zones
         public override void SetDroppedFlagGUID(ObjectGuid guid, int TeamID = -1) { m_DroppedFlagGUID = guid; }
         ObjectGuid GetDroppedFlagGUID() { return m_DroppedFlagGUID; }
 
-        uint[] m_HonorScoreTics = new uint[2];
-        uint[] m_TeamPointsCount = new uint[2];
-
-        uint[] m_Points_Trigger = new uint[EotSPoints.PointsMax];
+        readonly uint[] m_HonorScoreTics = new uint[2];
+        readonly uint[] m_TeamPointsCount = new uint[2];
+        readonly uint[] m_Points_Trigger = new uint[EotSPoints.PointsMax];
 
         ObjectGuid m_FlagKeeper;                                // keepers guid
         ObjectGuid m_DroppedFlagGUID;
@@ -918,13 +916,12 @@ namespace Game.BattleGrounds.Zones
         EotSFlagState m_FlagState;                                  // for checking flag state
         int m_FlagsTimer;
         int m_TowerCapCheckTimer;
-
-        Team[] m_PointOwnedByTeam = new Team[EotSPoints.PointsMax];
-        EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
-        EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
-        BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
-        List<ObjectGuid>[] m_PlayersNearPoint = new List<ObjectGuid>[EotSPoints.PointsMax + 1];
-        byte[] m_CurrentPointPlayersCount = new byte[2 * EotSPoints.PointsMax];
+        readonly Team[] m_PointOwnedByTeam = new Team[EotSPoints.PointsMax];
+        readonly EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
+        readonly EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
+        readonly BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
+        readonly List<ObjectGuid>[] m_PlayersNearPoint = new List<ObjectGuid>[EotSPoints.PointsMax + 1];
+        readonly byte[] m_CurrentPointPlayersCount = new byte[2 * EotSPoints.PointsMax];
 
         int m_PointAddingTimer;
         uint m_HonorTics;

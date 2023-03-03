@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// Enrage Aura - 184362
-	[SpellScript(184362)]
+    // Enrage Aura - 184362
+    [SpellScript(184362)]
 	public class spell_warr_enrage_aura : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

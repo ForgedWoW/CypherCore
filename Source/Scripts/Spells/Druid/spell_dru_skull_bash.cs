@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 106839 - Skull Bash
+    [Script] // 106839 - Skull Bash
 	internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

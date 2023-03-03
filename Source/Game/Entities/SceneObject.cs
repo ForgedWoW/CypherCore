@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
     public class SceneObject : WorldObject
     {
-        SceneObjectData m_sceneObjectData;
-
-        Position _stationaryPosition = new();
+        readonly SceneObjectData m_sceneObjectData;
+        readonly Position _stationaryPosition = new();
         ObjectGuid _createdBySpellCast;
 
         public SceneObject() : base(false)
@@ -200,9 +199,9 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            SceneObject Owner;
-            ObjectFieldData ObjectMask = new();
-            SceneObjectData SceneObjectMask = new();
+            readonly SceneObject Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly SceneObjectData SceneObjectMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)
             {

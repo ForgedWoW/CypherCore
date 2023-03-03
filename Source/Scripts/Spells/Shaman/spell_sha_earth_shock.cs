@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 8042 Earth Shock
-	[SpellScript(51556)]
+    // 8042 Earth Shock
+    [SpellScript(51556)]
 	public class spell_sha_earth_shock : SpellScript, IHasSpellEffects, ISpellOnTakePower
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

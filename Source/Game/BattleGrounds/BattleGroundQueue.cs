@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.Arenas;
@@ -8,9 +11,6 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Groups;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.BattleGrounds
 {
@@ -317,10 +317,9 @@ namespace Game.BattleGrounds
                     uint queueSlot = plr2.GetBattlegroundQueueIndex(m_queueId);
 
                     plr2.RemoveBattlegroundQueueId(m_queueId); // must be called this way, because if you move this call to
-                                                                   // queue.removeplayer, it causes bugs
+                                                               // queue.removeplayer, it causes bugs
 
-                    BattlefieldStatusNone battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNone(out battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(m_queueId));
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, plr2, queueSlot, plr2.GetBattlegroundQueueJoinTime(m_queueId));
                     plr2.SendPacket(battlefieldStatus);
                 }
                 // then actually delete, this may delete the group as well!
@@ -403,8 +402,7 @@ namespace Game.BattleGrounds
                     Log.outDebug(LogFilter.Battleground, "Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
                          player.GetName(), player.GetGUID().ToString(), bg.GetInstanceID(), queueSlot, bg.GetTypeID());
 
-                    BattlefieldStatusNeedConfirmation battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
                     player.SendPacket(battlefieldStatus);
                 }
                 return true;
@@ -952,8 +950,7 @@ namespace Game.BattleGrounds
         public BattlegroundQueueTypeId GetQueueId() { return m_queueId; }
         
         BattlegroundQueueTypeId m_queueId;
-
-        Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
+        readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
 
         /// <summary>
         /// This two dimensional array is used to store All queued groups
@@ -964,16 +961,14 @@ namespace Game.BattleGrounds
         /// BattlegroundConst.BgQueueNormalAlliance   is used for normal (or small) alliance groups or non-rated arena matches
         /// BattlegroundConst.BgQueueNormalHorde      is used for normal (or small) horde groups or non-rated arena matches
         /// </summary>
-        List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
-
-        uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
-        uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
-        uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
+        readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
+        readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
+        readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
+        readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
 
         // Event handler
-        EventSystem m_events = new();
-
-        SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
+        readonly EventSystem m_events = new();
+        readonly SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
         // class to select and invite groups to bg
         class SelectionPool
         {
@@ -1174,8 +1169,7 @@ namespace Game.BattleGrounds
                 BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
                 if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
-                    BattlefieldStatusNeedConfirmation battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, m_ArenaType);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime - BattlegroundConst.InvitationRemindTime, m_ArenaType);
                     player.SendPacket(battlefieldStatus);
                 }
             }
@@ -1185,10 +1179,10 @@ namespace Game.BattleGrounds
         public override void Abort(ulong e_time) { }
 
         ObjectGuid m_PlayerGuid;
-        uint m_BgInstanceGUID;
-        BattlegroundTypeId m_BgTypeId;
-        ArenaTypes m_ArenaType;
-        uint m_RemoveTime;
+        readonly uint m_BgInstanceGUID;
+        readonly BattlegroundTypeId m_BgTypeId;
+        readonly ArenaTypes m_ArenaType;
+        readonly uint m_RemoveTime;
     }
 
     /// <summary>
@@ -1232,8 +1226,7 @@ namespace Game.BattleGrounds
                     if (bg && bg.IsBattleground() && bg.GetStatus() != BattlegroundStatus.WaitLeave)
                         Global.BattlegroundMgr.ScheduleQueueUpdate(0, m_BgQueueTypeId, bg.GetBracketId());
 
-                    BattlefieldStatusNone battlefieldStatus;
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNone(out battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(m_BgQueueTypeId));
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, player, queueSlot, player.GetBattlegroundQueueJoinTime(m_BgQueueTypeId));
                     player.SendPacket(battlefieldStatus);
                 }
             }
@@ -1245,8 +1238,8 @@ namespace Game.BattleGrounds
         public override void Abort(ulong e_time) { }
 
         ObjectGuid m_PlayerGuid;
-        uint m_BgInstanceGUID;
-        uint m_RemoveTime;
+        readonly uint m_BgInstanceGUID;
+        readonly uint m_RemoveTime;
         BattlegroundQueueTypeId m_BgQueueTypeId;
     }
 }

@@ -12,7 +12,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Racials
 {
-	[SpellScript(312916)]
+    [SpellScript(312916)]
 	public class spell_class_mecagnomo_emergency : AuraScript, IAuraCheckProc, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// Script to handle the dummy proc of 16196
-	[SpellScript(16196)]
+    // Script to handle the dummy proc of 16196
+    [SpellScript(16196)]
 	public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)

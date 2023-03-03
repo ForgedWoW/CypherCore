@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -19,7 +18,6 @@ using Game.Groups;
 using Game.Guilds;
 using Game.Movement;
 using Game.Scripting.Activators;
-using Game.Scripting.BaseScripts;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.IAura;

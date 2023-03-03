@@ -8,8 +8,8 @@ namespace Game.Maps;
 public class CreatureListSearcher : IGridNotifierCreature
 {
     internal PhaseShift i_phaseShift;
-    List<Creature> i_objects;
-    ICheck<Creature> i_check;
+    readonly List<Creature> i_objects;
+    readonly ICheck<Creature> i_check;
     public GridType GridType { get; set; }
 
 

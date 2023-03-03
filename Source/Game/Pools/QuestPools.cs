@@ -1,22 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Game.Entities;
-using Game.Maps;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Framework.Database;
 
 namespace Game
 {
     public class QuestPoolManager : Singleton<QuestPoolManager>
     {
-        List<QuestPool> _dailyPools = new();
-        List<QuestPool> _weeklyPools = new();
-        List<QuestPool> _monthlyPools = new();
-        Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
+        readonly List<QuestPool> _dailyPools = new();
+        readonly List<QuestPool> _weeklyPools = new();
+        readonly List<QuestPool> _monthlyPools = new();
+        readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
 
         QuestPoolManager() { }
 

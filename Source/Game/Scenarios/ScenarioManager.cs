@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Achievements;
 using Game.DataStorage;
 using Game.Maps;
-using System;
-using System.Collections.Generic;
 namespace Game.Scenarios
 {
     public class ScenarioManager : Singleton<ScenarioManager>
@@ -214,9 +214,9 @@ namespace Game.Scenarios
             return _scenarioPOIStore[CriteriaTreeID];
         }
 
-        Dictionary<uint, ScenarioData> _scenarioData = new();
-        MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
-        Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
+        readonly Dictionary<uint, ScenarioData> _scenarioData = new();
+        readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
+        readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
     }
 
     public class ScenarioData

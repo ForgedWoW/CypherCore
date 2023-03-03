@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Priest
 {
-	internal struct PriestSpells
+    internal struct PriestSpells
 	{
 		public const uint ABSOLUTION = 33167;
 		public const uint ANGELIC_FEATHER_AREATRIGGER = 158624;

@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Database;
 using Game.Entities;
 using Game.Networking.Packets;
-using Game.Scripting;
 using Game.Scripting.Interfaces.IWeather;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -75,7 +74,7 @@ namespace Game
             return _weatherData.LookupByKey(zone_id);
         }
 
-        Dictionary<uint, WeatherData> _weatherData = new();
+        readonly Dictionary<uint, WeatherData> _weatherData = new();
     }
 
     public class Weather
@@ -368,11 +367,11 @@ namespace Game
         public uint GetZone() { return m_zone; }
         public uint GetScriptId() { return m_weatherChances.ScriptId; }
 
-        uint m_zone;
+        readonly uint m_zone;
         WeatherType m_type;
         float m_intensity;
-        IntervalTimer m_timer = new();
-        WeatherData m_weatherChances;
+        readonly IntervalTimer m_timer = new();
+        readonly WeatherData m_weatherChances;
     }
 
     public class WeatherData

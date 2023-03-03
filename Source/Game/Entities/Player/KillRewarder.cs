@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Groups;
 using Game.Maps;
 using Game.Scenarios;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
     public class KillRewarder
     {
-        Player[] _killers;
-        Unit _victim;
+        readonly Player[] _killers;
+        readonly Unit _victim;
         float _groupRate;
         Player _maxNotGrayMember;
         uint _count;
@@ -22,8 +22,8 @@ namespace Game.Entities
         uint _xp;
         bool _isFullXP;
         byte _maxLevel;
-        bool _isBattleground;
-        bool _isPvP;
+        readonly bool _isBattleground;
+        readonly bool _isPvP;
 
         public KillRewarder(Player[] killers, Unit victim, bool isBattleground)
         {

@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.DataStorage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Constants;
+using Game.DataStorage;
 
 namespace Game.Entities
 {
     public class CinematicManager : IDisposable
     {
         // Remote location information
-        Player player;
+        readonly Player player;
 
         public uint m_cinematicDiff;
         public uint m_lastCinematicCheck;
@@ -20,7 +20,7 @@ namespace Game.Entities
         public int m_activeCinematicCameraIndex;
         public uint m_cinematicLength;
         public List<FlyByCamera> m_cinematicCamera;
-        Position m_remoteSightPosition;
+        readonly Position m_remoteSightPosition;
         TempSummon m_CinematicObject;
 
         public CinematicManager(Player playerref)

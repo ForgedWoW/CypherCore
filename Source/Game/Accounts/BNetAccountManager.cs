@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Database;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Framework.Database;
 
 namespace Game
 {
@@ -44,8 +44,7 @@ namespace Game
 
         public AccountOpResult ChangePassword(uint accountId, string newPassword)
         {
-            string username;
-            if (!GetName(accountId, out username))
+            if (!GetName(accountId, out string username))
                 return AccountOpResult.NameNotExist;
 
             if (newPassword.Length > 16)
@@ -61,8 +60,7 @@ namespace Game
 
         public bool CheckPassword(uint accountId, string password)
         {
-            string username;
-            if (!GetName(accountId, out username))
+            if (!GetName(accountId, out string username))
                 return false;
 
             PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);

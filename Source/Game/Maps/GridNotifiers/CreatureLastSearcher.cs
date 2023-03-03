@@ -9,7 +9,7 @@ public class CreatureLastSearcher : IGridNotifierCreature
 {
     internal PhaseShift i_phaseShift;
     Creature i_object;
-    ICheck<Creature> i_check;
+    readonly ICheck<Creature> i_check;
     public GridType GridType { get; set; }
 
     public CreatureLastSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)

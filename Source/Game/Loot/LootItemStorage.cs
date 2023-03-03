@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Game.Loots
 {
@@ -211,7 +211,7 @@ namespace Game.Loots
             _lootItemStorage.TryAdd(containerId, container);
         }
 
-        ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
+        readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
     }
 
     class StoredLootContainer
@@ -303,8 +303,8 @@ namespace Game.Loots
 
         public MultiMap<uint, StoredLootItem> GetLootItems() { return _lootItems; }
 
-        MultiMap<uint, StoredLootItem> _lootItems = new();
-        ulong _containerId;
+        readonly MultiMap<uint, StoredLootItem> _lootItems = new();
+        readonly ulong _containerId;
         uint _money;
     }
 

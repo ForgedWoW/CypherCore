@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Guilds;
-using System.Collections.Generic;
 
 namespace Game.DataStorage
 {
@@ -44,7 +44,7 @@ namespace Game.DataStorage
 
     public class WhoListStorageManager : Singleton<WhoListStorageManager>
     {
-        List<WhoListPlayerInfo> _whoListStorage;
+        readonly List<WhoListPlayerInfo> _whoListStorage;
 
         WhoListStorageManager()
         {

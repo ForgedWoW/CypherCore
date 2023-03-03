@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Collections;
 using Framework.Constants;
 using Game.Conditions;
@@ -8,9 +11,6 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Spells;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Misc
 {
@@ -201,7 +201,7 @@ namespace Game.Misc
             return _menuItems;
         }
 
-        SortedDictionary<uint, GossipMenuItem> _menuItems = new();
+        readonly SortedDictionary<uint, GossipMenuItem> _menuItems = new();
         uint _menuId;
         Locale _locale;
     }
@@ -669,10 +669,10 @@ namespace Game.Misc
         public uint GetGossipOptionAction(uint selection) { return _gossipMenu.GetMenuItemAction(selection); }
         public bool IsGossipOptionCoded(uint selection) { return _gossipMenu.IsMenuItemCoded(selection); }
 
-        GossipMenu _gossipMenu = new();
-        QuestMenu _questMenu = new();
-        WorldSession _session;
-        InteractionData _interactionData = new();
+        readonly GossipMenu _gossipMenu = new();
+        readonly QuestMenu _questMenu = new();
+        readonly WorldSession _session;
+        readonly InteractionData _interactionData = new();
     }
 
     public class QuestMenu
@@ -719,7 +719,7 @@ namespace Game.Misc
             return _questMenuItems.LookupByIndex(index);
         }
 
-        List<QuestMenuItem> _questMenuItems = new();
+        readonly List<QuestMenuItem> _questMenuItems = new();
     }
 
     public struct QuestMenuItem

@@ -14,7 +14,7 @@ namespace Scripts.Spells.DeathKnight;
 public class spell_dk_epidemic : SpellScript, IHasSpellEffects, ISpellCheckCast, ISpellOnHit
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-	private List<Unit> savedTargets = new();
+	private readonly List<Unit> savedTargets = new();
 
 	public void OnHit()
 	{

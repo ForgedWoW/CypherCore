@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	//20243 - Devastate
-	[SpellScript(20243)]
+    //20243 - Devastate
+    [SpellScript(20243)]
 	public class spell_warr_devastate : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
@@ -10,7 +11,6 @@ using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -188,7 +188,7 @@ namespace Game
                 return IsValidLootTarget(creature);
             }
 
-            Player _looter;
+            readonly Player _looter;
             ObjectGuid _mainLootTarget;
         }
 

@@ -26,6 +26,6 @@ public class AIRelocationNotifier : IGridNotifierCreature
         }
     }
 
-    Unit i_unit;
-    bool isCreature;
+    readonly Unit i_unit;
+    readonly bool isCreature;
 }

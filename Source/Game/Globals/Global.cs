@@ -16,7 +16,6 @@ using Game.DungeonFinding;
 using Game.Entities;
 using Game.Garrisons;
 using Game.Groups;
-using Game.Guilds;
 using Game.Loots;
 using Game.Maps;
 using Game.PvP;

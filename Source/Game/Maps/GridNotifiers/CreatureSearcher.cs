@@ -7,9 +7,9 @@ namespace Game.Maps;
 
 public class CreatureSearcher : IGridNotifierCreature
 {
-    PhaseShift i_phaseShift;
+    readonly PhaseShift i_phaseShift;
     Creature i_object;
-    ICheck<Creature> i_check;
+    readonly ICheck<Creature> i_check;
     public GridType GridType { get; set; }
 
     public CreatureSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)

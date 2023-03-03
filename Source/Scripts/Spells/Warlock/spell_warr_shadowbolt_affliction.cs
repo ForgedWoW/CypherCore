@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	//232670
-	[SpellScript(232670)]
+    //232670
+    [SpellScript(232670)]
 	public class spell_warr_shadowbolt_affliction : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

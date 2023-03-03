@@ -10,9 +10,10 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
 {
     public GridMapTypeMask Mask { get; set; }
     public GridType GridType { get; set; }
-    List<WorldObject> i_objects;
-    PhaseShift i_phaseShift;
-    ICheck<WorldObject> i_check;
+
+    readonly List<WorldObject> i_objects;
+    readonly PhaseShift i_phaseShift;
+    readonly ICheck<WorldObject> i_check;
 
     public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
     {

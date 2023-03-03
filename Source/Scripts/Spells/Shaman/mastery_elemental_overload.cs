@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//168534
-	[Script]
+    //168534
+    [Script]
 	public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCast
 	{
         public Class PlayerClass { get; } = Class.Shaman;

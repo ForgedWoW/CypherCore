@@ -8,8 +8,8 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Warlock
 {
-	// 117828 - Backdraft
-	[SpellScript(117828)]
+    // 117828 - Backdraft
+    [SpellScript(117828)]
 	internal class spell_warlock_backdraft : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo UnnamedParameter)

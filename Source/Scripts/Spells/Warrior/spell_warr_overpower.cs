@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warrior
 {
-	// 7384 - Overpower
-	[SpellScript(7384)]
+    // 7384 - Overpower
+    [SpellScript(7384)]
 	public class spell_warr_overpower : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

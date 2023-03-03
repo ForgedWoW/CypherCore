@@ -55,7 +55,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
         }
 
 
-        private InstanceScript _pInstance;
+        private readonly InstanceScript _pInstance;
 
     }
 }

@@ -10,7 +10,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 70691 - Item T10 Restoration 4P Bonus
+    [Script] // 70691 - Item T10 Restoration 4P Bonus
 	internal class spell_dru_t10_restoration_4p_bonus : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

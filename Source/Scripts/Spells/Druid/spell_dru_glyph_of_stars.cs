@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 24858 - Moonkin Form
+    [Script] // 24858 - Moonkin Form
 	internal class spell_dru_glyph_of_stars : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

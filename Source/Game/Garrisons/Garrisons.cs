@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Framework.Dynamic;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Framework.Database;
+using Game.DataStorage;
+using Game.Entities;
+using Game.Maps;
+using Game.Networking.Packets;
 
 namespace Game.Garrisons
 {
@@ -664,15 +663,14 @@ namespace Game.Garrisons
 
         public void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 
-        Player _owner;
+        readonly Player _owner;
         GarrSiteLevelRecord _siteLevel;
-        GarrisonType _garrisonType;
+        readonly GarrisonType _garrisonType;
         uint _followerActivationsRemainingToday;
-
-        Dictionary<uint, Plot> _plots = new();
-        List<uint> _knownBuildings = new();
-        Dictionary<ulong, Follower> _followers = new();
-        List<uint> _followerIds = new();
+        readonly Dictionary<uint, Plot> _plots = new();
+        readonly List<uint> _knownBuildings = new();
+        readonly Dictionary<ulong, Follower> _followers = new();
+        readonly List<uint> _followerIds = new();
 
         public class Building
         {

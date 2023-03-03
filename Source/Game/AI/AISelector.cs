@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Entities;
 using Game.Movement;
-using Game.Scripting;
 using Game.Scripting.Interfaces.ICreature;
 using Game.Scripting.Interfaces.IGameObject;
 

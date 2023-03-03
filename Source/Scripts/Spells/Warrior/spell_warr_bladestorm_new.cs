@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// New Bladestorm - 222634
-	[SpellScript(222634)]
+    // New Bladestorm - 222634
+    [SpellScript(222634)]
 	public class spell_warr_bladestorm_new : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

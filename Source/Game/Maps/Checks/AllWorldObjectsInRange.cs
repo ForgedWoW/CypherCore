@@ -16,6 +16,6 @@ public class AllWorldObjectsInRange : ICheck<WorldObject>
         return m_pObject.IsWithinDist(go, m_fRange, false) && m_pObject.InSamePhase(go);
     }
 
-    WorldObject m_pObject;
-    float m_fRange;
+    readonly WorldObject m_pObject;
+    readonly float m_fRange;
 }

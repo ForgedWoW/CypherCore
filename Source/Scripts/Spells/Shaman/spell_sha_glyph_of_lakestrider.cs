@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	[SpellScript(55448)]
+    [SpellScript(55448)]
 	public class spell_sha_glyph_of_lakestrider : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

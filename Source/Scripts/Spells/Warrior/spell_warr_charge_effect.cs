@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 198337 - Charge Effect (dropping Blazing Trail)
-	[Script] // 218104 - Charge Effect
+    // 198337 - Charge Effect (dropping Blazing Trail)
+    [Script] // 218104 - Charge Effect
 	internal class spell_warr_charge_effect : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

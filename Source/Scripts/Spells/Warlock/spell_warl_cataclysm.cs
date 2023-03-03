@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Cataclysm - 152108
-	[SpellScript(152108)]
+    // Cataclysm - 152108
+    [SpellScript(152108)]
 	internal class spell_warl_cataclysm : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

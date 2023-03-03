@@ -41,5 +41,5 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
         }
     }
 
-    Creature i_creature;
+    readonly Creature i_creature;
 }

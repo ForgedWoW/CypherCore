@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class GroupOperations
@@ -71,7 +69,6 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
             sbyte carry;
 
             GroupElementP1P1 r;
-            GroupElementP2 s;
             GroupElementPreComp t;
 
             for (int i = 0; i < 32; ++i)
@@ -100,7 +97,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
                 ge_madd(out r, ref h, ref t); ge_p1p1_to_p3(out h, ref r);
             }
 
-            ge_p3_dbl(out r, ref h); ge_p1p1_to_p2(out s, ref r);
+            ge_p3_dbl(out r, ref h); ge_p1p1_to_p2(out GroupElementP2 s, ref r);
             ge_p2_dbl(out r, ref s); ge_p1p1_to_p2(out s, ref r);
             ge_p2_dbl(out r, ref s); ge_p1p1_to_p2(out s, ref r);
             ge_p2_dbl(out r, ref s); ge_p1p1_to_p3(out h, ref r);

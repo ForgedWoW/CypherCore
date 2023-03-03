@@ -7,9 +7,9 @@ namespace Game.Maps;
 
 public class GameObjectLastSearcher : IGridNotifierGameObject
 {
-    PhaseShift i_phaseShift;
+    readonly PhaseShift i_phaseShift;
     GameObject i_object;
-    ICheck<GameObject> i_check;
+    readonly ICheck<GameObject> i_check;
     public GridType GridType { get; set; }
 
     public GameObjectLastSearcher(WorldObject searcher, ICheck<GameObject> check, GridType gridType)

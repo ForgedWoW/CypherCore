@@ -1,21 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using Framework.Constants;
+using Framework.Database;
 
 namespace Game
 {
     public class WardenCheckManager : Singleton<WardenCheckManager>
     {
-        static byte WARDEN_MAX_LUA_CHECK_LENGTH = 170;
-
-        List<WardenCheck> _checks = new();
-        Dictionary<uint, byte[]> _checkResults = new();
-        List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
+        static readonly byte WARDEN_MAX_LUA_CHECK_LENGTH = 170;
+        readonly List<WardenCheck> _checks = new();
+        readonly Dictionary<uint, byte[]> _checkResults = new();
+        readonly List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
 
         WardenCheckManager()
         {

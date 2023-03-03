@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System.Collections.Generic;
+using Framework.Constants;
 
 namespace Game.Networking.Packets
 {
@@ -99,7 +99,7 @@ namespace Game.Networking.Packets
             data.WriteInt32(Standing);
         }
 
-        int Index;
-        int Standing;
+        readonly int Index;
+        readonly int Standing;
     }
 }

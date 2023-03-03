@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	//Cloudburst - 157503
-	[SpellScript(157503)]
+    //Cloudburst - 157503
+    [SpellScript(157503)]
 	public class spell_sha_cloudburst : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

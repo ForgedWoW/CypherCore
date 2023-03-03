@@ -28,8 +28,8 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
             _instance = creature.GetInstanceScript();
         }
 
-        private EventMap _events = new EventMap();
-        private InstanceScript _instance;
+        private readonly EventMap _events = new EventMap();
+        private readonly InstanceScript _instance;
 
         private bool _form_1;
         private bool _form_2;

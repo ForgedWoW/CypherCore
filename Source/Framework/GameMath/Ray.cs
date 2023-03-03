@@ -197,8 +197,7 @@ namespace Framework.GameMath
         public float intersectionTime(AxisAlignedBox box)
         {
             Vector3 dummy = Vector3.Zero;
-            bool inside;
-            float time = CollisionDetection.collisionTimeForMovingPointFixedAABox(_origin, _direction, box, ref dummy, out inside);
+            float time = CollisionDetection.collisionTimeForMovingPointFixedAABox(_origin, _direction, box, ref dummy, out bool inside);
 
             if (float.IsInfinity(time) && inside)
                 return 0.0f;

@@ -1,20 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Game.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Xml;
+using Framework.Constants;
+using Framework.Database;
+using Game.Networking;
 
 namespace Game.DataStorage
 {
     using static CliDB;
-    using static Game.Networking.Packets.SetupCurrency;
 
     public class DB2Manager : Singleton<DB2Manager>
     {
@@ -2216,8 +2214,7 @@ namespace Game.DataStorage
             {
                 foreach (var assignment in assignments.LookupByKey(id))
                 {
-                    UiMapAssignmentStatus status;
-                    if (CheckUiMapAssignmentStatus(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, assignment, out status))
+                    if (CheckUiMapAssignmentStatus(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, assignment, out UiMapAssignmentStatus status))
                         if (status < nearestMapAssignment)
                             nearestMapAssignment = status;
                 }
@@ -2332,8 +2329,7 @@ namespace Game.DataStorage
 
         public void Map2ZoneCoordinates(int areaId, ref float x, ref float y)
         {
-            Vector2 zoneCoords;
-            if (!GetUiMapPosition(x, y, 0.0f, -1, areaId, 0, 0, UiMapSystem.World, true, out zoneCoords))
+            if (!GetUiMapPosition(x, y, 0.0f, -1, areaId, 0, 0, UiMapSystem.World, true, out Vector2 zoneCoords))
                 return;
 
             x = zoneCoords.Y * 100.0f;
@@ -2365,93 +2361,93 @@ namespace Game.DataStorage
 
         delegate bool AllowedHotfixOptionalData(byte[] data);
         internal Dictionary<uint, IDB2Storage> Storage => _storage;
-        Dictionary<uint, IDB2Storage> _storage = new();
-        MultiMap<int, HotfixRecord> _hotfixData = new();
-        Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
-        MultiMap<uint, Tuple<uint, AllowedHotfixOptionalData>> _allowedHotfixOptionalData = new();
-        MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _hotfixOptionalData = new MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[(int)Locale.Total];
 
-        MultiMap<uint, uint> _areaGroupMembers = new();
-        MultiMap<uint, AreaPOIRecord> _areaPOIRecords = new();
-        MultiMap<uint, ArtifactPowerRecord> _artifactPowers = new();
-        MultiMap<uint, uint> _artifactPowerLinks = new();
-        Dictionary<Tuple<uint, byte>, ArtifactPowerRankRecord> _artifactPowerRanks = new();
-        Dictionary<uint, AzeriteEmpoweredItemRecord> _azeriteEmpoweredItems = new();
-        Dictionary<(uint azeriteEssenceId, uint rank), AzeriteEssencePowerRecord> _azeriteEssencePowersByIdAndRank = new();
+        readonly Dictionary<uint, IDB2Storage> _storage = new();
+        readonly MultiMap<int, HotfixRecord> _hotfixData = new();
+        readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
+        readonly MultiMap<uint, Tuple<uint, AllowedHotfixOptionalData>> _allowedHotfixOptionalData = new();
+        readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _hotfixOptionalData = new MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[(int)Locale.Total];
+        readonly MultiMap<uint, uint> _areaGroupMembers = new();
+        readonly MultiMap<uint, AreaPOIRecord> _areaPOIRecords = new();
+        readonly MultiMap<uint, ArtifactPowerRecord> _artifactPowers = new();
+        readonly MultiMap<uint, uint> _artifactPowerLinks = new();
+        readonly Dictionary<Tuple<uint, byte>, ArtifactPowerRankRecord> _artifactPowerRanks = new();
+        readonly Dictionary<uint, AzeriteEmpoweredItemRecord> _azeriteEmpoweredItems = new();
+        readonly Dictionary<(uint azeriteEssenceId, uint rank), AzeriteEssencePowerRecord> _azeriteEssencePowersByIdAndRank = new();
         List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
-        AzeriteItemMilestonePowerRecord[] _azeriteItemMilestonePowerByEssenceSlot = new AzeriteItemMilestonePowerRecord[SharedConst.MaxAzeriteEssenceSlot];
-        MultiMap<uint, AzeritePowerSetMemberRecord> _azeritePowers = new();
-        Dictionary<(uint azeriteUnlockSetId, ItemContext itemContext), byte[]> _azeriteTierUnlockLevels = new();
-        Dictionary<(uint itemId, ItemContext itemContext), AzeriteUnlockMappingRecord> _azeriteUnlockMappings = new();
-        Dictionary<(int broadcastTextId, CascLocaleBit cascLocaleBit), int> _broadcastTextDurations = new();
-        ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)Class.Max];
-        uint[][] _powersByClass = new uint[(int)Class.Max][];
-        MultiMap<uint, ChrCustomizationChoiceRecord> _chrCustomizationChoicesByOption = new();
-        Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
-        Dictionary<Tuple<byte, byte, byte>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts = new();
-        MultiMap<Tuple<byte, byte>, ChrCustomizationOptionRecord> _chrCustomizationOptionsByRaceAndGender = new();
-        Dictionary<uint, MultiMap<uint, uint>> _chrCustomizationRequiredChoices = new();
-        ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)Class.Max + 1][];
-        MultiMap<uint, CurrencyContainerRecord> _currencyContainers = new();
-        MultiMap<uint, CurvePointRecord> _curvePoints = new();
-        Dictionary<Tuple<uint, byte, byte, byte>, EmotesTextSoundRecord> _emoteTextSounds = new();
-        Dictionary<Tuple<uint, int>, ExpectedStatRecord> _expectedStatsByLevel = new();
-        MultiMap<uint, ContentTuningXExpectedRecord> _expectedStatModsByContentTuning = new();
-        MultiMap<uint, uint> _factionTeams = new();
-        MultiMap<uint, FriendshipRepReactionRecord> _friendshipRepReactions = new();
-        Dictionary<uint, HeirloomRecord> _heirlooms = new();
-        MultiMap<uint, uint> _glyphBindableSpells = new();
-        MultiMap<uint, uint> _glyphRequiredSpecs = new();
-        MultiMap<uint, ItemBonusRecord> _itemBonusLists = new();
-        Dictionary<short, uint> _itemLevelDeltaToBonusListContainer = new();
-        MultiMap<uint, ItemBonusTreeNodeRecord> _itemBonusTrees = new();
-        Dictionary<uint, ItemChildEquipmentRecord> _itemChildEquipment = new();
-        ItemClassRecord[] _itemClassByOldEnum = new ItemClassRecord[20];
-        List<uint> _itemsWithCurrencyCost = new();
-        MultiMap<uint, ItemLimitCategoryConditionRecord> _itemCategoryConditions = new();
-        MultiMap<uint, ItemLevelSelectorQualityRecord> _itemLevelQualitySelectorQualities = new();
-        Dictionary<uint, ItemModifiedAppearanceRecord> _itemModifiedAppearancesByItem = new();
-        MultiMap<uint, uint> _itemToBonusTree = new();
-        MultiMap<uint, ItemSetSpellRecord> _itemSetSpells = new();
-        MultiMap<uint, ItemSpecOverrideRecord> _itemSpecOverrides = new();
-        List<JournalTierRecord> _journalTiersByIndex = new();
-        Dictionary<uint, Dictionary<uint, MapDifficultyRecord>> _mapDifficulties = new();
-        MultiMap<uint, Tuple<uint, PlayerConditionRecord>> _mapDifficultyConditions = new();
-        Dictionary<uint, MountRecord> _mountsBySpellId = new();
-        MultiMap<uint, MountTypeXCapabilityRecord> _mountCapabilitiesByType = new();
-        MultiMap<uint, MountXDisplayRecord> _mountDisplays = new();
-        Dictionary<uint, List<NameGenRecord>[]> _nameGenData = new();
-        List<string>[] _nameValidators = new List<string>[(int)Locale.Total + 1];
-        Dictionary<uint, ParagonReputationRecord> _paragonReputations = new();
-        MultiMap<uint, uint> _phasesByGroup = new();
-        Dictionary<PowerType, PowerTypeRecord> _powerTypes = new();
-        Dictionary<uint, byte> _pvpItemBonus = new();
-        PvpTalentSlotUnlockRecord[] _pvpTalentSlotUnlock = new PvpTalentSlotUnlockRecord[PlayerConst.MaxPvpTalentSlots];
-        MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
-        Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
-        MultiMap<uint, RewardPackXCurrencyTypeRecord> _rewardPackCurrencyTypes = new();
-        MultiMap<uint, RewardPackXItemRecord> _rewardPackItems = new();
-        MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
-        MultiMap<uint, SkillLineAbilityRecord> _skillLineAbilitiesBySkillupSkill = new();
-        MultiMap<uint, SkillRaceClassInfoRecord> _skillRaceClassInfoBySkill = new();
-        Dictionary<Tuple<int, int>, SoulbindConduitRankRecord> _soulbindConduitRanks = new();
-        MultiMap<uint, SpecializationSpellsRecord> _specializationSpellsBySpec = new();
-        List<Tuple<int, uint>> _specsBySpecSet = new();
-        List<byte> _spellFamilyNames = new();
-        MultiMap<uint, SpellProcsPerMinuteModRecord> _spellProcsPerMinuteMods = new();
-        MultiMap<uint, SpellVisualMissileRecord> _spellVisualMissilesBySet = new();
-        List<TalentRecord>[][][] _talentsByPosition = new List<TalentRecord>[(int)Class.Max][][];
-        List<uint> _toys = new();
-        Dictionary<uint, TransmogIllusionRecord> _transmogIllusionsByEnchantmentId = new();
-        MultiMap<uint, TransmogSetRecord> _transmogSetsByItemModifiedAppearance = new();
-        MultiMap<uint, TransmogSetItemRecord> _transmogSetItemsByTransmogSet = new();
-        Dictionary<int, UiMapBounds> _uiMapBounds = new();
-        MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByMap = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
-        MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByArea = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
-        MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoDoodadPlacement = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
-        MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoGroup = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
-        List<int> _uiMapPhases = new();
-        Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
+        readonly AzeriteItemMilestonePowerRecord[] _azeriteItemMilestonePowerByEssenceSlot = new AzeriteItemMilestonePowerRecord[SharedConst.MaxAzeriteEssenceSlot];
+        readonly MultiMap<uint, AzeritePowerSetMemberRecord> _azeritePowers = new();
+        readonly Dictionary<(uint azeriteUnlockSetId, ItemContext itemContext), byte[]> _azeriteTierUnlockLevels = new();
+        readonly Dictionary<(uint itemId, ItemContext itemContext), AzeriteUnlockMappingRecord> _azeriteUnlockMappings = new();
+        readonly Dictionary<(int broadcastTextId, CascLocaleBit cascLocaleBit), int> _broadcastTextDurations = new();
+        readonly ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)Class.Max];
+        readonly uint[][] _powersByClass = new uint[(int)Class.Max][];
+        readonly MultiMap<uint, ChrCustomizationChoiceRecord> _chrCustomizationChoicesByOption = new();
+        readonly Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
+        readonly Dictionary<Tuple<byte, byte, byte>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts = new();
+        readonly MultiMap<Tuple<byte, byte>, ChrCustomizationOptionRecord> _chrCustomizationOptionsByRaceAndGender = new();
+        readonly Dictionary<uint, MultiMap<uint, uint>> _chrCustomizationRequiredChoices = new();
+        readonly ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)Class.Max + 1][];
+        readonly MultiMap<uint, CurrencyContainerRecord> _currencyContainers = new();
+        readonly MultiMap<uint, CurvePointRecord> _curvePoints = new();
+        readonly Dictionary<Tuple<uint, byte, byte, byte>, EmotesTextSoundRecord> _emoteTextSounds = new();
+        readonly Dictionary<Tuple<uint, int>, ExpectedStatRecord> _expectedStatsByLevel = new();
+        readonly MultiMap<uint, ContentTuningXExpectedRecord> _expectedStatModsByContentTuning = new();
+        readonly MultiMap<uint, uint> _factionTeams = new();
+        readonly MultiMap<uint, FriendshipRepReactionRecord> _friendshipRepReactions = new();
+        readonly Dictionary<uint, HeirloomRecord> _heirlooms = new();
+        readonly MultiMap<uint, uint> _glyphBindableSpells = new();
+        readonly MultiMap<uint, uint> _glyphRequiredSpecs = new();
+        readonly MultiMap<uint, ItemBonusRecord> _itemBonusLists = new();
+        readonly Dictionary<short, uint> _itemLevelDeltaToBonusListContainer = new();
+        readonly MultiMap<uint, ItemBonusTreeNodeRecord> _itemBonusTrees = new();
+        readonly Dictionary<uint, ItemChildEquipmentRecord> _itemChildEquipment = new();
+        readonly ItemClassRecord[] _itemClassByOldEnum = new ItemClassRecord[20];
+        readonly List<uint> _itemsWithCurrencyCost = new();
+        readonly MultiMap<uint, ItemLimitCategoryConditionRecord> _itemCategoryConditions = new();
+        readonly MultiMap<uint, ItemLevelSelectorQualityRecord> _itemLevelQualitySelectorQualities = new();
+        readonly Dictionary<uint, ItemModifiedAppearanceRecord> _itemModifiedAppearancesByItem = new();
+        readonly MultiMap<uint, uint> _itemToBonusTree = new();
+        readonly MultiMap<uint, ItemSetSpellRecord> _itemSetSpells = new();
+        readonly MultiMap<uint, ItemSpecOverrideRecord> _itemSpecOverrides = new();
+        readonly List<JournalTierRecord> _journalTiersByIndex = new();
+        readonly Dictionary<uint, Dictionary<uint, MapDifficultyRecord>> _mapDifficulties = new();
+        readonly MultiMap<uint, Tuple<uint, PlayerConditionRecord>> _mapDifficultyConditions = new();
+        readonly Dictionary<uint, MountRecord> _mountsBySpellId = new();
+        readonly MultiMap<uint, MountTypeXCapabilityRecord> _mountCapabilitiesByType = new();
+        readonly MultiMap<uint, MountXDisplayRecord> _mountDisplays = new();
+        readonly Dictionary<uint, List<NameGenRecord>[]> _nameGenData = new();
+        readonly List<string>[] _nameValidators = new List<string>[(int)Locale.Total + 1];
+        readonly Dictionary<uint, ParagonReputationRecord> _paragonReputations = new();
+        readonly MultiMap<uint, uint> _phasesByGroup = new();
+        readonly Dictionary<PowerType, PowerTypeRecord> _powerTypes = new();
+        readonly Dictionary<uint, byte> _pvpItemBonus = new();
+        readonly PvpTalentSlotUnlockRecord[] _pvpTalentSlotUnlock = new PvpTalentSlotUnlockRecord[PlayerConst.MaxPvpTalentSlots];
+        readonly MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
+        readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
+        readonly MultiMap<uint, RewardPackXCurrencyTypeRecord> _rewardPackCurrencyTypes = new();
+        readonly MultiMap<uint, RewardPackXItemRecord> _rewardPackItems = new();
+        readonly MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
+        readonly MultiMap<uint, SkillLineAbilityRecord> _skillLineAbilitiesBySkillupSkill = new();
+        readonly MultiMap<uint, SkillRaceClassInfoRecord> _skillRaceClassInfoBySkill = new();
+        readonly Dictionary<Tuple<int, int>, SoulbindConduitRankRecord> _soulbindConduitRanks = new();
+        readonly MultiMap<uint, SpecializationSpellsRecord> _specializationSpellsBySpec = new();
+        readonly List<Tuple<int, uint>> _specsBySpecSet = new();
+        readonly List<byte> _spellFamilyNames = new();
+        readonly MultiMap<uint, SpellProcsPerMinuteModRecord> _spellProcsPerMinuteMods = new();
+        readonly MultiMap<uint, SpellVisualMissileRecord> _spellVisualMissilesBySet = new();
+        readonly List<TalentRecord>[][][] _talentsByPosition = new List<TalentRecord>[(int)Class.Max][][];
+        readonly List<uint> _toys = new();
+        readonly Dictionary<uint, TransmogIllusionRecord> _transmogIllusionsByEnchantmentId = new();
+        readonly MultiMap<uint, TransmogSetRecord> _transmogSetsByItemModifiedAppearance = new();
+        readonly MultiMap<uint, TransmogSetItemRecord> _transmogSetItemsByTransmogSet = new();
+        readonly Dictionary<int, UiMapBounds> _uiMapBounds = new();
+        readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByMap = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+        readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByArea = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+        readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoDoodadPlacement = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+        readonly MultiMap<int, UiMapAssignmentRecord>[] _uiMapAssignmentByWmoGroup = new MultiMap<int, UiMapAssignmentRecord>[(int)UiMapSystem.Max];
+        readonly List<int> _uiMapPhases = new();
+        readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
     }
 
     class UiMapBounds

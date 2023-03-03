@@ -90,7 +90,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
         {
         }
 
-        private uint _eventId;
+        private readonly uint _eventId;
         private byte _vaporCount;
         private uint _phase;
         private uint _numberCastCoalesce;

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//184783
-	[SpellScript(184783)]
+    //184783
+    [SpellScript(184783)]
 	public class spell_warr_tactician : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

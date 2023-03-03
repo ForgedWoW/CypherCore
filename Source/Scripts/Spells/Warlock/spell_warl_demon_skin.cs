@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	//219272 - Demon Skin
-	[SpellScript(219272)]
+    //219272 - Demon Skin
+    [SpellScript(219272)]
 	public class spell_warl_demon_skin : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

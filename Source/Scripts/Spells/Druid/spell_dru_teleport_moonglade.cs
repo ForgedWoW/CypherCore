@@ -6,8 +6,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid
 {
-	// Teleport : Moonglade - 18960
-	[SpellScript(18960)]
+    // Teleport : Moonglade - 18960
+    [SpellScript(18960)]
 	public class spell_dru_teleport_moonglade : SpellScript, ISpellAfterCast
 	{
 		public void AfterCast()

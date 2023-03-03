@@ -16,8 +16,7 @@ namespace Framework.Networking
 
         public bool Start(string ip, int port)
         {
-            IPAddress bindIP;
-            if (!IPAddress.TryParse(ip, out bindIP))
+            if (!IPAddress.TryParse(ip, out IPAddress bindIP))
             {
                 Log.outError(LogFilter.Network, $"Server can't be started: Invalid IP-Address: {ip}");
                 return false;

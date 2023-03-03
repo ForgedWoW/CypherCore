@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Garrisons
 {
@@ -145,7 +145,7 @@ namespace Game.Garrisons
         }
 
         // Counters, Traits
-        uint[,] AbilitiesForQuality =
+        readonly uint[,] AbilitiesForQuality =
         {
             { 0, 0 },
             { 1, 0 },
@@ -454,15 +454,15 @@ namespace Game.Garrisons
             Log.outInfo(LogFilter.ServerLoading, "Loaded {0} garrison follower class spec abilities in {1}.", count, Time.GetMSTimeDiffToNow(msTime));
         }
 
-        MultiMap<uint, GarrSiteLevelPlotInstRecord> _garrisonPlotInstBySiteLevel = new();
-        Dictionary<uint, Dictionary<uint, GameObjectsRecord>> _garrisonPlots = new();
-        MultiMap<uint, uint> _garrisonBuildingsByPlot = new();
-        Dictionary<ulong, uint> _garrisonBuildingPlotInstances = new();
-        MultiMap<uint, uint> _garrisonBuildingsByType = new();
-        Dictionary<uint, FinalizeGarrisonPlotGOInfo> _finalizePlotGOInfo = new();
-        Dictionary<uint, GarrAbilities>[] _garrisonFollowerAbilities = new Dictionary<uint, GarrAbilities>[2];
-        MultiMap<uint, GarrAbilityRecord> _garrisonFollowerClassSpecAbilities = new();
-        List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
+        readonly MultiMap<uint, GarrSiteLevelPlotInstRecord> _garrisonPlotInstBySiteLevel = new();
+        readonly Dictionary<uint, Dictionary<uint, GameObjectsRecord>> _garrisonPlots = new();
+        readonly MultiMap<uint, uint> _garrisonBuildingsByPlot = new();
+        readonly Dictionary<ulong, uint> _garrisonBuildingPlotInstances = new();
+        readonly MultiMap<uint, uint> _garrisonBuildingsByType = new();
+        readonly Dictionary<uint, FinalizeGarrisonPlotGOInfo> _finalizePlotGOInfo = new();
+        readonly Dictionary<uint, GarrAbilities>[] _garrisonFollowerAbilities = new Dictionary<uint, GarrAbilities>[2];
+        readonly MultiMap<uint, GarrAbilityRecord> _garrisonFollowerClassSpecAbilities = new();
+        readonly List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
 
         ulong _followerDbIdGenerator = 1;
     }

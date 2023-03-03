@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(48020)] // 48020 - Demonic Circle: Teleport
+    [SpellScript(48020)] // 48020 - Demonic Circle: Teleport
 	internal class spell_warl_demonic_circle_teleport : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

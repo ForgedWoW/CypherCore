@@ -7,9 +7,9 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Warlock
 {
-	// 211729 - Thal'kiel's Discord
-	// MiscId - 6913
-	[Script]
+    // 211729 - Thal'kiel's Discord
+    // MiscId - 6913
+    [Script]
 	public class at_warlock_artifact_thalkiels_discord : AreaTriggerAI
 	{
 		public at_warlock_artifact_thalkiels_discord(AreaTrigger areatrigger) : base(areatrigger)

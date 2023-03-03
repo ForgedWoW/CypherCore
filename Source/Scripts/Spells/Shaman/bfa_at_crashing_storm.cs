@@ -7,8 +7,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	// 6826
-	[Script]
+    // 6826
+    [Script]
 	public class bfa_at_crashing_storm : AreaTriggerAI
 	{
 		public bfa_at_crashing_storm(AreaTrigger areatrigger) : base(areatrigger)

@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Burning Rush - 111400
-	[SpellScript(111400)]
+    // Burning Rush - 111400
+    [SpellScript(111400)]
 	public class spell_warl_burning_rush : SpellScript, ISpellCheckCast, ISpellBeforeCast, ISpellAfterHit
 	{
 		private bool _isRemove = false;

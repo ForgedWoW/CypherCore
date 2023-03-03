@@ -3,18 +3,18 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
-using Framework.Database;
 using Framework.Constants;
+using Framework.Database;
 using Game.Arenas;
+using Game.Entities;
 using Game.Networking.Packets;
 
 namespace Game.Cache
 {
     public class CharacterCache : Singleton<CharacterCache>
     {
-        Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
-        Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
+        readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
+        readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
 
         CharacterCache() { }
 

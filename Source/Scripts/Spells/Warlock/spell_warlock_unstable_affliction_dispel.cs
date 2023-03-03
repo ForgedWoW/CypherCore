@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 233490 - Unstable Affliction dispel
-	[SpellScript(233490)]
+    // 233490 - Unstable Affliction dispel
+    [SpellScript(233490)]
 	public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffects, IAuraOnDispel
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.BattleGrounds;
 using Game.Entities;
 using Game.Guilds;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Arenas
 {

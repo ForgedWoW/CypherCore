@@ -2,13 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
-using Google.Protobuf.WellKnownTypes;
 
 namespace System.Collections.Generic
 {
     public class MultiMapHashSet<TKey, TValue>
     {
-        static HashSet<object> _emptyList = new HashSet<object>();
+        static readonly HashSet<object> _emptyList = new HashSet<object>();
         public MultiMapHashSet() { }
 
         public MultiMapHashSet(IEqualityComparer<TKey> keyComparer)
@@ -118,7 +117,7 @@ namespace System.Collections.Generic
             return _interalStorage == null || _interalStorage.Count == 0;  
         }
 
-        private Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
+        private readonly Dictionary<TKey, HashSet<TValue>> _interalStorage = new();
     }
     
 }

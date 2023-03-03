@@ -10,10 +10,10 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	// 1066 - Aquatic Form
-	// 33943 - Flight Form
-	// 40120 - Swift Flight Form
-	[Script] // 165961 - Stag Form
+    // 1066 - Aquatic Form
+    // 33943 - Flight Form
+    // 40120 - Swift Flight Form
+    [Script] // 165961 - Stag Form
 	internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 	{
 		private uint triggeredSpellId;

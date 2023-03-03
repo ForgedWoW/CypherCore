@@ -7,7 +7,7 @@ using System;
 
 namespace Framework.IO
 {
-	public static partial class ZLib
+    public static partial class ZLib
 	{
 		private const int OS_CODE=0x0b;
 

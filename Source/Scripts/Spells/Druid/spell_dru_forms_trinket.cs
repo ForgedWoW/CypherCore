@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 37336 - Druid Forms Trinket
+    [Script] // 37336 - Druid Forms Trinket
 	internal class spell_dru_forms_trinket : AuraScript, IAuraCheckProc, IHasAuraEffects
 	{
 		public override bool Validate(SpellInfo spellInfo)

@@ -1,25 +1,25 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
 using Game.Chat;
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 
 namespace Game.Networking
 {
     public class RASocket : ISocket
     {
-        Socket _socket;
-        IPAddress _remoteAddress;
-        byte[] _receiveBuffer;
+        readonly Socket _socket;
+        readonly IPAddress _remoteAddress;
+        readonly byte[] _receiveBuffer;
 
         public RASocket(Socket socket)
         {

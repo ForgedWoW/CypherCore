@@ -23,7 +23,7 @@ public class UnitAuraCheck<T> : ICheck<T> where T : WorldObject
         return unit.Invoke;
     }
 
-    bool _present;
-    uint _spellId;
+    readonly bool _present;
+    readonly uint _spellId;
     ObjectGuid _casterGUID;
 }

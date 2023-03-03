@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Bgs.Protocol;
 using Bgs.Protocol.Connection.V1;
 using Framework.Constants;
-using System;
 
 namespace BNetServer.Networking
 {

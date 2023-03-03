@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//202192 - Resonance totem
-	[SpellScript(202192)]
+    //202192 - Resonance totem
+    [SpellScript(202192)]
 	public class spell_sha_resonance_effect : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

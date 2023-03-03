@@ -13,8 +13,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	//152278 Anger Management
-	[Script]
+    //152278 Anger Management
+    [Script]
 	public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
 	                                IClassRescriction,
 	                                IPlayerOnLogout,

@@ -1,18 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.AI;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ITransport;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Game.DataStorage;
+using Game.Maps;
+using Game.Networking.Packets;
+using Game.Scripting.Interfaces.ITransport;
 
 namespace Game.Entities
 {
@@ -180,8 +178,7 @@ namespace Game.Entities
             SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
             SetParentRotation(Quaternion.Identity);
 
-            int legIndex;
-            var position = _transportInfo.ComputePosition(_pathProgress, out _, out legIndex);
+            var position = _transportInfo.ComputePosition(_pathProgress, out _, out int legIndex);
             if (position != null)
             {
                 Relocate(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation());
@@ -259,9 +256,7 @@ namespace Game.Entities
                 }
             }
 
-            TransportMovementState moveState;
-            int legIndex;
-            Position newPosition = _transportInfo.ComputePosition(timer, out moveState, out legIndex);
+            Position newPosition = _transportInfo.ComputePosition(timer, out TransportMovementState moveState, out int legIndex);
             if (newPosition != null)
             {
                 bool justStopped = _movementState == TransportMovementState.Moving && moveState != TransportMovementState.Moving;
@@ -364,8 +359,7 @@ namespace Game.Entities
             if (!creature)
                 return null;
 
-            float x, y, z, o;
-            data.SpawnPoint.GetPosition(out x, out y, out z, out o);
+            data.SpawnPoint.GetPosition(out float x, out float y, out float z, out float o);
 
             creature.SetTransport(this);
             creature.m_movementInfo.transport.guid = GetGUID();
@@ -407,8 +401,7 @@ namespace Game.Entities
             if (!go)
                 return null;
 
-            float x, y, z, o;
-            data.SpawnPoint.GetPosition(out x, out y, out z, out o);
+            data.SpawnPoint.GetPosition(out float x, out float y, out float z, out float o);
 
             go.SetTransport(this);
             go.m_movementInfo.transport.guid = GetGUID();
@@ -508,8 +501,7 @@ namespace Game.Entities
                     break;
             }
 
-            float x, y, z, o;
-            pos.GetPosition(out x, out y, out z, out o);
+            pos.GetPosition(out float x, out float y, out float z, out float o);
             CalculatePassengerPosition(ref x, ref y, ref z, ref o);
 
             if (!summon.Create(map.GenerateLowGuid(HighGuid.Creature), map, entry, new Position(x, y, z, o), null, vehId))
@@ -660,8 +652,7 @@ namespace Game.Entities
                             if (veh.GetTransport() == this)
                                 continue;
 
-                        float destX, destY, destZ, destO;
-                        obj.m_movementInfo.transport.pos.GetPosition(out destX, out destY, out destZ, out destO);
+                        obj.m_movementInfo.transport.pos.GetPosition(out float destX, out float destY, out float destZ, out float destO);
                         ITransport.CalculatePassengerPosition(ref destX, ref destY, ref destZ, ref destO, x, y, z, o);
 
                         obj.ToUnit().NearTeleportTo(destX, destY, destZ, destO);
@@ -711,8 +702,7 @@ namespace Game.Entities
             List<WorldObject> passengersToTeleport = new(_passengers);
             foreach (WorldObject obj in passengersToTeleport)
             {
-                float destX, destY, destZ, destO;
-                obj.m_movementInfo.transport.pos.GetPosition(out destX, out destY, out destZ, out destO);
+                obj.m_movementInfo.transport.pos.GetPosition(out float destX, out float destY, out float destZ, out float destO);
                 ITransport.CalculatePassengerPosition(ref destX, ref destY, ref destZ, ref destO, x, y, z, o);
 
                 switch (obj.GetTypeId())
@@ -736,8 +726,7 @@ namespace Game.Entities
         {
             foreach (WorldObject passenger in passengers)
             {
-                float x, y, z, o;
-                passenger.m_movementInfo.transport.pos.GetPosition(out x, out y, out z, out o);
+                passenger.m_movementInfo.transport.pos.GetPosition(out float x, out float y, out float z, out float o);
                 CalculatePassengerPosition(ref x, ref y, ref z, ref o);
                 ITransport.UpdatePassengerPosition(this, GetMap(), passenger, x, y, z, o, true);
             }
@@ -777,10 +766,9 @@ namespace Game.Entities
         int _currentPathLeg;
         uint? _requestStopTimestamp;
         uint _pathProgress;
-        TimeTracker _positionChangeTimer = new();
-
-        HashSet<WorldObject> _passengers = new();
-        HashSet<WorldObject> _staticPassengers = new();
+        readonly TimeTracker _positionChangeTimer = new();
+        readonly HashSet<WorldObject> _passengers = new();
+        readonly HashSet<WorldObject> _staticPassengers = new();
 
         bool _delayedAddModel;
     }

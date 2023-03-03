@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Entities;
-using static Game.AI.SmartEvent;
 
 namespace Game.Spells.Auras
 {
@@ -141,7 +140,7 @@ namespace Game.Spells.Auras
 
         public class AuraQuery
         {
-            AuraCollection _collection;
+            readonly AuraCollection _collection;
             bool _hasLoaded = false;
 
             public HashSet<Guid> Results { get; private set; } = new();

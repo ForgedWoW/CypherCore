@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
+    [Script] // 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
 	internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheckProc, IHasAuraEffects
 	{
 		public override bool Validate(SpellInfo spellInfo)

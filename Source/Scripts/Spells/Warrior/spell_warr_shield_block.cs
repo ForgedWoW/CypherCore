@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[SpellScript(2565)]
+    [SpellScript(2565)]
 	public class spell_warr_shield_block_SpellScript : SpellScript, ISpellOnHit
 	{
 		public void OnHit()

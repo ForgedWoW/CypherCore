@@ -36,7 +36,6 @@ using System;
 using System.Diagnostics;
 using dtPolyRef = System.UInt64;
 using dtStatus = System.UInt32;
-using System.Collections.Generic;
 
 // Define DT_VIRTUAL_QUERYFILTER if you wish to derive a custom filter from dtQueryFilter.
 // On certain platforms indirect or virtual function call is expensive. The default
@@ -223,7 +222,7 @@ public static partial class Detour
                 raycastLimitSqr = 0f;
             }
         }
-        private dtQueryData m_query = new();				//< Sliced query state.
+        private readonly dtQueryData m_query = new();				//< Sliced query state.
 
         private dtNodePool m_tinyNodePool;	//< Pointer to small node pool.
         private dtNodePool m_nodePool;		//< Pointer to node pool.
@@ -3850,11 +3849,11 @@ public static partial class Detour
 
     public class dtFindNearestPolyQuery
     {
-        dtNavMeshQuery m_query;
-        float[] m_center;
+        readonly dtNavMeshQuery m_query;
+        readonly float[] m_center;
         float m_nearestDistanceSqr;
         dtPolyRef m_nearestRef;
-        float[] m_nearestPoint = new float[3];
+        readonly float[] m_nearestPoint = new float[3];
 
         public dtFindNearestPolyQuery(dtNavMeshQuery query, float[] center)
         {

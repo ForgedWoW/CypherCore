@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Database;
 using Game.Maps;
-using System.Collections.Generic;
 
 namespace Game
 {
@@ -125,7 +125,7 @@ namespace Game
             return _waypointStore.LookupByKey(id);
         }
 
-        Dictionary<uint, WaypointPath> _waypointStore = new();
+        readonly Dictionary<uint, WaypointPath> _waypointStore = new();
     }
 
     public class WaypointNode

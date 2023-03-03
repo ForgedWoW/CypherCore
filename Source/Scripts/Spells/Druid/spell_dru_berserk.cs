@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 77758 - Berserk
+    [Script] // 77758 - Berserk
 	internal class spell_dru_berserk : SpellScript, ISpellBeforeCast
 	{
 		public override bool Validate(SpellInfo spellInfo)

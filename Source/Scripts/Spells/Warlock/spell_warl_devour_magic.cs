@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(new uint[]
+    [SpellScript(new uint[]
 	             {
 		             67518, 19505
 	             })] // 67518, 19505 - Devour Magic

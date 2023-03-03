@@ -8,9 +8,10 @@ namespace Game.Maps;
 public class PlayerDistWorker : IGridNotifierPlayer
 {
     public GridType GridType { get; set; }
-    WorldObject i_searcher;
-    float i_dist;
-    IDoWork<Player> _do;
+
+    readonly WorldObject i_searcher;
+    readonly float i_dist;
+    readonly IDoWork<Player> _do;
 
     public PlayerDistWorker(WorldObject searcher, float _dist, IDoWork<Player> @do, GridType gridType)
     {

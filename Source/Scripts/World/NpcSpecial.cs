@@ -598,8 +598,7 @@ namespace Scripts.World.NpcSpecial
             DoCastSelf(SpellIds.SummonBrazier, new CastSpellExtraArgs(true));
             DoCastSelf(SpellIds.BrazierDance, new CastSpellExtraArgs(false));
             me.SetEmoteState(Emote.StateDance);
-            float x, y, z;
-            me.GetPosition(out x, out y, out z);
+            me.GetPosition(out float x, out float y, out float z);
             me.Relocate(x, y, z + 1.05f);
         }
 

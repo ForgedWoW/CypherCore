@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Chat
 {
@@ -233,12 +233,12 @@ namespace Game.Chat
             return channelGuid;
         }
 
-        Dictionary<string, Channel> _customChannels = new();
-        Dictionary<ObjectGuid, Channel> _channels = new();
-        Team _team;
-        ObjectGuidGenerator _guidGenerator;
+        readonly Dictionary<string, Channel> _customChannels = new();
+        readonly Dictionary<ObjectGuid, Channel> _channels = new();
+        readonly Team _team;
+        readonly ObjectGuidGenerator _guidGenerator;
 
-        static ChannelManager allianceChannelMgr = new(Team.Alliance);
-        static ChannelManager hordeChannelMgr = new(Team.Horde);
+        static readonly ChannelManager allianceChannelMgr = new(Team.Alliance);
+        static readonly ChannelManager hordeChannelMgr = new(Team.Horde);
     }
 }

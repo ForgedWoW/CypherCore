@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Scenarios;
-using Game.Scripting;
 using Game.Scripting.Interfaces.ICondition;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Game.Conditions
 {

@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 104318 - Fel Firebolt @ Wild Imp
-	[SpellScript(104318)]
+    // 104318 - Fel Firebolt @ Wild Imp
+    [SpellScript(104318)]
 	public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

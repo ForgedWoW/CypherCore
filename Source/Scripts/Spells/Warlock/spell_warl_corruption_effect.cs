@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	//146739 - Corruption
-	[SpellScript(146739)]
+    //146739 - Corruption
+    [SpellScript(146739)]
 	public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

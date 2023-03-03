@@ -32,7 +32,7 @@ class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
         return true;
     }
 
-    Creature me;
+    readonly Creature me;
     float m_range;
-    bool m_force;
+    readonly bool m_force;
 }

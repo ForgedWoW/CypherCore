@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Framework.Constants;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -196,8 +196,7 @@ namespace Game.Collision
                     for (uint i = 0; i < numSpawns && result; ++i)
                     {
                         // read model spawns
-                        ModelSpawn spawn;
-                        result = ModelSpawn.ReadFromFile(reader, out spawn);
+                        result = ModelSpawn.ReadFromFile(reader, out ModelSpawn spawn);
                         if (result)
                         {
                             // release model instance
@@ -401,14 +400,13 @@ namespace Game.Collision
 
         public int NumLoadedTiles() { return iLoadedTiles.Count; }
 
-        uint iMapID;
-        BIH iTree = new();
+        readonly uint iMapID;
+        readonly BIH iTree = new();
         ModelInstance[] iTreeValues;
         uint iNTreeValues;
-        Dictionary<uint, uint> iSpawnIndices = new();
-
-        Dictionary<uint, bool> iLoadedTiles = new();
-        Dictionary<uint, uint> iLoadedSpawns = new();
+        readonly Dictionary<uint, uint> iSpawnIndices = new();
+        readonly Dictionary<uint, bool> iLoadedTiles = new();
+        readonly Dictionary<uint, uint> iLoadedSpawns = new();
     }
 
     class TileFileOpenResult

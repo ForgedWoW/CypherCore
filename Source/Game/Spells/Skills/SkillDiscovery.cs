@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.Spells
 {
@@ -225,7 +225,7 @@ namespace Game.Spells
             return 0;
         }
 
-        static MultiMap<int, SkillDiscoveryEntry> SkillDiscoveryStorage = new();
+        static readonly MultiMap<int, SkillDiscoveryEntry> SkillDiscoveryStorage = new();
     }
 
     public class SkillDiscoveryEntry

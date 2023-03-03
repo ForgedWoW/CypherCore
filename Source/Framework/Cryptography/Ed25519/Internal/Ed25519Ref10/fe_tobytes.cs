@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
     internal static partial class FieldOperations
@@ -33,8 +31,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
         */
         internal static void fe_tobytes(byte[] s, int offset, ref FieldElement h)
         {
-            FieldElement hr;
-            fe_reduce(out hr, ref h);
+            fe_reduce(out FieldElement hr, ref h);
 
             int h0 = hr.x0;
             int h1 = hr.x1;

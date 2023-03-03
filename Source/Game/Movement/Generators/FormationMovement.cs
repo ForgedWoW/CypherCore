@@ -1,26 +1,26 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
-using System;
 
 namespace Game.Movement
 {
     public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
     {
-        AbstractFollower _abstractFollower;
+        readonly AbstractFollower _abstractFollower;
 
-        static uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
-        float _range;
+        static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
+        readonly float _range;
         float _angle;
-        uint _point1;
-        uint _point2;
+        readonly uint _point1;
+        readonly uint _point2;
         uint _lastLeaderSplineID;
         bool _hasPredictedDestination;
 
         Position _lastLeaderPosition;
-        TimeTracker _nextMoveTimer = new();
+        readonly TimeTracker _nextMoveTimer = new();
 
         public FormationMovementGenerator(Unit leader, float range, float angle, uint point1, uint point2)
         {

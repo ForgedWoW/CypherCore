@@ -10,9 +10,9 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 32216 - Victorious
-	// 82368 - Victorious
-	[SpellScript(new uint[]
+    // 32216 - Victorious
+    // 82368 - Victorious
+    [SpellScript(new uint[]
 	             {
 		             32216, 82368
 	             })]

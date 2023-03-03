@@ -5,8 +5,8 @@ namespace Game.Maps;
 
 class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 {
-    WorldObject i_obj;
-    uint i_entry;
+    readonly WorldObject i_obj;
+    readonly uint i_entry;
     float i_range;
 
     public NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range)

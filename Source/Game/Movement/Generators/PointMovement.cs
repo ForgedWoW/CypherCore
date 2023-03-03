@@ -159,14 +159,15 @@ namespace Game.Movement
             return MovementGeneratorType.Point;
         }
 
-        uint _movementId;
-        Position _destination;
-        float _speed;
-        bool _generatePath;
+        readonly uint _movementId;
+        readonly Position _destination;
+        readonly float _speed;
+        readonly bool _generatePath;
+
         //! if set then unit will turn to specified _orient in provided _pos
-        float? _finalOrient;
-        Unit _faceTarget;
-        SpellEffectExtraData _spellEffectExtra;
+        readonly float? _finalOrient;
+        readonly Unit _faceTarget;
+        readonly SpellEffectExtraData _spellEffectExtra;
     }
 
     public class AssistanceMovementGenerator : PointMovementGenerator<Creature>

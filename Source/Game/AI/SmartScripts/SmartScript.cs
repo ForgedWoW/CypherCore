@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
 using Game.Chat;
 using Game.DataStorage;
@@ -10,10 +14,6 @@ using Game.Maps;
 using Game.Misc;
 using Game.Movement;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.AI
 {
@@ -23,11 +23,9 @@ namespace Game.AI
         const uint MaxNestedEvents = 10;
 
         public ObjectGuid LastInvoker;
-
-        Dictionary<uint, uint> _counterList = new();
-
-        List<SmartScriptHolder> _events = new();
-        List<SmartScriptHolder> _installEvents = new();
+        readonly Dictionary<uint, uint> _counterList = new();
+        readonly List<SmartScriptHolder> _events = new();
+        readonly List<SmartScriptHolder> _installEvents = new();
         List<SmartScriptHolder> _timedActionList = new();
         ObjectGuid mTimedActionListInvoker;
         Creature _me;
@@ -43,8 +41,8 @@ namespace Game.AI
         uint _eventPhase;
 
         uint _pathId;
-        List<SmartScriptHolder> _storedEvents = new();
-        List<uint> _remIDs = new();
+        readonly List<SmartScriptHolder> _storedEvents = new();
+        readonly List<uint> _remIDs = new();
 
         uint _textTimer;
         uint _lastTextID;
@@ -55,8 +53,7 @@ namespace Game.AI
         bool _eventSortingRequired;
         uint _nestedEventsCounter;
         SmartEventFlags _allEventFlags;
-
-        Dictionary<uint, ObjectGuidList> _storedTargets = new();
+        readonly Dictionary<uint, ObjectGuidList> _storedTargets = new();
 
         public SmartScript()
         {
@@ -1147,10 +1144,9 @@ namespace Game.AI
                         privateObjectOwner = summoner.IsPrivateObject() ? summoner.GetPrivateObjectOwner() : summoner.GetGUID();
                     uint spawnsCount = Math.Max(e.Action.summonCreature.count, 1u);
 
-                    float x, y, z, o;
                     foreach (var target in targets)
                     {
-                        target.GetPosition(out x, out y, out z, out o);
+                        target.GetPosition(out float x, out float y, out float z, out float o);
                         x += e.Target.x;
                         y += e.Target.y;
                         z += e.Target.z;
@@ -1404,8 +1400,7 @@ namespace Game.AI
                     }
                     else
                     {
-                        float x, y, z;
-                        target.GetPosition(out x, out y, out z);
+                        target.GetPosition(out float x, out float y, out float z);
                         if (e.Action.moveToPos.contactDistance > 0)
                             target.GetContactPoint(_me, out x, out y, out z, e.Action.moveToPos.contactDistance);
                         _me.GetMotionMaster().MovePoint(e.Action.moveToPos.pointId, x + e.Target.x, y + e.Target.y, z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
@@ -1822,8 +1817,7 @@ namespace Game.AI
                     Position pos = new(e.Target.x, e.Target.y, e.Target.z);
                     if (target)
                     {
-                        float x, y, z;
-                        target.GetPosition(out x, out y, out z);
+                        target.GetPosition(out float x, out float y, out float z);
                         if (e.Action.jump.ContactDistance > 0)
                             target.GetContactPoint(_me, out x, out y, out z, e.Action.jump.ContactDistance);
                         pos = new Position(x + e.Target.x, y + e.Target.y, z + e.Target.z);
@@ -4417,8 +4411,8 @@ namespace Game.AI
 
     class ObjectGuidList
     {
-        List<ObjectGuid> _guidList = new();
-        List<WorldObject> _objectList = new();
+        readonly List<ObjectGuid> _guidList = new();
+        readonly List<WorldObject> _objectList = new();
 
         public ObjectGuidList(List<WorldObject> objectList)
         {

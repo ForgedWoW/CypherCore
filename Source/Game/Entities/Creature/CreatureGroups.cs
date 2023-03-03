@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Database;
-using Game.Maps;
 using System;
 using System.Collections.Generic;
-using Framework.Constants;
 using System.Linq;
+using Framework.Constants;
+using Framework.Database;
+using Game.Maps;
 
 namespace Game.Entities
 {
     public class FormationMgr
     {
-        static Dictionary<ulong, FormationInfo> _creatureGroupMap = new();
+        static readonly Dictionary<ulong, FormationInfo> _creatureGroupMap = new();
 
         public static void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
         {
@@ -177,10 +177,9 @@ namespace Game.Entities
     public class CreatureGroup
     {
         Creature _leader;
-        Dictionary<Creature, FormationInfo> _members = new();
-
-        ulong _leaderSpawnId;
-        bool _formed;
+        readonly Dictionary<Creature, FormationInfo> _members = new();
+        readonly ulong _leaderSpawnId;
+        readonly bool _formed;
         bool _engaging;
 
         public CreatureGroup(ulong leaderSpawnId)

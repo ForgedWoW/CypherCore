@@ -1,28 +1,25 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-
 namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 {
-	internal static partial class GroupOperations
+    internal static partial class GroupOperations
 	{
 		/*
 		r = p - q
 		*/
 		public static void ge_msub(out GroupElementP1P1 r, ref  GroupElementP3 p, ref  GroupElementPreComp q)
 		{
-			FieldElement t0;
 
-			/* qhasm: YpX1 = Y1+X1 */
-			/* asm 1: fe_add(>YpX1=fe#1,<Y1=fe#12,<X1=fe#11); */
-			/* asm 2: fe_add(>YpX1=r.X,<Y1=p.Y,<X1=p.X); */
-			FieldOperations.fe_add(out r.X, ref p.Y, ref p.X);
+            /* qhasm: YpX1 = Y1+X1 */
+            /* asm 1: fe_add(>YpX1=fe#1,<Y1=fe#12,<X1=fe#11); */
+            /* asm 2: fe_add(>YpX1=r.X,<Y1=p.Y,<X1=p.X); */
+            FieldOperations.fe_add(out r.X, ref p.Y, ref p.X);
 
-			/* qhasm: YmX1 = Y1-X1 */
-			/* asm 1: fe_sub(>YmX1=fe#2,<Y1=fe#12,<X1=fe#11); */
-			/* asm 2: fe_sub(>YmX1=r.Y,<Y1=p.Y,<X1=p.X); */
-			FieldOperations.fe_sub(out r.Y, ref p.Y, ref p.X);
+            /* qhasm: YmX1 = Y1-X1 */
+            /* asm 1: fe_sub(>YmX1=fe#2,<Y1=fe#12,<X1=fe#11); */
+            /* asm 2: fe_sub(>YmX1=r.Y,<Y1=p.Y,<X1=p.X); */
+            FieldOperations.fe_sub(out r.Y, ref p.Y, ref p.X);
 
 			/* qhasm: A = YpX1*ymx2 */
 			/* asm 1: fe_mul(>A=fe#3,<YpX1=fe#1,<ymx2=fe#16); */
@@ -42,7 +39,7 @@ namespace Framework.Cryptography.Ed25519.Internal.Ed25519Ref10
 			/* qhasm: D = 2*Z1 */
 			/* asm 1: fe_add(>D=fe#5,<Z1=fe#13,<Z1=fe#13); */
 			/* asm 2: fe_add(>D=t0,<Z1=p.Z,<Z1=p.Z); */
-			FieldOperations.fe_add(out t0, ref p.Z, ref p.Z);
+			FieldOperations.fe_add(out FieldElement t0, ref p.Z, ref p.Z);
 
 			/* qhasm: X3 = A-B */
 			/* asm 1: fe_sub(>X3=fe#1,<A=fe#3,<B=fe#2); */

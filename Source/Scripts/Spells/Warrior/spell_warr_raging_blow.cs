@@ -7,8 +7,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// 85288
-	[SpellScript(85288)]
+    // 85288
+    [SpellScript(85288)]
 	public class spell_warr_raging_blow : SpellScript, ISpellOnHit
 	{
 		private byte _targetHit;

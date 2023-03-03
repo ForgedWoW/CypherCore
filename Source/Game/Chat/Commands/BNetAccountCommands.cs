@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Framework.Database;
-using Framework.IO;
-using System;
 
 namespace Game.Chat.Commands
 {
@@ -20,8 +19,7 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            string gameAccountName;
-            switch (Global.BNetAccountMgr.CreateBattlenetAccount(accountName, password, createGameAccount.GetValueOrDefault(true), out gameAccountName))
+            switch (Global.BNetAccountMgr.CreateBattlenetAccount(accountName, password, createGameAccount.GetValueOrDefault(true), out string gameAccountName))
             {
                 case AccountOpResult.Ok:
                     if (createGameAccount.HasValue && createGameAccount.Value)
@@ -32,7 +30,7 @@ namespace Game.Chat.Commands
                     if (handler.GetSession() != null)
                     {
                         Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] ({3}) created Battle.net account {4}{5}{6}",
-                            handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(), 
+                            handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(),
                             handler.GetSession().GetPlayer().GetGUID().ToString(), accountName, createGameAccount.Value ? " with game account " : "", createGameAccount.Value ? gameAccountName : "");
                     }
                     break;

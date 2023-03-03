@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 106898 - Stampeding Roar
+    [Script] // 106898 - Stampeding Roar
 	internal class spell_dru_stampeding_roar : SpellScript, ISpellBeforeCast
 	{
 		public override bool Validate(SpellInfo spellInfo)

@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 196236 - Soulsnatcher
-	[SpellScript(196236)]
+    // 196236 - Soulsnatcher
+    [SpellScript(196236)]
 	internal class spell_warlock_artifact_soul_snatcher : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

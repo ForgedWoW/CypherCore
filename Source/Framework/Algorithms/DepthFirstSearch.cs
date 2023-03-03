@@ -8,7 +8,7 @@ namespace Framework.Algorithms
 {
     public class DepthFirstSearch
     {
-        private bool[] marked;    // marked[v] = is there an s-v path?
+        private readonly bool[] marked;    // marked[v] = is there an s-v path?
         private int count;           // number of vertices connected to s
 
         /**

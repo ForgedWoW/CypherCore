@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Mage
 {
-	internal struct MageSpells
+    internal struct MageSpells
 	{
 		public const uint AlterTimeAura = 110909;
 		public const uint AlterTimeVisual = 347402;

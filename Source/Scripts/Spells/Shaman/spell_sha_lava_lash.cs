@@ -8,8 +8,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 60103 - Lava Lash
-	[SpellScript(60103)]
+    // 60103 - Lava Lash
+    [SpellScript(60103)]
 	public class spell_sha_lava_lash : SpellScript, ISpellOnHit
 	{
 		public override bool Load()

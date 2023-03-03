@@ -1,15 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Groups;
-using Game.Networking.Packets;
-using Game.Spells;
-using System;
-using System.Collections.Generic;
 using Game.Maps;
-using Game.AI;
+using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 
 namespace Game.Entities
@@ -283,8 +281,7 @@ namespace Game.Entities
 
             float damage = 0.0f;
             uint itemLevel = item.GetItemLevel(this);
-            float minDamage, maxDamage;
-            proto.GetDamage(itemLevel, out minDamage, out maxDamage);
+            proto.GetDamage(itemLevel, out float minDamage, out float maxDamage);
 
             if (minDamage > 0)
             {

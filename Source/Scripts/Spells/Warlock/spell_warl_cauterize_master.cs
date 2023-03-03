@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Cauterize Master - 119905
-	[SpellScript(119905)]
+    // Cauterize Master - 119905
+    [SpellScript(119905)]
 	public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

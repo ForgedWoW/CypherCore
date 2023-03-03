@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Framework.Dynamic;
-using Framework.IO;
-using Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Framework.Database;
+using Framework.IO;
+using Game.Entities;
 
 namespace Game.Networking.Packets
 {
@@ -723,7 +722,7 @@ namespace Game.Networking.Packets
             _worldPacket.WriteUInt8((byte)Code);
         }
 
-        LoginFailureReason Code;
+        readonly LoginFailureReason Code;
     }
 
     public class LogoutRequest : ClientPacket
@@ -1026,9 +1025,9 @@ namespace Game.Networking.Packets
         }
 
         ObjectGuid CharGUID;
-        string CharName = "";
-        byte SexID;
-        Array<ChrCustomizationChoice> Customizations = new(72);
+        readonly string CharName = "";
+        readonly byte SexID;
+        readonly Array<ChrCustomizationChoice> Customizations = new(72);
     }
 
     class CharCustomizeFailure : ServerPacket

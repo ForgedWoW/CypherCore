@@ -8,8 +8,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//NPC ID : 59764
-	[CreatureScript(59764)]
+    //NPC ID : 59764
+    [CreatureScript(59764)]
 	public class npc_healing_tide_totem : ScriptedAI
 	{
 		public npc_healing_tide_totem(Creature creature) : base(creature)

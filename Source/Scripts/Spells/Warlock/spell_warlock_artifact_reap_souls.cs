@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Reap Souls - 216698
-	[SpellScript(216698)]
+    // Reap Souls - 216698
+    [SpellScript(216698)]
 	public class spell_warlock_artifact_reap_souls : SpellScript, IHasSpellEffects, ISpellCheckCast
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

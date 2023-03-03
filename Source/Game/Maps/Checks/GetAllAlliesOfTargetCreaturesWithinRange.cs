@@ -27,6 +27,6 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
         return true;
     }
 
-    Unit m_pObject;
-    float m_fRange;
+    readonly Unit m_pObject;
+    readonly float m_fRange;
 }

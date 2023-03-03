@@ -11,8 +11,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// 105792 - Lava Lash
-	[SpellScript(105792)]
+    // 105792 - Lava Lash
+    [SpellScript(105792)]
 	public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

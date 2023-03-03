@@ -7,7 +7,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(58094)]
+    [SpellScript(58094)]
 	public class spell_warl_glyph_of_soulwell : SpellScript, ISpellAfterCast
 	{
 		public void AfterCast()

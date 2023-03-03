@@ -8,7 +8,7 @@ using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script]
+    [Script]
 	public class rage_on_take_damage : ScriptObjectAutoAddDBBound, IPlayerOnTakeDamage
 	{
 		public Class PlayerClass => Class.Warrior;

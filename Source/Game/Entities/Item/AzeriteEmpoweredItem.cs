@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Entities
 {
     public class AzeriteEmpoweredItem : Item
     {
-        AzeriteEmpoweredItemData m_azeriteEmpoweredItemData;
+        readonly AzeriteEmpoweredItemData m_azeriteEmpoweredItemData;
         List<AzeritePowerSetMemberRecord> m_azeritePowers;
         int m_maxTier;
 
@@ -236,10 +236,10 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            AzeriteEmpoweredItem Owner;
-            ObjectFieldData ObjectMask = new();
-            ItemData ItemMask = new();
-            AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
+            readonly AzeriteEmpoweredItem Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly ItemData ItemMask = new();
+            readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
             {

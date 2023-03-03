@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 using Framework.Configuration;
 using MySqlConnector;
@@ -79,7 +78,7 @@ namespace Framework.Database
 
     public abstract class MySqlBase<T>
     {
-        static Dictionary<T, string> _preparedQueries = new();
+        static readonly Dictionary<T, string> _preparedQueries = new();
 
         MySqlConnectionInfo _connectionInfo;
         DatabaseUpdater<T> _updater;

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Security.Cryptography;
 using System;
+using System.Security.Cryptography;
 
 namespace Game
 {
@@ -48,8 +48,8 @@ namespace Game
         SHA1 sh;
         uint taken;
         byte[] o0 = new byte[20];
-        byte[] o1 = new byte[20];
-        byte[] o2 = new byte[20];
+        readonly byte[] o1 = new byte[20];
+        readonly byte[] o2 = new byte[20];
     }
 
 }

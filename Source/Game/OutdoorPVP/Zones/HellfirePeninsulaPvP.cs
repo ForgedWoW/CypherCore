@@ -162,7 +162,7 @@ namespace Game.PvP
         // how many towers are controlled
         uint m_AllianceTowersControlled;
         uint m_HordeTowersControlled;
-        ulong[] m_towerFlagSpawnIds = new ulong[(int)OutdoorPvPHPTowerType.Num];
+        readonly ulong[] m_towerFlagSpawnIds = new ulong[(int)OutdoorPvPHPTowerType.Num];
     }
 
     class HellfirePeninsulaCapturePoint : OPvPCapturePoint
@@ -282,8 +282,8 @@ namespace Game.PvP
                 SendObjectiveComplete(HPConst.CreditMarker[m_TowerType], ObjectGuid.Empty);
         }
 
-        uint m_TowerType;
-        ulong m_flagSpawnId;
+        readonly uint m_TowerType;
+        readonly ulong m_flagSpawnId;
     }
 
     [Script]

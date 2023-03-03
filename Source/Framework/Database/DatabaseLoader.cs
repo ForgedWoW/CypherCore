@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
-using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Framework.Configuration;
+using MySqlConnector;
 
 namespace Framework.Database
 {
@@ -182,12 +182,12 @@ namespace Framework.Database
             return Process(_prepare);
         }
 
-        bool _autoSetup;
-        DatabaseTypeFlags _updateFlags;
-        List<Func<bool>> _open = new();
-        List<Func<bool>> _populate = new();
-        List<Func<bool>> _update = new();
-        List<Func<bool>> _prepare = new();
+        readonly bool _autoSetup;
+        readonly DatabaseTypeFlags _updateFlags;
+        readonly List<Func<bool>> _open = new();
+        readonly List<Func<bool>> _populate = new();
+        readonly List<Func<bool>> _update = new();
+        readonly List<Func<bool>> _prepare = new();
     }
 
     public enum DatabaseTypeFlags

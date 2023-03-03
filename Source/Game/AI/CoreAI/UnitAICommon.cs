@@ -1,24 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.Combat;
-using Game.Entities;
-using Game.Spells;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Framework.Constants;
+using Game.Entities;
+using Game.Spells;
 
 namespace Game.AI
 {
     // default predicate function to select target based on distance, player and/or aura criteria
     public class DefaultTargetSelector : ICheck<Unit>
     {
-        Unit _me;
-        float _dist;
-        bool _playerOnly;
-        Unit _exception;
-        int _aura;
+        readonly Unit _me;
+        readonly float _dist;
+        readonly bool _playerOnly;
+        readonly Unit _exception;
+        readonly int _aura;
 
         /// <param name="unit">the reference unit</param>
         /// <param name="dist">if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit</param>
@@ -76,8 +74,8 @@ namespace Game.AI
     // todo Add more checks from Spell.CheckCast
     public class SpellTargetSelector : ICheck<Unit>
     {
-        Unit _caster;
-        SpellInfo _spellInfo;
+        readonly Unit _caster;
+        readonly SpellInfo _spellInfo;
 
         public SpellTargetSelector(Unit caster, uint spellId)
         {
@@ -157,8 +155,8 @@ namespace Game.AI
     //       because tank will not be in the temporary list
     public class NonTankTargetSelector : ICheck<Unit>
     {
-        Unit _source;
-        bool _playerOnly;
+        readonly Unit _source;
+        readonly bool _playerOnly;
 
         public NonTankTargetSelector(Unit source, bool playerOnly = true)
         {
@@ -185,10 +183,10 @@ namespace Game.AI
     // Simple selector for units using mana
     class PowerUsersSelector : ICheck<Unit>
     {
-        Unit _me;
-        PowerType _power;
-        float _dist;
-        bool _playerOnly;
+        readonly Unit _me;
+        readonly PowerType _power;
+        readonly float _dist;
+        readonly bool _playerOnly;
 
         public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
         {
@@ -221,10 +219,10 @@ namespace Game.AI
 
     class FarthestTargetSelector : ICheck<Unit>
     {
-        Unit _me;
-        float _dist;
-        bool _playerOnly;
-        bool _inLos;
+        readonly Unit _me;
+        readonly float _dist;
+        readonly bool _playerOnly;
+        readonly bool _inLos;
 
         public FarthestTargetSelector(Unit unit, float dist, bool playerOnly, bool inLos)
         {

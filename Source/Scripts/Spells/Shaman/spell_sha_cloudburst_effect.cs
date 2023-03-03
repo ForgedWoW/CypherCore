@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//157504 - Cloudburst Totem
-	[SpellScript(157504)]
+    //157504 - Cloudburst Totem
+    [SpellScript(157504)]
 	public class spell_sha_cloudburst_effect : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

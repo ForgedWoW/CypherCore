@@ -19,7 +19,7 @@ using System;
 
 namespace Framework.IO
 {
-	public static partial class ZLib
+    public static partial class ZLib
 	{
 		#region crc_table
 		private static readonly uint[,] crc_table=new uint[,]

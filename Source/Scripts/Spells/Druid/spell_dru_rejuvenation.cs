@@ -27,7 +27,7 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 	}
 
 	private int m_RejuvenationAura = 0;
-	private int m_RejuvenationAuraAmount = 0;
+	private readonly int m_RejuvenationAuraAmount = 0;
 
 	public void AfterHit()
 	{

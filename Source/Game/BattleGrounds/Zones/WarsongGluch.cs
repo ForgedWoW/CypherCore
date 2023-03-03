@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
+using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
-using Game.DataStorage;
-using System.Collections.Generic;
 
 namespace Game.BattleGrounds.Zones
 {
@@ -860,11 +860,11 @@ namespace Game.BattleGrounds.Zones
 
         void AddPoint(Team team, uint Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
 
-        ObjectGuid[] m_FlagKeepers = new ObjectGuid[2];                            // 0 - alliance, 1 - horde
-        ObjectGuid[] m_DroppedFlagGUID = new ObjectGuid[2];
-        WSGFlagState[] _flagState = new WSGFlagState[2];                               // for checking flag state
-        int[] _flagsTimer = new int[2];
-        int[] _flagsDropTimer = new int[2];
+        readonly ObjectGuid[] m_FlagKeepers = new ObjectGuid[2];                            // 0 - alliance, 1 - horde
+        readonly ObjectGuid[] m_DroppedFlagGUID = new ObjectGuid[2];
+        readonly WSGFlagState[] _flagState = new WSGFlagState[2];                               // for checking flag state
+        readonly int[] _flagsTimer = new int[2];
+        readonly int[] _flagsDropTimer = new int[2];
         uint _lastFlagCaptureTeam;                       // Winner is based on this if score is equal
 
         uint m_ReputationCapture;
@@ -874,7 +874,7 @@ namespace Game.BattleGrounds.Zones
         bool _bothFlagsKept;
         byte _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
 
-        uint[][] Honor =
+        readonly uint[][] Honor =
         {
             new uint[] {20, 40, 40 }, // normal honor
             new uint[] { 60, 40, 80}  // holiday

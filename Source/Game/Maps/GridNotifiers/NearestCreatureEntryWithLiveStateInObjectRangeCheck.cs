@@ -24,8 +24,8 @@ class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
         return false;
     }
 
-    WorldObject i_obj;
-    uint i_entry;
-    bool i_alive;
+    readonly WorldObject i_obj;
+    readonly uint i_entry;
+    readonly bool i_alive;
     float i_range;
 }

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Movement
 {
@@ -391,10 +391,10 @@ namespace Game.Movement
 
         public override void UnitSpeedChanged() { AddFlag(MovementGeneratorFlags.SpeedUpdatePending); }
 
-        TimeTracker _nextMoveTime;
+        readonly TimeTracker _nextMoveTime;
         uint _pathId;
-        bool _repeating;
-        bool _loadedFromDB;
+        readonly bool _repeating;
+        readonly bool _loadedFromDB;
 
         WaypointPath _path;
         int _currentNode;

@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
-using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.DataStorage;
-using Game.Groups;
 using Game.Guilds;
 using Game.Loots;
 using Game.Mails;
@@ -14,11 +16,6 @@ using Game.Maps;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using static Game.AI.SmartAction;
 
 namespace Game.Entities
 {
@@ -1821,9 +1818,8 @@ namespace Game.Entities
         //Add/Remove/Misc Item 
         public bool AddItem(uint itemId, uint count)
         {
-            uint noSpaceForCount;
             List<ItemPosCount> dest = new();
-            InventoryResult msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, count, out noSpaceForCount);
+            InventoryResult msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemId, count, out uint noSpaceForCount);
             if (msg != InventoryResult.Ok)
                 count -= noSpaceForCount;
 
@@ -2152,8 +2148,7 @@ namespace Game.Entities
                 // change item amount before check (for unique max count check), provide space for splitted items
                 pSrcItem.SetCount(pSrcItem.GetCount() - count);
 
-                ushort dest;
-                InventoryResult msg = CanEquipItem(dstslot, out dest, pNewItem, false);
+                InventoryResult msg = CanEquipItem(dstslot, out ushort dest, pNewItem, false);
                 if (msg != InventoryResult.Ok)
                 {
                     pSrcItem.SetCount(pSrcItem.GetCount() + count);
@@ -2307,8 +2302,7 @@ namespace Game.Entities
                 }
                 else if (IsEquipmentPos(dst))
                 {
-                    ushort _dest;
-                    InventoryResult msg = CanEquipItem(dstslot, out _dest, pSrcItem, false);
+                    InventoryResult msg = CanEquipItem(dstslot, out ushort _dest, pSrcItem, false);
                     if (msg != InventoryResult.Ok)
                     {
                         SendEquipError(msg, pSrcItem);
@@ -6747,7 +6741,6 @@ namespace Game.Entities
                 ItemTemplate itemTemplate = item.GetTemplate();
                 if (itemTemplate != null && itemTemplate.GetInventoryType() < InventoryType.ProfessionTool)
                 {
-                    ushort dest;
                     if (item.IsEquipped())
                     {
                         uint itemLevel = item.GetItemLevel(this);
@@ -6759,7 +6752,7 @@ namespace Game.Entities
                             slotData = (inventoryType, itemLevel, item.GetGUID());
                         }
                     }
-                    else if (CanEquipItem(ItemConst.NullSlot, out dest, item, true, false) == InventoryResult.Ok)
+                    else if (CanEquipItem(ItemConst.NullSlot, out ushort dest, item, true, false) == InventoryResult.Ok)
                     {
                         uint itemLevel = item.GetItemLevel(this);
                         InventoryType inventoryType = itemTemplate.GetInventoryType();

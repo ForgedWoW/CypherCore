@@ -10,13 +10,13 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 32863 - Seed of Corruption
-	// 36123 - Seed of Corruption
-	// 38252 - Seed of Corruption
-	// 39367 - Seed of Corruption
-	// 44141 - Seed of Corruption
-	// 70388 - Seed of Corruption
-	[SpellScript(new uint[]
+    // 32863 - Seed of Corruption
+    // 36123 - Seed of Corruption
+    // 38252 - Seed of Corruption
+    // 39367 - Seed of Corruption
+    // 44141 - Seed of Corruption
+    // 70388 - Seed of Corruption
+    [SpellScript(new uint[]
 	             {
 		             32863, 36123, 38252, 39367, 44141, 70388
 	             })] // Monster spells, triggered only on amount drop (not on death)

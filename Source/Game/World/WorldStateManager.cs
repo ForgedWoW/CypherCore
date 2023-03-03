@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -8,19 +11,15 @@ using Game.DataStorage;
 using Game.Maps;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IWorldState;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
     public class WorldStateManager : Singleton<WorldStateManager>
     {
-        static int AnyMap = -1;
-
-        Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
-        Dictionary<int, int> _realmWorldStateValues = new();
-        Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
+        static readonly int AnyMap = -1;
+        readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
+        readonly Dictionary<int, int> _realmWorldStateValues = new();
+        readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
 
         WorldStateManager() { }
 

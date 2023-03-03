@@ -7,8 +7,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 212619 - Call Felhunter
-	[SpellScript(212619)]
+    // 212619 - Call Felhunter
+    [SpellScript(212619)]
 	public class spell_warlock_call_felhunter : SpellScript, ISpellCheckCast
 	{
 		public SpellCastResult CheckCast()

@@ -23,7 +23,7 @@ public class AnyPlayerInObjectRangeCheck : ICheck<Player>
         return true;
     }
 
-    WorldObject _obj;
-    float _range;
-    bool _reqAlive;
+    readonly WorldObject _obj;
+    readonly float _range;
+    readonly bool _reqAlive;
 }

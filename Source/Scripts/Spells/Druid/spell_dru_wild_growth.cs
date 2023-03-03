@@ -11,7 +11,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] // 48438 - Wild Growth
+    [Script] // 48438 - Wild Growth
 	internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
 	{
 		private List<WorldObject> _targets;

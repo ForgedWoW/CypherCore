@@ -148,7 +148,7 @@ namespace Game.Chat
 
         public bool IsEmpty() { return _arg.Empty(); }
 
-        StringArguments _arg;
-        bool _allowEmptyTokens;
+        readonly StringArguments _arg;
+        readonly bool _allowEmptyTokens;
     }
 }

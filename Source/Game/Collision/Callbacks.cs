@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.GameMath;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Framework.Constants;
+using Framework.GameMath;
 
 namespace Game.Collision
 {
@@ -35,7 +35,7 @@ namespace Game.Collision
             value = new AxisAlignedBox(lo, hi);
         }
 
-        List<Vector3> vertices;
+        readonly List<Vector3> vertices;
     }
 
     public class WModelAreaCallback : WorkerCallback
@@ -48,14 +48,13 @@ namespace Game.Collision
             zVec = down;
         }
 
-        List<GroupModel> prims;
+        readonly List<GroupModel> prims;
         public GroupModel hit;
         public float zDist;
         Vector3 zVec;
         public override void Invoke(Vector3 point, int entry)
         {
-            float group_Z;
-            if (prims[entry].IsInsideObject(point, zVec, out group_Z))
+            if (prims[entry].IsInsideObject(point, zVec, out float group_Z))
             {
                 if (group_Z < zDist)
                 {
@@ -79,7 +78,8 @@ namespace Game.Collision
             if (result) hit = true;
             return hit;
         }
-        List<GroupModel> models;
+
+        readonly List<GroupModel> models;
         public bool hit;
     }
 
@@ -145,8 +145,8 @@ namespace Game.Collision
             return false;
         }
 
-        List<Vector3> vertices;
-        List<MeshTriangle> triangles;
+        readonly List<Vector3> vertices;
+        readonly List<MeshTriangle> triangles;
         public bool hit;
     }
 
@@ -169,9 +169,9 @@ namespace Game.Collision
         }
         public bool DidHit() { return hit; }
 
-        ModelInstance[] prims;
+        readonly ModelInstance[] prims;
         bool hit;
-        ModelIgnoreFlags flags;
+        readonly ModelIgnoreFlags flags;
     }
 
     public class AreaInfoCallback : WorkerCallback
@@ -188,7 +188,7 @@ namespace Game.Collision
             prims[entry].IntersectPoint(point, aInfo);
         }
 
-        ModelInstance[] prims;
+        readonly ModelInstance[] prims;
         public AreaInfo aInfo = new();
     }
 
@@ -207,8 +207,8 @@ namespace Game.Collision
                 result = true;
         }
 
-        ModelInstance[] prims;
-        LocationInfo locInfo;
+        readonly ModelInstance[] prims;
+        readonly LocationInfo locInfo;
         public bool result;
     }
 
@@ -229,7 +229,7 @@ namespace Game.Collision
         public bool DidHit() { return _didHit; }
 
         bool _didHit;
-        PhaseShift _phaseShift;
+        readonly PhaseShift _phaseShift;
     }
 
     public class DynamicTreeAreaInfoCallback : WorkerCallback
@@ -247,8 +247,8 @@ namespace Game.Collision
 
         public AreaInfo GetAreaInfo() { return _areaInfo; }
 
-        PhaseShift _phaseShift;
-        AreaInfo _areaInfo;
+        readonly PhaseShift _phaseShift;
+        readonly AreaInfo _areaInfo;
     }
 
     public class DynamicTreeLocationInfoCallback : WorkerCallback
@@ -267,8 +267,8 @@ namespace Game.Collision
         public LocationInfo GetLocationInfo() { return _locationInfo; }
         public GameObjectModel GetHitModel() { return _hitModel; }
 
-        PhaseShift _phaseShift;
-        LocationInfo _locationInfo = new();
+        readonly PhaseShift _phaseShift;
+        readonly LocationInfo _locationInfo = new();
         GameObjectModel _hitModel = new();
     }
 }

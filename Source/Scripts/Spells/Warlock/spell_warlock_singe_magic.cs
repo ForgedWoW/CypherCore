@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 212623 - Singe Magic
-	[SpellScript(212623)]
+    // 212623 - Singe Magic
+    [SpellScript(212623)]
 	public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

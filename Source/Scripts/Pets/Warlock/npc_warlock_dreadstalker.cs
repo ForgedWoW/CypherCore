@@ -1,14 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Bgs.Protocol.Notification.V1;
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces.ICreature;
 using Scripts.Spells.Warlock;
-using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_glubtok;
 
 namespace Scripts.Pets
 {

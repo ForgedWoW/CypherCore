@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 212282 -
-	[SpellScript(212282)]
+    // 212282 -
+    [SpellScript(212282)]
 	public class spell_warlock_cremation : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

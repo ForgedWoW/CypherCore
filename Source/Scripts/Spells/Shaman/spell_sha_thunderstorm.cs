@@ -9,8 +9,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// 51490 - Thunderstorm
-	[SpellScript(51490)]
+    // 51490 - Thunderstorm
+    [SpellScript(51490)]
 	public class spell_sha_thunderstorm : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,12 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Collections;
-using Framework.Constants;
-using Framework.Database;
-using Framework.Dynamic;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,6 +9,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Framework.Collections;
+using Framework.Constants;
+using Framework.Dynamic;
 
 namespace Game.DataStorage
 {
@@ -222,19 +220,19 @@ namespace Game.DataStorage
 
     class WDC3Row
     {
-        private BitReader _data;
-        private int _dataOffset;
-        private int _recordsOffset;
-        private int _refId;
-        private bool _dataHasId;
+        private readonly BitReader _data;
+        private readonly int _dataOffset;
+        private readonly int _recordsOffset;
+        private readonly int _refId;
+        private readonly bool _dataHasId;
 
         public int Id { get; set; }
 
-        private FieldMetaData[] _fieldMeta;
-        private ColumnMetaData[] _columnMeta;
-        private Value32[][] _palletData;
-        private Dictionary<int, Value32>[] _commonData;
-        private Dictionary<long, string> _stringsTable;
+        private readonly FieldMetaData[] _fieldMeta;
+        private readonly ColumnMetaData[] _columnMeta;
+        private readonly Value32[][] _palletData;
+        private readonly Dictionary<int, Value32>[] _commonData;
+        private readonly Dictionary<long, string> _stringsTable;
 
         public WDC3Row(DBReader reader, BitReader data, int recordsOffset, int id, int refId, Dictionary<long, string> stringsTable)
         {
@@ -704,6 +702,6 @@ namespace Game.DataStorage
             }
         }
 
-        StringArray stringStorage = new((int)Locale.Total);
+        readonly StringArray stringStorage = new((int)Locale.Total);
     }
 }

@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
-using Framework.Dynamic;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Maps;
 using Game.Movement;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Entities
 {
@@ -428,8 +427,7 @@ namespace Game.Entities
 
         public void JumpTo(WorldObject obj, float speedZ, bool withOrientation = false)
         {
-            float x, y, z;
-            obj.GetContactPoint(this, out x, out y, out z);
+            obj.GetContactPoint(this, out float x, out float y, out float z);
             float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
             GetMotionMaster().MoveJump(x, y, z, GetAbsoluteAngle(obj), speedXY, speedZ, EventId.Jump, withOrientation);
         }
@@ -1842,8 +1840,7 @@ namespace Game.Entities
             Player playerMover = GetUnitBeingMoved()?.ToPlayer();
             if (playerMover)
             {
-                float x, y, z, o;
-                pos.GetPosition(out x, out y, out z, out o);
+                pos.GetPosition(out float x, out float y, out float z, out float o);
 
                 ITransport transportBase = GetDirectTransport();
                 if (transportBase != null)

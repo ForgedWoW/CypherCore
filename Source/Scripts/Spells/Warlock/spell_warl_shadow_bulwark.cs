@@ -9,7 +9,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(17767)]
+    [SpellScript(17767)]
 	public class spell_warl_shadow_bulwark : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

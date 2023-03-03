@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Generic;
 
 namespace Game.BattleGrounds.Zones
 {
@@ -687,13 +687,13 @@ namespace Game.BattleGrounds.Zones
         ///    3: ally occupied
         ///    4: horde occupied
         /// </summary>
-        ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
-        ABNodeStatus[] m_prevNodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
-        BannerTimer[] m_BannerTimers = new BannerTimer[ABBattlegroundNodes.DynamicNodesCount];
-        uint[] m_NodeTimers = new uint[ABBattlegroundNodes.DynamicNodesCount];
-        uint[] m_lastTick = new uint[SharedConst.PvpTeamsCount];
-        uint[] m_HonorScoreTics = new uint[SharedConst.PvpTeamsCount];
-        uint[] m_ReputationScoreTics = new uint[SharedConst.PvpTeamsCount];
+        readonly ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
+        readonly ABNodeStatus[] m_prevNodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
+        readonly BannerTimer[] m_BannerTimers = new BannerTimer[ABBattlegroundNodes.DynamicNodesCount];
+        readonly uint[] m_NodeTimers = new uint[ABBattlegroundNodes.DynamicNodesCount];
+        readonly uint[] m_lastTick = new uint[SharedConst.PvpTeamsCount];
+        readonly uint[] m_HonorScoreTics = new uint[SharedConst.PvpTeamsCount];
+        readonly uint[] m_ReputationScoreTics = new uint[SharedConst.PvpTeamsCount];
         bool m_IsInformedNearVictory;
         uint m_HonorTics;
         uint m_ReputationTics;

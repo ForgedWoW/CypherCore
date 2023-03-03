@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// 6353 - Soul Fire
-	[SpellScript(6353)]
+    // 6353 - Soul Fire
+    [SpellScript(6353)]
 	public class spell_warlock_soul_fire : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

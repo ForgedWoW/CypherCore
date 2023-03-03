@@ -22,7 +22,7 @@ public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
         return false;
     }
 
-    Unit i_obj;
-    float i_range;
+    readonly Unit i_obj;
+    readonly float i_range;
     long i_hp;
 }

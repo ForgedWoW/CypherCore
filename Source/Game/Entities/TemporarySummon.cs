@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.DataStorage;
-using System;
-using System.Collections.Generic;
 using Game.Maps;
 
 namespace Game.Entities
@@ -1095,7 +1095,7 @@ namespace Game.Entities
         public float GetBonusStatFromOwner(Stats stat) { return m_statFromOwner[(int)stat]; }
 
         float m_bonusSpellDamage;
-        float[] m_statFromOwner = new float[(int)Stats.Max];
+        readonly float[] m_statFromOwner = new float[(int)Stats.Max];
     }
 
     public class Puppet : Minion
@@ -1148,7 +1148,7 @@ namespace Game.Entities
             return true;
         }
 
-        TempSummon m_owner;
+        readonly TempSummon m_owner;
     }
 
     public class TempSummonData

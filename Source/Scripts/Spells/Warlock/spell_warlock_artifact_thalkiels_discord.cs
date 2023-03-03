@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 211720 - Thal'kiel's Discord
-	[SpellScript(211720)]
+    // 211720 - Thal'kiel's Discord
+    [SpellScript(211720)]
 	public class spell_warlock_artifact_thalkiels_discord : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Framework.Database
 {
     public class SQLQueryHolder<T>
     {
         public Dictionary<T, PreparedStatement> m_queries = new();
-        Dictionary<T, SQLResult> _results = new();
+        readonly Dictionary<T, SQLResult> _results = new();
 
         public void SetQuery(T index, string sql, params object[] args)
         {
@@ -61,7 +60,7 @@ namespace Framework.Database
 
     public class SQLQueryHolderCallback<R> : ISqlCallback
     {
-        SQLQueryHolderTask<R> _future;
+        readonly SQLQueryHolderTask<R> _future;
         Action<SQLQueryHolder<R>> _callback;
         public SQLQueryHolderCallback(SQLQueryHolderTask<R> future)
         {

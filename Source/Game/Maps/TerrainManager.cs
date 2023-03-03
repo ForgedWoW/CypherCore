@@ -1,26 +1,25 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using Framework.Constants;
 using Framework.Database;
 using Game.Collision;
 using Game.DataStorage;
 using Game.Entities;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Game.Maps
 {
     public class TerrainManager : Singleton<TerrainManager>
     {
-        Dictionary<uint, TerrainInfo> _terrainMaps = new();
+        readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
 
         // parent map links
         MultiMap<uint, uint> _parentMapData = new();
-
-        HashSet<uint> _keepLoaded = new HashSet<uint>();
+        readonly HashSet<uint> _keepLoaded = new HashSet<uint>();
 
         TerrainManager() { }
 
@@ -146,22 +145,20 @@ namespace Game.Maps
 
     public class TerrainInfo
     {
-        uint _mapId;
-        bool _keepLoaded = false;
+        readonly uint _mapId;
+        readonly bool _keepLoaded = false;
         TerrainInfo _parentTerrain;
-        List<TerrainInfo> _childTerrain = new();
+        readonly List<TerrainInfo> _childTerrain = new();
+        readonly object _loadLock = new();
+        readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
+        readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
+        readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
+        readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids); // cache what grids are available for this map (not including parent/child maps)
 
-        object _loadLock = new();
-        GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
-        ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
-
-        BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
-        BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids); // cache what grids are available for this map (not including parent/child maps)
-
-        static TimeSpan CleanupInterval = TimeSpan.FromMinutes(1);
+        static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(1);
 
         // global garbage collection timer
-        TimeTracker _cleanupTimer;
+        readonly TimeTracker _cleanupTimer;
 
         public TerrainInfo(uint mapId, bool keeLoaded)
         {
@@ -685,16 +682,12 @@ namespace Game.Maps
             float check_z = z;
             uint terrainMapId = PhasingHandler.GetTerrainMapId(phaseShift, mapId, this, x, y);
 
-            uint vflags;
-            int vadtId;
-            int vrootId;
-            int vgroupId;
             uint dflags = 0;
             int dadtId = 0;
             int drootId = 0;
             int dgroupId = 0;
 
-            bool hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out vflags, out vadtId, out vrootId, out vgroupId);
+            bool hasVmapAreaInfo = Global.VMapMgr.GetAreaInfo(terrainMapId, x, y, ref vmap_z, out uint vflags, out int vadtId, out int vrootId, out int vgroupId);
             bool hasDynamicAreaInfo = dynamicMapTree != null ? dynamicMapTree.GetAreaInfo(x, y, ref dynamic_z, phaseShift, out dflags, out dadtId, out drootId, out dgroupId) : false;
 
             if (hasVmapAreaInfo)
@@ -745,10 +738,8 @@ namespace Game.Maps
         
         public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
         {
-            uint mogpFlags;
-            int adtId, rootId, groupId;
             float vmapZ = z;
-            bool hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out mogpFlags, out adtId, out rootId, out groupId, dynamicMapTree);
+            bool hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, out uint mogpFlags, out int adtId, out int rootId, out int groupId, dynamicMapTree);
 
             uint gridAreaId = 0;
             float gridMapHeight = MapConst.InvalidHeight;
@@ -894,8 +885,7 @@ namespace Game.Maps
 
                 ground = ground_z;
 
-                LiquidData liquid_status;
-                ZLiquidStatus res = GetLiquidStatus(phaseShift, mapId, x, y, ground_z, LiquidHeaderTypeFlags.AllLiquids, out liquid_status, collisionHeight);
+                ZLiquidStatus res = GetLiquidStatus(phaseShift, mapId, x, y, ground_z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquid_status, collisionHeight);
                 switch (res)
                 {
                     case ZLiquidStatus.AboveWater:

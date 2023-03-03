@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.Entities;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game.Combat
 {
     public class CombatManager
     {
-        Unit _owner;
-        Dictionary<ObjectGuid, CombatReference> _pveRefs = new();
-        Dictionary<ObjectGuid, PvPCombatReference> _pvpRefs = new();
+        readonly Unit _owner;
+        readonly Dictionary<ObjectGuid, CombatReference> _pveRefs = new();
+        readonly Dictionary<ObjectGuid, PvPCombatReference> _pvpRefs = new();
 
         public CombatManager(Unit owner)
         {

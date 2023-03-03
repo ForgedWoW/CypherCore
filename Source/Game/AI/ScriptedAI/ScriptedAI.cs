@@ -1,23 +1,22 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static Game.AI.SmartTarget;
 
 namespace Game.AI
 {
     public class ScriptedAI : CreatureAI
     {
-        Difficulty _difficulty;
+        readonly Difficulty _difficulty;
         bool _isCombatMovementAllowed;
-        bool _isHeroic;
+        readonly bool _isHeroic;
 
         public ScriptedAI(Creature creature) : base(creature)
         {
@@ -505,7 +504,7 @@ namespace Game.AI
     {
         public InstanceScript instance;
         public SummonList summons;
-        uint _bossId;
+        readonly uint _bossId;
 
         public BossAI(Creature creature, uint bossId) : base(creature)
         {
@@ -563,8 +562,7 @@ namespace Game.AI
 
         public void TeleportCheaters()
         {
-            float x, y, z;
-            me.GetPosition(out x, out y, out z);
+            me.GetPosition(out float x, out float y, out float z);
 
             foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
             {
@@ -678,7 +676,7 @@ namespace Game.AI
 
     public class WorldBossAI : ScriptedAI
     {
-        SummonList summons;
+        readonly SummonList summons;
 
         public WorldBossAI(Creature creature) : base(creature)
         {
@@ -756,7 +754,7 @@ namespace Game.AI
 
     public class SummonList : List<ObjectGuid>
     {
-        Creature _me;
+        readonly Creature _me;
 
         public SummonList(Creature creature)
         {
@@ -865,7 +863,7 @@ namespace Game.AI
 
     public class EntryCheckPredicate : ICheck<ObjectGuid>
     {
-        uint _entry;
+        readonly uint _entry;
 
         public EntryCheckPredicate(uint entry)
         {

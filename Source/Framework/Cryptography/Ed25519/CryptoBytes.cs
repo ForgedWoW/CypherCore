@@ -3,9 +3,7 @@
 
 using System;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Diagnostics.Contracts;
 
 namespace Framework.Cryptography.Ed25519
 {

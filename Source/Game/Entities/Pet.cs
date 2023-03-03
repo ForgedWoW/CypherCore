@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Maps;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Game.Entities
 {
@@ -960,8 +960,7 @@ namespace Game.Entities
             byte index;
             foreach (var aura in GetAuraQuery().CanBeSaved().AlsoMatches(a => !IsPetAura(a)).GetResults())
             {
-                uint recalculateMask;
-                AuraKey key = aura.GenerateKey(out recalculateMask);
+                AuraKey key = aura.GenerateKey(out uint recalculateMask);
 
                 // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
                 if (key.Caster == GetGUID())
@@ -1628,7 +1627,7 @@ namespace Game.Entities
         public DeclinedName GetDeclinedNames() { return _declinedname; }
 
         public new Dictionary<uint, PetSpell> m_spells = new();
-        List<uint> m_autospells = new();
+        readonly List<uint> m_autospells = new();
         public bool m_removed;
 
         PetType m_petType;
@@ -1649,7 +1648,7 @@ namespace Game.Entities
 
     public class PetStable
     {
-        static uint UnslottedPetIndexMask = 0x80000000;
+        static readonly uint UnslottedPetIndexMask = 0x80000000;
 
         public class PetInfo
         {

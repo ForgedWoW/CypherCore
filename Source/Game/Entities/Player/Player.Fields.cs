@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Achievements;
 using Game.BattleGrounds;
@@ -10,12 +12,9 @@ using Game.Garrisons;
 using Game.Groups;
 using Game.Loots;
 using Game.Mails;
-using Game.Maps;
 using Game.Misc;
 using Game.Networking.Packets;
 using Game.Spells;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -27,28 +26,28 @@ namespace Game.Entities
         //Gossip
         public PlayerMenu PlayerTalkClass;
         PlayerSocial m_social;
-        List<Channel> m_channels = new();
-        List<ObjectGuid> WhisperList = new();
+        readonly List<Channel> m_channels = new();
+        readonly List<ObjectGuid> WhisperList = new();
         public string autoReplyMsg;
 
         //Inventory
-        Dictionary<ulong, EquipmentSetInfo> _equipmentSets = new();
+        readonly Dictionary<ulong, EquipmentSetInfo> _equipmentSets = new();
         public List<ItemSetEffect> ItemSetEff = new();
-        List<EnchantDuration> m_enchantDuration = new();
-        List<Item> m_itemDuration = new();
-        List<ObjectGuid> m_itemSoulboundTradeable = new();
-        List<ObjectGuid> m_refundableItems = new();
+        readonly List<EnchantDuration> m_enchantDuration = new();
+        readonly List<Item> m_itemDuration = new();
+        readonly List<ObjectGuid> m_itemSoulboundTradeable = new();
+        readonly List<ObjectGuid> m_refundableItems = new();
         public List<Item> ItemUpdateQueue = new();
-        VoidStorageItem[] _voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
-        Item[] m_items = new Item[(int)PlayerSlots.Count];
+        readonly VoidStorageItem[] _voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
+        readonly Item[] m_items = new Item[(int)PlayerSlots.Count];
         uint m_WeaponProficiency;
         uint m_ArmorProficiency;
         uint m_currentBuybackSlot;
         TradeData m_trade;
 
         //PVP
-        BgBattlegroundQueueID_Rec[] m_bgBattlegroundQueueID = new BgBattlegroundQueueID_Rec[SharedConst.MaxPlayerBGQueues];
-        BGData m_bgData;
+        readonly BgBattlegroundQueueID_Rec[] m_bgBattlegroundQueueID = new BgBattlegroundQueueID_Rec[SharedConst.MaxPlayerBGQueues];
+        readonly BGData m_bgData;
         bool m_IsBGRandomWinner;
         public PvPInfo pvpInfo;
         uint m_ArenaTeamIdInvited;
@@ -57,15 +56,14 @@ namespace Game.Entities
         bool _usePvpItemLevels;
 
         //Groups/Raids
-        GroupReference m_group = new();
-        GroupReference m_originalGroup = new();
+        readonly GroupReference m_group = new();
+        readonly GroupReference m_originalGroup = new();
         Group m_groupInvite;
         GroupUpdateFlags m_groupUpdateMask;
         bool m_bPassOnGroupLoot;
-        GroupUpdateCounter[] m_groupUpdateSequences = new GroupUpdateCounter[2];
-
-        Dictionary<uint, uint> m_recentInstances = new();
-        Dictionary<uint, long> _instanceResetTimes = new();
+        readonly GroupUpdateCounter[] m_groupUpdateSequences = new GroupUpdateCounter[2];
+        readonly Dictionary<uint, uint> m_recentInstances = new();
+        readonly Dictionary<uint, long> _instanceResetTimes = new();
         uint _pendingBindId;
         uint _pendingBindTimer;
         public bool m_InstanceValid;
@@ -100,19 +98,19 @@ namespace Game.Entities
         uint m_lastPotionId;
 
         //Spell
-        Dictionary<uint, PlayerSpell> m_spells = new();
-        Dictionary<uint, SkillStatusData> mSkillStatus = new();
-        Dictionary<uint, PlayerCurrency> _currencyStorage = new();
-        List<SpellModifier>[][] m_spellMods = new List<SpellModifier>[(int)SpellModOp.Max][];
-        MultiMap<uint, uint> m_overrideSpells = new();
+        readonly Dictionary<uint, PlayerSpell> m_spells = new();
+        readonly Dictionary<uint, SkillStatusData> mSkillStatus = new();
+        readonly Dictionary<uint, PlayerCurrency> _currencyStorage = new();
+        readonly List<SpellModifier>[][] m_spellMods = new List<SpellModifier>[(int)SpellModOp.Max][];
+        readonly MultiMap<uint, uint> m_overrideSpells = new();
         public Spell m_spellModTakingSpell;
         uint m_oldpetspell;
-        Dictionary<uint, StoredAuraTeleportLocation> m_storedAuraTeleportLocations = new();
+        readonly Dictionary<uint, StoredAuraTeleportLocation> m_storedAuraTeleportLocations = new();
         public float EmpoweredSpellMinHoldPct { get; set; }
 
         //Mail
-        List<Mail> m_mail = new();
-        Dictionary<ulong, Item> mMitems = new();
+        readonly List<Mail> m_mail = new();
+        readonly Dictionary<ulong, Item> mMitems = new();
         public byte unReadMails;
         long m_nextMailDelivereTime;
         public bool m_mailsUpdated;
@@ -127,13 +125,12 @@ namespace Game.Entities
         long m_summon_expire;
         WorldLocation m_summon_location;
         uint m_summon_instanceId;
-
-        RestMgr _restMgr;
+        readonly RestMgr _restMgr;
 
         //Combat
-        int[] baseRatingValue = new int[(int)CombatRating.Max];
-        double[] m_auraBaseFlatMod = new double[(int)BaseModGroup.End];
-        double[] m_auraBasePctMod = new double[(int)BaseModGroup.End];
+        readonly int[] baseRatingValue = new int[(int)CombatRating.Max];
+        readonly double[] m_auraBaseFlatMod = new double[(int)BaseModGroup.End];
+        readonly double[] m_auraBasePctMod = new double[(int)BaseModGroup.End];
         public DuelInfo duel;
         bool m_canParry;
         bool m_canBlock;
@@ -148,16 +145,16 @@ namespace Game.Entities
         uint m_weaponChangeTimer;
 
         //Quest
-        List<uint> m_timedquests = new();
-        List<uint> m_weeklyquests = new();
-        List<uint> m_monthlyquests = new();
-        Dictionary<uint, Dictionary<uint, long>> m_seasonalquests = new();
-        Dictionary<uint, QuestStatusData> m_QuestStatus = new();
-        MultiMap<(QuestObjectiveType Type, int ObjectID), QuestObjectiveStatusData> m_questObjectiveStatus = new();
-        Dictionary<uint, QuestSaveType> m_QuestStatusSave = new();
-        List<uint> m_DFQuests = new();
-        List<uint> m_RewardedQuests = new();
-        Dictionary<uint, QuestSaveType> m_RewardedQuestsSave = new();
+        readonly List<uint> m_timedquests = new();
+        readonly List<uint> m_weeklyquests = new();
+        readonly List<uint> m_monthlyquests = new();
+        readonly Dictionary<uint, Dictionary<uint, long>> m_seasonalquests = new();
+        readonly Dictionary<uint, QuestStatusData> m_QuestStatus = new();
+        readonly MultiMap<(QuestObjectiveType Type, int ObjectID), QuestObjectiveStatusData> m_questObjectiveStatus = new();
+        readonly Dictionary<uint, QuestSaveType> m_QuestStatusSave = new();
+        readonly List<uint> m_DFQuests = new();
+        readonly List<uint> m_RewardedQuests = new();
+        readonly Dictionary<uint, QuestSaveType> m_RewardedQuestsSave = new();
 
         bool m_DailyQuestChanged;
         bool m_WeeklyQuestChanged;
@@ -166,8 +163,7 @@ namespace Game.Entities
         long m_lastDailyQuestTime;
 
         Garrison _garrison;
-
-        CinematicManager _cinematicMgr;
+        readonly CinematicManager _cinematicMgr;
 
         // variables to save health and mana before duel and restore them after duel
         ulong healthBeforeDuel;
@@ -178,7 +174,7 @@ namespace Game.Entities
         WorldLocation _corpseLocation;
 
         //Core
-        WorldSession Session;
+        readonly WorldSession Session;
 
         public PlayerData m_playerData;
         public ActivePlayerData m_activePlayerData;
@@ -198,7 +194,7 @@ namespace Game.Entities
         public WorldObject seerView;
         Team m_team;
         ReputationMgr reputationMgr;
-        QuestObjectiveCriteriaManager m_questObjectiveCriteriaMgr;
+        readonly QuestObjectiveCriteriaManager m_questObjectiveCriteriaMgr;
         public AtLoginFlags atLoginFlags;
         public bool m_itemUpdateQueueBlocked;
 
@@ -215,38 +211,33 @@ namespace Game.Entities
         // Recall position
         WorldLocation m_recall_location;
         uint m_recall_instanceId;
-        WorldLocation homebind = new();
+        readonly WorldLocation homebind = new();
         uint homebindAreaId;
         uint m_HomebindTimer;
 
         ResurrectionData _resurrectionData;
 
         PlayerAchievementMgr m_achievementSys;
+        readonly SceneMgr m_sceneMgr;
+        readonly Dictionary<ObjectGuid, Loot> m_AELootView = new();
+        readonly List<LootRoll> m_lootRolls = new();                                     // loot rolls waiting for answer
 
-        SceneMgr m_sceneMgr;
-
-        Dictionary<ObjectGuid, Loot> m_AELootView = new();
-        List<LootRoll> m_lootRolls = new();                                     // loot rolls waiting for answer
-
-        CUFProfile[] _CUFProfiles = new CUFProfile[PlayerConst.MaxCUFProfiles];
-        double[] m_powerFraction = new double[(int)PowerType.MaxPerClass];
-        int[] m_MirrorTimer = new int[3];
-
-        TimeTracker m_groupUpdateTimer;
+        readonly CUFProfile[] _CUFProfiles = new CUFProfile[PlayerConst.MaxCUFProfiles];
+        readonly double[] m_powerFraction = new double[(int)PowerType.MaxPerClass];
+        readonly int[] m_MirrorTimer = new int[3];
+        readonly TimeTracker m_groupUpdateTimer;
 
         ulong m_GuildIdInvited;
         DeclinedName _declinedname;
         Runes m_runes = new();
         uint m_hostileReferenceCheckTimer;
         uint m_drunkTimer;
-        long m_logintime;
+        readonly long m_logintime;
         long m_Last_tick;
         uint m_PlayedTimeTotal;
         uint m_PlayedTimeLevel;
-
-        Dictionary<int, PlayerSpellState> m_traitConfigStates = new();
-
-        Dictionary<byte, ActionButton> m_actionButtons = new();
+        readonly Dictionary<int, PlayerSpellState> m_traitConfigStates = new();
+        readonly Dictionary<byte, ActionButton> m_actionButtons = new();
         ObjectGuid m_playerSharingQuest;
         uint m_sharedQuestId;
         uint m_ingametime;
@@ -255,11 +246,11 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Player Owner;
-            ObjectFieldData ObjectMask = new();
-            UnitData UnitMask = new();
-            PlayerData PlayerMask = new();
-            ActivePlayerData ActivePlayerMask = new();
+            readonly Player Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly UnitData UnitMask = new();
+            readonly PlayerData PlayerMask = new();
+            readonly ActivePlayerData ActivePlayerMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Player owner)
             {

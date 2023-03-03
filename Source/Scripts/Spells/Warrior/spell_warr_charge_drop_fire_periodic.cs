@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[SpellScript(126661)] // 126661 - Warrior Charge Drop Fire Periodic
+    [SpellScript(126661)] // 126661 - Warrior Charge Drop Fire Periodic
 	internal class spell_warr_charge_drop_fire_periodic : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

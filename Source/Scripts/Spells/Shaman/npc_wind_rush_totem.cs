@@ -8,9 +8,9 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	//192077 - Wind Rush Totem
-	//97285 - NPC ID
-	[CreatureScript(97285)]
+    //192077 - Wind Rush Totem
+    //97285 - NPC ID
+    [CreatureScript(97285)]
 	public class npc_wind_rush_totem : ScriptedAI
 	{
 		public npc_wind_rush_totem(Creature creature) : base(creature)

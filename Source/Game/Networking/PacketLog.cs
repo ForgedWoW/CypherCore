@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
-using Framework.Constants;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using Framework.Configuration;
+using Framework.Constants;
 
 public class PacketLog
 {
-    static object syncObj = new();
-    static string FullPath;
+    static readonly object syncObj = new();
+    static readonly string FullPath;
 
     static PacketLog()
     {

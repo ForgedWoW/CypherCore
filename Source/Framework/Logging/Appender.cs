@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Database;
 using System;
 using System.IO;
 using System.Text;
+using Framework.Database;
 
 class ConsoleAppender : Appender
 {
@@ -34,7 +34,7 @@ class ConsoleAppender : Appender
         return AppenderType.Console;
     }
 
-    ConsoleColor[] _consoleColor;
+    readonly ConsoleColor[] _consoleColor;
 }
 
 class FileAppender : Appender, IDisposable
@@ -107,11 +107,11 @@ class FileAppender : Appender, IDisposable
     }
     #endregion
 
-    string _fileName;
-    string _logDir;
-    bool _dynamicName;
-    FileStream _logStream;
-    object locker = new();
+    readonly string _fileName;
+    readonly string _logDir;
+    readonly bool _dynamicName;
+    readonly FileStream _logStream;
+    readonly object locker = new();
 }
 
 class DBAppender : Appender
@@ -199,10 +199,10 @@ abstract class Appender
         _level = level;
     }
 
-    byte _id;
-    string _name;
+    readonly byte _id;
+    readonly string _name;
     LogLevel _level;
-    AppenderFlags _flags;
+    readonly AppenderFlags _flags;
 }
 
 class LogMessage

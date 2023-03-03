@@ -1,6 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
@@ -14,10 +18,6 @@ using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Entities
 {
@@ -1999,8 +1999,7 @@ namespace Game.Entities
 
                             SendUpdateToPlayer(player);
 
-                            uint zone, subzone;
-                            GetZoneAndAreaId(out zone, out subzone);
+                            GetZoneAndAreaId(out uint zone, out uint subzone);
 
                             int zone_skill = Global.ObjectMgr.GetFishingBaseSkillLevel(subzone);
                             if (zone_skill == 0)
@@ -3723,7 +3722,7 @@ namespace Game.Entities
         // For traps this: spell casting cooldown, for doors/buttons: reset time.
 
         Player m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-        List<ObjectGuid> m_unique_users = new();
+        readonly List<ObjectGuid> m_unique_users = new();
         uint m_usetimes;
 
         List<ObjectGuid> m_tapList = new();
@@ -3741,8 +3740,8 @@ namespace Game.Entities
 
         GameObjectState m_prevGoState;                          // What state to set whenever resetting
 
-        Dictionary<uint, ObjectGuid> ChairListSlots = new();
-        List<ObjectGuid> m_SkillupList = new();
+        readonly Dictionary<uint, ObjectGuid> ChairListSlots = new();
+        readonly List<ObjectGuid> m_SkillupList = new();
 
         public Loot loot;
         Dictionary<ObjectGuid, Loot> m_personalLoot = new();
@@ -3790,7 +3789,7 @@ namespace Game.Entities
         public override Quaternion GetRotation() { return new Quaternion(_owner.GetLocalRotation().X, _owner.GetLocalRotation().Y, _owner.GetLocalRotation().Z, _owner.GetLocalRotation().W); }
         public override float GetScale() { return _owner.GetObjectScale(); }
 
-        GameObject _owner;
+        readonly GameObject _owner;
     }
 
     // Base class for GameObject type specific implementations
@@ -3859,16 +3858,16 @@ namespace Game.Entities
         //11 GAMEOBJECT_TYPE_TRANSPORT
         class Transport : GameObjectTypeBase, ITransport
         {
-            TransportAnimation _animationInfo;
+            readonly TransportAnimation _animationInfo;
             uint _pathProgress;
             uint _stateChangeTime;
             uint _stateChangeProgress;
-            List<uint> _stopFrames = new();
+            readonly List<uint> _stopFrames = new();
             bool _autoCycleBetweenStopFrames;
-            TimeTracker _positionUpdateTimer = new();
-            List<WorldObject> _passengers = new();
+            readonly TimeTracker _positionUpdateTimer = new();
+            readonly List<WorldObject> _passengers = new();
 
-            static TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
+            static readonly TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
 
             public Transport(GameObject owner) : base(owner)
             {
@@ -4165,8 +4164,7 @@ namespace Game.Entities
             {
                 foreach (WorldObject passenger in _passengers)
                 {
-                    float x, y, z, o;
-                    passenger.m_movementInfo.transport.pos.GetPosition(out x, out y, out z, out o);
+                    passenger.m_movementInfo.transport.pos.GetPosition(out float x, out float y, out float z, out float o);
                     CalculatePassengerPosition(ref x, ref y, ref z, ref o);
                     ITransport.UpdatePassengerPosition(this, _owner.GetMap(), passenger, x, y, z, o, true);
                 }
@@ -4242,7 +4240,7 @@ namespace Game.Entities
 
         class SetTransportAutoCycleBetweenStopFrames : GameObjectTypeBase.CustomCommand
         {
-            bool _on;
+            readonly bool _on;
 
             public SetTransportAutoCycleBetweenStopFrames(bool on)
             {

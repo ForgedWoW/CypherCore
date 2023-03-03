@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Druid
 {
-	// 202430 - Nature's Balance
-	[SpellScript(202430)]
+    // 202430 - Nature's Balance
+    [SpellScript(202430)]
 	public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

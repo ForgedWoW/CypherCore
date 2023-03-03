@@ -3,9 +3,7 @@
 
 using Game.AI;
 using Game.Entities;
-using Game.Networking.Packets;
 using Game.Scripting;
-using static Game.AI.SmartAction;
 
 namespace Scripts.Spells.DeathKnight;
 

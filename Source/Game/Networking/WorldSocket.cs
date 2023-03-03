@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Concurrent;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
 using Game.Networking.Packets;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Game.Networking
 {
@@ -27,31 +26,29 @@ namespace Game.Networking
         static readonly byte[] EncryptionKeySeed = { 0xE9, 0x75, 0x3C, 0x50, 0x90, 0x93, 0x61, 0xDA, 0x3B, 0x07, 0xEE, 0xFA, 0xFF, 0x9D, 0x41, 0xB8 };
 
         static readonly int HeaderSize = 16;
-
-        SocketBuffer _headerBuffer;
-        SocketBuffer _packetBuffer;
+        readonly SocketBuffer _headerBuffer;
+        readonly SocketBuffer _packetBuffer;
 
         ConnectionType _connectType;
         ulong _key;
 
         byte[] _serverChallenge;
-        WorldCrypt _worldCrypt;
+        readonly WorldCrypt _worldCrypt;
         byte[] _sessionKey;
-        byte[] _encryptKey;
+        readonly byte[] _encryptKey;
 
         long _LastPingTime;
         uint _OverSpeedPings;
-
-        object _worldSessionLock = new();
+        readonly object _worldSessionLock = new();
         WorldSession _worldSession;
 
         ZLib.z_stream _compressionStream;
 
         AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
         string _ipCountry;
-        ConcurrentQueue<ServerPacket> _sendQueue = new();
-        AutoResetEvent _queueTrigger = new AutoResetEvent(false);
-        Task _packetThread;
+        readonly ConcurrentQueue<ServerPacket> _sendQueue = new();
+        readonly AutoResetEvent _queueTrigger = new AutoResetEvent(false);
+        readonly Task _packetThread;
 
         public WorldSocket(Socket socket) : base(socket)
         {
@@ -394,8 +391,7 @@ namespace Game.Networking
                                 buffer.WriteInt32(packetSize + 2);
                                 buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
 
-                                byte[] compressedData;
-                                uint compressedSize = CompressPacket(data, opcode, out compressedData);
+                                uint compressedSize = CompressPacket(data, opcode, out byte[] compressedData);
                                 buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
                                 buffer.WriteBytes(compressedData, compressedSize);
 

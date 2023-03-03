@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(WarlockSpells.INQUISITORS_GAZE)]
+    [SpellScript(WarlockSpells.INQUISITORS_GAZE)]
 	public class spell_warlock_inquisitors_gaze : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

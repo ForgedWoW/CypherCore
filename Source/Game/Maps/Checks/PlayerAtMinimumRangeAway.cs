@@ -20,6 +20,6 @@ class PlayerAtMinimumRangeAway : ICheck<Player>
         return false;
     }
 
-    Unit unit;
-    float fRange;
+    readonly Unit unit;
+    readonly float fRange;
 }

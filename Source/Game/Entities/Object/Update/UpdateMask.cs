@@ -8,10 +8,10 @@ namespace Game.Entities
 {
     public class UpdateMask
     {
-        int _blockCount;
-        int _blocksMaskCount;
-        uint[] _blocks;
-        uint[] _blocksMask;
+        readonly int _blockCount;
+        readonly int _blocksMaskCount;
+        readonly uint[] _blocks;
+        readonly uint[] _blocksMask;
 
         public UpdateMask(int bits, uint[] input = null)
         {

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System;
 using System.Collections.Generic;
+using Framework.Constants;
 
 namespace Game.Entities
 {
@@ -24,8 +24,8 @@ namespace Game.Entities
             return Convert.ToInt32(m_ascending ? rA < rB : rA > rB);
         }
 
-        PowerType m_power;
-        bool m_ascending;
+        readonly PowerType m_power;
+        readonly bool m_ascending;
     }
 
     public class HealthPctOrderPred : IComparer<WorldObject>
@@ -44,7 +44,7 @@ namespace Game.Entities
             return Convert.ToInt32(m_ascending ? rA < rB : rA > rB);
         }
 
-        bool m_ascending;
+        readonly bool m_ascending;
     }
 
     public class ObjectDistanceOrderPred : IComparer<WorldObject>
@@ -60,7 +60,7 @@ namespace Game.Entities
             return (m_ascending ? m_refObj.GetDistanceOrder(pLeft, pRight) : !m_refObj.GetDistanceOrder(pLeft, pRight)) ? 1 : 0;
         }
 
-        WorldObject m_refObj;
-        bool m_ascending;
+        readonly WorldObject m_refObj;
+        readonly bool m_ascending;
     }
 }

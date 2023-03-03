@@ -11,8 +11,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	// 88766 - Fulmination
-	[SpellScript(88766)]
+    // 88766 - Fulmination
+    [SpellScript(88766)]
 	public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

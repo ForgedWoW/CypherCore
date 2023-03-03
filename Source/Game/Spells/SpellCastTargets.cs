@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
 using Game.Networking.Packets;
-using System;
 
 namespace Game.Spells
 {
@@ -393,7 +393,7 @@ namespace Game.Spells
 
         float m_pitch;
         float m_speed;
-        string m_strTarget;
+        readonly string m_strTarget;
         #endregion
     }
 }

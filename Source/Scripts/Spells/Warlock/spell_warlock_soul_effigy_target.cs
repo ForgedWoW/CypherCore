@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 205178 - Soul Effigy target
-	[SpellScript(205178)]
+    // 205178 - Soul Effigy target
+    [SpellScript(205178)]
 	public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

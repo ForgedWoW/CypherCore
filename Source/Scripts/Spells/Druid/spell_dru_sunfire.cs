@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Druid
 {
-	[Script] //  93402 - Sunfire
+    [Script] //  93402 - Sunfire
 	internal class spell_dru_sunfire : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -1,6 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -10,13 +15,6 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using System.Text;
-using static Game.AI.SmartAction;
 
 namespace Game.Entities
 {
@@ -1798,8 +1796,7 @@ namespace Game.Entities
             if (proto.HasFlag(ItemFlags2.OverrideGoldCost))
                 return proto.GetSellPrice();
 
-            bool standardPrice;
-            uint cost = GetBuyPrice(proto, quality, itemLevel, out standardPrice);
+            uint cost = GetBuyPrice(proto, quality, itemLevel, out bool standardPrice);
 
             if (standardPrice)
             {
@@ -2785,15 +2782,15 @@ namespace Game.Entities
         List<ObjectGuid> allowedGUIDs = new();
         uint m_randomBonusListId;        // store separately to easily find which bonus list is the one randomly given for stat rerolling
         ObjectGuid m_childItem;
-        Dictionary<uint, ushort> m_artifactPowerIdToIndex = new();
-        Array<uint> m_gemScalingLevels = new(ItemConst.MaxGemSockets);
+        readonly Dictionary<uint, ushort> m_artifactPowerIdToIndex = new();
+        readonly Array<uint> m_gemScalingLevels = new(ItemConst.MaxGemSockets);
         #endregion
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Item Owner;
-            ObjectFieldData ObjectMask = new();
-            ItemData ItemMask = new();
+            readonly Item Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly ItemData ItemMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Item owner)
             {

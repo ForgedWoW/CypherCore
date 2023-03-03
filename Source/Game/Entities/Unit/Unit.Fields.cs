@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Constants;
-using Framework.Util;
 using Game.AI;
 using Game.Combat;
 using Game.DataStorage;
@@ -11,8 +12,6 @@ using Game.Movement;
 using Game.Networking.Packets;
 using Game.Spells;
 using Game.Spells.Auras;
-using System;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -24,11 +23,12 @@ namespace Game.Entities
 
         //Movement
         protected float[] m_speed_rate = new float[(int)UnitMoveType.Max];
-        List<AbstractFollower> m_followingMe = new();
+        readonly List<AbstractFollower> m_followingMe = new();
         public MoveSpline MoveSpline { get; set; }
-        MotionMaster i_motionMaster;
+
+        readonly MotionMaster i_motionMaster;
         public uint m_movementCounter;       //< Incrementing counter used in movement packets
-        TimeTracker splineSyncTimer;
+        readonly TimeTracker splineSyncTimer;
         MovementForces _movementForces;
         PositionUpdateInfo _positionUpdateInfo;
         protected Unit m_unitMovedByMe;    // only ever set for players, and only for direct client control
@@ -36,17 +36,16 @@ namespace Game.Entities
 
         //Combat
         protected List<Unit> attackerList = new();
-        Dictionary<ReactiveType, uint> m_reactiveTimer = new();
+        readonly Dictionary<ReactiveType, uint> m_reactiveTimer = new();
         protected double[][] m_weaponDamage = new double[(int)WeaponAttackType.Max][];
-
-        uint[] m_baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
+        readonly uint[] m_baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
         internal double[] m_modAttackSpeedPct = new double[(int)WeaponAttackType.Max];
         protected uint[] m_attackTimer = new uint[(int)WeaponAttackType.Max];
         bool _isCombatDisallowed;
 
         // Threat+combat management
-        CombatManager m_combatManager;
-        ThreatManager m_threatManager;
+        readonly CombatManager m_combatManager;
+        readonly ThreatManager m_threatManager;
 
         protected Unit attacking;
 
@@ -58,12 +57,12 @@ namespace Game.Entities
         public uint RegenTimer { get; set; }
 
         uint _lastExtraAttackSpell;
-        Dictionary<ObjectGuid, uint> extraAttacksTargets = new();
+        readonly Dictionary<ObjectGuid, uint> extraAttacksTargets = new();
         ObjectGuid _lastDamagedTargetGuid;
 
         //Charm
         public List<Unit> m_Controlled = new();
-        List<Player> m_sharedVision = new();
+        readonly List<Player> m_sharedVision = new();
         Unit m_charmer; // Unit that is charming ME
         Unit m_charmed; // Unit that is being charmed BY ME
         CharmInfo m_charmInfo;
@@ -75,36 +74,35 @@ namespace Game.Entities
 
         //Spells 
         protected Dictionary<CurrentSpellTypes, Spell> m_currentSpells = new((int)CurrentSpellTypes.Max);
-        MultiMap<uint, uint>[] m_spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
+        readonly MultiMap<uint, uint>[] m_spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
         SpellAuraInterruptFlags m_interruptMask;
         SpellAuraInterruptFlags2 m_interruptMask2;
         protected int m_procDeep;
         SpellHistory _spellHistory;
 
         //Auras
-        MultiMap<AuraType, AuraEffect> m_modAuras = new();
-        List<Aura> m_removedAuras = new();
-        List<AuraApplication> m_interruptableAuras = new();             // auras which have interrupt mask applied on unit
-        MultiMap<AuraStateType, AuraApplication> m_auraStateAuras = new();        // Used for improve performance of aura state checks on aura apply/remove
-        SortedSet<AuraApplication> m_visibleAuras = new(new VisibleAuraSlotCompare());
-        SortedSet<AuraApplication> m_visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
-        AuraApplicationCollection m_appliedAuras = new();
-        AuraCollection m_ownedAuras = new();
-        List<Aura> m_scAuras = new();
+        readonly MultiMap<AuraType, AuraEffect> m_modAuras = new();
+        readonly List<Aura> m_removedAuras = new();
+        readonly List<AuraApplication> m_interruptableAuras = new();             // auras which have interrupt mask applied on unit
+        readonly MultiMap<AuraStateType, AuraApplication> m_auraStateAuras = new();        // Used for improve performance of aura state checks on aura apply/remove
+        readonly SortedSet<AuraApplication> m_visibleAuras = new(new VisibleAuraSlotCompare());
+        readonly SortedSet<AuraApplication> m_visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
+        readonly AuraApplicationCollection m_appliedAuras = new();
+        readonly AuraCollection m_ownedAuras = new();
+        readonly List<Aura> m_scAuras = new();
         protected double[][] m_auraFlatModifiersGroup = new double[(int)UnitMods.End][];
         protected double[][] m_auraPctModifiersGroup = new double[(int)UnitMods.End][];
         uint m_removedAurasCount;
 
         //General  
         public UnitData m_unitData;
-
-        DiminishingReturn[] m_Diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
+        readonly DiminishingReturn[] m_Diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
         protected List<GameObject> m_gameObj = new();
-        List<AreaTrigger> m_areaTrigger = new();
+        readonly List<AreaTrigger> m_areaTrigger = new();
         protected List<DynamicObject> m_dynObj = new();
         protected float[] CreateStats = new float[(int)Stats.Max];
-        double[] m_floatStatPosBuff = new double[(int)Stats.Max];
-        double[] m_floatStatNegBuff = new double[(int)Stats.Max];
+        readonly double[] m_floatStatPosBuff = new double[(int)Stats.Max];
+        readonly double[] m_floatStatNegBuff = new double[(int)Stats.Max];
         public ObjectGuid[] m_SummonSlot = new ObjectGuid[7];
         public ObjectGuid[] m_ObjectSlot = new ObjectGuid[4];
         public UnitTypeMask UnitTypeMask { get; set; }
@@ -131,9 +129,9 @@ namespace Game.Entities
 
         class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
         {
-            Unit Owner;
-            ObjectFieldData ObjectMask = new();
-            UnitData UnitMask = new();
+            readonly Unit Owner;
+            readonly ObjectFieldData ObjectMask = new();
+            readonly UnitData UnitMask = new();
 
             public ValuesUpdateForPlayerWithMaskSender(Unit owner)
             {
@@ -227,16 +225,16 @@ namespace Game.Entities
 
         public Spell GetProcSpell() { return _spell; }
 
-        Unit _actor;
-        Unit _actionTarget;
-        Unit _procTarget;
-        ProcFlagsInit _typeMask;
-        ProcFlagsSpellType _spellTypeMask;
-        ProcFlagsSpellPhase _spellPhaseMask;
-        ProcFlagsHit _hitMask;
-        Spell _spell;
-        DamageInfo _damageInfo;
-        HealInfo _healInfo;
+        readonly Unit _actor;
+        readonly Unit _actionTarget;
+        readonly Unit _procTarget;
+        readonly ProcFlagsInit _typeMask;
+        readonly ProcFlagsSpellType _spellTypeMask;
+        readonly ProcFlagsSpellPhase _spellPhaseMask;
+        readonly ProcFlagsHit _hitMask;
+        readonly Spell _spell;
+        readonly DamageInfo _damageInfo;
+        readonly HealInfo _healInfo;
     }
 
     public class DamageInfo
@@ -385,14 +383,14 @@ namespace Game.Entities
         public double GetBlock() { return m_block; }
         public ProcFlagsHit GetHitMask() { return m_hitMask; }
 
-        Unit m_attacker;
-        Unit m_victim;
+        readonly Unit m_attacker;
+        readonly Unit m_victim;
         double m_damage;
-        double m_originalDamage;
-        SpellInfo m_spellInfo;
-        SpellSchoolMask m_schoolMask;
-        DamageEffectType m_damageType;
-        WeaponAttackType m_attackType;
+        readonly double m_originalDamage;
+        readonly SpellInfo m_spellInfo;
+        readonly SpellSchoolMask m_schoolMask;
+        readonly DamageEffectType m_damageType;
+        readonly WeaponAttackType m_attackType;
         double m_absorb;
         double m_resist;
         double m_block;
@@ -432,14 +430,14 @@ namespace Game.Entities
         public SpellSchoolMask GetSchoolMask() { return _schoolMask; }
         ProcFlagsHit GetHitMask() { return _hitMask; }
 
-        Unit _healer;
-        Unit _target;
+        readonly Unit _healer;
+        readonly Unit _target;
         double _heal;
-        double _originalHeal;
+        readonly double _originalHeal;
         double _effectiveHeal;
         double _absorb;
-        SpellInfo _spellInfo;
-        SpellSchoolMask _schoolMask;
+        readonly SpellInfo _spellInfo;
+        readonly SpellSchoolMask _schoolMask;
         ProcFlagsHit _hitMask;
     }
 
@@ -533,8 +531,8 @@ namespace Game.Entities
             _chargesRemoved = amount;
         }
 
-        WorldObject _dispeller;
-        uint _dispellerSpell;
+        readonly WorldObject _dispeller;
+        readonly uint _dispellerSpell;
         byte _chargesRemoved;
     }
 

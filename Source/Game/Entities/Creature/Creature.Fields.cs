@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Loots;
 using Game.Spells;
-using System.Collections.Generic;
 
 namespace Game.Entities
 {
@@ -12,14 +12,13 @@ namespace Game.Entities
     {
         CreatureTemplate m_creatureInfo;
         CreatureData m_creatureData;
-
-        string[] m_stringIds = new string[3];
+        readonly string[] m_stringIds = new string[3];
         string m_scriptStringId;
 
         SpellFocusInfo _spellFocusInfo;
 
         long _lastDamagedTime; // Part of Evade mechanics
-        MultiMap<byte, byte> m_textRepeat = new();
+        readonly MultiMap<byte, byte> m_textRepeat = new();
 
         // Regenerate health
         bool _regenerateHealth; // Set on creation
@@ -45,9 +44,8 @@ namespace Game.Entities
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         public uint m_originalEntry;
-
-        Position m_homePosition;
-        Position m_transportHomePosition = new();
+        readonly Position m_homePosition;
+        readonly Position m_transportHomePosition = new();
 
         bool DisableReputationGain;
 
@@ -77,7 +75,7 @@ namespace Game.Entities
         uint m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
 
         // vendor items
-        List<VendorItemCount> m_vendorItemCounts = new();
+        readonly List<VendorItemCount> m_vendorItemCounts = new();
 
         internal Dictionary<ObjectGuid, Loot> m_personalLoot = new();
         public Loot _loot;

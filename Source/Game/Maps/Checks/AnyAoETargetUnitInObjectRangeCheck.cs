@@ -49,10 +49,10 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
         return u.IsInMap(i_obj) && u.InSamePhase(i_obj) && u.IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);
     }
 
-    WorldObject i_obj;
-    Unit i_funit;
-    SpellInfo _spellInfo;
-    float i_range;
-    bool i_incOwnRadius;
-    bool i_incTargetRadius;
+    readonly WorldObject i_obj;
+    readonly Unit i_funit;
+    readonly SpellInfo _spellInfo;
+    readonly float i_range;
+    readonly bool i_incOwnRadius;
+    readonly bool i_incTargetRadius;
 }

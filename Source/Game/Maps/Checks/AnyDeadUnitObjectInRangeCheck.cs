@@ -29,6 +29,6 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
         return false;
     }
 
-    WorldObject i_searchObj;
-    float i_range;
+    readonly WorldObject i_searchObj;
+    readonly float i_range;
 }

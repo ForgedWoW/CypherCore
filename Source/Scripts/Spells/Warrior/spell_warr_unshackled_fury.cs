@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	// Unshackled Fury - 76856
-	[SpellScript(76856)]
+    // Unshackled Fury - 76856
+    [SpellScript(76856)]
 	public class spell_warr_unshackled_fury : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

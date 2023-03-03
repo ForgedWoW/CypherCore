@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Druid
 {
-	internal struct DruidSpellIds
+    internal struct DruidSpellIds
 	{
 		public static uint BalanceT10Bonus = 70718;
 		public static uint BalanceT10BonusProc = 70721;

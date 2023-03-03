@@ -11,8 +11,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Eye Laser - 205231
-	[SpellScript(205231)]
+    // Eye Laser - 205231
+    [SpellScript(205231)]
 	public class spell_warl_eye_laser : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

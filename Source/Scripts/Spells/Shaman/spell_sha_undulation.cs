@@ -6,10 +6,10 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Shaman
 {
-	// Undulation
-	// 8004 Healing Surge
-	// 77472 Healing Wave
-	[SpellScript(new uint[]
+    // Undulation
+    // 8004 Healing Surge
+    // 77472 Healing Wave
+    [SpellScript(new uint[]
 	             {
 		             8004, 77472
 	             })]

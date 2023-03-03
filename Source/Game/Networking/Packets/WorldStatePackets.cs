@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using System.Collections.Generic;
+using Framework.Constants;
 
 namespace Game.Networking.Packets
 {
@@ -52,8 +52,7 @@ namespace Game.Networking.Packets
         public uint AreaID;
         public uint SubareaID;
         public uint MapID;
-
-        List<WorldStateInfo> Worldstates = new();
+        readonly List<WorldStateInfo> Worldstates = new();
 
         struct WorldStateInfo
         {

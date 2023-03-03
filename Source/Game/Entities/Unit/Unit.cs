@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.BattleGrounds;
@@ -16,11 +19,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Game.Entities
 {
@@ -1169,7 +1167,7 @@ namespace Game.Entities
             }
         }
 
-        static TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
+        static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
 
         void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
         {
@@ -2012,9 +2010,8 @@ namespace Game.Entities
                 return;
 
             UpdateData udata = new(GetMapId());
-            UpdateObject packet;
             BuildValuesUpdateBlockForPlayerWithFlag(udata, UpdateFieldFlag.Owner, player);
-            udata.BuildPacket(out packet);
+            udata.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
         }
         public ObjectGuid GetCreatorGUID() { return m_unitData.CreatedBy; }

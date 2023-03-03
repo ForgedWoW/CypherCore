@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using BNetServer.Networking;
-using Framework.Configuration;
-using Framework.Cryptography;
-using Framework.Database;
-using Framework.Networking;
 using System;
 using System.Globalization;
 using System.Timers;
+using BNetServer.Networking;
+using Framework.Configuration;
+using Framework.Database;
+using Framework.Networking;
 
 namespace BNetServer
 {

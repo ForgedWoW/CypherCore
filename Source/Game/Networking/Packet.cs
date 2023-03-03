@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Framework.IO;
 using Game.Entities;
-using System;
 
 namespace Game.Networking
 {
@@ -83,7 +83,7 @@ namespace Game.Networking
         public ConnectionType GetConnection() { return connectionType; }
 
         byte[] buffer;
-        ConnectionType connectionType;
+        readonly ConnectionType connectionType;
         protected WorldPacket _worldPacket;
     }
 
@@ -140,11 +140,9 @@ namespace Game.Networking
                 return;
             }
 
-            byte lowMask, highMask;
-            byte[] lowPacked, highPacked;
 
-            var loSize = PackUInt64(guid.GetLowValue(), out lowMask, out lowPacked);
-            var hiSize = PackUInt64(guid.GetHighValue(), out highMask, out highPacked);
+            var loSize = PackUInt64(guid.GetLowValue(), out byte lowMask, out byte[] lowPacked);
+            var hiSize = PackUInt64(guid.GetHighValue(), out byte highMask, out byte[] highPacked);
 
             WriteUInt8(lowMask);
             WriteUInt8(highMask);
@@ -154,9 +152,7 @@ namespace Game.Networking
 
         public void WritePackedUInt64(ulong guid)
         {
-            byte mask;
-            byte[] packed;
-            var packedSize = PackUInt64(guid, out mask, out packed);
+            var packedSize = PackUInt64(guid, out byte mask, out byte[] packed);
 
             WriteUInt8(mask);
             WriteBytes(packed, packedSize);
@@ -193,16 +189,14 @@ namespace Game.Networking
             if (pos == null)
                 return;
 
-            float x, y, z;
-            pos.GetPosition(out x, out y, out z);
+            pos.GetPosition(out float x, out float y, out float z);
             WriteFloat(x);
             WriteFloat(y);
             WriteFloat(z);
         }
         public void WriteXYZO(Position pos)
         {
-            float x, y, z, o;
-            pos.GetPosition(out x, out y, out z, out o);
+            pos.GetPosition(out float x, out float y, out float z, out float o);
             WriteFloat(x);
             WriteFloat(y);
             WriteFloat(z);
@@ -214,7 +208,7 @@ namespace Game.Networking
         public DateTime GetReceivedTime() { return m_receivedTime; }
         public void SetReceiveTime(DateTime receivedTime) { m_receivedTime = receivedTime; }
 
-        uint opcode;
+        readonly uint opcode;
         DateTime m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
     }
 

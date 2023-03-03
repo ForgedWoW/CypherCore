@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Framework.Constants;
+using Game.DataStorage;
+using Game.Entities;
+using Game.Maps;
 
 namespace Game.Movement
 {
@@ -175,8 +175,7 @@ namespace Game.Movement
 
             for (int src = 0, dst = 1; dst < taxi.Count; src = dst++)
             {
-                uint path, cost;
-                Global.ObjectMgr.GetTaxiPath(taxi[src], taxi[dst], out path, out cost);
+                Global.ObjectMgr.GetTaxiPath(taxi[src], taxi[dst], out uint path, out uint cost);
                 if (path >= CliDB.TaxiPathNodesByPath.Keys.Max())
                     return;
 
@@ -308,9 +307,9 @@ namespace Game.Movement
         uint _endMapId;               //! map Id of last node location
         uint _preloadTargetNode;      //! node index where preloading starts
 
-        List<TaxiPathNodeRecord> _path = new();
+        readonly List<TaxiPathNodeRecord> _path = new();
         int _currentNode;
-        List<TaxiNodeChangeInfo> _pointsForPathSwitch = new();    //! node indexes and costs where TaxiPath changes
+        readonly List<TaxiNodeChangeInfo> _pointsForPathSwitch = new();    //! node indexes and costs where TaxiPath changes
 
         class TaxiNodeChangeInfo
         {

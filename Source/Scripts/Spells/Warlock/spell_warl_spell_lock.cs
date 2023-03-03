@@ -10,8 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Warlock
 {
-	// Spell Lock - 119910
-	[SpellScript(119910)]
+    // Spell Lock - 119910
+    [SpellScript(119910)]
 	public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

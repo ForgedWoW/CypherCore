@@ -2,13 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
-using Google.Protobuf.WellKnownTypes;
 
 namespace System.Collections.Generic
 {
     public sealed class MultiMap<TKey, TValue>
     {
-        static List<object> _emptyList = new List<object>();
+        static readonly List<object> _emptyList = new List<object>();
         public MultiMap() { }
 
         public MultiMap(IEqualityComparer<TKey> keyComparer)
@@ -149,8 +148,7 @@ namespace System.Collections.Generic
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            List<TValue> valueList;
-            if (_interalStorage.TryGetValue(item.Key, out valueList))
+            if (_interalStorage.TryGetValue(item.Key, out List<TValue> valueList))
                 return valueList.Contains(item.Value);
             return false;
         }
@@ -291,7 +289,7 @@ namespace System.Collections.Generic
             return _interalStorage == null || _interalStorage.Count == 0;  
         }
 
-        private Dictionary<TKey, List<TValue>> _interalStorage = new();
+        private readonly Dictionary<TKey, List<TValue>> _interalStorage = new();
     }
     
 }

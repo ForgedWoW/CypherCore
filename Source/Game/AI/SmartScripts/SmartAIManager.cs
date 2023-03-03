@@ -1,25 +1,23 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
-using Framework.Database;
-using Game.Achievements;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Movement;
-using Game.Spells;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static Game.AI.SmartAction;
+using Framework.Constants;
+using Framework.Database;
+using Game.DataStorage;
+using Game.Entities;
+using Game.Movement;
+using Game.Spells;
 
 namespace Game.AI
 {
     public class SmartAIManager : Singleton<SmartAIManager>
     {
-        MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
-        Dictionary<uint, WaypointPath> _waypointStore = new();
+        readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
+        readonly Dictionary<uint, WaypointPath> _waypointStore = new();
 
         SmartAIManager()
         {

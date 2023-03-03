@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warrior
 {
-	[Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
+    [Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
 	internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new();

@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// Grimoire of Service summons - 111859, 111895, 111896, 111897, 111898
-	[SpellScript(new uint[]
+    // Grimoire of Service summons - 111859, 111895, 111896, 111897, 111898
+    [SpellScript(new uint[]
 	             {
 		             111859, 111895, 111896, 111897, 111898
 	             })]

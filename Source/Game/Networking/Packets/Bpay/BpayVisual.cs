@@ -1,17 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Framework.Constants;
-using Game.Battlepay;
-using Game.BattlePets;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static Game.AI.SmartAction;
-using static Game.ScriptNameContainer;
-
 namespace Game.Networking.Packets.Bpay
 {
     public class BpayVisual

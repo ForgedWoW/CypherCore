@@ -69,11 +69,11 @@ public partial class Detour
 
     public class dtNodePool
     {
-        private dtNode[] m_nodes;
-        private dtNodeIndex[] m_first;
-        private dtNodeIndex[] m_next;
-        private int m_maxNodes;
-        private int m_hashSize;
+        private readonly dtNode[] m_nodes;
+        private readonly dtNodeIndex[] m_first;
+        private readonly dtNodeIndex[] m_next;
+        private readonly int m_maxNodes;
+        private readonly int m_hashSize;
         private int m_nodeCount;
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -206,8 +206,8 @@ public partial class Detour
     //////////////////////////////////////////////////////////////////////////////////////////
     public class dtNodeQueue
     {
-        private dtNode[] m_heap;
-        private int m_capacity;
+        private readonly dtNode[] m_heap;
+        private readonly int m_capacity;
         private int m_size;
 
         public dtNodeQueue(int n)

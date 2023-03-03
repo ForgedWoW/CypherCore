@@ -3,17 +3,13 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	[SpellScript(WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE)]
+    [SpellScript(WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE)]
 	public class spell_warl_channel_demonfire_damage : SpellScript, IHasSpellEffects
 	{
 		public List<ISpellEffect> SpellEffects { get; } = new List<ISpellEffect>();

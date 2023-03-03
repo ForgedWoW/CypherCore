@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game.Conditions;
 using Game.Entities;
-using System.Linq;
 
 namespace Game
 {

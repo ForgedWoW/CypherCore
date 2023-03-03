@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
-using Framework.Constants;
-using Game.DataStorage;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Framework.Configuration;
+using Framework.Constants;
+using Game.DataStorage;
 
 namespace Game.Entities
 {
@@ -64,7 +64,7 @@ namespace Game.Entities
             return false;
         }
 
-        static SkillType[] item_weapon_skills =
+        static readonly SkillType[] item_weapon_skills =
         {
             SkillType.Axes,             SkillType.TwoHandedAxes,    SkillType.Bows,     SkillType.Guns,             SkillType.Maces,
             SkillType.TwoHandedMaces,   SkillType.Polearms,         SkillType.Swords,   SkillType.TwoHandedSwords,  SkillType.Warglaives,
@@ -73,19 +73,18 @@ namespace Game.Entities
             SkillType.ClassicFishing
         };
 
-        static SkillType[] item_armor_skills =
+        static readonly SkillType[] item_armor_skills =
         {
             0, SkillType.Cloth, SkillType.Leather, SkillType.Mail, SkillType.PlateMail, 0, SkillType.Shield, 0, 0, 0, 0, 0
         };
 
-        static SkillType[] itemProfessionSkills =
+        static readonly SkillType[] itemProfessionSkills =
         {
             SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy,     SkillType.Herbalism,  SkillType.Cooking,
             SkillType.Mining,        SkillType.Tailoring,      SkillType.Engineering, SkillType.Enchanting, SkillType.Fishing,
             SkillType.Skinning,      SkillType.Jewelcrafting,  SkillType.Inscription, SkillType.Archaeology
         };
-
-        SkillType[] item_profession_skills =
+        readonly SkillType[] item_profession_skills =
         {
             SkillType.Blacksmithing, SkillType.Leatherworking, SkillType.Alchemy, SkillType.Herbalism, SkillType.Cooking,
             SkillType.ClassicBlacksmithing, SkillType.ClassicLeatherworking, SkillType.ClassicAlchemy, SkillType.ClassicHerbalism, SkillType.ClassicCooking,

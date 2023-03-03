@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Networking.Packets;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Game
 {
@@ -890,10 +890,9 @@ namespace Game
         public List<uint> DependentPreviousQuests = new();
         public List<uint> DependentBreadcrumbQuests = new();
         public QueryQuestInfoResponse[] response = new QueryQuestInfoResponse[(int)Locale.Total];
-
-        uint _rewChoiceItemsCount;
-        uint _rewItemsCount;
-        uint _rewCurrencyCount;
+        readonly uint _rewChoiceItemsCount;
+        readonly uint _rewItemsCount;
+        readonly uint _rewCurrencyCount;
         ushort _eventIdForQuest;
         #endregion
     }

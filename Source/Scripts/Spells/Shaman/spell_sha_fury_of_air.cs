@@ -9,8 +9,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Shaman
 {
-	//197211 - Fury of Air
-	[SpellScript(197211)]
+    //197211 - Fury of Air
+    [SpellScript(197211)]
 	public class spell_sha_fury_of_air : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();

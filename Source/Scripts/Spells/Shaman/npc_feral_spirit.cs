@@ -8,8 +8,8 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Shaman
 {
-	// 29264
-	[CreatureScript(29264)]
+    // 29264
+    [CreatureScript(29264)]
 	public class npc_feral_spirit : ScriptedAI
 	{
 		public npc_feral_spirit(Creature p_Creature) : base(p_Creature)

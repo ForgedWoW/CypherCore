@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
-using System.Linq;
 
 namespace Game
 {

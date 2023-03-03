@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
-	// 196305 - Eternal Struggle
-	[SpellScript(196305)]
+    // 196305 - Eternal Struggle
+    [SpellScript(196305)]
 	public class spell_warlock_artifact_eternal_struggle : AuraScript, IHasAuraEffects
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();

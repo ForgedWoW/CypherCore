@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Warlock
 {
-	internal struct WarlockSpells
+    internal struct WarlockSpells
 	{
 		public const uint ABSOLUTE_CORRUPTION = 196103;
 		public const uint AFTERMATH_STUN = 85387;

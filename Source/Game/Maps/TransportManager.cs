@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Movement;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace Game.Maps
 {
@@ -474,10 +474,10 @@ namespace Game.Maps
             return _transportSpawns.LookupByKey(spawnId);
         }
 
-        Dictionary<uint, TransportTemplate> _transportTemplates = new();
-        MultiMap<uint, TransportSpawn> _transportsByMap = new();
-        Dictionary<uint, TransportAnimation> _transportAnimations = new();
-        Dictionary<ulong, TransportSpawn> _transportSpawns = new();
+        readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
+        readonly MultiMap<uint, TransportSpawn> _transportsByMap = new();
+        readonly Dictionary<uint, TransportAnimation> _transportAnimations = new();
+        readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
     }
 
     public class TransportPathSegment
@@ -560,9 +560,8 @@ namespace Game.Maps
             float splinePointProgress = 0;
             leg.Spline.ComputeIndex((float)Math.Min(distanceMoved / leg.Spline.Length(), 1.0), ref splineIndex, ref splinePointProgress);
 
-            Vector3 pos, dir;
-            leg.Spline.Evaluate_Percent(splineIndex, splinePointProgress, out pos);
-            leg.Spline.Evaluate_Derivative(splineIndex, splinePointProgress, out dir);
+            leg.Spline.Evaluate_Percent(splineIndex, splinePointProgress, out Vector3 pos);
+            leg.Spline.Evaluate_Derivative(splineIndex, splinePointProgress, out Vector3 dir);
 
             moveState = isOnPause ? TransportMovementState.WaitingOnPauseWaypoint : TransportMovementState.Moving;
             legIndex = PathLegs.IndexOf(leg);
@@ -673,7 +672,7 @@ namespace Game.Maps
             hi = points.Length - 2;
         }
 
-        List<Vector3> _points;
+        readonly List<Vector3> _points;
     }
 
     public class TransportAnimation
