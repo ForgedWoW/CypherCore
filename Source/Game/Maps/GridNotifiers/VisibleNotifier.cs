@@ -100,5 +100,4 @@ namespace Game.Maps
         internal List<ObjectGuid> vis_guids;
         internal List<Unit> i_visibleNow;
     }
-    #endregion
 }
