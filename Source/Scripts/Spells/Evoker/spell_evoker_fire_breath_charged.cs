@@ -14,41 +14,44 @@ namespace Scripts.Spells.Evoker
         private void CalcDirectDamage(int index)
         {
             var caster = GetCaster();
-            var target = GetHitUnit();
-            var spellInfo = GetSpellInfo();
 
-            if (!GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
-                GetCaster().TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura);
+            if (!caster.TryGetAura(EvokerSpells.FIRE_BREATH, out var aura))
+                caster.TryGetAura(EvokerSpells.FIRE_BREATH_2, out aura);
 
-            int multi = 1;
-            switch (aura.EmpowerStage)
+            if (aura != null)
             {
-                case 1:
-                    multi = 3;
-                    break;
-                case 2:
-                    multi = 6;
-                    break;
-                case 3:
-                    multi = 9;
-                    break;
-                default:
-                    break;
-            }
+                int multi = 1;
+                switch (aura.EmpowerStage)
+                {
+                    case 1:
+                        multi = 3;
+                        break;
+                    case 2:
+                        multi = 6;
+                        break;
+                    case 3:
+                        multi = 9;
+                        break;
+                    default:
+                        break;
+                }
 
-            if (multi != 1)
-            {
-                var spell = GetSpell();
-                double damage = caster.CalculateSpellDamage(target, GetEffectInfo(1)) * multi;
-                var bonus = caster.SpellDamageBonusDone(target, spellInfo, damage, DamageEffectType.SpellDirect, GetEffectInfo(1), 1, spell);
-                damage = bonus + (bonus * spell.variance);
-                spell.damage += target.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
+                if (multi != 1)
+                {
+                    var target = GetHitUnit();
+                    var spellInfo = GetSpellInfo();
+                    var spell = GetSpell();
+                    double damage = caster.CalculateSpellDamage(target, GetEffectInfo(1)) * multi;
+                    var bonus = caster.SpellDamageBonusDone(target, spellInfo, damage, DamageEffectType.SpellDirect, GetEffectInfo(1), 1, spell);
+                    damage = bonus + (bonus * spell.variance);
+                    spell.damage += target.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
+                }
             }
         }
 
         public override void Register()
         {
-            SpellEffects.Add(new EffectHandler(CalcDirectDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+            SpellEffects.Add(new EffectHandler(CalcDirectDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Hit));
         }
     }
 }

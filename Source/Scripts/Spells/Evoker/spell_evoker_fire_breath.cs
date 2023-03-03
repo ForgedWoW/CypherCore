@@ -1,4 +1,5 @@
 ﻿using Game.DataStorage;
+using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
@@ -10,8 +11,6 @@ namespace Scripts.Spells.Evoker
         public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
         {
             GetCaster().CastSpell(EvokerSpells.FIRE_BREATH_CHARGED, true);
-            GetCaster().RemoveAura(EvokerSpells.FIRE_BREATH);
-            GetCaster().RemoveAura(EvokerSpells.FIRE_BREATH_2);
         }
 
         public void EmpowerSpellStageChange(SpellEmpowerStageRecord oldStage, SpellEmpowerStageRecord newStage)
