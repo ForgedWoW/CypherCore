@@ -601,13 +601,17 @@ namespace Game
                 case "Creature":
                 {
                     var creatureBounds = spawns.GetMap().GetCreatureBySpawnIdStore().LookupByKey(guid);
-                    foreach (var creature in creatureBounds)
+                    for (int i = creatureBounds.Count -1; i > 0; i--) // this gets modified.
                     {
-                        // For dynamic spawns, save respawn time here
-                        if (saveRespawnTime && !creature.GetRespawnCompatibilityMode())
-                            creature.SaveRespawnTime();
+                        if (creatureBounds.Count > i)
+                        {
+                            var creature = creatureBounds[i];
+                            // For dynamic spawns, save respawn time here
+                            if (saveRespawnTime && !creature.GetRespawnCompatibilityMode())
+                                creature.SaveRespawnTime();
 
-                        creature.AddObjectToRemoveList();
+                            creature.AddObjectToRemoveList();
+                        }
                     }
 
                     if (alwaysDeleteRespawnTime)
