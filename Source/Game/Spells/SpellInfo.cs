@@ -12,6 +12,7 @@ using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
+using static Game.ScriptNameContainer;
 
 namespace Game.Spells
 {
@@ -4340,19 +4341,31 @@ namespace Game.Spells
 
         public bool HasRadius()
         {
-            return RadiusEntry != null;
+            return RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
         }
 
         public bool HasMaxRadius()
         {
-            return MaxRadiusEntry != null;
+            return MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
+        }
+
+        public SpellRadiusRecord GetLargestRange()
+        {
+            bool max = HasMaxRadius();
+            bool min = HasRadius();
+
+            if (max && !min)
+                return MaxRadiusEntry;
+
+            if (min && !max)
+                return RadiusEntry;
+
+            return RadiusEntry.RadiusMax > MaxRadiusEntry.RadiusMax ? RadiusEntry : MaxRadiusEntry;
         }
 
         public float CalcRadius(WorldObject caster = null, Spell spell = null)
         {
-            SpellRadiusRecord entry = RadiusEntry;
-            if (!HasRadius() && HasMaxRadius())
-                entry = MaxRadiusEntry;
+            SpellRadiusRecord entry = GetLargestRange();
 
             if (entry == null)
                 return 0.0f;
