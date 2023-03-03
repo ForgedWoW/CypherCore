@@ -8368,7 +8368,7 @@ namespace Game.Spells
         byte _empoweredSpellStage;
         uint _empoweredSpellDelta;
 
-        public byte? EmpoweredStage;
+        public byte? EmpoweredStage { get; set; }
 
         SpellEvent _spellEvent;
         readonly TriggerCastFlags _triggeredCastFlags;
