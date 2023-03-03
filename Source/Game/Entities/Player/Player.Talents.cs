@@ -284,7 +284,7 @@ namespace Game.Entities
             RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeSpec);
 
             // remove single target auras at other targets
-            var scAuras = GetSingleCastAuras();
+            var scAuras = GetSingleCastAuras().ToList();
             foreach (var aura in scAuras)
             {
                 if (aura.GetUnitOwner() != this)
