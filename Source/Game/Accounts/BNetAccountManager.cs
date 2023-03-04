@@ -51,7 +51,7 @@ namespace Game
                 return AccountOpResult.PassTooLong;
 
             PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_PASSWORD);
-            stmt.AddValue(0, CalculateShaPassHash(username, newPassword.ToUpper()));
+            stmt.AddValue(0, CalculateShaPassHash(username.ToUpper(), newPassword.ToUpper()));
             stmt.AddValue(1, accountId);
             DB.Login.DirectExecute(stmt);
 
@@ -65,7 +65,7 @@ namespace Game
 
             PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);
             stmt.AddValue(0, accountId);
-            stmt.AddValue(1, CalculateShaPassHash(username, password.ToUpper()));
+            stmt.AddValue(1, CalculateShaPassHash(username.ToUpper(), password.ToUpper()));
 
             return !DB.Login.Query(stmt).IsEmpty();
         }
