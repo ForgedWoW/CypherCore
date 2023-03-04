@@ -14,40 +14,28 @@ namespace Scripts.Spells.Warlock
     [SpellScript(228974)]
 	public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
 	{
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return ValidateSpellInfo(WarlockSpells.DEMON_SKIN);
-		}
-
 		public bool CheckProc(ProcEventInfo eventInfo)
 		{
-			var caster = GetCaster();
-
-			if (caster == null)
+			if (!TryGetCaster(out var caster))
 				return false;
 
 			var basePoints = GetSpellInfo().GetEffect(0).BasePoints;
-			var absorb     = ((eventInfo.GetDamageInfo() != null ? eventInfo.GetDamageInfo().GetDamage() : 0) * basePoints) / 100.0f;
+			var absorb = ((eventInfo.GetDamageInfo() != null ? eventInfo.GetDamageInfo().GetDamage() : 0) * basePoints) / 100.0f;
 
 			// Add remaining amount if already applied
-			var aur = caster.GetAura(WarlockSpells.SOUL_LEECH_ABSORB);
+			if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
+				absorb += auraEffect.GetAmount();
 
-			if (aur != null)
-			{
-				var aurEff = aur.GetEffect(0);
-
-				if (aurEff != null)
-					absorb += aurEff.GetAmount();
-			}
-
-			// Cannot go over 15% (or 20% with Demonskin) max health
+			// Cannot go over 5% (or 10% with Demonskin) max health
 			var basePointNormal = GetSpellInfo().GetEffect(1).BasePoints;
-			var basePointDS     = Global.SpellMgr.GetSpellInfo(WarlockSpells.DEMON_SKIN, Difficulty.None).GetEffect(1).BasePoints;
-			var totalBP         = caster.HasAura(WarlockSpells.DEMON_SKIN) ? basePointDS : basePointNormal;
-			var threshold       = ((int)caster.GetMaxHealth() * totalBP) / 100.0f;
-			absorb = (int)Math.Min(absorb, threshold);
 
-			caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorb));
+			if (caster.TryGetAura(WarlockSpells.DEMON_SKIN, out var ds))
+				basePointNormal = ds.GetEffect(1).GetAmount();
+
+			var threshold = (caster.GetMaxHealth() * basePointNormal) / 100.0f;
+			absorb = Math.Min(absorb, threshold);
+
+			caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
 
 			return true;
 		}

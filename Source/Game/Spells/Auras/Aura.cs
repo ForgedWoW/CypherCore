@@ -2543,6 +2543,15 @@ namespace Game.Spells
 
             return null;
         }
+
+        public bool TryGetEffect(int index, out AuraEffect val)
+        {
+            if (_effects.TryGetValue(index, out val))
+                return true;
+
+            return false;
+        }
+
         public uint GetEffectMask()
         {
             uint effMask = 0;

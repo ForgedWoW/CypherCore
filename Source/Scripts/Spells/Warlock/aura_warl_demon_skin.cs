@@ -1,8 +1,8 @@
-﻿using System;
+﻿// Copyright(c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -17,7 +17,16 @@ namespace Scripts.Spells.Warlock
 
         void Periodic(AuraEffect eff)
         {
+            if (!TryGetCaster(out var caster)) return;
 
+            double absorb = (caster.GetMaxHealth() * (GetEffect(0).GetBaseAmount() / 10)) / 100.0f;
+
+            if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
+                absorb += auraEffect.GetAmount();
+
+            var threshold = (caster.GetMaxHealth() * GetEffect(1).GetBaseAmount()) / 100.0f;
+            absorb = Math.Min(absorb, threshold);
+            caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
         }
 
         public override void Register()

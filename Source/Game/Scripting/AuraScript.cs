@@ -134,12 +134,24 @@ namespace Game.Scripting
         // returns unit which casted the aura or null if not avalible (caster logged out for example)
         public Unit GetCaster()
         {
-            WorldObject caster = _aura.GetCaster();
+            return _aura.GetCaster();
+        }
 
-            if (caster != null)
-                return caster.ToUnit();
+        public bool TryGetCaster(out Unit caster)
+        {
+            caster = GetCaster();
+            
+            return caster != null;
+        }
 
-            return null;
+        public bool TryGetCasterAsPlayer(out Player player)
+        {
+            var caster = _aura.GetCaster();
+
+            if (caster.TryGetAsPlayer(out player))
+                return true;
+
+            return false;
         }
 
         // returns gameobject which cast the aura or NULL if not available
