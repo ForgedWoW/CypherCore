@@ -3583,7 +3583,10 @@ namespace Game.Entities
         public void _UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
         {
             if (aurApp.GetBase().GetApplicationOfTarget(GetGUID()) != aurApp)
+            {
+                Log.outError(LogFilter.Server, $"Tried to remove aura app with spell ID: {aurApp.GetBase().GetSpellInfo().Id} that does not match. GetApplicationOfTarget: {aurApp.GetBase().GetApplicationOfTarget(GetGUID()).Guid} AuraApp: {aurApp.Guid}");
                 return;
+            }
 
             //Check if aura was already removed, if so just return.
             if (!m_appliedAuras.Remove(aurApp))
