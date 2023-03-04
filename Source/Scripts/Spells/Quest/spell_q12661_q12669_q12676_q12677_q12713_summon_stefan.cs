@@ -21,7 +21,7 @@ internal class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : SpellScr
 		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCasterBack));
 	}
 
-	private void SetDest(ref SpellDestination dest)
+	private void SetDest(SpellDestination dest)
 	{
 		// Adjust effect summon position
 		Position offset = new(0.0f, 0.0f, 20.0f, 0.0f);

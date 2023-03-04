@@ -76,7 +76,6 @@ namespace Scripts.Spells.Warlock
 		public const uint DEMONIC_GATEWAY_SUMMON_PURPLE = 113890;
 		public const uint DEMONIC_GATEWAY_VISUAL = 113900;
 		public const uint DEMONIC_LEAP_JUMP = 109163;
-		public const uint DEMONSKIN = 219272;
 		public const uint DEMONWRATH_AURA = 193440;
 		public const uint DEMONWRATH_SOULSHARD = 194379;
 		public const uint DEMON_SKIN = 219272;

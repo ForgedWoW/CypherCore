@@ -32,12 +32,12 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 		}
 	}
 
-	private void OnAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double UnnamedParameter)
+	private double OnAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double UnnamedParameter)
 	{
 		var caster = GetCaster();
 
 		if (caster == null)
-			return;
+			return UnnamedParameter;
 
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
 			if (aurApp.GetTarget() != caster)
@@ -49,6 +49,8 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 				if (caster.HasAura(MonkSpells.GOOD_KARMA_TALENT))
 					caster.CastSpell(caster, MonkSpells.GOOD_KARMA_TALENT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
 			}
+
+		return UnnamedParameter;
 	}
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)

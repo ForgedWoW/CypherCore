@@ -20,23 +20,21 @@ public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var target = GetTarget();
 
 		if (dmgInfo.GetDamage() < target.GetHealth())
-			return;
+			return absorbAmount;
 
 		// No damage received under Shroud of Purgatory
 		if (target.ToPlayer().HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
 		{
-			absorbAmount = dmgInfo.GetDamage();
-
-			return;
+			return dmgInfo.GetDamage();
 		}
 
 		if (target.ToPlayer().HasAura(DeathKnightSpells.PERDITION))
-			return;
+			return absorbAmount;
 
 		double bp   = dmgInfo.GetDamage();
 		var   args = new CastSpellExtraArgs();
@@ -45,7 +43,7 @@ public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 		target.CastSpell(target, DeathKnightSpells.SHROUD_OF_PURGATORY, args);
 		target.CastSpell(target, DeathKnightSpells.PERDITION, TriggerCastFlags.FullMask);
 		target.SetHealth(1);
-		absorbAmount = dmgInfo.GetDamage();
+		return dmgInfo.GetDamage();
 	}
 
 	public override void Register()

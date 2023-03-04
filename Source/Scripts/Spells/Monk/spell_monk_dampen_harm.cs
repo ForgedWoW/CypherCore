@@ -28,16 +28,18 @@ public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var target = GetTarget();
 		var health = target.CountPctFromMaxHealth(healthPct);
 
 		if (dmgInfo.GetDamage() < health)
-			return;
+			return absorbAmount;
 
 		absorbAmount = dmgInfo.GetDamage() * (GetSpellInfo().GetEffect(0).CalcValue(GetCaster()) / 100);
 		auraEffect.GetBase().DropCharge();
+
+		return absorbAmount;
 	}
 
 	public override void Register()

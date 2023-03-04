@@ -15,7 +15,7 @@ public class spell_mage_arcane_missiles_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void CheckTarget(ref WorldObject target)
+	private void CheckTarget(WorldObject target)
 	{
 		if (target == GetCaster())
 			target = null;

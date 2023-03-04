@@ -83,7 +83,7 @@ namespace Scripts.DragonIsles.RubyLifePools
             SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 1, Targets.DestDest));
         }
 
-        private void SetDest(ref SpellDestination dest)
+        private void SetDest(SpellDestination dest)
         {
             dest.RelocateOffset(new Position(9.0f, 0.0f, 4.0f, 0.0f));
         }

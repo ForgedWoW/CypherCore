@@ -21,7 +21,7 @@ public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 		public const uint T17Blood4P = 165571;
 	}
 
-	private void AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, ref double p_AbsorbAmount)
+	private double AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, double p_AbsorbAmount)
 	{
 		var l_Target = GetTarget();
 
@@ -43,6 +43,8 @@ public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 				}
 			}
 		}
+
+		return p_AbsorbAmount;
 	}
 
 	public override void Register()

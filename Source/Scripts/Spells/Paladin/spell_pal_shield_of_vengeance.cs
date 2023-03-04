@@ -32,15 +32,16 @@ namespace Scripts.Spells.Paladin
             }
         }
 
-        private void Absorb(AuraEffect aura, DamageInfo damageInfo, ref double absorbAmount)
+        private double Absorb(AuraEffect aura, DamageInfo damageInfo, double absorbAmount)
         {
             Unit caster = GetCaster();
             if (caster == null)
             {
-                return;
+                return absorbAmount;
             }
 
             currentAbsorb += (int)damageInfo.GetDamage();
+            return absorbAmount;
         }
 
         private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)

@@ -8,6 +8,7 @@ using System.Threading;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Models;
 using Framework.Networking;
 using Game;
 using Game.Chat;

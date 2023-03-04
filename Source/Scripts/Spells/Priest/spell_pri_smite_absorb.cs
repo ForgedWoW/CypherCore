@@ -15,13 +15,13 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster   = GetCaster();
 		var attacker = dmgInfo.GetAttacker();
 
 		if (caster == null || attacker == null)
-			return;
+			return absorbAmount;
 
 		if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GetGUID()))
 		{
@@ -52,6 +52,8 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 				}
 			}
 		}
+
+		return absorbAmount;
 	}
 
 	public override void Register()

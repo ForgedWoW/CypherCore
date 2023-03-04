@@ -34,12 +34,14 @@ namespace Scripts.Spells.Paladin
             AuraEffects.Add(new AuraEffectSplitHandler(Split, 0));
         }
 
-        private void Split(AuraEffect aurEff, DamageInfo dmgInfo, ref double splitAmount)
+        private double Split(AuraEffect aurEff, DamageInfo dmgInfo, double splitAmount)
         {
             remainingAmount -= (int)splitAmount;
 
             if (remainingAmount <= 0)
                 GetTarget().RemoveAura(PaladinSpells.HandOfSacrifice);
+
+            return splitAmount;
         }
     }
 }

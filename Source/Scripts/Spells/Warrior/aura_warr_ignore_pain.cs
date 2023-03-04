@@ -48,7 +48,7 @@ namespace Scripts.Spells.Warrior
 			}
 		}
 
-		private void OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double UnnamedParameter2)
+		private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double UnnamedParameter2)
 		{
 			var caster = GetCaster();
 
@@ -60,6 +60,8 @@ namespace Scripts.Spells.Warrior
 				caster.DealSpellDamage(spell, false);
 				caster.SendSpellNonMeleeDamageLog(spell);
 			}
+
+			return UnnamedParameter2;
 		}
 
 		public override void Register()

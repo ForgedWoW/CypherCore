@@ -21,7 +21,7 @@ internal class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon :
 		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCasterBack));
 	}
 
-	private void SetDest(ref SpellDestination dest)
+	private void SetDest(SpellDestination dest)
 	{
 		// Adjust effect summon position
 		Position offset = new(0.0f, 0.0f, 20.0f, 0.0f);

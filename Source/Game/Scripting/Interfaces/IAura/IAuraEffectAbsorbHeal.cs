@@ -10,16 +10,14 @@ namespace Game.Scripting.Interfaces.IAura
 {
     public interface IAuraEffectAbsorbHeal : IAuraEffectHandler
     {
-        void HandleAbsorb(AuraEffect aura, HealInfo healInfo, ref double absorbAmount);
+        double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount);
     }
 
     public class AuraEffectAbsorbHealHandler : AuraEffectHandler, IAuraEffectAbsorbHeal
     {
-        public delegate void AuraEffectAbsorbHealDelegate(AuraEffect aura, HealInfo healInfo, ref double absorbAmount);
+        private readonly Func<AuraEffect, HealInfo, double, double> _fn;
 
-        private readonly AuraEffectAbsorbHealDelegate _fn;
-
-        public AuraEffectAbsorbHealHandler(AuraEffectAbsorbHealDelegate fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
+        public AuraEffectAbsorbHealHandler(Func<AuraEffect, HealInfo, double, double> fn, int effectIndex, AuraType auraType, AuraScriptHookType hookType) : base(effectIndex, auraType, hookType)
         {
             _fn = fn;
 
@@ -30,9 +28,9 @@ namespace Game.Scripting.Interfaces.IAura
                 throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectAbsorbHealHandler)}. Use {AuraScriptHookType.EffectAbsorbHeal}, {AuraScriptHookType.EffectAfterManaShield}, {AuraScriptHookType.EffectManaShield} or {AuraScriptHookType.EffectAfterAbsorbHeal}");
         }
 
-        public void HandleAbsorb(AuraEffect aura, HealInfo healInfo, ref double absorbAmount)
+        public double HandleAbsorb(AuraEffect aura, HealInfo healInfo, double absorbAmount)
         {
-            _fn(aura, healInfo, ref absorbAmount);
+            return _fn(aura, healInfo, absorbAmount);
         }
     }
 }

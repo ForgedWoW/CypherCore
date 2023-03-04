@@ -25,7 +25,7 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0, false, AuraScriptHookType.EffectAbsorb));
 	}
 
-	private void HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var effectInfo = GetEffect(1);
 
@@ -37,12 +37,14 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 		{
 			PreventDefaultAction();
 
-			return;
+			return absorbAmount;
 		}
 
 		GetTarget().SetHealth(GetTarget().CountPctFromMaxHealth(effectInfo.GetAmount()));
 		GetTarget().CastSpell(GetTarget(), GetEffectInfo(2).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 		GetTarget().CastSpell(GetTarget(), MageSpells.CauterizeDot, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 		GetTarget().CastSpell(GetTarget(), MageSpells.Cauterized, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+
+		return absorbAmount;	
 	}
 }

@@ -28,12 +28,14 @@ public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 		p_Amount = -1;
 	}
 
-	private void Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		absorbAmount = 0;
 
 		if (GetTarget().GetHealthPct() < GetEffect(2).GetBaseAmount())
 			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), GetEffect(1).GetBaseAmount());
+
+		return absorbAmount;
 	}
 
 	public override void Register()

@@ -21,7 +21,7 @@ internal class spell_q12847_summon_soul_moveto_bunny : SpellScript, IHasSpellEff
 		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
 	}
 
-	private void SetDest(ref SpellDestination dest)
+	private void SetDest(SpellDestination dest)
 	{
 		// Adjust effect summon position
 		Position offset = new(0.0f, 0.0f, 2.5f, 0.0f);

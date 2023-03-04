@@ -24,17 +24,17 @@ namespace Scripts.Spells.Shaman
 			amount = (int)GetCaster().GetHealth();
 		}
 
-		private void HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+		private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 		{
 			var caster = GetCaster();
 
 			if (caster == null || !caster.IsTotem())
-				return;
+				return absorbAmount;
 
 			var owner = caster.GetOwner();
 
 			if (owner == null)
-				return;
+				return absorbAmount;
 
 			if (dmgInfo.GetDamage() - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
 				absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
@@ -43,6 +43,7 @@ namespace Scripts.Spells.Shaman
 
 			//201657 - The damager
 			caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+			return absorbAmount;
 		}
 
 		public override void Register()

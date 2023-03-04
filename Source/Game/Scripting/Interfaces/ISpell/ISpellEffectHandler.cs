@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 
 namespace Game.Scripting.Interfaces.ISpell
@@ -14,11 +15,9 @@ namespace Game.Scripting.Interfaces.ISpell
 
     public class EffectHandler : SpellEffect, ISpellEffectHandler
     {
-        public delegate void SpellEffectFn(int index);
+        private readonly Action<int> _callEffect;
 
-        private readonly SpellEffectFn _callEffect;
-
-        public EffectHandler(SpellEffectFn callEffect, int effectIndex, SpellEffectName spellEffectName, SpellScriptHookType hookType) : base(effectIndex, hookType)
+        public EffectHandler(Action<int> callEffect, int effectIndex, SpellEffectName spellEffectName, SpellScriptHookType hookType) : base(effectIndex, hookType)
         {
             EffectName = spellEffectName;
             _callEffect = callEffect;

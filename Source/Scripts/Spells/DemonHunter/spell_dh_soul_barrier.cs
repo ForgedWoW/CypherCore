@@ -94,12 +94,12 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 				app.ClientUpdate();
 	}
 
-	private void HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster = GetCaster();
 
 		if (caster == null)
-			return;
+			return absorbAmount;
 
 		var threshold = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.4914f;
 
@@ -111,6 +111,8 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 		if (appList != null)
 			foreach (var app in appList)
 				app.ClientUpdate();
+
+		return absorbAmount;
 	}
 
 	public override void Register()

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Spells;
 
@@ -13,11 +14,9 @@ namespace Game.Scripting.Interfaces.IAura
 
     public class AuraEffectPeriodicHandler : AuraEffectHandler, IAuraPeriodic
     {
-        public delegate void AuraEffectPeriodicDelegate(AuraEffect aura);
+        private readonly Action<AuraEffect> _fn;
 
-        private readonly AuraEffectPeriodicDelegate _fn;
-
-        public AuraEffectPeriodicHandler(AuraEffectPeriodicDelegate fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectPeriodic)
+        public AuraEffectPeriodicHandler(Action<AuraEffect> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectPeriodic)
         {
             _fn = fn;
         }

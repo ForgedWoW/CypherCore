@@ -26,13 +26,15 @@ namespace Scripts.Spells.Druid
 			AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAfterAbsorb, 0, false, AuraScriptHookType.EffectAfterAbsorb));
 		}
 
-		private void HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+		private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 		{
 			// Prevent Removal
 			PreventDefaultAction();
+
+			return absorbAmount;
 		}
 
-		private void HandleAfterAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+		private double HandleAfterAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 		{
 			// reflect back Damage to the Attacker
 			var target   = GetTarget();
@@ -40,6 +42,8 @@ namespace Scripts.Spells.Druid
 
 			if (attacker != null)
 				target.CastSpell(attacker, DruidSpellIds.BramblesRelect, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+		
+			return absorbAmount;
 		}
 	}
 }

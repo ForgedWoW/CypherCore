@@ -284,7 +284,7 @@ namespace Game.Spells
                 default:
                     break;
             }
-            GetBase().CallScriptEffectCalcSpellModHandlers(this, ref m_spellmod);
+            GetBase().CallScriptEffectCalcSpellModHandlers(this, m_spellmod);
         }
         public void ChangeAmount(double newAmount, bool mark = true, bool onStackOrReapply = false, AuraEffect triggeredBy = null)
         {

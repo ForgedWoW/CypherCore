@@ -25,12 +25,15 @@ internal class spell_mage_firestarter_dots : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectCalcCritChanceHandler(CalcCritChance, SpellConst.EffectAll, AuraType.PeriodicDamage));
 	}
 
-	private void CalcCritChance(AuraEffect aurEff, Unit victim, ref double critChance)
+	private double CalcCritChance(AuraEffect aurEff, Unit victim, double critChance)
 	{
 		var aurEff0 = GetCaster().GetAuraEffect(MageSpells.Firestarter, 0);
 
 		if (aurEff0 != null)
 			if (victim.GetHealthPct() >= aurEff0.GetAmount())
 				critChance = 100.0f;
-	}
+
+		return critChance;
+
+    }
 }

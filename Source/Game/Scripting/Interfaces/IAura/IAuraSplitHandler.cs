@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
@@ -9,23 +10,23 @@ namespace Game.Scripting.Interfaces.IAura
 {
     public interface IAuraSplitHandler : IAuraEffectHandler
     {
-        void Split(AuraEffect aura, DamageInfo damageInfo, ref double splitAmount);
+        double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount);
     }
 
     public class AuraEffectSplitHandler : AuraEffectHandler, IAuraSplitHandler
     {
         public delegate void AuraEffectSplitDelegate(AuraEffect aura, DamageInfo damageInfo, ref double splitAmount);
 
-        private readonly AuraEffectSplitDelegate _fn;
+        private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
 
-        public AuraEffectSplitHandler(AuraEffectSplitDelegate fn, int effectIndex) : base(effectIndex, AuraType.SplitDamagePct, AuraScriptHookType.EffectSplit)
+        public AuraEffectSplitHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex) : base(effectIndex, AuraType.SplitDamagePct, AuraScriptHookType.EffectSplit)
         {
             _fn = fn;
         }
 
-        public void Split(AuraEffect aura, DamageInfo damageInfo, ref double splitAmount)
+        public double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount)
         {
-            _fn(aura, damageInfo, ref splitAmount);
+            return _fn(aura, damageInfo, splitAmount);
         }
     }
 }

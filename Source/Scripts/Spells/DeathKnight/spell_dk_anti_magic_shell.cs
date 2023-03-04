@@ -52,7 +52,7 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 		amount = (int)MathFunctions.CalculatePct(maxHealth, absorbPct);
 	}
 
-	private void Trigger(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Trigger(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		absorbedAmount += absorbAmount;
 
@@ -62,7 +62,9 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
 			GetTarget().CastSpell(GetTarget(), DeathKnightSpells.RunicPowerEnergize, args);
 		}
-	}
+
+		return absorbAmount;
+    }
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{

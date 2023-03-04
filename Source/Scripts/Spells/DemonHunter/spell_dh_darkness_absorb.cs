@@ -21,17 +21,19 @@ public class spell_dh_darkness_absorb : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster = GetCaster();
 
 		if (caster == null)
-			return;
+			return absorbAmount;
 
 		var chance = GetSpellInfo().GetEffect(1).BasePoints + caster.GetAuraEffectAmount(ShatteredSoulsSpells.COVER_OF_DARKNESS, 0);
 
 		if (RandomHelper.randChance(chance))
 			absorbAmount = dmgInfo.GetDamage();
+
+		return absorbAmount;
 	}
 
 	public override void Register()

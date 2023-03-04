@@ -46,19 +46,21 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		return null;
 	}
 
-	private void AbsorbNormal(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double AbsorbNormal(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		Absorb(dmgInfo, 1.0f);
+		return absorbAmount;
 	}
 
-	private void AbsorbMagic(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double AbsorbMagic(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var effect = GetEffect(4);
 
 		if (effect == null)
-			return;
+			return absorbAmount;
 
 		Absorb(dmgInfo, effect.GetAmount() / 100.0f);
+		return absorbAmount; 
 	}
 
 	private void Absorb(DamageInfo dmgInfo, double multiplier)
@@ -91,7 +93,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
 		if (absorbAmount > 0)
 		{
-			dmgInfo.AbsorbDamage((uint)absorbAmount);
+			dmgInfo.AbsorbDamage(absorbAmount);
 
 			// Cast stagger and make it tick on each tick
 			AddAndRefreshStagger(absorbAmount);

@@ -7856,7 +7856,7 @@ namespace Game.Spells
 
                 if (script.Item2 is ISpellObjectTargetSelectHandler ots)
                     if (targetType.GetTarget() == ots.TargetType)
-                        ots.TargetSelect(ref target);
+                        ots.TargetSelect(target);
 
                 script.Item1._FinishScriptCall();
             }
@@ -7870,7 +7870,7 @@ namespace Game.Spells
 
                 if (script.Item2 is ISpellDestinationTargetSelectHandler dts)
                     if (targetType.GetTarget() == dts.TargetType)
-                        dts.SetDest(ref target);
+                        dts.SetDest(target);
 
                 script.Item1._FinishScriptCall();
             }

@@ -31,20 +31,18 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var target = GetTarget().ToPlayer();
 
 		if (target.HasAura(CheatDeath.CHEAT_DEATH_DMG_REDUC))
 		{
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), 85);
-
-			return;
+			return MathFunctions.CalculatePct(dmgInfo.GetDamage(), 85);
 		}
 		else
 		{
 			if (dmgInfo.GetDamage() < target.GetHealth() || target.HasAura(RogueSpells.CHEAT_DEATH_COOLDOWN))
-				return;
+				return absorbAmount;
 
 			var health7 = target.CountPctFromMaxHealth(7);
 			target.SetHealth(1);
@@ -55,6 +53,8 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 			target.CastSpell(target, RogueSpells.CHEAT_DEATH_COOLDOWN, true);
 			absorbAmount = dmgInfo.GetDamage();
 		}
+
+		return absorbAmount;
 	}
 
 	public override void Register()

@@ -15,11 +15,9 @@ namespace Game.Scripting.Interfaces.IAura
 
     public class AuraEffectApplyHandler : AuraEffectHandler, IAuraApplyHandler
     {
-        public delegate void AuraEffectApplicationModeDelegate(AuraEffect aura, AuraEffectHandleModes auraMode);
+        private readonly Action<AuraEffect, AuraEffectHandleModes> _fn;
 
-        private readonly AuraEffectApplicationModeDelegate _fn;
-
-        public AuraEffectApplyHandler(AuraEffectApplicationModeDelegate fn, int effectIndex, AuraType auraType, AuraEffectHandleModes mode, AuraScriptHookType hookType = AuraScriptHookType.EffectApply) : base(effectIndex, auraType, hookType)
+        public AuraEffectApplyHandler(Action<AuraEffect, AuraEffectHandleModes> fn, int effectIndex, AuraType auraType, AuraEffectHandleModes mode, AuraScriptHookType hookType = AuraScriptHookType.EffectApply) : base(effectIndex, auraType, hookType)
         {
             _fn = fn;
             Modes = mode;

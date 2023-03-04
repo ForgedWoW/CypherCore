@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
+using Framework.Models;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
@@ -2202,19 +2203,25 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcPeriodic);
 
-                ((IAuraCalcPeriodic)auraScript.Item2).CalcPeriodic(aurEff, ref isPeriodic, ref amplitude);
+                var boxed = new BoxedValue<bool>(isPeriodic);
+                var amp = new BoxedValue<int>(amplitude);
+
+                ((IAuraCalcPeriodic)auraScript.Item2).CalcPeriodic(aurEff, boxed, amp);
+
+                isPeriodic = boxed.Value;
+                amplitude = amp.Value;
 
                 auraScript.Item1._FinishScriptCall();
             }
         }
 
-        public void CallScriptEffectCalcSpellModHandlers(AuraEffect aurEff, ref SpellModifier spellMod)
+        public void CallScriptEffectCalcSpellModHandlers(AuraEffect aurEff, SpellModifier spellMod)
         {
             foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectCalcSpellmod, aurEff.GetEffIndex()))
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcSpellmod);
 
-                ((IAuraCalcSpellMod)auraScript.Item2).CalcSpellMod(aurEff, ref spellMod);
+                ((IAuraCalcSpellMod)auraScript.Item2).CalcSpellMod(aurEff, spellMod);
 
                 auraScript.Item1._FinishScriptCall();
             }
@@ -2226,7 +2233,7 @@ namespace Game.Spells
             {
                 loadedScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcCritChance, aurApp);
 
-                ((IAuraCalcCritChance)loadedScript.Item2).CalcCritChance(aurEff, victim, ref critChance);
+                critChance = ((IAuraCalcCritChance)loadedScript.Item2).CalcCritChance(aurEff, victim, critChance);
 
                 loadedScript.Item1._FinishScriptCall();
             }
@@ -2238,7 +2245,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAbsorb, aurApp);
 
-                ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
 
                 defaultPrevented = auraScript.Item1._IsDefaultActionPrevented();
                 auraScript.Item1._FinishScriptCall();
@@ -2251,7 +2258,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterAbsorb, aurApp);
 
-                ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
 
                 auraScript.Item1._FinishScriptCall();
             }
@@ -2263,7 +2270,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAbsorb, aurApp);
 
-                ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, absorbAmount);
 
                 defaultPrevented = auraScript.Item1._IsDefaultActionPrevented();
                 auraScript.Item1._FinishScriptCall();
@@ -2276,7 +2283,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterAbsorbHeal, aurApp);
 
-                ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, absorbAmount);
 
                 auraScript.Item1._FinishScriptCall();
             }
@@ -2288,7 +2295,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectManaShield, aurApp);
 
-                ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
 
                 auraScript.Item1._FinishScriptCall();
             }
@@ -2300,7 +2307,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterManaShield, aurApp);
 
-                ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, ref absorbAmount);
+                absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
 
                 auraScript.Item1._FinishScriptCall();
             }
@@ -2312,7 +2319,7 @@ namespace Game.Spells
             {
                 auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectSplit, aurApp);
 
-                ((IAuraSplitHandler)auraScript.Item2).Split(aurEff, dmgInfo, ref splitAmount);
+                splitAmount = ((IAuraSplitHandler)auraScript.Item2).Split(aurEff, dmgInfo, splitAmount);
 
                 auraScript.Item1._FinishScriptCall();
             }

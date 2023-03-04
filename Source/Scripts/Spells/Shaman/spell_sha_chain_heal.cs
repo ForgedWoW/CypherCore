@@ -27,7 +27,7 @@ namespace Scripts.Spells.Shaman
 			return true;
 		}
 
-		private void CatchInitialTarget(ref WorldObject target)
+		private void CatchInitialTarget(WorldObject target)
 		{
 			_primaryTarget = target;
 		}
@@ -72,7 +72,7 @@ namespace Scripts.Spells.Shaman
 
 		public override void Register()
 		{
-			SpellEffects.Add(new ObjectTargetSelectHandler(this.CatchInitialTarget, 0, Targets.UnitChainhealAlly));
+			SpellEffects.Add(new ObjectTargetSelectHandler(CatchInitialTarget, 0, Targets.UnitChainhealAlly));
 			SpellEffects.Add(new ObjectAreaTargetSelectHandler(SelectAdditionalTargets, 0, Targets.UnitChainhealAlly));
 		}
 	}

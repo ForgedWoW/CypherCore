@@ -31,7 +31,7 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
 		if (dmgInfo.GetDamageType() == DamageEffectType.Direct)
 		{
@@ -40,6 +40,8 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), earthwarden.GetEffect(0).BasePoints);
 			GetCaster().RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
 		}
+
+		return absorbAmount;
 	}
 
 	public override void Register()

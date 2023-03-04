@@ -21,13 +21,13 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect aurEffd, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect aurEffd, DamageInfo dmgInfo, double absorbAmount)
 	{
 		absorbAmount = 0;
 		var target = GetTarget();
 
 		if (target == null)
-			return;
+			return absorbAmount;
 
 		var absorbPerc  = GetSpellInfo().GetEffect(4).CalcValue(target);
 		var absorbStack = 1;
@@ -72,6 +72,8 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 				ModStackAmount(-1);
 			}
+
+		return absorbAmount;
 	}
 
 	private void OnStackChange(AuraEffect aurEffd, AuraEffectHandleModes UnnamedParameter)

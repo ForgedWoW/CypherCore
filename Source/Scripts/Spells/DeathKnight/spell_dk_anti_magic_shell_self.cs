@@ -29,12 +29,12 @@ public class spell_dk_anti_magic_shell_self : AuraScript, IHasAuraEffects
 		amount = (int)GetUnitOwner().CountPctFromMaxHealth(40);
 	}
 
-	private void Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo,  double absorbAmount)
 	{
-		absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
+		return MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
 	}
 
-	private void Trigger(AuraEffect aurEff, DamageInfo UnnamedParameter, ref double absorbAmount)
+	private double Trigger(AuraEffect aurEff, DamageInfo UnnamedParameter, double absorbAmount)
 	{
 		var target = GetTarget();
 		// Patch 6.0.2 (October 14, 2014): Anti-Magic Shell now restores 2 Runic Power per 1% of max health absorbed.
@@ -45,7 +45,10 @@ public class spell_dk_anti_magic_shell_self : AuraScript, IHasAuraEffects
 		args.SetTriggerFlags(TriggerCastFlags.FullMask);
 		args.SetTriggeringAura(aurEff);
 		target.CastSpell(target, DeathKnightSpells.RUNIC_POWER_ENERGIZE, args);
-	}
+
+		return absorbAmount;
+
+    }
 
 	public override void Register()
 	{

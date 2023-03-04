@@ -20,7 +20,7 @@ namespace Scripts.Spells.Warlock
 			AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 2, false, AuraScriptHookType.EffectAbsorb));
 		}
 
-		private void HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+		private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 		{
 			var auraEffect = GetEffect(1);
 
@@ -29,7 +29,7 @@ namespace Scripts.Spells.Warlock
 			{
 				PreventDefaultAction();
 
-				return;
+				return absorbAmount;
 			}
 
 			// You take ${$s2/3}% reduced Damage
@@ -37,7 +37,7 @@ namespace Scripts.Spells.Warlock
 			// plus a random amount of up to ${$s2/3}% additional reduced Damage
 			damageReductionPct += RandomHelper.FRand(0.0f, damageReductionPct);
 
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
+			return MathFunctions.CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
 		}
 	}
 }

@@ -40,12 +40,12 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var target = GetTarget();
 
 		if (dmgInfo.GetDamage() < target.GetHealth())
-			return;
+			return absorbAmount;
 
 		var healAmount = (int)target.CountPctFromMaxHealth((int)healPct);
 		// Remove the aura now, we don't want 40% healing bonus
@@ -53,6 +53,6 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, healAmount);
 		target.CastSpell(target, PriestSpells.GUARDIAN_SPIRIT_HEAL, args);
-		absorbAmount = dmgInfo.GetDamage();
+		return dmgInfo.GetDamage();
 	}
 }

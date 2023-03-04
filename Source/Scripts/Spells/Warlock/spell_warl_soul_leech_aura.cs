@@ -16,7 +16,7 @@ namespace Scripts.Spells.Warlock
 	{
 		public override bool Validate(SpellInfo UnnamedParameter)
 		{
-			return ValidateSpellInfo(WarlockSpells.DEMONSKIN);
+			return ValidateSpellInfo(WarlockSpells.DEMON_SKIN);
 		}
 
 		public bool CheckProc(ProcEventInfo eventInfo)
@@ -42,8 +42,8 @@ namespace Scripts.Spells.Warlock
 
 			// Cannot go over 15% (or 20% with Demonskin) max health
 			var basePointNormal = GetSpellInfo().GetEffect(1).BasePoints;
-			var basePointDS     = Global.SpellMgr.GetSpellInfo(WarlockSpells.DEMONSKIN, Difficulty.None).GetEffect(1).BasePoints;
-			var totalBP         = caster.HasAura(WarlockSpells.DEMONSKIN) ? basePointDS : basePointNormal;
+			var basePointDS     = Global.SpellMgr.GetSpellInfo(WarlockSpells.DEMON_SKIN, Difficulty.None).GetEffect(1).BasePoints;
+			var totalBP         = caster.HasAura(WarlockSpells.DEMON_SKIN) ? basePointDS : basePointNormal;
 			var threshold       = ((int)caster.GetMaxHealth() * totalBP) / 100.0f;
 			absorb = (int)Math.Min(absorb, threshold);
 

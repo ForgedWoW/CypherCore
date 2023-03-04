@@ -39,19 +39,21 @@ namespace Scripts.Spells.Paladin
             amount = -1;
         }
 
-        public void Absorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+        public double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
         {
             absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
 
             Unit target = GetTarget();
             if (dmgInfo.GetDamage() < target.GetHealth())
             {
-                return;
+                return absorbAmount;
             }
 
             double healAmount = target.CountPctFromMaxHealth(healPct);
             target.CastSpell(target, PaladinSpells.ARDENT_DEFENDER_HEAL, (int)healAmount);
             aurEff.GetBase().Remove();
+
+            return absorbAmount;
         }
 
         public override void Register()

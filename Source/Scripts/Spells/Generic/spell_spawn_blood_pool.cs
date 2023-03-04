@@ -21,7 +21,7 @@ internal class spell_spawn_blood_pool : SpellScript, IHasSpellEffects
 		SpellEffects.Add(new DestinationTargetSelectHandler(SetDest, 0, Targets.DestCaster));
 	}
 
-	private void SetDest(ref SpellDestination dest)
+	private void SetDest(SpellDestination dest)
 	{
 		var        caster       = GetCaster();
 		var        summonPos    = caster.GetPosition();

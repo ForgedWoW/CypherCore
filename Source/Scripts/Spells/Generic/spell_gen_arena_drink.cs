@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -39,7 +40,7 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(UpdatePeriodic, 1, AuraType.PeriodicDummy));
 	}
 
-	private void CalcPeriodic(AuraEffect aurEff, ref bool isPeriodic, ref int amplitude)
+	private void CalcPeriodic(AuraEffect aurEff, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude)
 	{
 		// Get AURA_MOD_POWER_REGEN aura from spell
 		var regen = GetAura().GetEffect(0);

@@ -29,18 +29,18 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, ref double absorbAmount)
+	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var target = GetTarget();
 
 		if (target == null)
-			return;
+			return absorbAmount;
 
 		if (dmgInfo.GetDamage() < target.GetHealth())
-			return;
+			return absorbAmount;
 
 		if (target.HasAura(DemonHunterSpells.LAST_RESORT_DEBUFF))
-			return;
+			return absorbAmount;
 
 		var healthPct = GetSpellInfo().GetEffect(1).IsEffect() ? GetSpellInfo().GetEffect(1).BasePoints : 0;
 		target.SetHealth(1);
@@ -50,7 +50,7 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		target.AddAura(DemonHunterSpells.METAMORPHOSIS_VENGEANCE, target);
 		target.CastSpell(target, DemonHunterSpells.LAST_RESORT_DEBUFF, true);
 
-		absorbAmount = dmgInfo.GetDamage();
+		return dmgInfo.GetDamage();
 	}
 
 	public override void Register()

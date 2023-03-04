@@ -15,20 +15,22 @@ namespace Scripts.Spells.Warlock
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-		private void HandleSplit(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, ref double splitAmount)
+		private double HandleSplit(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double splitAmount)
 		{
 			var pet = GetUnitOwner();
 
 			if (pet == null)
-				return;
+				return splitAmount;
 
 			var owner = pet.GetOwner();
 
 			if (owner == null)
-				return;
+				return splitAmount;
 
 			if (owner.HasAura(WarlockSpells.SOUL_SKIN) && owner.HealthBelowPct(35))
 				splitAmount *= 2;
+
+			return splitAmount;
 		}
 
 		public override void Register()

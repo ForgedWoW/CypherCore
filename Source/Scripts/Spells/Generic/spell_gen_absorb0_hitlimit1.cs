@@ -30,8 +30,8 @@ internal class spell_gen_absorb0_hitlimit1 : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0, false, AuraScriptHookType.EffectAbsorb));
 	}
 
-	private void Absorb(AuraEffect aurEff, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
-		absorbAmount = Math.Min(limit, absorbAmount);
+		return Math.Min(limit, absorbAmount);
 	}
 }

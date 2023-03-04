@@ -31,14 +31,14 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		amount = -1;
 	}
 
-	private void Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, ref double absorbAmount)
+	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster   = GetCaster();
 		var attacker = dmgInfo.GetAttacker();
 		absorbAmount = 0;
 
 		if (caster == null || attacker == null || !HasEffect(1))
-			return;
+			return absorbAmount;
 
 		if (caster.GetShapeshiftForm() == ShapeShiftForm.BearForm)
 		{
@@ -47,9 +47,11 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 			if (trashDOT != null)
 				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.GetStackAmount() * GetSpellInfo().GetEffect(1).BasePoints);
 		}
+
+		return absorbAmount;
 	}
 
-	private void HandleEffectCalcSpellMod(AuraEffect aurEff, ref SpellModifier spellMod)
+	private void HandleEffectCalcSpellMod(AuraEffect aurEff, SpellModifier spellMod)
 	{
 		if (spellMod == null)
 			return;
