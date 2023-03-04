@@ -765,21 +765,23 @@ namespace Game.Achievements
                     if (achievement == null)
                         continue;
 
-                    CompletedAchievementData ca = _completedAchievements[achievementid];
-                    ca.Date = achievementResult.Read<long>(1);
-                    var guids = new StringArray(achievementResult.Read<string>(2), ',');
-                    if (!guids.IsEmpty())
+                    if (_completedAchievements.TryGetValue(achievementid, out var ca))
                     {
-                        for (int i = 0; i < guids.Length; ++i)
+                        ca.Date = achievementResult.Read<long>(1);
+                        var guids = new StringArray(achievementResult.Read<string>(2), ',');
+                        if (!guids.IsEmpty())
                         {
-                            if (ulong.TryParse(guids[i], out ulong guid))
-                                ca.CompletingPlayers.Add(ObjectGuid.Create(HighGuid.Player, guid));
+                            for (int i = 0; i < guids.Length; ++i)
+                            {
+                                if (ulong.TryParse(guids[i], out ulong guid))
+                                    ca.CompletingPlayers.Add(ObjectGuid.Create(HighGuid.Player, guid));
+                            }
                         }
+
+                        ca.Changed = false;
+
+                        _achievementPoints += achievement.Points;
                     }
-
-                    ca.Changed = false;
-
-                    _achievementPoints += achievement.Points;
                 } while (achievementResult.NextRow());
             }
 
