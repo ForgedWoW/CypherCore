@@ -14,19 +14,25 @@ namespace Scripts.Spells.Evoker
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
-            switch (GetAura().EmpoweredStage)
+            var aur = GetAura();
+
+            switch (aur.EmpoweredStage)
             {
                 case 1:
-                    GetAura().SetDuration(12000, true);
+                    aur.SetMaxDuration(12000);
+                    aur.SetDuration(12000, true);
                     break;
                 case 2:
-                    GetAura().SetDuration(8000, true);
+                    aur.SetMaxDuration(8000);
+                    aur.SetDuration(8000, true);
                     break;
                 case 3:
-                    GetAura().SetDuration(4000, true);
+                    aur.SetMaxDuration(4000);
+                    aur.SetDuration(4000, true);
                     break;
                 default:
-                    GetAura().SetDuration(16000, true);
+                    aur.SetMaxDuration(16000);
+                    aur.SetDuration(16000, true);
                     break;
             }
         }

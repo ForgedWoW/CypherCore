@@ -3,6 +3,7 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
+using static Game.AI.SmartEvent;
 
 namespace Scripts.Spells.Evoker
 {
@@ -13,19 +14,25 @@ namespace Scripts.Spells.Evoker
 
         public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
         {
-            switch (GetAura().EmpoweredStage)
+            var aur = GetAura();
+
+            switch (aur.EmpoweredStage)
             {
                 case 1:
-                    GetAura().SetDuration(14000, true);
+                    aur.SetMaxDuration(14000);
+                    aur.SetDuration(14000, true);
                     break;
                 case 2:
-                    GetAura().SetDuration(8000, true);
+                    aur.SetMaxDuration(8000);
+                    aur.SetDuration(8000, true);
                     break;
                 case 3:
-                    GetAura().SetDuration(2000, true);
+                    aur.SetMaxDuration(2000);
+                    aur.SetDuration(2000, true);
                     break;
                 default:
-                    GetAura().SetDuration(20000, true);
+                    aur.SetMaxDuration(20000);
+                    aur.SetDuration(20000, true);
                     break;
             }
         }
