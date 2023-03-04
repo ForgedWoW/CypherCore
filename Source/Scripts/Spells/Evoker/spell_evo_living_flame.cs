@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(361469)] // 361469 - Living Flame (Red)
+[SpellScript(EvokerSpells.LIVING_FLAME)] // 361469 - Living Flame (Red)
 class spell_evo_living_flame : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();

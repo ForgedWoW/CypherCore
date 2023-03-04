@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(361500)]
+[SpellScript(EvokerSpells.LIVING_FLAME_DAMAGE)]
 public class spell_evo_living_flame_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
