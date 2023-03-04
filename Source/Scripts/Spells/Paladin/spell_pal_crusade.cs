@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -16,9 +17,9 @@ namespace Scripts.Spells.Paladin
     {
         public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+        private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
         {
-            amount /= 10;
+            amount.Value /= 10;
         }
 
         private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)

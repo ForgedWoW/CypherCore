@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -26,14 +27,14 @@ namespace Scripts.Spells.Warlock
 			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
 		}
 
-		private void CalculateBuffer(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+		private void CalculateBuffer(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			var caster = GetCaster();
 
 			if (caster == null)
 				return;
 
-			amount = caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * GetEffectInfo(0).CalcValue(caster) / 100;
+			amount.Value = caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * GetEffectInfo(0).CalcValue(caster) / 100;
 		}
 
 		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

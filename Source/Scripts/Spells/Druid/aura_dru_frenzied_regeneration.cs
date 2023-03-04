@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -15,7 +16,7 @@ public class aura_dru_frenzied_regeneration : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var frenzied = GetCaster().GetAura(22842);
 
@@ -25,7 +26,7 @@ public class aura_dru_frenzied_regeneration : AuraScript, IHasAuraEffects
 		var healAmount = MathFunctions.CalculatePct(GetCaster().GetDamageOverLastSeconds(5), 50);
 		var minHealAmount = MathFunctions.CalculatePct(GetCaster().GetMaxHealth(), 5);
 		healAmount = Math.Max(healAmount, minHealAmount);
-		amount = healAmount;
+		amount.Value = healAmount;
 	}
 
 	public override void Register()

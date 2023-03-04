@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -29,9 +30,9 @@ public class spell_dh_fel_rush_dash_AuraScript : AuraScript, IHasAuraEffects
 			                        TimeSpan.FromMilliseconds(100));
 	}
 
-	private void CalcSpeed(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalcSpeed(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount = 1250;
+		amount.Value = 1250;
 		RefreshDuration();
 	}
 

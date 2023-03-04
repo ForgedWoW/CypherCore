@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -24,13 +25,13 @@ namespace Scripts.Spells.Druid
 			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.ModIncreaseVehicleFlightSpeed));
 		}
 
-		private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+		private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			var caster = GetCaster().ToPlayer();
 
 			if (caster != null)
 				if (caster.GetSkillValue(SkillType.Riding) >= 375)
-					amount = 310;
+					amount.Value = 310;
 		}
 	}
 }

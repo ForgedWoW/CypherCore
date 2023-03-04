@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -26,9 +27,9 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		return ValidateSpellInfo(Spells.REND_AND_TEAR, Spells.TRASH_DOT);
 	}
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount = -1;
+		amount.Value = -1;
 	}
 
 	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -27,14 +28,14 @@ internal class spell_monk_roll_aura : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectApplyHandler(RestoreRunBackSpeed, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 
-	private void CalcMovementAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalcMovementAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount += 100;
+		amount.Value += 100;
 	}
 
-	private void CalcImmunityAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalcImmunityAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount -= 100;
+		amount.Value -= 100;
 	}
 
 	private void ChangeRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)

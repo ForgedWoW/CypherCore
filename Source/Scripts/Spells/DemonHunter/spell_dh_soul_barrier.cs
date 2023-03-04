@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -16,7 +17,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalcAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster = GetCaster();
 
@@ -27,11 +28,11 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 
 		if (player != null)
 		{
-			var coeff          = amount / 100.0f;
+			var coeff          = amount.Value / 100.0f;
 			var soulShardCoeff = GetSpellInfo().GetEffect(1).BasePoints / 100.0f;
 			var ap             = player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
 
-			amount = (int)(coeff * ap);
+			amount.Value = (coeff * ap);
 
 			// Consume all soul fragments in 25 yards;
 			var fragments = new List<List<AreaTrigger>>();
@@ -79,7 +80,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 						if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
 							caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);
 
-						amount += (int)(soulShardCoeff * ap);
+						amount.Value += (soulShardCoeff * ap);
 
 						at.SetDuration(0);
 					}

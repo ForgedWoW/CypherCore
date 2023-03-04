@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -24,16 +25,16 @@ internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicEnergize));
 	}
 
-	private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		switch (GetSpellInfo().Id)
 		{
 			case GenericSpellIds.Replenishment:
-				amount = (int)(GetUnitOwner().GetMaxPower(PowerType.Mana) * 0.002f);
+				amount.Value = (GetUnitOwner().GetMaxPower(PowerType.Mana) * 0.002f);
 
 				break;
 			case GenericSpellIds.InfiniteReplenishment:
-				amount = (int)(GetUnitOwner().GetMaxPower(PowerType.Mana) * 0.0025f);
+				amount.Value = (GetUnitOwner().GetMaxPower(PowerType.Mana) * 0.0025f);
 
 				break;
 			default:

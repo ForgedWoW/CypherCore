@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -37,7 +38,7 @@ internal class spell_gen_war_mode_enlisted : AuraScript, IHasAuraEffects
 			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcWarModeBonus, SpellConst.EffectAll, AuraType.Dummy));
 	}
 
-	private void CalcWarModeBonus(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalcWarModeBonus(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var target = GetUnitOwner().ToPlayer();
 
@@ -47,11 +48,11 @@ internal class spell_gen_war_mode_enlisted : AuraScript, IHasAuraEffects
 		switch (target.GetTeamId())
 		{
 			case TeamId.Alliance:
-				amount = Global.WorldStateMgr.GetValue(WorldStates.WarModeAllianceBuffValue, target.GetMap());
+				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeAllianceBuffValue, target.GetMap());
 
 				break;
 			case TeamId.Horde:
-				amount = Global.WorldStateMgr.GetValue(WorldStates.WarModeHordeBuffValue, target.GetMap());
+				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeHordeBuffValue, target.GetMap());
 
 				break;
 		}

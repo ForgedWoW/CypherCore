@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using Framework.Constants;
+using Framework.Models;
 using Game.Spells;
 
 namespace Game.Scripting.Interfaces.IAura
@@ -13,18 +15,22 @@ namespace Game.Scripting.Interfaces.IAura
 
     public class AuraEffectCalcAmountHandler : AuraEffectHandler, IAuraCalcAmount
     {
-        public delegate void AuraEffectCalcAmountDelegate(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated);
+        private readonly Action<AuraEffect, BoxedValue<double>, BoxedValue<bool>> _fn;
 
-        private readonly AuraEffectCalcAmountDelegate _fn;
-
-        public AuraEffectCalcAmountHandler(AuraEffectCalcAmountDelegate fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcAmount)
+        public AuraEffectCalcAmountHandler(Action<AuraEffect, BoxedValue<double>, BoxedValue<bool>> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.EffectCalcAmount)
         {
             _fn = fn;
         }
 
         public void HandleCalcAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
         {
-            _fn(aurEff, ref amount, ref canBeRecalculated);
+            BoxedValue<bool> canbeCalc = new BoxedValue<bool>(canBeRecalculated);
+            BoxedValue<double> boxedValue = new BoxedValue<double>(amount);
+
+            _fn(aurEff, boxedValue, canbeCalc);
+
+            amount = boxedValue.Value;
+            canBeRecalculated = canbeCalc.Value;
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -25,10 +26,10 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 		return GetUnitOwner().GetTypeId() == TypeId.Player;
 	}
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		// Set absorbtion amount to unlimited
-		amount = -1;
+		amount.Value = -1;
 	}
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)

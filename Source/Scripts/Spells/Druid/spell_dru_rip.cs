@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -26,9 +27,9 @@ namespace Scripts.Spells.Druid
 			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDamage));
 		}
 
-		private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+		private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
-			canBeRecalculated = false;
+			canBeRecalculated.Value = false;
 
 			var caster = GetCaster();
 
@@ -41,12 +42,12 @@ namespace Scripts.Spells.Druid
 				var idol = caster.GetAuraEffect(DruidSpellIds.IdolOfFeralShadows, 0);
 
 				if (idol != null)
-					amount += cp * idol.GetAmount();
+					amount.Value += cp * idol.GetAmount();
 				// Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
 				else if ((idol = caster.GetAuraEffect(DruidSpellIds.IdolOfWorship, 0)) != null)
-					amount += cp * idol.GetAmount();
+					amount.Value += cp * idol.GetAmount();
 
-				amount += (int)MathFunctions.CalculatePct(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), cp);
+				amount.Value += MathFunctions.CalculatePct(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), cp);
 			}
 		}
 	}

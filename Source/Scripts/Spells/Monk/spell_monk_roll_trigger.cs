@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -14,7 +15,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalcSpeed(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalcSpeed(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster = GetCaster();
 
@@ -22,10 +23,10 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 			return;
 
 		if (caster.HasAura(MonkSpells.ENHANCED_ROLL))
-			amount = 277;
+			amount.Value = 277;
 	}
 
-	private void CalcSpeed2(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalcSpeed2(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster = GetCaster();
 
@@ -35,7 +36,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 		if (!caster.HasAura(MonkSpells.ENHANCED_ROLL))
 			return;
 
-		amount = 377;
+		amount.Value = 377;
 	}
 
 	private void SendAmount(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)

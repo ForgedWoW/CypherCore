@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -23,9 +24,9 @@ public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 		return true;
 	}
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double p_Amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		p_Amount = -1;
+		amount.Value = -1;
 	}
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)

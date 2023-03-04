@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -16,12 +17,12 @@ namespace Scripts.Spells.Shaman
 	{
 		public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-		private void CalcAbsorb(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+		private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			if (!GetCaster())
 				return;
 
-			amount = (int)GetCaster().GetHealth();
+			amount.Value = GetCaster().GetHealth();
 		}
 
 		private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)

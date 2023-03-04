@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -24,9 +25,9 @@ public class spell_dk_anti_magic_shell_self : AuraScript, IHasAuraEffects
 		return true;
 	}
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount = (int)GetUnitOwner().CountPctFromMaxHealth(40);
+		amount.Value = GetUnitOwner().CountPctFromMaxHealth(40);
 	}
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo,  double absorbAmount)

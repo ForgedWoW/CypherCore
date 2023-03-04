@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -19,7 +20,7 @@ public class spell_monk_zen_flight_check_AuraScript : AuraScript, IHasAuraEffect
 		return GetCaster() && GetCaster().GetTypeId() == TypeId.Player;
 	}
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		if (!GetCaster())
 			return;
@@ -28,7 +29,7 @@ public class spell_monk_zen_flight_check_AuraScript : AuraScript, IHasAuraEffect
 
 		if (caster != null)
 			if (caster.GetSkillValue(SkillType.Riding) >= 375)
-				amount = 310;
+				amount.Value = 310;
 	}
 
 	public override void Register()

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -14,9 +15,9 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		canBeRecalculated = true;
+		canBeRecalculated.Value = true;
 		var caster = GetCaster();
 
 		if (caster != null)
@@ -25,7 +26,7 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 
 			if (effInfo != 0)
 			{
-				amount = (int)caster.CountPctFromMaxHealth(effInfo);
+				amount.Value = caster.CountPctFromMaxHealth(effInfo);
 
 				aurEff.SetAmount(amount);
 			}

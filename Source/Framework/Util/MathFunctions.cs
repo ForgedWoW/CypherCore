@@ -175,6 +175,11 @@ public static class MathFunctions
     {
         return value += CalculatePct(value, pct);
     }
+    public static double AddPct(double value, double pct)
+    {
+        return value += CalculatePct(value, pct);
+    }
+
 
     public static long AddPct(ref long value, float pct)
     {

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -21,9 +22,9 @@ namespace Scripts.Spells.Paladin
             return (eventInfo.GetHitMask() & ProcFlagsHit.Block) != 0;
         }
 
-        private void HandleCalcAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+        private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
         {
-            amount = 0;
+            amount.Value = 0;
         }
 
         public override void Register()

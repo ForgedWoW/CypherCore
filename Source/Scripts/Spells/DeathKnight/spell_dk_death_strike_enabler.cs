@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Models;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
@@ -38,10 +39,10 @@ internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasA
 		_damagePerSecond[0] = 0;
 	}
 
-	private void HandleCalcAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		canBeRecalculated = true;
-		amount            = Enumerable.Range(1, _damagePerSecond.Length).Sum();
+		canBeRecalculated.Value = true;
+		amount.Value = Enumerable.Range(1, _damagePerSecond.Length).Sum();
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

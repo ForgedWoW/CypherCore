@@ -40,16 +40,6 @@ namespace Framework.Models
             return Convert.ToDouble(boxedValue.Value);
         }
 
-        public static implicit operator BoxedValue<T>(bool val)
-        {
-            return new BoxedValue<T>((T)(object)val);   
-        }
-
-        public static implicit operator BoxedValue<T>(int val)
-        {
-            return new BoxedValue<T>((T)(object)val);
-        }
-
         public static bool operator ==(BoxedValue<T> x, BoxedValue<T> y)
         {
             return x.Equals(y);
@@ -98,6 +88,11 @@ namespace Framework.Models
         public override int GetHashCode()
         {
             return Value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 }

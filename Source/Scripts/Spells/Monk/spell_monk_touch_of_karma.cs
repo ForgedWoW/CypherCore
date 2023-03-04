@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -15,7 +16,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool UnnamedParameter)
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster = GetCaster();
 
@@ -25,7 +26,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 
 			if (GetAura().GetSpellInfo().GetEffect(2).CalcValue() != 0)
 			{
-				amount = caster.CountPctFromMaxHealth(effInfo);
+				amount.Value = caster.CountPctFromMaxHealth(effInfo);
 
 				aurEff.SetAmount(amount);
 			}

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -30,7 +31,7 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 			caster.CastSpell(GetTarget(), MonkSpells.RENEWING_MIST_JUMP, true);
 	}
 
-	private void CalcAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster         = GetCaster();
 		var counteractAura = caster.GetAura(MonkSpells.COUNTERACT_MAGIC);
@@ -54,7 +55,7 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 					var effInfo = counteractAura.GetEffect(0);
 
 					if (effInfo != null)
-						MathFunctions.AddPct(ref amount, effInfo.GetAmount());
+                        amount.Value = MathFunctions.AddPct(amount.Value, effInfo.GetAmount());
 				}
 			}
 		}

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -19,11 +20,11 @@ internal class spell_item_arcane_shroud : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModThreat));
 	}
 
-	private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var diff = (int)GetUnitOwner().GetLevel() - 60;
 
 		if (diff > 0)
-			amount += 2 * diff;
+			amount.Value += 2 * diff;
 	}
 }

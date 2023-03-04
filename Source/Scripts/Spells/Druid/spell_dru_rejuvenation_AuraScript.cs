@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -60,7 +61,7 @@ public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
 		public static readonly uint GlyphofRejuvenationEffect = 96206;
 	}
 
-	private void HandleCalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void HandleCalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var l_Caster = GetCaster();
 
@@ -68,7 +69,7 @@ public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
 			///If soul of the forest is activated we increase the heal by 100%
 			if (l_Caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO) && !l_Caster.HasAura(DruidSpells.REJUVENATION))
 			{
-				amount *= 2;
+				amount.Value *= 2;
 				l_Caster.RemoveAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO);
 			}
 	}

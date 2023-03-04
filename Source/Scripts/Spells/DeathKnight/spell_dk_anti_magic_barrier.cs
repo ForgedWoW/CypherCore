@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -22,12 +23,12 @@ public class spell_dk_anti_magic_barrier : AuraScript, IHasAuraEffects
 		return true;
 	}
 
-	private void CalcAmount(AuraEffect aurEff, ref double amount, ref bool UnnamedParameter)
+	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter)
 	{
 		var caster = GetCaster();
 
 		if (caster != null)
-			amount = (int)((caster.GetMaxHealth() * 25.0f) / 100.0f);
+			amount.Value = ((caster.GetMaxHealth() * 25.0f) / 100.0f);
 	}
 
 	public override void Register()

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -19,11 +20,11 @@ namespace Scripts.Spells.Druid
 			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModIncreaseSpeed));
 		}
 
-		private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+		private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			// do not set speed if not in cat form
 			if (GetUnitOwner().GetShapeshiftForm() != ShapeShiftForm.CatForm)
-				amount = 0;
+				amount.Value = 0;
 		}
 	}
 }

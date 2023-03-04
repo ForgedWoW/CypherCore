@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
@@ -32,13 +33,13 @@ namespace Scripts.Spells.Warrior
 			return Global.SpellMgr.GetSpellInfo(WarriorSpells.SHIELD_BLOCKC_TRIGGERED, Difficulty.None) != null;
 		}
 
-		private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+		private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			var caster = GetCaster();
 
 			if (caster != null)
 				if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS))
-					amount += 30;
+					amount.Value += 30;
 		}
 
 		public override void Register()

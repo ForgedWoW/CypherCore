@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -14,7 +15,7 @@ public class spell_monk_life_cocoon : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalcAbsorb(AuraEffect UnnamedParameter, ref double amount, ref bool canBeRecalculated)
+	private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		if (!GetCaster())
 			return;
@@ -24,8 +25,8 @@ public class spell_monk_life_cocoon : AuraScript, IHasAuraEffects
 		//Formula:  [(((Spell power * 11) + 0)) * (1 + Versatility)]
 		//Simplified to : [(Spellpower * 11)]
 		//Versatility will be taken into account at a later date.
-		amount            += caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * 11;
-		canBeRecalculated =  false;
+		amount.Value += caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * 11;
+		canBeRecalculated.Value =  false;
 	}
 
 	public override void Register()

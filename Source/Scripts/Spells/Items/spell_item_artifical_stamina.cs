@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -29,11 +30,11 @@ internal class spell_item_artifical_stamina : AuraScript, IHasAuraEffects
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.ModTotalStatPercentage));
 	}
 
-	private void CalculateAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var artifact = GetOwner().ToPlayer().GetItemByGuid(GetAura().GetCastItemGUID());
 
 		if (artifact)
-			amount = (int)(GetEffectInfo(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
+			amount.Value = (GetEffectInfo(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
 	}
 }

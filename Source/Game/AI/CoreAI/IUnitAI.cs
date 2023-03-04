@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
@@ -38,9 +39,9 @@ namespace Game.AI
         void Reset();
         Unit SelectTarget(SelectTargetMethod targetType, uint offset = 0, float dist = 0, bool playerOnly = false, bool withTank = true, int aura = 0);
         Unit SelectTarget(SelectTargetMethod targetType, uint offset, ICheck<Unit> selector);
-        Unit SelectTarget(SelectTargetMethod targetType, uint offset, UnitAI.SelectTargetDelegate selector);
+        Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector);
         List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset = 0, float dist = 0, bool playerOnly = false, bool withTank = true, int aura = 0);
-        List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, UnitAI.SelectTargetDelegate selector);
+        List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector);
         void SetData(uint id, uint value);
         void SetGUID(ObjectGuid guid, int id = 0);
         bool ShouldSparWith(Unit target);

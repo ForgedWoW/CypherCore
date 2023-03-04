@@ -50,10 +50,10 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 
 		// default case - not in arena
 		if (!GetCaster().ToPlayer().InArena())
-			isPeriodic = false;
+			isPeriodic.Value = false;
 	}
 
-	private void CalcAmount(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
+	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var regen = GetAura().GetEffect(0);
 

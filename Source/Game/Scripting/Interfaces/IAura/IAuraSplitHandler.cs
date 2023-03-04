@@ -15,8 +15,6 @@ namespace Game.Scripting.Interfaces.IAura
 
     public class AuraEffectSplitHandler : AuraEffectHandler, IAuraSplitHandler
     {
-        public delegate void AuraEffectSplitDelegate(AuraEffect aura, DamageInfo damageInfo, ref double splitAmount);
-
         private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
 
         public AuraEffectSplitHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex) : base(effectIndex, AuraType.SplitDamagePct, AuraScriptHookType.EffectSplit)

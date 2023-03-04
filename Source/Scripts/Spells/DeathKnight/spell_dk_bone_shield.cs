@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -16,9 +17,9 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter2)
 	{
-		amount = -1;
+		amount.Value = -1;
 	}
 
 	private double Absorb(AuraEffect aurEffd, DamageInfo dmgInfo, double absorbAmount)

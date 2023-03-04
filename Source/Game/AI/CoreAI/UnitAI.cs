@@ -124,8 +124,7 @@ namespace Game.AI
         /// Select the best target (in <targetType> order) satisfying <predicate> from the threat list.
         /// If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
         /// </summary>
-        public delegate bool SelectTargetDelegate(Unit unit);
-        public Unit SelectTarget(SelectTargetMethod targetType, uint offset, SelectTargetDelegate selector)
+        public Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
         {
             ThreatManager mgr = GetThreatManager();
             // shortcut: if we ignore the first <offset> elements, and there are at most <offset> elements, then we ignore ALL elements
@@ -166,7 +165,7 @@ namespace Game.AI
         /// Select the best (up to) <num> targets (in <targetType> order) satisfying <predicate> from the threat list and stores them in <targetList> (which is cleared first).
         /// If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
         /// </summary>
-        public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, SelectTargetDelegate selector)
+        public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
         {
             var targetList = new List<Unit>();
 

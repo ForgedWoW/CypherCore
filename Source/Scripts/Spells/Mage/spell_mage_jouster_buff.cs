@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -14,7 +15,7 @@ public class spell_mage_jouster_buff : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
-	private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		var caster = GetCaster();
 
@@ -24,7 +25,7 @@ public class spell_mage_jouster_buff : AuraScript, IHasAuraEffects
 		var jousterRank = caster.GetAuraEffect(MageSpells.JOUSTER, 0);
 
 		if (jousterRank != null)
-			amount = jousterRank.GetAmount();
+			amount.Value = jousterRank.GetAmount();
 	}
 
 	public override void Register()

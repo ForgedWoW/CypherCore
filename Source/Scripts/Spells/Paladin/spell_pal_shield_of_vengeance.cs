@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -19,16 +20,16 @@ namespace Scripts.Spells.Paladin
         private int absorb;
         private int currentAbsorb;
 
-        private void CalculateAmount(AuraEffect UnnamedParameter, ref double amount, ref bool canBeRecalculated)
+        private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
         {
             Unit caster = GetCaster();
             if (caster != null)
             {
-                canBeRecalculated = false;
+                canBeRecalculated.Value = false;
 
                 double ap = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
                 absorb = (int)(ap * 20);
-                amount += absorb;
+                amount.Value += absorb;
             }
         }
 

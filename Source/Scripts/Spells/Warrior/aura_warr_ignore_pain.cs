@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Networking.Packets;
 using Game.Scripting;
@@ -30,13 +31,13 @@ namespace Scripts.Spells.Warrior
 			return true;
 		}
 
-		private void CalcAmount(AuraEffect UnnamedParameter, ref double amount, ref bool UnnamedParameter2)
+		private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 		{
 			var caster = GetCaster();
 
 			if (caster != null)
 			{
-				amount = (int)((double)(22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((double)(m_ExtraSpellCost + 200) / 600.0f));
+				amount.Value = (22.3f * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack)) * ((m_ExtraSpellCost + 200) / 600.0f);
 				var m_newRage = caster.GetPower(PowerType.Rage) - m_ExtraSpellCost;
 
 				if (m_newRage < 0)
