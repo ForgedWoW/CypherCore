@@ -33,7 +33,7 @@ namespace Scripts.Spells.Evoker
 
         public override void Register()
         {
-            AuraEffects.Add(new AuraEffectApplyHandler(Apply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+            AuraEffects.Add(new AuraEffectApplyHandler(Apply, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
         }
     }
 }
