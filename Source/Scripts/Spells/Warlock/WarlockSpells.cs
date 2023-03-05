@@ -110,7 +110,10 @@ namespace Scripts.Spells.Warlock
 		public const uint FEAR_EFFECT = 118699;
 		public const uint FELGUARD_FELSTORM = 89751;
 		public const uint FELHUNTER_LOCK = 19647;
-		public const uint FEL_FIREBOLT = 104318;
+        public const uint FEL_ARMOR = 386124;
+        public const uint FEL_ARMOR_DMG_DELAY = 387846;
+        public const uint FEL_ARMOR_DMG_DELAY_REMAINING = 387847;
+        public const uint FEL_FIREBOLT = 104318;
 		public const uint FEL_LORD_CLEAVE = 213688;
 		public const uint FEL_SYNERGY_HEAL = 54181;
 		public const uint FIREBOLT_BONUS = 231795;

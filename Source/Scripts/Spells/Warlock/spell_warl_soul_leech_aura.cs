@@ -11,7 +11,7 @@ using Game.Spells;
 namespace Scripts.Spells.Warlock
 {
     // Soul Leech aura - 228974
-    [SpellScript(228974)]
+    [SpellScript(WarlockSpells.SOUL_LEECH)]
 	public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
 	{
 		public bool CheckProc(ProcEventInfo eventInfo)

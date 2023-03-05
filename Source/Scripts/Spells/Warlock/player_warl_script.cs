@@ -6,12 +6,13 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
 
 namespace Scripts.Spells.Warlock
 {
     [Script]
-    internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage
+    internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage, IUnitOnDamage
     {
         public Class PlayerClass { get; } = Class.Warlock;
 
@@ -118,6 +119,14 @@ namespace Scripts.Spells.Warlock
                 if (rand != 0)
                     MathFunctions.AddPct(ref damage, rand);
             }
+        }
+
+        public void OnDamage(Unit attacker, Unit victim, ref double damage)
+        {
+            if (!attacker.TryGetAura(WarlockSpells.FEL_ARMOR, out var felAura) || !felAura.TryGetEffect(3, out var auraEffect))
+                return;
+
+            damage -= MathFunctions.CalculatePct(damage, auraEffect.Amount / 10);
         }
     }
 }
