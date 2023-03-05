@@ -3602,7 +3602,7 @@ namespace Game.Entities
                         // Reduce shield amount
                         absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
                         // Aura cannot absorb anything more - remove it
-                        if (absorbAurEff.GetAmount() <= 0)
+                        if (absorbAurEff.GetAmount() <= 0 && !absorbAurEff.GetBase().GetSpellInfo().HasAttribute(SpellAttr0.Passive))
                             absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
                     }
                 }
