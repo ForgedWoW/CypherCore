@@ -3906,6 +3906,17 @@ namespace Game.Spells
 
         public SpellEffectInfo GetEffect(int index) { return _effects[index]; }
 
+        public bool TryGetEffect(int index, out SpellEffectInfo spellEffectInfo)
+        {
+            spellEffectInfo = null;
+
+            if (_effects.Count < index) 
+                return false;
+
+            spellEffectInfo = _effects[index];
+            return spellEffectInfo != null;
+        }
+
         public bool HasTargetType(Targets target)
         {
             foreach (var effectInfo in _effects)

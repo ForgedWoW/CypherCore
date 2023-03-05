@@ -5076,7 +5076,7 @@ namespace Game.Spells
                             case 72854: // Unbound Plague
                             case 72855: // Unbound Plague
                             case 72856: // Unbound Plague
-                                damage *= (double)Math.Pow(1.25f, _ticksDone);
+                                damage *= Math.Pow(1.25f, _ticksDone);
                                 break;
                             default:
                                 break;
@@ -5099,7 +5099,7 @@ namespace Game.Spells
                 }
                 case AuraType.PeriodicDamagePercent:
                     // ceil obtained value, it may happen that 10 ticks for 10% damage may not kill owner
-                    damage = (double)Math.Ceiling(MathFunctions.CalculatePct((double)target.GetMaxHealth(), damage));
+                    damage = Math.Ceiling(MathFunctions.CalculatePct((double)target.GetMaxHealth(), damage));
                     damage = target.SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DamageEffectType.DOT);
                     break;
                 default:
