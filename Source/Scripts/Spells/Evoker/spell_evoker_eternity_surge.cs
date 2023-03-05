@@ -20,7 +20,7 @@ namespace Scripts.Spells.Evoker
 
             // determine number of additional targets
             int multi = 1;
-            if(caster.TryGetAura(EvokerSpells.ETERNITYS_SPAN, out var aura))
+            if(caster.HasSpell(EvokerSpells.ETERNITYS_SPAN))
                 multi = 2;
 
             int targets = 1 * multi;
