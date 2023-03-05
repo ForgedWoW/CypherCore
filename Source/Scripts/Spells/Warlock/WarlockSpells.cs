@@ -6,7 +6,9 @@ namespace Scripts.Spells.Warlock
     internal struct WarlockSpells
 	{
 		public const uint ABSOLUTE_CORRUPTION = 196103;
-		public const uint AFTERMATH_STUN = 85387;
+        public const uint ABYSS_WALKER = 389609;
+        public const uint ABYSS_WALKER_BUFF = 389614;
+        public const uint AFTERMATH_STUN = 85387;
 		public const uint AGONY = 980;
 		public const uint ARCHIMONDES_VENGEANCE_COOLDOWN = 116405;
 		public const uint ARCHIMONDES_VENGEANCE_DAMAGE = 124051;

@@ -3582,7 +3582,12 @@ namespace Game.Entities
         // removes aura application from lists and unapplies effects
         public void _UnapplyAura(AuraApplication aurApp, AuraRemoveMode removeMode)
         {
-            if (aurApp.GetBase().GetApplicationOfTarget(GetGUID()) != aurApp)
+            var check = aurApp.GetBase().GetApplicationOfTarget(GetGUID());
+
+            if (check == null)
+                return; // The user logged out
+
+            if (check != aurApp)
             {
                 Log.outError(LogFilter.Server, $"Tried to remove aura app with spell ID: {aurApp.GetBase().GetSpellInfo().Id} that does not match. GetApplicationOfTarget: {aurApp.GetBase().GetApplicationOfTarget(GetGUID()).Guid} AuraApp: {aurApp.Guid}");
                 return;

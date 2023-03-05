@@ -20,7 +20,7 @@ public class UpdaterNotifier : IGridNotifierWorldObject
         {
             WorldObject obj = objs[i];
 
-            if (obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
+            if (obj == null || obj.IsTypeId(TypeId.Player) || obj.IsTypeId(TypeId.Corpse))
                 continue;
 
             if (obj.IsInWorld)

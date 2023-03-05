@@ -29,6 +29,9 @@ namespace Scripts.Spells.Warlock
 
 				if (circle)
 				{
+					if (player.HasAura(WarlockSpells.ABYSS_WALKER))
+						player.AddAura(WarlockSpells.ABYSS_WALKER_BUFF);
+
 					player.NearTeleportTo(circle.GetPositionX(), circle.GetPositionY(), circle.GetPositionZ(), circle.GetOrientation());
 					player.RemoveMovementImpairingAuras(false);
 				}
