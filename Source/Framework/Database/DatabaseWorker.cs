@@ -57,7 +57,7 @@ namespace Framework.Database
                            {
                                Log.outException(ex, "DatabaseWorker.CallbackSuccessStatus");
                            }
-                    });
+                        });
                 }
             }
         }

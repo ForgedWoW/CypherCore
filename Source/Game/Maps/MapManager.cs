@@ -5,8 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Threading;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Garrisons;
@@ -30,7 +32,7 @@ namespace Game.Entities
             int num_threads = WorldConfig.GetIntValue(WorldCfg.Numthreads);
            
             if (num_threads > 0)
-                m_updater = new MapUpdater(num_threads);
+                m_updater = new LimitedThreadTaskManager(num_threads);
         }
 
         public void InitializeVisibilityDistanceInfo()
@@ -283,14 +285,20 @@ namespace Game.Entities
             {
                 if (map.CanUnload(diff))
                 {
-                    if (DestroyMap(map))
+                    if (m_updater != null)
+                        m_updater.Schedule(() =>
+                        {
+                            if (DestroyMap(map))
+                                i_maps.Remove(key);
+                        });
+                    else if (DestroyMap(map))
                         i_maps.Remove(key);
 
                     continue;
                 }
 
                 if (m_updater != null)
-                    m_updater.ScheduleUpdate(map, (uint)i_timer.GetCurrent());
+                    m_updater.Schedule(() => map.Update(time));
                 else
                     map.Update(time);
             }
@@ -483,7 +491,7 @@ namespace Game.Entities
         uint i_gridCleanUpDelay;
         readonly BitSet _freeInstanceIds = new(1);
         uint _nextInstanceId;
-        MapUpdater m_updater;
+        LimitedThreadTaskManager m_updater;
         uint _scheduledScripts;
     }
 

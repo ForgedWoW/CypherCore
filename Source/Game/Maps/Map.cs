@@ -8,8 +8,10 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Threading;
 using Game.BattleGrounds;
 using Game.Collision;
 using Game.DataStorage;
@@ -28,6 +30,7 @@ namespace Game.Maps
     public class Map : IDisposable
     {
         public Dictionary<uint, Dictionary<uint, Grid>> Grids { get { return _grids; } }
+        LimitedThreadTaskManager _threadManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 
         public IEnumerable<uint> GridXKeys()
         {
@@ -55,17 +58,17 @@ namespace Game.Maps
             _zonePlayerCountMap.Clear();
 
             //lets initialize visibility distance for map
-            InitVisibilityDistance();
+            _threadManager.Schedule(InitVisibilityDistance);
             _weatherUpdateTimer = new IntervalTimer();
             _weatherUpdateTimer.SetInterval(1 * Time.InMilliseconds);
 
             GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
-            _poolData = Global.PoolMgr.InitPoolsForMap(this);
+            _threadManager.Schedule(() => { _poolData = Global.PoolMgr.InitPoolsForMap(this); });
 
-            Global.TransportMgr.CreateTransportsForMap(this);
+            _threadManager.Schedule(() => Global.TransportMgr.CreateTransportsForMap(this));
 
-            Global.MMapMgr.LoadMapInstance(Global.WorldMgr.GetDataPath(), GetId(), i_InstanceId);
+            _threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.GetDataPath(), GetId(), i_InstanceId));
 
             _worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
 
@@ -73,6 +76,7 @@ namespace Game.Maps
             Global.BattleFieldMgr.CreateBattlefieldsForMap(this);
 
             OnCreateMap(this);
+            _threadManager.Wait();
         }
 
         public void Dispose()
@@ -655,20 +659,21 @@ namespace Game.Maps
                 {
                     WorldSession session = player.GetSession();
                     var updater = new MapSessionFilter(session);
-                    session.Update(diff, updater);
+                    _threadManager.Schedule(() => session.Update(diff, updater));
                 }
             }
 
             /// process any due respawns
             if (_respawnCheckTimer <= diff)
             {
-                ProcessRespawns();
-                UpdateSpawnGroupConditions();
+                _threadManager.Schedule(ProcessRespawns);
+                _threadManager.Schedule(UpdateSpawnGroupConditions);
                 _respawnCheckTimer = WorldConfig.GetUIntValue(WorldCfg.RespawnMinCheckIntervalMs);
             }
             else
                 _respawnCheckTimer -= diff;
 
+            _threadManager.Wait();
             // update active cells around players and active objects
             ResetMarkedCells();
 
@@ -677,67 +682,71 @@ namespace Game.Maps
             for (var i = 0; i < m_activePlayers.Count; ++i)
             {
                 Player player = m_activePlayers[i];
+
                 if (!player.IsInWorld)
                     continue;
 
-                // update players at tick
-                player.Update(diff);
-
-                VisitNearbyCellsOf(player, update);
-
-                // If player is using far sight or mind vision, visit that object too
-                WorldObject viewPoint = player.GetViewpoint();
-                if (viewPoint)
-                    VisitNearbyCellsOf(viewPoint, update);
-
-                // Handle updates for creatures in combat with player and are more than 60 yards away
-                if (player.IsInCombat())
+                _threadManager.Schedule(() =>
                 {
-                    List<Unit> toVisit = new();
-                    foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
+                    // update players at tick
+                    _threadManager.Schedule(() => player.Update(diff));
+
+                    _threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+
+                    // If player is using far sight or mind vision, visit that object too
+                    WorldObject viewPoint = player.GetViewpoint();
+                    if (viewPoint)
+                        _threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+
+                    // Handle updates for creatures in combat with player and are more than 60 yards away
+                    if (player.IsInCombat())
                     {
-                        Creature unit = pair.Value.GetOther(player).ToCreature();
-                        if (unit != null)
-                            if (unit.GetMapId() == player.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-                                toVisit.Add(unit);
-                    }
-
-                    foreach (Unit unit in toVisit)
-                        VisitNearbyCellsOf(unit, update);
-                }
-
-                { // Update any creatures that own auras the player has applications of
-                    List<Unit> toVisit = new();
-                    player.GetAppliedAurasQuery().IsPlayer(false).ForEachResult(aur =>
-                    {
-                        Unit caster = aur.GetBase().GetCaster();
-                        if (caster != null)
-                            if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
-                                toVisit.Add(caster);
-                    });
-
-                    foreach (Unit unit in toVisit)
-                        VisitNearbyCellsOf(unit, update);
-                }
-
-                { // Update player's summons
-                    List<Unit> toVisit = new();
-
-                    // Totems
-                    foreach (ObjectGuid summonGuid in player.m_SummonSlot)
-                    {
-                        if (!summonGuid.IsEmpty())
+                        List<Unit> toVisit = new();
+                        foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
                         {
-                            Creature unit = GetCreature(summonGuid);
+                            Creature unit = pair.Value.GetOther(player).ToCreature();
                             if (unit != null)
                                 if (unit.GetMapId() == player.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
                                     toVisit.Add(unit);
                         }
+
+                        foreach (Unit unit in toVisit)
+                            _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
                     }
 
-                    foreach (Unit unit in toVisit)
-                        VisitNearbyCellsOf(unit, update);
-                }
+                    { // Update any creatures that own auras the player has applications of
+                        List<Unit> toVisit = new();
+                        player.GetAppliedAurasQuery().IsPlayer(false).ForEachResult(aur =>
+                        {
+                            Unit caster = aur.GetBase().GetCaster();
+                            if (caster != null)
+                                if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
+                                    toVisit.Add(caster);
+                        });
+
+                        foreach (Unit unit in toVisit)
+                            _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+                    }
+
+                    { // Update player's summons
+                        List<Unit> toVisit = new();
+
+                        // Totems
+                        foreach (ObjectGuid summonGuid in player.m_SummonSlot)
+                        {
+                            if (!summonGuid.IsEmpty())
+                            {
+                                Creature unit = GetCreature(summonGuid);
+                                if (unit != null)
+                                    if (unit.GetMapId() == player.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+                                        toVisit.Add(unit);
+                            }
+                        }
+
+                        foreach (Unit unit in toVisit)
+                            _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+                    }
+                });
             }
 
             for (var i = 0; i < m_activeNonPlayers.Count; ++i)
@@ -746,7 +755,7 @@ namespace Game.Maps
                 if (!obj.IsInWorld)
                     continue;
 
-                VisitNearbyCellsOf(obj, update);
+                _threadManager.Schedule(() => VisitNearbyCellsOf(obj, update));
             }
 
             for (var i = 0; i < _transports.Count; ++i)
@@ -758,7 +767,8 @@ namespace Game.Maps
                 transport.Update(diff);
             }
 
-            SendObjectUpdates();
+            _threadManager.Wait();
+            _threadManager.Schedule(SendObjectUpdates);
 
             // Process necessary scripts
             if (!m_scriptSchedule.Empty())
@@ -780,7 +790,7 @@ namespace Game.Maps
             }
 
             // update phase shift objects
-            GetMultiPersonalPhaseTracker().Update(this, diff);
+            _threadManager.Schedule(() => GetMultiPersonalPhaseTracker().Update(this, diff));
 
             MoveAllCreaturesInMoveList();
             MoveAllGameObjectsInMoveList();
@@ -790,6 +800,8 @@ namespace Game.Maps
                 ProcessRelocationNotifies(diff);
 
             OnMapUpdate(this, diff);
+
+            _threadManager.Wait();
         }
 
         void ProcessRelocationNotifies(uint diff)
@@ -1213,34 +1225,37 @@ namespace Game.Maps
                 if (!creature.IsInWorld)
                     continue;
 
-                // do move or do move to respawn or remove creature if previous all fail
-                if (CreatureCellRelocation(creature, new Cell(creature._newPosition.posX, creature._newPosition.posY)))
+                _threadManager.Schedule(() =>
                 {
-                    // update pos
-                    creature.Relocate(creature._newPosition);
-                    if (creature.IsVehicle())
-                        creature.GetVehicleKit().RelocatePassengers();
-                    creature.UpdatePositionData();
-                    creature.UpdateObjectVisibility(false);
-                }
-                else
-                {
-                    // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-                    // creature coordinates will be updated and notifiers send
-                    if (!CreatureRespawnRelocation(creature, false))
+                    // do move or do move to respawn or remove creature if previous all fail
+                    if (CreatureCellRelocation(creature, new Cell(creature._newPosition.posX, creature._newPosition.posY)))
                     {
-                        // ... or unload (if respawn grid also not loaded)
-                        //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
-                        //To avoid this, we can load nearby cells when player log in
-                        //But this check is always needed to ensure safety
-                        // @todo pets will disappear if this is outside CreatureRespawnRelocation
-                        //need to check why pet is frequently relocated to an unloaded cell
-                        if (creature.IsPet())
-                            ((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
-                        else
-                            AddObjectToRemoveList(creature);
+                        // update pos
+                        creature.Relocate(creature._newPosition);
+                        if (creature.IsVehicle())
+                            creature.GetVehicleKit().RelocatePassengers();
+                        creature.UpdatePositionData();
+                        creature.UpdateObjectVisibility(false);
                     }
-                }
+                    else
+                    {
+                        // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+                        // creature coordinates will be updated and notifiers send
+                        if (!CreatureRespawnRelocation(creature, false))
+                        {
+                            // ... or unload (if respawn grid also not loaded)
+                            //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
+                            //To avoid this, we can load nearby cells when player log in
+                            //But this check is always needed to ensure safety
+                            // @todo pets will disappear if this is outside CreatureRespawnRelocation
+                            //need to check why pet is frequently relocated to an unloaded cell
+                            if (creature.IsPet())
+                                ((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
+                            else
+                                AddObjectToRemoveList(creature);
+                        }
+                    }
+                });
             }
 
             creaturesToMove.Clear();
@@ -1267,26 +1282,29 @@ namespace Game.Maps
                 if (!go.IsInWorld)
                     continue;
 
-                // do move or do move to respawn or remove creature if previous all fail
-                if (GameObjectCellRelocation(go, new Cell(go._newPosition.posX, go._newPosition.posY)))
+                _threadManager.Schedule(() =>
                 {
-                    // update pos
-                    go.Relocate(go._newPosition);
-                    go.AfterRelocation();
-                }
-                else
-                {
-                    // if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-                    // GameObject coordinates will be updated and notifiers send
-                    if (!GameObjectRespawnRelocation(go, false))
+                    // do move or do move to respawn or remove creature if previous all fail
+                    if (GameObjectCellRelocation(go, new Cell(go._newPosition.posX, go._newPosition.posY)))
                     {
-                        // ... or unload (if respawn grid also not loaded)
-                        Log.outDebug(LogFilter.Maps,
-                            "GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
-                            go.GetGUID().ToString(), go.GetEntry());
-                        AddObjectToRemoveList(go);
+                        // update pos
+                        go.Relocate(go._newPosition);
+                        go.AfterRelocation();
                     }
-                }
+                    else
+                    {
+                        // if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+                        // GameObject coordinates will be updated and notifiers send
+                        if (!GameObjectRespawnRelocation(go, false))
+                        {
+                            // ... or unload (if respawn grid also not loaded)
+                            Log.outDebug(LogFilter.Maps,
+                                "GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
+                                go.GetGUID().ToString(), go.GetEntry());
+                            AddObjectToRemoveList(go);
+                        }
+                    }
+                });
             }
 
             _gameObjectsToMove.Clear();
@@ -1313,16 +1331,20 @@ namespace Game.Maps
                 if (!dynObj.IsInWorld)
                     continue;
 
-                // do move or do move to respawn or remove creature if previous all fail
-                if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj._newPosition.posX, dynObj._newPosition.posY)))
+
+                _threadManager.Schedule(() =>
                 {
-                    // update pos
-                    dynObj.Relocate(dynObj._newPosition);
-                    dynObj.UpdatePositionData();
-                    dynObj.UpdateObjectVisibility(false);
-                }
-                else
-                    Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GetGUID().ToString());
+                    // do move or do move to respawn or remove creature if previous all fail
+                    if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj._newPosition.posX, dynObj._newPosition.posY)))
+                    {
+                        // update pos
+                        dynObj.Relocate(dynObj._newPosition);
+                        dynObj.UpdatePositionData();
+                        dynObj.UpdateObjectVisibility(false);
+                    }
+                    else
+                        Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GetGUID().ToString());
+                });
             }
 
             _dynamicObjectsToMove.Clear();
@@ -1349,18 +1371,21 @@ namespace Game.Maps
                 if (!at.IsInWorld)
                     continue;
 
-                // do move or do move to respawn or remove creature if previous all fail
-                if (AreaTriggerCellRelocation(at, new Cell(at._newPosition.posX, at._newPosition.posY)))
+                _threadManager.Schedule(() =>
                 {
-                    // update pos
-                    at.Relocate(at._newPosition);
-                    at.UpdateShape();
-                    at.UpdateObjectVisibility(false);
-                }
-                else
-                {
-                    Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GetGUID().ToString());
-                }
+                    // do move or do move to respawn or remove creature if previous all fail
+                    if (AreaTriggerCellRelocation(at, new Cell(at._newPosition.posX, at._newPosition.posY)))
+                    {
+                        // update pos
+                        at.Relocate(at._newPosition);
+                        at.UpdateShape();
+                        at.UpdateObjectVisibility(false);
+                    }
+                    else
+                    {
+                        Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GetGUID().ToString());
+                    }
+                });
             }
 
             _areaTriggersToMove.Clear();
@@ -1509,7 +1534,7 @@ namespace Game.Maps
                 MoveAllCreaturesInMoveList();
                 MoveAllGameObjectsInMoveList();
                 MoveAllAreaTriggersInMoveList();
-
+                _threadManager.Wait();
                 // move creatures to respawn grids if this is diff.grid or to remove list
                 ObjectGridEvacuator worker = new(GridType.Grid);
                 grid.VisitAllGrids(worker);
@@ -1518,6 +1543,7 @@ namespace Game.Maps
                 MoveAllCreaturesInMoveList();
                 MoveAllGameObjectsInMoveList();
                 MoveAllAreaTriggersInMoveList();
+                _threadManager.Wait();
             }
 
             {
@@ -4808,7 +4834,7 @@ namespace Game.Maps
         readonly Dictionary<uint, ZoneDynamicInfo> _zoneDynamicInfo = new();
         readonly IntervalTimer _weatherUpdateTimer;
         readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
-        readonly SpawnedPoolData _poolData;
+        SpawnedPoolData _poolData;
         readonly Dictionary<ObjectGuid, WorldObject> _objectsStore = new();
         readonly MultiMap<ulong, Creature> _creatureBySpawnIdStore = new();
         readonly MultiMap<ulong, GameObject> _gameobjectBySpawnIdStore = new();
