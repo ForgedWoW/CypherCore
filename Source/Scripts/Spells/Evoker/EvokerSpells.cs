@@ -5,6 +5,14 @@ namespace Scripts.Spells.Evoker
 {
     public struct EvokerSpells
     {
+        public const uint ANCIENT_FLAME = 369990;
+        public const uint ANCIENT_FLAME_AURA = 375583;
+        public const uint ANIMOSITY = 375797;
+        public const uint AZURE_ESSENCE_BURST = 375721;
+        public const uint AZURE_RUBY_ESSENCE_BURST_AURA = 359618;
+        public const uint AZURE_STRIKE = 362969;
+        public const uint BLAST_FURNACE = 375510;
+        public const uint DRAGONRAGE = 375087;
         public const uint DREAM_BREATH = 355936;
         public const uint DREAM_BREATH_2 = 382614;
         public const uint DREAM_BREATH_CHARGED = 355941;
@@ -22,7 +30,8 @@ namespace Scripts.Spells.Evoker
 		public const uint LIVING_FLAME = 361469;
 		public const uint LIVING_FLAME_DAMAGE = 361500;
 		public const uint LIVING_FLAME_HEAL = 361509;
-		public const uint SKYWARD_ASCENT = 367033;
+        public const uint RUBY_ESSENCE_BURST = 376872;
+        public const uint SKYWARD_ASCENT = 367033;
 		public const uint SOAR_RACIAL = 369536;
         public const uint SPIRITBLOOM = 367226;
         public const uint SPIRITBLOOM_2 = 382731;

@@ -773,12 +773,12 @@ namespace Game.Spells
             return maxDuration;
         }
 
-        public void SetDuration(double duration, bool withMods = false)
+        public void SetDuration(double duration, bool withMods = false, bool updateMaxDuration = false)
         {
             SetDuration((int)duration, withMods);
         }
 
-        public void SetDuration(int duration, bool withMods = false)
+        public void SetDuration(int duration, bool withMods = false, bool updateMaxDuration = false)
         {
             if (withMods)
             {
@@ -791,6 +791,9 @@ namespace Game.Spells
                 }
             }
 
+            if (updateMaxDuration && duration > m_maxDuration)
+                m_maxDuration = duration;
+
             m_duration = duration;
             SetNeedClientUpdateForTargets();
         }
@@ -798,12 +801,12 @@ namespace Game.Spells
         /// <summary>
         ///     Adds the given duration to the auras duration.
         /// </summary>
-        public void ModDuration(int duration, bool withMods = false)
+        public void ModDuration(int duration, bool withMods = false, bool updateMaxDuration = false)
         {
             SetDuration(GetDuration() + duration, withMods);
         }
 
-        public void ModDuration(double duration, bool withMods = false)
+        public void ModDuration(double duration, bool withMods = false, bool updateMaxDuration = false)
         {
             SetDuration((int)duration, withMods);
         }

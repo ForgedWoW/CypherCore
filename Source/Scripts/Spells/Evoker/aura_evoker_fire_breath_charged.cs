@@ -19,20 +19,16 @@ namespace Scripts.Spells.Evoker
             switch (aur.EmpoweredStage)
             {
                 case 1:
-                    aur.SetMaxDuration(14000);
-                    aur.SetDuration(14000, true);
+                    aur.SetDuration(14000, true, true);
                     break;
                 case 2:
-                    aur.SetMaxDuration(8000);
-                    aur.SetDuration(8000, true);
+                    aur.SetDuration(8000, true, true);
                     break;
                 case 3:
-                    aur.SetMaxDuration(2000);
-                    aur.SetDuration(2000, true);
+                    aur.SetDuration(2000, true, true);
                     break;
                 default:
-                    aur.SetMaxDuration(20000);
-                    aur.SetDuration(20000, true);
+                    aur.SetDuration(20000, true, true);
                     break;
             }
         }
