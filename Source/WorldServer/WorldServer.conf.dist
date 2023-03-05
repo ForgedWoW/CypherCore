@@ -502,6 +502,13 @@ AddonChannel = 1
 MapUpdate.Threads = 10
 
 #
+#    Map.ParellelUpdateTasks 
+#        Description: Max Number of parellel tasks to spawn durning a maps update.
+#        Default:     20
+
+Map.ParellelUpdateTasks = 20;
+
+#
 #    CleanCharacterDB
 #        Description: Clean out deprecated achievements, skills, spells and talents from the db.
 #        Default:     0 - (Disabled)
