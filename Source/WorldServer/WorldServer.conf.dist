@@ -506,7 +506,7 @@ MapUpdate.Threads = 10
 #        Description: Max Number of parellel tasks to spawn durning a maps update.
 #        Default:     20
 
-Map.ParellelUpdateTasks = 20;
+Map.ParellelUpdateTasks = 20
 
 #
 #    CleanCharacterDB
