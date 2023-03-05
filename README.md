@@ -10,13 +10,27 @@
 
 Forged Core is an open source branch of CypherCore.
 Forge Core is the core of the Forged WoW Server and aims to be the most complete and up to date core.
-Forged Core also features a very extencible script loading system for easy additions to all types of gameplay. Scripts can be loaded into the script directory and reloaded during runtime.
+
+#### Forged Core also features:
+* Many performance imporvements! Base server tick sub 1ms!
+* A very extencible script loading system!
+  - re-written from the ground up for easy additions to all types of gameplay. 
+  - Scripts can be loaded into the script directory and reloaded during runtime.
+  - Add spell, aura, gameobject and creature scripts without adding to the DB!
+  - Easy to add hooks with calling foreach script in the script manager.
+  - Interfaces for all script hooks allow for streamlined calls and easy implimentation 
+* Enhanced multi-threding of maps, sockets, logging and database.
+* Ultra customization of almost every aspect of modern wow.
+  - Customize xpack level ranges
+  - Open up allied races without requirements 
+  - Open up additional race/class combos
+* Many class spells/talents up to date and more on the way!
 
 [Forged WoW Website](http://forgedwow.gg/)
 
 CypherCore is an open source server project for World of Warcraft written in C#.
 
-The current support game version is: 10.0.5.48069
+The current support game version is: 10.0.5.48317
 
 ### Prerequisites
 * .NET 7.0 SDK [Download](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
