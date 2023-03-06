@@ -80,7 +80,7 @@ namespace Framework.Threading
                 Thread.Sleep(10);
 
             Interlocked.Decrement(ref _workCount);
-
+            
             if (_workCount == 0)
                 _mapUpdateComplete.Set();
         }

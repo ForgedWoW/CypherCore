@@ -31,6 +31,8 @@ namespace Game.Maps
     {
         public Dictionary<uint, Dictionary<uint, Grid>> Grids { get { return _grids; } }
         LimitedThreadTaskManager _threadManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+        Dictionary<uint, Dictionary<uint, object>> _locks = new Dictionary<uint, Dictionary<uint, object>>();
+
 
         public IEnumerable<uint> GridXKeys()
         {
@@ -183,19 +185,16 @@ namespace Game.Maps
 
         public void LoadAllCells()
         {
-            Semaphore s = new Semaphore(50, 50);
-
+            LimitedThreadTaskManager _manager = new LimitedThreadTaskManager(50);
             for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
                 for (uint cellY = 0; cellY < MapConst.TotalCellsPerMap; cellY++)
                 {
-                    s.WaitOne();
-                    Task.Run(() =>
-                    {
-                        LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells);
-                        s.Release();
-                    });
-
+                    _manager.Schedule(() =>
+                        LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells)
+                        );
                 }
+
+            _manager.Wait();
         }
 
         public virtual void InitVisibilityDistance()
@@ -314,22 +313,27 @@ namespace Game.Maps
 
         void EnsureGridCreated(GridCoord p)
         {
-            if (GetGrid(p.X_coord, p.Y_coord) == null)
-            {
-                Log.outDebug(LogFilter.Maps, "Creating grid[{0}, {1}] for map {2} instance {3}", p.X_coord, p.Y_coord,
-                    GetId(), i_InstanceId);
+            object lockobj = null;
 
-                var grid = new Grid(p.X_coord * MapConst.MaxGrids + p.Y_coord, p.X_coord, p.Y_coord, i_gridExpiry, WorldConfig.GetBoolValue(WorldCfg.GridUnload));
-                grid.SetGridState(GridState.Idle);
-                SetGrid(grid, p.X_coord, p.Y_coord);
+            lock(_locks)
+                lockobj = _locks.GetOrAdd(p.X_coord, p.Y_coord, () => new object());
 
-                //z coord
-                int gx = (int)((MapConst.MaxGrids - 1) - p.X_coord);
-                int gy = (int)((MapConst.MaxGrids - 1) - p.Y_coord);
+            lock (lockobj)
+                if (GetGrid(p.X_coord, p.Y_coord) == null)
+                {
+                    Log.outDebug(LogFilter.Maps, "Creating grid[{0}, {1}] for map {2} instance {3}", p.X_coord, p.Y_coord, GetId(), i_InstanceId);
 
-                if (gx > -1 && gy > -1)
-                    m_terrain.LoadMapAndVMap(gx, gy);
-            }
+                    var grid = new Grid(p.X_coord * MapConst.MaxGrids + p.Y_coord, p.X_coord, p.Y_coord, i_gridExpiry, WorldConfig.GetBoolValue(WorldCfg.GridUnload));
+                    grid.SetGridState(GridState.Idle);
+                    SetGrid(grid, p.X_coord, p.Y_coord);
+
+                    //z coord
+                    int gx = (int)((MapConst.MaxGrids - 1) - p.X_coord);
+                    int gy = (int)((MapConst.MaxGrids - 1) - p.Y_coord);
+
+                    if (gx > -1 && gy > -1)
+                        m_terrain.LoadMapAndVMap(gx, gy);
+                }
         }
 
         void EnsureGridLoadedForActiveObject(Cell cell, WorldObject obj)

@@ -215,6 +215,17 @@ namespace System.Collections.Generic
             return item;
         }
 
+        public static K GetOrAdd<T, T2, K>(this Dictionary<T, Dictionary<T2, K>> dict, T key, T2 key2, Func<K> addKey)
+        {
+            if (!dict.TryGetValue(key, out var item))
+            {
+                item = new Dictionary<T2, K>();
+                dict.Add(key, item);
+            }
+
+            return item.GetOrAdd(key2, addKey);
+        }
+
         public static void RemoveIf<T>(this LinkedList<T> values, Func<T, bool> func)
         {
             var toRemove = new List<T>();
