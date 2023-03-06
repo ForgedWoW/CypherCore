@@ -52,6 +52,7 @@ The current support game version is: 10.0.5.48317
 
 ### Support / General Info
 * Check out our Discord [![Discord](https://img.shields.io/discord/920073768162963477)](https://discord.gg/forgedwow)
+* The Discord also has a support channel for [Forged Core related questions/issue](https://discord.com/channels/920073768162963477/1080978458714329260)
 * Check out Trinity Core Wiki as a few steps are the same [Here](https://trinitycore.atlassian.net/wiki/spaces/tc/pages/2130077/Installation+Guide)
 
 ### Legal
