@@ -22,15 +22,40 @@ namespace Scripts.Spells.Warlock
 
         public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
         {
-            if (regen || power != PowerType.SoulShards)
+            if (power != PowerType.SoulShards)
                 return;
 
             var shardCost = oldValue - newValue;
 
-            PowerOverwhelming(player, shardCost);
-            RitualOfRuin(player, shardCost);
-            RainOfChaos(player, shardCost);
-            GrandWarlocksDesign(player, shardCost);
+            if (shardCost < 0)
+            {
+                var shardGain = shardCost * -1;
+                DemonicInsperation(player, shardGain);
+            }
+
+            if (!regen)
+            {
+                PowerOverwhelming(player, shardCost);
+                RitualOfRuin(player, shardCost);
+                RainOfChaos(player, shardCost);
+                GrandWarlocksDesign(player, shardCost);
+            }
+
+        }
+
+        private static void DemonicInsperation(Player player, int shardGain)
+        {
+            var lastCount = player.VariableStorage.GetValue(nameof(WarlockSpells.DEMONIC_INSPIRATION), 0) + shardGain;
+            
+            if (lastCount > 10)
+            {
+                lastCount = lastCount % 10; // buff only applies to the rounded save remainder for next proc.
+                
+                if (player.TryGetPet(out var pet))
+                    pet.AddAura(WarlockSpells.DEMONIC_INSPIRATION_PET_AURA);
+            }
+
+            player.VariableStorage.Set(nameof(WarlockSpells.DEMONIC_INSPIRATION), lastCount);
         }
 
         private void GrandWarlocksDesign(Player player, int shardCost) 

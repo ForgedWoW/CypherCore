@@ -4314,6 +4314,13 @@ namespace Game.Entities
             return null;
         }
 
+        public bool TryGetPet(out Pet pet)
+        {
+            pet = GetPet();
+
+            return pet != null;
+        }
+
         public Pet SummonPet(uint entry, PetSaveMode? slot, float x, float y, float z, float ang, uint duration)
         {
             return SummonPet(entry, slot, x, y, z, ang, duration, out _);
