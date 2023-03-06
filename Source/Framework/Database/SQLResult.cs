@@ -106,7 +106,7 @@ namespace Framework.Database
 
         public int GetFieldCount() { return _reader.FieldCount; }
 
-        internal MySqlDataReader Reader { get { return _reader; } }
+        public MySqlDataReader Reader { get { return _reader; } }
 
         public SQLFields GetFields()
         {
