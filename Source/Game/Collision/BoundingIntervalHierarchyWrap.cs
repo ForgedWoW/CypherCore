@@ -12,15 +12,18 @@ namespace Game.Collision
         public void Insert(T obj)
         {
             ++unbalanced_times;
-            m_objects_to_push.Add(obj);
+
+            lock (m_objects)
+                m_objects_to_push.Add(obj);
         }
         public void Remove(T obj)
         {
             ++unbalanced_times;
-            if (m_obj2Idx.TryGetValue(obj, out int Idx))
-                m_objects[Idx] = null;
-            else
-                m_objects_to_push.Remove(obj);
+            lock (m_objects)
+                if (m_obj2Idx.TryGetValue(obj, out int Idx))
+                    m_objects[Idx] = null;
+                else
+                    m_objects_to_push.Remove(obj);
         }
 
         public void Balance()
@@ -28,26 +31,35 @@ namespace Game.Collision
             if (unbalanced_times == 0)
                 return;
 
-            unbalanced_times = 0;
-            m_objects.Clear();
-            m_objects.AddRange(m_obj2Idx.Keys);
-            m_objects.AddRange(m_objects_to_push);
+            lock (m_objects)
+            {
+                unbalanced_times = 0;
+                m_objects.Clear();
+                m_objects.AddRange(m_obj2Idx.Keys);
+                m_objects.AddRange(m_objects_to_push);
 
-            m_tree.Build(m_objects);
+                m_tree.Build(m_objects);
+            }
         }
 
         public void IntersectRay(Ray ray, WorkerCallback intersectCallback, ref float maxDist)
         {
-            Balance();
-            MDLCallback temp_cb = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
-            m_tree.IntersectRay(ray, temp_cb, ref maxDist, true);
+            lock (m_objects)
+            {
+                Balance();
+                MDLCallback temp_cb = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
+                m_tree.IntersectRay(ray, temp_cb, ref maxDist, true);
+            }
         }
 
         public void IntersectPoint(Vector3 point, WorkerCallback intersectCallback)
         {
-            Balance();
-            MDLCallback callback = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
-            m_tree.IntersectPoint(point, callback);
+            lock (m_objects)
+            {
+                Balance();
+                MDLCallback callback = new(intersectCallback, m_objects.ToArray(), m_objects.Count);
+                m_tree.IntersectPoint(point, callback);
+            }
         }
 
         readonly BIH m_tree = new();
