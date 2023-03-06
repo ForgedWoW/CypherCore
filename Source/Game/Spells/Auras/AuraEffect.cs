@@ -834,6 +834,7 @@ namespace Game.Spells
         public int GetEffIndex() { return _effectInfo.EffectIndex; }
         public double GetBaseAmount() { return m_baseAmount; }
         public int GetPeriod() { return _period; }
+        public void SetPeriod(int period) { _period = period; }
 
         public int GetMiscValueB() { return _effectInfo.MiscValueB; }
         public int GetMiscValue() { return _effectInfo.MiscValue; }

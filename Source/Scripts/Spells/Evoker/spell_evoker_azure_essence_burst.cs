@@ -1,11 +1,5 @@
 ﻿using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Scripts.Spells.Shaman;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Scripts.Spells.Evoker
 {
@@ -14,9 +8,7 @@ namespace Scripts.Spells.Evoker
     {
         public void AfterHit()
         {
-            var player = GetCaster().ToPlayer();
-
-            if (player != null && player.HasSpell(EvokerSpells.AZURE_ESSENCE_BURST))
+            if (GetCaster().TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.AZURE_ESSENCE_BURST))
                 player.AddAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
         }
     }

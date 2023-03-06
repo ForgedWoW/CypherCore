@@ -300,6 +300,11 @@ namespace System
             return kZMat * (kYMat * kXMat);
         }
 
+        public static bool EqualsAny<T>(this T item, params T[] array)
+        {
+            return array.Contains(item);
+        }
+
         #region Strings
         public static bool IsEmpty(this string str)
         {

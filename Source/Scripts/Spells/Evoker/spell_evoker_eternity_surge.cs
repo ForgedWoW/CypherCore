@@ -1,9 +1,7 @@
-﻿using Bgs.Protocol.Notification.V1;
-using Game.DataStorage;
+﻿using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Scripts.Spells.Shaman;
 using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker

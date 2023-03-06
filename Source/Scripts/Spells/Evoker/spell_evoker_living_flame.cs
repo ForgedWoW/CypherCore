@@ -11,7 +11,7 @@ using Game.Spells;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.LIVING_FLAME)] // 361469 - Living Flame (Red)
-class spell_evo_living_flame : SpellScript, IHasSpellEffects
+class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 

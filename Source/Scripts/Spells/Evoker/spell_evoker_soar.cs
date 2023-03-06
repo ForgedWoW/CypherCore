@@ -10,8 +10,8 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(369536)]
-public class spell_soar : SpellScript, IHasSpellEffects
+[SpellScript(EvokerSpells.SOAR_RACIAL)]
+public class spell_evoker_soar : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 

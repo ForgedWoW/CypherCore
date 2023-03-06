@@ -3,7 +3,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using static Game.Entities.GameObjectTemplate;
 
 namespace Scripts.Spells.Evoker
 {

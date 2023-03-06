@@ -10,7 +10,7 @@ using Game.Spells;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GLIDE)] // 358733 - Glide (Racial)
-internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
+internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 {
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -24,7 +24,7 @@ internal class spell_evo_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 		if (!caster.IsFalling())
 			return SpellCastResult.NotOnGround;
 
-		if (caster.HasAura(EvokerSpells.VISAGE))
+		if (caster.HasAura(EvokerSpells.VISAGE_AURA))
 			return SpellCastResult.DontReport; // SpellCastResult.NotShapeshift;
 
 		return SpellCastResult.SpellCastOk;

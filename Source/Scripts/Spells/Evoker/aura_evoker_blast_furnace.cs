@@ -3,7 +3,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using static Game.AI.SmartEvent;
 
 namespace Scripts.Spells.Evoker
 {
@@ -17,7 +16,7 @@ namespace Scripts.Spells.Evoker
             if (!GetOwner().ToUnit().TryGetAura(EvokerSpells.BLAST_FURNACE, out var bfAura))
                 return;
 
-            GetAura().SetDuration(GetAura().GetMaxDuration() + (bfAura.GetEffect(0).Amount * 1000), true, true);
+            GetAura().ModDuration(bfAura.GetEffect(0).Amount * 1000, true, true);
         }
 
         public override void Register()

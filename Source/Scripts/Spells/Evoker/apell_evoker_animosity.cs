@@ -1,10 +1,5 @@
 ﻿using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Scripts.Spells.Evoker
 {
@@ -14,9 +9,7 @@ namespace Scripts.Spells.Evoker
     {
         public void AfterHit()
         {
-            var player = GetCaster().ToPlayer();
-
-            if (player != null && player.HasSpell(EvokerSpells.ANIMOSITY) 
+            if (GetCaster().TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.ANIMOSITY) 
                 && player.TryGetAura(EvokerSpells.DRAGONRAGE, out var aura))
             {
                 aura.ModDuration(GetEffectInfo(0).BasePoints);

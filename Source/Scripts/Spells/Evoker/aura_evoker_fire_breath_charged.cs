@@ -3,7 +3,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
-using static Game.AI.SmartEvent;
 
 namespace Scripts.Spells.Evoker
 {
@@ -19,16 +18,13 @@ namespace Scripts.Spells.Evoker
             switch (aur.EmpoweredStage)
             {
                 case 1:
-                    aur.SetDuration(14000, true, true);
+                    aur.ModDuration(12000, true, true);
                     break;
                 case 2:
-                    aur.SetDuration(8000, true, true);
-                    break;
-                case 3:
-                    aur.SetDuration(2000, true, true);
+                    aur.ModDuration(6000, true, true);
                     break;
                 default:
-                    aur.SetDuration(20000, true, true);
+                    aur.ModDuration(18000, true, true);
                     break;
             }
         }
