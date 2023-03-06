@@ -30,7 +30,19 @@ namespace Scripts.Spells.Warlock
             if (shardCost < 0)
             {
                 var shardGain = shardCost * -1;
-                DemonicInsperation(player, shardGain);
+
+                var lastCount = player.VariableStorage.GetValue("filledSoulShard", 0) + shardGain;
+
+                if (lastCount > 10)
+                {
+                    lastCount = lastCount % 10; // buff only applies to the rounded save remainder for next proc.
+
+                    DemonicInsperation(player);
+                    WrathfulMnion(player);
+                }
+
+                player.VariableStorage.Set("filledSoulShard", lastCount);
+                
             }
 
             if (!regen)
@@ -43,19 +55,16 @@ namespace Scripts.Spells.Warlock
 
         }
 
-        private static void DemonicInsperation(Player player, int shardGain)
+        private static void DemonicInsperation(Player player)
         {
-            var lastCount = player.VariableStorage.GetValue(nameof(WarlockSpells.DEMONIC_INSPIRATION), 0) + shardGain;
-            
-            if (lastCount > 10)
-            {
-                lastCount = lastCount % 10; // buff only applies to the rounded save remainder for next proc.
-                
-                if (player.TryGetPet(out var pet))
-                    pet.AddAura(WarlockSpells.DEMONIC_INSPIRATION_PET_AURA);
-            }
+            if (player.HasAura(WarlockSpells.DEMONIC_INSPIRATION) && player.TryGetPet(out var pet))
+                pet.AddAura(WarlockSpells.DEMONIC_INSPIRATION_PET_AURA);
+        }
 
-            player.VariableStorage.Set(nameof(WarlockSpells.DEMONIC_INSPIRATION), lastCount);
+        private static void WrathfulMnion(Player player)
+        {
+            if (player.HasAura(WarlockSpells.WRATHFUL_MINION) && player.TryGetPet(out var pet))
+                pet.AddAura(WarlockSpells.WRATHFUL_MINION_PET_AURA);
         }
 
         private void GrandWarlocksDesign(Player player, int shardCost) 

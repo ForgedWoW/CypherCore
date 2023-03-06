@@ -352,6 +352,8 @@ namespace Scripts.Spells.Warlock
 		public const uint WILD_IMP_SUMMON = 104317;
 		public const uint WRATH_OF_CONSUMPTION_PROC = 199646;
 		public const uint WRITHE_IN_AGONY = 196102;
+        public const uint WRATHFUL_MINION = 386864;
+        public const uint WRATHFUL_MINION_PET_AURA = 386865;
         public const uint CHANNEL_DEMONFIRE_RANGE = 196449;
         public const uint CHAOS_BOLT = 116858;
         public const uint NPC_WARLOCK_PET_IMP = 416;
