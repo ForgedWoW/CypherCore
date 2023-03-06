@@ -8,6 +8,11 @@ namespace Game.Scripting
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class CreatureScriptAttribute : ScriptAttribute
     {
+        public CreatureScriptAttribute(params uint[] creatureIds) 
+        {
+            CreatureIds = creatureIds;
+        }
+
         public CreatureScriptAttribute(string name = "", params object[] args) : base(name, args)
         {
         }

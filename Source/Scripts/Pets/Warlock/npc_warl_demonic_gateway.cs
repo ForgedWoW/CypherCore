@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.AI;
@@ -13,11 +14,17 @@ namespace Scripts.Pets
 {
     namespace Warlock
     {
-        [CreatureScript(47319)]
+        // 59262
+        // 59271
+        [CreatureScript(47319, 59271, 59262)]
         public class npc_warl_demonic_gateway : CreatureAI
         {
             public EventMap events = new();
             public bool firstTick = true;
+            uint[] _aurasToCheck =
+                   {
+                            121164, 121175, 121176, 121177
+                        }; // Orbs of Power @ Temple of Kotmogu
 
             public npc_warl_demonic_gateway(Creature creature) : base(creature)
             {
@@ -29,7 +36,6 @@ namespace Scripts.Pets
                 {
                     me.CastSpell(me, WarlockSpells.DEMONIC_GATEWAY_VISUAL, true);
 
-                    //todo me->SetInteractSpellId(WARLOCK_DEMONIC_GATEWAY_ACTIVATE);
                     me.SetUnitFlag(UnitFlags.NonAttackable);
                     me.SetNpcFlag(NPCFlags.SpellClick);
                     me.SetReactState(ReactStates.Passive);
@@ -39,21 +45,26 @@ namespace Scripts.Pets
                 }
             }
 
+            public override bool OnGossipHello(Player player)
+            {
+                foreach (var auraToCheck in _aurasToCheck)
+                    if (player.HasAura(auraToCheck))
+                        return false;
+
+                TeleportTarget(player, true);
+                return false;
+            }
+
             public override void OnSpellClick(Unit clicker, ref bool spellClickHandled)
             {
-                if (clicker.IsPlayer())
+                if (clicker.TryGetAsPlayer(out var player))
                 {
                     // don't allow using the gateway while having specific Auras
-                    uint[] aurasToCheck =
-                    {
-                            121164, 121175, 121176, 121177
-                        }; // Orbs of Power @ Temple of Kotmogu
-
-                    foreach (var auraToCheck in aurasToCheck)
-                        if (clicker.HasAura(auraToCheck))
+                    foreach (var auraToCheck in _aurasToCheck)
+                        if (player.HasAura(auraToCheck))
                             return;
 
-                    TeleportTarget(clicker, true);
+                    TeleportTarget(player, true);
                 }
 
                 return;
@@ -99,13 +110,11 @@ namespace Scripts.Pets
                         target.CastSpell(target, WarlockSpells.PLANESWALKER_BUFF, true);
 
                     // Item - Warlock PvP Set 4P Bonus: "Your allies can use your Demonic Gateway again 15 sec sooner"
-                    var amount = owner.GetAuraEffect(WarlockSpells.PVP_4P_BONUS, 0).GetAmount();
-
-                    if (amount > 0)
+                    if (owner.TryGetAuraEffect(WarlockSpells.PVP_4P_BONUS, 0, out var eff))
                     {
                         Aura aura = target.GetAura(WarlockSpells.DEMONIC_GATEWAY_DEBUFF);
 
-                        aura?.SetDuration(aura.GetDuration() - amount * Time.InMilliseconds);
+                        aura?.SetDuration(aura.GetDuration() - eff.Amount * Time.InMilliseconds);
                     }
 
                     break;

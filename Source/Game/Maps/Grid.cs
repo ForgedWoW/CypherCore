@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
@@ -357,6 +358,13 @@ namespace Game.Maps
     {
         public void Insert(WorldObject obj)
         {
+            if (obj == null)
+            {
+                Log.outWarn(LogFilter.Maps, $"Tried to insert null during {nameof(WorldObject)} to {nameof(MultiTypeContainer)}");
+                Log.outWarn(LogFilter.Maps, Environment.StackTrace);
+                return;
+            }
+
             worldObjects.Add(obj);
             switch (obj.GetTypeId())
             {
@@ -389,6 +397,13 @@ namespace Game.Maps
 
         public void Remove(WorldObject obj)
         {
+            if (obj == null)
+            {
+                Log.outWarn(LogFilter.Maps, $"Tried to remove null during {nameof(WorldObject)} to {nameof(MultiTypeContainer)}");
+                Log.outWarn(LogFilter.Maps, Environment.StackTrace);
+                return;
+            }
+
             worldObjects.Remove(obj);
             switch (obj.GetTypeId())
             {
@@ -428,19 +443,21 @@ namespace Game.Maps
         {
             switch (typeof(T).Name)
             {
-                case "Creature":
+                case nameof(Creature):
                     return creatures.Count;
-                case "Player":
+                case nameof(Player):
                     return players.Count;
-                case "GameObject":
+                case nameof(GameObject):
                     return gameObjects.Count;
-                case "DynamicObject":
+                case nameof(DynamicObject):
                     return dynamicObjects.Count;
-                case "Corpse":
+                case nameof(Corpse):
                     return corpses.Count;
-                case "AreaTrigger":
+                case nameof(AreaTrigger):
                     return areaTriggers.Count;
-                case "Conversation":
+                case nameof(Conversation):
+                    return conversations.Count;
+                case nameof(SceneObject):
                     return conversations.Count;
             }
 

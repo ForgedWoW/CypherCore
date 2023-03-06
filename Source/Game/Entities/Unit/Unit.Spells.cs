@@ -3685,6 +3685,18 @@ namespace Game.Entities
                     player.UpdateVisibleGameobjectsOrSpellClicks();
         }
 
+        public bool TryGetAuraEffect(uint spellId, int effIndex, ObjectGuid casterGUID, out AuraEffect auraEffect)
+        {
+            auraEffect = GetAuraEffect(spellId, effIndex, casterGUID);
+            return auraEffect != null;
+        }
+
+        public bool TryGetAuraEffect(uint spellId, int effIndex, out AuraEffect auraEffect)
+        {
+            auraEffect = GetAuraEffect(spellId, effIndex);
+            return auraEffect != null;
+        }
+
         public AuraEffect GetAuraEffect(uint spellId, int effIndex, ObjectGuid casterGUID = default)
         {
             return m_appliedAuras.Query()
