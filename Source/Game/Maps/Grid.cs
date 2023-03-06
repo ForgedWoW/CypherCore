@@ -365,33 +365,36 @@ namespace Game.Maps
                 return;
             }
 
-            worldObjects.Add(obj);
-            switch (obj.GetTypeId())
+            lock (worldObjects)
             {
-                case TypeId.Unit:
-                    creatures.Add((Creature)obj);
-                    break;
-                case TypeId.Player:
-                    players.Add((Player)obj);
-                    break;
-                case TypeId.GameObject:
-                    gameObjects.Add((GameObject)obj);
-                    break;
-                case TypeId.DynamicObject:
-                    dynamicObjects.Add((DynamicObject)obj);
-                    break;
-                case TypeId.Corpse:
-                    corpses.Add((Corpse)obj);
-                    break;
-                case TypeId.AreaTrigger:
-                    areaTriggers.Add((AreaTrigger)obj);
-                    break;
-                case TypeId.SceneObject:
-                    sceneObjects.Add((SceneObject)obj);
-                    break;
-                case TypeId.Conversation:
-                    conversations.Add((Conversation)obj);
-                    break;
+                worldObjects.Add(obj);
+                switch (obj.GetTypeId())
+                {
+                    case TypeId.Unit:
+                        creatures.Add((Creature)obj);
+                        break;
+                    case TypeId.Player:
+                        players.Add((Player)obj);
+                        break;
+                    case TypeId.GameObject:
+                        gameObjects.Add((GameObject)obj);
+                        break;
+                    case TypeId.DynamicObject:
+                        dynamicObjects.Add((DynamicObject)obj);
+                        break;
+                    case TypeId.Corpse:
+                        corpses.Add((Corpse)obj);
+                        break;
+                    case TypeId.AreaTrigger:
+                        areaTriggers.Add((AreaTrigger)obj);
+                        break;
+                    case TypeId.SceneObject:
+                        sceneObjects.Add((SceneObject)obj);
+                        break;
+                    case TypeId.Conversation:
+                        conversations.Add((Conversation)obj);
+                        break;
+                }
             }
         }
 
@@ -404,62 +407,67 @@ namespace Game.Maps
                 return;
             }
 
-            worldObjects.Remove(obj);
-            switch (obj.GetTypeId())
+            lock (worldObjects)
             {
-                case TypeId.Unit:
-                    creatures.Remove((Creature)obj);
-                    break;
-                case TypeId.Player:
-                    players.Remove((Player)obj);
-                    break;
-                case TypeId.GameObject:
-                    gameObjects.Remove((GameObject)obj);
-                    break;
-                case TypeId.DynamicObject:
-                    dynamicObjects.Remove((DynamicObject)obj);
-                    break;
-                case TypeId.Corpse:
-                    corpses.Remove((Corpse)obj);
-                    break;
-                case TypeId.AreaTrigger:
-                    areaTriggers.Remove((AreaTrigger)obj);
-                    break;
-                case TypeId.SceneObject:
-                    sceneObjects.Remove((SceneObject)obj);
-                    break;
-                case TypeId.Conversation:
-                    conversations.Remove((Conversation)obj);
-                    break;
+                worldObjects.Remove(obj);
+                switch (obj.GetTypeId())
+                {
+                    case TypeId.Unit:
+                        creatures.Remove((Creature)obj);
+                        break;
+                    case TypeId.Player:
+                        players.Remove((Player)obj);
+                        break;
+                    case TypeId.GameObject:
+                        gameObjects.Remove((GameObject)obj);
+                        break;
+                    case TypeId.DynamicObject:
+                        dynamicObjects.Remove((DynamicObject)obj);
+                        break;
+                    case TypeId.Corpse:
+                        corpses.Remove((Corpse)obj);
+                        break;
+                    case TypeId.AreaTrigger:
+                        areaTriggers.Remove((AreaTrigger)obj);
+                        break;
+                    case TypeId.SceneObject:
+                        sceneObjects.Remove((SceneObject)obj);
+                        break;
+                    case TypeId.Conversation:
+                        conversations.Remove((Conversation)obj);
+                        break;
+                }
             }
         }
 
         public bool Contains(WorldObject obj)
         {
-            return worldObjects.Contains(obj);
+            lock (worldObjects)
+                return worldObjects.Contains(obj);
         }
 
         public int GetCount<T>()
         {
-            switch (typeof(T).Name)
-            {
-                case nameof(Creature):
-                    return creatures.Count;
-                case nameof(Player):
-                    return players.Count;
-                case nameof(GameObject):
-                    return gameObjects.Count;
-                case nameof(DynamicObject):
-                    return dynamicObjects.Count;
-                case nameof(Corpse):
-                    return corpses.Count;
-                case nameof(AreaTrigger):
-                    return areaTriggers.Count;
-                case nameof(Conversation):
-                    return conversations.Count;
-                case nameof(SceneObject):
-                    return conversations.Count;
-            }
+            lock (worldObjects)
+                switch (typeof(T).Name)
+                {
+                    case nameof(Creature):
+                        return creatures.Count;
+                    case nameof(Player):
+                        return players.Count;
+                    case nameof(GameObject):
+                        return gameObjects.Count;
+                    case nameof(DynamicObject):
+                        return dynamicObjects.Count;
+                    case nameof(Corpse):
+                        return corpses.Count;
+                    case nameof(AreaTrigger):
+                        return areaTriggers.Count;
+                    case nameof(Conversation):
+                        return conversations.Count;
+                    case nameof(SceneObject):
+                        return conversations.Count;
+                }
 
             return 0;
         }
