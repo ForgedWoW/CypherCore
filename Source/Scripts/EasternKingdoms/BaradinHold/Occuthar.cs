@@ -253,7 +253,7 @@ namespace Scripts.EasternKingdoms.BaradinHold.Occuthar
 
         public void AfterHit()
         {
-            Position pos = GetHitUnit().GetPosition();
+            Position pos = GetHitUnit().Location;
 
             Creature occuthar = ObjectAccessor.GetCreature(GetCaster(), GetCaster().GetInstanceScript().GetGuidData(DataTypes.Occuthar));
 

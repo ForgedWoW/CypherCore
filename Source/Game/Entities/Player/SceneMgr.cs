@@ -42,12 +42,12 @@ namespace Game.Entities
 
             // By default, take player position
             if (position == null)
-                position = GetPlayer();
+                position = Player.Location;
 
             uint sceneInstanceID = GetNewStandaloneSceneInstanceID();
 
             if (_isDebuggingScenes)
-                GetPlayer().SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceID, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
+                Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceID, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
 
             PlayScene playScene = new();
             playScene.SceneID = sceneTemplate.SceneId;
@@ -55,18 +55,18 @@ namespace Game.Entities
             playScene.SceneInstanceID = sceneInstanceID;
             playScene.SceneScriptPackageID = sceneTemplate.ScenePackageId;
             playScene.Location = position;
-            playScene.TransportGUID = GetPlayer().GetTransGUID();
+            playScene.TransportGUID = Player.GetTransGUID();
             playScene.Encrypted = sceneTemplate.Encrypted;
             playScene.Write();
 
-            if (GetPlayer().IsInWorld)
-                GetPlayer().SendPacket(playScene);
+            if (Player.IsInWorld)
+                Player.SendPacket(playScene);
             else
                 _delayedScenes.Add(playScene);
 
             AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(GetPlayer(), sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+            Global.ScriptMgr.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
 
             return sceneInstanceID;
         }
@@ -90,7 +90,7 @@ namespace Game.Entities
 
             CancelScene cancelScene = new();
             cancelScene.SceneInstanceID = sceneInstanceID;
-            GetPlayer().SendPacket(cancelScene);
+            Player.SendPacket(cancelScene);
         }
 
         public void OnSceneTrigger(uint sceneInstanceID, string triggerName)
@@ -99,10 +99,10 @@ namespace Game.Entities
                 return;
 
             if (_isDebuggingScenes)
-                GetPlayer().SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceID, triggerName);
+                Player.SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceID, triggerName);
 
             SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-            Global.ScriptMgr.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(GetPlayer(), sceneInstanceID, sceneTemplate, triggerName), sceneTemplate.ScriptId);
+            Global.ScriptMgr.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(Player, sceneInstanceID, sceneTemplate, triggerName), sceneTemplate.ScriptId);
         }
 
         public void OnSceneCancel(uint sceneInstanceID)
@@ -111,7 +111,7 @@ namespace Game.Entities
                 return;
 
             if (_isDebuggingScenes)
-                GetPlayer().SendSysMessage(CypherStrings.CommandSceneDebugCancel, sceneInstanceID);
+                Player.SendSysMessage(CypherStrings.CommandSceneDebugCancel, sceneInstanceID);
 
             SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
             if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.NotCancelable))
@@ -123,7 +123,7 @@ namespace Game.Entities
             if (sceneTemplate.SceneId != 0)
                 RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+            Global.ScriptMgr.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
 
             if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnCancel))
                 CancelScene(sceneInstanceID, false);
@@ -135,7 +135,7 @@ namespace Game.Entities
                 return;
 
             if (_isDebuggingScenes)
-                GetPlayer().SendSysMessage(CypherStrings.CommandSceneDebugComplete, sceneInstanceID);
+                Player.SendSysMessage(CypherStrings.CommandSceneDebugComplete, sceneInstanceID);
 
             SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
 
@@ -145,7 +145,7 @@ namespace Game.Entities
             if (sceneTemplate.SceneId != 0)
                 RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+            Global.ScriptMgr.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
 
             if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnComplete))
                 CancelScene(sceneInstanceID, false);
@@ -197,12 +197,12 @@ namespace Game.Entities
 
         void RemoveAurasDueToSceneId(uint sceneId)
         {
-            var scenePlayAuras = GetPlayer().GetAuraEffectsByType(AuraType.PlayScene);
+            var scenePlayAuras = Player.GetAuraEffectsByType(AuraType.PlayScene);
             foreach (var scenePlayAura in scenePlayAuras)
             {
                 if (scenePlayAura.GetMiscValue() == sceneId)
                 {
-                    GetPlayer().RemoveAura(scenePlayAura.GetBase());
+                    Player.RemoveAura(scenePlayAura.GetBase());
                     break;
                 }
             }
@@ -227,12 +227,12 @@ namespace Game.Entities
         public void TriggerDelayedScenes()
         {
             foreach (var playScene in _delayedScenes)
-                GetPlayer().SendPacket(playScene);
+                Player.SendPacket(playScene);
 
             _delayedScenes.Clear();
         }
 
-        Player GetPlayer() { return _player; }
+        Player Player => _player;
 
         void RecreateScene(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
         {

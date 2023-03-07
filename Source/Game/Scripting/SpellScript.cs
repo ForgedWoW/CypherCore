@@ -235,7 +235,7 @@ namespace Game.Scripting
         {
             get 
             {
-                Position pos = GetExplTargetWorldObject();
+                Position pos = GetExplTargetWorldObject().Location;
 
                 if (pos == null || pos.IsDefault() || !pos.IsPositionValid())
                     pos = _spell.m_targets.GetDst().Position;

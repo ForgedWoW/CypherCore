@@ -1983,7 +1983,7 @@ namespace Game.Entities
         {
             // remove auras from spells with area limitations
             // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-            GetOwnedAurasList().CallOnMatch((aura) => aura.GetSpellInfo().CheckLocation(GetMapId(), m_zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
+            GetOwnedAurasList().CallOnMatch((aura) => aura.GetSpellInfo().CheckLocation(Location.GetMapId(), m_zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
                                         (pair) => RemoveOwnedAura(pair.GetSpellInfo().Id, pair));
 
             // some auras applied at subzone enter
@@ -2377,7 +2377,7 @@ namespace Game.Entities
         public void AddStoredAuraTeleportLocation(uint spellId)
         {
             StoredAuraTeleportLocation storedLocation = new();
-            storedLocation.Loc = new WorldLocation(this);
+            storedLocation.Loc = new WorldLocation(Location);
             storedLocation.CurrentState = StoredAuraTeleportLocation.State.Changed;
 
             m_storedAuraTeleportLocations[spellId] = storedLocation;

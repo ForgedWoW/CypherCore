@@ -6,7 +6,3 @@ CREATE TABLE `map_keeploaded` (
 	`mapid` INT(10) UNSIGNED NULL DEFAULT NULL
 )
 ;
-
-INSERT INTO `map_keeploaded` (`mapid`) VALUES
-(0),
-(1);

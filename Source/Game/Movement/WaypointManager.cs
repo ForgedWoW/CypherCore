@@ -37,8 +37,8 @@ namespace Game
                 if (!result.IsNull(5))
                     o = result.Read<float>(5);
 
-                GridDefines.NormalizeMapCoord(ref x);
-                GridDefines.NormalizeMapCoord(ref y);
+                x = GridDefines.NormalizeMapCoord(x);
+                y = GridDefines.NormalizeMapCoord(y);
 
                 WaypointNode waypoint = new();
                 waypoint.id = result.Read<uint>(1);
@@ -92,8 +92,8 @@ namespace Game
                 if (!result.IsNull(4))
                     o = result.Read<float>(4);
 
-                GridDefines.NormalizeMapCoord(ref x);
-                GridDefines.NormalizeMapCoord(ref y);
+                x = GridDefines.NormalizeMapCoord(x);
+                y = GridDefines.NormalizeMapCoord(y);
 
                 WaypointNode waypoint = new();
                 waypoint.id = result.Read<uint>(0);

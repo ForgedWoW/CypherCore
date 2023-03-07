@@ -257,7 +257,7 @@ namespace Scripts.EasternKingdoms.Karazhan.Midnight
 
                                             if (midnight)
                                             {
-                                                if (me.IsWithinDist2d(midnight, 5.0f))
+                                                if (me.IsWithinDist2d(midnight.Location, 5.0f))
                                                 {
                                                     DoCastAOE(SpellIds.SummonAttumenMounted);
                                                     me.SetVisible(false);

@@ -53,7 +53,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 		// caster->VariableStorage.Set<int32>("Spells.RageOfTheIllidariDamage", 0);
 
 		// Cannot cast custom spell on position...
-		var target = caster.SummonCreature(SharedConst.WorldTrigger, at, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(1));
+		var target = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(1));
 
 		if (target != null)
 			caster.CastSpell(at, DemonHunterSpells.RAGE_OF_THE_ILLIDARI_VISUAL, true);

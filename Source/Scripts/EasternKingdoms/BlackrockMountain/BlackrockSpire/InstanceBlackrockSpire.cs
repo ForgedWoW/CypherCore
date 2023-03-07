@@ -281,7 +281,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockSpire
                 switch (go.GetEntry())
                 {
                     case GameObjectsIds.WhelpSpawner:
-                        go.CastSpell(null, BRSMiscConst.SpellSummonRookeryWhelp);
+                        go.CastSpell(BRSMiscConst.SpellSummonRookeryWhelp);
 
                         break;
                     case GameObjectsIds.EmberseerIn:

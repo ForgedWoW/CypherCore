@@ -45,7 +45,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
 		if (spirit == null)
 			return;
 
-		caster.NearTeleportTo(spirit, true);
-		spirit.NearTeleportTo(caster, true);
+		caster.NearTeleportTo(spirit.Location, true);
+		spirit.NearTeleportTo(caster.Location, true);
 	}
 }

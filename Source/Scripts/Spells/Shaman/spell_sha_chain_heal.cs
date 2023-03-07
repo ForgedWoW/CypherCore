@@ -50,7 +50,7 @@ namespace Scripts.Spells.Shaman
 				return;
 
 			var chainTargets = new List<WorldObject>();
-			var check        = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget, caster, caster, GetSpellInfo(), targetInfo.GetCheckType(), conditions, SpellTargetObjectTypes.Unit);
+			var check        = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget.Location, caster, caster, GetSpellInfo(), targetInfo.GetCheckType(), conditions, SpellTargetObjectTypes.Unit);
 			var searcher     = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
 			Cell.VisitGrid(_primaryTarget, searcher, range);
 

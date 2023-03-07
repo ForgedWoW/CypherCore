@@ -280,7 +280,7 @@ namespace Game.Entities
             {
                 //we should obtain map from GetMap() in 99% of cases. Special case
                 //only for quests which cast teleport spells on player
-                Map _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(GetMapId(), GetInstanceId());
+                Map _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(Location.GetMapId(), GetInstanceId());
                 Cypher.Assert(_map != null);
                 GameObject gameObject = _map.GetGameObject(guid);
                 if (gameObject != null)
@@ -396,7 +396,7 @@ namespace Game.Entities
                 {
                     //we should obtain map from GetMap() in 99% of cases. Special case
                     //only for quests which cast teleport spells on player
-                    Map _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(GetMapId(), GetInstanceId());
+                    Map _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(Location.GetMapId(), GetInstanceId());
                     Cypher.Assert(_map != null);
                     GameObject gameObject = _map.GetGameObject(guid);
                     if (gameObject != null)
@@ -3028,7 +3028,7 @@ namespace Game.Entities
             if (m_clientGUIDs.Empty())
                 return;
 
-            UpdateData udata = new(GetMapId());
+            UpdateData udata = new(Location.GetMapId());
             foreach (var guid in m_clientGUIDs)
             {
                 if (guid.IsGameObject())
