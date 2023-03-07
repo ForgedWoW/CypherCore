@@ -95,7 +95,7 @@ namespace Scripts.Pets
                         continue;
 
                     target.SetFacingToUnit(gateway);
-                    target.CastSpell(gateway, teleportSpell, true);
+                    target.CastSpell(gateway.GetPosition(), teleportSpell, true);
 
                     if (target.HasAura(WarlockSpells.PLANESWALKER))
                         target.CastSpell(target, WarlockSpells.PLANESWALKER_BUFF, true);

@@ -141,7 +141,7 @@ namespace Game.Spells
             {
                 // check if object target is valid with needed target flags
                 // for unit case allow corpse target mask because player with not released corpse is a unit target
-                if ((target.ToUnit() && (neededTargets != SpellCastTargetFlags.DestLocation && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)))
+                if ((target.ToUnit() && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask))
                     || (target.IsTypeId(TypeId.GameObject) && !neededTargets.HasFlag(SpellCastTargetFlags.GameobjectMask))
                     || (target.IsTypeId(TypeId.Corpse) && !neededTargets.HasFlag(SpellCastTargetFlags.CorpseMask)))
                     m_targets.RemoveObjectTarget();
