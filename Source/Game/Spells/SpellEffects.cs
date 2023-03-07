@@ -548,11 +548,10 @@ namespace Game.Spells
             if (!m_targets.HasDst())
                 return;
 
-            var target = m_targets.GetObjectTarget();
-            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(target), out float speedXY, out float speedZ);
+            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(destTarget), out float speedXY, out float speedZ);
             JumpArrivalCastArgs arrivalCast = new();
             arrivalCast.SpellId = effectInfo.TriggerSpell;
-            unitCaster.GetMotionMaster().MoveJump(target, speedXY, speedZ, EventId.Jump, !m_targets.GetObjectTargetGUID().IsEmpty(), arrivalCast);
+            unitCaster.GetMotionMaster().MoveJump(destTarget, speedXY, speedZ, EventId.Jump, !m_targets.GetObjectTargetGUID().IsEmpty(), arrivalCast);
         }
 
         [SpellEffectHandler(SpellEffectName.TeleportUnits)]
