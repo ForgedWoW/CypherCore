@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.Entities;
@@ -8,41 +11,43 @@ namespace Game.Maps;
 
 public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IGridNotifierCreature
 {
-    public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType) { }
+	public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType)
+	{
+	}
 
-    public void Visit(IList<Player> objs)
-    {
-        Visit(objs.Cast<WorldObject>().ToList());
+	public void Visit(IList<Creature> objs)
+	{
+		Visit(objs.Cast<WorldObject>().ToList());
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            vis_guids.Remove(player.GetGUID());
+		var relocated_for_ai = (Player == Player.seerView);
 
-            i_player.UpdateVisibilityOf(player, i_data, i_visibleNow);
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
+			VisGuids.Remove(creature.GetGUID());
 
-            if (player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                continue;
+			Player.UpdateVisibilityOf(creature, Data, VisibleNow);
 
-            player.UpdateVisibilityOf(i_player);
-        }
-    }
+			if (relocated_for_ai && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				NotifierHelpers.CreatureUnitRelocationWorker(creature, Player);
+		}
+	}
 
-    public void Visit(IList<Creature> objs)
-    {
-        Visit(objs.Cast<WorldObject>().ToList());
+	public void Visit(IList<Player> objs)
+	{
+		Visit(objs.Cast<WorldObject>().ToList());
 
-        bool relocated_for_ai = (i_player == i_player.seerView);
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+			VisGuids.Remove(player.GetGUID());
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            vis_guids.Remove(creature.GetGUID());
+			Player.UpdateVisibilityOf(player, Data, VisibleNow);
 
-            i_player.UpdateVisibilityOf(creature, i_data, i_visibleNow);
+			if (player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				continue;
 
-            if (relocated_for_ai && !creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                NotifierHelpers.CreatureUnitRelocationWorker(creature, i_player);
-        }
-    }
+			player.UpdateVisibilityOf(Player);
+		}
+	}
 }

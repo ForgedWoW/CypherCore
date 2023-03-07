@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,105 +10,107 @@ namespace Game.Maps;
 
 public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamicObject, IGridNotifierCreature where T : IDoWork<Player>
 {
-    public GridType GridType { get; set; } = GridType.World;
+	readonly WorldObject _source;
+	readonly T _packetSender;
+	readonly PhaseShift _phaseShift;
+	readonly float _distSq;
+	readonly Team _team;
+	readonly Player _skippedReceiver;
+	readonly bool _required3dDist;
 
-    readonly WorldObject i_source;
-    readonly T i_packetSender;
-    readonly PhaseShift i_phaseShift;
-    readonly float i_distSq;
-    readonly Team team;
-    readonly Player skipped_receiver;
-    readonly bool required3dDist;
+	public MessageDistDeliverer(WorldObject src, T packetSender, float dist, bool own_team_only = false, Player skipped = null, bool req3dDist = false)
+	{
+		_source       = src;
+		_packetSender = packetSender;
+		_phaseShift   = src.GetPhaseShift();
+		_distSq       = dist * dist;
 
-    public MessageDistDeliverer(WorldObject src, T packetSender, float dist, bool own_team_only = false, Player skipped = null, bool req3dDist = false)
-    {
-        i_source = src;
-        i_packetSender = packetSender;
-        i_phaseShift = src.GetPhaseShift();
-        i_distSq = dist * dist;
-        if (own_team_only && src.IsPlayer())
-            team = src.ToPlayer().GetEffectiveTeam();
+		if (own_team_only && src.IsPlayer())
+			_team = src.ToPlayer().GetEffectiveTeam();
 
-        skipped_receiver = skipped;
-        required3dDist = req3dDist;
-    }
+		_skippedReceiver = skipped;
+		_required3dDist   = req3dDist;
+	}
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (!player.InSamePhase(i_phaseShift))
-                continue;
+	public void Visit(IList<Creature> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
 
-            if ((!required3dDist ? player.GetExactDist2dSq(i_source) : player.GetExactDistSq(i_source)) > i_distSq)
-                continue;
+			if (!creature.InSamePhase(_phaseShift))
+				continue;
 
-            // Send packet to all who are sharing the player's vision
-            if (player.HasSharedVision())
-            {
-                foreach (var visionPlayer in player.GetSharedVisionList())
-                    if (visionPlayer.seerView == player)
-                        SendPacket(visionPlayer);
-            }
+			if ((!_required3dDist ? creature.GetExactDist2dSq(_source) : creature.GetExactDistSq(_source)) > _distSq)
+				continue;
 
-            if (player.seerView == player || player.GetVehicle() != null)
-                SendPacket(player);
-        }
-    }
+			// Send packet to all who are sharing the creature's vision
+			if (creature.HasSharedVision())
+				foreach (var visionPlayer in creature.GetSharedVisionList())
+					if (visionPlayer.seerView == creature)
+						SendPacket(visionPlayer);
+		}
+	}
 
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            if (!creature.InSamePhase(i_phaseShift))
-                continue;
+	public void Visit(IList<DynamicObject> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var dynamicObject = objs[i];
 
-            if ((!required3dDist ? creature.GetExactDist2dSq(i_source) : creature.GetExactDistSq(i_source)) > i_distSq)
-                continue;
+			if (!dynamicObject.InSamePhase(_phaseShift))
+				continue;
 
-            // Send packet to all who are sharing the creature's vision
-            if (creature.HasSharedVision())
-            {
-                foreach (var visionPlayer in creature.GetSharedVisionList())
-                    if (visionPlayer.seerView == creature)
-                        SendPacket(visionPlayer);
-            }
-        }
-    }
+			if ((!_required3dDist ? dynamicObject.GetExactDist2dSq(_source) : dynamicObject.GetExactDistSq(_source)) > _distSq)
+				continue;
 
-    public void Visit(IList<DynamicObject> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            DynamicObject dynamicObject = objs[i];
-            if (!dynamicObject.InSamePhase(i_phaseShift))
-                continue;
+			// Send packet back to the caster if the caster has vision of dynamic object
+			var caster = dynamicObject.GetCaster();
 
-            if ((!required3dDist ? dynamicObject.GetExactDist2dSq(i_source) : dynamicObject.GetExactDistSq(i_source)) > i_distSq)
-                continue;
+			if (caster)
+			{
+				var player = caster.ToPlayer();
 
-            // Send packet back to the caster if the caster has vision of dynamic object
-            Unit caster = dynamicObject.GetCaster();
-            if (caster)
-            {
-                Player player = caster.ToPlayer();
-                if (player && player.seerView == dynamicObject)
-                    SendPacket(player);
-            }
-        }
-    }
+				if (player && player.seerView == dynamicObject)
+					SendPacket(player);
+			}
+		}
+	}
 
-    void SendPacket(Player player)
-    {
-        // never send packet to self
-        if (i_source == player || (team != 0 && player.GetEffectiveTeam() != team) || skipped_receiver == player)
-            return;
+	public GridType GridType { get; set; } = GridType.World;
 
-        if (!player.HaveAtClient(i_source))
-            return;
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
 
-        i_packetSender.Invoke(player);
-    }
+			if (!player.InSamePhase(_phaseShift))
+				continue;
+
+			if ((!_required3dDist ? player.GetExactDist2dSq(_source) : player.GetExactDistSq(_source)) > _distSq)
+				continue;
+
+			// Send packet to all who are sharing the player's vision
+			if (player.HasSharedVision())
+				foreach (var visionPlayer in player.GetSharedVisionList())
+					if (visionPlayer.seerView == player)
+						SendPacket(visionPlayer);
+
+			if (player.seerView == player || player.GetVehicle() != null)
+				SendPacket(player);
+		}
+	}
+
+	void SendPacket(Player player)
+	{
+		// never send packet to self
+		if (_source == player || (_team != 0 && player.GetEffectiveTeam() != _team) || _skippedReceiver == player)
+			return;
+
+		if (!player.HaveAtClient(_source))
+			return;
+
+		_packetSender.Invoke(player);
+	}
 }

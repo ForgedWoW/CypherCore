@@ -1,29 +1,32 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class AnyPlayerInPositionRangeCheck : ICheck<Player>
 {
-    public AnyPlayerInPositionRangeCheck(Position pos, float range, bool reqAlive = true)
-    {
-        _pos = pos;
-        _range = range;
-        _reqAlive = reqAlive;
-    }
+	readonly Position _pos;
+	readonly float _range;
+	readonly bool _reqAlive;
 
-    public bool Invoke(Player u)
-    {
-        if (_reqAlive && !u.IsAlive())
-            return false;
+	public AnyPlayerInPositionRangeCheck(Position pos, float range, bool reqAlive = true)
+	{
+		_pos      = pos;
+		_range    = range;
+		_reqAlive = reqAlive;
+	}
 
-        if (!u.IsWithinDist3d(_pos, _range))
-            return false;
+	public bool Invoke(Player u)
+	{
+		if (_reqAlive && !u.IsAlive())
+			return false;
 
-        return true;
-    }
+		if (!u.IsWithinDist3d(_pos, _range))
+			return false;
 
-    readonly Position _pos;
-    readonly float _range;
-    readonly bool _reqAlive;
+		return true;
+	}
 }

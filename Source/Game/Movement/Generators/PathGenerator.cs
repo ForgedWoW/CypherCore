@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
-using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game.Movement
 {

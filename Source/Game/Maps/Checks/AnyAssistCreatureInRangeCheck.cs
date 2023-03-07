@@ -1,39 +1,41 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class AnyAssistCreatureInRangeCheck : ICheck<Creature>
 {
-    public AnyAssistCreatureInRangeCheck(Unit funit, Unit enemy, float range)
-    {
-        i_funit = funit;
-        i_enemy = enemy;
-        i_range = range;
+	readonly Unit _funit;
+	readonly Unit _enemy;
+	readonly float _range;
 
-    }
+	public AnyAssistCreatureInRangeCheck(Unit funit, Unit enemy, float range)
+	{
+		_funit = funit;
+		_enemy = enemy;
+		_range = range;
+	}
 
-    public bool Invoke(Creature u)
-    {
-        if (u == i_funit)
-            return false;
+	public bool Invoke(Creature u)
+	{
+		if (u == _funit)
+			return false;
 
-        if (!u.CanAssistTo(i_funit, i_enemy))
-            return false;
+		if (!u.CanAssistTo(_funit, _enemy))
+			return false;
 
-        // too far
-        // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!i_funit.IsWithinDist(u, i_range, true, false, false))
-            return false;
+		// too far
+		// Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+		if (!_funit.IsWithinDist(u, _range, true, false, false))
+			return false;
 
-        // only if see assisted creature
-        if (!i_funit.IsWithinLOSInMap(u))
-            return false;
+		// only if see assisted creature
+		if (!_funit.IsWithinLOSInMap(u))
+			return false;
 
-        return true;
-    }
-
-    readonly Unit i_funit;
-    readonly Unit i_enemy;
-    readonly float i_range;
+		return true;
+	}
 }

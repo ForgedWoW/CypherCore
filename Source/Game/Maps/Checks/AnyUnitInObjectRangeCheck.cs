@@ -1,26 +1,29 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class AnyUnitInObjectRangeCheck : ICheck<Unit>
 {
-    public AnyUnitInObjectRangeCheck(WorldObject obj, float range, bool check3D = true)
-    {
-        i_obj = obj;
-        i_range = range;
-        i_check3D = check3D;
-    }
+	readonly WorldObject _obj;
+	readonly float _range;
+	readonly bool _check3D;
 
-    public bool Invoke(Unit u)
-    {
-        if (u.IsAlive() && i_obj.IsWithinDist(u, i_range, i_check3D))
-            return true;
+	public AnyUnitInObjectRangeCheck(WorldObject obj, float range, bool check3D = true)
+	{
+		_obj     = obj;
+		_range   = range;
+		_check3D = check3D;
+	}
 
-        return false;
-    }
+	public bool Invoke(Unit u)
+	{
+		if (u.IsAlive() && _obj.IsWithinDist(u, _range, _check3D))
+			return true;
 
-    readonly WorldObject i_obj;
-    readonly float i_range;
-    readonly bool i_check3D;
+		return false;
+	}
 }

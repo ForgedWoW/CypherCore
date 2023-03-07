@@ -11,6 +11,7 @@ using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game.Chat
 {
@@ -145,10 +146,10 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.SpawninfoGuidinfo, thisGO.GetGUID().ToString());
                 handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, thisGO.GetRespawnCompatibilityMode());
 
-                if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().spawnGroupData.groupId != 0)
+                if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().SpawnGroupData.GroupId != 0)
                 {
-                    SpawnGroupTemplateData groupData = thisGO.ToGameObject().GetGameObjectData().spawnGroupData;
-                    handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.name, groupData.groupId, groupData.flags, thisGO.GetMap().IsSpawnGroupActive(groupData.groupId));
+                    SpawnGroupTemplateData groupData = thisGO.ToGameObject().GetGameObjectData().SpawnGroupData;
+                    handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.GetMap().IsSpawnGroupActive(groupData.GroupId));
                 }
 
                 GameObjectOverride goOverride = Global.ObjectMgr.GetGameObjectOverride(spawnId);

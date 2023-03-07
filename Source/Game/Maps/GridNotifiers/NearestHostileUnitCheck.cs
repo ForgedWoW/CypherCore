@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,30 +9,31 @@ namespace Game.Maps;
 
 public class NearestHostileUnitCheck : ICheck<Unit>
 {
-    public NearestHostileUnitCheck(Creature creature, float dist = 0, bool playerOnly = false)
-    {
-        me = creature;
-        i_playerOnly = playerOnly;
+	readonly Creature _me;
+	readonly bool _playerOnly;
+	float _range;
 
-        m_range = (dist == 0 ? 9999 : dist);
-    }
+	public NearestHostileUnitCheck(Creature creature, float dist = 0, bool playerOnly = false)
+	{
+		_me           = creature;
+		_playerOnly = playerOnly;
 
-    public bool Invoke(Unit u)
-    {
-        if (!me.IsWithinDist(u, m_range))
-            return false;
+		_range = (dist == 0 ? 9999 : dist);
+	}
 
-        if (!me.IsValidAttackTarget(u))
-            return false;
+	public bool Invoke(Unit u)
+	{
+		if (!_me.IsWithinDist(u, _range))
+			return false;
 
-        if (i_playerOnly && !u.IsTypeId(TypeId.Player))
-            return false;
+		if (!_me.IsValidAttackTarget(u))
+			return false;
 
-        m_range = me.GetDistance(u);   // use found unit range as new range limit for next check
-        return true;
-    }
+		if (_playerOnly && !u.IsTypeId(TypeId.Player))
+			return false;
 
-    readonly Creature me;
-    float m_range;
-    readonly bool i_playerOnly;
+		_range = _me.GetDistance(u); // use found unit range as new range limit for next check
+
+		return true;
+	}
 }

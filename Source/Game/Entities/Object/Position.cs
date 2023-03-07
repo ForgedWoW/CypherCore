@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game.Entities
 {

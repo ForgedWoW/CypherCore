@@ -12,6 +12,7 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Groups;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Movement;
 using Game.Networking.Packets;
 using Game.Spells;
@@ -635,8 +636,8 @@ namespace Game.Chat
             GridCoord gridCoord = GridDefines.ComputeGridCoord(obj.GetPositionX(), obj.GetPositionY());
 
             // 63? WHY?
-            int gridX = (int)((MapConst.MaxGrids - 1) - gridCoord.X_coord);
-            int gridY = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_coord);
+            int gridX = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
+            int gridY = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_Coord);
 
             bool haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
             bool haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
@@ -1624,8 +1625,8 @@ namespace Game.Chat
             {
                 uint gridId = GridDefines.ComputeGridCoord(player.GetPositionX(), player.GetPositionY()).GetId();
                 foreach (RespawnInfo info in data)
-                    if (info.gridId == gridId)
-                        player.GetMap().RemoveRespawnTime(info.type, info.spawnId);
+                    if (info.GridId == gridId)
+                        player.GetMap().RemoveRespawnTime(info.ObjectType, info.SpawnId);
             }
 
             return true;

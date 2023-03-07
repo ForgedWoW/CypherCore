@@ -1,31 +1,36 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
 {
-    public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
-    {
-        i_obj = obj;
-        i_entry = entry;
-        i_range = range;
-        i_pct = pct;
-        i_excludeSelf = excludeSelf;
-    }
+	readonly Unit _obj;
+	readonly uint _entry;
+	readonly float _range;
+	readonly byte _pct;
+	readonly bool _excludeSelf;
 
-    public bool Invoke(Unit u)
-    {
-        if (i_excludeSelf && i_obj.GetGUID() == u.GetGUID())
-            return false;
-        if (u.GetEntry() == i_entry && u.IsAlive() && u.IsInCombat() && !i_obj.IsHostileTo(u) && i_obj.IsWithinDist(u, i_range) && u.HealthBelowPct(i_pct))
-            return true;
-        return false;
-    }
+	public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
+	{
+		_obj         = obj;
+		_entry       = entry;
+		_range       = range;
+		_pct         = pct;
+		_excludeSelf = excludeSelf;
+	}
 
-    readonly Unit i_obj;
-    readonly uint i_entry;
-    readonly float i_range;
-    readonly byte i_pct;
-    readonly bool i_excludeSelf;
+	public bool Invoke(Unit u)
+	{
+		if (_excludeSelf && _obj.GetGUID() == u.GetGUID())
+			return false;
+
+		if (u.GetEntry() == _entry && u.IsAlive() && u.IsInCombat() && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
+			return true;
+
+		return false;
+	}
 }

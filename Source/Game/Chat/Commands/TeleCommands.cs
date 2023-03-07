@@ -8,7 +8,7 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Groups;
-using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game.Chat
 {

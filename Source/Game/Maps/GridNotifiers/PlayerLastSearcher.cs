@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,31 +10,35 @@ namespace Game.Maps;
 
 public class PlayerLastSearcher : IGridNotifierPlayer
 {
-    public GridType GridType { get; set; }
+	readonly PhaseShift _phaseShift;
+	readonly ICheck<Player> _check;
+	Player _object;
 
-    readonly PhaseShift i_phaseShift;
-    Player i_object;
-    readonly ICheck<Player> i_check;
+	public PlayerLastSearcher(WorldObject searcher, ICheck<Player> check, GridType gridType)
+	{
+		_phaseShift = searcher.GetPhaseShift();
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public PlayerLastSearcher(WorldObject searcher, ICheck<Player> check, GridType gridType)
-    {
-        i_phaseShift = searcher.GetPhaseShift();
-        i_check = check;
-        GridType = gridType;
-    }
+	public GridType GridType { get; set; }
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (!player.InSamePhase(i_phaseShift))
-                continue;
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
 
-            if (i_check.Invoke(player))
-                i_object = player;
-        }
-    }
+			if (!player.InSamePhase(_phaseShift))
+				continue;
 
-    public Player GetTarget() { return i_object; }
+			if (_check.Invoke(player))
+				_object = player;
+		}
+	}
+
+	public Player GetTarget()
+	{
+		return _object;
+	}
 }

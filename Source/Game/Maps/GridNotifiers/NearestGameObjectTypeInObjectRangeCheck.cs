@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,24 +9,26 @@ namespace Game.Maps;
 
 class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
 {
-    public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
-    {
-        i_obj = obj;
-        i_type = type;
-        i_range = range;
-    }
+	readonly WorldObject _obj;
+	readonly GameObjectTypes _type;
+	float _range;
 
-    public bool Invoke(GameObject go)
-    {
-        if (go.GetGoType() == i_type && i_obj.IsWithinDist(go, i_range))
-        {
-            i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
-            return true;
-        }
-        return false;
-    }
+	public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
+	{
+		_obj   = obj;
+		_type  = type;
+		_range = range;
+	}
 
-    readonly WorldObject i_obj;
-    readonly GameObjectTypes i_type;
-    float i_range;
+	public bool Invoke(GameObject go)
+	{
+		if (go.GetGoType() == _type && _obj.IsWithinDist(go, _range))
+		{
+			_range = _obj.GetDistance(go); // use found GO range as new range limit for next check
+
+			return true;
+		}
+
+		return false;
+	}
 }

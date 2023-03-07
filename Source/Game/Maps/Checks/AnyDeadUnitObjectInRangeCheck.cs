@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,29 +9,32 @@ namespace Game.Maps;
 
 public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
 {
-    public AnyDeadUnitObjectInRangeCheck(WorldObject searchObj, float range)
-    {
-        i_searchObj = searchObj;
-        i_range = range;
-    }
+	readonly WorldObject _searchObj;
+	readonly float _range;
 
-    public virtual bool Invoke(T obj)
-    {
-        Player player = obj.ToPlayer();
-        if (player)
-            return !player.IsAlive() && !player.HasAuraType(AuraType.Ghost) && i_searchObj.IsWithinDistInMap(player, i_range);
+	public AnyDeadUnitObjectInRangeCheck(WorldObject searchObj, float range)
+	{
+		_searchObj = searchObj;
+		_range     = range;
+	}
 
-        Creature creature = obj.ToCreature();
-        if (creature)
-            return !creature.IsAlive() && i_searchObj.IsWithinDistInMap(creature, i_range);
+	public virtual bool Invoke(T obj)
+	{
+		var player = obj.ToPlayer();
 
-        Corpse corpse = obj.ToCorpse();
-        if (corpse)
-            return corpse.GetCorpseType() != CorpseType.Bones && i_searchObj.IsWithinDistInMap(corpse, i_range);
+		if (player)
+			return !player.IsAlive() && !player.HasAuraType(AuraType.Ghost) && _searchObj.IsWithinDistInMap(player, _range);
 
-        return false;
-    }
+		var creature = obj.ToCreature();
 
-    readonly WorldObject i_searchObj;
-    readonly float i_range;
+		if (creature)
+			return !creature.IsAlive() && _searchObj.IsWithinDistInMap(creature, _range);
+
+		var corpse = obj.ToCorpse();
+
+		if (corpse)
+			return corpse.GetCorpseType() != CorpseType.Bones && _searchObj.IsWithinDistInMap(corpse, _range);
+
+		return false;
+	}
 }

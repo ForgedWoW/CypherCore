@@ -9,6 +9,7 @@ using Game.DataStorage;
 using Game.Groups;
 using Game.Guilds;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 

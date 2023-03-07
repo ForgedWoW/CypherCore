@@ -1,37 +1,41 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
 {
-    public NearestAssistCreatureInCreatureRangeCheck(Creature obj, Unit enemy, float range)
-    {
-        i_obj = obj;
-        i_enemy = enemy;
-        i_range = range;
-    }
+	readonly Creature _obj;
+	readonly Unit _enemy;
+	float _range;
 
-    public bool Invoke(Creature u)
-    {
-        if (u == i_obj)
-            return false;
+	public NearestAssistCreatureInCreatureRangeCheck(Creature obj, Unit enemy, float range)
+	{
+		_obj   = obj;
+		_enemy = enemy;
+		_range = range;
+	}
 
-        if (!u.CanAssistTo(i_obj, i_enemy))
-            return false;
+	public bool Invoke(Creature u)
+	{
+		if (u == _obj)
+			return false;
 
-        // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!i_obj.IsWithinDist(u, i_range, true, false, false))
-            return false;
+		if (!u.CanAssistTo(_obj, _enemy))
+			return false;
 
-        if (!i_obj.IsWithinLOSInMap(u))
-            return false;
+		// Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+		if (!_obj.IsWithinDist(u, _range, true, false, false))
+			return false;
 
-        i_range = i_obj.GetDistance(u);            // use found unit range as new range limit for next check
-        return true;
-    }
+		if (!_obj.IsWithinLOSInMap(u))
+			return false;
 
-    readonly Creature i_obj;
-    readonly Unit i_enemy;
-    float i_range;
+		_range = _obj.GetDistance(u); // use found unit range as new range limit for next check
+
+		return true;
+	}
 }

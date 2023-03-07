@@ -4,276 +4,292 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
+using Game.Maps.Grids;
 using Game.Maps.Interfaces;
 
-namespace Game.Maps
+namespace Game.Maps;
+
+public class Cell
 {
-    public class Cell
-    {
-        public Cell(ICoord p)
-        {
-            data.grid_x = p.X_coord / MapConst.MaxCells;
-            data.grid_y = p.Y_coord / MapConst.MaxCells;
-            data.cell_x = p.X_coord % MapConst.MaxCells;
-            data.cell_y = p.Y_coord % MapConst.MaxCells;
-        }
+	public struct CellMetadata
+	{
+		public uint Gridx;
+		public uint Gridy;
+		public uint Cellx;
+		public uint Celly;
+		public bool NoCreate;
+	}
 
-        public Cell(float x, float y)
-        {
-            ICoord p = GridDefines.ComputeCellCoord(x, y);
-            data.grid_x = p.X_coord / MapConst.MaxCells;
-            data.grid_y = p.Y_coord / MapConst.MaxCells;
-            data.cell_x = p.X_coord % MapConst.MaxCells;
-            data.cell_y = p.Y_coord % MapConst.MaxCells;
-        }
+	public CellMetadata Data;
 
-        public Cell(Cell cell) { data = cell.data; }
+	public Cell(ICoord p)
+	{
+		Data.Gridx = p.X_Coord / MapConst.MaxCells;
+		Data.Gridy = p.Y_Coord / MapConst.MaxCells;
+		Data.Cellx = p.X_Coord % MapConst.MaxCells;
+		Data.Celly = p.Y_Coord % MapConst.MaxCells;
+	}
 
-        public bool IsCellValid()
-        {
-            return data.cell_x < MapConst.MaxCells && data.cell_y < MapConst.MaxCells;
-        }
+	public Cell(float x, float y)
+	{
+		ICoord p = GridDefines.ComputeCellCoord(x, y);
+		Data.Gridx = p.X_Coord / MapConst.MaxCells;
+		Data.Gridy = p.Y_Coord / MapConst.MaxCells;
+		Data.Cellx = p.X_Coord % MapConst.MaxCells;
+		Data.Celly = p.Y_Coord % MapConst.MaxCells;
+	}
 
-        public uint GetId()
-        {
-            return data.grid_x * MapConst.MaxGrids + data.grid_y;
-        }
+	public Cell(Cell cell)
+	{
+		Data = cell.Data;
+	}
 
-        public uint GetCellX() { return data.cell_x; }
-        public uint GetCellY() { return data.cell_y; }
-        public uint GetGridX() { return data.grid_x; }
-        public uint GetGridY() { return data.grid_y; }
-        public bool NoCreate() { return data.nocreate; }
-        public void SetNoCreate() { data.nocreate = true; }
+	public bool IsCellValid()
+	{
+		return Data.Cellx < MapConst.MaxCells && Data.Celly < MapConst.MaxCells;
+	}
 
-        public static bool operator ==(Cell left, Cell right)
-        {
-            if (ReferenceEquals(left, right))
-                return true;
+	public uint GetId()
+	{
+		return Data.Gridx * MapConst.MaxGrids + Data.Gridy;
+	}
 
-            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
-                return false;
+	public uint GetCellX()
+	{
+		return Data.Cellx;
+	}
 
-            return left.data.cell_x == right.data.cell_x && left.data.cell_y == right.data.cell_y
-                && left.data.grid_x == right.data.grid_x && left.data.grid_y == right.data.grid_y;
-        }
-        public static bool operator !=(Cell left, Cell right) { return !(left == right); }
+	public uint GetCellY()
+	{
+		return Data.Celly;
+	}
 
-        public override bool Equals(object obj)
-        {
-            return obj is Cell && this == (Cell)obj;
-        }
+	public uint GetGridX()
+	{
+		return Data.Gridx;
+	}
 
-        public override int GetHashCode()
-        {
-            return (int)(data.cell_x ^ data.cell_y ^ data.grid_x ^ data.grid_y);
-        }
+	public uint GetGridY()
+	{
+		return Data.Gridy;
+	}
 
-        public override string ToString()
-        {
-            return $"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
-        }
+	public bool NoCreate()
+	{
+		return Data.NoCreate;
+	}
 
-        public struct Data
-        {
-            public uint grid_x;
-            public uint grid_y;
-            public uint cell_x;
-            public uint cell_y;
-            public bool nocreate;
-        }
-        public Data data;
+	public void SetNoCreate()
+	{
+		Data.NoCreate = true;
+	}
 
-        public CellCoord GetCellCoord()
-        {
-            return new CellCoord(
-                data.grid_x * MapConst.MaxCells + data.cell_x,
-                data.grid_y * MapConst.MaxCells + data.cell_y);
-        }
+	public static bool operator ==(Cell left, Cell right)
+	{
+		if (ReferenceEquals(left, right))
+			return true;
 
-        public bool DiffCell(Cell cell)
-        {
-            return (data.cell_x != cell.data.cell_x ||
-                data.cell_y != cell.data.cell_y);
-        }
+		if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+			return false;
 
-        public bool DiffGrid(Cell cell)
-        {
-            return (data.grid_x != cell.data.grid_x ||
-                data.grid_y != cell.data.grid_y);
-        }
+		return left.Data.Cellx == right.Data.Cellx && left.Data.Celly == right.Data.Celly && left.Data.Gridx == right.Data.Gridx && left.Data.Gridy == right.Data.Gridy;
+	}
 
-        public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
-        {
-            //we should increase search radius by object's radius, otherwise
-            //we could have problems with huge creatures, which won't attack nearest players etc
-            Visit(standing_cell, visitor, map, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetCombatReach());
-        }
+	public static bool operator !=(Cell left, Cell right)
+	{
+		return !(left == right);
+	}
 
-        public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, float x_off, float y_off, float radius)
-        {
-            if (!standing_cell.IsCoordValid())
-                return;
+	public override bool Equals(object obj)
+	{
+		return obj is Cell && this == (Cell)obj;
+	}
 
-            //no jokes here... Actually placing ASSERT() here was good idea, but
-            //we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
-            //maybe it is better to just return when radius <= 0.0f?
-            if (radius <= 0.0f)
-            {
-                map.Visit(this, visitor);
-                return;
-            }
-            //lets limit the upper value for search radius
-            if (radius > MapConst.SizeofGrids)
-                radius = MapConst.SizeofGrids;
+	public override int GetHashCode()
+	{
+		return (int)(Data.Cellx ^ Data.Celly ^ Data.Gridx ^ Data.Gridy);
+	}
 
-            //lets calculate object coord offsets from cell borders.
-            CellArea area = CalculateCellArea(x_off, y_off, radius);
-            //if radius fits inside standing cell
-            if (area == null)
-            {
-                map.Visit(this, visitor);
-                return;
-            }
+	public override string ToString()
+	{
+		return $"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
+	}
 
-            //visit all cells, found in CalculateCellArea()
-            //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
-            //currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
-            //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
-            if ((area.high_bound.X_coord > (area.low_bound.X_coord + 4)) && (area.high_bound.Y_coord > (area.low_bound.Y_coord + 4)))
-            {
-                VisitCircle(visitor, map, area.low_bound, area.high_bound);
-                return;
-            }
+	public CellCoord GetCellCoord()
+	{
+		return new CellCoord(Data.Gridx * MapConst.MaxCells + Data.Cellx,
+		                     Data.Gridy * MapConst.MaxCells + Data.Celly);
+	}
 
-            //ALWAYS visit standing cell first!!! Since we deal with small radiuses
-            //it is very essential to call visitor for standing cell firstly...
-            map.Visit(this, visitor);
+	public bool DiffCell(Cell cell)
+	{
+		return (Data.Cellx != cell.Data.Cellx ||
+		        Data.Celly != cell.Data.Celly);
+	}
 
-            // loop the cell range
-            for (uint x = area.low_bound.X_coord; x <= area.high_bound.X_coord; ++x)
-            {
-                for (uint y = area.low_bound.Y_coord; y <= area.high_bound.Y_coord; ++y)
-                {
-                    CellCoord cellCoord = new(x, y);
-                    //lets skip standing cell since we already visited it
-                    if (cellCoord != standing_cell)
-                    {
-                        Cell r_zone = new(cellCoord);
-                        r_zone.data.nocreate = data.nocreate;
-                        map.Visit(r_zone, visitor);
-                    }
-                }
-            }
-        }
+	public bool DiffGrid(Cell cell)
+	{
+		return (Data.Gridx != cell.Data.Gridx ||
+		        Data.Gridy != cell.Data.Gridy);
+	}
 
-        void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
-        {
-            //here is an algorithm for 'filling' circum-squared octagon
-            uint x_shift = (uint)Math.Ceiling((end_cell.X_coord - begin_cell.X_coord) * 0.3f - 0.5f);
-            //lets calculate x_start/x_end coords for central strip...
-            uint x_start = begin_cell.X_coord + x_shift;
-            uint x_end = end_cell.X_coord - x_shift;
+	public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
+	{
+		//we should increase search radius by object's radius, otherwise
+		//we could have problems with huge creatures, which won't attack nearest players etc
+		Visit(standing_cell, visitor, map, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetCombatReach());
+	}
 
-            //visit central strip with constant width...
-            for (uint x = x_start; x <= x_end; ++x)
-            {
-                for (uint y = begin_cell.Y_coord; y <= end_cell.Y_coord; ++y)
-                {
-                    CellCoord cellCoord = new(x, y);
-                    Cell r_zone = new(cellCoord);
-                    r_zone.data.nocreate = data.nocreate;
-                    map.Visit(r_zone, visitor);
-                }
-            }
+	public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, float x_off, float y_off, float radius)
+	{
+		if (!standing_cell.IsCoordValid())
+			return;
 
-            //if x_shift == 0 then we have too small cell area, which were already
-            //visited at previous step, so just return from procedure...
-            if (x_shift == 0)
-                return;
+		//no jokes here... Actually placing ASSERT() here was good idea, but
+		//we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
+		//maybe it is better to just return when radius <= 0.0f?
+		if (radius <= 0.0f)
+		{
+			map.Visit(this, visitor);
 
-            uint y_start = end_cell.Y_coord;
-            uint y_end = begin_cell.Y_coord;
-            //now we are visiting borders of an octagon...
-            for (uint step = 1; step <= (x_start - begin_cell.X_coord); ++step)
-            {
-                //each step reduces strip height by 2 cells...
-                y_end += 1;
-                y_start -= 1;
-                for (uint y = y_start; y >= y_end; --y)
-                {
-                    //we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
-                    //e.g. filling 2 trapezoids after filling central cell strip...
-                    CellCoord cellCoord_left = new(x_start - step, y);
-                    Cell r_zone_left = new(cellCoord_left);
-                    r_zone_left.data.nocreate = data.nocreate;
-                    map.Visit(r_zone_left, visitor);
+			return;
+		}
 
-                    //right trapezoid cell visit
-                    CellCoord cellCoord_right = new(x_end + step, y);
-                    Cell r_zone_right = new(cellCoord_right);
-                    r_zone_right.data.nocreate = data.nocreate;
-                    map.Visit(r_zone_right, visitor);
-                }
-            }
-        }
+		//lets limit the upper value for search radius
+		if (radius > MapConst.SizeofGrids)
+			radius = MapConst.SizeofGrids;
 
-        public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
-        {
-            CellCoord p = GridDefines.ComputeCellCoord(center_obj.GetPositionX(), center_obj.GetPositionY());
-            Cell cell = new(p);
-            if (dont_load)
-                cell.SetNoCreate();
+		//lets calculate object coord offsets from cell borders.
+		var area = CalculateCellArea(x_off, y_off, radius);
 
-            cell.Visit(p, visitor, center_obj.GetMap(), center_obj, radius);
-        }
+		//if radius fits inside standing cell
+		if (area == null)
+		{
+			map.Visit(this, visitor);
 
-        public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)
-        {
-            CellCoord p = GridDefines.ComputeCellCoord(x, y);
-            Cell cell = new(p);
-            if (dont_load)
-                cell.SetNoCreate();
+			return;
+		}
 
-            cell.Visit(p, visitor, map, x, y, radius);
-        }
+		//visit all cells, found in CalculateCellArea()
+		//if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
+		//currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
+		//there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
+		if ((area.HighBound.X_Coord > (area.LowBound.X_Coord + 4)) && (area.HighBound.Y_Coord > (area.LowBound.Y_Coord + 4)))
+		{
+			VisitCircle(visitor, map, area.LowBound, area.HighBound);
 
-        public static CellArea CalculateCellArea(float x, float y, float radius)
-        {
-            if (radius <= 0.0f)
-            {
-                CellCoord center = (CellCoord)GridDefines.ComputeCellCoord(x, y).Normalize();
-                return new CellArea(center, center);
-            }
+			return;
+		}
 
-            CellCoord centerX = (CellCoord)GridDefines.ComputeCellCoord(x - radius, y - radius).Normalize();
-            CellCoord centerY = (CellCoord)GridDefines.ComputeCellCoord(x + radius, y + radius).Normalize();
+		//ALWAYS visit standing cell first!!! Since we deal with small radiuses
+		//it is very essential to call visitor for standing cell firstly...
+		map.Visit(this, visitor);
 
-            return new CellArea(centerX, centerY);
-        }
-    }
+		// loop the cell range
+		for (var x = area.LowBound.X_Coord; x <= area.HighBound.X_Coord; ++x)
+		{
+			for (var y = area.LowBound.Y_Coord; y <= area.HighBound.Y_Coord; ++y)
+			{
+				CellCoord cellCoord = new(x, y);
 
-    public class CellArea
-    {
-        public CellArea() { }
-        public CellArea(CellCoord low, CellCoord high)
-        {
-            low_bound = low;
-            high_bound = high;
-        }
+				//lets skip standing cell since we already visited it
+				if (cellCoord != standing_cell)
+				{
+					Cell r_zone = new(cellCoord);
+					r_zone.Data.NoCreate = Data.NoCreate;
+					map.Visit(r_zone, visitor);
+				}
+			}
+		}
+	}
 
-        void ResizeBorders(ref ICoord begin_cell, ref ICoord end_cell)
-        {
-            begin_cell = low_bound;
-            end_cell = high_bound;
-        }
+	public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
+	{
+		var p = GridDefines.ComputeCellCoord(center_obj.GetPositionX(), center_obj.GetPositionY());
+		Cell cell = new(p);
 
-        public bool Check()
-        {
-           return low_bound == high_bound;
-        }
+		if (dont_load)
+			cell.SetNoCreate();
 
-        public ICoord low_bound;
-        public ICoord high_bound;
-    }
+		cell.Visit(p, visitor, center_obj.GetMap(), center_obj, radius);
+	}
+
+	public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)
+	{
+		var p = GridDefines.ComputeCellCoord(x, y);
+		Cell cell = new(p);
+
+		if (dont_load)
+			cell.SetNoCreate();
+
+		cell.Visit(p, visitor, map, x, y, radius);
+	}
+
+	public static CellArea CalculateCellArea(float x, float y, float radius)
+	{
+		if (radius <= 0.0f)
+		{
+			var center = (CellCoord)GridDefines.ComputeCellCoord(x, y).Normalize();
+
+			return new CellArea(center, center);
+		}
+
+		var centerX = (CellCoord)GridDefines.ComputeCellCoord(x - radius, y - radius).Normalize();
+		var centerY = (CellCoord)GridDefines.ComputeCellCoord(x + radius, y + radius).Normalize();
+
+		return new CellArea(centerX, centerY);
+	}
+
+	void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
+	{
+		//here is an algorithm for 'filling' circum-squared octagon
+		var x_shift = (uint)Math.Ceiling((end_cell.X_Coord - begin_cell.X_Coord) * 0.3f - 0.5f);
+		//lets calculate x_start/x_end coords for central strip...
+		var x_start = begin_cell.X_Coord + x_shift;
+		var x_end = end_cell.X_Coord - x_shift;
+
+		//visit central strip with constant width...
+		for (var x = x_start; x <= x_end; ++x)
+		{
+			for (var y = begin_cell.Y_Coord; y <= end_cell.Y_Coord; ++y)
+			{
+				CellCoord cellCoord = new(x, y);
+				Cell r_zone = new(cellCoord);
+				r_zone.Data.NoCreate = Data.NoCreate;
+				map.Visit(r_zone, visitor);
+			}
+		}
+
+		//if x_shift == 0 then we have too small cell area, which were already
+		//visited at previous step, so just return from procedure...
+		if (x_shift == 0)
+			return;
+
+		var y_start = end_cell.Y_Coord;
+		var y_end = begin_cell.Y_Coord;
+
+		//now we are visiting borders of an octagon...
+		for (uint step = 1; step <= (x_start - begin_cell.X_Coord); ++step)
+		{
+			//each step reduces strip height by 2 cells...
+			y_end   += 1;
+			y_start -= 1;
+
+			for (var y = y_start; y >= y_end; --y)
+			{
+				//we visit cells symmetrically from both sides, heading from center to sides and from up to bottom
+				//e.g. filling 2 trapezoids after filling central cell strip...
+				CellCoord cellCoord_left = new(x_start - step, y);
+				Cell r_zone_left = new(cellCoord_left);
+				r_zone_left.Data.NoCreate = Data.NoCreate;
+				map.Visit(r_zone_left, visitor);
+
+				//right trapezoid cell visit
+				CellCoord cellCoord_right = new(x_end + step, y);
+				Cell r_zone_right = new(cellCoord_right);
+				r_zone_right.Data.NoCreate = Data.NoCreate;
+				map.Visit(r_zone_right, visitor);
+			}
+		}
+	}
 }

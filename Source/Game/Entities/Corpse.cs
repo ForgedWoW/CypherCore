@@ -9,6 +9,7 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking;
 using Game.Networking.Packets;
 

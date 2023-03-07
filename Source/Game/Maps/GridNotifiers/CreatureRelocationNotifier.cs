@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,39 +10,41 @@ namespace Game.Maps;
 
 public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPlayer
 {
-    public GridType GridType { get; set; }
-    public CreatureRelocationNotifier(Creature c, GridType gridType)
-    {
-        i_creature = c;
-        GridType = gridType;
-    }
+	readonly Creature _creature;
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (!player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                player.UpdateVisibilityOf(i_creature);
+	public CreatureRelocationNotifier(Creature c, GridType gridType)
+	{
+		_creature = c;
+		GridType   = gridType;
+	}
 
-            NotifierHelpers.CreatureUnitRelocationWorker(i_creature, player);
-        }
-    }
+	public GridType GridType { get; set; }
 
-    public void Visit(IList<Creature> objs)
-    {
-        if (!i_creature.IsAlive())
-            return;
+	public void Visit(IList<Creature> objs)
+	{
+		if (!_creature.IsAlive())
+			return;
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            NotifierHelpers.CreatureUnitRelocationWorker(i_creature, creature);
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
+			NotifierHelpers.CreatureUnitRelocationWorker(_creature, creature);
 
-            if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                NotifierHelpers.CreatureUnitRelocationWorker(creature, i_creature);
-        }
-    }
+			if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				NotifierHelpers.CreatureUnitRelocationWorker(creature, _creature);
+		}
+	}
 
-    readonly Creature i_creature;
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+
+			if (!player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				player.UpdateVisibilityOf(_creature);
+
+			NotifierHelpers.CreatureUnitRelocationWorker(_creature, player);
+		}
+	}
 }

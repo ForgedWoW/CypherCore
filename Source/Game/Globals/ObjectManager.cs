@@ -17,6 +17,7 @@ using Game.Entities;
 using Game.Loots;
 using Game.Mails;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Misc;
 using Game.Movement;
 using Game.Scripting;
@@ -3983,7 +3984,7 @@ namespace Game
                     data.ScriptId = GetScriptId(scriptId);
 
                 data.StringId = result.Read<string>(28);
-                data.spawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
+                data.SpawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
 
                 var mapEntry = CliDB.MapStorage.LookupByKey(data.MapId);
                 if (mapEntry == null)
@@ -4799,7 +4800,7 @@ namespace Game
                 data.rotation.Z = result.Read<float>(9);
                 data.rotation.W = result.Read<float>(10);
                 data.spawntimesecs = result.Read<int>(11);
-                data.spawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
+                data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
                 var mapEntry = CliDB.MapStorage.LookupByKey(data.MapId);
                 if (mapEntry == null)
@@ -6043,21 +6044,21 @@ namespace Game
                 {
                     uint groupId = result.Read<uint>(0);
                     SpawnGroupTemplateData group = new();
-                    group.groupId = groupId;
-                    group.name = result.Read<string>(1);
-                    group.mapId = 0xFFFFFFFF;
+                    group.GroupId = groupId;
+                    group.Name = result.Read<string>(1);
+                    group.MapId = 0xFFFFFFFF;
                     SpawnGroupFlags flags = (SpawnGroupFlags)result.Read<uint>(2);
                     if (flags.HasAnyFlag(~SpawnGroupFlags.All))
                     {
                         flags &= SpawnGroupFlags.All;
-                        Log.outError(LogFilter.Sql, $"Invalid spawn group flag {flags} on group ID {groupId} ({group.name}), reduced to valid flag {group.flags}.");
+                        Log.outError(LogFilter.Sql, $"Invalid spawn group flag {flags} on group ID {groupId} ({group.Name}), reduced to valid flag {group.Flags}.");
                     }
                     if (flags.HasAnyFlag(SpawnGroupFlags.System) && flags.HasAnyFlag(SpawnGroupFlags.ManualSpawn))
                     {
                         flags &= ~SpawnGroupFlags.ManualSpawn;
-                        Log.outError(LogFilter.Sql, $"System spawn group {groupId} ({group.name}) has invalid manual spawn flag. Ignored.");
+                        Log.outError(LogFilter.Sql, $"System spawn group {groupId} ({group.Name}) has invalid manual spawn flag. Ignored.");
                     }
-                    group.flags = flags;
+                    group.Flags = flags;
 
                     _spawnGroupDataStorage[groupId] = group;
                 } while (result.NextRow());
@@ -6067,10 +6068,10 @@ namespace Game
             {
                 Log.outError(LogFilter.Sql, "Default spawn group (index 0) is missing from DB! Manually inserted.");
                 SpawnGroupTemplateData data = new();
-                data.groupId = 0;
-                data.name = "Default Group";
-                data.mapId = 0;
-                data.flags = SpawnGroupFlags.System;
+                data.GroupId = 0;
+                data.Name = "Default Group";
+                data.MapId = 0;
+                data.Flags = SpawnGroupFlags.System;
                 _spawnGroupDataStorage[0] = data;
             }
 
@@ -6079,10 +6080,10 @@ namespace Game
 
                 Log.outError(LogFilter.Sql, "Default legacy spawn group (index 1) is missing from DB! Manually inserted.");
                 SpawnGroupTemplateData data = new();
-                data.groupId = 1;
-                data.name = "Legacy Group";
-                data.mapId = 0;
-                data.flags = SpawnGroupFlags.System | SpawnGroupFlags.CompatibilityMode;
+                data.GroupId = 1;
+                data.Name = "Legacy Group";
+                data.MapId = 0;
+                data.Flags = SpawnGroupFlags.System | SpawnGroupFlags.CompatibilityMode;
                 _spawnGroupDataStorage[1] = data;
             }
 
@@ -6132,14 +6133,14 @@ namespace Game
                         Log.outError(LogFilter.Sql, $"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
                     continue;
                 }
-                else if (data.spawnGroupData.groupId != 0)
+                else if (data.SpawnGroupData.GroupId != 0)
                 {
                     if (WorldConfig.GetDefaultValue("load.autoclean", false))
                     {
                         DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                     }
                     else
-                        Log.outError(LogFilter.Sql, $"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.spawnGroupData.groupId}. Skipping.");
+                        Log.outError(LogFilter.Sql, $"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
                     continue;
                 }
                 var groupTemplate = _spawnGroupDataStorage.LookupByKey(groupId);
@@ -6150,23 +6151,23 @@ namespace Game
                 }
                 else
                 {
-                    if (groupTemplate.mapId == 0xFFFFFFFF)
+                    if (groupTemplate.MapId == 0xFFFFFFFF)
                     {
-                        groupTemplate.mapId = data.MapId;
+                        groupTemplate.MapId = data.MapId;
                         _spawnGroupsByMap.Add(data.MapId, groupId);
                     }
-                    else if (groupTemplate.mapId != data.MapId && !groupTemplate.flags.HasAnyFlag(SpawnGroupFlags.System))
+                    else if (groupTemplate.MapId != data.MapId && !groupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
                             DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Spawn group {groupId} has map ID {groupTemplate.mapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
+                            Log.outError(LogFilter.Sql, $"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
                         continue;
                     }
-                    data.spawnGroupData = groupTemplate;
-                    if (!groupTemplate.flags.HasAnyFlag(SpawnGroupFlags.System))
+                    data.SpawnGroupData = groupTemplate;
+                    if (!groupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
                         _spawnGroupMapStorage.Add(groupId, data);
                     ++numMembers;
                 }
@@ -6192,7 +6193,7 @@ namespace Game
                 ushort instanceMapId = result.Read<ushort>(0);
                 uint spawnGroupId = result.Read<uint>(3);
                 var spawnGroupTemplate = _spawnGroupDataStorage.LookupByKey(spawnGroupId);
-                if (spawnGroupTemplate == null || spawnGroupTemplate.flags.HasAnyFlag(SpawnGroupFlags.System))
+                if (spawnGroupTemplate == null || spawnGroupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
                 {
                     if (WorldConfig.GetDefaultValue("load.autoclean", false))
                     {
@@ -6203,14 +6204,14 @@ namespace Game
                     continue;
                 }
 
-                if (spawnGroupTemplate.mapId != instanceMapId)
+                if (spawnGroupTemplate.MapId != instanceMapId)
                 {
                     if (WorldConfig.GetDefaultValue("load.autoclean", false))
                     {
                         DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
                     }
                     else
-                        Log.outError(LogFilter.Sql, $"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.mapId}. Skipped.");
+                        Log.outError(LogFilter.Sql, $"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
                     continue;
                 }
 
@@ -6252,22 +6253,22 @@ namespace Game
         }
         void OnDeleteSpawnData(SpawnData data)
         {
-            var templateIt = _spawnGroupDataStorage.LookupByKey(data.spawnGroupData.groupId);
-            Cypher.Assert(templateIt != null, $"Creature data for ({data.type},{data.SpawnId}) is being deleted and has invalid spawn group index {data.spawnGroupData.groupId}!");
+            var templateIt = _spawnGroupDataStorage.LookupByKey(data.SpawnGroupData.GroupId);
+            Cypher.Assert(templateIt != null, $"Creature data for ({data.Type},{data.SpawnId}) is being deleted and has invalid spawn group index {data.SpawnGroupData.GroupId}!");
 
-            if (templateIt.flags.HasAnyFlag(SpawnGroupFlags.System)) // system groups don't store their members in the map
+            if (templateIt.Flags.HasAnyFlag(SpawnGroupFlags.System)) // system groups don't store their members in the map
                 return;
 
-            var spawnDatas = _spawnGroupMapStorage.LookupByKey(data.spawnGroupData.groupId);
+            var spawnDatas = _spawnGroupMapStorage.LookupByKey(data.SpawnGroupData.GroupId);
             foreach (var it in spawnDatas)
             {
                 if (it != data)
                     continue;
-                _spawnGroupMapStorage.Remove(data.spawnGroupData.groupId, it);
+                _spawnGroupMapStorage.Remove(data.SpawnGroupData.GroupId, it);
                 return;
             }
 
-            Cypher.Assert(false, $"Spawn data ({data.type},{data.SpawnId}) being removed is member of spawn group {data.spawnGroupData.groupId}, but not actually listed in the lookup table for that group!");
+            Cypher.Assert(false, $"Spawn data ({data.Type},{data.SpawnId}) being removed is member of spawn group {data.SpawnGroupData.GroupId}, but not actually listed in the lookup table for that group!");
         }
 
         public Dictionary<uint, InstanceTemplate> GetInstanceTemplates() { return instanceTemplateStorage; }
@@ -6361,7 +6362,7 @@ namespace Game
         public SpawnGroupTemplateData GetSpawnGroupData(SpawnObjectType type, ulong spawnId)
         {
             SpawnMetadata data = GetSpawnMetadata(type, spawnId);
-            return data != null ? data.spawnGroupData : null;
+            return data != null ? data.SpawnGroupData : null;
         }
 
         public SpawnGroupTemplateData GetDefaultSpawnGroup()
@@ -11874,7 +11875,7 @@ namespace Game
 
         public void AddSpawn(SpawnData data)
         {
-            switch (data.type)
+            switch (data.Type)
             {
                 case SpawnObjectType.Creature:
                     creatures.Add(data.SpawnId);
@@ -11887,7 +11888,7 @@ namespace Game
 
         public void RemoveSpawn(SpawnData data)
         {
-            switch (data.type)
+            switch (data.Type)
             {
                 case SpawnObjectType.Creature:
                     creatures.Remove(data.SpawnId);

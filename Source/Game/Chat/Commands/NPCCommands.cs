@@ -96,10 +96,10 @@ namespace Game.Chat
             string defRespawnDelayStr = Time.secsToTimeString(target.GetRespawnDelay(), TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.GetSpawnId(), target.GetGUID().ToString(), entry, faction, npcflags, displayid, nativeid);
-            if (target.GetCreatureData() != null && target.GetCreatureData().spawnGroupData.groupId != 0)
+            if (target.GetCreatureData() != null && target.GetCreatureData().SpawnGroupData.GroupId != 0)
             {
-                SpawnGroupTemplateData groupData = target.GetCreatureData().spawnGroupData;
-                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.name, groupData.groupId, groupData.flags, target.GetMap().IsSpawnGroupActive(groupData.groupId));
+                SpawnGroupTemplateData groupData = target.GetCreatureData().SpawnGroupData;
+                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.GetMap().IsSpawnGroupActive(groupData.GroupId));
             }
             handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.GetRespawnCompatibilityMode());
             handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.GetLevel());
@@ -559,10 +559,10 @@ namespace Game.Chat
                     ulong guid = Global.ObjectMgr.GenerateCreatureSpawnId();
                     CreatureData data = Global.ObjectMgr.NewOrExistCreatureData(guid);
                     data.SpawnId = guid;
-                    data.spawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+                    data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
                     data.Id = id;
                     data.SpawnPoint.Relocate(chr.GetTransOffsetX(), chr.GetTransOffsetY(), chr.GetTransOffsetZ(), chr.GetTransOffsetO());
-                    data.spawnGroupData = new();
+                    data.SpawnGroupData = new();
 
                     Creature creaturePassenger = trans.CreateNPCPassenger(guid, data);
                     if (creaturePassenger != null)

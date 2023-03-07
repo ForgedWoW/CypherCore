@@ -80,7 +80,7 @@ namespace Scripts.EasternKingdoms.Deadmines
 
             public override void OnCreatureCreate(Creature creature)
             {
-                var players = instance.GetPlayers();
+                var players = Instance.GetPlayers();
                 if (!players.Empty())
                 {
                    
@@ -157,7 +157,7 @@ namespace Scripts.EasternKingdoms.Deadmines
                     case DMData.DATA_COOKIE:
                         if (state == EncounterState.Done)
                         {
-                            if (instance.IsHeroic())
+                            if (Instance.IsHeroic())
                             {
                                 SummonNote();
                             }
@@ -179,7 +179,7 @@ namespace Scripts.EasternKingdoms.Deadmines
 
             private void SummonNote()
             {
-                Creature Note = instance.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NoteSpawn);
+                Creature Note = Instance.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NoteSpawn);
 
                 if (Note != null)
                     Note.TextEmote(NOTE_TEXT, null, true);

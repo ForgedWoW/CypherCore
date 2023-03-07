@@ -3,10 +3,9 @@
 
 using Framework.Constants;
 
-namespace Game.Maps.Interfaces
+namespace Game.Maps.Interfaces;
+
+public interface IGridNotifier
 {
-    public interface IGridNotifier
-    {
-        GridType GridType { get; set; }
-    }
+	GridType GridType { get; set; }
 }

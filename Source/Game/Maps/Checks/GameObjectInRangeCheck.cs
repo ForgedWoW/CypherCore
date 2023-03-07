@@ -1,26 +1,29 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class GameObjectInRangeCheck : ICheck<GameObject>
 {
-    public GameObjectInRangeCheck(float _x, float _y, float _z, float _range, uint _entry = 0)
-    {
-        x = _x;
-        y = _y;
-        z = _z;
-        range = _range;
-        entry = _entry;
-    }
+	readonly float _x, _y, _z, _range;
+	readonly uint _entry;
 
-    public bool Invoke(GameObject go)
-    {
-        if (entry == 0 || (go.GetGoInfo() != null && go.GetGoInfo().entry == entry))
-            return go.IsInRange(x, y, z, range);
-        else return false;
-    }
+	public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
+	{
+		_x     = x;
+		_y     = y;
+		_z     = z;
+		_range = range;
+		_entry = entry;
+	}
 
-    readonly float x, y, z, range;
-    readonly uint entry;
+	public bool Invoke(GameObject go)
+	{
+		if (_entry == 0 || (go.GetGoInfo() != null && go.GetGoInfo().entry == _entry))
+			return go.IsInRange(_x, _y, _z, _range);
+		else return false;
+	}
 }

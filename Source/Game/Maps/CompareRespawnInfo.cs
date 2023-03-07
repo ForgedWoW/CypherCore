@@ -1,0 +1,25 @@
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
+
+namespace Game.Maps;
+
+struct CompareRespawnInfo : IComparer<RespawnInfo>
+{
+	public int Compare(RespawnInfo a, RespawnInfo b)
+	{
+		if (a == b)
+			return 0;
+
+		if (a.RespawnTime != b.RespawnTime)
+			return a.RespawnTime.CompareTo(b.RespawnTime);
+
+		if (a.SpawnId != b.SpawnId)
+			return a.SpawnId.CompareTo(b.SpawnId);
+
+		Cypher.Assert(a.ObjectType != b.ObjectType, $"Duplicate respawn entry for spawnId ({a.ObjectType},{a.SpawnId}) found!");
+
+		return a.ObjectType.CompareTo(b.ObjectType);
+	}
+}

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,40 +9,42 @@ namespace Game.Maps;
 
 public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
 {
-    public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        i_obj = obj;
-        i_funit = funit;
-        i_range = range;
-        i_playerOnly = playerOnly;
-        i_incOwnRadius = incOwnRadius;
-        i_incTargetRadius = incTargetRadius;
-    }
+	readonly WorldObject _obj;
+	readonly Unit _funit;
+	readonly float _range;
+	readonly bool _playerOnly;
+	readonly bool _incOwnRadius;
+	readonly bool _incTargetRadius;
 
-    public bool Invoke(Unit u)
-    {
-        if (!u.IsAlive())
-            return false;
+	public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
+	{
+		_obj             = obj;
+		_funit           = funit;
+		_range           = range;
+		_playerOnly      = playerOnly;
+		_incOwnRadius    = incOwnRadius;
+		_incTargetRadius = incTargetRadius;
+	}
 
-        float searchRadius = i_range;
-        if (i_incOwnRadius)
-            searchRadius += i_obj.GetCombatReach();
-        if (i_incTargetRadius)
-            searchRadius += u.GetCombatReach();
+	public bool Invoke(Unit u)
+	{
+		if (!u.IsAlive())
+			return false;
 
-        if (!u.IsInMap(i_obj) || !u.InSamePhase(i_obj) || !u.IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius))
-            return false;
+		var searchRadius = _range;
 
-        if (!i_funit.IsFriendlyTo(u))
-            return false;
+		if (_incOwnRadius)
+			searchRadius += _obj.GetCombatReach();
 
-        return !i_playerOnly || u.GetTypeId() == TypeId.Player;
-    }
+		if (_incTargetRadius)
+			searchRadius += u.GetCombatReach();
 
-    readonly WorldObject i_obj;
-    readonly Unit i_funit;
-    readonly float i_range;
-    readonly bool i_playerOnly;
-    readonly bool i_incOwnRadius;
-    readonly bool i_incTargetRadius;
+		if (!u.IsInMap(_obj) || !u.InSamePhase(_obj) || !u.IsWithinDoubleVerticalCylinder(_obj, searchRadius, searchRadius))
+			return false;
+
+		if (!_funit.IsFriendlyTo(u))
+			return false;
+
+		return !_playerOnly || u.GetTypeId() == TypeId.Player;
+	}
 }

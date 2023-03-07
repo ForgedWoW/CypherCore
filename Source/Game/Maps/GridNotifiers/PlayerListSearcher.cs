@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,36 +10,37 @@ namespace Game.Maps;
 
 public class PlayerListSearcher : IGridNotifierPlayer
 {
-    public GridType GridType { get; set; }
+	readonly PhaseShift _phaseShift;
+	readonly List<Unit> _objects;
+	readonly ICheck<Player> _check;
 
-    readonly PhaseShift i_phaseShift;
-    readonly List<Unit> i_objects;
-    readonly ICheck<Player> i_check;
+	public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
+	{
+		_phaseShift = searcher.GetPhaseShift();
+		_objects    = objects;
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
-    {
-        i_phaseShift = searcher.GetPhaseShift();
-        i_objects = objects;
-        i_check = check;
-        GridType = gridType;
-    }
+	public PlayerListSearcher(PhaseShift phaseShift, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
+	{
+		_phaseShift = phaseShift;
+		_objects    = objects;
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public PlayerListSearcher(PhaseShift phaseShift, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
-    {
-        i_phaseShift = phaseShift;
-        i_objects = objects;
-        i_check = check;
-        GridType = gridType;
-    }
+	public GridType GridType { get; set; }
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (player.InSamePhase(i_phaseShift))
-                if (i_check.Invoke(player))
-                    i_objects.Add(player);
-        }
-    }
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+
+			if (player.InSamePhase(_phaseShift))
+				if (_check.Invoke(player))
+					_objects.Add(player);
+		}
+	}
 }

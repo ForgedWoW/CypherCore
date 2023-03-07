@@ -9,6 +9,7 @@ using Framework.Constants;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Movement;
 using Game.Networking.Packets;
 using Game.Spells;

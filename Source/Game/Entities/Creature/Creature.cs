@@ -13,6 +13,7 @@ using Game.DataStorage;
 using Game.Groups;
 using Game.Loots;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking.Packets;
 using Game.Spells;
 
@@ -452,7 +453,7 @@ namespace Game.Entities
                     if (m_respawnTime <= now)
                     {
                         // Delay respawn if spawn group is not active
-                        if (m_creatureData != null && !GetMap().IsSpawnGroupActive(m_creatureData.spawnGroupData.groupId))
+                        if (m_creatureData != null && !GetMap().IsSpawnGroupActive(m_creatureData.SpawnGroupData.GroupId))
                         {
                             m_respawnTime = now + RandomHelper.LRand(4, 7);
                             break; // Will be rechecked on next Update call after delay expires
@@ -1329,8 +1330,8 @@ namespace Game.Entities
             data.unit_flags2 = unitFlags2;
             data.unit_flags3 = unitFlags3;
             data.dynamicflags = (uint)dynamicflags;
-            if (data.spawnGroupData == null)
-                data.spawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+            if (data.SpawnGroupData == null)
+                data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
 
             data.PhaseId = GetDBPhase() > 0 ? (uint)GetDBPhase() : data.PhaseId;
             data.PhaseGroup = GetDBPhase() < 0 ? (uint)-GetDBPhase() : data.PhaseGroup;
@@ -2271,15 +2272,15 @@ namespace Game.Entities
 
         public void SaveRespawnTime(uint forceDelay = 0)
         {
-            if (IsSummon() || m_spawnId == 0 || (m_creatureData != null && !m_creatureData.dbData))
+            if (IsSummon() || m_spawnId == 0 || (m_creatureData != null && !m_creatureData.DbData))
                 return;
 
             if (m_respawnCompatibilityMode)
             {
                 RespawnInfo ri = new();
-                ri.type = SpawnObjectType.Creature;
-                ri.spawnId = m_spawnId;
-                ri.respawnTime = m_respawnTime;
+                ri.ObjectType = SpawnObjectType.Creature;
+                ri.SpawnId = m_spawnId;
+                ri.RespawnTime = m_respawnTime;
                 GetMap().SaveRespawnInfoDB(ri);
                 return;
             }
@@ -3238,7 +3239,7 @@ namespace Game.Entities
             }
 
             m_spawnId = spawnId;
-            m_respawnCompatibilityMode = data.spawnGroupData.flags.HasAnyFlag(SpawnGroupFlags.CompatibilityMode);
+            m_respawnCompatibilityMode = data.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.CompatibilityMode);
             m_creatureData = data;
             m_wanderDistance = data.WanderDistance;
             m_respawnDelay = (uint)data.spawntimesecs;
@@ -3253,14 +3254,14 @@ namespace Game.Entities
 
             m_respawnTime = GetMap().GetCreatureRespawnTime(m_spawnId);
 
-            if (m_respawnTime == 0 && !map.IsSpawnGroupActive(data.spawnGroupData.groupId))
+            if (m_respawnTime == 0 && !map.IsSpawnGroupActive(data.SpawnGroupData.GroupId))
             {
                 if (!m_respawnCompatibilityMode)
                 {
                     // @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
                     if (data.poolId == 0)
                     {
-                        Log.outError(LogFilter.Unit, $"Creature (SpawnID {spawnId}) trying to load in inactive spawn group '{data.spawnGroupData.name}':\n{GetDebugInfo()}");
+                        Log.outError(LogFilter.Unit, $"Creature (SpawnID {spawnId}) trying to load in inactive spawn group '{data.SpawnGroupData.Name}':\n{GetDebugInfo()}");
                         return false;
                     }
                 }

@@ -1,25 +1,28 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class PlayerAtMinimumRangeAway : ICheck<Player>
 {
-    public PlayerAtMinimumRangeAway(Unit _unit, float fMinRange)
-    {
-        unit = _unit;
-        fRange = fMinRange;
-    }
+	readonly Unit _unit;
+	readonly float _fRange;
 
-    public bool Invoke(Player player)
-    {
-        //No threat list check, must be done explicit if expected to be in combat with creature
-        if (!player.IsGameMaster() && player.IsAlive() && !unit.IsWithinDist(player, fRange, false))
-            return true;
+	public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
+	{
+		_unit   = unit;
+		_fRange = fMinRange;
+	}
 
-        return false;
-    }
+	public bool Invoke(Player player)
+	{
+		//No threat list check, must be done explicit if expected to be in combat with creature
+		if (!player.IsGameMaster() && player.IsAlive() && !_unit.IsWithinDist(player, _fRange, false))
+			return true;
 
-    readonly Unit unit;
-    readonly float fRange;
+		return false;
+	}
 }

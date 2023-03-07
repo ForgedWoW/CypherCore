@@ -1,38 +1,44 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
 {
-    public NearestHostileUnitInAttackDistanceCheck(Creature creature, float dist = 0)
-    {
-        me = creature;
-        m_range = (dist == 0 ? 9999 : dist);
-        m_force = (dist != 0);
-    }
+	readonly Creature _me;
+	readonly bool _force;
+	float _range;
 
-    public bool Invoke(Unit u)
-    {
-        if (!me.IsWithinDist(u, m_range))
-            return false;
+	public NearestHostileUnitInAttackDistanceCheck(Creature creature, float dist = 0)
+	{
+		_me      = creature;
+		_range = (dist == 0 ? 9999 : dist);
+		_force = (dist != 0);
+	}
 
-        if (!me.CanSeeOrDetect(u))
-            return false;
+	public bool Invoke(Unit u)
+	{
+		if (!_me.IsWithinDist(u, _range))
+			return false;
 
-        if (m_force)
-        {
-            if (!me.IsValidAttackTarget(u))
-                return false;
-        }
-        else if (!me.CanStartAttack(u, false))
-            return false;
+		if (!_me.CanSeeOrDetect(u))
+			return false;
 
-        m_range = me.GetDistance(u);   // use found unit range as new range limit for next check
-        return true;
-    }
+		if (_force)
+		{
+			if (!_me.IsValidAttackTarget(u))
+				return false;
+		}
+		else if (!_me.CanStartAttack(u, false))
+		{
+			return false;
+		}
 
-    readonly Creature me;
-    float m_range;
-    readonly bool m_force;
+		_range = _me.GetDistance(u); // use found unit range as new range limit for next check
+
+		return true;
+	}
 }

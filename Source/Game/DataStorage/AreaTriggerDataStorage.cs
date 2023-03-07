@@ -6,7 +6,7 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
-using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game.DataStorage
 {
@@ -326,7 +326,7 @@ namespace Game.DataStorage
                     }
 
                     spawn.ScriptId = Global.ObjectMgr.GetScriptId(templates.Read<string>(20));
-                    spawn.spawnGroupData = Global.ObjectMgr.GetLegacySpawnGroup();
+                    spawn.SpawnGroupData = Global.ObjectMgr.GetLegacySpawnGroup();
 
                     // Add the trigger to a map::cell map, which is later used by GridLoader to query
                     CellCoord cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.GetPositionX(), spawn.SpawnPoint.GetPositionY());

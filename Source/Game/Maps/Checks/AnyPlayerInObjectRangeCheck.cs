@@ -1,29 +1,32 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class AnyPlayerInObjectRangeCheck : ICheck<Player>
 {
-    public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
-    {
-        _obj = obj;
-        _range = range;
-        _reqAlive = reqAlive;
-    }
+	readonly WorldObject _obj;
+	readonly float _range;
+	readonly bool _reqAlive;
 
-    public bool Invoke(Player pl)
-    {
-        if (_reqAlive && !pl.IsAlive())
-            return false;
+	public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
+	{
+		_obj      = obj;
+		_range    = range;
+		_reqAlive = reqAlive;
+	}
 
-        if (!_obj.IsWithinDist(pl, _range))
-            return false;
+	public bool Invoke(Player pl)
+	{
+		if (_reqAlive && !pl.IsAlive())
+			return false;
 
-        return true;
-    }
+		if (!_obj.IsWithinDist(pl, _range))
+			return false;
 
-    readonly WorldObject _obj;
-    readonly float _range;
-    readonly bool _reqAlive;
+		return true;
+	}
 }

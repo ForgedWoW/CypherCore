@@ -5,98 +5,101 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
-using Game.Networking.Packets;
 
-namespace Game.Maps
+namespace Game.Maps;
+
+public class VisibleNotifier : IGridNotifierWorldObject
 {
-    public class VisibleNotifier : IGridNotifierWorldObject
-    {
-        public GridType GridType { get; set; }
-        public VisibleNotifier(Player pl, GridType gridType)
-        {
-            i_player = pl;
-            i_data = new UpdateData(pl.GetMapId());
-            vis_guids = new List<ObjectGuid>(pl.m_clientGUIDs);
-            i_visibleNow = new List<Unit>();
-            GridType = gridType;
-        }
+	internal Player Player { get; set; }
+	internal UpdateData Data { get; set; }
+    internal List<ObjectGuid> VisGuids { get; set; }
+    internal List<Unit> VisibleNow { get; set; }
 
-        public void Visit(IList<WorldObject> objs)
-        {
-            for (var i = 0; i < objs.Count; ++i)
-            {
-                WorldObject obj = objs[i];
+    public VisibleNotifier(Player pl, GridType gridType)
+	{
+		Player     = pl;
+		Data       = new UpdateData(pl.GetMapId());
+		VisGuids    = new List<ObjectGuid>(pl.m_clientGUIDs);
+		VisibleNow = new List<Unit>();
+		GridType     = gridType;
+	}
 
-                vis_guids.Remove(obj.GetGUID());
-                i_player.UpdateVisibilityOf(obj, i_data, i_visibleNow);
-            }
-        }
+	public GridType GridType { get; set; }
 
-        public void SendToSelf()
-        {
-            // at this moment i_clientGUIDs have guids that not iterate at grid level checks
-            // but exist one case when this possible and object not out of range: transports
-            Transport transport = i_player.GetTransport<Transport>();
-            if (transport)
-            {
-                foreach (var obj in transport.GetPassengers())
-                {
-                    if (vis_guids.Contains(obj.GetGUID()))
-                    {
-                        vis_guids.Remove(obj.GetGUID());
+	public void Visit(IList<WorldObject> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var obj = objs[i];
 
-                        switch (obj.GetTypeId())
-                        {
-                            case TypeId.GameObject:
-                                i_player.UpdateVisibilityOf(obj.ToGameObject(), i_data, i_visibleNow);
-                                break;
-                            case TypeId.Player:
-                                i_player.UpdateVisibilityOf(obj.ToPlayer(), i_data, i_visibleNow);
-                                if (!obj.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                                    obj.ToPlayer().UpdateVisibilityOf(i_player);
-                                break;
-                            case TypeId.Unit:
-                                i_player.UpdateVisibilityOf(obj.ToCreature(), i_data, i_visibleNow);
-                                break;
-                            case TypeId.DynamicObject:
-                                i_player.UpdateVisibilityOf(obj.ToDynamicObject(), i_data, i_visibleNow);
-                                break;
-                            case TypeId.AreaTrigger:
-                                i_player.UpdateVisibilityOf(obj.ToAreaTrigger(), i_data, i_visibleNow);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
+			VisGuids.Remove(obj.GetGUID());
+			Player.UpdateVisibilityOf(obj, Data, VisibleNow);
+		}
+	}
 
-            foreach (var guid in vis_guids)
-            {
-                i_player.m_clientGUIDs.Remove(guid);
-                i_data.AddOutOfRangeGUID(guid);
+	public void SendToSelf()
+	{
+		// at this moment i_clientGUIDs have guids that not iterate at grid level checks
+		// but exist one case when this possible and object not out of range: transports
+		var transport = Player.GetTransport<Transport>();
 
-                if (guid.IsPlayer())
-                {
-                    Player pl = Global.ObjAccessor.FindPlayer(guid);
-                    if (pl != null && pl.IsInWorld && !pl.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                        pl.UpdateVisibilityOf(i_player);
-                }
-            }
+		if (transport)
+			foreach (var obj in transport.GetPassengers())
+				if (VisGuids.Contains(obj.GetGUID()))
+				{
+					VisGuids.Remove(obj.GetGUID());
 
-            if (!i_data.HasData())
-                return;
+					switch (obj.GetTypeId())
+					{
+						case TypeId.GameObject:
+							Player.UpdateVisibilityOf(obj.ToGameObject(), Data, VisibleNow);
 
-            i_data.BuildPacket(out UpdateObject packet);
-            i_player.SendPacket(packet);
+							break;
+						case TypeId.Player:
+							Player.UpdateVisibilityOf(obj.ToPlayer(), Data, VisibleNow);
 
-            foreach (var obj in i_visibleNow)
-                i_player.SendInitialVisiblePackets(obj);
-        }
+							if (!obj.IsNeedNotify(NotifyFlags.VisibilityChanged))
+								obj.ToPlayer().UpdateVisibilityOf(Player);
 
-        internal Player i_player;
-        internal UpdateData i_data;
-        internal List<ObjectGuid> vis_guids;
-        internal List<Unit> i_visibleNow;
-    }
+							break;
+						case TypeId.Unit:
+							Player.UpdateVisibilityOf(obj.ToCreature(), Data, VisibleNow);
+
+							break;
+						case TypeId.DynamicObject:
+							Player.UpdateVisibilityOf(obj.ToDynamicObject(), Data, VisibleNow);
+
+							break;
+						case TypeId.AreaTrigger:
+							Player.UpdateVisibilityOf(obj.ToAreaTrigger(), Data, VisibleNow);
+
+							break;
+						default:
+							break;
+					}
+				}
+
+		foreach (var guid in VisGuids)
+		{
+			Player.m_clientGUIDs.Remove(guid);
+			Data.AddOutOfRangeGUID(guid);
+
+			if (guid.IsPlayer())
+			{
+				var pl = Global.ObjAccessor.FindPlayer(guid);
+
+				if (pl != null && pl.IsInWorld && !pl.IsNeedNotify(NotifyFlags.VisibilityChanged))
+					pl.UpdateVisibilityOf(Player);
+			}
+		}
+
+		if (!Data.HasData())
+			return;
+
+		Data.BuildPacket(out var packet);
+		Player.SendPacket(packet);
+
+		foreach (var obj in VisibleNow)
+			Player.SendInitialVisiblePackets(obj);
+	}
 }

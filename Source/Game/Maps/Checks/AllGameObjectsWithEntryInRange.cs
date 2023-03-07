@@ -1,26 +1,29 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class AllGameObjectsWithEntryInRange : ICheck<GameObject>
 {
-    public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
-    {
-        m_pObject = obj;
-        m_uiEntry = entry;
-        m_fRange = maxRange;
-    }
+	readonly WorldObject _pObject;
+	readonly uint _uiEntry;
+	readonly float _fRange;
 
-    public bool Invoke(GameObject go)
-    {
-        if (m_uiEntry == 0 || go.GetEntry() == m_uiEntry && m_pObject.IsWithinDist(go, m_fRange, false))
-            return true;
+	public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
+	{
+		_pObject = obj;
+		_uiEntry = entry;
+		_fRange  = maxRange;
+	}
 
-        return false;
-    }
+	public bool Invoke(GameObject go)
+	{
+		if (_uiEntry == 0 || go.GetEntry() == _uiEntry && _pObject.IsWithinDist(go, _fRange, false))
+			return true;
 
-    readonly WorldObject m_pObject;
-    readonly uint m_uiEntry;
-    readonly float m_fRange;
+		return false;
+	}
 }

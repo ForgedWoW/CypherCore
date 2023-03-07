@@ -1,58 +1,64 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Maps.Grids;
 using Game.Maps.Interfaces;
 
 namespace Game.Maps;
 
 public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 {
-    public GridType GridType { get; set; }
-    public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
-    {
-        i_map = map;
-        cell = c;
-        p = pair;
-        i_radius = radius;
-        GridType = gridType;
-    }
+	readonly Map _map;
+	readonly Cell _cell;
+	readonly CellCoord _p;
+	readonly float _radius;
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            WorldObject viewPoint = player.seerView;
+	public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
+	{
+		_map    = map;
+		_cell     = c;
+		_p        = pair;
+		_radius = radius;
+		GridType = gridType;
+	}
 
-            if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                continue;
+	public GridType GridType { get; set; }
 
-            if (player != viewPoint && !viewPoint.IsPositionValid())
-                continue;
+	public void Visit(IList<Creature> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
 
-            var relocate = new PlayerRelocationNotifier(player, GridType.All);
-            Cell.VisitGrid(viewPoint, relocate, i_radius, false);
+			if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				continue;
 
-            relocate.SendToSelf();
-        }
-    }
+			CreatureRelocationNotifier relocate = new(creature, GridType.All);
 
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            if (!creature.IsNeedNotify(NotifyFlags.VisibilityChanged))
-                continue;
+			_cell.Visit(_p, relocate, _map, creature, _radius);
+		}
+	}
 
-            CreatureRelocationNotifier relocate = new(creature, GridType.All);
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+			var viewPoint = player.seerView;
 
-            cell.Visit(p, relocate, i_map, creature, i_radius);
-        }
-    }
+			if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
+				continue;
 
-    readonly Map i_map;
-    readonly Cell cell;
-    readonly CellCoord p;
-    readonly float i_radius;
+			if (player != viewPoint && !viewPoint.IsPositionValid())
+				continue;
+
+			var relocate = new PlayerRelocationNotifier(player, GridType.All);
+			Cell.VisitGrid(viewPoint, relocate, _radius, false);
+
+			relocate.SendToSelf();
+		}
+	}
 }

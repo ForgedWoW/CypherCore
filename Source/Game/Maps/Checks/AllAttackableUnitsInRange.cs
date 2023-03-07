@@ -1,36 +1,42 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class AllAttackableUnitsInRange : ICheck<Unit>
 {
-    public AllAttackableUnitsInRange(Unit obj, float range)
-    {
-        unit = obj;
-        i_range = range;
-    }
+	readonly Unit _unit;
+	readonly float _range;
 
-    public bool Invoke(Unit u)
-    {
-        if (!u.IsAlive())
-            return false;
-        if (!u.IsVisible())
-            return false;
-        if (!unit.IsValidAttackTarget(u))
-            return false;
+	public AllAttackableUnitsInRange(Unit obj, float range)
+	{
+		_unit    = obj;
+		_range = range;
+	}
 
-        if (i_range != 0f)
-        {
-            if (i_range > 0.0f && !unit.IsWithinDist(u, i_range, false))
-                return false;
-            if (i_range < 0.0f && unit.IsWithinDist(u, i_range, false))
-                return false;
-        }
+	public bool Invoke(Unit u)
+	{
+		if (!u.IsAlive())
+			return false;
 
-        return true;
-    }
+		if (!u.IsVisible())
+			return false;
 
-    readonly Unit unit;
-    readonly float i_range;
+		if (!_unit.IsValidAttackTarget(u))
+			return false;
+
+		if (_range != 0f)
+		{
+			if (_range > 0.0f && !_unit.IsWithinDist(u, _range, false))
+				return false;
+
+			if (_range < 0.0f && _unit.IsWithinDist(u, _range, false))
+				return false;
+		}
+
+		return true;
+	}
 }

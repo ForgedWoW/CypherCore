@@ -4,10 +4,9 @@
 using System.Collections.Generic;
 using Game.Entities;
 
-namespace Game.Maps.Interfaces
+namespace Game.Maps.Interfaces;
+
+public interface IGridNotifierAreaTrigger : IGridNotifier
 {
-    public interface IGridNotifierAreaTrigger : IGridNotifier
-    {
-        void Visit(IList<AreaTrigger> objs);
-    }
+	void Visit(IList<AreaTrigger> objs);
 }

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,27 +10,28 @@ namespace Game.Maps;
 
 public class PlayerDistWorker : IGridNotifierPlayer
 {
-    public GridType GridType { get; set; }
+	readonly WorldObject _searcher;
+	readonly float _dist;
+	readonly IDoWork<Player> _doWork;
 
-    readonly WorldObject i_searcher;
-    readonly float i_dist;
-    readonly IDoWork<Player> _do;
+	public PlayerDistWorker(WorldObject searcher, float dist, IDoWork<Player> work, GridType gridType)
+	{
+		_searcher = searcher;
+		_dist = dist;
+		_doWork = work;
+		GridType = gridType;
+	}
 
-    public PlayerDistWorker(WorldObject searcher, float _dist, IDoWork<Player> @do, GridType gridType)
-    {
-        i_searcher = searcher;
-        i_dist = _dist;
-        _do = @do;
-        GridType = gridType;
-    }
+	public GridType GridType { get; set; }
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (player.InSamePhase(i_searcher) && player.IsWithinDist(i_searcher, i_dist))
-                _do.Invoke(player);
-        }
-    }
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+
+			if (player.InSamePhase(_searcher) && player.IsWithinDist(_searcher, _dist))
+				_doWork.Invoke(player);
+		}
+	}
 }

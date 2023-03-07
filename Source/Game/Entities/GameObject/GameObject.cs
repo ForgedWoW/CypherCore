@@ -15,6 +15,7 @@ using Game.DataStorage;
 using Game.Groups;
 using Game.Loots;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
@@ -1054,8 +1055,8 @@ namespace Game.Entities
             data.goState = GetGoState();
             data.SpawnDifficulties = spawnDifficulties;
             data.artKit = (byte)GetGoArtKit();
-            if (data.spawnGroupData == null)
-                data.spawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+            if (data.SpawnGroupData == null)
+                data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
 
             data.PhaseId = GetDBPhase() > 0 ? (uint)GetDBPhase() : data.PhaseId;
             data.PhaseGroup = GetDBPhase() < 0 ? (uint)-GetDBPhase() : data.PhaseGroup;
@@ -1103,7 +1104,7 @@ namespace Game.Entities
             uint artKit = data.artKit;
 
             m_spawnId = spawnId;
-            m_respawnCompatibilityMode = ((data.spawnGroupData.flags & SpawnGroupFlags.CompatibilityMode) != 0);
+            m_respawnCompatibilityMode = ((data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0);
             if (!Create(entry, map, data.SpawnPoint, data.rotation, animprogress, go_state, artKit, !m_respawnCompatibilityMode, spawnId))
                 return false;
 
@@ -1267,9 +1268,9 @@ namespace Game.Entities
                 if (m_respawnCompatibilityMode)
                 {
                     RespawnInfo ri = new();
-                    ri.type = SpawnObjectType.GameObject;
-                    ri.spawnId = m_spawnId;
-                    ri.respawnTime = m_respawnTime;
+                    ri.ObjectType = SpawnObjectType.GameObject;
+                    ri.SpawnId = m_spawnId;
+                    ri.RespawnTime = m_respawnTime;
                     GetMap().SaveRespawnInfoDB(ri);
                     return;
                 }

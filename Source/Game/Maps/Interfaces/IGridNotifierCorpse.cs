@@ -4,10 +4,9 @@
 using System.Collections.Generic;
 using Game.Entities;
 
-namespace Game.Maps.Interfaces
+namespace Game.Maps.Interfaces;
+
+public interface IGridNotifierCorpse : IGridNotifier
 {
-    public interface IGridNotifierCorpse : IGridNotifier
-    {
-        void Visit(IList<Corpse> objs);
-    }
+	void Visit(IList<Corpse> objs);
 }

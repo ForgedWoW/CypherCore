@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
@@ -7,52 +10,56 @@ namespace Game.Maps;
 
 public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 {
-    public AnyAoETargetUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, SpellInfo spellInfo = null, bool incOwnRadius = true, bool incTargetRadius = true)
-    {
-        i_obj = obj;
-        i_funit = funit;
-        _spellInfo = spellInfo;
-        i_range = range;
-        i_incOwnRadius = incOwnRadius;
-        i_incTargetRadius = incTargetRadius;
-    }
+	readonly WorldObject _obj;
+	readonly Unit _funit;
+	readonly SpellInfo _spellInfo;
+	readonly float _range;
+	readonly bool _incOwnRadius;
+	readonly bool _incTargetRadius;
 
-    public bool Invoke(Unit u)
-    {
-        // Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
-        if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
-            return false;
+	public AnyAoETargetUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, SpellInfo spellInfo = null, bool incOwnRadius = true, bool incTargetRadius = true)
+	{
+		_obj             = obj;
+		_funit           = funit;
+		_spellInfo        = spellInfo;
+		_range           = range;
+		_incOwnRadius    = incOwnRadius;
+		_incTargetRadius = incTargetRadius;
+	}
 
-        if (_spellInfo != null)
-        {
-            if (!u.IsPlayer())
-            {
-                if (_spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
-                    return false;
+	public bool Invoke(Unit u)
+	{
+		// Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
+		if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
+			return false;
 
-                if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.IsControlledByPlayer())
-                    return false;
-            }
-            else if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
-                return false;
-        }
+		if (_spellInfo != null)
+		{
+			if (!u.IsPlayer())
+			{
+				if (_spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
+					return false;
 
-        if (!i_funit.IsValidAttackTarget(u, _spellInfo))
-            return false;
+				if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.IsControlledByPlayer())
+					return false;
+			}
+			else if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
+			{
+				return false;
+			}
+		}
 
-        float searchRadius = i_range;
-        if (i_incOwnRadius)
-            searchRadius += i_obj.GetCombatReach();
-        if (i_incTargetRadius)
-            searchRadius += u.GetCombatReach();
+		if (!_funit.IsValidAttackTarget(u, _spellInfo))
+			return false;
 
-        return u.IsInMap(i_obj) && u.InSamePhase(i_obj) && u.IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);
-    }
+		var searchRadius = _range;
 
-    readonly WorldObject i_obj;
-    readonly Unit i_funit;
-    readonly SpellInfo _spellInfo;
-    readonly float i_range;
-    readonly bool i_incOwnRadius;
-    readonly bool i_incTargetRadius;
+		if (_incOwnRadius)
+			searchRadius += _obj.GetCombatReach();
+
+		if (_incTargetRadius)
+			searchRadius += u.GetCombatReach();
+
+		return u.IsInMap(_obj) && u.InSamePhase(_obj) && u.IsWithinDoubleVerticalCylinder(_obj, searchRadius, searchRadius);
+	}
 }

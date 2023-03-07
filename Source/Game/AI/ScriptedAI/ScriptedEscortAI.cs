@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
-using Game.Maps;
+using Game.Maps.Grids;
 using Game.Movement;
 
 namespace Game.AI
@@ -232,7 +232,7 @@ namespace Game.AI
                         bool isEscort = false;
                         CreatureData creatureData = me.GetCreatureData();
                         if (creatureData != null)
-                            isEscort = (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.spawnGroupData.flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
+                            isEscort = (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
 
                         if (_instantRespawn)
                         {
@@ -364,7 +364,7 @@ namespace Game.AI
             CreatureData cdata = me.GetCreatureData();
             if (cdata != null)
             {
-                if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.spawnGroupData.flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+                if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                     me.SaveRespawnTime(me.GetRespawnDelay());
             }
 

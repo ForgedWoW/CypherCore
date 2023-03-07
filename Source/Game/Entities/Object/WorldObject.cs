@@ -12,6 +12,7 @@ using Game.BattleFields;
 using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Movement;
 using Game.Networking;
 using Game.Networking.Packets;
@@ -117,7 +118,7 @@ namespace Game.Entities
                 if (area.ParentAreaID != 0)
                     m_zoneId = area.ParentAreaID;
 
-            m_outdoors = data.outdoors;
+            m_outdoors = data.Outdoors;
             m_staticFloorZ = data.FloorZ;
             m_liquidStatus = data.LiquidStatus;
         }
@@ -1718,7 +1719,7 @@ namespace Game.Entities
             CreatureWithOptionsInObjectRangeCheck<NearestCheckCustomizer> checker = new(this, checkCustomizer, options);
             CreatureLastSearcher searcher = new(this, checker, GridType.All);
             if (options.IgnorePhases)
-                searcher.i_phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+                searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
             Cell.VisitGrid(this, searcher, range);
             return searcher.GetTarget();
@@ -3049,7 +3050,7 @@ namespace Game.Entities
             CreatureWithOptionsInObjectRangeCheck<NoopCheckCustomizer> check = new(this, checkCustomizer, options);
             CreatureListSearcher searcher = new(this, creatureList, check, GridType.Grid);
             if (options.IgnorePhases)
-                searcher.i_phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
+                searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
             Cell.VisitGrid(this, searcher, maxSearchRange, true);
             return creatureList;

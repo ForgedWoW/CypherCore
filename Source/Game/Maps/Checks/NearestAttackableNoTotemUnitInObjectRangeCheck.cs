@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,33 +9,34 @@ namespace Game.Maps;
 
 public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
 {
-    public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
-    {
-        i_obj = obj;
-        i_range = range;
-    }
+	readonly WorldObject _obj;
+	float _range;
 
-    public bool Invoke(Unit u)
-    {
-        if (!u.IsAlive())
-            return false;
+	public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
+	{
+		_obj   = obj;
+		_range = range;
+	}
 
-        if (u.GetCreatureType() == CreatureType.NonCombatPet)
-            return false;
+	public bool Invoke(Unit u)
+	{
+		if (!u.IsAlive())
+			return false;
 
-        if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
-            return false;
+		if (u.GetCreatureType() == CreatureType.NonCombatPet)
+			return false;
 
-        if (!u.IsTargetableForAttack(false))
-            return false;
+		if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
+			return false;
 
-        if (!i_obj.IsWithinDist(u, i_range) || i_obj.IsValidAttackTarget(u))
-            return false;
+		if (!u.IsTargetableForAttack(false))
+			return false;
 
-        i_range = i_obj.GetDistance(u);
-        return true;
-    }
+		if (!_obj.IsWithinDist(u, _range) || _obj.IsValidAttackTarget(u))
+			return false;
 
-    readonly WorldObject i_obj;
-    float i_range;
+		_range = _obj.GetDistance(u);
+
+		return true;
+	}
 }

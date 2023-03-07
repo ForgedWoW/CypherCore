@@ -1,25 +1,28 @@
-﻿using Game.Entities;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Entities;
 
 namespace Game.Maps;
 
 class NearestCheckCustomizer : NoopCheckCustomizer
 {
-    readonly WorldObject i_obj;
-    float i_range;
+	readonly WorldObject _obj;
+	float _range;
 
-    public NearestCheckCustomizer(WorldObject obj, float range)
-    {
-        i_obj = obj;
-        i_range = range;
-    }
+	public NearestCheckCustomizer(WorldObject obj, float range)
+	{
+		_obj   = obj;
+		_range = range;
+	}
 
-    public override bool Test(WorldObject o)
-    {
-        return i_obj.IsWithinDist(o, i_range);
-    }
+	public override bool Test(WorldObject o)
+	{
+		return _obj.IsWithinDist(o, _range);
+	}
 
-    public override void Update(WorldObject o)
-    {
-        i_range = i_obj.GetDistance(o);
-    }
+	public override void Update(WorldObject o)
+	{
+		_range = _obj.GetDistance(o);
+	}
 }

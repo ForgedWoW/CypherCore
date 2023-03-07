@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,38 +10,43 @@ namespace Game.Maps;
 
 public class GameObjectSearcher : IGridNotifierGameObject
 {
-    readonly PhaseShift i_phaseShift;
-    GameObject i_object;
-    readonly ICheck<GameObject> i_check;
+	readonly PhaseShift _phaseShift;
+	readonly ICheck<GameObject> _check;
+	GameObject _object;
 
-    public GridType GridType { get; set; }
+	public GameObjectSearcher(WorldObject searcher, ICheck<GameObject> check, GridType gridType)
+	{
+		_phaseShift = searcher.GetPhaseShift();
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public GameObjectSearcher(WorldObject searcher, ICheck<GameObject> check, GridType gridType)
-    {
-        i_phaseShift = searcher.GetPhaseShift();
-        i_check = check;
-        GridType = gridType;
-    }
+	public GridType GridType { get; set; }
 
-    public void Visit(IList<GameObject> objs)
-    {
-        // already found
-        if (i_object)
-            return;
+	public void Visit(IList<GameObject> objs)
+	{
+		// already found
+		if (_object)
+			return;
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            GameObject gameObject = objs[i];
-            if (!gameObject.InSamePhase(i_phaseShift))
-                continue;
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var gameObject = objs[i];
 
-            if (i_check.Invoke(gameObject))
-            {
-                i_object = gameObject;
-                return;
-            }
-        }
-    }
+			if (!gameObject.InSamePhase(_phaseShift))
+				continue;
 
-    public GameObject GetTarget() { return i_object; }
+			if (_check.Invoke(gameObject))
+			{
+				_object = gameObject;
+
+				return;
+			}
+		}
+	}
+
+	public GameObject GetTarget()
+	{
+		return _object;
+	}
 }

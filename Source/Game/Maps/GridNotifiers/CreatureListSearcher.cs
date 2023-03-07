@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,28 +10,30 @@ namespace Game.Maps;
 
 public class CreatureListSearcher : IGridNotifierCreature
 {
-    internal PhaseShift i_phaseShift;
-    readonly List<Creature> i_objects;
-    readonly ICheck<Creature> i_check;
-    public GridType GridType { get; set; }
+	internal PhaseShift _phaseShift;
+	readonly List<Creature> _objects;
+	readonly ICheck<Creature> _check;
 
 
-    public CreatureListSearcher(WorldObject searcher, List<Creature> objects, ICheck<Creature> check, GridType gridType)
-    {
-        i_phaseShift = searcher.GetPhaseShift();
-        i_objects = objects;
-        i_check = check;
-        GridType = gridType;
-    }
+	public CreatureListSearcher(WorldObject searcher, List<Creature> objects, ICheck<Creature> check, GridType gridType)
+	{
+		_phaseShift = searcher.GetPhaseShift();
+		_objects    = objects;
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            if (creature.InSamePhase(i_phaseShift))
-                if (i_check.Invoke(creature))
-                    i_objects.Add(creature);
-        }
-    }
+	public GridType GridType { get; set; }
+
+	public void Visit(IList<Creature> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
+
+			if (creature.InSamePhase(_phaseShift))
+				if (_check.Invoke(creature))
+					_objects.Add(creature);
+		}
+	}
 }

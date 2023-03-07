@@ -10,6 +10,7 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Garrisons;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Movement;
 using Game.Networking;
 using Game.Networking.Packets;

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,25 +10,27 @@ namespace Game.Maps;
 
 public class AIRelocationNotifier : IGridNotifierCreature
 {
-    public GridType GridType { get; set; }
-    public AIRelocationNotifier(Unit unit, GridType gridType)
-    {
-        i_unit = unit;
-        isCreature = unit.IsTypeId(TypeId.Unit);
-        GridType = gridType;
-    }
+	readonly Unit _unit;
+	readonly bool _isCreature;
 
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            NotifierHelpers.CreatureUnitRelocationWorker(creature, i_unit);
-            if (isCreature)
-                NotifierHelpers.CreatureUnitRelocationWorker(i_unit.ToCreature(), creature);
-        }
-    }
+	public AIRelocationNotifier(Unit unit, GridType gridType)
+	{
+		_unit     = unit;
+		_isCreature = unit.IsTypeId(TypeId.Unit);
+		GridType   = gridType;
+	}
 
-    readonly Unit i_unit;
-    readonly bool isCreature;
+	public GridType GridType { get; set; }
+
+	public void Visit(IList<Creature> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
+			NotifierHelpers.CreatureUnitRelocationWorker(creature, _unit);
+
+			if (_isCreature)
+				NotifierHelpers.CreatureUnitRelocationWorker(_unit.ToCreature(), creature);
+		}
+	}
 }

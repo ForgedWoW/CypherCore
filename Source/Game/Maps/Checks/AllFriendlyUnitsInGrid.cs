@@ -1,22 +1,25 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class AllFriendlyUnitsInGrid : ICheck<Unit>
 {
-    public AllFriendlyUnitsInGrid(Unit obj)
-    {
-        unit = obj;
-    }
+	readonly Unit _unit;
 
-    public bool Invoke(Unit u)
-    {
-        if (u.IsAlive() && u.IsVisible() && u.IsFriendlyTo(unit))
-            return true;
+	public AllFriendlyUnitsInGrid(Unit obj)
+	{
+		_unit = obj;
+	}
 
-        return false;
-    }
+	public bool Invoke(Unit u)
+	{
+		if (u.IsAlive() && u.IsVisible() && u.IsFriendlyTo(_unit))
+			return true;
 
-    readonly Unit unit;
+		return false;
+	}
 }

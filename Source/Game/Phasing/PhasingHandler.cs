@@ -11,6 +11,7 @@ using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking.Packets;
 using Game.Spells;
 
@@ -560,8 +561,8 @@ namespace Game
                 return phaseShift.VisibleMapIds.First().Key;
 
             GridCoord gridCoord = GridDefines.ComputeGridCoord(x, y);
-            int gx = (int)((MapConst.MaxGrids - 1) - gridCoord.X_coord);
-            int gy = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_coord);
+            int gx = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
+            int gy = (int)((MapConst.MaxGrids - 1) - gridCoord.Y_Coord);
 
             foreach (var visibleMap in phaseShift.VisibleMapIds)
                 if (terrain.HasChildTerrainGridFile(visibleMap.Key, gx, gy))

@@ -449,7 +449,7 @@ namespace Game.Chat.Commands
                 map.GetRespawnInfo(respawns, (SpawnObjectTypeMask)(1 << (int)type));
                 foreach (RespawnInfo ri in respawns)
                 {
-                    SpawnMetadata data = Global.ObjectMgr.GetSpawnMetadata(ri.type, ri.spawnId);
+                    SpawnMetadata data = Global.ObjectMgr.GetSpawnMetadata(ri.ObjectType, ri.SpawnId);
                     if (data == null)
                         continue;
 
@@ -470,11 +470,11 @@ namespace Game.Chat.Commands
                         }
                     }
 
-                    uint gridY = ri.gridId / MapConst.MaxGrids;
-                    uint gridX = ri.gridId % MapConst.MaxGrids;
+                    uint gridY = ri.GridId / MapConst.MaxGrids;
+                    uint gridX = ri.GridId % MapConst.MaxGrids;
 
-                    string respawnTime = ri.respawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.respawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
-                    handler.SendSysMessage($"{ri.spawnId} | {ri.entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.spawnGroupData.groupId) ? "" : " (inactive)")}");
+                    string respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
+                    handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
                 }
             }
             return true;
@@ -523,7 +523,7 @@ namespace Game.Chat.Commands
                     continue;
 
                 if (showAll || data.SpawnPoint.IsInDist2d(player, 5000.0f))
-                    handler.SendSysMessage($"Type: {data.type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
+                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
             }
             foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
             {
@@ -536,7 +536,7 @@ namespace Game.Chat.Commands
                     continue;
 
                 if (showAll || data.SpawnPoint.IsInDist2d(player, 5000.0f))
-                    handler.SendSysMessage($"Type: {data.type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({goTemp.name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
+                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({goTemp.name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
             }
             return true;
         }

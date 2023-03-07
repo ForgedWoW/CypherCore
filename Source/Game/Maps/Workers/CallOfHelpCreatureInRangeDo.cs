@@ -1,38 +1,41 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class CallOfHelpCreatureInRangeDo : IDoWork<Creature>
 {
-    public CallOfHelpCreatureInRangeDo(Unit funit, Unit enemy, float range)
-    {
-        i_funit = funit;
-        i_enemy = enemy;
-        i_range = range;
-    }
+	readonly Unit _funit;
+	readonly Unit _enemy;
+	readonly float _range;
 
-    public void Invoke(Creature u)
-    {
-        if (u == i_funit)
-            return;
+	public CallOfHelpCreatureInRangeDo(Unit funit, Unit enemy, float range)
+	{
+		_funit = funit;
+		_enemy = enemy;
+		_range = range;
+	}
 
-        if (!u.CanAssistTo(i_funit, i_enemy, false))
-            return;
+	public void Invoke(Creature u)
+	{
+		if (u == _funit)
+			return;
 
-        // too far
-        // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-        if (!u.IsWithinDist(i_funit, i_range, true, false, false))
-            return;
+		if (!u.CanAssistTo(_funit, _enemy, false))
+			return;
 
-        // only if see assisted creature's enemy
-        if (!u.IsWithinLOSInMap(i_enemy))
-            return;
+		// too far
+		// Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+		if (!u.IsWithinDist(_funit, _range, true, false, false))
+			return;
 
-        u.EngageWithTarget(i_enemy);
-    }
+		// only if see assisted creature's enemy
+		if (!u.IsWithinLOSInMap(_enemy))
+			return;
 
-    readonly Unit i_funit;
-    readonly Unit i_enemy;
-    readonly float i_range;
+		u.EngageWithTarget(_enemy);
+	}
 }

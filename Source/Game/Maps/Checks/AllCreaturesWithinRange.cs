@@ -1,29 +1,33 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class AllCreaturesWithinRange : ICheck<Creature>
 {
-    public AllCreaturesWithinRange(WorldObject obj, float maxRange = 0f)
-    {
-        m_pObject = obj;
-        m_fRange = maxRange;
-    }
+	readonly WorldObject _pObject;
+	readonly float _fRange;
 
-    public bool Invoke(Creature creature)
-    {
-        if (m_fRange != 0f)
-        {
-            if (m_fRange > 0.0f && !m_pObject.IsWithinDist(creature, m_fRange, false))
-                return false;
-            if (m_fRange < 0.0f && m_pObject.IsWithinDist(creature, m_fRange, false))
-                return false;
-        }
+	public AllCreaturesWithinRange(WorldObject obj, float maxRange = 0f)
+	{
+		_pObject = obj;
+		_fRange  = maxRange;
+	}
 
-        return true;
-    }
+	public bool Invoke(Creature creature)
+	{
+		if (_fRange != 0f)
+		{
+			if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+				return false;
 
-    readonly WorldObject m_pObject;
-    readonly float m_fRange;
+			if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+				return false;
+		}
+
+		return true;
+	}
 }

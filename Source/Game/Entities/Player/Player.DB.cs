@@ -17,6 +17,7 @@ using Game.Groups;
 using Game.Guilds;
 using Game.Mails;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;

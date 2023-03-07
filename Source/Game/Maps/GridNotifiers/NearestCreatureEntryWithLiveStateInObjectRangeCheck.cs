@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
@@ -6,26 +9,28 @@ namespace Game.Maps;
 
 class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
 {
-    public NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject obj, uint entry, bool alive, float range)
-    {
-        i_obj = obj;
-        i_entry = entry;
-        i_alive = alive;
-        i_range = range;
-    }
+	readonly WorldObject _obj;
+	readonly uint _entry;
+	readonly bool _alive;
+	float _range;
 
-    public bool Invoke(Creature u)
-    {
-        if (u.GetDeathState() != DeathState.Dead && u.GetEntry() == i_entry && u.IsAlive() == i_alive && u.GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(u, i_range) && u.CheckPrivateObjectOwnerVisibility(i_obj))
-        {
-            i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
-            return true;
-        }
-        return false;
-    }
+	public NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject obj, uint entry, bool alive, float range)
+	{
+		_obj   = obj;
+		_entry = entry;
+		_alive = alive;
+		_range = range;
+	}
 
-    readonly WorldObject i_obj;
-    readonly uint i_entry;
-    readonly bool i_alive;
-    float i_range;
+	public bool Invoke(Creature u)
+	{
+		if (u.GetDeathState() != DeathState.Dead && u.GetEntry() == _entry && u.IsAlive() == _alive && u.GetGUID() != _obj.GetGUID() && _obj.IsWithinDist(u, _range) && u.CheckPrivateObjectOwnerVisibility(_obj))
+		{
+			_range = _obj.GetDistance(u); // use found unit range as new range limit for next check
+
+			return true;
+		}
+
+		return false;
+	}
 }

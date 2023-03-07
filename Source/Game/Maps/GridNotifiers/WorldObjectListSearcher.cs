@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
@@ -8,123 +11,132 @@ namespace Game.Maps;
 
 public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {
-    public GridMapTypeMask Mask { get; set; }
-    public GridType GridType { get; set; }
+	readonly List<WorldObject> _objects;
+	readonly PhaseShift _phaseShift;
+	readonly ICheck<WorldObject> _check;
 
-    readonly List<WorldObject> i_objects;
-    readonly PhaseShift i_phaseShift;
-    readonly ICheck<WorldObject> i_check;
+	public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
+	{
+		Mask         = mapTypeMask;
+		_phaseShift = searcher.GetPhaseShift();
+		_objects    = objects;
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
-    {
-        Mask = mapTypeMask;
-        i_phaseShift = searcher.GetPhaseShift();
-        i_objects = objects;
-        i_check = check;
-        GridType = gridType;
-    }
+	public GridMapTypeMask Mask { get; set; }
 
-    public void Visit(IList<Player> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.Player))
-            return;
+	public void Visit(IList<AreaTrigger> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.AreaTrigger))
+			return;
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (i_check.Invoke(player))
-                i_objects.Add(player);
-        }
-    }
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var areaTrigger = objs[i];
 
-    public void Visit(IList<Creature> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.Creature))
-            return;
+			if (areaTrigger.InSamePhase(_phaseShift) && _check.Invoke(areaTrigger))
+				_objects.Add(areaTrigger);
+		}
+	}
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            if (i_check.Invoke(creature))
-                i_objects.Add(creature);
-        }
-    }
+	public void Visit(IList<Conversation> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.Conversation))
+			return;
 
-    public void Visit(IList<Corpse> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.Corpse))
-            return;
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var conversation = objs[i];
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Corpse corpse = objs[i];
-            if (i_check.Invoke(corpse))
-                i_objects.Add(corpse);
-        }
-    }
+			if (conversation.InSamePhase(_phaseShift) && _check.Invoke(conversation))
+				_objects.Add(conversation);
+		}
+	}
 
-    public void Visit(IList<GameObject> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.GameObject))
-            return;
+	public void Visit(IList<Corpse> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.Corpse))
+			return;
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            GameObject gameObject = objs[i];
-            if (i_check.Invoke(gameObject))
-                i_objects.Add(gameObject);
-        }
-    }
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var corpse = objs[i];
 
-    public void Visit(IList<DynamicObject> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.DynamicObject))
-            return;
+			if (corpse.InSamePhase(_phaseShift) && _check.Invoke(corpse))
+				_objects.Add(corpse);
+		}
+	}
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            DynamicObject dynamicObject = objs[i];
-            if (i_check.Invoke(dynamicObject))
-                i_objects.Add(dynamicObject);
-        }
-    }
+	public void Visit(IList<Creature> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.Creature))
+			return;
 
-    public void Visit(IList<AreaTrigger> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.AreaTrigger))
-            return;
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            AreaTrigger areaTrigger = objs[i];
-            if (i_check.Invoke(areaTrigger))
-                i_objects.Add(areaTrigger);
-        }
-    }
+			if (creature.InSamePhase(_phaseShift) && _check.Invoke(creature))
+				_objects.Add(creature);
+		}
+	}
 
-    public void Visit(IList<SceneObject> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.Conversation))
-            return;
+	public void Visit(IList<DynamicObject> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.DynamicObject))
+			return;
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            SceneObject sceneObject = objs[i];
-            if (i_check.Invoke(sceneObject))
-                i_objects.Add(sceneObject);
-        }
-    }
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var dynamicObject = objs[i];
 
-    public void Visit(IList<Conversation> objs)
-    {
-        if (!Mask.HasAnyFlag(GridMapTypeMask.Conversation))
-            return;
+			if (dynamicObject.InSamePhase(_phaseShift) && _check.Invoke(dynamicObject))
+				_objects.Add(dynamicObject);
+		}
+	}
 
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Conversation conversation = objs[i];
-            if (i_check.Invoke(conversation))
-                i_objects.Add(conversation);
-        }
-    }
+	public void Visit(IList<GameObject> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.GameObject))
+			return;
+
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var gameObject = objs[i];
+
+			if (gameObject.InSamePhase(_phaseShift) && _check.Invoke(gameObject))
+				_objects.Add(gameObject);
+		}
+	}
+
+	public GridType GridType { get; set; }
+
+	public void Visit(IList<Player> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.Player))
+			return;
+
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+
+			if (player.InSamePhase(_phaseShift) && _check.Invoke(player))
+				_objects.Add(player);
+		}
+	}
+
+	public void Visit(IList<SceneObject> objs)
+	{
+		if (!Mask.HasAnyFlag(GridMapTypeMask.Conversation))
+			return;
+
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var sceneObject = objs[i];
+
+			if (_check.Invoke(sceneObject))
+				_objects.Add(sceneObject);
+		}
+	}
 }

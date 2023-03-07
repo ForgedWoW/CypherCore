@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Game.Entities;
 
@@ -6,20 +9,20 @@ namespace Game.Maps;
 
 public class ObjectGUIDCheck : ICheck<WorldObject>
 {
-    public ObjectGUIDCheck(ObjectGuid GUID)
-    {
-        _GUID = GUID;
-    }
+	readonly ObjectGuid _gUID;
 
-    public bool Invoke(WorldObject obj)
-    {
-        return obj.GetGUID() == _GUID;
-    }
+	public ObjectGUIDCheck(ObjectGuid GUID)
+	{
+		_gUID = GUID;
+	}
 
-    public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
-    {
-        return check.Invoke;
-    }
+	public bool Invoke(WorldObject obj)
+	{
+		return obj.GetGUID() == _gUID;
+	}
 
-    ObjectGuid _GUID;
+	public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)
+	{
+		return check.Invoke;
+	}
 }

@@ -4,10 +4,9 @@
 using System.Collections.Generic;
 using Game.Entities;
 
-namespace Game.Maps.Interfaces
+namespace Game.Maps.Interfaces;
+
+public interface IGridNotifierDynamicObject : IGridNotifier
 {
-    public interface IGridNotifierDynamicObject : IGridNotifier
-    {
-        void Visit(IList<DynamicObject> objs);
-    }
+	void Visit(IList<DynamicObject> objs);
 }

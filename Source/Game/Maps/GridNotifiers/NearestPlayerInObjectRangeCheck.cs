@@ -1,28 +1,31 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class NearestPlayerInObjectRangeCheck : ICheck<Player>
 {
-    public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
-    {
-        i_obj = obj;
-        i_range = range;
+	readonly WorldObject _obj;
+	float _range;
 
-    }
+	public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
+	{
+		_obj   = obj;
+		_range = range;
+	}
 
-    public bool Invoke(Player pl)
-    {
-        if (pl.IsAlive() && i_obj.IsWithinDist(pl, i_range))
-        {
-            i_range = i_obj.GetDistance(pl);
-            return true;
-        }
+	public bool Invoke(Player pl)
+	{
+		if (pl.IsAlive() && _obj.IsWithinDist(pl, _range))
+		{
+			_range = _obj.GetDistance(pl);
 
-        return false;
-    }
+			return true;
+		}
 
-    readonly WorldObject i_obj;
-    float i_range;
+		return false;
+	}
 }

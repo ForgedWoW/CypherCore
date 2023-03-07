@@ -7,7 +7,7 @@ using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Groups;
-using Game.Maps;
+using Game.Maps.Grids;
 using Game.Spells;
 
 namespace Game.AI

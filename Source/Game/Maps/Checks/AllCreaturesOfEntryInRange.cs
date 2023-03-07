@@ -1,36 +1,39 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 public class AllCreaturesOfEntryInRange : ICheck<Creature>
 {
-    public AllCreaturesOfEntryInRange(WorldObject obj, uint entry, float maxRange = 0f)
-    {
-        m_pObject = obj;
-        m_uiEntry = entry;
-        m_fRange = maxRange;
-    }
+	readonly WorldObject _pObject;
+	readonly uint _uiEntry;
+	readonly float _fRange;
 
-    public bool Invoke(Creature creature)
-    {
-        if (m_uiEntry != 0)
-        {
-            if (creature.GetEntry() != m_uiEntry)
-                return false;
-        }
+	public AllCreaturesOfEntryInRange(WorldObject obj, uint entry, float maxRange = 0f)
+	{
+		_pObject = obj;
+		_uiEntry = entry;
+		_fRange  = maxRange;
+	}
 
-        if (m_fRange != 0f)
-        {
-            if (m_fRange > 0.0f && !m_pObject.IsWithinDist(creature, m_fRange, false))
-                return false;
-            if (m_fRange < 0.0f && m_pObject.IsWithinDist(creature, m_fRange, false))
-                return false;
-        }
-        return true;
-    }
+	public bool Invoke(Creature creature)
+	{
+		if (_uiEntry != 0)
+			if (creature.GetEntry() != _uiEntry)
+				return false;
 
-    readonly WorldObject m_pObject;
-    readonly uint m_uiEntry;
-    readonly float m_fRange;
+		if (_fRange != 0f)
+		{
+			if (_fRange > 0.0f && !_pObject.IsWithinDist(creature, _fRange, false))
+				return false;
+
+			if (_fRange < 0.0f && _pObject.IsWithinDist(creature, _fRange, false))
+				return false;
+		}
+
+		return true;
+	}
 }

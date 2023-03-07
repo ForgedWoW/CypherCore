@@ -1261,7 +1261,7 @@ namespace Game
                         Log.outDebug(LogFilter.Sql, $"{cond.ToString()} SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.");
                         return false;
                     }
-                    if (spawnGroup.flags.HasAnyFlag(SpawnGroupFlags.System))
+                    if (spawnGroup.Flags.HasAnyFlag(SpawnGroupFlags.System))
                     {
                         Log.outDebug(LogFilter.Sql, $"{cond.ToString()} in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM or SPAWNGROUP_FLAG_MANUAL_SPAWN flags, ignoring.");
                         return false;

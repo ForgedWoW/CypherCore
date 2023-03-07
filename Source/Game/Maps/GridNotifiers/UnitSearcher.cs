@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps.Interfaces;
@@ -7,49 +10,57 @@ namespace Game.Maps;
 
 public class UnitSearcher : IGridNotifierPlayer, IGridNotifierCreature
 {
-    readonly PhaseShift i_phaseShift;
-    Unit i_object;
-    readonly ICheck<Unit> i_check;
-    public GridType GridType { get; set; }
+	readonly PhaseShift _phaseShift;
+	readonly ICheck<Unit> _check;
+	Unit _object;
 
-    public UnitSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
-    {
-        i_phaseShift = searcher.GetPhaseShift();
-        i_check = check;
-        GridType = gridType;
-    }
+	public UnitSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
+	{
+		_phaseShift = searcher.GetPhaseShift();
+		_check      = check;
+		GridType     = gridType;
+	}
 
-    public void Visit(IList<Player> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Player player = objs[i];
-            if (!player.InSamePhase(i_phaseShift))
-                continue;
+	public void Visit(IList<Creature> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var creature = objs[i];
 
-            if (i_check.Invoke(player))
-            {
-                i_object = player;
-                return;
-            }
-        }
-    }
+			if (!creature.InSamePhase(_phaseShift))
+				continue;
 
-    public void Visit(IList<Creature> objs)
-    {
-        for (var i = 0; i < objs.Count; ++i)
-        {
-            Creature creature = objs[i];
-            if (!creature.InSamePhase(i_phaseShift))
-                continue;
+			if (_check.Invoke(creature))
+			{
+				_object = creature;
 
-            if (i_check.Invoke(creature))
-            {
-                i_object = creature;
-                return;
-            }
-        }
-    }
+				return;
+			}
+		}
+	}
 
-    public Unit GetTarget() { return i_object; }
+	public GridType GridType { get; set; }
+
+	public void Visit(IList<Player> objs)
+	{
+		for (var i = 0; i < objs.Count; ++i)
+		{
+			var player = objs[i];
+
+			if (!player.InSamePhase(_phaseShift))
+				continue;
+
+			if (_check.Invoke(player))
+			{
+				_object = player;
+
+				return;
+			}
+		}
+	}
+
+	public Unit GetTarget()
+	{
+		return _object;
+	}
 }

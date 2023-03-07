@@ -1,28 +1,33 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Maps;
 
 class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 {
-    readonly WorldObject i_obj;
-    readonly uint i_entry;
-    float i_range;
+	readonly WorldObject _obj;
+	readonly uint _entry;
+	float _range;
 
-    public NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range)
-    {
-        i_obj = obj;
-        i_entry = entry;
-        i_range = range;
-    }
+	public NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range)
+	{
+		_obj   = obj;
+		_entry = entry;
+		_range = range;
+	}
 
-    public bool Invoke(GameObject go)
-    {
-        if (!go.IsSpawned() && go.GetEntry() == i_entry && go.GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(go, i_range))
-        {
-            i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
-            return true;
-        }
-        return false;
-    }
+	public bool Invoke(GameObject go)
+	{
+		if (!go.IsSpawned() && go.GetEntry() == _entry && go.GetGUID() != _obj.GetGUID() && _obj.IsWithinDist(go, _range))
+		{
+			_range = _obj.GetDistance(go); // use found GO range as new range limit for next check
+
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -493,7 +493,7 @@ namespace Game.Chat
 
             if (groupID != 0 && !store.ContainsKey(groupID))
             {
-                handler.SendSysMessage($"{mapName}'s instance script does not manage group '{Global.ObjectMgr.GetSpawnGroupData(groupID).name}'.");
+                handler.SendSysMessage($"{mapName}'s instance script does not manage group '{Global.ObjectMgr.GetSpawnGroupData(groupID).Name}'.");
                 return false;
             }
 
@@ -506,7 +506,7 @@ namespace Game.Chat
                 Cypher.Assert(groupData != null); // checked by objectmgr on load
                 if (explain)
                 {
-                    handler.SendSysMessage(" |-- '{}' ({})", groupData.name, key);
+                    handler.SendSysMessage(" |-- '{}' ({})", groupData.Name, key);
                     bool isBlocked = false, isSpawned = false;
                     foreach (var tuple in store[key])
                     {
@@ -519,28 +519,28 @@ namespace Game.Chat
                             {
                                 isSpawned = true;
                                 if (isBlocked)
-                                    handler.SendSysMessage($" | |-- '{groupData.name}' would be allowed to spawn by boss state {bossStateId} being {(EncounterState)actualState}, but this is overruled");
+                                    handler.SendSysMessage($" | |-- '{groupData.Name}' would be allowed to spawn by boss state {bossStateId} being {(EncounterState)actualState}, but this is overruled");
                                 else
-                                    handler.SendSysMessage($" | |-- '{groupData.name}' is allowed to spawn because boss state {bossStateId} is {(EncounterState)bossStateId}.");
+                                    handler.SendSysMessage($" | |-- '{groupData.Name}' is allowed to spawn because boss state {bossStateId} is {(EncounterState)bossStateId}.");
                             }
                             else
                             {
                                 isBlocked = true;
-                                handler.SendSysMessage($" | |-- '{groupData.name}' is blocked from spawning because boss state {bossStateId} is {(EncounterState)bossStateId}.");
+                                handler.SendSysMessage($" | |-- '{groupData.Name}' is blocked from spawning because boss state {bossStateId} is {(EncounterState)bossStateId}.");
                             }
                         }
                         else
-                            handler.SendSysMessage($" | |-- '{groupData.name}' could've been {(isSpawn ? "allowed to spawn" : "blocked from spawning")} if boss state {bossStateId} matched mask 0x{tuple.Item3:X2}; but it is {(EncounterState)actualState} . 0x{(1 << (int)actualState):X2}, which does not match.");
+                            handler.SendSysMessage($" | |-- '{groupData.Name}' could've been {(isSpawn ? "allowed to spawn" : "blocked from spawning")} if boss state {bossStateId} matched mask 0x{tuple.Item3:X2}; but it is {(EncounterState)actualState} . 0x{(1 << (int)actualState):X2}, which does not match.");
                     }
                     if (isBlocked)
-                        handler.SendSysMessage($" | |=> '{groupData.name}' is not active due to a blocking rule being matched");
+                        handler.SendSysMessage($" | |=> '{groupData.Name}' is not active due to a blocking rule being matched");
                     else if (isSpawned)
-                        handler.SendSysMessage($" | |=> '{groupData.name}' is active due to a spawn rule being matched");
+                        handler.SendSysMessage($" | |=> '{groupData.Name}' is active due to a spawn rule being matched");
                     else
-                        handler.SendSysMessage($" | |=> '{groupData.name}' is not active due to none of its rules being matched");
+                        handler.SendSysMessage($" | |=> '{groupData.Name}' is not active due to none of its rules being matched");
                 }
                 else
-                    handler.SendSysMessage($" - '{groupData.name}' ({key}) is {(map.IsSpawnGroupActive(key) ? "" : "not ")}active");
+                    handler.SendSysMessage($" - '{groupData.Name}' ({key}) is {(map.IsSpawnGroupActive(key) ? "" : "not ")}active");
             }
             return true;
         }

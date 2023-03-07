@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Maps;
+using Game.Maps.Grids;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;

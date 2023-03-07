@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Database;
-using Game.Maps;
+using Game.Maps.Grids;
 
 namespace Game
 {

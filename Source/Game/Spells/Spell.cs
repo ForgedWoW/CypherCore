@@ -15,6 +15,7 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Loots;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Maps.Interfaces;
 using Game.Movement;
 using Game.Networking.Packets;

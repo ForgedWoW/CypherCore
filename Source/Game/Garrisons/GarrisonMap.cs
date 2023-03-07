@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
+using Game.Maps.Grids;
 using Game.Maps.Interfaces;
 
 namespace Game.Garrisons
@@ -40,8 +41,8 @@ namespace Game.Garrisons
         public override void InitVisibilityDistance()
         {
             //init visibility distance for instances
-            m_VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceInInstances();
-            m_VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodInInstances();
+            VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceInInstances();
+            VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodInInstances();
         }
 
         public override bool AddPlayerToMap(Player player, bool initPlayer = true)
@@ -77,13 +78,13 @@ namespace Game.Garrisons
         {
             if (i_garrison != null)
             {
-                i_cell.data.cell_y = 0;
+                i_cell.Data.Celly = 0;
                 for (uint x = 0; x < MapConst.MaxCells; ++x)
                 {
-                    i_cell.data.cell_x = x;
+                    i_cell.Data.Cellx = x;
                     for (uint y = 0; y < MapConst.MaxCells; ++y)
                     {
-                        i_cell.data.cell_y = y;
+                        i_cell.Data.Celly = y;
 
                         //Load creatures and game objects
                         i_grid.VisitGrid(x, y, this);
