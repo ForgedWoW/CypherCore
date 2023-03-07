@@ -1673,7 +1673,7 @@ namespace Game
             }
 
             // all (not optional<>)
-            auctionItem.DurationLeft = (int)Math.Max((EndTime - GameTime.GetSystemTime()).ToMilliseconds(), 0L);
+            auctionItem.DurationLeft = (int)Math.Max((EndTime - GameTime.GetSystemTime()).TotalMilliseconds, 0L);
             auctionItem.DeleteReason = 0;
 
             // SMSG_AUCTION_LIST_ITEMS_RESULT (only if owned)

@@ -45,14 +45,6 @@ public static class Time
         }
     }
 
-    /// <summary>
-    /// Converts a TimeSpan to its equivalent representation in milliseconds (Int64).
-    /// </summary>
-    /// <param name="span">The time span value to convert.</param>
-    public static long ToMilliseconds(this TimeSpan span)
-    {
-        return (long)span.TotalMilliseconds;
-    }
 
     /// <summary>
     /// Gets the system uptime.
@@ -65,7 +57,7 @@ public static class Time
 
     public static uint GetMSTime()
     {
-        return (uint)(DateTime.Now - ApplicationStartTime).ToMilliseconds();
+        return (uint)(DateTime.Now - ApplicationStartTime).TotalMilliseconds;
     }
 
     public static uint GetMSTimeDiff(uint oldMSTime, uint newMSTime)
