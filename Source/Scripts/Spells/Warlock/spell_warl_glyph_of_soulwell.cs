@@ -21,7 +21,7 @@ namespace Scripts.Spells.Warlock
 			if (!GetCaster().HasAura(WarlockSpells.GLYPH_OF_SOULWELL))
 				return;
 
-			GetCaster().CastSpell(new Position(GetExplTargetDest().GetPositionX(), GetExplTargetDest().GetPositionY(), GetExplTargetDest().GetPositionZ()), WarlockSpells.GLYPH_OF_SOULWELL_VISUAL, true);
+			GetCaster().CastSpell(new Position(GetExplTargetDest().X, GetExplTargetDest().Y, GetExplTargetDest().Z), WarlockSpells.GLYPH_OF_SOULWELL_VISUAL, true);
 		}
 	}
 }

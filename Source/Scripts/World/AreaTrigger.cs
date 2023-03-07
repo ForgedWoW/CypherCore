@@ -191,7 +191,7 @@ namespace Scripts.World.Areatriggers
             if (!player.IsDead() &&
                 player.GetQuestStatus(QuestIds.ScentOfLarkorwi) == QuestStatus.Incomplete)
                 if (!player.FindNearestCreature(CreatureIds.LarkorwiMate, 15))
-                    player.SummonCreature(CreatureIds.LarkorwiMate, player.GetPositionX() + 5, player.GetPositionY(), player.GetPositionZ(), 3.3f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(100));
+                    player.SummonCreature(CreatureIds.LarkorwiMate, new Position(player.Location.X + 5, player.Location.Y, player.Location.Z, 3.3f), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(100));
 
             return false;
         }

@@ -21,7 +21,7 @@ public class spell_hun_windburst : SpellScript, ISpellAfterHit
 			if (target == null)
 				return;
 
-			caster.CastSpell(new Position(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ()), 204475, true);
+			caster.CastSpell(new Position(target.Location.X, target.Location.Y, target.Location.Z), 204475, true);
 		}
 	}
 }

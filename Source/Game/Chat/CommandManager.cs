@@ -337,7 +337,7 @@ namespace Game.Chat
             }
 
             Log.outCommand(session.GetAccountId(), $"Command: {cmdStr} [Player: {player.GetName()} ({player.GetGUID()}) (Account: {session.GetAccountId()}) " +
-                $"X: {player.GetPositionX()} Y: {player.GetPositionY()} Z: {player.GetPositionZ()} Map: {player.GetMapId()} ({(player.GetMap() ? player.GetMap().GetMapName() : "Unknown")}) " +
+                $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.GetMapId()} ({(player.GetMap() ? player.GetMap().GetMapName() : "Unknown")}) " +
                 $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.GetSelectedUnit() ? player.GetSelectedUnit().GetName() : "")} ({targetGuid})]");
         }
 

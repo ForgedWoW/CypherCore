@@ -98,9 +98,9 @@ namespace Game.AI
              * }
              */
 
-            owner.UpdateAllowedPositionZ(destination.posX, destination.posY, ref destination.posZ);
+            owner.UpdateAllowedPositionZ(destination);
             init.MoveTo(destination);
-            init.SetFacing(destination.GetOrientation());
+            init.SetFacing(destination.Orientation);
             init.SetWalk(false);
             init.Launch();
         }

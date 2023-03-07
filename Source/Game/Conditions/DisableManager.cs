@@ -307,7 +307,7 @@ namespace Game
                             if (spellFlags.HasFlag(DisableFlags.SpellMap))
                             {
                                 List<uint> mapIds = data.param0;
-                                if (mapIds.Contains(refe.GetMapId()))
+                                if (mapIds.Contains(refe.Location.GetMapId()))
                                     return true;                                        // Spell is disabled on current map
 
                                 if (!spellFlags.HasFlag(DisableFlags.SpellArea))

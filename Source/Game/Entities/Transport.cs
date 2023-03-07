@@ -19,10 +19,10 @@ namespace Game.Entities
         ObjectGuid GetTransportGUID();
 
         // This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(ref float x, ref float y, ref float z, ref float o);
+        void CalculatePassengerPosition(Position pos);
 
         // This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(ref float x, ref float y, ref float z, ref float o);
+        void CalculatePassengerOffset(Position pos);
 
         float GetTransportOrientation();
 
@@ -30,7 +30,7 @@ namespace Game.Entities
 
         ITransport RemovePassenger(WorldObject passenger);
 
-        public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, float x, float y, float z, float o, bool setHomePosition)
+        public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, Position pos, bool setHomePosition)
         {
             // transport teleported but passenger not yet (can happen for players)
             if (passenger.GetMap() != map)
@@ -43,12 +43,12 @@ namespace Game.Entities
                 case TypeId.Unit:
                 {
                     Creature creature = passenger.ToCreature();
-                    map.CreatureRelocation(creature, x, y, z, o, false);
+                    map.CreatureRelocation(creature, pos, false);
                     if (setHomePosition)
                     {
-                        creature.GetTransportHomePosition(out x, out y, out z, out o);
-                        transport.CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-                        creature.SetHomePosition(x, y, z, o);
+                        pos = creature.GetTransportHomePosition();
+                        transport.CalculatePassengerPosition(pos);
+                        creature.SetHomePosition(pos);
                     }
                     break;
                 }
@@ -56,19 +56,19 @@ namespace Game.Entities
                     //relocate only passengers in world and skip any player that might be still logging in/teleporting
                     if (passenger.IsInWorld && !passenger.ToPlayer().IsBeingTeleported())
                     {
-                        map.PlayerRelocation(passenger.ToPlayer(), x, y, z, o);
-                        passenger.ToPlayer().SetFallInformation(0, passenger.GetPositionZ());
+                        map.PlayerRelocation(passenger.ToPlayer(), pos);
+                        passenger.ToPlayer().SetFallInformation(0, passenger.Location.Z);
                     }
                     break;
                 case TypeId.GameObject:
-                    map.GameObjectRelocation(passenger.ToGameObject(), x, y, z, o, false);
-                    passenger.ToGameObject().RelocateStationaryPosition(x, y, z, o);
+                    map.GameObjectRelocation(passenger.ToGameObject(), pos, false);
+                    passenger.ToGameObject().RelocateStationaryPosition(pos);
                     break;
                 case TypeId.DynamicObject:
-                    map.DynamicObjectRelocation(passenger.ToDynamicObject(), x, y, z, o);
+                    map.DynamicObjectRelocation(passenger.ToDynamicObject(), pos);
                     break;
                 case TypeId.AreaTrigger:
-                    map.AreaTriggerRelocation(passenger.ToAreaTrigger(), x, y, z, o);
+                    map.AreaTriggerRelocation(passenger.ToAreaTrigger(), pos);
                     break;
                 default:
                     break;
@@ -83,27 +83,27 @@ namespace Game.Entities
             }
         }
 
-        static void CalculatePassengerPosition(ref float x, ref float y, ref float z, ref float o, float transX, float transY, float transZ, float transO)
+        static void CalculatePassengerPosition(Position pos, float transX, float transY, float transZ, float transO)
         {
-            float inx = x, iny = y, inz = z;
-            o = Position.NormalizeOrientation(transO + o);
+            float inx = pos.X, iny = pos.Y, inz = pos.Z;
+            pos.Orientation = Position.NormalizeOrientation(transO + pos.Orientation);
 
-            x = transX + inx * MathF.Cos(transO) - iny * MathF.Sin(transO);
-            y = transY + iny * MathF.Cos(transO) + inx * MathF.Sin(transO);
-            z = transZ + inz;
+            pos.X = transX + inx * MathF.Cos(transO) - iny * MathF.Sin(transO);
+            pos.Y = transY + iny * MathF.Cos(transO) + inx * MathF.Sin(transO);
+            pos.Z = transZ + inz;
         }
 
-        static void CalculatePassengerOffset(ref float x, ref float y, ref float z, ref float o, float transX, float transY, float transZ, float transO)
+        static void CalculatePassengerOffset(Position pos, float transX, float transY, float transZ, float transO)
         {
-            o = Position.NormalizeOrientation(o - transO);
+            pos.Orientation = Position.NormalizeOrientation(pos.Orientation - transO);
 
-            z -= transZ;
-            y -= transY;    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-            x -= transX;    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-            float inx = x, iny = y;
-            y = (iny - inx * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-            x = (inx + iny * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-        }
+            pos.Z -= transZ;
+            pos.Y -= transY;    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
+            pos.X -= transX;    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
+            float inx = pos.X, iny = pos.Y;
+            pos.Y = (iny - inx * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
+            pos.X = (inx + iny * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
+        }   
 
         int GetMapIdForSpawning();
     }
@@ -126,9 +126,9 @@ namespace Game.Entities
 
         public bool Create(ulong guidlow, uint entry, float x, float y, float z, float ang)
         {
-            Relocate(x, y, z, ang);
+            Location.Relocate(x, y, z, ang);
 
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Transport, $"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
                 return false;
@@ -181,7 +181,7 @@ namespace Game.Entities
             var position = _transportInfo.ComputePosition(_pathProgress, out _, out int legIndex);
             if (position != null)
             {
-                Relocate(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation());
+                Location.Relocate(position.X, position.Y, position.Z, position.Orientation);
                 _currentPathLeg = legIndex;
             }
 
@@ -248,7 +248,7 @@ namespace Game.Entities
                 {
                     TransportPathLeg leg = _transportInfo.GetLegForTime(_transportInfo.Events[eventToTriggerIndex].Timestamp);
                     if (leg != null)
-                        if (leg.MapId == GetMapId())
+                        if (leg.MapId == Location.GetMapId())
                             GameEvents.Trigger(_transportInfo.Events[eventToTriggerIndex].EventId, this, this);
 
                     _eventsToTrigger.Set(eventToTriggerIndex, false);
@@ -275,16 +275,16 @@ namespace Game.Entities
                 {
                     uint oldMapId = _transportInfo.PathLegs[_currentPathLeg].MapId;
                     _currentPathLeg = legIndex;
-                    TeleportTransport(oldMapId, _transportInfo.PathLegs[legIndex].MapId, newPosition.GetPositionX(), newPosition.GetPositionY(), newPosition.GetPositionZ(), newPosition.GetOrientation());
+                    TeleportTransport(oldMapId, _transportInfo.PathLegs[legIndex].MapId, newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
                     return;
                 }
 
                 // set position
-                if (_positionChangeTimer.Passed() && GetExpectedMapId() == GetMapId())
+                if (_positionChangeTimer.Passed() && GetExpectedMapId() == Location.GetMapId())
                 {
                     _positionChangeTimer.Reset(positionUpdateDelay);
                     if (_movementState == TransportMovementState.Moving || justStopped)
-                        UpdatePosition(newPosition.GetPositionX(), newPosition.GetPositionY(), newPosition.GetPositionZ(), newPosition.GetOrientation());
+                        UpdatePosition(newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
                     else
                     {
                         /* There are four possible scenarios that trigger loading/unloading passengers:
@@ -293,7 +293,7 @@ namespace Game.Entities
                           3. transport moves from active to inactive grid
                           4. the grid that transport is currently in unloads
                         */
-                        bool gridActive = GetMap().IsGridLoaded(GetPositionX(), GetPositionY());
+                        bool gridActive = GetMap().IsGridLoaded(Location.X, Location.Y);
 
                         if (_staticPassengers.Empty() && gridActive) // 2.
                             LoadStaticPassengers();
@@ -342,7 +342,7 @@ namespace Game.Entities
                 if (plr != null)
                 {
                     Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), GetScriptId());
-                    plr.SetFallInformation(0, plr.GetPositionZ());
+                    plr.SetFallInformation(0, plr.Location.Z);
                 }
             }
 
@@ -359,24 +359,24 @@ namespace Game.Entities
             if (!creature)
                 return null;
 
-            data.SpawnPoint.GetPosition(out float x, out float y, out float z, out float o);
+            var spawn = data.SpawnPoint.Copy();
 
             creature.SetTransport(this);
             creature.m_movementInfo.transport.guid = GetGUID();
-            creature.m_movementInfo.transport.pos.Relocate(x, y, z, o);
+            creature.m_movementInfo.transport.pos.Relocate(spawn);
             creature.m_movementInfo.transport.seat = -1;
-            CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-            creature.Relocate(x, y, z, o);
-            creature.SetHomePosition(creature.GetPositionX(), creature.GetPositionY(), creature.GetPositionZ(), creature.GetOrientation());
+            CalculatePassengerPosition(spawn);
+            creature.Location.Relocate(spawn);
+            creature.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
             creature.SetTransportHomePosition(creature.m_movementInfo.transport.pos);
 
             // @HACK - transport models are not added to map's dynamic LoS calculations
             //         because the current GameObjectModel cannot be moved without recreating
             creature.AddUnitState(UnitState.IgnorePathfinding);
 
-            if (!creature.IsPositionValid())
+            if (!creature.Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GetGUID().ToString(), creature.GetEntry(), creature.GetPositionX(), creature.GetPositionY());
+                Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GetGUID().ToString(), creature.GetEntry(), creature.Location.X, creature.Location.Y);
                 return null;
             }
 
@@ -401,19 +401,19 @@ namespace Game.Entities
             if (!go)
                 return null;
 
-            data.SpawnPoint.GetPosition(out float x, out float y, out float z, out float o);
+            var spawn = data.SpawnPoint.Copy();
 
             go.SetTransport(this);
             go.m_movementInfo.transport.guid = GetGUID();
-            go.m_movementInfo.transport.pos.Relocate(x, y, z, o);
+            go.m_movementInfo.transport.pos.Relocate(spawn);
             go.m_movementInfo.transport.seat = -1;
-            CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-            go.Relocate(x, y, z, o);
-            go.RelocateStationaryPosition(x, y, z, o);
+            CalculatePassengerPosition(spawn);
+            go.Location.Relocate(spawn);
+            go.RelocateStationaryPosition(spawn);
 
-            if (!go.IsPositionValid())
+            if (!go.Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GetGUID().ToString(), go.GetEntry(), go.GetPositionX(), go.GetPositionY());
+                Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GetGUID().ToString(), go.GetEntry(), go.Location.X, go.Location.Y);
                 return null;
             }
 
@@ -501,10 +501,10 @@ namespace Game.Entities
                     break;
             }
 
-            pos.GetPosition(out float x, out float y, out float z, out float o);
-            CalculatePassengerPosition(ref x, ref y, ref z, ref o);
+            var newPos = pos.Copy();
+            CalculatePassengerPosition(newPos);
 
-            if (!summon.Create(map.GenerateLowGuid(HighGuid.Creature), map, entry, new Position(x, y, z, o), null, vehId))
+            if (!summon.Create(map.GenerateLowGuid(HighGuid.Creature), map, entry, newPos, null, vehId))
                 return null;
 
             WorldObject phaseShiftOwner = this;
@@ -519,8 +519,8 @@ namespace Game.Entities
             summon.SetTransport(this);
             summon.m_movementInfo.transport.guid = GetGUID();
             summon.m_movementInfo.transport.pos.Relocate(pos);
-            summon.Relocate(x, y, z, o);
-            summon.SetHomePosition(x, y, z, o);
+            summon.Location.Relocate(newPos);
+            summon.SetHomePosition(newPos);
             summon.SetTransportHomePosition(pos);
 
             // @HACK - transport models are not added to map's dynamic LoS calculations
@@ -540,14 +540,14 @@ namespace Game.Entities
             return summon;
         }
 
-        public void CalculatePassengerPosition(ref float x, ref float y, ref float z, ref float o)
+        public void CalculatePassengerPosition(Position pos)
         {
-            ITransport.CalculatePassengerPosition(ref x, ref y, ref z, ref o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
+            ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
         }
 
-        public void CalculatePassengerOffset(ref float x, ref float y, ref float z, ref float o)
+        public void CalculatePassengerOffset(Position pos)
         {
-            ITransport.CalculatePassengerOffset(ref x, ref y, ref z, ref o, GetPositionX(), GetPositionY(), GetPositionZ(), GetTransportOrientation());
+            ITransport.CalculatePassengerOffset(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
         }
 
         public int GetMapIdForSpawning()
@@ -557,13 +557,13 @@ namespace Game.Entities
 
         public void UpdatePosition(float x, float y, float z, float o)
         {
-            Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, GetMapId(), x, y, z), GetScriptId());
+            Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.GetMapId(), x, y, z), GetScriptId());
 
             bool newActive = GetMap().IsGridLoaded(x, y);
-            Cell oldCell = new(GetPositionX(), GetPositionY());
+            Cell oldCell = new(Location.X, Location.Y);
 
-            Relocate(x, y, z, o);
-            StationaryPosition.SetOrientation(o);
+            Location.Relocate(x, y, z, o);
+            StationaryPosition.Orientation = o;
             UpdateModelPosition();
 
             UpdatePassengerPositions(_passengers);
@@ -576,7 +576,7 @@ namespace Game.Entities
              */
             if (_staticPassengers.Empty() && newActive) // 1. and 2.
                 LoadStaticPassengers();
-            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(GetPositionX(), GetPositionY()))) // 3.
+            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(Location.X, Location.Y))) // 3.
                 UnloadStaticPassengers();
             else
                 UpdatePassengerPositions(_staticPassengers);
@@ -652,10 +652,10 @@ namespace Game.Entities
                             if (veh.GetTransport() == this)
                                 continue;
 
-                        obj.m_movementInfo.transport.pos.GetPosition(out float destX, out float destY, out float destZ, out float destO);
-                        ITransport.CalculatePassengerPosition(ref destX, ref destY, ref destZ, ref destO, x, y, z, o);
+                        var pos =  obj.m_movementInfo.transport.pos.Copy();
+                        ITransport.CalculatePassengerPosition(pos, x, y, z, o);
 
-                        obj.ToUnit().NearTeleportTo(destX, destY, destZ, destO);
+                        obj.ToUnit().NearTeleportTo(pos);
                     }
                 }
 
@@ -665,7 +665,7 @@ namespace Game.Entities
 
         void TeleportPassengersAndHideTransport(uint newMapid, float x, float y, float z, float o)
         {
-            if (newMapid == GetMapId())
+            if (newMapid == Location.GetMapId())
             {
                 AddToWorld();
 
@@ -702,13 +702,13 @@ namespace Game.Entities
             List<WorldObject> passengersToTeleport = new(_passengers);
             foreach (WorldObject obj in passengersToTeleport)
             {
-                obj.m_movementInfo.transport.pos.GetPosition(out float destX, out float destY, out float destZ, out float destO);
-                ITransport.CalculatePassengerPosition(ref destX, ref destY, ref destZ, ref destO, x, y, z, o);
+                var newPos = obj.m_movementInfo.transport.pos.Copy();
+                ITransport.CalculatePassengerPosition(newPos, x, y, z, o);
 
                 switch (obj.GetTypeId())
                 {
                     case TypeId.Player:
-                        if (!obj.ToPlayer().TeleportTo(newMapid, destX, destY, destZ, destO, TeleportToOptions.NotLeaveTransport))
+                        if (!obj.ToPlayer().TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))
                             RemovePassenger(obj);
                         break;
                     case TypeId.DynamicObject:
@@ -726,9 +726,9 @@ namespace Game.Entities
         {
             foreach (WorldObject passenger in passengers)
             {
-                passenger.m_movementInfo.transport.pos.GetPosition(out float x, out float y, out float z, out float o);
-                CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-                ITransport.UpdatePassengerPosition(this, GetMap(), passenger, x, y, z, o, true);
+                var pos = passenger.m_movementInfo.transport.pos.Copy();
+                CalculatePassengerPosition(pos);
+                ITransport.UpdatePassengerPosition(this, GetMap(), passenger, pos, true);
             }
         }
 
@@ -753,7 +753,7 @@ namespace Game.Entities
         public HashSet<WorldObject> GetPassengers() { return _passengers; }
 
         public ObjectGuid GetTransportGUID() { return GetGUID(); }
-        public float GetTransportOrientation() { return GetOrientation(); }
+        public float GetTransportOrientation() { return Location.Orientation; }
 
         public uint GetTransportPeriod() { return m_gameObjectData.Level; }
         public void SetPeriod(uint period) { SetLevel(period); }

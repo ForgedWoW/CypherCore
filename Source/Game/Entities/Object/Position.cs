@@ -2,82 +2,71 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using Game.DataStorage;
-using Game.Maps;
 using Game.Maps.Grids;
 
 namespace Game.Entities
 {
     public class Position
     {
-        public float posX;
-        public float posY;
-        public float posZ;
-        public float Orientation;
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
+        public float Orientation { get => _orientation; set => _orientation = NormalizeOrientation(value); }
+        private float _orientation;
 
         public Position(float x = 0f, float y = 0f, float z = 0f, float o = 0f)
         {
-            posX = x;
-            posY = y;
-            posZ = z;
-            Orientation = NormalizeOrientation(o);
+            X = x;
+            Y = y;
+            Z = z;
+            _orientation = NormalizeOrientation(o);
         }
 
         public Position(Vector3 vector)
         {
-            posX = vector.X;
-            posY = vector.Y;
-            posZ = vector.Z;
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+        }
+
+        public Position(Vector4 vector)
+        {
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+            Orientation = NormalizeOrientation(vector.W);
         }
 
         public Position(Position position)
         {
-            posX = position.posX;
-            posY = position.posY;
-            posZ = position.posZ;
-            Orientation = position.Orientation;
-        }
-
-        public float GetPositionX()
-        {
-            return posX;
-        }
-        public float GetPositionY()
-        {
-            return posY;
-        }
-        public float GetPositionZ()
-        {
-            return posZ;
-        }
-        public float GetOrientation()
-        {
-            return Orientation;
+            X = position.X;
+            Y = position.Y;
+            Z = position.Z;
+            _orientation = position.Orientation;
         }
 
         public void Relocate(float x, float y)
         {
-            posX = x;
-            posY = y;
+            X = x;
+            Y = y;
         }
         public void Relocate(float x, float y, float z)
         {
-            posX = x;
-            posY = y;
-            posZ = z;
+            X = x;
+            Y = y;
+            Z = z;
         }
         public void Relocate(float x, float y, float z, float o)
         {
-            posX = x;
-            posY = y;
-            posZ = z;
-            SetOrientation(o);
+            X = x;
+            Y = y;
+            Z = z;
+            Orientation = o;
         }
         public void Relocate(Position loc)
         {
-            Relocate(loc.posX, loc.posY, loc.posZ, loc.Orientation);
+            Relocate(loc.X, loc.Y, loc.Z, loc.Orientation);
         }
         public void Relocate(Vector3 pos)
         {
@@ -85,15 +74,15 @@ namespace Game.Entities
         }
         public void RelocateOffset(Position offset)
         {
-            posX = (float)(posX + (offset.posX * Math.Cos(Orientation) + offset.posY * Math.Sin(Orientation + MathFunctions.PI)));
-            posY = (float)(posY + (offset.posY * Math.Cos(Orientation) + offset.posX * Math.Sin(Orientation)));
-            posZ += offset.posZ;
-            SetOrientation(Orientation + offset.Orientation);
+            X = (float)(X + (offset.X * Math.Cos(Orientation) + offset.Y * Math.Sin(Orientation + MathFunctions.PI)));
+            Y = (float)(Y + (offset.Y * Math.Cos(Orientation) + offset.X * Math.Sin(Orientation)));
+            Z += offset.Z;
+            Orientation = Orientation + offset.Orientation;
         }
 
         public bool IsPositionValid()
         {
-            return GridDefines.IsValidMapCoord(posX, posY, posZ, Orientation);
+            return GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
         }
 
         float ToRelativeAngle(float absAngle)
@@ -111,36 +100,17 @@ namespace Game.Entities
             return ToRelativeAngle(GetAbsoluteAngle(x, y));
         }
 
-        public void GetPosition(out float x, out float y)
-        {
-            x = posX; y = posY;
-        }
-        public void GetPosition(out float x, out float y, out float z)
-        {
-            x = posX; y = posY; z = posZ;
-        }
-        public void GetPosition(out float x, out float y, out float z, out float o)
-        {
-            x = posX;
-            y = posY;
-            z = posZ;
-            o = Orientation;
-        }
-        public Position GetPosition()
-        {
-            return this;
-        }
         public void GetPositionOffsetTo(Position endPos, out Position retOffset)
         {
             retOffset = new Position();
 
-            float dx = endPos.GetPositionX() - GetPositionX();
-            float dy = endPos.GetPositionY() - GetPositionY();
+            float dx = endPos.X - X;
+            float dy = endPos.Y - Y;
 
-            retOffset.posX = (float)(dx * Math.Cos(GetOrientation()) + dy * Math.Sin(GetOrientation()));
-            retOffset.posY = (float)(dy * Math.Cos(GetOrientation()) - dx * Math.Sin(GetOrientation()));
-            retOffset.posZ = endPos.GetPositionZ() - GetPositionZ();
-            retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
+            retOffset.X = (float)(dx * Math.Cos(Orientation) + dy * Math.Sin(Orientation));
+            retOffset.Y = (float)(dy * Math.Cos(Orientation) - dx * Math.Sin(Orientation));
+            retOffset.Z = endPos.Z - Z;
+            retOffset.            Orientation = endPos.Orientation - Orientation;
         }
 
         public Position GetPositionWithOffset(Position offset)
@@ -174,15 +144,15 @@ namespace Game.Entities
         }
         public float GetExactDistSq(float x, float y, float z)
         {
-            float dz = z - posZ;
+            float dz = z - Z;
 
             return GetExactDist2dSq(x, y) + dz * dz;
         }
         public float GetExactDistSq(Position pos)
         {
-            float dx = posX - pos.posX;
-            float dy = posY - pos.posY;
-            float dz = posZ - pos.posZ;
+            float dx = X - pos.X;
+            float dy = Y - pos.Y;
+            float dz = Z - pos.Z;
 
             return dx * dx + dy * dy + dz * dz;
         }
@@ -196,23 +166,23 @@ namespace Game.Entities
         }
         public float GetExactDist2dSq(float x, float y)
         {
-            float dx = x - posX;
-            float dy = y - posY;
+            float dx = x - X;
+            float dy = y - Y;
 
             return dx * dx + dy * dy;
         }
         public float GetExactDist2dSq(Position pos)
         {
-            float dx = pos.posX - posX;
-            float dy = pos.posY - posY;
+            float dx = pos.X - X;
+            float dy = pos.Y - Y;
 
             return dx * dx + dy * dy;
         }
 
         public float GetAbsoluteAngle(float x, float y)
         {
-            float dx = x - GetPositionX();
-            float dy = y - GetPositionY();
+            float dx = x - X;
+            float dy = y - Y;
 
             return NormalizeOrientation(MathF.Atan2(dy, dx));
         }
@@ -221,7 +191,7 @@ namespace Game.Entities
             if (pos == null)
                 return 0;
 
-            return GetAbsoluteAngle(pos.GetPositionX(), pos.GetPositionY());
+            return GetAbsoluteAngle(pos.X, pos.Y);
         }
 
         public float ToAbsoluteAngle(float relAngle)
@@ -248,31 +218,26 @@ namespace Game.Entities
             return GetExactDist2dSq(pos) < dist * dist;
         }
 
-        public void SetOrientation(float orientation)
-        {
-            Orientation = NormalizeOrientation(orientation);
-        }
-
         public bool IsWithinBox(Position center, float xradius, float yradius, float zradius)
         {
             // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
             // is-in-cube check and we have to calculate only one point instead of 4
 
             // 2PI = 360*, keep in mind that ingame orientation is counter-clockwise
-            double rotation = 2 * Math.PI - center.GetOrientation();
+            double rotation = 2 * Math.PI - center.Orientation;
             double sinVal = Math.Sin(rotation);
             double cosVal = Math.Cos(rotation);
 
-            float BoxDistX = GetPositionX() - center.GetPositionX();
-            float BoxDistY = GetPositionY() - center.GetPositionY();
+            float BoxDistX = X - center.X;
+            float BoxDistY = Y - center.Y;
 
-            float rotX = (float)(center.GetPositionX() + BoxDistX * cosVal - BoxDistY * sinVal);
-            float rotY = (float)(center.GetPositionY() + BoxDistY * cosVal + BoxDistX * sinVal);
+            float rotX = (float)(center.X + BoxDistX * cosVal - BoxDistY * sinVal);
+            float rotY = (float)(center.Y + BoxDistY * cosVal + BoxDistX * sinVal);
 
             // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-            float dz = GetPositionZ() - center.GetPositionZ();
-            float dx = rotX - center.GetPositionX();
-            float dy = rotY - center.GetPositionY();
+            float dz = Z - center.Z;
+            float dx = rotX - center.X;
+            float dy = rotY - center.Y;
             if ((Math.Abs(dx) > xradius) || (Math.Abs(dy) > yradius) || (Math.Abs(dz) > zradius))
                 return false;
 
@@ -281,7 +246,7 @@ namespace Game.Entities
 
         public bool IsWithinDoubleVerticalCylinder(Position center, float radius, float height)
         {
-            float verticalDelta = GetPositionZ() - center.GetPositionZ();
+            float verticalDelta = Z - center.Z;
             return IsInDist2d(center, radius) && Math.Abs(verticalDelta) <= height;
         }
 
@@ -311,107 +276,52 @@ namespace Game.Entities
 
             width += objSize;
             float angle = GetRelativeAngle(pos);
-            return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.GetPositionX(), pos.GetPositionY()) < width;
+            return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.X, pos.Y) < width;
         }
 
         public bool IsDefault()
         {
-            return posX == default && posY == default && posZ == default && Orientation == default;
+            return X == default && Y == default && Z == default && Orientation == default;
         }
 
         public override string ToString()
         {
-            return $"X: {posX} Y: {posY} Z: {posZ} O: {Orientation}";
+            return $"X: {X} Y: {Y} Z: {Z} O: {Orientation}";
+        }
+
+        public Position Copy()
+        {
+            return new Position(this);
+        }
+
+        public Vector3 ToVector3()
+        {
+            return new Vector3()
+            {
+                X = X,
+                Y = Y,
+                Z = Z
+            };
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4()
+            {
+                X = X,
+                Y = Y,
+                Z = Z,
+                W = Orientation
+            };
         }
 
         public static implicit operator Vector2(Position position)
         {
-            return new(position.posX, position.posY);
+            return new(position.X, position.Y);
         }
         public static implicit operator Vector3(Position position)
         {
-            return new(position.posX, position.posY, position.posZ);
-        }
-    }
-
-    public class WorldLocation : Position
-    {
-        uint _mapId;
-        Cell currentCell;
-        public ObjectCellMoveState _moveState;
-
-        public Position _newPosition = new();
-
-        public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
-        {
-            _mapId = mapId;
-            Relocate(x, y, z, o);
-        }
-        public WorldLocation(uint mapId, Position pos)
-        {
-            _mapId = mapId;
-            Relocate(pos);
-        }
-        public WorldLocation(WorldLocation loc)
-        {
-            _mapId = loc._mapId;
-            Relocate(loc);
-        }
-        public WorldLocation(Position pos)
-        {
-            _mapId = 0xFFFFFFFF;
-            Relocate(pos);
-        }
-
-        public void WorldRelocate(uint mapId, Position pos)
-        {
-            _mapId = mapId;
-            Relocate(pos);
-        }
-        
-        public void WorldRelocate(WorldLocation loc)
-        {
-            _mapId = loc._mapId;
-            Relocate(loc);
-        }
-
-        public void WorldRelocate(uint mapId = 0xFFFFFFFF, float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f)
-        {
-            _mapId = mapId;
-            Relocate(x, y, z, o);
-        }
-
-        public uint GetMapId() { return _mapId; }
-        public void SetMapId(uint mapId) { _mapId = mapId; }
-
-        public Cell GetCurrentCell()
-        {
-            if (currentCell == null)
-                Log.outError(LogFilter.Server, "Calling currentCell  but its null");
-
-            return currentCell;
-        }
-        public void SetCurrentCell(Cell cell) { currentCell = cell; }
-        public void SetNewCellPosition(float x, float y, float z, float o)
-        {
-            _moveState = ObjectCellMoveState.Active;
-            _newPosition.Relocate(x, y, z, o);
-        }
-
-        public WorldLocation GetWorldLocation()
-        {
-            return this;
-        }
-
-        public virtual string GetDebugInfo()
-        {
-            var mapEntry = CliDB.MapStorage.LookupByKey(_mapId);
-            return $"MapID: {_mapId} Map name: '{(mapEntry != null ? mapEntry.MapName[Global.WorldMgr.GetDefaultDbcLocale()] : "<not found>")}' {base.ToString()}";
-        }
-        
-        public override string ToString()
-        {
-            return $"X: {posX} Y: {posY} Z: {posZ} O: {Orientation} MapId: {_mapId}";
+            return new(position.X, position.Y, position.Z);
         }
     }
 }

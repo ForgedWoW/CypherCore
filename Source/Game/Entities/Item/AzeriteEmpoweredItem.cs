@@ -248,7 +248,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteEmpoweredItemMask.GetUpdateMask(), player);
 

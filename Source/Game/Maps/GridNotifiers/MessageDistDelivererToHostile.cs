@@ -33,7 +33,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 			if (!creature.InSamePhase(_phaseShift))
 				continue;
 
-			if (creature.GetExactDist2dSq(_source) > _distSq)
+			if (creature.Location.GetExactDist2dSq(_source.Location) > _distSq)
 				continue;
 
 			// Send packet to all who are sharing the creature's vision
@@ -53,7 +53,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 			if (!dynamicObject.InSamePhase(_phaseShift))
 				continue;
 
-			if (dynamicObject.GetExactDist2dSq(_source) > _distSq)
+			if (dynamicObject.Location.GetExactDist2dSq(_source.Location) > _distSq)
 				continue;
 
 			var caster = dynamicObject.GetCaster();
@@ -80,7 +80,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 			if (!player.InSamePhase(_phaseShift))
 				continue;
 
-			if (player.GetExactDist2dSq(_source) > _distSq)
+			if (player.Location.GetExactDist2dSq(_source.Location) > _distSq)
 				continue;
 
 			// Send packet to all who are sharing the player's vision

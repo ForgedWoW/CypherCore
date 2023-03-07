@@ -38,7 +38,7 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 			if (target != null)
 			{
 				caster.CastSpell(target, 214581, true);
-				caster.SendPlaySpellVisual(target, target.GetOrientation(), 56931, 0, 0, 18.0f, false);
+				caster.SendPlaySpellVisual(target.Location, target.Location.Orientation, 56931, 0, 0, 18.0f, false);
 			}
 		}
 	}

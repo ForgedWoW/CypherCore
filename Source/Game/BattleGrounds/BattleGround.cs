@@ -161,7 +161,7 @@ namespace Game.BattleGrounds
                         if (player.IsGameMaster())
                             continue;
 
-                        Position pos = player.GetPosition();
+                        Position pos = player.Location;
                         WorldSafeLocsEntry startPos = GetTeamStartPosition(GetTeamIndexByTeamId(player.GetBGTeam()));
                         if (pos.GetExactDistSq(startPos.Loc) > maxDist)
                         {
@@ -187,7 +187,7 @@ namespace Game.BattleGrounds
                     // Update position data if we found player.
                     Player player = Global.ObjAccessor.GetPlayer(GetBgMap(), playerPosition.Guid);
                     if (player != null)
-                        playerPosition.Pos = player.GetPosition();
+                        playerPosition.Pos = player.Location;
 
                     playerPositions.FlagCarriers.Add(playerPosition);
                 }
@@ -764,7 +764,7 @@ namespace Game.BattleGrounds
                         // TODO: lose honor xp
                     }
 
-                    player.UpdateCriteria(CriteriaType.WinBattleground, player.GetMapId());
+                    player.UpdateCriteria(CriteriaType.WinBattleground, player.Location.GetMapId());
                     if (!guildAwarded)
                     {
                         guildAwarded = true;
@@ -773,7 +773,7 @@ namespace Game.BattleGrounds
                         {
                             Guild guild = Global.GuildMgr.GetGuildById(guildId);
                             if (guild)
-                                guild.UpdateCriteria(CriteriaType.WinBattleground, player.GetMapId(), 0, 0, null, player);
+                                guild.UpdateCriteria(CriteriaType.WinBattleground, player.Location.GetMapId(), 0, 0, null, player);
                         }
                     }
                 }
@@ -790,7 +790,7 @@ namespace Game.BattleGrounds
 
                 player.SendPacket(pvpMatchComplete);
 
-                player.UpdateCriteria(CriteriaType.ParticipateInBattleground, player.GetMapId());
+                player.UpdateCriteria(CriteriaType.ParticipateInBattleground, player.Location.GetMapId());
             }
         }
 
@@ -1389,7 +1389,7 @@ namespace Game.BattleGrounds
 
         public bool AddObject(int type, uint entry, Position pos, float rotation0, float rotation1, float rotation2, float rotation3, uint respawnTime = 0, GameObjectState goState = GameObjectState.Ready)
         {
-            return AddObject(type, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, respawnTime, goState);
+            return AddObject(type, entry, pos.X, pos.Y, pos.Z, pos.Orientation, rotation0, rotation1, rotation2, rotation3, respawnTime, goState);
         }
 
         // Some doors aren't despawned so we cannot handle their closing in gameobject.update()
@@ -1533,7 +1533,7 @@ namespace Game.BattleGrounds
 
         public Creature AddCreature(uint entry, int type, Position pos, int teamIndex = TeamId.Neutral, uint respawntime = 0, Transport transport = null)
         {
-            return AddCreature(entry, type, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teamIndex, respawntime, transport);
+            return AddCreature(entry, type, pos.X, pos.Y, pos.Z, pos.Orientation, teamIndex, respawntime, transport);
         }
 
         public bool DelCreature(int type)
@@ -1613,7 +1613,7 @@ namespace Game.BattleGrounds
 
         public bool AddSpiritGuide(int type, Position pos, int teamIndex = TeamId.Neutral)
         {
-            return AddSpiritGuide(type, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teamIndex);
+            return AddSpiritGuide(type, pos.X, pos.Y, pos.Z, pos.Orientation, teamIndex);
         }
 
         public void SendMessageToAll(CypherStrings entry, ChatMsg msgType, Player source = null)
@@ -1827,7 +1827,7 @@ namespace Game.BattleGrounds
 
         public virtual WorldSafeLocsEntry GetClosestGraveYard(Player player)
         {
-            return Global.ObjectMgr.GetClosestGraveYard(player, GetPlayerTeam(player.GetGUID()), player);
+            return Global.ObjectMgr.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GetGUID()), player);
         }
 
         public override void TriggerGameEvent(uint gameEventId, WorldObject source = null, WorldObject target = null)
@@ -1865,7 +1865,7 @@ namespace Game.BattleGrounds
         public virtual void HandleAreaTrigger(Player player, uint trigger, bool entered)
         {
             Log.outDebug(LogFilter.Battleground, "Unhandled AreaTrigger {0} in Battleground {1}. Player coords (x: {2}, y: {3}, z: {4})",
-                           trigger, player.GetMapId(), player.GetPositionX(), player.GetPositionY(), player.GetPositionZ());
+                           trigger, player.Location.GetMapId(), player.Location.X, player.Location.Y, player.Location.Z);
         }
 
         public virtual bool SetupBattleground()

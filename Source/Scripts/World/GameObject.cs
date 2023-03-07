@@ -306,7 +306,7 @@ namespace Scripts.World.GameObjects
             me.UseDoorOrButton();
             int Random = (int)(RandomHelper.Rand32() % (CreatureIds.PrisonEntry.Length / sizeof(uint)));
 
-            Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[Random], me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), me.GetAbsoluteAngle(player), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+            Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[Random], me.Location.X, me.Location.Y, me.Location.Z, me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
             if (creature)
                 if (!creature.IsHostileTo(player))
@@ -368,7 +368,7 @@ namespace Scripts.World.GameObjects
             me.UseDoorOrButton();
             int Random = (int)(RandomHelper.Rand32() % CreatureIds.StasisEntry.Length / sizeof(uint));
 
-            player.SummonCreature(CreatureIds.StasisEntry[Random], me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), me.GetAbsoluteAngle(player), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+            player.SummonCreature(CreatureIds.StasisEntry[Random], me.Location.X, me.Location.Y, me.Location.Z, me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
             return false;
         }
@@ -575,7 +575,7 @@ namespace Scripts.World.GameObjects
                 {
                     player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GetGUID());
                     creature.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
-                    creature.GetMotionMaster().MovePoint(1, me.GetPositionX() + 5, me.GetPositionY(), me.GetPositionZ());
+                    creature.GetMotionMaster().MovePoint(1, me.Location.X + 5, me.Location.Y, me.Location.Z);
                     creature.GetAI().Talk(TextIds.SayFree0);
                     creature.GetMotionMaster().Clear();
                 }

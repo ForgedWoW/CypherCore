@@ -25,7 +25,7 @@ public class at_mage_frozen_orb : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		var pos = caster.GetPosition();
+		var pos = caster.Location;
 
 		at.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
 		at.SetDestination(pos, 4000);
@@ -60,7 +60,7 @@ public class at_mage_frozen_orb : AreaTriggerAI
 						}
 				}
 
-			caster.CastSpell(at.GetPosition(), MageSpells.FROZEN_ORB_DAMAGE, true);
+			caster.CastSpell(at.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
 			damageInterval = 500;
 		}
 		else

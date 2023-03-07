@@ -57,11 +57,10 @@ namespace Scripts.Spells.Warlock
 
 			if (spell.m_targets.HasDst())
 			{
-				var pos = new Position();
-				pos = spell.m_targets.GetDst().Position.GetPosition();
+				var pos = spell.m_targets.GetDst().Position;
 				var caster = GetCaster();
 
-				if (caster.GetPositionZ() + 6.0f < pos.GetPositionZ() || caster.GetPositionZ() - 6.0f > pos.GetPositionZ())
+				if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)
 					return SpellCastResult.NoPath;
 			}
 
@@ -71,12 +70,10 @@ namespace Scripts.Spells.Warlock
 		private void HandleVisual(int effIndex)
 		{
 			var caster = GetCaster();
-			var dest   = GetExplTargetDest();
+			var pos   = GetExplTargetDest();
 
-			if (caster == null || dest == null)
+			if (caster == null || pos == null)
 				return;
-
-			var pos = dest.GetPosition();
 
 			caster.SendPlaySpellVisual(pos, 20.0f, 63644, 0, 0, 2.0f);
 		}

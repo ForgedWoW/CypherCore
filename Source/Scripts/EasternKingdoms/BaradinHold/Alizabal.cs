@@ -251,7 +251,7 @@ namespace Scripts.EasternKingdoms.BaradinHold.Alizabal
                                                   Unit target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(me));
 
                                                   if (target)
-                                                      me.GetMotionMaster().MovePoint(PointIds.Storm, target.GetPositionX(), target.GetPositionY(), target.GetPositionZ());
+                                                      me.GetMotionMaster().MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
 
                                                   _events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
 

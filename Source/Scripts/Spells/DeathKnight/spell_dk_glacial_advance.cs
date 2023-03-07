@@ -20,7 +20,7 @@ public class spell_dk_glacial_advance : SpellScript, IHasSpellEffects
 	{
 		var caster = GetCaster();
 
-		var castPosition = caster.GetPosition();
+		var castPosition = caster.Location;
 		var collisonPos  = caster.GetFirstCollisionPosition(GetEffectInfo().MaxRadiusEntry.RadiusMax, 0);
 		var maxDistance  = caster.GetDistance(collisonPos);
 

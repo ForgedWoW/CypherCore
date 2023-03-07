@@ -17,8 +17,8 @@ namespace Scripts.Spells.Evoker
         {
             var unit = GetUnitOwner();
             _health = unit.GetHealth();
-            _mapId = unit.GetMapId();
-            _pos = new Position(unit.GetPosition());
+            _mapId = unit.Location.GetMapId();
+            _pos = new Position(unit.Location);
 
         }
 
@@ -31,7 +31,7 @@ namespace Scripts.Spells.Evoker
 
             unit.SetHealth(Math.Min(_health, unit.GetMaxHealth()));
 
-            if (unit.GetMapId() == _mapId)
+            if (unit.Location.GetMapId() == _mapId)
                 unit.UpdatePosition(_pos, true);
         }
 

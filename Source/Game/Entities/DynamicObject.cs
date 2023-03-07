@@ -68,14 +68,14 @@ namespace Game.Entities
         public bool CreateDynamicObject(ulong guidlow, Unit caster, SpellInfo spell, Position pos, float radius, DynamicObjectType type, SpellCastVisualField spellVisual)
         {
             SetMap(caster.GetMap());
-            Relocate(pos);
-            if (!IsPositionValid())
+            Location.Relocate(pos);
+            if (!Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Server, "DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, GetPositionX(), GetPositionY());
+                Log.outError(LogFilter.Server, "DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
                 return false;
             }
 
-            _Create(ObjectGuid.Create(HighGuid.DynamicObject, GetMapId(), spell.Id, guidlow));
+            _Create(ObjectGuid.Create(HighGuid.DynamicObject, Location.GetMapId(), spell.Id, guidlow));
             PhasingHandler.InheritPhaseShift(this, caster);
 
             UpdatePositionData();
@@ -101,9 +101,9 @@ namespace Game.Entities
             ITransport transport = caster.GetTransport();
             if (transport != null)
             {
-                pos.GetPosition(out float x, out float y, out float z, out float o);
-                transport.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
-                m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                var newPos = pos.Copy();
+                transport.CalculatePassengerOffset(newPos);
+                m_movementInfo.transport.pos.Relocate(newPos);
 
                 // This object must be added to transport before adding to map for the client to properly display it
                 transport.AddPassenger(this);
@@ -328,7 +328,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), DynamicObjectMask.GetUpdateMask(), player);
 

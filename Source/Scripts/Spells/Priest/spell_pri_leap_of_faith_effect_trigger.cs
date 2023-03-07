@@ -27,7 +27,7 @@ internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEf
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var destPos = GetHitDest().GetPosition();
+		var destPos = GetHitDest();
 
 		SpellCastTargets targets = new();
 		targets.SetDst(destPos);

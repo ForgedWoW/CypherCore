@@ -24,6 +24,6 @@ public class RectangleBoundary : AreaBoundary
 
 	public override bool IsWithinBoundaryArea(Position pos)
 	{
-		return !(pos.GetPositionX() < _minX || pos.GetPositionX() > _maxX || pos.GetPositionY() < _minY || pos.GetPositionY() > _maxY);
+		return !(pos.X < _minX || pos.X > _maxX || pos.Y < _minY || pos.Y > _maxY);
 	}
 }

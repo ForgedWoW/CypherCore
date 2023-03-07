@@ -197,7 +197,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                         me.GetMotionMaster().MovePoint(POINT_MOVE, MovePos);
                         break;
                     case BossEvents.EVENT_CAULDRON_1:
-                        me.CastSpell(CookiesPos[0].GetPositionX(), CookiesPos[0].GetPositionY(), CookiesPos[0].GetPositionZ(), eSpell.CAULDRON, true);
+                        me.CastSpell(CookiesPos[0].X, CookiesPos[0].Y, CookiesPos[0].Z, eSpell.CAULDRON, true);
                         _events.ScheduleEvent(BossEvents.EVENT_CAULDRON_2, TimeSpan.FromMilliseconds(2000));
                         break;
                     case BossEvents.EVENT_CAULDRON_2:
@@ -205,7 +205,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                             Creature pCauldron = me.FindNearestCreature(Adds.NPC_CAULDRON, 20.0f);
                             if (pCauldron != null)
                             {
-                                me.GetMotionMaster().MoveJump(pCauldron.GetPosition(), 5, 10);
+                                me.GetMotionMaster().MoveJump(pCauldron.Location, 5, 10);
                             }
                             _events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(3000));
                             break;

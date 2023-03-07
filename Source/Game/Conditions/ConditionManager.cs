@@ -1922,13 +1922,13 @@ namespace Game
             switch (status)
             {
                 case PlayerConditionLfgStatus.InLFGDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.GetMapId(), player.GetMap().GetDifficultyID()) ? 1 : 0u;
+                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.GetMapId(), player.GetMap().GetDifficultyID()) &&
+                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()) &&
                         Global.LFGMgr.SelectedRandomLfgDungeon(player.GetGUID()) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
                 {
-                    if (!Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.GetMapId(), player.GetMap().GetDifficultyID()))
+                    if (!Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()))
                         return 0;
 
                     uint selectedRandomDungeon = Global.LFGMgr.GetSelectedRandomDungeon(player.GetGUID());
@@ -2610,19 +2610,19 @@ namespace Game
                         float distance = Math.Max(unit.GetCombatReach() + attacker.GetCombatReach() + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
                             distance += 1.0f;
-                        return unit.GetExactDistSq(attacker) < distance * distance;
+                        return unit.Location.GetExactDistSq(attacker.Location) < distance * distance;
                     });
                 case UnitConditionVariable.IsAttackingMe:
                     return (otherUnit != null && unit.GetTarget() == otherUnit.GetGUID()) ? 1:0;
                 case UnitConditionVariable.Range:
-                    return otherUnit ? (int)unit.GetExactDist(otherUnit) : 0;
+                    return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
                 case UnitConditionVariable.InMeleeRange:
                     if (otherUnit)
                     {
                         float distance = Math.Max(unit.GetCombatReach() + otherUnit.GetCombatReach() + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || otherUnit.HasUnitFlag(UnitFlags.PlayerControlled))
                             distance += 1.0f;
-                        return (unit.GetExactDistSq(otherUnit) < distance * distance) ? 1 : 0;
+                        return (unit.Location.GetExactDistSq(otherUnit.Location) < distance * distance) ? 1 : 0;
                     }
                     return 0;
                 case UnitConditionVariable.PursuitTime:
@@ -2659,7 +2659,7 @@ namespace Game
                         float distance = Math.Max(unit.GetCombatReach() + attacker.GetCombatReach() + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
                             distance += 1.0f;
-                        return unit.GetExactDistSq(attacker) >= distance * distance;
+                        return unit.Location.GetExactDistSq(attacker.Location) >= distance * distance;
                     });
                 case UnitConditionVariable.CreatureType:
                     return (int)unit.GetCreatureType();
@@ -2671,7 +2671,7 @@ namespace Game
                         float distance = Math.Max(unit.GetCombatReach() + target.GetCombatReach() + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
                             distance += 1.0f;
-                        return (unit.GetExactDistSq(target) < distance * distance) ? 1 : 0;
+                        return (unit.Location.GetExactDistSq(target.Location) < distance * distance) ? 1 : 0;
                     }
                     return 0;
                 }
@@ -2683,7 +2683,7 @@ namespace Game
                         float distance = Math.Max(unit.GetCombatReach() + target.GetCombatReach() + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || target.HasUnitFlag(UnitFlags.PlayerControlled))
                             distance += 1.0f;
-                        return (unit.GetExactDistSq(target) >= distance * distance) ? 1 : 0;
+                        return (unit.Location.GetExactDistSq(target.Location) >= distance * distance) ? 1 : 0;
                     }
                     return 0;
                 }

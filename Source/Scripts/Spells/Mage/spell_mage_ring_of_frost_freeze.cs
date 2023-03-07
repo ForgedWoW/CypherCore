@@ -39,7 +39,7 @@ internal class spell_mage_ring_of_frost_freeze : SpellScript, IHasSpellEffects
 			                  if (!unit)
 				                  return true;
 
-			                  return unit.HasAura(MageSpells.RingOfFrostDummy) || unit.HasAura(MageSpells.RingOfFrostFreeze) || unit.GetExactDist(dest) > outRadius || unit.GetExactDist(dest) < inRadius;
+			                  return unit.HasAura(MageSpells.RingOfFrostDummy) || unit.HasAura(MageSpells.RingOfFrostFreeze) || unit.Location.GetExactDist(dest) > outRadius || unit.Location.GetExactDist(dest) < inRadius;
 		                  });
 	}
 }

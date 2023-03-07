@@ -184,9 +184,7 @@ namespace Game.AI
                                 Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: reached end of waypoints, despawning at end ({me.GetGUID()})");
                                 if (_returnToStart)
                                 {
-                                    Position respawnPosition = new();
-                                    me.GetRespawnPosition(out respawnPosition.posX, out respawnPosition.posY, out respawnPosition.posZ, out float orientation);
-                                    respawnPosition.SetOrientation(orientation);
+                                    Position respawnPosition = me.GetRespawnPosition();
                                     me.GetMotionMaster().MovePoint(EscortPointIds.Home, respawnPosition);
                                     Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: returning to spawn location: {respawnPosition} ({me.GetGUID()})");
                                 }
@@ -309,8 +307,8 @@ namespace Game.AI
 
         public void AddWaypoint(uint id, float x, float y, float z, float orientation, TimeSpan waitTime)
         {
-            GridDefines.NormalizeMapCoord(ref x);
-            GridDefines.NormalizeMapCoord(ref y);
+            x = GridDefines.NormalizeMapCoord(x);
+            y = GridDefines.NormalizeMapCoord(y);
 
             WaypointNode waypoint = new();
             waypoint.id = id;
@@ -336,8 +334,8 @@ namespace Game.AI
             foreach (WaypointNode value in path.nodes)
             {
                 WaypointNode node = value;
-                GridDefines.NormalizeMapCoord(ref node.x);
-                GridDefines.NormalizeMapCoord(ref node.y);
+                node.x = GridDefines.NormalizeMapCoord(node.x);
+                node.y = GridDefines.NormalizeMapCoord(node.y);
                 node.moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
 
                 _path.nodes.Add(node);

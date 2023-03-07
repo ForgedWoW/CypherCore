@@ -305,7 +305,7 @@ namespace Scripts.EasternKingdoms.Karazhan.Nightbane
                                     Unit target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
                                     if (target)
-                                        if (!me.HasInArc(MathF.PI, target))
+                                        if (!me.Location.HasInArc(MathF.PI, target.Location))
                                             DoCast(target, SpellIds.TailSweep);
 
                                     task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));

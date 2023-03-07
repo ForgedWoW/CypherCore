@@ -21,7 +21,7 @@ using Game.Spells;
 
 namespace Game.Entities
 {
-    public abstract class WorldObject : WorldLocation, IDisposable
+    public abstract class WorldObject : IDisposable
     {
         public WorldObject(bool isWorldObject)
         {
@@ -42,6 +42,7 @@ namespace Game.Entities
             m_objectData = new ObjectFieldData();
 
             m_staticFloorZ = MapConst.VMAPInvalidHeightValue;
+            Location = new WorldLocation();
         }
 
         public virtual void Dispose()
@@ -87,7 +88,7 @@ namespace Game.Entities
             ClearUpdateMask(true);
 
             if (GetMap() != null)
-                GetMap().GetZoneAndAreaId(_phaseShift, out m_zoneId, out m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
+                GetMap().GetZoneAndAreaId(_phaseShift, out m_zoneId, out m_areaId, Location.X, Location.Y, Location.Z);
         }
 
         public virtual void RemoveFromWorld()
@@ -105,7 +106,7 @@ namespace Game.Entities
         public void UpdatePositionData()
         {
             PositionFullTerrainStatus data = new();
-            GetMap().GetFullTerrainStatusForPosition(_phaseShift, GetPositionX(), GetPositionY(), GetPositionZ(), data, LiquidHeaderTypeFlags.AllLiquids, GetCollisionHeight());
+            GetMap().GetFullTerrainStatusForPosition(_phaseShift, Location.X, Location.Y, Location.Z, data, LiquidHeaderTypeFlags.AllLiquids, GetCollisionHeight());
             ProcessPositionDataChanged(data);
         }
 
@@ -169,7 +170,7 @@ namespace Game.Entities
         public void SendUpdateToPlayer(Player player)
         {
             // send create update to player
-            UpdateData upd = new(player.GetMapId());
+            UpdateData upd = new(player.Location.GetMapId());
 
             if (player.HaveAtClient(this))
                 BuildValuesUpdateBlockForPlayer(upd, player);
@@ -214,7 +215,7 @@ namespace Game.Entities
 
         public virtual void DestroyForPlayer(Player target)
         {
-            UpdateData updateData = new(target.GetMapId());
+            UpdateData updateData = new(target.Location.GetMapId());
             BuildDestroyUpdateBlock(updateData);
             updateData.BuildPacket(out UpdateObject packet);
             target.SendPacket(packet);
@@ -224,7 +225,7 @@ namespace Game.Entities
         {
             Cypher.Assert(target);
 
-            UpdateData updateData = new(target.GetMapId());
+            UpdateData updateData = new(target.Location.GetMapId());
             BuildOutOfRangeUpdateBlock(updateData);
             updateData.BuildPacket(out UpdateObject packet);
             target.SendPacket(packet);
@@ -273,10 +274,10 @@ namespace Game.Entities
                 data.WriteUInt32((uint)unit.GetExtraUnitMovementFlags2());
 
                 data.WriteUInt32(unit.m_movementInfo.Time);                     // MoveTime
-                data.WriteFloat(unit.GetPositionX());
-                data.WriteFloat(unit.GetPositionY());
-                data.WriteFloat(unit.GetPositionZ());
-                data.WriteFloat(unit.GetOrientation());
+                data.WriteFloat(unit.Location.X);
+                data.WriteFloat(unit.Location.Y);
+                data.WriteFloat(unit.Location.Z);
+                data.WriteFloat(unit.Location.Orientation);
 
                 data.WriteFloat(unit.m_movementInfo.Pitch);                     // Pitch
                 data.WriteFloat(unit.m_movementInfo.stepUpStartElevation);           // StepUpStartElevation
@@ -368,7 +369,7 @@ namespace Game.Entities
 
                 if (movementForces != null)
                     foreach (MovementForce force in movementForces.GetForces())
-                        MovementExtensions.WriteMovementForceWithDirection(force, data, unit);
+                        MovementExtensions.WriteMovementForceWithDirection(force, data, unit.Location);
 
                 // HasMovementSpline - marks that spline data is present in packet
                 if (HasSpline)
@@ -396,7 +397,7 @@ namespace Game.Entities
             {
                 Unit unit = ToUnit();
                 data.WriteUInt32(unit.GetVehicleKit().GetVehicleInfo().Id); // RecID
-                data.WriteFloat(unit.GetOrientation());                         // InitialRawFacing
+                data.WriteFloat(unit.Location.Orientation);                         // InitialRawFacing
             }
 
             if (flags.AnimKit)
@@ -795,14 +796,14 @@ namespace Game.Entities
         public void BuildFieldsUpdate(Player player, Dictionary<Player, UpdateData> data_map)
         {
             if (!data_map.ContainsKey(player))
-                data_map.Add(player, new UpdateData(player.GetMapId()));
+                data_map.Add(player, new UpdateData(player.Location.GetMapId()));
 
             BuildValuesUpdateBlockForPlayer(data_map[player], player);
         }
 
-        public override string GetDebugInfo()
+        public virtual string GetDebugInfo()
         {
-            return $"{base.GetDebugInfo()}\n{GetGUID()} Entry: {GetEntry()}\nName: {GetName()}";
+            return $"{Location.GetDebugInfo()}\n{GetGUID()} Entry: {GetEntry()}\nName: {GetName()}";
         }
 
         public virtual Loot GetLootForPlayer(Player player) { return null; }
@@ -1337,7 +1338,7 @@ namespace Game.Entities
             if (obj.m_stealth.GetFlags() == 0)
                 return true;
 
-            float distance = GetExactDist(obj);
+            float distance = Location.GetExactDist(obj.Location);
             float combatReach = 0.0f;
 
             Unit unit = ToUnit();
@@ -1348,7 +1349,7 @@ namespace Game.Entities
                 return true;
 
             // Only check back for units, it does not make sense for gameobjects
-            if (unit && !HasInArc(MathF.PI, obj))
+            if (unit && !Location.HasInArc(MathF.PI, obj.Location))
                 return false;
 
             // Traps should detect stealth always
@@ -1449,7 +1450,7 @@ namespace Game.Entities
                 return;
 
             _currMap = map;
-            SetMapId(map.GetId());
+            Location.SetMapId(map.GetId());
             instanceId = map.GetInstanceId();
             if (IsWorldObject())
                 _currMap.AddWorldObject(this);
@@ -1474,7 +1475,7 @@ namespace Game.Entities
             Map map = GetMap();
             if (map == null)
             {
-                Log.outError(LogFilter.Server, "Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", GetTypeId(), GetEntry(), GetGUID().ToString(), GetMapId());
+                Log.outError(LogFilter.Server, "Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", GetTypeId(), GetEntry(), GetGUID().ToString(), Location.GetMapId());
                 return;
             }
 
@@ -1524,19 +1525,19 @@ namespace Game.Entities
             return null;
         }
 
-        public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, ObjectGuid privateObjectOwner = default)
+        public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
         {
-            if (x == 0.0f && y == 0.0f && z == 0.0f)
-                GetClosePoint(out x, out y, out z, GetCombatReach());
-
-            if (o == 0.0f)
-                o = GetOrientation();
-
-            return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, 0, 0, privateObjectOwner);
+            return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, vehId, spellId, privateObjectOwner);
         }
 
         public TempSummon SummonCreature(uint entry, Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
         {
+            if (pos.IsDefault())
+                GetClosePoint(pos, GetCombatReach());
+
+            if (pos.Orientation == 0.0f)
+                pos.Orientation = Location.Orientation;
+
             Map map = GetMap();
             if (map != null)
             {
@@ -1569,18 +1570,17 @@ namespace Game.Entities
 
         public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
         {
-            if (x == 0 && y == 0 && z == 0)
-            {
-                GetClosePoint(out x, out y, out z, GetCombatReach());
-                ang = GetOrientation();
-            }
-
-            Position pos = new(x, y, z, ang);
-            return SummonGameObject(entry, pos, rotation, respawnTime, summonType);
+            return SummonGameObject(entry, new Position(x, y, z, ang), rotation, respawnTime, summonType);
         }
 
         public GameObject SummonGameObject(uint entry, Position pos, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
         {
+            if (pos.IsDefault())
+            {
+                GetClosePoint(pos, GetCombatReach());
+                pos.Orientation = Location.Orientation;
+            }
+
             if (!IsInWorld)
                 return null;
 
@@ -1608,10 +1608,10 @@ namespace Game.Entities
             return go;
         }
 
-        public Creature SummonTrigger(float x, float y, float z, float ang, TimeSpan despawnTime, CreatureAI AI = null)
+        public Creature SummonTrigger(Position pos, TimeSpan despawnTime, CreatureAI AI = null)
         {
             TempSummonType summonType = (despawnTime == TimeSpan.Zero) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
-            Creature summon = SummonCreature(SharedConst.WorldTrigger, x, y, z, ang, summonType, despawnTime);
+            Creature summon = SummonCreature(SharedConst.WorldTrigger, pos, summonType, despawnTime);
             if (summon == null)
                 return null;
 
@@ -1652,7 +1652,7 @@ namespace Game.Entities
 
         public void GetCreatureListInGrid(List<Creature> creatureList, float maxSearchRange)
         {
-            CellCoord pair = new CellCoord((uint)GetPositionX(), (uint)GetPositionY());
+            CellCoord pair = new CellCoord((uint)Location.X, (uint)Location.Y);
             Cell cell = new Cell(pair);
             cell.SetNoCreate();
 
@@ -1664,7 +1664,7 @@ namespace Game.Entities
 
         public void GetAlliesWithinRange(List<Unit> unitList, float maxSearchRange, bool includeSelf = true)
         {
-            CellCoord pair = new CellCoord((uint)GetPositionX(), (uint)GetPositionY());
+            CellCoord pair = new CellCoord((uint)Location.X, (uint)Location.Y);
             Cell cell = new Cell(pair);
             cell.SetNoCreate();
 
@@ -2144,7 +2144,7 @@ namespace Game.Entities
                 return SpellMissInfo.Resist;
 
             // cast by caster in front of victim
-            if (!victim.HasUnitState(UnitState.Controlled) && (victim.HasInArc(MathF.PI, this) || victim.HasAuraType(AuraType.IgnoreHitDirection)))
+            if (!victim.HasUnitState(UnitState.Controlled) && (victim.Location.HasInArc(MathF.PI, Location) || victim.HasAuraType(AuraType.IgnoreHitDirection)))
             {
                 var deflect_chance = victim.GetTotalAuraModifier(AuraType.DeflectSpells) * 100;
                 if (deflect_chance > 0 && rand < (tmp += deflect_chance))
@@ -2580,7 +2580,7 @@ namespace Game.Entities
             PlaySpellVisual playSpellVisual = new();
             playSpellVisual.Source = GetGUID();
             playSpellVisual.Target = target.GetGUID();
-            playSpellVisual.TargetPosition = target.GetPosition();
+            playSpellVisual.TargetPosition = target.Location;
             playSpellVisual.SpellVisualID = spellVisualId;
             playSpellVisual.TravelSpeed = travelSpeed;
             playSpellVisual.MissReason = missReason;
@@ -2628,7 +2628,7 @@ namespace Game.Entities
         void SendPlayOrphanSpellVisual(ObjectGuid target, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
         {
             PlayOrphanSpellVisual playOrphanSpellVisual = new();
-            playOrphanSpellVisual.SourceLocation = GetPosition();
+            playOrphanSpellVisual.SourceLocation = Location;
             if (withSourceOrientation)
             {
                 if (IsGameObject())
@@ -2639,7 +2639,7 @@ namespace Game.Entities
                         out playOrphanSpellVisual.SourceRotation.X);
                 }
                 else
-                    playOrphanSpellVisual.SourceRotation = new Position(0.0f, 0.0f, GetOrientation());
+                    playOrphanSpellVisual.SourceRotation = new Position(0.0f, 0.0f, Location.Orientation);
             }
 
             playOrphanSpellVisual.Target = target; // exclusive with TargetLocation
@@ -2653,7 +2653,7 @@ namespace Game.Entities
         void SendPlayOrphanSpellVisual(Position targetLocation, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
         {
             PlayOrphanSpellVisual playOrphanSpellVisual = new();
-            playOrphanSpellVisual.SourceLocation = GetPosition();
+            playOrphanSpellVisual.SourceLocation = Location;
             if (withSourceOrientation)
             {
                 if (IsGameObject())
@@ -2664,7 +2664,7 @@ namespace Game.Entities
                         out playOrphanSpellVisual.SourceRotation.X);
                 }
                 else
-                    playOrphanSpellVisual.SourceRotation = new Position(0.0f, 0.0f, GetOrientation());
+                    playOrphanSpellVisual.SourceRotation = new Position(0.0f, 0.0f, Location.Orientation);
             }
 
             playOrphanSpellVisual.TargetLocation = targetLocation; // exclusive with Target
@@ -2689,7 +2689,7 @@ namespace Game.Entities
             playSpellVisualKit.KitRecID = id;
             playSpellVisualKit.KitType = type;
             playSpellVisualKit.Duration = duration;
-            
+
             SendMessageToSet(playSpellVisualKit, true);
         }
 
@@ -3012,7 +3012,7 @@ namespace Game.Entities
         {
             return spellInfo.GetSpellXSpellVisualId(this);
         }
-        
+
         public List<GameObject> GetGameObjectListWithEntryInGrid(uint entry = 0, float maxSearchRange = 250.0f)
         {
             List<GameObject> gameobjectList = new();
@@ -3262,10 +3262,10 @@ namespace Game.Entities
         {
             return m_transport as T;
         }
-        public float GetTransOffsetX() { return m_movementInfo.transport.pos.GetPositionX(); }
-        public float GetTransOffsetY() { return m_movementInfo.transport.pos.GetPositionY(); }
-        public float GetTransOffsetZ() { return m_movementInfo.transport.pos.GetPositionZ(); }
-        public float GetTransOffsetO() { return m_movementInfo.transport.pos.GetOrientation(); }
+        public float GetTransOffsetX() { return m_movementInfo.transport.pos.X; }
+        public float GetTransOffsetY() { return m_movementInfo.transport.pos.Y; }
+        public float GetTransOffsetZ() { return m_movementInfo.transport.pos.Z; }
+        public float GetTransOffsetO() { return m_movementInfo.transport.pos.Orientation; }
         Position GetTransOffset() { return m_movementInfo.transport.pos; }
         public uint GetTransTime() { return m_movementInfo.transport.time; }
         public sbyte GetTransSeat() { return m_movementInfo.transport.seat; }
@@ -3278,10 +3278,10 @@ namespace Game.Entities
         }
         public void SetTransport(ITransport t) { m_transport = t; }
 
-        public virtual float GetStationaryX() { return GetPositionX(); }
-        public virtual float GetStationaryY() { return GetPositionY(); }
-        public virtual float GetStationaryZ() { return GetPositionZ(); }
-        public virtual float GetStationaryO() { return GetOrientation(); }
+        public virtual float GetStationaryX() { return Location.X; }
+        public virtual float GetStationaryY() { return Location.Y; }
+        public virtual float GetStationaryZ() { return Location.Z; }
+        public virtual float GetStationaryO() { return Location.Orientation; }
 
         public virtual float GetCollisionHeight() { return 0.0f; }
         public float GetMidsectionHeight() { return GetCollisionHeight() / 2.0f; }
@@ -3303,7 +3303,7 @@ namespace Game.Entities
 
         public float GetDistanceZ(WorldObject obj)
         {
-            float dz = Math.Abs(GetPositionZ() - obj.GetPositionZ());
+            float dz = Math.Abs(Location.Z - obj.Location.Z);
             float sizefactor = GetCombatReach() + obj.GetCombatReach();
             float dist = dz - sizefactor;
             return (dist > 0 ? dist : 0);
@@ -3316,8 +3316,8 @@ namespace Game.Entities
             sizefactor += incTargetRadius ? obj.GetCombatReach() : 0.0f;
             float maxdist = dist2compare + sizefactor;
 
-            Position thisOrTransport = this;
-            Position objOrObjTransport = obj;
+            Position thisOrTransport = Location;
+            Position objOrObjTransport = obj.Location;
 
             if (GetTransport() != null && obj.GetTransport() != null && obj.GetTransport().GetTransportGUID() == GetTransport().GetTransportGUID())
             {
@@ -3334,31 +3334,31 @@ namespace Game.Entities
 
         public float GetDistance(WorldObject obj)
         {
-            float d = GetExactDist(obj.GetPosition()) - GetCombatReach() - obj.GetCombatReach();
+            float d = Location.GetExactDist(obj.Location) - GetCombatReach() - obj.GetCombatReach();
             return d > 0.0f ? d : 0.0f;
         }
 
         public float GetDistance(Position pos)
         {
-            float d = GetExactDist(pos) - GetCombatReach();
+            float d = Location.GetExactDist(pos) - GetCombatReach();
             return d > 0.0f ? d : 0.0f;
         }
 
         public float GetDistance(float x, float y, float z)
         {
-            float d = GetExactDist(x, y, z) - GetCombatReach();
+            float d = Location.GetExactDist(x, y, z) - GetCombatReach();
             return d > 0.0f ? d : 0.0f;
         }
 
         public float GetDistance2d(WorldObject obj)
         {
-            float d = GetExactDist2d(obj.GetPosition()) - GetCombatReach() - obj.GetCombatReach();
+            float d = Location.GetExactDist2d(obj.Location) - GetCombatReach() - obj.GetCombatReach();
             return d > 0.0f ? d : 0.0f;
         }
 
         public float GetDistance2d(float x, float y)
         {
-            float d = GetExactDist2d(x, y) - GetCombatReach();
+            float d = Location.GetExactDist2d(x, y) - GetCombatReach();
             return d > 0.0f ? d : 0.0f;
         }
 
@@ -3379,22 +3379,22 @@ namespace Game.Entities
 
         public bool IsWithinDist3d(float x, float y, float z, float dist)
         {
-            return IsInDist(x, y, z, dist + GetCombatReach());
+            return Location.IsInDist(x, y, z, dist + GetCombatReach());
         }
 
         public bool IsWithinDist3d(Position pos, float dist)
         {
-            return IsInDist(pos, dist + GetCombatReach());
+            return Location.IsInDist(pos, dist + GetCombatReach());
         }
 
         public bool IsWithinDist2d(float x, float y, float dist)
         {
-            return IsInDist2d(x, y, dist + GetCombatReach());
+            return Location.IsInDist2d(x, y, dist + GetCombatReach());
         }
 
         public bool IsWithinDist2d(Position pos, float dist)
         {
-            return IsInDist2d(pos, dist + GetCombatReach());
+            return Location.IsInDist2d(pos, dist + GetCombatReach());
         }
 
         public bool IsWithinDist(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
@@ -3407,21 +3407,26 @@ namespace Game.Entities
             return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
         }
 
+        public bool IsWithinLOS(Position pos, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
+        {
+            return IsWithinLOS(pos.X, pos.Y, pos.Z, checks, ignoreFlags);
+        }
+
         public bool IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
         {
             if (IsInWorld)
             {
                 oz += GetCollisionHeight();
-                float x, y, z;
+                Position pos = new Position();
                 if (IsTypeId(TypeId.Player))
                 {
-                    GetPosition(out x, out y, out z);
-                    z += GetCollisionHeight();
+                    pos = Location.Copy();
+                    pos.Z += GetCollisionHeight();
                 }
                 else
-                    GetHitSpherePointFor(new Position(ox, oy, oz), out x, out y, out z);
+                    GetHitSpherePointFor(new Position(ox, oy, oz), pos);
 
-                return GetMap().IsInLineOfSight(GetPhaseShift(), x, y, z, ox, oy, oz, checks, ignoreFlags);
+                return GetMap().IsInLineOfSight(GetPhaseShift(), pos, ox, oy, oz, checks, ignoreFlags);
             }
 
             return true;
@@ -3432,61 +3437,61 @@ namespace Game.Entities
             if (!IsInMap(obj))
                 return false;
 
-            float ox, oy, oz;
+            Position pos = new Position();
             if (obj.IsTypeId(TypeId.Player))
             {
-                obj.GetPosition(out ox, out oy, out oz);
-                oz += GetCollisionHeight();
+                pos = obj.Location.Copy();
+                pos.Z += GetCollisionHeight();
             }
             else
-                obj.GetHitSpherePointFor(new(GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight()), out ox, out oy, out oz);
+                obj.GetHitSpherePointFor(new(Location.X, Location.Y, Location.Z + GetCollisionHeight()), pos);
 
-            float x, y, z;
+            Position pos2 = new Position();
             if (IsPlayer())
             {
-                GetPosition(out x, out y, out z);
-                z += GetCollisionHeight();
+                pos2 = Location.Copy();
+                pos2.Z += GetCollisionHeight();
             }
             else
-                GetHitSpherePointFor(new(obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ() + obj.GetCollisionHeight()), out x, out y, out z);
+                GetHitSpherePointFor(new(obj.Location.X, obj.Location.Y, obj.Location.Z + obj.GetCollisionHeight()), pos2);
 
-            return GetMap().IsInLineOfSight(GetPhaseShift(), x, y, z, ox, oy, oz, checks, ignoreFlags);
+            return GetMap().IsInLineOfSight(GetPhaseShift(), pos2, pos, checks, ignoreFlags);
         }
 
         public Position GetHitSpherePointFor(Position dest)
         {
-            Vector3 vThis = new(GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight());
-            Vector3 vObj = new(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ());
-            Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * Math.Min(dest.GetExactDist(GetPosition()), GetCombatReach());
+            Vector3 vThis = new(Location.X, Location.Y, Location.Z + GetCollisionHeight());
+            Vector3 vObj = new(dest.X, dest.Y, dest.Z);
+            Vector3 contactPoint = vThis + (vObj - vThis).directionOrZero() * Math.Min(dest.GetExactDist(Location), GetCombatReach());
 
-            return new Position(contactPoint.X, contactPoint.Y, contactPoint.Z, GetAbsoluteAngle(contactPoint.X, contactPoint.Y));
+            return new Position(contactPoint.X, contactPoint.Y, contactPoint.Z, Location.GetAbsoluteAngle(contactPoint.X, contactPoint.Y));
         }
 
-        public void GetHitSpherePointFor(Position dest, out float x, out float y, out float z)
+        public void GetHitSpherePointFor(Position dest, Position refDest)
         {
             Position pos = GetHitSpherePointFor(dest);
-            x = pos.GetPositionX();
-            y = pos.GetPositionY();
-            z = pos.GetPositionZ();
+            refDest.X = pos.X;
+            refDest.Y = pos.Y;
+            refDest.Z = pos.Z;
         }
 
         public bool GetDistanceOrder(WorldObject obj1, WorldObject obj2, bool is3D = true)
         {
-            float dx1 = GetPositionX() - obj1.GetPositionX();
-            float dy1 = GetPositionY() - obj1.GetPositionY();
+            float dx1 = Location.X - obj1.Location.X;
+            float dy1 = Location.Y - obj1.Location.Y;
             float distsq1 = dx1 * dx1 + dy1 * dy1;
             if (is3D)
             {
-                float dz1 = GetPositionZ() - obj1.GetPositionZ();
+                float dz1 = Location.Z - obj1.Location.Z;
                 distsq1 += dz1 * dz1;
             }
 
-            float dx2 = GetPositionX() - obj2.GetPositionX();
-            float dy2 = GetPositionY() - obj2.GetPositionY();
+            float dx2 = Location.X - obj2.Location.X;
+            float dy2 = Location.Y - obj2.Location.Y;
             float distsq2 = dx2 * dx2 + dy2 * dy2;
             if (is3D)
             {
-                float dz2 = GetPositionZ() - obj2.GetPositionZ();
+                float dz2 = Location.Z - obj2.Location.Z;
                 distsq2 += dz2 * dz2;
             }
 
@@ -3495,12 +3500,12 @@ namespace Game.Entities
 
         public bool IsInRange(WorldObject obj, float minRange, float maxRange, bool is3D = true)
         {
-            float dx = GetPositionX() - obj.GetPositionX();
-            float dy = GetPositionY() - obj.GetPositionY();
+            float dx = Location.X - obj.Location.X;
+            float dy = Location.Y - obj.Location.Y;
             float distsq = dx * dx + dy * dy;
             if (is3D)
             {
-                float dz = GetPositionZ() - obj.GetPositionZ();
+                float dz = Location.Z - obj.Location.Z;
                 distsq += dz * dz;
             }
 
@@ -3520,11 +3525,11 @@ namespace Game.Entities
 
         public bool IsInBetween(WorldObject obj1, WorldObject obj2, float size = 0)
         {
-            return obj1 && obj2 && IsInBetween(obj1.GetPosition(), obj2.GetPosition(), size);
+            return obj1 && obj2 && IsInBetween(obj1.Location, obj2.Location, size);
         }
         bool IsInBetween(Position pos1, Position pos2, float size)
         {
-            float dist = GetExactDist2d(pos1);
+            float dist = Location.GetExactDist2d(pos1);
 
             // not using sqrt() for performance
             if ((dist * dist) >= pos1.GetExactDist2dSq(pos2))
@@ -3536,24 +3541,26 @@ namespace Game.Entities
             float angle = pos1.GetAbsoluteAngle(pos2);
 
             // not using sqrt() for performance
-            return (size * size) >= GetExactDist2dSq(pos1.GetPositionX() + (float)Math.Cos(angle) * dist, pos1.GetPositionY() + (float)Math.Sin(angle) * dist);
+            return (size * size) >= Location.GetExactDist2dSq(pos1.X + (float)Math.Cos(angle) * dist, pos1.Y + (float)Math.Sin(angle) * dist);
         }
 
         public bool IsInFront(WorldObject target, float arc = MathFunctions.PI)
         {
-            return HasInArc(arc, target);
+            return Location.HasInArc(arc, target.Location);
         }
 
         public bool IsInBack(WorldObject target, float arc = MathFunctions.PI)
         {
-            return !HasInArc(2 * MathFunctions.PI - arc, target);
+            return !Location.HasInArc(2 * MathFunctions.PI - arc, target.Location);
         }
 
         public void GetRandomPoint(Position pos, float distance, out float rand_x, out float rand_y, out float rand_z)
         {
             if (distance == 0)
             {
-                pos.GetPosition(out rand_x, out rand_y, out rand_z);
+                rand_x = pos.X;
+                rand_y = pos.Y;
+                rand_z = pos.Z;
                 return;
             }
 
@@ -3562,41 +3569,53 @@ namespace Game.Entities
             float new_dist = (float)RandomHelper.NextDouble() + (float)RandomHelper.NextDouble();
             new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
 
-            rand_x = (float)(pos.posX + new_dist * Math.Cos(angle));
-            rand_y = (float)(pos.posY + new_dist * Math.Sin(angle));
-            rand_z = pos.posZ;
+            rand_x = (float)(pos.X + new_dist * Math.Cos(angle));
+            rand_y = (float)(pos.Y + new_dist * Math.Sin(angle));
+            rand_z = pos.Z;
 
-            GridDefines.NormalizeMapCoord(ref rand_x);
-            GridDefines.NormalizeMapCoord(ref rand_y);
-            UpdateGroundPositionZ(rand_x, rand_y, ref rand_z);            // update to LOS height if available
+            rand_x = GridDefines.NormalizeMapCoord(rand_x);
+            rand_y = GridDefines.NormalizeMapCoord(rand_y);
+            rand_z = UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
         }
 
         public Position GetRandomPoint(Position srcPos, float distance)
         {
             GetRandomPoint(srcPos, distance, out float x, out float y, out float z);
-            return new Position(x, y, z, GetOrientation());
+            return new Position(x, y, z, Location.Orientation);
         }
 
-        public void UpdateGroundPositionZ(float x, float y, ref float z)
+        public float UpdateGroundPositionZ(float x, float y, float z)
         {
             float newZ = GetMapHeight(x, y, z);
             if (newZ > MapConst.InvalidHeight)
                 z = newZ + (IsUnit() ? ToUnit().GetHoverOffset() : 0.0f);
+
+            return z;
         }
 
-        public void UpdateAllowedPositionZ(float x, float y, ref float z)
+        public void UpdateAllowedPositionZ(Position pos, ref float groundZ)
+        {
+            pos.Z = UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z, ref groundZ);
+        }
+
+        public void UpdateAllowedPositionZ(Position pos)
+        {
+            pos.Z = UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);    
+        }
+
+        public float UpdateAllowedPositionZ(float x, float y, float z)
         {
             float unused = 0f;
-            UpdateAllowedPositionZ(x, y, ref z, ref unused);
+            return UpdateAllowedPositionZ(x, y, z, ref unused);
         }
 
-        public void UpdateAllowedPositionZ(float x, float y, ref float z, ref float groundZ)
+        public float UpdateAllowedPositionZ(float x, float y, float z, ref float groundZ)
         {
             // TODO: Allow transports to be part of dynamic vmap tree
             if (GetTransport() != null)
             {
                 groundZ = z;
-                return;
+                return z;
             }
 
             Unit unit = ToUnit();
@@ -3644,6 +3663,8 @@ namespace Game.Entities
 
                 groundZ = ground_z;
             }
+
+            return z;
         }
 
         public void GetNearPoint2D(WorldObject searcher, out float x, out float y, float distance2d, float absAngle)
@@ -3673,18 +3694,21 @@ namespace Game.Entities
                 }
             }
 
-            x = GetPositionX() + (effectiveReach + distance2d) * MathF.Cos(absAngle);
-            y = GetPositionY() + (effectiveReach + distance2d) * MathF.Sin(absAngle);
+            x = Location.X + (effectiveReach + distance2d) * MathF.Cos(absAngle);
+            y = Location.Y + (effectiveReach + distance2d) * MathF.Sin(absAngle);
 
-            GridDefines.NormalizeMapCoord(ref x);
-            GridDefines.NormalizeMapCoord(ref y);
+            x = GridDefines.NormalizeMapCoord(x);
+            y = GridDefines.NormalizeMapCoord(y);
         }
 
-        public void GetNearPoint(WorldObject searcher, out float x, out float y, out float z, float distance2d, float absAngle)
+        public void GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
         {
+            float x = pos.X;
+            float y = pos.Y;
+            float z = pos.Z;
             GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
-            z = GetPositionZ();
-            (searcher ?? this).UpdateAllowedPositionZ(x, y, ref z);
+            z = Location.Z;
+            z = (searcher ?? this).UpdateAllowedPositionZ(x, y, z);
 
             // if detection disabled, return first point
             if (!WorldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
@@ -3703,41 +3727,41 @@ namespace Game.Entities
             for (float angle = MathFunctions.PI / 8; angle < Math.PI * 2; angle += MathFunctions.PI / 8)
             {
                 GetNearPoint2D(searcher, out x, out y, distance2d, absAngle + angle);
-                z = GetPositionZ();
-                (searcher ?? this).UpdateAllowedPositionZ(x, y, ref z);
+                z = Location.Z;
+                z = (searcher ?? this).UpdateAllowedPositionZ(x, y, z);
                 if (IsWithinLOS(x, y, z))
                     return;
             }
 
             // still not in LoS, give up and return first position found
-            x = first_x;
-            y = first_y;
-            z = first_z;
+            pos.X = first_x;
+            pos.Y = first_y;
+            pos.Z = first_z;
         }
 
-        public void GetClosePoint(out float x, out float y, out float z, float size, float distance2d = 0, float relAngle = 0)
+        public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)
         {
             // angle calculated from current orientation
-            GetNearPoint(null, out x, out y, out z, distance2d + size, GetOrientation() + relAngle);
+            GetNearPoint(null, pos, distance2d + size, Location.Orientation + relAngle);
         }
 
         public Position GetNearPosition(float dist, float angle)
         {
-            var pos = GetPosition();
+            var pos = Location;
             MovePosition(pos, dist, angle);
             return pos;
         }
 
         public Position GetFirstCollisionPosition(float dist, float angle)
         {
-            var pos = new Position(GetPosition());
+            var pos = new Position(Location);
             MovePositionToFirstCollision(pos, dist, angle);
             return pos;
         }
 
         public Position GetRandomNearPosition(float radius)
         {
-            var pos = GetPosition();
+            var pos = Location;
             MovePosition(pos, radius * (float)RandomHelper.NextDouble(), (float)RandomHelper.NextDouble() * MathFunctions.PI * 2);
             return pos;
         }
@@ -3750,41 +3774,41 @@ namespace Game.Entities
             return searcher.GetTarget();
         }
 
-        public void GetContactPoint(WorldObject obj, out float x, out float y, out float z, float distance2d = 0.5f)
+        public void GetContactPoint(WorldObject obj, Position pos, float distance2d = 0.5f)
         {
             // angle to face `obj` to `this` using distance includes size of `obj`
-            GetNearPoint(obj, out x, out y, out z, distance2d, GetAbsoluteAngle(obj));
+            GetNearPoint(obj, pos, distance2d, Location.GetAbsoluteAngle(obj.Location));
         }
 
         public void MovePosition(Position pos, float dist, float angle)
         {
-            angle += GetOrientation();
-            float destx = pos.posX + dist * (float)Math.Cos(angle);
-            float desty = pos.posY + dist * (float)Math.Sin(angle);
+            angle += Location.Orientation;
+            float destx = pos.X + dist * (float)Math.Cos(angle);
+            float desty = pos.Y + dist * (float)Math.Sin(angle);
 
             // Prevent invalid coordinates here, position is unchanged
-            if (!GridDefines.IsValidMapCoord(destx, desty, pos.posZ))
+            if (!GridDefines.IsValidMapCoord(destx, desty, pos.Z))
             {
                 Log.outError(LogFilter.Server, "WorldObject.MovePosition invalid coordinates X: {0} and Y: {1} were passed!", destx, desty);
                 return;
             }
 
             float ground = GetMapHeight(destx, desty, MapConst.MaxHeight);
-            float floor = GetMapHeight(destx, desty, pos.posZ);
-            float destz = Math.Abs(ground - pos.posZ) <= Math.Abs(floor - pos.posZ) ? ground : floor;
+            float floor = GetMapHeight(destx, desty, pos.Z);
+            float destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
 
             float step = dist / 10.0f;
 
             for (byte j = 0; j < 10; ++j)
             {
                 // do not allow too big z changes
-                if (Math.Abs(pos.posZ - destz) > 6)
+                if (Math.Abs(pos.Z - destz) > 6)
                 {
                     destx -= step * (float)Math.Cos(angle);
                     desty -= step * (float)Math.Sin(angle);
                     ground = GetMap().GetHeight(GetPhaseShift(), destx, desty, MapConst.MaxHeight, true);
-                    floor = GetMap().GetHeight(GetPhaseShift(), destx, desty, pos.posZ, true);
-                    destz = Math.Abs(ground - pos.posZ) <= Math.Abs(floor - pos.posZ) ? ground : floor;
+                    floor = GetMap().GetHeight(GetPhaseShift(), destx, desty, pos.Z, true);
+                    destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
                 }
                 // we have correct destz now
                 else
@@ -3794,18 +3818,18 @@ namespace Game.Entities
                 }
             }
 
-            GridDefines.NormalizeMapCoord(ref pos.posX);
-            GridDefines.NormalizeMapCoord(ref pos.posY);
-            UpdateGroundPositionZ(pos.posX, pos.posY, ref pos.posZ);
-            pos.SetOrientation(GetOrientation());
+            pos.X = GridDefines.NormalizeMapCoord(pos.X);
+            pos.Y = GridDefines.NormalizeMapCoord(pos.Y);
+            pos.Z = UpdateGroundPositionZ(pos.X, pos.Y, pos.Z);
+            pos.Orientation = Location.Orientation;
         }
 
         public void MovePositionToFirstCollision(Position pos, float dist, float angle)
         {
-            angle += GetOrientation();
-            float destx = pos.posX + dist * (float)Math.Cos(angle);
-            float desty = pos.posY + dist * (float)Math.Sin(angle);
-            float destz = pos.posZ;
+            angle += Location.Orientation;
+            float destx = pos.X + dist * (float)Math.Cos(angle);
+            float desty = pos.Y + dist * (float)Math.Sin(angle);
+            float destz = pos.Z;
 
             // Prevent invalid coordinates here, position is unchanged
             if (!GridDefines.IsValidMapCoord(destx, desty))
@@ -3817,7 +3841,7 @@ namespace Game.Entities
             // Use a detour raycast to get our first collision point
             PathGenerator path = new(this);
             path.SetUseRaycast(true);
-            path.CalculatePath(destx, desty, destz, false);
+            path.CalculatePath(new Position(destx, desty, destz), false);
 
             // We have a invalid path result. Skip further processing.
             if (!path.GetPathType().HasFlag(PathType.NotUsingPath))
@@ -3836,8 +3860,8 @@ namespace Game.Entities
             // Unit is flying, check for potential collision via vmaps
             if (path.GetPathType().HasFlag(PathType.NotUsingPath))
             {
-                col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(GetPhaseShift(), GetMapId(), GetMap().GetTerrain(), pos.posX, pos.posY),
-                    pos.posX, pos.posY, pos.posZ + halfHeight,
+                col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(GetPhaseShift(), Location.GetMapId(), GetMap().GetTerrain(), pos.X, pos.Y),
+                    pos.X, pos.Y, pos.Z + halfHeight,
                     destx, desty, destz + halfHeight,
                     out destx, out desty, out destz, -0.5f);
 
@@ -3848,12 +3872,12 @@ namespace Game.Entities
                 {
                     destx -= SharedConst.ContactDistance * MathF.Cos(angle);
                     desty -= SharedConst.ContactDistance * MathF.Sin(angle);
-                    dist = MathF.Sqrt((pos.posX - destx) * (pos.posX - destx) + (pos.posY - desty) * (pos.posY - desty));
+                    dist = MathF.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
                 }
             }
 
             // check dynamic collision
-            col = GetMap().GetObjectHitPos(GetPhaseShift(), pos.posX, pos.posY, pos.posZ + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
+            col = GetMap().GetObjectHitPos(GetPhaseShift(), pos.X, pos.Y, pos.Z + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
 
             destz -= halfHeight;
 
@@ -3862,15 +3886,15 @@ namespace Game.Entities
             {
                 destx -= SharedConst.ContactDistance * (float)Math.Cos(angle);
                 desty -= SharedConst.ContactDistance * (float)Math.Sin(angle);
-                dist = (float)Math.Sqrt((pos.posX - destx) * (pos.posX - destx) + (pos.posY - desty) * (pos.posY - desty));
+                dist = (float)Math.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
             }
 
             float groundZ = MapConst.VMAPInvalidHeightValue;
-            GridDefines.NormalizeMapCoord(ref pos.posX);
-            GridDefines.NormalizeMapCoord(ref pos.posY);
-            UpdateAllowedPositionZ(destx, desty, ref destz, ref groundZ);
+            pos.X = GridDefines.NormalizeMapCoord(pos.X);
+            pos.Y = GridDefines.NormalizeMapCoord(pos.Y);
+            destz = UpdateAllowedPositionZ(destx, desty, destz, ref groundZ);
 
-            pos.SetOrientation(GetOrientation());
+            pos.Orientation = Location.Orientation;
             pos.Relocate(destx, desty, destz);
 
             // position has no ground under it (or is too far away)
@@ -3884,9 +3908,9 @@ namespace Game.Entities
                         return;
 
                     // fall back to gridHeight if any
-                    float gridHeight = GetMap().GetGridHeight(GetPhaseShift(), pos.posX, pos.posY);
+                    float gridHeight = GetMap().GetGridHeight(GetPhaseShift(), pos.X, pos.Y);
                     if (gridHeight > MapConst.InvalidHeight)
-                        pos.posZ = gridHeight + unit.GetHoverOffset();
+                        pos.Z = gridHeight + unit.GetHoverOffset();
                 }
             }
         }
@@ -3895,7 +3919,7 @@ namespace Game.Entities
         {
             if (!IsInWorld)
                 return m_staticFloorZ;
-            return Math.Max(m_staticFloorZ, GetMap().GetGameObjectFloor(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ() + MapConst.ZOffsetFindHeight));
+            return Math.Max(m_staticFloorZ, GetMap().GetGameObjectFloor(GetPhaseShift(), Location.X, Location.Y, Location.Z + MapConst.ZOffsetFindHeight));
         }
 
         public float GetMapWaterOrGroundLevel(float x, float y, float z)
@@ -3907,6 +3931,10 @@ namespace Game.Entities
         public float GetMapWaterOrGroundLevel(float x, float y, float z, ref float ground)
         {
             return GetMap().GetWaterOrGroundLevel(GetPhaseShift(), x, y, z, ref ground, IsTypeMask(TypeMask.Unit) ? !ToUnit().HasAuraType(AuraType.WaterWalk) : false, GetCollisionHeight());
+        }
+        public float GetMapHeight(Position pos, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)
+        {
+            return GetMapHeight(pos.X, pos.Y, pos.Z, vmap, distanceToSearch);
         }
 
         public float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)
@@ -3975,6 +4003,10 @@ namespace Game.Entities
 
         public FlaggedArray32<ServerSideVisibilityType> m_serverSideVisibility = new(2);
         public FlaggedArray32<ServerSideVisibilityType> m_serverSideVisibilityDetect = new(2);
+
+        public WorldLocation Location { get; set; }
+
+
         #endregion
 
         public static implicit operator bool(WorldObject obj)

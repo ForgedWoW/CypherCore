@@ -31,14 +31,14 @@ namespace Scripts.Spells.Warrior
 
 			if (caster != null)
 			{
-				var pos_x = caster.GetPositionX();
-				var pos_y = caster.GetPositionY();
-				var pos_z = caster.GetPositionZ() + 30.0f;
+				var pos_x = caster.Location.X;
+				var pos_y = caster.Location.Y;
+				var pos_z = caster.Location.Z + 30.0f;
 
 				var arrivalCast = new JumpArrivalCastArgs();
 				arrivalCast.SpellId = WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT;
 				arrivalCast.Target  = caster.GetGUID();
-				caster.GetMotionMaster().MoveJump(pos_x, pos_y, pos_z, caster.GetOrientation(), 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
+				caster.GetMotionMaster().MoveJump(pos_x, pos_y, pos_z, caster.Location.Orientation, 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
 
 				caster.RemoveAura(WarriorSpells.JUMP_TO_SKYHOLD_AURA);
 			}

@@ -197,7 +197,7 @@ namespace Game.Entities
             m_createTime = GameTime.GetGameTime();
             m_createMode = createInfo.UseNPE && info.createPositionNPE.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
 
-            Relocate(position.Loc);
+            Location.Relocate(position.Loc);
 
             SetMap(Global.MapMgr.CreateMap(position.Loc.GetMapId(), this));
 
@@ -208,14 +208,14 @@ namespace Game.Entities
                 {
                     transport.AddPassenger(this);
                     m_movementInfo.transport.pos.Relocate(position.Loc);
-                    position.Loc.GetPosition(out float x, out float y, out float z, out float o);
-                    transport.CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-                    Relocate(x, y, z, o);
+                    var transportPos = position.Loc.Copy();
+                    transport.CalculatePassengerPosition(transportPos);
+                    Location.Relocate(transportPos);
                 }
             }
 
             // set initial homebind position
-            SetHomebind(this, GetAreaId());
+            SetHomebind(Location, GetAreaId());
 
             PowerType powertype = cEntry.DisplayPower;
 
@@ -447,7 +447,7 @@ namespace Game.Entities
                             }
                         }
                         //120 degrees of radiant range, if player is not in boundary radius
-                        else if (!IsWithinBoundaryRadius(victim) && !HasInArc(2 * MathFunctions.PI / 3, victim))
+                        else if (!IsWithinBoundaryRadius(victim) && !Location.HasInArc(2 * MathFunctions.PI / 3, victim.Location))
                         {
                             SetAttackTimer(WeaponAttackType.BaseAttack, 100);
                             if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -475,7 +475,7 @@ namespace Game.Entities
                     {
                         if (!IsWithinMeleeRange(victim))
                             SetAttackTimer(WeaponAttackType.OffAttack, 100);
-                        else if (!IsWithinBoundaryRadius(victim) && !HasInArc(2 * MathFunctions.PI / 3, victim))
+                        else if (!IsWithinBoundaryRadius(victim) && !Location.HasInArc(2 * MathFunctions.PI / 3, victim.Location))
                             SetAttackTimer(WeaponAttackType.BaseAttack, 100);
                         else
                         {
@@ -1720,14 +1720,18 @@ namespace Game.Entities
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
         public bool TeleportTo(WorldLocation loc, TeleportToOptions options = 0, uint? instanceId = null)
         {
-            return TeleportTo(loc.GetMapId(), loc.posX, loc.posY, loc.posZ, loc.Orientation, options, instanceId);
+            return TeleportTo(loc.GetMapId(), loc.X, loc.Y, loc.Z, loc.Orientation, options, instanceId);
+        }
+        public bool TeleportTo(uint mapid, Position loc, TeleportToOptions options = 0, uint? instanceId = null)
+        {
+            return TeleportTo(mapid, loc.X, loc.Y, loc.Z, loc.Orientation, options, instanceId);
         }
         public bool TeleportTo(uint mapid, float x, float y, float z, float orientation, TeleportToOptions options = 0, uint? instanceId = null)
         {
             if (!GridDefines.IsValidMapCoord(mapid, x, y, z, orientation))
             {
                 Log.outError(LogFilter.Maps, "TeleportTo: invalid map ({0}) or invalid coordinates (X: {1}, Y: {2}, Z: {3}, O: {4}) given when teleporting player (GUID: {5}, name: {6}, map: {7}, {8}).",
-                    mapid, x, y, z, orientation, GetGUID().ToString(), GetName(), GetMapId(), GetPosition().ToString());
+                    mapid, x, y, z, orientation, GetGUID().ToString(), GetName(), Location.GetMapId(), Location.ToString());
                 return false;
             }
 
@@ -1785,10 +1789,10 @@ namespace Game.Entities
             // The player was ported to another map and loses the duel immediately.
             // We have to perform this check before the teleport, otherwise the
             // ObjectAccessor won't find the flag.
-            if (duel != null && GetMapId() != mapid && GetMap().GetGameObject(m_playerData.DuelArbiter))
+            if (duel != null && Location.GetMapId() != mapid && GetMap().GetGameObject(m_playerData.DuelArbiter))
                 DuelComplete(DuelCompleteType.Fled);
 
-            if (GetMapId() == mapid && (!instanceId.HasValue || GetInstanceId() == instanceId))
+            if (Location.GetMapId() == mapid && (!instanceId.HasValue || GetInstanceId() == instanceId))
             {
                 //lets reset far teleport flag if it wasn't reset during chained teleports
                 SetSemaphoreTeleportFar(false);
@@ -1823,7 +1827,7 @@ namespace Game.Entities
                 teleportDest = new WorldLocation(mapid, x, y, z, orientation);
                 m_teleport_instanceId = null;
                 m_teleport_options = options;
-                SetFallInformation(0, GetPositionZ());
+                SetFallInformation(0, Location.Z);
 
                 // code for finish transfer called in WorldSession.HandleMovementOpcodes()
                 // at client packet CMSG_MOVE_TELEPORT_ACK
@@ -1834,7 +1838,7 @@ namespace Game.Entities
             }
             else
             {
-                if (GetClass() == Class.Deathknight && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
+                if (GetClass() == Class.Deathknight && Location.GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
                 {
                     SendTransferAborted(mapid, TransferAbortReason.UniqueMessage, 1);
                     return false;
@@ -1854,7 +1858,7 @@ namespace Game.Entities
                 }
 
                 // Seamless teleport can happen only if cosmetic maps match
-                if (!oldmap || (oldmap.GetEntry().CosmeticParentMapID != mapid && GetMapId() != mEntry.CosmeticParentMapID &&
+                if (!oldmap || (oldmap.GetEntry().CosmeticParentMapID != mapid && Location.GetMapId() != mEntry.CosmeticParentMapID &&
                     !((oldmap.GetEntry().CosmeticParentMapID != -1) ^ (oldmap.GetEntry().CosmeticParentMapID != mEntry.CosmeticParentMapID))))
                     options &= ~TeleportToOptions.Seamless;
 
@@ -1924,14 +1928,14 @@ namespace Game.Entities
                     // send transfer packets
                     TransferPending transferPending = new();
                     transferPending.MapID = (int)mapid;
-                    transferPending.OldMapPosition = GetPosition();
+                    transferPending.OldMapPosition = Location;
 
                     Transport transport1 = (Transport)GetTransport();
                     if (transport1 != null)
                     {
                         TransferPending.ShipTransferPending shipTransferPending = new();
                         shipTransferPending.Id = transport1.GetEntry();
-                        shipTransferPending.OriginMapID = (int)GetMapId();
+                        shipTransferPending.OriginMapID = (int)Location.GetMapId();
                         transferPending.Ship = shipTransferPending;
                     }
 
@@ -1945,7 +1949,7 @@ namespace Game.Entities
                 teleportDest = new WorldLocation(mapid, x, y, z, orientation);
                 m_teleport_instanceId = instanceId;
                 m_teleport_options = options;
-                SetFallInformation(0, GetPositionZ());
+                SetFallInformation(0, Location.Z);
                 // if the player is saved before worldportack (at logout for example)
                 // this will be used instead of the current location in SaveToDB
 
@@ -2087,7 +2091,7 @@ namespace Game.Entities
         public void HandleFall(MovementInfo movementInfo)
         {
             // calculate total z distance of the fall
-            float z_diff = m_lastFallZ - movementInfo.Pos.posZ;
+            float z_diff = m_lastFallZ - movementInfo.Pos.Z;
             Log.outDebug(LogFilter.Server, "zDiff = {0}", z_diff);
 
             //Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
@@ -2105,8 +2109,8 @@ namespace Game.Entities
                 {
                     double damage = damageperc * GetMaxHealth() * WorldConfig.GetFloatValue(WorldCfg.RateDamageFall);
 
-                    float height = movementInfo.Pos.posZ;
-                    UpdateGroundPositionZ(movementInfo.Pos.posX, movementInfo.Pos.posY, ref height);
+                    float height = movementInfo.Pos.Z;
+                    height = UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
 
                     damage = damage * GetTotalAuraMultiplier(AuraType.ModifyFallDamagePct);
 
@@ -2129,14 +2133,14 @@ namespace Game.Entities
                     }
 
                     //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-                    Log.outDebug(LogFilter.Player, $"FALLDAMAGE z={movementInfo.Pos.GetPositionZ()} sz={height} pZ={GetPositionZ()} FallTime={movementInfo.jump.fallTime} mZ={height} damage={damage} SF={safe_fall}\nPlayer debug info:\n{GetDebugInfo()}");
+                    Log.outDebug(LogFilter.Player, $"FALLDAMAGE z={movementInfo.Pos.Z} sz={height} pZ={Location.Z} FallTime={movementInfo.jump.fallTime} mZ={height} damage={damage} SF={safe_fall}\nPlayer debug info:\n{GetDebugInfo()}");
                 }
             }
         }
         public void UpdateFallInformationIfNeed(MovementInfo minfo, ClientOpcodes opcode)
         {
-            if (m_lastFallTime >= m_movementInfo.jump.fallTime || m_lastFallZ <= m_movementInfo.Pos.posZ || opcode == ClientOpcodes.MoveFallLand)
-                SetFallInformation(m_movementInfo.jump.fallTime, m_movementInfo.Pos.posZ);
+            if (m_lastFallTime >= m_movementInfo.jump.fallTime || m_lastFallZ <= m_movementInfo.Pos.Z || opcode == ClientOpcodes.MoveFallLand)
+                SetFallInformation(m_movementInfo.jump.fallTime, m_movementInfo.Pos.Z);
         }
 
         public bool HasSummonPending()
@@ -2158,7 +2162,7 @@ namespace Game.Entities
                 return;
 
             m_summon_expire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
-            m_summon_location = new WorldLocation(summoner);
+            m_summon_location = new WorldLocation(summoner.Location);
             m_summon_instanceId = summoner.GetInstanceId();
 
             SummonRequest summonRequest = new();
@@ -2181,7 +2185,7 @@ namespace Game.Entities
             if (trigger == null)
                 return false;
 
-            if (GetMapId() != trigger.ContinentID && !GetPhaseShift().HasVisibleMapId(trigger.ContinentID))
+            if (Location.GetMapId() != trigger.ContinentID && !GetPhaseShift().HasVisibleMapId(trigger.ContinentID))
                 return false;
 
             if (trigger.PhaseID != 0 || trigger.PhaseGroupID != 0 || trigger.PhaseUseFlags != 0)
@@ -2198,7 +2202,7 @@ namespace Game.Entities
             else
             {
                 Position center = new(trigger.Pos.X, trigger.Pos.Y, trigger.Pos.Z, trigger.BoxYaw);
-                if (!IsWithinBox(center, trigger.BoxLength / 2.0f, trigger.BoxWidth / 2.0f, trigger.BoxHeight / 2.0f))
+                if (!Location.IsWithinBox(center, trigger.BoxLength / 2.0f, trigger.BoxWidth / 2.0f, trigger.BoxHeight / 2.0f))
                     return false;
             }
 
@@ -2985,10 +2989,10 @@ namespace Game.Entities
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
             stmt.AddValue(0, homebind.GetMapId());
             stmt.AddValue(1, homebindAreaId);
-            stmt.AddValue(2, homebind.GetPositionX());
-            stmt.AddValue(3, homebind.GetPositionY());
-            stmt.AddValue(4, homebind.GetPositionZ());
-            stmt.AddValue(5, homebind.GetOrientation());
+            stmt.AddValue(2, homebind.X);
+            stmt.AddValue(3, homebind.Y);
+            stmt.AddValue(4, homebind.Z);
+            stmt.AddValue(5, homebind.Orientation);
             stmt.AddValue(6, GetGUID().GetCounter());
             DB.Characters.Execute(stmt);
         }
@@ -3003,7 +3007,7 @@ namespace Game.Entities
         public void SendBindPointUpdate()
         {
             BindPointUpdate packet = new();
-            packet.BindPosition = new(homebind.GetPositionX(), homebind.GetPositionY(), homebind.GetPositionZ());
+            packet.BindPosition = new(homebind.X, homebind.Y, homebind.Z);
             packet.BindMapID = homebind.GetMapId();
             packet.BindAreaID = homebindAreaId;
             SendPacket(packet);
@@ -3038,7 +3042,7 @@ namespace Game.Entities
         void SendInitWorldStates(uint zoneId, uint areaId)
         {
             // data depends on zoneid/mapid...
-            uint mapid = GetMapId();
+            uint mapid = Location.GetMapId();
 
             InitWorldStates packet = new();
             packet.MapID = mapid;
@@ -3107,7 +3111,7 @@ namespace Game.Entities
             Cypher.Assert(!IsResurrectRequested());
             _resurrectionData = new ResurrectionData();
             _resurrectionData.GUID = caster.GetGUID();
-            _resurrectionData.Location.WorldRelocate(caster);
+            _resurrectionData.Location.WorldRelocate(caster.Location);
             _resurrectionData.Health = health;
             _resurrectionData.Mana = mana;
             _resurrectionData.Aura = appliedAura;
@@ -3172,7 +3176,7 @@ namespace Game.Entities
             if (!IsInWorld)
                 return;
 
-            UpdateData udata = new(GetMapId());
+            UpdateData udata = new(Location.GetMapId());
             foreach (var guid in m_clientGUIDs)
             {
                 if (guid.IsCreatureOrVehicle())
@@ -3727,7 +3731,7 @@ namespace Game.Entities
 
             // the player cannot have a corpse already on current map, only bones which are not returned by GetCorpse
             WorldLocation corpseLocation = GetCorpseLocation();
-            if (corpseLocation.GetMapId() == GetMapId())
+            if (corpseLocation.GetMapId() == Location.GetMapId())
             {
                 Log.outError(LogFilter.Player, "BuildPlayerRepop: player {0} ({1}) already has a corpse", GetName(), GetGUID().ToString());
                 return;
@@ -4056,7 +4060,7 @@ namespace Game.Entities
             SetDeathState(DeathState.Corpse);
 
             ReplaceAllDynamicFlags(UnitDynFlags.None);
-            if (!CliDB.MapStorage.LookupByKey(GetMapId()).Instanceable() && !HasAuraType(AuraType.PreventResurrection))
+            if (!CliDB.MapStorage.LookupByKey(Location.GetMapId()).Instanceable() && !HasAuraType(AuraType.PreventResurrection))
                 SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
             else
                 RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
@@ -4098,7 +4102,7 @@ namespace Game.Entities
             if (!corpse.Create(GetMap().GenerateLowGuid(HighGuid.Corpse), this))
                 return null;
 
-            _corpseLocation = new WorldLocation(this);
+            _corpseLocation = new WorldLocation(Location);
 
             CorpseFlags flags = 0;
             if (HasPvpFlag(UnitPVPStateFlags.PvP))
@@ -4164,7 +4168,7 @@ namespace Game.Entities
 
             bool shouldResurrect = false;
             // Such zones are considered unreachable as a ghost and the player must be automatically revived
-            if ((!IsAlive() && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || GetTransport() != null || GetPositionZ() < GetMap().GetMinHeight(GetPhaseShift(), GetPositionX(), GetPositionY()))
+            if ((!IsAlive() && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || GetTransport() != null || Location.Z < GetMap().GetMinHeight(GetPhaseShift(), Location.X, Location.Y))
             {
                 shouldResurrect = true;
                 SpawnCorpseBones();
@@ -4182,7 +4186,7 @@ namespace Game.Entities
                 if (bf != null)
                     ClosestGrave = bf.GetClosestGraveYard(this);
                 else
-                    ClosestGrave = Global.ObjectMgr.GetClosestGraveYard(this, GetTeam(), this);
+                    ClosestGrave = Global.ObjectMgr.GetClosestGraveYard(Location, GetTeam(), this);
             }
 
             // stop countdown until repop
@@ -4201,7 +4205,7 @@ namespace Game.Entities
                     SendPacket(packet);
                 }
             }
-            else if (GetPositionZ() < GetMap().GetMinHeight(GetPhaseShift(), GetPositionX(), GetPositionY()))
+            else if (Location.Z < GetMap().GetMinHeight(GetPhaseShift(), Location.X, Location.Y))
                 TeleportTo(homebind);
 
             RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
@@ -4322,6 +4326,16 @@ namespace Game.Entities
             return pet != null;
         }
 
+        public Pet SummonPet(uint entry, PetSaveMode? slot, Position pos, uint duration, out bool isNew)
+        {
+            return SummonPet(entry, slot, pos.X, pos.Y, pos.Z, pos.Orientation, duration, out isNew);
+        }
+
+        public Pet SummonPet(uint entry, PetSaveMode? slot, Position pos, uint duration)
+        {
+            return SummonPet(entry, slot, pos.X, pos.Y, pos.Z, pos.Orientation, duration, out _);
+        }
+
         public Pet SummonPet(uint entry, PetSaveMode? slot, float x, float y, float z, float ang, uint duration)
         {
             return SummonPet(entry, slot, x, y, z, ang, duration, out _);
@@ -4348,11 +4362,11 @@ namespace Game.Entities
 
             // only SUMMON_PET are handled here
 
-            pet.Relocate(x, y, z, ang);
-            if (!pet.IsPositionValid())
+            pet.Location.Relocate(x, y, z, ang);
+            if (!pet.Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Server, "Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
-                    pet.GetGUID().ToString(), pet.GetEntry(), pet.GetPositionX(), pet.GetPositionY());
+                    pet.GetGUID().ToString(), pet.GetEntry(), pet.Location.X, pet.Location.Y);
                 return null;
             }
 
@@ -5437,7 +5451,7 @@ namespace Game.Entities
 
         public void SaveRecallPosition()
         {
-            m_recall_location = new WorldLocation(this);
+            m_recall_location = new WorldLocation(Location);
             m_recall_instanceId = GetInstanceId();
         }
 
@@ -5700,7 +5714,7 @@ namespace Game.Entities
             if (targets.Empty())
                 return;
 
-            UpdateData udata = new(GetMapId());
+            UpdateData udata = new(Location.GetMapId());
             List<Unit> newVisibleUnits = new();
 
             foreach (WorldObject target in targets)
@@ -5895,7 +5909,7 @@ namespace Game.Entities
 
         public override bool UpdatePosition(Position pos, bool teleport = false)
         {
-            return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport);
+            return UpdatePosition(pos.X, pos.Y, pos.Z, pos.Orientation, teleport);
         }
 
         public override bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false)
@@ -6011,7 +6025,7 @@ namespace Game.Entities
             if (areaEntry == null)
             {
                 Log.outError(LogFilter.Player, "Player '{0}' ({1}) discovered unknown area (x: {2} y: {3} z: {4} map: {5})",
-                    GetName(), GetGUID().ToString(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+                    GetName(), GetGUID().ToString(), Location.X, Location.Y, Location.Z, Location.GetMapId());
                 return;
             }
 
@@ -6019,7 +6033,7 @@ namespace Game.Entities
             if (offset >= PlayerConst.ExploredZonesSize)
             {
                 Log.outError(LogFilter.Player, "Wrong area flag {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
-                    areaId, GetPositionX(), GetPositionY(), offset, offset, PlayerConst.ExploredZonesSize);
+                    areaId, Location.X, Location.Y, offset, offset, PlayerConst.ExploredZonesSize);
                 return;
             }
 
@@ -6717,7 +6731,7 @@ namespace Game.Entities
                 m_taxi.ClearTaxiDestinations();
                 ModifyMoney(-totalcost);
                 UpdateCriteria(CriteriaType.MoneySpentOnTaxis, totalcost);
-                TeleportTo(lastPathNode.ContinentID, lastPathNode.Pos.X, lastPathNode.Pos.Y, lastPathNode.Pos.Z, GetOrientation());
+                TeleportTo(lastPathNode.ContinentID, lastPathNode.Pos.X, lastPathNode.Pos.Y, lastPathNode.Pos.Z, Location.Orientation);
                 return false;
             }
             else
@@ -6780,7 +6794,7 @@ namespace Game.Entities
             var nodeList = CliDB.TaxiPathNodesByPath[path];
 
             float distPrev;
-            float distNext = GetExactDistSq(nodeList[0].Loc.X, nodeList[0].Loc.Y, nodeList[0].Loc.Z);
+            float distNext = Location.GetExactDistSq(nodeList[0].Loc.X, nodeList[0].Loc.Y, nodeList[0].Loc.Z);
 
             for (int i = 1; i < nodeList.Length; ++i)
             {
@@ -6788,12 +6802,12 @@ namespace Game.Entities
                 var prevNode = nodeList[i - 1];
 
                 // skip nodes at another map
-                if (node.ContinentID != GetMapId())
+                if (node.ContinentID != Location.GetMapId())
                     continue;
 
                 distPrev = distNext;
 
-                distNext = GetExactDistSq(node.Loc.X, node.Loc.Y, node.Loc.Z);
+                distNext = Location.GetExactDistSq(node.Loc.X, node.Loc.Y, node.Loc.Z);
 
                 float distNodes =
                     (node.Loc.X - prevNode.Loc.X) * (node.Loc.X - prevNode.Loc.X) +

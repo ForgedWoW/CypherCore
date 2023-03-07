@@ -662,10 +662,7 @@ namespace Game.AI
 
                     // Reset home position to respawn position if specified in the parameters
                     if (e.Action.evade.toRespawnPosition == 0)
-                    {
-                        _me.GetRespawnPosition(out float homeX, out float homeY, out float homeZ, out float homeO);
-                        _me.SetHomePosition(homeX, homeY, homeZ, homeO);
-                    }
+                        _me.SetHomePosition(_me.GetRespawnPosition());
 
                     _me.GetAI().EnterEvadeMode();
                     Log.outDebug(LogFilter.ScriptsAi, "SmartScript.ProcessAction. SMART_ACTION_EVADE: Creature {0} EnterEvadeMode", _me.GetGUID().ToString());
@@ -1091,13 +1088,13 @@ namespace Game.AI
                         if (!e.Event.event_flags.HasAnyFlag(SmartEventFlags.WhileCharmed) && IsCharmedCreature(target))
                             continue;
 
-                        Position pos = target.GetPosition();
+                        Position pos = target.Location;
 
                         // Use forward/backward/left/right cartesian plane movement
-                        float o = pos.GetOrientation();
-                        float x = (float)(pos.GetPositionX() + (Math.Cos(o - (Math.PI / 2)) * e.Target.x) + (Math.Cos(o) * e.Target.y));
-                        float y = (float)(pos.GetPositionY() + (Math.Sin(o - (Math.PI / 2)) * e.Target.x) + (Math.Sin(o) * e.Target.y));
-                        float z = pos.GetPositionZ() + e.Target.z;
+                        float o = pos.Orientation;
+                        float x = (float)(pos.X + (Math.Cos(o - (Math.PI / 2)) * e.Target.x) + (Math.Cos(o) * e.Target.y));
+                        float y = (float)(pos.Y + (Math.Sin(o - (Math.PI / 2)) * e.Target.x) + (Math.Sin(o) * e.Target.y));
+                        float z = pos.Z + e.Target.z;
                         target.ToCreature().GetMotionMaster().MovePoint(e.Action.moveOffset.PointId, x, y, z);
                     }
                     break;
@@ -1146,14 +1143,15 @@ namespace Game.AI
 
                     foreach (var target in targets)
                     {
-                        target.GetPosition(out float x, out float y, out float z, out float o);
-                        x += e.Target.x;
-                        y += e.Target.y;
-                        z += e.Target.z;
-                        o += e.Target.o;
+                        var pos = target.Location.Copy();
+                        pos.X += e.Target.x;
+                        pos.Y += e.Target.y;
+                        pos.Z += e.Target.z;
+                        pos.Orientation += e.Target.o;
+
                         for (uint counter = 0; counter < spawnsCount; counter++)
                         {
-                            Creature summon = summoner.SummonCreature(e.Action.summonCreature.creature, x, y, z, o, (TempSummonType)e.Action.summonCreature.type, TimeSpan.FromMilliseconds(e.Action.summonCreature.duration), privateObjectOwner);
+                            Creature summon = summoner.SummonCreature(e.Action.summonCreature.creature, pos, (TempSummonType)e.Action.summonCreature.type, TimeSpan.FromMilliseconds(e.Action.summonCreature.duration), 0, 0, privateObjectOwner);
                             if (summon != null)
                                 if (e.Action.summonCreature.attackInvoker != 0)
                                     summon.GetAI().AttackStart(target.ToUnit());
@@ -1165,7 +1163,7 @@ namespace Game.AI
 
                     for (uint counter = 0; counter < spawnsCount; counter++)
                     {
-                        Creature summon = summoner.SummonCreature(e.Action.summonCreature.creature, e.Target.x, e.Target.y, e.Target.z, e.Target.o, (TempSummonType)e.Action.summonCreature.type, TimeSpan.FromMilliseconds(e.Action.summonCreature.duration), privateObjectOwner);
+                        Creature summon = summoner.SummonCreature(e.Action.summonCreature.creature, new Position(e.Target.x, e.Target.y, e.Target.z, e.Target.o), (TempSummonType)e.Action.summonCreature.type, TimeSpan.FromMilliseconds(e.Action.summonCreature.duration), 0, 0, privateObjectOwner);
                         if (summon != null)
                             if (unit != null && e.Action.summonCreature.attackInvoker != 0)
                                 summon.GetAI().AttackStart(unit);
@@ -1180,8 +1178,8 @@ namespace Game.AI
 
                     foreach (var target in targets)
                     {
-                        Position pos = target.GetPositionWithOffset(new Position(e.Target.x, e.Target.y, e.Target.z, e.Target.o));
-                        Quaternion rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.GetOrientation(), 0f, 0f));
+                        Position pos = target.Location.GetPositionWithOffset(new Position(e.Target.x, e.Target.y, e.Target.z, e.Target.o));
+                        Quaternion rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0f, 0f));
                         summoner.SummonGameObject(e.Action.summonGO.entry, pos, rot, TimeSpan.FromSeconds(e.Action.summonGO.despawnTime), (GameObjectSummonType)e.Action.summonGO.summonType);
                     }
 
@@ -1348,7 +1346,7 @@ namespace Game.AI
                         break;
 
                     if (e.GetTargetType() == SmartTargets.Self)
-                        _me.SetFacingTo((_me.GetTransport() != null ? _me.GetTransportHomePosition() : _me.GetHomePosition()).GetOrientation());
+                        _me.SetFacingTo((_me.GetTransport() != null ? _me.GetTransportHomePosition() : _me.GetHomePosition()).Orientation);
                     else if (e.GetTargetType() == SmartTargets.Position)
                         _me.SetFacingTo(e.Target.o);
                     else if (!targets.Empty())
@@ -1393,17 +1391,17 @@ namespace Game.AI
                         {
                             ITransport trans = _me.GetDirectTransport();
                             if (trans != null)
-                                trans.CalculatePassengerPosition(ref dest.posX, ref dest.posY, ref dest.posZ, ref dest.Orientation);
+                                trans.CalculatePassengerPosition(dest);
                         }
 
                         _me.GetMotionMaster().MovePoint(e.Action.moveToPos.pointId, dest, e.Action.moveToPos.disablePathfinding == 0);
                     }
                     else
                     {
-                        target.GetPosition(out float x, out float y, out float z);
+                        var pos = target.Location.Copy();
                         if (e.Action.moveToPos.contactDistance > 0)
-                            target.GetContactPoint(_me, out x, out y, out z, e.Action.moveToPos.contactDistance);
-                        _me.GetMotionMaster().MovePoint(e.Action.moveToPos.pointId, x + e.Target.x, y + e.Target.y, z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
+                            target.GetContactPoint(_me, pos, e.Action.moveToPos.contactDistance);
+                        _me.GetMotionMaster().MovePoint(e.Action.moveToPos.pointId, pos.X + e.Target.x, pos.Y + e.Target.y, pos.Z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
                     }
                     break;
                 }
@@ -1817,10 +1815,10 @@ namespace Game.AI
                     Position pos = new(e.Target.x, e.Target.y, e.Target.z);
                     if (target)
                     {
-                        target.GetPosition(out float x, out float y, out float z);
+                        var tpos = target.Location.Copy();
                         if (e.Action.jump.ContactDistance > 0)
-                            target.GetContactPoint(_me, out x, out y, out z, e.Action.jump.ContactDistance);
-                        pos = new Position(x + e.Target.x, y + e.Target.y, z + e.Target.z);
+                            target.GetContactPoint(_me, tpos, e.Action.jump.ContactDistance);
+                        pos = new Position(tpos.X + e.Target.x, tpos.Y + e.Target.y, tpos.Z + e.Target.z);
                     }
 
                     if (e.Action.jump.Gravity != 0 || e.Action.jump.UseDefaultGravity != 0)
@@ -1920,7 +1918,7 @@ namespace Game.AI
                         if (IsCreature(target))
                         {
                             if (e.GetTargetType() == SmartTargets.Self)
-                                target.ToCreature().SetHomePosition(_me.GetPositionX(), _me.GetPositionY(), _me.GetPositionZ(), _me.GetOrientation());
+                                target.ToCreature().SetHomePosition(_me.Location.X, _me.Location.Y, _me.Location.Z, _me.Location.Orientation);
                             else if (e.GetTargetType() == SmartTargets.Position)
                                 target.ToCreature().SetHomePosition(e.Target.x, e.Target.y, e.Target.z, e.Target.o);
                             else if (e.GetTargetType() == SmartTargets.CreatureRange || e.GetTargetType() == SmartTargets.CreatureGuid ||
@@ -1931,7 +1929,7 @@ namespace Game.AI
                                      e.GetTargetType() == SmartTargets.ClosestEnemy || e.GetTargetType() == SmartTargets.ClosestFriendly ||
                                      e.GetTargetType() == SmartTargets.ClosestUnspawnedGameobject)
                             {
-                                target.ToCreature().SetHomePosition(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), target.GetOrientation());
+                                target.ToCreature().SetHomePosition(target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
                             }
                             else
                                 Log.outError(LogFilter.Sql, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is invalid, skipping");
@@ -2368,8 +2366,7 @@ namespace Game.AI
                         Player playerTarget = target.ToPlayer();
                         if (playerTarget != null)
                         {
-                            Conversation conversation = Conversation.CreateConversation(e.Action.conversation.id, playerTarget,
-                                playerTarget, playerTarget.GetGUID(), null);
+                            Conversation conversation = Conversation.CreateConversation(e.Action.conversation.id, playerTarget, playerTarget.Location, playerTarget.GetGUID(), null);
                             if (!conversation)
                                 Log.outWarn(LogFilter.ScriptsAi, $"SmartScript.ProcessAction: SMART_ACTION_CREATE_CONVERSATION: id {e.Action.conversation.id}, baseObject {baseObject?.GetName()}, target {playerTarget.GetName()} - failed to create");
                         }
@@ -2459,7 +2456,7 @@ namespace Game.AI
                         {
                             Player playerTarget = target?.ToPlayer();
                             if (playerTarget != null)
-                                doCreatePersonalClone(baseObject.GetPosition(), playerTarget);
+                                doCreatePersonalClone(baseObject.Location, playerTarget);
                         }
                     }
                     else
@@ -3327,7 +3324,7 @@ namespace Game.AI
                 {
                     if (GetBaseObject() == null)
                         return;
-                    if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().GetMapId() != e.Event.respawn.map)
+                    if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().Location.GetMapId() != e.Event.respawn.map)
                         return;
                     if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && GetBaseObject().GetZoneId() != e.Event.respawn.area)
                         return;

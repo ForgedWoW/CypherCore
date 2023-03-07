@@ -24,6 +24,6 @@ public class spell_rog_grappling_hook_SpellScript : SpellScript, ISpellOnHit
 		if (caster == null || dest == null)
 			return;
 
-		caster.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), RogueSpells.GRAPPLING_HOOK_TRIGGER, true);
+		caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), RogueSpells.GRAPPLING_HOOK_TRIGGER, true);
 	}
 }

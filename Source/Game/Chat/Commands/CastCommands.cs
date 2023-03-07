@@ -64,9 +64,10 @@ namespace Game.Chat
             if (!triggerFlags.HasValue)
                 return false;
 
-            handler.GetSession().GetPlayer().GetClosePoint(out float x, out float y, out float z, dist);
+            Position closestPos = new Position();
+            handler.GetSession().GetPlayer().GetClosePoint(closestPos, dist);
 
-            handler.GetSession().GetPlayer().CastSpell(new Position(x, y, z), spellId, new CastSpellExtraArgs(triggerFlags.Value));
+            handler.GetSession().GetPlayer().CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
             return true;
         }

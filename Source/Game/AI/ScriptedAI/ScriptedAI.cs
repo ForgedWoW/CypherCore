@@ -247,7 +247,7 @@ namespace Game.AI
         //Spawns a creature relative to me
         public Creature DoSpawnCreature(uint entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, TimeSpan despawntime)
         {
-            return me.SummonCreature(entry, me.GetPositionX() + offsetX, me.GetPositionY() + offsetY, me.GetPositionZ() + offsetZ, angle, type, despawntime);
+            return me.SummonCreature(entry, new Position(me.Location.X + offsetX, me.Location.Y + offsetY, me.Location.Z + offsetZ, angle), type, despawntime);
         }
 
         //Returns spells that meet the specified criteria from the creatures spell list
@@ -332,7 +332,7 @@ namespace Game.AI
 
         public void DoTeleportTo(float x, float y, float z, uint time = 0)
         {
-            me.Relocate(x, y, z);
+            me.Location.Relocate(x, y, z);
             float speed = me.GetDistance(x, y, z) / (time * 0.001f);
             me.MonsterMoveWithSpeed(x, y, z, speed);
         }
@@ -349,7 +349,7 @@ namespace Game.AI
                 return;
             Player player = unit.ToPlayer();
             if (player != null)
-                player.TeleportTo(unit.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
+                player.TeleportTo(unit.Location.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
             else
                 Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoTeleportPlayer: Creature {me.GetGUID()} Tried to teleport non-player unit ({unit.GetGUID()}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
         }
@@ -363,7 +363,7 @@ namespace Game.AI
             var PlayerList = map.GetPlayers();
             foreach (var player in PlayerList)
                 if (player.IsAlive())
-                    player.TeleportTo(me.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
+                    player.TeleportTo(me.Location.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
 
         }
 
@@ -562,13 +562,11 @@ namespace Game.AI
 
         public void TeleportCheaters()
         {
-            me.GetPosition(out float x, out float y, out float z);
-
             foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
             {
                 Unit target = pair.Value.GetOther(me);
-                if (target.IsControlledByPlayer() && !IsInBoundary(target))
-                    target.NearTeleportTo(x, y, z, 0);
+                if (target.IsControlledByPlayer() && !IsInBoundary(target.Location))
+                    target.NearTeleportTo(me.Location);
             }
         }
 
@@ -667,7 +665,7 @@ namespace Game.AI
         public override void JustDied(Unit killer) { _JustDied(); }
         public override void JustReachedHome() { _JustReachedHome(); }
 
-        public override bool CanAIAttack(Unit victim) { return IsInBoundary(victim); }
+        public override bool CanAIAttack(Unit victim) { return IsInBoundary(victim.Location); }
 
         public void _JustReachedHome() { me.SetActive(false); }
 

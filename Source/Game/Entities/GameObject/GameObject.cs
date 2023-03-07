@@ -179,11 +179,11 @@ namespace Game.Entities
             Cypher.Assert(map);
             SetMap(map);
 
-            Relocate(pos);
+            Location.Relocate(pos);
             StationaryPosition.Relocate(pos);
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Server, "Gameobject (Spawn id: {0} Entry: {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})", GetSpawnId(), entry, pos.GetPositionX(), pos.GetPositionY());
+                Log.outError(LogFilter.Server, "Gameobject (Spawn id: {0} Entry: {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})", GetSpawnId(), entry, pos.X, pos.Y);
                 return false;
             }
 
@@ -204,7 +204,7 @@ namespace Game.Entities
             GameObjectTemplate goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
             if (goInfo == null)
             {
-                Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", GetSpawnId(), entry, map.GetId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", GetSpawnId(), entry, map.GetId(), pos.X, pos.Y, pos.Z);
                 return false;
             }
 
@@ -438,7 +438,7 @@ namespace Game.Entities
                             GameObjectFieldData goMask = new();
                             goMask.MarkChanged(m_gameObjectData.State);
 
-                            UpdateData udata = new(GetMapId());
+                            UpdateData udata = new(Location.GetMapId());
                             BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), seer);
                             udata.BuildPacket(out UpdateObject packet);
                             seer.SendPacket(packet);
@@ -508,7 +508,7 @@ namespace Game.Entities
                             long now = GameTime.GetGameTime();
                             if (m_respawnTime <= now)            // timer expired
                             {
-                                ObjectGuid dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, GetMapId(), GetEntry(), m_spawnId);
+                                ObjectGuid dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.GetMapId(), GetEntry(), m_spawnId);
                                 long linkedRespawntime = GetMap().GetLinkedRespawnTime(dbtableHighGuid);
                                 if (linkedRespawntime != 0)             // Can't respawn, the master is dead
                                 {
@@ -729,7 +729,7 @@ namespace Game.Entities
                             if (goInfo.Trap.charges == 2 && goInfo.Trap.spell != 0)
                             {
                                 //todo NULL target won't work for target type 1
-                                CastSpell(null, goInfo.Trap.spell);
+                                CastSpell(goInfo.Trap.spell);
                                 SetLootState(LootState.JustDeactivated);
                             }
                             else if (target)
@@ -1020,7 +1020,7 @@ namespace Game.Entities
                 return;
             }
 
-            uint mapId = GetMapId();
+            uint mapId = Location.GetMapId();
             ITransport transport = GetTransport();
             if (transport != null)
                 if (transport.GetMapIdForSpawning() >= 0)
@@ -1047,8 +1047,8 @@ namespace Game.Entities
             Cypher.Assert(data.SpawnId == m_spawnId);
 
             data.Id = GetEntry();
-            data.MapId = GetMapId();
-            data.SpawnPoint.Relocate(this);
+            data.MapId = Location.GetMapId();
+            data.SpawnPoint.Relocate(Location);
             data.rotation = m_localRotation;
             data.spawntimesecs = (int)(m_spawnedByDefault ? m_respawnDelayTime : -m_respawnDelayTime);
             data.animprogress = GetGoAnimProgress();
@@ -1074,10 +1074,10 @@ namespace Game.Entities
             stmt.AddValue(index++, data.SpawnDifficulties.Empty() ? "" : string.Join(",", data.SpawnDifficulties));
             stmt.AddValue(index++, data.PhaseId);
             stmt.AddValue(index++, data.PhaseGroup);
-            stmt.AddValue(index++, GetPositionX());
-            stmt.AddValue(index++, GetPositionY());
-            stmt.AddValue(index++, GetPositionZ());
-            stmt.AddValue(index++, GetOrientation());
+            stmt.AddValue(index++, Location.X);
+            stmt.AddValue(index++, Location.Y);
+            stmt.AddValue(index++, Location.Z);
+            stmt.AddValue(index++, Location.Orientation);
             stmt.AddValue(index++, m_localRotation.X);
             stmt.AddValue(index++, m_localRotation.Y);
             stmt.AddValue(index++, m_localRotation.Z);
@@ -1276,7 +1276,7 @@ namespace Game.Entities
                 }
 
                 long thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : m_respawnTime;
-                GetMap().SaveRespawnTime(SpawnObjectType.GameObject, m_spawnId, GetEntry(), thisRespawnTime, GridDefines.ComputeGridCoord(GetPositionX(), GetPositionY()).GetId());
+                GetMap().SaveRespawnTime(SpawnObjectType.GameObject, m_spawnId, GetEntry(), thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
             }
         }
 
@@ -1810,12 +1810,12 @@ namespace Game.Entities
                     float lowestDist = SharedConst.DefaultVisibilityDistance;
 
                     uint nearest_slot = 0;
-                    float x_lowest = GetPositionX();
-                    float y_lowest = GetPositionY();
+                    float x_lowest = Location.X;
+                    float y_lowest = Location.Y;
 
                     // the object orientation + 1/2 pi
                     // every slot will be on that straight line
-                    float orthogonalOrientation = GetOrientation() + MathFunctions.PI * 0.5f;
+                    float orthogonalOrientation = Location.Orientation + MathFunctions.PI * 0.5f;
                     // find nearest slot
                     bool found_free_slot = false;
 
@@ -1824,15 +1824,15 @@ namespace Game.Entities
                         // the distance between this slot and the center of the go - imagine a 1D space
                         float relativeDistance = (info.size * slot) - (info.size * (info.Chair.chairslots - 1) / 2.0f);
 
-                        float x_i = (float)(GetPositionX() + relativeDistance * Math.Cos(orthogonalOrientation));
-                        float y_i = (float)(GetPositionY() + relativeDistance * Math.Sin(orthogonalOrientation));
+                        float x_i = (float)(Location.X + relativeDistance * Math.Cos(orthogonalOrientation));
+                        float y_i = (float)(Location.Y + relativeDistance * Math.Sin(orthogonalOrientation));
 
                         if (!sittingUnit.IsEmpty())
                         {
                             Unit chairUser = Global.ObjAccessor.GetUnit(this, sittingUnit);
                             if (chairUser != null)
                             {
-                                if (chairUser.IsSitState() && chairUser.GetStandState() != UnitStandStateType.Sit && chairUser.GetExactDist2d(x_i, y_i) < 0.1f)
+                                if (chairUser.IsSitState() && chairUser.GetStandState() != UnitStandStateType.Sit && chairUser.Location.GetExactDist2d(x_i, y_i) < 0.1f)
                                     continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser.getStandState() != UNIT_STAND_STATE_SIT check is required.
 
                                 ChairListSlots[slot].Clear(); // This seat is unoccupied.
@@ -1861,7 +1861,7 @@ namespace Game.Entities
                         if (guid.IsEmpty())
                         {
                             ChairListSlots[nearest_slot] = user.GetGUID(); //this slot in now used by player
-                            user.NearTeleportTo(x_lowest, y_lowest, GetPositionZ(), GetOrientation());
+                            user.NearTeleportTo(x_lowest, y_lowest, Location.Z, Location.Orientation);
                             user.SetStandState(UnitStandStateType.SitLowChair + (byte)info.Chair.chairheight);
                             if (info.Chair.triggeredEvent != 0)
                                 GameEvents.Trigger(info.Chair.triggeredEvent, user, this);
@@ -2338,7 +2338,7 @@ namespace Game.Entities
                     player.SendPacket(new EnableBarberShop());
 
                     // fallback, will always work
-                    player.TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet));
+                    player.TeleportTo(Location.GetMapId(), Location.X, Location.Y, Location.Z, Location.Orientation, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet));
                     player.SetStandState((UnitStandStateType.SitLowChair + (byte)info.BarberChair.chairheight), info.BarberChair.SitAnimKit);
                     return;
                 }
@@ -2535,11 +2535,11 @@ namespace Game.Entities
             if (info == null)
                 return IsWithinDist3d(x, y, z, radius);
 
-            float sinA = (float)Math.Sin(GetOrientation());
-            float cosA = (float)Math.Cos(GetOrientation());
-            float dx = x - GetPositionX();
-            float dy = y - GetPositionY();
-            float dz = z - GetPositionZ();
+            float sinA = (float)Math.Sin(Location.Orientation);
+            float cosA = (float)Math.Cos(Location.Orientation);
+            float dx = x - Location.X;
+            float dy = y - Location.Y;
+            float dz = z - Location.Z;
             float dist = (float)Math.Sqrt(dx * dx + dy * dy);
             //! Check if the distance between the 2 objects is 0, can happen if both objects are on the same position.
             //! The code below this check wont crash if dist is 0 because 0/0 in float operations is valid, and returns infinite
@@ -2651,13 +2651,13 @@ namespace Game.Entities
                 float maxRange = spell.GetMaxRange(spell.IsPositive());
 
                 if (GetGoType() == GameObjectTypes.SpellFocus)
-                    return maxRange * maxRange >= GetExactDistSq(player);
+                    return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
 
                 if (CliDB.GameObjectDisplayInfoStorage.ContainsKey(GetGoInfo().displayId))
-                    return IsAtInteractDistance(player, maxRange);
+                    return IsAtInteractDistance(player.Location, maxRange);
             }
 
-            return IsAtInteractDistance(player, GetInteractionDistance());
+            return IsAtInteractDistance(player.Location, GetInteractionDistance());
         }
 
         bool IsAtInteractDistance(Position pos, float radius)
@@ -2677,11 +2677,11 @@ namespace Game.Entities
                 Quaternion worldRotation = GetWorldRotation();
 
                 //Todo Test this. Needs checked.
-                var worldSpaceBox = MathFunctions.toWorldSpace(worldRotation.ToMatrix(), new Vector3(GetPositionX(), GetPositionY(), GetPositionZ()), new Box(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ)));
-                return worldSpaceBox.Contains(new Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()));
+                var worldSpaceBox = MathFunctions.toWorldSpace(worldRotation.ToMatrix(), new Vector3(Location.X, Location.Y, Location.Z), new Box(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ)));
+                return worldSpaceBox.Contains(new Vector3(pos.X, pos.Y, pos.Z));
             }
 
-            return GetExactDist(pos) <= radius;
+            return Location.GetExactDist(pos) <= radius;
         }
 
         public bool IsWithinDistInMap(Player player)
@@ -2959,7 +2959,7 @@ namespace Game.Entities
                     GameObjectFieldData goMask = new();
                     objMask.MarkChanged(objMask.DynamicFlags);
 
-                    UpdateData udata = new(GetMapId());
+                    UpdateData udata = new(Location.GetMapId());
                     BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), looter);
                     udata.BuildPacket(out UpdateObject packet);
                     looter.SendPacket(packet);
@@ -3203,12 +3203,12 @@ namespace Game.Entities
             });
         }
 
-        public void GetRespawnPosition(out float x, out float y, out float z, out float ori)
+        public Position GetRespawnPosition()
         {
             if (m_goData != null)
-                m_goData.SpawnPoint.GetPosition(out x, out y, out z, out ori);
+               return m_goData.SpawnPoint.Copy();
             else
-                GetPosition(out x, out y, out z, out ori);
+                return Location.Copy();
         }
 
         public ITransport ToTransportBase()
@@ -3457,7 +3457,7 @@ namespace Game.Entities
                 {
                     UpdateCapturePoint packet = new();
                     packet.CapturePointInfo.State = m_goValue.CapturePoint.State;
-                    packet.CapturePointInfo.Pos = GetPosition();
+                    packet.CapturePointInfo.Pos = Location;
                     packet.CapturePointInfo.Guid = GetGUID();
                     packet.CapturePointInfo.CaptureTotalDuration = TimeSpan.FromMilliseconds(GetGoInfo().CapturePoint.CaptureTime);
                     packet.CapturePointInfo.CaptureTime = m_goValue.CapturePoint.AssaultTimer;
@@ -3664,19 +3664,19 @@ namespace Game.Entities
         public override uint GetFaction() { return m_gameObjectData.FactionTemplate; }
         public override void SetFaction(uint faction) { SetUpdateFieldValue(m_values.ModifyValue(m_gameObjectData).ModifyValue(m_gameObjectData.FactionTemplate), faction); }
 
-        public override float GetStationaryX() { return StationaryPosition.GetPositionX(); }
-        public override float GetStationaryY() { return StationaryPosition.GetPositionY(); }
-        public override float GetStationaryZ() { return StationaryPosition.GetPositionZ(); }
-        public override float GetStationaryO() { return StationaryPosition.GetOrientation(); }
+        public override float GetStationaryX() { return StationaryPosition.X; }
+        public override float GetStationaryY() { return StationaryPosition.Y; }
+        public override float GetStationaryZ() { return StationaryPosition.Z; }
+        public override float GetStationaryO() { return StationaryPosition.Orientation; }
         public Position GetStationaryPosition() { return StationaryPosition; }
 
-        public void RelocateStationaryPosition(float x, float y, float z, float o) { StationaryPosition.Relocate(x, y, z, o); }
+        public void RelocateStationaryPosition(Position pos) { StationaryPosition.Relocate(pos); }
 
         //! Object distance/size - overridden from Object._IsWithinDist. Needs to take in account proper GO size.
         public override bool _IsWithinDist(WorldObject obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius)
         {
             //! Following check does check 3d distance
-            return IsInRange(obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), dist2compare);
+            return IsInRange(obj.Location.X, obj.Location.Y, obj.Location.Z, dist2compare);
         }
 
         void UpdateDynamicFlagsForNearbyPlayers()
@@ -3765,7 +3765,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), GameObjectMask.GetUpdateMask(), player);
 
@@ -3786,7 +3786,7 @@ namespace Game.Entities
         public override uint GetDisplayId() { return _owner.GetDisplayId(); }
         public override byte GetNameSetId() { return _owner.GetNameSetId(); }
         public override bool IsInPhase(PhaseShift phaseShift) { return _owner.GetPhaseShift().CanSee(phaseShift); }
-        public override Vector3 GetPosition() { return new Vector3(_owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ()); }
+        public override Vector3 GetPosition() { return new Vector3(_owner.Location.X, _owner.Location.Y, _owner.Location.Z); }
         public override Quaternion GetRotation() { return new Quaternion(_owner.GetLocalRotation().X, _owner.GetLocalRotation().Y, _owner.GetLocalRotation().Z, _owner.GetLocalRotation().W); }
         public override float GetScale() { return _owner.GetObjectScale(); }
 
@@ -4070,7 +4070,7 @@ namespace Game.Entities
                     dst = pathRotation.Multiply(dst);
                     dst += _owner.GetStationaryPosition();
 
-                    _owner.GetMap().GameObjectRelocation(_owner, dst.X, dst.Y, dst.Z, _owner.GetOrientation());
+                    _owner.GetMap().GameObjectRelocation(_owner, dst.X, dst.Y, dst.Z, _owner.Location.Orientation);
                 }
 
                 TransportRotationRecord oldRotation = _animationInfo.GetPrevAnimRotation(newProgress);
@@ -4165,9 +4165,9 @@ namespace Game.Entities
             {
                 foreach (WorldObject passenger in _passengers)
                 {
-                    passenger.m_movementInfo.transport.pos.GetPosition(out float x, out float y, out float z, out float o);
-                    CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-                    ITransport.UpdatePassengerPosition(this, _owner.GetMap(), passenger, x, y, z, o, true);
+                    var pos = passenger.m_movementInfo.transport.pos.Copy();
+                    CalculatePassengerPosition(pos);
+                    ITransport.UpdatePassengerPosition(this, _owner.GetMap(), passenger, pos, true);
                 }
             }
 
@@ -4186,7 +4186,7 @@ namespace Game.Entities
 
             public ObjectGuid GetTransportGUID() { return _owner.GetGUID(); }
 
-            public float GetTransportOrientation() { return _owner.GetOrientation(); }
+            public float GetTransportOrientation() { return _owner.Location.Orientation; }
 
             public void AddPassenger(WorldObject passenger)
             {
@@ -4212,20 +4212,20 @@ namespace Game.Entities
 
                     Player plr = passenger.ToPlayer();
                     if (plr != null)
-                        plr.SetFallInformation(0, plr.GetPositionZ());
+                        plr.SetFallInformation(0, plr.Location.Z);
                 }
 
                 return this;
             }
 
-            public void CalculatePassengerPosition(ref float x, ref float y, ref float z, ref float o)
+            public void CalculatePassengerPosition(Position pos)
             {
-                ITransport.CalculatePassengerPosition(ref x, ref y, ref z, ref o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+                ITransport.CalculatePassengerPosition(pos, _owner.Location.X, _owner.Location.Y, _owner.Location.Z, _owner.Location.Orientation);
             }
 
-            public void CalculatePassengerOffset(ref float x, ref float y, ref float z, ref float o)
+            public void CalculatePassengerOffset(Position pos)
             {
-                ITransport.CalculatePassengerOffset(ref x, ref y, ref z, ref o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+                ITransport.CalculatePassengerOffset(pos, _owner.Location.X, _owner.Location.Y, _owner.Location.Z, _owner.Location.Orientation);
             }
 
             public int GetMapIdForSpawning()

@@ -36,7 +36,7 @@ public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
 		var dest = GetExplTargetDest();
 
 		if (dest != null)
-			player.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
+			player.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);
 
 		if (player.HasAura(DemonHunterSpells.DEMON_REBORN)) // Remove CD of Eye Beam, Chaos Nova and Blur
 		{

@@ -136,7 +136,7 @@ namespace Game
             uint pause = unit.GetMovementTemplate().GetInteractionPauseTimer();
             if (pause != 0)
                 unit.PauseMovement(pause);
-            unit.SetHomePosition(unit.GetPosition());
+            unit.SetHomePosition(unit.Location);
 
             // If spiritguide, no need for gossip menu, just put player into resurrect queue
             if (unit.IsSpiritGuide())
@@ -275,7 +275,7 @@ namespace Game
             // teleport to nearest from corpse graveyard, if different from nearest to player ghost
             if (corpseGrave != null)
             {
-                WorldSafeLocsEntry ghostGrave = Global.ObjectMgr.GetClosestGraveYard(GetPlayer(), GetPlayer().GetTeam(), GetPlayer());
+                WorldSafeLocsEntry ghostGrave = Global.ObjectMgr.GetClosestGraveYard(GetPlayer().Location, GetPlayer().GetTeam(), GetPlayer());
 
                 if (corpseGrave != ghostGrave)
                     GetPlayer().TeleportTo(corpseGrave.Loc);
@@ -596,7 +596,7 @@ namespace Game
             uint pause = vendor.GetMovementTemplate().GetInteractionPauseTimer();
             if (pause != 0)
                 vendor.PauseMovement(pause);
-            vendor.SetHomePosition(vendor.GetPosition());
+            vendor.SetHomePosition(vendor.Location);
 
             VendorItemData vendorItems = vendor.GetVendorItems();
             int rawItemCount = vendorItems != null ? vendorItems.GetItemCount() : 0;

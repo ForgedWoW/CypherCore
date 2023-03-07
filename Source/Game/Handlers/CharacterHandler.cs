@@ -798,8 +798,8 @@ namespace Game
             pCurrChar.SendDungeonDifficulty();
 
             LoginVerifyWorld loginVerifyWorld = new();
-            loginVerifyWorld.MapID = (int)pCurrChar.GetMapId();
-            loginVerifyWorld.Pos = pCurrChar.GetPosition();
+            loginVerifyWorld.MapID = (int)pCurrChar.Location.GetMapId();
+            loginVerifyWorld.Pos = pCurrChar.Location;
             SendPacket(loginVerifyWorld);
 
             // load player specific part before send times
@@ -881,9 +881,9 @@ namespace Game
 
             if (!pCurrChar.GetMap().AddPlayerToMap(pCurrChar))
             {
-                var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.GetMapId());
+                var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.Location.GetMapId());
                 if (at != null)
-                    pCurrChar.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, pCurrChar.Orientation);
+                    pCurrChar.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, pCurrChar.Location.Orientation);
                 else
                     pCurrChar.TeleportTo(pCurrChar.GetHomebind());
             }
@@ -2010,9 +2010,9 @@ namespace Game
 
                     stmt.AddValue(1, loc.GetMapId());
                     stmt.AddValue(2, zoneId);
-                    stmt.AddValue(3, loc.GetPositionX());
-                    stmt.AddValue(4, loc.GetPositionY());
-                    stmt.AddValue(5, loc.GetPositionZ());
+                    stmt.AddValue(3, loc.X);
+                    stmt.AddValue(4, loc.Y);
+                    stmt.AddValue(5, loc.Z);
                     trans.Append(stmt);
 
                     Player.SavePositionInDB(loc, zoneId, factionChangeInfo.Guid, trans);

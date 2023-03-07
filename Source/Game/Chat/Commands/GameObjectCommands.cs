@@ -162,7 +162,7 @@ namespace Game.Chat
             if (spawnData != null)
             {
                 spawnData.rotation.toEulerAnglesZYX(out float yaw, out float pitch, out float roll);
-                handler.SendSysMessage(CypherStrings.SpawninfoSpawnidLocation, spawnData.SpawnId, spawnData.SpawnPoint.GetPositionX(), spawnData.SpawnPoint.GetPositionY(), spawnData.SpawnPoint.GetPositionZ());
+                handler.SendSysMessage(CypherStrings.SpawninfoSpawnidLocation, spawnData.SpawnId, spawnData.SpawnPoint.X, spawnData.SpawnPoint.Y, spawnData.SpawnPoint.Z);
                 handler.SendSysMessage(CypherStrings.SpawninfoRotation, yaw, pitch, roll);
             }
 
@@ -199,21 +199,22 @@ namespace Game.Chat
             if (xyz != null)
             {
                 pos = new Position(xyz[0], xyz[1], xyz[2]);
-                if (!GridDefines.IsValidMapCoord(obj.GetMapId(), pos))
+                if (!GridDefines.IsValidMapCoord(obj.Location.GetMapId(), pos))
                 {
-                    handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.GetPositionX(), pos.GetPositionY(), obj.GetMapId());
+                    handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, obj.Location.GetMapId());
                     return false;
                 }
             }
             else
             {
-                pos = handler.GetSession().GetPlayer().GetPosition();
+                pos = handler.GetSession().GetPlayer().Location;
             }
 
             Map map = obj.GetMap();
 
-            pos.SetOrientation(obj.GetOrientation());
-            obj.Relocate(pos);
+            pos.
+            Orientation = obj.Location.Orientation;
+            obj.Location.Relocate(pos);
 
             // update which cell has this gameobject registered for loading
             Global.ObjectMgr.RemoveGameObjectFromGrid(obj.GetGameObjectData());
@@ -244,13 +245,13 @@ namespace Game.Chat
             Player player = handler.GetPlayer();
 
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
-            stmt.AddValue(0, player.GetPositionX());
-            stmt.AddValue(1, player.GetPositionY());
-            stmt.AddValue(2, player.GetPositionZ());
-            stmt.AddValue(3, player.GetMapId());
-            stmt.AddValue(4, player.GetPositionX());
-            stmt.AddValue(5, player.GetPositionY());
-            stmt.AddValue(6, player.GetPositionZ());
+            stmt.AddValue(0, player.Location.X);
+            stmt.AddValue(1, player.Location.Y);
+            stmt.AddValue(2, player.Location.Z);
+            stmt.AddValue(3, player.Location.GetMapId());
+            stmt.AddValue(4, player.Location.X);
+            stmt.AddValue(5, player.Location.Y);
+            stmt.AddValue(6, player.Location.Z);
             stmt.AddValue(7, distance * distance);
             SQLResult result = DB.World.Query(stmt);
 
@@ -333,13 +334,13 @@ namespace Game.Chat
             {
                 if (uint.TryParse(objectIdStr, out uint objectId))
                     result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
-                    player.GetPositionX(), player.GetPositionY(), player.GetPositionZ(), player.GetMapId(), objectId);
+                    player.Location.X, player.Location.Y, player.Location.Z, player.Location.GetMapId(), objectId);
                 else
                 {
                     result = DB.World.Query(
                         "SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
                         "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
-                        player.GetPositionX(), player.GetPositionY(), player.GetPositionZ(), player.GetMapId(), objectIdStr);
+                        player.Location.X, player.Location.Y, player.Location.Z, player.Location.GetMapId(), objectIdStr);
                 }
             }
             else
@@ -367,8 +368,8 @@ namespace Game.Chat
                 result = DB.World.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
                     "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
                     "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
-                    handler.GetSession().GetPlayer().GetPositionX(), handler.GetSession().GetPlayer().GetPositionY(), handler.GetSession().GetPlayer().GetPositionZ(),
-                    handler.GetSession().GetPlayer().GetMapId(), eventFilter.ToString());
+                    handler.GetSession().GetPlayer().Location.X, handler.GetSession().GetPlayer().Location.Y, handler.GetSession().GetPlayer().Location.Z,
+                    handler.GetSession().GetPlayer().Location.GetMapId(), eventFilter.ToString());
             }
 
             if (result.IsEmpty())
@@ -443,11 +444,11 @@ namespace Game.Chat
             }
 
             if (!oz.HasValue)
-                oz = handler.GetSession().GetPlayer().GetOrientation();
+                oz = handler.GetSession().GetPlayer().Location.Orientation;
 
             Map map = obj.GetMap();
 
-            obj.Relocate(obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), oz.Value);
+            obj.Location.Relocate(obj.Location.X, obj.Location.Y, obj.Location.Z, oz.Value);
             obj.SetLocalRotationAngles(oz.Value, oy.GetValueOrDefault(0f), ox.GetValueOrDefault(0f));
             obj.SaveToDB();
 
@@ -461,7 +462,7 @@ namespace Game.Chat
             if (!obj)
                 return false;
 
-            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GetGUID().ToString(), obj.GetOrientation());
+            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GetGUID().ToString(), obj.Location.Orientation);
 
             return true;
         }
@@ -493,7 +494,7 @@ namespace Game.Chat
                 Player player = handler.GetPlayer();
                 Map map = player.GetMap();
 
-                GameObject obj = GameObject.CreateGameObject(objectInfo.entry, map, player, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.GetOrientation(), 0.0f, 0.0f)), 255, GameObjectState.Ready);
+                GameObject obj = GameObject.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
                 if (!obj)
                     return false;
 
@@ -513,7 +514,7 @@ namespace Game.Chat
 
                 // TODO: is it really necessary to add both the real and DB table guid here ?
                 Global.ObjectMgr.AddGameObjectToGrid(Global.ObjectMgr.GetGameObjectData(spawnId));
-                handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.GetPositionX(), player.GetPositionY(), player.GetPositionZ());
+                handler.SendSysMessage(CypherStrings.GameobjectAdd, objectId, objectInfo.name, spawnId, player.Location.X, player.Location.Y, player.Location.Z);
                 return true;
             }
 
@@ -523,14 +524,14 @@ namespace Game.Chat
                 Player player = handler.GetPlayer();
                 TimeSpan spawntm = TimeSpan.FromSeconds(spawntime.GetValueOrDefault(300));
 
-                Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.GetOrientation(), 0.0f, 0.0f));
+                Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f));
                 if (Global.ObjectMgr.GetGameObjectTemplate(objectId) == null)
                 {
                     handler.SendSysMessage(CypherStrings.GameobjectNotExist, objectId);
                     return false;
                 }
 
-                player.SummonGameObject(objectId, player, rotation, spawntm);
+                player.SummonGameObject(objectId, player.Location, rotation, spawntm);
 
                 return true;
             }

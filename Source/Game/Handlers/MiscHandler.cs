@@ -260,7 +260,7 @@ namespace Game
                 return;
 
             bool teleported = false;
-            if (player.GetMapId() != at.target_mapId)
+            if (player.Location.GetMapId() != at.target_mapId)
             {
                 if (!player.IsAlive())
                 {

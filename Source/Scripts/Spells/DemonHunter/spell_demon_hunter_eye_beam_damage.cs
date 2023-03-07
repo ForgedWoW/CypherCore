@@ -27,7 +27,7 @@ public class spell_demon_hunter_eye_beam_damage : SpellScript, IHasSpellEffects
 		caster.GetAttackableUnitListInRange(units, 25.0f);
 
 
-		units.RemoveIf((Unit unit) => { return !caster.HasInLine(unit, 5.0f, caster.GetObjectScale()); });
+		units.RemoveIf((Unit unit) => { return !caster.Location.HasInLine(unit.Location, 5.0f, caster.GetObjectScale()); });
 
 		foreach (var unit in units)
 			unitList.Add(unit);

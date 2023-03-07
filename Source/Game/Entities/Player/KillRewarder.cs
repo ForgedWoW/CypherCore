@@ -253,11 +253,11 @@ namespace Game.Entities
                 // (Battlegroundrewards only XP, that's why).
                 if (!_isBattleground || _xp != 0)
                 {
-                    bool isDungeon = !_isPvP && CliDB.MapStorage.LookupByKey(killer.GetMapId()).IsDungeon();
+                    bool isDungeon = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.GetMapId()).IsDungeon();
                     if (!_isBattleground)
                     {
                         // 3.1.2. Alter group rate if group is in raid (not for Battlegrounds).
-                        bool isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.GetMapId()).IsRaid() && group.IsRaidGroup();
+                        bool isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.GetMapId()).IsRaid() && group.IsRaidGroup();
                         _groupRate = Formulas.XPInGroupRate(_count, isRaid);
                     }
                     // 3.1.3. Reward each group member (even dead or corpse) within reward distance.

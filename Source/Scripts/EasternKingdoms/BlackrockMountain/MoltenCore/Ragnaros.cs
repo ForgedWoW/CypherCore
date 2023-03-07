@@ -269,7 +269,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore
 
                                                                   if (target != null)
                                                                   {
-                                                                      Creature summoned = me.SummonCreature(12143, target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
+                                                                      Creature summoned = me.SummonCreature(12143, target.Location.X, target.Location.Y, target.Location.Z, 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
 
                                                                       summoned?.GetAI().AttackStart(target);
                                                                   }
@@ -290,7 +290,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore
 
                                                                   if (target != null)
                                                                   {
-                                                                      Creature summoned = me.SummonCreature(12143, target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
+                                                                      Creature summoned = me.SummonCreature(12143, target.Location.X, target.Location.Y, target.Location.Z, 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
 
                                                                       summoned?.GetAI().AttackStart(target);
                                                                   }

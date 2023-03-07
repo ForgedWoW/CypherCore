@@ -36,7 +36,7 @@ namespace Scripts.Spells.Warrior
 					PathGenerator generatedPath = new(GetCaster());
 					generatedPath.SetPathLengthLimit(range);
 
-					var result = generatedPath.CalculatePath(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+					var result = generatedPath.CalculatePath(dest, false);
 
 					if (generatedPath.GetPathType().HasAnyFlag(PathType.Short))
 						return SpellCastResult.OutOfRange;
@@ -44,7 +44,7 @@ namespace Scripts.Spells.Warrior
 					         generatedPath.GetPathType().HasAnyFlag(PathType.NoPath))
 						return SpellCastResult.NoPath;
 				}
-				else if (dest.GetPositionZ() > GetCaster().GetPositionZ() + 4.0f)
+				else if (dest.Z > GetCaster().Location.Z + 4.0f)
 				{
 					return SpellCastResult.NoPath;
 				}
@@ -67,7 +67,7 @@ namespace Scripts.Spells.Warrior
 			var dest = GetHitDest();
 
 			if (dest != null)
-				GetCaster().CastSpell(dest.GetPosition(), WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
+				GetCaster().CastSpell(dest, WarriorSpells.HEROIC_LEAP_JUMP, new CastSpellExtraArgs(true));
 		}
 	}
 }

@@ -117,7 +117,7 @@ namespace Game.Chat
                 return false;
             }
 
-            return Conversation.CreateConversation(conversationEntry, target, target, target.GetGUID()) != null;
+            return Conversation.CreateConversation(conversationEntry, target, target.Location, target.GetGUID()) != null;
         }
 
         [Command("dummy", RBACPermissions.CommandDebug)]
@@ -691,22 +691,22 @@ namespace Game.Chat
                     if (bf != null)
                         nearestLoc = bf.GetClosestGraveYard(player);
                     else
-                        nearestLoc = Global.ObjectMgr.GetClosestGraveYard(player, player.GetTeam(), player);
+                        nearestLoc = Global.ObjectMgr.GetClosestGraveYard(player.Location, player.GetTeam(), player);
                 }
             }
             else
             {
-                float x = player.GetPositionX();
-                float y = player.GetPositionY();
-                float z = player.GetPositionZ();
+                float x = player.Location.X;
+                float y = player.Location.Y;
+                float z = player.Location.Z;
                 float distNearest = float.MaxValue;
 
                 foreach (var pair in Global.ObjectMgr.GetWorldSafeLocs())
                 {
                     var worldSafe = pair.Value;
-                    if (worldSafe.Loc.GetMapId() == player.GetMapId())
+                    if (worldSafe.Loc.GetMapId() == player.Location.GetMapId())
                     {
-                        float dist = (worldSafe.Loc.GetPositionX() - x) * (worldSafe.Loc.GetPositionX() - x) + (worldSafe.Loc.GetPositionY() - y) * (worldSafe.Loc.GetPositionY() - y) + (worldSafe.Loc.GetPositionZ() - z) * (worldSafe.Loc.GetPositionZ() - z);
+                        float dist = (worldSafe.Loc.X - x) * (worldSafe.Loc.X - x) + (worldSafe.Loc.Y - y) * (worldSafe.Loc.Y - y) + (worldSafe.Loc.Z - z) * (worldSafe.Loc.Z - z);
                         if (dist < distNearest)
                         {
                             distNearest = dist;
@@ -717,7 +717,7 @@ namespace Game.Chat
             }
 
             if (nearestLoc != null)
-                handler.SendSysMessage(CypherStrings.CommandNearGraveyard, nearestLoc.Id, nearestLoc.Loc.GetPositionX(), nearestLoc.Loc.GetPositionY(), nearestLoc.Loc.GetPositionZ());
+                handler.SendSysMessage(CypherStrings.CommandNearGraveyard, nearestLoc.Id, nearestLoc.Loc.X, nearestLoc.Loc.Y, nearestLoc.Loc.Z);
             else
                 handler.SendSysMessage(CypherStrings.CommandNearGraveyardNotfound);
 
@@ -898,11 +898,12 @@ namespace Game.Chat
         [Command("spawnvehicle", RBACPermissions.CommandDebug)]
         static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
         {
-            float o = handler.GetPlayer().GetOrientation();
-            handler.GetPlayer().GetClosePoint(out float x, out float y, out float z, handler.GetPlayer().GetCombatReach());
+            var pos = new Position();
+            pos.Orientation = handler.GetPlayer().Location.Orientation;
+            handler.GetPlayer().GetClosePoint(pos, handler.GetPlayer().GetCombatReach());
 
             if (id == 0)
-                return handler.GetPlayer().SummonCreature(entry, x, y, z, o);
+                return handler.GetPlayer().SummonCreature(entry, pos);
 
             CreatureTemplate creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(entry);
             if (creatureTemplate == null)
@@ -913,7 +914,6 @@ namespace Game.Chat
                 return false;
 
             Map map = handler.GetPlayer().GetMap();
-            Position pos = new(x, y, z, o);
 
             Creature creature = Creature.CreateCreature(entry, map, pos, id);
             if (!creature)
@@ -1076,7 +1076,7 @@ namespace Game.Chat
             }
             else
             {
-                Position pos = transport.GetPosition();
+                Position pos = transport.Location;
                 handler.SendSysMessage("Transport {0} is {1}", transport.GetName(), transport.GetGoState() == GameObjectState.Ready ? "stopped" : "moving");
                 handler.SendSysMessage("Transport position: {0}", pos.ToString());
                 return true;
@@ -1116,7 +1116,7 @@ namespace Game.Chat
         {
             Player player = handler.GetPlayer();
 
-            Log.outInfo(LogFilter.SqlDev, $"(@PATH, XX, {player.GetPositionX():3F}, {player.GetPositionY():3F}, {player.GetPositionZ():5F}, {player.GetOrientation():5F}, 0, 0, 0, 100, 0)");
+            Log.outInfo(LogFilter.SqlDev, $"(@PATH, XX, {player.Location.X:3F}, {player.Location.Y:3F}, {player.Location.Z:5F}, {player.Location.Orientation:5F}, 0, 0, 0, 100, 0)");
 
             handler.SendSysMessage("Waypoint SQL written to SQL Developer log");
             return true;

@@ -42,12 +42,12 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 		if (player == null || target == null)
 			return;
 
-		var pTarget = target.GetWorldLocation();
+		var pTarget = target.Location;
 
 		float speedXY;
         float speedZ;
 		speedZ  = 1.8f;
-		speedXY = player.GetExactDist2d(pTarget) * 10.0f / speedZ;
+		speedXY = player.Location.GetExactDist2d(pTarget) * 10.0f / speedZ;
 		player.GetMotionMaster().MoveJump(pTarget, speedXY, speedZ, EventId.Jump);
 	}
 

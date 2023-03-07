@@ -50,7 +50,7 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
 			return;
 
 		if (caster.HasAura(MageSpells.FLAME_PATCH))
-			caster.CastSpell(dest.GetPosition(), MageSpells.FLAME_PATCH_TRIGGER, true);
+			caster.CastSpell(dest, MageSpells.FLAME_PATCH_TRIGGER, true);
 	}
 
 	public override void Register()

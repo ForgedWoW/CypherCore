@@ -90,7 +90,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.Vaelastrasz
                                 task =>
                                 {
                                     //Only cast if we are behind
-                                    if (!me.HasInArc(MathF.PI, me.GetVictim()))
+                                    if (!me.Location.HasInArc(MathF.PI, me.GetVictim().Location))
                                         DoCast(me.GetVictim(), SpellIds.Tailswipe);
 
                                     task.Repeat(TimeSpan.FromSeconds(15));

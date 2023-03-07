@@ -49,7 +49,7 @@ namespace Game.Movement
 
             MoveSplineInit init = new(owner);
             // Providing a starting vertex since the taxi paths do not provide such
-            init.Path().Add(new Vector3(owner.GetPositionX(), owner.GetPositionY(), owner.GetPositionZ()));
+            init.Path().Add(new Vector3(owner.Location.X, owner.Location.Y, owner.Location.Z));
             for (int i = (int)currentNodeId; i != (uint)end; ++i)
             {
                 Vector3 vertice = new(_path[i].Loc.X, _path[i].Loc.Y, _path[i].Loc.Z);
@@ -138,7 +138,7 @@ namespace Game.Movement
                 if (node != null)
                 {
                     owner.SetFallInformation(0, node.Pos.Z);
-                    owner.TeleportTo(node.ContinentID, node.Pos.X, node.Pos.Y, node.Pos.Z, owner.GetOrientation());
+                    owner.TeleportTo(node.ContinentID, node.Pos.X, node.Pos.Y, node.Pos.Z, owner.Location.Orientation);
                 }
             }
 

@@ -25,7 +25,7 @@ namespace Scripts.Spells.Warlock
 			if (caster == null || target == null)
 				return;
 
-			var p = target.GetPosition();
+			var p = target.Location;
 			caster.m_Events.AddEvent(() => { caster.CastSpell(p, WarlockSpells.SOUL_FLAME_PROC, true); }, TimeSpan.FromMilliseconds(300));
 		}
 

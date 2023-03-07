@@ -24,7 +24,7 @@ namespace Scripts.Spells.Paladin
 
             targets.RemoveIf((WorldObject target) =>
             {
-                Position pos = target.GetPosition();
+                Position pos = target.Location;
                 return !(caster.IsWithinDist2d(pos, 15.0f) && caster.IsInFront(target, (float)(Math.PI / 3)));
             });
 

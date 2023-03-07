@@ -329,7 +329,7 @@ namespace Game.DataStorage
                     spawn.SpawnGroupData = Global.ObjectMgr.GetLegacySpawnGroup();
 
                     // Add the trigger to a map::cell map, which is later used by GridLoader to query
-                    CellCoord cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.GetPositionX(), spawn.SpawnPoint.GetPositionY());
+                    CellCoord cellCoord = GridDefines.ComputeCellCoord(spawn.SpawnPoint.X, spawn.SpawnPoint.Y);
                     if (!_areaTriggerSpawnsByLocation.TryGetValue((spawn.MapId, cellCoord.GetId()), out var val))
                     {
                         val = new SortedSet<ulong>();

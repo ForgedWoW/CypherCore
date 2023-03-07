@@ -853,7 +853,7 @@ namespace Game.BattleFields
         public float GetDistance(Player player)
         {
             WorldSafeLocsEntry safeLoc = Global.ObjectMgr.GetWorldSafeLoc(m_GraveyardId);
-            return player.GetDistance2d(safeLoc.Loc.GetPositionX(), safeLoc.Loc.GetPositionY());
+            return player.GetDistance2d(safeLoc.Loc.X, safeLoc.Loc.Y);
         }
 
         public void AddPlayer(ObjectGuid playerGuid)

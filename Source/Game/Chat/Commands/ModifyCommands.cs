@@ -461,7 +461,7 @@ namespace Game.Chat
             if (visibleMapId != 0)
             {
                 MapRecord visibleMap = CliDB.MapStorage.LookupByKey(visibleMapId);
-                if (visibleMap == null || visibleMap.ParentMapID != target.GetMapId())
+                if (visibleMap == null || visibleMap.ParentMapID != target.Location.GetMapId())
                 {
                     handler.SendSysMessage(CypherStrings.PhaseNotfound);
                     return false;

@@ -30,7 +30,7 @@ namespace Scripts.EasternKingdoms.Deadmines.GameObjects
             {
                 if (creature && creature.IsAlive() && creature.GetTypeId() == TypeId.Unit && creature.HasAura(78087))
                 {
-                    creature.GetMotionMaster().MoveCharge(me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), 5.0f);
+                    creature.GetMotionMaster().MoveCharge(me.Location.X, me.Location.Y, me.Location.Z, 5.0f);
                     creature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
                     creature.GetAI().Talk(0);
                 }

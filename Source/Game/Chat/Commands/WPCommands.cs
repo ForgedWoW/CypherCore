@@ -60,10 +60,10 @@ namespace Game.Chat.Commands
             stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
             stmt.AddValue(0, pathId);
             stmt.AddValue(1, point + 1);
-            stmt.AddValue(2, player.GetPositionX());
-            stmt.AddValue(3, player.GetPositionY());
-            stmt.AddValue(4, player.GetPositionZ());
-            stmt.AddValue(5, player.GetOrientation());
+            stmt.AddValue(2, player.Location.X);
+            stmt.AddValue(3, player.Location.Y);
+            stmt.AddValue(4, player.Location.Z);
+            stmt.AddValue(5, player.Location.Orientation);
 
             DB.World.Execute(stmt);
 
@@ -418,11 +418,11 @@ namespace Game.Chat.Commands
                 string maxDiff = "0.01";
 
                 stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_POS);
-                stmt.AddValue(0, target.GetPositionX());
+                stmt.AddValue(0, target.Location.X);
                 stmt.AddValue(1, maxDiff);
-                stmt.AddValue(2, target.GetPositionY());
+                stmt.AddValue(2, target.Location.Y);
                 stmt.AddValue(3, maxDiff);
-                stmt.AddValue(4, target.GetPositionZ());
+                stmt.AddValue(4, target.Location.Z);
                 stmt.AddValue(5, maxDiff);
                 result = DB.World.Query(stmt);
 
@@ -493,7 +493,7 @@ namespace Game.Chat.Commands
                 }
 
                 // re-create
-                Creature creature = Creature.CreateCreature(1, map, chr.GetPosition());
+                Creature creature = Creature.CreateCreature(1, map, chr.Location);
                 if (!creature)
                 {
                     handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
@@ -518,10 +518,10 @@ namespace Game.Chat.Commands
                 }
 
                 stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POSITION);
-                stmt.AddValue(0, chr.GetPositionX());
-                stmt.AddValue(1, chr.GetPositionY());
-                stmt.AddValue(2, chr.GetPositionZ());
-                stmt.AddValue(3, chr.GetOrientation());
+                stmt.AddValue(0, chr.Location.X);
+                stmt.AddValue(1, chr.Location.Y);
+                stmt.AddValue(2, chr.Location.Z);
+                stmt.AddValue(3, chr.Location.Orientation);
                 stmt.AddValue(4, pathid);
                 stmt.AddValue(5, point);
                 DB.World.Execute(stmt);

@@ -48,7 +48,7 @@ namespace Scripts.Spells.Warrior
 		{
 			var caster = GetCaster();
 			var target = GetExplTargetUnit();
-			var pos    = target.GetPosition();
+			var pos    = target.Location;
 
 			if (caster.GetDistance(pos) < 8.0f && !caster.IsFriendlyTo(target))
 				return SpellCastResult.TooClose;

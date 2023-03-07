@@ -603,7 +603,7 @@ namespace Game.Movement
 
         public void MovePoint(uint id, Position pos, bool generatePath = true, float? finalOrient = null, float speed = 0, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)
         {
-            MovePoint(id, pos.posX, pos.posY, pos.posZ, generatePath, finalOrient, speed, speedSelectionMode, closeEnoughDistance);
+            MovePoint(id, pos.X, pos.Y, pos.Z, generatePath, finalOrient, speed, speedSelectionMode, closeEnoughDistance);
         }
 
         public void MovePoint(uint id, float x, float y, float z, bool generatePath = true, float? finalOrient = null, float speed = 0, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)
@@ -613,20 +613,20 @@ namespace Game.Movement
 
         public void MoveCloserAndStop(uint id, Unit target, float distance)
         {
-            float distanceToTravel = _owner.GetExactDist2d(target) - distance;
+            float distanceToTravel = _owner.Location.GetExactDist2d(target.Location) - distance;
             if (distanceToTravel > 0.0f)
             {
-                float angle = _owner.GetAbsoluteAngle(target);
-                float destx = _owner.GetPositionX() + distanceToTravel * (float)Math.Cos(angle);
-                float desty = _owner.GetPositionY() + distanceToTravel * (float)Math.Sin(angle);
-                MovePoint(id, destx, desty, target.GetPositionZ());
+                float angle = _owner.Location.GetAbsoluteAngle(target.Location);
+                float destx = _owner.Location.X + distanceToTravel * (float)Math.Cos(angle);
+                float desty = _owner.Location.Y + distanceToTravel * (float)Math.Sin(angle);
+                MovePoint(id, destx, desty, target.Location.Z);
             }
             else
             {
                 // We are already close enough. We just need to turn toward the target without changing position.
                 var initializer = (MoveSplineInit init) =>
                 {
-                    init.MoveTo(_owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ());
+                    init.MoveTo(_owner.Location.X, _owner.Location.Y, _owner.Location.Z);
                     Unit refreshedTarget = Global.ObjAccessor.GetUnit(_owner, target.GetGUID());
                     if (refreshedTarget != null)
                         init.SetFacing(refreshedTarget);
@@ -700,17 +700,17 @@ namespace Game.Movement
             if (speedXY < 0.01f)
                 return;
 
-            Position dest = _owner.GetPosition();
+            Position dest = _owner.Location;
             float moveTimeHalf = (float)(speedZ / gravity);
             float dist = 2 * moveTimeHalf * speedXY;
             float max_height = -MoveSpline.ComputeFallElevation(moveTimeHalf, false, -speedZ);
 
             // Use a mmap raycast to get a valid destination.
-            _owner.MovePositionToFirstCollision(dest, dist, _owner.GetRelativeAngle(origin) + MathF.PI);
+            _owner.MovePositionToFirstCollision(dest, dist, _owner.Location.GetRelativeAngle(origin) + MathF.PI);
 
             var initializer = (MoveSplineInit init) =>
             {
-                init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+                init.MoveTo(dest.X, dest.Y, dest.Z, false);
                 init.SetParabolic(max_height, 0);
                 init.SetOrientationFixed(true);
                 init.SetVelocity(speedXY);
@@ -732,15 +732,15 @@ namespace Game.Movement
 
             float moveTimeHalf = (float)(speedZ / gravity);
             float dist = 2 * moveTimeHalf * speedXY;
-            _owner.GetNearPoint2D(null, out float x, out float y, dist, _owner.GetOrientation() + angle);
-            float z = _owner.GetPositionZ();
-            _owner.UpdateAllowedPositionZ(x, y, ref z);
+            _owner.GetNearPoint2D(null, out float x, out float y, dist, _owner.Location.Orientation + angle);
+            float z = _owner.Location.Z;
+            z = _owner.UpdateAllowedPositionZ(x, y, z);
             MoveJump(x, y, z, 0.0f, speedXY, speedZ);
         }
 
         public void MoveJump(Position pos, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
         {
-            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
+            MoveJump(pos.X, pos.Y, pos.Z, pos.Orientation, speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
         }
         public void MoveJump(float x, float y, float z, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
         {
@@ -789,13 +789,13 @@ namespace Game.Movement
 
             var initializer = (MoveSplineInit init) =>
             {
-                init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+                init.MoveTo(pos.X, pos.Y, pos.Z, false);
                 init.SetParabolicVerticalAcceleration(gravity, 0);
                 init.SetUncompressed();
                 init.SetVelocity(speedXY);
                 init.SetUnlimitedSpeed();
                 if (hasOrientation)
-                    init.SetFacing(pos.GetOrientation());
+                    init.SetFacing(pos.Orientation);
                 if (spellEffectExtraData != null)
                     init.SetSpellEffectExtraData(spellEffectExtraData);
             };
@@ -821,10 +821,10 @@ namespace Game.Movement
             {
                 float step = 2 * MathFunctions.PI / stepCount * (clockwise ? -1.0f : 1.0f);
                 Position pos = new(x, y, z, 0.0f);
-                float angle = pos.GetAbsoluteAngle(_owner.GetPositionX(), _owner.GetPositionY());
+                float angle = pos.GetAbsoluteAngle(_owner.Location.X, _owner.Location.Y);
 
                 // add the owner's current position as starting point as it gets removed after entering the cycle
-                init.Path().Add(new Vector3(_owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ()));
+                init.Path().Add(new Vector3(_owner.Location.X, _owner.Location.Y, _owner.Location.Z));
 
                 for (byte i = 0; i < stepCount; angle += step, ++i)
                 {
@@ -912,12 +912,12 @@ namespace Game.Movement
         public void MoveFall(uint id = 0)
         {
             // Use larger distance for vmap height search than in most other cases
-            float tz = _owner.GetMapHeight(_owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), true, MapConst.MaxFallDistance);
+            float tz = _owner.GetMapHeight(_owner.Location.X, _owner.Location.Y, _owner.Location.Z, true, MapConst.MaxFallDistance);
             if (tz <= MapConst.InvalidHeight)
                 return;
 
             // Abort too if the ground is very near
-            if (Math.Abs(_owner.GetPositionZ() - tz) < 0.1f)
+            if (Math.Abs(_owner.Location.Z - tz) < 0.1f)
                 return;
 
             // rooted units don't move (also setting falling+root flag causes client freezes)
@@ -929,13 +929,13 @@ namespace Game.Movement
             // Don't run spline movement for players
             if (_owner.IsTypeId(TypeId.Player))
             {
-                _owner.ToPlayer().SetFallInformation(0, _owner.GetPositionZ());
+                _owner.ToPlayer().SetFallInformation(0, _owner.Location.Z);
                 return;
             }
 
             var initializer = (MoveSplineInit init) =>
             {
-                init.MoveTo(_owner.GetPositionX(), _owner.GetPositionY(), tz + _owner.GetHoverOffset(), false);
+                init.MoveTo(_owner.Location.X, _owner.Location.Y, tz + _owner.GetHoverOffset(), false);
                 init.SetFall();
             };
 
@@ -963,7 +963,7 @@ namespace Game.Movement
         public void MoveSeekAssistanceDistract(uint time)
         {
             if (_owner.IsCreature())
-                Add(new AssistanceDistractMovementGenerator(time, _owner.GetOrientation()));
+                Add(new AssistanceDistractMovementGenerator(time, _owner.Location.Orientation));
             else
                 Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistanceDistract: {_owner.GetGUID()} attempted to call distract after assistance");
         }

@@ -136,7 +136,7 @@ namespace Scripts.EasternKingdoms.Karazhan.EsOpera
 
             if (instance.GetData(DataTypes.OperaOzDeathcount) == 4)
             {
-                Creature pCrone = creature.SummonCreature(CreatureIds.Crone, -10891.96f, -1755.95f, creature.GetPositionZ(), 4.64f, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+                Creature pCrone = creature.SummonCreature(CreatureIds.Crone, -10891.96f, -1755.95f, creature.Location.Z, 4.64f, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
                 if (pCrone)
                     if (creature.GetVictim())
@@ -869,7 +869,7 @@ namespace Scripts.EasternKingdoms.Karazhan.EsOpera
             {
                 player.CloseGossipMenu();
 
-                Creature pBigBadWolf = me.SummonCreature(CreatureIds.BigBadWolf, me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), me.GetOrientation(), TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+                Creature pBigBadWolf = me.SummonCreature(CreatureIds.BigBadWolf, me.Location.X, me.Location.Y, me.Location.Z, me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
                 if (pBigBadWolf)
                     pBigBadWolf.GetAI().AttackStart(player);
@@ -1226,7 +1226,7 @@ namespace Scripts.EasternKingdoms.Karazhan.EsOpera
             {
                 if (SummonRomuloTimer <= diff)
                 {
-                    Creature pRomulo = me.SummonCreature(CreatureIds.Romulo, MiscConst.RomuloX, MiscConst.RomuloY, me.GetPositionZ(), 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+                    Creature pRomulo = me.SummonCreature(CreatureIds.Romulo, MiscConst.RomuloX, MiscConst.RomuloY, me.Location.Z, 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
                     if (pRomulo)
                     {
@@ -1526,7 +1526,7 @@ namespace Scripts.EasternKingdoms.Karazhan.EsOpera
             {
                 Unit target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
-                if (target && !me.HasInArc(MathF.PI, target))
+                if (target && !me.Location.HasInArc(MathF.PI, target.Location))
                 {
                     DoCast(target, SpellIds.BackwardLunge);
                     BackwardLungeTimer = RandomHelper.URand(15000, 30000);

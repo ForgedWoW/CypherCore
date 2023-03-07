@@ -246,7 +246,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.CorenDirebre
 
         private void SummonSister(uint entry)
         {
-            Creature sister = me.SummonCreature(entry, me.GetPosition(), TempSummonType.DeadDespawn);
+            Creature sister = me.SummonCreature(entry, me.Location, TempSummonType.DeadDespawn);
 
             if (sister)
                 DoZoneInCombat(sister);

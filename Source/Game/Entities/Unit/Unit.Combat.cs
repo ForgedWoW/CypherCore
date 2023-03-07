@@ -1305,7 +1305,7 @@ namespace Game.Entities
             uint victimLevel = GetLevelForTarget(this);
 
             // check if attack comes from behind, nobody can parry or block if attacker is behind
-            bool canParryOrBlock = victim.HasInArc((float)Math.PI, this) || victim.HasAuraType(AuraType.IgnoreHitDirection);
+            bool canParryOrBlock = victim.Location.HasInArc((float)Math.PI, Location) || victim.HasAuraType(AuraType.IgnoreHitDirection);
 
             // only creatures can dodge if attacker is behind
             bool canDodge = !victim.IsTypeId(TypeId.Player) || canParryOrBlock;
@@ -1518,16 +1518,16 @@ namespace Game.Entities
             }
         }
 
-        public bool IsWithinMeleeRange(Unit obj) { return IsWithinMeleeRangeAt(GetPosition(), obj); }
+        public bool IsWithinMeleeRange(Unit obj) { return IsWithinMeleeRangeAt(Location, obj); }
 
         public bool IsWithinMeleeRangeAt(Position pos, Unit obj)
         {
             if (!obj || !IsInMap(obj) || !InSamePhase(obj))
                 return false;
 
-            float dx = pos.GetPositionX() - obj.GetPositionX();
-            float dy = pos.GetPositionY() - obj.GetPositionY();
-            float dz = pos.GetPositionZ() - obj.GetPositionZ();
+            float dx = pos.X - obj.Location.X;
+            float dy = pos.Y - obj.Location.Y;
+            float dz = pos.Z - obj.Location.Z;
             float distsq = (dx * dx) + (dy * dy) + (dz * dz);
 
             var maxdist = GetMeleeRange(obj) + GetTotalAuraModifier(AuraType.ModAutoAttackRange);

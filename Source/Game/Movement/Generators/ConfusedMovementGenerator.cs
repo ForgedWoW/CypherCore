@@ -33,7 +33,7 @@ namespace Game.Movement
             owner.StopMoving();
 
             _timer.Reset(0);
-            _reference = owner.GetPosition();
+            _reference = owner.Location;
             _path = null;
         }
 
@@ -70,7 +70,7 @@ namespace Game.Movement
                 owner.MovePositionToFirstCollision(destination, distance, angle);
 
                 // Check if the destination is in LOS
-                if (!owner.IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
+                if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
                 {
                     // Retry later on
                     _timer.Reset(200);
@@ -83,7 +83,7 @@ namespace Game.Movement
                     _path.SetPathLengthLimit(30.0f);
                 }
 
-                bool result = _path.CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
+                bool result = _path.CalculatePath(destination);
                 if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
                 {
                     _timer.Reset(100);

@@ -104,7 +104,7 @@ namespace Game.Chat.Commands
                 foreach (CreatureData spawnData in spawns)
                 {
                     var map = CliDB.MapStorage.LookupByKey(spawnData.MapId);
-                    handler.SendSysMessage(CypherStrings.CommandBossMultipleSpawnEty, spawnData.SpawnId, spawnData.MapId, map.MapName[handler.GetSessionDbcLocale()], spawnData.SpawnPoint.GetPosition().ToString());
+                    handler.SendSysMessage(CypherStrings.CommandBossMultipleSpawnEty, spawnData.SpawnId, spawnData.MapId, map.MapName[handler.GetSessionDbcLocale()], spawnData.SpawnPoint.ToString());
                 }
                 return false;
             }
@@ -152,7 +152,7 @@ namespace Game.Chat.Commands
 
             if (!GridDefines.IsValidMapCoord(gy.Loc))
             {
-                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Loc.GetPositionX(), gy.Loc.GetPositionY(), gy.Loc.GetMapId());
+                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Loc.X, gy.Loc.Y, gy.Loc.GetMapId());
                 return false;
             }
 
@@ -171,7 +171,7 @@ namespace Game.Chat.Commands
         static bool HandleGoGridCommand(CommandHandler handler, float gridX, float gridY, uint? mapIdArg)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint mapId = mapIdArg.GetValueOrDefault(player.GetMapId());
+            uint mapId = mapIdArg.GetValueOrDefault(player.Location.GetMapId());
 
             // center of grid
             float x = (gridX - MapConst.CenterGridId + 0.5f) * MapConst.SizeofGrids;
@@ -192,7 +192,7 @@ namespace Game.Chat.Commands
             TerrainInfo terrain = Global.TerrainMgr.LoadTerrain(mapId);
             float z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, mapId, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, mapId, x, y));
 
-            player.TeleportTo(mapId, x, y, z, player.GetOrientation());
+            player.TeleportTo(mapId, x, y, z, player.Location.Orientation);
             return true;
         }
 
@@ -288,7 +288,7 @@ namespace Game.Chat.Commands
         [Command("offset", RBACPermissions.CommandGo)]
         static bool HandleGoOffsetCommand(CommandHandler handler, float dX, float? dY, float? dZ, float? dO)
         {
-            Position loc = handler.GetSession().GetPlayer().GetPosition();
+            Position loc = handler.GetSession().GetPlayer().Location;
             loc.RelocateOffset(new Position(dX, dY.GetValueOrDefault(0f), dZ.GetValueOrDefault(0f), dO.GetValueOrDefault(0f)));
 
             return DoTeleport(handler, loc);
@@ -366,7 +366,7 @@ namespace Game.Chat.Commands
         static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint mapId = id.GetValueOrDefault(player.GetMapId());
+            uint mapId = id.GetValueOrDefault(player.Location.GetMapId());
             if (z.HasValue)
             {
                 if (!GridDefines.IsValidMapCoord(mapId, x, y, z.Value))
@@ -432,7 +432,7 @@ namespace Game.Chat.Commands
 
             float z = Math.Max(terrain.GetStaticHeight(PhasingHandler.EmptyPhaseShift, zoneEntry.ContinentID, x, y, MapConst.MaxHeight), terrain.GetWaterLevel(PhasingHandler.EmptyPhaseShift, zoneEntry.ContinentID, x, y));
 
-            player.TeleportTo(zoneEntry.ContinentID, x, y, z, player.GetOrientation());
+            player.TeleportTo(zoneEntry.ContinentID, x, y, z, player.Location.Orientation);
             return true;
         }
 
@@ -462,11 +462,11 @@ namespace Game.Chat.Commands
             Player player = handler.GetSession().GetPlayer();
 
             if (mapId == 0xFFFFFFFF)
-                mapId = player.GetMapId();
+                mapId = player.Location.GetMapId();
 
             if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
             {
-                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.GetPositionX(), pos.GetPositionY(), mapId);
+                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
                 return false;
             }
 

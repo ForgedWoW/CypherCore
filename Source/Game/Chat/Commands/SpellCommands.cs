@@ -66,7 +66,7 @@ namespace Game.Chat
             if (spellInfo == null)
                 return false;
 
-            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.GetMapId(), spellId, target.GetMap().GenerateLowGuid(HighGuid.Cast));
+            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.GetMapId(), spellId, target.GetMap().GenerateLowGuid(HighGuid.Cast));
             AuraCreateInfo createInfo = new(castId, spellInfo, target.GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, target);
             createInfo.SetCaster(target);
 

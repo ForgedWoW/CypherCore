@@ -474,7 +474,7 @@ namespace Game.Groups
 
             {
                 // Broadcast new player group member fields to rest of the group
-                UpdateData groupData = new(player.GetMapId());
+                UpdateData groupData = new(player.Location.GetMapId());
 
                 // Broadcast group members' fields to player
                 for (GroupReference refe = GetFirstMember(); refe != null; refe = refe.Next())
@@ -490,7 +490,7 @@ namespace Game.Groups
 
                         if (existingMember.HaveAtClient(player))
                         {
-                            UpdateData newData = new(player.GetMapId());
+                            UpdateData newData = new(player.Location.GetMapId());
                             player.BuildValuesUpdateBlockForPlayerWithFlag(newData, UpdateFieldFlag.PartyMember, existingMember);
                             if (newData.HasData())
                             {
@@ -603,7 +603,7 @@ namespace Game.Groups
                 {
                     Player leader = Global.ObjAccessor.FindPlayer(GetLeaderGUID());
                     uint mapId = Global.LFGMgr.GetDungeonMapId(GetGUID());
-                    if (mapId == 0 || leader == null || (leader.IsAlive() && leader.GetMapId() != mapId))
+                    if (mapId == 0 || leader == null || (leader.IsAlive() && leader.Location.GetMapId() != mapId))
                     {
                         Disband();
                         return false;
@@ -1362,7 +1362,7 @@ namespace Game.Groups
 
         void _homebindIfInstance(Player player)
         {
-            if (player && !player.IsGameMaster() && CliDB.MapStorage.LookupByKey(player.GetMapId()).IsDungeon())
+            if (player && !player.IsGameMaster() && CliDB.MapStorage.LookupByKey(player.Location.GetMapId()).IsDungeon())
                 player.m_InstanceValid = false;
         }
 

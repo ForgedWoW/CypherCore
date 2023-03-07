@@ -1289,8 +1289,8 @@ namespace Game.AI
 
                 if (me.IsStopped() && !me.HasUnitState(UnitState.CannotTurn))
                 {
-                    float targetAngle = me.GetAbsoluteAngle(target);
-                    if (_forceFacing || Math.Abs(me.GetOrientation() - targetAngle) > 0.4f)
+                    float targetAngle = me.Location.GetAbsoluteAngle(target.Location);
+                    if (_forceFacing || Math.Abs(me.Location.Orientation - targetAngle) > 0.4f)
                     {
                         me.SetFacingTo(targetAngle);
                         _forceFacing = false;
@@ -1347,7 +1347,7 @@ namespace Game.AI
                 me.AttackStop();
 
                 if (me.GetMotionMaster().Size() <= 1) // if there is no current movement (we dont want to erase/overwrite any existing stuff)
-                    me.GetMotionMaster().MovePoint(0, me.GetPosition(), false); // force re-sync of current position for all clients
+                    me.GetMotionMaster().MovePoint(0, me.Location, false); // force re-sync of current position for all clients
             }
             else
             {

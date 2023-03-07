@@ -39,7 +39,7 @@ namespace Scripts.Spells.Warlock
 					};
 
 					for (var i = 0; i < nrofsummons; i++)
-						caster.CastSpell(new Position(target.GetPositionX() + offsetX[i], target.GetPositionY() + offsetY[i], target.GetPositionZ()), 104317, true);
+						caster.CastSpell(new Position(target.Location.X + offsetX[i], target.Location.Y + offsetY[i], target.Location.Z), 104317, true);
 
 					caster.CastSpell(target, WarlockSpells.HAND_OF_GULDAN_DAMAGE, true);
 				}

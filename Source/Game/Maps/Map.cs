@@ -68,13 +68,13 @@ public class Map : IDisposable
 
 	public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode)
 	{
-		_mapRecord             = CliDB.MapStorage.LookupByKey(id);
-		_spawnMode             = spawnmode;
-		InstanceId             = instanceId;
-		VisibleDistance        = SharedConst.DefaultVisibilityDistance;
+		_mapRecord = CliDB.MapStorage.LookupByKey(id);
+		_spawnMode = spawnmode;
+		InstanceId = instanceId;
+		VisibleDistance = SharedConst.DefaultVisibilityDistance;
 		VisibilityNotifyPeriod = SharedConst.DefaultVisibilityNotifyPeriod;
-		_gridExpiry            = expiry;
-		_terrain               = Global.TerrainMgr.LoadTerrain(id);
+		_gridExpiry = expiry;
+		_terrain = Global.TerrainMgr.LoadTerrain(id);
 		_zonePlayerCountMap.Clear();
 
 		//lets initialize visibility distance for map
@@ -159,7 +159,7 @@ public class Map : IDisposable
 		for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
 			for (uint cellY = 0; cellY < MapConst.TotalCellsPerMap; cellY++)
 				_manager.Schedule(() =>
-					                  LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells));
+									  LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells));
 
 		_manager.Wait();
 	}
@@ -167,7 +167,7 @@ public class Map : IDisposable
 	public virtual void InitVisibilityDistance()
 	{
 		//init visibility for continents
-		VisibleDistance        = Global.WorldMgr.GetMaxVisibleDistanceOnContinents();
+		VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceOnContinents();
 		VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodOnContinents();
 	}
 
@@ -188,7 +188,7 @@ public class Map : IDisposable
 					// to avoid failing an assertion in GridObject::AddToGrid
 					if (obj.IsWorldObject())
 					{
-						obj.SetCurrentCell(cell);
+						obj.Location.SetCurrentCell(cell);
 						grid.GetGridCell(cell.GetCellX(), cell.GetCellY()).AddWorldObject(obj);
 					}
 					else
@@ -213,7 +213,7 @@ public class Map : IDisposable
 				break;
 		}
 
-		obj.SetCurrentCell(cell);
+		obj.Location.SetCurrentCell(cell);
 	}
 
 	public void RemoveFromGrid(WorldObject obj, Cell cell)
@@ -231,7 +231,7 @@ public class Map : IDisposable
 		else
 			grid.GetGridCell(cell.GetCellX(), cell.GetCellY()).RemoveGridObject(obj);
 
-		obj.SetCurrentCell(null);
+		obj.Location.SetCurrentCell(null);
 	}
 
 	public virtual void LoadGridObjects(Grid grid, Cell cell)
@@ -255,15 +255,15 @@ public class Map : IDisposable
 
 	public virtual bool AddPlayerToMap(Player player, bool initPlayer = true)
 	{
-		var cellCoord = GridDefines.ComputeCellCoord(player.GetPositionX(), player.GetPositionY());
+		var cellCoord = GridDefines.ComputeCellCoord(player.Location.X, player.Location.Y);
 
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-			             "Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
-			             player.GetGUID().ToString(),
-			             player.GetPositionX(),
-			             player.GetPositionY());
+						 "Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
+						 player.GetGUID().ToString(),
+						 player.Location.X,
+						 player.Location.Y);
 
 			return false;
 		}
@@ -299,7 +299,7 @@ public class Map : IDisposable
 
 	public void UpdatePersonalPhasesForPlayer(Player player)
 	{
-		Cell cell = new(player.GetPositionX(), player.GetPositionY());
+		Cell cell = new(player.Location.X, player.Location.Y);
 		GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, GetGrid(cell.GetGridX(), cell.GetGridY()), this, cell);
 	}
 
@@ -335,8 +335,8 @@ public class Map : IDisposable
 		// Broadcast update to all players on the map
 		UpdateWorldState updateWorldState = new();
 		updateWorldState.VariableID = (uint)worldStateId;
-		updateWorldState.Value      = value;
-		updateWorldState.Hidden     = hidden;
+		updateWorldState.Value = value;
+		updateWorldState.Hidden = hidden;
 		updateWorldState.Write();
 
 		foreach (var player in GetPlayers())
@@ -363,17 +363,17 @@ public class Map : IDisposable
 			return true;
 		}
 
-		var cellCoord = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
+		var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-			             "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-			             obj.GetGUID(),
-			             obj.GetPositionX(),
-			             obj.GetPositionY(),
-			             cellCoord.X_Coord,
-			             cellCoord.Y_Coord);
+						 "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
+						 obj.GetGUID(),
+						 obj.Location.X,
+						 obj.Location.Y,
+						 cellCoord.X_Coord,
+						 cellCoord.Y_Coord);
 
 			return false; //Should delete object
 		}
@@ -410,17 +410,17 @@ public class Map : IDisposable
 		if (obj.IsInWorld)
 			return true;
 
-		var cellCoord = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
+		var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-			             "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-			             obj.GetGUID(),
-			             obj.GetPositionX(),
-			             obj.GetPositionY(),
-			             cellCoord.X_Coord,
-			             cellCoord.Y_Coord);
+						 "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
+						 obj.GetGUID(),
+						 obj.Location.X,
+						 obj.Location.Y,
+						 cellCoord.X_Coord,
+						 cellCoord.Y_Coord);
 
 			return false; //Should delete object
 		}
@@ -458,7 +458,7 @@ public class Map : IDisposable
 
 	public bool IsGridLoaded(Position pos)
 	{
-		return IsGridLoaded(pos.GetPositionX(), pos.GetPositionY());
+		return IsGridLoaded(pos.X, pos.Y);
 	}
 
 	public bool IsGridLoaded(uint x, uint y)
@@ -532,74 +532,74 @@ public class Map : IDisposable
 				continue;
 
 			_threadManager.Schedule(() =>
-			                        {
-				                        // update players at tick
-				                        _threadManager.Schedule(() => player.Update(diff));
+									{
+										// update players at tick
+										_threadManager.Schedule(() => player.Update(diff));
 
-				                        _threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+										_threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
 
-				                        // If player is using far sight or mind vision, visit that object too
-				                        var viewPoint = player.GetViewpoint();
+										// If player is using far sight or mind vision, visit that object too
+										var viewPoint = player.GetViewpoint();
 
-				                        if (viewPoint)
-					                        _threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+										if (viewPoint)
+											_threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
 
-				                        // Handle updates for creatures in combat with player and are more than 60 yards away
-				                        if (player.IsInCombat())
-				                        {
-					                        List<Unit> toVisit = new();
+										// Handle updates for creatures in combat with player and are more than 60 yards away
+										if (player.IsInCombat())
+										{
+											List<Unit> toVisit = new();
 
-					                        foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
-					                        {
-						                        var unit = pair.Value.GetOther(player).ToCreature();
+											foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
+											{
+												var unit = pair.Value.GetOther(player).ToCreature();
 
-						                        if (unit != null)
-							                        if (unit.GetMapId() == player.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-								                        toVisit.Add(unit);
-					                        }
+												if (unit != null)
+													if (unit.Location.GetMapId() == player.Location.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+														toVisit.Add(unit);
+											}
 
-					                        foreach (var unit in toVisit)
-						                        _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-				                        }
+											foreach (var unit in toVisit)
+												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+										}
 
-				                        {
-					                        // Update any creatures that own auras the player has applications of
-					                        List<Unit> toVisit = new();
+										{
+											// Update any creatures that own auras the player has applications of
+											List<Unit> toVisit = new();
 
-					                        player.GetAppliedAurasQuery()
-					                              .IsPlayer(false)
-					                              .ForEachResult(aur =>
-					                                             {
-						                                             var caster = aur.GetBase().GetCaster();
+											player.GetAppliedAurasQuery()
+												  .IsPlayer(false)
+												  .ForEachResult(aur =>
+																 {
+																	 var caster = aur.GetBase().GetCaster();
 
-						                                             if (caster != null)
-							                                             if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
-								                                             toVisit.Add(caster);
-					                                             });
+																	 if (caster != null)
+																		 if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
+																			 toVisit.Add(caster);
+																 });
 
-					                        foreach (var unit in toVisit)
-						                        _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-				                        }
+											foreach (var unit in toVisit)
+												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+										}
 
-				                        {
-					                        // Update player's summons
-					                        List<Unit> toVisit = new();
+										{
+											// Update player's summons
+											List<Unit> toVisit = new();
 
-					                        // Totems
-					                        foreach (var summonGuid in player.m_SummonSlot)
-						                        if (!summonGuid.IsEmpty())
-						                        {
-							                        var unit = GetCreature(summonGuid);
+											// Totems
+											foreach (var summonGuid in player.m_SummonSlot)
+												if (!summonGuid.IsEmpty())
+												{
+													var unit = GetCreature(summonGuid);
 
-							                        if (unit != null)
-								                        if (unit.GetMapId() == player.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-									                        toVisit.Add(unit);
-						                        }
+													if (unit != null)
+														if (unit.Location.GetMapId() == player.Location.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+															toVisit.Add(unit);
+												}
 
-					                        foreach (var unit in toVisit)
-						                        _threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-				                        }
-			                        });
+											foreach (var unit in toVisit)
+												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+										}
+									});
 		}
 
 		for (var i = 0; i < _activeNonPlayers.Count; ++i)
@@ -675,7 +675,7 @@ public class Map : IDisposable
 		if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
 			player.UpdateObjectVisibilityOnDestroy();
 
-		var cell = player.GetCurrentCell();
+		var cell = player.Location.GetCurrentCell();
 		RemoveFromGrid(player, cell);
 
 		ActivePlayers.Remove(player);
@@ -697,7 +697,7 @@ public class Map : IDisposable
 		if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
 			obj.UpdateObjectVisibilityOnDestroy();
 
-		var cell = obj.GetCurrentCell();
+		var cell = obj.Location.GetCurrentCell();
 		RemoveFromGrid(obj, cell);
 
 		obj.ResetMap();
@@ -740,12 +740,17 @@ public class Map : IDisposable
 			DeleteFromWorld(obj);
 	}
 
+	public void PlayerRelocation(Player player, Position pos)
+	{
+		PlayerRelocation(player, pos.X, pos.Y, pos.Z, pos.Orientation);
+	}
+
 	public void PlayerRelocation(Player player, float x, float y, float z, float orientation)
 	{
-		var oldcell = player.GetCurrentCell();
+		var oldcell = player.Location.GetCurrentCell();
 		var newcell = new Cell(x, y);
 
-		player.Relocate(x, y, z, orientation);
+		player.Location.Relocate(x, y, z, orientation);
 
 		if (player.IsVehicle())
 			player.GetVehicleKit().RelocatePassengers();
@@ -753,16 +758,16 @@ public class Map : IDisposable
 		if (oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
 		{
 			Log.outDebug(LogFilter.Maps,
-			             "Player {0} relocation grid[{1}, {2}]cell[{3}, {4}].grid[{5}, {6}]cell[{7}, {8}]",
-			             player.GetName(),
-			             oldcell.GetGridX(),
-			             oldcell.GetGridY(),
-			             oldcell.GetCellX(),
-			             oldcell.GetCellY(),
-			             newcell.GetGridX(),
-			             newcell.GetGridY(),
-			             newcell.GetCellX(),
-			             newcell.GetCellY());
+						 "Player {0} relocation grid[{1}, {2}]cell[{3}, {4}].grid[{5}, {6}]cell[{7}, {8}]",
+						 player.GetName(),
+						 oldcell.GetGridX(),
+						 oldcell.GetGridY(),
+						 oldcell.GetCellX(),
+						 oldcell.GetCellY(),
+						 newcell.GetGridX(),
+						 newcell.GetGridY(),
+						 newcell.GetCellX(),
+						 newcell.GetCellY());
 
 			RemoveFromGrid(player, oldcell);
 
@@ -776,6 +781,11 @@ public class Map : IDisposable
 		player.UpdateObjectVisibility(false);
 	}
 
+	public void CreatureRelocation(Creature creature, Position p, bool respawnRelocationOnFail = true)
+	{
+		CreatureRelocation(creature, p.X, p.Y, p.Z, p.Orientation, respawnRelocationOnFail);
+	}
+
 	public void CreatureRelocation(Creature creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true)
 	{
 		Cypher.Assert(CheckGridIntegrity(creature, false));
@@ -785,7 +795,7 @@ public class Map : IDisposable
 		if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
 			return;
 
-		var old_cell = creature.GetCurrentCell();
+		var old_cell = creature.Location.GetCurrentCell();
 
 		// delay creature move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -795,7 +805,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			creature.Relocate(x, y, z, ang);
+			creature.Location.Relocate(x, y, z, ang);
 
 			if (creature.IsVehicle())
 				creature.GetVehicleKit().RelocatePassengers();
@@ -808,6 +818,11 @@ public class Map : IDisposable
 		Cypher.Assert(CheckGridIntegrity(creature, true));
 	}
 
+	public void GameObjectRelocation(GameObject go, Position pos, bool respawnRelocationOnFail = true)
+	{
+		GameObjectRelocation(go, pos.X, pos.Y, pos.Z, pos.Orientation, respawnRelocationOnFail);
+	}
+
 	public void GameObjectRelocation(GameObject go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true)
 	{
 		Cypher.Assert(CheckGridIntegrity(go, false));
@@ -817,35 +832,40 @@ public class Map : IDisposable
 		if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
 			return;
 
-		var old_cell = go.GetCurrentCell();
+		var old_cell = go.Location.GetCurrentCell();
 
 		// delay creature move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
 			Log.outDebug(LogFilter.Maps,
-			             "GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
-			             go.GetGUID().ToString(),
-			             go.GetEntry(),
-			             old_cell.GetGridX(),
-			             old_cell.GetGridY(),
-			             old_cell.GetCellX(),
-			             old_cell.GetCellY(),
-			             new_cell.GetGridX(),
-			             new_cell.GetGridY(),
-			             new_cell.GetCellX(),
-			             new_cell.GetCellY());
+						 "GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
+						 go.GetGUID().ToString(),
+						 go.GetEntry(),
+						 old_cell.GetGridX(),
+						 old_cell.GetGridY(),
+						 old_cell.GetCellX(),
+						 old_cell.GetCellY(),
+						 new_cell.GetGridX(),
+						 new_cell.GetGridY(),
+						 new_cell.GetCellX(),
+						 new_cell.GetCellY());
 
 			AddGameObjectToMoveList(go, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move go in Map.MoveAllGameObjectsInMoveList
 		}
 		else
 		{
-			go.Relocate(x, y, z, orientation);
+			go.Location.Relocate(x, y, z, orientation);
 			go.AfterRelocation();
 			RemoveGameObjectFromMoveList(go);
 		}
 
 		Cypher.Assert(CheckGridIntegrity(go, true));
+	}
+
+	public void DynamicObjectRelocation(DynamicObject dynObj, Position pos)
+	{
+		DynamicObjectRelocation(dynObj, pos.X, pos.Y, pos.Z, pos.Orientation);
 	}
 
 	public void DynamicObjectRelocation(DynamicObject dynObj, float x, float y, float z, float orientation)
@@ -856,35 +876,40 @@ public class Map : IDisposable
 		if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
 			return;
 
-		var old_cell = dynObj.GetCurrentCell();
+		var old_cell = dynObj.Location.GetCurrentCell();
 
 		// delay creature move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
 			Log.outDebug(LogFilter.Maps,
-			             "DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
-			             dynObj.GetGUID().ToString(),
-			             old_cell.GetGridX(),
-			             old_cell.GetGridY(),
-			             old_cell.GetCellX(),
-			             old_cell.GetCellY(),
-			             new_cell.GetGridX(),
-			             new_cell.GetGridY(),
-			             new_cell.GetCellX(),
-			             new_cell.GetCellY());
+						 "DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
+						 dynObj.GetGUID().ToString(),
+						 old_cell.GetGridX(),
+						 old_cell.GetGridY(),
+						 old_cell.GetCellX(),
+						 old_cell.GetCellY(),
+						 new_cell.GetGridX(),
+						 new_cell.GetGridY(),
+						 new_cell.GetCellX(),
+						 new_cell.GetCellY());
 
 			AddDynamicObjectToMoveList(dynObj, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move dynObj in Map.MoveAllGameObjectsInMoveList
 		}
 		else
 		{
-			dynObj.Relocate(x, y, z, orientation);
+			dynObj.Location.Relocate(x, y, z, orientation);
 			dynObj.UpdatePositionData();
 			dynObj.UpdateObjectVisibility(false);
 			RemoveDynamicObjectFromMoveList(dynObj);
 		}
 
 		Cypher.Assert(CheckGridIntegrity(dynObj, true));
+	}
+
+	public void AreaTriggerRelocation(AreaTrigger at, Position pos)
+	{
+		AreaTriggerRelocation(at, pos.X, pos.Y, pos.Z, pos.Orientation);
 	}
 
 	public void AreaTriggerRelocation(AreaTrigger at, float x, float y, float z, float orientation)
@@ -895,7 +920,7 @@ public class Map : IDisposable
 		if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
 			return;
 
-		var old_cell = at.GetCurrentCell();
+		var old_cell = at.Location.GetCurrentCell();
 
 		// delay areatrigger move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -907,7 +932,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			at.Relocate(x, y, z, orientation);
+			at.Location.Relocate(x, y, z, orientation);
 			at.UpdateShape();
 			at.UpdateObjectVisibility(false);
 			RemoveAreaTriggerFromMoveList(at);
@@ -918,11 +943,11 @@ public class Map : IDisposable
 
 	public bool CreatureRespawnRelocation(Creature c, bool diffGridOnly)
 	{
-		c.GetRespawnPosition(out var resp_x, out var resp_y, out var resp_z, out var resp_o);
-		var resp_cell = new Cell(resp_x, resp_y);
+		var respPos = c.GetRespawnPosition();
+		var resp_cell = new Cell(respPos.X, respPos.Y);
 
 		//creature will be unloaded with grid
-		if (diffGridOnly && !c.GetCurrentCell().DiffGrid(resp_cell))
+		if (diffGridOnly && !c.Location.GetCurrentCell().DiffGrid(resp_cell))
 			return true;
 
 		c.CombatStop();
@@ -931,7 +956,7 @@ public class Map : IDisposable
 		// teleport it to respawn point (like normal respawn if player see)
 		if (CreatureCellRelocation(c, resp_cell))
 		{
-			c.Relocate(resp_x, resp_y, resp_z, resp_o);
+			c.Location.Relocate(respPos);
 			c.GetMotionMaster().Initialize(); // prevent possible problems with default move generators
 			c.UpdatePositionData();
 			c.UpdateObjectVisibility(false);
@@ -944,26 +969,26 @@ public class Map : IDisposable
 
 	public bool GameObjectRespawnRelocation(GameObject go, bool diffGridOnly)
 	{
-		go.GetRespawnPosition(out var resp_x, out var resp_y, out var resp_z, out var resp_o);
-		var resp_cell = new Cell(resp_x, resp_y);
+		var respawnPos = go.GetRespawnPosition();
+		var resp_cell = new Cell(respawnPos.X, respawnPos.Y);
 
 		//GameObject will be unloaded with grid
-		if (diffGridOnly && !go.GetCurrentCell().DiffGrid(resp_cell))
+		if (diffGridOnly && !go.Location.GetCurrentCell().DiffGrid(resp_cell))
 			return true;
 
 		Log.outDebug(LogFilter.Maps,
-		             "GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
-		             go.GetGUID().ToString(),
-		             go.GetEntry(),
-		             go.GetCurrentCell().GetGridX(),
-		             go.GetCurrentCell().GetGridY(),
-		             resp_cell.GetGridX(),
-		             resp_cell.GetGridY());
+					 "GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
+					 go.GetGUID().ToString(),
+					 go.GetEntry(),
+					 go.Location.GetCurrentCell().GetGridX(),
+					 go.Location.GetCurrentCell().GetGridY(),
+					 resp_cell.GetGridX(),
+					 resp_cell.GetGridY());
 
 		// teleport it to respawn point (like normal respawn if player see)
 		if (GameObjectCellRelocation(go, resp_cell))
 		{
-			go.Relocate(resp_x, resp_y, resp_z, resp_o);
+			go.Location.Relocate(respawnPos);
 			go.UpdatePositionData();
 			go.UpdateObjectVisibility(false);
 
@@ -1099,19 +1124,29 @@ public class Map : IDisposable
 		_terrain.GetFullTerrainStatusForPosition(phaseShift, GetId(), x, y, z, data, reqLiquidType, collisionHeight, _dynamicTree);
 	}
 
+    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
+    {
+		return GetLiquidStatus(phaseShift, pos.X, pos.Y, pos.Z, reqLiquidType, collisionHeight);
+    }
+
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
 		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out _, collisionHeight);
 	}
 
-	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
+    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
+    {
+        return _terrain.GetLiquidStatus(phaseShift, GetId(), pos.X, pos.Y, pos.Z, reqLiquidType, out data, collisionHeight);
+    }
+
+    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
 		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out data, collisionHeight);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, Position pos)
 	{
-		return _terrain.GetAreaId(phaseShift, GetId(), pos.posX, pos.posY, pos.posZ, _dynamicTree);
+		return _terrain.GetAreaId(phaseShift, GetId(), pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, float x, float y, float z)
@@ -1121,7 +1156,7 @@ public class Map : IDisposable
 
 	public uint GetZoneId(PhaseShift phaseShift, Position pos)
 	{
-		return _terrain.GetZoneId(phaseShift, GetId(), pos.posX, pos.posY, pos.posZ, _dynamicTree);
+		return _terrain.GetZoneId(phaseShift, GetId(), pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public uint GetZoneId(PhaseShift phaseShift, float x, float y, float z)
@@ -1131,7 +1166,7 @@ public class Map : IDisposable
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, Position pos)
 	{
-		_terrain.GetZoneAndAreaId(phaseShift, GetId(), out zoneid, out areaid, pos.posX, pos.posY, pos.posZ, _dynamicTree);
+		_terrain.GetZoneAndAreaId(phaseShift, GetId(), out zoneid, out areaid, pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, float x, float y, float z)
@@ -1146,7 +1181,7 @@ public class Map : IDisposable
 
 	public float GetHeight(PhaseShift phaseShift, Position pos, bool vmap = true, float maxSearchDist = MapConst.DefaultHeightSearch)
 	{
-		return GetHeight(phaseShift, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), vmap, maxSearchDist);
+		return GetHeight(phaseShift, pos.X, pos.Y, pos.Z, vmap, maxSearchDist);
 	}
 
 	public float GetMinHeight(PhaseShift phaseShift, float x, float y)
@@ -1190,6 +1225,15 @@ public class Map : IDisposable
 	{
 		return _terrain.GetWaterOrGroundLevel(phaseShift, GetId(), x, y, z, ref ground, swim, collisionHeight, _dynamicTree);
 	}
+    public bool IsInLineOfSight(PhaseShift phaseShift, Position position, Position position2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
+    {
+		return IsInLineOfSight(phaseShift, position, position2.X, position2.Y, position2.Z, checks, ignoreFlags);
+    }
+
+    public bool IsInLineOfSight(PhaseShift phaseShift, Position position, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
+    {
+		return IsInLineOfSight(phaseShift, position.X, position.Y, position.Z, x2, y2, z2, checks, ignoreFlags);
+    }
 
 	public bool IsInLineOfSight(PhaseShift phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
 	{
@@ -1281,7 +1325,7 @@ public class Map : IDisposable
 
 	public void SendInitSelf(Player player)
 	{
-		var data = new UpdateData(player.GetMapId());
+		var data = new UpdateData(player.Location.GetMapId());
 
 		// attach to player data current transport data
 		var transport = player.GetTransport<Transport>();
@@ -1307,7 +1351,7 @@ public class Map : IDisposable
 	public void SendUpdateTransportVisibility(Player player)
 	{
 		// Hack to send out transports
-		UpdateData transData = new(player.GetMapId());
+		UpdateData transData = new(player.Location.GetMapId());
 
 		foreach (var transport in _transports)
 		{
@@ -1681,7 +1725,7 @@ public class Map : IDisposable
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
 
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
@@ -1691,7 +1735,7 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
 
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
@@ -1742,7 +1786,7 @@ public class Map : IDisposable
 
 		foreach (var pl in ActivePlayers)
 		{
-			var p = GridDefines.ComputeCellCoord(pl.GetPositionX(), pl.GetPositionY());
+			var p = GridDefines.ComputeCellCoord(pl.Location.X, pl.Location.Y);
 
 			if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
 			    (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
@@ -1751,7 +1795,7 @@ public class Map : IDisposable
 
 		foreach (var obj in _activeNonPlayers)
 		{
-			var p = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
+			var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
 			if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
 			    (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
@@ -1773,21 +1817,14 @@ public class Map : IDisposable
 				var creature = obj.ToCreature();
 
 				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-				{
-					respawnLocation = new Position();
-					creature.GetRespawnPosition(out respawnLocation.posX, out respawnLocation.posY, out respawnLocation.posZ);
-				}
+                    respawnLocation = creature.GetRespawnPosition();
 
 				break;
 			case TypeId.GameObject:
 				var gameObject = obj.ToGameObject();
-				;
 
 				if (gameObject != null && gameObject.GetSpawnId() != 0)
-				{
-					respawnLocation = new Position();
-					gameObject.GetRespawnPosition(out respawnLocation.posX, out respawnLocation.posY, out respawnLocation.posZ, out _);
-				}
+                    respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
 			default:
@@ -1796,7 +1833,7 @@ public class Map : IDisposable
 
 		if (respawnLocation != null)
 		{
-			var p = GridDefines.ComputeGridCoord(respawnLocation.GetPositionX(), respawnLocation.GetPositionY());
+			var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
 			if (GetGrid(p.X_Coord, p.Y_Coord) != null)
 			{
@@ -1804,7 +1841,7 @@ public class Map : IDisposable
 			}
 			else
 			{
-				var p2 = GridDefines.ComputeGridCoord(obj.GetPositionX(), obj.GetPositionY());
+				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 				Log.outError(LogFilter.Maps, $"Active object {obj.GetGUID()} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
@@ -1822,20 +1859,14 @@ public class Map : IDisposable
 				var creature = obj.ToCreature();
 
 				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-				{
-					respawnLocation = new Position();
-					creature.GetRespawnPosition(out respawnLocation.posX, out respawnLocation.posY, out respawnLocation.posZ);
-				}
+                    respawnLocation = creature.GetRespawnPosition();
 
 				break;
 			case TypeId.GameObject:
 				var gameObject = obj.ToGameObject();
 
 				if (gameObject != null && gameObject.GetSpawnId() != 0)
-				{
-					respawnLocation = new Position();
-					gameObject.GetRespawnPosition(out respawnLocation.posX, out respawnLocation.posY, out respawnLocation.posZ, out _);
-				}
+					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
 			default:
@@ -1844,7 +1875,7 @@ public class Map : IDisposable
 
 		if (respawnLocation != null)
 		{
-			var p = GridDefines.ComputeGridCoord(respawnLocation.GetPositionX(), respawnLocation.GetPositionY());
+			var p = GridDefines.ComputeGridCoord(respawnLocation.X, respawnLocation.Y);
 
 			if (GetGrid(p.X_Coord, p.Y_Coord) != null)
 			{
@@ -1852,7 +1883,7 @@ public class Map : IDisposable
 			}
 			else
 			{
-				var p2 = GridDefines.ComputeGridCoord(obj.GetPositionX(), obj.GetPositionY());
+				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 				Log.outDebug(LogFilter.Maps, $"Active object {obj.GetGUID()} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
@@ -1932,7 +1963,7 @@ public class Map : IDisposable
 					var data = Global.ObjectMgr.GetSpawnData(type, spawnId);
 
 					if (data != null)
-						SaveRespawnTime(type, spawnId, data.Id, respawnTime, GridDefines.ComputeGridCoord(data.SpawnPoint.GetPositionX(), data.SpawnPoint.GetPositionY()).GetId(), null, true);
+						SaveRespawnTime(type, spawnId, data.Id, respawnTime, GridDefines.ComputeGridCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId(), null, true);
 					else
 						Log.outError(LogFilter.Maps, $"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - spawn does not exist, ignoring");
 				}
@@ -2096,7 +2127,7 @@ public class Map : IDisposable
 		// ignore bones creating option in case insignia
 		if ((insignia ||
 		     (IsBattlegroundOrArena() ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
-		    !IsRemovalGrid(corpse.GetPositionX(), corpse.GetPositionY()))
+		    !IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
 		{
 			// Create bones, don't change Corpse
 			bones = new Corpse();
@@ -2118,7 +2149,7 @@ public class Map : IDisposable
 				bones.SetItem((uint)i, corpse.m_corpseData.Items[i]);
 
 			bones.SetCellCoord(corpse.GetCellCoord());
-			bones.Relocate(corpse.GetPositionX(), corpse.GetPositionY(), corpse.GetPositionZ(), corpse.GetOrientation());
+			bones.Location.Relocate(corpse.Location.X, corpse.Location.Y, corpse.Location.Z, corpse.Location.Orientation);
 
 			PhasingHandler.InheritPhaseShift(bones, corpse);
 
@@ -2828,9 +2859,9 @@ public class Map : IDisposable
 
 		if (transport != null)
 		{
-			pos.GetPosition(out var x, out var y, out var z, out var o);
-			transport.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
-			summon.m_movementInfo.transport.pos.Relocate(x, y, z, o);
+			var relocatePos = pos.Copy();
+			transport.CalculatePassengerOffset(relocatePos);
+			summon.m_movementInfo.transport.pos.Relocate(relocatePos);
 
 			// This object must be added to transport before adding to map for the client to properly display it
 			transport.AddPassenger(summon);
@@ -2930,15 +2961,15 @@ public class Map : IDisposable
 		if (obj.IsPermanentWorldObject())
 			return;
 
-		var p = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
+		var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
 		if (!p.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
 			             "Map.SwitchGridContainers: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
 			             obj.GetGUID(),
-			             obj.GetPositionX(),
-			             obj.GetPositionY(),
+			             obj.Location.X,
+			             obj.Location.Y,
 			             p.X_Coord,
 			             p.Y_Coord);
 
@@ -2969,7 +3000,7 @@ public class Map : IDisposable
 			RemoveWorldObject(obj);
 		}
 
-		obj.SetCurrentCell(cell);
+		obj.Location.SetCurrentCell(cell);
 		obj.ToCreature().m_isTempWorldObject = on;
 	}
 
@@ -3091,17 +3122,17 @@ public class Map : IDisposable
 		if (!obj.IsTypeId(TypeId.Unit) || !obj.IsTypeId(TypeId.GameObject))
 			return;
 
-		obj._moveState = ObjectCellMoveState.None;
+		obj.Location.MoveState = ObjectCellMoveState.None;
 	}
 
 	private void VisitNearbyCellsOf(WorldObject obj, IGridNotifier gridVisitor)
 	{
 		// Check for valid position
-		if (!obj.IsPositionValid())
+		if (!obj.Location.IsPositionValid())
 			return;
 
 		// Update mobs/objects in ALL visible cells around object!
-		var area = Cell.CalculateCellArea(obj.GetPositionX(), obj.GetPositionY(), obj.GetGridActivationRange());
+		var area = Cell.CalculateCellArea(obj.Location.X, obj.Location.Y, obj.GetGridActivationRange());
 
 		for (var x = area.LowBound.X_Coord; x <= area.HighBound.X_Coord; ++x)
 		{
@@ -3219,13 +3250,13 @@ public class Map : IDisposable
 
 	private bool CheckGridIntegrity<T>(T obj, bool moved) where T : WorldObject
 	{
-		var cur_cell = obj.GetCurrentCell();
-		Cell xy_cell = new(obj.GetPositionX(), obj.GetPositionY());
+		var cur_cell = obj.Location.GetCurrentCell();
+		Cell xy_cell = new(obj.Location.X, obj.Location.Y);
 
 		if (xy_cell != cur_cell)
 		{
 			//$"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
-			Log.outDebug(LogFilter.Maps, $"{obj.GetTypeId()} ({obj.GetGUID()}) X: {obj.GetPositionX()} Y: {obj.GetPositionY()} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
+			Log.outDebug(LogFilter.Maps, $"{obj.GetTypeId()} ({obj.GetGUID()}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
 
 			return true; // not crash at error, just output error in debug mode
 		}
@@ -3237,10 +3268,10 @@ public class Map : IDisposable
 	{
 		lock (_creaturesToMove)
 		{
-			if (c._moveState == ObjectCellMoveState.None)
+			if (c.Location.MoveState == ObjectCellMoveState.None)
 				_creaturesToMove.Add(c);
 
-			c.SetNewCellPosition(x, y, z, ang);
+			c.Location.SetNewCellPosition(x, y, z, ang);
 		}
 	}
 
@@ -3248,10 +3279,10 @@ public class Map : IDisposable
 	{
 		lock (_gameObjectsToMove)
 		{
-			if (go._moveState == ObjectCellMoveState.None)
+			if (go.Location.MoveState == ObjectCellMoveState.None)
 				_gameObjectsToMove.Add(go);
 
-			go.SetNewCellPosition(x, y, z, ang);
+			go.Location.SetNewCellPosition(x, y, z, ang);
 		}
 	}
 
@@ -3259,8 +3290,8 @@ public class Map : IDisposable
 	{
 		lock (_gameObjectsToMove)
 		{
-			if (go._moveState == ObjectCellMoveState.Active)
-				go._moveState = ObjectCellMoveState.Inactive;
+			if (go.Location.MoveState == ObjectCellMoveState.Active)
+				go.Location.MoveState = ObjectCellMoveState.Inactive;
 		}
 	}
 
@@ -3268,8 +3299,8 @@ public class Map : IDisposable
 	{
 		lock (_creaturesToMove)
 		{
-			if (c._moveState == ObjectCellMoveState.Active)
-				c._moveState = ObjectCellMoveState.Inactive;
+			if (c.Location.MoveState == ObjectCellMoveState.Active)
+				c.Location.MoveState = ObjectCellMoveState.Inactive;
 		}
 	}
 
@@ -3277,10 +3308,10 @@ public class Map : IDisposable
 	{
 		lock (_dynamicObjectsToMove)
 		{
-			if (dynObj._moveState == ObjectCellMoveState.None)
+			if (dynObj.Location.MoveState == ObjectCellMoveState.None)
 				_dynamicObjectsToMove.Add(dynObj);
 
-			dynObj.SetNewCellPosition(x, y, z, ang);
+			dynObj.Location.SetNewCellPosition(x, y, z, ang);
 		}
 	}
 
@@ -3288,8 +3319,8 @@ public class Map : IDisposable
 	{
 		lock (_dynamicObjectsToMove)
 		{
-			if (dynObj._moveState == ObjectCellMoveState.Active)
-				dynObj._moveState = ObjectCellMoveState.Inactive;
+			if (dynObj.Location.MoveState == ObjectCellMoveState.Active)
+				dynObj.Location.MoveState = ObjectCellMoveState.Inactive;
 		}
 	}
 
@@ -3297,10 +3328,10 @@ public class Map : IDisposable
 	{
 		lock (_areaTriggersToMove)
 		{
-			if (at._moveState == ObjectCellMoveState.None)
+			if (at.Location.MoveState == ObjectCellMoveState.None)
 				_areaTriggersToMove.Add(at);
 
-			at.SetNewCellPosition(x, y, z, ang);
+			at.Location.SetNewCellPosition(x, y, z, ang);
 		}
 	}
 
@@ -3308,8 +3339,8 @@ public class Map : IDisposable
 	{
 		lock (_areaTriggersToMove)
 		{
-			if (at._moveState == ObjectCellMoveState.Active)
-				at._moveState = ObjectCellMoveState.Inactive;
+			if (at.Location.MoveState == ObjectCellMoveState.Active)
+				at.Location.MoveState = ObjectCellMoveState.Inactive;
 		}
 	}
 
@@ -3324,14 +3355,14 @@ public class Map : IDisposable
 				if (creature.GetMap() != this) //pet is teleported to another map
 					continue;
 
-				if (creature._moveState != ObjectCellMoveState.Active)
+				if (creature.Location.MoveState != ObjectCellMoveState.Active)
 				{
-					creature._moveState = ObjectCellMoveState.None;
+					creature.Location.MoveState = ObjectCellMoveState.None;
 
 					continue;
 				}
 
-				creature._moveState = ObjectCellMoveState.None;
+				creature.Location.MoveState = ObjectCellMoveState.None;
 
 				if (!creature.IsInWorld)
 					continue;
@@ -3339,10 +3370,10 @@ public class Map : IDisposable
 				_threadManager.Schedule(() =>
 				                        {
 					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (CreatureCellRelocation(creature, new Cell(creature._newPosition.posX, creature._newPosition.posY)))
+					                        if (CreatureCellRelocation(creature, new Cell(creature.Location.NewPosition.X, creature.Location.NewPosition.Y)))
 					                        {
 						                        // update pos
-						                        creature.Relocate(creature._newPosition);
+						                        creature.Location.Relocate(creature.Location.NewPosition);
 
 						                        if (creature.IsVehicle())
 							                        creature.GetVehicleKit().RelocatePassengers();
@@ -3386,14 +3417,14 @@ public class Map : IDisposable
 				if (go.GetMap() != this) //transport is teleported to another map
 					continue;
 
-				if (go._moveState != ObjectCellMoveState.Active)
+				if (go.Location.MoveState != ObjectCellMoveState.Active)
 				{
-					go._moveState = ObjectCellMoveState.None;
+					go.Location.MoveState = ObjectCellMoveState.None;
 
 					continue;
 				}
 
-				go._moveState = ObjectCellMoveState.None;
+				go.Location.MoveState = ObjectCellMoveState.None;
 
 				if (!go.IsInWorld)
 					continue;
@@ -3401,10 +3432,10 @@ public class Map : IDisposable
 				_threadManager.Schedule(() =>
 				                        {
 					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (GameObjectCellRelocation(go, new Cell(go._newPosition.posX, go._newPosition.posY)))
+					                        if (GameObjectCellRelocation(go, new Cell(go.Location.NewPosition.X, go.Location.NewPosition.Y)))
 					                        {
 						                        // update pos
-						                        go.Relocate(go._newPosition);
+						                        go.Location.Relocate(go.Location.NewPosition);
 						                        go.AfterRelocation();
 					                        }
 					                        else
@@ -3440,14 +3471,14 @@ public class Map : IDisposable
 				if (dynObj.GetMap() != this) //transport is teleported to another map
 					continue;
 
-				if (dynObj._moveState != ObjectCellMoveState.Active)
+				if (dynObj.Location.MoveState != ObjectCellMoveState.Active)
 				{
-					dynObj._moveState = ObjectCellMoveState.None;
+					dynObj.Location.MoveState = ObjectCellMoveState.None;
 
 					continue;
 				}
 
-				dynObj._moveState = ObjectCellMoveState.None;
+				dynObj.Location.MoveState = ObjectCellMoveState.None;
 
 				if (!dynObj.IsInWorld)
 					continue;
@@ -3456,10 +3487,10 @@ public class Map : IDisposable
 				_threadManager.Schedule(() =>
 				                        {
 					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj._newPosition.posX, dynObj._newPosition.posY)))
+					                        if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj.Location.NewPosition.X, dynObj.Location.NewPosition.Y)))
 					                        {
 						                        // update pos
-						                        dynObj.Relocate(dynObj._newPosition);
+						                        dynObj.Location.Relocate(dynObj.Location.NewPosition);
 						                        dynObj.UpdatePositionData();
 						                        dynObj.UpdateObjectVisibility(false);
 					                        }
@@ -3485,14 +3516,14 @@ public class Map : IDisposable
 				if (at.GetMap() != this) //transport is teleported to another map
 					continue;
 
-				if (at._moveState != ObjectCellMoveState.Active)
+				if (at.Location.MoveState != ObjectCellMoveState.Active)
 				{
-					at._moveState = ObjectCellMoveState.None;
+					at.Location.MoveState = ObjectCellMoveState.None;
 
 					continue;
 				}
 
-				at._moveState = ObjectCellMoveState.None;
+				at.Location.MoveState = ObjectCellMoveState.None;
 
 				if (!at.IsInWorld)
 					continue;
@@ -3500,10 +3531,10 @@ public class Map : IDisposable
 				_threadManager.Schedule(() =>
 				                        {
 					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (AreaTriggerCellRelocation(at, new Cell(at._newPosition.posX, at._newPosition.posY)))
+					                        if (AreaTriggerCellRelocation(at, new Cell(at.Location.NewPosition.X, at.Location.NewPosition.Y)))
 					                        {
 						                        // update pos
-						                        at.Relocate(at._newPosition);
+						                        at.Location.Relocate(at.Location.NewPosition);
 						                        at.UpdateShape();
 						                        at.UpdateObjectVisibility(false);
 					                        }
@@ -3520,7 +3551,7 @@ public class Map : IDisposable
 
 	private bool MapObjectCellRelocation<T>(T obj, Cell new_cell) where T : WorldObject
 	{
-		var old_cell = obj.GetCurrentCell();
+		var old_cell = obj.Location.GetCurrentCell();
 
 		if (!old_cell.DiffGrid(new_cell)) // in same grid
 		{
@@ -3617,7 +3648,7 @@ public class Map : IDisposable
 
 	private void SendRemoveTransports(Player player)
 	{
-		var transData = new UpdateData(player.GetMapId());
+		var transData = new UpdateData(player.Location.GetMapId());
 
 		foreach (var transport in _transports)
 			if (player.m_visibleTransports.Contains(transport.GetGUID()) && transport != player.GetTransport())
@@ -4100,7 +4131,7 @@ public class Map : IDisposable
 
 		corpse.UpdateObjectVisibilityOnDestroy();
 
-		if (corpse.GetCurrentCell() != null)
+		if (corpse.Location.GetCurrentCell() != null)
 		{
 			RemoveFromMap(corpse, false);
 		}
@@ -4878,7 +4909,7 @@ public class Map : IDisposable
 								unit.NearTeleportTo(step.Script.MoveTo.DestX,
 								                    step.Script.MoveTo.DestY,
 								                    step.Script.MoveTo.DestZ,
-								                    unit.GetOrientation());
+								                    unit.Location.Orientation);
 							}
 						}
 
@@ -5076,7 +5107,7 @@ public class Map : IDisposable
 								var z = step.Script.TempSummonCreature.PosZ;
 								var o = step.Script.TempSummonCreature.Orientation;
 
-								if (pSummoner.SummonCreature(step.Script.TempSummonCreature.CreatureEntry, x, y, z, o, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromMilliseconds(step.Script.TempSummonCreature.DespawnDelay)) == null)
+								if (pSummoner.SummonCreature(step.Script.TempSummonCreature.CreatureEntry, new Position(x, y, z, o), TempSummonType.TimedOrDeadDespawn, TimeSpan.FromMilliseconds(step.Script.TempSummonCreature.DespawnDelay)) == null)
 									Log.outError(LogFilter.Scripts, "{0} creature was not spawned (entry: {1}).", step.Script.GetDebugInfo(), step.Script.TempSummonCreature.CreatureEntry);
 							}
 						}

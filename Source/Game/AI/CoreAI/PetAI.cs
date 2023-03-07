@@ -573,7 +573,7 @@ namespace Game.AI
             // dont allow pets to follow targets far away from owner
             Unit owner = me.GetCharmerOrOwner();
             if (owner)
-                if (owner.GetExactDist(me) >= (owner.GetVisibilityRange() - 10.0f))
+                if (owner.Location.GetExactDist(me.Location) >= (owner.GetVisibilityRange() - 10.0f))
                     return true;
 
             return !me.IsValidAttackTarget(me.GetVictim());

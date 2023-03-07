@@ -39,7 +39,7 @@ namespace Game.Chat.Commands
             {
                 Player player = handler.GetSession().GetPlayer();
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
-                                player.GetPositionX(), player.GetPositionY(), player.GetPositionZ(), creatureId, count);
+                                player.Location.X, player.Location.Y, player.Location.Z, creatureId, count);
             }
             else
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{0}' LIMIT {1}",
@@ -378,7 +378,7 @@ namespace Game.Chat.Commands
             {
                 Player player = handler.GetSession().GetPlayer();
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
-                    player.GetPositionX(), player.GetPositionY(), player.GetPositionZ(), gameObjectId, count);
+                    player.Location.X, player.Location.Y, player.Location.Z, gameObjectId, count);
             }
             else
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{0}' LIMIT {1}",
@@ -460,7 +460,7 @@ namespace Game.Chat.Commands
                         respawnZoneId = map.GetZoneId(PhasingHandler.EmptyPhaseShift, edata.SpawnPoint);
                         if (range.HasValue)
                         {
-                            if (!player.IsInDist(edata.SpawnPoint, range.Value))
+                            if (!player.Location.IsInDist(edata.SpawnPoint, range.Value))
                                 continue;
                         }
                         else
@@ -522,8 +522,8 @@ namespace Game.Chat.Commands
                 if (cTemp == null)
                     continue;
 
-                if (showAll || data.SpawnPoint.IsInDist2d(player, 5000.0f))
-                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
+                if (showAll || data.SpawnPoint.IsInDist2d(player.Location, 5000.0f))
+                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({cTemp.Name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
             }
             foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
             {
@@ -535,8 +535,8 @@ namespace Game.Chat.Commands
                 if (goTemp == null)
                     continue;
 
-                if (showAll || data.SpawnPoint.IsInDist2d(player, 5000.0f))
-                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({goTemp.name}) | X: {data.SpawnPoint.GetPositionX():3} | Y: {data.SpawnPoint.GetPositionY():3} | Z: {data.SpawnPoint.GetPositionZ():3}");
+                if (showAll || data.SpawnPoint.IsInDist2d(player.Location, 5000.0f))
+                    handler.SendSysMessage($"Type: {data.Type} | SpawnId: {data.SpawnId} | Entry: {data.Id} ({goTemp.name}) | X: {data.SpawnPoint.X:3} | Y: {data.SpawnPoint.Y:3} | Z: {data.SpawnPoint.Z:3}");
             }
             return true;
         }

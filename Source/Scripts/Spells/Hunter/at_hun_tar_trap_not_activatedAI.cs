@@ -41,7 +41,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerAI
 
 			if (!caster.IsFriendlyTo(target))
 			{
-				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
+				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
 
 				if (tempSumm != null)
 				{
@@ -67,7 +67,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerAI
 
 		if (!caster.IsFriendlyTo(unit))
 		{
-			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
+			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
 
 			if (tempSumm != null)
 			{

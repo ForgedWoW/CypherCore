@@ -24,8 +24,8 @@ namespace Game.Movement
             _navMeshQuery = null;
             Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GetGUID().ToString());
 
-            uint mapId = PhasingHandler.GetTerrainMapId(_source.GetPhaseShift(), _source.GetMapId(), _source.GetMap().GetTerrain(), _source.GetPositionX(), _source.GetPositionY());
-            if (Global.DisableMgr.IsPathfindingEnabled(_source.GetMapId()))
+            uint mapId = PhasingHandler.GetTerrainMapId(_source.GetPhaseShift(), _source.Location.GetMapId(), _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
+            if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.GetMapId()))
             {
                 _navMesh = Global.MMapMgr.GetNavMesh(mapId);
                 _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.GetInstanceId());
@@ -33,17 +33,15 @@ namespace Game.Movement
             CreateFilter();
         }
 
-        public bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false)
+        public bool CalculatePath(Position destPos, bool forceDest = false)
         {
-            _source.GetPosition(out float x, out float y, out float z);
-
-            if (!GridDefines.IsValidMapCoord(destX, destY, destZ) || !GridDefines.IsValidMapCoord(x, y, z))
+            if (!GridDefines.IsValidMapCoord(destPos) || !GridDefines.IsValidMapCoord((Position)_source.Location))
                 return false;
 
-            Vector3 dest = new(destX, destY, destZ);
+            Vector3 dest = destPos.ToVector3();
             SetEndPosition(dest);
 
-            Vector3 start = new(x, y, z);
+            Vector3 start = _source.Location.ToVector3();
             SetStartPosition(start);
 
             _forceDestination = forceDest;
@@ -280,7 +278,7 @@ namespace Game.Movement
                     if (_pathPolyRefs[pathStartIndex] == 0)
                     {
                         Log.outError(LogFilter.Maps, "Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
-                            " startPos: {2}, endPos: {3}, mapid: {4}", _polyLength, pathStartIndex, startPos, endPos, _source.GetMapId());
+                            " startPos: {2}, endPos: {3}, mapid: {4}", _polyLength, pathStartIndex, startPos, endPos, _source.Location.GetMapId());
                         break;
                     }
 
@@ -820,7 +818,10 @@ namespace Game.Movement
         void NormalizePath()
         {
             for (uint i = 0; i < _pathPoints.Length; ++i)
-                _source.UpdateAllowedPositionZ(_pathPoints[i].X, _pathPoints[i].Y, ref _pathPoints[i].Z);
+            {
+                var point = _pathPoints[i];
+                point.Z = _source.UpdateAllowedPositionZ(point.X, point.Y, point.Z);
+            }
         }
 
         void BuildShortcut()
@@ -875,7 +876,7 @@ namespace Game.Movement
                 if (_sourceUnit.IsInWater() || _sourceUnit.IsUnderWater())
                 {
                     NavTerrainFlag includedFlags = (NavTerrainFlag)_filter.getIncludeFlags();
-                    includedFlags |= GetNavTerrain(_source.GetPositionX(), _source.GetPositionY(), _source.GetPositionZ());
+                    includedFlags |= GetNavTerrain(_source.Location.X, _source.Location.Y, _source.Location.Z);
 
                     _filter.setIncludeFlags((ushort)includedFlags);
                 }
@@ -918,7 +919,7 @@ namespace Game.Movement
             return (p1 - p2).LengthSquared();
         }
 
-        public void ShortenPathUntilDist(Position pos, float dist) { ShortenPathUntilDist(new Vector3(pos.posX, pos.posY, pos.posZ), dist); }
+        public void ShortenPathUntilDist(Position pos, float dist) { ShortenPathUntilDist(new Vector3(pos.X, pos.Y, pos.Z), dist); }
 
         public void ShortenPathUntilDist(Vector3 target, float dist)
         {
@@ -948,12 +949,15 @@ namespace Game.Movement
             while (true)
             {
                 // we know that pathPoints[i] is too close already (from the previous iteration)
-                if ((_pathPoints[i - 1] - target).LengthSquared() >= distSq)
+                var point = _pathPoints[i - 1];
+
+                if ((point - target).LengthSquared() >= distSq)
                     break; // bingo!
 
                 // check if the shortened path is still in LoS with the target
-                _source.GetHitSpherePointFor(new Position(_pathPoints[i - 1].X, _pathPoints[i - 1].Y, _pathPoints[i - 1].Z + collisionHeight), out float x, out float y, out float z);
-                if (!_source.GetMap().IsInLineOfSight(_source.GetPhaseShift(), x, y, z, _pathPoints[i - 1].X, _pathPoints[i - 1].Y, _pathPoints[i - 1].Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
+                var hitPos = new Position();
+                _source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
+                if (!_source.GetMap().IsInLineOfSight(_source.GetPhaseShift(), hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
                 {
                     // whenver we find a point that is not in LoS anymore, simply use last valid path
                     Array.Resize(ref _pathPoints, i + 1);
@@ -978,7 +982,7 @@ namespace Game.Movement
 
         public bool IsInvalidDestinationZ(WorldObject target)
         {
-            return (target.GetPositionZ() - GetActualEndPosition().Z) > 5.0f;
+            return (target.Location.Z - GetActualEndPosition().Z) > 5.0f;
         }
 
         void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)

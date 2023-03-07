@@ -30,6 +30,6 @@ internal class spell_q13086_cannons_target : SpellScript, IHasSpellEffects
 		var pos = GetExplTargetDest();
 
 		if (pos != null)
-			GetCaster().CastSpell(pos.GetPosition(), (uint)GetEffectValue(), new CastSpellExtraArgs(true));
+			GetCaster().CastSpell(pos, (uint)GetEffectValue(), new CastSpellExtraArgs(true));
 	}
 }

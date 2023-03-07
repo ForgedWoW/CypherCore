@@ -185,7 +185,7 @@ namespace Game.Entities
         public void SetInFront(WorldObject target)
         {
             if (!HasUnitState(UnitState.CannotTurn))
-                Orientation = GetAbsoluteAngle(target.GetPosition());
+                Location.Orientation = Location.GetAbsoluteAngle(target.Location);
         }
 
         public void SetFacingTo(float ori, bool force = true)
@@ -195,7 +195,7 @@ namespace Game.Entities
                 return;
 
             MoveSplineInit init = new(this);
-            init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
+            init.MoveTo(Location.X, Location.Y, Location.Z, false);
             if (GetTransport() != null)
                 init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
             init.SetFacing(ori);
@@ -213,7 +213,7 @@ namespace Game.Entities
 
             /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
             MoveSplineInit init = new MoveSplineInit(this);
-            init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
+            init.MoveTo(Location.X, Location.Y, Location.Z, false);
 
             if (GetTransport() != null)
                 init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
@@ -233,8 +233,8 @@ namespace Game.Entities
 
             // @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
             MoveSplineInit init = new(this);
-            init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-            init.SetFacing(GetAbsoluteAngle(obj));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
+            init.MoveTo(Location.X, Location.Y, Location.Z, false);
+            init.SetFacing(Location.GetAbsoluteAngle(obj.Location));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
 
             //GetMotionMaster().LaunchMoveSpline(init, EventId.Face, MovementGeneratorPriority.Highest);
             init.Launch();
@@ -268,7 +268,7 @@ namespace Game.Entities
                 GetMotionMaster().MoveKnockbackFrom(origin, speedXY, speedZ, spellEffectExtraData);
             else
             {
-                float o = GetPosition() == origin ? GetOrientation() + MathF.PI : origin.GetRelativeAngle(this);
+                float o = Location == origin ? Location.Orientation + MathF.PI : origin.GetRelativeAngle(Location);
                 if (speedXY < 0)
                 {
                     speedXY = -speedXY;
@@ -435,23 +435,25 @@ namespace Game.Entities
         public void JumpTo(float speedXY, float speedZ, float angle, Position dest = null)
         {
             if (dest != null)
-                angle += GetRelativeAngle(dest);
+                angle += Location.GetRelativeAngle(dest);
 
             if (IsTypeId(TypeId.Unit))
                 GetMotionMaster().MoveJumpTo(angle, speedXY, speedZ);
             else
             {
-                float vcos = (float)Math.Cos(angle + GetOrientation());
-                float vsin = (float)Math.Sin(angle + GetOrientation());
+                float vcos = (float)Math.Cos(angle + Location.Orientation);
+                float vsin = (float)Math.Sin(angle + Location.Orientation);
                 SendMoveKnockBack(ToPlayer(), speedXY, -speedZ, vcos, vsin);
             }
         }
 
         public void JumpTo(WorldObject obj, float speedZ, bool withOrientation = false)
         {
-            obj.GetContactPoint(this, out float x, out float y, out float z);
-            float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
-            GetMotionMaster().MoveJump(x, y, z, GetAbsoluteAngle(obj), speedXY, speedZ, EventId.Jump, withOrientation);
+            var pos = new Position();
+            obj.GetContactPoint(this, pos);
+            float speedXY = Location.GetExactDist2d(pos.X, pos.Y) * 10.0f / speedZ;
+            pos.Orientation = Location.GetAbsoluteAngle(obj.Location);
+            GetMotionMaster().MoveJump(pos, speedXY, speedZ, EventId.Jump, withOrientation);
         }
 
         public void UpdateSpeed(UnitMoveType mtype)
@@ -589,7 +591,7 @@ namespace Game.Entities
                         if (followed != null && followed.GetGUID() == GetOwnerGUID() && !followed.IsInCombat())
                         {
                             float ownerSpeed = followed.GetSpeedRate(mtype);
-                            if (speed < ownerSpeed || creature.IsWithinDist3d(followed, 10.0f))
+                            if (speed < ownerSpeed || creature.IsWithinDist3d(followed.Location, 10.0f))
                                 speed = ownerSpeed;
                             speed *= Math.Min(Math.Max(1.0f, 0.75f + (GetDistance(followed) - SharedConst.PetFollowDist) * 0.05f), 1.3f);
                         }
@@ -619,7 +621,7 @@ namespace Game.Entities
 
         public virtual bool UpdatePosition(Position obj, bool teleport = false)
         {
-            return UpdatePosition(obj.posX, obj.posY, obj.posZ, obj.Orientation, teleport);
+            return UpdatePosition(obj.X, obj.Y, obj.Z, obj.Orientation, teleport);
         }
 
         public virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false)
@@ -631,12 +633,12 @@ namespace Game.Entities
             }
 
             // Check if angular distance changed
-            bool turn = MathFunctions.fuzzyGt((float)Math.PI - Math.Abs(Math.Abs(GetOrientation() - orientation) - (float)Math.PI), 0.0f);
+            bool turn = MathFunctions.fuzzyGt((float)Math.PI - Math.Abs(Math.Abs(Location.Orientation - orientation) - (float)Math.PI), 0.0f);
             // G3D::fuzzyEq won't help here, in some cases magnitudes differ by a little more than G3D::eps, but should be considered equal
             bool relocated = (teleport ||
-                Math.Abs(GetPositionX() - x) > 0.001f ||
-                Math.Abs(GetPositionY() - y) > 0.001f ||
-                Math.Abs(GetPositionZ() - z) > 0.001f);
+                Math.Abs(Location.X - x) > 0.001f ||
+                Math.Abs(Location.Y - y) > 0.001f ||
+                Math.Abs(Location.Z - z) > 0.001f);
 
             if (relocated)
             {
@@ -664,7 +666,8 @@ namespace Game.Entities
 
         void UpdateOrientation(float orientation)
         {
-            SetOrientation(orientation);
+            Location.Orientation = orientation;
+
             if (IsVehicle())
                 GetVehicleKit().RelocatePassengers();
         }
@@ -672,7 +675,7 @@ namespace Game.Entities
         //! Only server-side height update, does not broadcast to client
         void UpdateHeight(float newZ)
         {
-            Relocate(GetPositionX(), GetPositionY(), newZ);
+            Location.Relocate(Location.X, Location.Y, newZ);
             if (IsVehicle())
                 GetVehicleKit().RelocatePassengers();
         }
@@ -689,7 +692,7 @@ namespace Game.Entities
 
             float objBoundaryRadius = Math.Max(obj.GetBoundingRadius(), SharedConst.MinMeleeReach);
 
-            return IsInDist(obj, objBoundaryRadius);
+            return Location.IsInDist(obj.Location, objBoundaryRadius);
         }
 
         public bool SetDisableGravity(bool disable, bool updateAnimTier = true)
@@ -768,7 +771,7 @@ namespace Game.Entities
                     mountFlags = (AreaMountFlags)areaTable.MountFlags;
             }
 
-            ZLiquidStatus liquidStatus = GetMap().GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), LiquidHeaderTypeFlags.AllLiquids);
+            ZLiquidStatus liquidStatus = GetMap().GetLiquidStatus(GetPhaseShift(), Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
             isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
             isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
@@ -814,7 +817,7 @@ namespace Game.Entities
                     continue;
 
                 if (mountCapability.ReqMapID != -1 &&
-                    GetMapId() != mountCapability.ReqMapID &&
+                    Location.GetMapId() != mountCapability.ReqMapID &&
                     GetMap().GetEntry().CosmeticParentMapID != mountCapability.ReqMapID &&
                     GetMap().GetEntry().ParentMapID != mountCapability.ReqMapID)
                     continue;
@@ -965,7 +968,7 @@ namespace Game.Entities
                 RemoveUnitMovementFlag(MovementFlag.CanFly | MovementFlag.MaskMovingFly);
 
             if (!enable && IsTypeId(TypeId.Player))
-                ToPlayer().SetFallInformation(0, GetPositionZ());
+                ToPlayer().SetFallInformation(0, Location.Z);
 
             Player playerMover = GetUnitBeingMoved()?.ToPlayer();
             if (playerMover)
@@ -1065,8 +1068,8 @@ namespace Game.Entities
             {
                 //! No need to check height on ascent
                 AddUnitMovementFlag(MovementFlag.Hover);
-                if (hoverHeight != 0 && GetPositionZ() - GetFloorZ() < hoverHeight)
-                    UpdateHeight(GetPositionZ() + hoverHeight);
+                if (hoverHeight != 0 && Location.Z - GetFloorZ() < hoverHeight)
+                    UpdateHeight(Location.Z + hoverHeight);
             }
             else
             {
@@ -1075,8 +1078,8 @@ namespace Game.Entities
                 //! Dying creatures will MoveFall from setDeathState
                 if (hoverHeight != 0 && (!IsDying() || !IsUnit()))
                 {
-                    float newZ = Math.Max(GetFloorZ(), GetPositionZ() - hoverHeight);
-                    UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), ref newZ);
+                    float newZ = Math.Max(GetFloorZ(), Location.Z - hoverHeight);
+                    newZ = UpdateAllowedPositionZ(Location.X, Location.Y, newZ);
                     UpdateHeight(newZ);
                 }
             }
@@ -1118,9 +1121,9 @@ namespace Game.Entities
             if (!obj || !IsInMap(obj) || !InSamePhase(obj))
                 return false;
 
-            float dx = GetPositionX() - obj.GetPositionX();
-            float dy = GetPositionY() - obj.GetPositionY();
-            float dz = GetPositionZ() - obj.GetPositionZ();
+            float dx = Location.X - obj.Location.X;
+            float dy = Location.Y - obj.Location.Y;
+            float dz = Location.Z - obj.Location.Z;
             float distsq = dx * dx + dy * dy + dz * dz;
 
             float sizefactor = GetCombatReach() + obj.GetCombatReach();
@@ -1131,12 +1134,12 @@ namespace Game.Entities
 
         public bool IsInFrontInMap(Unit target, float distance, float arc = MathFunctions.PI)
         {
-            return IsWithinDistInMap(target, distance) && HasInArc(arc, target);
+            return IsWithinDistInMap(target, distance) && Location.HasInArc(arc, target.Location);
         }
 
         public bool IsInBackInMap(Unit target, float distance, float arc = MathFunctions.PI)
         {
-            return IsWithinDistInMap(target, distance) && !HasInArc(MathFunctions.TwoPi - arc, target);
+            return IsWithinDistInMap(target, distance) && !Location.HasInArc(MathFunctions.TwoPi - arc, target.Location);
         }
         public bool IsInAccessiblePlaceFor(Creature c)
         {
@@ -1152,7 +1155,7 @@ namespace Game.Entities
             DisableSpline();
             if (IsTypeId(TypeId.Player))
             {
-                WorldLocation target = new(GetMapId(), pos);
+                WorldLocation target = new(Location.GetMapId(), pos);
                 ToPlayer().TeleportTo(target, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet | (casting ? TeleportToOptions.Spell : 0)));
             }                
             else
@@ -1796,27 +1799,23 @@ namespace Game.Entities
 
         void UpdateSplinePosition()
         {
-            Vector4 loc = MoveSpline.ComputePosition();
+            var loc = new Position(MoveSpline.ComputePosition());
 
             if (MoveSpline.onTransport)
             {
-                Position pos = m_movementInfo.transport.pos;
-                pos.posX = loc.X;
-                pos.posY = loc.Y;
-                pos.posZ = loc.Z;
-                pos.SetOrientation(loc.W);
+                m_movementInfo.transport.pos.Relocate(loc);
 
                 ITransport transport = GetDirectTransport();
                 if (transport != null)
-                    transport.CalculatePassengerPosition(ref loc.X, ref loc.Y, ref loc.Z, ref loc.W);
+                    transport.CalculatePassengerPosition(loc);
                 else
                     return;
             }
 
             if (HasUnitState(UnitState.CannotTurn))
-                loc.W = GetOrientation();
+                loc.Orientation = Location.Orientation;
 
-            UpdatePosition(loc.X, loc.Y, loc.Z, loc.W);
+            UpdatePosition(loc);
         }
 
         void InterruptMovementBasedAuras()
@@ -1862,19 +1861,19 @@ namespace Game.Entities
             Player playerMover = GetUnitBeingMoved()?.ToPlayer();
             if (playerMover)
             {
-                pos.GetPosition(out float x, out float y, out float z, out float o);
+                var newPos = pos.Copy();
 
                 ITransport transportBase = GetDirectTransport();
                 if (transportBase != null)
-                    transportBase.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
+                    transportBase.CalculatePassengerOffset(newPos);
 
                 MoveTeleport moveTeleport = new();
                 moveTeleport.MoverGUID = GetGUID();
-                moveTeleport.Pos = new Position(x, y, z, o);
+                moveTeleport.Pos = newPos;
                 if (GetTransGUID() != ObjectGuid.Empty)
                     moveTeleport.TransportGUID = GetTransGUID();
 
-                moveTeleport.Facing = o;
+                moveTeleport.Facing = newPos.Orientation;
                 moveTeleport.SequenceIndex = m_movementCounter++;
                 playerMover.SendPacket(moveTeleport);
 
@@ -1890,9 +1889,9 @@ namespace Game.Entities
                 var transportBase = GetDirectTransport();
                 if (transportBase != null)
                 {
-                    pos.GetPosition(out float tx, out float ty, out float tz, out float to);
-                    transportBase.CalculatePassengerOffset(ref tx, ref ty, ref tz, ref to);
-                    moveUpdateTeleport.Status.transport.pos.Relocate(tx, ty, tz, to);
+                    var newPos = pos.Copy();
+                    transportBase.CalculatePassengerOffset(newPos);
+                    moveUpdateTeleport.Status.transport.pos.Relocate(newPos);
                 }
             }
 

@@ -17,7 +17,7 @@ namespace Game.Chat
         [Command("path", RBACPermissions.CommandMmapPath)]
         static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
         {
-            if (Global.MMapMgr.GetNavMesh(handler.GetPlayer().GetMapId()) == null)
+            if (Global.MMapMgr.GetNavMesh(handler.GetPlayer().Location.GetMapId()) == null)
             {
                 handler.SendSysMessage("NavMesh not loaded for current map.");
                 return true;
@@ -45,13 +45,13 @@ namespace Game.Chat
                 useRaycast = true;
 
             // unit locations
-            player.GetPosition(out float x, out float y, out float z);
+            var pos = player.Location.Copy();
 
             // path
             PathGenerator path = new(target);
             path.SetUseStraightPath(useStraightPath);
             path.SetUseRaycast(useRaycast);
-            bool result = path.CalculatePath(x, y, z, false);
+            bool result = path.CalculatePath(pos, false);
 
             var pointPath = path.GetPath();
             handler.SendSysMessage("{0}'s path to {1}:", target.GetName(), player.GetName());
@@ -70,7 +70,7 @@ namespace Game.Chat
                 handler.SendSysMessage("Enable GM mode to see the path points.");
 
             for (uint i = 0; i < pointPath.Length; ++i)
-                player.SummonCreature(1, pointPath[i].X, pointPath[i].Y, pointPath[i].Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(9));
+                player.SummonCreature(1, new Position(pointPath[i].X, pointPath[i].Y, pointPath[i].Z, 0), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(9));
 
             return true;
         }
@@ -83,16 +83,15 @@ namespace Game.Chat
             // grid tile location
             Player player = handler.GetPlayer();
 
-            int gx = (int)(32 - player.GetPositionX() / MapConst.SizeofGrids);
-            int gy = (int)(32 - player.GetPositionY() / MapConst.SizeofGrids);
+            int gx = (int)(32 - player.Location.X / MapConst.SizeofGrids);
+            int gy = (int)(32 - player.Location.Y / MapConst.SizeofGrids);
 
-            player.GetPosition(out float x, out float y, out float z);
-
-            handler.SendSysMessage("{0:D4}{1:D2}{2:D2}.mmtile", player.GetMapId(), gy, gx);
+      
+            handler.SendSysMessage("{0:D4}{1:D2}{2:D2}.mmtile", player.Location.GetMapId(), gy, gx);
             handler.SendSysMessage("tileloc [{0}, {1}]", gx, gy);
 
             // calculate navmesh tile location
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.GetMapId(), player.GetMap().GetTerrain(), x, y);
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
             Detour.dtNavMeshQuery navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, player.GetInstanceId());
             if (navmesh == null || navmeshquery == null)
@@ -102,11 +101,11 @@ namespace Game.Chat
             }
 
             float[] min = navmesh.getParams().orig;
-            float[] location = { y, z, x };
+            float[] location = { player.Location.Y, player.Location.Z, player.Location.X };
             float[] extents = { 3.0f, 5.0f, 3.0f };
 
-            int tilex = (int)((y - min[0]) / MapConst.SizeofGrids);
-            int tiley = (int)((x - min[2]) / MapConst.SizeofGrids);
+            int tilex = (int)((player.Location.Y - min[0]) / MapConst.SizeofGrids);
+            int tiley = (int)((player.Location.X - min[2]) / MapConst.SizeofGrids);
 
             handler.SendSysMessage("Calc   [{0:D2}, {1:D2}]", tilex, tiley);
 
@@ -144,7 +143,7 @@ namespace Game.Chat
         static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.GetMapId(), player.GetMap().GetTerrain(), player.GetPositionX(), player.GetPositionY());
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
             Detour.dtNavMeshQuery navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.GetPlayer().GetInstanceId());
             if (navmesh == null || navmeshquery == null)
@@ -170,9 +169,9 @@ namespace Game.Chat
         static bool HandleMmapStatsCommand(CommandHandler handler)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.GetMapId(), player.GetMap().GetTerrain(), player.GetPositionX(), player.GetPositionY());
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             handler.SendSysMessage("mmap stats:");
-            handler.SendSysMessage("  global mmap pathfinding is {0}abled", Global.DisableMgr.IsPathfindingEnabled(player.GetMapId()) ? "En" : "Dis");
+            handler.SendSysMessage("  global mmap pathfinding is {0}abled", Global.DisableMgr.IsPathfindingEnabled(player.Location.GetMapId()) ? "En" : "Dis");
             handler.SendSysMessage(" {0} maps loaded with {1} tiles overall", Global.MMapMgr.GetLoadedMapsCount(), Global.MMapMgr.GetLoadedTilesCount());
 
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
@@ -230,11 +229,10 @@ namespace Game.Chat
                 uint paths = 0;
                 uint uStartTime = Time.GetMSTime();
 
-                obj.GetPosition(out float gx, out float gy, out float gz);
                 foreach (var creature in creatureList)
                 {
                     PathGenerator path = new(creature);
-                    path.CalculatePath(gx, gy, gz);
+                    path.CalculatePath(obj.Location);
                     ++paths;
                 }
 

@@ -93,7 +93,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
 
             //for (byte i = 0; i <= 7; i++)
             //{
-            //    if (me.IsInDist(SourcePosition[i], 1.0f))
+            //    if (me.Location.IsInDist(SourcePosition[i], 1.0f))
             //    {
             //        TargetGUID = me.SummonCreature(DMCreatures.NPC_SCORCH_MARK_BUNNY_JMF, TargetPosition[i]).GetGUID();
             //        break;

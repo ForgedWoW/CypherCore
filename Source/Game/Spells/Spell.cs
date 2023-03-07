@@ -87,7 +87,7 @@ namespace Game.Spells
             if (IsIgnoringCooldowns())
                 m_castFlagsEx |= SpellCastFlagsEx.IgnoreCooldown;
 
-            m_castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, m_caster.GetMapId(), m_spellInfo.Id, m_caster.GetMap().GenerateLowGuid(HighGuid.Cast));
+            m_castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, m_caster.Location.GetMapId(), m_spellInfo.Id, m_caster.GetMap().GenerateLowGuid(HighGuid.Cast));
             m_originalCastId = originalCastId;
             m_SpellVisual.SpellXSpellVisualID = caster.GetCastSpellXSpellVisualId(m_spellInfo);
 
@@ -334,7 +334,7 @@ namespace Game.Spells
                 else if (m_spellInfo.Speed > 0.0f)
                 {
                     // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
-                    float dist = m_caster.GetExactDist(m_targets.GetDstPos());
+                    float dist = m_caster.Location.GetExactDist(m_targets.GetDstPos());
                     return (ulong)(Math.Floor((dist / m_spellInfo.Speed + launchDelay) * 1000.0f));
                 }
 
@@ -516,7 +516,7 @@ namespace Game.Spells
                             {
                                 SpellDestination dest = new(target);
                                 if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                                    dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                                    dest.Position.                                    Orientation = spellEffectInfo.PositionFacing;
 
                                 CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
                                 m_targets.SetDst(dest);
@@ -531,7 +531,7 @@ namespace Game.Spells
                 {
                     SpellDestination dest = new(channeledSpell.GetCaster());
                     if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                        dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                        dest.Position.                        Orientation = spellEffectInfo.PositionFacing;
 
                     CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
                     m_targets.SetDst(dest);
@@ -600,7 +600,7 @@ namespace Game.Spells
                             {
                                 SpellDestination dest = new(focusObject);
                                 if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                                    dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                                    dest.Position.                                    Orientation = spellEffectInfo.PositionFacing;
 
                                 CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
                                 m_targets.SetDst(dest);
@@ -677,7 +677,7 @@ namespace Game.Spells
                 case SpellTargetObjectTypes.Dest:
                     SpellDestination dest = new(target);
                     if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                        dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                        dest.Position.                        Orientation = spellEffectInfo.PositionFacing;
 
                     CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
                     m_targets.SetDst(dest);
@@ -692,15 +692,15 @@ namespace Game.Spells
 
         void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, uint effMask)
         {
-            Position coneSrc = new(m_caster);
+            Position coneSrc = new(m_caster.Location);
             float coneAngle = m_spellInfo.ConeAngle;
             switch (targetType.GetReferenceType())
             {
                 case SpellTargetReferenceTypes.Caster:
                     break;
                 case SpellTargetReferenceTypes.Dest:
-                    if (m_caster.GetExactDist2d(m_targets.GetDstPos()) > 0.1f)
-                        coneSrc.SetOrientation(m_caster.GetAbsoluteAngle(m_targets.GetDstPos()));
+                    if (m_caster.Location.GetExactDist2d(m_targets.GetDstPos()) > 0.1f)
+                        coneSrc.                        Orientation = m_caster.Location.GetAbsoluteAngle(m_targets.GetDstPos());
                     break;
                 default:
                     break;
@@ -729,7 +729,7 @@ namespace Game.Spells
                 float extraSearchRadius = radius > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
                 var spellCone = new WorldObjectSpellConeTargetCheck(coneSrc, MathFunctions.DegToRad(coneAngle), m_spellInfo.Width != 0 ? m_spellInfo.Width : m_caster.GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
                 var searcher = new WorldObjectListSearcher(m_caster, targets, spellCone, containerTypeMask);
-                SearchTargets(searcher, containerTypeMask, m_caster, m_caster.GetPosition(), radius + extraSearchRadius);
+                SearchTargets(searcher, containerTypeMask, m_caster, m_caster.Location, radius + extraSearchRadius);
 
                 CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
@@ -800,7 +800,7 @@ namespace Game.Spells
                 case SpellTargetReferenceTypes.Caster:
                 case SpellTargetReferenceTypes.Target:
                 case SpellTargetReferenceTypes.Last:
-                    center = referer.GetPosition();
+                    center = referer.Location;
                     break;
                 default:
                     Cypher.Assert(false, "Spell.SelectImplicitAreaTargets: received not implemented target reference type");
@@ -833,7 +833,7 @@ namespace Game.Spells
                         if (!m_caster.IsUnit() || !m_caster.ToUnit().IsInRaidWith(targetedUnit))
                             targets.Add(m_targets.GetUnitTarget());
                         else
-                            SearchAreaTargets(targets, radius, targetedUnit, referer, targetType.GetObjectType(), targetType.GetCheckType(), spellEffectInfo.ImplicitTargetConditions);
+                            SearchAreaTargets(targets, radius, targetedUnit.Location, referer, targetType.GetObjectType(), targetType.GetCheckType(), spellEffectInfo.ImplicitTargetConditions);
                     }
                     break;
                 case Targets.UnitCasterAndSummons:
@@ -849,7 +849,7 @@ namespace Game.Spells
             {
                 SpellDestination dest = new(referer);
                 if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                    dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                    dest.Position.                    Orientation = spellEffectInfo.PositionFacing;
 
                 CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
 
@@ -905,7 +905,7 @@ namespace Game.Spells
                         // @todo fix this check
                         if (m_spellInfo.HasEffect(SpellEffectName.TeleportUnits) || m_spellInfo.HasEffect(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen) || m_spellInfo.HasEffect(SpellEffectName.Bind))
                             dest = new SpellDestination(st.target_X, st.target_Y, st.target_Z, st.target_Orientation, st.target_mapId);
-                        else if (st.target_mapId == m_caster.GetMapId())
+                        else if (st.target_mapId == m_caster.Location.GetMapId())
                             dest = new SpellDestination(st.target_X, st.target_Y, st.target_Z, st.target_Orientation);
                     }
                     else
@@ -922,11 +922,12 @@ namespace Game.Spells
                     float maxDist = m_spellInfo.GetMaxRange(true);
                     float dis = (float)RandomHelper.NextDouble() * (maxDist - minDist) + minDist;
                     float angle = (float)RandomHelper.NextDouble() * (MathFunctions.PI * 35.0f / 180.0f) - (float)(Math.PI * 17.5f / 180.0f);
-                    m_caster.GetClosePoint(out float x, out float y, out float z, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
+                    var pos = new Position();
+                    m_caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis, angle);
 
-                    float ground = m_caster.GetMapHeight(x, y, z);
+                    float ground = m_caster.GetMapHeight(pos);
                     float liquidLevel = MapConst.VMAPInvalidHeightValue;
-                    if (m_caster.GetMap().GetLiquidStatus(m_caster.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidData, m_caster.GetCollisionHeight()) != 0)
+                    if (m_caster.GetMap().GetLiquidStatus(m_caster.GetPhaseShift(), pos, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidData, m_caster.GetCollisionHeight()) != 0)
                         liquidLevel = liquidData.level;
 
                     if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
@@ -945,7 +946,7 @@ namespace Game.Spells
                         return;
                     }
 
-                    dest = new SpellDestination(x, y, liquidLevel, m_caster.GetOrientation());
+                    dest = new SpellDestination(pos.X, pos.Y, liquidLevel, m_caster.Location.Orientation);
                     break;
                 }
                 case Targets.DestCasterFrontLeap:
@@ -1007,7 +1008,7 @@ namespace Game.Spells
                 }
                 case Targets.DestCasterGround:
                 case Targets.DestCasterGround2:
-                    dest.Position.posZ = m_caster.GetMapWaterOrGroundLevel(dest.Position.GetPositionX(), dest.Position.GetPositionY(), dest.Position.GetPositionZ());
+                    dest.Position.Z = m_caster.GetMapWaterOrGroundLevel(dest.Position.X, dest.Position.Y, dest.Position.Z);
                     break;
                 case Targets.DestSummoner:
                 {
@@ -1065,7 +1066,7 @@ namespace Game.Spells
             }
 
             if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                dest.Position.                Orientation = spellEffectInfo.PositionFacing;
 
             CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
             m_targets.SetDst(dest);
@@ -1099,7 +1100,7 @@ namespace Game.Spells
             }
 
             if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                dest.Position.                Orientation = spellEffectInfo.PositionFacing;
 
             CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
             m_targets.SetDst(dest);
@@ -1123,7 +1124,7 @@ namespace Game.Spells
                 case Targets.DestDest:
                     break;
                 case Targets.DestDestGround:
-                    dest.Position.posZ = m_caster.GetMapHeight(dest.Position.GetPositionX(), dest.Position.GetPositionY(), dest.Position.GetPositionZ());
+                    dest.Position.Z = m_caster.GetMapHeight(dest.Position.X, dest.Position.Y, dest.Position.Z);
                     break;
                 default:
                 {
@@ -1141,7 +1142,7 @@ namespace Game.Spells
             }
 
             if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                dest.Position.                Orientation = spellEffectInfo.PositionFacing;
 
             CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
             m_targets.ModDst(dest);
@@ -1269,7 +1270,7 @@ namespace Game.Spells
                 // Chain primary target is added earlier
                 CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
-                Position losPosition = m_spellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? m_caster : target;
+                Position losPosition = m_spellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? m_caster.Location : target.Location;
 
                 foreach (var obj in targets)
                 {
@@ -1278,7 +1279,7 @@ namespace Game.Spells
                         AddUnitTarget(unitTarget, effMask, false, true, losPosition);
 
                     if (!m_spellInfo.HasAttribute(SpellAttr2.ChainFromCaster) && !spellEffectInfo.EffectAttributes.HasFlag(SpellEffectAttributes.ChainFromInitialTarget))
-                        losPosition = obj;
+                        losPosition = obj.Location;
                 }
             }
         }
@@ -1302,8 +1303,8 @@ namespace Game.Spells
                 return;
 
             Position srcPos = m_targets.GetSrcPos();
-            srcPos.SetOrientation(m_caster.GetOrientation());
-            float srcToDestDelta = m_targets.GetDstPos().posZ - srcPos.posZ;
+            srcPos.            Orientation = m_caster.Location.Orientation;
+            float srcToDestDelta = m_targets.GetDstPos().Z - srcPos.Z;
 
             List<WorldObject> targets = new();
             var spellTraj = new WorldObjectSpellTrajTargetCheck(dist2d, srcPos, m_caster, m_spellInfo, targetType.GetCheckType(), spellEffectInfo.ImplicitTargetConditions, SpellTargetObjectTypes.None);
@@ -1348,12 +1349,12 @@ namespace Game.Spells
                 }
 
                 float size = Math.Max(obj.GetCombatReach(), 1.0f);
-                float objDist2d = srcPos.GetExactDist2d(obj);
-                float dz = obj.GetPositionZ() - srcPos.posZ;
+                float objDist2d = srcPos.GetExactDist2d(obj.Location);
+                float dz = obj.Location.Z - srcPos.Z;
 
-                float horizontalDistToTraj = (float)Math.Abs(objDist2d * Math.Sin(srcPos.GetRelativeAngle(obj)));
+                float horizontalDistToTraj = (float)Math.Abs(objDist2d * Math.Sin(srcPos.GetRelativeAngle(obj.Location)));
                 float sizeFactor = (float)Math.Cos((horizontalDistToTraj / size) * (Math.PI / 2.0f));
-                float distToHitPoint = (float)Math.Max(objDist2d * Math.Cos(srcPos.GetRelativeAngle(obj)) - size * sizeFactor, 0.0f);
+                float distToHitPoint = (float)Math.Max(objDist2d * Math.Cos(srcPos.GetRelativeAngle(obj.Location)) - size * sizeFactor, 0.0f);
                 float height = distToHitPoint * (a * distToHitPoint + b);
 
                 if (Math.Abs(dz - height) > size + b / 2.0f + SpellConst.TrajectoryMissileSize)
@@ -1369,13 +1370,13 @@ namespace Game.Spells
 
             if (dist2d > bestDist)
             {
-                float x = (float)(m_targets.GetSrcPos().posX + Math.Cos(unitCaster.GetOrientation()) * bestDist);
-                float y = (float)(m_targets.GetSrcPos().posY + Math.Sin(unitCaster.GetOrientation()) * bestDist);
-                float z = m_targets.GetSrcPos().posZ + bestDist * (a * bestDist + b);
+                float x = (float)(m_targets.GetSrcPos().X + Math.Cos(unitCaster.Location.Orientation) * bestDist);
+                float y = (float)(m_targets.GetSrcPos().Y + Math.Sin(unitCaster.Location.Orientation) * bestDist);
+                float z = m_targets.GetSrcPos().Z + bestDist * (a * bestDist + b);
 
-                SpellDestination dest = new(x, y, z, unitCaster.GetOrientation());
+                SpellDestination dest = new(x, y, z, unitCaster.Location.Orientation);
                 if (m_spellInfo.HasAttribute(SpellAttr4.UseFacingFromSpell))
-                    dest.Position.SetOrientation(spellEffectInfo.PositionFacing);
+                    dest.Position.                    Orientation = spellEffectInfo.PositionFacing;
 
                 CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
                 m_targets.ModDst(dest);
@@ -1398,10 +1399,10 @@ namespace Game.Spells
                     dst = m_targets.GetDstPos();
                     break;
                 case SpellTargetReferenceTypes.Caster:
-                    dst = m_caster;
+                    dst = m_caster.Location;
                     break;
                 case SpellTargetReferenceTypes.Target:
-                    dst = m_targets.GetUnitTarget();
+                    dst = m_targets.GetUnitTarget().Location;
                     break;
                 default:
                     Cypher.Assert(false, "Spell.SelectImplicitLineTargets: received not implemented target reference type");
@@ -1414,9 +1415,9 @@ namespace Game.Spells
             GridMapTypeMask containerTypeMask = GetSearcherTypeMask(objectType, condList);
             if (containerTypeMask != 0)
             {
-                WorldObjectSpellLineTargetCheck check = new(m_caster, dst, m_spellInfo.Width != 0 ? m_spellInfo.Width : m_caster.GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
+                WorldObjectSpellLineTargetCheck check = new(m_caster.Location, dst, m_spellInfo.Width != 0 ? m_spellInfo.Width : m_caster.GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
                 WorldObjectListSearcher searcher = new(m_caster, targets, check, containerTypeMask);
-                SearchTargets(searcher, containerTypeMask, m_caster, m_caster, radius);
+                SearchTargets(searcher, containerTypeMask, m_caster, m_caster.Location, radius);
 
                 CallScriptObjectAreaTargetSelectHandlers(targets, spellEffectInfo.EffectIndex, targetType);
 
@@ -1598,8 +1599,8 @@ namespace Game.Spells
 
             if (searchInWorld)
             {
-                float x = pos.GetPositionX();
-                float y = pos.GetPositionY();
+                float x = pos.X;
+                float y = pos.Y;
 
                 CellCoord p = GridDefines.ComputeCellCoord(x, y);
                 Cell cell = new(p);
@@ -1619,7 +1620,7 @@ namespace Game.Spells
                 return null;
             var check = new WorldObjectSpellNearbyTargetCheck(range, m_caster, m_spellInfo, selectionType, condList, objectType);
             var searcher = new WorldObjectLastSearcher(m_caster, check, containerTypeMask);
-            SearchTargets(searcher, containerTypeMask, m_caster, m_caster.GetPosition(), range);
+            SearchTargets(searcher, containerTypeMask, m_caster, m_caster.Location, range);
             return searcher.GetTarget();
         }
 
@@ -1674,13 +1675,13 @@ namespace Game.Spells
 
             WorldObject chainSource = m_spellInfo.HasAttribute(SpellAttr2.ChainFromCaster) ? m_caster : target;
             List<WorldObject> tempTargets = new();
-            SearchAreaTargets(tempTargets, searchRadius, chainSource, m_caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions);
+            SearchAreaTargets(tempTargets, searchRadius, chainSource.Location, m_caster, objectType, selectType, spellEffectInfo.ImplicitTargetConditions);
             tempTargets.Remove(target);
 
             // remove targets which are always invalid for chain spells
             // for some spells allow only chain targets in front of caster (swipe for example)
             if (m_spellInfo.HasAttribute(SpellAttr5.MeleeChainTargeting))
-                tempTargets.RemoveAll(obj => !m_caster.HasInArc(MathF.PI, obj));
+                tempTargets.RemoveAll(obj => !m_caster.Location.HasInArc(MathF.PI, obj.Location));
 
             while (chainTargets != 0)
             {
@@ -1735,7 +1736,7 @@ namespace Game.Spells
         {
             var check = new GameObjectFocusCheck(m_caster, m_spellInfo.RequiresSpellFocus);
             var searcher = new GameObjectSearcher(m_caster, check, GridType.All);
-            SearchTargets(searcher, GridMapTypeMask.GameObject, m_caster, m_caster, m_caster.GetVisibilityRange());
+            SearchTargets(searcher, GridMapTypeMask.GameObject, m_caster, m_caster.Location, m_caster.GetVisibilityRange());
             return searcher.GetTarget();
         }
 
@@ -1862,7 +1863,7 @@ namespace Game.Spells
                 {
                     // calculate spell incoming interval
                     /// @todo this is a hack
-                    float dist = Math.Max(missileSource.GetDistance(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ()), 5.0f);
+                    float dist = Math.Max(missileSource.GetDistance(target.Location.X, target.Location.Y, target.Location.Z), 5.0f);
                     hitDelay += dist / m_spellInfo.Speed;
                 }
 
@@ -1931,7 +1932,7 @@ namespace Game.Spells
                 else if (m_spellInfo.Speed > 0.0f)
                 {
                     // calculate spell incoming interval
-                    float dist = Math.Max(m_caster.GetDistance(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ()), 5.0f);
+                    float dist = Math.Max(m_caster.GetDistance(go.Location.X, go.Location.Y, go.Location.Z), 5.0f);
                     hitDelay += dist / m_spellInfo.Speed;
                 }
 
@@ -2011,7 +2012,7 @@ namespace Game.Spells
                 else if (m_spellInfo.Speed > 0.0f)
                 {
                     // calculate spell incoming interval
-                    float dist = Math.Max(m_caster.GetDistance(corpse.GetPositionX(), corpse.GetPositionY(), corpse.GetPositionZ()), 5.0f);
+                    float dist = Math.Max(m_caster.GetDistance(corpse.Location.X, corpse.Location.Y, corpse.Location.Z), 5.0f);
                     hitDelay += dist / m_spellInfo.Speed;
                 }
 
@@ -4936,11 +4937,11 @@ namespace Game.Spells
                 if (unitTarget != m_caster)
                 {
                     // Must be behind the target
-                    if (m_spellInfo.HasAttribute(SpellCustomAttributes.ReqCasterBehindTarget) && unitTarget.HasInArc(MathFunctions.PI, m_caster))
+                    if (m_spellInfo.HasAttribute(SpellCustomAttributes.ReqCasterBehindTarget) && unitTarget.Location.HasInArc(MathFunctions.PI, m_caster.Location))
                         return SpellCastResult.NotBehind;
 
                     // Target must be facing you
-                    if (m_spellInfo.HasAttribute(SpellCustomAttributes.ReqTargetFacingCaster) && !unitTarget.HasInArc(MathFunctions.PI, m_caster))
+                    if (m_spellInfo.HasAttribute(SpellCustomAttributes.ReqTargetFacingCaster) && !unitTarget.Location.HasInArc(MathFunctions.PI, m_caster.Location))
                         return SpellCastResult.NotInfront;
 
                     // Ignore LOS for gameobjects casts
@@ -4963,9 +4964,7 @@ namespace Game.Spells
             // Check for line of sight for spells with dest
             if (m_targets.HasDst())
             {
-                m_targets.GetDstPos().GetPosition(out float x, out float y, out float z);
-
-                if (!m_spellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, m_spellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !m_caster.IsWithinLOS(x, y, z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                if (!m_spellInfo.HasAttribute(SpellAttr2.IgnoreLineOfSight) && !Global.DisableMgr.IsDisabledFor(DisableType.Spell, m_spellInfo.Id, null, (byte)DisableFlags.SpellLOS) && !m_caster.IsWithinLOS(m_targets.GetDstPos(), LineOfSightChecks.All, ModelIgnoreFlags.M2))
                     return SpellCastResult.LineOfSight;
             }
 
@@ -5012,7 +5011,7 @@ namespace Game.Spells
             {
                 m_caster.GetZoneAndAreaId(out uint zone, out uint area);
 
-                SpellCastResult locRes = m_spellInfo.CheckLocation(m_caster.GetMapId(), zone, area, m_caster.ToPlayer());
+                SpellCastResult locRes = m_spellInfo.CheckLocation(m_caster.Location.GetMapId(), zone, area, m_caster.ToPlayer());
                 if (locRes != SpellCastResult.SpellCastOk)
                     return locRes;
             }
@@ -5261,7 +5260,7 @@ namespace Game.Spells
                             m_preGeneratedPath.SetPathLengthLimit(range);
 
                             // first try with raycast, if it fails fall back to normal path
-                            bool result = m_preGeneratedPath.CalculatePath(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), false);
+                            bool result = m_preGeneratedPath.CalculatePath(target.Location, false);
                             if (m_preGeneratedPath.GetPathType().HasAnyFlag(PathType.Short))
                                 return SpellCastResult.NoPath;
                             else if (!result || m_preGeneratedPath.GetPathType().HasAnyFlag(PathType.NoPath | PathType.Incomplete))
@@ -5269,7 +5268,7 @@ namespace Game.Spells
                             else if (m_preGeneratedPath.IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
                                 return SpellCastResult.NoPath;
 
-                            m_preGeneratedPath.ShortenPathUntilDist(target, objSize); //move back
+                            m_preGeneratedPath.ShortenPathUntilDist(target.Location, objSize); //move back
                         }
                         break;
                     }
@@ -6227,14 +6226,14 @@ namespace Game.Spells
             Unit target = m_targets.GetUnitTarget();
             if (target && target != m_caster)
             {
-                if (m_caster.GetExactDistSq(target) > maxRange)
+                if (m_caster.Location.GetExactDistSq(target.Location) > maxRange)
                     return SpellCastResult.OutOfRange;
 
-                if (minRange > 0.0f && m_caster.GetExactDistSq(target) < minRange)
+                if (minRange > 0.0f && m_caster.Location.GetExactDistSq(target.Location) < minRange)
                     return SpellCastResult.OutOfRange;
 
                 if (m_caster.IsTypeId(TypeId.Player) &&
-                    ((m_spellInfo.FacingCasterFlags.HasAnyFlag(1u) && !m_caster.HasInArc((float)Math.PI, target))
+                    ((m_spellInfo.FacingCasterFlags.HasAnyFlag(1u) && !m_caster.Location.HasInArc((float)Math.PI, target.Location))
                         && !m_caster.ToPlayer().IsWithinBoundaryRadius(target)))
                     return SpellCastResult.UnitNotInfront;
             }
@@ -6248,9 +6247,9 @@ namespace Game.Spells
 
             if (m_targets.HasDst() && !m_targets.HasTraj())
             {
-                if (m_caster.GetExactDistSq(m_targets.GetDstPos()) > maxRange)
+                if (m_caster.Location.GetExactDistSq(m_targets.GetDstPos()) > maxRange)
                     return SpellCastResult.OutOfRange;
-                if (minRange > 0.0f && m_caster.GetExactDistSq(m_targets.GetDstPos()) < minRange)
+                if (minRange > 0.0f && m_caster.Location.GetExactDistSq(m_targets.GetDstPos()) < minRange)
                     return SpellCastResult.OutOfRange;
             }
 
@@ -7079,7 +7078,7 @@ namespace Game.Spells
 
                 if (transport != null)
                 {
-                    dest.Position.Relocate(transport.GetPosition());
+                    dest.Position.Relocate(transport.Location);
                     dest.Position.RelocateOffset(dest.TransportOffset);
                 }
             }
@@ -7188,7 +7187,7 @@ namespace Game.Spells
                     }
 
                     if (losPosition != null)
-                        if (!target.IsWithinLOS(losPosition.GetPositionX(), losPosition.GetPositionY(), losPosition.GetPositionZ(), LineOfSightChecks.All, ModelIgnoreFlags.M2))
+                        if (!target.IsWithinLOS(losPosition.X, losPosition.Y, losPosition.Z, LineOfSightChecks.All, ModelIgnoreFlags.M2))
                             return false;
 
                     break;
@@ -8517,7 +8516,7 @@ namespace Game.Spells
         {
             TransportGUID = wObj.GetTransGUID();
             TransportOffset.Relocate(wObj.GetTransOffsetX(), wObj.GetTransOffsetY(), wObj.GetTransOffsetZ(), wObj.GetTransOffsetO());
-            Position.Relocate(wObj.GetPosition());
+            Position.Relocate(wObj.Location);
         }
 
         public void Relocate(Position pos)
@@ -9210,7 +9209,7 @@ namespace Game.Spells
             : base(caster, caster, spellInfo, selectionType, condList, objectType)
         {
             _range = range;
-            _position = caster.GetPosition();
+            _position = caster.Location;
         }
 
         public override bool Invoke(WorldObject target)
@@ -9243,13 +9242,13 @@ namespace Game.Spells
             if (target.ToGameObject())
             {
                 // isInRange including the dimension of the GO
-                bool isInRange = target.ToGameObject().IsInRange(_position.GetPositionX(), _position.GetPositionY(), _position.GetPositionZ(), _range);
+                bool isInRange = target.ToGameObject().IsInRange(_position.X, _position.Y, _position.Z, _range);
                 if (!isInRange)
                     return false;
             }
             else
             {
-                bool isInsideCylinder = target.IsWithinDist2d(_position, _range) && Math.Abs(target.GetPositionZ() - _position.GetPositionZ()) <= _range;
+                bool isInsideCylinder = target.IsWithinDist2d(_position, _range) && Math.Abs(target.Location.Z - _position.Z) <= _range;
                 if (!isInsideCylinder)
                     return false;
             }
@@ -9265,7 +9264,7 @@ namespace Game.Spells
         readonly float _lineWidth;
 
         public WorldObjectSpellConeTargetCheck(Position coneSrc, float coneAngle, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
-            : base(range, caster.GetPosition(), caster, caster, spellInfo, selectionType, condList, objectType)
+            : base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
         {
             _coneSrc = coneSrc;
             _coneAngle = coneAngle;
@@ -9276,12 +9275,12 @@ namespace Game.Spells
         {
             if (_spellInfo.HasAttribute(SpellCustomAttributes.ConeBack))
             {
-                if (_coneSrc.HasInArc(-Math.Abs(_coneAngle), target))
+                if (_coneSrc.HasInArc(-Math.Abs(_coneAngle), target.Location))
                     return false;
             }
             else if (_spellInfo.HasAttribute(SpellCustomAttributes.ConeLine))
             {
-                if (!_coneSrc.HasInLine(target, target.GetCombatReach(), _lineWidth))
+                if (!_coneSrc.HasInLine(target.Location, target.GetCombatReach(), _lineWidth))
                     return false;
             }
             else
@@ -9289,7 +9288,7 @@ namespace Game.Spells
                 if (!_caster.IsUnit() || !_caster.ToUnit().IsWithinBoundaryRadius(target.ToUnit()))
                     // ConeAngle > 0 . select targets in front
                     // ConeAngle < 0 . select targets in back
-                    if (_coneSrc.HasInArc(_coneAngle, target) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))
+                    if (_coneSrc.HasInArc(_coneAngle, target.Location) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))
                         return false;
             }
             return base.Invoke(target);
@@ -9311,10 +9310,10 @@ namespace Game.Spells
         public override bool Invoke(WorldObject target)
         {
             // return all targets on missile trajectory (0 - size of a missile)
-            if (!_caster.HasInLine(target, target.GetCombatReach(), SpellConst.TrajectoryMissileSize))
+            if (!_caster.Location.HasInLine(target.Location, target.GetCombatReach(), SpellConst.TrajectoryMissileSize))
                 return false;
 
-            if (target.GetExactDist2d(_position) > _range)
+            if (target.Location.GetExactDist2d(_position) > _range)
                 return false;
 
             return base.Invoke(target);
@@ -9327,18 +9326,18 @@ namespace Game.Spells
         readonly float _lineWidth;
 
         public WorldObjectSpellLineTargetCheck(Position srcPosition, Position dstPosition, float lineWidth, float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
-            : base(range, caster, caster, caster, spellInfo, selectionType, condList, objectType)
+            : base(range, caster.Location, caster, caster, spellInfo, selectionType, condList, objectType)
         {
             _position = srcPosition;
             _lineWidth = lineWidth;
 
             if (dstPosition != null && srcPosition != dstPosition)
-                _position.SetOrientation(srcPosition.GetAbsoluteAngle(dstPosition));
+                _position.                Orientation = srcPosition.GetAbsoluteAngle(dstPosition);
         }
 
         public override bool Invoke(WorldObject target)
         {
-            if (!_position.HasInLine(target, target.GetCombatReach(), _lineWidth))
+            if (!_position.HasInLine(target.Location, target.GetCombatReach(), _lineWidth))
                 return false;
 
             return base.Invoke(target);

@@ -28,7 +28,7 @@ public class spell_dh_infernal_strike : SpellScript, ISpellOnCast, ISpellOnHit
 
 		if (target.IsHostileTo(caster))
 		{
-			caster.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), DemonHunterSpells.INFERNAL_STRIKE_JUMP, true);
+			caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.INFERNAL_STRIKE_JUMP, true);
 			caster.CastSpell(caster, DemonHunterSpells.INFERNAL_STRIKE_VISUAL, true);
 		}
 	}

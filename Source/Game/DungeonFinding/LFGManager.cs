@@ -1272,8 +1272,8 @@ namespace Game.DungeonFinding
 
             if (outt)
             {
-                Log.outDebug(LogFilter.Lfg, "TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.GetMapId(), dungeon.map);
-                if (player.GetMapId() == dungeon.map)
+                Log.outDebug(LogFilter.Lfg, "TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.Location.GetMapId(), dungeon.map);
+                if (player.Location.GetMapId() == dungeon.map)
                     player.TeleportToBGEntryPoint();
 
                 return;
@@ -1292,7 +1292,7 @@ namespace Game.DungeonFinding
                 error = LfgTeleportResult.ImmuneToSummons;
             else if (player.HasAura(9454)) // check Freeze debuff
                 error = LfgTeleportResult.NoReturnLocation;
-            else if (player.GetMapId() != dungeon.map)  // Do not teleport players in dungeon to the entrance
+            else if (player.Location.GetMapId() != dungeon.map)  // Do not teleport players in dungeon to the entrance
             {
                 uint mapid = dungeon.map;
                 float x = dungeon.x;
@@ -1306,13 +1306,13 @@ namespace Game.DungeonFinding
                     for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
                     {
                         Player plrg = refe.GetSource();
-                        if (plrg && plrg != player && plrg.GetMapId() == dungeon.map)
+                        if (plrg && plrg != player && plrg.Location.GetMapId() == dungeon.map)
                         {
-                            mapid = plrg.GetMapId();
-                            x = plrg.GetPositionX();
-                            y = plrg.GetPositionY();
-                            z = plrg.GetPositionZ();
-                            orientation = plrg.GetOrientation();
+                            mapid = plrg.Location.GetMapId();
+                            x = plrg.Location.X;
+                            y = plrg.Location.Y;
+                            z = plrg.Location.Z;
+                            orientation = plrg.Location.Orientation;
                             break;
                         }
                     }
@@ -1395,9 +1395,9 @@ namespace Game.DungeonFinding
                 LFGDungeonData dungeonDone = GetLFGDungeon(dungeonId);
                 uint mapId = dungeonDone != null ? dungeonDone.map : 0;
 
-                if (player.GetMapId() != mapId)
+                if (player.Location.GetMapId() != mapId)
                 {
-                    Log.outDebug(LogFilter.Lfg, $"Group: {gguid}, Player: {guid} is in map {player.GetMapId()} and should be in {mapId} to get reward");
+                    Log.outDebug(LogFilter.Lfg, $"Group: {gguid}, Player: {guid} is in map {player.Location.GetMapId()} and should be in {mapId} to get reward");
                     continue;
                 }
 

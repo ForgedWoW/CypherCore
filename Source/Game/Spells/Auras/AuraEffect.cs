@@ -2253,7 +2253,7 @@ namespace Game.Spells
 
             // start fall from current height
             if (!apply && target.IsTypeId(TypeId.Player))
-                target.ToPlayer().SetFallInformation(0, target.GetPositionZ());
+                target.ToPlayer().SetFallInformation(0, target.Location.Z);
         }
 
         [AuraEffectHandler(AuraType.Hover)]
@@ -5740,7 +5740,7 @@ namespace Game.Spells
 
             if (apply)
             {
-                AreaTrigger.CreateAreaTrigger((uint)GetMiscValue(), GetCaster(), target, GetSpellInfo(), target, GetBase().GetDuration(), GetBase().GetSpellVisual(), ObjectGuid.Empty, this);
+                AreaTrigger.CreateAreaTrigger((uint)GetMiscValue(), GetCaster(), target, GetSpellInfo(), target.Location, GetBase().GetDuration(), GetBase().GetSpellVisual(), ObjectGuid.Empty, this);
             }
             else
             {
@@ -5886,7 +5886,7 @@ namespace Game.Spells
                 BattlegroundPlayerPosition playerPosition = new();
                 playerPosition.Guid = target.GetGUID();
                 playerPosition.ArenaSlot = (sbyte)GetMiscValue();
-                playerPosition.Pos = target.GetPosition();
+                playerPosition.Pos = target.Location;
 
                 if (GetAuraType() == AuraType.BattleGroundPlayerPositionFactional)
                     playerPosition.IconID = target.GetEffectiveTeam() == Team.Alliance ? BattlegroundConst.PlayerPositionIconHordeFlag : BattlegroundConst.PlayerPositionIconAllianceFlag;

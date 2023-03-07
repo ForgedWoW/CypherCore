@@ -28,13 +28,13 @@ internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect effect, AuraEffectHandleModes mode)
 	{
-		lastZ = GetTarget().GetPositionZ();
+		lastZ = GetTarget().Location.Z;
 	}
 
 	private void HandlePeriodicDummy(AuraEffect effect)
 	{
 		PreventDefaultAction();
-		var curZ = GetTarget().GetPositionZ();
+		var curZ = GetTarget().Location.Z;
 
 		if (curZ < lastZ)
 		{

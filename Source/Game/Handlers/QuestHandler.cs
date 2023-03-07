@@ -64,7 +64,7 @@ namespace Game
             uint pause = creature.GetMovementTemplate().GetInteractionPauseTimer();
             if (pause != 0)
                 creature.PauseMovement(pause);
-            creature.SetHomePosition(creature.GetPosition());
+            creature.SetHomePosition(creature.Location);
 
             _player.PlayerTalkClass.ClearMenus();
             if (creature.GetAI().OnGossipHello(_player))

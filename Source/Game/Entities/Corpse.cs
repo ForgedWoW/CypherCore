@@ -58,21 +58,21 @@ namespace Game.Entities
         {
             Cypher.Assert(owner != null);
 
-            Relocate(owner.GetPositionX(), owner.GetPositionY(), owner.GetPositionZ(), owner.GetOrientation());
+            Location.Relocate(owner.Location.X, owner.Location.Y, owner.Location.Z, owner.Location.Orientation);
 
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Player, "Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
-                    guidlow, owner.GetName(), owner.GetPositionX(), owner.GetPositionY());
+                    guidlow, owner.GetName(), owner.Location.X, owner.Location.Y);
                 return false;
             }
 
-            _Create(ObjectGuid.Create(HighGuid.Corpse, owner.GetMapId(), 0, guidlow));
+            _Create(ObjectGuid.Create(HighGuid.Corpse, owner.Location.GetMapId(), 0, guidlow));
 
             SetObjectScale(1);
             SetOwnerGUID(owner.GetGUID());
 
-            _cellCoord = GridDefines.ComputeCellCoord(GetPositionX(), GetPositionY());
+            _cellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
 
             PhasingHandler.InheritPhaseShift(this, owner);
 
@@ -99,11 +99,11 @@ namespace Game.Entities
             byte index = 0;
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE);
             stmt.AddValue(index++, GetOwnerGUID().GetCounter());                            // guid
-            stmt.AddValue(index++, GetPositionX());                                         // posX
-            stmt.AddValue(index++, GetPositionY());                                         // posY
-            stmt.AddValue(index++, GetPositionZ());                                         // posZ
-            stmt.AddValue(index++, GetOrientation());                                       // orientation
-            stmt.AddValue(index++, GetMapId());                                             // mapId
+            stmt.AddValue(index++, Location.X);                                         // posX
+            stmt.AddValue(index++, Location.Y);                                         // posY
+            stmt.AddValue(index++, Location.Z);                                         // posZ
+            stmt.AddValue(index++, Location.Orientation);                                       // orientation
+            stmt.AddValue(index++, Location.GetMapId());                                             // mapId
             stmt.AddValue(index++, (uint)m_corpseData.DisplayID);                           // displayId
             stmt.AddValue(index++, items.ToString());                                       // itemCache
             stmt.AddValue(index++, (byte)m_corpseData.RaceID);                              // race
@@ -192,17 +192,17 @@ namespace Game.Entities
 
             // place
             SetLocationInstanceId(instanceId);
-            SetMapId(mapId);
-            Relocate(posX, posY, posZ, o);
+            Location.SetMapId(mapId);
+            Location.Relocate(posX, posY, posZ, o);
 
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Player, "Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
                     GetGUID().ToString(), GetOwnerGUID().ToString(), posX, posY, posZ);
                 return false;
             }
 
-            _cellCoord = GridDefines.ComputeCellCoord(GetPositionX(), GetPositionY());
+            _cellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
             return true;
         }
 
@@ -341,7 +341,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), CorpseMask.GetUpdateMask(), player);
 

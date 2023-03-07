@@ -88,12 +88,12 @@ namespace Game.Movement
             if (owner == null)
                 return false;
 
-            float angle = owner.GetOrientation();
+            float angle = owner.Location.Orientation;
             angle += diff * MathFunctions.TwoPi / _maxDuration * (_direction == RotateDirection.Left ? 1.0f : -1.0f);
             angle = Math.Clamp(angle, 0.0f, MathF.PI * 2);
 
             MoveSplineInit init = new(owner);
-            init.MoveTo(owner, false);
+            init.MoveTo(owner.Location, false);
             if (!owner.GetTransGUID().IsEmpty())
                 init.DisableTransportPathTransformations();
 
@@ -155,7 +155,7 @@ namespace Game.Movement
                 owner.SetStandState(UnitStandStateType.Stand);
 
             MoveSplineInit init = new(owner);
-            init.MoveTo(owner, false);
+            init.MoveTo(owner.Location, false);
             if (!owner.GetTransGUID().IsEmpty())
                 init.DisableTransportPathTransformations();
 
@@ -197,7 +197,7 @@ namespace Game.Movement
             // If this is a creature, then return orientation to original position (for idle movement creatures)
             if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature())
             {
-                float angle = owner.ToCreature().GetHomePosition().GetOrientation();
+                float angle = owner.ToCreature().GetHomePosition().Orientation;
                 owner.SetFacingTo(angle);
             }
         }

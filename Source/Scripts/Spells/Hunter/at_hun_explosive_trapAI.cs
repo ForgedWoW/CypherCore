@@ -41,7 +41,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 			if (!caster.IsFriendlyTo(target))
 			{
-				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 				if (tempSumm != null)
 				{
@@ -67,7 +67,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 		if (!caster.IsFriendlyTo(unit))
 		{
-			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 			if (tempSumm != null)
 			{

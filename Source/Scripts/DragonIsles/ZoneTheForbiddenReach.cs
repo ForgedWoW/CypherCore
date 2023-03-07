@@ -57,7 +57,7 @@ namespace Scripts.DragonIsles
         {
             var room = MiscConst.LoginRoomData[RandomHelper.URand(0, 3)];
 
-            WorldLocation dest = GetHitUnit().GetWorldLocation();
+            WorldLocation dest = GetHitUnit().Location;
             SetExplTargetDest(dest);
 
             GetHitDest().Relocate(room.Item2);

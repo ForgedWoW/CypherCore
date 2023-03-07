@@ -776,7 +776,7 @@ namespace Game.Entities
                 canDodge = false;
 
                 // only if in front
-                if (!victim.HasUnitState(UnitState.Controlled) && (victim.HasInArc(MathFunctions.PI, this) || victim.HasAuraType(AuraType.IgnoreHitDirection)))
+                if (!victim.HasUnitState(UnitState.Controlled) && (victim.Location.HasInArc(MathFunctions.PI, Location) || victim.HasAuraType(AuraType.IgnoreHitDirection)))
                 {
                     var deflect_chance = victim.GetTotalAuraModifier(AuraType.DeflectSpells) * 100;
                     tmp += deflect_chance;
@@ -786,7 +786,7 @@ namespace Game.Entities
             }
 
             // Check for attack from behind
-            if (!victim.HasInArc(MathFunctions.PI, this))
+            if (!victim.Location.HasInArc(MathFunctions.PI, Location))
             {
                 if (!victim.HasAuraType(AuraType.IgnoreHitDirection))
                 {
@@ -1170,7 +1170,7 @@ namespace Game.Entities
             PlaySpellVisual playSpellVisual = new PlaySpellVisual();
             playSpellVisual.Source = GetGUID();
             playSpellVisual.Target = target.GetGUID();
-            playSpellVisual.TargetPosition = target.GetPosition();
+            playSpellVisual.TargetPosition = target.Location;
             playSpellVisual.SpellVisualID = spellVisualId;
             playSpellVisual.TravelSpeed = travelSpeed;
             playSpellVisual.MissReason = missReason;
@@ -2574,7 +2574,7 @@ namespace Game.Entities
             if (effMask == 0)
                 return null;
 
-            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
 
             AuraCreateInfo createInfo = new(castId, spellInfo, GetMap().GetDifficultyID(), effMask, target);
             createInfo.SetCaster(this);
@@ -2648,7 +2648,7 @@ namespace Game.Entities
 
                         bp[i] = seatId;
 
-                        AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, GetMapId(), spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
+                        AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.GetMapId(), spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
                         createInfo.SetCaster(clicker);
                         createInfo.SetBaseAmount(bp);
                         createInfo.SetCasterGUID(origCasterGUID);
@@ -2662,7 +2662,7 @@ namespace Game.Entities
                         caster.CastSpell(target, spellEntry.Id, new CastSpellExtraArgs().SetOriginalCaster(origCasterGUID));
                     else
                     {
-                        AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, GetMapId(), spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
+                        AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.GetMapId(), spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
                         createInfo.SetCaster(clicker);
                         createInfo.SetCasterGUID(origCasterGUID);
 

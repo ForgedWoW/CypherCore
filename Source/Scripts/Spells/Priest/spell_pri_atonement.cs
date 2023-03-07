@@ -53,20 +53,20 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 		CastSpellExtraArgs args       = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount()));
 
-        _appliedAtonements.RemoveAll((Predicate<ObjectGuid>)(targetGuid =>
+        _appliedAtonements.RemoveAll(targetGuid =>
 		                             {
 			                             var target = Global.ObjAccessor.GetUnit(GetTarget(), targetGuid);
 
 			                             if (target)
 			                             {
-				                             if (target.GetExactDist(GetTarget()) < GetEffectInfo(1).CalcValue())
-                                                 GetTarget().CastSpell(target, (uint)PriestSpells.ATONEMENT_HEAL, args);
+				                             if (target.Location.GetExactDist(GetTarget().Location) < GetEffectInfo(1).CalcValue())
+                                                 GetTarget().CastSpell(target, PriestSpells.ATONEMENT_HEAL, args);
 
 				                             return false;
 			                             }
 
 			                             return true;
-		                             }));
+		                             });
 	}
 
 	private void UpdateSinsOfTheManyValue()

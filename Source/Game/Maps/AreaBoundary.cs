@@ -27,7 +27,7 @@ public class AreaBoundary
 			_doublePosZ = z;
 		}
 
-		public DoublePosition(Position pos) : this(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation())
+		public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation)
 		{
 		}
 

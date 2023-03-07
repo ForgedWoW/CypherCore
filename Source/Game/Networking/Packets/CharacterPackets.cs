@@ -698,10 +698,10 @@ namespace Game.Networking.Packets
         public override void Write()
         {
             _worldPacket.WriteInt32(MapID);
-            _worldPacket.WriteFloat(Pos.GetPositionX());
-            _worldPacket.WriteFloat(Pos.GetPositionY());
-            _worldPacket.WriteFloat(Pos.GetPositionZ());
-            _worldPacket.WriteFloat(Pos.GetOrientation());
+            _worldPacket.WriteFloat(Pos.X);
+            _worldPacket.WriteFloat(Pos.Y);
+            _worldPacket.WriteFloat(Pos.Z);
+            _worldPacket.WriteFloat(Pos.Orientation);
             _worldPacket.WriteUInt32(Reason);
         }
 

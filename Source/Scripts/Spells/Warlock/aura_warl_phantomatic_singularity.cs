@@ -20,7 +20,7 @@ namespace Scripts.Spells.Warlock
 			var caster = GetCaster();
 
 			if (GetCaster())
-				caster.CastSpell(GetTarget().GetPosition(), WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
+				caster.CastSpell(GetTarget().Location, WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
 		}
 
 		public override void Register()

@@ -110,7 +110,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
         {
             me.SetCanDualWield(true);
             //me.DisableMovementFlagUpdate(true);
-            _platter = me.SummonCreature(Creatures.NPC_GLUBTOK_MAIN_PLATTER, Phase2Pos.GetPositionX(), Phase2Pos.GetPositionY(), Phase2Pos.GetPositionZ() + 2.0f);
+            _platter = me.SummonCreature(Creatures.NPC_GLUBTOK_MAIN_PLATTER, Phase2Pos.X, Phase2Pos.Y, Phase2Pos.Z + 2.0f);
             _platter.SetActive(true);
         }
 
@@ -182,8 +182,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                 me.SetReactState(ReactStates.Passive);
                 me.AttackStop();
                 me.GetMotionMaster().Clear();
-                Phase2Pos.GetPosition(out float x, out float y, out float z, out float o);
-                me.NearTeleportTo(x, y, z, o);
+                me.NearTeleportTo(Phase2Pos);
                 DoCast(Spells.TELEPORT_VISUAL);
                 ResetThreatList();
                 _events.ScheduleEvent(BossEvents.EVENT_TRANSITION_SAY_1, TimeSpan.FromMilliseconds(4000));
@@ -215,18 +214,18 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
             {
                 if (left)
                 {
-                    angle = me.GetOrientation() - (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 3.0f, (float)Math.PI / 6.0f);
+                    angle = me.Location.Orientation - (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 3.0f, (float)Math.PI / 6.0f);
                 }
                 else
                 {
-                    angle = me.GetOrientation() + (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 6.0f, (float)Math.PI / 3.0f);
+                    angle = me.Location.Orientation + (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 6.0f, (float)Math.PI / 3.0f);
                 }
-                pos.Z = me.GetPositionZ() + RandomHelper.FRand(4.0f, 23.0f);
+                pos.Z = me.Location.Z + RandomHelper.FRand(4.0f, 23.0f);
 
                 me.GetNearPoint2D(me, out pos.X, out pos.Y, 25.0f, angle);
-                Global.VMapMgr.GetObjectHitPos(me.GetMapId(), me.posX, me.posY, me.posZ + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
+                Global.VMapMgr.GetObjectHitPos(me.Location.GetMapId(), me.Location.X, me.Location.Y, me.Location.Z + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
 
-                if (me.GetExactDist2d(pos.X, pos.Y) >= 7.5f)
+                if (me.Location.GetExactDist2d(pos.X, pos.Y) >= 7.5f)
                 {
                     break;
                 }
@@ -370,7 +369,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                             SummonBeams();
 
                             MoveSplineInit init = new MoveSplineInit(me);
-                            init.MoveTo(me.GetPositionX(), me.GetPositionY(), me.GetPositionZ() + 2.0f);
+                            init.MoveTo(me.Location.X, me.Location.Y, me.Location.Z + 2.0f);
                             init.SetVelocity(1.5f);
                             init.Launch();
                             me.SetDisableGravity(true);

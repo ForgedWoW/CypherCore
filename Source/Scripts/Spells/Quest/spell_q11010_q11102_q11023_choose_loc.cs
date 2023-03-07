@@ -35,6 +35,6 @@ internal class spell_q11010_q11102_q11023_choose_loc : SpellScript, IHasSpellEff
 			if (player.HasAuraType(AuraType.Fly) ||
 			    player.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
 				// Summom Fel Cannon (bunny version) at found player
-				caster.SummonCreature(CreatureIds.FelCannon2, player.GetPositionX(), player.GetPositionY(), player.GetPositionZ());
+				caster.SummonCreature(CreatureIds.FelCannon2, player.Location.X, player.Location.Y, player.Location.Z);
 	}
 }

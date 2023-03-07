@@ -3048,7 +3048,7 @@ namespace Game.Entities
         }
         void DestroyZoneLimitedItem(bool update, uint new_zone)
         {
-            Log.outDebug(LogFilter.Player, "STORAGE: DestroyZoneLimitedItem in map {0} and area {1}", GetMapId(), new_zone);
+            Log.outDebug(LogFilter.Player, "STORAGE: DestroyZoneLimitedItem in map {0} and area {1}", Location.GetMapId(), new_zone);
 
             // in inventory
             int inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
@@ -3056,7 +3056,7 @@ namespace Game.Entities
             {
                 Item pItem = GetItemByPos(InventorySlots.Bag0, i);
                 if (pItem)
-                    if (pItem.IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
+                    if (pItem.IsLimitedToAnotherMapOrZone(Location.GetMapId(), new_zone))
                         DestroyItem(InventorySlots.Bag0, i, update);
             }
 
@@ -3070,7 +3070,7 @@ namespace Game.Entities
                     {
                         Item pItem = pBag.GetItemByPos(j);
                         if (pItem)
-                            if (pItem.IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
+                            if (pItem.IsLimitedToAnotherMapOrZone(Location.GetMapId(), new_zone))
                                 DestroyItem(i, j, update);
                     }
                 }
@@ -3081,7 +3081,7 @@ namespace Game.Entities
             {
                 Item pItem = GetItemByPos(InventorySlots.Bag0, i);
                 if (pItem)
-                    if (pItem.IsLimitedToAnotherMapOrZone(GetMapId(), new_zone))
+                    if (pItem.IsLimitedToAnotherMapOrZone(Location.GetMapId(), new_zone))
                         DestroyItem(InventorySlots.Bag0, i, update);
             }
         }

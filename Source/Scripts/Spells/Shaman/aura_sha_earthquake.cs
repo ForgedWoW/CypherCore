@@ -25,7 +25,7 @@ namespace Scripts.Spells.Shaman
 			var at = GetTarget().GetAreaTrigger(ShamanSpells.EARTHQUAKE);
 
 			if (at != null)
-				GetTarget().CastSpell(at.GetPosition(), ShamanSpells.EARTHQUAKE_TICK, true);
+				GetTarget().CastSpell(at.Location, ShamanSpells.EARTHQUAKE_TICK, true);
 		}
 
 		public override void Register()

@@ -29,7 +29,7 @@ public class at_dru_ursol_vortex : AreaTriggerAI
 		if (!_hasPull && target.IsValidAttackTarget(at.GetCaster()))
 		{
 			_hasPull = true;
-			target.CastSpell(at.GetPosition(), DruidSpells.URSOL_VORTEX_PULL, true);
+			target.CastSpell(at.Location, DruidSpells.URSOL_VORTEX_PULL, true);
 		}
 	}
 

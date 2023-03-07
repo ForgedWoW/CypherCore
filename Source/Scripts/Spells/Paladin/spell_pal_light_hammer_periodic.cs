@@ -32,8 +32,8 @@ namespace Scripts.Spells.Paladin
 
             if (originalCaster != null)
             {
-                originalCaster.CastSpell(lightHammer.GetPosition(), PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-                originalCaster.CastSpell(lightHammer.GetPosition(), PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+                originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+                originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
             }
         }
     }

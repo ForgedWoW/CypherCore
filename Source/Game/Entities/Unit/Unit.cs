@@ -1113,7 +1113,7 @@ namespace Game.Entities
             AddUnitState(UnitState.Move);
 
             if (player != null)
-                player.SetFallInformation(0, GetPositionZ());
+                player.SetFallInformation(0, Location.Z);
 
             Position pos;
             // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
@@ -1122,8 +1122,8 @@ namespace Game.Entities
             else
             {
                 // Set exit position to vehicle position and use the current orientation
-                pos = vehicle.GetBase().GetPosition();
-                pos.SetOrientation(GetOrientation());
+                pos = vehicle.GetBase().Location;
+                pos.                Orientation = Location.Orientation;
 
                 // Change exit position based on seat entry addon data
                 if (seatAddon != null)
@@ -1137,14 +1137,14 @@ namespace Game.Entities
 
             var initializer = (MoveSplineInit init) =>
             {
-                float height = pos.GetPositionZ() + vehicle.GetBase().GetCollisionHeight();
+                float height = pos.Z + vehicle.GetBase().GetCollisionHeight();
 
                 // Creatures without inhabit type air should begin falling after exiting the vehicle
-                if (IsTypeId(TypeId.Unit) && !CanFly() && height > GetMap().GetWaterOrGroundLevel(GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + vehicle.GetBase().GetCollisionHeight(), ref height))
+                if (IsTypeId(TypeId.Unit) && !CanFly() && height > GetMap().GetWaterOrGroundLevel(GetPhaseShift(), pos.X, pos.Y, pos.Z + vehicle.GetBase().GetCollisionHeight(), ref height))
                     init.SetFall();
 
-                init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
-                init.SetFacing(pos.GetOrientation());
+                init.MoveTo(pos.X, pos.Y, height, false);
+                init.SetFacing(pos.Orientation);
                 init.SetTransportExit();
             };
 
@@ -2012,7 +2012,7 @@ namespace Game.Entities
             if (player == null || !player.HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
                 return;
 
-            UpdateData udata = new(GetMapId());
+            UpdateData udata = new(Location.GetMapId());
             BuildValuesUpdateBlockForPlayerWithFlag(udata, UpdateFieldFlag.Owner, player);
             udata.BuildPacket(out UpdateObject packet);
             player.SendPacket(packet);
@@ -2987,7 +2987,7 @@ namespace Game.Entities
 
             // If this is a creature and it attacks from behind it has a probability to daze it's victim
             if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
-                !IsTypeId(TypeId.Player) && !ToCreature().IsControlledByPlayer() && !victim.HasInArc(MathFunctions.PI, this)
+                !IsTypeId(TypeId.Player) && !ToCreature().IsControlledByPlayer() && !victim.Location.HasInArc(MathFunctions.PI, Location)
                 && (victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss()) && !victim.IsVehicle())
             {
                 // 20% base chance
@@ -4236,7 +4236,7 @@ namespace Game.Entities
 
         public void GetAnyUnitListInRange(List<Unit> list, float fMaxSearchRange)
         {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(GetPositionX(), GetPositionY()));
+            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
             Cell cell = new Cell(p);
             cell.SetNoCreate();
 
@@ -4248,7 +4248,7 @@ namespace Game.Entities
 
         public void GetAttackableUnitListInRange(List<Unit> list, float fMaxSearchRange)
         {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(GetPositionX(), GetPositionY()));
+            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
             Cell cell = new Cell(p);
             cell.SetNoCreate();
 
@@ -4260,7 +4260,7 @@ namespace Game.Entities
 
         public void GetFriendlyUnitListInRange(List<Unit> list, float fMaxSearchRange, bool exceptSelf = false)
         {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(GetPositionX(), GetPositionY()));
+            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
             Cell cell = new Cell(p);
             cell.SetNoCreate();
 

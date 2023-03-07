@@ -525,11 +525,11 @@ namespace Game.Spells
             if (unitTarget == null)
                 return;
 
-            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(unitTarget), out float speedXY, out float speedZ);
+            CalculateJumpSpeeds(effectInfo, unitCaster.Location.GetExactDist2d(unitTarget.Location), out float speedXY, out float speedZ);
             JumpArrivalCastArgs arrivalCast = new();
             arrivalCast.SpellId = effectInfo.TriggerSpell;
             arrivalCast.Target = unitTarget.GetGUID();
-            unitCaster.GetMotionMaster().MoveJump(unitTarget, speedXY, speedZ, EventId.Jump, false, arrivalCast);
+            unitCaster.GetMotionMaster().MoveJump(unitTarget.Location, speedXY, speedZ, EventId.Jump, false, arrivalCast);
         }
 
         [SpellEffectHandler(SpellEffectName.JumpDest)]
@@ -548,7 +548,7 @@ namespace Game.Spells
             if (!m_targets.HasDst())
                 return;
 
-            CalculateJumpSpeeds(effectInfo, unitCaster.GetExactDist2d(destTarget), out float speedXY, out float speedZ);
+            CalculateJumpSpeeds(effectInfo, unitCaster.Location.GetExactDist2d(destTarget), out float speedXY, out float speedZ);
             JumpArrivalCastArgs arrivalCast = new();
             arrivalCast.SpellId = effectInfo.TriggerSpell;
             unitCaster.GetMotionMaster().MoveJump(destTarget, speedXY, speedZ, EventId.Jump, !m_targets.GetObjectTargetGUID().IsEmpty(), arrivalCast);
@@ -573,10 +573,10 @@ namespace Game.Spells
             // Init dest coordinates
             WorldLocation targetDest = new(destTarget);
             if (targetDest.GetMapId() == 0xFFFFFFFF)
-                targetDest.SetMapId(unitTarget.GetMapId());
+                targetDest.SetMapId(unitTarget.Location.GetMapId());
 
-            if (targetDest.GetOrientation() == 0 && m_targets.GetUnitTarget())
-                targetDest.SetOrientation(m_targets.GetUnitTarget().GetOrientation());
+            if (targetDest.Orientation == 0 && m_targets.GetUnitTarget())
+                targetDest.                Orientation = m_targets.GetUnitTarget().Location.Orientation;
 
             Player player = unitTarget.ToPlayer();
             if (player != null)
@@ -587,7 +587,7 @@ namespace Game.Spells
                     player.SendPacket(new CustomLoadScreen(m_spellInfo.Id, customLoadingScreenId));
             }
 
-            if (targetDest.GetMapId() == unitTarget.GetMapId())
+            if (targetDest.GetMapId() == unitTarget.Location.GetMapId())
                 unitTarget.NearTeleportTo(targetDest, unitTarget == m_caster);
             else if (player != null)
                 player.TeleportTo(targetDest, unitTarget == m_caster ? TeleportToOptions.Spell : 0);
@@ -617,10 +617,10 @@ namespace Game.Spells
             // Init dest coordinates
             WorldLocation targetDest = new(destTarget);
             if (targetDest.GetMapId() == 0xFFFFFFFF)
-                targetDest.SetMapId(unitTarget.GetMapId());
+                targetDest.SetMapId(unitTarget.Location.GetMapId());
 
-            if (targetDest.GetOrientation() == 0 && m_targets.GetUnitTarget())
-                targetDest.SetOrientation(m_targets.GetUnitTarget().GetOrientation());
+            if (targetDest.Orientation == 0 && m_targets.GetUnitTarget())
+                targetDest.                Orientation = m_targets.GetUnitTarget().Location.Orientation;
 
             if (effectInfo.MiscValueB != 0)
             {
@@ -1795,7 +1795,7 @@ namespace Game.Spells
             if (unitTarget.HasUnitState(UnitState.Confused | UnitState.Stunned | UnitState.Fleeing))
                 return;
 
-            unitTarget.GetMotionMaster().MoveDistract((uint)(damage * Time.InMilliseconds), unitTarget.GetAbsoluteAngle(destTarget));
+            unitTarget.GetMotionMaster().MoveDistract((uint)(damage * Time.InMilliseconds), unitTarget.Location.GetAbsoluteAngle(destTarget));
         }
 
         [SpellEffectHandler(SpellEffectName.Pickpocket)]
@@ -1888,7 +1888,7 @@ namespace Game.Spells
                 return;
 
             if (m_targets.HasDst())
-                unitTarget.NearTeleportTo(destTarget.GetPositionX(), destTarget.GetPositionY(), destTarget.GetPositionZ(), destTarget.GetAbsoluteAngle(m_caster), unitTarget == m_caster);
+                unitTarget.NearTeleportTo(destTarget.X, destTarget.Y, destTarget.Z, destTarget.GetAbsoluteAngle(m_caster.Location), unitTarget == m_caster);
         }
 
         [SpellEffectHandler(SpellEffectName.SkillStep)]
@@ -2214,10 +2214,11 @@ namespace Game.Spells
                         return;
 
                     Cypher.Assert(OldSummon.GetMap() == owner.GetMap());
+                    Position newPos = new Position();
+                    owner.GetClosePoint(newPos, OldSummon.GetCombatReach());
+                    newPos.Orientation = OldSummon.Location.Orientation;
 
-                    owner.GetClosePoint(out float px, out float py, out float pz, OldSummon.GetCombatReach());
-
-                    OldSummon.NearTeleportTo(px, py, pz, OldSummon.GetOrientation());
+                    OldSummon.NearTeleportTo(newPos);
 
                     if (owner.IsTypeId(TypeId.Player) && OldSummon.IsControlled())
                         owner.ToPlayer().PetSpellInitialize();
@@ -2235,8 +2236,10 @@ namespace Game.Spells
             if (petentry == 0)
                 petSlot = (PetSaveMode)damage;
 
-            owner.GetClosePoint(out float x, out float y, out float z, owner.GetCombatReach());
-            Pet pet = owner.SummonPet(petentry, petSlot, x, y, z, owner.Orientation, 0, out bool isNew);
+            Position combatPos = new Position();    
+            owner.GetClosePoint(combatPos, owner.GetCombatReach());
+            combatPos.Orientation = owner.Location.Orientation;
+            Pet pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out bool isNew);
             if (pet == null)
                 return;
 
@@ -2547,19 +2550,18 @@ namespace Game.Spells
             if (target == null)
                 target = m_caster;
 
-            float x, y, z, o;
+            var pos = new Position();
             if (m_targets.HasDst())
-                destTarget.GetPosition(out x, out y, out z, out o);
+                pos = destTarget.Copy();
             else
             {
-                m_caster.GetClosePoint(out x, out y, out z, SharedConst.DefaultPlayerBoundingRadius);
-                o = target.GetOrientation();
+                m_caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+                pos.Orientation = target.Location.Orientation;
             }
 
             Map map = target.GetMap();
 
-            Position pos = new(x, y, z, o);
-            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(o, 0.0f, 0.0f));
+            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
             GameObject go = GameObject.CreateGameObject((uint)effectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
             if (!go)
                 return;
@@ -2842,12 +2844,12 @@ namespace Game.Spells
             Map map = caster.GetMap();
             Position pos = new()
             {
-                posX = caster.GetPositionX() + (unitTarget.GetPositionX() - caster.GetPositionX()) / 2,
-                posY = caster.GetPositionY() + (unitTarget.GetPositionY() - caster.GetPositionY()) / 2,
-                posZ = caster.GetPositionZ(),
-                Orientation = caster.GetOrientation()
+                X = caster.Location.X + (unitTarget.Location.X - caster.Location.X) / 2,
+                Y = caster.Location.Y + (unitTarget.Location.Y - caster.Location.Y) / 2,
+                Z = caster.Location.Z,
+                Orientation = caster.Location.Orientation
             };
-            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f));
+            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
             GameObject go = GameObject.CreateGameObject((uint)effectInfo.MiscValue, map, pos, rotation, 0, GameObjectState.Ready);
             if (!go)
@@ -2901,7 +2903,7 @@ namespace Game.Spells
                 return;
 
             Log.outDebug(LogFilter.Spells, "Spell Effect: Stuck");
-            Log.outInfo(LogFilter.Spells, "Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GetGUID().ToString(), player.GetMapId(), player.GetPositionX(), player.GetPositionY(), player.GetPositionZ());
+            Log.outInfo(LogFilter.Spells, "Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GetGUID().ToString(), player.Location.GetMapId(), player.Location.X, player.Location.Y, player.Location.Z);
 
             if (player.IsInFlight())
                 return;
@@ -3183,20 +3185,19 @@ namespace Game.Spells
                 unitCaster.m_ObjectSlot[slot].Clear();
             }
 
-            float x, y, z, o;
+            Position pos = new Position();
             // If dest location if present
             if (m_targets.HasDst())
-                destTarget.GetPosition(out x, out y, out z, out o);
+                pos = destTarget.Copy();
             // Summon in random point all other units if location present
             else
             {
-                unitCaster.GetClosePoint(out x, out y, out z, SharedConst.DefaultPlayerBoundingRadius);
-                o = unitCaster.GetOrientation();
+                unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+                pos.Orientation = unitCaster.Location.Orientation;
             }
             
             Map map = m_caster.GetMap();
-            Position pos = new(x, y, z, o);
-            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(o, 0.0f, 0.0f));
+            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
             GameObject go = GameObject.CreateGameObject((uint)effectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
             if (!go)
                 return;
@@ -3294,8 +3295,7 @@ namespace Game.Spells
             if (!m_targets.HasDst())
                 return;
 
-            Position pos = destTarget.GetPosition();
-            unitTarget.NearTeleportTo(pos.posX, pos.posY, pos.posZ, pos.Orientation, unitTarget == m_caster);
+            unitTarget.NearTeleportTo(destTarget.X, destTarget.Y, destTarget.Z, destTarget.Orientation, unitTarget == m_caster);
         }
 
         [SpellEffectHandler(SpellEffectName.Reputation)]
@@ -3488,7 +3488,7 @@ namespace Game.Spells
             {
                 // charge changes fall time
                 if (unitCaster.IsPlayer())
-                    unitCaster.ToPlayer().SetFallInformation(0, m_caster.GetPositionZ());
+                    unitCaster.ToPlayer().SetFallInformation(0, m_caster.Location.Z);
 
                 float speed = MathFunctions.fuzzyGt(m_spellInfo.Speed, 0.0f) ? m_spellInfo.Speed : MotionMaster.SPEED_CHARGE;
                 SpellEffectExtraData spellEffectExtraData = null;
@@ -3501,18 +3501,18 @@ namespace Game.Spells
                 // Spell is not using explicit target - no generated path
                 if (m_preGeneratedPath == null)
                 {
-                    Position pos = unitTarget.GetFirstCollisionPosition(unitTarget.GetCombatReach(), unitTarget.GetRelativeAngle(m_caster.GetPosition()));
+                    Position pos = unitTarget.GetFirstCollisionPosition(unitTarget.GetCombatReach(), unitTarget.Location.GetRelativeAngle(m_caster.Location));
                     if (MathFunctions.fuzzyGt(m_spellInfo.Speed, 0.0f) && m_spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-                        speed = pos.GetExactDist(m_caster) / speed;
+                        speed = pos.GetExactDist(m_caster.Location) / speed;
 
-                    unitCaster.GetMotionMaster().MoveCharge(pos.posX, pos.posY, pos.posZ, speed, EventId.Charge, false, unitTarget, spellEffectExtraData);
+                    unitCaster.GetMotionMaster().MoveCharge(pos.X, pos.Y, pos.Z, speed, EventId.Charge, false, unitTarget, spellEffectExtraData);
                 }
                 else
                 {
                     if (MathFunctions.fuzzyGt(m_spellInfo.Speed, 0.0f) && m_spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
                     {
                         Vector3 pos = m_preGeneratedPath.GetActualEndPosition();
-                        speed = new Position(pos.X, pos.Y, pos.Z).GetExactDist(m_caster) / speed;
+                        speed = new Position(pos.X, pos.Y, pos.Z).GetExactDist(m_caster.Location) / speed;
                     }
 
                     unitCaster.GetMotionMaster().MoveCharge(m_preGeneratedPath, speed, unitTarget, spellEffectExtraData);
@@ -3544,15 +3544,15 @@ namespace Game.Spells
 
             if (effectHandleMode == SpellEffectHandleMode.Launch)
             {
-                Position pos = destTarget.GetPosition();
-                if (!unitCaster.IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+                Position pos = destTarget.Copy();
+                if (!unitCaster.IsWithinLOS(pos))
                 {
-                    float angle = unitCaster.GetRelativeAngle(pos.posX, pos.posY);
+                    float angle = unitCaster.Location.GetRelativeAngle(pos.X, pos.Y);
                     float dist = unitCaster.GetDistance(pos);
                     pos = unitCaster.GetFirstCollisionPosition(dist, angle);
                 }
 
-                unitCaster.GetMotionMaster().MoveCharge(pos.posX, pos.posY, pos.posZ);
+                unitCaster.GetMotionMaster().MoveCharge(pos.X, pos.Y, pos.Z);
             }
             else if (effectHandleMode == SpellEffectHandleMode.Hit)
             {
@@ -3599,12 +3599,12 @@ namespace Game.Spells
             if (effectInfo.Effect == SpellEffectName.KnockBackDest)
             {
                 if (m_targets.HasDst())
-                    origin = new(destTarget.GetPosition());
+                    origin = destTarget.Copy();
                 else
                     return;
             }
             else //if (effectInfo.Effect == SPELL_EFFECT_KNOCK_BACK)
-                origin = new(m_caster.GetPosition());
+                origin = new(m_caster.Location);
 
             unitTarget.KnockbackFrom(origin, speedxy, (float)speedz);
 
@@ -3627,7 +3627,7 @@ namespace Game.Spells
 
             // changes fall time
             if (m_caster.GetTypeId() == TypeId.Player)
-                m_caster.ToPlayer().SetFallInformation(0, m_caster.GetPositionZ());
+                m_caster.ToPlayer().SetFallInformation(0, m_caster.Location.Z);
         }
 
         [SpellEffectHandler(SpellEffectName.ClearQuest)]
@@ -3700,16 +3700,16 @@ namespace Game.Spells
             if (!unitTarget)
                 return;
 
-            Position pos = m_caster.GetFirstCollisionPosition(m_caster.GetCombatReach(), m_caster.GetRelativeAngle(unitTarget));
+            Position pos = m_caster.GetFirstCollisionPosition(m_caster.GetCombatReach(), m_caster.Location.GetRelativeAngle(unitTarget.Location));
 
             // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance.
-            float distXY = unitTarget.GetExactDist(pos);
+            float distXY = unitTarget.Location.GetExactDist(pos);
 
             // Avoid division by 0
             if (distXY < 0.001)
                 return;
 
-            float distZ = pos.GetPositionZ() - unitTarget.GetPositionZ();
+            float distZ = pos.Z - unitTarget.Location.Z;
             float speedXY = effectInfo.MiscValue != 0 ? effectInfo.MiscValue / 10.0f : 30.0f;
             float speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.gravity * distXY * distXY) / (2 * speedXY * distXY));
 
@@ -3739,13 +3739,13 @@ namespace Game.Spells
 
             Position pos = m_targets.GetDstPos();
             // This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance
-            float distXY = unitTarget.GetExactDist(pos);
+            float distXY = unitTarget.Location.GetExactDist(pos);
 
             // Avoid division by 0
             if (distXY < 0.001)
                 return;
 
-            float distZ = pos.GetPositionZ() - unitTarget.GetPositionZ();
+            float distZ = pos.Z - unitTarget.Location.Z;
 
             float speedXY = effectInfo.MiscValue != 0 ? effectInfo.MiscValue / 10.0f : 30.0f;
             float speedZ = (float)((2 * speedXY * speedXY * distZ + MotionMaster.gravity * distXY * distXY) / (2 * speedXY * distXY));
@@ -3773,9 +3773,7 @@ namespace Game.Spells
             if (!group || (group.IsRaidGroup() && !group.IsLeader(player.GetGUID()) && !group.IsAssistant(player.GetGUID())))
                 return;
 
-            destTarget.GetPosition(out float x, out float y, out float z);
-
-            group.AddRaidMarker((byte)damage, player.GetMapId(), x, y, z);
+            group.AddRaidMarker((byte)damage, player.Location.GetMapId(), destTarget.X, destTarget.Y, destTarget.Z);
         }
 
         [SpellEffectHandler(SpellEffectName.DispelMechanic)]
@@ -3846,9 +3844,11 @@ namespace Game.Spells
                 // Reposition the pet's corpse before reviving so as not to grab aggro
                 // We can use a different, more accurate version of GetClosePoint() since we have a pet
                 // Will be used later to reposition the pet if we have one
-                player.GetClosePoint(out float x, out float y, out float z, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
-                pet.NearTeleportTo(x, y, z, player.GetOrientation());
-                pet.Relocate(x, y, z, player.GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
+                var closePoint = new Position();
+                player.GetClosePoint(closePoint, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
+                closePoint.Orientation = player.Location.Orientation;
+                pet.NearTeleportTo(closePoint);
+                pet.Location.Relocate(closePoint); // This is needed so SaveStayPosition() will get the proper coords.
             }
 
             pet.ReplaceAllDynamicFlags(UnitDynFlags.None);
@@ -4019,16 +4019,16 @@ namespace Game.Spells
                 return;
             }
 
-            float fx, fy, fz, fo;
+            Position pos = new Position();
 
             if (m_targets.HasDst())
-                destTarget.GetPosition(out fx, out fy, out fz, out fo);
+                pos = destTarget.Copy();
             //FIXME: this can be better check for most objects but still hack
             else if (effectInfo.HasRadius() && m_spellInfo.Speed == 0)
             {
                 float dis = effectInfo.CalcRadius(unitCaster);
-                unitCaster.GetClosePoint(out fx, out fy, out fz, SharedConst.DefaultPlayerBoundingRadius, dis);
-                fo = unitCaster.GetOrientation();
+                unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
+                pos.Orientation = unitCaster.Location.Orientation;
             }
             else
             {
@@ -4037,17 +4037,16 @@ namespace Game.Spells
                 float max_dis = m_spellInfo.GetMaxRange(true);
                 float dis = (float)RandomHelper.NextDouble() * (max_dis - min_dis) + min_dis;
 
-                unitCaster.GetClosePoint(out fx, out fy, out fz, SharedConst.DefaultPlayerBoundingRadius, dis);
-                fo = unitCaster.GetOrientation();
+                unitCaster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius, dis);
+                pos.Orientation = unitCaster.Location.Orientation;
             }
 
             Map cMap = unitCaster.GetMap();
             // if gameobject is summoning object, it should be spawned right on caster's position
             if (goinfo.type == GameObjectTypes.Ritual)
-                unitCaster.GetPosition(out fx, out fy, out fz, out fo);
+                pos.Relocate(unitCaster.Location);
 
-            Position pos = new(fx, fy, fz, fo);
-            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(fo, 0.0f, 0.0f));
+            Quaternion rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 
             GameObject go = GameObject.CreateGameObject(name_id, cMap, pos, rotation, 255, GameObjectState.Ready);
             if (!go)
@@ -4409,8 +4408,10 @@ namespace Game.Spells
                 return;
 
             // relocate
-            unitTarget.GetClosePoint(out float px, out float py, out float pz, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
-            pet.Relocate(px, py, pz, unitTarget.GetOrientation());
+            var pos = new Position();
+            unitTarget.GetClosePoint(pos, pet.GetCombatReach(), SharedConst.PetFollowDist, pet.GetFollowAngle());
+            pos.Orientation = unitTarget.Location.Orientation;
+            pet.Location.Relocate(pos);
 
             // add to world
             pet.GetMap().AddToMap(pet.ToCreature());
@@ -4556,7 +4557,7 @@ namespace Game.Spells
                 }
 
                 if (summon.HasUnitTypeMask(UnitTypeMask.Minion) && m_targets.HasDst())
-                    ((Minion)summon).SetFollowAngle(unitCaster.GetAbsoluteAngle(summon.GetPosition()));
+                    ((Minion)summon).SetFollowAngle(unitCaster.Location.GetAbsoluteAngle(summon.Location));
 
                 if (summon.GetEntry() == 27893)
                 {
@@ -4787,8 +4788,8 @@ namespace Game.Spells
                 homeLoc.WorldRelocate(destTarget);
             else
             {
-                homeLoc.Relocate(player.GetPosition());
-                homeLoc.SetMapId(player.GetMapId());
+                homeLoc.Relocate(player.Location);
+                homeLoc.SetMapId(player.Location.GetMapId());
             }
 
             player.SetHomebind(homeLoc, areaId);
@@ -4862,18 +4863,17 @@ namespace Game.Spells
             if (goId == 0)
                 return;
 
-            float x, y, z, o;
+            Position pos = new();
             if (m_targets.HasDst())
-                destTarget.GetPosition(out x, out y, out z, out o);
+                pos = destTarget.Copy();
             else
             {
-                m_caster.GetClosePoint(out x, out y, out z, SharedConst.DefaultPlayerBoundingRadius);
-                o = m_caster.GetOrientation();
+                m_caster.GetClosePoint(pos, SharedConst.DefaultPlayerBoundingRadius);
+                pos.Orientation = m_caster.Location.Orientation;
             }
 
             Map map = m_caster.GetMap();
-            Position pos = new(x, y, z, o);
-            Quaternion rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(o, 0.0f, 0.0f));
+            Quaternion rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
             GameObject go = GameObject.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
 
             if (!go)
@@ -4950,7 +4950,7 @@ namespace Game.Spells
                 return;
 
             int duration = GetSpellInfo().CalcDuration(GetCaster());
-            AreaTrigger.CreateAreaTrigger((uint)effectInfo.MiscValue, unitCaster, null, GetSpellInfo(), destTarget.GetPosition(), duration, m_SpellVisual, m_castId);
+            AreaTrigger.CreateAreaTrigger((uint)effectInfo.MiscValue, unitCaster, null, GetSpellInfo(), destTarget, duration, m_SpellVisual, m_castId);
         }
 
         [SpellEffectHandler(SpellEffectName.RemoveTalent)]
@@ -5034,7 +5034,7 @@ namespace Game.Spells
             if (unitCaster == null || !m_targets.HasDst())
                 return;
 
-            Conversation.CreateConversation((uint)effectInfo.MiscValue, unitCaster, destTarget.GetPosition(), ObjectGuid.Empty, GetSpellInfo());
+            Conversation.CreateConversation((uint)effectInfo.MiscValue, unitCaster, destTarget, ObjectGuid.Empty, GetSpellInfo());
         }
 
         [SpellEffectHandler(SpellEffectName.CancelConversation)]
@@ -5392,7 +5392,7 @@ namespace Game.Spells
             if (!unitCaster || !m_targets.HasDst())
                 return;
 
-            SceneObject sceneObject = SceneObject.CreateSceneObject((uint)effectInfo.MiscValue, unitCaster, destTarget.GetPosition(), ObjectGuid.Empty);
+            SceneObject sceneObject = SceneObject.CreateSceneObject((uint)effectInfo.MiscValue, unitCaster, destTarget, ObjectGuid.Empty);
             if (sceneObject != null)
             {
                 bool hasAuraTargetingCaster = m_UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
@@ -5411,7 +5411,7 @@ namespace Game.Spells
             if (!unitCaster || !m_targets.HasDst())
                 return;
 
-            SceneObject sceneObject = SceneObject.CreateSceneObject((uint)effectInfo.MiscValue, unitCaster, destTarget.GetPosition(), unitCaster.GetGUID());
+            SceneObject sceneObject = SceneObject.CreateSceneObject((uint)effectInfo.MiscValue, unitCaster, destTarget, unitCaster.GetGUID());
             if (sceneObject != null)
             {
                 bool hasAuraTargetingCaster = m_UniqueTargetInfo.Any(target => IsUnitTargetSceneObjectAura(this, target));
@@ -5469,7 +5469,7 @@ namespace Game.Spells
 
             float speed = jumpParams.Speed;
             if (jumpParams.TreatSpeedAsMoveTimeSeconds)
-                speed = unitCaster.GetExactDist(destTarget) / jumpParams.Speed;
+                speed = unitCaster.Location.GetExactDist(destTarget) / jumpParams.Speed;
 
             JumpArrivalCastArgs arrivalCast = null;
             if (effectInfo.TriggerSpell != 0)
@@ -5558,7 +5558,7 @@ namespace Game.Spells
             if (unitCaster == null || !unitCaster.IsPlayer())
                 return;
 
-            Conversation.CreateConversation((uint)effectInfo.MiscValue, unitCaster, destTarget.GetPosition(), unitCaster.GetGUID(), GetSpellInfo());
+            Conversation.CreateConversation((uint)effectInfo.MiscValue, unitCaster, destTarget, unitCaster.GetGUID(), GetSpellInfo());
         }
 
         [SpellEffectHandler(SpellEffectName.SendChatMessage)]
@@ -5911,7 +5911,7 @@ namespace Game.Spells
 
         public override bool Execute(ulong e_time, uint p_time)
         {
-            if (_targetDest.GetMapId() == _target.GetMapId())
+            if (_targetDest.GetMapId() == _target.Location.GetMapId())
                 _target.NearTeleportTo(_targetDest, (_options & TeleportToOptions.Spell) != 0);
             else
             {

@@ -398,7 +398,7 @@ namespace Scripts.EasternKingdoms.MagistersTerrace.FelbloodKaelthas
                     me.SetUnitFlag(UnitFlags.Uninteractible);
                     DoCastSelf(SpellIds.EmberBlast);
                     // DoCastSelf(SpellSummonPhoenixEgg); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
-                    Creature egg = DoSummon(CreatureIds.PhoenixEgg, me.GetPosition(), TimeSpan.FromSeconds(0));
+                    Creature egg = DoSummon(CreatureIds.PhoenixEgg, me.Location, TimeSpan.FromSeconds(0));
 
                     if (egg)
                     {

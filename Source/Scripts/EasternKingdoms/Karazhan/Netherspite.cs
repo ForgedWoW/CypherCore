@@ -244,12 +244,12 @@ namespace Scripts.EasternKingdoms.Karazhan.Netherspite
                 return false;
 
             float xn, yn, xp, yp, xh, yh;
-            xn = u1.GetPositionX();
-            yn = u1.GetPositionY();
-            xp = u2.GetPositionX();
-            yp = u2.GetPositionY();
-            xh = target.GetPositionX();
-            yh = target.GetPositionY();
+            xn = u1.Location.X;
+            yn = u1.Location.Y;
+            xp = u2.Location.X;
+            yp = u2.Location.Y;
+            xh = target.Location.X;
+            yh = target.Location.Y;
 
             // check if Target is between (not checking distance from the beam yet)
             if (dist(xn, yn, xh, yh) >= dist(xn, yn, xp, yp) ||
@@ -357,7 +357,7 @@ namespace Scripts.EasternKingdoms.Karazhan.Netherspite
                         }
 
                         // create new one and start beaming on the Target
-                        Creature beamer1 = portal.SummonCreature(MiscConst.PortalID[j], portal.GetPositionX(), portal.GetPositionY(), portal.GetPositionZ(), portal.GetOrientation(), TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
+                        Creature beamer1 = portal.SummonCreature(MiscConst.PortalID[j], portal.Location.X, portal.Location.Y, portal.Location.Z, portal.Location.Orientation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
 
                         if (beamer1)
                         {

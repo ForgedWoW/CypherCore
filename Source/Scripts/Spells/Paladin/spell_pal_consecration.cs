@@ -31,7 +31,7 @@ namespace Scripts.Spells.Paladin
             AreaTrigger at = GetTarget().GetAreaTrigger(PaladinSpells.CONSECRATION);
 
             if (at != null)
-                GetTarget().CastSpell(at.GetPosition(), PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
+                GetTarget().CastSpell(at.Location, PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
         }
     }
 }

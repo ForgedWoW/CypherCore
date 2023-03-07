@@ -134,7 +134,7 @@ namespace Game.Chat
             PhasingHandler.PrintToChat(handler, target);
 
             handler.SendSysMessage(CypherStrings.NpcinfoArmor, target.GetArmor());
-            handler.SendSysMessage(CypherStrings.NpcinfoPosition, target.GetPositionX(), target.GetPositionY(), target.GetPositionZ());
+            handler.SendSysMessage(CypherStrings.NpcinfoPosition, target.Location.X, target.Location.Y, target.Location.Z);
             handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, target.GetAIName(), target.GetScriptName());
             handler.SendSysMessage(CypherStrings.ObjectinfoStringIds, target.GetStringIds()[0], target.GetStringIds()[1], target.GetStringIds()[2]);
             handler.SendSysMessage(CypherStrings.NpcinfoReactstate, target.GetReactState());
@@ -180,22 +180,22 @@ namespace Game.Chat
                 return false;
             }
 
-            if (player.GetMapId() != data.MapId)
+            if (player.Location.GetMapId() != data.MapId)
             {
                 handler.SendSysMessage(CypherStrings.CommandCreatureatsamemap, lowguid);
                 return false;
             }
 
             Global.ObjectMgr.RemoveCreatureFromGrid(data);
-            data.SpawnPoint.Relocate(player);
+            data.SpawnPoint.Relocate(player.Location);
             Global.ObjectMgr.AddCreatureToGrid(data);
 
             // update position in DB
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
-            stmt.AddValue(0, player.GetPositionX());
-            stmt.AddValue(1, player.GetPositionY());
-            stmt.AddValue(2, player.GetPositionZ());
-            stmt.AddValue(3, player.GetOrientation());
+            stmt.AddValue(0, player.Location.X);
+            stmt.AddValue(1, player.Location.Y);
+            stmt.AddValue(2, player.Location.Z);
+            stmt.AddValue(3, player.Location.Orientation);
             stmt.AddValue(4, lowguid);
 
             DB.World.Execute(stmt);
@@ -217,13 +217,13 @@ namespace Game.Chat
             Player player = handler.GetPlayer();
 
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_NEAREST);
-            stmt.AddValue(0, player.GetPositionX());
-            stmt.AddValue(1, player.GetPositionY());
-            stmt.AddValue(2, player.GetPositionZ());
-            stmt.AddValue(3, player.GetMapId());
-            stmt.AddValue(4, player.GetPositionX());
-            stmt.AddValue(5, player.GetPositionY());
-            stmt.AddValue(6, player.GetPositionZ());
+            stmt.AddValue(0, player.Location.X);
+            stmt.AddValue(1, player.Location.Y);
+            stmt.AddValue(2, player.Location.Z);
+            stmt.AddValue(3, player.Location.GetMapId());
+            stmt.AddValue(4, player.Location.X);
+            stmt.AddValue(5, player.Location.Y);
+            stmt.AddValue(6, player.Location.Z);
             stmt.AddValue(7, distance * distance);
             SQLResult result = DB.World.Query(stmt);
 
@@ -421,8 +421,10 @@ namespace Game.Chat
             }
 
             // place pet before player
-            player.GetClosePoint(out float x, out float y, out float z, creatureTarget.GetCombatReach(), SharedConst.ContactDistance);
-            pet.Relocate(x, y, z, MathFunctions.PI - player.GetOrientation());
+            var pos = new Position();
+            player.GetClosePoint(pos, creatureTarget.GetCombatReach(), SharedConst.ContactDistance);
+            pos.Orientation = MathFunctions.PI - player.Location.Orientation;
+            pet.Location.Relocate(pos);
 
             // set pet to defensive mode by default (some classes can't control controlled pets in fact).
             pet.SetReactState(ReactStates.Defensive);
@@ -573,7 +575,7 @@ namespace Game.Chat
                     return true;
                 }
 
-                Creature creature = Creature.CreateCreature(id, map, chr.GetPosition());
+                Creature creature = Creature.CreateCreature(id, map, chr.Location);
                 if (!creature)
                     return false;
 
@@ -688,8 +690,8 @@ namespace Game.Chat
                     return false;
 
                 Player chr = handler.GetSession().GetPlayer();
-                float followAngle = (creature.GetAbsoluteAngle(chr) - chr.GetOrientation()) * 180.0f / MathF.PI;
-                float followDist = MathF.Sqrt(MathF.Pow(chr.GetPositionX() - creature.GetPositionX(), 2f) + MathF.Pow(chr.GetPositionY() - creature.GetPositionY(), 2f));
+                float followAngle = (creature.Location.GetAbsoluteAngle(chr.Location) - chr.Location.Orientation) * 180.0f / MathF.PI;
+                float followDist = MathF.Sqrt(MathF.Pow(chr.Location.X - creature.Location.X, 2f) + MathF.Pow(chr.Location.Y - creature.Location.Y, 2f));
                 uint groupAI = 0;
                 FormationMgr.AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
                 creature.SearchFormation();
@@ -726,7 +728,7 @@ namespace Game.Chat
                     return false;
 
                 Player chr = handler.GetSession().GetPlayer();
-                chr.SummonCreature(id, chr.GetPosition(), loot ? TempSummonType.CorpseTimedDespawn : TempSummonType.CorpseDespawn, TimeSpan.FromSeconds(30));
+                chr.SummonCreature(id, chr.Location, loot ? TempSummonType.CorpseTimedDespawn : TempSummonType.CorpseDespawn, TimeSpan.FromSeconds(30));
 
                 return true;
             }

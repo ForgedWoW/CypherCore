@@ -24,6 +24,6 @@ internal class areatrigger_dh_generic_sigil : AreaTriggerAI
 	{
 		var caster = at.GetCaster();
 
-		caster?.CastSpell(at.GetPosition(), _trigger, new CastSpellExtraArgs());
+		caster?.CastSpell(at.Location, _trigger, new CastSpellExtraArgs());
 	}
 }

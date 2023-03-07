@@ -21,8 +21,8 @@ internal class areatrigger_dh_sigil_of_chains : AreaTriggerAI
 
 		if (caster != null)
 		{
-			caster.CastSpell(at.GetPosition(), DemonHunterSpells.SigilOfChainsVisual, new CastSpellExtraArgs());
-			caster.CastSpell(at.GetPosition(), DemonHunterSpells.SigilOfChainsTargetSelect, new CastSpellExtraArgs());
+			caster.CastSpell(at.Location, DemonHunterSpells.SigilOfChainsVisual, new CastSpellExtraArgs());
+			caster.CastSpell(at.Location, DemonHunterSpells.SigilOfChainsTargetSelect, new CastSpellExtraArgs());
 		}
 	}
 }

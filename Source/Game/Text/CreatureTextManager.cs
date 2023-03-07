@@ -298,7 +298,7 @@ namespace Game
                 pkt.TargetObjectGUID = whisperTarget.GetGUID();
                 pkt.SourceObjectGUID = source.GetGUID();
                 pkt.SoundKitID = sound;
-                pkt.Position = whisperTarget.GetWorldLocation();
+                pkt.Position = whisperTarget.Location;
                 pkt.BroadcastTextID = (int)keyBroadcastTextId;
                 SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
             }

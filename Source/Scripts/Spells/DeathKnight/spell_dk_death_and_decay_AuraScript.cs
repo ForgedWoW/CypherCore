@@ -28,7 +28,7 @@ internal class spell_dk_death_and_decay_AuraScript : AuraScript, IHasAuraEffects
 		{
 			var at = caster.GetAreaTrigger(DeathKnightSpells.DEATH_AND_DECAY);
 			if (at != null)
-				caster.CastSpell(at.GetPosition(), DeathKnightSpells.DEATH_AND_DECAY_DAMAGE);
+				caster.CastSpell(at.Location, DeathKnightSpells.DEATH_AND_DECAY_DAMAGE);
 		}
 	}
 }

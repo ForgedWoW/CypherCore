@@ -91,7 +91,7 @@ namespace Scripts.EasternKingdoms.AlteracValley.Drekthar
 
         public override bool CheckInRoom()
         {
-            if (me.GetDistance2d(me.GetHomePosition().GetPositionX(), me.GetHomePosition().GetPositionY()) > 50)
+            if (me.GetDistance2d(me.GetHomePosition().X, me.GetHomePosition().Y) > 50)
             {
                 EnterEvadeMode();
                 Talk(TextIds.SayEvade);

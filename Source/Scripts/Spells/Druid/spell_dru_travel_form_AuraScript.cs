@@ -91,7 +91,7 @@ namespace Scripts.Spells.Druid
 			if (requireOutdoors && !targetPlayer.IsOutdoors())
 				return SpellCastResult.OnlyOutdoors;
 
-			return spellInfo.CheckLocation(targetPlayer.GetMapId(), targetPlayer.GetZoneId(), targetPlayer.GetAreaId(), targetPlayer);
+			return spellInfo.CheckLocation(targetPlayer.Location.GetMapId(), targetPlayer.GetZoneId(), targetPlayer.GetAreaId(), targetPlayer);
 		}
 	}
 }

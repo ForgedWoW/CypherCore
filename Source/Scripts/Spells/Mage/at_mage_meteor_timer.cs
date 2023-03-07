@@ -24,7 +24,7 @@ public class at_mage_meteor_timer : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
 		if (tempSumm != null)
 		{
@@ -42,7 +42,7 @@ public class at_mage_meteor_timer : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
 		if (tempSumm != null)
 		{

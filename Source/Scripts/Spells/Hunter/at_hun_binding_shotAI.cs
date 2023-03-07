@@ -42,10 +42,10 @@ public class at_hun_binding_shotAI : AreaTriggerAI
 		if (unit == null || !at.GetCaster())
 			return;
 
-		var pos = at.GetPosition();
+		var pos = at.Location;
 
 		// Need to check range also, since when the trigger is removed, this get called as well.
-		if (unit.HasAura(UsedSpells.BINDING_SHOT_AURA) && unit.GetExactDist(pos) >= 5.0f)
+		if (unit.HasAura(UsedSpells.BINDING_SHOT_AURA) && unit.Location.GetExactDist(pos) >= 5.0f)
 		{
 			unit.RemoveAura(UsedSpells.BINDING_SHOT_AURA);
 			at.GetCaster().CastSpell(unit, UsedSpells.BINDING_SHOT_STUN, true);

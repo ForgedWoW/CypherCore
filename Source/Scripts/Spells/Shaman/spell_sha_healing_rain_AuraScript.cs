@@ -15,15 +15,13 @@ namespace Scripts.Spells.Shaman;
 internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 {
 	private ObjectGuid _visualDummy;
-	private float _x;
-	private float _y;
-	private float _z;
+	private Position _pos;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public void SetVisualDummy(TempSummon summon)
 	{
 		_visualDummy = summon.GetGUID();
-		summon.GetPosition(out _x, out _y, out _z);
+        _pos = summon.Location;
 	}
 
 	public override void Register()
@@ -34,7 +32,7 @@ internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		GetTarget().CastSpell(new Position(_x, _y, _z), ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
+		GetTarget().CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
 	}
 
 	private void HandleEffecRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)

@@ -207,7 +207,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
             {
                 case DMCreatures.NPC_ROPE:
                     summons.Summon(summon);
-                    summon.SummonCreature(DMCreatures.NPC_ROPE_ANCHOR, summon.GetPositionX(), summon.GetPositionY(), summon.GetPositionZ() + 40.0f, 0, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(10000));
+                    summon.SummonCreature(DMCreatures.NPC_ROPE_ANCHOR, summon.Location.X, summon.Location.Y, summon.Location.Z + 40.0f, 0, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(10000));
                     break;
             }
             base.summons.Summon(summon);

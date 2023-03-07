@@ -212,10 +212,10 @@ namespace Game.Entities
                     PreparedStatement stmt;
 
                     // Do not allow to have item limited to another map/zone in alive state
-                    if (IsAlive() && item.IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
+                    if (IsAlive() && item.IsLimitedToAnotherMapOrZone(Location.GetMapId(), zoneId))
                     {
                         Log.outDebug(LogFilter.Player, "LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
-                            GetGUID().ToString(), GetName(), GetMapId(), item.GetGUID().ToString(), item.GetEntry(), zoneId);
+                            GetGUID().ToString(), GetName(), Location.GetMapId(), item.GetGUID().ToString(), item.GetEntry(), zoneId);
                         remove = true;
                     }
                     // "Conjured items disappear if you are logged out for more than 15 minutes"
@@ -548,7 +548,7 @@ namespace Game.Entities
                         remainCharges = 0;
 
                     AuraLoadEffectInfo info = effectInfo[key];
-                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
 
                     AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
                     createInfo.SetCasterGUID(casterGuid);
@@ -607,10 +607,10 @@ namespace Game.Entities
                 stmt.AddValue(0, GetGUID().GetCounter());
                 stmt.AddValue(1, homebind.GetMapId());
                 stmt.AddValue(2, homebindAreaId);
-                stmt.AddValue(3, homebind.GetPositionX());
-                stmt.AddValue(4, homebind.GetPositionY());
-                stmt.AddValue(5, homebind.GetPositionZ());
-                stmt.AddValue(6, homebind.GetOrientation());
+                stmt.AddValue(3, homebind.X);
+                stmt.AddValue(4, homebind.Y);
+                stmt.AddValue(5, homebind.Z);
+                stmt.AddValue(6, homebind.Orientation);
                 DB.Characters.Execute(stmt);
             };
 
@@ -2495,10 +2495,10 @@ namespace Game.Entities
                     stmt.AddValue(0, GetGUID().GetCounter());
                     stmt.AddValue(1, pair.Key);
                     stmt.AddValue(2, storedLocation.Loc.GetMapId());
-                    stmt.AddValue(3, storedLocation.Loc.GetPositionX());
-                    stmt.AddValue(4, storedLocation.Loc.GetPositionY());
-                    stmt.AddValue(5, storedLocation.Loc.GetPositionZ());
-                    stmt.AddValue(6, storedLocation.Loc.GetOrientation());
+                    stmt.AddValue(3, storedLocation.Loc.X);
+                    stmt.AddValue(4, storedLocation.Loc.Y);
+                    stmt.AddValue(5, storedLocation.Loc.Z);
+                    stmt.AddValue(6, storedLocation.Loc.Orientation);
                     trans.Append(stmt);
                 }
             }
@@ -2748,10 +2748,10 @@ namespace Game.Entities
             stmt.AddValue(0, GetGUID().GetCounter());
             stmt.AddValue(1, m_bgData.bgInstanceID);
             stmt.AddValue(2, m_bgData.bgTeam);
-            stmt.AddValue(3, m_bgData.joinPos.GetPositionX());
-            stmt.AddValue(4, m_bgData.joinPos.GetPositionY());
-            stmt.AddValue(5, m_bgData.joinPos.GetPositionZ());
-            stmt.AddValue(6, m_bgData.joinPos.GetOrientation());
+            stmt.AddValue(3, m_bgData.joinPos.X);
+            stmt.AddValue(4, m_bgData.joinPos.Y);
+            stmt.AddValue(5, m_bgData.joinPos.Z);
+            stmt.AddValue(6, m_bgData.joinPos.Orientation);
             stmt.AddValue(7, (ushort)m_bgData.joinPos.GetMapId());
             stmt.AddValue(8, m_bgData.taxiPath[0]);
             stmt.AddValue(9, m_bgData.taxiPath[1]);
@@ -2967,7 +2967,7 @@ namespace Game.Entities
             InitPrimaryProfessions();                               // to max set before any spell loaded
 
             // init saved position, and fix it later if problematic
-            Relocate(position_x, position_y, position_z, orientation);
+            Location.Relocate(position_x, position_y, position_z, orientation);
 
             SetDungeonDifficultyID(CheckLoadedDungeonDifficultyID(dungeonDifficulty));
             SetRaidDifficultyID(CheckLoadedRaidDifficultyID(raidDifficulty));
@@ -2977,7 +2977,7 @@ namespace Game.Entities
             {
                 mapId = homebind.GetMapId();
                 instance_id = 0;
-                Relocate(homebind);
+                Location.Relocate(homebind);
             });
 
             _LoadGroup(holder.GetResult(PlayerLoginQueryLoad.Group));
@@ -2995,9 +2995,9 @@ namespace Game.Entities
             Map map = null;
             bool player_at_bg = false;
             var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
-            if (mapEntry == null || !IsPositionValid())
+            if (mapEntry == null || !Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, GetPosition());
+                Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, Location);
                 RelocateToHomebind();
             }
             else if (mapEntry.IsBattlegroundOrArena())
@@ -3044,7 +3044,7 @@ namespace Game.Entities
                         RelocateToHomebind();
                     }
                     else
-                        Relocate(_loc);
+                        Location.Relocate(_loc);
 
                     // We are not in BG anymore
                     m_bgData.bgInstanceID = 0;
@@ -3077,29 +3077,26 @@ namespace Game.Entities
                 
                 if (transport)
                 {
-                    float x = trans_x;
-                    float y = trans_y;
-                    float z = trans_z;
-                    float o = trans_o;
+                    var pos = new Position(trans_x, trans_y, trans_z, trans_o);
 
-                    m_movementInfo.transport.pos = new Position(x, y, z, o);
-                    transport.CalculatePassengerPosition(ref x, ref y, ref z, ref o);
+                    m_movementInfo.transport.pos = pos.Copy();
+                    transport.CalculatePassengerPosition(pos);
 
-                    if (!GridDefines.IsValidMapCoord(x, y, z, o) ||
+                    if (!GridDefines.IsValidMapCoord(pos) ||
                         // transport size limited
-                        Math.Abs(m_movementInfo.transport.pos.posX) > 250.0f ||
-                        Math.Abs(m_movementInfo.transport.pos.posY) > 250.0f ||
-                        Math.Abs(m_movementInfo.transport.pos.posZ) > 250.0f)
+                        Math.Abs(m_movementInfo.transport.pos.X) > 250.0f ||
+                        Math.Abs(m_movementInfo.transport.pos.Y) > 250.0f ||
+                        Math.Abs(m_movementInfo.transport.pos.Z) > 250.0f)
                     {
-                        Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid transport coordinates (X: {1} Y: {2} Z: {3} O: {4}). Teleport to bind location.", guid.ToString(), x, y, z, o);
+                        Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid transport coordinates ({1}). Teleport to bind location.", guid.ToString(), pos.ToString());
 
                         m_movementInfo.transport.Reset();
                         RelocateToHomebind();
                     }
                     else
                     {
-                        Relocate(x, y, z, o);
-                        mapId = transport.GetMapId();
+                        Location.Relocate(pos);
+                        mapId = transport.Location.GetMapId();
 
                         transport.AddPassenger(this);
                     }
@@ -3139,7 +3136,7 @@ namespace Game.Entities
                     {
                         Log.outError(LogFilter.Player, "Character {0} have too short taxi destination list, teleport to original node.", GetGUID().ToString());
                         mapId = nodeEntry.ContinentID;
-                        Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
+                        Location.Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
                     }
                     m_taxi.ClearTaxiDestinations();
                 }
@@ -3148,11 +3145,11 @@ namespace Game.Entities
                 {
                     // save source node as recall coord to prevent recall and fall from sky
                     var nodeEntry = CliDB.TaxiNodesStorage.LookupByKey(nodeid);
-                    if (nodeEntry != null && nodeEntry.ContinentID == GetMapId())
+                    if (nodeEntry != null && nodeEntry.ContinentID == Location.GetMapId())
                     {
                         Cypher.Assert(nodeEntry != null);                                  // checked in m_taxi.LoadTaxiDestinationsFromString
                         mapId = nodeEntry.ContinentID;
-                        Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
+                        Location.Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
                     }
 
                     // flight will started later
@@ -3209,7 +3206,7 @@ namespace Game.Entities
             {
                 if (areaTrigger != null) // ... if we have an areatrigger, then relocate to new map/coordinates.
                 {
-                    Relocate(areaTrigger.target_X, areaTrigger.target_Y, areaTrigger.target_Z, GetOrientation());
+                    Location.Relocate(areaTrigger.target_X, areaTrigger.target_Y, areaTrigger.target_Z, Location.Orientation);
                     if (mapId != areaTrigger.target_mapId)
                     {
                         mapId = areaTrigger.target_mapId;
@@ -3224,7 +3221,7 @@ namespace Game.Entities
                 map = Global.MapMgr.CreateMap(mapId, this);
                 if (!map)
                 {
-                    Log.outError(LogFilter.Player, "Player {0} {1} Map: {2}, {3}. Invalid default map coordinates or instance couldn't be created.", GetName(), guid.ToString(), mapId, GetPosition());
+                    Log.outError(LogFilter.Player, "Player {0} {1} Map: {2}, {3}. Invalid default map coordinates or instance couldn't be created.", GetName(), guid.ToString(), mapId, Location);
                     return false;
                 }
             }
@@ -3384,7 +3381,7 @@ namespace Game.Entities
             SetChosenTitle(chosenTitle);
 
             // has to be called after last Relocate() in Player.LoadFromDB
-            SetFallInformation(0, GetPositionZ());
+            SetFallInformation(0, Location.Z);
 
             GetSpellHistory().LoadFromDB<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
 
@@ -3621,15 +3618,15 @@ namespace Game.Entities
                 stmt.AddValue(index++, m_activePlayerData.RestInfo[(int)RestTypes.XP].StateID);
                 stmt.AddValue(index++, m_playerData.PlayerFlags);
                 stmt.AddValue(index++, m_playerData.PlayerFlagsEx);
-                stmt.AddValue(index++, (ushort)GetMapId());
+                stmt.AddValue(index++, (ushort)Location.GetMapId());
                 stmt.AddValue(index++, GetInstanceId());
                 stmt.AddValue(index++, (byte)GetDungeonDifficultyID());
                 stmt.AddValue(index++, (byte)GetRaidDifficultyID());
                 stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyID());
-                stmt.AddValue(index++, finiteAlways(GetPositionX()));
-                stmt.AddValue(index++, finiteAlways(GetPositionY()));
-                stmt.AddValue(index++, finiteAlways(GetPositionZ()));
-                stmt.AddValue(index++, finiteAlways(GetOrientation()));
+                stmt.AddValue(index++, finiteAlways(Location.X));
+                stmt.AddValue(index++, finiteAlways(Location.Y));
+                stmt.AddValue(index++, finiteAlways(Location.Z));
+                stmt.AddValue(index++, finiteAlways(Location.Orientation));
                 stmt.AddValue(index++, finiteAlways(GetTransOffsetX()));
                 stmt.AddValue(index++, finiteAlways(GetTransOffsetY()));
                 stmt.AddValue(index++, finiteAlways(GetTransOffsetZ()));
@@ -3749,15 +3746,15 @@ namespace Game.Entities
 
                 if (!IsBeingTeleported())
                 {
-                    stmt.AddValue(index++, (ushort)GetMapId());
+                    stmt.AddValue(index++, (ushort)Location.GetMapId());
                     stmt.AddValue(index++, GetInstanceId());
                     stmt.AddValue(index++, (byte)GetDungeonDifficultyID());
                     stmt.AddValue(index++, (byte)GetRaidDifficultyID());
                     stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyID());
-                    stmt.AddValue(index++, finiteAlways(GetPositionX()));
-                    stmt.AddValue(index++, finiteAlways(GetPositionY()));
-                    stmt.AddValue(index++, finiteAlways(GetPositionZ()));
-                    stmt.AddValue(index++, finiteAlways(GetOrientation()));
+                    stmt.AddValue(index++, finiteAlways(Location.X));
+                    stmt.AddValue(index++, finiteAlways(Location.Y));
+                    stmt.AddValue(index++, finiteAlways(Location.Z));
+                    stmt.AddValue(index++, finiteAlways(Location.Orientation));
                 }
                 else
                 {
@@ -3766,10 +3763,10 @@ namespace Game.Entities
                     stmt.AddValue(index++, (byte)GetDungeonDifficultyID());
                     stmt.AddValue(index++, (byte)GetRaidDifficultyID());
                     stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyID());
-                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().GetPositionX()));
-                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().GetPositionY()));
-                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().GetPositionZ()));
-                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().GetOrientation()));
+                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().X));
+                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().Y));
+                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().Z));
+                    stmt.AddValue(index++, finiteAlways(GetTeleportDest().Orientation));
                 }
 
                 stmt.AddValue(index++, finiteAlways(GetTransOffsetX()));
@@ -4530,10 +4527,10 @@ namespace Game.Entities
         public static void SavePositionInDB(WorldLocation loc, uint zoneId, ObjectGuid guid, SQLTransaction trans = null)
         {
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_POSITION);
-            stmt.AddValue(0, loc.GetPositionX());
-            stmt.AddValue(1, loc.GetPositionY());
-            stmt.AddValue(2, loc.GetPositionZ());
-            stmt.AddValue(3, loc.GetOrientation());
+            stmt.AddValue(0, loc.X);
+            stmt.AddValue(1, loc.Y);
+            stmt.AddValue(2, loc.Z);
+            stmt.AddValue(3, loc.Orientation);
             stmt.AddValue(4, (ushort)loc.GetMapId());
             stmt.AddValue(5, zoneId);
             stmt.AddValue(6, guid.GetCounter());
@@ -4552,9 +4549,9 @@ namespace Game.Entities
             if (result.IsEmpty())
                 return false;
 
-            loc.posX = result.Read<float>(0);
-            loc.posY = result.Read<float>(1);
-            loc.posZ = result.Read<float>(2);
+            loc.X = result.Read<float>(0);
+            loc.Y = result.Read<float>(1);
+            loc.Z = result.Read<float>(2);
             loc.Orientation = result.Read<float>(3);
             loc.SetMapId(result.Read<ushort>(4));
             inFlight = !string.IsNullOrEmpty(result.Read<string>(5));

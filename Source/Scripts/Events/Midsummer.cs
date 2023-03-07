@@ -240,7 +240,7 @@ namespace Scripts.m_Events.Midsummer
                 return;
 
             Position spellDest = GetExplTargetDest();
-            double distance = GetCaster().GetExactDist2d(spellDest.GetPositionX(), spellDest.GetPositionY());
+            double distance = GetCaster().Location.GetExactDist2d(spellDest.X, spellDest.Y);
 
             uint torchSpellID = 0;
             uint torchShadowSpellID = 0;
@@ -249,7 +249,7 @@ namespace Scripts.m_Events.Midsummer
             {
                 torchSpellID = SpellIds.JuggleTorchSelf;
                 torchShadowSpellID = SpellIds.JuggleTorchShadowSelf;
-                spellDest = GetCaster().GetPosition();
+                spellDest = GetCaster().Location;
             }
             else if (distance <= 10.0f)
             {
@@ -343,7 +343,7 @@ namespace Scripts.m_Events.Midsummer
             Position pos = GetHitDest();
 
             if (pos != null)
-                if (GetCaster().GetExactDist2d(pos) > 3.0f)
+                if (GetCaster().Location.GetExactDist2d(pos) > 3.0f)
                 {
                     PreventHitEffect(effIndex);
                     GetCaster().CastSpell(GetExplTargetDest(), SpellIds.JuggleTorchMissed, new CastSpellExtraArgs(false));

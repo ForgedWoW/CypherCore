@@ -105,9 +105,10 @@ namespace Game.Chat
                     _player.SaveRecallPosition(); // save only in non-flight case
 
                 // to point to see at target with same orientation
-                target.GetClosePoint(out float x, out float y, out float z, _player.GetCombatReach(), 1.0f);
-
-                _player.TeleportTo(target.GetMapId(), x, y, z, _player.GetAbsoluteAngle(target), TeleportToOptions.GMMode, target.GetInstanceId());
+                var pos = new Position();
+                target.GetClosePoint(pos, _player.GetCombatReach(), 1.0f);
+                pos.Orientation = _player.Location.GetAbsoluteAngle(target.Location);
+                _player.TeleportTo(target.Location.GetMapId(), pos, TeleportToOptions.GMMode, target.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(_player, target);
                 _player.UpdateObjectVisibility();
             }
@@ -131,7 +132,8 @@ namespace Game.Chat
                 else
                     _player.SaveRecallPosition(); // save only in non-flight case
 
-                loc.SetOrientation(_player.GetOrientation());
+                loc.
+                Orientation = _player.Location.Orientation;
                 _player.TeleportTo(loc);
             }
 
@@ -196,7 +198,7 @@ namespace Game.Chat
             }
 
             Player player = handler.GetSession().GetPlayer();
-            caster.GetMotionMaster().MovePoint(0, player.GetPositionX(), player.GetPositionY(), player.GetPositionZ());
+            caster.GetMotionMaster().MovePoint(0, player.Location.X, player.Location.Y, player.Location.Z);
 
             return true;
         }
@@ -462,7 +464,7 @@ namespace Game.Chat
                 }
             }
 
-            handler.SendSysMessage(CypherStrings.Distance, handler.GetSession().GetPlayer().GetDistance(obj), handler.GetSession().GetPlayer().GetDistance2d(obj), handler.GetSession().GetPlayer().GetExactDist(obj), handler.GetSession().GetPlayer().GetExactDist2d(obj));
+            handler.SendSysMessage(CypherStrings.Distance, handler.GetSession().GetPlayer().GetDistance(obj), handler.GetSession().GetPlayer().GetDistance2d(obj), handler.GetSession().GetPlayer().Location.GetExactDist(obj.Location), handler.GetSession().GetPlayer().Location.GetExactDist2d(obj.Location));
             return true;
         }
 
@@ -614,26 +616,26 @@ namespace Game.Chat
                 }
             }
 
-            CellCoord cellCoord = GridDefines.ComputeCellCoord(obj.GetPositionX(), obj.GetPositionY());
+            CellCoord cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
             Cell cell = new(cellCoord);
 
             obj.GetZoneAndAreaId(out uint zoneId, out uint areaId);
-            uint mapId = obj.GetMapId();
+            uint mapId = obj.Location.GetMapId();
 
             MapRecord mapEntry = CliDB.MapStorage.LookupByKey(mapId);
             AreaTableRecord zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
             AreaTableRecord areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
 
-            float zoneX = obj.GetPositionX();
-            float zoneY = obj.GetPositionY();
+            float zoneX = obj.Location.X;
+            float zoneY = obj.Location.Y;
 
             Global.DB2Mgr.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
 
             Map map = obj.GetMap();
-            float groundZ = obj.GetMapHeight(obj.GetPositionX(), obj.GetPositionY(), MapConst.MaxHeight);
-            float floorZ = obj.GetMapHeight(obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ());
+            float groundZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
+            float floorZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
 
-            GridCoord gridCoord = GridDefines.ComputeGridCoord(obj.GetPositionX(), obj.GetPositionY());
+            GridCoord gridCoord = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 
             // 63? WHY?
             int gridX = (int)((MapConst.MaxGrids - 1) - gridCoord.X_Coord);
@@ -641,7 +643,7 @@ namespace Game.Chat
 
             bool haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
             bool haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
-            bool haveMMap = (Global.DisableMgr.IsPathfindingEnabled(mapId) && Global.MMapMgr.GetNavMesh(handler.GetSession().GetPlayer().GetMapId()) != null);
+            bool haveMMap = (Global.DisableMgr.IsPathfindingEnabled(mapId) && Global.MMapMgr.GetNavMesh(handler.GetSession().GetPlayer().Location.GetMapId()) != null);
 
             if (haveVMap)
             {
@@ -659,7 +661,7 @@ namespace Game.Chat
                 mapId, (mapEntry != null ? mapEntry.MapName[handler.GetSessionDbcLocale()] : unknown),
                 zoneId, (zoneEntry != null ? zoneEntry.AreaName[handler.GetSessionDbcLocale()] : unknown),
                 areaId, (areaEntry != null ? areaEntry.AreaName[handler.GetSessionDbcLocale()] : unknown),
-                obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), obj.GetOrientation());
+                obj.Location.X, obj.Location.Y, obj.Location.Z, obj.Location.Orientation);
 
             Transport transport = obj.GetTransport<Transport>();
             if (transport)
@@ -669,9 +671,9 @@ namespace Game.Chat
             }
 
             handler.SendSysMessage(CypherStrings.GridPosition, cell.GetGridX(), cell.GetGridY(), cell.GetCellX(), cell.GetCellY(), obj.GetInstanceId(),
-                zoneX, zoneY, groundZ, floorZ, map.GetMinHeight(obj.GetPhaseShift(), obj.GetPositionX(), obj.GetPositionY()), haveMap, haveVMap, haveMMap);
+                zoneX, zoneY, groundZ, floorZ, map.GetMinHeight(obj.GetPhaseShift(), obj.Location.X, obj.Location.Y), haveMap, haveVMap, haveMMap);
 
-            ZLiquidStatus status = map.GetLiquidStatus(obj.GetPhaseShift(), obj.GetPositionX(), obj.GetPositionY(), obj.GetPositionZ(), LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidStatus);
+            ZLiquidStatus status = map.GetLiquidStatus(obj.GetPhaseShift(), obj.Location.X, obj.Location.Y, obj.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidStatus);
 
             if (liquidStatus != null)
                 handler.SendSysMessage(CypherStrings.LiquidStatus, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
@@ -1096,7 +1098,7 @@ namespace Game.Chat
             Player player = handler.GetSession().GetPlayer();
             uint zoneId = player.GetZoneId();
 
-            WorldSafeLocsEntry graveyard = Global.ObjectMgr.GetClosestGraveYard(player, team, null);
+            WorldSafeLocsEntry graveyard = Global.ObjectMgr.GetClosestGraveYard(player.Location, team, null);
             if (graveyard != null)
             {
                 uint graveyardId = graveyard.Id;
@@ -1259,7 +1261,7 @@ namespace Game.Chat
                 raceid = target.GetRace();
                 classid = target.GetClass();
                 muteTime = target.GetSession().m_muteTime;
-                mapId = target.GetMapId();
+                mapId = target.Location.GetMapId();
                 areaId = target.GetAreaId();
                 alive = target.IsAlive() ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No);
                 gender = target.GetNativeGender();
@@ -1623,7 +1625,7 @@ namespace Game.Chat
             player.GetMap().GetRespawnInfo(data, SpawnObjectTypeMask.All);
             if (!data.Empty())
             {
-                uint gridId = GridDefines.ComputeGridCoord(player.GetPositionX(), player.GetPositionY()).GetId();
+                uint gridId = GridDefines.ComputeGridCoord(player.Location.X, player.Location.Y).GetId();
                 foreach (RespawnInfo info in data)
                     if (info.GridId == gridId)
                         player.GetMap().RemoveRespawnTime(info.ObjectType, info.SpawnId);
@@ -1780,7 +1782,7 @@ namespace Game.Chat
                         targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.GetLeaderGUID());
 
                     // check if far teleport is allowed
-                    if (targetGroupLeader == null || (targetGroupLeader.GetMapId() != map.GetId()) || (targetGroupLeader.GetInstanceId() != map.GetInstanceId()))
+                    if (targetGroupLeader == null || (targetGroupLeader.Location.GetMapId() != map.GetId()) || (targetGroupLeader.GetInstanceId() != map.GetInstanceId()))
                     {
                         if ((targetMap.GetId() != map.GetId()) || (targetMap.GetInstanceId() != map.GetInstanceId()))
                         {
@@ -1808,8 +1810,10 @@ namespace Game.Chat
                     _player.SaveRecallPosition(); // save only in non-flight case
 
                 // before GM
-                _player.GetClosePoint(out float x, out float y, out float z, target.GetCombatReach());
-                target.TeleportTo(_player.GetMapId(), x, y, z, target.GetOrientation(), 0, map.GetInstanceId());
+                var pos = new Position();
+                _player.GetClosePoint(pos, target.GetCombatReach());
+                pos.Orientation = target.Location.Orientation;
+                target.TeleportTo(_player.Location.GetMapId(), pos, 0, map.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(target, _player);
                 target.UpdateObjectVisibility();
             }
@@ -1824,7 +1828,7 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
                 // in point where GM stay
-                Player.SavePositionInDB(new WorldLocation(_player.GetMapId(), _player.GetPositionX(), _player.GetPositionY(), _player.GetPositionZ(), _player.GetOrientation()), _player.GetZoneId(), targetGuid);
+                Player.SavePositionInDB(new WorldLocation(_player.Location.GetMapId(), _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.GetZoneId(), targetGuid);
             }
 
             return true;
@@ -2011,7 +2015,7 @@ namespace Game.Chat
                 Player caster = handler.GetSession().GetPlayer();
                 if (caster)
                 {
-                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.GetMapId(), SPELL_UNSTUCK_ID, player.GetMap().GenerateLowGuid(HighGuid.Cast));
+                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.GetMapId(), SPELL_UNSTUCK_ID, player.GetMap().GenerateLowGuid(HighGuid.Cast));
                     Spell.SendCastResult(caster, spellInfo, new Networking.Packets.SpellCastVisual(SPELL_UNSTUCK_VISUAL, 0), castId, SpellCastResult.CantDoThatRightNow);
                 }
 

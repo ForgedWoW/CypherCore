@@ -96,22 +96,22 @@ namespace Scripts.EasternKingdoms.AlteracValley.Balinda
                                 });
 
             _scheduler.Schedule(TimeSpan.FromSeconds(5),
-                                task =>
+                                (Action<Framework.Dynamic.TaskContext>)(                                task =>
                                 {
-                                    if (me.GetDistance2d(me.GetHomePosition().GetPositionX(), me.GetHomePosition().GetPositionY()) > 50)
+                                    if (me.GetDistance2d(me.GetHomePosition().X, me.GetHomePosition().Y) > 50)
                                     {
-                                        EnterEvadeMode();
+                                        base.EnterEvadeMode();
                                         Talk(TextIds.SayEvade);
                                     }
 
                                     Creature elemental = ObjectAccessor.GetCreature(me, WaterElementalGUID);
 
                                     if (elemental != null)
-                                        if (elemental.GetDistance2d(me.GetHomePosition().GetPositionX(), me.GetHomePosition().GetPositionY()) > 50)
+                                        if (elemental.GetDistance2d(me.GetHomePosition().X, me.GetHomePosition().Y) > 50)
                                             elemental.GetAI().EnterEvadeMode();
 
                                     task.Repeat();
-                                });
+                                }));
         }
 
         public override void JustSummoned(Creature summoned)

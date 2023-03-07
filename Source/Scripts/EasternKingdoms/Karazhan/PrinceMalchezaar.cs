@@ -269,7 +269,7 @@ namespace Scripts.EasternKingdoms.Karazhan.PrinceMalchezaar
 
                     for (byte i = 0; i < 2; ++i)
                     {
-                        Creature axe = me.SummonCreature(MiscConst.MalchezarsAxe, me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
+                        Creature axe = me.SummonCreature(MiscConst.MalchezarsAxe, me.Location.X, me.Location.Y, me.Location.Z, 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
 
                         if (axe)
                         {
@@ -551,7 +551,7 @@ namespace Scripts.EasternKingdoms.Karazhan.PrinceMalchezaar
             Vector2 point = Vector2.Zero;
             Position pos = null;
 
-            if ((me.GetMapId() != 532) ||
+            if ((me.Location.GetMapId() != 532) ||
                 positions.Empty())
             {
                 pos = me.GetRandomNearPosition(60);

@@ -235,7 +235,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
                 me.AttackStop();
                 me.SetReactState(ReactStates.Passive);
                 me.InterruptNonMeleeSpells(true);
-                me.SetFacingTo(me.GetHomePosition().GetOrientation());
+                me.SetFacingTo(me.GetHomePosition().Orientation);
                 _events.Reset();
 
                 if (GetDifficulty() == Difficulty.MythicRaid ||
@@ -881,9 +881,9 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
                 for (byte i = 0; i < count; i++)
                 {
-                    float x = MiscConst.AnnihilationCenterReferencePos.GetPositionX() + MathF.Cos(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
-                    float y = MiscConst.AnnihilationCenterReferencePos.GetPositionY() + MathF.Sin(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
-                    float z = caster.GetMap().GetHeight(caster.GetPhaseShift(), x, y, MiscConst.AnnihilationCenterReferencePos.GetPositionZ());
+                    float x = MiscConst.AnnihilationCenterReferencePos.X + MathF.Cos(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
+                    float y = MiscConst.AnnihilationCenterReferencePos.Y + MathF.Sin(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
+                    float z = caster.GetMap().GetHeight(caster.GetPhaseShift(), x, y, MiscConst.AnnihilationCenterReferencePos.Z);
                     annihilator.CastSpell(new Position(x, y, z), SpellIds.AnnihilationSummon, new CastSpellExtraArgs(true));
                 }
 

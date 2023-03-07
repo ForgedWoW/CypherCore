@@ -45,7 +45,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 		{
 			var caster = at.GetCaster();
 
-			caster?.CastSpell(at.GetPosition(),
+			caster?.CastSpell(at.Location,
 			                  ShamanSpells.EarthquakeTick,
 			                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
 				                  .SetOriginalCaster(at.GetGUID()));

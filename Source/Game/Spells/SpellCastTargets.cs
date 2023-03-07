@@ -39,7 +39,7 @@ namespace Game.Spells
 
                 pos.Relocate(spellCastRequest.Target.SrcLocation.Location);
                 if (spellCastRequest.Target.Orientation.HasValue)
-                    pos.SetOrientation(spellCastRequest.Target.Orientation.Value);
+                    pos.                    Orientation = spellCastRequest.Target.Orientation.Value;
             }
 
             if (spellCastRequest.Target.DstLocation != null)
@@ -53,7 +53,7 @@ namespace Game.Spells
 
                 pos.Relocate(spellCastRequest.Target.DstLocation.Location);
                 if (spellCastRequest.Target.Orientation.HasValue)
-                    pos.SetOrientation(spellCastRequest.Target.Orientation.Value);
+                    pos.                    Orientation = spellCastRequest.Target.Orientation.Value;
             }
 
             SetPitch(spellCastRequest.MissileTrajectory.Pitch);
@@ -337,7 +337,7 @@ namespace Game.Spells
                 WorldObject transport = Global.ObjAccessor.GetWorldObject(caster, m_src.TransportGUID);
                 if (transport != null)
                 {
-                    m_src.Position.Relocate(transport.GetPosition());
+                    m_src.Position.Relocate(transport.Location);
                     m_src.Position.RelocateOffset(m_src.TransportOffset);
                 }
             }
@@ -347,7 +347,7 @@ namespace Game.Spells
                 WorldObject transport = Global.ObjAccessor.GetWorldObject(caster, m_dst.TransportGUID);
                 if (transport != null)
                 {
-                    m_dst.Position.Relocate(transport.GetPosition());
+                    m_dst.Position.Relocate(transport.Location);
                     m_dst.Position.RelocateOffset(m_dst.TransportOffset);
                 }
             }

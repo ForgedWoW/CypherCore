@@ -18,7 +18,7 @@ public class spell_dru_efflorescence_aura : AuraScript, IHasAuraEffects
 	{
 		if (GetCaster() && GetCaster().GetOwner())
 		{
-			GetCaster().GetOwner().CastSpell(GetCaster().GetPosition(), EfflorescenceSpells.EFFLORESCENCE_HEAL);
+			GetCaster().GetOwner().CastSpell(GetCaster().Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
 
 			var playerList = GetCaster().GetPlayerListInGrid(11.2f);
 

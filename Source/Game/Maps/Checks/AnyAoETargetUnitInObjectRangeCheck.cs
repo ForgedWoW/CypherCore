@@ -60,6 +60,6 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 		if (_incTargetRadius)
 			searchRadius += u.GetCombatReach();
 
-		return u.IsInMap(_obj) && u.InSamePhase(_obj) && u.IsWithinDoubleVerticalCylinder(_obj, searchRadius, searchRadius);
+		return u.IsInMap(_obj) && u.InSamePhase(_obj) && u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius);
 	}
 }

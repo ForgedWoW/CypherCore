@@ -328,9 +328,9 @@ namespace Scripts.EasternKingdoms.MagistersTerrace.PriestessDelrissa
             _scheduler.Schedule(TimeSpan.FromSeconds(5),
                                 task =>
                                 {
-                                    me.GetHomePosition(out _, out _, out float z, out _);
+                                    var homePos = me.GetHomePosition();
 
-                                    if (me.GetPositionZ() >= z + 10)
+                                    if (me.Location.Z >= homePos.Z + 10)
                                     {
                                         EnterEvadeMode();
 

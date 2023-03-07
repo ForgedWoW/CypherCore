@@ -165,25 +165,21 @@ namespace Game.Entities
                 if (IsFalling())
                     StopMoving();
 
-                GetRespawnPosition(out float x, out float y, out float z, out float o);
+                Position respawn = GetRespawnPosition();
 
                 // We were spawned on transport, calculate real position
                 if (IsSpawnedOnTransport())
                 {
-                    Position pos = m_movementInfo.transport.pos;
-                    pos.posX = x;
-                    pos.posY = y;
-                    pos.posZ = z;
-                    pos.SetOrientation(o);
+                    m_movementInfo.transport.pos.Relocate(respawn);
 
                     ITransport transport = GetDirectTransport();
                     if (transport != null)
-                        transport.CalculatePassengerPosition(ref x, ref y, ref z, ref o);
+                        transport.CalculatePassengerPosition(respawn);
                 }
 
-                UpdateAllowedPositionZ(x, y, ref z);
-                SetHomePosition(x, y, z, o);
-                GetMap().CreatureRelocation(this, x, y, z, o);
+                respawn.Z = UpdateAllowedPositionZ(respawn.X, respawn.Y, respawn.Z);
+                SetHomePosition(respawn);
+                GetMap().CreatureRelocation(this, respawn);
             }
             else
             {
@@ -459,7 +455,7 @@ namespace Game.Entities
                             break; // Will be rechecked on next Update call after delay expires
                         }
 
-                        ObjectGuid dbtableHighGuid = ObjectGuid.Create(HighGuid.Creature, GetMapId(), GetEntry(), m_spawnId);
+                        ObjectGuid dbtableHighGuid = ObjectGuid.Create(HighGuid.Creature, Location.GetMapId(), GetEntry(), m_spawnId);
                         long linkedRespawnTime = GetMap().GetLinkedRespawnTime(dbtableHighGuid);
                         if (linkedRespawnTime == 0)             // Can respawn
                             Respawn();
@@ -717,7 +713,7 @@ namespace Game.Entities
                 if (!creature)
                     SetControlled(true, UnitState.Fleeing);
                 else
-                    GetMotionMaster().MoveSeekAssistance(creature.GetPositionX(), creature.GetPositionY(), creature.GetPositionZ());
+                    GetMotionMaster().MoveSeekAssistance(creature.Location.X, creature.Location.Y, creature.Location.Z);
             }
         }
 
@@ -810,11 +806,11 @@ namespace Game.Entities
 
             //! Relocate before CreateFromProto, to initialize coords and allow
             //! returning correct zone id for selecting OutdoorPvP/Battlefield script
-            Relocate(pos);
+            Location.Relocate(pos);
 
             // Check if the position is valid before calling CreateFromProto(), otherwise we might add Auras to Creatures at
             // invalid position, triggering a crash about Auras not removed in the destructor
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Unit, $"Creature.Create: given coordinates for creature (guidlow {guidlow}, entry {entry}) are not valid ({pos})");
                 return false;
@@ -823,7 +819,7 @@ namespace Game.Entities
             {
                 // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
                 PositionFullTerrainStatus positionData = new();
-                GetMap().GetFullTerrainStatusForPosition(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), positionData, LiquidHeaderTypeFlags.AllLiquids, MapConst.DefaultCollesionHeight);
+                GetMap().GetFullTerrainStatusForPosition(GetPhaseShift(), Location.X, Location.Y, Location.Z, positionData, LiquidHeaderTypeFlags.AllLiquids, MapConst.DefaultCollesionHeight);
                 ProcessPositionDataChanged(positionData);
             }
 
@@ -859,7 +855,7 @@ namespace Game.Entities
             LoadCreaturesAddon();
 
             //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
-            posZ += GetHoverOffset();
+            Location.Z += GetHoverOffset();
 
             LastUsedScriptID = GetScriptId();
 
@@ -1064,7 +1060,7 @@ namespace Game.Entities
             MovementGeneratorType movetype = GetMotionMaster().GetCurrentMovementGeneratorType();
             if (movetype == MovementGeneratorType.Waypoint || movetype == MovementGeneratorType.Point || (IsAIEnabled() && GetAI().IsEscorted()))
             {
-                SetHomePosition(GetPosition());
+                SetHomePosition(Location);
                 // if its a vehicle, set the home positon of every creature passenger at engage
                 // so that they are in combat range if hostile
                 Vehicle vehicle = GetVehicleKit();
@@ -1077,7 +1073,7 @@ namespace Game.Entities
                         {
                             Creature creature = passenger.ToCreature();
                             if (creature != null)
-                                creature.SetHomePosition(GetPosition());
+                                creature.SetHomePosition(Location);
                         }
                     }
                 }
@@ -1128,7 +1124,7 @@ namespace Game.Entities
 
             // if the creature exits a vehicle, set it's home position to the
             // exited position so it won't run away (home) and evade if it's hostile
-            SetHomePosition(GetPosition());
+            SetHomePosition(Location);
         }
         
         public override bool IsMovementPreventedByCasting()
@@ -1248,7 +1244,7 @@ namespace Game.Entities
                 return;
             }
 
-            uint mapId = GetMapId();
+            uint mapId = Location.GetMapId();
             ITransport transport = GetTransport();
             if (transport != null)
                 if (transport.GetMapIdForSpawning() >= 0)
@@ -1306,8 +1302,8 @@ namespace Game.Entities
 
             if (GetTransport() == null)
             {
-                data.MapId = GetMapId();
-                data.SpawnPoint.Relocate(this);
+                data.MapId = Location.GetMapId();
+                data.SpawnPoint.Relocate(Location);
             }
             else
             {
@@ -1354,10 +1350,10 @@ namespace Game.Entities
             stmt.AddValue(index++, data.PhaseGroup);
             stmt.AddValue(index++, displayId);
             stmt.AddValue(index++, GetCurrentEquipmentId());
-            stmt.AddValue(index++, GetPositionX());
-            stmt.AddValue(index++, GetPositionY());
-            stmt.AddValue(index++, GetPositionZ());
-            stmt.AddValue(index++, GetOrientation());
+            stmt.AddValue(index++, Location.X);
+            stmt.AddValue(index++, Location.Y);
+            stmt.AddValue(index++, Location.Z);
+            stmt.AddValue(index++, Location.Orientation);
             stmt.AddValue(index++, m_respawnDelay);
             stmt.AddValue(index++, m_wanderDistance);
             stmt.AddValue(index++, 0);
@@ -1554,9 +1550,9 @@ namespace Game.Entities
             SetOriginalEntry(entry);
 
             if (vehId != 0 || cinfo.VehicleId != 0)
-                _Create(ObjectGuid.Create(HighGuid.Vehicle, GetMapId(), entry, guidlow));
+                _Create(ObjectGuid.Create(HighGuid.Vehicle, Location.GetMapId(), entry, guidlow));
             else
-                _Create(ObjectGuid.Create(HighGuid.Creature, GetMapId(), entry, guidlow));
+                _Create(ObjectGuid.Create(HighGuid.Creature, Location.GetMapId(), entry, guidlow));
 
             if (!UpdateEntry(entry, data))
                 return false;
@@ -2286,7 +2282,7 @@ namespace Game.Entities
             }
 
             long thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : m_respawnTime;
-            GetMap().SaveRespawnTime(SpawnObjectType.Creature, m_spawnId, GetEntry(), thisRespawnTime, GridDefines.ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId());
+            GetMap().SaveRespawnTime(SpawnObjectType.Creature, m_spawnId, GetEntry(), thisRespawnTime, GridDefines.ComputeGridCoord(GetHomePosition().X, GetHomePosition().Y).GetId());
         }
 
         public bool CanCreatureAttack(Unit victim, bool force = true)
@@ -2336,9 +2332,9 @@ namespace Game.Entities
 
                 // to prevent creatures in air ignore attacks because distance is already too high...
                 if (GetMovementTemplate().IsFlightAllowed())
-                    return victim.IsInDist2d(m_homePosition, dist);
+                    return victim.Location.IsInDist2d(m_homePosition, dist);
                 else
-                    return victim.IsInDist(m_homePosition, dist);
+                    return victim.Location.IsInDist(m_homePosition, dist);
             }
         }
 
@@ -2444,30 +2440,26 @@ namespace Game.Entities
                 return now;
         }
 
-        public void GetRespawnPosition(out float x, out float y, out float z)
+        public Position GetRespawnPosition()
         {
-            GetRespawnPosition(out x, out y, out z, out _, out _);
+            return GetRespawnPosition(out _);
         }
-        public void GetRespawnPosition(out float x, out float y, out float z, out float ori)
-        {
-            GetRespawnPosition(out x, out y, out z, out ori, out _);
-        }
-        public void GetRespawnPosition(out float x, out float y, out float z, out float ori, out float dist)
+
+        public Position GetRespawnPosition(out float dist)
         {
             if (m_creatureData != null)
             {
-                m_creatureData.SpawnPoint.GetPosition(out x, out y, out z, out ori);
                 dist = m_creatureData.WanderDistance;
+                return m_creatureData.SpawnPoint.Copy();
             }
             else
             {
-                Position homePos = GetHomePosition();
-                homePos.GetPosition(out x, out y, out z, out ori);
                 dist = 0;
+                return GetHomePosition().Copy();
             }
         }
 
-        bool IsSpawnedOnTransport() { return m_creatureData != null && m_creatureData.MapId != GetMapId(); }
+        bool IsSpawnedOnTransport() { return m_creatureData != null && m_creatureData.MapId != Location.GetMapId(); }
 
         void InitializeMovementFlags()
         {
@@ -2489,7 +2481,7 @@ namespace Game.Entities
             float ground = GetFloorZ();
 
             bool canHover = CanHover();
-            bool isInAir = (MathFunctions.fuzzyGt(GetPositionZ(), ground + (canHover ? m_unitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(GetPositionZ(), ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
+            bool isInAir = (MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? m_unitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
 
             if (GetMovementTemplate().IsFlightAllowed() && (isInAir || !GetMovementTemplate().IsGroundAllowed()) && !IsFalling())
             {
@@ -3040,7 +3032,7 @@ namespace Game.Entities
             if (_spellFocusInfo.Delay == 0)
             { // only overwrite these fields if we aren't transitioning from one spell focus to another
                 _spellFocusInfo.Target = GetTarget();
-                _spellFocusInfo.Orientation = GetOrientation();
+                _spellFocusInfo.Orientation = Location.Orientation;
             }
             else // don't automatically reacquire target for the previous spellcast
                 _spellFocusInfo.Delay = 0;
@@ -3248,7 +3240,7 @@ namespace Game.Entities
                 return false;
 
             //We should set first home position, because then AI calls home movement
-            SetHomePosition(this);
+            SetHomePosition(Location);
 
             m_deathState = DeathState.Alive;
 
@@ -3289,8 +3281,8 @@ namespace Game.Entities
                 if (CanFly())
                 {
                     float tz = map.GetHeight(GetPhaseShift(), data.SpawnPoint, true, MapConst.MaxFallDistance);
-                    if (data.SpawnPoint.GetPositionZ() - tz > 0.1f && GridDefines.IsValidMapCoord(tz))
-                        Relocate(data.SpawnPoint.GetPositionX(), data.SpawnPoint.GetPositionY(), tz);
+                    if (data.SpawnPoint.Z - tz > 0.1f && GridDefines.IsValidMapCoord(tz))
+                        Location.Relocate(data.SpawnPoint.X, data.SpawnPoint.Y, tz);
                 }
             }
 
@@ -3352,10 +3344,7 @@ namespace Game.Entities
         {
             m_homePosition.Relocate(pos);
         }
-        public void GetHomePosition(out float x, out float y, out float z, out float ori)
-        {
-            m_homePosition.GetPosition(out x, out y, out z, out ori);
-        }
+
         public Position GetHomePosition()
         {
             return m_homePosition;
@@ -3363,7 +3352,6 @@ namespace Game.Entities
 
         public void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
         public void SetTransportHomePosition(Position pos) { m_transportHomePosition.Relocate(pos); }
-        public void GetTransportHomePosition(out float x, out float y, out float z, out float ori) { m_transportHomePosition.GetPosition(out x, out y, out z, out ori); }
         public Position GetTransportHomePosition() { return m_transportHomePosition; }
 
         public uint GetWaypointPath() { return _waypointPathId; }

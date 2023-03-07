@@ -184,16 +184,17 @@ namespace Game.Entities
             SetFaction(owner.GetFaction());
             SetCreatedBySpell(petInfo.CreatedBySpellId);
 
-            float px, py, pz;
+            var pos = new Position();
             if (IsCritter())
             {
-                owner.GetClosePoint(out px, out py, out pz, GetCombatReach(), SharedConst.PetFollowDist, GetFollowAngle());
-                Relocate(px, py, pz, owner.GetOrientation());
+                owner.GetClosePoint(pos, GetCombatReach(), SharedConst.PetFollowDist, GetFollowAngle());
+                pos.Orientation = owner.Location.Orientation;
+                Location.Relocate(pos);
 
-                if (!IsPositionValid())
+                if (!Location.IsPositionValid())
                 {
                     Log.outError(LogFilter.Pet, "Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
-                        GetGUID().ToString(), GetEntry(), GetPositionX(), GetPositionY());
+                        GetGUID().ToString(), GetEntry(), Location.X, Location.Y);
                     return false;
                 }
 
@@ -240,11 +241,11 @@ namespace Game.Entities
             SynchronizeLevelWithOwner();
 
             // Set pet's position after setting level, its size depends on it
-            owner.GetClosePoint(out px, out py, out pz, GetCombatReach(), SharedConst.PetFollowDist, GetFollowAngle());
-            Relocate(px, py, pz, owner.GetOrientation());
-            if (!IsPositionValid())
+            owner.GetClosePoint(pos, GetCombatReach(), SharedConst.PetFollowDist, GetFollowAngle());
+            Location.Relocate(pos);
+            if (!Location.IsPositionValid())
             {
-                Log.outError(LogFilter.Pet, "Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GetGUID().ToString(), GetEntry(), GetPositionX(), GetPositionY());
+                Log.outError(LogFilter.Pet, "Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GetGUID().ToString(), GetEntry(), Location.X, Location.Y);
                 return false;
             }
 
@@ -303,7 +304,7 @@ namespace Game.Entities
 
                 castData.CasterGUID = owner.GetGUID();
                 castData.CasterUnit = owner.GetGUID();
-                castData.CastID = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, owner.GetMapId(), petInfo.CreatedBySpellId, map.GenerateLowGuid(HighGuid.Cast));
+                castData.CastID = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, owner.Location.GetMapId(), petInfo.CreatedBySpellId, map.GenerateLowGuid(HighGuid.Cast));
                 castData.SpellID = (int)petInfo.CreatedBySpellId;
                 castData.CastFlags = SpellCastFlags.Unk9;
                 castData.CastTime = Time.GetMSTime();
@@ -709,12 +710,12 @@ namespace Game.Entities
             if (!CreateBaseAtTamed(creature.GetCreatureTemplate(), creature.GetMap()))
                 return false;
 
-            Relocate(creature.GetPositionX(), creature.GetPositionY(), creature.GetPositionZ(), creature.GetOrientation());
+            Location.Relocate(creature.Location);
 
-            if (!IsPositionValid())
+            if (!Location.IsPositionValid())
             {
                 Log.outError(LogFilter.Pet, "Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
-                    GetGUID().ToString(), GetEntry(), GetPositionX(), GetPositionY());
+                    GetGUID().ToString(), GetEntry(), Location.X, Location.Y);
                 return false;
             }
 
@@ -744,7 +745,7 @@ namespace Game.Entities
             if (cFamily != null)
                 SetName(cFamily.Name[GetOwner().GetSession().GetSessionDbcLocale()]);
 
-            Relocate(owner.GetPositionX(), owner.GetPositionY(), owner.GetPositionZ(), owner.GetOrientation());
+            Location.Relocate(owner.Location);
             return true;
         }
 
@@ -924,7 +925,7 @@ namespace Game.Entities
                         remainCharges = 0;
 
                     var info = effectInfo[key];
-                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.GetMapId(), spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
 
                     AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
                     createInfo.SetCasterGUID(casterGuid);

@@ -86,9 +86,9 @@ namespace Scripts.Pets
                 me.SetCanFly(true);
                 me.SetSpeedRate(UnitMoveType.Flight, 0.75f);
                 me.SetSpeedRate(UnitMoveType.Run, 0.75f);
-                float x = me.GetPositionX() + 20 * (float)Math.Cos(me.GetOrientation());
-                float y = me.GetPositionY() + 20 * (float)Math.Sin(me.GetOrientation());
-                float z = me.GetPositionZ() + 40;
+                float x = me.Location.X + 20 * (float)Math.Cos(me.Location.Orientation);
+                float y = me.Location.Y + 20 * (float)Math.Sin(me.Location.Orientation);
+                float z = me.Location.Z + 40;
                 me.GetMotionMaster().Clear();
                 me.GetMotionMaster().MovePoint(0, x, y, z);
 

@@ -65,7 +65,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
         {
             Talk(0);
             Talk(1);
-           // _bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, OafPos[1].GetPositionX(), OafPos[1].GetPositionY(), OafPos[1].GetPositionZ());
+           // _bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, OafPos[1].Location.X, OafPos[1].Location.Y, OafPos[1].Location.Z);
             me.SetInCombatWithZone();
         }
 
@@ -156,7 +156,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
                         //    me.GetMotionMaster().Clear();
                         //    if (_bunny = me.FindNearestCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, 150.0f))
                         //    {
-                        //        me.GetMotionMaster().MovePoint(1, _bunny.GetPositionX(), _bunny.GetPositionY(), _bunny.GetPositionZ());
+                        //        me.GetMotionMaster().MovePoint(1, _bunny.Location.X, _bunny.Location.Y, _bunny.Location.Z);
                         //        _bunny.SetUnitFlag(UnitFlags.Uninteractible);
                         //    }
                         //}

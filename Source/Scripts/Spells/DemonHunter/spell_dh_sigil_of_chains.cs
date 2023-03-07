@@ -32,7 +32,7 @@ internal class spell_dh_sigil_of_chains : SpellScript, IHasSpellEffects
 		if (loc != null)
 		{
 			GetCaster().CastSpell(GetHitUnit(), DemonHunterSpells.SigilOfChainsSlow, new CastSpellExtraArgs(true));
-			GetHitUnit().CastSpell(loc.GetPosition(), DemonHunterSpells.SigilOfChainsGrip, new CastSpellExtraArgs(true));
+			GetHitUnit().CastSpell(loc, DemonHunterSpells.SigilOfChainsGrip, new CastSpellExtraArgs(true));
 		}
 	}
 }

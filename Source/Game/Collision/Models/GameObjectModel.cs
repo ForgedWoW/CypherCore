@@ -202,7 +202,7 @@ namespace Game.Collision
             return true;
         }
 
-        public override Vector3 GetPosition() { return iPos; }
+        public virtual Vector3 GetPosition() { return iPos; }
         public override AxisAlignedBox GetBounds() { return iBound; }
 
         public void EnableCollision(bool enable) { _collisionEnabled = enable; }

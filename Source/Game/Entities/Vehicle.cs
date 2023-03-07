@@ -266,7 +266,7 @@ namespace Game.Entities
 
             Log.outDebug(LogFilter.Vehicle, "Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GetGUID().ToString(), GetCreatureEntry(), entry, seatId);
 
-            TempSummon accessory = _me.SummonCreature(entry, _me, (TempSummonType)type, TimeSpan.FromMilliseconds(summonTime));
+            TempSummon accessory = _me.SummonCreature(entry, _me.Location, (TempSummonType)type, TimeSpan.FromMilliseconds(summonTime));
             Cypher.Assert(accessory);
 
             if (minion)
@@ -404,15 +404,15 @@ namespace Game.Entities
                 {
                     Cypher.Assert(passenger.IsInWorld);
 
-                    passenger.m_movementInfo.transport.pos.GetPosition(out float px, out float py, out float pz, out float po);
-                    CalculatePassengerPosition(ref px, ref py, ref pz, ref po);
+                    var pos = passenger.m_movementInfo.transport.pos.Copy();
+                    CalculatePassengerPosition(pos);
 
-                    seatRelocation.Add(Tuple.Create(passenger, new Position(px, py, pz, po)));
+                    seatRelocation.Add(Tuple.Create(passenger, pos));
                 }
             }
 
             foreach (var (passenger, position) in seatRelocation)
-                ITransport.UpdatePassengerPosition(this, _me.GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+                ITransport.UpdatePassengerPosition(this, _me.GetMap(), passenger, position, false);
         }
 
         public bool IsVehicleInUse()
@@ -479,25 +479,25 @@ namespace Game.Entities
 
         public ObjectGuid GetTransportGUID() { return GetBase().GetGUID(); }
 
-        public float GetTransportOrientation() { return GetBase().GetOrientation(); }
+        public float GetTransportOrientation() { return GetBase().Location.Orientation; }
 
         public void AddPassenger(WorldObject passenger) { Log.outFatal(LogFilter.Vehicle, "Vehicle cannot directly gain passengers without auras"); }
         
-        public void CalculatePassengerPosition(ref float x, ref float y, ref float z, ref float o)
+        public void CalculatePassengerPosition(Position pos)
         {
-            ITransport.CalculatePassengerPosition(ref x, ref y, ref z, ref o, 
-                GetBase().GetPositionX(), GetBase().GetPositionY(), 
-                GetBase().GetPositionZ(), GetBase().GetOrientation());
+            ITransport.CalculatePassengerPosition(pos,
+                GetBase().Location.X, GetBase().Location.Y, 
+                GetBase().Location.Z, GetBase().Location.Orientation);
         }
 
-        public void CalculatePassengerOffset(ref float x, ref float y, ref float z, ref float o)
+        public void CalculatePassengerOffset(Position pos)
         {
-            ITransport.CalculatePassengerOffset(ref x, ref y, ref z, ref o,
-                GetBase().GetPositionX(), GetBase().GetPositionY(),
-                GetBase().GetPositionZ(), GetBase().GetOrientation());
+            ITransport.CalculatePassengerOffset(pos,
+                GetBase().Location.X, GetBase().Location.Y,
+                GetBase().Location.Z, GetBase().Location.Orientation);
         }
 
-        public int GetMapIdForSpawning() { return (int)GetBase().GetMapId(); }
+        public int GetMapIdForSpawning() { return (int)GetBase().Location.GetMapId(); }
         
         public void RemovePendingEvent(VehicleJoinEvent e)
         {

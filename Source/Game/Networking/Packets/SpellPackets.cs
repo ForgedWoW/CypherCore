@@ -1605,17 +1605,17 @@ namespace Game.Networking.Packets
         {
             Transport = data.ReadPackedGuid();
             Location = new Position();
-            Location.posX = data.ReadFloat();
-            Location.posY = data.ReadFloat();
-            Location.posZ = data.ReadFloat();
+            Location.X = data.ReadFloat();
+            Location.Y = data.ReadFloat();
+            Location.Z = data.ReadFloat();
         }
 
         public void Write(WorldPacket data)
         {
             data.WritePackedGuid(Transport);
-            data.WriteFloat(Location.posX);
-            data.WriteFloat(Location.posY);
-            data.WriteFloat(Location.posZ);
+            data.WriteFloat(Location.X);
+            data.WriteFloat(Location.Y);
+            data.WriteFloat(Location.Z);
         }
     }
 

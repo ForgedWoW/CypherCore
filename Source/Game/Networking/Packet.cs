@@ -189,18 +189,16 @@ namespace Game.Networking
             if (pos == null)
                 return;
 
-            pos.GetPosition(out float x, out float y, out float z);
-            WriteFloat(x);
-            WriteFloat(y);
-            WriteFloat(z);
+            WriteFloat(pos.X);
+            WriteFloat(pos.Y);
+            WriteFloat(pos.Z);
         }
         public void WriteXYZO(Position pos)
         {
-            pos.GetPosition(out float x, out float y, out float z, out float o);
-            WriteFloat(x);
-            WriteFloat(y);
-            WriteFloat(z);
-            WriteFloat(o);
+            WriteFloat(pos.X);
+            WriteFloat(pos.Y);
+            WriteFloat(pos.Z);
+            WriteFloat(pos.Orientation);
         }
 
         public uint GetOpcode() { return opcode; }

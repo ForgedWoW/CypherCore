@@ -49,10 +49,10 @@ namespace Scripts.Spells.Warlock
 			                };
 
 			var id  = RandomHelper.RandShort() % 3;
-			var pos = caster.GetPosition();
+			var pos = caster.Location;
 			// Portals appear in a random point, in a distance between 4-8yards
 			caster.MovePosition(pos, (float)(RandomHelper.RandShort() % 5) + 4.0f, RandomHelper.RandFloat() * (float)(2 * Math.PI));
-			Creature rift = caster.SummonCreature(summonIds[(int)id], pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(durations[(int)id]));
+			Creature rift = caster.SummonCreature(summonIds[(int)id], pos, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(durations[(int)id]));
 
 			if (rift != null)
 			{

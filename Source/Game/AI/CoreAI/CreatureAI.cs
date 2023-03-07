@@ -135,7 +135,7 @@ namespace Game.AI
             me.SendAIReaction(AiReaction.Alert);
 
             // Face the unit (stealthed player) and set distracted state for 5 seconds
-            me.GetMotionMaster().MoveDistract(5 * Time.InMilliseconds, me.GetAbsoluteAngle(who));
+            me.GetMotionMaster().MoveDistract(5 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
         }
 
         // adapted from logic in Spell:EffectSummonType
@@ -319,10 +319,10 @@ namespace Game.AI
             List<KeyValuePair<int, int>> alreadyChecked = new();
             List<KeyValuePair<int, int>> outOfBounds = new();
 
-            Position startPosition = owner.GetPosition();
+            Position startPosition = owner.Location;
             if (!IsInBoundary(startPosition)) // fall back to creature position
             {
-                startPosition = me.GetPosition();
+                startPosition = me.Location;
                 if (!IsInBoundary(startPosition))
                 {
                     startPosition = me.GetHomePosition();
@@ -330,7 +330,7 @@ namespace Game.AI
                         return CypherStrings.CreatureNoInteriorPointFound;
                 }
             }
-            float spawnZ = startPosition.GetPositionZ() + SharedConst.BoundaryVisualizeSpawnHeight;
+            float spawnZ = startPosition.Z + SharedConst.BoundaryVisualizeSpawnHeight;
 
             bool boundsWarning = false;
             Q.Add(new KeyValuePair<int, int>(0, 0));
@@ -348,7 +348,7 @@ namespace Game.AI
                     }
                     if (!alreadyChecked.Contains(next)) // never check a coordinate twice
                     {
-                        Position nextPos = new(startPosition.GetPositionX() + next.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.GetPositionY() + next.Value * SharedConst.BoundaryVisualizeStepSize, startPosition.GetPositionZ());
+                        Position nextPos = new(startPosition.X + next.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.Y + next.Value * SharedConst.BoundaryVisualizeStepSize, startPosition.Z);
                         if (IsInBoundary(nextPos))
                             Q.Add(next);
                         else
@@ -364,7 +364,7 @@ namespace Game.AI
 
                 if (fill || hasOutOfBoundsNeighbor)
                 {
-                    var pos = new Position(startPosition.GetPositionX() + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.GetPositionY() + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
+                    var pos = new Position(startPosition.X + front.Key * SharedConst.BoundaryVisualizeStepSize, startPosition.Y + front.Value * SharedConst.BoundaryVisualizeStepSize, spawnZ);
                     TempSummon point = owner.SummonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
                     if (point)
                     {
@@ -386,7 +386,7 @@ namespace Game.AI
                 return true;
 
             if (who == null)
-                who = me;
+                who = me.Location;
 
             return IsInBounds(_boundary, who) != _negateBoundary;
         }
@@ -416,7 +416,7 @@ namespace Game.AI
         public Creature DoSummonFlyer(uint entry, WorldObject obj, float flightZ, float radius = 5.0f, TimeSpan despawnTime = default, TempSummonType summonType = TempSummonType.CorpseTimedDespawn)
         {
             Position pos = obj.GetRandomNearPosition(radius);
-            pos.posZ += flightZ;
+            pos.Z += flightZ;
             return me.SummonCreature(entry, pos, summonType, despawnTime);
         }
 

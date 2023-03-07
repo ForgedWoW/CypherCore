@@ -18,7 +18,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
     public VisibleNotifier(Player pl, GridType gridType)
 	{
 		Player     = pl;
-		Data       = new UpdateData(pl.GetMapId());
+		Data       = new UpdateData(pl.Location.GetMapId());
 		VisGuids    = new List<ObjectGuid>(pl.m_clientGUIDs);
 		VisibleNow = new List<Unit>();
 		GridType     = gridType;

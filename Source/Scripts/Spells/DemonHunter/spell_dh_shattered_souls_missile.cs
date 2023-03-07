@@ -28,7 +28,7 @@ public class spell_dh_shattered_souls_missile : SpellScript, IHasSpellEffects
 		var dest = GetHitDest();
 
 		if (dest != null)
-			caster.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), (uint)spellToCast, true);
+			caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), (uint)spellToCast, true);
 	}
 
 	public override void Register()

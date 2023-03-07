@@ -40,7 +40,7 @@ namespace Game
             }
 
             // find taxi node
-            uint nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZ(), unit.GetMapId(), player.GetTeam());
+            uint nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), player.GetTeam());
 
             TaxiNodeStatusPkt data = new();
             data.Unit = guid;
@@ -81,7 +81,7 @@ namespace Game
         public void SendTaxiMenu(Creature unit)
         {
             // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZ(), unit.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
             if (curloc == 0)
                 return;
 
@@ -127,7 +127,7 @@ namespace Game
         public bool SendLearnNewTaxiNode(Creature unit)
         {
             // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZ(), unit.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
 
             if (curloc == 0)
                 return true;
@@ -164,7 +164,7 @@ namespace Game
                 return;
             }
 
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZ(), unit.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
             if (curloc == 0)
                 return;
 

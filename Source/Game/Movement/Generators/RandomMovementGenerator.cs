@@ -29,7 +29,7 @@ namespace Game.Movement
             if (owner == null || !owner.IsAlive())
                 return;
 
-            _reference = owner.GetPosition();
+            _reference = owner.Location;
             owner.StopMoving();
 
             if (_wanderDistance == 0f)
@@ -144,7 +144,7 @@ namespace Game.Movement
             owner.MovePositionToFirstCollision(position, distance, angle);
 
             // Check if the destination is in LOS
-            if (!owner.IsWithinLOS(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ()))
+            if (!owner.IsWithinLOS(position.X, position.Y, position.Z))
             {
                 // Retry later on
                 _timer.Reset(200);
@@ -157,7 +157,7 @@ namespace Game.Movement
                 _path.SetPathLengthLimit(30.0f);
             }
 
-            bool result = _path.CalculatePath(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
+            bool result = _path.CalculatePath(position);
             // PATHFIND_FARFROMPOLY shouldn't be checked as creatures in water are most likely far from poly
             if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut))// || _path.GetPathType().HasFlag(PathType.FarFromPoly))
             {

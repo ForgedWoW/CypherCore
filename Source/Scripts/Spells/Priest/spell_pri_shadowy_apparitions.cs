@@ -34,7 +34,7 @@ public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraC
 		if (GetTarget() && eventInfo.GetActionTarget())
 		{
 			GetTarget().CastSpell(eventInfo.GetActionTarget(), PriestSpells.SHADOWY_APPARITION_MISSILE, true);
-			GetTarget().SendPlaySpellVisual(eventInfo.GetActionTarget().GetPosition(), GetCaster().GetOrientation(), MiscSpells.VISUAL_SHADOWY_APPARITION, 0, 0, MiscSpells.SHADOWY_APPARITION_TRAVEL_SPEED, false);
+			GetTarget().SendPlaySpellVisual(eventInfo.GetActionTarget().Location, GetCaster().Location.Orientation, MiscSpells.VISUAL_SHADOWY_APPARITION, 0, 0, MiscSpells.SHADOWY_APPARITION_TRAVEL_SPEED, false);
 		}
 	}
 

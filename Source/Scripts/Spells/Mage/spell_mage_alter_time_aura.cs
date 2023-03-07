@@ -32,7 +32,7 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
 	{
 		var unit = GetTarget();
 		_health = unit.GetHealth();
-		_pos    = new Position(unit.GetPosition());
+		_pos    = new Position(unit.Location);
 	}
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

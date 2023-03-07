@@ -23,6 +23,6 @@ internal class spell_gen_anchor_here : SpellScript, IHasSpellEffects
 	{
 		var creature = GetHitCreature();
 
-		creature?.SetHomePosition(creature.GetPositionX(), creature.GetPositionY(), creature.GetPositionZ(), creature.GetOrientation());
+		creature?.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
 	}
 }

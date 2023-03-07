@@ -100,19 +100,19 @@ namespace Scripts.EasternKingdoms.AlteracValley
                                 });
 
             _scheduler.Schedule(TimeSpan.FromSeconds(5),
-                                task =>
+                                (Action<Framework.Dynamic.TaskContext>)(                                task =>
                                 {
                                     Position _homePosition = me.GetHomePosition();
 
-                                    if (me.GetDistance2d(_homePosition.GetPositionX(), _homePosition.GetPositionY()) > 50.0f)
+                                    if (me.GetDistance2d(_homePosition.X, _homePosition.Y) > 50.0f)
                                     {
-                                        EnterEvadeMode();
+                                        base.EnterEvadeMode();
 
                                         return;
                                     }
 
                                     task.Repeat(TimeSpan.FromSeconds(5));
-                                });
+                                }));
         }
 
         public override void JustAppeared()

@@ -32,7 +32,7 @@ namespace Game.Chat
             }
 
             var map = CliDB.MapStorage.LookupByKey(tele.mapId);
-            if (map == null || (map.IsBattlegroundOrArena() && (player.GetMapId() != tele.mapId || !player.IsGameMaster())))
+            if (map == null || (map.IsBattlegroundOrArena() && (player.Location.GetMapId() != tele.mapId || !player.IsGameMaster())))
             {
                 handler.SendSysMessage(CypherStrings.CannotTeleToBg);
                 return false;
@@ -62,11 +62,11 @@ namespace Game.Chat
             }
 
             GameTele tele = new();
-            tele.posX = player.GetPositionX();
-            tele.posY = player.GetPositionY();
-            tele.posZ = player.GetPositionZ();
-            tele.orientation = player.GetOrientation();
-            tele.mapId = player.GetMapId();
+            tele.posX = player.Location.X;
+            tele.posY = player.Location.Y;
+            tele.posZ = player.Location.Z;
+            tele.orientation = player.Location.Orientation;
+            tele.mapId = player.Location.GetMapId();
             tele.name = name;
             tele.nameLow = name.ToLowerInvariant();
 
@@ -171,7 +171,7 @@ namespace Game.Chat
         {
             if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
             {
-                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.GetPositionX(), pos.GetPositionY(), mapId);
+                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
                 return false;
             }
 

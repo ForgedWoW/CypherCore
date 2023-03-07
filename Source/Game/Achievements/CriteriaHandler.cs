@@ -977,7 +977,7 @@ namespace Game.Achievements
                 case CriteriaType.WinBattleground:
                 case CriteriaType.ParticipateInBattleground:
                 case CriteriaType.DieOnMap:
-                    if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.GetMapId())
+                    if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.Location.GetMapId())
                         return false;
                     break;
                 case CriteriaType.KillCreature:
@@ -1010,7 +1010,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.GetMapId(), referencePlayer.GetInstanceId());
+                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.GetMapId(), referencePlayer.GetInstanceId());
                     if (!map || !map.IsDungeon())
                         return false;
 
@@ -1420,7 +1420,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerMap: // 32
-                    if (referencePlayer.GetMapId() != reqValue)
+                    if (referencePlayer.Location.GetMapId() != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.ClientVersionEqualOrLessThan: // 33
@@ -4557,7 +4557,7 @@ namespace Game.Achievements
                     return itemTemplate.GetBaseItemLevel() >= EquippedItem.ItemLevel && (uint)itemTemplate.GetQuality() >= EquippedItem.ItemQuality;
                 }
                 case CriteriaDataType.MapId:
-                    return source.GetMapId() == MapId.Id;
+                    return source.Location.GetMapId() == MapId.Id;
                 case CriteriaDataType.SKnownTitle:
                 {
                     CharTitlesRecord titleInfo = CliDB.CharTitlesStorage.LookupByKey(KnownTitle.Id);

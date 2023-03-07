@@ -64,7 +64,7 @@ namespace Game.Achievements
                 return false;
             }
 
-            if (achievement.InstanceID != -1 && referencePlayer.GetMapId() != achievement.InstanceID)
+            if (achievement.InstanceID != -1 && referencePlayer.Location.GetMapId() != achievement.InstanceID)
             {
                 Log.outTrace(LogFilter.Achievement, "CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong map",
                     criteria.Id, criteria.Entry.Type, achievement.Id);

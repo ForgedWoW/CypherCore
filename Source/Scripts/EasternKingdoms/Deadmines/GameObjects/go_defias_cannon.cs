@@ -40,7 +40,7 @@ namespace Scripts.EasternKingdoms.Deadmines.GameObjects
                 MoveCreatureInside(me, DMCreatures.NPC_DEFIAS_SHADOWGUARD);
                 MoveCreatureInside(me, DMCreatures.NPC_DEFIAS_ENFORCER);
                 MoveCreatureInside(me, DMCreatures.NPC_DEFIAS_BLOODWIZARD);
-                //Creature bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, me.GetPositionX(), me.GetPositionY(), me.GetPositionZ());
+                //Creature bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, me.Location.X, me.Location.Y, me.Location.Z);
 
                 //if (bunny != null)
                 //    bunny.GetAI().Talk(0);
@@ -58,7 +58,7 @@ namespace Scripts.EasternKingdoms.Deadmines.GameObjects
             if (defias != null)
             {
                 defias.SetWalk(false);
-                defias.GetMotionMaster().MovePoint(0, -102.7f, -655.9f, defias.GetPositionZ());
+                defias.GetMotionMaster().MovePoint(0, -102.7f, -655.9f, defias.Location.Z);
             }
         }
     }

@@ -19,7 +19,12 @@ public class GridDefines
 		return IsValidMapCoord(x) && IsValidMapCoord(y);
 	}
 
-	public static bool IsValidMapCoord(float x, float y, float z)
+    public static bool IsValidMapCoord(Position pos)
+    {
+        return IsValidMapCoord(pos.X, pos.Y) && IsValidMapCoord(pos.Z);
+    }
+
+    public static bool IsValidMapCoord(float x, float y, float z)
 	{
 		return IsValidMapCoord(x, y) && IsValidMapCoord(z);
 	}
@@ -46,7 +51,7 @@ public class GridDefines
 
 	public static bool IsValidMapCoord(uint mapid, Position pos)
 	{
-		return IsValidMapCoord(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+		return IsValidMapCoord(mapid, pos.X, pos.Y, pos.Z, pos.Orientation);
 	}
 
 	public static bool IsValidMapCoord(WorldLocation loc)
@@ -54,12 +59,14 @@ public class GridDefines
 		return IsValidMapCoord(loc.GetMapId(), loc);
 	}
 
-	public static void NormalizeMapCoord(ref float c)
+	public static float NormalizeMapCoord(float c)
 	{
 		if (c > MapConst.MapHalfSize - 0.5f)
 			c = MapConst.MapHalfSize - 0.5f;
 		else if (c < -(MapConst.MapHalfSize - 0.5f))
 			c = -(MapConst.MapHalfSize - 0.5f);
+
+		return c;
 	}
 
 	public static GridCoord ComputeGridCoord(float x, float y)

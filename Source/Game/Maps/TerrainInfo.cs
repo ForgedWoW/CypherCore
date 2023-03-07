@@ -663,7 +663,7 @@ public class TerrainInfo
 
 	public uint GetAreaId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
 	{
-		return GetAreaId(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree);
+		return GetAreaId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
@@ -708,7 +708,7 @@ public class TerrainInfo
 
 	public uint GetZoneId(PhaseShift phaseShift, uint mapId, Position pos, DynamicMapTree dynamicMapTree = null)
 	{
-		return GetZoneId(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree);
+		return GetZoneId(phaseShift, mapId, pos.X, pos.Y, pos.Z, dynamicMapTree);
 	}
 
 	public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
@@ -725,7 +725,7 @@ public class TerrainInfo
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, Position pos, DynamicMapTree dynamicMapTree = null)
 	{
-		GetZoneAndAreaId(phaseShift, mapId, out zoneid, out areaid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), dynamicMapTree);
+		GetZoneAndAreaId(phaseShift, mapId, out zoneid, out areaid, pos.X, pos.Y, pos.Z, dynamicMapTree);
 	}
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, uint mapId, out uint zoneid, out uint areaid, float x, float y, float z, DynamicMapTree dynamicMapTree = null)
@@ -760,7 +760,7 @@ public class TerrainInfo
 
 	public float GetStaticHeight(PhaseShift phaseShift, uint mapId, Position pos, bool checkVMap = true, float maxSearchDist = MapConst.DefaultHeightSearch)
 	{
-		return GetStaticHeight(phaseShift, mapId, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), checkVMap, maxSearchDist);
+		return GetStaticHeight(phaseShift, mapId, pos.X, pos.Y, pos.Z, checkVMap, maxSearchDist);
 	}
 
 	public float GetStaticHeight(PhaseShift phaseShift, uint mapId, float x, float y, float z, bool checkVMap = true, float maxSearchDist = MapConst.DefaultHeightSearch)

@@ -118,7 +118,7 @@ namespace Game.BattleFields
             // Spawn turrets and hide them per default
             foreach (var turret in WGConst.WGTurret)
             {
-                Position towerCannonPos = turret.GetPosition();
+                Position towerCannonPos = turret;
                 Creature creature = SpawnCreature(WGNpcs.TowerCannon, towerCannonPos);
 
                 if (creature)
@@ -232,13 +232,11 @@ namespace Game.BattleFields
 
                     if (player)
                     {
-                        player.GetPosition(out float x, out float y, out float z);
-
-                        if (5500 > x &&
-                            x > 5392 &&
-                            y < 2880 &&
-                            y > 2800 &&
-                            z < 480)
+                        if (5500 > player.Location.X &&
+                            player.Location.X > 5392 &&
+                            player.Location.Y < 2880 &&
+                            player.Location.Y > 2800 &&
+                            player.Location.Z < 480)
                             player.TeleportTo(571, 5349.8686f, 2838.481f, 409.240f, 0.046328f);
                     }
                 }

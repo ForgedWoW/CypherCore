@@ -105,11 +105,11 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Majordomo
                     _JustDied();
 
                     _scheduler.Schedule(TimeSpan.FromSeconds(32),
-                                        task =>
+                                        (Action<Framework.Dynamic.TaskContext>)(                                        task =>
                                         {
-                                            me.NearTeleportTo(MCMiscConst.RagnarosTelePos.GetPositionX(), MCMiscConst.RagnarosTelePos.GetPositionY(), MCMiscConst.RagnarosTelePos.GetPositionZ(), MCMiscConst.RagnarosTelePos.GetOrientation());
+                                            me.NearTeleportTo(MCMiscConst.RagnarosTelePos.X, MCMiscConst.RagnarosTelePos.Y, MCMiscConst.RagnarosTelePos.Z, MCMiscConst.RagnarosTelePos.Orientation);
                                             me.SetNpcFlag(NPCFlags.Gossip);
-                                        });
+                                        }));
 
                     return;
                 }

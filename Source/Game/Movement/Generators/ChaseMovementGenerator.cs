@@ -116,9 +116,9 @@ namespace Game.Movement
             }
 
             // if the target moved, we have to consider whether to adjust
-            if (_lastTargetPosition == null || target.GetPosition() != _lastTargetPosition || mutualChase != _mutualChase)
+            if (_lastTargetPosition == null || target.Location != _lastTargetPosition || mutualChase != _mutualChase)
             {
-                _lastTargetPosition = new(target.GetPosition());
+                _lastTargetPosition = new(target.Location);
                 _mutualChase = mutualChase;
                 if (owner.HasUnitState(UnitState.ChaseMove) || !PositionOkay(owner, target, minRange, maxRange, angle))
                 {
@@ -133,32 +133,32 @@ namespace Game.Movement
                     }
 
                     // figure out which way we want to move
-                    bool moveToward = !owner.IsInDist(target, maxRange);
+                    bool moveToward = !owner.Location.IsInDist(target.Location, maxRange);
 
                     // make a new path if we have to...
                     if (_path == null || moveToward != _movingTowards)
                         _path = new PathGenerator(owner);
 
-                    float x, y, z;
+                    Position pos = new Position();
                     bool shortenPath;
                     // if we want to move toward the target and there's no fixed angle...
                     if (moveToward && !angle.HasValue)
                     {
                         // ...we'll pathfind to the center, then shorten the path
-                        target.GetPosition(out x, out y, out z);
+                        pos = target.Location.Copy();
                         shortenPath = true;
                     }
                     else
                     {
                         // otherwise, we fall back to nearpoint finding
-                        target.GetNearPoint(owner, out x, out y, out z, (moveToward ? maxTarget : minTarget) - hitboxSum, angle.HasValue ? target.ToAbsoluteAngle(angle.Value.RelativeAngle) : target.GetAbsoluteAngle(owner));
+                        target.GetNearPoint(owner, pos, (moveToward ? maxTarget : minTarget) - hitboxSum, angle.HasValue ? target.Location.ToAbsoluteAngle(angle.Value.RelativeAngle) : target.Location.GetAbsoluteAngle(owner.Location));
                         shortenPath = false;
                     }
 
                     if (owner.IsHovering())
-                        owner.UpdateAllowedPositionZ(x, y, ref z);
+                        owner.UpdateAllowedPositionZ(pos);
 
-                    bool success = _path.CalculatePath(x, y, z, owner.CanFly());
+                    bool success = _path.CalculatePath(pos, owner.CanFly());
                     if (!success || _path.GetPathType().HasAnyFlag(PathType.NoPath))
                     {
                         if (cOwner)
@@ -169,7 +169,7 @@ namespace Game.Movement
                     }
 
                     if (shortenPath)
-                        _path.ShortenPathUntilDist(target, maxTarget);
+                        _path.ShortenPathUntilDist(target.Location, maxTarget);
 
                     if (cOwner)
                         cOwner.SetCannotReachTarget(false);
@@ -250,12 +250,12 @@ namespace Game.Movement
 
         static bool PositionOkay(Unit owner, Unit target, float? minDistance, float? maxDistance, ChaseAngle? angle)
         {
-            float distSq = owner.GetExactDistSq(target);
+            float distSq = owner.Location.GetExactDistSq(target.Location);
             if (minDistance.HasValue && distSq < minDistance.Value * minDistance.Value)
                 return false;
             if (maxDistance.HasValue && distSq > maxDistance.Value * maxDistance.Value)
                 return false;
-            if (angle.HasValue && !angle.Value.IsAngleOkay(target.GetRelativeAngle(owner)))
+            if (angle.HasValue && !angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location)))
                 return false;
             if (!owner.IsWithinLOSInMap(target))
                 return false;

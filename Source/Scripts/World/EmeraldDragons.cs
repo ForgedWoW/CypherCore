@@ -300,7 +300,7 @@ namespace Scripts.World.EmeraldDragons
             if (spellInfo.Id == SpellIds.DrawSpirit &&
                 target.IsPlayer())
             {
-                Position targetPos = target.GetPosition();
+                Position targetPos = target.Location;
                 me.SummonCreature(CreatureIds.SpiritShade, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
             }
         }

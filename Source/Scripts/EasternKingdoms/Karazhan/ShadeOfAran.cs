@@ -522,9 +522,9 @@ namespace Scripts.EasternKingdoms.Karazhan.ShadeOfAran
 
                 SeenAtiesh = true;
                 Talk(TextIds.SayAtiesh);
-                me.SetFacingTo(me.GetAbsoluteAngle(player));
+                me.SetFacingTo(me.Location.GetAbsoluteAngle(player.Location));
                 me.ClearUnitState(UnitState.Moving);
-                me.GetMotionMaster().MoveDistract(7 * Time.InMilliseconds, me.GetAbsoluteAngle(who));
+                me.GetMotionMaster().MoveDistract(7 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
 
                 break;
             }
@@ -578,8 +578,8 @@ namespace Scripts.EasternKingdoms.Karazhan.ShadeOfAran
                 if (unit)
                 {
                     FlameWreathTarget[i] = unit.GetGUID();
-                    FWTargPosX[i] = unit.GetPositionX();
-                    FWTargPosY[i] = unit.GetPositionY();
+                    FWTargPosX[i] = unit.Location.X;
+                    FWTargPosY[i] = unit.Location.Y;
                     DoCast(unit, SpellIds.FlameWreath, new CastSpellExtraArgs(true));
                     ++i;
                 }

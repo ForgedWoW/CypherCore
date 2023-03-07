@@ -101,10 +101,10 @@ namespace Game.Entities
             SetPrivateObjectOwner(privateObjectOwner);
 
             SetMap(map);
-            Relocate(pos);
+            Location.Relocate(pos);
             RelocateStationaryPosition(pos);
 
-            _Create(ObjectGuid.Create(HighGuid.Conversation, GetMapId(), conversationEntry, lowGuid));
+            _Create(ObjectGuid.Create(HighGuid.Conversation, Location.GetMapId(), conversationEntry, lowGuid));
             PhasingHandler.InheritPhaseShift(this, creator);
 
             UpdatePositionData();
@@ -286,10 +286,10 @@ namespace Game.Entities
         public override ObjectGuid GetOwnerGUID() { return GetCreatorGuid(); }
         public override uint GetFaction() { return 0; }
 
-        public override float GetStationaryX() { return _stationaryPosition.GetPositionX(); }
-        public override float GetStationaryY() { return _stationaryPosition.GetPositionY(); }
-        public override float GetStationaryZ() { return _stationaryPosition.GetPositionZ(); }
-        public override float GetStationaryO() { return _stationaryPosition.GetOrientation(); }
+        public override float GetStationaryX() { return _stationaryPosition.X; }
+        public override float GetStationaryY() { return _stationaryPosition.Y; }
+        public override float GetStationaryZ() { return _stationaryPosition.Z; }
+        public override float GetStationaryO() { return _stationaryPosition.Orientation; }
         void RelocateStationaryPosition(Position pos) { _stationaryPosition.Relocate(pos); }
 
         readonly ConversationData m_conversationData;
@@ -313,7 +313,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ConversationMask.GetUpdateMask(), player);
 

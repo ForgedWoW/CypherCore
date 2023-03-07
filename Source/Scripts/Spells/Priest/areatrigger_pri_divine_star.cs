@@ -32,7 +32,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 
 		if (caster != null)
 		{
-			_casterCurrentPosition = caster.GetPosition();
+			_casterCurrentPosition = caster.Location;
 
 			// Note: max. distance at which the Divine Star can travel to is 24 yards.
 			var divineStarXOffSet = 24.0f;
@@ -41,7 +41,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 			at.MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
 
 			PathGenerator firstPath = new(at);
-			firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+			firstPath.CalculatePath(destPos, false);
 
 			var endPoint = firstPath.GetPath().Last();
 
@@ -116,14 +116,14 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 
 			                    if (caster != null)
 			                    {
-				                    _casterCurrentPosition = caster.GetPosition();
+				                    _casterCurrentPosition = caster.Location;
 
 				                    List<Vector3> returnSplinePoints = new();
 
-				                    returnSplinePoints.Add(at.GetPosition());
-				                    returnSplinePoints.Add(at.GetPosition());
-				                    returnSplinePoints.Add(caster.GetPosition());
-				                    returnSplinePoints.Add(caster.GetPosition());
+				                    returnSplinePoints.Add(at.Location);
+				                    returnSplinePoints.Add(at.Location);
+				                    returnSplinePoints.Add(caster.Location);
+				                    returnSplinePoints.Add(caster.Location);
 
 				                    at.InitSplines(returnSplinePoints, (uint)at.GetDistance(caster) / 24 * 1000);
 

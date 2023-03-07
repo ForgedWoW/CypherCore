@@ -702,14 +702,14 @@ namespace Game.BattleGrounds.Zones
             }
 
             WorldSafeLocsEntry sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
-            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.GetPositionX(), sg.Loc.GetPositionY(), sg.Loc.GetPositionZ(), 3.124139f, TeamId.Alliance))
+            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamId.Alliance))
             {
                 Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Alliance spirit guide! Battleground not created!");
                 return false;
             }
 
             sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainHorde);
-            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.GetPositionX(), sg.Loc.GetPositionY(), sg.Loc.GetPositionZ(), 3.193953f, TeamId.Horde))
+            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamId.Horde))
             {
                 Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Horde spirit guide! Battleground not created!");
                 return false;

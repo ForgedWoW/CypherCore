@@ -110,11 +110,11 @@ namespace Game.Movement
                 return;
             }
 
-            Position destination = new (owner.GetPosition());
+            Position destination = new (owner.Location);
             GetPoint(owner, destination);
 
             // Add LOS check for target point
-            if (!owner.IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
+            if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
             {
                 _timer.Reset(200);
                 return;
@@ -126,7 +126,7 @@ namespace Game.Movement
                 _path.SetPathLengthLimit(30.0f);
             }
 
-            bool result = _path.CalculatePath(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ());
+            bool result = _path.CalculatePath(destination);
             if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
             {
                 _timer.Reset(100);
@@ -150,7 +150,7 @@ namespace Game.Movement
             {
                 casterDistance = fleeTarget.GetDistance(owner);
                 if (casterDistance > 0.2f)
-                    casterAngle = fleeTarget.GetAbsoluteAngle(owner);
+                    casterAngle = fleeTarget.Location.GetAbsoluteAngle(owner.Location);
                 else
                     casterAngle = RandomHelper.FRand(0.0f, 2.0f * MathF.PI);
             }

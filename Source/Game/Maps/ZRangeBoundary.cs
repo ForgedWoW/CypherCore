@@ -18,6 +18,6 @@ public class ZRangeBoundary : AreaBoundary
 
 	public override bool IsWithinBoundaryArea(Position pos)
 	{
-		return (_minZ <= pos.GetPositionZ() && pos.GetPositionZ() <= _maxZ);
+		return (_minZ <= pos.Z && pos.Z <= _maxZ);
 	}
 }

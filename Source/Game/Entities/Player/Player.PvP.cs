@@ -543,7 +543,7 @@ namespace Game.Entities
                 m_bgData.taxiPath[1] = m_taxi.GetTaxiDestination();
 
                 // On taxi we don't need check for dungeon
-                m_bgData.joinPos = new WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                m_bgData.joinPos = new WorldLocation(Location.GetMapId(), Location.X, Location.Y, Location.Z, Location.Orientation);
             }
             else
             {
@@ -562,15 +562,15 @@ namespace Game.Entities
                 // If map is dungeon find linked graveyard
                 if (GetMap().IsDungeon())
                 {
-                    WorldSafeLocsEntry entry = Global.ObjectMgr.GetClosestGraveYard(this, GetTeam(), this);
+                    WorldSafeLocsEntry entry = Global.ObjectMgr.GetClosestGraveYard(Location, GetTeam(), this);
                     if (entry != null)
                         m_bgData.joinPos = entry.Loc;
                     else
-                        Log.outError(LogFilter.Player, "SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", GetMapId());
+                        Log.outError(LogFilter.Player, "SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.GetMapId());
                 }
                 // If new entry point is not BG or arena set it
                 else if (!GetMap().IsBattlegroundOrArena())
-                    m_bgData.joinPos = new WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                    m_bgData.joinPos = new WorldLocation(Location.GetMapId(), Location.X, Location.Y, Location.Z, Location.Orientation);
             }
 
             if (m_bgData.joinPos.GetMapId() == 0xFFFFFFFF) // In error cases use homebind position

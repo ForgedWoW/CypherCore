@@ -27,7 +27,7 @@ internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var destPos = GetHitDest().GetPosition();
+		var destPos = GetHitDest();
 		var radius  = GetEffectInfo().CalcRadius();
 
 		// Caster is prioritary

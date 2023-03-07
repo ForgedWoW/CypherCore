@@ -25,7 +25,7 @@ internal class CometStormEvent : BasicEvent
 
 	public override bool Execute(ulong time, uint diff)
 	{
-		Position destPosition = new(_dest.GetPositionX() + RandomHelper.FRand(-3.0f, 3.0f), _dest.GetPositionY() + RandomHelper.FRand(-3.0f, 3.0f), _dest.GetPositionZ());
+		Position destPosition = new(_dest.X + RandomHelper.FRand(-3.0f, 3.0f), _dest.Y + RandomHelper.FRand(-3.0f, 3.0f), _dest.Z);
 		_caster.CastSpell(destPosition, MageSpells.CometStormVisual, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(_originalCastId));
 		++_count;
 

@@ -15,9 +15,9 @@ namespace Game.Networking.Packets
         public static void ReadTransportInfo(WorldPacket data, ref MovementInfo.TransportInfo transportInfo)
         {
             transportInfo.guid = data.ReadPackedGuid();                 // Transport Guid
-            transportInfo.pos.posX = data.ReadFloat();
-            transportInfo.pos.posY = data.ReadFloat();
-            transportInfo.pos.posZ = data.ReadFloat();
+            transportInfo.pos.X = data.ReadFloat();
+            transportInfo.pos.Y = data.ReadFloat();
+            transportInfo.pos.Z = data.ReadFloat();
             transportInfo.pos.Orientation = data.ReadFloat();
             transportInfo.seat = data.ReadInt8();                 // VehicleSeatIndex
             transportInfo.time = data.ReadUInt32();                 // MoveTime
@@ -38,10 +38,10 @@ namespace Game.Networking.Packets
             bool hasVehicleId = transportInfo.vehicleId != 0;
 
             data.WritePackedGuid(transportInfo.guid);                 // Transport Guid
-            data.WriteFloat(transportInfo.pos.GetPositionX());
-            data.WriteFloat(transportInfo.pos.GetPositionY());
-            data.WriteFloat(transportInfo.pos.GetPositionZ());
-            data.WriteFloat(transportInfo.pos.GetOrientation());
+            data.WriteFloat(transportInfo.pos.X);
+            data.WriteFloat(transportInfo.pos.Y);
+            data.WriteFloat(transportInfo.pos.Z);
+            data.WriteFloat(transportInfo.pos.Orientation);
             data.WriteInt8(transportInfo.seat);                 // VehicleSeatIndex
             data.WriteUInt32(transportInfo.time);                 // MoveTime
 
@@ -148,10 +148,10 @@ namespace Game.Networking.Packets
             data.WriteUInt32((uint)movementInfo.GetMovementFlags2());
             data.WriteUInt32((uint)movementInfo.GetExtraMovementFlags2());
             data.WriteUInt32(movementInfo.Time);
-            data.WriteFloat(movementInfo.Pos.GetPositionX());
-            data.WriteFloat(movementInfo.Pos.GetPositionY());
-            data.WriteFloat(movementInfo.Pos.GetPositionZ());
-            data.WriteFloat(movementInfo.Pos.GetOrientation());
+            data.WriteFloat(movementInfo.Pos.X);
+            data.WriteFloat(movementInfo.Pos.Y);
+            data.WriteFloat(movementInfo.Pos.Z);
+            data.WriteFloat(movementInfo.Pos.Orientation);
             data.WriteFloat(movementInfo.Pitch);
             data.WriteFloat(movementInfo.stepUpStartElevation);
 
@@ -320,21 +320,21 @@ namespace Game.Networking.Packets
                 Vector3 direction = Vector3.Zero;
                 if (movementForce.Magnitude != 0.0f)
                 {
-                    Position tmp = new(movementForce.Origin.X - objectPosition.GetPositionX(),
-                        movementForce.Origin.Y - objectPosition.GetPositionY(),
-                        movementForce.Origin.Z - objectPosition.GetPositionZ());
+                    Position tmp = new(movementForce.Origin.X - objectPosition.X,
+                        movementForce.Origin.Y - objectPosition.Y,
+                        movementForce.Origin.Z - objectPosition.Z);
                     float lengthSquared = tmp.GetExactDistSq(0.0f, 0.0f, 0.0f);
                     if (lengthSquared > 0.0f)
                     {
                         float mult = 1.0f / (float)Math.Sqrt(lengthSquared) * movementForce.Magnitude;
-                        tmp.posX *= mult;
-                        tmp.posY *= mult;
-                        tmp.posZ *= mult;
-                        float minLengthSquared = (tmp.GetPositionX() * tmp.GetPositionX() * 0.04f) +
-                            (tmp.GetPositionY() * tmp.GetPositionY() * 0.04f) +
-                            (tmp.GetPositionZ() * tmp.GetPositionZ() * 0.04f);
+                        tmp.X *= mult;
+                        tmp.Y *= mult;
+                        tmp.Z *= mult;
+                        float minLengthSquared = (tmp.X * tmp.X * 0.04f) +
+                            (tmp.Y * tmp.Y * 0.04f) +
+                            (tmp.Z * tmp.Z * 0.04f);
                         if (lengthSquared > minLengthSquared)
-                            direction = new Vector3(tmp.posX, tmp.posY, tmp.posZ);
+                            direction = new Vector3(tmp.X, tmp.Y, tmp.Z);
                     }
                 }
 

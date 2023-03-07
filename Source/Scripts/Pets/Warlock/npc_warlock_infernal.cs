@@ -42,7 +42,7 @@ namespace Scripts.Pets
 
             public override void Reset()
             {
-                spawnPos = me.GetPosition();
+                spawnPos = me.Location;
 
                 // if we leave default State (ASSIST) it will passively be controlled by warlock
                 me.SetReactState(ReactStates.Passive);

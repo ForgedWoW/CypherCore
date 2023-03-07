@@ -33,7 +33,7 @@ namespace Scripts.Spells.Warrior
 			var creature = GetTarget().GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
 
 			if (creature != null)
-				GetTarget().CastSpell(creature.GetPosition(), WarriorSpells.RAVAGER_DAMAGE, true);
+				GetTarget().CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
 		}
 
 		public override void Register()

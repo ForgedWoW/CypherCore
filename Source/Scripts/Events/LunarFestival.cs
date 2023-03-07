@@ -118,7 +118,7 @@ namespace Scripts.m_Events.LunarFestival
             if (launcher)
             {
                 launcher.SendCustomAnim(MiscConst.AnimGoLaunchFirework);
-                me.SetOrientation(launcher.GetOrientation() + MathF.PI / 2);
+                me.Location.Orientation = launcher.Location.Orientation + MathF.PI / 2;
             }
             else
             {
@@ -130,14 +130,14 @@ namespace Scripts.m_Events.LunarFestival
                 // Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
                 if (me.GetZoneId() == MiscConst.ZoneMoonglade)
                     if (!me.FindNearestCreature(CreatureIds.Omen, 100.0f) &&
-                        me.GetDistance2d(MiscConst.OmenSummonPos.GetPositionX(), MiscConst.OmenSummonPos.GetPositionY()) <= 100.0f)
+                        me.GetDistance2d(MiscConst.OmenSummonPos.X, MiscConst.OmenSummonPos.Y) <= 100.0f)
                         switch (RandomHelper.URand(0, 9))
                         {
                             case 0:
                             case 1:
                             case 2:
                             case 3:
-                                Creature minion = me.SummonCreature(CreatureIds.MinionOfOmen, me.GetPositionX() + RandomHelper.FRand(-5.0f, 5.0f), me.GetPositionY() + RandomHelper.FRand(-5.0f, 5.0f), me.GetPositionZ(), 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
+                                Creature minion = me.SummonCreature(CreatureIds.MinionOfOmen, me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
 
                                 if (minion)
                                     minion.GetAI().AttackStart(me.SelectNearestPlayer(20.0f));
@@ -155,12 +155,12 @@ namespace Scripts.m_Events.LunarFestival
                 float displacement = 0.7f;
 
                 for (byte i = 0; i < 4; i++)
-                    me.SummonGameObject(GetFireworkGameObjectId(), me.GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me.GetPositionY() + (i > 1 ? displacement : -displacement), me.GetPositionZ() + 4.0f, me.GetOrientation(), Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(me.GetOrientation(), 0.0f, 0.0f)), TimeSpan.FromSeconds(1));
+                    me.SummonGameObject(GetFireworkGameObjectId(), me.Location.X + (i % 2 == 0 ? displacement : -displacement), me.Location.Y + (i > 1 ? displacement : -displacement), me.Location.Z + 4.0f, me.Location.Orientation, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(me.Location.Orientation, 0.0f, 0.0f)), TimeSpan.FromSeconds(1));
             }
             else
             //me.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
             {
-                me.CastSpell(me.GetPosition(), GetFireworkSpell(me.GetEntry()), new CastSpellExtraArgs(true));
+                me.CastSpell(me.Location, GetFireworkSpell(me.GetEntry()), new CastSpellExtraArgs(true));
             }
         }
 
@@ -355,7 +355,7 @@ namespace Scripts.m_Events.LunarFestival
 
             if (pointId == 1)
             {
-                me.SetHomePosition(me.GetPositionX(), me.GetPositionY(), me.GetPositionZ(), me.GetOrientation());
+                me.SetHomePosition(me.Location.X, me.Location.Y, me.Location.Z, me.Location.Orientation);
                 me.SetImmuneToPC(false);
                 Player player = me.SelectNearestPlayer(40.0f);
 

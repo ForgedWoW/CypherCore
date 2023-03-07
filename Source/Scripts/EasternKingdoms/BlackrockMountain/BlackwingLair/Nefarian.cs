@@ -171,7 +171,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.VictorNefarius
         {
             Initialize();
 
-            if (me.GetMapId() == 469)
+            if (me.Location.GetMapId() == 469)
             {
                 if (!me.FindNearestCreature(BWLCreatureIds.Nefarian, 1000.0f, true))
                     _Reset();
@@ -371,7 +371,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.VictorNefarius
                                                               nefarian.SetFarVisible(true);
                                                               nefarian.SetCanFly(true);
                                                               nefarian.SetDisableGravity(true);
-                                                              nefarian.CastSpell(null, SpellIds.ShadowflameInitial);
+                                                              nefarian.CastSpell(SpellIds.ShadowflameInitial);
                                                               nefarian.GetMotionMaster().MovePoint(1, MiscConst.NefarianLoc[1]);
                                                           }
 

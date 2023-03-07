@@ -158,7 +158,7 @@ namespace Game.Movement
             {
                 // set home position at place (every MotionMaster::UpdateMotion)
                 if (owner.GetTransGUID().IsEmpty())
-                    owner.SetHomePosition(owner.GetPosition());
+                    owner.SetHomePosition(owner.Location);
 
                 // relaunch movement if its speed has changed
                 if (HasFlag(MovementGeneratorFlags.SpeedUpdatePending))
@@ -280,22 +280,19 @@ namespace Game.Movement
                 else
                 {
                     WaypointNode currentWaypoint = _path.nodes[_currentNode];
-                    float x = currentWaypoint.x;
-                    float y = currentWaypoint.y;
-                    float z = currentWaypoint.z;
-                    float o = owner.GetOrientation();
+                    var pos = new Position(currentWaypoint.x, currentWaypoint.y, currentWaypoint.z, owner.Location.Orientation);
 
                     if (!transportPath)
-                        owner.SetHomePosition(x, y, z, o);
+                        owner.SetHomePosition(pos);
                     else
                     {
                         ITransport trans = owner.GetTransport();
                         if (trans != null)
                         {
-                            o -= trans.GetTransportOrientation();
-                            owner.SetTransportHomePosition(x, y, z, o);
-                            trans.CalculatePassengerPosition(ref x, ref y, ref z, ref o);
-                            owner.SetHomePosition(x, y, z, o);
+                            pos.Orientation -= trans.GetTransportOrientation();
+                            owner.SetTransportHomePosition(pos);
+                            trans.CalculatePassengerPosition(pos);
+                            owner.SetHomePosition(pos);
                         }
                         // else if (vehicle) - this should never happen, vehicle offsets are const
                     }

@@ -213,12 +213,12 @@ namespace Game
             WorldLocation corpseLocation = player.GetCorpseLocation();
             uint corpseMapID = corpseLocation.GetMapId();
             uint mapID = corpseLocation.GetMapId();
-            float x = corpseLocation.GetPositionX();
-            float y = corpseLocation.GetPositionY();
-            float z = corpseLocation.GetPositionZ();
+            float x = corpseLocation.X;
+            float y = corpseLocation.Y;
+            float z = corpseLocation.Z;
 
             // if corpse at different map
-            if (mapID != player.GetMapId())
+            if (mapID != player.Location.GetMapId())
             {
                 // search entrance map for proper show entrance
                 MapRecord corpseMapEntry = CliDB.MapStorage.LookupByKey(mapID);

@@ -232,10 +232,10 @@ public class TransportManager : Singleton<TransportManager>
 		Transport trans = new();
 
 		// ...at first waypoint
-		var x = startingPosition.GetPositionX();
-		var y = startingPosition.GetPositionY();
-		var z = startingPosition.GetPositionZ();
-		var o = startingPosition.GetOrientation();
+		var x = startingPosition.X;
+		var y = startingPosition.Y;
+		var z = startingPosition.Z;
+		var o = startingPosition.Orientation;
 
 		// initialize the gameobject base
 		var guidLow = guid != 0 ? guid : map.GenerateLowGuid(HighGuid.Transport);

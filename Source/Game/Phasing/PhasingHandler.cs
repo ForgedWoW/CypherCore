@@ -266,14 +266,14 @@ namespace Game
             {
                 if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
                 {
-                    if (mapId == obj.GetMapId())
+                    if (mapId == obj.Location.GetMapId())
                         phaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
 
                     // ui map is visible on all maps
                     foreach (uint uiMapPhaseId in visibleMapInfo.UiMapPhaseIDs)
                         phaseShift.AddUiMapPhaseId(uiMapPhaseId);
                 }
-                else if(mapId == obj.GetMapId())
+                else if(mapId == obj.Location.GetMapId())
                     suppressedPhaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
             }
 

@@ -71,16 +71,16 @@ namespace Scripts.EasternKingdoms.AlteracValley.Vanndar
                                 });
 
             _scheduler.Schedule(TimeSpan.FromSeconds(5),
-                                task =>
+                                (Action<Framework.Dynamic.TaskContext>)(                                task =>
                                 {
-                                    if (me.GetDistance2d(me.GetHomePosition().GetPositionX(), me.GetHomePosition().GetPositionY()) > 50)
+                                    if (me.GetDistance2d(me.GetHomePosition().X, me.GetHomePosition().Y) > 50)
                                     {
-                                        EnterEvadeMode();
+                                        base.EnterEvadeMode();
                                         Talk(TextIds.YellEvade);
                                     }
 
                                     task.Repeat();
-                                });
+                                }));
 
             Talk(TextIds.YellAggro);
         }

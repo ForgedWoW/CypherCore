@@ -45,7 +45,7 @@ namespace Scripts.Spells.Shaman
 			if (timeInterval < 1000)
 				return;
 
-			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(200));
+			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(200));
 
 			if (tempSumm != null)
 			{

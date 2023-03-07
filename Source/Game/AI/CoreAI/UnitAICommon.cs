@@ -139,10 +139,10 @@ namespace Game.AI
 
             if (target != _caster)
             {
-                if (_caster.GetExactDistSq(target) > maxRange)
+                if (_caster.Location.GetExactDistSq(target.Location) > maxRange)
                     return false;
 
-                if (minRange > 0.0f && _caster.GetExactDistSq(target) < minRange)
+                if (minRange > 0.0f && _caster.Location.GetExactDistSq(target.Location) < minRange)
                     return false;
             }
 

@@ -77,10 +77,10 @@ namespace Game.Entities
             _aurEff = aurEff;
 
             SetMap(caster.GetMap());
-            Relocate(pos);
-            if (!IsPositionValid())
+            Location.Relocate(pos);
+            if (!Location.IsPositionValid())
             {
-                Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {GetPositionX()} Y: {GetPositionY()})");
+                Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
                 return false;
             }
 
@@ -93,7 +93,7 @@ namespace Game.Entities
 
             _areaTriggerTemplate = _areaTriggerCreateProperties.Template;
 
-            _Create(ObjectGuid.Create(HighGuid.AreaTrigger, GetMapId(), GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
+            _Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.GetMapId(), GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
 
             if (GetTemplate() != null)
                 SetEntry(GetTemplate().Id.Id);
@@ -168,7 +168,7 @@ namespace Game.Entities
                 if (target && GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
                     orbit.PathTarget = target.GetGUID();
                 else
-                    orbit.Center = new(pos.posX, pos.posY, pos.posZ);
+                    orbit.Center = new(pos.X, pos.Y, pos.Z);
 
                 InitOrbit(orbit, timeToTarget);
             }
@@ -181,9 +181,9 @@ namespace Game.Entities
             ITransport transport = m_movementInfo.transport.guid.IsEmpty() ? caster.GetTransport() : null;
             if (transport != null)
             {
-                pos.GetPosition(out float x, out float y, out float z, out float o);
-                transport.CalculatePassengerOffset(ref x, ref y, ref z, ref o);
-                m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                var newPos = pos.Copy();
+                transport.CalculatePassengerOffset(newPos);
+                m_movementInfo.transport.pos.Relocate(newPos);
 
                 // This object must be added to transport before adding to map for the client to properly display it
                 transport.AddPassenger(this);
@@ -193,7 +193,7 @@ namespace Game.Entities
 
             // Relocate areatriggers with circular movement again
             if (HasOrbit())
-                Relocate(CalculateOrbitPosition());
+                Location.Relocate(CalculateOrbitPosition());
 
             if (!GetMap().AddToMap(this))
             {         // Returning false will cause the object to be deleted - remove from transport
@@ -241,16 +241,16 @@ namespace Game.Entities
         bool CreateServer(Map map, AreaTriggerTemplate areaTriggerTemplate, AreaTriggerSpawn position)
         {
             SetMap(map);
-            Relocate(position.SpawnPoint);
-            if (!IsPositionValid())
+            Location.Relocate(position.SpawnPoint);
+            if (!Location.IsPositionValid())
             {
-                Log.outError(LogFilter.AreaTrigger, $"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {GetPositionX()} Y: {GetPositionY()})");
+                Log.outError(LogFilter.AreaTrigger, $"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
                 return false;
             }
 
             _areaTriggerTemplate = areaTriggerTemplate;
 
-            _Create(ObjectGuid.Create(HighGuid.AreaTrigger, GetMapId(), areaTriggerTemplate.Id.Id, GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
+            _Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.GetMapId(), areaTriggerTemplate.Id.Id, GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
 
             SetEntry(areaTriggerTemplate.Id.Id);
 
@@ -287,7 +287,7 @@ namespace Game.Entities
                 {
                     Unit target = GetTarget();
                     if (target)
-                        GetMap().AreaTriggerRelocation(this, target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), target.GetOrientation());
+                        GetMap().AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
                 }
                 else
                     UpdateSplinePosition(diff);
@@ -423,7 +423,7 @@ namespace Game.Entities
         {
             SearchUnits(targetList, GetMaxSearchRadius(), false);
 
-            Position boxCenter = GetPosition();
+            Position boxCenter = Location;
             float extentsX, extentsY, extentsZ;
 
             unsafe
@@ -433,7 +433,7 @@ namespace Game.Entities
                 extentsZ = _shape.BoxDatas.Extents[2];
             }
 
-            targetList.RemoveAll(unit => !unit.IsWithinBox(boxCenter, extentsX, extentsY, extentsZ));
+            targetList.RemoveAll(unit => !unit.Location.IsWithinBox(boxCenter, extentsX, extentsY, extentsZ));
         }
 
         void SearchUnitInPolygon(List<Unit> targetList)
@@ -441,10 +441,10 @@ namespace Game.Entities
             SearchUnits(targetList, GetMaxSearchRadius(), false);
 
             float height = _shape.PolygonDatas.Height;
-            float minZ = GetPositionZ() - height;
-            float maxZ = GetPositionZ() + height;
+            float minZ = Location.Z - height;
+            float maxZ = Location.Z + height;
 
-            targetList.RemoveAll(unit => !CheckIsInPolygon2D(unit) || unit.GetPositionZ() < minZ || unit.GetPositionZ() > maxZ);
+            targetList.RemoveAll(unit => !CheckIsInPolygon2D(unit.Location) || unit.Location.Z < minZ || unit.Location.Z > maxZ);
         }
 
         void SearchUnitInCylinder(List<Unit> targetList)
@@ -452,10 +452,10 @@ namespace Game.Entities
             SearchUnits(targetList, GetMaxSearchRadius(), false);
 
             float height = _shape.CylinderDatas.Height;
-            float minZ = GetPositionZ() - height;
-            float maxZ = GetPositionZ() + height;
+            float minZ = Location.Z - height;
+            float maxZ = Location.Z + height;
 
-            targetList.RemoveAll(unit => unit.GetPositionZ() < minZ || unit.GetPositionZ() > maxZ);
+            targetList.RemoveAll(unit => unit.Location.Z < minZ || unit.Location.Z > maxZ);
         }
 
         void SearchUnitInDisk(List<Unit> targetList)
@@ -464,17 +464,17 @@ namespace Game.Entities
 
             float innerRadius = _shape.DiskDatas.InnerRadius;
             float height = _shape.DiskDatas.Height;
-            float minZ = GetPositionZ() - height;
-            float maxZ = GetPositionZ() + height;
+            float minZ = Location.Z - height;
+            float maxZ = Location.Z + height;
 
-            targetList.RemoveAll(unit => unit.IsInDist2d(this, innerRadius) || unit.GetPositionZ() < minZ || unit.GetPositionZ() > maxZ);
+            targetList.RemoveAll(unit => unit.Location.IsInDist2d(Location, innerRadius) || unit.Location.Z < minZ || unit.Location.Z > maxZ);
         }
 
         void SearchUnitInBoundedPlane(List<Unit> targetList)
         {
             SearchUnits(targetList, GetMaxSearchRadius(), false);
 
-            Position boxCenter = GetPosition();
+            Position boxCenter = Location;
             float extentsX, extentsY;
 
             unsafe
@@ -485,7 +485,7 @@ namespace Game.Entities
 
             targetList.RemoveAll(unit =>
             {
-                return !unit.IsWithinBox(boxCenter, extentsX, extentsY, MapConst.MapSize);
+                return !unit.Location.IsWithinBox(boxCenter, extentsX, extentsY, MapConst.MapSize);
             });
         }
 
@@ -577,7 +577,7 @@ namespace Game.Entities
 
         void UpdatePolygonOrientation()
         {
-            float newOrientation = GetOrientation();
+            float newOrientation = Location.Orientation;
 
             // No need to recalculate, orientation didn't change
             if (MathFunctions.fuzzyEq(_previousCheckOrientation, newOrientation))
@@ -602,8 +602,8 @@ namespace Game.Entities
 
         bool CheckIsInPolygon2D(Position pos)
         {
-            float testX = pos.GetPositionX();
-            float testY = pos.GetPositionY();
+            float testX = pos.X;
+            float testY = pos.Y;
 
             //this method uses the ray tracing algorithm to determine if the point is in the polygon
             bool locatedInPolygon = false;
@@ -624,10 +624,10 @@ namespace Game.Entities
                     nextVertex = vertex + 1;
                 }
 
-                float vertX_i = GetPositionX() + _polygonVertices[vertex].X;
-                float vertY_i = GetPositionY() + _polygonVertices[vertex].Y;
-                float vertX_j = GetPositionX() + _polygonVertices[nextVertex].X;
-                float vertY_j = GetPositionY() + _polygonVertices[nextVertex].Y;
+                float vertX_i = Location.X + _polygonVertices[vertex].X;
+                float vertY_i = Location.Y + _polygonVertices[vertex].Y;
+                float vertX_j = Location.X + _polygonVertices[nextVertex].X;
+                float vertY_j = Location.Y + _polygonVertices[nextVertex].Y;
 
                 // following statement checks if testPoint.Y is below Y-coord of i-th vertex
                 bool belowLowY = vertY_i > testY;
@@ -746,18 +746,18 @@ namespace Game.Entities
 
         void InitSplineOffsets(List<Vector3> offsets, uint timeToTarget)
         {
-            float angleSin = (float)Math.Sin(GetOrientation());
-            float angleCos = (float)Math.Cos(GetOrientation());
+            float angleSin = (float)Math.Sin(Location.Orientation);
+            float angleCos = (float)Math.Cos(Location.Orientation);
 
             // This is needed to rotate the spline, following caster orientation
             List<Vector3> rotatedPoints = new();
             foreach (var offset in offsets)
             {
-                float x = GetPositionX() + (offset.X * angleCos - offset.Y * angleSin);
-                float y = GetPositionY() + (offset.Y * angleCos + offset.X * angleSin);
-                float z = GetPositionZ();
+                float x = Location.X + (offset.X * angleCos - offset.Y * angleSin);
+                float y = Location.Y + (offset.Y * angleCos + offset.X * angleSin);
+                float z = Location.Z;
 
-                UpdateAllowedPositionZ(x, y, ref z);
+                z = UpdateAllowedPositionZ(x, y, z);
                 z += offset.Z;
 
                 rotatedPoints.Add(new Vector3(x, y, z));
@@ -851,7 +851,7 @@ namespace Game.Entities
             {
                 WorldObject center = Global.ObjAccessor.GetWorldObject(this, _orbitInfo.PathTarget.Value);
                 if (center)
-                    return center;
+                    return center.Location;
             }
 
             if (_orbitInfo.Center.HasValue)
@@ -864,7 +864,7 @@ namespace Game.Entities
         {
             Position centerPos = GetOrbitCenterPosition();
             if (centerPos == null)
-                return GetPosition();
+                return Location;
 
             AreaTriggerOrbitInfo cmi = _orbitInfo;
 
@@ -890,9 +890,9 @@ namespace Game.Entities
                 pathProgress *= -1;
 
             float angle = cmi.InitialAngle + 2.0f * (float)Math.PI * pathProgress;
-            float x = centerPos.GetPositionX() + (radius * (float)Math.Cos(angle));
-            float y = centerPos.GetPositionY() + (radius * (float)Math.Sin(angle));
-            float z = centerPos.GetPositionZ() + cmi.ZOffset;
+            float x = centerPos.X + (radius * (float)Math.Cos(angle));
+            float y = centerPos.Y + (radius * (float)Math.Sin(angle));
+            float z = centerPos.Z + cmi.ZOffset;
 
             return new Position(x, y, z, angle);
         }
@@ -906,7 +906,7 @@ namespace Game.Entities
 
             Position pos = CalculateOrbitPosition();
 
-            GetMap().AreaTriggerRelocation(this, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+            GetMap().AreaTriggerRelocation(this, pos.X, pos.Y, pos.Z, pos.Orientation);
 
             DebugVisualizePosition();
         }
@@ -927,7 +927,7 @@ namespace Game.Entities
                 _lastSplineIndex = _spline.Last();
 
                 Vector3 lastSplinePosition = _spline.GetPoint(_lastSplineIndex);
-                GetMap().AreaTriggerRelocation(this, lastSplinePosition.X, lastSplinePosition.Y, lastSplinePosition.Z, GetOrientation());
+                GetMap().AreaTriggerRelocation(this, lastSplinePosition.X, lastSplinePosition.Y, lastSplinePosition.Z, Location.Orientation);
 
                 DebugVisualizePosition();
 
@@ -958,11 +958,11 @@ namespace Game.Entities
 
             _spline.Evaluate_Percent(lastPositionIndex, percentFromLastPoint, out Vector3 currentPosition);
 
-            float orientation = GetOrientation();
+            float orientation = Location.Orientation;
             if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasFaceMovementDir))
             {
                 Vector3 nextPoint = _spline.GetPoint(lastPositionIndex + 1);
-                orientation = GetAbsoluteAngle(nextPoint.X, nextPoint.Y);
+                orientation = Location.GetAbsoluteAngle(nextPoint.X, nextPoint.Y);
             }
 
             GetMap().AreaTriggerRelocation(this, currentPosition.X, currentPosition.Y, currentPosition.Z, orientation);
@@ -1072,14 +1072,14 @@ namespace Game.Entities
                 Player player = caster.ToPlayer();
                 if (player)
                     if (player.IsDebugAreaTriggers)
-                        player.SummonCreature(1, this, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(GetTimeToTarget()));
+                        player.SummonCreature(1, Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(GetTimeToTarget()));
             }
         }
 
         public bool SetDestination(Position pos, uint timeToTarget)
         {
             PathGenerator path = new PathGenerator(GetCaster());
-            bool result = path.CalculatePath(GetPositionX(), GetPositionY(), GetPositionZ(), true);
+            bool result = path.CalculatePath(Location, true);
 
             if (!result || (path.GetPathType() & PathType.NoPath) != 0)
             {
@@ -1168,7 +1168,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), AreaTriggerMask.GetUpdateMask(), player);
 

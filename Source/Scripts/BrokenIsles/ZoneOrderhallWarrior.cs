@@ -142,7 +142,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
         // Should be some other way to do this...
         public override void OnQuestAccept(Player player, Quest quest)
         {
-            TempSummon summon = player.SummonCreature(CreatureIds.DanicaTheReclaimer, 1059.613f, 7224.605f, 100.4608f, 0.03462749f, TempSummonType.ManualDespawn, TimeSpan.FromSeconds(0), player.GetGUID());
+            TempSummon summon = player.SummonCreature(CreatureIds.DanicaTheReclaimer, 1059.613f, 7224.605f, 100.4608f, 0.03462749f, TempSummonType.ManualDespawn, TimeSpan.FromSeconds(0), 0, 0, player.GetGUID());
 
             if (summon == null)
                 return;
@@ -199,7 +199,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
                                 TimeSpan.FromMinutes(20),
                                 context =>
                                 {
-                                    float direction = me.GetOrientation() + MathF.PI;
+                                    float direction = me.Location.Orientation + MathF.PI;
                                     me.GetMotionMaster().MovePoint(0, me.GetFirstCollisionPosition(5.0f, direction));
                                 });
         }
@@ -481,7 +481,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
             if (player)
                 if (player.GetQuestStatus(QuestIds.OdynAndTheValarjar) == QuestStatus.Incomplete)
-                    if (player.IsInDist(me, 60.0f))
+                    if (player.Location.IsInDist(me.Location, 60.0f))
                     {
                         player.KilledMonsterCredit(CreatureIds.KillCreditArrivedAtOdyn); // SpellWarriorOrderFormationScene does not has this credit.
                         player.CastSpell(player, SpellIds.WarriorOrderFormationScene);
@@ -520,7 +520,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
                                 TimeSpan.FromMinutes(20),
                                 context =>
                                 {
-                                    float direction = me.GetOrientation() + MathF.PI;
+                                    float direction = me.Location.Orientation + MathF.PI;
                                     me.GetMotionMaster().MovePoint(0, me.GetFirstCollisionPosition(5.0f, direction));
                                 });
         }
@@ -553,7 +553,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -578,7 +578,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -610,7 +610,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -635,7 +635,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -667,7 +667,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -692,7 +692,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -724,7 +724,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -749,7 +749,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -781,7 +781,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -806,7 +806,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -838,7 +838,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -863,7 +863,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;
@@ -895,7 +895,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 
         public override void Reset()
         {
-            if (me.GetPositionZ() >= 100.0f)
+            if (me.Location.Z >= 100.0f)
                 _scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.GetMotionMaster().MoveSmoothPath(2, Path, Path.Length, false, true); });
             else
                 me.GetMotionMaster().MoveSmoothPath(1, Path, Path.Length, false, true);
@@ -920,7 +920,7 @@ namespace Scripts.BrokenIsles.ZoneOrderhallWarrior
 						                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 						                     * Also the MoveTime is not correct but I don't know how to set it here.
 						                     */
-                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.GetOrientation()), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+                                            me.GetMotionMaster().MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
                                         });
 
                     break;

@@ -260,9 +260,9 @@ namespace Game.Networking.Packets
 
             // Position
             MemberStats.ZoneID = (ushort)player.GetZoneId();
-            MemberStats.PositionX = (short)player.GetPositionX();
-            MemberStats.PositionY = (short)(player.GetPositionY());
-            MemberStats.PositionZ = (short)(player.GetPositionZ());
+            MemberStats.PositionX = (short)player.Location.X;
+            MemberStats.PositionY = (short)(player.Location.Y);
+            MemberStats.PositionZ = (short)(player.Location.Z);
 
             MemberStats.SpecID = (ushort)player.GetPrimarySpecialization();
             MemberStats.PartyType[0] = (sbyte)(player.m_playerData.PartyType & 0xF);

@@ -15,7 +15,7 @@ namespace Scripts.Spells.Druid
 			var _player = GetCaster().ToPlayer();
 
 			if (_player != null)
-				_player.TeleportTo(1, 7964.063f, -2491.099f, 487.83f, _player.GetOrientation());
+				_player.TeleportTo(1, 7964.063f, -2491.099f, 487.83f, _player.Location.Orientation);
 		}
 	}
 }

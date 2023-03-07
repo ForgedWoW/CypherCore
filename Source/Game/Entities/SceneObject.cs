@@ -100,12 +100,12 @@ namespace Game.Entities
         bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
         {
             SetMap(map);
-            Relocate(pos);
+            Location.Relocate(pos);
             RelocateStationaryPosition(pos);
 
             SetPrivateObjectOwner(privateObjectOwner);
 
-            _Create(ObjectGuid.Create(HighGuid.SceneObject, GetMapId(), sceneId, lowGuid));
+            _Create(ObjectGuid.Create(HighGuid.SceneObject, Location.GetMapId(), sceneId, lowGuid));
             PhasingHandler.InheritPhaseShift(this, creator);
 
             SetEntry(scriptPackageId);
@@ -189,10 +189,10 @@ namespace Game.Entities
         public override ObjectGuid GetOwnerGUID() { return m_sceneObjectData.CreatedBy; }
         public override uint GetFaction() { return 0; }
 
-        public override float GetStationaryX() { return _stationaryPosition.GetPositionX(); }
-        public override float GetStationaryY() { return _stationaryPosition.GetPositionY(); }
-        public override float GetStationaryZ() { return _stationaryPosition.GetPositionZ(); }
-        public override float GetStationaryO() { return _stationaryPosition.GetOrientation(); }
+        public override float GetStationaryX() { return _stationaryPosition.X; }
+        public override float GetStationaryY() { return _stationaryPosition.Y; }
+        public override float GetStationaryZ() { return _stationaryPosition.Z; }
+        public override float GetStationaryO() { return _stationaryPosition.Orientation; }
         void RelocateStationaryPosition(Position pos) { _stationaryPosition.Relocate(pos); }
 
         public void SetCreatedBySpellCast(ObjectGuid castId) { _createdBySpellCast = castId; }
@@ -210,7 +210,7 @@ namespace Game.Entities
 
             public void Invoke(Player player)
             {
-                UpdateData udata = new(Owner.GetMapId());
+                UpdateData udata = new(Owner.Location.GetMapId());
 
                 Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), SceneObjectMask.GetUpdateMask(), player);
 

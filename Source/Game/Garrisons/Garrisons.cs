@@ -270,7 +270,7 @@ namespace Game.Garrisons
         void Enter()
         {
             WorldLocation loc = new(_siteLevel.MapID);
-            loc.Relocate(_owner);
+            loc.Relocate(_owner.Location);
             _owner.TeleportTo(loc, TeleportToOptions.Seamless);
         }
 
@@ -280,7 +280,7 @@ namespace Game.Garrisons
             if (map != null)
             {
                 WorldLocation loc = new((uint)map.ParentMapID);
-                loc.Relocate(_owner);
+                loc.Relocate(_owner.Location);
                 _owner.TeleportTo(loc, TeleportToOptions.Seamless);
             }
         }
@@ -548,7 +548,7 @@ namespace Game.Garrisons
         public void SendRemoteInfo()
         {
             MapRecord garrisonMap = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
-            if (garrisonMap == null || _owner.GetMapId() != garrisonMap.ParentMapID)
+            if (garrisonMap == null || _owner.Location.GetMapId() != garrisonMap.ParentMapID)
                 return;
 
             GarrisonRemoteInfo remoteInfo = new();
@@ -723,7 +723,7 @@ namespace Game.Garrisons
                     if (finalizeInfo != null)
                     {
                         Position pos2 = finalizeInfo.factionInfo[faction].Pos;
-                        GameObject finalizer = GameObject.CreateGameObject(finalizeInfo.factionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.GetOrientation(), 0.0f, 0.0f)), 255, GameObjectState.Ready);
+                        GameObject finalizer = GameObject.CreateGameObject(finalizeInfo.factionInfo[faction].GameObjectId, map, pos2, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos2.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
                         if (finalizer)
                         {
                             // set some spell id to make the object delete itself after use
@@ -824,24 +824,21 @@ namespace Game.Garrisons
                 if (!spawn.LoadFromDB(spawnId, map, false, false))
                     return null;
 
-                float x = spawn.GetPositionX();
-                float y = spawn.GetPositionY();
-                float z = spawn.GetPositionZ();
-                float o = spawn.GetOrientation();
-                ITransport.CalculatePassengerPosition(ref x, ref y, ref z, ref o, building.GetPositionX(), building.GetPositionY(), building.GetPositionZ(), building.GetOrientation());
+                var pos = spawn.Location.Copy();
+                ITransport.CalculatePassengerPosition(pos, building.Location.X, building.Location.Y, building.Location.Z, building.Location.Orientation);
 
-                spawn.Relocate(x, y, z, o);
+                spawn.Location.Relocate(pos);
                 switch (spawn.GetTypeId())
                 {
                     case TypeId.Unit:
-                        spawn.ToCreature().SetHomePosition(x, y, z, o);
+                        spawn.ToCreature().SetHomePosition(pos);
                         break;
                     case TypeId.GameObject:
-                        spawn.ToGameObject().RelocateStationaryPosition(x, y, z, o);
+                        spawn.ToGameObject().RelocateStationaryPosition(pos);
                         break;
                 }
 
-                if (!spawn.IsPositionValid())
+                if (!spawn.Location.IsPositionValid())
                     return null;
 
                 if (!map.AddToMap(spawn))

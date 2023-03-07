@@ -2893,7 +2893,7 @@ namespace Game.Spells
 
                 if (selectionType != SpellTargetCheckTypes.Default)
                 {
-                    WorldObjectSpellAreaTargetCheck check = new(radius, GetUnitOwner(), refe, GetUnitOwner(), GetSpellInfo(), selectionType, condList, SpellTargetObjectTypes.Unit);
+                    WorldObjectSpellAreaTargetCheck check = new(radius, GetUnitOwner().Location, refe, GetUnitOwner(), GetSpellInfo(), selectionType, condList, SpellTargetObjectTypes.Unit);
                     UnitListSearcher searcher = new(GetUnitOwner(), units, check, GridType.All);
                     Cell.VisitGrid(GetUnitOwner(), searcher, radius + extraSearchRadius);
 
@@ -2976,7 +2976,7 @@ namespace Game.Spells
                 List<Unit> targetList = new();
                 var condList = spellEffectInfo.ImplicitTargetConditions;
 
-                WorldObjectSpellAreaTargetCheck check = new(radius, GetDynobjOwner(), dynObjOwnerCaster, dynObjOwnerCaster, GetSpellInfo(), selectionType, condList, SpellTargetObjectTypes.Unit);
+                WorldObjectSpellAreaTargetCheck check = new(radius, GetDynobjOwner().Location, dynObjOwnerCaster, dynObjOwnerCaster, GetSpellInfo(), selectionType, condList, SpellTargetObjectTypes.Unit);
                 UnitListSearcher searcher = new(GetDynobjOwner(), targetList, check, GridType.All);
                 Cell.VisitGrid(GetDynobjOwner(), searcher, radius);
 

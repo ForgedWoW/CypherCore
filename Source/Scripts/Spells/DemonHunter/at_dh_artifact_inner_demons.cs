@@ -30,11 +30,11 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 		if (target != null)
 		{
 			List<Vector3> splinePoints = new();
-			var           orientation  = caster.GetOrientation();
-			var           posX         = caster.GetPositionX() - 7 * (float)Math.Cos(orientation);
-			var           posY         = caster.GetPositionY() - 7 * (float)Math.Sin(orientation); // Start from behind the caster
-			splinePoints.Add(new Vector3(posX, posY, caster.GetPositionZ()));
-			splinePoints.Add(new Vector3(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ()));
+			var           orientation  = caster.Location.Orientation;
+			var           posX         = caster.Location.X - 7 * (float)Math.Cos(orientation);
+			var           posY         = caster.Location.Y - 7 * (float)Math.Sin(orientation); // Start from behind the caster
+			splinePoints.Add(new Vector3(posX, posY, caster.Location.Z));
+			splinePoints.Add(new Vector3(target.Location.X, target.Location.Y, target.Location.Z));
 
 			at.InitSplines(splinePoints, 1000);
 		}

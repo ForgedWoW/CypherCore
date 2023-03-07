@@ -91,9 +91,9 @@ namespace Game.Movement
                 DoMovementInform(owner, target);
             }
 
-            if (_lastTargetPosition == null || _lastTargetPosition.GetExactDistSq(target.GetPosition()) > 0.0f)
+            if (_lastTargetPosition == null || _lastTargetPosition.GetExactDistSq(target.Location) > 0.0f)
             {
-                _lastTargetPosition = new(target.GetPosition());
+                _lastTargetPosition = new(target.Location);
                 if (owner.HasUnitState(UnitState.FollowMove) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))
                 {
                     if (_path == null)
@@ -102,7 +102,7 @@ namespace Game.Movement
 
                     // select angle
                     float tAngle;
-                    float curAngle = target.GetRelativeAngle(owner);
+                    float curAngle = target.Location.GetRelativeAngle(owner.Location);
                     if (_angle.IsAngleOkay(curAngle))
                         tAngle = curAngle;
                     else
@@ -114,11 +114,11 @@ namespace Game.Movement
                         else
                             tAngle = _angle.LowerBound();
                     }
-
-                    target.GetNearPoint(owner, out float x, out float y, out float z, _range, target.ToAbsoluteAngle(tAngle));
+                    var newPos = new Position();
+                    target.GetNearPoint(owner, newPos, _range, target.Location.ToAbsoluteAngle(tAngle));
 
                     if (owner.IsHovering())
-                        owner.UpdateAllowedPositionZ(x, y, ref z);
+                        owner.UpdateAllowedPositionZ(newPos);
 
                     // pets are allowed to "cheat" on pathfinding when following their master
                     bool allowShortcut = false;
@@ -127,7 +127,7 @@ namespace Game.Movement
                         if (target.GetGUID() == oPet.GetOwnerGUID())
                             allowShortcut = true;
 
-                    bool success = _path.CalculatePath(x, y, z, allowShortcut);
+                    bool success = _path.CalculatePath(newPos, allowShortcut);
                     if (!success || _path.GetPathType().HasFlag(PathType.NoPath))
                     {
                         owner.StopMoving();
@@ -140,7 +140,7 @@ namespace Game.Movement
                     MoveSplineInit init = new(owner);
                     init.MovebyPath(_path.GetPath());
                     init.SetWalk(target.IsWalking());
-                    init.SetFacing(target.GetOrientation());
+                    init.SetFacing(target.Location.Orientation);
                     init.Launch();
                 }
             }
@@ -191,10 +191,10 @@ namespace Game.Movement
 
         static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
         {
-            if (owner.GetExactDistSq(target) > (owner.GetCombatReach() + target.GetCombatReach() + range) * (owner.GetCombatReach() + target.GetCombatReach() + range))
+            if (owner.Location.GetExactDistSq(target.Location) > (owner.GetCombatReach() + target.GetCombatReach() + range) * (owner.GetCombatReach() + target.GetCombatReach() + range))
                 return false;
 
-            return !angle.HasValue || angle.Value.IsAngleOkay(target.GetRelativeAngle(owner));
+            return !angle.HasValue || angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location));
         }
 
         static void DoMovementInform(Unit owner, Unit target)

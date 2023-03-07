@@ -939,16 +939,16 @@ namespace Game
 
         public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, Team team, WorldObject conditionObject)
         {
-            location.GetPosition(out float x, out float y, out float z);
+            
             uint MapId = location.GetMapId();
 
             // search for zone associated closest graveyard
-            uint zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.GetPhaseShift() : PhasingHandler.EmptyPhaseShift, MapId, x, y, z);
+            uint zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.GetPhaseShift() : PhasingHandler.EmptyPhaseShift, MapId, location);
             if (zoneId == 0)
             {
-                if (z > -500)
+                if (location.Z > -500)
                 {
-                    Log.outError(LogFilter.Server, "ZoneId not found for map {0} coords ({1}, {2}, {3})", MapId, x, y, z);
+                    Log.outError(LogFilter.Server, "ZoneId not found for map {0} coords ({1}, {2}, {3})", MapId, location.X, location.Y, location.Z);
                     return GetDefaultGraveYard(team);
                 }
             }
@@ -1024,8 +1024,8 @@ namespace Game
                     }
 
                     // at entrance map calculate distance (2D);
-                    float dist2 = (entry.Loc.GetPositionX() - mapEntry.Corpse.X) * (entry.Loc.GetPositionX() - mapEntry.Corpse.X)
-                        + (entry.Loc.GetPositionY() - mapEntry.Corpse.Y) * (entry.Loc.GetPositionY() - mapEntry.Corpse.Y);
+                    float dist2 = (entry.Loc.X - mapEntry.Corpse.X) * (entry.Loc.X - mapEntry.Corpse.X)
+                        + (entry.Loc.Y - mapEntry.Corpse.Y) * (entry.Loc.Y - mapEntry.Corpse.Y);
                     if (foundEntr)
                     {
                         if (dist2 < distEntr)
@@ -1044,7 +1044,7 @@ namespace Game
                 // find now nearest graveyard at same map
                 else
                 {
-                    float dist2 = (entry.Loc.GetPositionX() - x) * (entry.Loc.GetPositionX() - x) + (entry.Loc.GetPositionY() - y) * (entry.Loc.GetPositionY() - y) + (entry.Loc.GetPositionZ() - z) * (entry.Loc.GetPositionZ() - z);
+                    float dist2 = (entry.Loc.X - location.X) * (entry.Loc.X - location.X) + (entry.Loc.Y - location.Y) * (entry.Loc.Y - location.Y) + (entry.Loc.Z - location.Z) * (entry.Loc.Z - location.Z);
                     if (foundNear)
                     {
                         if (dist2 < distNear)
@@ -4169,7 +4169,7 @@ namespace Game
 
         void AddSpawnDataToGrid(SpawnData data)
         {
-            uint cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.GetPositionX(), data.SpawnPoint.GetPositionY()).GetId();
+            uint cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
             bool isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
             if (!isPersonalPhase)
             {
@@ -4203,7 +4203,7 @@ namespace Game
 
         void RemoveSpawnDataFromGrid(SpawnData data)
         {
-            uint cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.GetPositionX(), data.SpawnPoint.GetPositionY()).GetId();
+            uint cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
             bool isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
             if (!isPersonalPhase)
             {
@@ -4929,7 +4929,7 @@ namespace Game
                 if (!(Math.Abs(Quaternion.Dot(data.rotation, data.rotation) - 1) < 1e-5))
                 {
                     Log.outError(LogFilter.Sql, $"Table `gameobject` has gameobject (GUID: {guid} Entry: {data.Id}) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only");
-                    data.rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.GetOrientation(), 0f, 0f));
+                    data.rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
                 }
 
                 if (WorldConfig.GetBoolValue(WorldCfg.CalculateGameobjectZoneAreaData))
@@ -5816,10 +5816,10 @@ namespace Game
 
                 AreaTriggerStruct at = new();
                 at.target_mapId = portLoc.Loc.GetMapId();
-                at.target_X = portLoc.Loc.GetPositionX();
-                at.target_Y = portLoc.Loc.GetPositionY();
-                at.target_Z = portLoc.Loc.GetPositionZ();
-                at.target_Orientation = portLoc.Loc.GetOrientation();
+                at.target_X = portLoc.Loc.X;
+                at.target_Y = portLoc.Loc.Y;
+                at.target_Z = portLoc.Loc.Z;
+                at.target_Orientation = portLoc.Loc.Orientation;
                 at.PortLocId = portLoc.Id;
 
                 AreaTriggerRecord atEntry = CliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);

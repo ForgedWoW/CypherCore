@@ -24,6 +24,6 @@ public class spell_mage_meteor : SpellScript, ISpellAfterCast
 		if (caster == null || dest == null)
 			return;
 
-		caster.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), MageSpells.METEOR_TIMER, true);
+		caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), MageSpells.METEOR_TIMER, true);
 	}
 }

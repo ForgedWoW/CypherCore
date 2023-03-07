@@ -45,7 +45,7 @@ public class spell_mage_alter_time : SpellScript, IHasSpellEffects
 
 			// Return the target to their location and health from when the spell was first cast
 			target.SetHealth(alterTime.GetEffect(0).GetAmount());
-			target.NearTeleportTo(alterTime.GetCaster().GetPositionX(), alterTime.GetCaster().GetPositionY(), alterTime.GetCaster().GetPositionZ(), alterTime.GetCaster().GetOrientation());
+			target.NearTeleportTo(alterTime.GetCaster().Location.X, alterTime.GetCaster().Location.Y, alterTime.GetCaster().Location.Z, alterTime.GetCaster().Location.Orientation);
 			target.RemoveAura(MageSpells.ALTER_TIME);
 		}
 		else

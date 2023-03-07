@@ -32,7 +32,7 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 		var ringOfFrost = GetRingOfFrostMinion();
 
 		if (ringOfFrost)
-			GetTarget().CastSpell(ringOfFrost.GetPosition(), MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
+			GetTarget().CastSpell(ringOfFrost.Location, MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
 	}
 
 	private void Apply(AuraEffect aurEff, AuraEffectHandleModes mode)

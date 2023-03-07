@@ -45,7 +45,7 @@ public class at_mage_blizzard : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.GetPosition(), TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
+		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
 
 		{
 			tempSumm.SetFaction(caster.GetFaction());

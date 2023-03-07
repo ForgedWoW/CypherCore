@@ -24,7 +24,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
                 {
                     if (vehicle.HasEmptySeat(i))
                     {
-                        Creature pas = me.SummonCreature(49521, me.GetPositionX(), me.GetPositionY(), me.GetPositionZ());
+                        Creature pas = me.SummonCreature(49521, me.Location.X, me.Location.Y, me.Location.Z);
                         if (pas != null)
                         {
                             pas.EnterVehicle(me, i);
@@ -38,7 +38,7 @@ namespace Scripts.EasternKingdoms.Deadmines.NPC
         {
             if (TurnTimer <= diff)
             {
-                me.SetFacingTo(me.GetOrientation() + 0.05233f);
+                me.SetFacingTo(me.Location.Orientation + 0.05233f);
                 TurnTimer = 100;
             }
             else

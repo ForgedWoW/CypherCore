@@ -87,7 +87,7 @@ namespace Game.Movement
             }
 
             if (!owner.MoveSpline.Finalized())
-                owner.SetHomePosition(owner.GetPosition());
+                owner.SetHomePosition(owner.Location);
 
             // Formation leader has launched a new spline, launch a new one for our member as well
             // This action does not reset the regular movement launch cycle interval
@@ -120,7 +120,7 @@ namespace Game.Movement
                 _nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
 
                 // Our leader has a different position than on our last check, launch movement.
-                if (_lastLeaderPosition != target.GetPosition())
+                if (_lastLeaderPosition != target.Location)
                 {
                     LaunchMovement(owner, target);
                     return true;
@@ -131,7 +131,7 @@ namespace Game.Movement
             if (owner.HasUnitState(UnitState.FollowFormationMove) && owner.MoveSpline.Finalized())
             {
                 owner.ClearUnitState(UnitState.FollowFormationMove);
-                owner.SetFacingTo(target.GetOrientation());
+                owner.SetFacingTo(target.Location.Orientation);
                 MovementInform(owner);
             }
 
@@ -144,7 +144,7 @@ namespace Game.Movement
 
             // Determine our relative angle to our current spline destination point
             if (!target.MoveSpline.Finalized())
-                relativeAngle = target.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination()));
+                relativeAngle = target.Location.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination()));
 
             // Destination calculation
             /*
@@ -153,7 +153,7 @@ namespace Game.Movement
                 To get a representative result like that we have to predict our formation leader's path
                 and apply our formation shape based on that destination.
             */
-            Position dest = new Position(target.GetPosition());
+            Position dest = new Position(target.Location);
             float velocity = 0.0f;
 
             // Formation leader is moving. Predict our destination
@@ -170,7 +170,7 @@ namespace Game.Movement
                 // ... and apply formation shape
                 target.MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
 
-                float distance = owner.GetExactDist(dest);
+                float distance = owner.Location.GetExactDist(dest);
 
                 // Calculate catchup speed mod (Limit to a maximum of 50% of our original velocity
                 float velocityMod = Math.Min(distance / travelDist, 1.5f);
@@ -195,7 +195,7 @@ namespace Game.Movement
             init.SetVelocity(velocity);
             init.Launch();
 
-            _lastLeaderPosition = new Position(target.GetPosition());
+            _lastLeaderPosition = new Position(target.Location);
             owner.AddUnitState(UnitState.FollowFormationMove);
             RemoveFlag(MovementGeneratorFlags.Interrupted);
         }

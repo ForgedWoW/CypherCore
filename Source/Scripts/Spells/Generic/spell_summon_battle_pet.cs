@@ -32,7 +32,7 @@ internal class spell_summon_battle_pet : SpellScript, IHasSpellEffects
 			var caster     = GetCaster();
 			var properties = CliDB.SummonPropertiesStorage.LookupByKey((uint)GetEffectInfo().MiscValueB);
 			var duration   = (uint)GetSpellInfo().CalcDuration(caster);
-			var pos        = GetHitDest().GetPosition();
+			var pos        = GetHitDest();
 
 			Creature summon = caster.GetMap().SummonCreature(creatureId, pos, properties, duration, caster, GetSpellInfo().Id);
 

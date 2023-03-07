@@ -24,7 +24,7 @@ namespace Scripts.Spells.Warrior
 			var dest = GetExplTargetDest();
 
 			if (dest != null)
-				GetCaster().CastSpell(dest.GetPosition(), WarriorSpells.RAVAGER_SUMMON, true);
+				GetCaster().CastSpell(dest, WarriorSpells.RAVAGER_SUMMON, true);
 		}
 
 		public override void Register()

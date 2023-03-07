@@ -66,8 +66,8 @@ namespace Game.Entities
                     if (!pos.IsPositionValid())
                         return;
 
-                    player.GetMap().LoadGridForActiveObject(pos.GetPositionX(), pos.GetPositionY(), player);
-                    m_CinematicObject = player.SummonCreature(1, pos.posX, pos.posY, pos.posZ, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+                    player.GetMap().LoadGridForActiveObject(pos.X, pos.Y, player);
+                    m_CinematicObject = player.SummonCreature(1, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
                     if (m_CinematicObject)
                     {
                         m_CinematicObject.SetActive(true);
@@ -123,7 +123,7 @@ namespace Game.Entities
                 lastTimestamp = cam.timeStamp;
             }
             float angle = lastPosition.GetAbsoluteAngle(nextPosition);
-            angle -= lastPosition.GetOrientation();
+            angle -= lastPosition.Orientation;
             if (angle < 0)
                 angle += 2 * MathFunctions.PI;
 
@@ -162,16 +162,16 @@ namespace Game.Entities
             // Interpolate the position for this moment in time (or the adjusted moment in time)
             uint timeDiff = nextTimestamp - lastTimestamp;
             uint interDiff = (uint)(workDiff - lastTimestamp);
-            float xDiff = nextPosition.posX - lastPosition.posX;
-            float yDiff = nextPosition.posY - lastPosition.posY;
-            float zDiff = nextPosition.posZ - lastPosition.posZ;
-            Position interPosition = new(lastPosition.posX + (xDiff * ((float)interDiff / timeDiff)), lastPosition.posY +
-                (yDiff * ((float)interDiff / timeDiff)), lastPosition.posZ + (zDiff * ((float)interDiff / timeDiff)));
+            float xDiff = nextPosition.X - lastPosition.X;
+            float yDiff = nextPosition.Y - lastPosition.Y;
+            float zDiff = nextPosition.Z - lastPosition.Z;
+            Position interPosition = new(lastPosition.X + (xDiff * ((float)interDiff / timeDiff)), lastPosition.Y +
+                (yDiff * ((float)interDiff / timeDiff)), lastPosition.Z + (zDiff * ((float)interDiff / timeDiff)));
 
             // Advance (at speed) to this position. The remote sight object is used
             // to send update information to player in cinematic
             if (m_CinematicObject && interPosition.IsPositionValid())
-                m_CinematicObject.MonsterMoveWithSpeed(interPosition.posX, interPosition.posY, interPosition.posZ, 500.0f, false, true);
+                m_CinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
             // If we never received an end packet 10 seconds after the final timestamp then force an end
             if (m_cinematicDiff > m_cinematicLength + 10 * Time.InMilliseconds)

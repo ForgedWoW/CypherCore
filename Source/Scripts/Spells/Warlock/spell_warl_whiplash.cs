@@ -25,7 +25,7 @@ namespace Scripts.Spells.Warlock
 			/*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
 				return;*/
 
-			pet.CastSpell(new Position(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ()), WarlockSpells.SUCCUBUS_WHIPLASH, true);
+			pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
 			caster.ToPlayer().GetSpellHistory().ModifyCooldown(GetSpellInfo().Id, TimeSpan.FromSeconds(25));
 		}
 

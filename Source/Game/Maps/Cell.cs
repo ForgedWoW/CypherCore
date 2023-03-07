@@ -137,7 +137,7 @@ public class Cell
 	{
 		//we should increase search radius by object's radius, otherwise
 		//we could have problems with huge creatures, which won't attack nearest players etc
-		Visit(standing_cell, visitor, map, obj.GetPositionX(), obj.GetPositionY(), radius + obj.GetCombatReach());
+		Visit(standing_cell, visitor, map, obj.Location.X, obj.Location.Y, radius + obj.GetCombatReach());
 	}
 
 	public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, float x_off, float y_off, float radius)
@@ -205,7 +205,7 @@ public class Cell
 
 	public static void VisitGrid(WorldObject center_obj, IGridNotifier visitor, float radius, bool dont_load = true)
 	{
-		var p = GridDefines.ComputeCellCoord(center_obj.GetPositionX(), center_obj.GetPositionY());
+		var p = GridDefines.ComputeCellCoord(center_obj.Location.X, center_obj.Location.Y);
 		Cell cell = new(p);
 
 		if (dont_load)

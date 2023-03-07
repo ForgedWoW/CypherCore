@@ -106,10 +106,10 @@ namespace Game.BattleGrounds.Zones
                     default:
                         break;
                 }
-                if (!AddObject(i, boatid, SAMiscConst.ObjSpawnlocs[i].GetPositionX(),
-                  SAMiscConst.ObjSpawnlocs[i].GetPositionY(),
-                  SAMiscConst.ObjSpawnlocs[i].GetPositionZ() + (Attackers != 0 ? -3.750f : 0),
-                  SAMiscConst.ObjSpawnlocs[i].GetOrientation(), 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+                if (!AddObject(i, boatid, SAMiscConst.ObjSpawnlocs[i].X,
+                  SAMiscConst.ObjSpawnlocs[i].                  Y,
+                  SAMiscConst.ObjSpawnlocs[i].                  Z + (Attackers != 0 ? -3.750f : 0),
+                  SAMiscConst.ObjSpawnlocs[i].                  Orientation, 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
                 {
                     Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn one of the BG_SA_BOAT, Entry: {boatid}");
                     continue;
@@ -170,12 +170,12 @@ namespace Game.BattleGrounds.Zones
                 if (i == SAGraveyards.BeachGy)
                 {
                     GraveyardStatus[i] = Attackers;
-                    AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.GetPositionX(), sg.Loc.GetPositionY(), sg.Loc.GetPositionZ(), SAMiscConst.GYOrientation[i], Attackers);
+                    AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], Attackers);
                 }
                 else
                 {
                     GraveyardStatus[i] = ((Attackers == TeamId.Horde) ? TeamId.Alliance : TeamId.Horde);
-                    if (!AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.GetPositionX(), sg.Loc.GetPositionY(), sg.Loc.GetPositionZ(), SAMiscConst.GYOrientation[i], Attackers == TeamId.Horde ? TeamId.Alliance : TeamId.Horde))
+                    if (!AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], Attackers == TeamId.Horde ? TeamId.Alliance : TeamId.Horde))
                         Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn GY: {i}");
                 }
             }
@@ -279,7 +279,7 @@ namespace Game.BattleGrounds.Zones
                     Player p = Global.ObjAccessor.FindPlayer(pair.Key);
                     if (p)
                     {
-                        UpdateData data = new(p.GetMapId());
+                        UpdateData data = new(p.Location.GetMapId());
                         GetBGObject(i).BuildValuesUpdateBlockForPlayer(data, p);
 
                         data.BuildPacket(out UpdateObject pkt);
@@ -650,7 +650,7 @@ namespace Game.BattleGrounds.Zones
                 safeloc = SAMiscConst.GYEntries[SAGraveyards.DefenderLastGy];
 
             WorldSafeLocsEntry closest = Global.ObjectMgr.GetWorldSafeLoc(safeloc);
-            float nearest = player.GetExactDistSq(closest.Loc);
+            float nearest = player.Location.GetExactDistSq(closest.Loc);
 
             for (byte i = SAGraveyards.RightCapturableGy; i < SAGraveyards.Max; i++)
             {
@@ -658,7 +658,7 @@ namespace Game.BattleGrounds.Zones
                     continue;
 
                 WorldSafeLocsEntry ret = Global.ObjectMgr.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
-                float dist = player.GetExactDistSq(ret.Loc);
+                float dist = player.Location.GetExactDistSq(ret.Loc);
                 if (dist < nearest)
                 {
                     closest = ret;
@@ -752,7 +752,7 @@ namespace Game.BattleGrounds.Zones
                 return;
             }
 
-            AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.GetPositionX(), sg.Loc.GetPositionY(), sg.Loc.GetPositionZ(), SAMiscConst.GYOrientation[i], GraveyardStatus[i]);
+            AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], GraveyardStatus[i]);
 
             uint npc;
             int flag;
@@ -948,7 +948,7 @@ namespace Game.BattleGrounds.Zones
                             {
                                 if (DemoliserRespawnList[i] < GameTime.GetGameTimeMS())
                                 {
-                                    Demolisher.Relocate(SAMiscConst.NpcSpawnlocs[i]);
+                                    Demolisher.Location.Relocate(SAMiscConst.NpcSpawnlocs[i]);
                                     Demolisher.Respawn();
                                     DemoliserRespawnList.Remove(i);
                                 }
@@ -963,7 +963,7 @@ namespace Game.BattleGrounds.Zones
         {
             if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
             {
-                UpdateData transData = new(player.GetMapId());
+                UpdateData transData = new(player.Location.GetMapId());
                 if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatOne).BuildCreateUpdateBlockForPlayer(transData, player);
 
@@ -979,7 +979,7 @@ namespace Game.BattleGrounds.Zones
         {
             if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
             {
-                UpdateData transData = new(player.GetMapId());
+                UpdateData transData = new(player.Location.GetMapId());
                 if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatOne).BuildOutOfRangeUpdateBlock(transData);
                 if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())

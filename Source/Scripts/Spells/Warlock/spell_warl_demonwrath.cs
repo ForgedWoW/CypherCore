@@ -52,7 +52,7 @@ namespace Scripts.Spells.Warlock
 				                 var inRange = false;
 
 				                 foreach (Unit pet in pets)
-					                 if (pet.GetExactDist(obj) <= 10.0f)
+					                 if (pet.Location.GetExactDist(obj.Location) <= 10.0f)
 						                 inRange = true;
 
 				                 return !inRange;

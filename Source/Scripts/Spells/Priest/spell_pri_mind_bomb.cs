@@ -28,6 +28,6 @@ internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
 	{
 		if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Death ||
 		    GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
-			GetCaster()?.CastSpell(GetTarget().GetPosition(), PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
+			GetCaster()?.CastSpell(GetTarget().Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
 	}
 }

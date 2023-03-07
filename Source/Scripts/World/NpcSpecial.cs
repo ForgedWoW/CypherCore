@@ -598,8 +598,7 @@ namespace Scripts.World.NpcSpecial
             DoCastSelf(SpellIds.SummonBrazier, new CastSpellExtraArgs(true));
             DoCastSelf(SpellIds.BrazierDance, new CastSpellExtraArgs(false));
             me.SetEmoteState(Emote.StateDance);
-            me.GetPosition(out float x, out float y, out float z);
-            me.Relocate(x, y, z + 1.05f);
+            me.Location.Relocate(me.Location.X, me.Location.Y, me.Location.Z + 1.05f);
         }
 
         public override void UpdateAI(uint diff)
@@ -609,7 +608,7 @@ namespace Scripts.World.NpcSpecial
 
         public override void ReceiveEmote(Player player, TextEmotes emote)
         {
-            if (me.IsWithinLOS(player.GetPositionX(), player.GetPositionY(), player.GetPositionZ()) &&
+            if (me.IsWithinLOS(player.Location.X, player.Location.Y, player.Location.Z) &&
                 me.IsWithinDistInMap(player, 30.0f))
             {
                 // She responds to emotes not instantly but ~1500ms later
@@ -640,7 +639,7 @@ namespace Scripts.World.NpcSpecial
                         if (!player.HasAura(SpellIds.FierySeduction))
                         {
                             DoCast(player, SpellIds.FierySeduction, new CastSpellExtraArgs(true));
-                            me.SetFacingTo(me.GetAbsoluteAngle(player));
+                            me.SetFacingTo(me.Location.GetAbsoluteAngle(player.Location));
                         }
 
                         break;
@@ -1708,7 +1707,7 @@ namespace Scripts.World.NpcSpecial
                         _isSearching = false;
                         _target = target.GetGUID();
                         me.SetWalk(true);
-                        me.GetMotionMaster().MovePoint(TrainWrecker.MoveidChase, target.GetNearPosition(3.0f, target.GetAbsoluteAngle(me)));
+                        me.GetMotionMaster().MovePoint(TrainWrecker.MoveidChase, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(me.Location)));
                     }
                     else
                     {
@@ -1725,7 +1724,7 @@ namespace Scripts.World.NpcSpecial
                             GameObject target = VerifyTarget();
 
                             if (target)
-                                me.GetMotionMaster().MoveJump(target, 5.0f, 10.0f, TrainWrecker.MoveidJump);
+                                me.GetMotionMaster().MoveJump(target.Location, 5.0f, 10.0f, TrainWrecker.MoveidJump);
 
                             _nextAction = 0;
                         }
@@ -1737,7 +1736,7 @@ namespace Scripts.World.NpcSpecial
 
                             if (target)
                             {
-                                me.SetFacingTo(target.GetOrientation());
+                                me.SetFacingTo(target.Location.Orientation);
                                 me.HandleEmoteCommand(Emote.OneshotAttack1h);
                                 _timer = (uint)(1.5 * Time.InMilliseconds);
                                 _nextAction = TrainWrecker.EventDoWreck;

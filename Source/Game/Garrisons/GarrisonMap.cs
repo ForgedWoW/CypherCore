@@ -104,7 +104,7 @@ namespace Game.Garrisons
                 foreach (Garrison.Plot plot in plots)
                 {
                     Position spawn = plot.PacketInfo.PlotPos;
-                    if (cellCoord != GridDefines.ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
+                    if (cellCoord != GridDefines.ComputeCellCoord(spawn.X, spawn.Y))
                         continue;
 
                     GameObject go = plot.CreateGameObject(i_map, i_garrison.GetFaction());

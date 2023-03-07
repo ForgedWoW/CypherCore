@@ -23,10 +23,10 @@ internal class spell_spawn_blood_pool : SpellScript, IHasSpellEffects
 
 	private void SetDest(SpellDestination dest)
 	{
-		var        caster       = GetCaster();
-		var        summonPos    = caster.GetPosition();
-        if (caster.GetMap().GetLiquidStatus(caster.GetPhaseShift(), caster.GetPositionX(), caster.GetPositionY(), caster.GetPositionZ(), LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidStatus, caster.GetCollisionHeight()) != ZLiquidStatus.NoWater)
+		var caster = GetCaster();
+		var summonPos = caster.Location;
+		if (caster.GetMap().GetLiquidStatus(caster.GetPhaseShift(), caster.Location.X, caster.Location.Y, caster.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData liquidStatus, caster.GetCollisionHeight()) != ZLiquidStatus.NoWater)
 
-            dest.Relocate(summonPos);
-    }
+			dest.Relocate(summonPos);
+	}
 }

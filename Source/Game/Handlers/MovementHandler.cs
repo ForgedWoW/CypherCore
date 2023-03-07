@@ -86,14 +86,14 @@ namespace Game
             if (!movementInfo.transport.guid.IsEmpty())
             {
                 // We were teleported, skip packets that were broadcast before teleport
-                if (movementInfo.Pos.GetExactDist2d(mover) > MapConst.SizeofGrids)
+                if (movementInfo.Pos.GetExactDist2d(mover.Location) > MapConst.SizeofGrids)
                     return;
 
-                if (Math.Abs(movementInfo.transport.pos.GetPositionX()) > 75f || Math.Abs(movementInfo.transport.pos.GetPositionY()) > 75f || Math.Abs(movementInfo.transport.pos.GetPositionZ()) > 75f)
+                if (Math.Abs(movementInfo.transport.pos.X) > 75f || Math.Abs(movementInfo.transport.pos.Y) > 75f || Math.Abs(movementInfo.transport.pos.Z) > 75f)
                     return;
 
-                if (!GridDefines.IsValidMapCoord(movementInfo.Pos.posX + movementInfo.transport.pos.posX, movementInfo.Pos.posY + movementInfo.transport.pos.posY,
-                    movementInfo.Pos.posZ + movementInfo.transport.pos.posZ, movementInfo.Pos.Orientation + movementInfo.transport.pos.Orientation))
+                if (!GridDefines.IsValidMapCoord(movementInfo.Pos.X + movementInfo.transport.pos.X, movementInfo.Pos.Y + movementInfo.transport.pos.Y,
+                    movementInfo.Pos.Z + movementInfo.transport.pos.Z, movementInfo.Pos.Orientation + movementInfo.transport.pos.Orientation))
                     return;
 
                 if (plrMover)
@@ -152,9 +152,9 @@ namespace Game
                 {
                     if (seat.HasFlag(VehicleSeatFlags.AllowTurning))
                     {
-                        if (movementInfo.Pos.GetOrientation() != mover.GetOrientation())
+                        if (movementInfo.Pos.Orientation != mover.Location.Orientation)
                         {
-                            mover.SetOrientation(movementInfo.Pos.GetOrientation());
+                            mover.Location.Orientation = movementInfo.Pos.Orientation;
                             mover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
                         }
                     }
@@ -175,7 +175,7 @@ namespace Game
 
                 plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
 
-                if (movementInfo.Pos.posZ < plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.GetPositionX(), movementInfo.Pos.GetPositionY()))
+                if (movementInfo.Pos.Z < plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.X, movementInfo.Pos.Y))
                 {
                     if (!(plrMover.GetBattleground() && plrMover.GetBattleground().HandlePlayerUnderMap(GetPlayer())))
                     {
@@ -184,7 +184,7 @@ namespace Game
                         // @todo discard movement packets after the player is rooted
                         if (plrMover.IsAlive())
                         {
-                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.GetPositionX(), movementInfo.Pos.GetPositionY())}, Player debug info:\n{plrMover.GetDebugInfo()}");
+                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
                             plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
                             plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)GetPlayer().GetMaxHealth());
                             // player can be alive if GM/etc
@@ -264,9 +264,9 @@ namespace Game
                 return;
             }
 
-            float z = loc.GetPositionZ() + player.GetHoverOffset();
-            player.Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
-            player.SetFallInformation(0, player.GetPositionZ());
+            float z = loc.Z + player.GetHoverOffset();
+            player.Location.Relocate(loc.X, loc.Y, z, loc.Orientation);
+            player.SetFallInformation(0, player.Location.Z);
 
             player.ResetMap();
             player.SetMap(newMap);
@@ -454,7 +454,7 @@ namespace Game
             WorldLocation dest = plMover.GetTeleportDest();
 
             plMover.UpdatePosition(dest, true);
-            plMover.SetFallInformation(0, GetPlayer().GetPositionZ());
+            plMover.SetFallInformation(0, GetPlayer().Location.Z);
 
             plMover.GetZoneAndAreaId(out uint newzone, out uint newarea);
             plMover.UpdateZone(newzone, newarea);
@@ -747,7 +747,7 @@ namespace Game
                 TaxiNodesRecord curDestNode = CliDB.TaxiNodesStorage.LookupByKey(curDest);
 
                 // far teleport case
-                if (curDestNode != null && curDestNode.ContinentID != GetPlayer().GetMapId() && GetPlayer().GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
+                if (curDestNode != null && curDestNode.ContinentID != GetPlayer().Location.GetMapId() && GetPlayer().GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
                 {
                     FlightPathMovementGenerator flight = GetPlayer().GetMotionMaster().GetCurrentMovementGenerator() as FlightPathMovementGenerator;
                     if (flight != null)
@@ -757,7 +757,7 @@ namespace Game
                         TaxiPathNodeRecord node = flight.GetPath()[(int)flight.GetCurrentNode()];
                         flight.SkipCurrentNode();
 
-                        GetPlayer().TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, GetPlayer().GetOrientation());
+                        GetPlayer().TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, GetPlayer().Location.Orientation);
                     }
                 }
 
@@ -769,7 +769,7 @@ namespace Game
                 return;
 
             GetPlayer().CleanupAfterTaxiFlight();
-            GetPlayer().SetFallInformation(0, GetPlayer().GetPositionZ());
+            GetPlayer().SetFallInformation(0, GetPlayer().Location.Z);
             if (GetPlayer().pvpInfo.IsHostile)
                 GetPlayer().CastSpell(GetPlayer(), 2479, true);
         }

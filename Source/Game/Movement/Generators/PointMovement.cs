@@ -69,7 +69,7 @@ namespace Game.Movement
             {
                 PathGenerator path = new PathGenerator(owner);
 
-                bool result = path.CalculatePath(_destination.posX, _destination.posY, _destination.posZ, false);
+                bool result = path.CalculatePath(_destination, false);
                 if (result && (path.GetPathType() & PathType.NoPath) == 0)
                 {
                     if (_closeEnoughDistance.HasValue)
@@ -83,9 +83,9 @@ namespace Game.Movement
             }
 
             if (_closeEnoughDistance.HasValue)
-                owner.MovePosition(_destination, Math.Min(_closeEnoughDistance.Value, _destination.GetExactDist(owner)), (float)Math.PI + owner.GetRelativeAngle(_destination));
+                owner.MovePosition(_destination, Math.Min(_closeEnoughDistance.Value, _destination.GetExactDist(owner.Location)), (float)Math.PI + owner.Location.GetRelativeAngle(_destination));
 
-            init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ(), false);
+            init.MoveTo(_destination.X, _destination.Y, _destination.Z, false);
 
 
             if (_speed.HasValue)
@@ -158,7 +158,7 @@ namespace Game.Movement
                 owner.AddUnitState(UnitState.RoamingMove);
 
                 MoveSplineInit init = new(owner);
-                init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ(), _generatePath);
+                init.MoveTo(_destination.X, _destination.Y, _destination.Z, _generatePath);
                 if (_speed.HasValue) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
                     init.SetVelocity(_speed.Value);
                 init.Launch();

@@ -36,8 +36,8 @@ namespace Scripts.Spells.Paladin
 
                 if (caster != null)
                 {
-                    caster.CastSpell(at.GetPosition(), PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
-                    caster.CastSpell(at.GetPosition(), PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
+                    caster.CastSpell(at.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
+                    caster.CastSpell(at.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
                 }
 
                 RefreshPeriod();

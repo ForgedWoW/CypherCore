@@ -34,9 +34,9 @@ public class TriangleBoundary : AreaBoundary
 	public override bool IsWithinBoundaryArea(Position pos)
 	{
 		// half-plane signs
-		var sign1 = ((-_b.GetDoublePositionX() + pos.GetPositionX()) * _aby - (-_b.GetDoublePositionY() + pos.GetPositionY()) * _abx) < 0;
-		var sign2 = ((-_c.GetDoublePositionX() + pos.GetPositionX()) * _bcy - (-_c.GetDoublePositionY() + pos.GetPositionY()) * _bcx) < 0;
-		var sign3 = ((-_a.GetDoublePositionX() + pos.GetPositionX()) * _cay - (-_a.GetDoublePositionY() + pos.GetPositionY()) * _cax) < 0;
+		var sign1 = ((-_b.GetDoublePositionX() + pos.X) * _aby - (-_b.GetDoublePositionY() + pos.Y) * _abx) < 0;
+		var sign2 = ((-_c.GetDoublePositionX() + pos.X) * _bcy - (-_c.GetDoublePositionY() + pos.Y) * _bcx) < 0;
+		var sign3 = ((-_a.GetDoublePositionX() + pos.X) * _cay - (-_a.GetDoublePositionY() + pos.Y) * _cax) < 0;
 
 		// if all signs are the same, the point is inside the triangle
 		return ((sign1 == sign2) && (sign2 == sign3));

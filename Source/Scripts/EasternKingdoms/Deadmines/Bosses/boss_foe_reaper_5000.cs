@@ -113,7 +113,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
             instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
 
             me.SetFullHealth();
-            me.SetOrientation(4.273f);
+            me.Location.Orientation = 4.273f;
 
             DespawnOldWatchers();
             RespawnWatchers();
@@ -273,7 +273,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
             if (HarvestTarget != null)
             {
                 me.SetSpeed(UnitMoveType.Run, 3.0f);
-                me.GetMotionMaster().MoveCharge(HarvestTarget.GetPositionX(), HarvestTarget.GetPositionY(), HarvestTarget.GetPositionZ(), 5.0f, 0);
+                me.GetMotionMaster().MoveCharge(HarvestTarget.Location.X, HarvestTarget.Location.Y, HarvestTarget.Location.Z, 5.0f, 0);
                 HarvestTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(8500));
             }
         }

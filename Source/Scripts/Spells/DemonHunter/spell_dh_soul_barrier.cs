@@ -48,7 +48,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 					if (!caster.IsWithinDist(at, range))
 						continue;
 
-					var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.GetPositionX(), at.GetPositionY(), at.GetPositionZ(), 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(100));
+					var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location.X, at.Location.Y, at.Location.Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(100));
 
 					if (tempSumm != null)
 					{

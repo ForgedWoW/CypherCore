@@ -70,14 +70,14 @@ namespace Game.Movement
             {
                 Position pos;
                 if (!transport)
-                    pos = unit;
+                    pos = unit.Location;
                 else
                     pos = unit.m_movementInfo.transport.pos;
 
-                real_position.X = pos.GetPositionX();
-                real_position.Y = pos.GetPositionY();
-                real_position.Z = pos.GetPositionZ();
-                real_position.W = unit.GetOrientation();
+                real_position.X = pos.X;
+                real_position.Y = pos.Y;
+                real_position.Z = pos.Z;
+                real_position.W = unit.Location.Orientation;
             }
 
             // should i do the things that user should do? - no.
@@ -166,14 +166,14 @@ namespace Game.Movement
             {
                 Position pos;
                 if (!transport)
-                    pos = unit;
+                    pos = unit.Location;
                 else
                     pos = unit.m_movementInfo.transport.pos;
 
-                loc.X = pos.GetPositionX();
-                loc.Y = pos.GetPositionY();
-                loc.Z = pos.GetPositionZ();
-                loc.W = unit.GetOrientation();
+                loc.X = pos.X;
+                loc.Y = pos.Y;
+                loc.Z = pos.Z;
+                loc.W = unit.Location.Orientation;
             }
 
             args.flags.Flags = SplineFlag.Done;
@@ -198,7 +198,7 @@ namespace Game.Movement
 
         public void SetFacing(Unit target)
         {
-            args.facing.angle = unit.GetAbsoluteAngle(target);
+            args.facing.angle = unit.Location.GetAbsoluteAngle(target.Location);
             args.facing.target = target.GetGUID();
             args.facing.type = MonsterMoveType.FacingTarget;
         }
@@ -209,7 +209,7 @@ namespace Game.Movement
             {
                 Unit vehicle = unit.GetVehicleBase();
                 if (vehicle != null)
-                    angle -= vehicle.GetOrientation();
+                    angle -= vehicle.Location.Orientation;
                 else
                 {
                     ITransport transport = unit.GetTransport();
@@ -227,7 +227,7 @@ namespace Game.Movement
             if (generatePath)
             {
                 PathGenerator path = new(unit);
-                bool result = path.CalculatePath(dest.X, dest.Y, dest.Z, forceDestination);
+                bool result = path.CalculatePath(new Position(dest), forceDestination);
                 if (result && !Convert.ToBoolean(path.GetPathType() & PathType.NoPath))
                 {
                     MovebyPath(path.GetPath());
@@ -340,19 +340,16 @@ namespace Game.Movement
         }
         public Vector3 Calc(Vector3 input)
         {
-            float x = input.X;
-            float y = input.Y;
-            float z = input.Z;
+            var pos = new Position(input);
             if (_transformForTransport)
             {
                 ITransport transport = _owner.GetDirectTransport();
                 if (transport != null)
                 {
-                    float unused = 0.0f; // need reference
-                    transport.CalculatePassengerOffset(ref x, ref y, ref z, ref unused);
+                    transport.CalculatePassengerOffset(pos);
                 }
             }
-            return new Vector3(x, y, z);
+            return pos;
         }
 
         readonly Unit _owner;

@@ -58,7 +58,7 @@ namespace Game
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.PlayerWrongFaction);
                 return;
             }
-            if (invitingPlayer.GetInstanceId() != 0 && invitedPlayer.GetInstanceId() != 0 && invitingPlayer.GetInstanceId() != invitedPlayer.GetInstanceId() && invitingPlayer.GetMapId() == invitedPlayer.GetMapId())
+            if (invitingPlayer.GetInstanceId() != 0 && invitedPlayer.GetInstanceId() != 0 && invitingPlayer.GetInstanceId() != invitedPlayer.GetInstanceId() && invitingPlayer.Location.GetMapId() == invitedPlayer.Location.GetMapId())
             {
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.TargetNotInInstanceS);
                 return;

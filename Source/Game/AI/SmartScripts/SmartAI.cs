@@ -121,8 +121,8 @@ namespace Game.AI
             _path.nodes.AddRange(path.nodes);
             foreach (WaypointNode waypoint in _path.nodes)
             {
-                GridDefines.NormalizeMapCoord(ref waypoint.x);
-                GridDefines.NormalizeMapCoord(ref waypoint.y);
+                waypoint.x = GridDefines.NormalizeMapCoord(waypoint.x);
+                waypoint.y = GridDefines.NormalizeMapCoord(waypoint.y);
                 waypoint.moveType = _run ? WaypointMoveType.Run : WaypointMoveType.Walk;
             }
 
@@ -156,7 +156,7 @@ namespace Game.AI
                 _waypointPauseForced = forced;
                 SetRun(_run);
                 me.PauseMovement();
-                me.SetHomePosition(me.GetPosition());
+                me.SetHomePosition(me.Location);
             }
             else
                 _waypointReached = false;
@@ -401,7 +401,7 @@ namespace Game.AI
             {
                 _waypointReached = true;
                 me.PauseMovement();
-                me.SetHomePosition(me.GetPosition());
+                me.SetHomePosition(me.Location);
             }
             else if (HasEscortState(SmartEscortState.Escorting) && me.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
             {
