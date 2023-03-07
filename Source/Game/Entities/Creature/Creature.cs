@@ -512,6 +512,9 @@ namespace Game.Entities
 
                     GetThreatManager().Update(diff);
 
+                    if (IsFeared())
+                        return;
+
                     if (_spellFocusInfo.Delay != 0)
                     {
                         if (_spellFocusInfo.Delay <= diff)

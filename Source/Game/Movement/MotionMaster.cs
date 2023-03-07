@@ -19,10 +19,15 @@ namespace Game.Movement
             if (a.Equals(b))
                 return 0;
 
-            if (a.Mode > b.Mode)
+            if (a.Mode < b.Mode)
                 return 1;
             else if (a.Mode == b.Mode)
-                return a.Priority.CompareTo(b.Priority);
+            {
+                if ((int)a.Priority < (int)b.Priority)
+                    return 1;
+                else if (a.Priority == b.Priority)
+                    return 0;
+            } 
 
             return -1;
         }
