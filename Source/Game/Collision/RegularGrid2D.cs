@@ -22,16 +22,19 @@ namespace Game.Collision
 
         public virtual void Insert(T value)
         {
-            AxisAlignedBox bounds = value.GetBounds();
-            Cell low = Cell.ComputeCell(bounds.Lo.X, bounds.Lo.Y);
-            Cell high = Cell.ComputeCell(bounds.Hi.X, bounds.Hi.Y);
-            for (int x = low.x; x <= high.x; ++x)
+            lock (memberTable)
             {
-                for (int y = low.y; y <= high.y; ++y)
+                AxisAlignedBox bounds = value.GetBounds();
+                Cell low = Cell.ComputeCell(bounds.Lo.X, bounds.Lo.Y);
+                Cell high = Cell.ComputeCell(bounds.Hi.X, bounds.Hi.Y);
+                for (int x = low.x; x <= high.x; ++x)
                 {
-                    Node node = GetGrid(x, y);
-                    node.Insert(value);
-                    memberTable.Add(value, node);
+                    for (int y = low.y; y <= high.y; ++y)
+                    {
+                        Node node = GetGrid(x, y);
+                        node.Insert(value);
+                        memberTable.Add(value, node);
+                    }
                 }
             }
         }
@@ -39,7 +42,9 @@ namespace Game.Collision
         public virtual void Remove(T value)
         {
             // Remove the member
-            memberTable.Remove(value);
+
+            lock (memberTable)
+                memberTable.Remove(value);
         }
 
         public virtual void Balance()
@@ -55,8 +60,8 @@ namespace Game.Collision
             }
         }
 
-        public bool Contains(T value) { return memberTable.ContainsKey(value); }
-        public bool Empty() { return memberTable.Empty(); }
+        public bool Contains(T value) { lock (memberTable) return memberTable.ContainsKey(value); }
+        public bool Empty() { lock (memberTable) return memberTable.Empty(); }
 
         public struct Cell
         {
