@@ -45,16 +45,6 @@ namespace Scripts.Pets
                 }
             }
 
-            public override bool OnGossipHello(Player player)
-            {
-                foreach (var auraToCheck in _aurasToCheck)
-                    if (player.HasAura(auraToCheck))
-                        return false;
-
-                TeleportTarget(player, true);
-                return false;
-            }
-
             public override void OnSpellClick(Unit clicker, ref bool spellClickHandled)
             {
                 if (clicker.TryGetAsPlayer(out var player))
@@ -104,6 +94,7 @@ namespace Scripts.Pets
                     if (gateway.GetOwnerGUID() != me.GetOwnerGUID())
                         continue;
 
+                    target.SetFacingToUnit(gateway);
                     target.CastSpell(gateway, teleportSpell, true);
 
                     if (target.HasAura(WarlockSpells.PLANESWALKER))
