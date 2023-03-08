@@ -605,6 +605,8 @@ public class Map : IDisposable
 			VisitNearbyCellsOf(obj, update);
 		}
 
+		// all the visits are queued in the thread manager, we wait to gather all the world objects that need
+		// updating. Also guarntees objects only get updated once.
         _threadManager.Wait();
         update.ExecuteUpdate();
 
