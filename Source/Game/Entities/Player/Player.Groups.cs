@@ -41,7 +41,7 @@ public partial class Player
 
 			// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
 			for (var refe = grp.GetFirstMember(); refe != null; refe = refe.Next())
-				if (refe.GetSource() && refe.GetSource().IsInMap(this) && refe.GetSource().IsInCombat())
+				if (refe.GetSource() && refe.GetSource().IsInMap(this) && refe.GetSource().IsInCombat)
 					return PartyResult.PartyLfgBootInCombat;
 
 			/* Missing support for these types

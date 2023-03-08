@@ -69,11 +69,11 @@ namespace Game.Movement
             lock (_reference)
             {
                 _timer.Update(diff);
-                if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
+                if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
                     SetRandomLocation(owner);
             }
 
-            if (_timer.Passed())
+            if (_timer.Passed)
             {
                 RemoveFlag(MovementGeneratorFlags.Transitory);
                 AddFlag(MovementGeneratorFlags.InformEnabled);
@@ -176,7 +176,7 @@ namespace Game.Movement
             switch (owner.MovementTemplate.GetRandom())
             {
                 case CreatureRandomMovementType.CanRun:
-                    walk = owner.IsWalking();
+                    walk = owner.IsWalking;
                     break;
                 case CreatureRandomMovementType.AlwaysRun:
                     walk = false;

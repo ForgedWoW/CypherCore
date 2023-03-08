@@ -26,7 +26,7 @@ public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISp
 		if (caster.HasAura(WarlockSpells.SHADOWY_INSPIRATION))
 			caster.CastSpell(caster, WarlockSpells.SHADOWY_INSPIRATION_EFFECT, true);
 
-		if (caster.HasAura(WarlockSpells.POWER_TRIP) && caster.IsInCombat() && RandomHelper.randChance(50))
+		if (caster.HasAura(WarlockSpells.POWER_TRIP) && caster.IsInCombat && RandomHelper.randChance(50))
 			caster.CastSpell(caster, WarlockSpells.POWER_TRIP_ENERGIZE, true);
 	}
 

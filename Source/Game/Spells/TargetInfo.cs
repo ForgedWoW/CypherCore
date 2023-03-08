@@ -58,7 +58,7 @@ public class TargetInfo : TargetInfoBase
 
 		// if target is flagged for pvp also flag caster if a player
 		// but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
-		_enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP && (unit.IsInCombat() || unit.IsCharmedOwnedByPlayerOrPlayer) && spell.Caster.IsPlayer; // need to check PvP state before spell effects, but act on it afterwards
+		_enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP && (unit.IsInCombat || unit.IsCharmedOwnedByPlayerOrPlayer) && spell.Caster.IsPlayer; // need to check PvP state before spell effects, but act on it afterwards
 
 		if (_spellHitTarget)
 		{
@@ -260,7 +260,7 @@ public class TargetInfo : TargetInfoBase
 				}
 				else
 				{
-					caster.SetLastDamagedTargetGuid(spell.UnitTarget.GUID);
+					caster.					LastDamagedTargetGuid = spell.UnitTarget.GUID;
 
 					// Add bonuses and fill damageInfo struct
 					caster.CalculateSpellDamageTaken(damageInfo, spell.DamageInEffects, spell.SpellInfo, spell.AttackType, IsCrit, MissCondition == SpellMissInfo.Block, spell);

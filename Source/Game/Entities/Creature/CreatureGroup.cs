@@ -15,7 +15,16 @@ public class CreatureGroup
 	Creature _leader;
 	bool _engaging;
 
-	public CreatureGroup(ulong leaderSpawnId)
+
+    public Creature Leader => _leader;
+
+    public ulong LeaderSpawnId => _leaderSpawnId;
+
+    public bool IsEmpty => _members.Empty();
+
+    public bool IsFormed => _formed;
+
+    public CreatureGroup(ulong leaderSpawnId)
 	{
 		_leaderSpawnId = leaderSpawnId;
 	}
@@ -126,27 +135,7 @@ public class CreatureGroup
 		return true;
 	}
 
-	public Creature GetLeader()
-	{
-		return _leader;
-	}
-
-	public ulong GetLeaderSpawnId()
-	{
-		return _leaderSpawnId;
-	}
-
-	public bool IsEmpty()
-	{
-		return _members.Empty();
-	}
-
-	public bool IsFormed()
-	{
-		return _formed;
-	}
-
-	public bool IsLeader(Creature creature)
+    public bool IsLeader(Creature creature)
 	{
 		return _leader == creature;
 	}

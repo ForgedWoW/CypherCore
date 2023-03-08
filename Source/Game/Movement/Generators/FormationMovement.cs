@@ -99,7 +99,7 @@ namespace Game.Movement
                     CreatureGroup formation = target.AsCreature.Formation;
                     if (formation != null)
                     {
-                        Creature leader = formation.GetLeader();
+                        Creature leader = formation.Leader;
                         if (leader != null)
                         {
                             uint currentWaypoint = leader.CurrentWaypointInfo.nodeId;
@@ -115,7 +115,7 @@ namespace Game.Movement
             }
 
             _nextMoveTimer.Update(diff);
-            if (_nextMoveTimer.Passed())
+            if (_nextMoveTimer.Passed)
             {
                 _nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
 

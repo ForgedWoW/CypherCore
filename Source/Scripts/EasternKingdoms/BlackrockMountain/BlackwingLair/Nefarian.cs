@@ -355,7 +355,7 @@ internal class boss_victor_nefarius : BossAI
 							if (dragon)
 							{
 								dragon.Faction = (uint)FactionTemplates.DragonflightBlack;
-								dragon.GetAI().AttackStart(me.GetVictim());
+								dragon.GetAI().AttackStart(me.Victim);
 							}
 
 							if (++SpawnedAdds >= 42)
@@ -485,8 +485,8 @@ internal class boss_nefarian : BossAI
 		{
 			DoZoneInCombat();
 
-			if (me.GetVictim())
-				AttackStart(me.GetVictim());
+			if (me.Victim)
+				AttackStart(me.Victim);
 		}
 	}
 

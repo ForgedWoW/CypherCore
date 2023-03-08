@@ -17,7 +17,7 @@ internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffe
 
 	public SpellCastResult CheckCast()
 	{
-		if (Caster.IsInCombat())
+		if (Caster.IsInCombat)
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
 

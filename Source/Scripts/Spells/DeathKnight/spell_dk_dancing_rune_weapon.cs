@@ -49,7 +49,7 @@ internal class spell_dk_dancing_rune_weapon : AuraScript, IHasAuraEffects
 			}
 
 		if (!drw ||
-			!drw.GetVictim())
+			!drw.Victim)
 			return;
 
 		var spellInfo = eventInfo.SpellInfo;
@@ -64,9 +64,9 @@ internal class spell_dk_dancing_rune_weapon : AuraScript, IHasAuraEffects
 			return;
 
 		var amount = (int)damageInfo.GetDamage() / 2;
-		SpellNonMeleeDamage log = new(drw, drw.GetVictim(), spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(drw), 0), spellInfo.GetSchoolMask());
+		SpellNonMeleeDamage log = new(drw, drw.Victim, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(drw), 0), spellInfo.GetSchoolMask());
 		log.Damage = (uint)amount;
-		Unit.DealDamage(drw, drw.GetVictim(), (uint)amount, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
+		Unit.DealDamage(drw, drw.Victim, (uint)amount, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
 		drw.SendSpellNonMeleeDamageLog(log);
 	}
 }

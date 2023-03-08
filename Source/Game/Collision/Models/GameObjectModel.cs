@@ -212,7 +212,7 @@ namespace Game.Collision
         
         public static bool LoadGameObjectModelList()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             var filename = Global.WorldMgr.GetDataPath() + "/vmaps/GameObjectModels.dtree";
             if (!File.Exists(filename))
             {

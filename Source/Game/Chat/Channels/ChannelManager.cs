@@ -27,7 +27,7 @@ namespace Game.Chat
                 return;
             }
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             uint days = WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
             if (days != 0)
             {

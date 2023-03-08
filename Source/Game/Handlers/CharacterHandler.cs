@@ -1661,7 +1661,7 @@ namespace Game
                     continue;
 
                 // Only equip weapons in combat
-                if (Player.IsInCombat() && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
+                if (Player.IsInCombat && i != EquipmentSlot.MainHand && i != EquipmentSlot.OffHand)
                     continue;
 
                 Item item = Player.GetItemByGuid(useEquipmentSet.Items[i].Item);

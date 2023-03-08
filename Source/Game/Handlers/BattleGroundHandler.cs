@@ -404,7 +404,7 @@ namespace Game
         void HandleBattlefieldLeave(BattlefieldLeave packet)
         {
             // not allow leave Battlegroundin combat
-            if (Player.IsInCombat())
+            if (Player.IsInCombat)
             {
                 Battleground bg = Player.GetBattleground();
                 if (bg)
@@ -450,7 +450,7 @@ namespace Game
                     if (!bg)
                         continue;
 
-                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.GetMSTime(), ginfo.RemoveInviteTime), arenaType);
+                    Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.MSTime, ginfo.RemoveInviteTime), arenaType);
                     SendPacket(battlefieldStatus);
                 }
                 else

@@ -35,11 +35,11 @@ namespace Game.AI
             else
                 _updateAlliesTimer -= diff;
 
-            if (me.GetVictim() && me.GetVictim().IsAlive)
+            if (me.Victim && me.Victim.IsAlive)
             {
                 // is only necessary to stop casting, the pet must not exit combat
                 if (!me.GetCurrentSpell(CurrentSpellTypes.Channeled) && // ignore channeled spells (Pin, Seduction)
-                    (me.GetVictim() && me.GetVictim().HasBreakableByDamageCrowdControlAura(me)))
+                    (me.Victim && me.Victim.HasBreakableByDamageCrowdControlAura(me)))
                 {
                     me.InterruptNonMeleeSpells(false);
                     return;
@@ -55,7 +55,7 @@ namespace Game.AI
                 // Check before attacking to prevent pets from leaving stay position
                 if (me.GetCharmInfo().HasCommandState(CommandStates.Stay))
                 {
-                    if (me.GetCharmInfo().IsCommandAttack() || (me.GetCharmInfo().IsAtStay() && me.IsWithinMeleeRange(me.GetVictim())))
+                    if (me.GetCharmInfo().IsCommandAttack() || (me.GetCharmInfo().IsAtStay() && me.IsWithinMeleeRange(me.Victim)))
                         DoMeleeAttackIfReady();
                 }
                 else
@@ -108,7 +108,7 @@ namespace Game.AI
                         if (spellInfo.CanBeUsedInCombat)
                         {
                             // Check if we're in combat or commanded to attack
-                            if (!me.IsInCombat() && !me.GetCharmInfo().IsCommandAttack())
+                            if (!me.IsInCombat && !me.GetCharmInfo().IsCommandAttack())
                                 continue;
                         }
 
@@ -161,11 +161,11 @@ namespace Game.AI
                         if (!spellUsed)
                             spell.Dispose();
                     }
-                    else if (me.GetVictim() && CanAttack(me.GetVictim()) && spellInfo.CanBeUsedInCombat)
+                    else if (me.Victim && CanAttack(me.Victim) && spellInfo.CanBeUsedInCombat)
                     {
                         Spell spell = new(me, spellInfo, TriggerCastFlags.None);
-                        if (spell.CanAutoCast(me.GetVictim()))
-                            targetSpellStore.Add(Tuple.Create(me.GetVictim(), spell));
+                        if (spell.CanAutoCast(me.Victim))
+                            targetSpellStore.Add(Tuple.Create(me.Victim, spell));
                         else
                             spell.Dispose();
                     }
@@ -202,7 +202,7 @@ namespace Game.AI
         {
             // Called from Unit.Kill() in case where pet or owner kills something
             // if owner killed this victim, pet may still be attacking something else
-            if (me.GetVictim() && me.GetVictim() != victim)
+            if (me.Victim && me.Victim != victim)
                 return;
 
             // Clear target just in case. May help problem where health / focus / mana
@@ -226,7 +226,7 @@ namespace Game.AI
             if (target == null || target == me)
                 return;
 
-            if (me.GetVictim() != null && me.GetVictim().IsAlive)
+            if (me.Victim != null && me.Victim.IsAlive)
                 return;
 
             _AttackStart(target);
@@ -255,7 +255,7 @@ namespace Game.AI
                 return;
 
             // Prevent pet from disengaging from current target
-            if (me.GetVictim() && me.GetVictim().IsAlive)
+            if (me.Victim && me.Victim.IsAlive)
                 return;
 
             // Continue to evaluate and attack if necessary
@@ -276,7 +276,7 @@ namespace Game.AI
                 return;
 
             // Prevent pet from disengaging from current target
-            if (me.GetVictim() && me.GetVictim().IsAlive)
+            if (me.Victim && me.Victim.IsAlive)
                 return;
 
             // Continue to evaluate and attack if necessary
@@ -312,7 +312,7 @@ namespace Game.AI
 
             // Check owner victim
             // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
-            Unit ownerVictim = me.CharmerOrOwner.GetVictim();
+            Unit ownerVictim = me.CharmerOrOwner.Victim;
             if (ownerVictim)
                 return ownerVictim;
 
@@ -470,7 +470,7 @@ namespace Game.AI
                 var attack = owner.GetSelectedUnit();
 
                 if (attack == null)
-                    attack = owner.GetAttackers().FirstOrDefault();
+                    attack = owner.Attackers.FirstOrDefault();
 
                 if (attack != null)
                     summon.Attack(attack, true);
@@ -519,7 +519,7 @@ namespace Game.AI
                 return (me.IsWithinMeleeRange(victim) || me.GetCharmInfo().IsCommandAttack());
 
             //  Pets attacking something (or chasing) should only switch targets if owner tells them to
-            if (me.GetVictim() && me.GetVictim() != victim)
+            if (me.Victim && me.Victim != victim)
             {
                 // Check if our owner selected this target and clicked "attack"
                 Unit ownerTarget;
@@ -527,7 +527,7 @@ namespace Game.AI
                 if (owner)
                     ownerTarget = owner.GetSelectedUnit();
                 else
-                    ownerTarget = me.CharmerOrOwner.GetVictim();
+                    ownerTarget = me.CharmerOrOwner.Victim;
 
                 if (ownerTarget && me.GetCharmInfo().IsCommandAttack())
                     return (victim.GUID == ownerTarget.GUID);
@@ -570,7 +570,7 @@ namespace Game.AI
         bool NeedToStop()
         {
             // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-            if (me.IsCharmed && me.GetVictim() == me.Charmer)
+            if (me.IsCharmed && me.Victim == me.Charmer)
                 return true;
 
             // dont allow pets to follow targets far away from owner
@@ -579,7 +579,7 @@ namespace Game.AI
                 if (owner.Location.GetExactDist(me.Location) >= (owner.GetVisibilityRange() - 10.0f))
                     return true;
 
-            return !me.IsValidAttackTarget(me.GetVictim());
+            return !me.IsValidAttackTarget(me.Victim);
         }
 
         void StopAttack()

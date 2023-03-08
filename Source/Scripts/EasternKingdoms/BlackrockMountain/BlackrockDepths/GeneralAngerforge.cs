@@ -72,14 +72,14 @@ internal class boss_general_angerforge : ScriptedAI
 								task =>
 								{
 									for (byte i = 0; i < 2; ++i)
-										SummonMedic(me.GetVictim());
+										SummonMedic(me.Victim);
 								});
 
 			_scheduler.Schedule(TimeSpan.FromSeconds(0),
 								task =>
 								{
 									for (byte i = 0; i < 3; ++i)
-										SummonAdd(me.GetVictim());
+										SummonAdd(me.Victim);
 
 									task.Repeat(TimeSpan.FromSeconds(25));
 								});

@@ -840,7 +840,7 @@ public partial class Player
 	public void UpdatePotionCooldown(Spell spell = null)
 	{
 		// no potion used i combat or still in combat
-		if (_lastPotionId == 0 || IsInCombat())
+		if (_lastPotionId == 0 || IsInCombat)
 			return;
 
 		// Call not from spell cast, send cooldown event for item spells if no in combat

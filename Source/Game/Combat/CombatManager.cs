@@ -44,7 +44,7 @@ namespace Game.Combat
             if (a.HasUnitState(UnitState.InFlight) || b.HasUnitState(UnitState.InFlight))
                 return false;
             // ... both units must be allowed to enter combat
-            if (a.IsCombatDisallowed() || b.IsCombatDisallowed())
+            if (a.IsCombatDisallowed || b.IsCombatDisallowed)
                 return false;
             if (a.IsFriendlyTo(b) || b.IsFriendlyTo(a))
                 return false;
@@ -298,7 +298,7 @@ namespace Game.Combat
         public bool UpdateOwnerCombatState()
         {
             bool combatState = HasCombat();
-            if (combatState == _owner.IsInCombat())
+            if (combatState == _owner.IsInCombat)
                 return false;
 
             if (combatState)

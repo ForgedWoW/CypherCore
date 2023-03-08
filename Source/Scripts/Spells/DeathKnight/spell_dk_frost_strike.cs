@@ -13,7 +13,7 @@ public class spell_dk_frost_strike : SpellScript, ISpellOnHit
 	public void OnHit()
 	{
 		var caster = Caster;
-		var target = caster.GetVictim();
+		var target = caster.Victim;
 
 		if (caster == null || target == null)
 			return;

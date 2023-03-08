@@ -13,7 +13,7 @@ namespace Game.Miscellaneous
 
         public IsVictimOf(Unit attacker) 
         {
-            _victim = attacker?.GetVictim();
+            _victim = attacker?.Victim;
         }
 
         public bool Invoke(WorldObject obj)

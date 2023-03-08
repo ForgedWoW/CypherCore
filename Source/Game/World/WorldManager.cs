@@ -359,7 +359,7 @@ public class WorldManager : Singleton<WorldManager>
 		Global.InstanceLockMgr.Load();
 
 		Log.outInfo(LogFilter.ServerLoading, "Loading Localization strings...");
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 		Global.ObjectMgr.LoadCreatureLocales();
 		Global.ObjectMgr.LoadGameObjectLocales();
 		Global.ObjectMgr.LoadQuestTemplateLocale();
@@ -847,28 +847,37 @@ public class WorldManager : Singleton<WorldManager>
 
 		DB.Login.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
 
-		_timers[WorldTimers.Auctions].SetInterval(Time.Minute * Time.InMilliseconds);
-		_timers[WorldTimers.AuctionsPending].SetInterval(250);
+		_timers[WorldTimers.Auctions].
+		Interval = Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.AuctionsPending].		Interval = 250;
 
 		//Update "uptime" table based on configuration entry in minutes.
-		_timers[WorldTimers.UpTime].SetInterval(10 * Time.Minute * Time.InMilliseconds);
+		_timers[WorldTimers.UpTime].
+		//Update "uptime" table based on configuration entry in minutes.
+		Interval = 10 * Time.Minute * Time.InMilliseconds;
 		//erase corpses every 20 minutes
-		_timers[WorldTimers.Corpses].SetInterval(20 * Time.Minute * Time.InMilliseconds);
-		_timers[WorldTimers.CleanDB].SetInterval(WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds);
-		_timers[WorldTimers.AutoBroadcast].SetInterval(WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval));
+		_timers[WorldTimers.Corpses].		//erase corpses every 20 minutes
+		Interval = 20 * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.CleanDB].		Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.AutoBroadcast].		Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
 		// check for chars to delete every day
-		_timers[WorldTimers.DeleteChars].SetInterval(Time.Day * Time.InMilliseconds);
+		_timers[WorldTimers.DeleteChars].		// check for chars to delete every day
+		Interval = Time.Day * Time.InMilliseconds;
 		// for AhBot
-		_timers[WorldTimers.AhBot].SetInterval(WorldConfig.GetIntValue(WorldCfg.AhbotUpdateInterval) * Time.InMilliseconds); // every 20 sec
-		_timers[WorldTimers.GuildSave].SetInterval(WorldConfig.GetIntValue(WorldCfg.GuildSaveInterval) * Time.Minute * Time.InMilliseconds);
+		_timers[WorldTimers.AhBot].		// for AhBot
+		Interval = WorldConfig.GetIntValue(WorldCfg.AhbotUpdateInterval) * Time.InMilliseconds; // every 20 sec
+		_timers[WorldTimers.GuildSave].		Interval = WorldConfig.GetIntValue(WorldCfg.GuildSaveInterval) * Time.Minute * Time.InMilliseconds;
 
-		_timers[WorldTimers.Blackmarket].SetInterval(10 * Time.InMilliseconds);
+		_timers[WorldTimers.Blackmarket].
+		Interval = 10 * Time.InMilliseconds;
 
 		_blackmarketTimer = 0;
 
-		_timers[WorldTimers.WhoList].SetInterval(5 * Time.InMilliseconds); // update who list cache every 5 seconds
+		_timers[WorldTimers.WhoList].
+		Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
 
-		_timers[WorldTimers.ChannelSave].SetInterval(WorldConfig.GetIntValue(WorldCfg.PreserveCustomChannelInterval) * Time.Minute * Time.InMilliseconds);
+		_timers[WorldTimers.ChannelSave].
+		Interval = WorldConfig.GetIntValue(WorldCfg.PreserveCustomChannelInterval) * Time.Minute * Time.InMilliseconds;
 
 		//to set mailtimer to return mails every day between 4 and 5 am
 		//mailtimer is increased when updating auctions
@@ -876,9 +885,9 @@ public class WorldManager : Singleton<WorldManager>
 		// @todo Get rid of magic numbers
 		var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
 		var CleanOldMailsTime = WorldConfig.GetIntValue(WorldCfg.CleanOldMailTime);
-		_mailTimer = ((((localTime.Hour + (24 - CleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].GetInterval());
+		_mailTimer = ((((localTime.Hour + (24 - CleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
 		//1440
-		_timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].GetInterval()));
+		_timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
 		Log.outInfo(LogFilter.ServerLoading, "Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
 
 		//- Initialize MapManager
@@ -887,7 +896,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		Log.outInfo(LogFilter.ServerLoading, "Starting Game Event system...");
 		var nextGameEvent = Global.GameEventMgr.StartSystem();
-		_timers[WorldTimers.Events].SetInterval(nextGameEvent); //depend on next event
+		_timers[WorldTimers.Events].		Interval = nextGameEvent; //depend on next event
 
 		// Delete all characters which have been deleted X days before
 		Player.DeleteOldCharacters();
@@ -997,14 +1006,18 @@ public class WorldManager : Singleton<WorldManager>
 			Global.MapMgr.SetMapUpdateInterval(WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate));
 			Global.MapMgr.SetGridCleanUpDelay(WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean));
 
-			_timers[WorldTimers.UpTime].SetInterval(WorldConfig.GetIntValue(WorldCfg.UptimeUpdate) * Time.Minute * Time.InMilliseconds);
+			_timers[WorldTimers.UpTime].
+			Interval = WorldConfig.GetIntValue(WorldCfg.UptimeUpdate) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.UpTime].Reset();
 
-			_timers[WorldTimers.CleanDB].SetInterval(WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds);
+			_timers[WorldTimers.CleanDB].
+			Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.CleanDB].Reset();
 
 
-			_timers[WorldTimers.AutoBroadcast].SetInterval(WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval));
+			_timers[WorldTimers.AutoBroadcast].
+
+			Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
 			_timers[WorldTimers.AutoBroadcast].Reset();
 		}
 
@@ -1118,7 +1131,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void LoadAutobroadcasts()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_autobroadcasts.Clear();
 
@@ -1157,19 +1170,19 @@ public class WorldManager : Singleton<WorldManager>
 
 		// Update the different timers
 		for (WorldTimers i = 0; i < WorldTimers.Max; ++i)
-			if (_timers[i].GetCurrent() >= 0)
+			if (_timers[i].Current >= 0)
 				_timers[i].Update(diff);
 			else
-				_timers[i].SetCurrent(0);
+				_timers[i].				Current = 0;
 
 		// Update Who List Storage
-		if (_timers[WorldTimers.WhoList].Passed())
+		if (_timers[WorldTimers.WhoList].Passed)
 		{
 			_timers[WorldTimers.WhoList].Reset();
 			Global.WhoListStorageMgr.Update();
 		}
 
-		if (IsStopped || _timers[WorldTimers.ChannelSave].Passed())
+		if (IsStopped || _timers[WorldTimers.ChannelSave].Passed)
 		{
 			_timers[WorldTimers.ChannelSave].Reset();
 
@@ -1199,7 +1212,7 @@ public class WorldManager : Singleton<WorldManager>
 			ResetCurrencyWeekCap();
 
 		//Handle auctions when the timer has passed
-		if (_timers[WorldTimers.Auctions].Passed())
+		if (_timers[WorldTimers.Auctions].Passed)
 		{
 			_timers[WorldTimers.Auctions].Reset();
 
@@ -1214,19 +1227,19 @@ public class WorldManager : Singleton<WorldManager>
 			Global.AuctionHouseMgr.Update();
 		}
 
-		if (_timers[WorldTimers.AuctionsPending].Passed())
+		if (_timers[WorldTimers.AuctionsPending].Passed)
 		{
 			_timers[WorldTimers.AuctionsPending].Reset();
 
 			Global.AuctionHouseMgr.UpdatePendingAuctions();
 		}
 
-		if (_timers[WorldTimers.Blackmarket].Passed())
+		if (_timers[WorldTimers.Blackmarket].Passed)
 		{
 			_timers[WorldTimers.Blackmarket].Reset();
 
 			//- Update blackmarket, refresh auctions if necessary
-			if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].GetInterval() >= WorldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
+			if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= WorldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
 			{
 				Global.BlackMarketMgr.RefreshAuctions();
 				_blackmarketTimer = 1; // timer is 0 on startup
@@ -1244,7 +1257,7 @@ public class WorldManager : Singleton<WorldManager>
 		_worldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
 
 		// <li> Update uptime table
-		if (_timers[WorldTimers.UpTime].Passed())
+		if (_timers[WorldTimers.UpTime].Passed)
 		{
 			var tmpDiff = GameTime.GetUptime();
 			var maxOnlinePlayers = GetMaxPlayerCount();
@@ -1263,7 +1276,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		// <li> Clean logs table
 		if (WorldConfig.GetIntValue(WorldCfg.LogdbCleartime) > 0) // if not enabled, ignore the timer
-			if (_timers[WorldTimers.CleanDB].Passed())
+			if (_timers[WorldTimers.CleanDB].Passed)
 			{
 				_timers[WorldTimers.CleanDB].Reset();
 
@@ -1282,7 +1295,7 @@ public class WorldManager : Singleton<WorldManager>
 		Global.TerrainMgr.Update(diff);
 
 		if (WorldConfig.GetBoolValue(WorldCfg.AutoBroadcast))
-			if (_timers[WorldTimers.AutoBroadcast].Passed())
+			if (_timers[WorldTimers.AutoBroadcast].Passed)
 			{
 				_timers[WorldTimers.AutoBroadcast].Reset();
 				SendAutoBroadcast();
@@ -1298,7 +1311,7 @@ public class WorldManager : Singleton<WorldManager>
 		_worldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
 
 		//- Delete all characters which have been deleted X days before
-		if (_timers[WorldTimers.DeleteChars].Passed())
+		if (_timers[WorldTimers.DeleteChars].Passed)
 		{
 			_timers[WorldTimers.DeleteChars].Reset();
 			Player.DeleteOldCharacters();
@@ -1315,22 +1328,22 @@ public class WorldManager : Singleton<WorldManager>
 		_worldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
 
 		// Erase corpses once every 20 minutes
-		if (_timers[WorldTimers.Corpses].Passed())
+		if (_timers[WorldTimers.Corpses].Passed)
 		{
 			_timers[WorldTimers.Corpses].Reset();
 			Global.MapMgr.DoForAllMaps(map => map.RemoveOldCorpses());
 		}
 
 		// Process Game events when necessary
-		if (_timers[WorldTimers.Events].Passed())
+		if (_timers[WorldTimers.Events].Passed)
 		{
 			_timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
 			var nextGameEvent = Global.GameEventMgr.Update();
-			_timers[WorldTimers.Events].SetInterval(nextGameEvent);
+			_timers[WorldTimers.Events].			Interval = nextGameEvent;
 			_timers[WorldTimers.Events].Reset();
 		}
 
-		if (_timers[WorldTimers.GuildSave].Passed())
+		if (_timers[WorldTimers.GuildSave].Passed)
 		{
 			_timers[WorldTimers.GuildSave].Reset();
 			Global.GuildMgr.SaveGuilds();
@@ -1354,7 +1367,7 @@ public class WorldManager : Singleton<WorldManager>
 	{
 		_timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
 		var nextGameEvent = Global.GameEventMgr.Update();
-		_timers[WorldTimers.Events].SetInterval(nextGameEvent);
+		_timers[WorldTimers.Events].		Interval = nextGameEvent;
 		_timers[WorldTimers.Events].Reset();
 	}
 
@@ -2125,7 +2138,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void RemoveOldCorpses()
 	{
-		_timers[WorldTimers.Corpses].SetCurrent(_timers[WorldTimers.Corpses].GetInterval());
+		_timers[WorldTimers.Corpses].		Current = _timers[WorldTimers.Corpses].Interval;
 	}
 
 	public uint GetVirtualRealmAddress()
@@ -2717,7 +2730,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	void LoadPersistentWorldVariables()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT ID, Value FROM world_variable");
 

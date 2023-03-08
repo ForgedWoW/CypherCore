@@ -29,7 +29,7 @@ public class at_dru_starfall : AreaTriggerAI
 
 				if (unit != null)
 					if (caster.IsValidAttackTarget(unit))
-						if (unit.IsInCombat())
+						if (unit.IsInCombat)
 						{
 							caster.CastSpell(unit, StarfallSpells.STARFALL_DAMAGE, true);
 							caster.CastSpell(unit, StarfallSpells.STELLAR_EMPOWERMENT, true);

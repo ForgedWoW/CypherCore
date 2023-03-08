@@ -110,7 +110,7 @@ public class Grid
 				// Only check grid activity every (grid_expiry/10) ms, because it's really useless to do it every cycle
 				GetGridInfoRef().UpdateTimeTracker(diff);
 
-				if (GetGridInfoRef().GetTimeTracker().Passed())
+				if (GetGridInfoRef().GetTimeTracker().Passed)
 				{
 					if (GetWorldObjectCountInNGrid<Player>() == 0 && !map.ActiveObjectsNearGrid(this))
 					{
@@ -147,7 +147,7 @@ public class Grid
 				{
 					GetGridInfoRef().UpdateTimeTracker(diff);
 
-					if (GetGridInfoRef().GetTimeTracker().Passed())
+					if (GetGridInfoRef().GetTimeTracker().Passed)
 						if (!map.UnloadGrid(this, false))
 						{
 							Log.outDebug(LogFilter.Maps,

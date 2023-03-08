@@ -1042,7 +1042,7 @@ public partial class Player
 
 				_ApplyItemMods(pItem, slot, true);
 
-				if (pProto != null && IsInCombat() && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer == 0)
+				if (pProto != null && IsInCombat && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer == 0)
 				{
 					var cooldownSpell = (uint)(Class == Class.Rogue ? 6123 : 6119);
 					var spellProto = Global.SpellMgr.GetSpellInfo(cooldownSpell, Difficulty.None);
@@ -4159,7 +4159,7 @@ public partial class Player
 					// - in-progress arenas
 					if (!pProto.CanChangeEquipStateInCombat())
 					{
-						if (IsInCombat())
+						if (IsInCombat)
 							return InventoryResult.NotInCombat;
 
 						var bg = GetBattleground();
@@ -4169,7 +4169,7 @@ public partial class Player
 								return InventoryResult.NotDuringArenaMatch;
 					}
 
-					if (IsInCombat() && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer != 0)
+					if (IsInCombat && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer != 0)
 						return InventoryResult.ItemCooldown;
 
 					var currentGenericSpell = GetCurrentSpell(CurrentSpellTypes.Generic);
@@ -4492,7 +4492,7 @@ public partial class Player
 		// - in-progress arenas
 		if (!pProto.CanChangeEquipStateInCombat())
 		{
-			if (IsInCombat())
+			if (IsInCombat)
 				return InventoryResult.NotInCombat;
 
 			var bg = GetBattleground();

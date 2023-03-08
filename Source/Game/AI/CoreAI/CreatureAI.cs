@@ -196,7 +196,7 @@ namespace Game.AI
 
         public override void JustEnteredCombat(Unit who)
         {
-            if (!IsEngaged() && !me.CanHaveThreatList())
+            if (!IsEngaged() && !me.CanHaveThreatList)
                 EngagementStart(who);
         }
 
@@ -242,17 +242,17 @@ namespace Game.AI
             if (!me.HasReactState(ReactStates.Passive))
             {
                 Unit victim = me.SelectVictim();
-                if (victim != null && victim != me.GetVictim())
+                if (victim != null && victim != me.Victim)
                     AttackStart(victim);
 
-                return me.GetVictim() != null;
+                return me.Victim != null;
             }
-            else if (!me.IsInCombat())
+            else if (!me.IsInCombat)
             {
                 EnterEvadeMode(EvadeReason.NoHostiles);
                 return false;
             }
-            else if (me.GetVictim() != null)
+            else if (me.Victim != null)
                 me.AttackStop();
 
             return true;

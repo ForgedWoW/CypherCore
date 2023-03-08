@@ -329,7 +329,7 @@ internal class boss_midnight : BossAI
 		{
 			_attumenGUID = summon.GUID;
 			summon.GetAI().SetGUID(me.GUID, (int)CreatureIds.Midnight);
-			summon.GetAI().AttackStart(me.GetVictim());
+			summon.GetAI().AttackStart(me.Victim);
 			summon.GetAI().Talk(TextIds.SayAppear);
 		}
 

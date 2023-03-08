@@ -321,7 +321,7 @@ namespace Game.Chat
                 return;
 
             Player player = session.Player;
-            ObjectGuid targetGuid = player.GetTarget();
+            ObjectGuid targetGuid = player.Target;
             uint areaId = player.GetAreaId();
             string areaName = "Unknown";
             string zoneName = "Unknown";

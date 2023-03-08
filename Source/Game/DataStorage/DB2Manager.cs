@@ -653,7 +653,7 @@ namespace Game.DataStorage
 
         public void LoadHotfixData()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.Hotfix.Query("SELECT Id, UniqueId, TableHash, RecordId, Status FROM hotfix_data ORDER BY Id");
             if (result.IsEmpty())
@@ -709,7 +709,7 @@ namespace Game.DataStorage
 
         public void LoadHotfixBlob(BitSet availableDb2Locales)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.Hotfix.Query("SELECT TableHash, RecordId, locale, `Blob` FROM hotfix_blob ORDER BY TableHash");
             if (result.IsEmpty())
@@ -754,7 +754,7 @@ namespace Game.DataStorage
             // Register allowed optional data keys
             _allowedHotfixOptionalData.Add(BroadcastTextStorage.GetTableHash(), Tuple.Create(TactKeyStorage.GetTableHash(), (AllowedHotfixOptionalData)ValidateBroadcastTextTactKeyOptionalData));
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.Hotfix.Query("SELECT TableHash, RecordId, locale, `Key`, `Data` FROM hotfix_optional_data ORDER BY TableHash");
             if (result.IsEmpty())

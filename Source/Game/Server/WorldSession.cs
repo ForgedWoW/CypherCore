@@ -853,7 +853,7 @@ public partial class WorldSession : IDisposable
 		timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
 		SendPacket(timeSyncRequest);
 
-		_pendingTimeSyncRequests[_timeSyncNextCounter] = Time.GetMSTime();
+		_pendingTimeSyncRequests[_timeSyncNextCounter] = Time.MSTime;
 
 		// Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
 		_timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000u;

@@ -35,13 +35,13 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 			return;
 
 		if (summoner.IsMounted &&
-			(!summoner.IsInCombat() || summoner.IsFlying()))
+			(!summoner.IsInCombat || summoner.IsFlying))
 		{
 			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.Entry);
 
 			if (summonedData != null)
 			{
-				if (summoner.IsFlying() &&
+				if (summoner.IsFlying &&
 					summonedData.FlyingMountDisplayId.HasValue)
 					mountDisplayId = summonedData.FlyingMountDisplayId.Value;
 				else if (summonedData.GroundMountDisplayId.HasValue)

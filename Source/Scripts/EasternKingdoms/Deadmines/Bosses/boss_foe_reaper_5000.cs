@@ -301,7 +301,7 @@ public class boss_foe_reaper_5000 : BossAI
 					if (!UpdateVictim())
 						return;
 
-					var victim4 = me.GetVictim();
+					var victim4 = me.Victim;
 
 					if (victim4 != null)
 						if (me.IsWithinDist(victim4, 25.0f))

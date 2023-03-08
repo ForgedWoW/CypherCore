@@ -372,7 +372,7 @@ public class Pet : Guardian
 			castData.CastID = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, owner.Location.MapId, petInfo.CreatedBySpellId, map.GenerateLowGuid(HighGuid.Cast));
 			castData.SpellID = (int)petInfo.CreatedBySpellId;
 			castData.CastFlags = SpellCastFlags.Unk9;
-			castData.CastTime = Time.GetMSTime();
+			castData.CastTime = Time.MSTime;
 			owner.SendMessageToSet(spellGo, true);
 		}
 

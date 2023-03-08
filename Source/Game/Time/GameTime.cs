@@ -53,7 +53,7 @@ public class GameTime
     public static void UpdateGameTimers()
     {
         _gameTime = Time.UnixTime;
-        _gameMSTime = Time.GetMSTime();
+        _gameMSTime = Time.MSTime;
         _gameTimeSystemPoint = DateTime.Now;
         _gameTimeSteadyPoint = DateTime.Now;
 

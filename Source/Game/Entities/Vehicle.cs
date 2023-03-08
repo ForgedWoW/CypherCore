@@ -116,7 +116,7 @@ public class Vehicle : ITransport, IDisposable
 			unit.MovementInfo.ResetTransport();
 
 		// only for flyable vehicles
-		if (unit.IsFlying())
+		if (unit.IsFlying)
 			_me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
 		if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)

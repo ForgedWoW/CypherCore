@@ -620,7 +620,7 @@ public partial class Unit
 			charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), GUID);
 			charm._charmer = this;
 
-			_isWalkingBeforeCharm = charm.IsWalking();
+			_isWalkingBeforeCharm = charm.IsWalking;
 
 			if (_isWalkingBeforeCharm)
 				charm.SetWalk(false);
@@ -664,7 +664,7 @@ public partial class Unit
 				charm.ReplaceAllPvpFlags(UnitPVPStateFlags.None);
 			}
 
-			if (charm.IsWalking() != _isWalkingBeforeCharm)
+			if (charm.IsWalking != _isWalkingBeforeCharm)
 				charm.SetWalk(_isWalkingBeforeCharm);
 
 			if (charm.IsTypeId(TypeId.Player) || !charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Minion) || charm.OwnerGUID != GUID)
@@ -817,7 +817,7 @@ public partial class Unit
 		var state = false;
 
 		foreach (var minion in Controlled)
-			if (minion.IsInCombat())
+			if (minion.IsInCombat)
 			{
 				state = true;
 

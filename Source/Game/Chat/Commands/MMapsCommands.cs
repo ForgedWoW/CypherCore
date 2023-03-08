@@ -227,7 +227,7 @@ namespace Game.Chat
                 handler.SendSysMessage("Found {0} Creatures.", creatureList.Count);
 
                 uint paths = 0;
-                uint uStartTime = Time.GetMSTime();
+                uint uStartTime = Time.MSTime;
 
                 foreach (var creature in creatureList)
                 {

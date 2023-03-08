@@ -29,7 +29,7 @@ public class PacketLog
 			writer.Write(Encoding.ASCII.GetBytes("enUS"));
 			writer.Write(new byte[40]); //SessionKey
 			writer.Write((uint)GameTime.GetGameTime());
-			writer.Write(Time.GetMSTime());
+			writer.Write(Time.MSTime);
 			writer.Write(0);
 		}
 	}
@@ -44,7 +44,7 @@ public class PacketLog
 			using var writer = new BinaryWriter(File.Open(FullPath, FileMode.Append), Encoding.ASCII);
 			writer.Write(isClientPacket ? 0x47534d43 : 0x47534d53);
 			writer.Write((uint)connectionType);
-			writer.Write(Time.GetMSTime());
+			writer.Write(Time.MSTime);
 
 			writer.Write(20);
 			var SocketIPBytes = new byte[16];

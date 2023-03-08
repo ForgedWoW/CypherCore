@@ -106,7 +106,7 @@ namespace Game.Chat
                 return false;
             }
 
-            if (!caster.GetVictim())
+            if (!caster.Victim)
             {
                 handler.SendSysMessage(CypherStrings.SelectedTargetNotHaveVictim);
                 return false;
@@ -119,7 +119,7 @@ namespace Game.Chat
             if (!triggerFlags.HasValue)
                 return false;
 
-            caster.CastSpell(caster.GetVictim(), spellId, new CastSpellExtraArgs(triggerFlags.Value));
+            caster.CastSpell(caster.Victim, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
             return true;
         }

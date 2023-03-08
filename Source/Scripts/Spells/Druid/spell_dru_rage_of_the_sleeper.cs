@@ -33,7 +33,7 @@ public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var target = caster.GetVictim();
+			var target = caster.Victim;
 
 			if (target != null)
 				caster.CastSpell(target, 219432, true);

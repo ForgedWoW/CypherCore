@@ -90,8 +90,8 @@ internal class boss_vaelastrasz : BossAI
 							task =>
 							{
 								//Only cast if we are behind
-								if (!me.Location.HasInArc(MathF.PI, me.GetVictim().Location))
-									DoCast(me.GetVictim(), SpellIds.Tailswipe);
+								if (!me.Location.HasInArc(MathF.PI, me.Victim.Location))
+									DoCast(me.Victim, SpellIds.Tailswipe);
 
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
@@ -113,7 +113,7 @@ internal class boss_vaelastrasz : BossAI
 							task =>
 							{
 								//Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
-								me.CastSpell(me.GetVictim(), SpellIds.Burningadrenaline, true);
+								me.CastSpell(me.Victim, SpellIds.Burningadrenaline, true);
 								task.Repeat(TimeSpan.FromSeconds(45));
 							});
 	}

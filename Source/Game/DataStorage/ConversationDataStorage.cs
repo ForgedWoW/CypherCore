@@ -22,7 +22,7 @@ namespace Game.DataStorage
             SQLResult lineTemplates = DB.World.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template");
             if (!lineTemplates.IsEmpty())
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 do
                 {
@@ -54,7 +54,7 @@ namespace Game.DataStorage
             SQLResult actorResult = DB.World.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId, NoActorObject, ActivePlayerObject FROM conversation_actors");
             if (!actorResult.IsEmpty())
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
                 uint count = 0;
 
                 do
@@ -116,7 +116,7 @@ namespace Game.DataStorage
             SQLResult templateResult = DB.World.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template");
             if (!templateResult.IsEmpty())
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 do
                 {

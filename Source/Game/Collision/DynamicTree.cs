@@ -193,7 +193,7 @@ namespace Game.Collision
                 return;
 
             rebalance_timer.Update(difftime);
-            if (rebalance_timer.Passed())
+            if (rebalance_timer.Passed)
             {
                 rebalance_timer.Reset(200);
                 if (unbalanced_times > 0)

@@ -92,7 +92,7 @@ namespace Game.Chat
             if (!target)
                 target = handler.GetPlayer();
 
-            handler.SendSysMessage($"Combat refs: (Combat state: {target.IsInCombat()} | Manager state: {target.GetCombatManager().HasCombat()})");
+            handler.SendSysMessage($"Combat refs: (Combat state: {target.IsInCombat} | Manager state: {target.GetCombatManager().HasCombat()})");
             foreach (var refe in target.GetCombatManager().GetPvPCombatRefs())
             {
                 Unit unit = refe.Value.GetOther(target);
@@ -1233,7 +1233,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                if (!player.GetTarget().IsEmpty)
+                if (!player.Target.IsEmpty)
                     unit.PlayDistanceSound(soundId, player);
                 else
                     unit.PlayDirectSound(soundId, player, broadcastTextId);

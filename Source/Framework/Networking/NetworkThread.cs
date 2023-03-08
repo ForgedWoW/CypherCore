@@ -82,7 +82,7 @@ namespace Framework.Networking
             {
                 Thread.Sleep(sleepTime);
 
-                uint tickStart = Time.GetMSTime();
+                uint tickStart = Time.MSTime;
 
                 AddNewSockets();
 

@@ -42,55 +42,38 @@ public partial class Unit
 		}
 	}
 
-	public bool IsGravityDisabled()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.DisableGravity);
-	}
+	public float HoverOffset => HasUnitMovementFlag(MovementFlag.Hover) ? UnitData.HoverHeight : 0.0f;
 
-	public bool IsWalking()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.Walking);
-	}
+	public bool IsGravityDisabled => MovementInfo.HasMovementFlag(MovementFlag.DisableGravity);
 
-	public bool IsHovering()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.Hover);
-	}
+	public bool IsWalking => MovementInfo.HasMovementFlag(MovementFlag.Walking);
 
-	public bool IsStopped()
-	{
-		return !HasUnitState(UnitState.Moving);
-	}
+	public bool IsHovering => MovementInfo.HasMovementFlag(MovementFlag.Hover);
 
-	public bool IsMoving()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.MaskMoving);
-	}
+	public bool IsStopped => !HasUnitState(UnitState.Moving);
 
-	public bool IsTurning()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.MaskTurning);
-	}
+	public bool IsMoving => MovementInfo.HasMovementFlag(MovementFlag.MaskMoving);
 
-	public bool IsFlying()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.Flying | MovementFlag.DisableGravity);
-	}
+	public bool IsTurning => MovementInfo.HasMovementFlag(MovementFlag.MaskTurning);
 
-	public bool IsFalling()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
-	}
+	public bool IsFlying => MovementInfo.HasMovementFlag(MovementFlag.Flying | MovementFlag.DisableGravity);
 
-	public bool IsInWater()
-	{
-		return GetLiquidStatus().HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
-	}
+	public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
 
-	public bool IsUnderWater()
-	{
-		return GetLiquidStatus().HasFlag(ZLiquidStatus.UnderWater);
-	}
+	public bool IsInWater => GetLiquidStatus().HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
+
+	public bool IsUnderWater => GetLiquidStatus().HasFlag(ZLiquidStatus.UnderWater);
+
+	public MovementForces MovementForces => _movementForces;
+
+	public bool IsPlayingHoverAnim => _playHoverAnim;
+
+	public Unit UnitBeingMoved => UnitMovedByMe;
+
+	public Player PlayerMovingMe1 => PlayerMovingMe;
+
+	//Spline
+	public bool IsSplineEnabled => MoveSpline.Initialized() && !MoveSpline.Finalized();
 
 	public float GetSpeed(UnitMoveType mtype)
 	{
@@ -151,7 +134,7 @@ public partial class Unit
 			// and do it only for real sent packets and use run for run/mounted as client expected
 			++AsPlayer.ForcedSpeedChanges[(int)mtype];
 
-			if (!IsInCombat())
+			if (!IsInCombat)
 			{
 				var pet = AsPlayer.GetPet();
 
@@ -160,7 +143,7 @@ public partial class Unit
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer; // unit controlled by a player.
+		var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
 
 		if (playerMover)
 		{
@@ -246,7 +229,7 @@ public partial class Unit
 	public void SetFacingTo(float ori, bool force = true)
 	{
 		// do not face when already moving
-		if (!force && (!IsStopped() || !MoveSpline.Finalized()))
+		if (!force && (!IsStopped || !MoveSpline.Finalized()))
 			return;
 
 		MoveSplineInit init = new(this);
@@ -265,7 +248,7 @@ public partial class Unit
 	public void SetFacingToUnit(Unit unit, bool force = true)
 	{
 		// do not face when already moving
-		if (!force && (!IsStopped() || !MoveSpline.Finalized()))
+		if (!force && (!IsStopped || !MoveSpline.Finalized()))
 			return;
 
 		/// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
@@ -285,7 +268,7 @@ public partial class Unit
 	public void SetFacingToObject(WorldObject obj, bool force = true)
 	{
 		// do not face when already moving
-		if (!force && (!IsStopped() || !MoveSpline.Finalized()))
+		if (!force && (!IsStopped || !MoveSpline.Finalized()))
 			return;
 
 		// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
@@ -320,7 +303,7 @@ public partial class Unit
 			{
 				player = charmer.AsPlayer;
 
-				if (player && player.GetUnitBeingMoved() != this)
+				if (player && player.UnitBeingMoved != this)
 					player = null;
 			}
 		}
@@ -358,7 +341,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -386,7 +369,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanTurnWhileFalling);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -413,7 +396,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanDoubleJump);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -440,7 +423,7 @@ public partial class Unit
 		else
 			RemoveExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover != null)
 		{
@@ -624,12 +607,12 @@ public partial class Unit
 		var creature = AsCreature;
 
 		if (creature != null)
-			if (creature.HasUnitTypeMask(UnitTypeMask.Minion) && !creature.IsInCombat())
+			if (creature.HasUnitTypeMask(UnitTypeMask.Minion) && !creature.IsInCombat)
 				if (MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Follow)
 				{
 					var followed = (MotionMaster.GetCurrentMovementGenerator() as FollowMovementGenerator).GetTarget();
 
-					if (followed != null && followed.GUID == OwnerGUID && !followed.IsInCombat())
+					if (followed != null && followed.GUID == OwnerGUID && !followed.IsInCombat)
 					{
 						var ownerSpeed = followed.GetSpeedRate(mtype);
 
@@ -703,9 +686,9 @@ public partial class Unit
 		_positionUpdateInfo.Relocated = relocated;
 		_positionUpdateInfo.Turned = turn;
 
-		var isInWater = IsInWater();
+		var isInWater = IsInWater;
 
-		if (!IsFalling() || isInWater || IsFlying())
+		if (!IsFalling || isInWater || IsFlying)
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.Ground);
 
 		if (isInWater)
@@ -714,24 +697,19 @@ public partial class Unit
 		return (relocated || turn);
 	}
 
-	public float GetHoverOffset()
-	{
-		return HasUnitMovementFlag(MovementFlag.Hover) ? UnitData.HoverHeight : 0.0f;
-	}
-
 	public bool IsWithinBoundaryRadius(Unit obj)
 	{
 		if (!obj || !IsInMap(obj) || !InSamePhase(obj))
 			return false;
 
-		var objBoundaryRadius = Math.Max(obj.GetBoundingRadius(), SharedConst.MinMeleeReach);
+		var objBoundaryRadius = Math.Max(obj.BoundingRadius, SharedConst.MinMeleeReach);
 
 		return Location.IsInDist(obj.Location, objBoundaryRadius);
 	}
 
 	public bool SetDisableGravity(bool disable, bool updateAnimTier = true)
 	{
-		if (disable == IsGravityDisabled())
+		if (disable == IsGravityDisabled)
 			return false;
 
 		if (disable)
@@ -745,7 +723,7 @@ public partial class Unit
 		}
 
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -767,9 +745,9 @@ public partial class Unit
 
 		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
 		{
-			if (IsGravityDisabled())
+			if (IsGravityDisabled)
 				SetAnimTier(AnimTier.Fly);
-			else if (IsHovering())
+			else if (IsHovering)
 				SetAnimTier(AnimTier.Hover);
 			else
 				SetAnimTier(AnimTier.Ground);
@@ -931,7 +909,7 @@ public partial class Unit
 			return;
 
 		// remove appropriate auras if we are swimming/not swimming respectively
-		if (IsInWater())
+		if (IsInWater)
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.UnderWater);
 		else
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.AboveWater);
@@ -939,7 +917,7 @@ public partial class Unit
 		// liquid aura handling
 		LiquidTypeRecord curLiquid = null;
 
-		if (IsInWater() && newLiquidData != null)
+		if (IsInWater && newLiquidData != null)
 			curLiquid = CliDB.LiquidTypeStorage.LookupByKey(newLiquidData.entry);
 
 		if (curLiquid != LastLiquid)
@@ -963,7 +941,7 @@ public partial class Unit
 
 	public bool SetWalk(bool enable)
 	{
-		if (enable == IsWalking())
+		if (enable == IsWalking)
 			return false;
 
 		if (enable)
@@ -1031,7 +1009,7 @@ public partial class Unit
 		if (!enable && IsTypeId(TypeId.Player))
 			AsPlayer.SetFallInformation(0, Location.Z);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1065,7 +1043,7 @@ public partial class Unit
 			RemoveUnitMovementFlag(MovementFlag.WaterWalk);
 
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1100,7 +1078,7 @@ public partial class Unit
 			RemoveUnitMovementFlag(MovementFlag.FallingSlow);
 
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1151,7 +1129,7 @@ public partial class Unit
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1173,9 +1151,9 @@ public partial class Unit
 
 		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
 		{
-			if (IsGravityDisabled())
+			if (IsGravityDisabled)
 				SetAnimTier(AnimTier.Fly);
-			else if (IsHovering())
+			else if (IsHovering)
 				SetAnimTier(AnimTier.Hover);
 			else
 				SetAnimTier(AnimTier.Ground);
@@ -1212,7 +1190,7 @@ public partial class Unit
 
 	public bool IsInAccessiblePlaceFor(Creature c)
 	{
-		if (IsInWater())
+		if (IsInWater)
 			return c.CanEnterWater;
 		else
 			return c.CanWalk || c.CanFly;
@@ -1363,7 +1341,7 @@ public partial class Unit
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer; // unit controlled by a player.
+		var playerMover = UnitBeingMoved?.AsPlayer; // unit controlled by a player.
 
 		if (playerMover)
 		{
@@ -1527,11 +1505,6 @@ public partial class Unit
 		RemoveNpcFlag(NPCFlags.SpellClick | NPCFlags.PlayerVehicle);
 	}
 
-	public MovementForces GetMovementForces()
-	{
-		return _movementForces;
-	}
-
 	public bool SetIgnoreMovementForces(bool ignore)
 	{
 		if (ignore == HasUnitMovementFlag2(MovementFlag2.IgnoreMovementForces))
@@ -1547,7 +1520,7 @@ public partial class Unit
 			ServerOpcodes.MoveUnsetIgnoreMovementForces, ServerOpcodes.MoveSetIgnoreMovementForces
 		};
 
-		var movingPlayer = GetPlayerMovingMe();
+		var movingPlayer = PlayerMovingMe1;
 
 		if (movingPlayer != null)
 		{
@@ -1568,7 +1541,7 @@ public partial class Unit
 	{
 		var modMagnitude = (float)GetTotalAuraMultiplier(AuraType.ModMovementForceMagnitude);
 
-		var movingPlayer = GetPlayerMovingMe();
+		var movingPlayer = PlayerMovingMe1;
 
 		if (movingPlayer != null)
 		{
@@ -1597,21 +1570,6 @@ public partial class Unit
 			if (_movementForces.IsEmpty)
 				_movementForces = new MovementForces();
 		}
-	}
-
-	public bool IsPlayingHoverAnim()
-	{
-		return _playHoverAnim;
-	}
-
-	public Unit GetUnitBeingMoved()
-	{
-		return UnitMovedByMe;
-	}
-
-	public Player GetPlayerMovingMe()
-	{
-		return PlayerMovingMe;
 	}
 
 	public void AddUnitMovementFlag(MovementFlag f)
@@ -1684,12 +1642,6 @@ public partial class Unit
 		MovementInfo.SetExtraMovementFlags2(f);
 	}
 
-	//Spline
-	public bool IsSplineEnabled()
-	{
-		return MoveSpline.Initialized() && !MoveSpline.Finalized();
-	}
-
 	public void DisableSpline()
 	{
 		MovementInfo.RemoveMovementFlag(MovementFlag.Forward);
@@ -1723,7 +1675,7 @@ public partial class Unit
 		var broadcastSource = this;
 
 		// should this really be the unit _being_ moved? not the unit doing the moving?
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1753,7 +1705,7 @@ public partial class Unit
 			// we do not update m_movementInfo for creatures so it needs to be done manually here
 			moveUpdateTeleport.Status.Guid = GUID;
 			moveUpdateTeleport.Status.Pos.Relocate(pos);
-			moveUpdateTeleport.Status.Time = Time.GetMSTime();
+			moveUpdateTeleport.Status.Time = Time.MSTime;
 			var transportBase = GetDirectTransport();
 
 			if (transportBase != null)
@@ -1794,7 +1746,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag(MovementFlag.DisableCollision);
 
-		var playerMover = GetUnitBeingMoved()?.AsPlayer;
+		var playerMover = UnitBeingMoved?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1868,8 +1820,8 @@ public partial class Unit
 		}
 		else
 		{
-			if (IsAlive && GetVictim() != null)
-				SetTarget(GetVictim().GUID);
+			if (IsAlive && Victim != null)
+				SetTarget(Victim.GUID);
 
 			// don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
 			var owner = CharmerOrOwner;
@@ -1905,10 +1857,10 @@ public partial class Unit
 			{
 				MotionMaster.Remove(MovementGeneratorType.Fleeing);
 
-				if (GetVictim() != null)
-					SetTarget(GetVictim().GUID);
+				if (Victim != null)
+					SetTarget(Victim.GUID);
 
-				if (!IsPlayer && !IsInCombat())
+				if (!IsPlayer && !IsInCombat)
 					MotionMaster.MoveTargetedHome();
 			}
 		}
@@ -1932,8 +1884,8 @@ public partial class Unit
 			{
 				MotionMaster.Remove(MovementGeneratorType.Confused);
 
-				if (GetVictim() != null)
-					SetTarget(GetVictim().GUID);
+				if (Victim != null)
+					SetTarget(Victim.GUID);
 			}
 		}
 
@@ -1980,7 +1932,7 @@ public partial class Unit
 
 		if (_movementForces.Add(force))
 		{
-			var movingPlayer = GetPlayerMovingMe();
+			var movingPlayer = PlayerMovingMe1;
 
 			if (movingPlayer != null)
 			{
@@ -2007,7 +1959,7 @@ public partial class Unit
 
 		if (_movementForces.Remove(id))
 		{
-			var movingPlayer = GetPlayerMovingMe();
+			var movingPlayer = PlayerMovingMe1;
 
 			if (movingPlayer != null)
 			{
@@ -2043,7 +1995,7 @@ public partial class Unit
 
 	Player GetPlayerBeingMoved()
 	{
-		var mover = GetUnitBeingMoved();
+		var mover = UnitBeingMoved;
 
 		if (mover)
 			return mover.AsPlayer;
@@ -2068,7 +2020,7 @@ public partial class Unit
 		{
 			_splineSyncTimer.Update(diff);
 
-			if (_splineSyncTimer.Passed())
+			if (_splineSyncTimer.Passed)
 			{
 				_splineSyncTimer.Reset(5000); // Retail value, do not change
 

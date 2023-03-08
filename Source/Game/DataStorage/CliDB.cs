@@ -14,7 +14,7 @@ namespace Game.DataStorage
     {
         public static BitSet LoadStores(string dataPath, Locale defaultLocale)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             string db2Path = $"{dataPath}/dbc";
 
@@ -443,7 +443,7 @@ namespace Game.DataStorage
 
         public static void LoadGameTables(string dataPath)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             string gtPath = dataPath + "/gt/";
 

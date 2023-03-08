@@ -453,7 +453,7 @@ namespace Game
         {
             Player sender = Player;
 
-            if (sender.IsInCombat())
+            if (sender.IsInCombat)
                 return;
 
             if (sender.HasAura(1852))
@@ -491,7 +491,7 @@ namespace Game
         {
             Player sender = Player;
 
-            if (sender.IsInCombat())
+            if (sender.IsInCombat)
                 return;
 
             if (sender.HasAura(1852))

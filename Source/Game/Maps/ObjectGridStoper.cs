@@ -26,7 +26,7 @@ class ObjectGridStoper : IGridNotifierCreature
 			creature.RemoveAllDynObjects();
 			creature.RemoveAllAreaTriggers();
 
-			if (creature.IsInCombat())
+			if (creature.IsInCombat)
 				creature.CombatStop();
 		}
 	}

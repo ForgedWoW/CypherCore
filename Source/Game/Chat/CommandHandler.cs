@@ -306,7 +306,7 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.Player.GetTarget();
+            ObjectGuid selected = _session.Player.Target;
 
             if (selected.IsEmpty)
                 return _session.Player;
@@ -329,7 +329,7 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.Player.GetTarget();
+            ObjectGuid selected = _session.Player.Target;
 
             if (selected.IsEmpty)
                 return GetNearbyGameObject();
@@ -341,14 +341,14 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            return ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, _session.Player.GetTarget());
+            return ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, _session.Player.Target);
         }
         public Player GetSelectedPlayerOrSelf()
         {
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.Player.GetTarget();
+            ObjectGuid selected = _session.Player.Target;
             if (selected.IsEmpty)
                 return _session.Player;
 

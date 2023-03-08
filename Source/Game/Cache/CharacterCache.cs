@@ -21,7 +21,7 @@ namespace Game.Cache
         public void LoadCharacterCacheStorage()
         {
             _characterCacheStore.Clear();
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
             if (result.IsEmpty())

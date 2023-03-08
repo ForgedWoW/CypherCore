@@ -16,7 +16,7 @@ namespace Game.DataStorage
 
         public void LoadAreaTriggerTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             MultiMap<uint, Vector2> verticesByCreateProperties = new();
             MultiMap<uint, Vector2> verticesTargetByCreateProperties = new();
             MultiMap<uint, Vector3> splinesByCreateProperties = new();
@@ -275,7 +275,7 @@ namespace Game.DataStorage
 
         public void LoadAreaTriggerSpawns()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             // Load area trigger positions (to put them on the server)
             //                                            0        1              2             3      4     5     6     7            8              9        10
             SQLResult templates = DB.World.Query("SELECT SpawnId, AreaTriggerId, IsServerSide, MapId, PosX, PosY, PosZ, Orientation, PhaseUseFlags, PhaseId, PhaseGroup, " +

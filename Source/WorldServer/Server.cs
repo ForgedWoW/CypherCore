@@ -35,7 +35,7 @@ namespace WorldServer
                 ExitNow();
 
             // Server startup begin
-            uint startupBegin = Time.GetMSTime();
+            uint startupBegin = Time.MSTime;
 
             // set server offline (not connectable)
             DB.Login.DirectExecute("UPDATE realmlist SET flag = (flag & ~{0}) | {1} WHERE id = '{2}'", (uint)RealmFlags.VersionMismatch, (uint)RealmFlags.Offline, Global.WorldMgr.GetRealm().Id.Index);
@@ -177,7 +177,7 @@ namespace WorldServer
         static void WorldUpdateLoop()
         {
             int minUpdateDiff = ConfigMgr.GetDefaultValue("MinWorldUpdateTime", 1);
-            uint realPrevTime = Time.GetMSTime();
+            uint realPrevTime = Time.MSTime;
 
             uint maxCoreStuckTime = ConfigMgr.GetDefaultValue("MaxCoreStuckTime", 60u) * 1000u;
             uint halfMaxCoreStuckTime = maxCoreStuckTime / 2;
@@ -193,7 +193,7 @@ namespace WorldServer
 #endif
             while (!Global.WorldMgr.IsStopped)
             {
-                var realCurrTime = Time.GetMSTime();
+                var realCurrTime = Time.MSTime;
 
                 uint diff = Time.GetMSTimeDiff(realPrevTime, realCurrTime);
                 if (diff < minUpdateDiff)

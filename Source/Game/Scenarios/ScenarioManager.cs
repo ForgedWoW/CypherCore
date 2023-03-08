@@ -63,7 +63,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 	{
 		_scenarioDBData.Clear();
 
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
 
@@ -147,7 +147,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 	public void LoadScenarioPOI()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_scenarioPOIStore.Clear(); // need for reload case
 

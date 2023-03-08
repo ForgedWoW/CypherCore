@@ -120,7 +120,7 @@ public partial class Player
 
 	public TalentLearnResult LearnTalent(uint talentId, ref int spellOnCooldown)
 	{
-		if (IsInCombat())
+		if (IsInCombat)
 			return TalentLearnResult.FailedAffectingCombat;
 
 		if (IsDead)
@@ -690,7 +690,7 @@ public partial class Player
 		if (slot >= PlayerConst.MaxPvpTalentSlots)
 			return TalentLearnResult.FailedUnknown;
 
-		if (IsInCombat())
+		if (IsInCombat)
 			return TalentLearnResult.FailedAffectingCombat;
 
 		if (IsDead)

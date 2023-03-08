@@ -139,8 +139,8 @@ internal struct MiscConst
 			Creature pCrone = creature.SummonCreature(CreatureIds.Crone, -10891.96f, -1755.95f, creature.Location.Z, 4.64f, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
 			if (pCrone)
-				if (creature.GetVictim())
-					pCrone.GetAI().AttackStart(creature.GetVictim());
+				if (creature.Victim)
+					pCrone.GetAI().AttackStart(creature.Victim);
 		}
 	}
 
@@ -162,10 +162,10 @@ internal struct MiscConst
 		target.SetStandState(UnitStandStateType.Stand);
 		target.CastSpell(target, SpellIds.ResVisual, true);
 
-		if (target.GetVictim())
+		if (target.Victim)
 		{
-			target.MotionMaster.MoveChase(target.GetVictim());
-			target.GetAI().AttackStart(target.GetVictim());
+			target.MotionMaster.MoveChase(target.Victim);
+			target.GetAI().AttackStart(target.Victim);
 		}
 		else
 		{
@@ -305,7 +305,7 @@ internal class boss_dorothee : ScriptedAI
 		{
 			Talk(TextIds.SayDorotheeSummon);
 			pTito.GetAI<npc_tito>().DorotheeGUID = me.GUID;
-			pTito.GetAI().AttackStart(me.GetVictim());
+			pTito.GetAI().AttackStart(me.Victim);
 			SummonedTito = true;
 			TitoDied = false;
 		}
@@ -1243,8 +1243,8 @@ internal class boss_julianne : ScriptedAI
 				Phase = RAJPhase.Both;
 				IsFakingDeath = false;
 
-				if (me.GetVictim())
-					AttackStart(me.GetVictim());
+				if (me.Victim)
+					AttackStart(me.Victim);
 
 				ResurrectSelfTimer = 0;
 				ResurrectTimer = 1000;
@@ -1458,10 +1458,10 @@ internal class boss_romulo : ScriptedAI
 		{
 			var Julianne = ObjectAccessor.GetCreature(me, JulianneGUID);
 
-			if (Julianne && Julianne.GetVictim())
+			if (Julianne && Julianne.Victim)
 			{
-				AddThreat(Julianne.GetVictim(), 1.0f);
-				AttackStart(Julianne.GetVictim());
+				AddThreat(Julianne.Victim, 1.0f);
+				AttackStart(Julianne.Victim);
 			}
 		}
 	}

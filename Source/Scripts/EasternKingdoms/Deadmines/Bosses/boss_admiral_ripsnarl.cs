@@ -228,7 +228,7 @@ public class boss_admiral_ripsnarl : BossAI
 			switch (eventId)
 			{
 				case BossEvents.EVENT_SWIPE:
-					var victim = me.GetVictim();
+					var victim = me.Victim;
 
 					if (victim != null)
 						me.CastSpell(victim, IsHeroic() ? eSpells.SWIPE_H : eSpells.SWIPE);
@@ -270,7 +270,7 @@ public class boss_admiral_ripsnarl : BossAI
 					}
 					else
 					{
-						var victim2 = me.GetVictim();
+						var victim2 = me.Victim;
 
 						if (victim2 != null)
 						{

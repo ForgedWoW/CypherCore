@@ -73,7 +73,7 @@ namespace Game.AI
         //Stop attack of current victim
         public void DoStopAttack()
         {
-            if (me.GetVictim() != null)
+            if (me.Victim != null)
                 me.AttackStop();
         }
 
@@ -188,7 +188,7 @@ namespace Game.AI
         /// <param name="reset"></param>
         void ForceCombatStop(Creature who, bool reset = true)
         {
-            if (who == null || !who.IsInCombat())
+            if (who == null || !who.IsInCombat)
                 return;
 
             who.CombatStop(true);

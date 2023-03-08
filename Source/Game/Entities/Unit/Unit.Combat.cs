@@ -21,9 +21,40 @@ public partial class Unit
 	// This value can be different from IsInCombat, for example:
 	// - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
 	// - when the creature has no targets left, but the AI has not yet ceased engaged logic
-	public virtual bool IsEngaged => IsInCombat();
+	public virtual bool IsEngaged => IsInCombat;
 
 	public override float CombatReach => UnitData.CombatReach;
+
+	public bool IsInCombat => HasUnitFlag(UnitFlags.InCombat);
+
+	public bool IsPetInCombat => HasUnitFlag(UnitFlags.PetInCombat);
+
+	public bool CanHaveThreatList => _threatManager.CanHaveThreatList();
+
+	public ObjectGuid Target => UnitData.Target;
+
+	public Unit Victim => Attacking;
+
+	public List<Unit> Attackers => AttackerList;
+
+	public float BoundingRadius
+	{
+		get => UnitData.BoundingRadius;
+		set => SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BoundingRadius), value);
+	}
+
+	/// <summary>
+	///  returns if the unit can't enter combat
+	/// </summary>
+	public bool IsCombatDisallowed => _isCombatDisallowed;
+
+	public ObjectGuid LastDamagedTargetGuid
+	{
+		get => _lastDamagedTargetGuid;
+		set => _lastDamagedTargetGuid = value;
+	}
+
+	public bool IsThreatened => !_threatManager.IsThreatListEmpty();
 
 	public virtual void AtEnterCombat()
 	{
@@ -83,19 +114,9 @@ public partial class Unit
 			minion.CombatStop(includingCast);
 	}
 
-	public bool IsInCombat()
-	{
-		return HasUnitFlag(UnitFlags.InCombat);
-	}
-
 	public bool IsInCombatWith(Unit who)
 	{
 		return who != null && _combatManager.IsInCombatWith(who);
-	}
-
-	public bool IsPetInCombat()
-	{
-		return HasUnitFlag(UnitFlags.PetInCombat);
 	}
 
 	public void SetInCombatWith(Unit enemy, bool addSecondUnitSuppressed = false)
@@ -106,7 +127,7 @@ public partial class Unit
 
 	public void SetInCombatWithZone()
 	{
-		if (!CanHaveThreatList())
+		if (!CanHaveThreatList)
 			return;
 
 		var map = GetMap();
@@ -139,7 +160,7 @@ public partial class Unit
 		if (enemy == null)
 			return;
 
-		if (CanHaveThreatList())
+		if (CanHaveThreatList)
 			_threatManager.AddThreat(enemy, 0.0f, null, true, true);
 		else
 			SetInCombatWith(enemy);
@@ -179,14 +200,9 @@ public partial class Unit
 			aurApp.Base.CallScriptEnterLeaveCombatHandlers(aurApp, false);
 	}
 
-	public bool CanHaveThreatList()
-	{
-		return _threatManager.CanHaveThreatList();
-	}
-
 	public bool IsEngagedBy(Unit who)
 	{
-		return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who);
+		return CanHaveThreatList ? IsThreatenedBy(who) : IsInCombatWith(who);
 	}
 
 	public bool IsThreatenedBy(Unit who)
@@ -245,7 +261,7 @@ public partial class Unit
 		// iterate attackers
 		List<Unit> toRemove = new();
 
-		foreach (var attacker in GetAttackers())
+		foreach (var attacker in Attackers)
 			if (!attacker.IsValidAttackTarget(this))
 				toRemove.Add(attacker);
 
@@ -253,7 +269,7 @@ public partial class Unit
 			attacker.AttackStop();
 
 		// remove our own victim
-		var victim = GetVictim();
+		var victim = Victim;
 
 		if (victim != null)
 			if (!IsValidAttackTarget(victim))
@@ -262,7 +278,7 @@ public partial class Unit
 
 	public void StopAttackFaction(uint factionId)
 	{
-		var victim = GetVictim();
+		var victim = Victim;
 
 		if (victim != null)
 			if (victim.GetFactionTemplateEntry().Faction == factionId)
@@ -277,7 +293,7 @@ public partial class Unit
 					AsPlayer.SendAttackSwingCancelAttack();
 			}
 
-		var attackers = GetAttackers();
+		var attackers = Attackers;
 
 		for (var i = 0; i < attackers.Count;)
 		{
@@ -322,7 +338,7 @@ public partial class Unit
 
 		if (!targetGUID.IsEmpty)
 		{
-			var selection = GetTarget();
+			var selection = Target;
 
 			if (!selection.IsEmpty)
 				targetGUID = selection; // Spell was cast directly (not triggered by aura)
@@ -476,11 +492,6 @@ public partial class Unit
 			Log.outInfo(LogFilter.Unit, "{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
 	}
 
-	public ObjectGuid GetTarget()
-	{
-		return UnitData.Target;
-	}
-
 	public virtual void SetTarget(ObjectGuid guid) { }
 
 	public bool AttackStop()
@@ -521,25 +532,15 @@ public partial class Unit
 		return _lastExtraAttackSpell;
 	}
 
-	public void SetLastDamagedTargetGuid(ObjectGuid guid)
-	{
-		_lastDamagedTargetGuid = guid;
-	}
-
-	public Unit GetVictim()
-	{
-		return Attacking;
-	}
-
 	public Unit GetAttackerForHelper()
 	{
 		if (!IsEngaged)
 			return null;
 
-		var victim = GetVictim();
+		var victim = Victim;
 
 		if (victim != null)
-			if ((!IsPet && GetPlayerMovingMe() == null) || IsInCombatWith(victim))
+			if ((!IsPet && PlayerMovingMe1 == null) || IsInCombatWith(victim))
 				return victim;
 
 		var mgr = GetCombatManager();
@@ -561,24 +562,9 @@ public partial class Unit
 		return null;
 	}
 
-	public List<Unit> GetAttackers()
-	{
-		return AttackerList;
-	}
-
 	public void SetCombatReach(float combatReach)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
-	}
-
-	public float GetBoundingRadius()
-	{
-		return UnitData.BoundingRadius;
-	}
-
-	public void SetBoundingRadius(float boundingRadius)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BoundingRadius), boundingRadius);
 	}
 
 	public void ResetAttackTimer(WeaponAttackType type = WeaponAttackType.BaseAttack)
@@ -1388,14 +1374,6 @@ public partial class Unit
 	}
 
 	/// <summary>
-	///  returns if the unit can't enter combat
-	/// </summary>
-	public bool IsCombatDisallowed()
-	{
-		return _isCombatDisallowed;
-	}
-
-	/// <summary>
 	///  enables / disables combat interaction of this unit
 	/// </summary>
 	public void SetIsCombatDisallowed(bool apply)
@@ -1411,16 +1389,6 @@ public partial class Unit
 	void _removeAttacker(Unit pAttacker)
 	{
 		AttackerList.Remove(pAttacker);
-	}
-
-	ObjectGuid GetLastDamagedTargetGuid()
-	{
-		return _lastDamagedTargetGuid;
-	}
-
-	bool IsThreatened()
-	{
-		return !_threatManager.IsThreatListEmpty();
 	}
 
 	// TODO for melee need create structure as in

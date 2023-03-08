@@ -20,7 +20,7 @@ namespace Game.BattleFields
 
         public void InitBattlefield()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = 0;
             var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");

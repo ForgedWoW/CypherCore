@@ -22,7 +22,7 @@ namespace Game
 
         public void LoadCreatureTexts()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             mTextMap.Clear(); // for reload case
             //all currently used temp texts are NOT reset
@@ -154,7 +154,7 @@ namespace Game
 
         public void LoadCreatureTextLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             mLocaleTextMap.Clear(); // for reload case
 

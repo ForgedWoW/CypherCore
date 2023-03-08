@@ -31,7 +31,7 @@ internal class spell_warl_soulshatter : SpellScript, IHasSpellEffects
 		var target = HitUnit;
 
 		if (target)
-			if (target.CanHaveThreatList() &&
+			if (target.CanHaveThreatList &&
 				target.GetThreatManager().GetThreat(caster) > 0.0f)
 				caster.CastSpell(target, WarlockSpells.SOULSHATTER, true);
 	}

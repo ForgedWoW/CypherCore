@@ -14,7 +14,7 @@ public class SkillExtraItems
 	// loads the extra item creation info from DB
 	public static void LoadSkillExtraItemTable()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		SkillExtraItemStorage.Clear(); // need for reload
 

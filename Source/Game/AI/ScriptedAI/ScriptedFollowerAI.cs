@@ -280,7 +280,7 @@ namespace Game.AI
         //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
         bool ShouldAssistPlayerInCombatAgainst(Unit who)
         {
-            if (!who || !who.GetVictim())
+            if (!who || !who.Victim)
                 return false;
 
             //experimental (unknown) flag not present

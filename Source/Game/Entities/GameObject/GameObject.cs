@@ -307,7 +307,7 @@ namespace Game.Entities
 							if (goInfo.Trap.charges == 2)
 								_cooldownTime = GameTime.GetGameTimeMS() + 10 * Time.InMilliseconds; // Hardcoded tooltip value
 							else if (owner)
-								if (owner.IsInCombat())
+								if (owner.IsInCombat)
 									_cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * Time.InMilliseconds;
 
 							_lootState = LootState.Ready;
@@ -2186,7 +2186,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					var targetPlayer = Global.ObjAccessor.FindPlayer(player.GetTarget());
+					var targetPlayer = Global.ObjAccessor.FindPlayer(player.Target);
 
 					// accept only use by player from same raid as caster, except caster itself
 					if (targetPlayer == null || targetPlayer == player || !targetPlayer.IsInSameRaidWith(player))

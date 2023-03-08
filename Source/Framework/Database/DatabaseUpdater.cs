@@ -245,7 +245,7 @@ namespace Framework.Database
         uint ApplyTimedFile(string path)
         {
             // Benchmark query speed
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Update database
             ApplyFile(path);

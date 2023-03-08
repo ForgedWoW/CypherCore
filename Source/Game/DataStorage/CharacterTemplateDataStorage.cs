@@ -13,7 +13,7 @@ namespace Game.DataStorage
 
         public void LoadCharacterTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _characterTemplateStore.Clear();
 
             MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();

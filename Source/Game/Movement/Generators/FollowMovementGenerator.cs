@@ -69,7 +69,7 @@ namespace Game.Movement
             }
 
             _checkTimer.Update(diff);
-            if (_checkTimer.Passed())
+            if (_checkTimer.Passed)
             {
                 _checkTimer.Reset(CHECK_INTERVAL);
                 if (HasFlag(MovementGeneratorFlags.InformEnabled) && PositionOkay(owner, target, _range, _angle))
@@ -117,7 +117,7 @@ namespace Game.Movement
                     var newPos = new Position();
                     target.GetNearPoint(owner, newPos, _range, target.Location.ToAbsoluteAngle(tAngle));
 
-                    if (owner.IsHovering())
+                    if (owner.IsHovering)
                         owner.UpdateAllowedPositionZ(newPos);
 
                     // pets are allowed to "cheat" on pathfinding when following their master
@@ -139,7 +139,7 @@ namespace Game.Movement
 
                     MoveSplineInit init = new(owner);
                     init.MovebyPath(_path.GetPath());
-                    init.SetWalk(target.IsWalking());
+                    init.SetWalk(target.IsWalking);
                     init.SetFacing(target.Location.Orientation);
                     init.Launch();
                 }

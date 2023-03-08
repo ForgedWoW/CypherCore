@@ -34,7 +34,7 @@ namespace Game.Groups
             if (_isLeaderOffline)
             {
                 _leaderOfflineTimer.Update(diff);
-                if (_leaderOfflineTimer.Passed())
+                if (_leaderOfflineTimer.Passed)
                 {
                     SelectNewPartyOrRaidLeader();
                     _isLeaderOffline = false;

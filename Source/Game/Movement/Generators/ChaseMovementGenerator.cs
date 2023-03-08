@@ -83,7 +83,7 @@ namespace Game.Movement
 
             // periodically check if we're already in the expected range...
             _rangeCheckTimer.Update(diff);
-            if (_rangeCheckTimer.Passed())
+            if (_rangeCheckTimer.Passed)
             {
                 _rangeCheckTimer.Reset(RANGE_CHECK_INTERVAL);
                 if (HasFlag(MovementGeneratorFlags.InformEnabled) && PositionOkay(owner, target, _movingTowards ? null : minTarget, _movingTowards ? maxTarget : null, angle))
@@ -155,7 +155,7 @@ namespace Game.Movement
                         shortenPath = false;
                     }
 
-                    if (owner.IsHovering())
+                    if (owner.IsHovering)
                         owner.UpdateAllowedPositionZ(pos);
 
                     bool success = _path.CalculatePath(pos, owner.CanFly);
@@ -180,7 +180,7 @@ namespace Game.Movement
                         switch (cOwner.MovementTemplate.GetChase())
                         {
                             case CreatureChaseMovementType.CanWalk:
-                                walk = owner.IsWalking();
+                                walk = owner.IsWalking;
                                 break;
                             case CreatureChaseMovementType.AlwaysWalk:
                                 walk = true;
@@ -233,7 +233,7 @@ namespace Game.Movement
 
         static bool HasLostTarget(Unit owner, Unit target)
         {
-            return owner.GetVictim() != target;
+            return owner.Victim != target;
         }
 
         static bool IsMutualChase(Unit owner, Unit target)

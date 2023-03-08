@@ -25,7 +25,7 @@ namespace Game
                 return;
             }
 
-            if (_player.IsInCombat())
+            if (_player.IsInCombat)
             {
                 SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.FailedAffectingCombat));
                 return;

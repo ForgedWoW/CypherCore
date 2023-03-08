@@ -89,7 +89,7 @@ namespace Game.AI
         {
             MovementGeneratorType type = unit.GetDefaultMovementType();
             Creature creature = unit.AsCreature;
-            if (creature != null && creature.GetPlayerMovingMe() == null)
+            if (creature != null && creature.PlayerMovingMe1 == null)
                 type = creature.GetDefaultMovementType();
 
             return type switch

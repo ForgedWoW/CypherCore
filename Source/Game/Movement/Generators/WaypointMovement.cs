@@ -61,7 +61,7 @@ namespace Game.Movement
             if (overrideTimer != 0)
                 _nextMoveTime.Reset(overrideTimer);
 
-            if (_nextMoveTime.Passed())
+            if (_nextMoveTime.Passed)
                 _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
 
             RemoveFlag(MovementGeneratorFlags.Paused);
@@ -113,7 +113,7 @@ namespace Game.Movement
 
             owner.StopMoving();
 
-            if (!HasFlag(MovementGeneratorFlags.Finalized) && _nextMoveTime.Passed())
+            if (!HasFlag(MovementGeneratorFlags.Finalized) && _nextMoveTime.Passed)
                 _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
         }
 
@@ -144,7 +144,7 @@ namespace Game.Movement
                  *
                  *  TODO: ((_nextMoveTime.Passed() && VALID_MOVEMENT) || (!_nextMoveTime.Passed() && !HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED)))
                  */
-                if (HasFlag(MovementGeneratorFlags.Initialized) && (_nextMoveTime.Passed() || !HasFlag(MovementGeneratorFlags.InformEnabled)))
+                if (HasFlag(MovementGeneratorFlags.Initialized) && (_nextMoveTime.Passed || !HasFlag(MovementGeneratorFlags.InformEnabled)))
                 {
                     StartMove(owner, true);
                     return true;
@@ -164,7 +164,7 @@ namespace Game.Movement
                 if (HasFlag(MovementGeneratorFlags.SpeedUpdatePending))
                     StartMove(owner, true);
             }
-            else if (!_nextMoveTime.Passed()) // it's not moving, is there a timer?
+            else if (!_nextMoveTime.Passed) // it's not moving, is there a timer?
             {
                 if (UpdateTimer(diff))
                 {
@@ -190,7 +190,7 @@ namespace Game.Movement
                     AddFlag(MovementGeneratorFlags.InformEnabled); // signals to future StartMove that it reached a node
                 }
 
-                if (_nextMoveTime.Passed()) // OnArrived might have set a timer
+                if (_nextMoveTime.Passed) // OnArrived might have set a timer
                     StartMove(owner); // check path status, get next point and move if necessary & can
             }
 
@@ -376,7 +376,7 @@ namespace Game.Movement
         bool UpdateTimer(uint diff)
         {
             _nextMoveTime.Update(diff);
-            if (_nextMoveTime.Passed())
+            if (_nextMoveTime.Passed)
             {
                 _nextMoveTime.Reset(0);
                 return true;

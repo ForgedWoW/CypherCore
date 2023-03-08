@@ -112,8 +112,8 @@ internal class boss_moroes : BossAI
 										var temp = ObjectAccessor.GetCreature(me, AddGUID[i]);
 
 										if (temp && temp.IsAlive)
-											if (!temp.GetVictim())
-												temp.GetAI().AttackStart(me.GetVictim());
+											if (!temp.Victim)
+												temp.GetAI().AttackStart(me.Victim);
 									}
 
 								task.Repeat();
@@ -272,7 +272,7 @@ internal class boss_moroes : BossAI
 
 				if (temp && temp.IsAlive)
 				{
-					temp.GetAI().AttackStart(me.GetVictim());
+					temp.GetAI().AttackStart(me.Victim);
 					DoZoneInCombat(temp);
 				}
 				else

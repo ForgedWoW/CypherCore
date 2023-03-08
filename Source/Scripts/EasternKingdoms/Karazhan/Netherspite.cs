@@ -368,7 +368,7 @@ internal class boss_netherspite : ScriptedAI
 
 				// aggro Target if Red Beam
 				if (j == (int)Portals.Red &&
-					me.GetVictim() != target &&
+					me.					Victim != target &&
 					target.IsPlayer)
 					AddThreat(target, 100000.0f);
 			}

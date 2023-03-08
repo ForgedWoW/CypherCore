@@ -61,7 +61,7 @@ namespace Game.Arenas
 
         public void LoadArenaTeams()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Clean out the trash before loading anything
             DB.Characters.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query

@@ -965,7 +965,7 @@ internal class boss_garaxxas : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		if (me.IsWithinDistInMap(me.GetVictim(), SharedConst.AttackDistance))
+		if (me.IsWithinDistInMap(me.Victim, SharedConst.AttackDistance))
 			_meleeScheduler.Update(diff, () => DoMeleeAttackIfReady());
 		else
 			_scheduler.Update(diff);

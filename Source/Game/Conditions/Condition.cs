@@ -321,7 +321,7 @@ namespace Game.Conditions
                 }
                 case ConditionTypes.InWater:
                     if (unit)
-                        condMeets = unit.IsInWater();
+                        condMeets = unit.IsInWater;
                     break;
                 case ConditionTypes.TerrainSwap:
                     condMeets = obj.PhaseShift.HasVisibleMapId(ConditionValue1);

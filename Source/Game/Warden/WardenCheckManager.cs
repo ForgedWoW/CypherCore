@@ -23,7 +23,7 @@ namespace Game
 
         public void LoadWardenChecks()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Check if Warden is enabled by config before loading anything
             if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
@@ -110,7 +110,7 @@ namespace Game
 
         public void LoadWardenOverrides()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Check if Warden is enabled by config before loading anything
             if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))

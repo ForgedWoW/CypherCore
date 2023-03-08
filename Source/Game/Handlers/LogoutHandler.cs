@@ -17,15 +17,15 @@ namespace Game
             if (!Player.GetLootGUID().IsEmpty)
                 Player.SendLootReleaseAll();
 
-            bool instantLogout = (pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat() ||
+            bool instantLogout = (pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat ||
                 pl.                IsInFlight || HasPermission(RBACPermissions.InstantLogout));
 
             bool canLogoutInCombat = pl.HasPlayerFlag(PlayerFlags.Resting);
 
             int reason = 0;
-            if (pl.IsInCombat() && !canLogoutInCombat)
+            if (pl.IsInCombat && !canLogoutInCombat)
                 reason = 1;
-            else if (pl.IsFalling())
+            else if (pl.IsFalling)
                 reason = 3;                                         // is jumping or falling
             else if (pl.Duel != null || pl.HasAura(9454)) // is dueling or frozen by GM via freeze command
                 reason = 2;                                         // FIXME - Need the correct value

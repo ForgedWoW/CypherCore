@@ -158,8 +158,8 @@ namespace Game.AI
                 return;
 
             _events.Update(diff);
-            if (me.GetVictim() != null) {
-                if (me.GetVictim().HasBreakableByDamageCrowdControlAura(me))
+            if (me.Victim != null) {
+                if (me.Victim.HasBreakableByDamageCrowdControlAura(me))
                 {
                     me.InterruptNonMeleeSpells(false);
                     return;
@@ -207,16 +207,16 @@ namespace Game.AI
 
             if (me.IsWithinCombatRange(who, _minRange))
             {
-                if (me.Attack(who, true) && !who.IsFlying())
+                if (me.Attack(who, true) && !who.IsFlying)
                     me.                    MotionMaster.MoveChase(who);
             }
             else
             {
-                if (me.Attack(who, false) && !who.IsFlying())
+                if (me.Attack(who, false) && !who.IsFlying)
                     me.                    MotionMaster.MoveChase(who, me.CombatDistance);
             }
 
-            if (who.IsFlying())
+            if (who.IsFlying)
                 me.                MotionMaster.MoveIdle();
         }
 
@@ -225,7 +225,7 @@ namespace Game.AI
             if (!UpdateVictim())
                 return;
 
-            if (!me.IsWithinCombatRange(me.GetVictim(), _minRange))
+            if (!me.IsWithinCombatRange(me.Victim, _minRange))
                 DoSpellAttackIfReady(me.Spells[0]);
             else
                 DoMeleeAttackIfReady();

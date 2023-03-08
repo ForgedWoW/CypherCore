@@ -50,7 +50,7 @@ public class CollectionMgr
 
 	public static void LoadMountDefinitions()
 	{
-		var oldMsTime = Time.GetMSTime();
+		var oldMsTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
 

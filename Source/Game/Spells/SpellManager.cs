@@ -1000,7 +1000,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellRanks()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		Dictionary<uint /*spell*/, uint /*next*/> chains = new();
 		List<uint> hasPrev = new();
@@ -1094,7 +1094,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellRequired()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellsReqSpell.Clear(); // need for reload case
 		_spellReq.Clear();       // need for reload case
@@ -1211,7 +1211,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellLearnSpells()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellLearnSpells.Clear();
 
@@ -1365,7 +1365,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellTargetPositions()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellTargetPositions.Clear(); // need for reload case
 
@@ -1449,7 +1449,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellGroups()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellSpellGroup.Clear(); // need for reload case
 		_spellGroupSpell.Clear();
@@ -1532,7 +1532,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellGroupStackRules()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellGroupStack.Clear(); // need for reload case
 		_spellSameEffectStack.Clear();
@@ -1584,7 +1584,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell group stack rules in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		count = 0;
-		oldMSTime = Time.GetMSTime();
+		oldMSTime = Time.MSTime;
 		Log.outInfo(LogFilter.ServerLoading, "Parsing SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules...");
 
 		foreach (var group_id in sameEffectGroups)
@@ -1684,7 +1684,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellProcs()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellProcMap.Clear(); // need for reload case
 
@@ -1860,7 +1860,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		// This generates default procs to retain compatibility with previous proc system
 		Log.outInfo(LogFilter.ServerLoading, "Generating spell proc data from SpellMap...");
 		count = 0;
-		oldMSTime = Time.GetMSTime();
+		oldMSTime = Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -2003,7 +2003,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellThreats()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellThreatMap.Clear(); // need for reload case
 
@@ -2044,7 +2044,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSkillLineAbilityMap()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_skillLineAbilityMap.Clear();
 
@@ -2056,7 +2056,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellPetAuras()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellPetAuraMap.Clear(); // need for reload case
 
@@ -2135,7 +2135,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellEnchantProcData()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellEnchantProcEventMap.Clear(); // need for reload case
 
@@ -2180,7 +2180,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellLinked()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellLinkedMap.Clear(); // need for reload case
 
@@ -2258,7 +2258,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadPetLevelupSpellMap()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_petLevelupSpellMap.Clear(); // need for reload case
 
@@ -2307,7 +2307,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadPetDefaultSpells()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_petDefaultSpellsEntries.Clear();
 
@@ -2399,7 +2399,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellAreas()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellAreaMap.Clear(); // need for reload case
 		_spellAreaForAreaMap.Clear();
@@ -2621,7 +2621,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoStore()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_spellInfoMap.Clear();
 		var loadData = new Dictionary<(uint Id, Difficulty difficulty), SpellInfoLoadHelper>();
@@ -2857,7 +2857,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoServerside()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		MultiMap<(uint spellId, Difficulty difficulty), SpellEffectRecord> spellEffects = new();
 
@@ -3083,7 +3083,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoCustomAttributes()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 		var oldMSTime2 = oldMSTime;
 
 		var result = DB.World.Query("SELECT entry, attributes FROM spell_custom_attr");
@@ -3513,7 +3513,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoCorrections()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		foreach (var fix in IOHelpers.GetAllObjectsFromAssemblies<ISpellManagerSpellFix>(Path.Combine(AppContext.BaseDirectory, "Scripts")))
 			ApplySpellFix(fix.SpellIds, fix.ApplySpellFix);
@@ -5131,7 +5131,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoSpellSpecificAndAuraState()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5146,7 +5146,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoDiminishing()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5162,7 +5162,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoImmunities()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5212,7 +5212,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellTotemModel()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT SpellID, RaceID, DisplayID from spell_totem_model");
 

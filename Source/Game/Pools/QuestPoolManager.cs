@@ -57,7 +57,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 		Dictionary<uint, Tuple<List<QuestPool>, int>> lookup = new(); // poolId -> (list, index)
 
 		_poolLookup.Clear();

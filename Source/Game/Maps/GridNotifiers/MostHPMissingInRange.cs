@@ -21,7 +21,7 @@ public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
 
 	public bool Invoke(T u)
 	{
-		if (u.IsAlive && u.IsInCombat() && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.GetMaxHealth() - u.GetHealth() > _hp)
+		if (u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.GetMaxHealth() - u.GetHealth() > _hp)
 		{
 			_hp = (uint)(u.GetMaxHealth() - u.GetHealth());
 

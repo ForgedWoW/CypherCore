@@ -27,7 +27,7 @@ namespace Game.Chat
 
         public void LoadLanguages()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Load languages from Languages.db2. Just the id, we don't need the name
             foreach (LanguagesRecord langEntry in CliDB.LanguagesStorage.Values)
@@ -62,7 +62,7 @@ namespace Game.Chat
 
         public void LoadLanguagesWords()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint wordsNum = 0;
             foreach (LanguageWordsRecord wordEntry in CliDB.LanguageWordsStorage.Values)

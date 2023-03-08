@@ -403,9 +403,9 @@ public abstract class WorldObject : IDisposable
 
 		if (unit)
 		{
-			flags.PlayHoverAnim = unit.IsPlayingHoverAnim();
+			flags.PlayHoverAnim = unit.IsPlayingHoverAnim;
 
-			if (unit.GetVictim())
+			if (unit.Victim)
 				flags.CombatVictim = true;
 		}
 
@@ -516,7 +516,7 @@ public abstract class WorldObject : IDisposable
 			var unit = AsUnit;
 			var HasFallDirection = unit.HasUnitMovementFlag(MovementFlag.Falling);
 			var HasFall = HasFallDirection || unit.MovementInfo.Jump.FallTime != 0;
-			var HasSpline = unit.IsSplineEnabled();
+			var HasSpline = unit.IsSplineEnabled;
 			var HasInertia = unit.MovementInfo.Inertia.HasValue;
 			var HasAdvFlying = unit.MovementInfo.AdvFlying.HasValue;
 
@@ -587,7 +587,7 @@ public abstract class WorldObject : IDisposable
 			data.WriteFloat(unit.GetSpeed(UnitMoveType.TurnRate));
 			data.WriteFloat(unit.GetSpeed(UnitMoveType.PitchRate));
 
-			var movementForces = unit.GetMovementForces();
+			var movementForces = unit.MovementForces;
 
 			if (movementForces != null)
 			{
@@ -642,7 +642,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		if (flags.CombatVictim)
-			data.WritePackedGuid(AsUnit.GetVictim().GUID); // CombatVictim
+			data.WritePackedGuid(AsUnit.Victim.GUID); // CombatVictim
 
 		if (flags.ServerTime)
 			data.WriteUInt32(GameTime.GetGameTimeMS());
@@ -3740,7 +3740,7 @@ public abstract class WorldObject : IDisposable
 		var newZ = GetMapHeight(x, y, z);
 
 		if (newZ > MapConst.InvalidHeight)
-			z = newZ + (IsUnit ? AsUnit.GetHoverOffset() : 0.0f);
+			z = newZ + (IsUnit ? AsUnit.HoverOffset : 0.0f);
 
 		return z;
 	}
@@ -3790,7 +3790,7 @@ public abstract class WorldObject : IDisposable
 				if (max_z > MapConst.InvalidHeight)
 				{
 					// hovering units cannot go below their hover height
-					var hoverOffset = unit.GetHoverOffset();
+					var hoverOffset = unit.HoverOffset;
 					max_z += hoverOffset;
 					ground_z += hoverOffset;
 
@@ -3804,7 +3804,7 @@ public abstract class WorldObject : IDisposable
 			}
 			else
 			{
-				var ground_z = GetMapHeight(x, y, z) + unit.GetHoverOffset();
+				var ground_z = GetMapHeight(x, y, z) + unit.HoverOffset;
 
 				if (z < ground_z)
 					z = ground_z;
@@ -3841,12 +3841,12 @@ public abstract class WorldObject : IDisposable
 				var unit = AsUnit;
 
 				if (unit != null)
-					myHover = unit.GetHoverOffset();
+					myHover = unit.HoverOffset;
 
 				var searchUnit = searcher.AsUnit;
 
 				if (searchUnit != null)
-					searcherHover = searchUnit.GetHoverOffset();
+					searcherHover = searchUnit.HoverOffset;
 
 				var hoverDelta = myHover - searcherHover;
 
@@ -4086,7 +4086,7 @@ public abstract class WorldObject : IDisposable
 				var gridHeight = GetMap().GetGridHeight(PhaseShift, pos.X, pos.Y);
 
 				if (gridHeight > MapConst.InvalidHeight)
-					pos.Z = gridHeight + unit.GetHoverOffset();
+					pos.Z = gridHeight + unit.HoverOffset;
 			}
 		}
 	}

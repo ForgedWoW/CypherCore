@@ -37,7 +37,7 @@ internal class spell_dh_blade_dance : SpellScript, IHasSpellEffects
 			return;
 
 		var firstTargetGUID = ObjectGuid.Empty;
-		var selectedTarget = Caster.GetTarget();
+		var selectedTarget = Caster.Target;
 
 		// Prefer the selected Target if he is one of the enemies
 		if (targetList.Count > 1 &&

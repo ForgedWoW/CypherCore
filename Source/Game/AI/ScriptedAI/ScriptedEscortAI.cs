@@ -33,7 +33,7 @@ namespace Game.AI
         //see followerAI
         bool AssistPlayerInCombatAgainst(Unit who)
         {
-            if (!who || !who.GetVictim())
+            if (!who || !who.Victim)
                 return false;
 
             if (me.HasReactState(ReactStates.Passive))
@@ -44,11 +44,11 @@ namespace Game.AI
                 return false;
 
             //not a player
-            if (!who.GetVictim().GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (!who.Victim.GetCharmerOrOwnerPlayerOrPlayerItself())
                 return false;
 
             //never attack friendly
-            if (me.IsValidAssistTarget(who.GetVictim()))
+            if (me.IsValidAssistTarget(who.Victim))
                 return false;
 
             //too far away and no free sight?

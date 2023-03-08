@@ -17,7 +17,7 @@ namespace Game.PvP
 
         public void InitOutdoorPvP()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                             0       1
             SQLResult result = DB.World.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");

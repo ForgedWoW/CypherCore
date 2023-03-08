@@ -66,7 +66,7 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 
 				pet.CastSpell(ExplTargetUnit, HunterSpells.KILL_COMMAND_TRIGGER, true);
 
-				if (pet.GetVictim())
+				if (pet.Victim)
 				{
 					pet.AttackStop();
 					pet.					AsCreature.GetAI().AttackStart(ExplTargetUnit);

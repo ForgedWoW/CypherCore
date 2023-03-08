@@ -341,7 +341,7 @@ namespace Game
             _defaultPermissions.Clear();
 
             Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC");
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             uint count1 = 0;
             uint count2 = 0;
             uint count3 = 0;

@@ -118,7 +118,7 @@ public class npc_mirror_imageAI : CasterAI
 	{
 		_events.Update(diff);
 
-		var l_Victim = me.GetVictim();
+		var l_Victim = me.Victim;
 
 		if (l_Victim != null)
 		{
@@ -158,7 +158,7 @@ public class npc_mirror_imageAI : CasterAI
 
 				if (owner != null)
 				{
-					var ownerVictim = owner.GetVictim();
+					var ownerVictim = owner.Victim;
 
 					if (ownerVictim != null && me.CanCreatureAttack(ownerVictim))
 						target = ownerVictim;

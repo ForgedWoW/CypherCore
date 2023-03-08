@@ -94,7 +94,7 @@ namespace Game.DungeonFinding
 
         public void LoadRewards()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             RewardMapStore.Clear();
 
@@ -155,7 +155,7 @@ namespace Game.DungeonFinding
 
         public void LoadLFGDungeons(bool reload = false)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             LfgDungeonStore.Clear();
 
@@ -1282,7 +1282,7 @@ namespace Game.DungeonFinding
             LfgTeleportResult error = LfgTeleportResult.None;
             if (!player.IsAlive)
                 error = LfgTeleportResult.Dead;
-            else if (player.IsFalling() || player.HasUnitState(UnitState.Jumping))
+            else if (player.IsFalling || player.HasUnitState(UnitState.Jumping))
                 error = LfgTeleportResult.Falling;
             else if (player.IsMirrorTimerActive(MirrorTimerType.Fatigue))
                 error = LfgTeleportResult.Exhaustion;

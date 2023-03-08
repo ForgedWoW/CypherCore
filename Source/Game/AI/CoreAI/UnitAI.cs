@@ -57,7 +57,7 @@ namespace Game.AI
             if (me.HasUnitState(UnitState.Casting))
                 return;
 
-            Unit victim = me.GetVictim();
+            Unit victim = me.Victim;
 
             if (!me.IsWithinMeleeRange(victim))
                 return;
@@ -89,9 +89,9 @@ namespace Game.AI
             var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.GetMap().GetDifficultyID());
             if (spellInfo != null)
             {
-                if (me.IsWithinCombatRange(me.GetVictim(), spellInfo.GetMaxRange(false)))
+                if (me.IsWithinCombatRange(me.Victim, spellInfo.GetMaxRange(false)))
                 {
-                    me.CastSpell(me.GetVictim(), spellId, new CastSpellExtraArgs(me.GetMap().GetDifficultyID()));
+                    me.CastSpell(me.Victim, spellId, new CastSpellExtraArgs(me.GetMap().GetDifficultyID()));
                     me.ResetAttackTimer();
                     return true;
                 }
@@ -253,7 +253,7 @@ namespace Game.AI
                     target = me;
                     break;
                 case AITarget.Victim:
-                    target = me.GetVictim();
+                    target = me.Victim;
                     break;
                 case AITarget.Enemy:
                     {
@@ -307,8 +307,8 @@ namespace Game.AI
 
                                 return targetSelectorInner.Invoke(candidate);
                             };
-                            if (!spellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.NotVictim) && targetSelector(me.GetVictim()))
-                                target = me.GetVictim();
+                            if (!spellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.NotVictim) && targetSelector(me.Victim))
+                                target = me.Victim;
                             else
                                 target = SelectTarget(SelectTargetMethod.Random, 0, targetSelector);
                         }
@@ -336,7 +336,7 @@ namespace Game.AI
 
         public SpellCastResult DoCastVictim(uint spellId, CastSpellExtraArgs args = null)
         {
-            Unit victim = me.GetVictim();
+            Unit victim = me.Victim;
             if (victim != null)
                 return DoCast(victim, spellId, args);
 

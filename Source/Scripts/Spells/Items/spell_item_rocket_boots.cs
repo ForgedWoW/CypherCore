@@ -27,7 +27,7 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
 
 	public SpellCastResult CheckCast()
 	{
-		if (Caster.IsInWater())
+		if (Caster.IsInWater)
 			return SpellCastResult.OnlyAbovewater;
 
 		return SpellCastResult.SpellCastOk;

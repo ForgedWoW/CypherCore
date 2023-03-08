@@ -16,7 +16,7 @@ namespace Game.BlackMarket
 
         public void LoadTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Clear in case we are reloading
             _templates.Clear();
@@ -43,7 +43,7 @@ namespace Game.BlackMarket
 
         public void LoadAuctions()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Clear in case we are reloading
             _auctions.Clear();

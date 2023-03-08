@@ -39,7 +39,7 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 			caster.GetVehicleBase())
 			return SpellCastResult.DontReport;
 
-		if (!caster.IsFalling())
+		if (!caster.IsFalling)
 			return SpellCastResult.NotOnGround;
 
 		return SpellCastResult.SpellCastOk;

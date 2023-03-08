@@ -78,12 +78,12 @@ namespace Game
 
         public void RecordUpdateTimeReset()
         {
-            _recordedTime = Time.GetMSTime();
+            _recordedTime = Time.MSTime;
         }
 
         public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
         {
-            uint thisTime = Time.GetMSTime();
+            uint thisTime = Time.MSTime;
             uint diff = Time.GetMSTimeDiff(_recordedTime, thisTime);
 
             if (diff > minUpdateTime)

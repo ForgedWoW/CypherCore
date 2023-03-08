@@ -66,9 +66,9 @@ namespace Scripts.Pets
 
 				if (me.GetOwner())
 				{
-					var victim = owner.GetVictim();
+					var victim = owner.Victim;
 
-					if (owner.GetVictim())
+					if (owner.Victim)
 						me.Attack(victim, false);
 				}
 
@@ -81,7 +81,7 @@ namespace Scripts.Pets
 					switch (eventId)
 					{
 						case 1:
-							if (!me.GetVictim())
+							if (!me.Victim)
 							{
 								me.SetControlled(false, UnitState.Root);
 								events.ScheduleEvent(eventId, TimeSpan.FromSeconds(1));
@@ -90,7 +90,7 @@ namespace Scripts.Pets
 							}
 
 							me.SetControlled(true, UnitState.Root);
-							me.CastSpell(me.GetVictim(), WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(me.OwnerGUID));
+							me.CastSpell(me.Victim, WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(me.OwnerGUID));
 							events.ScheduleEvent(eventId, TimeSpan.FromSeconds(3));
 
 							break;

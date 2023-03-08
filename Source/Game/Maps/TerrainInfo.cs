@@ -304,7 +304,7 @@ public class TerrainInfo
 
 		_cleanupTimer.Update(diff);
 
-		if (!_cleanupTimer.Passed())
+		if (!_cleanupTimer.Passed)
 			return;
 
 		// delete those GridMap objects which have refcount = 0

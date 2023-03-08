@@ -28,7 +28,7 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 	private void HandlePeriodicTick(AuraEffect aurEff)
 	{
 		// Incanter's flow should not cycle out of combat
-		if (!Target.IsInCombat())
+		if (!Target.IsInCombat)
 			return;
 
 		var aura = Target.GetAura(MageSpells.IncantersFlow);

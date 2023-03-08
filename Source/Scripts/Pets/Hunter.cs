@@ -53,8 +53,8 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint diff)
 			{
-				if (me.GetVictim() &&
-					me.GetVictim().HasBreakableByDamageCrowdControlAura())
+				if (me.Victim &&
+					me.					Victim.HasBreakableByDamageCrowdControlAura())
 				{
 					// don't break cc
 					me.GetThreatManager().ClearFixate();

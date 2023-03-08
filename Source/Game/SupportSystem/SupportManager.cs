@@ -54,7 +54,7 @@ namespace Game.SupportSystem
 
         public void LoadBugTickets()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _bugTicketList.Clear();
 
             _lastBugId = 0;
@@ -90,7 +90,7 @@ namespace Game.SupportSystem
 
         public void LoadComplaintTickets()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _complaintTicketList.Clear();
 
             _lastComplaintId = 0;
@@ -140,7 +140,7 @@ namespace Game.SupportSystem
 
         public void LoadSuggestionTickets()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _suggestionTicketList.Clear();
 
             _lastSuggestionId = 0;

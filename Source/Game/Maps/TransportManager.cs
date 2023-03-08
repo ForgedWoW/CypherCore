@@ -24,7 +24,7 @@ public class TransportManager : Singleton<TransportManager>
 
 	public void LoadTransportTemplates()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
 
@@ -86,7 +86,7 @@ public class TransportManager : Singleton<TransportManager>
 		if (_transportTemplates.Empty())
 			return;
 
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
 

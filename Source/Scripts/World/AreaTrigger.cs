@@ -150,7 +150,7 @@ internal class AreaTrigger_at_legion_teleporter : ScriptObjectAutoAddDBBound, IA
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
 		if (player.IsAlive &&
-			!player.IsInCombat())
+			!player.IsInCombat)
 		{
 			if (player.Team == TeamFaction.Alliance &&
 				player.GetQuestRewardStatus(QuestIds.GainingAccessA))

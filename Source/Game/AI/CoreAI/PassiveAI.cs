@@ -16,7 +16,7 @@ namespace Game.AI
 
         public override void UpdateAI(uint diff)
         {
-            if (me.IsEngaged && !me.IsInCombat())
+            if (me.IsEngaged && !me.IsInCombat)
                 EnterEvadeMode(EvadeReason.NoHostiles);
         }
 
@@ -39,9 +39,9 @@ namespace Game.AI
 
         public override void UpdateAI(uint diff)
         {
-            if (me.GetVictim() != null)
+            if (me.Victim != null)
             {
-                if (!me.IsValidAttackTarget(me.GetVictim()))
+                if (!me.IsValidAttackTarget(me.Victim))
                     me.AttackStop();
                 else
                     DoMeleeAttackIfReady();

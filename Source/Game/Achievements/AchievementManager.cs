@@ -1137,7 +1137,7 @@ namespace Game.Achievements
         //==========================================================
         public void LoadAchievementReferenceList()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             if (CliDB.AchievementStorage.Empty())
             {
@@ -1165,7 +1165,7 @@ namespace Game.Achievements
 
         public void LoadAchievementScripts()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _achievementScripts.Clear();                            // need for reload case
 
@@ -1196,7 +1196,7 @@ namespace Game.Achievements
 
         public void LoadCompletedAchievements()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
             // while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
@@ -1237,7 +1237,7 @@ namespace Game.Achievements
 
         public void LoadRewards()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _achievementRewards.Clear();                           // need for reload case
 
@@ -1351,7 +1351,7 @@ namespace Game.Achievements
 
         public void LoadRewardLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _achievementRewardLocales.Clear();                       // need for reload case
 

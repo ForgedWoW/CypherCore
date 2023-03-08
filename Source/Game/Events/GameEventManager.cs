@@ -192,7 +192,7 @@ namespace Game
         public void LoadFromDB()
         {
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
                 //                                         0           1                           2                         3          4       5        6            7            8             9
                 SQLResult result = DB.World.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
                 if (result.IsEmpty())
@@ -262,7 +262,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Saves Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                       0       1        2
                 SQLResult result = DB.Characters.Query("SELECT eventEntry, state, next_start FROM game_event_save");
@@ -302,7 +302,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Prerequisite Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                   0             1
                 SQLResult result = DB.World.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
@@ -347,7 +347,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Creature Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                 0        1
                 SQLResult result = DB.World.Query("SELECT guid, eventEntry FROM game_event_creature");
@@ -396,7 +396,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event GO Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                0         1
                 SQLResult result = DB.World.Query("SELECT guid, eventEntry FROM game_event_gameobject");
@@ -440,7 +440,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Model/Equipment Change Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                       0           1                       2                                 3                                     4
                 SQLResult result = DB.World.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id " +
@@ -491,7 +491,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Quest Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                               0     1      2
                 SQLResult result = DB.World.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
@@ -524,7 +524,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event GO Quest Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                               0     1      2
                 SQLResult result = DB.World.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
@@ -557,7 +557,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Quest Condition Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                 0       1         2             3
                 SQLResult result = DB.World.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
@@ -596,7 +596,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Condition Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                  0          1            2             3                      4
                 SQLResult result = DB.World.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
@@ -631,7 +631,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Condition Save Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                      0           1         2
                 SQLResult result = DB.Characters.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
@@ -671,7 +671,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event NPCflag Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                0       1        2
                 SQLResult result = DB.World.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
@@ -704,7 +704,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Seasonal Quest Relations...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                  0          1
                 SQLResult result = DB.World.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
@@ -743,7 +743,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Vendor Additions Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                               0           1     2     3         4         5             6     7             8                  9
                 SQLResult result = DB.World.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionId, IgnoreFiltering FROM game_event_npc_vendor ORDER BY guid, slot ASC");
@@ -810,7 +810,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Battleground Holiday Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                         0           1
                 SQLResult result = DB.World.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
@@ -841,7 +841,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Pool Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                               0                         1
                 SQLResult result = DB.World.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template" +

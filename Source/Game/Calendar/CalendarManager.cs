@@ -24,7 +24,7 @@ namespace Game
 
         public void LoadFromDB()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = 0;
             _maxEventId = 0;
@@ -62,7 +62,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} calendar events in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
             count = 0;
-            oldMSTime = Time.GetMSTime();
+            oldMSTime = Time.MSTime;
 
             //                                    0         1        2        3       4       5             6               7
             result = DB.Characters.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");

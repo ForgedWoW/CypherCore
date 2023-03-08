@@ -488,7 +488,7 @@ namespace Game.AI
                 case SpellTarget.None:
                     break;
                 case SpellTarget.Victim:
-                    pTarget = me.GetVictim();
+                    pTarget = me.Victim;
                     if (!pTarget)
                         return null;
                     break;
@@ -559,7 +559,7 @@ namespace Game.AI
             if (!me.IsAttackReady(WeaponAttackType.RangedAttack))
                 return;
 
-            Unit victim = me.GetVictim();
+            Unit victim = me.Victim;
             if (!victim)
                 return;
 
@@ -650,7 +650,7 @@ namespace Game.AI
         public uint GetSpec(Player who = null) { return (!who || who == me) ? _selfSpec : who.GetPrimarySpecialization(); }
         public void SetIsRangedAttacker(bool state) { _isSelfRangedAttacker = state; } // this allows overriding of the default ranged attacker detection
 
-        public virtual Unit SelectAttackTarget() { return me.Charmer ? me.Charmer.GetVictim() : null; }
+        public virtual Unit SelectAttackTarget() { return me.Charmer ? me.Charmer.Victim : null; }
 
         public enum SpellTarget
         {
@@ -699,7 +699,7 @@ namespace Game.AI
                 if (charmerAI != null)
                     return charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this));
 
-                return charmer.GetVictim();
+                return charmer.Victim;
             }
 
             return null;
@@ -1253,7 +1253,7 @@ namespace Game.AI
 
             if (charmer.IsEngaged)
             {
-                Unit target = me.GetVictim();
+                Unit target = me.Victim;
                 if (!target || !CanAIAttack(target))
                 {
                     target = SelectAttackTarget();
@@ -1288,7 +1288,7 @@ namespace Game.AI
                     _forceFacing = true;
                 }
 
-                if (me.IsStopped() && !me.HasUnitState(UnitState.CannotTurn))
+                if (me.IsStopped && !me.HasUnitState(UnitState.CannotTurn))
                 {
                     float targetAngle = me.Location.GetAbsoluteAngle(target.Location);
                     if (_forceFacing || Math.Abs(me.Location.Orientation - targetAngle) > 0.4f)

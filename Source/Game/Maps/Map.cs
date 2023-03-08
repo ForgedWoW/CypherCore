@@ -92,7 +92,7 @@ public class Map : IDisposable
 		//lets initialize visibility distance for map
 		_threadManager.Schedule(InitVisibilityDistance);
 		_weatherUpdateTimer = new IntervalTimer();
-		_weatherUpdateTimer.SetInterval(1 * Time.InMilliseconds);
+		_weatherUpdateTimer.		Interval = 1 * Time.InMilliseconds;
 
 		GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
@@ -547,7 +547,7 @@ public class Map : IDisposable
 				List<Unit> toVisit = new();
 
 				// Handle updates for creatures in combat with player and are more than 60 yards away
-				if (player.IsInCombat())
+				if (player.IsInCombat)
 				{
 					foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
 					{
@@ -635,10 +635,10 @@ public class Map : IDisposable
 
 		_weatherUpdateTimer.Update(diff);
 
-		if (_weatherUpdateTimer.Passed())
+		if (_weatherUpdateTimer.Passed)
 		{
 			foreach (var zoneInfo in _zoneDynamicInfo)
-				if (zoneInfo.Value.DefaultWeather != null && !zoneInfo.Value.DefaultWeather.Update((uint)_weatherUpdateTimer.GetInterval()))
+				if (zoneInfo.Value.DefaultWeather != null && !zoneInfo.Value.DefaultWeather.Update((uint)_weatherUpdateTimer.Interval))
 					zoneInfo.Value.DefaultWeather = null;
 
 			_weatherUpdateTimer.Reset();

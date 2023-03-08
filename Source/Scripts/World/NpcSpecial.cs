@@ -465,7 +465,7 @@ internal class npc_air_force_bots : NullCreatureAI
 			return;
 
 		if ((_spawn.spawnType == SpawnType.Tripwire) &&
-			who.IsFlying())
+			who.			IsFlying)
 			return;
 
 		_toAttack.Add(who.GUID);
@@ -1170,7 +1170,7 @@ internal class npc_garments_of_quests : EscortAI
 			spellInfo.Id == SpellIds.FortitudeR1)
 		{
 			//not while in combat
-			if (me.IsInCombat())
+			if (me.IsInCombat)
 				return;
 
 			//nothing to be done now
@@ -1212,7 +1212,7 @@ internal class npc_garments_of_quests : EscortAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (CanRun && !me.IsInCombat())
+		if (CanRun && !me.IsInCombat)
 		{
 			if (RunAwayTimer <= diff)
 			{

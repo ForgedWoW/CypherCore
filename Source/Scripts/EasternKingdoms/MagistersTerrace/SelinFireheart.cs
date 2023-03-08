@@ -79,8 +79,8 @@ internal class boss_selin_fireheart : BossAI
 			case MiscConst.ActionSwitchPhase:
 				_events.SetPhase(PhaseIds.Normal);
 				_events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
-				AttackStart(me.GetVictim());
-				me.MotionMaster.MoveChase(me.GetVictim());
+				AttackStart(me.Victim);
+				me.MotionMaster.MoveChase(me.Victim);
 
 				break;
 			default:
@@ -186,7 +186,7 @@ internal class boss_selin_fireheart : BossAI
 					CrystalGUID.Clear();
 
 					me.MotionMaster.Clear();
-					me.MotionMaster.MoveChase(me.GetVictim());
+					me.MotionMaster.MoveChase(me.Victim);
 
 					break;
 				}

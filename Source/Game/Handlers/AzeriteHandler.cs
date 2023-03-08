@@ -89,7 +89,7 @@ namespace Game
                 return;
             }
 
-            if (_player.IsInCombat())
+            if (_player.IsInCombat)
             {
                 activateEssenceResult.Reason = AzeriteEssenceActivateResult.AffectingCombat;
                 activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;

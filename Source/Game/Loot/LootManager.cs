@@ -91,7 +91,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading creature loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             List<uint> lootIdSetUsed = new();
             uint count = Creature.LoadAndCollectLootIds(out List<uint> lootIdSet);
@@ -129,7 +129,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading disenchanting loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             List<uint> lootIdSetUsed = new();
             uint count = Disenchant.LoadAndCollectLootIds(out List<uint> lootIdSet);
@@ -159,7 +159,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading fishing loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Fishing.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -181,7 +181,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading gameobject loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             List<uint> lootIdSetUsed = new();
             uint count = Gameobject.LoadAndCollectLootIds(out List<uint> lootIdSet);
@@ -228,7 +228,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading item loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Items.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -251,7 +251,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading milling loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Milling.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -279,7 +279,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading pickpocketing loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             List<uint> lootIdSetUsed = new();
             uint count = Pickpocketing.LoadAndCollectLootIds(out List<uint> lootIdSet);
@@ -314,7 +314,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading prospecting loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Prospecting.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -342,7 +342,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading mail loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Mail.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -364,7 +364,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading skinning loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             List<uint> lootIdSetUsed = new();
             uint count = Skinning.LoadAndCollectLootIds(out List<uint> lootIdSet);
@@ -400,7 +400,7 @@ namespace Game.Loots
             // TODO: change this to use MiscValue from spell effect as id instead of spell id
             Log.outInfo(LogFilter.ServerLoading, "Loading spell loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = Spell.LoadAndCollectLootIds(out List<uint> lootIdSet);
 
@@ -441,7 +441,7 @@ namespace Game.Loots
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading reference loot templates...");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             Reference.LoadAndCollectLootIds(out List<uint> lootIdSet);
 

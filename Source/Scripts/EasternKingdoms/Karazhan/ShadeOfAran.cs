@@ -391,7 +391,7 @@ internal class boss_aran : ScriptedAI
 
 				if (unit)
 				{
-					unit.Attack(me.GetVictim(), true);
+					unit.Attack(me.Victim, true);
 					unit.Faction = me.Faction;
 				}
 			}
@@ -407,7 +407,7 @@ internal class boss_aran : ScriptedAI
 
 				if (unit)
 				{
-					unit.Attack(me.GetVictim(), true);
+					unit.Attack(me.Victim, true);
 					unit.Faction = me.Faction;
 				}
 			}
@@ -506,7 +506,7 @@ internal class boss_aran : ScriptedAI
 		base.MoveInLineOfSight(who);
 
 		if (SeenAtiesh ||
-			me.IsInCombat() ||
+			me.			IsInCombat ||
 			me.GetDistance2d(who) > me.GetAttackDistance(who) + 10.0f)
 			return;
 

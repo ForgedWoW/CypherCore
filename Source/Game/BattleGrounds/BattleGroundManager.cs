@@ -341,7 +341,7 @@ namespace Game.BattleGrounds
 
         public void LoadBattlegroundTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0   1                 2              3             4       5
             SQLResult result = DB.World.Query("SELECT ID, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
@@ -575,7 +575,7 @@ namespace Game.BattleGrounds
 
         public void LoadBattleMastersEntry()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             mBattleMastersMap.Clear();                                  // need for reload case
 

@@ -73,8 +73,8 @@ internal class boss_broodlord : BossAI
 							{
 								DoCastVictim(SpellIds.Knockback);
 
-								if (GetThreat(me.GetVictim()) != 0)
-									ModifyThreatByPercent(me.GetVictim(), -50);
+								if (GetThreat(me.Victim) != 0)
+									ModifyThreatByPercent(me.Victim, -50);
 
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
 							});

@@ -27,7 +27,7 @@ namespace Game.AI
 
         public void LoadFromDB()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             for (byte i = 0; i < (int)SmartScriptType.Max; i++)
                 _eventMap[i].Clear();  //Drop Existing SmartAI List
@@ -398,7 +398,7 @@ namespace Game.AI
 
         public void LoadWaypointFromDB()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _waypointStore.Clear();
 

@@ -287,7 +287,7 @@ namespace Game
         //General
         public bool LoadCypherStrings()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             CypherStringStorage.Clear();
 
             SQLResult result = DB.World.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
@@ -315,7 +315,7 @@ namespace Game
 
         public void LoadRaceAndClassExpansionRequirements()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _raceUnlockRequirementStorage.Clear();
 
             //                                         0       1          2
@@ -362,7 +362,7 @@ namespace Game
             else
                 Log.outInfo(LogFilter.ServerLoading, "Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
 
-            oldMSTime = Time.GetMSTime();
+            oldMSTime = Time.MSTime;
             _classExpansionRequirementStorage.Clear();
 
             //                               0        1       2                     3
@@ -442,7 +442,7 @@ namespace Game
         }
         public void LoadRealmNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _realmNameStorage.Clear();
 
             //                                         0   1
@@ -545,7 +545,7 @@ namespace Game
         //Gossip
         public void LoadGossipMenu()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             gossipMenusStorage.Clear();
 
@@ -582,7 +582,7 @@ namespace Game
         }
         public void LoadGossipMenuItems()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             gossipMenuItemsStorage.Clear();
 
@@ -749,7 +749,7 @@ namespace Game
         }
         public void LoadGossipMenuAddon()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _gossipMenuAddonStorage.Clear();
 
@@ -790,7 +790,7 @@ namespace Game
 
         public void LoadPointsOfInterest()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             pointsOfInterestStorage.Clear(); // need for reload case
 
@@ -849,7 +849,7 @@ namespace Game
 
         public void LoadGraveyardZones()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             GraveYardStorage.Clear();                                  // need for reload case
 
@@ -899,7 +899,7 @@ namespace Game
         }
         public void LoadWorldSafeLocs()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0   1      2     3     4     5
             SQLResult result = DB.World.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
@@ -1165,7 +1165,7 @@ namespace Game
         //Scripts
         public void LoadAreaTriggerScripts()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             areaTriggerScriptStorage.Clear();                            // need for reload case
             SQLResult result = DB.World.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
@@ -1195,7 +1195,7 @@ namespace Game
         }
         void LoadScripts(ScriptsType type)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             var scripts = GetScriptsMapByType(type);
             if (scripts == null)
@@ -1804,7 +1804,7 @@ namespace Game
 
         public void LoadSpellScriptNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             spellScriptsStorage.Clear();                            // need for reload case
 
@@ -1831,7 +1831,7 @@ namespace Game
         }
         public void ValidateSpellScripts()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             if (spellScriptsStorage.Empty())
             {
@@ -1968,7 +1968,7 @@ namespace Game
         //Creatures
         public void LoadCreatureTemplates()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
             stmt.AddValue(0, 0);
@@ -2107,7 +2107,7 @@ namespace Game
 
         void LoadCreatureTemplateResistances()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0           1       2
             SQLResult result = DB.World.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
@@ -2146,7 +2146,7 @@ namespace Game
 
         void LoadCreatureTemplateSpells()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0           1       2
             SQLResult result = DB.World.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
@@ -2185,7 +2185,7 @@ namespace Game
         }
         void LoadCreatureTemplateModels()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             //                                         0           1                  2             3
             SQLResult result = DB.World.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
             if (result.IsEmpty())
@@ -2237,7 +2237,7 @@ namespace Game
         }
         void LoadCreatureSummonedData()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0           1                            2                     3
             SQLResult result = DB.World.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
@@ -2297,7 +2297,7 @@ namespace Game
         }
         public void LoadCreatureTemplateAddons()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             //                                         0      1        2      3           4         5         6            7         8      9          10               11            12                      13
             SQLResult result = DB.World.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
@@ -2450,7 +2450,7 @@ namespace Game
         }
         public void LoadCreatureAddons()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             //                                         0     1        2      3           4         5         6            7         8      9          10               11            12                      13
             SQLResult result = DB.World.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
@@ -2597,7 +2597,7 @@ namespace Game
         }
         public void LoadCreatureQuestItems()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                          0              1      2
             SQLResult result = DB.World.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
@@ -2641,7 +2641,7 @@ namespace Game
         }
         public void LoadEquipmentTemplates()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             //                                                0   1        2                 3            4
             SQLResult result = DB.World.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
                 //5                 6            7       8                 9           10
@@ -2730,7 +2730,7 @@ namespace Game
         }
         public void LoadCreatureMovementOverrides()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             creatureMovementOverrides.Clear();
 
@@ -2784,7 +2784,7 @@ namespace Game
         }
         public void LoadCreatureClassLevelStats()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             creatureBaseStatsStorage.Clear();
 
@@ -2829,7 +2829,7 @@ namespace Game
         }
         public void LoadCreatureModelInfo()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             SQLResult result = DB.World.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
 
             if (result.IsEmpty())
@@ -2894,7 +2894,7 @@ namespace Game
         }
         public void LoadCreatureScalingData()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                   0      1             2                     3                     4
             var result = DB.World.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
@@ -3295,7 +3295,7 @@ namespace Game
         }
         public void LoadLinkedRespawn()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             linkedRespawnStorage.Clear();
             //                                                 0        1          2
@@ -3555,7 +3555,7 @@ namespace Game
         }
         public void LoadNPCText()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             npcTextStorage.Clear();
 
@@ -3621,7 +3621,7 @@ namespace Game
 
         public void LoadTrainers()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // For reload case
             trainers.Clear();
@@ -3727,7 +3727,7 @@ namespace Game
         }
         public void LoadCreatureTrainers()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _creatureDefaultTrainers.Clear();
 
@@ -3791,7 +3791,7 @@ namespace Game
         }
         public void LoadVendors()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             // For reload case
             cacheVendorItemStorage.Clear();
 
@@ -3903,7 +3903,7 @@ namespace Game
         }
         public void LoadCreatures()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             //                                         0              1   2    3           4           5           6            7        8             9              10
             SQLResult result = DB.World.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
@@ -4402,7 +4402,7 @@ namespace Game
         //GameObjects
         public void LoadGameObjectTemplate()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             foreach (GameObjectsRecord db2go in CliDB.GameObjectsStorage.Values)
             {
@@ -4596,7 +4596,7 @@ namespace Game
         }
         public void LoadGameObjectTemplateAddons()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0       1       2      3        4        5        6        7        8        9        10             11
             SQLResult result = DB.World.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
@@ -4684,7 +4684,7 @@ namespace Game
         }
         public void LoadGameObjectOverrides()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                   0        1        2
             var result = DB.World.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
@@ -4726,7 +4726,7 @@ namespace Game
         }
         public void LoadGameObjects()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             //                                         0                1   2    3           4           5           6
             SQLResult result = DB.World.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
                 //7          8          9          10         11             12            13     14                 15          16
@@ -4956,7 +4956,7 @@ namespace Game
         }
         public void LoadGameObjectAddons()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _gameObjectAddonStorage.Clear();
 
@@ -5032,7 +5032,7 @@ namespace Game
         }
         public void LoadGameObjectQuestItems()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                           0                1
             SQLResult result = DB.World.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
@@ -5071,7 +5071,7 @@ namespace Game
         }
         public void LoadGameObjectForQuests()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _gameObjectForQuestStorage.Clear();                         // need for reload case
 
@@ -5279,7 +5279,7 @@ namespace Game
         //Items
         public void LoadItemTemplates()
         {
-            var oldMSTime = Time.GetMSTime();
+            var oldMSTime = Time.MSTime;
             uint sparseCount = 0;
 
             foreach (var sparse in CliDB.ItemSparseStorage.Values)
@@ -5460,7 +5460,7 @@ namespace Game
         }
         public void LoadItemTemplateAddon()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             uint count = 0;
             SQLResult result = DB.World.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
@@ -5499,7 +5499,7 @@ namespace Game
         }
         public void LoadItemScriptNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             uint count = 0;
 
             SQLResult result = DB.World.Query("SELECT Id, ScriptName FROM item_script_names");
@@ -5713,7 +5713,7 @@ namespace Game
         //Maps
         public void LoadInstanceTemplate()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
 
             //                                          0     1       2
             SQLResult result = DB.World.Query("SELECT map, parent, script FROM instance_template");
@@ -5747,7 +5747,7 @@ namespace Game
         }
         public void LoadGameTele()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             gameTeleStorage.Clear();
 
@@ -5790,7 +5790,7 @@ namespace Game
         }
         public void LoadAreaTriggerTeleports()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _areaTriggerStorage.Clear();                                  // need for reload case
 
@@ -5840,7 +5840,7 @@ namespace Game
         }
         public void LoadAccessRequirements()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _accessRequirementStorage.Clear();
 
@@ -5936,7 +5936,7 @@ namespace Game
         }
         public void LoadInstanceEncounters()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                           0         1            2                3
             SQLResult result = DB.World.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
@@ -6037,7 +6037,7 @@ namespace Game
         }
         public void LoadSpawnGroupTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0        1          2
             SQLResult result = DB.World.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
@@ -6097,7 +6097,7 @@ namespace Game
         }
         public void LoadSpawnGroups()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0        1          2
             SQLResult result = DB.World.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
@@ -6180,7 +6180,7 @@ namespace Game
         }
         public void LoadInstanceSpawnGroups()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0              1            2           3             4
             SQLResult result = DB.World.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
@@ -6416,7 +6416,7 @@ namespace Game
         //Player
         public void LoadPlayerInfo()
         {
-            var time = Time.GetMSTime();
+            var time = Time.MSTime;
             // Load playercreate
             {
                 //                                         0     1      2    3           4           5           6            7        8               9               10              11               12                  13              14              15
@@ -6535,7 +6535,7 @@ namespace Game
 
                 Log.outInfo(LogFilter.ServerLoading, "Loaded {0} player create definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
             }
-            time = Time.GetMSTime();
+            time = Time.MSTime;
             // Load playercreate items
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Items Data...");
             {
@@ -6660,7 +6660,7 @@ namespace Game
             // Load playercreate skills
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Skill Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 foreach (SkillRaceClassInfoRecord rcInfo in CliDB.SkillRaceClassInfoStorage.Values)
                 {
@@ -6688,7 +6688,7 @@ namespace Game
             // Load playercreate custom spells
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Custom Spell Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 SQLResult result = DB.World.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
                 if (result.IsEmpty())
@@ -6743,7 +6743,7 @@ namespace Game
             // Load playercreate cast spell
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Cast Spell Data...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 SQLResult result = DB.World.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
 
@@ -6802,7 +6802,7 @@ namespace Game
             }
 
             // Load playercreate actions
-            time = Time.GetMSTime();
+            time = Time.MSTime;
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Action Data...");
             {
                 //                                         0     1      2       3       4
@@ -6838,7 +6838,7 @@ namespace Game
                     Log.outInfo(LogFilter.ServerLoading, "Loaded {0} player create actions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
                 }
             }
-            time = Time.GetMSTime();
+            time = Time.MSTime;
             // Loading levels data (class/race dependent)
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Level Stats Data...");
             {
@@ -6970,7 +6970,7 @@ namespace Game
 
                 Log.outInfo(LogFilter.ServerLoading, "Loaded {0} level stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
             }
-            time = Time.GetMSTime();
+            time = Time.MSTime;
             // Loading xp per level data
             Log.outInfo(LogFilter.ServerLoading, "Loading Player Create XP Data...");
             {
@@ -7158,7 +7158,7 @@ namespace Game
         //Pets
         public void LoadPetLevelInfo()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0               1      2   3     4    5    6    7     8    9
             SQLResult result = DB.World.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
@@ -7250,7 +7250,7 @@ namespace Game
         }
         public void LoadPetNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             //                                          0     1      2
             SQLResult result = DB.World.Query("SELECT word, entry, half FROM pet_name_generation");
 
@@ -7279,7 +7279,7 @@ namespace Game
         }
         public void LoadPetNumber()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.Characters.Query("SELECT MAX(id) FROM character_pet");
             if (!result.IsEmpty())
@@ -7333,7 +7333,7 @@ namespace Game
         //Faction Change
         public void LoadFactionChangeAchievements()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
             if (result.IsEmpty())
@@ -7363,7 +7363,7 @@ namespace Game
         }
         public void LoadFactionChangeItems()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = 0;
             foreach (var itemPair in ItemTemplateStorage)
@@ -7384,7 +7384,7 @@ namespace Game
         }
         public void LoadFactionChangeQuests()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
             if (result.IsEmpty())
@@ -7414,7 +7414,7 @@ namespace Game
         }
         public void LoadFactionChangeReputations()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
             if (result.IsEmpty())
@@ -7444,7 +7444,7 @@ namespace Game
         }
         public void LoadFactionChangeSpells()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
             if (result.IsEmpty())
@@ -7474,7 +7474,7 @@ namespace Game
         }
         public void LoadFactionChangeTitles()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
             if (result.IsEmpty())
@@ -7506,7 +7506,7 @@ namespace Game
         //Quests
         public void LoadQuests()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // For reload case
             _questTemplates.Clear();
@@ -8609,7 +8609,7 @@ namespace Game
         }
         void LoadQuestRelationsHelper(MultiMap<uint, uint> map, MultiMap<uint, uint> reverseMap, string table)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             map.Clear();                                            // need for reload case
 
@@ -8645,7 +8645,7 @@ namespace Game
         }
         public void LoadQuestPOI()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questPOIStorage.Clear();                              // need for reload case
 
@@ -8728,7 +8728,7 @@ namespace Game
         }
         public void LoadQuestAreaTriggers()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questAreaTriggerStorage.Clear();                           // need for reload case
 
@@ -8788,7 +8788,7 @@ namespace Game
         }
         public void LoadQuestGreetings()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             for (var i = 0; i < 2; ++i)
                 _questGreetingStorage[i] = new Dictionary<uint, QuestGreeting>();
@@ -8927,7 +8927,7 @@ namespace Game
         }
         void LoadTerrainWorldMaps()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0               1
             SQLResult result = DB.World.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
@@ -8970,7 +8970,7 @@ namespace Game
         }
         void LoadTerrainSwapDefaults()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
             if (result.IsEmpty())
@@ -9007,7 +9007,7 @@ namespace Game
         }
         void LoadAreaPhases()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0       1
             SQLResult result = DB.World.Query("SELECT AreaId, PhaseId FROM `phase_area`");
@@ -9074,7 +9074,7 @@ namespace Game
         }
         public void LoadNPCSpellClickSpells()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _spellClickInfoStorage.Clear();
             //                                           0          1         2            3
@@ -9137,7 +9137,7 @@ namespace Game
         }
         public void LoadFishingBaseSkillLevel()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _fishingBaseForAreaStorage.Clear();                            // for reload case
 
@@ -9171,7 +9171,7 @@ namespace Game
         }
         public void LoadSkillTiers()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _skillTiers.Clear();
 
@@ -9227,7 +9227,7 @@ namespace Game
         //Locales
         public void LoadCreatureLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _creatureLocaleStorage.Clear(); // need for reload case
 
@@ -9260,7 +9260,7 @@ namespace Game
         }
         public void LoadGameObjectLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _gameObjectLocaleStorage.Clear(); // need for reload case
 
@@ -9291,7 +9291,7 @@ namespace Game
         }
         public void LoadQuestTemplateLocale()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questObjectivesLocaleStorage.Clear(); // need for reload case
             //                                         0     1     2           3                 4                5                 6                  7                   8                   9                  10
@@ -9327,7 +9327,7 @@ namespace Game
         }
         public void LoadQuestObjectivesLocale()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questObjectivesLocaleStorage.Clear(); // need for reload case
             //                                        0     1          2
@@ -9355,7 +9355,7 @@ namespace Game
         }
         public void LoadQuestGreetingLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             for (var i = 0; i < 2; ++i)
                 _questGreetingLocaleStorage[i] = new Dictionary<uint, QuestGreetingLocale>();
@@ -9409,7 +9409,7 @@ namespace Game
         }
         public void LoadQuestOfferRewardLocale()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questOfferRewardLocaleStorage.Clear(); // need for reload case
                                                     //                                               0     1          2
@@ -9436,7 +9436,7 @@ namespace Game
         }
         public void LoadQuestRequestItemsLocale()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _questRequestItemsLocaleStorage.Clear(); // need for reload case
                                                      //                                               0     1          2
@@ -9463,7 +9463,7 @@ namespace Game
         }
         public void LoadGossipMenuItemsLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _gossipMenuItemsLocaleStorage.Clear();                              // need for reload case
 
@@ -9494,7 +9494,7 @@ namespace Game
         }
         public void LoadPageTextLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _pageTextLocaleStorage.Clear(); // needed for reload case
 
@@ -9522,7 +9522,7 @@ namespace Game
         }
         public void LoadPointOfInterestLocales()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _pointOfInterestLocaleStorage.Clear(); // need for reload case
 
@@ -9590,7 +9590,7 @@ namespace Game
         //General
         public void LoadReputationRewardRate()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _repRewardRateStorage.Clear();                             // for reload case
 
@@ -9675,7 +9675,7 @@ namespace Game
         }
         public void LoadReputationOnKill()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // For reload case
             _repOnKillStorage.Clear();
@@ -9742,7 +9742,7 @@ namespace Game
         }
         public void LoadReputationSpilloverTemplate()
         {
-            var oldMSTime = Time.GetMSTime();
+            var oldMSTime = Time.MSTime;
 
             _repSpilloverTemplateStorage.Clear();                      // for reload case
 
@@ -9831,7 +9831,7 @@ namespace Game
         }
         public void LoadTavernAreaTriggers()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _tavernAreaTriggerStorage.Clear();                          // need for reload case
 
@@ -9864,7 +9864,7 @@ namespace Game
         }
         public void LoadMailLevelRewards()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _mailLevelRewardStorage.Clear();                           // for reload case
 
@@ -9919,7 +9919,7 @@ namespace Game
         }
         public void LoadExplorationBaseXP()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             SQLResult result = DB.World.Query("SELECT level, basexp FROM exploration_basexp");
 
@@ -9943,7 +9943,7 @@ namespace Game
         }
         public void LoadTempSummons()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _tempSummonDataStorage.Clear();   // needed for reload case
 
@@ -10030,7 +10030,7 @@ namespace Game
         }
         public void LoadPageTexts()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                         0   1     2           3                 4
             SQLResult result = DB.World.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
@@ -10070,7 +10070,7 @@ namespace Game
         }
         public void LoadReservedPlayersNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _reservedNamesStorage.Clear();                                // need for reload case
 
@@ -10097,7 +10097,7 @@ namespace Game
         //not very fast function but it is called only once a day, or on starting-up
         public void ReturnOrDeleteOldMails(bool serverUp)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             long curTime = GameTime.GetGameTime();
             DateTime lt = Time.UnixTimeToDateTime(curTime).ToLocalTime();
@@ -10218,7 +10218,7 @@ namespace Game
         }
         public void LoadSceneTemplates()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _sceneTemplateStorage.Clear();
 
             SQLResult result = DB.World.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
@@ -10247,7 +10247,7 @@ namespace Game
         }
         public void LoadPlayerChoices()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _playerChoices.Clear();
 
             SQLResult choiceResult = DB.World.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
@@ -10607,7 +10607,7 @@ namespace Game
         }
         public void LoadPlayerChoicesLocale()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // need for reload case
             _playerChoiceLocales.Clear();
@@ -10640,7 +10640,7 @@ namespace Game
                 Log.outInfo(LogFilter.ServerLoading, $"Loaded {_playerChoiceLocales.Count} Player Choice locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
             }
 
-            oldMSTime = Time.GetMSTime();
+            oldMSTime = Time.MSTime;
 
             //                               0         1           2       3       4       5          6               7            8
             result = DB.World.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
@@ -10706,7 +10706,7 @@ namespace Game
         }
         public void InitializeQueriesData(QueryDataGroup mask)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // cache disabled
             if (!WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
@@ -10739,7 +10739,7 @@ namespace Game
         }
         public void LoadJumpChargeParams()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // need for reload case
             _jumpChargeParams.Clear();
@@ -10810,7 +10810,7 @@ namespace Game
         }
         public void LoadPhaseNames()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _phaseNameStorage.Clear();
 
             //                                          0     1
@@ -11234,7 +11234,7 @@ namespace Game
         //Vehicles
         public void LoadVehicleTemplate()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _vehicleTemplateStore.Clear();
 
@@ -11266,7 +11266,7 @@ namespace Game
         }
         public void LoadVehicleTemplateAccessories()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _vehicleTemplateAccessoryStore.Clear();                           // needed for reload case
 
@@ -11317,7 +11317,7 @@ namespace Game
         }
         public void LoadVehicleAccessories()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _vehicleAccessoryStore.Clear();                           // needed for reload case
 
@@ -11357,7 +11357,7 @@ namespace Game
         }
         public void LoadVehicleSeatAddon()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _vehicleSeatAddonStore.Clear();                           // needed for reload case
 

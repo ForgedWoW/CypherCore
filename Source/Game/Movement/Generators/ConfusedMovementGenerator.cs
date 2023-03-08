@@ -60,7 +60,7 @@ namespace Game.Movement
 
             // waiting for next move
             _timer.Update(diff);
-            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
+            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
             {
                 RemoveFlag(MovementGeneratorFlags.Transitory);
 
@@ -124,8 +124,8 @@ namespace Game.Movement
                 {
                     owner.RemoveUnitFlag(UnitFlags.Confused);
                     owner.ClearUnitState(UnitState.ConfusedMove);
-                    if (owner.GetVictim())
-                        owner.SetTarget(owner.GetVictim().GUID);
+                    if (owner.Victim)
+                        owner.SetTarget(owner.Victim.GUID);
                 }
             }
         }

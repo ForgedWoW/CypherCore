@@ -32,7 +32,7 @@ internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
 		if (auraEffDummy == null)
 			return;
 
-		if (!owner.IsInCombat() &&
+		if (!owner.IsInCombat &&
 			(!owner.HasAura(DruidSpellIds.EclipseSolarSpellCnt) || !owner.HasAura(DruidSpellIds.EclipseLunarSpellCnt)))
 		{
 			// Restore 2 stacks to each spell when out of combat

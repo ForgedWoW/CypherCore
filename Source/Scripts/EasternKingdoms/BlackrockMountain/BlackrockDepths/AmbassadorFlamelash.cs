@@ -37,7 +37,7 @@ internal class boss_ambassador_flamelash : ScriptedAI
 							task =>
 							{
 								for (uint i = 0; i < 4; ++i)
-									SummonSpirit(me.GetVictim());
+									SummonSpirit(me.Victim);
 
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});

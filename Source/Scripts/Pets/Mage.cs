@@ -123,11 +123,11 @@ namespace Scripts.Pets
 					return false;
 
 				if (!me.HasUnitState(UnitState.Casting) &&
-					!me.IsInCombat() &&
-					!owner.IsInCombat())
+					!me.IsInCombat &&
+					!owner.IsInCombat)
 					return false;
 
-				var currentTarget = me.GetVictim();
+				var currentTarget = me.Victim;
 
 				if (currentTarget && !CanAIAttack(currentTarget))
 				{
@@ -198,7 +198,7 @@ namespace Scripts.Pets
 					return false;
 				}
 
-				if (selectedTarget != me.GetVictim())
+				if (selectedTarget != me.Victim)
 					AttackStartCaster(selectedTarget, CHASE_DISTANCE);
 
 				return true;

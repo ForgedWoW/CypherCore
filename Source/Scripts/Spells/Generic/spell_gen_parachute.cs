@@ -29,7 +29,7 @@ internal class spell_gen_parachute : AuraScript, IHasAuraEffects
 		var target = Target.AsPlayer;
 
 		if (target)
-			if (target.IsFalling())
+			if (target.IsFalling)
 			{
 				target.RemoveAura(GenericSpellIds.Parachute);
 				target.CastSpell(target, GenericSpellIds.ParachuteBuff, true);

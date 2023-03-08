@@ -127,7 +127,7 @@ namespace Game.AI
                         minRange += rangeMod;
                 }
 
-                if (_caster.IsMoving() && target.IsMoving() && !_caster.IsWalking() && !target.IsWalking() &&
+                if (_caster.IsMoving && target.IsMoving && !_caster.IsWalking && !target.IsWalking &&
                     (_spellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Melee) || target.IsTypeId(TypeId.Player)))
                     rangeMod += 8.0f / 3.0f;
             }
@@ -176,7 +176,7 @@ namespace Game.AI
             if (currentVictim != null)
                 return target != currentVictim;
 
-            return target != _source.GetVictim();
+            return target != _source.Victim;
         }
     }
 

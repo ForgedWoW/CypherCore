@@ -89,7 +89,7 @@ internal class npc_guard_generic : GuardAI
 		_combatScheduler.Schedule(TimeSpan.FromSeconds(1),
 								task =>
 								{
-									var victim = me.GetVictim();
+									var victim = me.Victim;
 
 									if (!me.IsAttackReady() ||
 										!me.IsWithinMeleeRange(victim))
@@ -101,7 +101,7 @@ internal class npc_guard_generic : GuardAI
 
 									if (RandomHelper.randChance(20))
 									{
-										var spellInfo = SelectSpell(me.GetVictim(), 0, 0, SelectTargetType.AnyEnemy, 0, SharedConst.NominalMeleeRange, SelectEffect.DontCare);
+										var spellInfo = SelectSpell(me.Victim, 0, 0, SelectTargetType.AnyEnemy, 0, SharedConst.NominalMeleeRange, SelectEffect.DontCare);
 
 										if (spellInfo != null)
 										{
@@ -133,7 +133,7 @@ internal class npc_guard_generic : GuardAI
 									if (spellInfo != null)
 										healing = true;
 									else
-										spellInfo = SelectSpell(me.GetVictim(), 0, 0, SelectTargetType.AnyEnemy, SharedConst.NominalMeleeRange, 0, SelectEffect.DontCare);
+										spellInfo = SelectSpell(me.Victim, 0, 0, SelectTargetType.AnyEnemy, SharedConst.NominalMeleeRange, 0, SelectEffect.DontCare);
 
 									// Found a spell
 									if (spellInfo != null)
@@ -224,7 +224,7 @@ internal class npc_guard_shattrath_faction : GuardAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								var temp = me.GetVictim();
+								var temp = me.Victim;
 
 								if (temp && temp.IsTypeId(TypeId.Player))
 								{

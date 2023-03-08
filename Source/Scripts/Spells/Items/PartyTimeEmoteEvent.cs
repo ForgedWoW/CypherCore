@@ -22,7 +22,7 @@ internal class PartyTimeEmoteEvent : BasicEvent
 		if (!_player.HasAura(ItemSpellIds.PartyTime))
 			return true;
 
-		if (_player.IsMoving())
+		if (_player.IsMoving)
 			_player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
 		else
 			_player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotDancespecial, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));

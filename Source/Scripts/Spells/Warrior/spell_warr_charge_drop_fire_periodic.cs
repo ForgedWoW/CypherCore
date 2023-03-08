@@ -24,7 +24,7 @@ internal class spell_warr_charge_drop_fire_periodic : AuraScript, IHasAuraEffect
 	{
 		PreventDefaultAction();
 
-		if (Target.IsSplineEnabled())
+		if (Target.IsSplineEnabled)
 			for (uint i = 0; i < 5; ++i)
 			{
 				var timeOffset = (int)(6 * i * aurEff.Period / 25);

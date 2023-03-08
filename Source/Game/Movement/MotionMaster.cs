@@ -832,15 +832,15 @@ namespace Game.Movement
                     point.X = (float)(x + radius * Math.Cos(angle));
                     point.Y = (float)(y + radius * Math.Sin(angle));
 
-                    if (_owner.IsFlying())
+                    if (_owner.IsFlying)
                         point.Z = z;
                     else
-                        point.Z = _owner.GetMapHeight(point.X, point.Y, z) + _owner.GetHoverOffset();
+                        point.Z = _owner.GetMapHeight(point.X, point.Y, z) + _owner.HoverOffset;
 
                     init.Path().Add(point);
                 }
 
-                if (_owner.IsFlying())
+                if (_owner.IsFlying)
                 {
                     init.SetFly();
                     init.SetCyclic();
@@ -935,7 +935,7 @@ namespace Game.Movement
 
             var initializer = (MoveSplineInit init) =>
             {
-                init.MoveTo(_owner.Location.X, _owner.Location.Y, tz + _owner.GetHoverOffset(), false);
+                init.MoveTo(_owner.Location.X, _owner.Location.Y, tz + _owner.HoverOffset, false);
                 init.SetFall();
             };
 

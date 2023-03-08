@@ -258,7 +258,7 @@ namespace Game.Chat
             }
 
             Unit target = handler.GetSelectedUnit();
-            if (!target || handler.GetSession().Player.GetTarget().IsEmpty)
+            if (!target || handler.GetSession().Player.Target.IsEmpty)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
                 return false;
@@ -368,7 +368,7 @@ namespace Game.Chat
         static bool HandleDieCommand(CommandHandler handler)
         {
             Unit target = handler.GetSelectedUnit();
-            if (!target && handler.GetPlayer().GetTarget().IsEmpty)
+            if (!target && handler.GetPlayer().Target.IsEmpty)
             {
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
                 return false;
@@ -687,7 +687,7 @@ namespace Game.Chat
         [CommandNonGroup("guid", RBACPermissions.CommandGuid)]
         static bool HandleGUIDCommand(CommandHandler handler)
         {
-            ObjectGuid guid = handler.GetSession().Player.GetTarget();
+            ObjectGuid guid = handler.GetSession().Player.Target;
 
             if (guid.IsEmpty)
             {
@@ -1607,7 +1607,7 @@ namespace Game.Chat
             Player player = handler.GetSession().Player;
 
             // accept only explicitly selected target (not implicitly self targeting case)
-            Creature target = !player.GetTarget().IsEmpty ? handler.GetSelectedCreature() : null;
+            Creature target = !player.Target.IsEmpty ? handler.GetSelectedCreature() : null;
             if (target)
             {
                 if (target.IsPet)
@@ -2012,7 +2012,7 @@ namespace Game.Chat
                 return false;
             }
 
-            if (player.IsInFlight || player.IsInCombat())
+            if (player.IsInFlight || player.IsInCombat)
             {
                 SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(SPELL_UNSTUCK_ID, Difficulty.None);
                 if (spellInfo == null)

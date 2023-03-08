@@ -91,7 +91,7 @@ namespace Game
         {
             Log.outInfo(LogFilter.ServerLoading, "Loading Guilds Definitions...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                                                         //          0          1       2             3              4              5              6
                 SQLResult result = DB.Characters.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, " +
@@ -121,7 +121,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loading guild ranks...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete orphaned guild rank entries before loading the valid ones
                 DB.Characters.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -155,7 +155,7 @@ namespace Game
             // 3. Load all guild members
             Log.outInfo(LogFilter.ServerLoading, "Loading guild members...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete orphaned guild member entries before loading the valid ones
                 DB.Characters.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -192,7 +192,7 @@ namespace Game
             // 4. Load all guild bank tab rights
             Log.outInfo(LogFilter.ServerLoading, "Loading bank tab rights...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete orphaned guild bank right entries before loading the valid ones
                 DB.Characters.DirectExecute("DELETE gbr FROM guild_bank_right gbr LEFT JOIN guild g ON gbr.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -225,7 +225,7 @@ namespace Game
             // 5. Load all event logs
             Log.outInfo(LogFilter.ServerLoading, "Loading guild event logs...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 DB.Characters.DirectExecute("DELETE FROM guild_eventlog WHERE LogGuid > {0}", GuildConst.EventLogMaxRecords);
 
@@ -257,7 +257,7 @@ namespace Game
             // 6. Load all bank event logs
             Log.outInfo(LogFilter.ServerLoading, "Loading guild bank event logs...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Remove log entries that exceed the number of allowed entries per guild
                 DB.Characters.DirectExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {0}", GuildConst.BankLogMaxRecords);
@@ -290,7 +290,7 @@ namespace Game
             // 7. Load all news event logs
             Log.outInfo(LogFilter.ServerLoading, "Loading Guild News...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 DB.Characters.DirectExecute("DELETE FROM guild_newslog WHERE LogGuid > {0}", GuildConst.NewsLogMaxRecords);
 
@@ -320,7 +320,7 @@ namespace Game
             // 8. Load all guild bank tabs
             Log.outInfo(LogFilter.ServerLoading, "Loading guild bank tabs...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete orphaned guild bank tab entries before loading the valid ones
                 DB.Characters.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -352,7 +352,7 @@ namespace Game
             // 9. Fill all guild bank tabs
             Log.outInfo(LogFilter.ServerLoading, "Filling bank tabs with items...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete orphan guild bank items
                 DB.Characters.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -383,7 +383,7 @@ namespace Game
             // 10. Load guild achievements
             Log.outInfo(LogFilter.ServerLoading, "Loading guild achievements...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 foreach (var pair in GuildStore)
                 {
@@ -404,7 +404,7 @@ namespace Game
             // 11. Validate loaded guild data
             Log.outInfo(LogFilter.Server, "Validating data of loaded guilds...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 foreach (var guild in GuildStore.ToList())
                 {
@@ -418,7 +418,7 @@ namespace Game
 
         public void LoadGuildRewards()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             //                                            0      1            2         3
             SQLResult result = DB.World.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");

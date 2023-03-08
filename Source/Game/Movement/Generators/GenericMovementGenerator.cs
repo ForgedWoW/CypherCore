@@ -62,7 +62,7 @@ namespace Game.Movement
             if (!owner.MoveSpline.IsCyclic())
                 _duration.Update(diff);
 
-            if (_duration.Passed() || owner.MoveSpline.Finalized())
+            if (_duration.Passed || owner.MoveSpline.Finalized())
             {
                 AddFlag(MovementGeneratorFlags.InformEnabled);
                 return false;

@@ -208,7 +208,7 @@ namespace Game.Movement
                         if (_sourceUnit.CanFly)
                             buildShotrcut = true;
                         // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
-                        else if (_sourceUnit.IsFalling() && endPos.Z < startPos.Z)
+                        else if (_sourceUnit.IsFalling && endPos.Z < startPos.Z)
                             buildShotrcut = true;
                     }
                 }
@@ -873,7 +873,7 @@ namespace Game.Movement
             Unit _sourceUnit = _source.AsUnit;
             if (_sourceUnit != null)
             {
-                if (_sourceUnit.IsInWater() || _sourceUnit.IsUnderWater())
+                if (_sourceUnit.IsInWater || _sourceUnit.IsUnderWater)
                 {
                     NavTerrainFlag includedFlags = (NavTerrainFlag)_filter.getIncludeFlags();
                     includedFlags |= GetNavTerrain(_source.Location.X, _source.Location.Y, _source.Location.Z);
@@ -883,7 +883,7 @@ namespace Game.Movement
 
                 Creature _sourceCreature = _source.AsCreature;
                 if (_sourceCreature != null)
-                    if (_sourceCreature.IsInCombat() || _sourceCreature.IsInEvadeMode)
+                    if (_sourceCreature.IsInCombat || _sourceCreature.IsInEvadeMode)
                         _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
             }
         }

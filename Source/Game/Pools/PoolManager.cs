@@ -40,7 +40,7 @@ public class PoolManager : Singleton<PoolManager>
 	{
 		// Pool templates
 		{
-			var oldMSTime = Time.GetMSTime();
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT entry, max_limit FROM pool_template");
 
@@ -73,7 +73,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.outInfo(LogFilter.ServerLoading, "Loading Creatures Pooling Data...");
 
 		{
-			var oldMSTime = Time.GetMSTime();
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
@@ -149,7 +149,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.outInfo(LogFilter.ServerLoading, "Loading Gameobject Pooling Data...");
 
 		{
-			var oldMSTime = Time.GetMSTime();
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
@@ -225,7 +225,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.outInfo(LogFilter.ServerLoading, "Loading Mother Pooling Data...");
 
 		{
-			var oldMSTime = Time.GetMSTime();
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
@@ -353,7 +353,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.outInfo(LogFilter.ServerLoading, "Starting objects pooling system...");
 
 		{
-			var oldMSTime = Time.GetMSTime();
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
 										" LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry" +

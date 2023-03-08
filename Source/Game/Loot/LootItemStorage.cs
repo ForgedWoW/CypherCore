@@ -17,7 +17,7 @@ namespace Game.Loots
 
         public void LoadStorageFromDB()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             _lootItemStorage.Clear();
             uint count = 0;
 

@@ -101,7 +101,7 @@ public class TempSummon : Creature
 			}
 			case TempSummonType.TimedDespawnOutOfCombat:
 			{
-				if (!IsInCombat())
+				if (!IsInCombat)
 				{
 					if (_timer <= diff)
 					{
@@ -157,7 +157,7 @@ public class TempSummon : Creature
 					return;
 				}
 
-				if (!IsInCombat())
+				if (!IsInCombat)
 				{
 					if (_timer <= diff)
 					{
@@ -179,7 +179,7 @@ public class TempSummon : Creature
 			}
 			case TempSummonType.TimedOrDeadDespawn:
 			{
-				if (!IsInCombat() && IsAlive)
+				if (!IsInCombat && IsAlive)
 				{
 					if (_timer <= diff)
 					{

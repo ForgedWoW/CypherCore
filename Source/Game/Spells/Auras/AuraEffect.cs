@@ -2505,7 +2505,7 @@ public class AuraEffect
 		target.SetCanTransitionBetweenSwimAndFly(apply);
 
 		if (target.SetCanFly(apply))
-			if (!apply && !target.IsGravityDisabled())
+			if (!apply && !target.IsGravityDisabled)
 				target.				MotionMaster.MoveFall();
 	}
 
@@ -2681,7 +2681,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsAlive || !target.CanHaveThreatList())
+		if (!target.IsAlive || !target.CanHaveThreatList)
 			return;
 
 		target.GetThreatManager().TauntUpdate();
@@ -2696,7 +2696,7 @@ public class AuraEffect
 		var caster = Caster;
 		var target = aurApp.Target;
 
-		if (!caster || !caster.IsAlive || !target.IsAlive || !caster.CanHaveThreatList())
+		if (!caster || !caster.IsAlive || !target.IsAlive || !caster.CanHaveThreatList)
 			return;
 
 		caster.GetThreatManager().TauntUpdate();
@@ -2788,7 +2788,7 @@ public class AuraEffect
 			return;
 
 		if (target.SetDisableGravity(apply))
-			if (!apply && !target.IsFlying())
+			if (!apply && !target.IsFlying)
 				target.				MotionMaster.MoveFall();
 	}
 
@@ -2810,7 +2810,7 @@ public class AuraEffect
 			return;
 
 		if (target.SetDisableGravity(apply))
-			if (!apply && !target.IsFlying())
+			if (!apply && !target.IsFlying)
 				target.				MotionMaster.MoveFall();
 	}
 
@@ -2881,7 +2881,7 @@ public class AuraEffect
 				AsPlayer.PetSpellInitialize();
 
 				// TODO: remove this
-				if (pet.GetVictim() == null && !pet.GetCharmInfo().HasCommandState(CommandStates.Stay))
+				if (pet.Victim == null && !pet.GetCharmInfo().HasCommandState(CommandStates.Stay))
 					pet.					MotionMaster.MoveFollow(caster, SharedConst.PetFollowDist, pet.FollowAngle);
 			}
 		}
@@ -3025,7 +3025,7 @@ public class AuraEffect
 				target.SetCanTransitionBetweenSwimAndFly(apply);
 
 				if (target.SetCanFly(apply))
-					if (!apply && !target.IsGravityDisabled())
+					if (!apply && !target.IsGravityDisabled)
 						target.						MotionMaster.MoveFall();
 			}
 
@@ -4652,7 +4652,7 @@ public class AuraEffect
 				{
 					case 1515: // Tame beast
 						// FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
-						if (caster != null && target.CanHaveThreatList())
+						if (caster != null && target.CanHaveThreatList)
 							target.GetThreatManager().AddThreat(caster, 10.0f);
 
 						break;

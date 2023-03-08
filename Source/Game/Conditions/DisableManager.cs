@@ -26,7 +26,7 @@ namespace Game
 
         public void LoadDisables()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // reload case
             m_DisableMap.Clear();
@@ -251,7 +251,7 @@ namespace Game
                 return;
             }
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // check only quests, rest already done at startup
             foreach (var pair in m_DisableMap[DisableType.Quest])

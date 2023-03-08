@@ -336,7 +336,7 @@ namespace Game
         
         public void LoadConditions(bool isReload = false)
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             Clean();
 
@@ -2523,7 +2523,7 @@ namespace Game
                 case UnitConditionVariable.IsMaster:
                     return (otherUnit && otherUnit.CharmerOrOwnerGUID == unit.GUID) ? 1 : 0;
                 case UnitConditionVariable.IsTarget:
-                    return (otherUnit && otherUnit.GetTarget() == unit.GUID) ? 1 : 0;
+                    return (otherUnit && otherUnit.Target == unit.GUID) ? 1 : 0;
                 case UnitConditionVariable.CanAssist:
                     return (otherUnit && unit.IsValidAssistTarget(otherUnit)) ? 1 : 0;
                 case UnitConditionVariable.CanAttack:
@@ -2595,7 +2595,7 @@ namespace Game
                 case UnitConditionVariable.DamageArcanePct:
                     break;
                 case UnitConditionVariable.InCombat:
-                    return unit.IsInCombat() ? 1 : 0;
+                    return unit.IsInCombat ? 1 : 0;
                 case UnitConditionVariable.IsMoving:
                     return unit.HasUnitMovementFlag(MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight) ? 1:0;
                 case UnitConditionVariable.IsCasting:
@@ -2605,7 +2605,7 @@ namespace Game
                 case UnitConditionVariable.IsChannelingSpell: // this is supposed to return spell id by client code but data always has 0 or 1
                     return unit.ChannelSpellId != 0 ? 1 : 0;
                 case UnitConditionVariable.NumberOfMeleeAttackers:
-                    return unit.GetAttackers().Count(attacker =>
+                    return unit.Attackers.Count(attacker =>
                     {
                         float distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
@@ -2613,7 +2613,7 @@ namespace Game
                         return unit.Location.GetExactDistSq(attacker.Location) < distance * distance;
                     });
                 case UnitConditionVariable.IsAttackingMe:
-                    return (otherUnit != null && unit.GetTarget() == otherUnit.GUID) ? 1:0;
+                    return (otherUnit != null && unit.Target == otherUnit.GUID) ? 1:0;
                 case UnitConditionVariable.Range:
                     return otherUnit ? (int)unit.Location.GetExactDist(otherUnit.Location) : 0;
                 case UnitConditionVariable.InMeleeRange:
@@ -2652,9 +2652,9 @@ namespace Game
                 case UnitConditionVariable.IsInterruptible:
                     break;
                 case UnitConditionVariable.NumberOfAttackers:
-                    return unit.GetAttackers().Count;
+                    return unit.Attackers.Count;
                 case UnitConditionVariable.NumberOfRangedAttackers:
-                    return unit.GetAttackers().Count(attacker =>
+                    return unit.Attackers.Count(attacker =>
                     {
                         float distance = Math.Max(unit.CombatReach + attacker.CombatReach + 1.3333334f, 5.0f);
                         if (unit.HasUnitFlag(UnitFlags.PlayerControlled) || attacker.HasUnitFlag(UnitFlags.PlayerControlled))
@@ -2665,7 +2665,7 @@ namespace Game
                     return (int)unit.CreatureType;
                 case UnitConditionVariable.IsMeleeAttacking:
                 {
-                    Unit target = Global.ObjAccessor.GetUnit(unit, unit.GetTarget());
+                    Unit target = Global.ObjAccessor.GetUnit(unit, unit.Target);
                     if (target != null)
                     {
                         float distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
@@ -2677,7 +2677,7 @@ namespace Game
                 }
                 case UnitConditionVariable.IsRangedAttacking:
                 {
-                    Unit target = Global.ObjAccessor.GetUnit(unit, unit.GetTarget());
+                    Unit target = Global.ObjAccessor.GetUnit(unit, unit.Target);
                     if (target != null)
                     {
                         float distance = Math.Max(unit.CombatReach + target.CombatReach + 1.3333334f, 5.0f);
@@ -2748,7 +2748,7 @@ namespace Game
                 case UnitConditionVariable.IsSummoner:
                     return (otherUnit && (unit.CharmerGUID == otherUnit.GUID || unit.CreatorGUID == otherUnit.GUID)) ? 1 : 0;
                 case UnitConditionVariable.IsMyTarget:
-                    return (otherUnit && unit.GetTarget() == otherUnit.GUID) ? 1 : 0;
+                    return (otherUnit && unit.Target == otherUnit.GUID) ? 1 : 0;
                 case UnitConditionVariable.Sex:
                     return (int)unit.Gender;
                 case UnitConditionVariable.LevelWithinContentTuning:
@@ -2757,9 +2757,9 @@ namespace Game
                         return unit.Level >= levelRange.Value.MinLevel && unit.Level <= levelRange.Value.MaxLevel ? value : 0;
                     return 0;
                 case UnitConditionVariable.IsFlying:
-                    return unit.IsFlying() ? 1 : 0;
+                    return unit.IsFlying ? 1 : 0;
                 case UnitConditionVariable.IsHovering:
-                    return unit.IsHovering() ? 1 : 0;
+                    return unit.IsHovering ? 1 : 0;
                 case UnitConditionVariable.HasHelpfulAuraEffect:
                     return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
                 case UnitConditionVariable.HasHelpfulAuraSchool:

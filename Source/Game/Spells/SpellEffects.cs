@@ -2641,10 +2641,10 @@ public partial class Spell
 
 		// Hand of Reckoning can hit some entities that can't have a threat list (including players' pets)
 		if (SpellInfo.Id == 62124)
-			if (!UnitTarget.IsPlayer && UnitTarget.GetTarget() != unitCaster.GUID)
+			if (!UnitTarget.IsPlayer && UnitTarget.Target != unitCaster.GUID)
 				unitCaster.CastSpell(UnitTarget, 67485, true);
 
-		if (!UnitTarget.CanHaveThreatList())
+		if (!UnitTarget.CanHaveThreatList)
 		{
 			SendCastResult(SpellCastResult.DontReport);
 
@@ -2820,7 +2820,7 @@ public partial class Spell
 		if (UnitTarget == null)
 			return;
 
-		if (!UnitTarget.CanHaveThreatList())
+		if (!UnitTarget.CanHaveThreatList)
 			return;
 
 		UnitTarget.GetThreatManager().AddThreat(unitCaster, Damage, SpellInfo, true);
@@ -3799,8 +3799,8 @@ public partial class Spell
 		// we should also force pets to remove us from current target
 		List<Unit> attackerSet = new();
 
-		foreach (var unit in unitCaster.GetAttackers())
-			if (unit.TypeId == TypeId.Unit && !unit.CanHaveThreatList())
+		foreach (var unit in unitCaster.Attackers)
+			if (unit.TypeId == TypeId.Unit && !unit.CanHaveThreatList)
 				attackerSet.Add(unit);
 
 		foreach (var unit in attackerSet)

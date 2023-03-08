@@ -47,7 +47,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	//Initialization
 	public void Initialize()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		LoadDatabase();
 
@@ -344,7 +344,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	private void LoadScriptWaypoints()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		// Drop Existing Waypoint list
 		_waypointStore.Clear();
@@ -407,7 +407,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	private void LoadScriptSplineChains()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		_mSplineChainsMap.Clear();
 

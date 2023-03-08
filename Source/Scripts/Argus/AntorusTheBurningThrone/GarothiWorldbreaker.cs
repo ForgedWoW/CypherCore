@@ -408,8 +408,8 @@ internal class boss_garothi_worldbreaker : BossAI
 			}
 		});
 
-		if (me.GetVictim() &&
-			me.GetVictim().IsWithinMeleeRange(me))
+		if (me.Victim &&
+			me.			Victim.IsWithinMeleeRange(me))
 			DoMeleeAttackIfReady();
 		else
 			DoSpellAttackIfReady(SpellIds.Carnage);
@@ -914,8 +914,8 @@ internal class VictimCheck : ICheck<WorldObject>
 		if (!unit)
 			return true;
 
-		if (_caster.GetVictim() &&
-			_caster.GetVictim() != unit)
+		if (_caster.Victim &&
+			_caster.			Victim != unit)
 			return _keepTank;
 
 		return false;

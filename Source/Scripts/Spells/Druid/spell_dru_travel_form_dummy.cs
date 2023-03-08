@@ -23,7 +23,7 @@ internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 		if (!player)
 			return SpellCastResult.CustomError;
 
-		var spellId = (player.HasSpell(DruidSpellIds.FormAquaticPassive) && player.IsInWater()) ? DruidSpellIds.FormAquatic : DruidSpellIds.FormStag;
+		var spellId = (player.HasSpell(DruidSpellIds.FormAquaticPassive) && player.IsInWater) ? DruidSpellIds.FormAquatic : DruidSpellIds.FormStag;
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 

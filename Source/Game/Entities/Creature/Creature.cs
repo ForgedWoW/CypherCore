@@ -198,7 +198,7 @@ public partial class Creature : Unit
 
 	public bool CanWalk => MovementTemplate.IsGroundAllowed();
 
-	public override bool CanFly => MovementTemplate.IsFlightAllowed() || IsFlying();
+	public override bool CanFly => MovementTemplate.IsFlightAllowed() || IsFlying;
 
 	public bool IsDungeonBoss => (CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss));
 
@@ -249,7 +249,7 @@ public partial class Creature : Unit
 
 	bool CanNotReachTarget => _cannotReachTarget;
 
-	public bool CanHover => MovementTemplate.Ground == CreatureGroundMovementType.Hover || IsHovering();
+	public bool CanHover => MovementTemplate.Ground == CreatureGroundMovementType.Hover || IsHovering;
 
 	// (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)
 	public uint CombatPulseDelay
@@ -449,7 +449,7 @@ public partial class Creature : Unit
 				_respawnTime = Math.Max(GameTime.GetGameTime() + respawnDelay, _respawnTime);
 
 			// if corpse was removed during falling, the falling will continue and override relocation to respawn position
-			if (IsFalling())
+			if (IsFalling)
 				StopMoving();
 
 			var respawn = RespawnPosition;
@@ -635,7 +635,7 @@ public partial class Creature : Unit
 		// if unit is in combat, keep this flag
 		unitFlags &= ~(uint)UnitFlags.InCombat;
 
-		if (IsInCombat())
+		if (IsInCombat)
 			unitFlags |= (uint)UnitFlags.InCombat;
 
 		ReplaceAllUnitFlags((UnitFlags)unitFlags);
@@ -978,7 +978,7 @@ public partial class Creature : Unit
 			case PowerType.Mana:
 			{
 				// Combat and any controlled creature
-				if (IsInCombat() || CharmerOrOwnerGUID.IsEmpty)
+				if (IsInCombat || CharmerOrOwnerGUID.IsEmpty)
 				{
 					var ManaIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RatePowerMana);
 					addvalue = (27.0f / 5.0f + 17.0f) * ManaIncreaseRate;
@@ -1003,7 +1003,7 @@ public partial class Creature : Unit
 
 	public void DoFleeToGetAssistance()
 	{
-		if (!GetVictim())
+		if (!Victim)
 			return;
 
 		if (HasAuraType(AuraType.PreventsFleeing))
@@ -1013,7 +1013,7 @@ public partial class Creature : Unit
 
 		if (radius > 0)
 		{
-			var u_check = new NearestAssistCreatureInCreatureRangeCheck(this, GetVictim(), radius);
+			var u_check = new NearestAssistCreatureInCreatureRangeCheck(this, Victim, radius);
 			var searcher = new CreatureLastSearcher(this, u_check, GridType.Grid);
 			Cell.VisitGrid(this, searcher, radius);
 
@@ -1157,7 +1157,7 @@ public partial class Creature : Unit
 		LoadCreaturesAddon();
 
 		//! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
-		Location.Z += GetHoverOffset();
+		Location.Z += HoverOffset;
 
 		LastUsedScriptID = GetScriptId();
 
@@ -1185,7 +1185,7 @@ public partial class Creature : Unit
 	{
 		Unit target;
 
-		if (CanHaveThreatList())
+		if (CanHaveThreatList)
 		{
 			target = GetThreatManager().GetCurrentVictim();
 		}
@@ -1200,12 +1200,12 @@ public partial class Creature : Unit
 
 				if (owner != null)
 				{
-					if (owner.IsInCombat())
+					if (owner.IsInCombat)
 						target = owner.GetAttackerForHelper();
 
 					if (!target)
 						foreach (var itr in owner.Controlled)
-							if (itr.IsInCombat())
+							if (itr.IsInCombat)
 							{
 								target = itr.GetAttackerForHelper();
 
@@ -2110,10 +2110,10 @@ public partial class Creature : Unit
 			SetNoSearchAssistance(false);
 
 			//Dismiss group if is leader
-			if (_creatureGroup != null && _creatureGroup.GetLeader() == this)
+			if (_creatureGroup != null && _creatureGroup.Leader == this)
 				_creatureGroup.FormationReset(true);
 
-			var needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
+			var needsFalling = (IsFlying || IsHovering) && !IsUnderWater;
 			SetHover(false, false);
 			SetDisableGravity(false, false);
 
@@ -2383,7 +2383,7 @@ public partial class Creature : Unit
 
 	public void CallAssistance()
 	{
-		if (!_alreadyCallAssistance && GetVictim() != null && !IsPet && !IsCharmed)
+		if (!_alreadyCallAssistance && Victim != null && !IsPet && !IsCharmed)
 		{
 			SetNoCallAssistance(true);
 
@@ -2393,13 +2393,13 @@ public partial class Creature : Unit
 			{
 				List<Creature> assistList = new();
 
-				var u_check = new AnyAssistCreatureInRangeCheck(this, GetVictim(), radius);
+				var u_check = new AnyAssistCreatureInRangeCheck(this, Victim, radius);
 				var searcher = new CreatureListSearcher(this, assistList, u_check, GridType.Grid);
 				Cell.VisitGrid(this, searcher, radius);
 
 				if (!assistList.Empty())
 				{
-					AssistDelayEvent e = new(GetVictim().GUID, this);
+					AssistDelayEvent e = new(Victim.GUID, this);
 
 					while (!assistList.Empty())
 					{
@@ -2705,7 +2705,7 @@ public partial class Creature : Unit
 		var canHover = CanHover;
 		var isInAir = (MathFunctions.fuzzyGt(Location.Z, ground + (canHover ? UnitData.HoverHeight : 0.0f) + MapConst.GroundHeightTolerance) || MathFunctions.fuzzyLt(Location.Z, ground - MapConst.GroundHeightTolerance)); // Can be underground too, prevent the falling
 
-		if (MovementTemplate.IsFlightAllowed() && (isInAir || !MovementTemplate.IsGroundAllowed()) && !IsFalling())
+		if (MovementTemplate.IsFlightAllowed() && (isInAir || !MovementTemplate.IsGroundAllowed()) && !IsFalling)
 		{
 			if (MovementTemplate.Flight == CreatureFlightMovementType.CanFly)
 				SetCanFly(true);
@@ -2727,7 +2727,7 @@ public partial class Creature : Unit
 		if (!isInAir)
 			SetFall(false);
 
-		SetSwim(CanSwim && IsInWater());
+		SetSwim(CanSwim && IsInWater);
 	}
 
 	public void RefreshCanSwimFlag(bool recheck = false)
@@ -3126,7 +3126,7 @@ public partial class Creature : Unit
 
 		if (minfo != null)
 		{
-			SetBoundingRadius((IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale);
+			BoundingRadius = (IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale;
 			SetCombatReach((IsPet ? SharedConst.DefaultPlayerCombatReach : minfo.CombatReach) * ObjectScale);
 		}
 	}
@@ -3179,7 +3179,7 @@ public partial class Creature : Unit
 		if (_spellFocusInfo.Delay == 0)
 		{
 			// only overwrite these fields if we aren't transitioning from one spell focus to another
-			_spellFocusInfo.Target = GetTarget();
+			_spellFocusInfo.Target = Target;
 			_spellFocusInfo.Orientation = Location.Orientation;
 		}
 		else // don't automatically reacquire target for the previous spellcast
@@ -3194,7 +3194,7 @@ public partial class Creature : Unit
 		// set target, then force send update packet to players if it changed to provide appropriate facing
 		var newTarget = (target != null && !noTurnDuringCast && !turnDisabled) ? target.GUID : ObjectGuid.Empty;
 
-		if (GetTarget() != newTarget)
+		if (Target != newTarget)
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Target), newTarget);
 
 		// If we are not allowed to turn during cast but have a focus target, face the target
@@ -3537,11 +3537,11 @@ public partial class Creature : Unit
 	{
 		if (_creatureGroup != null)
 		{
-			if (_creatureGroup.GetLeader() == this)
+			if (_creatureGroup.Leader == this)
 			{
 				_creatureGroup.FormationReset(false);
 			}
-			else if (_creatureGroup.IsFormed())
+			else if (_creatureGroup.IsFormed)
 			{
 				MotionMaster.MoveIdle(); //wait the order of leader
 

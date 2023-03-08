@@ -58,7 +58,7 @@ namespace Scripts.Pets
 					return;
 
 				var target = GetTarget();
-				var newtargetGUID = owner.GetTarget();
+				var newtargetGUID = owner.Target;
 
 				if (newtargetGUID.IsEmpty ||
 					newtargetGUID == _targetGUID)

@@ -37,7 +37,7 @@ internal class spell_pri_shadow_mend : SpellScript, ISpellAfterHit
 			{
 				caster.CastSpell(caster, PriestSpells.MASOCHISM_PERIODIC_HEAL, new CastSpellExtraArgs(Spell).AddSpellMod(SpellValueMod.BasePoint0, periodicAmount));
 			}
-			else if (target.IsInCombat() &&
+			else if (target.IsInCombat &&
 					periodicAmount != 0)
 			{
 				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);

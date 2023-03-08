@@ -14,7 +14,7 @@ public class ItemEnchantmentManager
 
 	public static void LoadItemRandomBonusListTemplates()
 	{
-		var oldMsTime = Time.GetMSTime();
+		var oldMsTime = Time.MSTime;
 
 		_storage.Clear();
 

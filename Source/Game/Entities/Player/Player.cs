@@ -754,7 +754,7 @@ public partial class Player : Unit
 
 		if (HasUnitState(UnitState.MeleeAttacking) && !HasUnitState(UnitState.Casting | UnitState.Charging))
 		{
-			var victim = GetVictim();
+			var victim = Victim;
 
 			if (victim != null)
 			{
@@ -955,7 +955,7 @@ public partial class Player : Unit
 		// group update
 		_groupUpdateTimer.Update(diff);
 
-		if (_groupUpdateTimer.Passed())
+		if (_groupUpdateTimer.Passed)
 		{
 			SendUpdateToOutOfRangeGroupMembers();
 			_groupUpdateTimer.Reset(5000);
@@ -3491,7 +3491,7 @@ public partial class Player : Unit
 
 	public Unit GetSelectedUnit()
 	{
-		var selectionGUID = GetTarget();
+		var selectionGUID = Target;
 
 		if (!selectionGUID.IsEmpty)
 			return Global.ObjAccessor.GetUnit(this, selectionGUID);
@@ -3501,7 +3501,7 @@ public partial class Player : Unit
 
 	public Player GetSelectedPlayer()
 	{
-		var selectionGUID = GetTarget();
+		var selectionGUID = Target;
 
 		if (!selectionGUID.IsEmpty)
 			return Global.ObjAccessor.GetPlayer(this, selectionGUID);
@@ -3588,7 +3588,7 @@ public partial class Player : Unit
 	public override bool CanAlwaysSee(WorldObject obj)
 	{
 		// Always can see self
-		if (GetUnitBeingMoved() == obj)
+		if (UnitBeingMoved == obj)
 			return true;
 
 		ObjectGuid guid = ActivePlayerData.FarsightObject;
@@ -3800,7 +3800,7 @@ public partial class Player : Unit
 
 	public void KillPlayer()
 	{
-		if (IsFlying() && Transport == null)
+		if (IsFlying && Transport == null)
 			MotionMaster.MoveFall();
 
 		SetRooted(true);
@@ -4353,7 +4353,7 @@ public partial class Player : Unit
 	{
 		// Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
 		// Also disallow when in combat
-		if ((enabled == IsWarModeDesired) || IsInCombat() || !HasPlayerFlag(PlayerFlags.Resting))
+		if ((enabled == IsWarModeDesired) || IsInCombat || !HasPlayerFlag(PlayerFlags.Resting))
 			return;
 
 		if (enabled && !CanEnableWarModeInArea())
@@ -5558,7 +5558,7 @@ public partial class Player : Unit
 		}
 
 		// not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
-		if (Session.IsLogingOut || IsInCombat() || HasUnitState(UnitState.Stunned) || HasUnitState(UnitState.Root))
+		if (Session.IsLogingOut || IsInCombat || HasUnitState(UnitState.Stunned) || HasUnitState(UnitState.Root))
 		{
 			Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
 
@@ -7125,7 +7125,7 @@ public partial class Player : Unit
 		if (_regenTimerCount >= 2000)
 		{
 			// Not in combat or they have regeneration
-			if (!IsInCombat() || IsPolymorphed() || _baseHealthRegen != 0 || HasAuraType(AuraType.ModRegenDuringCombat) || HasAuraType(AuraType.ModHealthRegenInCombat))
+			if (!IsInCombat || IsPolymorphed() || _baseHealthRegen != 0 || HasAuraType(AuraType.ModRegenDuringCombat) || HasAuraType(AuraType.ModHealthRegenInCombat))
 				RegenerateHealth();
 
 			_regenTimerCount -= 2000;
@@ -7183,7 +7183,7 @@ public partial class Player : Unit
 
 		double addvalue;
 
-		if (!IsInCombat())
+		if (!IsInCombat)
 		{
 			if (powerType.RegenInterruptTimeMS != 0 && Time.GetMSTimeDiffToNow(_combatExitTime) < powerType.RegenInterruptTimeMS)
 				return;
@@ -7315,11 +7315,11 @@ public partial class Player : Unit
 			addValue = GetMaxHealth() / 3;
 		}
 		// normal regen case (maybe partly in combat case)
-		else if (!IsInCombat() || HasAuraType(AuraType.ModRegenDuringCombat))
+		else if (!IsInCombat || HasAuraType(AuraType.ModRegenDuringCombat))
 		{
 			addValue = HealthIncreaseRate;
 
-			if (!IsInCombat())
+			if (!IsInCombat)
 			{
 				if (Level < 15)
 					addValue = (0.20f * (GetMaxHealth()) / Level * HealthIncreaseRate);
@@ -8084,8 +8084,8 @@ public partial class Player : Unit
 		SendAurasForTarget(target);
 
 		if (target.IsAlive)
-			if (target.HasUnitState(UnitState.MeleeAttacking) && target.GetVictim() != null)
-				target.SendMeleeAttackStart(target.GetVictim());
+			if (target.HasUnitState(UnitState.MeleeAttacking) && target.Victim != null)
+				target.SendMeleeAttackStart(target.Victim);
 	}
 
 	public override void UpdateObjectVisibility(bool forced = true)

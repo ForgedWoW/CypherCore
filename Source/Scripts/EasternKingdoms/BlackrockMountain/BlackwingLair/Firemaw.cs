@@ -37,8 +37,8 @@ internal class boss_firemaw : BossAI
 							{
 								DoCastVictim(SpellIds.Wingbuffet);
 
-								if (GetThreat(me.GetVictim()) != 0)
-									ModifyThreatByPercent(me.GetVictim(), -75);
+								if (GetThreat(me.Victim) != 0)
+									ModifyThreatByPercent(me.Victim, -75);
 
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});

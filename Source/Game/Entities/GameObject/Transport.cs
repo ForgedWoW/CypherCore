@@ -145,7 +145,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 		_positionUpdateTimer.Update(diff);
 
-		if (!_positionUpdateTimer.Passed())
+		if (!_positionUpdateTimer.Passed)
 			return;
 
 		_positionUpdateTimer.Reset(PositionUpdateInterval);

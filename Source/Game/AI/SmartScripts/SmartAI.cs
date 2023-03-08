@@ -450,7 +450,7 @@ namespace Game.AI
                 var attack = owner.GetSelectedUnit();
 
                 if (attack == null)
-                    attack = owner.GetAttackers().FirstOrDefault();
+                    attack = owner.Attackers.FirstOrDefault();
 
                 if (attack != null)
                     summon.Attack(attack, true);
@@ -530,7 +530,7 @@ namespace Game.AI
             if (me.HasReactState(ReactStates.Passive) || !IsAIControlled())
                 return false;
 
-            if (who == null || who.GetVictim() == null)
+            if (who == null || who.Victim == null)
                 return false;
 
             //experimental (unknown) flag not present
@@ -538,7 +538,7 @@ namespace Game.AI
                 return false;
 
             //not a player
-            if (who.GetVictim().GetCharmerOrOwnerPlayerOrPlayerItself() == null)
+            if (who.Victim.GetCharmerOrOwnerPlayerOrPlayerItself() == null)
                 return false;
 
             if (!who.IsInAccessiblePlaceFor(me))
@@ -555,7 +555,7 @@ namespace Game.AI
             if (who.IsCreature && who.AsCreature.IsInEvadeMode)
                 return false;
 
-            if (!me.IsValidAssistTarget(who.GetVictim()))
+            if (!me.IsValidAssistTarget(who.Victim))
                 return false;
 
             //too far away and no free sight
@@ -602,7 +602,7 @@ namespace Game.AI
             GetScript().ProcessEventsFor(SmartEvents.ReachedHome);
 
             CreatureGroup formation = me.Formation;
-            if (formation == null || formation.GetLeader() == me || !formation.IsFormed())
+            if (formation == null || formation.Leader == me || !formation.IsFormed)
             {
                 if (me.MotionMaster.GetCurrentMovementGeneratorType(MovementSlot.Default) != MovementGeneratorType.Waypoint)
                     if (me.WaypointPath != 0)
@@ -610,7 +610,7 @@ namespace Game.AI
                 
                 me.ResumeMovement();
             }
-            else if (formation.IsFormed())
+            else if (formation.IsFormed)
                 me.                MotionMaster.MoveIdle(); // wait the order of leader
         }
 
@@ -775,7 +775,7 @@ namespace Game.AI
                     }
                     me.LastCharmerGuid.Clear();
 
-                    if (!me.IsInCombat())
+                    if (!me.IsInCombat)
                         EnterEvadeMode(EvadeReason.NoHostiles);
                 }
             }
@@ -872,13 +872,13 @@ namespace Game.AI
             {
                 if (on)
                 {
-                    if (!me.HasReactState(ReactStates.Passive) && me.GetVictim() && !me.MotionMaster.HasMovementGenerator(movement =>
+                    if (!me.HasReactState(ReactStates.Passive) && me.Victim && !me.MotionMaster.HasMovementGenerator(movement =>
                     {
                         return movement.GetMovementGeneratorType() == MovementGeneratorType.Chase && movement.Mode == MovementGeneratorMode.Default && movement.Priority == MovementGeneratorPriority.Normal;
                     }))
                     {
                         SetRun(_run);
-                        me.                        MotionMaster.MoveChase(me.GetVictim());
+                        me.                        MotionMaster.MoveChase(me.Victim);
                     }
                 }
                 else
@@ -1020,7 +1020,7 @@ namespace Game.AI
             if (HasEscortState(SmartEscortState.Paused) && (_waypointReached || _waypointPauseForced))
             {
                 // Resume only if there was a pause timer set
-                if (_waypointPauseTimer != 0 && !me.IsInCombat() && !HasEscortState(SmartEscortState.Returning))
+                if (_waypointPauseTimer != 0 && !me.IsInCombat && !HasEscortState(SmartEscortState.Returning))
                 {
                     if (_waypointPauseTimer <= diff)
                         ResumePath();

@@ -14,7 +14,7 @@ public class SkillPerfectItems
 	// loads the perfection proc info from DB
 	public static void LoadSkillPerfectItemTable()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		SkillPerfectItemStorage.Clear(); // reload capability
 

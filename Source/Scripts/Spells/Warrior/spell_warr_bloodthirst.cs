@@ -33,7 +33,7 @@ internal class spell_warr_bloodthirst : SpellScript, IHasSpellEffects, ISpellOnC
 		if (caster == null || target == null)
 			return;
 
-		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.GetTarget()))
+		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.Target))
 			HitDamage = HitDamage / 2;
 
 		if (caster.HasAura(WarriorSpells.FRESH_MEAT))

@@ -27,7 +27,7 @@ public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEf
 		if (l_Caster == null)
 			return;
 
-		var l_Target = l_Caster.GetVictim();
+		var l_Target = l_Caster.Victim;
 
 		if (l_Target == null)
 			return;

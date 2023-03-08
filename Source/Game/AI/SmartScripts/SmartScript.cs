@@ -1528,9 +1528,9 @@ namespace Game.AI
                     {
                         Creature creature = target.AsCreature;
                         if (creature != null)
-                            if (IsSmart(creature) && creature.GetVictim() != null)
+                            if (IsSmart(creature) && creature.Victim != null)
                                 if (((SmartAI)creature.GetAI()).CanCombatMove())
-                                    creature.                                    MotionMaster.MoveChase(creature.GetVictim(), attackDistance, attackAngle);
+                                    creature.                                    MotionMaster.MoveChase(creature.Victim, attackDistance, attackAngle);
                     }
                     break;
                 }
@@ -2184,7 +2184,7 @@ namespace Game.AI
                 }
                 case SmartActions.AddThreat:
                 {
-                    if (!_me.CanHaveThreatList())
+                    if (!_me.CanHaveThreatList)
                         break;
 
                     foreach (var target in targets)
@@ -2594,8 +2594,8 @@ namespace Game.AI
                         targets.Add(baseObject);
                     break;
                 case SmartTargets.Victim:
-                    if (_me != null && _me.GetVictim() != null)
-                        targets.Add(_me.GetVictim());
+                    if (_me != null && _me.Victim != null)
+                        targets.Add(_me.Victim);
                     break;
                 case SmartTargets.HostileSecondAggro:
                     if (_me != null)
@@ -2961,7 +2961,7 @@ namespace Game.AI
                 }
                 case SmartTargets.ThreatList:
                 {
-                    if (_me != null && _me.CanHaveThreatList())
+                    if (_me != null && _me.CanHaveThreatList)
                     {
                         foreach (var refe in _me.GetThreatManager().GetSortedThreatList())
                             if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.GetVictim(), e.Target.threatList.maxDist))
@@ -3099,11 +3099,11 @@ namespace Game.AI
                 }
                 case SmartEvents.Range:
                 {
-                    if (_me == null || !_me.IsEngaged || _me.GetVictim() == null)
+                    if (_me == null || !_me.IsEngaged || _me.Victim == null)
                         return;
 
-                    if (_me.IsInRange(_me.GetVictim(), e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max))
-                        ProcessTimedAction(e, e.Event.minMaxRepeat.repeatMin, e.Event.minMaxRepeat.repeatMax, _me.GetVictim());
+                    if (_me.IsInRange(_me.Victim, e.Event.minMaxRepeat.min, e.Event.minMaxRepeat.max))
+                        ProcessTimedAction(e, e.Event.minMaxRepeat.repeatMin, e.Event.minMaxRepeat.repeatMax, _me.Victim);
                     else // make it predictable
                         RecalcTimer(e, 500, 500);
                     break;
@@ -3113,7 +3113,7 @@ namespace Game.AI
                     if (_me == null || !_me.IsEngaged)
                         return;
 
-                    Unit victim = _me.GetVictim();
+                    Unit victim = _me.Victim;
 
                     if (victim == null || !victim.IsNonMeleeSpellCast(false, false, true))
                         return;
@@ -3126,7 +3126,7 @@ namespace Game.AI
                                 return;
                     }
 
-                    ProcessTimedAction(e, e.Event.targetCasting.repeatMin, e.Event.targetCasting.repeatMax, _me.GetVictim());
+                    ProcessTimedAction(e, e.Event.targetCasting.repeatMin, e.Event.targetCasting.repeatMax, _me.Victim);
                     break;
                 }
                 case SmartEvents.FriendlyIsCc:
@@ -3168,12 +3168,12 @@ namespace Game.AI
                 }
                 case SmartEvents.TargetBuffed:
                 {
-                    if (_me == null || _me.GetVictim() == null)
+                    if (_me == null || _me.Victim == null)
                         return;
-                    uint count = _me.GetVictim().GetAuraCount(e.Event.aura.spell);
+                    uint count = _me.Victim.GetAuraCount(e.Event.aura.spell);
                     if (count < e.Event.aura.count)
                         return;
-                    ProcessTimedAction(e, e.Event.aura.repeatMin, e.Event.aura.repeatMax, _me.GetVictim());
+                    ProcessTimedAction(e, e.Event.aura.repeatMin, e.Event.aura.repeatMax, _me.Victim);
                     break;
                 }
                 case SmartEvents.Charmed:
@@ -3513,7 +3513,7 @@ namespace Game.AI
                             var targets = GetTargets(e);
                             foreach (WorldObject target in targets)
                             {
-                                if (IsUnit(target) && _me.IsFriendlyTo(target.AsUnit) && target.AsUnit.IsAlive && target.AsUnit.IsInCombat())
+                                if (IsUnit(target) && _me.IsFriendlyTo(target.AsUnit) && target.AsUnit.IsAlive && target.AsUnit.IsInCombat)
                                 {
                                     uint healthPct = (uint)target.AsUnit.GetHealthPct();
                                     if (healthPct > e.Event.friendlyHealthPct.maxHpPct || healthPct < e.Event.friendlyHealthPct.minHpPct)
@@ -3753,7 +3753,7 @@ namespace Game.AI
                 e.Timer -= diff;
                 if (e.EntryOrGuid == 15294 && _me.GUID.Counter == 55039 && e.Timer != 0)
                 {
-                    Log.outError(LogFilter.Server, "Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, Time.GetMSTime());
+                    Log.outError(LogFilter.Server, "Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, Time.MSTime);
                 }
             }
 

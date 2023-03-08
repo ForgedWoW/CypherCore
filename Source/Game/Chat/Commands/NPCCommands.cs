@@ -685,7 +685,7 @@ namespace Game.Chat
                 ulong lowguid = creature.SpawnId;
                 if (creature.Formation != null)
                 {
-                    handler.SendSysMessage("Selected creature is already member of group {0}", creature.Formation.GetLeaderSpawnId());
+                    handler.SendSysMessage("Selected creature is already member of group {0}", creature.Formation.LeaderSpawnId);
                     return false;
                 }
 

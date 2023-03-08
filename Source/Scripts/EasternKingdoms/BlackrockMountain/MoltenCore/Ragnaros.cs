@@ -226,7 +226,7 @@ internal class boss_ragnaros : BossAI
 
 						break;
 					case EventIds.MagmaBlast:
-						if (!me.IsWithinMeleeRange(me.GetVictim()))
+						if (!me.IsWithinMeleeRange(me.Victim))
 						{
 							DoCastVictim(SpellIds.MagmaBlast);
 

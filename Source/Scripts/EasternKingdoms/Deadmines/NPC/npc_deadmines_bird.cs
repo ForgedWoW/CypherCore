@@ -39,7 +39,7 @@ public class npc_deadmines_bird : ScriptedAI
 
 		if (UiTimerEyeGouge <= uiDiff)
 		{
-			var victim = me.GetVictim();
+			var victim = me.Victim;
 
 			if (victim != null)
 				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
@@ -55,7 +55,7 @@ public class npc_deadmines_bird : ScriptedAI
 
 		if (IiTimerEyePeck <= uiDiff)
 		{
-			var victim = me.GetVictim();
+			var victim = me.Victim;
 
 			if (victim != null)
 				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);

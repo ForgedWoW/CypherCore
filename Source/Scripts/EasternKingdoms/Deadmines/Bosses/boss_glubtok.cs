@@ -81,7 +81,7 @@ public class boss_glubtok : BossAI
 
 	public override void JustSummoned(Creature summon)
 	{
-		if (!me.IsInCombat())
+		if (!me.IsInCombat)
 		{
 			summon.DespawnOrUnsummon();
 
@@ -89,7 +89,7 @@ public class boss_glubtok : BossAI
 		}
 
 		base.JustSummoned(summon);
-		summon.GetAI().AttackStart(me.GetVictim());
+		summon.GetAI().AttackStart(me.Victim);
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)

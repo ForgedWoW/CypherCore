@@ -467,7 +467,7 @@ internal class boss_taerar : emerald_dragonAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me.IsInCombat())
+		if (!me.IsInCombat)
 			return;
 
 		if (_banished)

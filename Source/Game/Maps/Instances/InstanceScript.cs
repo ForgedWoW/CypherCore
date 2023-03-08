@@ -931,14 +931,14 @@ public class InstanceScript : ZoneScript
 			case EncounterState.NotStarted:
 				if (!minion.IsAlive)
 					minion.Respawn();
-				else if (minion.IsInCombat())
+				else if (minion.IsInCombat)
 					minion.GetAI().EnterEvadeMode();
 
 				break;
 			case EncounterState.InProgress:
 				if (!minion.IsAlive)
 					minion.Respawn();
-				else if (minion.GetVictim() == null)
+				else if (minion.Victim == null)
 					minion.GetAI().DoZoneInCombat();
 
 				break;

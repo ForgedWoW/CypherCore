@@ -156,7 +156,7 @@ public class Transport : GameObject, ITransport
 			ReplaceAllFlags(goOverride.Flags);
 		}
 
-		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.GetMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
+		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
 		SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
 		ObjectScale = goinfo.size;
 		SetPeriod(tInfo.TotalPathTime);
@@ -273,7 +273,7 @@ public class Transport : GameObject, ITransport
 			}
 
 			// set position
-			if (_positionChangeTimer.Passed() && GetExpectedMapId() == Location.MapId)
+			if (_positionChangeTimer.Passed && GetExpectedMapId() == Location.MapId)
 			{
 				_positionChangeTimer.Reset(positionUpdateDelay);
 

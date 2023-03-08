@@ -25,7 +25,7 @@ namespace Game.Chat
             }
 
             Player player = handler.GetPlayer();
-            if (player.IsInCombat() && !handler.GetSession().HasPermission(RBACPermissions.CommandTeleName))
+            if (player.IsInCombat && !handler.GetSession().HasPermission(RBACPermissions.CommandTeleName))
             {
                 handler.SendSysMessage(CypherStrings.YouInCombat);
                 return false;

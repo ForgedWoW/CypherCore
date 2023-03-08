@@ -25,7 +25,7 @@ public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOn
 
 		if (player.HasAura(StormEarthAndFireSpells.SEF) && !spellInfo.IsPositive)
 		{
-			var target = ObjectAccessor.Instance.GetUnit(player, player.GetTarget());
+			var target = ObjectAccessor.Instance.GetUnit(player, player.Target);
 
 			if (target != null)
 			{

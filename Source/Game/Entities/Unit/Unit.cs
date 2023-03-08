@@ -1274,7 +1274,7 @@ public partial class Unit : WorldObject
 	{
 		bool AddUnit(Unit u)
 		{
-			if (GetVictim() == u)
+			if (Victim == u)
 				return false;
 
 			if (exclude == u)
@@ -1356,7 +1356,7 @@ public partial class Unit : WorldObject
 
 		if (player != null)
 		{
-			if (vehicle.GetBase().IsTypeId(TypeId.Player) && player.IsInCombat())
+			if (vehicle.GetBase().IsTypeId(TypeId.Player) && player.IsInCombat)
 			{
 				vehicle.GetBase().RemoveAura(aurApp);
 
@@ -4554,7 +4554,7 @@ public partial class Unit : WorldObject
 
 		// check "realtime" interrupts
 		// don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-		if ((IsMoving() && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).CheckMovement() != SpellCastResult.SpellCastOk) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo.Id == 75))
+		if ((IsMoving && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).CheckMovement() != SpellCastResult.SpellCastOk) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo.Id == 75))
 		{
 			// cancel wand shoot
 			if (autoRepeatSpellInfo.Id != 75)

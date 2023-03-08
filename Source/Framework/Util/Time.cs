@@ -50,15 +50,9 @@ public static class Time
     /// Gets the system uptime.
     /// </summary>
     /// <returns>the system uptime in milliseconds</returns>
-    public static uint GetSystemTime()
-    {
-        return (uint)Environment.TickCount;
-    }
+    public static uint SystemTime => (uint)Environment.TickCount;
 
-    public static uint GetMSTime()
-    {
-        return (uint)(DateTime.Now - ApplicationStartTime).TotalMilliseconds;
-    }
+    public static uint MSTime => (uint)(DateTime.Now - ApplicationStartTime).TotalMilliseconds;
 
     public static uint GetMSTimeDiff(uint oldMSTime, uint newMSTime)
     {
@@ -76,7 +70,7 @@ public static class Time
 
     public static uint GetMSTimeDiffToNow(uint oldMSTime)
     {
-        var newMSTime = GetMSTime();
+        var newMSTime = MSTime;
         if (oldMSTime > newMSTime)
             return (0xFFFFFFFF - oldMSTime) + newMSTime;
         else
@@ -344,10 +338,7 @@ public class TimeTracker
         _expiryTime -= diff;
     }
 
-    public bool Passed()
-    {
-        return _expiryTime <= TimeSpan.Zero;
-    }
+    public bool Passed => _expiryTime <= TimeSpan.Zero;
 
     public void Reset(uint expiry)
     {
@@ -359,10 +350,7 @@ public class TimeTracker
         _expiryTime = expiry;
     }
 
-    public TimeSpan GetExpiry()
-    {
-        return _expiryTime;
-    }
+    public TimeSpan Expiry => _expiryTime;
 
     TimeSpan _expiryTime;
 }
@@ -376,10 +364,7 @@ public class IntervalTimer
             _current = 0;
     }
 
-    public bool Passed()
-    {
-        return _current >= _interval;
-    }
+    public bool Passed => _current >= _interval;
 
     public void Reset()
     {
@@ -387,25 +372,9 @@ public class IntervalTimer
             _current %= _interval;
     }
 
-    public void SetCurrent(long current)
-    {
-        _current = current;
-    }
+    public long Interval { get => _interval; set => _interval = value; }
 
-    public void SetInterval(long interval)
-    {
-        _interval = interval;
-    }
-
-    public long GetInterval()
-    {
-        return _interval;
-    }
-
-    public long GetCurrent()
-    {
-        return _current;
-    }
+    public long Current { get => _current; set => _current = value; }
 
     long _interval;
     long _current;
@@ -415,30 +384,30 @@ public class PeriodicTimer
 {
     public PeriodicTimer(int period, int start_time)
     {
-        i_period = period;
-        i_expireTime = start_time;
+        _period = period;
+        _expireTime = start_time;
     }
 
     public bool Update(int diff)
     {
-        if ((i_expireTime -= diff) > 0)
+        if ((_expireTime -= diff) > 0)
             return false;
 
-        i_expireTime += i_period > diff ? i_period : diff;
+        _expireTime += _period > diff ? _period : diff;
         return true;
     }
 
     public void SetPeriodic(int period, int start_time)
     {
-        i_expireTime = start_time;
-        i_period = period;
+        _expireTime = start_time;
+        _period = period;
     }
 
     // Tracker interface
-    public void TUpdate(int diff) { i_expireTime -= diff; }
-    public bool TPassed() { return i_expireTime <= 0; }
-    public void TReset(int diff, int period) { i_expireTime += period > diff ? period : diff; }
+    public void TUpdate(int diff) { _expireTime -= diff; }
+    public bool TPassed() { return _expireTime <= 0; }
+    public void TReset(int diff, int period) { _expireTime += period > diff ? period : diff; }
 
-    int i_period;
-    int i_expireTime;
+    int _period;
+    int _expireTime;
 }

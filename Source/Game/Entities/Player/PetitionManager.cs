@@ -16,7 +16,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 	public void LoadPetitions()
 	{
-		var oldMsTime = Time.GetMSTime();
+		var oldMsTime = Time.MSTime;
 		_petitionStorage.Clear();
 
 		var result = DB.Characters.Query("SELECT petitionguid, ownerguid, name FROM petition");
@@ -41,7 +41,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 	public void LoadSignatures()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
 

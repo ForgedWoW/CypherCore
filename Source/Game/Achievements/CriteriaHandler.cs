@@ -1897,7 +1897,7 @@ namespace Game.Achievements
                     if (refe == null)
                         return false;
                     Unit unitRef = refe.AsUnit;
-                    if (unitRef == null || !unitRef.CanHaveThreatList())
+                    if (unitRef == null || !unitRef.CanHaveThreatList)
                         return false;
                     if (unitRef.GetThreatManager().GetThreatListSize() >= reqValue)
                         return false;
@@ -2450,7 +2450,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.SelectionIsPlayerCorpse: // 173
-                    if (referencePlayer.GetTarget().High != HighGuid.Corpse)
+                    if (referencePlayer.Target.High != HighGuid.Corpse)
                         return false;
                     break;
                 case ModifierTreeType.PlayerCanAcceptQuest: // 174
@@ -3410,7 +3410,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerIsRestrictedAccount: // 310
                     return false;
                 case ModifierTreeType.PlayerIsFlying: // 311
-                    if (!referencePlayer.IsFlying())
+                    if (!referencePlayer.IsFlying)
                         return false;
                     break;
                 case ModifierTreeType.PlayerScenarioIsLastStep: // 312
@@ -3671,7 +3671,7 @@ namespace Game.Achievements
 
         public void LoadCriteriaModifiersTree()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             if (CliDB.ModifierTreeStorage.Empty())
             {
@@ -3722,7 +3722,7 @@ namespace Game.Achievements
 
         public void LoadCriteriaList()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
             foreach (AchievementRecord achievement in CliDB.AchievementStorage.Values)
@@ -3891,7 +3891,7 @@ namespace Game.Achievements
 
         public void LoadCriteriaData()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             _criteriaDataMap.Clear();                              // need for reload case
 

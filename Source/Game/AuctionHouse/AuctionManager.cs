@@ -131,7 +131,7 @@ namespace Game
 
         public void LoadAuctions()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             // need to clear in case we are reloading
             _itemsByGuid.Clear();
@@ -175,7 +175,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} auction items in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-            oldMSTime = Time.GetMSTime();
+            oldMSTime = Time.MSTime;
             count = 0;
 
             result = DB.Characters.Query(CharacterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
@@ -190,7 +190,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} auction bidders in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-            oldMSTime = Time.GetMSTime();
+            oldMSTime = Time.MSTime;
             count = 0;
 
             result = DB.Characters.Query(CharacterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTIONS));

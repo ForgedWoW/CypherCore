@@ -339,7 +339,7 @@ namespace Game.Garrisons
                 return;
             }
 
-            uint msTime = Time.GetMSTime();
+            uint msTime = Time.MSTime;
             do
             {
                 uint garrPlotInstanceId = result.Read<uint>(0);
@@ -423,7 +423,7 @@ namespace Game.Garrisons
                 return;
             }
 
-            uint msTime = Time.GetMSTime();
+            uint msTime = Time.MSTime;
             uint count = 0;
             do
             {

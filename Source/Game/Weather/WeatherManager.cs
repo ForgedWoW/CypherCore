@@ -15,7 +15,7 @@ namespace Game
 
         public void LoadWeatherData()
         {
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
 
             uint count = 0;
 
@@ -83,7 +83,7 @@ namespace Game
         {
             m_zone = zoneId;
             m_weatherChances = weatherChances;
-            m_timer.SetInterval(10 * Time.Minute * Time.InMilliseconds);
+            m_timer.            Interval = 10 * Time.Minute * Time.InMilliseconds;
             m_type = WeatherType.Fine;
             m_intensity = 0;
 
@@ -92,13 +92,13 @@ namespace Game
 
         public bool Update(uint diff)
         {
-            if (m_timer.GetCurrent() >= 0)
+            if (m_timer.Current >= 0)
                 m_timer.Update(diff);
             else
-                m_timer.SetCurrent(0);
+                m_timer.                Current = 0;
 
             // If the timer has passed, ReGenerate the weather
-            if (m_timer.Passed())
+            if (m_timer.Passed)
             {
                 m_timer.Reset();
                 // update only if Regenerate has changed the weather

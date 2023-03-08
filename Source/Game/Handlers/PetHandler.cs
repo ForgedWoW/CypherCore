@@ -169,9 +169,9 @@ namespace Game
                                     return;
 
                             // This is true if pet has no target or has target but targets differs.
-                            if (pet.GetVictim() != TargetUnit || !pet.GetCharmInfo().IsCommandAttack())
+                            if (pet.Victim != TargetUnit || !pet.GetCharmInfo().IsCommandAttack())
                             {
-                                if (pet.GetVictim())
+                                if (pet.Victim)
                                     pet.AttackStop();
 
                                 if (!pet.IsTypeId(TypeId.Player) && pet.AsCreature.IsAIEnabled)
@@ -348,7 +348,7 @@ namespace Game
                         if (unit_target && !Player.IsFriendlyTo(unit_target) && !pet.IsPossessed && !pet.IsVehicle)
                         {
                             // This is true if pet has no target or has target but targets differs.
-                            if (pet.GetVictim() != unit_target)
+                            if (pet.Victim != unit_target)
                             {
                                 CreatureAI ai = pet.AsCreature.GetAI();
                                 if (ai != null)

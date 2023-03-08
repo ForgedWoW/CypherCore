@@ -50,22 +50,22 @@ public class FormationMgr
 
 	public static void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
 	{
-		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.GetLeaderSpawnId(), member.SpawnId);
+		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
 		group.RemoveMember(member);
 
-		if (group.IsEmpty())
+		if (group.IsEmpty)
 		{
 			var map = member.GetMap();
 
 			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId1);
-			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.GetLeaderSpawnId()), $"Not registered group {group.GetLeaderSpawnId()} in map {map.GetId()}");
-			map.CreatureGroupHolder.Remove(group.GetLeaderSpawnId());
+			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.LeaderSpawnId), $"Not registered group {group.LeaderSpawnId} in map {map.GetId()}");
+			map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
 		}
 	}
 
 	public static void LoadCreatureFormations()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		//Get group data
 		var result = DB.World.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");

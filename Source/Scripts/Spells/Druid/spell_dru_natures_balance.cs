@@ -33,7 +33,7 @@ public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 		if (caster == null || !caster.IsAlive || caster.GetMaxPower(PowerType.LunarPower) == 0)
 			return;
 
-		if (caster.IsInCombat())
+		if (caster.IsInCombat)
 		{
 			var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
 

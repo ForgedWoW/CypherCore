@@ -257,7 +257,7 @@ internal class boss_alizabal : BossAI
 					me.RemoveAura(SpellIds.BladeDanceDummy);
 					me.SetSpeedRate(UnitMoveType.Walk, 1.0f);
 					me.SetSpeedRate(UnitMoveType.Run, 1.14f);
-					me.MotionMaster.MoveChase(me.GetVictim());
+					me.MotionMaster.MoveChase(me.Victim);
 					_hate = false;
 					_skewer = false;
 

@@ -25,7 +25,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.GetMSTime();
+		var oldMSTime = Time.MSTime;
 
 		//                                         0   1             2       3        4
 		var result = DB.World.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
@@ -131,7 +131,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_worldStateTemplates.Count} world state templates {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-		oldMSTime = Time.GetMSTime();
+		oldMSTime = Time.MSTime;
 
 		result = DB.Characters.Query("SELECT Id, Value FROM world_state_value");
 		uint savedValueCount = 0;

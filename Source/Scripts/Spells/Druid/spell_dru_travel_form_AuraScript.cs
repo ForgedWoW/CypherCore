@@ -39,15 +39,15 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 	{
 		// Check what form is appropriate
 		if (player.HasSpell(DruidSpellIds.FormAquaticPassive) &&
-			player.IsInWater()) // Aquatic form
+			player.			IsInWater) // Aquatic form
 			return DruidSpellIds.FormAquatic;
 
-		if (!player.IsInCombat() &&
+		if (!player.IsInCombat &&
 			player.GetSkillValue(SkillType.Riding) >= 225 &&
 			CheckLocationForForm(player, difficulty, requiresOutdoor, DruidSpellIds.FormFlight) == SpellCastResult.SpellCastOk) // Flight form
 			return player.GetSkillValue(SkillType.Riding) >= 300 ? DruidSpellIds.FormSwiftFlight : DruidSpellIds.FormFlight;
 
-		if (!player.IsInWater() &&
+		if (!player.IsInWater &&
 			CheckLocationForForm(player, difficulty, requiresOutdoor, DruidSpellIds.FormStag) == SpellCastResult.SpellCastOk) // Stag form
 			return DruidSpellIds.FormStag;
 

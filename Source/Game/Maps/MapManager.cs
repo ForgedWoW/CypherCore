@@ -31,7 +31,7 @@ public class MapManager : Singleton<MapManager>
 	MapManager()
 	{
 		_gridCleanUpDelay = WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean);
-		_timer.SetInterval(WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate));
+		_timer.		Interval = WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate);
 	}
 
 	public void Initialize()
@@ -238,10 +238,10 @@ public class MapManager : Singleton<MapManager>
 	{
 		_timer.Update(diff);
 
-		if (!_timer.Passed())
+		if (!_timer.Passed)
 			return;
 
-		var time = (uint)_timer.GetCurrent();
+		var time = (uint)_timer.Current;
 
 		foreach (var mapkvp in _maps)
 			foreach (var instanceKvp in mapkvp.Value)
@@ -267,7 +267,8 @@ public class MapManager : Singleton<MapManager>
 			foreach (var map in kvp.Values)
 				map.DelayedUpdate(time);
 
-		_timer.SetCurrent(0);
+		_timer.
+		Current = 0;
 	}
 
 	public bool IsValidMAP(uint mapId)
@@ -398,7 +399,8 @@ public class MapManager : Singleton<MapManager>
 		if (t < MapConst.MinMapUpdateDelay)
 			t = MapConst.MinMapUpdateDelay;
 
-		_timer.SetInterval(t);
+		_timer.
+		Interval = t;
 		_timer.Reset();
 	}
 

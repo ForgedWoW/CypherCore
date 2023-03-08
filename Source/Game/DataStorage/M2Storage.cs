@@ -149,7 +149,7 @@ namespace Game.DataStorage
             FlyByCameraStorage.Clear();
             Log.outInfo(LogFilter.ServerLoading, "Loading Cinematic Camera files");
 
-            uint oldMSTime = Time.GetMSTime();
+            uint oldMSTime = Time.MSTime;
             foreach (CinematicCameraRecord cameraEntry in CliDB.CinematicCameraStorage.Values)
             {
                 string filename = dataPath + "/cameras/" + $"FILE{cameraEntry.FileDataID:X8}.xxx";

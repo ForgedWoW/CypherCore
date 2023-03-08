@@ -16,7 +16,7 @@ public class spell_dh_annihilation : SpellScript, ISpellBeforeHit
 
 		if (caster != null)
 		{
-			var target = caster.GetVictim();
+			var target = caster.Victim;
 
 			if (target == null)
 				return;

@@ -194,7 +194,7 @@ internal class spell_occuthar_focused_fire_SpellScript : SpellScript, IHasSpellE
 		if (targets.Count < 2)
 			return;
 
-		targets.RemoveAll(target => Caster.GetVictim() == target);
+		targets.RemoveAll(target => Caster.Victim == target);
 
 		if (targets.Count >= 2)
 			targets.RandomResize(1);

@@ -24,7 +24,7 @@ internal class spell_gen_hate_to_zero_caster_target : SpellScript, IHasSpellEffe
 		var target = HitUnit;
 
 		if (target != null)
-			if (target.CanHaveThreatList())
+			if (target.CanHaveThreatList)
 				target.GetThreatManager().ModifyThreatByPercent(Caster, -100);
 	}
 }

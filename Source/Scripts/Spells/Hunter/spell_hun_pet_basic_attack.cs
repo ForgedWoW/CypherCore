@@ -51,7 +51,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 				{
 					caster.					AsPet.ClearUnitState(UnitState.Follow);
 
-					if (caster.AsPet.GetVictim())
+					if (caster.AsPet.Victim)
 						caster.						AsPet.AttackStop();
 
 					caster.MotionMaster.Clear();

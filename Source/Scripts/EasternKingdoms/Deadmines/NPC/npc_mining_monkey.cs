@@ -60,7 +60,7 @@ public class npc_mining_monkey : ScriptedAI
 		switch (Phase)
 		{
 			case 1:
-				var victim = me.GetVictim();
+				var victim = me.Victim;
 
 				if (victim != null)
 				{

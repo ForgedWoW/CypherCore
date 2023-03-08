@@ -27,7 +27,7 @@ public class npc_monk_sef_spirit : ScriptedAI
 		var attackPower = summoner.AsUnit.UnitData.AttackPower / 100 * 45.0f;
 		var spellPower = summoner.AsUnit.SpellBaseDamageBonusDone(SpellSchoolMask.Nature) / 100 * 45.0f;
 
-		var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.AsUnit.GetTarget());
+		var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.AsUnit.Target);
 
 		if (target != null)
 		{

@@ -175,7 +175,7 @@ public partial class Player
 	{
 		base.AtExitCombat();
 		UpdatePotionCooldown();
-		_combatExitTime = Time.GetMSTime();
+		_combatExitTime = Time.MSTime;
 	}
 
 	public override float GetBlockPercent(uint attackerLevel)
@@ -388,7 +388,7 @@ public partial class Player
 
 	public void UpdateContestedPvP(uint diff)
 	{
-		if (_contestedPvPTimer == 0 || IsInCombat())
+		if (_contestedPvPTimer == 0 || IsInCombat)
 			return;
 
 		if (_contestedPvPTimer <= diff)

@@ -92,7 +92,7 @@ namespace Game.Groups
         public void LoadGroups()
         {
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 // Delete all members that does not exist
                 DB.Characters.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
@@ -138,7 +138,7 @@ namespace Game.Groups
 
             Log.outInfo(LogFilter.ServerLoading, "Loading Group members...");
             {
-                uint oldMSTime = Time.GetMSTime();
+                uint oldMSTime = Time.MSTime;
 
                 //                                                0        1           2            3       4
                 SQLResult result = DB.Characters.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");

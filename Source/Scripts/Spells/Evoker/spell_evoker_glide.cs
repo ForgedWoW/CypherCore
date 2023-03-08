@@ -21,7 +21,7 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 	{
 		var caster = Caster;
 
-		if (!caster.IsFalling())
+		if (!caster.IsFalling)
 			return SpellCastResult.NotOnGround;
 
 		if (caster.HasAura(EvokerSpells.VISAGE_AURA))

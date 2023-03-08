@@ -60,7 +60,7 @@ namespace Game.Movement
                 RemoveFlag(MovementGeneratorFlags.Interrupted);
 
             _timer.Update(diff);
-            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
+            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
             {
                 RemoveFlag(MovementGeneratorFlags.Transitory);
                 SetTargetLocation(owner);
@@ -91,8 +91,8 @@ namespace Game.Movement
                 {
                     owner.RemoveUnitFlag(UnitFlags.Fleeing);
                     owner.ClearUnitState(UnitState.FleeingMove);
-                    if (owner.GetVictim() != null)
-                        owner.SetTarget(owner.GetVictim().GUID);
+                    if (owner.Victim != null)
+                        owner.SetTarget(owner.Victim.GUID);
                 }
             }
         }
@@ -208,7 +208,7 @@ namespace Game.Movement
                 return false;
 
             _totalFleeTime.Update(diff);
-            if (_totalFleeTime.Passed())
+            if (_totalFleeTime.Passed)
                 return false;
 
             return DoUpdate(owner.AsCreature, diff);
@@ -221,7 +221,7 @@ namespace Game.Movement
                 return;
 
             owner.RemoveUnitFlag(UnitFlags.Fleeing);
-            Unit victim = owner.GetVictim();
+            Unit victim = owner.Victim;
             if (victim != null)
             {
                 if (owner.IsAlive)

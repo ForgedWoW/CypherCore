@@ -213,9 +213,9 @@ internal class boss_malchezaar : ScriptedAI
 		if (me.HasUnitState(UnitState.Stunned)) // While shifting to phase 2 malchezaar stuns himself
 			return;
 
-		if (me.GetVictim() &&
-			me.GetTarget() != me.GetVictim().GUID)
-			me.SetTarget(me.GetVictim().GUID);
+		if (me.Victim &&
+			me.			Target != me.Victim.GUID)
+			me.SetTarget(me.Victim.GUID);
 
 		if (phase == 1)
 		{
@@ -317,8 +317,8 @@ internal class boss_malchezaar : ScriptedAI
 
 						if (axe)
 						{
-							if (axe.GetVictim())
-								ResetThreat(axe.GetVictim(), axe);
+							if (axe.Victim)
+								ResetThreat(axe.Victim, axe);
 
 							AddThreat(target, 1000000.0f, axe);
 						}
@@ -372,7 +372,7 @@ internal class boss_malchezaar : ScriptedAI
 				Unit target;
 
 				if (phase == 1)
-					target = me.GetVictim(); // the tank
+					target = me.Victim; // the tank
 				else                         // anyone but the tank
 					target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
@@ -573,22 +573,22 @@ internal class boss_malchezaar : ScriptedAI
 
 	private void DoMeleeAttacksIfReady()
 	{
-		if (me.IsWithinMeleeRange(me.GetVictim()) &&
+		if (me.IsWithinMeleeRange(me.Victim) &&
 			!me.IsNonMeleeSpellCast(false))
 		{
 			//Check for base attack
 			if (me.IsAttackReady() &&
-				me.GetVictim())
+				me.				Victim)
 			{
-				me.AttackerStateUpdate(me.GetVictim());
+				me.AttackerStateUpdate(me.Victim);
 				me.ResetAttackTimer();
 			}
 
 			//Check for offhand attack
 			if (me.IsAttackReady(WeaponAttackType.OffAttack) &&
-				me.GetVictim())
+				me.				Victim)
 			{
-				me.AttackerStateUpdate(me.GetVictim(), WeaponAttackType.OffAttack);
+				me.AttackerStateUpdate(me.Victim, WeaponAttackType.OffAttack);
 				me.ResetAttackTimer(WeaponAttackType.OffAttack);
 			}
 		}

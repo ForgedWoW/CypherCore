@@ -29,7 +29,7 @@ public class spell_warr_second_wind_proc : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		if (caster.IsInCombat())
+		if (caster.IsInCombat)
 			caster.CastSpell(caster, WarriorSpells.SECOND_WIND_DAMAGED, true);
 	}
 
@@ -40,7 +40,7 @@ public class spell_warr_second_wind_proc : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		if (!caster.IsInCombat())
+		if (!caster.IsInCombat)
 			caster.RemoveAura(WarriorSpells.SECOND_WIND_DAMAGED);
 	}
 }

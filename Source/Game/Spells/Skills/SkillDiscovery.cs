@@ -17,7 +17,7 @@ public class SkillDiscovery
 
 	public static void LoadSkillDiscoveryTable()
 	{
-		var oldMsTime = Time.GetMSTime();
+		var oldMsTime = Time.MSTime;
 
 		SkillDiscoveryStorage.Clear(); // need for reload
 

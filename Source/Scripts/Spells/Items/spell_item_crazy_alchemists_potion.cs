@@ -31,7 +31,7 @@ internal class spell_item_crazy_alchemists_potion : SpellScript, ISpellAfterCast
 
 		var target = Caster;
 
-		if (!target.IsInCombat())
+		if (!target.IsInCombat)
 			availableElixirs.Add(53753); // Potion of Nightmares (40081)
 
 		if (target.GetPowerType() == PowerType.Mana)
