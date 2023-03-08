@@ -140,7 +140,7 @@ public class TargetInfo : TargetInfoBase
 			var hitMask = ProcFlagsHit.None;
 
 			// Spells with this flag cannot trigger if effect is cast on self
-			var canEffectTrigger = (!spell.SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs) || !spell.SpellInfo.HasAttribute(SpellAttr3.SuppressTargetProcs)) && spell.UnitTarget.CanProc();
+			var canEffectTrigger = (!spell.SpellInfo.HasAttribute(SpellAttr3.SuppressCasterProcs) || !spell.SpellInfo.HasAttribute(SpellAttr3.SuppressTargetProcs)) && spell.UnitTarget.CanProc;
 
 			// Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
 			if (canEffectTrigger && !procAttacker && !procVictim)
@@ -382,8 +382,8 @@ public class TargetInfo : TargetInfoBase
 
 			if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
 				spell.Caster.				AsCreature.				AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
-			else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.GetAI() != null)
-				spell.Caster.				AsGameObject.GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+			else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.AI != null)
+				spell.Caster.				AsGameObject.				AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 
 			if (HitAura != null)
 			{

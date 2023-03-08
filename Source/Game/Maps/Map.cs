@@ -1825,7 +1825,7 @@ public class Map : IDisposable
 			case TypeId.GameObject:
 				var gameObject = obj.AsGameObject;
 
-				if (gameObject != null && gameObject.GetSpawnId() != 0)
+				if (gameObject != null && gameObject.SpawnId != 0)
 					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
@@ -1867,7 +1867,7 @@ public class Map : IDisposable
 			case TypeId.GameObject:
 				var gameObject = obj.AsGameObject;
 
-				if (gameObject != null && gameObject.GetSpawnId() != 0)
+				if (gameObject != null && gameObject.SpawnId != 0)
 					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
@@ -2700,7 +2700,7 @@ public class Map : IDisposable
 
 		var go = GetGameObject(guid);
 
-		return go ? go.ToTransport() : null;
+		return go ? go.AsTransport : null;
 	}
 
 	public Creature GetCreatureBySpawnId(ulong spawnId)
@@ -2722,7 +2722,7 @@ public class Map : IDisposable
 		if (bounds.Empty())
 			return null;
 
-		var foundGameObject = bounds.Find(gameobject => gameobject.IsSpawned());
+		var foundGameObject = bounds.Find(gameobject => gameobject.IsSpawned);
 
 		return foundGameObject != null ? foundGameObject : bounds[0];
 	}
@@ -3131,7 +3131,7 @@ public class Map : IDisposable
 	private void VisitNearbyCellsOf(WorldObject obj, IGridNotifier gridVisitor)
 	{
 		// Check for valid position
-		if (!obj.Location.IsPositionValid())
+		if (!obj.Location.IsPositionValid)
 			return;
 
 		// Update mobs/objects in ALL visible cells around object!
@@ -4093,7 +4093,7 @@ public class Map : IDisposable
 					break;
 				case TypeId.GameObject:
 					var go = obj.AsGameObject;
-					var transport = go.ToTransport();
+					var transport = go.AsTransport;
 
 					if (transport)
 						RemoveFromMap(transport, true);
@@ -4682,11 +4682,11 @@ public class Map : IDisposable
 				{
 					Log.outError(LogFilter.Scripts, "{0} gameobject was not found (guid: {1}).", scriptInfo.GetDebugInfo(), guid);
 				}
-				else if (pDoor.GetGoType() != GameObjectTypes.Door)
+				else if (pDoor.GoType != GameObjectTypes.Door)
 				{
-					Log.outError(LogFilter.Scripts, "{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GetGoType(), pDoor.Entry, pDoor.GUID.ToString());
+					Log.outError(LogFilter.Scripts, "{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GoType, pDoor.Entry, pDoor.GUID.ToString());
 				}
-				else if (bOpen == (pDoor.GetGoState() == GameObjectState.Ready))
+				else if (bOpen == (pDoor.GoState == GameObjectState.Ready))
 				{
 					pDoor.UseDoorOrButton((uint)nTimeToToggle);
 
@@ -4694,7 +4694,7 @@ public class Map : IDisposable
 					{
 						var goTarget = target.AsGameObject;
 
-						if (goTarget != null && goTarget.GetGoType() == GameObjectTypes.Button)
+						if (goTarget != null && goTarget.GoType == GameObjectTypes.Button)
 							goTarget.UseDoorOrButton((uint)nTimeToToggle);
 					}
 				}
@@ -5067,22 +5067,22 @@ public class Map : IDisposable
 								break;
 							}
 
-							if (pGO.GetGoType() == GameObjectTypes.FishingNode ||
-								pGO.GetGoType() == GameObjectTypes.Door ||
-								pGO.GetGoType() == GameObjectTypes.Button ||
-								pGO.GetGoType() == GameObjectTypes.Trap)
+							if (pGO.GoType == GameObjectTypes.FishingNode ||
+								pGO.								GoType == GameObjectTypes.Door ||
+								pGO.								GoType == GameObjectTypes.Button ||
+								pGO.								GoType == GameObjectTypes.Trap)
 							{
 								Log.outError(LogFilter.Scripts,
 											"{0} can not be used with gameobject of type {1} (guid: {2}).",
 											step.Script.GetDebugInfo(),
-											pGO.GetGoType(),
+											pGO.											GoType,
 											step.Script.RespawnGameObject.GOGuid);
 
 								break;
 							}
 
 							// Check that GO is not spawned
-							if (!pGO.IsSpawned())
+							if (!pGO.IsSpawned)
 							{
 								var nTimeToDespawn = Math.Max(5, (int)step.Script.RespawnGameObject.DespawnDelay);
 								pGO.SetLootState(LootState.Ready);

@@ -1155,7 +1155,7 @@ internal class boss_zelfan : boss_priestess_lackey_common
 									var pAdd = Global.ObjAccessor.GetUnit(me, guid);
 
 									if (pAdd != null &&
-										pAdd.IsPolymorphed())
+										pAdd.										IsPolymorphed)
 									{
 										DoCast(pAdd, SpellIds.Recombobulate);
 

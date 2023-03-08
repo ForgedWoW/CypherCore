@@ -36,6 +36,7 @@ public class spell_hun_snake_hunter : SpellScript, IHasSpellEffects
 		if (player == null)
 			return;
 
-		player.GetSpellHistory().ResetCharges(Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId);
+		player.
+		SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId);
 	}
 }

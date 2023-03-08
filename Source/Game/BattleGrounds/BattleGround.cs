@@ -1277,7 +1277,7 @@ namespace Game.BattleGrounds
                     playerData.Sex = (int)player.Gender;
                     playerData.PlayerRace = player.Race;
                     playerData.PlayerClass = (int)player.Class;
-                    playerData.HonorLevel = (int)player.GetHonorLevel();
+                    playerData.HonorLevel = (int)player.HonorLevel;
                 }
 
                 pvpLogData.Statistics.Add(playerData);
@@ -1400,7 +1400,7 @@ namespace Game.BattleGrounds
             if (obj)
             {
                 // If doors are open, close it
-                if (obj.GetLootState() == LootState.Activated && obj.GetGoState() != GameObjectState.Ready)
+                if (obj.LootState == LootState.Activated && obj.GoState != GameObjectState.Ready)
                 {
                     obj.SetLootState(LootState.Ready);
                     obj.SetGoState(GameObjectState.Ready);
@@ -1463,7 +1463,7 @@ namespace Game.BattleGrounds
                     {
                         obj.SetLootState(LootState.JustDeactivated);
                         {
-                            GameObjectOverride goOverride = obj.GetGameObjectOverride();
+                            GameObjectOverride goOverride = obj.GameObjectOverride;
                             if (goOverride != null)
                                 if (goOverride.Flags.HasFlag(GameObjectFlags.NoDespawn))
                                 {
@@ -1473,7 +1473,7 @@ namespace Game.BattleGrounds
                                 }
                         }
                     }
-                    else if (obj.GetLootState() == LootState.JustDeactivated)
+                    else if (obj.LootState == LootState.JustDeactivated)
                     {
                         // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
                         obj.SetLootState(LootState.Ready);
@@ -1670,7 +1670,7 @@ namespace Game.BattleGrounds
             }
 
             GameObject obj = GetBgMap().GetGameObject(goGuid);
-            if (!obj || obj.GetGoType() != GameObjectTypes.Trap || !obj.IsSpawned())
+            if (!obj || obj.GoType != GameObjectTypes.Trap || !obj.IsSpawned)
                 return;
 
             // Change buff type, when buff is used:
@@ -1679,7 +1679,7 @@ namespace Game.BattleGrounds
                 index--;
             if (index < 0)
             {
-                Log.outError(LogFilter.Battleground, $"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GetGoType()}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+                Log.outError(LogFilter.Battleground, $"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GoType}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
                 return;
             }
 

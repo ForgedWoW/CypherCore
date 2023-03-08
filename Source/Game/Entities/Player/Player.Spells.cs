@@ -194,7 +194,9 @@ public partial class Player
 			}
 
 		// Cooldowns
-		pet.GetSpellHistory().WritePacket(petSpellsPacket);
+		pet.
+			// Cooldowns
+			SpellHistory.WritePacket(petSpellsPacket);
 
 		SendPacket(petSpellsPacket);
 	}
@@ -856,7 +858,7 @@ public partial class Player
 						var spellInfo = Global.SpellMgr.GetSpellInfo((uint)proto.Effects[idx].SpellID, Difficulty.None);
 
 						if (spellInfo != null)
-							GetSpellHistory().SendCooldownEvent(spellInfo, _lastPotionId);
+							SpellHistory.SendCooldownEvent(spellInfo, _lastPotionId);
 					}
 		}
 		// from spell cases (m_lastPotionId set in Spell.SendSpellCooldown)
@@ -865,7 +867,7 @@ public partial class Player
 			if (spell.IsIgnoringCooldowns())
 				return;
 			else
-				GetSpellHistory().SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);
+				SpellHistory.SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);
 		}
 
 		_lastPotionId = 0;
@@ -1190,11 +1192,11 @@ public partial class Player
 
 		if (go != null)
 		{
-			if (go.GetGoInfo().GetTrivialSkillLow() != 0)
-				yellowLevel = go.GetGoInfo().GetTrivialSkillLow();
+			if (go.GoInfo.GetTrivialSkillLow() != 0)
+				yellowLevel = go.GoInfo.GetTrivialSkillLow();
 
-			if (go.GetGoInfo().GetTrivialSkillHigh() != 0)
-				grayLevel = go.GetGoInfo().GetTrivialSkillHigh();
+			if (go.GoInfo.GetTrivialSkillHigh() != 0)
+				grayLevel = go.GoInfo.GetTrivialSkillHigh();
 
 			greenLevel = (yellowLevel + grayLevel) / 2;
 		}
@@ -1641,7 +1643,7 @@ public partial class Player
 	{
 		// remove auras from spells with area limitations
 		// use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-		GetOwnedAurasList()
+		OwnedAurasList
 			.CallOnMatch((aura) => aura.SpellInfo.CheckLocation(Location.MapId, _zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
 						(pair) => RemoveOwnedAura(pair.SpellInfo.Id, pair));
 
@@ -2386,7 +2388,7 @@ public partial class Player
 	public void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 	{
 		// remove cooldowns on spells that have < 10 min CD
-		GetSpellHistory()
+		SpellHistory
 			.ResetCooldowns(p =>
 							{
 								var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
@@ -2401,7 +2403,7 @@ public partial class Player
 			var pet = CurrentPet;
 
 			if (pet)
-				pet.GetSpellHistory().ResetAllCooldowns();
+				pet.SpellHistory.ResetAllCooldowns();
 		}
 	}
 
@@ -2863,7 +2865,7 @@ public partial class Player
 				spells[1] = 23700;
 
 		// Reincarnation (passive spell)  // prio: 1
-		if (HasSpell(20608) && !GetSpellHistory().HasCooldown(21169))
+		if (HasSpell(20608) && !SpellHistory.HasCooldown(21169))
 			spells[2] = 21169;
 
 		foreach (var selfResSpell in spells)
@@ -3234,7 +3236,7 @@ public partial class Player
 
 	void RemoveItemDependentAurasAndCasts(Item pItem)
 	{
-		GetOwnedAurasList()
+		OwnedAurasList
 			.CallOnMatch((aura) =>
 						{
 							// skip not self applied auras

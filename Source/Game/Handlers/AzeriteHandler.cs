@@ -127,7 +127,7 @@ namespace Game
                     for (uint essenceRank = 1; essenceRank <= rank; ++essenceRank)
                     {
                         AzeriteEssencePowerRecord azeriteEssencePower = Global.DB2Mgr.GetAzeriteEssencePower(selectedEssences.AzeriteEssenceID[0], essenceRank);
-                        if (_player.GetSpellHistory().HasCooldown(azeriteEssencePower.MajorPowerDescription))
+                        if (_player.SpellHistory.HasCooldown(azeriteEssencePower.MajorPowerDescription))
                         {
                             activateEssenceResult.Reason = AzeriteEssenceActivateResult.CantRemoveEssence;
                             activateEssenceResult.Arg = azeriteEssencePower.MajorPowerDescription;

@@ -28,7 +28,7 @@ public class spell_dh_desperate_instincts : AuraScript, IHasAuraEffects
 		if (caster == null || eventInfo.DamageInfo != null)
 			return;
 
-		if (caster.GetSpellHistory().HasCooldown(DemonHunterSpells.BLUR_BUFF))
+		if (caster.SpellHistory.HasCooldown(DemonHunterSpells.BLUR_BUFF))
 			return;
 
 		var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);

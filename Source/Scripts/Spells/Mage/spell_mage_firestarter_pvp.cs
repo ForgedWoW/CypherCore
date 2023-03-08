@@ -33,6 +33,7 @@ public class spell_mage_firestarter_pvp : AuraScript, IAuraCheckProc, IHasAuraEf
 		if (caster == null)
 			return;
 
-		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds((aurEff.Amount * -1) - 5000));
+		caster.
+		SpellHistory.ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds((aurEff.Amount * -1) - 5000));
 	}
 }

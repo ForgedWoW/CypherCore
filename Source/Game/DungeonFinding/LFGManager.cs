@@ -380,7 +380,7 @@ namespace Game.DungeonFinding
             // Check player or group member restrictions
             if (!player.Session.HasPermission(RBACPermissions.JoinDungeonFinder))
                 joinData.result = LfgJoinResult.NoSlots;
-            else if (player.InBattleground() || player.InArena || player.InBattlegroundQueue())
+            else if (player.InBattleground || player.InArena || player.InBattlegroundQueue())
                 joinData.result = LfgJoinResult.CantUseDungeons;
             else if (player.HasAura(SharedConst.LFGSpellDungeonDeserter))
                 joinData.result = LfgJoinResult.DeserterPlayer;
@@ -408,7 +408,7 @@ namespace Game.DungeonFinding
                                 joinData.result = LfgJoinResult.DeserterParty;
                             else if (!isContinue && plrg.HasAura(SharedConst.LFGSpellDungeonCooldown))
                                 joinData.result = LfgJoinResult.RandomCooldownParty;
-                            else if (plrg.InBattleground() || plrg.InArena || plrg.InBattlegroundQueue())
+                            else if (plrg.InBattleground || plrg.InArena || plrg.InBattlegroundQueue())
                                 joinData.result = LfgJoinResult.CantUseDungeons;
                             else if (plrg.HasAura(9454)) // check Freeze debuff
                             {

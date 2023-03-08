@@ -15,6 +15,6 @@ public class spell_pri_holy_word_serenity : SpellScript, ISpellOnCast
 		var player = Caster.AsPlayer;
 
 		if (player != null)
-			player.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
+			player.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
 	}
 }

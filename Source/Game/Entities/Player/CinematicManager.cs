@@ -66,7 +66,7 @@ public class CinematicManager : IDisposable
 				var firstCamera = CinematicCamera.FirstOrDefault();
 				Position pos = new(firstCamera.locations.X, firstCamera.locations.Y, firstCamera.locations.Z, firstCamera.locations.W);
 
-				if (!pos.IsPositionValid())
+				if (!pos.IsPositionValid)
 					return;
 
 				_player.Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
@@ -186,7 +186,7 @@ public class CinematicManager : IDisposable
 
 		// Advance (at speed) to this position. The remote sight object is used
 		// to send update information to player in cinematic
-		if (_cinematicObject && interPosition.IsPositionValid())
+		if (_cinematicObject && interPosition.IsPositionValid)
 			_cinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
 		// If we never received an end packet 10 seconds after the final timestamp then force an end

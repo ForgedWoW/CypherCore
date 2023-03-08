@@ -37,13 +37,13 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 		if (owner.HasSpell(HunterSpells.BLINK_STRIKES))
 		{
-			if (owner.AsPlayer.GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && caster.GetDistance(target) > 10.0f)
+			if (owner.AsPlayer.SpellHistory.HasCooldown(HunterSpells.BLINK_STRIKES) && caster.GetDistance(target) > 10.0f)
 				return SpellCastResult.OutOfRange;
 
 			if ((caster.HasAuraType(AuraType.ModRoot) || caster.HasAuraType(AuraType.ModStun)) && caster.GetDistance(target) > 5.0f)
 				return SpellCastResult.Rooted;
 
-			if (!owner.AsPlayer.GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && target.IsWithinLOSInMap(caster) && caster.GetDistance(target) > 10.0f && caster.GetDistance(target) < 30.0f && !caster.HasAuraType(AuraType.ModStun))
+			if (!owner.AsPlayer.SpellHistory.HasCooldown(HunterSpells.BLINK_STRIKES) && target.IsWithinLOSInMap(caster) && caster.GetDistance(target) > 10.0f && caster.GetDistance(target) < 30.0f && !caster.HasAuraType(AuraType.ModStun))
 			{
 				caster.CastSpell(target, HunterSpells.BLINK_STRIKES_TELEPORT, true);
 
@@ -63,7 +63,8 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 					caster.AsCreature.AI.AttackStart(target);
 				}
 
-				owner.AsPlayer.GetSpellHistory().AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
+				owner.AsPlayer.
+				SpellHistory.AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
 			}
 		}
 

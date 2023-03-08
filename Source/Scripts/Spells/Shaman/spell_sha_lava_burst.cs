@@ -33,8 +33,8 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 				var chargeCategoryId = SpellInfo.ChargeCategoryId;
 
 				// Ensure we have at least 1 usable charge after cast to allow next cast immediately
-				if (!caster.GetSpellHistory().HasCharge(chargeCategoryId))
-					caster.GetSpellHistory().RestoreCharge(chargeCategoryId);
+				if (!caster.SpellHistory.HasCharge(chargeCategoryId))
+					caster.					SpellHistory.RestoreCharge(chargeCategoryId);
 			}
 	}
 

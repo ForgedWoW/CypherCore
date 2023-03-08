@@ -43,7 +43,7 @@ public class spell_hun_mortal_wounds : AuraScript, IHasAuraEffects, IAuraCheckPr
 			var mongooseBite = CliDB.SpellCategoryStorage.LookupByKey(chargeCatId);
 
 			if (mongooseBite != null)
-				player.GetSpellHistory().RestoreCharge(chargeCatId);
+				player.				SpellHistory.RestoreCharge(chargeCatId);
 		}
 	}
 }

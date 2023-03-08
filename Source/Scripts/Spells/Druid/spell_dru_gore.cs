@@ -35,6 +35,6 @@ internal class spell_dru_gore : AuraScript, IHasAuraEffects
 	{
 		var owner = Target;
 		owner.CastSpell(owner, DruidSpellIds.GoreProc);
-		owner.GetSpellHistory().ResetCooldown(DruidSpellIds.Mangle, true);
+		owner.		SpellHistory.ResetCooldown(DruidSpellIds.Mangle, true);
 	}
 }

@@ -645,7 +645,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 				if (!rune)
 					continue;
 
-				if (rune.GetGoState() == GameObjectState.Active)
+				if (rune.GoState == GameObjectState.Active)
 					foreach (var guid in runecreaturelist[i])
 					{
 						mob = Instance.GetCreature(guid);
@@ -655,7 +655,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 					}
 
 				if (!_mobAlive &&
-					rune.GetGoState() == GameObjectState.Active)
+					rune.					GoState == GameObjectState.Active)
 				{
 					HandleGameObject(ObjectGuid.Empty, false, rune);
 

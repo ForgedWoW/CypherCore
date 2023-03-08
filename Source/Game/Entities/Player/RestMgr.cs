@@ -36,7 +36,7 @@ public class RestMgr
 				break;
 			case RestTypes.Honor:
 				// Reset restBonus (Honor only) for players with max honor level.
-				if (_player.IsMaxHonorLevel())
+				if (_player.IsMaxHonorLevel)
 					restBonus = 0;
 
 				nextLevelXp = _player.ActivePlayerData.HonorNextLevel;

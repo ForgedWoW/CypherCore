@@ -62,6 +62,6 @@ public class spell_rog_true_bearing_AuraScript : AuraScript, IHasAuraEffects
 		};
 
 		foreach (var spell in spellIds)
-			caster.GetSpellHistory().ModifyCooldown(spell, TimeSpan.FromSeconds(-2000 * cp));
+			caster.			SpellHistory.ModifyCooldown(spell, TimeSpan.FromSeconds(-2000 * cp));
 	}
 }

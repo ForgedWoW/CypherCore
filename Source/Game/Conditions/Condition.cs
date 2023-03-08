@@ -229,7 +229,7 @@ namespace Game.Conditions
                                     condMeets &= obj.AsCreature.SpawnId == ConditionValue3;
                                     break;
                                 case TypeId.GameObject:
-                                    condMeets &= obj.AsGameObject.GetSpawnId() == ConditionValue3;
+                                    condMeets &= obj.AsGameObject.SpawnId == ConditionValue3;
                                     break;
                             }
                         }

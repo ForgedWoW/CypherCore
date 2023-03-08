@@ -102,7 +102,7 @@ public partial class Player : Unit
 	{
 		get
 		{
-			var bg = GetBattleground();
+			var bg = Battleground;
 
 			if (!bg || !bg.IsArena())
 				return false;
@@ -408,6 +408,11 @@ public partial class Player : Unit
 
 			return null;
 		}
+	}
+
+	public override PlayerAI AI
+	{
+		get { return Ai as PlayerAI; }
 	}
 
 	public Player(WorldSession session) : base(true)
@@ -1428,7 +1433,7 @@ public partial class Player : Unit
 
 		// Cooldowns
 		if (!charm.IsTypeId(TypeId.Player))
-			charm.GetSpellHistory().WritePacket(petSpells);
+			charm.SpellHistory.WritePacket(petSpells);
 
 		SendPacket(petSpells);
 	}
@@ -1456,7 +1461,9 @@ public partial class Player : Unit
 			petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
 
 		// Cooldowns
-		charm.GetSpellHistory().WritePacket(petSpellsPacket);
+		charm.
+			// Cooldowns
+			SpellHistory.WritePacket(petSpellsPacket);
 
 		SendPacket(petSpellsPacket);
 	}
@@ -1505,7 +1512,9 @@ public partial class Player : Unit
 		}
 
 		// Cooldowns
-		vehicle.GetSpellHistory().WritePacket(petSpells);
+		vehicle.
+			// Cooldowns
+			SpellHistory.WritePacket(petSpells);
 
 		SendPacket(petSpells);
 	}
@@ -2049,7 +2058,7 @@ public partial class Player : Unit
 
 		// don't let enter Battlegrounds without assigned Battlegroundid (for example through areatrigger)...
 		// don't let gm level > 1 either
-		if (!InBattleground() && mEntry.IsBattlegroundOrArena())
+		if (!InBattleground && mEntry.IsBattlegroundOrArena())
 			return false;
 
 		// client without expansion support
@@ -2196,7 +2205,7 @@ public partial class Player : Unit
 			ResetContestedPvP();
 
 			// remove player from Battlegroundon far teleport (when changing maps)
-			var bg = GetBattleground();
+			var bg = Battleground;
 
 			if (bg)
 				// Note: at Battlegroundjoin Battlegroundid set before teleport
@@ -2580,7 +2589,7 @@ public partial class Player : Unit
 
 		// drop flag at summon
 		// this code can be reached only when GM is summoning player who carries flag, because player should be immune to summoning spells when he carries flag
-		var bg = GetBattleground();
+		var bg = Battleground;
 
 		if (bg)
 			bg.EventPlayerDroppedFlag(this);
@@ -2721,7 +2730,7 @@ public partial class Player : Unit
 		}
 		else if (source.IsTypeId(TypeId.GameObject))
 		{
-			if (source.AsGameObject.GetGoType() == GameObjectTypes.QuestGiver)
+			if (source.AsGameObject.GoType == GameObjectTypes.QuestGiver)
 				PrepareQuestMenu(source.GUID);
 		}
 
@@ -2826,7 +2835,7 @@ public partial class Player : Unit
 				switch (gossipMenuItem.OptionNpc)
 				{
 					case GossipOptionNpc.None:
-						if (go.GetGoType() != GameObjectTypes.QuestGiver && go.GetGoType() != GameObjectTypes.Goober)
+						if (go.GoType != GameObjectTypes.QuestGiver && go.GoType != GameObjectTypes.Goober)
 							canTalk = false;
 
 						break;
@@ -3097,7 +3106,7 @@ public partial class Player : Unit
 			case TypeId.Unit:
 				return source.AsCreature.CreatureTemplate.GossipMenuId;
 			case TypeId.GameObject:
-				return source.AsGameObject.GetGoInfo().GetGossipMenuId();
+				return source.AsGameObject.GoInfo.GetGossipMenuId();
 			default:
 				break;
 		}
@@ -3773,9 +3782,9 @@ public partial class Player : Unit
 		UpdateZone(newzone, newarea);
 		Global.OutdoorPvPMgr.HandlePlayerResurrects(this, newzone);
 
-		if (InBattleground())
+		if (InBattleground)
 		{
-			var bg = GetBattleground();
+			var bg = Battleground;
 
 			if (bg)
 				bg.HandlePlayerResurrect(this);
@@ -3891,7 +3900,7 @@ public partial class Player : Unit
 		WorldSafeLocsEntry ClosestGrave;
 
 		// Special handle for Battlegroundmaps
-		var bg = GetBattleground();
+		var bg = Battleground;
 
 		if (bg)
 		{
@@ -3998,7 +4007,7 @@ public partial class Player : Unit
 
 		pet.Location.Relocate(x, y, z, ang);
 
-		if (!pet.Location.IsPositionValid())
+		if (!pet.Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Server,
 						"Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
@@ -4077,7 +4086,7 @@ public partial class Player : Unit
 				return;
 		}
 
-		if (returnreagent && (pet || _temporaryUnsummonedPetNumber != 0) && !InBattleground())
+		if (returnreagent && (pet || _temporaryUnsummonedPetNumber != 0) && !InBattleground)
 		{
 			//returning of reagents only for players, so best done here
 			var spellId = pet ? pet.UnitData.CreatedBySpell : _oldpetspell;
@@ -4659,7 +4668,7 @@ public partial class Player : Unit
 			SetPlayerFlag(PlayerFlags.AFK);
 
 		// afk player not allowed in Battleground
-		if (!IsGameMaster && IsAFK && InBattleground() && !InArena)
+		if (!IsGameMaster && IsAFK && InBattleground && !InArena)
 			LeaveBattleground();
 	}
 
@@ -4767,7 +4776,7 @@ public partial class Player : Unit
 			return null;
 
 		// Players cannot interact with gameobjects that use the "Point" icon
-		if (go.GetGoInfo().IconName == "Point")
+		if (go.GoInfo.IconName == "Point")
 			return null;
 
 		if (!go.IsWithinDistInMap(this))
@@ -4783,7 +4792,7 @@ public partial class Player : Unit
 		if (!go)
 			return null;
 
-		if (go.GetGoType() != type)
+		if (go.GoType != type)
 			return null;
 
 		return go;
@@ -4819,12 +4828,12 @@ public partial class Player : Unit
 
 		// SMSG_SEND_SPELL_HISTORY
 		SendSpellHistory sendSpellHistory = new();
-		GetSpellHistory().WritePacket(sendSpellHistory);
+		SpellHistory.WritePacket(sendSpellHistory);
 		SendPacket(sendSpellHistory);
 
 		// SMSG_SEND_SPELL_CHARGES
 		SendSpellCharges sendSpellCharges = new();
-		GetSpellHistory().WritePacket(sendSpellCharges);
+		SpellHistory.WritePacket(sendSpellCharges);
 		SendPacket(sendSpellCharges);
 
 		ActiveGlyphs activeGlyphs = new();
@@ -5347,7 +5356,7 @@ public partial class Player : Unit
 		if (xp < 1)
 			return;
 
-		if (!IsAlive && GetBattlegroundId() == 0)
+		if (!IsAlive && BattlegroundId == 0)
 			return;
 
 		if (HasPlayerFlag(PlayerFlags.NoXPGain))
@@ -6708,11 +6717,6 @@ public partial class Player : Unit
 			_delayedOperations |= operation;
 	}
 
-	new PlayerAI GetAI()
-	{
-		return (PlayerAI)Ai;
-	}
-
 	void DeleteGarrison()
 	{
 		if (_garrison != null)
@@ -7120,7 +7124,7 @@ public partial class Player : Unit
 		if (_regenTimerCount >= 2000)
 		{
 			// Not in combat or they have regeneration
-			if (!IsInCombat || IsPolymorphed() || _baseHealthRegen != 0 || HasAuraType(AuraType.ModRegenDuringCombat) || HasAuraType(AuraType.ModHealthRegenInCombat))
+			if (!IsInCombat || IsPolymorphed || _baseHealthRegen != 0 || HasAuraType(AuraType.ModRegenDuringCombat) || HasAuraType(AuraType.ModHealthRegenInCombat))
 				RegenerateHealth();
 
 			_regenTimerCount -= 2000;
@@ -7305,7 +7309,7 @@ public partial class Player : Unit
 		double addValue = 0.0f;
 
 		// polymorphed case
-		if (IsPolymorphed())
+		if (IsPolymorphed)
 		{
 			addValue = MaxHealth / 3;
 		}
@@ -7588,7 +7592,7 @@ public partial class Player : Unit
 		if (HasPvpFlag(UnitPVPStateFlags.PvP))
 			flags |= CorpseFlags.PvP;
 
-		if (InBattleground() && !InArena)
+		if (InBattleground && !InArena)
 			flags |= CorpseFlags.Skinnable; // to be able to remove insignia
 
 		if (HasPvpFlag(UnitPVPStateFlags.FFAPvp))
@@ -7769,10 +7773,10 @@ public partial class Player : Unit
 
 	void SendAurasForTarget(Unit target)
 	{
-		if (target == null || target.GetVisibleAuras().Empty()) // speedup things
+		if (target == null || target.VisibleAuras.Empty()) // speedup things
 			return;
 
-		var visibleAuras = target.GetVisibleAuras();
+		var visibleAuras = target.VisibleAuras;
 
 		AuraUpdate update = new();
 		update.UpdateAll = true;

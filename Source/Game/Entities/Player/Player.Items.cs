@@ -1055,7 +1055,7 @@ public partial class Player
 					{
 						_weaponChangeTimer = spellProto.StartRecoveryTime;
 
-						GetSpellHistory().AddGlobalCooldown(spellProto, TimeSpan.FromMilliseconds(_weaponChangeTimer));
+						SpellHistory.AddGlobalCooldown(spellProto, TimeSpan.FromMilliseconds(_weaponChangeTimer));
 
 						SpellCooldownPkt spellCooldown = new();
 						spellCooldown.Caster = GUID;
@@ -4162,7 +4162,7 @@ public partial class Player
 						if (IsInCombat)
 							return InventoryResult.NotInCombat;
 
-						var bg = GetBattleground();
+						var bg = Battleground;
 
 						if (bg)
 							if (bg.IsArena() && bg.GetStatus() == BattlegroundStatus.InProgress)
@@ -4495,7 +4495,7 @@ public partial class Player
 			if (IsInCombat)
 				return InventoryResult.NotInCombat;
 
-			var bg = GetBattleground();
+			var bg = Battleground;
 
 			if (bg)
 				if (bg.IsArena() && bg.GetStatus() == BattlegroundStatus.InProgress)
@@ -5270,7 +5270,7 @@ public partial class Player
 	public void RemovedInsignia(Player looterPlr)
 	{
 		// If player is not in battleground and not in worldpvpzone
-		if (GetBattlegroundId() == 0 && !IsInWorldPvpZone)
+		if (BattlegroundId == 0 && !IsInWorldPvpZone)
 			return;
 
 		// If not released spirit, do it !
@@ -5296,7 +5296,7 @@ public partial class Player
 		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
 		// For AV Achievement
-		var bg = GetBattleground();
+		var bg = Battleground;
 
 		if (bg != null)
 		{
@@ -6690,10 +6690,10 @@ public partial class Player
 				continue;
 
 			// Don't replace longer cooldowns by equip cooldown if we have any.
-			if (GetSpellHistory().GetRemainingCooldown(effectSpellInfo) > TimeSpan.FromSeconds(30))
+			if (SpellHistory.GetRemainingCooldown(effectSpellInfo) > TimeSpan.FromSeconds(30))
 				continue;
 
-			GetSpellHistory().AddCooldown((uint)effectData.SpellID, pItem.Entry, TimeSpan.FromSeconds(30));
+			SpellHistory.AddCooldown((uint)effectData.SpellID, pItem.Entry, TimeSpan.FromSeconds(30));
 
 			ItemCooldown data = new();
 			data.ItemGuid = pItem.GUID;

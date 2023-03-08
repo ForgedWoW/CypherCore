@@ -1401,7 +1401,7 @@ public partial class Unit
 
 			if (pet != null)
 			{
-				var bg = AsPlayer.GetBattleground();
+				var bg = AsPlayer.Battleground;
 
 				// don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
 				if (bg && bg.IsArena())

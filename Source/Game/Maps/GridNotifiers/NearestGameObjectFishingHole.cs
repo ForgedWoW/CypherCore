@@ -20,7 +20,7 @@ class NearestGameObjectFishingHole : ICheck<GameObject>
 
 	public bool Invoke(GameObject go)
 	{
-		if (go.GetGoInfo().type == GameObjectTypes.FishingHole && go.IsSpawned() && _obj.IsWithinDist(go, _range) && _obj.IsWithinDist(go, go.GetGoInfo().FishingHole.radius))
+		if (go.GoInfo.type == GameObjectTypes.FishingHole && go.IsSpawned && _obj.IsWithinDist(go, _range) && _obj.IsWithinDist(go, go.GoInfo.FishingHole.radius))
 		{
 			_range = _obj.GetDistance(go);
 

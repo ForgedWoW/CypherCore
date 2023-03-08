@@ -28,7 +28,8 @@ public class spell_monk_keg_smash : SpellScript, ISpellOnHit
 					_player.CastSpell(target, MonkSpells.WEAKENED_BLOWS, true);
 					_player.CastSpell(_player, MonkSpells.KEG_SMASH_ENERGIZE, true);
 					// Prevent to receive 2 CHI more than once time per cast
-					_player.GetSpellHistory().AddCooldown(MonkSpells.KEG_SMASH_ENERGIZE, 0, TimeSpan.FromSeconds(1));
+					_player.					// Prevent to receive 2 CHI more than once time per cast
+					SpellHistory.AddCooldown(MonkSpells.KEG_SMASH_ENERGIZE, 0, TimeSpan.FromSeconds(1));
 					_player.CastSpell(target, MonkSpells.DIZZYING_HAZE, true);
 				}
 			}

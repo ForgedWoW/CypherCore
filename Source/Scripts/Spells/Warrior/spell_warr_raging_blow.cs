@@ -39,7 +39,7 @@ public class spell_warr_raging_blow : SpellScript, ISpellOnHit
 		}
 
 		if (RandomHelper.randChance(20))
-			Caster.GetSpellHistory().ResetCooldown(85288, true);
+			Caster.			SpellHistory.ResetCooldown(85288, true);
 
 		var whirlWind = Caster.GetAura(WarriorSpells.WHIRLWIND_PASSIVE);
 

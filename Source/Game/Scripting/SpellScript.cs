@@ -496,7 +496,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		{
 			Position pos = ExplTargetWorldObject.Location;
 
-			if (pos == null || pos.IsDefault || !pos.IsPositionValid())
+			if (pos == null || pos.IsDefault || !pos.IsPositionValid)
 				pos = _spell.Targets.Dst.Position;
 
 			return pos;

@@ -77,7 +77,7 @@ public class Corpse : WorldObject
 
 		Location.Relocate(owner.Location.X, owner.Location.Y, owner.Location.Z, owner.Location.Orientation);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Player,
 						"Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
@@ -219,7 +219,7 @@ public class Corpse : WorldObject
 		Location.MapId = mapId;
 		Location.Relocate(posX, posY, posZ, o);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Player,
 						"Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",

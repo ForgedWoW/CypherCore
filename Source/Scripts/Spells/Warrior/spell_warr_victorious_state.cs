@@ -31,6 +31,7 @@ internal class spell_warr_victorious_state : AuraScript, IHasAuraEffects
 			procInfo.Actor.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarriorFury)
 			PreventDefaultAction();
 
-		procInfo.Actor.GetSpellHistory().ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
+		procInfo.Actor.
+		SpellHistory.ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
 	}
 }

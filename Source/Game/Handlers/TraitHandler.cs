@@ -31,7 +31,7 @@ namespace Game
                 return;
             }
 
-            if (_player.GetBattleground() && _player.GetBattleground().GetStatus() == BattlegroundStatus.InProgress)
+            if (_player.Battleground && _player.Battleground.GetStatus() == BattlegroundStatus.InProgress)
             {
                 SendPacket(new TraitConfigCommitFailed(configId, 0, (int)TalentLearnResult.InPvpMatch));
                 return;
@@ -87,13 +87,13 @@ namespace Game
                             return;
                         }
 
-                        if (traitDefinition.SpellID != 0 && _player.GetSpellHistory().HasCooldown(traitDefinition.SpellID))
+                        if (traitDefinition.SpellID != 0 && _player.SpellHistory.HasCooldown(traitDefinition.SpellID))
                         {
                             SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.SpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
                             return;
                         }
 
-                        if (traitDefinition.VisibleSpellID != 0 && _player.GetSpellHistory().HasCooldown((uint)traitDefinition.VisibleSpellID))
+                        if (traitDefinition.VisibleSpellID != 0 && _player.SpellHistory.HasCooldown((uint)traitDefinition.VisibleSpellID))
                         {
                             SendPacket(new TraitConfigCommitFailed(configId, traitDefinition.VisibleSpellID, (int)TalentLearnResult.FailedCantRemoveTalent));
                             return;

@@ -141,7 +141,7 @@ namespace Game
             // If spiritguide, no need for gossip menu, just put player into resurrect queue
             if (unit.IsSpiritGuide)
             {
-                Battleground bg = Player.GetBattleground();
+                Battleground bg = Player.Battleground;
                 if (bg)
                 {
                     bg.AddPlayerToResurrectQueue(unit.GUID, Player.GUID);
@@ -199,14 +199,14 @@ namespace Game
             if (Player.HasUnitState(UnitState.Died))
                 Player.RemoveAurasByType(AuraType.FeignDeath);
 
-            if ((unit && unit.GetScriptId() != unit.LastUsedScriptID) || (go != null && go.GetScriptId() != go.LastUsedScriptID))
+            if ((unit && unit.GetScriptId() != unit.LastUsedScriptID) || (go != null && go.ScriptId != go.LastUsedScriptID))
             {
                 Log.outDebug(LogFilter.Network, "WORLD: HandleGossipSelectOption - Script reloaded while in use, ignoring and set new scipt id");
                 if (unit != null)
                     unit.LastUsedScriptID = unit.GetScriptId();
 
                 if (go != null)
-                    go.LastUsedScriptID = go.GetScriptId();
+                    go.LastUsedScriptID = go.ScriptId;
                 Player.PlayerTalkClass.SendCloseGossip();
                 return;
             }
@@ -219,7 +219,7 @@ namespace Game
                 }
                 else
                 {
-                    if (!go.GetAI().OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
+                    if (!go.AI.OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
                         _player.OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
                 }
             }
@@ -232,7 +232,7 @@ namespace Game
                 }
                 else
                 {
-                    if (!go.GetAI().OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
+                    if (!go.AI.OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
                         Player.OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
                 }
             }

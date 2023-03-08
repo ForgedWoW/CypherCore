@@ -41,8 +41,8 @@ public class spell_dh_shear_proc : AuraScript, IHasAuraEffects
 			    caster->CastSpell(caster, SHATTERED_SOULS_MISSILE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)LESSER_SOUL_SHARD));
 			*/
 
-		if (caster.GetSpellHistory().HasCooldown(DemonHunterSpells.FELBLADE))
+		if (caster.SpellHistory.HasCooldown(DemonHunterSpells.FELBLADE))
 			if (RandomHelper.randChance(caster.GetAuraEffectAmount(DemonHunterSpells.SHEAR_PROC, 3)))
-				caster.GetSpellHistory().ResetCooldown(DemonHunterSpells.FELBLADE);
+				caster.				SpellHistory.ResetCooldown(DemonHunterSpells.FELBLADE);
 	}
 }

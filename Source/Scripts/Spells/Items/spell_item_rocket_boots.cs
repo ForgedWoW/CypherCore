@@ -42,12 +42,13 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
 	{
 		var caster = Caster.AsPlayer;
 
-		var bg = caster.GetBattleground();
+		var bg = caster.Battleground;
 
 		if (bg)
 			bg.EventPlayerDroppedFlag(caster);
 
-		caster.GetSpellHistory().ResetCooldown(ItemSpellIds.RocketBootsProc);
+		caster.
+		SpellHistory.ResetCooldown(ItemSpellIds.RocketBootsProc);
 		caster.CastSpell(caster, ItemSpellIds.RocketBootsProc, true);
 	}
 }

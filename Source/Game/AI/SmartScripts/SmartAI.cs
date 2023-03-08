@@ -1136,7 +1136,7 @@ namespace Game.AI
             GetScript().OnInitialize(me);
 
             // do not call respawn event if go is not spawned
-            if (me.IsSpawned())
+            if (me.IsSpawned)
                 GetScript().ProcessEventsFor(SmartEvents.Respawn);
         }
 

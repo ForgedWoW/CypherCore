@@ -51,7 +51,8 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 			}
 
-			caster.GetSpellHistory().AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
+			caster.
+			SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 		}
 	}
 
@@ -72,7 +73,8 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 				if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 
-				caster.GetSpellHistory().AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
+				caster.
+				SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 			}
 	}
 }

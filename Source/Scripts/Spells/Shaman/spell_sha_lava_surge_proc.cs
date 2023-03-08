@@ -24,6 +24,6 @@ internal class spell_sha_lava_surge_proc : SpellScript, ISpellAfterHit
 
 	public void AfterHit()
 	{
-		Caster.GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, CastDifficulty).ChargeCategoryId);
+		Caster.		SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, CastDifficulty).ChargeCategoryId);
 	}
 }

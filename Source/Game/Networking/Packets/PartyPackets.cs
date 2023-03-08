@@ -279,7 +279,7 @@ class PartyMemberFullState : ServerPacket
 		}
 
 		// Auras
-		foreach (var aurApp in player.GetVisibleAuras())
+		foreach (var aurApp in player.VisibleAuras)
 		{
 			PartyMemberAuraStates aura = new();
 			aura.SpellID = (int)aurApp.Base.Id;
@@ -311,7 +311,7 @@ class PartyMemberFullState : ServerPacket
 			MemberStats.PetStats.CurrentHealth = (int)pet.Health;
 			MemberStats.PetStats.MaxHealth = (int)pet.MaxHealth;
 
-			foreach (var aurApp in pet.GetVisibleAuras())
+			foreach (var aurApp in pet.VisibleAuras)
 			{
 				PartyMemberAuraStates aura = new();
 

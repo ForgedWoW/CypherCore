@@ -34,6 +34,6 @@ internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
 			Caster.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
 
 		if (Caster.HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
-			Caster.GetSpellHistory().ResetCooldown(WarriorSpells.TAUNT, true);
+			Caster.			SpellHistory.ResetCooldown(WarriorSpells.TAUNT, true);
 	}
 }

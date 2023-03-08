@@ -163,7 +163,7 @@ namespace Game.Arenas
                 {
                     if (i >= RingofValorObjectTypes.PilarCollision1)
                     {
-                        GameObjectState state = ((go.GetGoInfo().Door.startOpen != 0) == enable) ? GameObjectState.Active : GameObjectState.Ready;
+                        GameObjectState state = ((go.GoInfo.Door.startOpen != 0) == enable) ? GameObjectState.Active : GameObjectState.Ready;
                         go.SetGoState(state);
                     }
 

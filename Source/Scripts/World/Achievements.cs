@@ -52,7 +52,7 @@ internal class achievement_arena_kills : ScriptObjectAutoAddDBBound, IAchievemen
 		if (!source.InArena)
 			return false;
 
-		return source.GetBattleground().GetArenaType() == _arenaType;
+		return source.Battleground.GetArenaType() == _arenaType;
 	}
 }
 

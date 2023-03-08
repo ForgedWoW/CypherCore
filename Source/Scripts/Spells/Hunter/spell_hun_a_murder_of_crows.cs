@@ -44,7 +44,7 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 		{
 			var caster = Caster;
 
-			caster?.GetSpellHistory().ResetCooldown(Id, true);
+			caster?.SpellHistory.ResetCooldown(Id, true);
 		}
 	}
 }

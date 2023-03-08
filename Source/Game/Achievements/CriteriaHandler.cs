@@ -892,7 +892,7 @@ namespace Game.Achievements
             switch ((CriteriaFailEvent)criteria.Entry.FailEvent)
             {
                 case CriteriaFailEvent.LeaveBattleground:
-                    if (!referencePlayer.InBattleground())
+                    if (!referencePlayer.InBattleground)
                         return false;
                     break;
                 case CriteriaFailEvent.ModifyPartyStatus:
@@ -1139,7 +1139,7 @@ namespace Game.Achievements
 
                     if ((CriteriaFailEvent)criteria.Entry.FailEvent == CriteriaFailEvent.LeaveBattleground)
                     {
-                        if (!referencePlayer.InBattleground())
+                        if (!referencePlayer.InBattleground)
                             return false;
 
                         // map specific case (BG in fact) expected player targeted damage/heal
@@ -1374,7 +1374,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerInArenaWithTeamSize: // 24
                 {
-                    Battleground bg = referencePlayer.GetBattleground();
+                    Battleground bg = referencePlayer.Battleground;
                     if (!bg || !bg.IsArena() || bg.GetArenaType() != (ArenaTypes)reqValue)
                         return false;
                     break;
@@ -1553,7 +1553,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerInRankedArenaMatch: // 60
                 {
-                    Battleground bg = referencePlayer.GetBattleground();
+                    Battleground bg = referencePlayer.Battleground;
                     if (bg == null || !bg.IsArena() || !bg.IsRated())
                         return false;
                     break;
@@ -1566,7 +1566,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerInRatedBattleground: // 63
                 {
-                    Battleground bg = referencePlayer.GetBattleground();
+                    Battleground bg = referencePlayer.Battleground;
                     if (bg == null || !bg.IsBattleground() || !bg.IsRated())
                         return false;
                     break;
@@ -2595,7 +2595,7 @@ namespace Game.Achievements
                 case ModifierTreeType.TargetEffectiveRace: // 192 NYI
                     return false;
                 case ModifierTreeType.HonorLevelEqualOrGreaterThan: // 193
-                    if (referencePlayer.GetHonorLevel() < reqValue)
+                    if (referencePlayer.HonorLevel < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PrestigeLevelEqualOrGreaterThan: // 194
@@ -2718,7 +2718,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerIsInPvpBrawl: // 220
                 {
-                    var bg = CliDB.BattlemasterListStorage.LookupByKey(referencePlayer.GetBattlegroundTypeId());
+                    var bg = CliDB.BattlemasterListStorage.LookupByKey(referencePlayer.BattlegroundTypeId);
                     if (bg == null || !bg.Flags.HasFlag(BattlemasterListFlags.Brawl))
                         return false;
                     break;

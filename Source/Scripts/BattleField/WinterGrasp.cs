@@ -788,10 +788,10 @@ internal class BattlefieldWG : BattleField
 
 				if (buildingGo)
 				{
-					if (buildingGo.GetGoInfo().DestructibleBuilding.DamagedEvent == eventId)
+					if (buildingGo.GoInfo.DestructibleBuilding.DamagedEvent == eventId)
 						building.Damaged();
 
-					if (buildingGo.GetGoInfo().DestructibleBuilding.DestroyedEvent == eventId)
+					if (buildingGo.GoInfo.DestructibleBuilding.DestroyedEvent == eventId)
 						building.Destroyed();
 
 					break;
@@ -1115,7 +1115,7 @@ internal class BfWGGameObjectBuilding
 		if (build)
 		{
 			// Rebuild gameobject
-			if (build.IsDestructibleBuilding())
+			if (build.IsDestructibleBuilding)
 			{
 				build.SetDestructibleState(GameObjectDestructibleState.Rebuilding, null, true);
 
@@ -1142,7 +1142,7 @@ internal class BfWGGameObjectBuilding
 		var build = _wg.GetGameObject(_buildGUID);
 
 		if (build != null)
-			if (build.IsDestructibleBuilding() &&
+			if (build.IsDestructibleBuilding &&
 				build.Entry == WGGameObjects.VaultGate)
 			{
 				var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);

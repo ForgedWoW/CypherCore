@@ -99,7 +99,7 @@ internal class boss_broodlord : BossAI
 		var _goList = me.GetGameObjectListWithEntryInGrid(BWLGameObjectIds.SuppressionDevice, 200.0f);
 
 		foreach (var go in _goList)
-			go.GetAI().DoAction(ActionIds.Deactivate);
+			go.			AI.DoAction(ActionIds.Deactivate);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -144,7 +144,7 @@ internal class go_suppression_device : GameObjectAI
 			switch (eventId)
 			{
 				case EventIds.SuppressionCast:
-					if (me.GetGoState() == GameObjectState.Ready)
+					if (me.GoState == GameObjectState.Ready)
 					{
 						me.CastSpell(null, SpellIds.SuppressionAura, true);
 						me.SendCustomAnim(0);
@@ -194,7 +194,7 @@ internal class go_suppression_device : GameObjectAI
 
 		_active = true;
 
-		if (me.GetGoState() == GameObjectState.Active)
+		if (me.GoState == GameObjectState.Active)
 			me.SetGoState(GameObjectState.Ready);
 
 		me.SetLootState(LootState.Ready);

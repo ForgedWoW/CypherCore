@@ -19,7 +19,8 @@ public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 		if (caster == null)
 			return;
 
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
+		caster.AsPlayer.
+		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
 	}
 
 	public SpellCastResult CheckCast()
@@ -30,7 +31,7 @@ public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.FELGUARD_FELSTORM))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.FELGUARD_FELSTORM))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;

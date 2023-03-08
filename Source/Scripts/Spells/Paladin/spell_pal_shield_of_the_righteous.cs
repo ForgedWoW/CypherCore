@@ -70,7 +70,7 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
 				var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.LIGHT_OF_THE_PROTECTOR, Difficulty.None);
 
 				if (spellInfo != null)
-					player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
+					player.					SpellHistory.ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
 			}
 
 			if (player.HasSpell(PaladinSpells.HAND_OF_THE_PROTECTOR))
@@ -78,13 +78,13 @@ public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
 				var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HAND_OF_THE_PROTECTOR, Difficulty.None);
 
 				if (spellInfo != null)
-					player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
+					player.					SpellHistory.ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
 			}
 
 			var spellInfoAR = Global.SpellMgr.GetSpellInfo(PaladinSpells.AvengingWrath, Difficulty.None);
 
 			if (spellInfoAR != null)
-				player.GetSpellHistory().ModifySpellCooldown(spellInfoAR.Id, cooldownReduction, false);
+				player.				SpellHistory.ModifySpellCooldown(spellInfoAR.Id, cooldownReduction, false);
 		}
 	}
 }

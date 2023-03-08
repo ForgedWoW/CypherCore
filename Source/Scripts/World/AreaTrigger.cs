@@ -135,7 +135,7 @@ internal class AreaTrigger_at_coilfang_waterfall : ScriptObjectAutoAddDBBound, I
 		var go = player.FindNearestGameObject(GameObjectIds.CoilfangWaterfall, 35.0f);
 
 		if (go)
-			if (go.GetLootState() == LootState.Ready)
+			if (go.LootState == LootState.Ready)
 				go.UseDoorOrButton();
 
 		return false;

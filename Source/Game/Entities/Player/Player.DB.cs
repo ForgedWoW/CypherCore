@@ -437,7 +437,7 @@ public partial class Player
 		var player_at_bg = false;
 		var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
 
-		if (mapEntry == null || !Location.IsPositionValid())
+		if (mapEntry == null || !Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, Location);
 			RelocateToHomebind();
@@ -477,7 +477,7 @@ public partial class Player
 				}
 
 				// Do not look for instance if bg not found
-				var _loc = GetBattlegroundEntryPoint();
+				var _loc = BattlegroundEntryPoint;
 				mapId = _loc.MapId;
 				instance_id = 0;
 
@@ -845,7 +845,7 @@ public partial class Player
 		// has to be called after last Relocate() in Player.LoadFromDB
 		SetFallInformation(0, Location.Z);
 
-		GetSpellHistory().LoadFromDb<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
+		SpellHistory.LoadFromDb<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
 
 		var savedHealth = health;
 
@@ -1378,7 +1378,7 @@ public partial class Player
 
 			stmt.AddValue(index++, IsInWorld && !Session.PlayerLogout ? 1 : 0);
 			stmt.AddValue(index++, ActivePlayerData.Honor);
-			stmt.AddValue(index++, GetHonorLevel());
+			stmt.AddValue(index++, HonorLevel);
 			stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.Honor)));
 			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
@@ -1414,7 +1414,7 @@ public partial class Player
 		_SaveTalents(characterTransaction);
 		_SaveTraits(characterTransaction);
 		_SaveSpells(characterTransaction);
-		GetSpellHistory().SaveToDb<Player>(characterTransaction);
+		SpellHistory.SaveToDb<Player>(characterTransaction);
 		_SaveActions(characterTransaction);
 		_SaveAuras(characterTransaction);
 		_SaveSkills(characterTransaction);

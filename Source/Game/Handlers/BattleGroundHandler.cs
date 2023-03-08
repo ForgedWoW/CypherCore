@@ -70,7 +70,7 @@ namespace Game
             BattlegroundTypeId bgTypeId = (BattlegroundTypeId)bgQueueTypeId.BattlemasterListId;
 
             // ignore if player is already in BG
-            if (Player.InBattleground())
+            if (Player.InBattleground)
                 return;
 
             // get bg instance or bg template if instance not found
@@ -152,7 +152,7 @@ namespace Game
                     return;  // player is already in this queue
 
                 // check if has free queue slots
-                if (!Player.HasFreeBattlegroundQueueId())
+                if (!Player.HasFreeBattlegroundQueueId)
                 {
                     Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.TooManyQueues);
                     SendPacket(battlefieldStatusFailed);
@@ -222,7 +222,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.PvpLogData)]
         void HandlePVPLogData(PVPLogDataRequest packet)
         {
-            Battleground bg = Player.GetBattleground();
+            Battleground bg = Player.Battleground;
             if (!bg)
                 return;
 
@@ -342,7 +342,7 @@ namespace Game
                 if (!Player.IsInvitedForBattlegroundQueueType(bgQueueTypeId))
                     return;                                 // cheating?
 
-                if (!Player.InBattleground())
+                if (!Player.InBattleground)
                     Player.SetBattlegroundEntryPoint();
 
                 // resurrect the player
@@ -361,7 +361,7 @@ namespace Game
                 bgQueue.RemovePlayer(Player.GUID, false);
                 // this is still needed here if Battleground"jumping" shouldn't add deserter debuff
                 // also this is required to prevent stuck at old Battlegroundafter SetBattlegroundId set to new
-                Battleground currentBg = Player.GetBattleground();
+                Battleground currentBg = Player.Battleground;
                 if (currentBg)
                     currentBg.RemovePlayerAtLeave(Player.GUID, false, true);
 
@@ -406,7 +406,7 @@ namespace Game
             // not allow leave Battlegroundin combat
             if (Player.IsInCombat)
             {
-                Battleground bg = Player.GetBattleground();
+                Battleground bg = Player.Battleground;
                 if (bg)
                     if (bg.GetStatus() != BattlegroundStatus.WaitLeave)
                         return;
@@ -428,7 +428,7 @@ namespace Game
 
                 BattlegroundTypeId bgTypeId = (BattlegroundTypeId)bgQueueTypeId.BattlemasterListId;
                 ArenaTypes arenaType = (ArenaTypes)bgQueueTypeId.TeamSize;
-                bg = _player.GetBattleground();
+                bg = _player.Battleground;
                 if (bg && bg.GetQueueId() == bgQueueTypeId)
                 {
                     //i cannot check any variable from player class because player class doesn't know if player is in 2v2 / 3v3 or 5v5 arena
@@ -475,7 +475,7 @@ namespace Game
         void HandleBattlemasterJoinArena(BattlemasterJoinArena packet)
         {
             // ignore if we already in BG or BG queue
-            if (Player.InBattleground())
+            if (Player.InBattleground)
                 return;
 
             ArenaTypes arenatype = (ArenaTypes)ArenaTeam.GetTypeBySlot(packet.TeamSizeIndex);
@@ -614,7 +614,7 @@ namespace Game
             if (!unit.IsSpiritService)                            // it's not spirit service
                 return;
 
-            Battleground bg = Player.GetBattleground();
+            Battleground bg = Player.Battleground;
             if (bg != null)
                 Global.BattlegroundMgr.SendAreaSpiritHealerQuery(Player, bg, areaSpiritHealerQuery.HealerGuid);
 
@@ -633,7 +633,7 @@ namespace Game
             if (!unit.IsSpiritService)                            // it's not spirit service
                 return;
 
-            Battleground bg = Player.GetBattleground();
+            Battleground bg = Player.Battleground;
             if (bg)
                 bg.AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, Player.GUID);
 
@@ -712,7 +712,7 @@ namespace Game
             BattlegroundTypeId bgTypeId = bg.GetTypeID();
             BattlegroundQueueTypeId bgQueueTypeId = BattlegroundManager.Instance.BGQueueTypeId((ushort)bgTypeId, BattlegroundQueueIdType.Arena, true, arenatype);
 
-            if (player.InBattleground())
+            if (player.InBattleground)
             {
                 return;
             }
@@ -746,7 +746,7 @@ namespace Game
                     return;
                 }
 
-                if (!player.HasFreeBattlegroundQueueId())
+                if (!player.HasFreeBattlegroundQueueId)
                 {
                     Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                     SendPacket(battlefieldStatusFailed);

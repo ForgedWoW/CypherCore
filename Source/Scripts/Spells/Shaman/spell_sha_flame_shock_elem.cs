@@ -66,7 +66,7 @@ public class spell_sha_flame_shock_elem : AuraScript, IHasAuraEffects
 		if (caster.HasAura(ShamanSpells.LAVA_SURGE) && RandomHelper.randChance(15))
 		{
 			caster.CastSpell(ShamanSpells.LAVA_SURGE_CAST_TIME);
-			caster.GetSpellHistory().ResetCooldown(ShamanSpells.LAVA_BURST, true);
+			caster.			SpellHistory.ResetCooldown(ShamanSpells.LAVA_BURST, true);
 		}
 	}
 }

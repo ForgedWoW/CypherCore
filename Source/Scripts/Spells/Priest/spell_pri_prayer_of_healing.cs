@@ -17,7 +17,7 @@ public class spell_pri_prayer_of_healing : SpellScript, ISpellAfterCast
 		if (caster == null)
 			return;
 
-		if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
-			caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
+		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
+			caster.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
 	}
 }

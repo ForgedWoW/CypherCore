@@ -1062,7 +1062,7 @@ namespace Game.AI
                             GameObject oTarget = target.AsGameObject;
                             if (oTarget != null)
                             {
-                                GameObjectAI ai = oTarget.GetAI();
+                                GameObjectAI ai = oTarget.AI;
                                 if (IsSmart(oTarget, true))
                                     ((SmartGameObjectAI)ai).SetData(e.Action.setData.field, e.Action.setData.data, _me);
                                 else
@@ -1278,7 +1278,7 @@ namespace Game.AI
                             }
                             else if (IsGameObject(target))
                             {
-                                SmartGameObjectAI ai = (SmartGameObjectAI)target.AsGameObject.GetAI();
+                                SmartGameObjectAI ai = (SmartGameObjectAI)target.AsGameObject.AI;
                                 if (ai != null)
                                     ai.GetScript().StoreCounter(e.Action.setCounter.counterId, e.Action.setCounter.value, e.Action.setCounter.reset);
                                 else
@@ -1422,8 +1422,8 @@ namespace Game.AI
                             Log.outWarn(LogFilter.Sql, $"Invalid creature target '{target.GetName()}' (entry {target.Entry}, spawnId {target.AsCreature.SpawnId}) specified for SMART_ACTION_ENABLE_TEMP_GOBJ");
                         else if (IsGameObject(target))
                         {
-                            if (target.AsGameObject.IsSpawnedByDefault())
-                                Log.outWarn(LogFilter.Sql, $"Invalid gameobject target '{target.GetName()}' (entry {target.Entry}, spawnId {target.AsGameObject.GetSpawnId()}) for SMART_ACTION_ENABLE_TEMP_GOBJ - the object is spawned by default");
+                            if (target.AsGameObject.IsSpawnedByDefault)
+                                Log.outWarn(LogFilter.Sql, $"Invalid gameobject target '{target.GetName()}' (entry {target.Entry}, spawnId {target.AsGameObject.SpawnId}) for SMART_ACTION_ENABLE_TEMP_GOBJ - the object is spawned by default");
                             else
                                 target.                                AsGameObject.SetRespawnTime((int)e.Action.enableTempGO.duration);
                         }
@@ -1879,7 +1879,7 @@ namespace Game.AI
                         }
                         else if (IsGameObject(target))
                         {
-                            SmartGameObjectAI ai = (SmartGameObjectAI)target.AsGameObject.GetAI();
+                            SmartGameObjectAI ai = (SmartGameObjectAI)target.AsGameObject.AI;
                             if (ai != null)
                                 ai.GetScript().StoreTargetList(new List<WorldObject>(storedTargets), e.Action.sendTargetToTarget.id);   // store a copy of target list
                             else
@@ -1900,7 +1900,7 @@ namespace Game.AI
                     if (_me)
                         ((SmartAI)_me.AI).SetGossipReturn(true);
                     else if (_go)
-                        ((SmartGameObjectAI)_go.GetAI()).SetGossipReturn(true);
+                        ((SmartGameObjectAI)_go.AI).SetGossipReturn(true);
 
                     foreach (var target in targets)
                     {
@@ -2509,7 +2509,7 @@ namespace Game.AI
                         {
                             GameObject goTarget = target?.AsGameObject;
                             if (goTarget != null)
-                                goTarget.GetAI()?.DoAction((int)e.Action.doAction.actionId);
+                                goTarget.                                AI?.DoAction((int)e.Action.doAction.actionId);
                         }
                     }
 
@@ -3963,7 +3963,7 @@ namespace Game.AI
             }
             else if (_go != null)
             {
-                e = Global.SmartAIMgr.GetScript(-((int)_go.GetSpawnId()), _scriptType);
+                e = Global.SmartAIMgr.GetScript(-((int)_go.SpawnId), _scriptType);
                 if (e.Empty())
                     e = Global.SmartAIMgr.GetScript((int)_go.Entry, _scriptType);
                 FillScript(e, _go, null, null, null);
@@ -4264,7 +4264,7 @@ namespace Game.AI
                 smart = false;
 
             if (!smart && !silent)
-                Log.outError(LogFilter.Sql, "SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject != null ? gameObject.GetSpawnId() : (_go != null ? _go.GetSpawnId() : 0), gameObject != null ? gameObject.Entry : (_go != null ? _go.Entry : 0));
+                Log.outError(LogFilter.Sql, "SmartScript: Action target GameObject (GUID: {0} Entry: {1}) is not using SmartGameObjectAI, action skipped to prevent crash.", gameObject != null ? gameObject.SpawnId : (_go != null ? _go.SpawnId : 0), gameObject != null ? gameObject.Entry : (_go != null ? _go.Entry : 0));
 
             return smart;
         }

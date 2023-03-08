@@ -61,7 +61,7 @@ public class AuraApplication
 		byte slot = 0;
 
 		// Lookup for auras already applied from spell
-		foreach (var visibleAura in Target.GetVisibleAuras())
+		foreach (var visibleAura in Target.VisibleAuras)
 		{
 			if (slot < visibleAura.Slot)
 				break;

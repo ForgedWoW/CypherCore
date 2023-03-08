@@ -37,6 +37,7 @@ public class spell_rog_garrote_AuraScript : AuraScript, IHasAuraEffects
 		if (!caster.HasAura(RogueSpells.THUGGEE))
 			return;
 
-		caster.GetSpellHistory().ResetCooldown(RogueSpells.GARROTE_DOT, true);
+		caster.
+		SpellHistory.ResetCooldown(RogueSpells.GARROTE_DOT, true);
 	}
 }

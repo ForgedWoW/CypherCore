@@ -765,7 +765,7 @@ public partial class Player
 			}
 			case TypeId.GameObject:
 				PlayerTalkClass.ClearMenus();
-				questGiver.AsGameObject.GetAI().OnQuestAccept(this, quest);
+				questGiver.AsGameObject.AI.OnQuestAccept(this, quest);
 
 				break;
 			default:
@@ -1318,7 +1318,7 @@ public partial class Player
 							}
 
 						PlayerTalkClass.ClearMenus();
-						questGiverGob.GetAI().OnQuestReward(this, quest, rewardType, rewardId);
+						questGiverGob.AI.OnQuestReward(this, quest, rewardType, rewardId);
 
 						break;
 					}
@@ -1980,7 +1980,7 @@ public partial class Player
 		{
 			case TypeId.GameObject:
 			{
-				var ai = questgiver.AsGameObject.GetAI();
+				var ai = questgiver.AsGameObject.AI;
 
 				if (ai != null)
 				{
@@ -2522,7 +2522,7 @@ public partial class Player
 
 			// hide quest if player is in raid-group and quest is no raid quest
 			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
-				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
+				if (!InBattleground) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 
 			if (!IsQuestObjectiveComplete(objectiveItr.QuestStatusPair.Status.Slot, qInfo, objective))
@@ -2539,7 +2539,7 @@ public partial class Player
 
 			// hide quest if player is in raid-group and quest is no raid quest
 			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
-				if (!InBattleground())
+				if (!InBattleground)
 					continue;
 
 			for (byte j = 0; j < SharedConst.QuestItemDropCount; ++j)
@@ -2960,7 +2960,7 @@ public partial class Player
 			{
 				var questgiver = Map.GetGameObject(itr);
 
-				if (!questgiver || questgiver.GetGoType() != GameObjectTypes.QuestGiver)
+				if (!questgiver || questgiver.GoType != GameObjectTypes.QuestGiver)
 					continue;
 
 				response.QuestGiver.Add(new QuestGiverInfo(questgiver.GUID, GetQuestDialogStatus(questgiver)));
@@ -3002,7 +3002,7 @@ public partial class Player
 
 			// hide quest if player is in raid-group and quest is no raid quest
 			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
-				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
+				if (!InBattleground) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 
 			if (!IsQuestObjectiveComplete(objectiveStatusData.QuestStatusPair.Status.Slot, qInfo, objective))
@@ -3032,7 +3032,7 @@ public partial class Player
 					if (_questObjectiveStatus.ContainsKey((QuestObjectiveType.GameObject, (int)obj.Entry)))
 						objMask.MarkChanged(obj.ObjectData.DynamicFlags);
 
-					switch (obj.GetGoType())
+					switch (obj.GoType)
 					{
 						case GameObjectTypes.QuestGiver:
 						case GameObjectTypes.Chest:

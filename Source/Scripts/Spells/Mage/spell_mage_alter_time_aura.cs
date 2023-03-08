@@ -48,7 +48,7 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
 			if (unit.HasAura(MageSpells.MasterOfTime))
 			{
 				var blink = Global.SpellMgr.GetSpellInfo(MageSpells.Blink, Difficulty.None);
-				unit.GetSpellHistory().ResetCharges(blink.ChargeCategoryId);
+				unit.				SpellHistory.ResetCharges(blink.ChargeCategoryId);
 			}
 
 			unit.CastSpell(unit, MageSpells.AlterTimeVisual);

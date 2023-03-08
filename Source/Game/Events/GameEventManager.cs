@@ -1208,7 +1208,7 @@ namespace Game
                             if (go)
                             {
                                 // @todo find out when it is add to map
-                                if (go.IsSpawnedByDefault())
+                                if (go.IsSpawnedByDefault)
                                 {
                                     if (!map.AddToMap(go))
                                         go.Dispose();
@@ -1799,7 +1799,7 @@ namespace Game
                 GameObject gameObject = objs[i];
                 if (gameObject.IsInWorld)
                 {
-                    var ai = gameObject.GetAI();
+                    var ai = gameObject.AI;
 
                     if (ai != null)
                         ai.OnGameEvent(_activate, _eventId);
@@ -1814,7 +1814,7 @@ namespace Game
                 var gameObject = objs[i] as GameObject;
                 if (gameObject != null && gameObject.IsInWorld)
                 {
-                    var ai = gameObject.GetAI();
+                    var ai = gameObject.AI;
 
                     if (ai != null)
                         ai.OnGameEvent(_activate, _eventId);

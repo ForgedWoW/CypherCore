@@ -166,7 +166,7 @@ namespace Game.BattleGrounds.Zones
                             ++j;
                             continue;
                         }
-                        if (player.CanCaptureTowerPoint() && player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
+                        if (player.CanCaptureTowerPoint && player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
                         {
                             //player joined point!
                             //show progress bar
@@ -209,7 +209,7 @@ namespace Game.BattleGrounds.Zones
                             m_PlayersNearPoint[i].RemoveAt(j);
                             continue;
                         }
-                        if (!player.CanCaptureTowerPoint() || !player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
+                        if (!player.CanCaptureTowerPoint || !player.IsWithinDistInMap(obj, (float)EotSProgressBarConsts.PointRadius))
                         //move player out of point (add him to players that are out of points
                         {
                             m_PlayersNearPoint[EotSPoints.PointsMax].Add(m_PlayersNearPoint[i][j]);

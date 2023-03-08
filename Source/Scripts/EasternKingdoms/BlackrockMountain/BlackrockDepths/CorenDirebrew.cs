@@ -375,7 +375,7 @@ internal class go_direbrew_mole_machine : GameObjectAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(4),
 							context =>
 							{
-								var trap = me.GetLinkedTrap();
+								var trap = me.LinkedTrap;
 
 								if (trap)
 								{

@@ -250,7 +250,7 @@ namespace Game.BattleFields
             if (player.IsInFlight)
                 return;
 
-            if (player.InArena || player.GetBattleground())
+            if (player.InArena || player.Battleground)
             {
                 m_PlayersInQueue[player.TeamId].Remove(player.GUID);
                 return;
@@ -998,9 +998,9 @@ namespace Game.BattleFields
                 GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
                 if (capturePoint)
                 {
-                    player.SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldState1, 1);
-                    player.SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldstate2, (uint)(Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
-                    player.SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldstate3, m_neutralValuePct);
+                    player.SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldState1, 1);
+                    player.SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldstate2, (uint)(Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
+                    player.SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldstate3, m_neutralValuePct);
                 }
             }
 
@@ -1013,7 +1013,7 @@ namespace Game.BattleFields
             {
                 GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
                 if (capturePoint)
-                    player.SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldState1, 0);
+                    player.SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldState1, 0);
             }
 
             m_activePlayers[player.TeamId].Remove(player.GUID);
@@ -1028,11 +1028,11 @@ namespace Game.BattleFields
             if (capturePoint)
             {
                 // send this too, sometimes the slider disappears, dunno why :(
-                SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldState1, 1);
+                SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldState1, 1);
                 // send these updates to only the ones in this objective
-                SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+                SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
                 // send this too, sometimes it resets :S
-                SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldstate3, m_neutralValuePct);
+                SendUpdateWorldState(capturePoint.GoInfo.ControlZone.worldstate3, m_neutralValuePct);
             }
         }
 
@@ -1046,7 +1046,7 @@ namespace Game.BattleFields
             m_capturePointEntry = capturePoint.Entry;
 
             // check info existence
-            GameObjectTemplate goinfo = capturePoint.GetGoInfo();
+            GameObjectTemplate goinfo = capturePoint.GoInfo;
             if (goinfo.type != GameObjectTypes.ControlZone)
             {
                 Log.outError(LogFilter.Server, "OutdoorPvP: GO {0} is not capture point!", capturePoint.Entry);
@@ -1103,7 +1103,7 @@ namespace Game.BattleFields
             GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
             if (capturePoint)
             {
-                float radius = capturePoint.GetGoInfo().ControlZone.radius;
+                float radius = capturePoint.GoInfo.ControlZone.radius;
 
                 for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
                 {

@@ -38,16 +38,16 @@ internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
 		if (target.Session.BattlePetMgr.IsBattlePetSystemEnabled())
 		{
 			var expectedCooldown = TimeSpan.FromMilliseconds(Aura.MaxDuration);
-			var remainingCooldown = target.GetSpellHistory().GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
+			var remainingCooldown = target.SpellHistory.GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
 
 			if (remainingCooldown > TimeSpan.Zero)
 			{
 				if (remainingCooldown < expectedCooldown)
-					target.GetSpellHistory().ModifyCooldown(reviveBattlePetSpellInfo, expectedCooldown - remainingCooldown);
+					target.					SpellHistory.ModifyCooldown(reviveBattlePetSpellInfo, expectedCooldown - remainingCooldown);
 			}
 			else
 			{
-				target.GetSpellHistory().StartCooldown(reviveBattlePetSpellInfo, 0, null, false, expectedCooldown);
+				target.				SpellHistory.StartCooldown(reviveBattlePetSpellInfo, 0, null, false, expectedCooldown);
 			}
 		}
 	}

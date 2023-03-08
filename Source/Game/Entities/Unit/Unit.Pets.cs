@@ -188,7 +188,7 @@ public partial class Unit
 			var spellInfo = Global.SpellMgr.GetSpellInfo(minion.UnitData.CreatedBySpell, Difficulty.None);
 
 			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
-				GetSpellHistory().StartCooldown(spellInfo, 0, null, true);
+				SpellHistory.StartCooldown(spellInfo, 0, null, true);
 		}
 		else
 		{
@@ -229,7 +229,7 @@ public partial class Unit
 
 			// Remove infinity cooldown
 			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
-				GetSpellHistory().SendCooldownEvent(spellInfo);
+				SpellHistory.SendCooldownEvent(spellInfo);
 
 			if (MinionGUID == minion.GUID)
 			{

@@ -45,13 +45,13 @@ namespace Game.PvP
                     AddCapturePoint(new HellfirePeninsulaCapturePoint(this, OutdoorPvPHPTowerType.Stadium, go, m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Stadium]));
                     break;
                 case 183514:
-                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.BrokenHill] = go.GetSpawnId();
+                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.BrokenHill] = go.SpawnId;
                     break;
                 case 182525:
-                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Overlook] = go.GetSpawnId();
+                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Overlook] = go.SpawnId;
                     break;
                 case 183515:
-                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Stadium] = go.GetSpawnId();
+                    m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.Stadium] = go.SpawnId;
                     break;
                 default:
                     break;
@@ -172,7 +172,7 @@ namespace Game.PvP
             m_TowerType = (uint)type;
             m_flagSpawnId = flagSpawnId;
 
-            m_capturePointSpawnId = go.GetSpawnId();
+            m_capturePointSpawnId = go.SpawnId;
             m_capturePoint = go;
             SetCapturePointData(go.Entry);
         }
@@ -267,11 +267,11 @@ namespace Game.PvP
             Map map = Global.MapMgr.FindMap(530, 0);
             var bounds = map.GetGameObjectBySpawnIdStore().LookupByKey(m_capturePointSpawnId);
             foreach (var go in bounds)
-                go.SetGoArtKit(artkit);
+                go.                GoArtKit = artkit;
 
             bounds = map.GetGameObjectBySpawnIdStore().LookupByKey(m_flagSpawnId);
             foreach (var go in bounds)
-                go.SetGoArtKit(artkit2);
+                go.                GoArtKit = artkit2;
 
             // send world state update
             if (field != 0)

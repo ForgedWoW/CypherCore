@@ -24,7 +24,7 @@ public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffec
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.VOIDWALKER_SUFFERING))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.VOIDWALKER_SUFFERING))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;
@@ -48,6 +48,6 @@ public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffec
 			return;*/
 
 		pet.CastSpell(target, WarlockSpells.VOIDWALKER_SUFFERING, true);
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(10));
+		caster.AsPlayer.		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(10));
 	}
 }

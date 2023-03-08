@@ -682,7 +682,7 @@ namespace Game.Chat
 
             if (linked == "linked")
             {
-                Battleground bg = player.GetBattleground();
+                Battleground bg = player.Battleground;
                 if (bg)
                     nearestLoc = bg.GetClosestGraveYard(player);
                 else
@@ -1077,7 +1077,7 @@ namespace Game.Chat
             else
             {
                 Position pos = transport.Location;
-                handler.SendSysMessage("Transport {0} is {1}", transport.GetName(), transport.GetGoState() == GameObjectState.Ready ? "stopped" : "moving");
+                handler.SendSysMessage("Transport {0} is {1}", transport.GetName(), transport.GoState == GameObjectState.Ready ? "stopped" : "moving");
                 handler.SendSysMessage("Transport position: {0}", pos.ToString());
                 return true;
             }

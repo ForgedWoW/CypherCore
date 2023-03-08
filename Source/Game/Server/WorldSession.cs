@@ -274,7 +274,7 @@ public partial class WorldSession : IDisposable
 			}
 
 			//drop a flag if player is carrying it
-			var bg = Player.GetBattleground();
+			var bg = Player.Battleground;
 
 			if (bg)
 				bg.EventPlayerLoggedOut(Player);

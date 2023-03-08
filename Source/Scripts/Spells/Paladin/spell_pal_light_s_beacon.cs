@@ -48,7 +48,7 @@ internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEf
 
 		var heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
 
-		var auras = Caster.GetSingleCastAuras();
+		var auras = Caster.SingleCastAuras;
 
 		foreach (var eff in auras)
 			if (eff.Id == PaladinSpells.BeaconOfLight)

@@ -23,13 +23,13 @@ public class GOTargetInfo : TargetInfoBase
 		spell.HandleEffects(null, null, go, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
 
 		//AI functions
-		if (go.GetAI() != null)
-			go.GetAI().SpellHit(spell.Caster, spell.SpellInfo);
+		if (go.AI != null)
+			go.			AI.SpellHit(spell.Caster, spell.SpellInfo);
 
 		if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
 			spell.Caster.			AsCreature.			AI.SpellHitTarget(go, spell.SpellInfo);
-		else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.GetAI() != null)
-			spell.Caster.			AsGameObject.GetAI().SpellHitTarget(go, spell.SpellInfo);
+		else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.AI != null)
+			spell.Caster.			AsGameObject.			AI.SpellHitTarget(go, spell.SpellInfo);
 
 		spell.CallScriptOnHitHandlers();
 		spell.CallScriptAfterHitHandlers();

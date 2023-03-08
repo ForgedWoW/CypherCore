@@ -75,7 +75,7 @@ public class MapManager : Singleton<MapManager>
 			{
 				// instantiate or find existing bg map for player
 				// the instance id is set in battlegroundid
-				newInstanceId = player.GetBattlegroundId();
+				newInstanceId = player.BattlegroundId;
 
 				if (newInstanceId == 0)
 					return null;
@@ -84,7 +84,7 @@ public class MapManager : Singleton<MapManager>
 
 				if (!map)
 				{
-					var bg = player.GetBattleground();
+					var bg = player.Battleground;
 
 					if (bg != null)
 					{
@@ -193,7 +193,7 @@ public class MapManager : Singleton<MapManager>
 
 		if (entry.IsBattlegroundOrArena())
 		{
-			return player.GetBattlegroundId();
+			return player.BattlegroundId;
 		}
 		else if (entry.IsDungeon())
 		{

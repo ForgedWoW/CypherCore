@@ -31,6 +31,6 @@ internal class spell_warr_sudden_death : AuraScript, IHasAuraEffects
 		var player = Target.AsPlayer;
 
 		if (player)
-			player.GetSpellHistory().ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
+			player.			SpellHistory.ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
 	}
 }

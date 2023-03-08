@@ -257,7 +257,7 @@ internal class go_gilded_brazier : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GetGoType() == GameObjectTypes.Goober)
+		if (me.GoType == GameObjectTypes.Goober)
 			if (player.GetQuestStatus(QuestIds.TheFirstTrial) == QuestStatus.Incomplete)
 			{
 				Creature Stillblade = player.SummonCreature(CreatureIds.Stillblade, 8106.11f, -7542.06f, 151.775f, 3.02598f, TempSummonType.DeadDespawn, TimeSpan.FromMinutes(1));
@@ -278,7 +278,7 @@ internal class go_tablet_of_the_seven : GameObjectAI
 	/// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GetGoType() != GameObjectTypes.QuestGiver)
+		if (me.GoType != GameObjectTypes.QuestGiver)
 			return true;
 
 		if (player.GetQuestStatus(4296) == QuestStatus.Incomplete)
@@ -371,7 +371,7 @@ internal class go_resonite_cask : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GetGoType() == GameObjectTypes.Goober)
+		if (me.GoType == GameObjectTypes.Goober)
 			me.SummonCreature(CreatureIds.Goggeroc, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5));
 
 		return false;
@@ -435,7 +435,7 @@ internal class go_blood_filled_orb : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GetGoType() == GameObjectTypes.Goober)
+		if (me.GoType == GameObjectTypes.Goober)
 			player.SummonCreature(CreatureIds.Zelemar, -369.746f, 166.759f, -21.50f, 5.235f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
 		return true;

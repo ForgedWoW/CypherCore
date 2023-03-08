@@ -31,8 +31,8 @@ namespace Game.Chat
             string nameLink = handler.GetNameLink(owner);
             if (!spellIdArg.HasValue)
             {
-                target.GetSpellHistory().ResetAllCooldowns();
-                target.GetSpellHistory().ResetAllCharges();
+                target.                SpellHistory.ResetAllCooldowns();
+                target.                SpellHistory.ResetAllCharges();
                 handler.SendSysMessage(CypherStrings.RemoveallCooldown, nameLink);
             }
             else
@@ -44,8 +44,9 @@ namespace Game.Chat
                     return false;
                 }
 
-                target.GetSpellHistory().ResetCooldown(spellInfo.Id, true);
-                target.GetSpellHistory().ResetCharges(spellInfo.ChargeCategoryId);
+                target.
+                SpellHistory.ResetCooldown(spellInfo.Id, true);
+                target.                SpellHistory.ResetCharges(spellInfo.ChargeCategoryId);
                 handler.SendSysMessage(CypherStrings.RemoveallCooldown, spellInfo.Id, owner == handler.GetSession().Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
             }
             return true;

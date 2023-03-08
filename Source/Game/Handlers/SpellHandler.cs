@@ -253,7 +253,7 @@ namespace Game
             {
                 // ignore for remote control state
                 if (Player.UnitBeingMoved != Player)
-                    if (!(Player.IsOnVehicle(Player.UnitBeingMoved) || Player.IsMounted) && !obj.GetGoInfo().IsUsableMounted())
+                    if (!(Player.IsOnVehicle(Player.UnitBeingMoved) || Player.IsMounted) && !obj.GoInfo.IsUsableMounted())
                         return;
 
                 obj.Use(Player);
@@ -270,7 +270,7 @@ namespace Game
             GameObject go = Player.GetGameObjectIfCanInteractWith(packet.Guid);
             if (go)
             {
-                if (go.GetAI().OnGossipHello(Player))
+                if (go.AI.OnGossipHello(Player))
                     return;
 
                 Player.UpdateCriteria(CriteriaType.UseGameobject, go.Entry);

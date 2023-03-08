@@ -222,7 +222,7 @@ public class PoolGroup<T>
 				foreach (var go in gameobjectBounds)
 				{
 					// For dynamic spawns, save respawn time here
-					if (saveRespawnTime && !go.GetRespawnCompatibilityMode())
+					if (saveRespawnTime && !go.RespawnCompatibilityMode)
 						go.SaveRespawnTime();
 
 					go.AddObjectToRemoveList();
@@ -267,7 +267,7 @@ public class PoolGroup<T>
 					{
 						var go = GameObject.CreateGameObjectFromDb(obj.Guid, spawns.Map, false);
 
-						if (go && go.IsSpawnedByDefault())
+						if (go && go.IsSpawnedByDefault)
 							if (!spawns.Map.AddToMap(go))
 								go.Dispose();
 					}

@@ -22,7 +22,7 @@ class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
 
 	public bool Invoke(GameObject go)
 	{
-		if (go.GetGoType() == _type && _obj.IsWithinDist(go, _range))
+		if (go.GoType == _type && _obj.IsWithinDist(go, _range))
 		{
 			_range = _obj.GetDistance(go); // use found GO range as new range limit for next check
 

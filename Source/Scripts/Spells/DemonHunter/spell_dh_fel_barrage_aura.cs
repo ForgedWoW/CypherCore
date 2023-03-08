@@ -53,6 +53,6 @@ public class spell_dh_fel_barrage_aura : AuraScript, IHasAuraEffects, IAuraCheck
 		var chargeCatId = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_BARRAGE, Difficulty.None).ChargeCategoryId;
 
 		if (chargeCatId != 0)
-			caster.GetSpellHistory().RestoreCharge(chargeCatId);
+			caster.			SpellHistory.RestoreCharge(chargeCatId);
 	}
 }

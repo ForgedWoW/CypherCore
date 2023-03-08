@@ -17,8 +17,9 @@ public class spell_dh_demonic_infusion : SpellScript, ISpellOnCast
 		if (caster == null)
 			return;
 
-		caster.GetSpellHistory().ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
+		caster.
+		SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
 		caster.CastSpell(caster, DemonHunterSpells.DEMON_SPIKES, true);
-		caster.GetSpellHistory().ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
+		caster.		SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId);
 	}
 }

@@ -113,7 +113,7 @@ public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
 					if (t18_2p != null)
 						if (RandomHelper.randChance(t18_2p.Amount))
 						{
-							caster.GetSpellHistory().ResetCooldown(ShamanSpells.EARTH_SHOCK, true);
+							caster.							SpellHistory.ResetCooldown(ShamanSpells.EARTH_SHOCK, true);
 
 							return;
 						}

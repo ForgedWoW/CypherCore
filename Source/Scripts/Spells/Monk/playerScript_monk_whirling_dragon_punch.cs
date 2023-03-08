@@ -22,7 +22,7 @@ public class playerScript_monk_whirling_dragon_punch : ScriptObjectAutoAdd, IPla
 		var risingSunKickInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
 
 		if (risingSunKickInfo.ChargeCategoryId == chargeCategoryId)
-			ApplyCasterAura(player, chargeRecoveryTime, (int)player.GetSpellHistory().GetRemainingCooldown(Global.SpellMgr.GetSpellInfo(MonkSpells.FISTS_OF_FURY, Difficulty.None)).TotalMilliseconds);
+			ApplyCasterAura(player, chargeRecoveryTime, (int)player.SpellHistory.GetRemainingCooldown(Global.SpellMgr.GetSpellInfo(MonkSpells.FISTS_OF_FURY, Difficulty.None)).TotalMilliseconds);
 	}
 
 	public void OnCooldownEnd(Player player, SpellInfo spellInfo, uint itemId, uint categoryId)
@@ -36,7 +36,7 @@ public class playerScript_monk_whirling_dragon_punch : ScriptObjectAutoAdd, IPla
 		if (spellInfo.Id == MonkSpells.FISTS_OF_FURY)
 		{
 			var risingSunKickInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
-			ApplyCasterAura(player, (int)cooldown.TotalMilliseconds, player.GetSpellHistory().GetChargeRecoveryTime(risingSunKickInfo.ChargeCategoryId));
+			ApplyCasterAura(player, (int)cooldown.TotalMilliseconds, player.SpellHistory.GetChargeRecoveryTime(risingSunKickInfo.ChargeCategoryId));
 		}
 	}
 

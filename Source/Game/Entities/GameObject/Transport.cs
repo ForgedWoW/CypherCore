@@ -23,12 +23,12 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public Transport(GameObject owner) : base(owner)
 	{
-		_animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.GetGoInfo().entry);
+		_animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.GoInfo.entry);
 		_pathProgress = GameTime.GetGameTimeMS() % GetTransportPeriod();
 		_stateChangeTime = GameTime.GetGameTimeMS();
 		_stateChangeProgress = _pathProgress;
 
-		var goInfo = Owner.GetGoInfo();
+		var goInfo = Owner.GoInfo;
 
 		if (goInfo.Transport.Timeto2ndfloor > 0)
 		{
@@ -135,7 +135,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public int GetMapIdForSpawning()
 	{
-		return Owner.GetGoInfo().Transport.SpawnMap;
+		return Owner.GoInfo.Transport.SpawnMap;
 	}
 
 	public override void Update(uint diff)
@@ -162,14 +162,14 @@ class Transport : GameObjectTypeBase, ITransport
 		{
 			var stopTargetTime = 0;
 
-			if (Owner.GetGoState() == GameObjectState.TransportActive)
+			if (Owner.GoState == GameObjectState.TransportActive)
 				stopTargetTime = 0;
 			else
-				stopTargetTime = (int)(_stopFrames[Owner.GetGoState() - GameObjectState.TransportStopped]);
+				stopTargetTime = (int)(_stopFrames[Owner.GoState - GameObjectState.TransportStopped]);
 
-			if (now < Owner.GameObjectData.Level)
+			if (now < Owner.GameObjectFieldData.Level)
 			{
-				var timeToStop = (int)(Owner.GameObjectData.Level - _stateChangeTime);
+				var timeToStop = (int)(Owner.GameObjectFieldData.Level - _stateChangeTime);
 				var stopSourcePathPct = (float)_stateChangeProgress / (float)period;
 				var stopTargetPathPct = (float)stopTargetTime / (float)period;
 				var timeSinceStopProgressPct = (float)(now - _stateChangeTime) / (float)timeToStop;
@@ -178,7 +178,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 				if (!Owner.HasDynamicFlag(GameObjectDynamicLowFlags.InvertedMovement))
 				{
-					if (Owner.GetGoState() == GameObjectState.TransportActive)
+					if (Owner.GoState == GameObjectState.TransportActive)
 						stopTargetPathPct = 1.0f;
 
 					var pathPctBetweenStops = stopTargetPathPct - stopSourcePathPct;
@@ -215,46 +215,46 @@ class Transport : GameObjectTypeBase, ITransport
 			{
 				uint eventId;
 
-				switch (Owner.GetGoState() - GameObjectState.TransportActive)
+				switch (Owner.GoState - GameObjectState.TransportActive)
 				{
 					case 0:
-						eventId = Owner.GetGoInfo().Transport.Reached1stfloor;
+						eventId = Owner.GoInfo.Transport.Reached1stfloor;
 
 						break;
 					case 1:
-						eventId = Owner.GetGoInfo().Transport.Reached2ndfloor;
+						eventId = Owner.GoInfo.Transport.Reached2ndfloor;
 
 						break;
 					case 2:
-						eventId = Owner.GetGoInfo().Transport.Reached3rdfloor;
+						eventId = Owner.GoInfo.Transport.Reached3rdfloor;
 
 						break;
 					case 3:
-						eventId = Owner.GetGoInfo().Transport.Reached4thfloor;
+						eventId = Owner.GoInfo.Transport.Reached4thfloor;
 
 						break;
 					case 4:
-						eventId = Owner.GetGoInfo().Transport.Reached5thfloor;
+						eventId = Owner.GoInfo.Transport.Reached5thfloor;
 
 						break;
 					case 5:
-						eventId = Owner.GetGoInfo().Transport.Reached6thfloor;
+						eventId = Owner.GoInfo.Transport.Reached6thfloor;
 
 						break;
 					case 6:
-						eventId = Owner.GetGoInfo().Transport.Reached7thfloor;
+						eventId = Owner.GoInfo.Transport.Reached7thfloor;
 
 						break;
 					case 7:
-						eventId = Owner.GetGoInfo().Transport.Reached8thfloor;
+						eventId = Owner.GoInfo.Transport.Reached8thfloor;
 
 						break;
 					case 8:
-						eventId = Owner.GetGoInfo().Transport.Reached9thfloor;
+						eventId = Owner.GoInfo.Transport.Reached9thfloor;
 
 						break;
 					case 9:
-						eventId = Owner.GetGoInfo().Transport.Reached10thfloor;
+						eventId = Owner.GoInfo.Transport.Reached10thfloor;
 
 						break;
 					default:
@@ -268,7 +268,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 				if (_autoCycleBetweenStopFrames)
 				{
-					var currentState = Owner.GetGoState();
+					var currentState = Owner.GoState;
 					GameObjectState newState;
 
 					if (currentState == GameObjectState.TransportActive)
@@ -295,10 +295,10 @@ class Transport : GameObjectTypeBase, ITransport
 
 		if (oldAnimation != null && newAnimation != null)
 		{
-			var pathRotation = new Quaternion(Owner.GameObjectData.ParentRotation.GetValue().X,
-											Owner.GameObjectData.ParentRotation.GetValue().Y,
-											Owner.GameObjectData.ParentRotation.GetValue().Z,
-											Owner.GameObjectData.ParentRotation.GetValue().W).ToMatrix();
+			var pathRotation = new Quaternion(Owner.GameObjectFieldData.ParentRotation.GetValue().X,
+											Owner.GameObjectFieldData.ParentRotation.GetValue().Y,
+											Owner.GameObjectFieldData.ParentRotation.GetValue().Z,
+											Owner.GameObjectFieldData.ParentRotation.GetValue().W).ToMatrix();
 
 			Vector3 prev = new(oldAnimation.Pos.X, oldAnimation.Pos.Y, oldAnimation.Pos.Z);
 			Vector3 next = new(newAnimation.Pos.X, newAnimation.Pos.Y, newAnimation.Pos.Z);
@@ -313,10 +313,9 @@ class Transport : GameObjectTypeBase, ITransport
 			}
 
 			dst = pathRotation.Multiply(dst);
-			dst += Owner.GetStationaryPosition();
+			dst += Owner.StationaryPosition1;
 
-			Owner.
-			Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
+			Owner.Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
 		}
 
 		var oldRotation = _animationInfo.GetPrevAnimRotation(newProgress);

@@ -29,7 +29,7 @@ public class spell_pal_hand_of_hindrance : AuraScript, IHasAuraEffects
 
 			if (caster != null)
 				if (caster.HasAura(PaladinSpells.LAW_AND_ORDER))
-					caster.GetSpellHistory().ModifyCooldown(PaladinSpells.HAND_OF_HINDRANCE, TimeSpan.FromSeconds(-15));
+					caster.					SpellHistory.ModifyCooldown(PaladinSpells.HAND_OF_HINDRANCE, TimeSpan.FromSeconds(-15));
 		}
 	}
 }

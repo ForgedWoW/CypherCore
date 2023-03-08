@@ -1014,14 +1014,14 @@ public partial class Unit : WorldObject
 		GameObjects.Add(gameObj);
 		gameObj.SetOwnerGUID(GUID);
 
-		if (gameObj.GetSpellId() != 0)
+		if (gameObj.SpellId != 0)
 		{
-			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.GetSpellId(), Map.GetDifficultyID());
+			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.SpellId, Map.GetDifficultyID());
 
 			// Need disable spell use for owner
 			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
 				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-				GetSpellHistory().StartCooldown(createBySpell, 0, null, true);
+				SpellHistory.StartCooldown(createBySpell, 0, null, true);
 		}
 
 		if (IsTypeId(TypeId.Unit) && AsCreature.IsAIEnabled)
@@ -1044,7 +1044,7 @@ public partial class Unit : WorldObject
 			}
 
 		// GO created by some spell
-		var spellid = gameObj.GetSpellId();
+		var spellid = gameObj.SpellId;
 
 		if (spellid != 0)
 		{
@@ -1055,7 +1055,7 @@ public partial class Unit : WorldObject
 			// Need activate spell use for owner
 			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
 				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-				GetSpellHistory().SendCooldownEvent(createBySpell);
+				SpellHistory.SendCooldownEvent(createBySpell);
 		}
 
 		GameObjects.Remove(gameObj);
@@ -1079,7 +1079,7 @@ public partial class Unit : WorldObject
 		{
 			var obj = GameObjects[i];
 
-			if (spellid == 0 || obj.GetSpellId() == spellid)
+			if (spellid == 0 || obj.SpellId == spellid)
 			{
 				obj.SetOwnerGUID(ObjectGuid.Empty);
 
@@ -2762,7 +2762,7 @@ public partial class Unit : WorldObject
 
 	public override void DestroyForPlayer(Player target)
 	{
-		var bg = target.GetBattleground();
+		var bg = target.Battleground;
 
 		if (bg != null)
 			if (bg.IsArena())
@@ -2981,7 +2981,7 @@ public partial class Unit : WorldObject
 				// in bg, count dmg if victim is also a player
 				if (victim.IsPlayer)
 				{
-					var bg = killer.GetBattleground();
+					var bg = killer.Battleground;
 
 					if (bg != null)
 						bg.UpdatePlayerScore(killer, ScoreType.DamageDone, (uint)damageDone);
@@ -4415,7 +4415,7 @@ public partial class Unit : WorldObject
 			{
 				var go = GameObjects[i];
 
-				if (!go.IsSpawned())
+				if (!go.IsSpawned)
 				{
 					go.SetOwnerGUID(ObjectGuid.Empty);
 					go.SetRespawnTime(0);
@@ -4457,7 +4457,7 @@ public partial class Unit : WorldObject
 		List<GameObject> gameobjects = new();
 
 		foreach (var obj in GameObjects)
-			if (obj.GetSpellId() == spellId)
+			if (obj.SpellId == spellId)
 				gameobjects.Add(obj);
 
 		return gameobjects;

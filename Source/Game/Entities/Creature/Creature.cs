@@ -833,7 +833,7 @@ public partial class Creature : Unit
 
 				GetThreatManager().Update(diff);
 
-				if (IsFeared())
+				if (IsFeared)
 					return;
 
 				if (_spellFocusInfo.Delay != 0)
@@ -901,7 +901,7 @@ public partial class Creature : Unit
 					if (!IsInEvadeMode)
 					{
 						// regenerate health if not in combat or if polymorphed)
-						if (!IsEngaged || IsPolymorphed())
+						if (!IsEngaged || IsPolymorphed)
 						{
 							RegenerateHealth();
 						}
@@ -1104,7 +1104,7 @@ public partial class Creature : Unit
 
 		// Check if the position is valid before calling CreateFromProto(), otherwise we might add Auras to Creatures at
 		// invalid position, triggering a crash about Auras not removed in the destructor
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Unit, $"Creature.Create: given coordinates for creature (guidlow {guidlow}, entry {entry}) are not valid ({pos})");
 
@@ -3505,7 +3505,7 @@ public partial class Creature : Unit
 		double addvalue;
 
 		// Not only pet, but any controlled creature (and not polymorphed)
-		if (!CharmerOrOwnerGUID.IsEmpty && !IsPolymorphed())
+		if (!CharmerOrOwnerGUID.IsEmpty && !IsPolymorphed)
 		{
 			var HealthIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RateHealth);
 			addvalue = 0.015f * MaxHealth * HealthIncreaseRate;

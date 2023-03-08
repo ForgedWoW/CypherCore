@@ -96,11 +96,11 @@ namespace Game.AI
                     if (spellInfo == null)
                         continue;
 
-                    if (me.GetSpellHistory().HasGlobalCooldown(spellInfo))
+                    if (me.SpellHistory.HasGlobalCooldown(spellInfo))
                         continue;
 
                     // check spell cooldown
-                    if (!me.GetSpellHistory().IsReady(spellInfo))
+                    if (!me.SpellHistory.IsReady(spellInfo))
                         continue;
 
                     if (spellInfo.IsPositive)

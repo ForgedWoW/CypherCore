@@ -24,7 +24,7 @@ public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffe
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.FELHUNTER_LOCK))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.FELHUNTER_LOCK))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;
@@ -48,6 +48,6 @@ public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffe
 			return;*/
 
 		pet.CastSpell(target, WarlockSpells.FELHUNTER_LOCK, true);
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
+		caster.AsPlayer.		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

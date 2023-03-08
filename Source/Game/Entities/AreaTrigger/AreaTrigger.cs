@@ -450,7 +450,7 @@ public class AreaTrigger : WorldObject
 		Map = caster.Map;
 		Location.Relocate(pos);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 
@@ -596,7 +596,7 @@ public class AreaTrigger : WorldObject
 		Map = map;
 		Location.Relocate(position.SpawnPoint);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.AreaTrigger, $"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 

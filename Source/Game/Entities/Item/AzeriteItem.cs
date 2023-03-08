@@ -282,7 +282,7 @@ public class AzeriteItem : Item
 		var forge = owner.FindNearestGameObjectOfType(GameObjectTypes.ItemForge, 40.0f);
 
 		if (forge != null)
-			if (forge.GetGoInfo().ItemForge.ForgeType == 2)
+			if (forge.GoInfo.ItemForge.ForgeType == 2)
 				return forge;
 
 		return null;

@@ -49,7 +49,7 @@ public class SpellArea
 
 		if (player)
 		{
-			var bg = player.GetBattleground();
+			var bg = player.Battleground;
 
 			if (bg)
 				return bg.IsSpellAllowed(SpellId, player);

@@ -843,7 +843,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		if (flags.Rotation)
-			data.WriteInt64(AsGameObject.GetPackedLocalRotation()); // Rotation
+			data.WriteInt64(AsGameObject.PackedLocalRotation); // Rotation
 
 		if (PauseTimes != null && !PauseTimes.Empty())
 			foreach (var stopFrame in PauseTimes)
@@ -1012,7 +1012,7 @@ public abstract class WorldObject : IDisposable
 
 			var gameObject = AsGameObject;
 
-			data.WriteUInt32(gameObject.GetWorldEffectID());
+			data.WriteUInt32(gameObject.WorldEffectID);
 
 			data.WriteBit(bit8);
 			data.FlushBits();
@@ -2250,7 +2250,7 @@ public abstract class WorldObject : IDisposable
 		if (unitCaster.IsPlayer && unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Casttime))
 			castTime = 0;
 		else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((IsPlayer && spellInfo.SpellFamilyName != 0) || IsCreature))
-			castTime = unitCaster.CanInstantCast() ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
+			castTime = unitCaster.CanInstantCast ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
 		else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
 			castTime = (int)(castTime * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
 		else if (Global.SpellMgr.IsPartOfSkillLine(SkillType.Cooking, spellInfo.Id) && unitCaster.HasAura(67556)) // cooking with Chef Hat.
@@ -2378,7 +2378,7 @@ public abstract class WorldObject : IDisposable
 					break;
 				case TypeId.GameObject:
 					if (factionId != 0) // Gameobjects may have faction template id = 0
-						Log.outError(LogFilter.Unit, $"GameObject (template id: {AsGameObject.GetGoInfo().entry}) has invalid faction (faction template Id) #{factionId}");
+						Log.outError(LogFilter.Unit, $"GameObject (template id: {AsGameObject.GoInfo.entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				default:
@@ -2858,7 +2858,7 @@ public abstract class WorldObject : IDisposable
 		var unitOrOwner = unit;
 		var go = AsGameObject;
 
-		if (go?.GetGoType() == GameObjectTypes.Trap)
+		if (go?.GoType == GameObjectTypes.Trap)
 			unitOrOwner = go.OwnerUnit;
 
 		// ignore immunity flags when assisting
@@ -2885,7 +2885,7 @@ public abstract class WorldObject : IDisposable
 			return IsHostileTo(unitTarget) || unitTarget.IsHostileTo(this);
 
 		// Traps without owner or with NPC owner versus Creature case - can attack to creature only when one of them is hostile
-		if (go?.GetGoType() == GameObjectTypes.Trap)
+		if (go?.GoType == GameObjectTypes.Trap)
 		{
 			var goOwner = go.OwnerUnit;
 
@@ -4240,7 +4240,7 @@ public abstract class WorldObject : IDisposable
 		var go = AsGameObject;
 
 		if (go != null)
-			if (go.GetGoType() == GameObjectTypes.Trap)
+			if (go.GoType == GameObjectTypes.Trap)
 				return true;
 
 		go = obj.AsGameObject;

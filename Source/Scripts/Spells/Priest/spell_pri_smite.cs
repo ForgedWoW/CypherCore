@@ -29,8 +29,8 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 			return;
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
-				caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
+			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
+				caster.				SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-6 * Time.InMilliseconds));
 	}
 
 	public override void Register()
@@ -52,7 +52,7 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 		var dmg = HitDamage;
 
 		if (caster.HasAura(PriestSpells.HOLY_WORDS) || caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
-				caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
+			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
+				caster.				SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
 	}
 }

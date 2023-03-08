@@ -64,7 +64,7 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 		var catEntry = Global.SpellMgr.GetSpellInfo(RogueSpells.SHADOW_DANCE, Difficulty.None);
 
 		if (caster.HasAura(RogueSpells.DEEPENING_SHADOWS) && RandomHelper.randChance(20 * _cp))
-			caster.GetSpellHistory().ModifyCooldown(catEntry, TimeSpan.FromMilliseconds(_cp * -3000));
+			caster.			SpellHistory.ModifyCooldown(catEntry, TimeSpan.FromMilliseconds(_cp * -3000));
 
 		if (caster != null)
 			if (caster.HasAura(RogueSpells.RELENTLESS_STRIKES) && RandomHelper.randChance(20 * _cp))

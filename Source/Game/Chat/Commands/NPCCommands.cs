@@ -574,7 +574,7 @@ namespace Game.Chat
                     Creature creaturePassenger = trans.CreateNPCPassenger(guid, data);
                     if (creaturePassenger != null)
                     {
-                        creaturePassenger.SaveToDB((uint)trans.GetGoInfo().MoTransport.SpawnMap, new List<Difficulty>() { map.GetDifficultyID() });
+                        creaturePassenger.SaveToDB((uint)trans.GoInfo.MoTransport.SpawnMap, new List<Difficulty>() { map.GetDifficultyID() });
                         Global.ObjectMgr.AddCreatureToGrid(data);
                     }
                     return true;

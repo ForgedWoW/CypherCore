@@ -17,10 +17,10 @@ public class spell_pri_binding_heal : SpellScript, ISpellAfterCast
 		if (caster == null)
 			return;
 
-		if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
-			caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
+		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
+			caster.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
 
-		if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_SERENITY))
-			caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
+		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SERENITY))
+			caster.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
 	}
 }

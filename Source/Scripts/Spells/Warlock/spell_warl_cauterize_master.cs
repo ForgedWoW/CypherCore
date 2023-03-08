@@ -24,7 +24,7 @@ public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpe
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.IMP_CAUTERIZE_MASTER))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.IMP_CAUTERIZE_MASTER))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;
@@ -47,6 +47,6 @@ public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpe
 			return;*/
 
 		pet.CastSpell(caster, WarlockSpells.IMP_CAUTERIZE_MASTER, true);
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(30));
+		caster.AsPlayer.		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(30));
 	}
 }

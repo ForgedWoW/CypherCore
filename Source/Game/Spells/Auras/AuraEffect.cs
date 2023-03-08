@@ -753,7 +753,8 @@ public class AuraEffect
 					break;
 				}
 
-			target.GetAppliedAuras()
+			target.
+			AppliedAuras
 				.CallOnMatch((app) =>
 							{
 								if (app == null)
@@ -1518,7 +1519,7 @@ public class AuraEffect
 					target.RemoveAurasByShapeShift();
 
 					// and polymorphic affects
-					if (target.IsPolymorphed())
+					if (target.IsPolymorphed)
 						target.RemoveAura(target.TransformSpell);
 
 					break;
@@ -1856,7 +1857,7 @@ public class AuraEffect
 			}
 
 			// polymorph case
-			if (mode.HasAnyFlag(AuraEffectHandleModes.Real) && target.IsTypeId(TypeId.Player) && target.IsPolymorphed())
+			if (mode.HasAnyFlag(AuraEffectHandleModes.Real) && target.IsTypeId(TypeId.Player) && target.IsPolymorphed)
 			{
 				// for players, start regeneration after 1s (in polymorph fast regeneration case)
 				// only if caster is Player (after patch 2.4.2)
@@ -3142,9 +3143,9 @@ public class AuraEffect
 
 		if (!apply && player != null && SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.StealthOrInvis))
 		{
-			if (player.InBattleground())
+			if (player.InBattleground)
 			{
-				var bg = player.GetBattleground();
+				var bg = player.Battleground;
 
 				if (bg)
 					bg.EventPlayerDroppedFlag(player);
@@ -4737,7 +4738,7 @@ public class AuraEffect
 								// Waiting to resurrect spell cancel, we must remove player from resurrect queue
 								if (target.IsTypeId(TypeId.Player))
 								{
-									var bg = target.AsPlayer.GetBattleground();
+									var bg = target.AsPlayer.Battleground;
 
 									if (bg)
 										bg.RemovePlayerFromResurrectQueue(target.GUID);

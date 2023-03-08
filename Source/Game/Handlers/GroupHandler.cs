@@ -311,7 +311,7 @@ namespace Game
             if (grp == null && grpInvite == null)
                 return;
 
-            if (Player.InBattleground())
+            if (Player.InBattleground)
             {
                 SendPartyResult(PartyOperation.Invite, "", PartyResult.InviteRestricted);
                 return;
@@ -427,7 +427,7 @@ namespace Game
             if (!group)
                 return;
 
-            if (Player.InBattleground())
+            if (Player.InBattleground)
                 return;
 
             // error handling

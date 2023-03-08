@@ -38,7 +38,7 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 			var player = caster.AsPlayer;
 
 			if (player)
-				player.GetSpellHistory().CancelGlobalCooldown(SpellInfo);
+				player.				SpellHistory.CancelGlobalCooldown(SpellInfo);
 
 			if (RandomHelper.URand(0, 4) != 0)
 				caster.CastSpell(target, ItemSpellIds.AirRifleShoot, false);

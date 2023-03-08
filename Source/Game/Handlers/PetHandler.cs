@@ -371,8 +371,8 @@ namespace Game
                         else
                             spell.SendPetCastResult(result);
 
-                        if (!pet.GetSpellHistory().HasCooldown(spellid))
-                            pet.GetSpellHistory().ResetCooldown(spellid, true);
+                        if (!pet.SpellHistory.HasCooldown(spellid))
+                            pet.                            SpellHistory.ResetCooldown(spellid, true);
 
                         spell.Finish(result);
                         spell.Dispose();
@@ -727,8 +727,8 @@ namespace Game
             {
                 spell.SendPetCastResult(result);
 
-                if (!caster.GetSpellHistory().HasCooldown(spellInfo.Id))
-                    caster.GetSpellHistory().ResetCooldown(spellInfo.Id, true);
+                if (!caster.SpellHistory.HasCooldown(spellInfo.Id))
+                    caster.                    SpellHistory.ResetCooldown(spellInfo.Id, true);
 
                 spell.Finish(result);
                 spell.Dispose();

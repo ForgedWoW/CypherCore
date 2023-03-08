@@ -344,7 +344,7 @@ namespace Game
             {
                 if (_player.CanRewardQuest(quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID, true)) // Then check if player can receive the reward item (if inventory is not full, if player doesn't have too many unique items, and so on). If not, the client will close the gossip window
                 {
-                    Battleground bg = _player.GetBattleground();
+                    Battleground bg = _player.Battleground;
                     if (bg != null)
                         bg.HandleQuestComplete(packet.QuestID, _player);
 

@@ -59,7 +59,7 @@ internal class spell_item_mad_alchemists_potion : SpellScript, ISpellAfterCast
 		// If another spell of the same group is already active the elixir should not be cast
 		if (chosenSpellGroup != 0)
 		{
-			var Auras = target.GetAppliedAuras();
+			var Auras = target.AppliedAuras;
 
 			foreach (var pair in Auras)
 			{

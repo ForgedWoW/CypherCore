@@ -17,12 +17,12 @@ class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 
 	public override bool IsSpawned()
 	{
-		return _owner.IsSpawned();
+		return _owner.IsSpawned;
 	}
 
 	public override uint GetDisplayId()
 	{
-		return _owner.GetDisplayId();
+		return _owner.DisplayId;
 	}
 
 	public override byte GetNameSetId()
@@ -42,7 +42,7 @@ class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 
 	public override Quaternion GetRotation()
 	{
-		return new Quaternion(_owner.GetLocalRotation().X, _owner.GetLocalRotation().Y, _owner.GetLocalRotation().Z, _owner.GetLocalRotation().W);
+		return new Quaternion(_owner.LocalRotation.X, _owner.LocalRotation.Y, _owner.LocalRotation.Z, _owner.LocalRotation.W);
 	}
 
 	public override float GetScale()

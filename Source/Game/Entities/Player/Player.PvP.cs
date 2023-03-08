@@ -14,6 +14,48 @@ namespace Game.Entities;
 
 public partial class Player
 {
+	public uint HonorLevel => PlayerData.HonorLevel;
+
+	public bool IsMaxHonorLevel => HonorLevel == PlayerConst.MaxHonorLevel;
+
+	public bool IsUsingPvpItemLevels => _usePvpItemLevels;
+
+	//BGs
+	public Battleground Battleground
+	{
+		get
+		{
+			if (BattlegroundId == 0)
+				return null;
+
+			return Global.BattlegroundMgr.GetBattleground(BattlegroundId, _bgData.BgTypeId);
+		}
+	}
+
+	public bool HasFreeBattlegroundQueueId
+	{
+		get
+		{
+			for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
+				if (_battlegroundQueueIdRecs[i].BgQueueTypeId == default)
+					return true;
+
+			return false;
+		}
+	}
+
+	public WorldLocation BattlegroundEntryPoint => _bgData.JoinPos;
+
+	public bool InBattleground => _bgData.BgInstanceId != 0;
+
+	public uint BattlegroundId => _bgData.BgInstanceId;
+
+	public BattlegroundTypeId BattlegroundTypeId => _bgData.BgTypeId;
+
+	public bool CanCaptureTowerPoint => (!HasStealthAura &&     // not stealthed
+										!HasInvisibilityAura && // not invisible
+										IsAlive);               // live player
+
 	//PvP
 	public void UpdateHonorFields()
 	{
@@ -64,7 +106,7 @@ public partial class Player
 		UpdateHonorFields();
 
 		// do not reward honor in arenas, but return true to enable onkill spellproc
-		if (InBattleground() && GetBattleground() && GetBattleground().IsArena())
+		if (InBattleground && Battleground && Battleground.IsArena())
 			return true;
 
 		// Promote to float for calculations
@@ -164,9 +206,9 @@ public partial class Player
 
 		AddHonorXp((uint)honor);
 
-		if (InBattleground() && honor > 0)
+		if (InBattleground && honor > 0)
 		{
-			var bg = GetBattleground();
+			var bg = Battleground;
 
 			if (bg != null)
 				bg.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false); //false: prevent looping
@@ -182,7 +224,7 @@ public partial class Player
 				// Check if allowed to receive it in current map
 				var mapType = WorldConfig.GetIntValue(WorldCfg.PvpTokenMapType);
 
-				if ((mapType == 1 && !InBattleground() && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground()))
+				if ((mapType == 1 && !InBattleground && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground))
 					return true;
 
 				var itemId = WorldConfig.GetUIntValue(WorldCfg.PvpTokenId);
@@ -208,9 +250,9 @@ public partial class Player
 		uint currentHonorXp = ActivePlayerData.Honor;
 		uint nextHonorLevelXp = ActivePlayerData.HonorNextLevel;
 		var newHonorXp = currentHonorXp + xp;
-		var honorLevel = GetHonorLevel();
+		var honorLevel = HonorLevel;
 
-		if (xp < 1 || Level < PlayerConst.LevelMinHonor || IsMaxHonorLevel())
+		if (xp < 1 || Level < PlayerConst.LevelMinHonor || IsMaxHonorLevel)
 			return;
 
 		while (newHonorXp >= nextHonorLevelXp)
@@ -220,31 +262,16 @@ public partial class Player
 			if (honorLevel < PlayerConst.MaxHonorLevel)
 				SetHonorLevel((byte)(honorLevel + 1));
 
-			honorLevel = GetHonorLevel();
+			honorLevel = HonorLevel;
 			nextHonorLevelXp = ActivePlayerData.HonorNextLevel;
 		}
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Honor), IsMaxHonorLevel() ? 0 : newHonorXp);
-	}
-
-	public uint GetHonorLevel()
-	{
-		return PlayerData.HonorLevel;
-	}
-
-	public bool IsMaxHonorLevel()
-	{
-		return GetHonorLevel() == PlayerConst.MaxHonorLevel;
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Honor), IsMaxHonorLevel ? 0 : newHonorXp);
 	}
 
 	public void ActivatePvpItemLevels(bool activate)
 	{
 		_usePvpItemLevels = activate;
-	}
-
-	public bool IsUsingPvpItemLevels()
-	{
-		return _usePvpItemLevels;
 	}
 
 	public void EnablePvpRules(bool dueToCombat = false)
@@ -274,15 +301,6 @@ public partial class Player
 	public uint[] GetPvpTalentMap(byte spec)
 	{
 		return _specializationInfo.PvpTalents[spec];
-	}
-
-	//BGs
-	public Battleground GetBattleground()
-	{
-		if (GetBattlegroundId() == 0)
-			return null;
-
-		return Global.BattlegroundMgr.GetBattleground(GetBattlegroundId(), _bgData.BgTypeId);
 	}
 
 	public bool InBattlegroundQueue(bool ignoreArena = false)
@@ -347,15 +365,6 @@ public partial class Player
 		return SharedConst.MaxPlayerBGQueues;
 	}
 
-	public bool HasFreeBattlegroundQueueId()
-	{
-		for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
-			if (_battlegroundQueueIdRecs[i].BgQueueTypeId == default)
-				return true;
-
-		return false;
-	}
-
 	public void RemoveBattlegroundQueueId(BattlegroundQueueTypeId val)
 	{
 		for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
@@ -395,26 +404,6 @@ public partial class Player
 		return false;
 	}
 
-	public WorldLocation GetBattlegroundEntryPoint()
-	{
-		return _bgData.JoinPos;
-	}
-
-	public bool InBattleground()
-	{
-		return _bgData.BgInstanceId != 0;
-	}
-
-	public uint GetBattlegroundId()
-	{
-		return _bgData.BgInstanceId;
-	}
-
-	public BattlegroundTypeId GetBattlegroundTypeId()
-	{
-		return _bgData.BgTypeId;
-	}
-
 	public uint GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId)
 	{
 		for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
@@ -441,13 +430,6 @@ public partial class Player
 		return (!IsTotalImmune &&                                       // Damage immune
 				!HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held flag debuff
 				IsAlive);                                               // Alive
-	}
-
-	public bool CanCaptureTowerPoint()
-	{
-		return (!HasStealthAura() &&      // not stealthed
-				!HasInvisibilityAura() && // not invisible
-				IsAlive);                 // live player
 	}
 
 	public void SetBattlegroundEntryPoint()
@@ -513,7 +495,7 @@ public partial class Player
 
 	public void LeaveBattleground(bool teleportToEntryPoint = true)
 	{
-		var bg = GetBattleground();
+		var bg = Battleground;
 
 		if (bg)
 		{
@@ -566,10 +548,10 @@ public partial class Player
 	{
 		ReportPvPPlayerAFKResult reportAfkResult = new();
 		reportAfkResult.Offender = GUID;
-		var bg = GetBattleground();
+		var bg = Battleground;
 
 		// Battleground also must be in progress!
-		if (!bg || bg != reporter.GetBattleground() || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)
+		if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)
 		{
 			reporter.SendPacket(reportAfkResult);
 
@@ -712,7 +694,7 @@ public partial class Player
 	//OutdoorPVP
 	public bool IsOutdoorPvPActive()
 	{
-		return IsAlive && !HasInvisibilityAura() && !HasStealthAura() && IsPvP && !HasUnitMovementFlag(MovementFlag.Flying) && !IsInFlight;
+		return IsAlive && !HasInvisibilityAura && !HasStealthAura && IsPvP && !HasUnitMovementFlag(MovementFlag.Flying) && !IsInFlight;
 	}
 
 	public OutdoorPvP GetOutdoorPvP()
@@ -758,7 +740,7 @@ public partial class Player
 
 	void SetHonorLevel(byte level)
 	{
-		var oldHonorLevel = (byte)GetHonorLevel();
+		var oldHonorLevel = (byte)HonorLevel;
 
 		if (level == oldHonorLevel)
 			return;
@@ -809,7 +791,7 @@ public partial class Player
 
 	bool IsAreaThatActivatesPvpTalents(uint areaId)
 	{
-		if (InBattleground())
+		if (InBattleground)
 			return true;
 
 		var area = CliDB.AreaTableStorage.LookupByKey(areaId);

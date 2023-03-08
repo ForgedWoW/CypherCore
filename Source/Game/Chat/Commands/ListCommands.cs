@@ -406,7 +406,7 @@ namespace Game.Chat.Commands
                     {
                         var goBounds = thisMap.GetGameObjectBySpawnIdStore().LookupByKey(guid);
                         foreach (var go in goBounds)
-                            handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, go.GUID.ToString(), go.IsSpawned() ? "*" : " ");
+                            handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, go.GUID.ToString(), go.IsSpawned ? "*" : " ");
                         liveFound = !goBounds.Empty();
                     }
 
@@ -580,8 +580,8 @@ namespace Game.Chat.Commands
                 string talentStr = handler.GetCypherString(CypherStrings.Talent);
                 string passiveStr = handler.GetCypherString(CypherStrings.Passive);
 
-                var auras = unit.GetAppliedAuras();
-                handler.SendSysMessage(CypherStrings.CommandTargetListauras, unit.GetAppliedAurasCount());
+                var auras = unit.AppliedAuras;
+                handler.SendSysMessage(CypherStrings.CommandTargetListauras, unit.AppliedAurasCount);
                 foreach (var aurApp in auras)
                 {
                     Aura aura = aurApp.Base;

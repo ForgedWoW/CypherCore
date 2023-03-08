@@ -26,11 +26,11 @@ public class spell_hun_arcane_shot : SpellScript, ISpellOnHit
 		}
 
 		if (caster.HasAura(HunterSpells.LETHAL_SHOTS) && RandomHelper.randChance(20))
-			if (caster.GetSpellHistory().HasCooldown(HunterSpells.RAPID_FIRE))
-				caster.GetSpellHistory().ModifyCooldown(HunterSpells.RAPID_FIRE, TimeSpan.FromSeconds(-5000));
+			if (caster.SpellHistory.HasCooldown(HunterSpells.RAPID_FIRE))
+				caster.				SpellHistory.ModifyCooldown(HunterSpells.RAPID_FIRE, TimeSpan.FromSeconds(-5000));
 
 		if (caster.HasAura(HunterSpells.CALLING_THE_SHOTS))
-			if (caster.GetSpellHistory().HasCooldown(HunterSpells.TRUESHOT))
-				caster.GetSpellHistory().ModifyCooldown(HunterSpells.TRUESHOT, TimeSpan.FromSeconds(-2500));
+			if (caster.SpellHistory.HasCooldown(HunterSpells.TRUESHOT))
+				caster.				SpellHistory.ModifyCooldown(HunterSpells.TRUESHOT, TimeSpan.FromSeconds(-2500));
 	}
 }

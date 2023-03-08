@@ -51,7 +51,7 @@ public class Transport : GameObject, ITransport
 				var player = passenger.AsPlayer;
 
 				if (player)
-					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), GetScriptId());
+					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), ScriptId);
 			}
 		}
 	}
@@ -70,7 +70,7 @@ public class Transport : GameObject, ITransport
 
 				if (plr != null)
 				{
-					Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), GetScriptId());
+					Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), ScriptId);
 					plr.SetFallInformation(0, plr.Location.Z);
 				}
 			}
@@ -91,7 +91,7 @@ public class Transport : GameObject, ITransport
 
 	public int GetMapIdForSpawning()
 	{
-		return GetGoInfo().MoTransport.SpawnMap;
+		return GoInfo.MoTransport.SpawnMap;
 	}
 
 	public ObjectGuid GetTransportGUID()
@@ -115,7 +115,7 @@ public class Transport : GameObject, ITransport
 	{
 		Location.Relocate(x, y, z, ang);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Transport, $"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
 
@@ -133,8 +133,8 @@ public class Transport : GameObject, ITransport
 			return false;
 		}
 
-		GoInfo = goinfo;
-		GoTemplateAddon = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+		GoInfoProtected = goinfo;
+		GoTemplateAddonProtected = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
 
 		var tInfo = Global.TransportMgr.GetTransportTemplate(entry);
 
@@ -148,7 +148,7 @@ public class Transport : GameObject, ITransport
 		_transportInfo = tInfo;
 		_eventsToTrigger = new BitArray(tInfo.Events.Count, true);
 
-		var goOverride = GetGameObjectOverride();
+		var goOverride = GameObjectOverride;
 
 		if (goOverride != null)
 		{
@@ -161,11 +161,11 @@ public class Transport : GameObject, ITransport
 		ObjectScale = goinfo.size;
 		SetPeriod(tInfo.TotalPathTime);
 		Entry = goinfo.entry;
-		SetDisplayId(goinfo.displayId);
+		DisplayId = goinfo.displayId;
 		SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
-		SetGoType(GameObjectTypes.MapObjTransport);
+		GoType = GameObjectTypes.MapObjTransport;
 		SetGoAnimProgress(255);
-		SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+		SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
 		SetName(goinfo.name);
 		SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
 		SetParentRotation(Quaternion.Identity);
@@ -200,18 +200,18 @@ public class Transport : GameObject, ITransport
 	{
 		var positionUpdateDelay = TimeSpan.FromMilliseconds(200);
 
-		if (GetAI() != null)
-			GetAI().UpdateAI(diff);
+		if (AI != null)
+			AI.UpdateAI(diff);
 		else if (!AIM_Initialize())
 			Log.outError(LogFilter.Transport, "Could not initialize GameObjectAI for Transport");
 
-		Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), GetScriptId());
+		Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
 		_positionChangeTimer.Update(diff);
 
 		var cycleId = _pathProgress / GetTransportPeriod();
 
-		if (GetGoInfo().MoTransport.allowstopping == 0)
+		if (GoInfo.MoTransport.allowstopping == 0)
 			_pathProgress = GameTime.GetGameTimeMS();
 		else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
 			_pathProgress += diff;
@@ -257,7 +257,7 @@ public class Transport : GameObject, ITransport
 			_movementState = moveState;
 
 			if (justStopped)
-				if (_requestStopTimestamp != 0 && GetGoState() != GameObjectState.Ready)
+				if (_requestStopTimestamp != 0 && GoState != GameObjectState.Ready)
 				{
 					SetGoState(GameObjectState.Ready);
 					SetDynamicFlag(GameObjectDynamicLowFlags.Stopped);
@@ -341,7 +341,7 @@ public class Transport : GameObject, ITransport
 		//         because the current GameObjectModel cannot be moved without recreating
 		creature.AddUnitState(UnitState.IgnorePathfinding);
 
-		if (!creature.Location.IsPositionValid())
+		if (!creature.Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GUID.ToString(), creature.Entry, creature.Location.X, creature.Location.Y);
 
@@ -359,7 +359,7 @@ public class Transport : GameObject, ITransport
 			_staticPassengers.Add(creature);
 		}
 
-		Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), GetScriptId());
+		Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), ScriptId);
 
 		return creature;
 	}
@@ -498,7 +498,7 @@ public class Transport : GameObject, ITransport
 
 	public void UpdatePosition(float x, float y, float z, float o)
 	{
-		Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), GetScriptId());
+		Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), ScriptId);
 
 		var newActive = Map.IsGridLoaded(x, y);
 		Cell oldCell = new(Location.X, Location.Y);
@@ -529,7 +529,7 @@ public class Transport : GameObject, ITransport
 
 	public void EnableMovement(bool enabled)
 	{
-		if (GetGoInfo().MoTransport.allowstopping == 0)
+		if (GoInfo.MoTransport.allowstopping == 0)
 			return;
 
 		if (!enabled)
@@ -575,7 +575,7 @@ public class Transport : GameObject, ITransport
 
 	public uint GetTransportPeriod()
 	{
-		return GameObjectData.Level;
+		return GameObjectFieldData.Level;
 	}
 
 	public void SetPeriod(uint period)
@@ -610,7 +610,7 @@ public class Transport : GameObject, ITransport
 		go.Location.Relocate(spawn);
 		go.RelocateStationaryPosition(spawn);
 
-		if (!go.Location.IsPositionValid())
+		if (!go.Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
 
@@ -633,7 +633,7 @@ public class Transport : GameObject, ITransport
 
 	void LoadStaticPassengers()
 	{
-		var mapId = (uint)GetGoInfo().MoTransport.SpawnMap;
+		var mapId = (uint)GoInfo.MoTransport.SpawnMap;
 		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.GetDifficultyID());
 
 		if (cells == null)

@@ -53,12 +53,12 @@ namespace Game.Chat
                         return false;
                     }
                     // if both players are in different bgs
-                    else if (_player.GetBattlegroundId() != 0 && _player.GetBattlegroundId() != target.GetBattlegroundId())
+                    else if (_player.BattlegroundId != 0 && _player.BattlegroundId != target.BattlegroundId)
                         _player.LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
 
                     // all's well, set bg id
                     // when porting out from the bg, it will be reset to 0
-                    _player.SetBattlegroundId(target.GetBattlegroundId(), target.GetBattlegroundTypeId());
+                    _player.SetBattlegroundId(target.BattlegroundId, target.BattlegroundTypeId);
                     // remember current position as entry point for return at bg end teleportation
                     if (!_player.Map.IsBattlegroundOrArena())
                         _player.SetBattlegroundEntryPoint();
@@ -244,14 +244,14 @@ namespace Game.Chat
                         return false;
                     }
 
-                    if (!go.IsDestructibleBuilding())
+                    if (!go.IsDestructibleBuilding)
                     {
                         handler.SendSysMessage(CypherStrings.InvalidGameobjectType);
                         return false;
                     }
 
                     go.ModifyHealth(-damage, player);
-                    handler.SendSysMessage(CypherStrings.GameobjectDamaged, go.GetName(), guidLow, -damage, go.GetGoValue().Building.Health);
+                    handler.SendSysMessage(CypherStrings.GameobjectDamaged, go.GetName(), guidLow, -damage, go.GoValue.Building.Health);
                 }
 
                 return true;
@@ -667,7 +667,7 @@ namespace Game.Chat
             Transport transport = obj.GetTransport<Transport>();
             if (transport)
             {
-                handler.SendSysMessage(CypherStrings.TransportPosition, transport.GetGoInfo().MoTransport.SpawnMap, obj.TransOffsetX, obj.TransOffsetY, obj.TransOffsetZ, obj.TransOffsetO,
+                handler.SendSysMessage(CypherStrings.TransportPosition, transport.GoInfo.MoTransport.SpawnMap, obj.TransOffsetX, obj.TransOffsetY, obj.TransOffsetZ, obj.TransOffsetO,
                     transport.                    Entry, transport.GetName());
             }
 
@@ -1767,12 +1767,12 @@ namespace Game.Chat
                         return false;
                     }
                     // if both players are in different bgs
-                    else if (target.GetBattlegroundId() != 0 && _player.GetBattlegroundId() != target.GetBattlegroundId())
+                    else if (target.BattlegroundId != 0 && _player.BattlegroundId != target.BattlegroundId)
                         target.LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
 
                     // all's well, set bg id
                     // when porting out from the bg, it will be reset to 0
-                    target.SetBattlegroundId(_player.GetBattlegroundId(), _player.GetBattlegroundTypeId());
+                    target.SetBattlegroundId(_player.BattlegroundId, _player.BattlegroundTypeId);
                     // remember current position as entry point for return at bg end teleportation
                     if (!target.Map.IsBattlegroundOrArena())
                         target.SetBattlegroundEntryPoint();

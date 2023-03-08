@@ -15,14 +15,14 @@ public class PlayerScript_black_arrow : ScriptObjectAutoAdd, IPlayerOnCreatureKi
 	public void OnCreatureKill(Player Player, Creature UnnamedParameter)
 	{
 		if (Player.HasSpell(HunterSpells.BLACK_ARROW))
-			if (Player.GetSpellHistory().HasCooldown(HunterSpells.BLACK_ARROW))
-				Player.GetSpellHistory().ResetCooldown(HunterSpells.BLACK_ARROW, true);
+			if (Player.SpellHistory.HasCooldown(HunterSpells.BLACK_ARROW))
+				Player.				SpellHistory.ResetCooldown(HunterSpells.BLACK_ARROW, true);
 	}
 
 	public void OnPVPKill(Player killer, Player UnnamedParameter)
 	{
 		if (killer.HasSpell(HunterSpells.BLACK_ARROW))
-			if (killer.GetSpellHistory().HasCooldown(HunterSpells.BLACK_ARROW))
-				killer.GetSpellHistory().ResetCooldown(HunterSpells.BLACK_ARROW, true);
+			if (killer.SpellHistory.HasCooldown(HunterSpells.BLACK_ARROW))
+				killer.				SpellHistory.ResetCooldown(HunterSpells.BLACK_ARROW, true);
 	}
 }

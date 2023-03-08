@@ -88,7 +88,7 @@ public class DynamicObject : WorldObject
 		Map = caster.Map;
 		Location.Relocate(pos);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Server, "DynamicObject (spell {0}) not created. Suggested coordinates isn't valid (X: {1} Y: {2})", spell.Id, Location.X, Location.Y);
 

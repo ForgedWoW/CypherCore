@@ -473,7 +473,7 @@ namespace Game.BattleGrounds.Zones
 
             //Alliance flag on ground(not in base) (returned or picked up again from ground!)
             if (GetFlagState(TeamFaction.Alliance) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
-                && target_obj.GetGoInfo().entry == WSGObjectEntry.AFlagGround)
+                && target_obj.GoInfo.entry == WSGObjectEntry.AFlagGround)
             {
                 if (team == TeamFaction.Alliance)
                 {
@@ -507,7 +507,7 @@ namespace Game.BattleGrounds.Zones
 
             //Horde flag on ground(not in base) (returned or picked up again)
             if (GetFlagState(TeamFaction.Horde) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
-                && target_obj.GetGoInfo().entry == WSGObjectEntry.HFlagGround)
+                && target_obj.GoInfo.entry == WSGObjectEntry.HFlagGround)
             {
                 if (team == TeamFaction.Horde)
                 {

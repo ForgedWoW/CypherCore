@@ -81,7 +81,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 							caster.CastSpell(caster, ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true);
 
 						if (caster.HasAura(DemonHunterSpells.FEED_THE_DEMON))
-							caster.GetSpellHistory().ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
+							caster.							SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
 						if (caster.HasAura(ShatteredSoulsSpells.PAINBRINGER))
 							caster.CastSpell(caster, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);

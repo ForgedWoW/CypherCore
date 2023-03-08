@@ -27,7 +27,7 @@ namespace Game
             GameObject goTarget = target?.AsGameObject;
             if (goTarget != null)
             {
-                GameObjectAI goAI = goTarget.GetAI();
+                GameObjectAI goAI = goTarget.AI;
                 if (goAI != null)
                     goAI.EventInform(gameEventId);
             }

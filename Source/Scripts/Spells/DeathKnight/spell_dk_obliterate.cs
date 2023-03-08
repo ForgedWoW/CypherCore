@@ -26,8 +26,8 @@ public class spell_dk_obliterate : SpellScript, IHasSpellEffects
 		Caster.RemoveAura(DeathKnightSpells.KILLING_MACHINE);
 
 		if (Caster.HasAura(DeathKnightSpells.ICECAP))
-			if (Caster.GetSpellHistory().HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
-				Caster.GetSpellHistory().ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
+			if (Caster.SpellHistory.HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
+				Caster.				SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
 
 		if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
 			Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);

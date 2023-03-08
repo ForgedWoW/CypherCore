@@ -284,7 +284,7 @@ public class TempSummon : Creature
 			if (owner.IsCreature)
 				owner.AsCreature.				AI?.JustSummoned(this);
 			else if (owner.IsGameObject)
-				owner.AsGameObject.GetAI()?.JustSummoned(this);
+				owner.AsGameObject.				AI?.JustSummoned(this);
 
 			if (IsAIEnabled)
 				AI.IsSummonedBy(owner);
@@ -392,7 +392,7 @@ public class TempSummon : Creature
 			if (owner.IsCreature)
 				owner.AsCreature.				AI?.SummonedCreatureDespawn(this);
 			else if (owner.IsGameObject)
-				owner.AsGameObject.GetAI()?.SummonedCreatureDespawn(this);
+				owner.AsGameObject.				AI?.SummonedCreatureDespawn(this);
 		}
 
 		AddObjectToRemoveList();

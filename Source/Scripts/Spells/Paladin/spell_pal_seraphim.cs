@@ -26,7 +26,7 @@ public class spell_pal_seraphim : SpellScript, IHasSpellEffects
 	{
 		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
 
-		if (!Caster.GetSpellHistory().HasCharge(ChargeCategoryId))
+		if (!Caster.SpellHistory.HasCharge(ChargeCategoryId))
 			return SpellCastResult.NoPower;
 
 		return SpellCastResult.Success;
@@ -40,7 +40,7 @@ public class spell_pal_seraphim : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
-		var spellHistory = Caster.GetSpellHistory();
+		var spellHistory = Caster.SpellHistory;
 
 		spellHistory.ConsumeCharge(ChargeCategoryId);
 		spellHistory.ForceSendSpellCharge(CliDB.SpellCategoryStorage.LookupByKey(ChargeCategoryId));

@@ -129,7 +129,7 @@ public class Totem : Minion
 			var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Map.GetDifficultyID());
 
 			if (spell != null)
-				GetSpellHistory().SendCooldownEvent(spell, 0, null, false);
+				SpellHistory.SendCooldownEvent(spell, 0, null, false);
 
 			var group = owner.Group;
 

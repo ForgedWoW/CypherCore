@@ -1399,7 +1399,7 @@ namespace Game
                 return;
             }
 
-            if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.GetGoInfo().BarberChair.chairheight))
+            if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.GoInfo.BarberChair.chairheight))
             {
                 SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
                 return;
@@ -2462,7 +2462,7 @@ namespace Game
                 return;
 
             // resurrect
-            Player.ResurrectPlayer(Player.InBattleground() ? 1.0f : 0.5f);
+            Player.ResurrectPlayer(Player.InBattleground ? 1.0f : 0.5f);
 
             // spawn bones
             Player.SpawnCorpseBones();

@@ -20,6 +20,93 @@ public partial class Unit
 {
 	public virtual bool IsAffectedByDiminishingReturns => (CharmerOrOwnerPlayerOrPlayerItself != null);
 
+	public bool CanInstantCast => _instantCast;
+
+	public SpellHistory SpellHistory => _spellHistory;
+
+	public uint SchoolImmunityMask
+	{
+		get
+		{
+			uint mask = 0;
+			var schoolList = _spellImmune[(int)SpellImmunity.School];
+
+			foreach (var pair in schoolList.KeyValueList)
+				mask |= pair.Key;
+
+			return mask;
+		}
+	}
+
+	public uint DamageImmunityMask
+	{
+		get
+		{
+			uint mask = 0;
+			var damageList = _spellImmune[(int)SpellImmunity.Damage];
+
+			foreach (var pair in damageList.KeyValueList)
+				mask |= pair.Key;
+
+			return mask;
+		}
+	}
+
+	public ulong MechanicImmunityMask
+	{
+		get
+		{
+			ulong mask = 0;
+			var mechanicList = _spellImmune[(int)SpellImmunity.Mechanic];
+
+			foreach (var pair in mechanicList.KeyValueList)
+				mask |= (1ul << (int)pair.Value);
+
+			return mask;
+		}
+	}
+
+	public bool HasStealthAura => HasAuraType(AuraType.ModStealth);
+
+	public bool HasInvisibilityAura => HasAuraType(AuraType.ModInvisibility);
+
+	public bool IsFeared => HasAuraType(AuraType.ModFear);
+
+	public bool IsFrozen => HasAuraState(AuraStateType.Frozen);
+
+	public bool HasRootAura => HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity);
+
+	public bool IsPolymorphed
+	{
+		get
+		{
+			var transformId = TransformSpell;
+
+			if (transformId == 0)
+				return false;
+
+			var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.GetDifficultyID());
+
+			if (spellInfo == null)
+				return false;
+
+			return spellInfo.GetSpellSpecific() == SpellSpecificType.MagePolymorph;
+		}
+	}
+
+	// Auras
+	public List<Aura> SingleCastAuras => _scAuras;
+
+	public List<Aura> OwnedAurasList => _ownedAuras.Auras;
+
+	public HashSet<AuraApplication> AppliedAuras => _appliedAuras.AuraApplications;
+
+	public int AppliedAurasCount => _appliedAuras.Count;
+
+	public bool CanProc => ProcDeep == 0;
+
+	public SortedSet<AuraApplication> VisibleAuras => _visibleAuras;
+
 	public virtual bool HasSpell(uint spellId)
 	{
 		return false;
@@ -28,11 +115,6 @@ public partial class Unit
 	public void SetInstantCast(bool set)
 	{
 		_instantCast = set;
-	}
-
-	public bool CanInstantCast()
-	{
-		return _instantCast;
 	}
 
 	public double SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
@@ -996,11 +1078,6 @@ public partial class Unit
 		return base.GetCastSpellXSpellVisualId(spellInfo);
 	}
 
-	public SpellHistory GetSpellHistory()
-	{
-		return _spellHistory;
-	}
-
 	public static ProcFlagsHit CreateProcHitMask(SpellNonMeleeDamage damageInfo, SpellMissInfo missCondition)
 	{
 		var hitMask = ProcFlagsHit.None;
@@ -1452,39 +1529,6 @@ public partial class Unit
 		return false;
 	}
 
-	public uint GetSchoolImmunityMask()
-	{
-		uint mask = 0;
-		var schoolList = _spellImmune[(int)SpellImmunity.School];
-
-		foreach (var pair in schoolList.KeyValueList)
-			mask |= pair.Key;
-
-		return mask;
-	}
-
-	public uint GetDamageImmunityMask()
-	{
-		uint mask = 0;
-		var damageList = _spellImmune[(int)SpellImmunity.Damage];
-
-		foreach (var pair in damageList.KeyValueList)
-			mask |= pair.Key;
-
-		return mask;
-	}
-
-	public ulong GetMechanicImmunityMask()
-	{
-		ulong mask = 0;
-		var mechanicList = _spellImmune[(int)SpellImmunity.Mechanic];
-
-		foreach (var pair in mechanicList.KeyValueList)
-			mask |= (1ul << (int)pair.Value);
-
-		return mask;
-	}
-
 	public virtual bool IsImmunedToSpellEffect(SpellInfo spellInfo, SpellEffectInfo spellEffectInfo, WorldObject caster, bool requireImmunityPurgesEffectAttribute = false)
 	{
 		if (spellInfo == null)
@@ -1561,13 +1605,13 @@ public partial class Unit
 			return false;
 
 		// If m_immuneToSchool type contain this school type, IMMUNE damage.
-		var schoolImmunityMask = GetSchoolImmunityMask();
+		var schoolImmunityMask = SchoolImmunityMask;
 
 		if (((SpellSchoolMask)schoolImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
 			return true;
 
 		// If m_immuneToDamage type contain magic, IMMUNE damage.
-		var damageImmunityMask = GetDamageImmunityMask();
+		var damageImmunityMask = DamageImmunityMask;
 
 		if (((SpellSchoolMask)damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
 			return true;
@@ -1604,7 +1648,7 @@ public partial class Unit
 				return true;
 
 			// If m_immuneToDamage type contain magic, IMMUNE damage.
-			var damageImmunityMask = GetDamageImmunityMask();
+			var damageImmunityMask = DamageImmunityMask;
 
 			if ((damageImmunityMask & schoolMask) == schoolMask) // We need to be immune to all types
 				return true;
@@ -1818,46 +1862,6 @@ public partial class Unit
 		_removedAurasCount = 0;
 	}
 
-	public bool HasStealthAura()
-	{
-		return HasAuraType(AuraType.ModStealth);
-	}
-
-	public bool HasInvisibilityAura()
-	{
-		return HasAuraType(AuraType.ModInvisibility);
-	}
-
-	public bool IsFeared()
-	{
-		return HasAuraType(AuraType.ModFear);
-	}
-
-	public bool IsFrozen()
-	{
-		return HasAuraState(AuraStateType.Frozen);
-	}
-
-	public bool HasRootAura()
-	{
-		return HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity);
-	}
-
-	public bool IsPolymorphed()
-	{
-		var transformId = TransformSpell;
-
-		if (transformId == 0)
-			return false;
-
-		var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.GetDifficultyID());
-
-		if (spellInfo == null)
-			return false;
-
-		return spellInfo.GetSpellSpecific() == SpellSpecificType.MagePolymorph;
-	}
-
 	public static void DealHeal(HealInfo healInfo)
 	{
 		uint gain = 0;
@@ -1892,7 +1896,7 @@ public partial class Unit
 
 			if (bgPlayer != null)
 			{
-				var bg = bgPlayer.GetBattleground();
+				var bg = bgPlayer.Battleground;
 
 				if (bg)
 					bg.UpdatePlayerScore(bgPlayer, ScoreType.HealingDone, gain);
@@ -2484,35 +2488,14 @@ public partial class Unit
 			}
 	}
 
-	// Auras
-	public List<Aura> GetSingleCastAuras()
-	{
-		return _scAuras;
-	}
-
-	public List<Aura> GetOwnedAurasList()
-	{
-		return _ownedAuras.Auras;
-	}
-
 	public AuraCollection.AuraQuery GetAuraQuery()
 	{
 		return _ownedAuras.Query();
 	}
 
-	public HashSet<AuraApplication> GetAppliedAuras()
-	{
-		return _appliedAuras.AuraApplications;
-	}
-
 	public AuraApplicationCollection.AuraApplicationQuery GetAppliedAurasQuery()
 	{
 		return _appliedAuras.Query();
-	}
-
-	public int GetAppliedAurasCount()
-	{
-		return _appliedAuras.Count;
 	}
 
 	/// <summary>
@@ -2704,7 +2687,7 @@ public partial class Unit
 
 	public bool HasAuraWithMechanic(ulong mechanicMask)
 	{
-		foreach (var pair in GetAppliedAuras())
+		foreach (var pair in AppliedAuras)
 		{
 			var spellInfo = pair.Base.SpellInfo;
 
@@ -3028,7 +3011,7 @@ public partial class Unit
 							newAura.UnregisterSingleTarget();
 							// bring back single target aura status to the old aura
 							aura.IsSingleTarget = true;
-							caster.GetSingleCastAuras().Add(aura);
+							caster.SingleCastAuras.Add(aura);
 						}
 
 						// FIXME: using aura.GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
@@ -3309,7 +3292,7 @@ public partial class Unit
 
 	public void RemoveAppliedAuras(Func<AuraApplication, bool> check, AuraRemoveMode removeMode = AuraRemoveMode.Default)
 	{
-		GetAppliedAuras().CallOnMatch((pair) => check(pair), (pair) => RemoveAura(pair, removeMode));
+		AppliedAuras.CallOnMatch((pair) => check(pair), (pair) => RemoveAura(pair, removeMode));
 	}
 
 	public void RemoveOwnedAuras(Func<Aura, bool> check, AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -3342,7 +3325,7 @@ public partial class Unit
 	{
 		ulong mechanic_mask = (1 << (int)Mechanics.Snare) | (1 << (int)Mechanics.Root);
 
-		GetAppliedAuras()
+		AppliedAuras
 			.CallOnMatch((auraApp) =>
 						{
 							var aura = auraApp.Base;
@@ -3506,13 +3489,13 @@ public partial class Unit
 
 	public void _ApplyAllAuraStatMods()
 	{
-		foreach (var i in GetAppliedAuras())
+		foreach (var i in AppliedAuras)
 			i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, true);
 	}
 
 	public void _RemoveAllAuraStatMods()
 	{
-		foreach (var i in GetAppliedAuras())
+		foreach (var i in AppliedAuras)
 			i.Base.HandleAllEffects(i, AuraEffectHandleModes.Stat, false);
 	}
 
@@ -3780,11 +3763,6 @@ public partial class Unit
 		return auraStates;
 	}
 
-	public bool CanProc()
-	{
-		return ProcDeep == 0;
-	}
-
 	public void _ApplyAuraEffect(Aura aura, int effIndex)
 	{
 		Cypher.Assert(aura != null);
@@ -3879,7 +3857,7 @@ public partial class Unit
 			Queue<Aura> aurasSharingLimit = new();
 
 			// remove other single target auras
-			foreach (var scAura in caster.GetSingleCastAuras())
+			foreach (var scAura in caster.SingleCastAuras)
 				if (scAura != aura && scAura.IsSingleTargetWith(aura))
 					aurasSharingLimit.Enqueue(scAura);
 
@@ -4269,11 +4247,6 @@ public partial class Unit
 		UpdateAuraForGroup();
 	}
 
-	public SortedSet<AuraApplication> GetVisibleAuras()
-	{
-		return _visibleAuras;
-	}
-
 	public bool HasVisibleAura(AuraApplication aurApp)
 	{
 		return _visibleAuras.Contains(aurApp);
@@ -4392,7 +4365,7 @@ public partial class Unit
 			}
 		// or generate one on our own
 		else
-			foreach (var aura in GetAppliedAuras())
+			foreach (var aura in AppliedAuras)
 				processAuraApplication(aura);
 	}
 
@@ -4414,7 +4387,7 @@ public partial class Unit
 				{
 					List<AuraApplication> modAuras = new();
 
-					foreach (var itr in modOwner.GetAppliedAuras())
+					foreach (var itr in modOwner.AppliedAuras)
 						if (spell.AppliedMods.Contains(itr.Base))
 							modAuras.Add(itr);
 

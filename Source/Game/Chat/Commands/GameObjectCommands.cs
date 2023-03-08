@@ -28,7 +28,7 @@ namespace Game.Chat
                 return false;
             }
 
-            uint autoCloseTime = obj.GetGoInfo().GetAutoCloseTime() != 0 ? 10000u : 0u;
+            uint autoCloseTime = obj.GoInfo.GetAutoCloseTime() != 0 ? 10000u : 0u;
 
             // Activate
             obj.SetLootState(LootState.Ready);
@@ -144,11 +144,11 @@ namespace Game.Chat
             if (thisGO != null)
             {
                 handler.SendSysMessage(CypherStrings.SpawninfoGuidinfo, thisGO.GUID.ToString());
-                handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, thisGO.GetRespawnCompatibilityMode());
+                handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, thisGO.RespawnCompatibilityMode);
 
-                if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().SpawnGroupData.GroupId != 0)
+                if (thisGO.GameObjectData != null && thisGO.GameObjectData.SpawnGroupData.GroupId != 0)
                 {
-                    SpawnGroupTemplateData groupData = thisGO.AsGameObject.GetGameObjectData().SpawnGroupData;
+                    SpawnGroupTemplateData groupData = thisGO.AsGameObject.GameObjectData.SpawnGroupData;
                     handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Map.IsSpawnGroupActive(groupData.GroupId));
                 }
 
@@ -174,7 +174,7 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.GoinfoSize, gameObjectInfo.size);
 
             handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, gameObjectInfo.AIName, Global.ObjectMgr.GetScriptName(gameObjectInfo.ScriptId));
-            var ai = thisGO != null ? thisGO.GetAI() : null;
+            var ai = thisGO != null ? thisGO.AI : null;
             if (ai != null)
                 handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
 
@@ -217,9 +217,9 @@ namespace Game.Chat
             obj.Location.Relocate(pos);
 
             // update which cell has this gameobject registered for loading
-            Global.ObjectMgr.RemoveGameObjectFromGrid(obj.GetGameObjectData());
+            Global.ObjectMgr.RemoveGameObjectFromGrid(obj.GameObjectData);
             obj.SaveToDB();
-            Global.ObjectMgr.AddGameObjectToGrid(obj.GetGameObjectData());
+            Global.ObjectMgr.AddGameObjectToGrid(obj.GameObjectData);
 
             // Generate a completely new spawn with new guid
             // client caches recently deleted objects and brings them back to life
@@ -231,7 +231,7 @@ namespace Game.Chat
             if (!obj)
                 return false;
 
-            handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GUID.ToString());
+            handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.SpawnId, obj.GoInfo.name, obj.GUID.ToString());
 
             return true;
         }
@@ -421,12 +421,12 @@ namespace Game.Chat
 
             if (target)
             {
-                int curRespawnDelay = (int)(target.GetRespawnTimeEx() - GameTime.GetGameTime());
+                int curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.GetGameTime());
                 if (curRespawnDelay < 0)
                     curRespawnDelay = 0;
 
                 string curRespawnDelayStr = Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
-                string defRespawnDelayStr = Time.secsToTimeString(target.GetRespawnDelay(), TimeFormat.ShortText);
+                string defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
                 handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
             }
@@ -462,7 +462,7 @@ namespace Game.Chat
             if (!obj)
                 return false;
 
-            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GUID.ToString(), obj.Location.Orientation);
+            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.SpawnId, obj.GoInfo.name, obj.GUID.ToString(), obj.Location.Orientation);
 
             return true;
         }
@@ -505,7 +505,7 @@ namespace Game.Chat
 
                 // fill the gameobject data and save to the db
                 obj.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
-                ulong spawnId = obj.GetSpawnId();
+                ulong spawnId = obj.SpawnId;
 
                 // this will generate a new guid if the object is in an instance
                 obj = GameObject.CreateGameObjectFromDb(spawnId, map);
@@ -595,10 +595,10 @@ namespace Game.Chat
                         obj.SetGoState((GameObjectState)objectState);
                         break;
                     case 1:
-                        obj.SetGoType((GameObjectTypes)objectState);
+                        obj.                        GoType = (GameObjectTypes)objectState;
                         break;
                     case 2:
-                        obj.SetGoArtKit(objectState.Value);
+                        obj.                        GoArtKit = objectState.Value;
                         break;
                     case 3:
                         obj.SetGoAnimProgress(objectState.Value);

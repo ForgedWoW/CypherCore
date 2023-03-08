@@ -303,7 +303,7 @@ namespace Game.AI
             me.SetCannotReachTarget(false);
             me.DoNotReacquireSpellFocusTarget();
             me.SetTarget(ObjectGuid.Empty);
-            me.GetSpellHistory().ResetAllCooldowns();
+            me.            SpellHistory.ResetAllCooldowns();
             EngagementOver();
 
             return true;

@@ -104,11 +104,11 @@ namespace Game.AI
         public static GameObjectAI SelectGameObjectAI(GameObject go)
         {
             // scriptname in db
-            GameObjectAI scriptedAI = Global.ScriptMgr.RunScriptRet<IGameObjectGetAI, GameObjectAI>(p => p.GetAI(go), go.GetScriptId());
+            GameObjectAI scriptedAI = Global.ScriptMgr.RunScriptRet<IGameObjectGetAI, GameObjectAI>(p => p.GetAI(go), go.ScriptId);
             if (scriptedAI != null)
                 return scriptedAI;
 
-            return go.GetAiName() switch
+            return go.AiName switch
             {
                 "SmartGameObjectAI" => new SmartGameObjectAI(go),
                 _ => new GameObjectAI(go),

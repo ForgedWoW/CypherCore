@@ -239,7 +239,7 @@ public class Pet : Guardian
 			pos.Orientation = owner.Location.Orientation;
 			Location.Relocate(pos);
 
-			if (!Location.IsPositionValid())
+			if (!Location.IsPositionValid)
 			{
 				Log.outError(LogFilter.Pet,
 							"Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
@@ -301,7 +301,7 @@ public class Pet : Guardian
 		owner.GetClosePoint(pos, CombatReach, SharedConst.PetFollowDist, FollowAngle);
 		Location.Relocate(pos);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Pet, "Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GUID.ToString(), Entry, Location.X, Location.Y);
 
@@ -409,7 +409,7 @@ public class Pet : Guardian
 				if (!isTemporarySummon)
 				{
 					_LoadSpells(holder.GetResult(PetLoginQueryLoad.Spells));
-					GetSpellHistory().LoadFromDb<Pet>(holder.GetResult(PetLoginQueryLoad.Cooldowns), holder.GetResult(PetLoginQueryLoad.Charges));
+					SpellHistory.LoadFromDb<Pet>(holder.GetResult(PetLoginQueryLoad.Cooldowns), holder.GetResult(PetLoginQueryLoad.Charges));
 					LearnPetPassives();
 					InitLevelupSpellsForLevel();
 
@@ -512,7 +512,7 @@ public class Pet : Guardian
 			RemoveAllAuras();
 
 		_SaveSpells(trans);
-		GetSpellHistory().SaveToDb<Pet>(trans);
+		SpellHistory.SaveToDb<Pet>(trans);
 		DB.Characters.CommitTransaction(trans);
 
 		// current/stable/not_in_slot
@@ -797,7 +797,7 @@ public class Pet : Guardian
 
 		Location.Relocate(creature.Location);
 
-		if (!Location.IsPositionValid())
+		if (!Location.IsPositionValid)
 		{
 			Log.outError(LogFilter.Pet,
 						"Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",

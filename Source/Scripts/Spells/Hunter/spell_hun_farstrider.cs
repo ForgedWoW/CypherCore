@@ -37,10 +37,10 @@ public class spell_hun_farstrider : AuraScript, IHasAuraEffects, IAuraCheckProc
 		if (player != null)
 		{
 			if (player.HasSpell(HunterSpells.DISENGAGE))
-				player.GetSpellHistory().ResetCooldown(HunterSpells.DISENGAGE, true);
+				player.				SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
 
 			if (player.HasSpell(HunterSpells.HARPOON))
-				player.GetSpellHistory().ResetCooldown(HunterSpells.DISENGAGE, true);
+				player.				SpellHistory.ResetCooldown(HunterSpells.DISENGAGE, true);
 		}
 	}
 }

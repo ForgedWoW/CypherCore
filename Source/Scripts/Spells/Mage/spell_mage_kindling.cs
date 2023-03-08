@@ -33,6 +33,7 @@ public class spell_mage_kindling : AuraScript, IHasAuraEffects, IAuraCheckProc
 		if (caster == null)
 			return;
 
-		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds(aurEff.Amount * -1));
+		caster.
+		SpellHistory.ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds(aurEff.Amount * -1));
 	}
 }

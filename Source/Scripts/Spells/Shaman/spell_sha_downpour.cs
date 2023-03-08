@@ -28,7 +28,7 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 	public void AfterCast()
 	{
 		var cooldown = TimeSpan.FromMilliseconds(SpellInfo.RecoveryTime) + TimeSpan.FromSeconds(GetEffectInfo(1).CalcValue() * _healedTargets);
-		Caster.GetSpellHistory().StartCooldown(SpellInfo, 0, Spell, false, cooldown);
+		Caster.		SpellHistory.StartCooldown(SpellInfo, 0, Spell, false, cooldown);
 	}
 
 	public override void Register()

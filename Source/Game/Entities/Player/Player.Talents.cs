@@ -184,7 +184,7 @@ public partial class Player
 				if (!HasPlayerFlag(PlayerFlags.Resting) && HasUnitFlag2(UnitFlags2.AllowChangingTalents))
 					return TalentLearnResult.FailedRestArea;
 
-				if (GetSpellHistory().HasCooldown(talent.SpellID))
+				if (SpellHistory.HasCooldown(talent.SpellID))
 				{
 					spellOnCooldown = (int)talent.SpellID;
 
@@ -294,7 +294,7 @@ public partial class Player
 		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2.ChangeSpec);
 
 		// remove single target auras at other targets
-		var scAuras = GetSingleCastAuras().ToList();
+		var scAuras = SingleCastAuras.ToList();
 
 		foreach (var aura in scAuras)
 			if (aura.UnitOwner != this)
@@ -733,7 +733,7 @@ public partial class Player
 			if (!HasPlayerFlag(PlayerFlags.Resting) && !HasUnitFlag2(UnitFlags2.AllowChangingTalents))
 				return TalentLearnResult.FailedRestArea;
 
-			if (GetSpellHistory().HasCooldown(talent.SpellID))
+			if (SpellHistory.HasCooldown(talent.SpellID))
 			{
 				spellOnCooldown = talent.SpellID;
 

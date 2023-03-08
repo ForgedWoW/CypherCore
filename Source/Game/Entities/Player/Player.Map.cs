@@ -218,7 +218,7 @@ public partial class Player
 		}
 		else if (overrideZonePvpType == ZonePVPTypeOverride.None)
 		{
-			if (InBattleground() || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Map) != 0))
+			if (InBattleground || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Map) != 0))
 			{
 				PvpInfo.IsInHostileArea = true;
 			}

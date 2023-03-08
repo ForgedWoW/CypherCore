@@ -44,7 +44,8 @@ internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 	{
 		var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
 
-		Target.GetSpellHistory().ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
-		Target.GetSpellHistory().ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
+		Target.
+		SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
+		Target.		SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
 	}
 }

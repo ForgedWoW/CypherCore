@@ -470,7 +470,7 @@ namespace Game.AI
             if (spellInfo == null)
                 return null;
 
-            if (me.GetSpellHistory().HasGlobalCooldown(spellInfo))
+            if (me.SpellHistory.HasGlobalCooldown(spellInfo))
                 return null;
 
             Spell spell = new(me, spellInfo, TriggerCastFlags.None);

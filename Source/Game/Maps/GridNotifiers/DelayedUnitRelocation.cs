@@ -52,7 +52,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 			if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
 				continue;
 
-			if (player != viewPoint && !viewPoint.Location.IsPositionValid())
+			if (player != viewPoint && !viewPoint.Location.IsPositionValid)
 				continue;
 
 			var relocate = new PlayerRelocationNotifier(player, GridType.All);

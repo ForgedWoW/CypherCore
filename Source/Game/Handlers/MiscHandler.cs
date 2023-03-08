@@ -248,7 +248,7 @@ namespace Game
 
                 return;
             }
-            Battleground bg = player.GetBattleground();
+            Battleground bg = player.Battleground;
             if (bg)
                 bg.HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered);
 

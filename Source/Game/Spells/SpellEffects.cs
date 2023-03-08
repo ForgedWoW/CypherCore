@@ -1391,7 +1391,7 @@ public partial class Spell
 		// Get lockId
 		if (GameObjTarget != null)
 		{
-			var goInfo = GameObjTarget.GetGoInfo();
+			var goInfo = GameObjTarget.GoInfo;
 
 			if (goInfo.GetNoDamageImmune() != 0 && player.HasUnitFlag(UnitFlags.Immune))
 				return;
@@ -1402,7 +1402,7 @@ public partial class Spell
 			{
 				//CanUseBattlegroundObject() already called in CheckCast()
 				// in Battlegroundcheck
-				var bg = player.GetBattleground();
+				var bg = player.Battleground;
 
 				if (bg)
 				{
@@ -1421,7 +1421,7 @@ public partial class Spell
 			{
 				//CanUseBattlegroundObject() already called in CheckCast()
 				// in Battlegroundcheck
-				var bg = player.GetBattleground();
+				var bg = player.Battleground;
 
 				if (bg)
 				{
@@ -1437,7 +1437,7 @@ public partial class Spell
 
 				return;
 			}
-			else if (SpellInfo.Id == 1842 && GameObjTarget.GetGoInfo().type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
+			else if (SpellInfo.Id == 1842 && GameObjTarget.GoInfo.type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
 			{
 				GameObjTarget.SetLootState(LootState.JustDeactivated);
 
@@ -1446,7 +1446,7 @@ public partial class Spell
 			// @todo Add script for spell 41920 - Filling, becouse server it freze when use this spell
 			// handle outdoor pvp object opening, return true if go was registered for handling
 			// these objects must have been spawned by outdoorpvp!
-			else if (GameObjTarget.GetGoInfo().type == GameObjectTypes.Goober && Global.OutdoorPvPMgr.HandleOpenGo(player, GameObjTarget))
+			else if (GameObjTarget.GoInfo.type == GameObjectTypes.Goober && Global.OutdoorPvPMgr.HandleOpenGo(player, GameObjTarget))
 			{
 				return;
 			}
@@ -2878,7 +2878,7 @@ public partial class Spell
 				{
 					var duration = SpellInfo.Duration;
 					duration = UnitTarget.ModSpellDuration(SpellInfo, UnitTarget, duration, false, 1u << EffectInfo.EffectIndex);
-					UnitTarget.GetSpellHistory().LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
+					UnitTarget.					SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
 					HitMask |= ProcFlagsHit.Interrupt;
 					SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
 					UnitTarget.InterruptSpell(i, false);
@@ -2923,33 +2923,33 @@ public partial class Spell
 		var duration = SpellInfo.CalcDuration(_caster);
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.SetSpellId(SpellInfo.Id);
+		go.		SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
 		// Wild object not have owner and check clickable by players
 		map.AddToMap(go);
 
-		if (go.GetGoType() == GameObjectTypes.FlagDrop)
+		if (go.GoType == GameObjectTypes.FlagDrop)
 		{
 			var player = _caster.AsPlayer;
 
 			if (player != null)
 			{
-				var bg = player.GetBattleground();
+				var bg = player.Battleground;
 
 				if (bg)
 					bg.SetDroppedFlagGUID(go.GUID, bg.GetPlayerTeam(player.GUID) == TeamFaction.Alliance ? TeamIds.Horde : TeamIds.Alliance);
 			}
 		}
 
-		var linkedTrap = go.GetLinkedTrap();
+		var linkedTrap = go.LinkedTrap;
 
 		if (linkedTrap)
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.SetSpellId(SpellInfo.Id);
+			linkedTrap.			SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
 		}
@@ -3243,7 +3243,7 @@ public partial class Spell
 		go.SetLevel(caster.Level + 1);
 		var duration = SpellInfo.CalcDuration(caster);
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.SetSpellId(SpellInfo.Id);
+		go.		SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
@@ -3301,7 +3301,7 @@ public partial class Spell
 		}
 
 		// the player dies if hearthstone is in cooldown, else the player is teleported to home
-		if (player.GetSpellHistory().HasCooldown(8690))
+		if (player.SpellHistory.HasCooldown(8690))
 		{
 			player.KillSelf();
 
@@ -3588,8 +3588,8 @@ public partial class Spell
 			if (obj != null)
 			{
 				// Recast case - null spell id to make auras not be removed on object remove from world
-				if (SpellInfo.Id == obj.GetSpellId())
-					obj.SetSpellId(0);
+				if (SpellInfo.Id == obj.SpellId)
+					obj.					SpellId = 0;
 
 				unitCaster.RemoveGameObject(obj, true);
 			}
@@ -3625,7 +3625,7 @@ public partial class Spell
 		go.SetLevel(unitCaster.Level);
 		var duration = SpellInfo.CalcDuration(_caster);
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.SetSpellId(SpellInfo.Id);
+		go.		SpellId = SpellInfo.Id;
 		unitCaster.AddGameObject(go);
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
@@ -4250,7 +4250,7 @@ public partial class Spell
 
 		List<KeyValuePair<uint, ObjectGuid>> dispel_list = new();
 
-		foreach (var aura in UnitTarget.GetOwnedAurasList())
+		foreach (var aura in UnitTarget.OwnedAurasList)
 		{
 			if (aura.GetApplicationOfTarget(UnitTarget.GUID) == null)
 				continue;
@@ -4597,20 +4597,20 @@ public partial class Spell
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SetOwnerGUID(unitCaster.GUID);
-		go.SetSpellId(SpellInfo.Id);
+		go.		SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
 		Log.outDebug(LogFilter.Spells, "AddObject at SpellEfects.cpp EffectTransmitted");
 
 		cMap.AddToMap(go);
-		var linkedTrap = go.GetLinkedTrap();
+		var linkedTrap = go.LinkedTrap;
 
 		if (linkedTrap != null)
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.SetSpellId(SpellInfo.Id);
+			linkedTrap.			SpellId = SpellInfo.Id;
 			linkedTrap.SetOwnerGUID(unitCaster.GUID);
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
@@ -4733,7 +4733,7 @@ public partial class Spell
 		// Create dispel mask by dispel type
 		var dispelMask = SpellInfo.GetDispelMask((DispelType)EffectInfo.MiscValue);
 
-		foreach (var aura in UnitTarget.GetOwnedAurasList())
+		foreach (var aura in UnitTarget.OwnedAurasList)
 		{
 			var aurApp = aura.GetApplicationOfTarget(UnitTarget.GUID);
 
@@ -5271,7 +5271,7 @@ public partial class Spell
 			if (spellInfo == null)
 				continue;
 
-			if (!player.HasSpell(spell_id) || player.GetSpellHistory().HasCooldown(spell_id))
+			if (!player.HasSpell(spell_id) || player.SpellHistory.HasCooldown(spell_id))
 				continue;
 
 			if (!spellInfo.HasAttribute(SpellAttr9.SummonPlayerTotem))
@@ -5441,21 +5441,21 @@ public partial class Spell
 		var duration = SpellInfo.CalcDuration(_caster);
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.SetSpellId(SpellInfo.Id);
+		go.		SpellId = SpellInfo.Id;
 		go.		PrivateObjectOwner = _caster.GUID;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
 		map.AddToMap(go);
 
-		var linkedTrap = go.GetLinkedTrap();
+		var linkedTrap = go.LinkedTrap;
 
 		if (linkedTrap != null)
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.SetSpellId(SpellInfo.Id);
+			linkedTrap.			SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
 		}
@@ -6271,7 +6271,8 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		UnitTarget.GetSpellHistory().ModifyCooldown(EffectInfo.TriggerSpell, TimeSpan.FromMilliseconds(Damage));
+		UnitTarget.
+		SpellHistory.ModifyCooldown(EffectInfo.TriggerSpell, TimeSpan.FromMilliseconds(Damage));
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCooldowns)]
@@ -6280,7 +6281,8 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		UnitTarget.GetSpellHistory()
+		UnitTarget.
+		SpellHistory
 				.ModifyCoooldowns(itr =>
 								{
 									var spellOnCooldown = Global.SpellMgr.GetSpellInfo(itr.SpellId, Difficulty.None);
@@ -6307,7 +6309,8 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		UnitTarget.GetSpellHistory().ModifyCoooldowns(itr => Global.SpellMgr.GetSpellInfo(itr.SpellId, Difficulty.None).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
+		UnitTarget.
+		SpellHistory.ModifyCoooldowns(itr => Global.SpellMgr.GetSpellInfo(itr.SpellId, Difficulty.None).CategoryId == EffectInfo.MiscValue, TimeSpan.FromMilliseconds(Damage));
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCharges)]
@@ -6317,7 +6320,7 @@ public partial class Spell
 			return;
 
 		for (var i = 0; i < Damage; ++i)
-			UnitTarget.GetSpellHistory().RestoreCharge((uint)EffectInfo.MiscValue);
+			UnitTarget.			SpellHistory.RestoreCharge((uint)EffectInfo.MiscValue);
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateTraitTreeConfig)]

@@ -27,6 +27,7 @@ public class aura_warl_haunt : AuraScript, IHasAuraEffects
 		if (caster == null || TargetApplication.RemoveMode != AuraRemoveMode.Death)
 			return;
 
-		caster.GetSpellHistory().ResetCooldown(WarlockSpells.HAUNT, true);
+		caster.
+		SpellHistory.ResetCooldown(WarlockSpells.HAUNT, true);
 	}
 }

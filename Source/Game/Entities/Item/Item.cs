@@ -1590,7 +1590,7 @@ public class Item : WorldObject
 		uint minItemLevel = owner.UnitData.MinItemLevel;
 		uint minItemLevelCutoff = owner.UnitData.MinItemLevelCutoff;
 		var maxItemLevel = itemTemplate.HasFlag(ItemFlags3.IgnoreItemLevelCapInPvp) ? 0u : owner.UnitData.MaxItemLevel;
-		var pvpBonus = owner.IsUsingPvpItemLevels();
+		var pvpBonus = owner.IsUsingPvpItemLevels;
 
 		uint azeriteLevel = 0;
 		var azeriteItem = ToAzeriteItem();

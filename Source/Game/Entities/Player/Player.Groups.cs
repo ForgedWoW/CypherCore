@@ -97,7 +97,7 @@ public partial class Player
 			if (!grp.IsLeader(GUID) && !grp.IsAssistant(GUID))
 				return PartyResult.NotLeader;
 
-			if (InBattleground())
+			if (InBattleground)
 				return PartyResult.InviteRestricted;
 
 			if (grp.IsLeader(guidMember))
@@ -310,7 +310,7 @@ public partial class Player
 			if (target &&
 				target != this &&
 				IsWithinDistInMap(target, radius) &&
-				!target.HasInvisibilityAura() &&
+				!target.HasInvisibilityAura &&
 				!IsHostileTo(target))
 				nearMembers.Add(target);
 		}

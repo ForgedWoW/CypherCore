@@ -34,8 +34,9 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 				ResetSpellCooldowns(winner, false);
 				ResetSpellCooldowns(loser, false);
 
-				winner.GetSpellHistory().RestoreCooldownStateAfterDuel();
-				loser.GetSpellHistory().RestoreCooldownStateAfterDuel();
+				winner.
+				SpellHistory.RestoreCooldownStateAfterDuel();
+				loser.				SpellHistory.RestoreCooldownStateAfterDuel();
 			}
 
 			// Health and mana restore
@@ -63,8 +64,8 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		// Cooldowns reset
 		if (_resetCooldowns)
 		{
-			player1.GetSpellHistory().SaveCooldownStateBeforeDuel();
-			player2.GetSpellHistory().SaveCooldownStateBeforeDuel();
+			player1.			SpellHistory.SaveCooldownStateBeforeDuel();
+			player2.			SpellHistory.SaveCooldownStateBeforeDuel();
 
 			ResetSpellCooldowns(player1, true);
 			ResetSpellCooldowns(player2, true);
@@ -86,11 +87,12 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 	private static void ResetSpellCooldowns(Player player, bool onStartDuel)
 	{
 		// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
-		player.GetSpellHistory()
+		player.		// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
+		SpellHistory
 			.ResetCooldowns(pair =>
 							{
 								var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
-								var remainingCooldown = player.GetSpellHistory().GetRemainingCooldown(spellInfo);
+								var remainingCooldown = player.SpellHistory.GetRemainingCooldown(spellInfo);
 								var totalCooldown = TimeSpan.FromMilliseconds(spellInfo.RecoveryTime);
 								var categoryCooldown = TimeSpan.FromMilliseconds(spellInfo.CategoryRecoveryTime);
 
@@ -121,6 +123,6 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		var pet = player.CurrentPet;
 
 		if (pet)
-			pet.GetSpellHistory().ResetAllCooldowns();
+			pet.			SpellHistory.ResetAllCooldowns();
 	}
 }

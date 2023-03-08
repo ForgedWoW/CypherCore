@@ -30,10 +30,11 @@ public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		if (!Caster.AsPlayer.GetSpellHistory().HasCooldown(Spells.EARTHWARDEN))
+		if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.EARTHWARDEN))
 			Caster.AddAura(Spells.EARTHWARDEN_TRIGGERED, Caster);
 
-		Caster.AsPlayer.GetSpellHistory().AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
+		Caster.AsPlayer.
+		SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
 	}
 
 	private struct Spells

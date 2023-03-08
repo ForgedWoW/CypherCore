@@ -11,6 +11,17 @@ namespace Game.Entities;
 
 public partial class Unit
 {
+	public long Health => UnitData.Health;
+
+	public long MaxHealth => UnitData.MaxHealth;
+
+	public float HealthPct => MaxHealth != 0 ? 100.0f * Health / MaxHealth : 0.0f;
+
+	public bool IsFullHealth => Health == MaxHealth;
+
+	//Powers
+	public PowerType DisplayPowerType => (PowerType)(byte)UnitData.DisplayPower;
+
 	public void HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, double amount, bool apply)
 	{
 		if (unitMod >= UnitMods.End || modifierType >= UnitModifierFlatType.End)
@@ -463,10 +474,8 @@ public partial class Unit
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BaseHealth), val);
 	}
 
-    public long Health => UnitData.Health;
 
-
-    public void SetHealth(float val)
+	public void SetHealth(float val)
 	{
 		SetHealth((long)val);
 	}
@@ -526,9 +535,7 @@ public partial class Unit
 		}
 	}
 
-    public long MaxHealth => UnitData.MaxHealth;
-
-    public void SetMaxHealth(double val)
+	public void SetMaxHealth(double val)
 	{
 		SetMaxHealth((long)val);
 	}
@@ -559,16 +566,12 @@ public partial class Unit
 			SetHealth(val);
 	}
 
-    public float HealthPct => MaxHealth != 0 ? 100.0f * Health / MaxHealth : 0.0f;
-
-    public void SetFullHealth()
+	public void SetFullHealth()
 	{
 		SetHealth(MaxHealth);
 	}
 
-    public bool IsFullHealth => Health == MaxHealth;
-
-    public bool HealthBelowPct(double pct)
+	public bool HealthBelowPct(double pct)
 	{
 		return Health < CountPctFromMaxHealth(pct);
 	}
@@ -633,10 +636,7 @@ public partial class Unit
 		return 1.0f;
 	}
 
-    //Powers
-    public PowerType DisplayPowerType => (PowerType)(byte)UnitData.DisplayPower;
-
-    public void SetPowerType(PowerType powerType, bool sendUpdate = true)
+	public void SetPowerType(PowerType powerType, bool sendUpdate = true)
 	{
 		if (DisplayPowerType == powerType)
 			return;

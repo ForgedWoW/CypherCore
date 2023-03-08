@@ -93,12 +93,9 @@ public class Position
 		Orientation = Orientation + offset.Orientation;
 	}
 
-	public bool IsPositionValid()
-	{
-		return GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
-	}
+    public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
 
-	public float GetRelativeAngle(Position pos)
+    public float GetRelativeAngle(Position pos)
 	{
 		return ToRelativeAngle(GetAbsoluteAngle(pos));
 	}

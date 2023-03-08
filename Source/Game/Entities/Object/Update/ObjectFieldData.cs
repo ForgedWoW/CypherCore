@@ -107,7 +107,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 				GameObjectDynamicLowFlags dynFlags = 0;
 				ushort pathProgress = 0xFFFF;
 
-				switch (gameObject.GetGoType())
+				switch (gameObject.GoType)
 				{
 					case GameObjectTypes.QuestGiver:
 						if (gameObject.ActivateToQuest(receiver))

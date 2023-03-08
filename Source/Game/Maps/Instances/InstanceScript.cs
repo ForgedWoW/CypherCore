@@ -460,16 +460,16 @@ public class InstanceScript : ZoneScript
 
 		if (go)
 		{
-			if (go.GetGoType() == GameObjectTypes.Door || go.GetGoType() == GameObjectTypes.Button)
+			if (go.GoType == GameObjectTypes.Door || go.GoType == GameObjectTypes.Button)
 			{
-				if (go.GetLootState() == LootState.Ready)
+				if (go.LootState == LootState.Ready)
 					go.UseDoorOrButton(withRestoreTime, useAlternativeState);
-				else if (go.GetLootState() == LootState.Activated)
+				else if (go.LootState == LootState.Activated)
 					go.ResetDoorOrButton();
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
+				Log.outError(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 			}
 		}
 		else
@@ -484,21 +484,21 @@ public class InstanceScript : ZoneScript
 
 		if (go)
 		{
-			switch (go.GetGoType())
+			switch (go.GoType)
 			{
 				case GameObjectTypes.Door:
 				case GameObjectTypes.Button:
 				case GameObjectTypes.Trap:
 				case GameObjectTypes.FishingNode:
 					// not expect any of these should ever be handled
-					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
+					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 
 					return;
 				default:
 					break;
 			}
 
-			if (go.IsSpawned())
+			if (go.IsSpawned)
 				return;
 
 			go.SetRespawnTime((int)timeToDespawn.TotalSeconds);
@@ -1027,14 +1027,14 @@ public class InstanceScript : ZoneScript
 
 		if (go)
 		{
-			if (go.GetGoType() == GameObjectTypes.Door || go.GetGoType() == GameObjectTypes.Button)
+			if (go.GoType == GameObjectTypes.Door || go.GoType == GameObjectTypes.Button)
 			{
-				if (go.GetLootState() == LootState.Activated)
+				if (go.LootState == LootState.Activated)
 					go.ResetDoorOrButton();
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
+				Log.outError(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 			}
 		}
 		else

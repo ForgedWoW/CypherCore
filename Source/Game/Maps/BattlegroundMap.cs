@@ -33,7 +33,7 @@ public class BattlegroundMap : Map
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
-		if (player.GetBattlegroundId() != GetInstanceId())
+		if (player.BattlegroundId != GetInstanceId())
 			return new TransferAbortParams(TransferAbortReason.LockedToDifferentInstance);
 
 		return base.CannotEnter(player);
@@ -67,7 +67,7 @@ public class BattlegroundMap : Map
 		if (HavePlayers())
 			foreach (var player in ActivePlayers)
 				if (!player.IsBeingTeleportedFar)
-					player.TeleportTo(player.GetBattlegroundEntryPoint());
+					player.TeleportTo(player.BattlegroundEntryPoint);
 	}
 
 	public Battleground GetBG()

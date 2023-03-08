@@ -39,7 +39,7 @@ namespace Game
                     GameObject go = player.Map.GetGameObject(lguid);
 
                     // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                    if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+                    if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                     {
                         player.SendLootRelease(lguid);
                         continue;
@@ -269,24 +269,24 @@ namespace Game
                 GameObject go = player.Map.GetGameObject(lguid);
 
                 // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+                if (!go || ((go.OwnerGUID != player.GUID && go.GoType != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                     return;
 
-                if (loot.IsLooted() || go.GetGoType() == GameObjectTypes.FishingNode || go.GetGoType() == GameObjectTypes.FishingHole)
+                if (loot.IsLooted() || go.GoType == GameObjectTypes.FishingNode || go.GoType == GameObjectTypes.FishingHole)
                 {
-                    if (go.GetGoType() == GameObjectTypes.FishingNode)
+                    if (go.GoType == GameObjectTypes.FishingNode)
                     {
                         go.SetLootState(LootState.JustDeactivated);
                     }
-                    else if (go.GetGoType() == GameObjectTypes.FishingHole)
+                    else if (go.GoType == GameObjectTypes.FishingHole)
                     {                                               // The fishing hole used once more
                         go.AddUse();                               // if the max usage is reached, will be despawned in next tick
-                        if (go.GetUseCount() >= go.GetGoValue().FishingHole.MaxOpens)
+                        if (go.UseCount >= go.GoValue.FishingHole.MaxOpens)
                             go.SetLootState(LootState.JustDeactivated);
                         else
                             go.SetLootState(LootState.Ready);
                     }
-                    else if (go.GetGoType() != GameObjectTypes.GatheringNode && go.IsFullyLooted())
+                    else if (go.GoType != GameObjectTypes.GatheringNode && go.IsFullyLooted)
                         go.SetLootState(LootState.JustDeactivated);
 
                     go.OnLootRelease(player);

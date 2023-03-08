@@ -58,7 +58,7 @@ public partial class Unit
 
 	public virtual void AtEnterCombat()
 	{
-		foreach (var pair in GetAppliedAuras())
+		foreach (var pair in AppliedAuras)
 			pair.Base.CallScriptEnterLeaveCombatHandlers(pair, true);
 
 		var spell = GetCurrentSpell(CurrentSpellTypes.Generic);
@@ -73,7 +73,7 @@ public partial class Unit
 
 	public virtual void AtExitCombat()
 	{
-		foreach (var pair in GetAppliedAuras())
+		foreach (var pair in AppliedAuras)
 			pair.Base.CallScriptEnterLeaveCombatHandlers(pair, false);
 
 		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeavingCombat);
@@ -196,7 +196,7 @@ public partial class Unit
 
 	public virtual void OnCombatExit()
 	{
-		foreach (var aurApp in GetAppliedAuras())
+		foreach (var aurApp in AppliedAuras)
 			aurApp.Base.CallScriptEnterLeaveCombatHandlers(aurApp, false);
 	}
 
@@ -882,7 +882,7 @@ public partial class Unit
 																								creature.CreatureTemplate.MinGold,
 																								creature.CreatureTemplate.MaxGold,
 																								(ushort)creature.GetLootMode(),
-																								creature.																								Map.GetDifficultyLootItemContext(),
+																								creature.Map.GetDifficultyLootItemContext(),
 																								tappers);
 					}
 					else if (!tappers.Empty())
@@ -1000,7 +1000,7 @@ public partial class Unit
 			plrVictim.SetPvPDeath(player != null);
 
 			// only if not player and not controlled by player pet. And not at BG
-			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground()) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
+			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
 			{
 				double baseLoss = WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
@@ -1063,7 +1063,7 @@ public partial class Unit
 					if (summoner.IsCreature)
 						summoner.AsCreature.AI?.SummonedCreatureDies(creature, attacker);
 					else if (summoner.IsGameObject)
-						summoner.AsGameObject.GetAI()?.SummonedCreatureDies(creature, attacker);
+						summoner.AsGameObject.AI?.SummonedCreatureDies(creature, attacker);
 				}
 			}
 		}
@@ -1084,9 +1084,9 @@ public partial class Unit
 		}
 
 		// Battlegroundthings (do this at the end, so the death state flag will be properly set to handle in the bg.handlekill)
-		if (player != null && player.InBattleground())
+		if (player != null && player.InBattleground)
 		{
-			var bg = player.GetBattleground();
+			var bg = player.Battleground;
 
 			if (bg)
 			{

@@ -24,7 +24,7 @@ public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEff
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.DOOMGUARD_SHADOW_LOCK))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.DOOMGUARD_SHADOW_LOCK))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;
@@ -49,6 +49,7 @@ public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEff
 
 		pet.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
 
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
+		caster.AsPlayer.
+		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

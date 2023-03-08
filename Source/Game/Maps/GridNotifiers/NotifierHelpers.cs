@@ -21,7 +21,7 @@ public static class NotifierHelpers
 			}
 			else
 			{
-				if (u.IsTypeId(TypeId.Player) && u.HasStealthAura() && c.IsAIEnabled && c.CanSeeOrDetect(u, false, true, true))
+				if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.CanSeeOrDetect(u, false, true, true))
 					c.					AI.TriggerAlert(u);
 			}
 		}

@@ -44,16 +44,16 @@ public class spell_pal_divine_purpose_proc : SpellScript, ISpellAfterCast
 							{
 								player.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_1);
 
-								if (player.GetSpellHistory().HasCooldown(PaladinSpells.HolyShock))
-									player.GetSpellHistory().ResetCooldown(PaladinSpells.HolyShock, true);
+								if (player.SpellHistory.HasCooldown(PaladinSpells.HolyShock))
+									player.									SpellHistory.ResetCooldown(PaladinSpells.HolyShock, true);
 							}
 
 							if (activateSpell == (uint)PaladinSpells.LIGHT_OF_DAWN)
 							{
 								player.CastSpell(player, PaladinSpells.DIVINE_PURPOSE_HOLY_AURA_2);
 
-								if (player.GetSpellHistory().HasCooldown(PaladinSpells.LIGHT_OF_DAWN))
-									player.GetSpellHistory().ResetCooldown(PaladinSpells.LIGHT_OF_DAWN, true);
+								if (player.SpellHistory.HasCooldown(PaladinSpells.LIGHT_OF_DAWN))
+									player.									SpellHistory.ResetCooldown(PaladinSpells.LIGHT_OF_DAWN, true);
 							}
 						}
 

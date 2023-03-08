@@ -16,7 +16,7 @@ internal class spell_mage_shifting_power : SpellScript, ISpellOnCast
 		if (caster != null && caster.TryGetAura(MageSpells.ShiftingPower, out var aura))
 		{
 			//creating a list of all spells in casters spell history
-			var spellHistory = caster.GetSpellHistory();
+			var spellHistory = caster.SpellHistory;
 
 			// looping over all spells that have cooldowns
 			foreach (var spell in spellHistory.SpellsOnCooldown)

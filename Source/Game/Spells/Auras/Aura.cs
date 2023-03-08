@@ -233,7 +233,7 @@ public class Aura
 			if (_spellInfo.IsCooldownStartedOnEvent)
 			{
 				var castItem = !_castItemGuid.IsEmpty ? caster.AsPlayer.GetItemByGuid(_castItemGuid) : null;
-				caster.GetSpellHistory().StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
+				caster.				SpellHistory.StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
 	}
 
@@ -266,7 +266,8 @@ public class Aura
 		// reset cooldown state for spells
 		if (caster != null && SpellInfo.IsCooldownStartedOnEvent)
 			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-			caster.GetSpellHistory().SendCooldownEvent(SpellInfo);
+			caster.			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+			SpellHistory.SendCooldownEvent(SpellInfo);
 	}
 
 	// removes aura from all targets
@@ -370,7 +371,7 @@ public class Aura
 				if (unit != Owner)
 					// check if not stacking aura already on target
 					// this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
-					foreach (var iter in unit.GetAppliedAuras())
+					foreach (var iter in unit.AppliedAuras)
 					{
 						var aura = iter.Base;
 
@@ -833,7 +834,7 @@ public class Aura
 		Cypher.Assert(_isSingleTarget);
 		var caster = GetCaster();
 		Cypher.Assert(caster != null);
-		caster.GetSingleCastAuras().Remove(this);
+		caster.		SingleCastAuras.Remove(this);
 		IsSingleTarget = false;
 	}
 
@@ -1056,7 +1057,7 @@ public class Aura
 							break;
 						case 60970: // Heroic Fury (remove Intercept cooldown)
 							if (target.IsTypeId(TypeId.Player))
-								target.GetSpellHistory().ResetCooldown(20252, true);
+								target.								SpellHistory.ResetCooldown(20252, true);
 
 							break;
 					}
@@ -1112,16 +1113,16 @@ public class Aura
 							// check cooldown
 							if (caster.IsTypeId(TypeId.Player))
 							{
-								if (caster.GetSpellHistory().HasCooldown(aura.SpellInfo))
+								if (caster.SpellHistory.HasCooldown(aura.SpellInfo))
 								{
 									// This additional check is needed to add a minimal delay before cooldown in in effect
 									// to allow all bubbles broken by a single damage source proc mana return
-									if (caster.GetSpellHistory().GetRemainingCooldown(aura.SpellInfo) <= TimeSpan.FromSeconds(11))
+									if (caster.SpellHistory.GetRemainingCooldown(aura.SpellInfo) <= TimeSpan.FromSeconds(11))
 										break;
 								}
 								else // and add if needed
 								{
-									caster.GetSpellHistory().AddCooldown(aura.Id, 0, TimeSpan.FromSeconds(12));
+									caster.									SpellHistory.AddCooldown(aura.Id, 0, TimeSpan.FromSeconds(12));
 								}
 							}
 

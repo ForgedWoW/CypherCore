@@ -1309,7 +1309,7 @@ public class PlayerGroup
 				return GroupJoinBattlegroundResult.Deserters;
 
 			// check if member can join any more Battleground queues
-			if (!member.HasFreeBattlegroundQueueId())
+			if (!member.HasFreeBattlegroundQueueId)
 				return GroupJoinBattlegroundResult.TooManyQueues; // not blizz-like
 
 			// check if someone in party is using dungeon system

@@ -41,6 +41,7 @@ internal class spell_pal_fist_of_justice : AuraScript, IHasAuraEffects
 	{
 		var value = aurEff.Amount / 10;
 
-		Target.GetSpellHistory().ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
+		Target.
+		SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
 	}
 }

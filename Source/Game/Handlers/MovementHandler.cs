@@ -71,7 +71,7 @@ namespace Game
                 return;
             }
 
-            if (!movementInfo.Pos.IsPositionValid())
+            if (!movementInfo.Pos.IsPositionValid)
                 return;
 
 
@@ -177,7 +177,7 @@ namespace Game
 
                 if (movementInfo.Pos.Z < plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
                 {
-                    if (!(plrMover.GetBattleground() && plrMover.GetBattleground().HandlePlayerUnderMap(Player)))
+                    if (!(plrMover.Battleground && plrMover.Battleground.HandlePlayerUnderMap(Player)))
                     {
                         // NOTE: this is actually called many times while falling
                         // even after the player has been teleported away
@@ -298,7 +298,7 @@ namespace Game
 
             // Battleground state prepare (in case join to BG), at relogin/tele player not invited
             // only add to bg group and object, if the player was invited (else he entered through command)
-            if (player.InBattleground())
+            if (player.InBattleground)
             {
                 // cleanup setting if outdated
                 if (!mapEntry.IsBattlegroundOrArena())
@@ -311,10 +311,10 @@ namespace Game
                 // join to bg case
                 else
                 {
-                    Battleground bg = player.GetBattleground();
+                    Battleground bg = player.Battleground;
                     if (bg)
                     {
-                        if (player.IsInvitedForBattlegroundInstance(player.GetBattlegroundId()))
+                        if (player.IsInvitedForBattlegroundInstance(player.BattlegroundId))
                             bg.AddPlayer(player);
                     }
                 }
@@ -333,7 +333,7 @@ namespace Game
             // flight fast teleport case
             if (player.IsInFlight)
             {
-                if (!player.InBattleground())
+                if (!player.InBattleground)
                 {
                     if (!seamlessTeleport)
                     {

@@ -25,7 +25,8 @@ public class spell_warl_meteor_strike : SpellScript, ISpellAfterHit, ISpellCheck
 
 		pet.CastSpell(pet, WarlockSpells.INFERNAL_METEOR_STRIKE, true);
 
-		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(60));
+		caster.AsPlayer.
+		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(60));
 	}
 
 	public SpellCastResult CheckCast()
@@ -36,7 +37,7 @@ public class spell_warl_meteor_strike : SpellScript, ISpellAfterHit, ISpellCheck
 		if (caster == null || pet == null)
 			return SpellCastResult.DontReport;
 
-		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.INFERNAL_METEOR_STRIKE))
+		if (pet.SpellHistory.HasCooldown(WarlockSpells.INFERNAL_METEOR_STRIKE))
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;

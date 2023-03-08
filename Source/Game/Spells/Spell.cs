@@ -1567,7 +1567,7 @@ public partial class Spell : IDisposable
 
 		// Prevent cheating in case the player has an immunity effect and tries to interact with a non-allowed gameobject. The error message is handled by the client so we don't report anything here
 		if (_caster.IsPlayer && Targets.GOTarget != null)
-			if (Targets.GOTarget.GetGoInfo().GetNoDamageImmune() != 0 && _caster.AsUnit.HasUnitFlag(UnitFlags.Immune))
+			if (Targets.GOTarget.GoInfo.GetNoDamageImmune() != 0 && _caster.AsUnit.HasUnitFlag(UnitFlags.Immune))
 				return SpellCastResult.DontReport;
 
 		// check cooldowns to prevent cheating
@@ -1597,7 +1597,7 @@ public partial class Spell : IDisposable
 
 			if (!IsIgnoringCooldowns() && _caster.AsUnit != null)
 			{
-				if (!_caster.AsUnit.GetSpellHistory().IsReady(SpellInfo, CastItemEntry))
+				if (!_caster.AsUnit.SpellHistory.IsReady(SpellInfo, CastItemEntry))
 				{
 					if (TriggeredByAuraSpell != null)
 						return SpellCastResult.DontReport;
@@ -1624,7 +1624,7 @@ public partial class Spell : IDisposable
 		// only triggered spells can be processed an ended Battleground
 		if (!IsTriggered() && _caster.IsTypeId(TypeId.Player))
 		{
-			var bg = _caster.AsPlayer.GetBattleground();
+			var bg = _caster.AsPlayer.Battleground;
 
 			if (bg)
 				if (bg.GetStatus() == BattlegroundStatus.WaitLeave)
@@ -1673,7 +1673,7 @@ public partial class Spell : IDisposable
 					if (shapeError != SpellCastResult.SpellCastOk)
 						return shapeError;
 
-					if (SpellInfo.HasAttribute(SpellAttr0.OnlyStealthed) && !unitCaster.HasStealthAura())
+					if (SpellInfo.HasAttribute(SpellAttr0.OnlyStealthed) && !unitCaster.HasStealthAura)
 						return SpellCastResult.OnlyStealthed;
 				}
 			}
@@ -2223,8 +2223,8 @@ public partial class Spell : IDisposable
 
 					if (SpellInfo.Id != 1842 ||
 						(Targets.GOTarget != null &&
-						Targets.						GOTarget.GetGoInfo().type != GameObjectTypes.Trap))
-						if (_caster.AsPlayer.InBattleground() && // In Battlegroundplayers can use only flags and banners
+						Targets.						GOTarget.						GoInfo.type != GameObjectTypes.Trap))
+						if (_caster.AsPlayer.InBattleground && // In Battlegroundplayers can use only flags and banners
 							!_caster.AsPlayer.CanUseBattlegroundObject(Targets.GOTarget))
 							return SpellCastResult.TryAgain;
 
@@ -2235,12 +2235,12 @@ public partial class Spell : IDisposable
 
 					if (go != null)
 					{
-						lockId = go.GetGoInfo().GetLockId();
+						lockId = go.GoInfo.GetLockId();
 
 						if (lockId == 0)
 							return SpellCastResult.BadTargets;
 
-						if (go.GetGoInfo().GetNotInCombat() != 0 && _caster.AsUnit.IsInCombat)
+						if (go.GoInfo.GetNotInCombat() != 0 && _caster.AsUnit.IsInCombat)
 							return SpellCastResult.AffectingCombat;
 					}
 					else if (itm != null)
@@ -2478,7 +2478,7 @@ public partial class Spell : IDisposable
 					//Do not allow to cast it before BG starts.
 					if (_caster.IsTypeId(TypeId.Player))
 					{
-						var bg = _caster.AsPlayer.GetBattleground();
+						var bg = _caster.AsPlayer.Battleground;
 
 						if (bg)
 							if (bg.GetStatus() != BattlegroundStatus.InProgress)
@@ -2540,7 +2540,7 @@ public partial class Spell : IDisposable
 					}
 
 					// can't change during already started arena/Battleground
-					var bg = player.GetBattleground();
+					var bg = player.Battleground;
 
 					if (bg)
 						if (bg.GetStatus() == BattlegroundStatus.InProgress)
@@ -2560,7 +2560,7 @@ public partial class Spell : IDisposable
 					if (talent == null)
 						return SpellCastResult.DontReport;
 
-					if (playerCaster.GetSpellHistory().HasCooldown(talent.SpellID))
+					if (playerCaster.SpellHistory.HasCooldown(talent.SpellID))
 					{
 						param1 = (int)talent.SpellID;
 
@@ -2881,12 +2881,12 @@ public partial class Spell : IDisposable
 		var creatureCaster = _caster.AsCreature;
 
 		if (creatureCaster)
-			if (creatureCaster.GetSpellHistory().HasCooldown(SpellInfo.Id))
+			if (creatureCaster.SpellHistory.HasCooldown(SpellInfo.Id))
 				return SpellCastResult.NotReady;
 
 		// Check if spell is affected by GCD
 		if (SpellInfo.StartRecoveryCategory > 0)
-			if (unitCaster.GetCharmInfo() != null && unitCaster.GetSpellHistory().HasGlobalCooldown(SpellInfo))
+			if (unitCaster.GetCharmInfo() != null && unitCaster.SpellHistory.HasGlobalCooldown(SpellInfo))
 				return SpellCastResult.NotReady;
 
 		return CheckCast(true);
@@ -5679,8 +5679,8 @@ public partial class Spell : IDisposable
 			//Clear spell cooldowns after every spell is cast if .cheat cooldown is enabled.
 			if (_originalCaster != null && modOwner.GetCommandStatus(PlayerCommandStates.Cooldown))
 			{
-				_originalCaster.GetSpellHistory().ResetCooldown(SpellInfo.Id, true);
-				_originalCaster.GetSpellHistory().RestoreCharge(SpellInfo.ChargeCategoryId);
+				_originalCaster.				SpellHistory.ResetCooldown(SpellInfo.Id, true);
+				_originalCaster.				SpellHistory.RestoreCharge(SpellInfo.ChargeCategoryId);
 			}
 		}
 
@@ -5906,9 +5906,9 @@ public partial class Spell : IDisposable
 			return;
 
 		if (CastItem)
-			_caster.			AsUnit.GetSpellHistory().HandleCooldowns(SpellInfo, CastItem, this);
+			_caster.			AsUnit.			SpellHistory.HandleCooldowns(SpellInfo, CastItem, this);
 		else
-			_caster.			AsUnit.GetSpellHistory().HandleCooldowns(SpellInfo, CastItemEntry, this);
+			_caster.			AsUnit.			SpellHistory.HandleCooldowns(SpellInfo, CastItemEntry, this);
 
 		if (IsAutoRepeat)
 			_caster.			AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
@@ -6209,7 +6209,7 @@ public partial class Spell : IDisposable
 
 		if (unitCaster != null)
 		{
-			schoolImmunityMask = _timer != 0 ? unitCaster.GetSchoolImmunityMask() : 0;
+			schoolImmunityMask = _timer != 0 ? unitCaster.SchoolImmunityMask : 0;
 			mechanicImmunityMask = _timer != 0 ? SpellInfo.GetMechanicImmunityMask(unitCaster) : 0;
 		}
 
@@ -6418,8 +6418,8 @@ public partial class Spell : IDisposable
 			spellEmpowerSart.FinalStageDuration = spellEmpowerSart.StageDurations.LastOrDefault().Value;
 			spellEmpowerSart.StageDurations = SpellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
 
-			var schoolImmunityMask = p.GetSchoolImmunityMask();
-			var mechanicImmunityMask = p.GetMechanicImmunityMask();
+			var schoolImmunityMask = p.SchoolImmunityMask;
+			var mechanicImmunityMask = p.MechanicImmunityMask;
 
 			if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
 			{
@@ -6698,8 +6698,8 @@ public partial class Spell : IDisposable
 		spellChannelStart.Visual = SpellVisual;
 		spellChannelStart.ChannelDuration = duration;
 
-		var schoolImmunityMask = unitCaster.GetSchoolImmunityMask();
-		var mechanicImmunityMask = unitCaster.GetMechanicImmunityMask();
+		var schoolImmunityMask = unitCaster.SchoolImmunityMask;
+		var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
 
 		if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
 		{
@@ -8259,7 +8259,7 @@ public partial class Spell : IDisposable
 		var gobCaster = _caster.AsGameObject;
 
 		if (gobCaster != null)
-			if (gobCaster.GetGoInfo().GetRequireLOS() == 0)
+			if (gobCaster.GoInfo.GetRequireLOS() == 0)
 				return true;
 
 		// if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour
@@ -8334,7 +8334,7 @@ public partial class Spell : IDisposable
 			case SpellEffectName.GameObjectDamage:
 			case SpellEffectName.GameobjectRepair:
 			case SpellEffectName.GameobjectSetDestructionState:
-				if (target.GetGoType() != GameObjectTypes.DestructibleBuilding)
+				if (target.GoType != GameObjectTypes.DestructibleBuilding)
 					return false;
 
 				break;
@@ -8948,7 +8948,7 @@ public partial class Spell : IDisposable
 		if (!CanHaveGlobalCooldown(_caster))
 			return false;
 
-		return _caster.AsUnit.GetSpellHistory().HasGlobalCooldown(SpellInfo);
+		return _caster.AsUnit.SpellHistory.HasGlobalCooldown(SpellInfo);
 	}
 
 	void TriggerGlobalCooldown()
@@ -9007,7 +9007,8 @@ public partial class Spell : IDisposable
 		}
 
 		_caster.
-		AsUnit.GetSpellHistory().AddGlobalCooldown(SpellInfo, gcd);
+		AsUnit.
+		SpellHistory.AddGlobalCooldown(SpellInfo, gcd);
 	}
 
 	void CancelGlobalCooldown()
@@ -9023,7 +9024,8 @@ public partial class Spell : IDisposable
 			return;
 
 		_caster.
-		AsUnit.GetSpellHistory().CancelGlobalCooldown(SpellInfo);
+		AsUnit.
+		SpellHistory.CancelGlobalCooldown(SpellInfo);
 	}
 
 	string GetDebugInfo()

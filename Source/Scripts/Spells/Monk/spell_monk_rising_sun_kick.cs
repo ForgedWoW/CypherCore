@@ -29,7 +29,7 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
 			return;
 
 		if (caster.HasAura(MonkSpells.RISING_THUNDER))
-			caster.AsPlayer.GetSpellHistory().ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
+			caster.AsPlayer.			SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.MonkBattledancer)
 			caster.CastSpell(target, MonkSpells.MORTAL_WOUNDS, true);

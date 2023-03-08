@@ -414,7 +414,7 @@ public class CriteriaData
 				return Global.GameEventMgr.IsEventActive((ushort)GameEvent.Id);
 			case CriteriaDataType.BgLossTeamScore:
 			{
-				Battleground bg = source.GetBattleground();
+				Battleground bg = source.Battleground;
 				if (!bg)
 					return false;
 

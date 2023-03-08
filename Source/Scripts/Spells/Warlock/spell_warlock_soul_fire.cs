@@ -27,6 +27,8 @@ public class spell_warlock_soul_fire : SpellScript, IHasSpellEffects
 			Caster.ModifyPower(PowerType.SoulShards, +40);
 
 		//TODO: Improve it later
-		Caster.GetSpellHistory().ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
+		Caster.
+		//TODO: Improve it later
+		SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
 	}
 }
