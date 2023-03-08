@@ -32,7 +32,7 @@ namespace Game.Chat
                 return false;
             }
 
-            InstanceMap map = player.GetConnectedPlayer().GetMap().ToInstanceMap();
+            InstanceMap map = player.GetConnectedPlayer().Map.ToInstanceMap();
             if (map == null)
             {
                 handler.SendSysMessage(CypherStrings.NotDungeon);
@@ -101,7 +101,7 @@ namespace Game.Chat
                 return false;
             }
 
-            InstanceMap map = player.GetConnectedPlayer().GetMap().ToInstanceMap();
+            InstanceMap map = player.GetConnectedPlayer().Map.ToInstanceMap();
             if (map == null)
             {
                 handler.SendSysMessage(CypherStrings.NotDungeon);

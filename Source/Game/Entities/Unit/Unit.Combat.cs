@@ -130,7 +130,7 @@ public partial class Unit
 		if (!CanHaveThreatList)
 			return;
 
-		var map = GetMap();
+		var map = Map;
 
 		if (!map.IsDungeon())
 		{
@@ -174,7 +174,7 @@ public partial class Unit
 	public void ClearInPetCombat()
 	{
 		RemoveUnitFlag(UnitFlags.PetInCombat);
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner != null)
 			owner.RemoveUnitFlag(UnitFlags.PetInCombat);
@@ -459,7 +459,7 @@ public partial class Unit
 
 				if (cControlled != null)
 				{
-					var controlledAI = cControlled.GetAI();
+					var controlledAI = cControlled.AI;
 
 					if (controlledAI != null)
 						controlledAI.OwnerAttacked(victim);
@@ -779,8 +779,8 @@ public partial class Unit
 		if (targetOwner != null)
 			targetOwner.EngageWithTarget(this);
 
-		var myPlayerOwner = GetCharmerOrOwnerPlayerOrPlayerItself();
-		var targetPlayerOwner = target.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var myPlayerOwner = CharmerOrOwnerPlayerOrPlayerItself;
+		var targetPlayerOwner = target.CharmerOrOwnerPlayerOrPlayerItself;
 
 		if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner.Duel != null && myPlayerOwner.Duel.Opponent == targetPlayerOwner))
 		{
@@ -803,7 +803,7 @@ public partial class Unit
 		Player player = null;
 
 		if (attacker != null)
-			player = attacker.GetCharmerOrOwnerPlayerOrPlayerItself();
+			player = attacker.CharmerOrOwnerPlayerOrPlayerItself;
 
 		var creature = victim.AsCreature;
 
@@ -865,12 +865,12 @@ public partial class Unit
 			if (creature)
 			{
 				DungeonEncounterRecord dungeonEncounter = null;
-				var instance = creature.GetInstanceScript();
+				var instance = creature.InstanceScript;
 
 				if (instance != null)
 					dungeonEncounter = instance.GetBossDungeonEncounter(creature);
 
-				if (creature.GetMap().IsDungeon())
+				if (creature.Map.IsDungeon())
 				{
 					if (dungeonEncounter != null)
 					{
@@ -882,7 +882,7 @@ public partial class Unit
 																								creature.CreatureTemplate.MinGold,
 																								creature.CreatureTemplate.MaxGold,
 																								(ushort)creature.GetLootMode(),
-																								creature.GetMap().GetDifficultyLootItemContext(),
+																								creature.																								Map.GetDifficultyLootItemContext(),
 																								tappers);
 					}
 					else if (!tappers.Empty())
@@ -890,18 +890,18 @@ public partial class Unit
 						var group = !groups.Empty() ? groups.First() : null;
 						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.GetLooterGuid()) : tappers[0];
 
-						Loot loot = new(creature.GetMap(), creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
 						var lootid = creature.CreatureTemplate.LootId;
 
 						if (lootid != 0)
-							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.GetMap().GetDifficultyLootItemContext());
+							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
 							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
 
 						if (group)
-							loot.NotifyLootList(creature.GetMap());
+							loot.NotifyLootList(creature.Map);
 
 						creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
 
@@ -915,7 +915,7 @@ public partial class Unit
 				{
 					foreach (var tapper in tappers)
 					{
-						Loot loot = new(creature.GetMap(), creature.GUID, LootType.Corpse, null);
+						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
 
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
@@ -923,7 +923,7 @@ public partial class Unit
 						var lootid = creature.CreatureTemplate.LootId;
 
 						if (lootid != 0)
-							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.GetMap().GetDifficultyLootItemContext());
+							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
 							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
@@ -940,7 +940,7 @@ public partial class Unit
 		if (attacker != null && (attacker.IsPet || attacker.IsTotem))
 		{
 			// proc only once for victim
-			var owner = attacker.GetOwner();
+			var owner = attacker.OwnerUnit;
 
 			if (owner != null)
 				ProcSkillsAndAuras(owner, victim, new ProcFlagsInit(ProcFlags.Kill), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
@@ -962,7 +962,7 @@ public partial class Unit
 		// and before Spirit of Redemption as it also removes auras
 		if (attacker != null)
 		{
-			var killerPlayer = attacker.GetCharmerOrOwnerPlayerOrPlayerItself();
+			var killerPlayer = attacker.CharmerOrOwnerPlayerOrPlayerItself;
 
 			if (killerPlayer != null)
 				killerPlayer.UpdateCriteria(CriteriaType.DeliveredKillingBlow, 1, 0, 0, victim);
@@ -984,7 +984,7 @@ public partial class Unit
 			if (pet != null && pet.IsAlive && pet.IsControlled())
 			{
 				if (pet.IsAIEnabled)
-					pet.GetAI().KilledUnit(victim);
+					pet.AI.KilledUnit(victim);
 				else
 					Log.outError(LogFilter.Unit, $"Pet doesn't have any AI in Unit.Kill() {pet.GetDebugInfo()}");
 			}
@@ -1013,7 +1013,7 @@ public partial class Unit
 
 			// Call KilledUnit for creatures
 			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
-				attacker.AsCreature.GetAI().KilledUnit(victim);
+				attacker.AsCreature.AI.KilledUnit(victim);
 
 			// last damage from non duel opponent or opponent controlled creature
 			if (plrVictim.Duel != null)
@@ -1044,10 +1044,10 @@ public partial class Unit
 
 			// Call KilledUnit for creatures, this needs to be called after the lootable flag is set
 			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
-				attacker.AsCreature.GetAI().KilledUnit(victim);
+				attacker.AsCreature.AI.KilledUnit(victim);
 
 			// Call creature just died function
-			var ai = creature.GetAI();
+			var ai = creature.AI;
 
 			if (ai != null)
 				ai.JustDied(attacker);
@@ -1061,7 +1061,7 @@ public partial class Unit
 				if (summoner != null)
 				{
 					if (summoner.IsCreature)
-						summoner.AsCreature.GetAI()?.SummonedCreatureDies(creature, attacker);
+						summoner.AsCreature.AI?.SummonedCreatureDies(creature, attacker);
 					else if (summoner.IsGameObject)
 						summoner.AsGameObject.GetAI()?.SummonedCreatureDies(creature, attacker);
 				}
@@ -1077,7 +1077,7 @@ public partial class Unit
 			if (pvp != null)
 				pvp.HandleKill(player, victim);
 
-			var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.GetMap(), player.GetZoneId());
+			var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
 
 			if (bf != null)
 				bf.HandleKill(player, victim);

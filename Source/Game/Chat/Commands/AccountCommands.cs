@@ -497,7 +497,7 @@ namespace Game.Chat
                         continue;
 
                     uint playerMapId = player.Location.MapId;
-                    uint playerZoneId = player.GetZoneId();
+                    uint playerZoneId = player.Zone;
 
                     // Apply optional ipAddress filter
                     if (!ipAddress.IsEmpty() && ipAddress != session.RemoteAddress)

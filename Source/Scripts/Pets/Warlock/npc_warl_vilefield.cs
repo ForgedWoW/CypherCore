@@ -36,7 +36,7 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return;

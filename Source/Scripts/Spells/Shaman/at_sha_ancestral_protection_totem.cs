@@ -28,7 +28,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (caster.IsFriendlyTo(target) || target == caster.GetOwner())
+			if (caster.IsFriendlyTo(target) || target == caster.OwnerUnit)
 				if (!target.IsTotem)
 					caster.CastSpell(target, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
 		}
@@ -41,7 +41,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (caster.IsFriendlyTo(unit) || unit == caster.GetOwner())
+		if (caster.IsFriendlyTo(unit) || unit == caster.OwnerUnit)
 		{
 			if (unit.IsTotem)
 				return;

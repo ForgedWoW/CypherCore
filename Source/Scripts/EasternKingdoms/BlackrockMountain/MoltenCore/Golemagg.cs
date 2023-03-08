@@ -88,7 +88,7 @@ internal class npc_core_rager : ScriptedAI
 
 	public npc_core_rager(Creature creature) : base(creature)
 	{
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

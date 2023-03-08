@@ -26,7 +26,7 @@ public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
 			return;*/
 
 		pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
-		caster.		AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
+		caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
 	}
 
 	public SpellCastResult CheckCast()

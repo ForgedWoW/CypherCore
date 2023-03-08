@@ -329,7 +329,7 @@ public partial class Player : Unit
 	{
 		get
 		{
-			var areaEntry = CliDB.AreaTableStorage.LookupByKey(GetAreaId());
+			var areaEntry = CliDB.AreaTableStorage.LookupByKey(Area);
 
 			if (areaEntry != null)
 				return IsFriendlyArea(areaEntry);
@@ -509,7 +509,7 @@ public partial class Player : Unit
 
 		Location.Relocate(position.Loc);
 
-		SetMap(Global.MapMgr.CreateMap(position.Loc.MapId, this));
+		Map = Global.MapMgr.CreateMap(position.Loc.MapId, this);
 
 		if (position.TransportGuid.HasValue)
 		{
@@ -526,7 +526,7 @@ public partial class Player : Unit
 		}
 
 		// set initial homebind position
-		SetHomebind(Location, GetAreaId());
+		SetHomebind(Location, Area);
 
 		var powertype = cEntry.DisplayPower;
 
@@ -930,7 +930,7 @@ public partial class Player : Unit
 		}
 
 		// not auto-free ghost from body in instances
-		if (_deathTimer > 0 && !GetMap().Instanceable() && !HasAuraType(AuraType.PreventResurrection))
+		if (_deathTimer > 0 && !Map.Instanceable() && !HasAuraType(AuraType.PreventResurrection))
 		{
 			if (diff >= _deathTimer)
 			{
@@ -963,7 +963,7 @@ public partial class Player : Unit
 
 		var pet = GetPet();
 
-		if (pet != null && !pet.IsWithinDistInMap(this, GetMap().GetVisibilityRange()) && !pet.IsPossessed)
+		if (pet != null && !pet.IsWithinDistInMap(this, Map.GetVisibilityRange()) && !pet.IsPossessed)
 			RemovePet(pet, PetSaveMode.NotInSlot, true);
 
 		if (IsAlive)
@@ -972,8 +972,8 @@ public partial class Player : Unit
 			{
 				_hostileReferenceCheckTimer = 15 * Time.InMilliseconds;
 
-				if (!GetMap().IsDungeon())
-					GetCombatManager().EndCombatBeyondRange(GetVisibilityRange(), true);
+				if (!Map.IsDungeon())
+					GetCombatManager().EndCombatBeyondRange(VisibilityRange, true);
 			}
 			else
 			{
@@ -1422,7 +1422,7 @@ public partial class Player : Unit
 
 	public void VehicleSpellInitialize()
 	{
-		var vehicle = GetVehicleCreatureBase();
+		var vehicle = VehicleCreatureBase;
 
 		if (!vehicle)
 			return;
@@ -1442,7 +1442,7 @@ public partial class Player : Unit
 		for (uint i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 		{
 			var spellId = vehicle.Spells[i];
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetMap().GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
 
 			if (spellInfo == null)
 				continue;
@@ -1715,7 +1715,7 @@ public partial class Player : Unit
 		var maxQuantity = currency.MaxQty;
 
 		if (currency.MaxQtyWorldStateID != 0)
-			maxQuantity = (uint)Global.WorldStateMgr.GetValue(currency.MaxQtyWorldStateID, GetMap());
+			maxQuantity = (uint)Global.WorldStateMgr.GetValue(currency.MaxQtyWorldStateID, Map);
 
 		uint increasedCap = 0;
 
@@ -1920,7 +1920,7 @@ public partial class Player : Unit
 		if (GetChampioningFaction() != 0)
 		{
 			// support for: Championing - http://www.wowwiki.com/Championing
-			var map = GetMap();
+			var map = Map;
 
 			if (map.IsNonRaidDungeon())
 			{
@@ -2051,7 +2051,7 @@ public partial class Player : Unit
 		// The player was ported to another map and loses the duel immediately.
 		// We have to perform this check before the teleport, otherwise the
 		// ObjectAccessor won't find the flag.
-		if (Duel != null && Location.MapId != mapid && GetMap().GetGameObject(PlayerData.DuelArbiter))
+		if (Duel != null && Location.MapId != mapid && Map.GetGameObject(PlayerData.DuelArbiter))
 			DuelComplete(DuelCompleteType.Fled);
 
 		if (Location.MapId == mapid && (!instanceId.HasValue || InstanceId1 == instanceId))
@@ -2076,7 +2076,7 @@ public partial class Player : Unit
 
 			if (!options.HasAnyFlag(TeleportToOptions.NotUnSummonPet))
 				//same map, only remove pet if out of range for new position
-				if (pet && !pet.IsWithinDist3d(x, y, z, GetMap().GetVisibilityRange()))
+				if (pet && !pet.IsWithinDist3d(x, y, z, Map.GetVisibilityRange()))
 					UnsummonPetTemporaryIfAny();
 
 			if (!IsAlive && options.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
@@ -2109,7 +2109,7 @@ public partial class Player : Unit
 			}
 
 			// far teleport to another map
-			var oldmap = IsInWorld ? GetMap() : null;
+			var oldmap = IsInWorld ? Map : null;
 			// check if we can enter before stopping combat / removing pet / totems / interrupting spells
 
 			// Check enter rights before map getting to avoid creating instance copy for player
@@ -2314,7 +2314,7 @@ public partial class Player : Unit
 			}
 		});
 
-		if (!UnitMovedByMe.GetVehicleBase() || !UnitMovedByMe.GetVehicle().GetVehicleInfo().Flags.HasAnyFlag(VehicleFlags.FixedPosition))
+		if (!UnitMovedByMe.VehicleBase || !UnitMovedByMe.Vehicle1.GetVehicleInfo().Flags.HasAnyFlag(VehicleFlags.FixedPosition))
 			RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Root), MovementFlag.Root);
 
 		/*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
@@ -2459,7 +2459,7 @@ public partial class Player : Unit
 		SummonRequest summonRequest = new();
 		summonRequest.SummonerGUID = summoner.GUID;
 		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
-		summonRequest.AreaID = (int)summoner.GetZoneId();
+		summonRequest.AreaID = (int)summoner.Zone;
 		SendPacket(summonRequest);
 
 		var group = GetGroup();
@@ -2558,7 +2558,7 @@ public partial class Player : Unit
 	{
 		base.OnPhaseChange();
 
-		GetMap().UpdatePersonalPhasesForPlayer(this);
+		Map.UpdatePersonalPhasesForPlayer(this);
 	}
 
 	public void SetDeveloper(bool on)
@@ -3370,7 +3370,7 @@ public partial class Player : Unit
 		foreach (var guid in ClientGuiDs)
 			if (guid.IsCreatureOrVehicle)
 			{
-				var creature = GetMap().GetCreature(guid);
+				var creature = Map.GetCreature(guid);
 
 				// Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
 				if (creature == null || (!creature.IsTrigger && !creature.HasAuraType(AuraType.Transform) && !creature.HasUnitFlag(UnitFlags.Uninteractible)))
@@ -3383,7 +3383,7 @@ public partial class Player : Unit
 			}
 			else if (guid.IsAnyTypeGameObject)
 			{
-				var go = GetMap().GetGameObject(guid);
+				var go = Map.GetGameObject(guid);
 
 				if (go == null)
 					continue;
@@ -3665,7 +3665,7 @@ public partial class Player : Unit
 			return;
 		}
 
-		GetMap().AddToMap(corpse);
+		Map.AddToMap(corpse);
 
 		// convert player body to ghost
 		SetDeathState(DeathState.Dead);
@@ -3846,14 +3846,14 @@ public partial class Player : Unit
 	{
 		_corpseLocation = new WorldLocation();
 
-		if (GetMap().ConvertCorpseToBones(GUID))
+		if (Map.ConvertCorpseToBones(GUID))
 			if (triggerSave && !Session.PlayerLogoutWithSave) // at logout we will already store the player
 				SaveToDB();                                   // prevent loading as ghost without corpse
 	}
 
 	public Corpse GetCorpse()
 	{
-		return GetMap().GetCorpseByPlayer(GUID);
+		return Map.GetCorpseByPlayer(GUID);
 	}
 
 	public void RepopAtGraveyard()
@@ -3861,12 +3861,12 @@ public partial class Player : Unit
 		// note: this can be called also when the player is alive
 		// for example from WorldSession.HandleMovementOpcodes
 
-		var zone = CliDB.AreaTableStorage.LookupByKey(GetAreaId());
+		var zone = CliDB.AreaTableStorage.LookupByKey(Area);
 
 		var shouldResurrect = false;
 
 		// Such zones are considered unreachable as a ghost and the player must be automatically revived
-		if ((!IsAlive && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || Transport != null || Location.Z < GetMap().GetMinHeight(PhaseShift, Location.X, Location.Y))
+		if ((!IsAlive && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || Transport != null || Location.Z < Map.GetMinHeight(PhaseShift, Location.X, Location.Y))
 		{
 			shouldResurrect = true;
 			SpawnCorpseBones();
@@ -3883,7 +3883,7 @@ public partial class Player : Unit
 		}
 		else
 		{
-			var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(GetMap(), GetZoneId());
+			var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Map, Zone);
 
 			if (bf != null)
 				ClosestGrave = bf.GetClosestGraveYard(this);
@@ -3908,7 +3908,7 @@ public partial class Player : Unit
 				SendPacket(packet);
 			}
 		}
-		else if (Location.Z < GetMap().GetMinHeight(PhaseShift, Location.X, Location.Y))
+		else if (Location.Z < Map.GetMinHeight(PhaseShift, Location.X, Location.Y))
 		{
 			TeleportTo(_homebind);
 		}
@@ -4015,7 +4015,7 @@ public partial class Player : Unit
 			return null;
 		}
 
-		var map = GetMap();
+		var map = Map;
 		var petNumber = Global.ObjectMgr.GeneratePetNumber();
 
 		if (!pet.Create(map.GenerateLowGuid(HighGuid.Pet), map, entry, petNumber))
@@ -4086,7 +4086,7 @@ public partial class Player : Unit
 		{
 			//returning of reagents only for players, so best done here
 			var spellId = pet ? pet.UnitData.CreatedBySpell : _oldpetspell;
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetMap().GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
 
 			if (spellInfo != null)
 				for (uint i = 0; i < SpellConst.MaxReagents; ++i)
@@ -4379,12 +4379,12 @@ public partial class Player : Unit
 
 	public bool CanEnableWarModeInArea()
 	{
-		var zone = CliDB.AreaTableStorage.LookupByKey(GetZoneId());
+		var zone = CliDB.AreaTableStorage.LookupByKey(Zone);
 
 		if (zone == null || !IsFriendlyArea(zone))
 			return false;
 
-		var area = CliDB.AreaTableStorage.LookupByKey(GetAreaId());
+		var area = CliDB.AreaTableStorage.LookupByKey(Area);
 
 		if (area == null)
 			area = zone;
@@ -4873,11 +4873,11 @@ public partial class Player : Unit
 
 		// SMSG_WORLD_SERVER_INFO
 		WorldServerInfo worldServerInfo = new();
-		worldServerInfo.InstanceGroupSize = GetMap().GetMapDifficulty().MaxPlayers; // @todo
+		worldServerInfo.InstanceGroupSize = Map.GetMapDifficulty().MaxPlayers; // @todo
 		worldServerInfo.IsTournamentRealm = false;                                  // @todo
 		worldServerInfo.RestrictedAccountMaxLevel = null;                           // @todo
 		worldServerInfo.RestrictedAccountMaxMoney = null;                           // @todo
-		worldServerInfo.DifficultyID = (uint)GetMap().GetDifficultyID();
+		worldServerInfo.DifficultyID = (uint)Map.GetDifficultyID();
 		// worldServerInfo.XRealmPvpAlert;  // @todo
 		SendPacket(worldServerInfo);
 
@@ -4983,15 +4983,15 @@ public partial class Player : Unit
 		SendItemDurations();        // must be after add to map
 
 		// raid downscaling - send difficulty to player
-		if (GetMap().IsRaid())
+		if (Map.IsRaid())
 		{
-			var mapDifficulty = GetMap().GetDifficultyID();
+			var mapDifficulty = Map.GetDifficultyID();
 			var difficulty = CliDB.DifficultyStorage.LookupByKey(mapDifficulty);
 			SendRaidDifficulty((difficulty.Flags & DifficultyFlags.Legacy) != 0, (int)mapDifficulty);
 		}
-		else if (GetMap().IsNonRaidDungeon())
+		else if (Map.IsNonRaidDungeon())
 		{
-			SendDungeonDifficulty((int)GetMap().GetDifficultyID());
+			SendDungeonDifficulty((int)Map.GetDifficultyID());
 		}
 
 		PhasingHandler.OnMapChange(this);
@@ -5577,7 +5577,7 @@ public partial class Player : Unit
 			if (DisplayId != NativeDisplayId)
 				RestoreDisplayId(true);
 
-			if (IsDisallowedMountForm(GetTransformSpell(), ShapeShiftForm.None, DisplayId))
+			if (IsDisallowedMountForm(TransformSpell, ShapeShiftForm.None, DisplayId))
 			{
 				Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerShapeshifted);
 
@@ -6062,7 +6062,7 @@ public partial class Player : Unit
 			// farsight dynobj or puppet may be very far away
 			UpdateVisibilityOf(target);
 
-			if (target.IsTypeMask(TypeMask.Unit) && target != GetVehicleBase())
+			if (target.IsTypeMask(TypeMask.Unit) && target != VehicleBase)
 				target.AsUnit.AddPlayerToVision(this);
 
 			SetSeer(target);
@@ -6080,7 +6080,7 @@ public partial class Player : Unit
 
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.FarsightObject), ObjectGuid.Empty);
 
-			if (target.IsTypeMask(TypeMask.Unit) && target != GetVehicleBase())
+			if (target.IsTypeMask(TypeMask.Unit) && target != VehicleBase)
 				target.AsUnit.RemovePlayerFromVision(this);
 
 			//must immediately set seer back otherwise may crash
@@ -7054,7 +7054,7 @@ public partial class Player : Unit
 		packet.AreaID = zoneId;
 		packet.SubareaID = areaId;
 
-		Global.WorldStateMgr.FillInitialWorldStates(packet, GetMap(), areaId);
+		Global.WorldStateMgr.FillInitialWorldStates(packet, Map, areaId);
 
 		SendPacket(packet);
 	}
@@ -7583,7 +7583,7 @@ public partial class Player : Unit
 		Corpse corpse = new(Convert.ToBoolean(_extraFlags & PlayerExtraFlags.PVPDeath) ? CorpseType.ResurrectablePVP : CorpseType.ResurrectablePVE);
 		SetPvPDeath(false);
 
-		if (!corpse.Create(GetMap().GenerateLowGuid(HighGuid.Corpse), this))
+		if (!corpse.Create(Map.GenerateLowGuid(HighGuid.Corpse), this))
 			return null;
 
 		_corpseLocation = new WorldLocation(Location);
@@ -7623,13 +7623,13 @@ public partial class Player : Unit
 			}
 
 		// register for player, but not show
-		GetMap().AddCorpse(corpse);
+		Map.AddCorpse(corpse);
 
 		corpse.UpdatePositionData();
 		corpse.SetZoneScript();
 
 		// we do not need to save corpses for instances
-		if (!GetMap().Instanceable())
+		if (!Map.Instanceable())
 			corpse.SaveToDB();
 
 		return corpse;
@@ -8146,13 +8146,13 @@ public partial class Player : Unit
 		// we use World.GetMaxVisibleDistance() because i cannot see why not use a distance
 		// update: replaced by GetMap().GetVisibilityDistance()
 		PacketSenderRef sender = new(data);
-		var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, GetVisibilityRange(), false, skipped_rcvr);
-		Cell.VisitGrid(this, notifier, GetVisibilityRange());
+		var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, VisibilityRange, false, skipped_rcvr);
+		Cell.VisitGrid(this, notifier, VisibilityRange);
 	}
 
 	public override void SendMessageToSet(ServerPacket data, bool self)
 	{
-		SendMessageToSetInRange(data, GetVisibilityRange(), self);
+		SendMessageToSetInRange(data, VisibilityRange, self);
 	}
 
 	public override bool UpdatePosition(Position pos, bool teleport = false)
@@ -8273,9 +8273,9 @@ public partial class Player : Unit
 			return;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.VmapIndoorCheck))
-			RemoveAurasWithAttribute(IsOutdoors() ? SpellAttr0.OnlyIndoors : SpellAttr0.OnlyOutdoors);
+			RemoveAurasWithAttribute(IsOutdoors ? SpellAttr0.OnlyIndoors : SpellAttr0.OnlyOutdoors);
 
-		var areaId = GetAreaId();
+		var areaId = Area;
 
 		if (areaId == 0)
 			return;
@@ -8319,7 +8319,7 @@ public partial class Player : Unit
 		{
 			SetUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, (int)offset), val);
 
-			UpdateCriteria(CriteriaType.RevealWorldMapOverlay, GetAreaId());
+			UpdateCriteria(CriteriaType.RevealWorldMapOverlay, Area);
 
 			var areaLevels = Global.DB2Mgr.GetContentTuningData(areaEntry.ContentTuningID, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 

@@ -26,11 +26,11 @@ public class spell_pal_lights_hammer_tick : AuraScript, IHasAuraEffects
 		var caster = Caster;
 
 		if (caster != null)
-			if (caster.GetOwner())
+			if (caster.OwnerUnit)
 			{
 				var args = new CastSpellExtraArgs();
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);
-				args.SetOriginalCaster(caster.GetOwner().GUID);
+				args.SetOriginalCaster(caster.OwnerUnit.GUID);
 				caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_HEAL, args);
 				caster.CastSpell(new Position(caster.Location.X, caster.Location.Y, caster.Location.Z), PaladinSpells.ARCING_LIGHT_DAMAGE, args);
 			}

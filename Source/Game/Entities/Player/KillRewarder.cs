@@ -88,7 +88,7 @@ public class KillRewarder
 		{
 			if (victim.IsDungeonBoss)
 			{
-				var instance = _victim.GetInstanceScript();
+				var instance = _victim.InstanceScript;
 
 				if (instance != null)
 					instance.UpdateEncounterStateForKilledCreature(_victim.Entry, _victim);
@@ -96,7 +96,7 @@ public class KillRewarder
 
 			if (!_killers.Empty())
 			{
-				var guildId = victim.GetMap().GetOwnerGuildId();
+				var guildId = victim.Map.GetOwnerGuildId();
 				var guild = Global.GuildMgr.GetGuildById(guildId);
 
 				if (guild != null)
@@ -160,7 +160,7 @@ public class KillRewarder
 		// * on Battlegrounds;
 		// * otherwise, not in PvP;
 		// * not if killer is on vehicle.
-		if (_isBattleground || (!_isPvP && killer.GetVehicle() == null))
+		if (_isBattleground || (!_isPvP && killer.Vehicle1 == null))
 			_xp = Formulas.XPGain(player, _victim, _isBattleground);
 	}
 

@@ -148,7 +148,7 @@ namespace Game.Groups
 
                 DB.Characters.Execute(stmt);
 
-                InstanceMap leaderInstance = leader.GetMap().ToInstanceMap();
+                InstanceMap leaderInstance = leader.Map.ToInstanceMap();
                 if (leaderInstance != null)
                     leaderInstance.TrySetOwningGroup(this);
 

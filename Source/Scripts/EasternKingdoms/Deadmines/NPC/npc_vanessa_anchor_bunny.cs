@@ -34,7 +34,7 @@ public class npc_vanessa_anchor_bunny : ScriptedAI
 
 		if (uiValue == boss_vanessa_vancleef.eAchievementMisc.ACHIEVEMENT_READY_GET && _getAchievementPlayers == true && _startTimerAchievement == true)
 		{
-			var map = me.GetMap();
+			var map = me.Map;
 			var vigorous_vancleef_vindicator = Global.AchievementMgr.GetAchievementByReferencedId(boss_vanessa_vancleef.eAchievementMisc.ACHIEVEMENT_VIGOROUS_VANCLEEF_VINDICATOR).FirstOrDefault();
 
 			if (map != null && map.IsDungeon() && map.GetDifficultyID() == Difficulty.Heroic)

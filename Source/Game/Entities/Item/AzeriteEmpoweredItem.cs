@@ -130,7 +130,7 @@ public class AzeriteEmpoweredItem : Item
 
 	public long GetRespecCost()
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner != null)
 			return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs));

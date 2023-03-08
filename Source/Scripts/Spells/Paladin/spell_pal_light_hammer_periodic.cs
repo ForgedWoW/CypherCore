@@ -27,7 +27,7 @@ internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
 		var lightHammer = Target;
-		var originalCaster = lightHammer.GetOwner();
+		var originalCaster = lightHammer.OwnerUnit;
 
 		if (originalCaster != null)
 		{

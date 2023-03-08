@@ -1922,13 +1922,13 @@ namespace Game
             switch (status)
             {
                 case PlayerConditionLfgStatus.InLFGDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.GetMap().GetDifficultyID()) ? 1 : 0u;
+                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.GetMap().GetDifficultyID()) &&
+                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()) &&
                         Global.LFGMgr.SelectedRandomLfgDungeon(player.GUID) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
                 {
-                    if (!Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.GetMap().GetDifficultyID()))
+                    if (!Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()))
                         return 0;
 
                     uint selectedRandomDungeon = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID);
@@ -2104,7 +2104,7 @@ namespace Game
             if (condition.CurrentPvpFaction != 0)
             {
                 byte team;
-                if (player.GetMap().IsBattlegroundOrArena())
+                if (player.Map.IsBattlegroundOrArena())
                     team = player.PlayerData.ArenaFaction;
                 else
                     team = (byte)player.TeamId;
@@ -2312,7 +2312,7 @@ namespace Game
             }
 
             if (condition.WeatherID != 0)
-                if (player.GetMap().GetZoneWeather(player.GetZoneId()) != (WeatherState)condition.WeatherID)
+                if (player.Map.GetZoneWeather(player.Zone) != (WeatherState)condition.WeatherID)
                     return false;
 
             if (condition.Achievement[0] != 0)
@@ -2357,7 +2357,7 @@ namespace Game
 
                 for (var i = 0; i < condition.AreaID.Length; ++i)
                     if (condition.AreaID[i] != 0)
-                        results[i] = player.GetAreaId() == condition.AreaID[i] || player.GetZoneId() == condition.AreaID[i];
+                        results[i] = player.Area == condition.AreaID[i] || player.Zone == condition.AreaID[i];
 
                 if (!PlayerConditionLogic(condition.AreaLogic, results))
                     return false;
@@ -2834,7 +2834,7 @@ namespace Game
                 case WorldStateExpressionValueType.WorldState:
                 {
                     uint worldStateId = buffer.ReadUInt32();
-                    value = Global.WorldStateMgr.GetValue((int)worldStateId, player.GetMap());
+                    value = Global.WorldStateMgr.GetValue((int)worldStateId, player.Map);
                     break;
                 }
                 case WorldStateExpressionValueType.Function:
@@ -2875,7 +2875,7 @@ namespace Game
                     int currentHour = GameTime.GetDateAndTime().Hour + 1;
                     return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
                 case WorldStateExpressionFunctions.OldDifficultyId:
-                    var difficulty = CliDB.DifficultyStorage.LookupByKey(player.GetMap().GetDifficultyID());
+                    var difficulty = CliDB.DifficultyStorage.LookupByKey(player.Map.GetDifficultyID());
                     if (difficulty != null)
                         return difficulty.OldEnumValue;
 
@@ -2893,7 +2893,7 @@ namespace Game
 
                     return (int)(now - raidOrigin) / Time.Week;
                 case WorldStateExpressionFunctions.DifficultyId:
-                    return (int)player.GetMap().GetDifficultyID();
+                    return (int)player.Map.GetDifficultyID();
                 case WorldStateExpressionFunctions.WarModeActive:
                     return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
                 case WorldStateExpressionFunctions.WorldStateExpression:

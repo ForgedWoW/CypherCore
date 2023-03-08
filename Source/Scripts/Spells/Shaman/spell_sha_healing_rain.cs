@@ -21,7 +21,7 @@ internal class spell_sha_healing_rain : SpellScript, ISpellAfterHit
 			if (dest != null)
 			{
 				var duration = SpellInfo.CalcDuration(OriginalCaster);
-				var summon = Caster.GetMap().SummonCreature(CreatureIds.HealingRainInvisibleStalker, dest, null, (uint)duration, OriginalCaster);
+				var summon = Caster.Map.SummonCreature(CreatureIds.HealingRainInvisibleStalker, dest, null, (uint)duration, OriginalCaster);
 
 				if (summon == null)
 					return;

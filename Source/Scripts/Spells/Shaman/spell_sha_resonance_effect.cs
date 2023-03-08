@@ -27,7 +27,7 @@ public class spell_sha_resonance_effect : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		if (caster.GetOwner())
-			caster.GetOwner().ModifyPower(PowerType.Maelstrom, +1);
+		if (caster.OwnerUnit)
+			caster.OwnerUnit.ModifyPower(PowerType.Maelstrom, +1);
 	}
 }

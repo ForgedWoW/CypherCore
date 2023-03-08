@@ -22,7 +22,7 @@ public class Totem : Minion
 
 	public override void Update(uint diff)
 	{
-		if (!GetOwner().IsAlive || !IsAlive)
+		if (!OwnerUnit.IsAlive || !IsAlive)
 		{
 			UnSummon(); // remove self
 
@@ -46,7 +46,7 @@ public class Totem : Minion
 	public override void InitStats(uint duration)
 	{
 		// client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-		var owner = GetOwner().AsPlayer;
+		var owner = OwnerUnit.AsPlayer;
 
 		if (owner)
 		{
@@ -72,7 +72,7 @@ public class Totem : Minion
 		base.InitStats(duration);
 
 		// Get spell cast by totem
-		var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), GetMap().GetDifficultyID());
+		var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Map.GetDifficultyID());
 
 		if (totemSpell != null)
 			if (totemSpell.CalcCastTime() != 0) // If spell has cast time -> its an active totem
@@ -110,23 +110,23 @@ public class Totem : Minion
 
 		// clear owner's totem slot
 		for (byte i = (int)Framework.Constants.SummonSlot.Totem; i < SharedConst.MaxTotemSlot; ++i)
-			if (GetOwner().SummonSlot[i] == GUID)
+			if (OwnerUnit.SummonSlot[i] == GUID)
 			{
-				GetOwner().SummonSlot[i].Clear();
+				OwnerUnit.SummonSlot[i].Clear();
 
 				break;
 			}
 
-		GetOwner().RemoveAurasDueToSpell(GetSpell(), GUID);
+		OwnerUnit.RemoveAurasDueToSpell(GetSpell(), GUID);
 
 		// remove aura all party members too
-		var owner = GetOwner().AsPlayer;
+		var owner = OwnerUnit.AsPlayer;
 
 		if (owner != null)
 		{
 			owner.SendAutoRepeatCancel(this);
 
-			var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, GetMap().GetDifficultyID());
+			var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Map.GetDifficultyID());
 
 			if (spell != null)
 				GetSpellHistory().SendCooldownEvent(spell, 0, null, false);

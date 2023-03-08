@@ -999,7 +999,7 @@ namespace Game.Guilds
                 return;
 
             GuildPartyState partyStateResponse = new();
-            partyStateResponse.InGuildParty = (player.GetMap().GetOwnerGuildId(player.Team) == GetId());
+            partyStateResponse.InGuildParty = (player.Map.GetOwnerGuildId(player.Team) == GetId());
             partyStateResponse.NumMembers = 0;
             partyStateResponse.NumRequired = 0;
             partyStateResponse.GuildXPEarnedMult = 0.0f;
@@ -2595,7 +2595,7 @@ namespace Game.Guilds
                 m_race = player.Race;
                 m_class = player.Class;
                 _gender = player.NativeGender;
-                m_zoneId = player.GetZoneId();
+                m_zoneId = player.Zone;
                 m_accountId = player.Session.AccountId;
                 m_achievementPoints = player.GetAchievementPoints();
             }

@@ -480,7 +480,7 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 					var target = boss.SelectNearestTarget(500);
 
 					if (target)
-						boss.GetAI().AttackStart(target);
+						boss.AI.AttackStart(target);
 				}
 			}
 		}

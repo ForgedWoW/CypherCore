@@ -142,7 +142,7 @@ internal class go_orb_of_domination : GameObjectAI
 
 	public go_orb_of_domination(GameObject go) : base(go)
 	{
-		instance = go.GetInstanceScript();
+		instance = go.InstanceScript;
 	}
 
 	public override bool OnGossipHello(Player player)
@@ -167,7 +167,7 @@ internal class spell_egg_event : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var instance = Caster.GetInstanceScript();
+		var instance = Caster.InstanceScript;
 
 		instance?.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.Special);
 	}

@@ -217,7 +217,7 @@ namespace Game.Movement
 
         void MovementInform(Creature owner)
         {
-            CreatureAI ai = owner.GetAI();
+            CreatureAI ai = owner.AI;
             if (ai != null)
                 ai.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
         }
@@ -239,11 +239,11 @@ namespace Game.Movement
             {
                 Log.outDebug(LogFilter.MapsScript, $"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GUID}.");
                 owner.ClearUnitState(UnitState.RoamingMove);
-                owner.GetMap().ScriptsStart(ScriptsType.Waypoint, waypoint.eventId, owner, null);
+                owner.                Map.ScriptsStart(ScriptsType.Waypoint, waypoint.eventId, owner, null);
             }
 
             // inform AI
-            CreatureAI ai = owner.GetAI();
+            CreatureAI ai = owner.AI;
             if (ai != null)
             {
                 ai.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
@@ -273,7 +273,7 @@ namespace Game.Movement
                 {
                     Cypher.Assert(_currentNode < _path.nodes.Count, $"WaypointMovementGenerator.StartMove: tried to reference a node id ({_currentNode}) which is not included in path ({_path.id})");
                     // inform AI
-                    CreatureAI ai = owner.GetAI();
+                    CreatureAI ai = owner.AI;
                     if (ai != null)
                         ai.WaypointStarted(_path.nodes[_currentNode].id, _path.id);
                 }
@@ -301,7 +301,7 @@ namespace Game.Movement
                     owner.UpdateCurrentWaypointInfo(0, 0);
 
                     // inform AI
-                    CreatureAI ai = owner.GetAI();
+                    CreatureAI ai = owner.AI;
                     if (ai != null)
                         ai.WaypointPathEnded(currentWaypoint.id, _path.id);
                     return;
@@ -312,7 +312,7 @@ namespace Game.Movement
                 AddFlag(MovementGeneratorFlags.Initialized);
 
                 // inform AI
-                CreatureAI ai = owner.GetAI();
+                CreatureAI ai = owner.AI;
                 if (ai != null)
                     ai.WaypointStarted(_path.nodes[_currentNode].id, _path.id);
             }

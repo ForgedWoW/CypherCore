@@ -44,7 +44,7 @@ public partial class Unit
 
 					if (creatureCharmer != null)
 					{
-						var charmerAI = creatureCharmer.GetAI();
+						var charmerAI = creatureCharmer.AI;
 
 						if (charmerAI != null)
 							newAI = charmerAI.GetAIForCharmedPlayer(AsPlayer);
@@ -69,7 +69,7 @@ public partial class Unit
 			}
 
 			Cypher.Assert(newAI != null);
-			SetAI(newAI);
+			AI = newAI;
 			newAI.OnCharmed(true);
 		}
 		else
@@ -77,7 +77,7 @@ public partial class Unit
 			RestoreDisabledAI();
 			// Hack: this is required because we want to call OnCharmed(true) on the restored AI
 			RefreshAI();
-			var ai = GetAI();
+			var ai = AI;
 
 			if (ai != null)
 				ai.OnCharmed(true);
@@ -284,7 +284,7 @@ public partial class Unit
 			charmer.RemoveAurasByType(AuraType.Mounted);
 
 		Cypher.Assert(type != CharmType.Possess || charmer.IsTypeId(TypeId.Player));
-		Cypher.Assert((type == CharmType.Vehicle) == (GetVehicleKit() && GetVehicleKit().IsControllableVehicle()));
+		Cypher.Assert((type == CharmType.Vehicle) == (VehicleKit1 && VehicleKit1.IsControllableVehicle()));
 
 		Log.outDebug(LogFilter.Unit, "SetCharmedBy: charmer {0} (GUID {1}), charmed {2} (GUID {3}), type {4}.", charmer.Entry, charmer.GUID.ToString(), Entry, GUID.ToString(), type);
 
@@ -447,7 +447,7 @@ public partial class Unit
 		if (!IsPlayer || !charmer.IsPlayer)
 		{
 			// AI will schedule its own change if appropriate
-			var ai = GetAI();
+			var ai = AI;
 
 			if (ai != null)
 				ai.OnCharmed(false);
@@ -562,7 +562,7 @@ public partial class Unit
 
 		if (!IsPlayer || charmer.IsCreature)
 		{
-			var charmedAI = GetAI();
+			var charmedAI = AI;
 
 			if (charmedAI != null)
 				charmedAI.OnCharmed(false); // AI will potentially schedule a charm ai update
@@ -643,7 +643,7 @@ public partial class Unit
 			charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), ObjectGuid.Empty);
 			charm._charmer = null;
 
-			var player = charm.GetCharmerOrOwnerPlayerOrPlayerItself();
+			var player = charm.CharmerOrOwnerPlayerOrPlayerItself;
 
 			if (charm.IsTypeId(TypeId.Player))
 			{
@@ -732,7 +732,7 @@ public partial class Unit
 
 	public void SendPetActionFeedback(PetActionFeedback msg, uint spellId)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
@@ -745,7 +745,7 @@ public partial class Unit
 
 	public void SendPetTalk(PetTalk pettalk)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
@@ -758,7 +758,7 @@ public partial class Unit
 
 	public void SendPetAIReaction(ObjectGuid guid)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;

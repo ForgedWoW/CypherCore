@@ -35,7 +35,7 @@ internal class spell_warr_shockwave : SpellScript, ISpellAfterCast, IHasSpellEff
 	public void AfterCast()
 	{
 		if (_targetCount >= (uint)GetEffectInfo(0).CalcValue())
-			Caster.			AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(-GetEffectInfo(3).CalcValue()));
+			Caster.AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(-GetEffectInfo(3).CalcValue()));
 	}
 
 	public override void Register()

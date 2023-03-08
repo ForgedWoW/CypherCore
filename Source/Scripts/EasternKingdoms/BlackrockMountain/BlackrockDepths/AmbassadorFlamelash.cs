@@ -56,6 +56,6 @@ internal class boss_ambassador_flamelash : ScriptedAI
 		var spirit = DoSpawnCreature(9178, RandomHelper.FRand(-9, 9), RandomHelper.FRand(-9, 9), 0, 0, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromSeconds(60));
 
 		if (spirit)
-			spirit.GetAI().AttackStart(victim);
+			spirit.AI.AttackStart(victim);
 	}
 }

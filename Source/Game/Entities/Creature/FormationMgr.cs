@@ -14,7 +14,7 @@ public class FormationMgr
 
 	public static void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
 	{
-		var map = creature.GetMap();
+		var map = creature.Map;
 
 		var creatureGroup = map.CreatureGroupHolder.LookupByKey(leaderSpawnId);
 
@@ -55,7 +55,7 @@ public class FormationMgr
 
 		if (group.IsEmpty)
 		{
-			var map = member.GetMap();
+			var map = member.Map;
 
 			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId1);
 			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.LeaderSpawnId), $"Not registered group {group.LeaderSpawnId} in map {map.GetId()}");

@@ -48,7 +48,7 @@ public class npc_helix_dm : BossAI
 			case DMCreatures.NPC_MAIN_SPIDER:
 			case DMCreatures.NPC_CHATTERING_HORROR:
 			{
-				summoned.GetAI().AttackStart(me.Victim);
+				summoned.AI.AttackStart(me.Victim);
 
 				break;
 			}
@@ -74,7 +74,7 @@ public class npc_helix_dm : BossAI
 
 		if (Vanessa != null)
 		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.GetAI();
+			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
 			if (pAI != null)
 				pAI.NightmarePass();

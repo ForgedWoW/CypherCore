@@ -374,14 +374,14 @@ public class TargetInfo : TargetInfoBase
 
 			if (cHitTarget != null)
 			{
-				var hitTargetAI = cHitTarget.GetAI();
+				var hitTargetAI = cHitTarget.AI;
 
 				if (hitTargetAI != null)
 					hitTargetAI.SpellHit(spell.Caster, spell.SpellInfo);
 			}
 
 			if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
-				spell.Caster.				AsCreature.GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+				spell.Caster.				AsCreature.				AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 			else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.GetAI() != null)
 				spell.Caster.				AsGameObject.GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 

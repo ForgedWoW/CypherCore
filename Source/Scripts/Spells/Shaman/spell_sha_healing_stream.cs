@@ -21,10 +21,10 @@ public class spell_sha_healing_stream : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		if (!Caster.GetOwner())
+		if (!Caster.OwnerUnit)
 			return;
 
-		var _player = Caster.GetOwner().AsPlayer;
+		var _player = Caster.OwnerUnit.AsPlayer;
 
 		if (_player != null)
 		{

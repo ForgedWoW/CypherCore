@@ -15,7 +15,7 @@ public class npc_cloudburst_totem : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.GetOwner())
-			me.CastSpell(me.GetOwner(), TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
+		if (me.OwnerUnit)
+			me.CastSpell(me.OwnerUnit, TotemSpells.TOTEM_CLOUDBURST_EFFECT, true);
 	}
 }

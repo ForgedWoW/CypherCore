@@ -49,7 +49,7 @@ public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 			if (!wo.AsCreature)
 				continue;
 
-			if (wo.AsCreature.GetOwner() != caster)
+			if (wo.AsCreature.OwnerUnit != caster)
 				continue;
 
 			if (wo.AsCreature.CreatureType != CreatureType.Demon)

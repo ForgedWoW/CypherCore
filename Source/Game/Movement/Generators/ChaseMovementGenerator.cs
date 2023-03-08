@@ -267,7 +267,7 @@ namespace Game.Movement
             if (!owner.IsCreature)
                 return;
 
-            CreatureAI ai = owner.AsCreature.GetAI();
+            CreatureAI ai = owner.AsCreature.AI;
             if (ai != null)
                 ai.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
         }

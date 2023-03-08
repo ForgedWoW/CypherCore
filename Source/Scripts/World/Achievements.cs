@@ -66,12 +66,12 @@ internal class achievement_tilted : ScriptObjectAutoAddDBBound, IAchievementCrit
 		if (!player)
 			return false;
 
-		var checkArea = player.GetAreaId() == AreaIds.AreaArgentTournamentFields ||
-						player.GetAreaId() == AreaIds.AreaRingOfAspirants ||
-						player.GetAreaId() == AreaIds.AreaRingOfArgentValiants ||
-						player.GetAreaId() == AreaIds.AreaRingOfAllianceValiants ||
-						player.GetAreaId() == AreaIds.AreaRingOfHordeValiants ||
-						player.GetAreaId() == AreaIds.AreaRingOfChampions;
+		var checkArea = player.Area == AreaIds.AreaArgentTournamentFields ||
+						player.Area == AreaIds.AreaRingOfAspirants ||
+						player.Area == AreaIds.AreaRingOfArgentValiants ||
+						player.Area == AreaIds.AreaRingOfAllianceValiants ||
+						player.Area == AreaIds.AreaRingOfHordeValiants ||
+						player.Area == AreaIds.AreaRingOfChampions;
 
 		return checkArea && player.Duel != null && player.Duel.IsMounted;
 	}

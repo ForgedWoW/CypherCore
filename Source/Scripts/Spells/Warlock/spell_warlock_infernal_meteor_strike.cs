@@ -17,7 +17,7 @@ public class spell_warlock_infernal_meteor_strike : SpellScript, ISpellOnCast
 		if (caster == null)
 			return;
 
-		var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
 
 		if (player != null)
 			if (player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES) && !player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES_CD))

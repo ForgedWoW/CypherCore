@@ -289,7 +289,7 @@ public class Transport : GameObject, ITransport
 					  3. transport moves from active to inactive grid
 					  4. the grid that transport is currently in unloads
 					*/
-					var gridActive = GetMap().IsGridLoaded(Location.X, Location.Y);
+					var gridActive = Map.IsGridLoaded(Location.X, Location.Y);
 
 					lock (_staticPassengers)
 					{
@@ -310,13 +310,13 @@ public class Transport : GameObject, ITransport
 			_delayedAddModel = false;
 
 			if (Model != null)
-				GetMap().InsertGameObjectModel(Model);
+				Map.InsertGameObjectModel(Model);
 		}
 	}
 
 	public Creature CreateNPCPassenger(ulong guid, CreatureData data)
 	{
-		var map = GetMap();
+		var map = Map;
 
 		if (map.GetCreatureRespawnTime(guid) != 0)
 			return null;
@@ -366,7 +366,7 @@ public class Transport : GameObject, ITransport
 
 	public TempSummon SummonPassenger(uint entry, Position pos, TempSummonType summonType, SummonPropertiesRecord properties = null, uint duration = 0, Unit summoner = null, uint spellId = 0, uint vehId = 0)
 	{
-		var map = GetMap();
+		var map = Map;
 
 		if (map == null)
 			return null;
@@ -500,7 +500,7 @@ public class Transport : GameObject, ITransport
 	{
 		Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), GetScriptId());
 
-		var newActive = GetMap().IsGridLoaded(x, y);
+		var newActive = Map.IsGridLoaded(x, y);
 		Cell oldCell = new(Location.X, Location.Y);
 
 		Location.Relocate(x, y, z, o);
@@ -551,7 +551,7 @@ public class Transport : GameObject, ITransport
 
 	public override void BuildUpdate(Dictionary<Player, UpdateData> data_map)
 	{
-		var players = GetMap().GetPlayers();
+		var players = Map.GetPlayers();
 
 		if (players.Empty())
 			return;
@@ -590,7 +590,7 @@ public class Transport : GameObject, ITransport
 
 	GameObject CreateGOPassenger(ulong guid, GameObjectData data)
 	{
-		var map = GetMap();
+		var map = Map;
 
 		if (map.GetGORespawnTime(guid) != 0)
 			return null;
@@ -634,7 +634,7 @@ public class Transport : GameObject, ITransport
 	void LoadStaticPassengers()
 	{
 		var mapId = (uint)GetGoInfo().MoTransport.SpawnMap;
-		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, GetMap().GetDifficultyID());
+		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.GetDifficultyID());
 
 		if (cells == null)
 			return;
@@ -681,7 +681,7 @@ public class Transport : GameObject, ITransport
 				if (obj.IsTypeId(TypeId.Player))
 				{
 					// will be relocated in UpdatePosition of the vehicle
-					var veh = obj.AsUnit.GetVehicleBase();
+					var veh = obj.AsUnit.VehicleBase;
 
 					if (veh)
 						if (veh.Transport == this)
@@ -703,10 +703,10 @@ public class Transport : GameObject, ITransport
 		{
 			AddToWorld();
 
-			foreach (var player in GetMap().GetPlayers())
+			foreach (var player in Map.GetPlayers())
 				if (player.Transport != this && player.InSamePhase(this))
 				{
-					UpdateData data = new(GetMap().GetId());
+					UpdateData data = new(Map.GetId());
 					BuildCreateUpdateBlockForPlayer(data, player);
 					player.VisibleTransports.Add(GUID);
 					data.BuildPacket(out var packet);
@@ -715,12 +715,12 @@ public class Transport : GameObject, ITransport
 		}
 		else
 		{
-			UpdateData data = new(GetMap().GetId());
+			UpdateData data = new(Map.GetId());
 			BuildOutOfRangeUpdateBlock(data);
 
 			data.BuildPacket(out var packet);
 
-			foreach (var player in GetMap().GetPlayers())
+			foreach (var player in Map.GetPlayers())
 				if (player.Transport != this && player.VisibleTransports.Contains(GUID))
 				{
 					player.SendPacket(packet);
@@ -763,7 +763,7 @@ public class Transport : GameObject, ITransport
 		{
 			var pos = passenger.MovementInfo.Transport.Pos.Copy();
 			CalculatePassengerPosition(pos);
-			ITransport.UpdatePassengerPosition(this, GetMap(), passenger, pos, true);
+			ITransport.UpdatePassengerPosition(this, Map, passenger, pos, true);
 		}
 	}
 }

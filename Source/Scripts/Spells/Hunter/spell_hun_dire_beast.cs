@@ -28,7 +28,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 
 			if (target != null)
 				// Summon's skin is different function of Map or Zone ID
-				switch (player.GetZoneId())
+				switch (player.Zone)
 				{
 					case 5785: // The Jade Forest
 						player.CastSpell(target, DireBeastSpells.DIRE_BEAST_JADE_FOREST, true);
@@ -79,7 +79,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 
 								break;
 							default:
-								if (player.GetMap().IsDungeon())
+								if (player.Map.IsDungeon())
 									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DUNGEONS, true);
 								else // Default
 									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);

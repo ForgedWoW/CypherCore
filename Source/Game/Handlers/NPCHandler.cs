@@ -151,7 +151,7 @@ namespace Game
             }
 
             _player.PlayerTalkClass.ClearMenus();
-            if (!unit.GetAI().OnGossipHello(_player))
+            if (!unit.AI.OnGossipHello(_player))
             {
                 Player.PrepareGossipMenu(unit, unit.CreatureTemplate.GossipMenuId, true);
                 Player.SendPreparedGossip(unit);
@@ -214,7 +214,7 @@ namespace Game
             {
                 if (unit != null)
                 {
-                    if (!unit.GetAI().OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
+                    if (!unit.AI.OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem.OrderIndex, packet.PromotionCode))
                         Player.OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
                 }
                 else
@@ -227,7 +227,7 @@ namespace Game
             {
                 if (unit != null)
                 {
-                    if (!unit.GetAI().OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
+                    if (!unit.AI.OnGossipSelect(_player, packet.GossipID, gossipMenuItem.OrderIndex))
                         Player.OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
                 }
                 else
@@ -305,7 +305,7 @@ namespace Game
         void SendBindPoint(Creature npc)
         {
             // prevent set homebind to instances in any case
-            if (Player.GetMap().Instanceable())
+            if (Player.Map.Instanceable())
                 return;
 
             uint bindspell = 3286;

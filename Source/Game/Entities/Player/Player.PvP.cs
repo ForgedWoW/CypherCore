@@ -122,7 +122,7 @@ public partial class Player
 				UpdateCriteria(CriteriaType.HonorableKills);
 				UpdateCriteria(CriteriaType.DeliverKillingBlowToClass, (uint)victim.Class);
 				UpdateCriteria(CriteriaType.DeliverKillingBlowToRace, (uint)victim.Race);
-				UpdateCriteria(CriteriaType.PVPKillInArea, GetAreaId());
+				UpdateCriteria(CriteriaType.PVPKillInArea, Area);
 				UpdateCriteria(CriteriaType.EarnHonorableKill, 1, 0, 0, victim);
 				UpdateCriteria(CriteriaType.KillPlayer, 1, 0, 0, victim);
 			}
@@ -480,7 +480,7 @@ public partial class Player
 			}
 
 			// If map is dungeon find linked graveyard
-			if (GetMap().IsDungeon())
+			if (Map.IsDungeon())
 			{
 				var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
 
@@ -490,7 +490,7 @@ public partial class Player
 					Log.outError(LogFilter.Player, "SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
 			}
 			// If new entry point is not BG or arena set it
-			else if (!GetMap().IsBattlegroundOrArena())
+			else if (!Map.IsBattlegroundOrArena())
 			{
 				_bgData.JoinPos = new WorldLocation(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation);
 			}
@@ -717,7 +717,7 @@ public partial class Player
 
 	public OutdoorPvP GetOutdoorPvP()
 	{
-		return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(GetMap(), GetZoneId());
+		return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(Map, Zone);
 	}
 
 	void _InitHonorLevelOnLoadFromDB(uint honor, uint honorLevel)
@@ -804,7 +804,7 @@ public partial class Player
 
 	bool IsInAreaThatActivatesPvpTalents()
 	{
-		return IsAreaThatActivatesPvpTalents(GetAreaId());
+		return IsAreaThatActivatesPvpTalents(Area);
 	}
 
 	bool IsAreaThatActivatesPvpTalents(uint areaId)

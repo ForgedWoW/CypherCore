@@ -29,7 +29,7 @@ internal class spell_freezing_circle : SpellScript, IHasSpellEffects
 	{
 		var caster = Caster;
 		uint spellId = 0;
-		var map = caster.GetMap();
+		var map = caster.Map;
 
 		if (map.IsDungeon())
 			spellId = map.IsHeroic() ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;

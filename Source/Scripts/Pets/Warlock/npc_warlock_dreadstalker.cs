@@ -40,10 +40,10 @@ namespace Scripts.Pets
 			{
 				if (firstTick)
 				{
-					var owner = me.GetOwner();
+					var owner = me.OwnerUnit;
 
-					if (!me.GetOwner() ||
-						!me.GetOwner().AsPlayer)
+					if (!me.OwnerUnit ||
+						!me.OwnerUnit.AsPlayer)
 						return;
 
 					var target = owner.AsPlayer.GetSelectedUnit();

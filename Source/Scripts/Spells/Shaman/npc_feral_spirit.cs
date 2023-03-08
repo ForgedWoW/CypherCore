@@ -20,7 +20,7 @@ public class npc_feral_spirit : ScriptedAI
 
 		if (tempSum != null)
 		{
-			var owner = tempSum.GetOwner();
+			var owner = tempSum.OwnerUnit;
 
 			if (owner != null)
 				if (owner.HasAura(ShamanSpells.FERAL_SPIRIT_ENERGIZE_DUMMY))

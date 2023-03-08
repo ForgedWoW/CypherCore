@@ -59,7 +59,7 @@ namespace Game.DataStorage
             var players = Global.ObjAccessor.GetPlayers();
             foreach (var player in players)
             {
-                if (player.GetMap() == null || player.Session.PlayerLoading)
+                if (player.Map == null || player.Session.PlayerLoading)
                     continue;
 
                 string playerName = player.GetName();
@@ -72,7 +72,7 @@ namespace Game.DataStorage
                     guildGuid = guild.GetGUID();
 
                 _whoListStorage.Add(new WhoListPlayerInfo(player.GUID, player.Team, player.Session.Security, player.Level,
-                    player.                    Class, player.Race, player.GetZoneId(), (byte)player.NativeGender, player.IsVisible(),
+                    player.                    Class, player.Race, player.Zone, (byte)player.NativeGender, player.IsVisible(),
                     player.                    IsGameMaster, playerName, guildName, guildGuid));
             }
         }

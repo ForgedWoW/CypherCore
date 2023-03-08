@@ -882,7 +882,7 @@ namespace Game
                 }
             }
 
-            if (!pCurrChar.GetMap().AddPlayerToMap(pCurrChar))
+            if (!pCurrChar.Map.AddPlayerToMap(pCurrChar))
             {
                 var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.Location.MapId);
                 if (at != null)
@@ -2407,7 +2407,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.RequestCemeteryList, Processing = PacketProcessing.Inplace)]
         void HandleRequestCemeteryList(RequestCemeteryList requestCemeteryList)
         {
-            uint zoneId = Player.GetZoneId();
+            uint zoneId = Player.Zone;
             uint team = (uint)Player.Team;
 
             List<uint> graveyardIds = new();
@@ -2486,7 +2486,7 @@ namespace Game
             Player ressPlayer = Global.ObjAccessor.GetPlayer(Player, packet.Resurrecter);
             if (ressPlayer)
             {
-                InstanceScript instance = ressPlayer.GetInstanceScript();
+                InstanceScript instance = ressPlayer.InstanceScript;
                 if (instance != null)
                 {
                     if (instance.IsEncounterInProgress())

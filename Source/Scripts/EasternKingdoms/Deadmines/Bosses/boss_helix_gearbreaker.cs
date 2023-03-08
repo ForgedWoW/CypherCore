@@ -65,7 +65,7 @@ public class boss_helix_gearbreaker : BossAI
 
 	public void OafSupport()
 	{
-		_oaf = me.GetVehicleCreatureBase();
+		_oaf = me.VehicleCreatureBase;
 
 		if (_oaf == null)
 		{

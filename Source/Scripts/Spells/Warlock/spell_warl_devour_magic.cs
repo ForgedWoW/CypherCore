@@ -37,7 +37,7 @@ internal class spell_warl_devour_magic : SpellScript, IHasSpellEffects
 		caster.CastSpell(caster, WarlockSpells.DEVOUR_MAGIC_HEAL, args);
 
 		// Glyph of Felhunter
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 
 		if (owner)
 			if (owner.GetAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING) != null)

@@ -59,7 +59,7 @@ namespace Scripts.Pets
 
 			public void TeleportTarget(Unit target, bool allowAnywhere)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return;

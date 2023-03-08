@@ -17,7 +17,7 @@ internal class spell_mage_water_elemental_freeze : SpellScript, ISpellAfterHit
 
 	public void AfterHit()
 	{
-		var owner = Caster.GetOwner();
+		var owner = Caster.OwnerUnit;
 
 		if (!owner)
 			return;

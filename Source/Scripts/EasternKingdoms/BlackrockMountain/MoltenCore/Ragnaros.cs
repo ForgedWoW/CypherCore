@@ -277,7 +277,7 @@ internal class boss_ragnaros : BossAI
 									{
 										Creature summoned = me.SummonCreature(12143, target.Location.X, target.Location.Y, target.Location.Z, 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
 
-										summoned?.GetAI().AttackStart(target);
+										summoned?.AI.AttackStart(target);
 									}
 								}
 
@@ -298,7 +298,7 @@ internal class boss_ragnaros : BossAI
 									{
 										Creature summoned = me.SummonCreature(12143, target.Location.X, target.Location.Y, target.Location.Z, 0.0f, TempSummonType.TimedOrCorpseDespawn, TimeSpan.FromMinutes(15));
 
-										summoned?.GetAI().AttackStart(target);
+										summoned?.AI.AttackStart(target);
 									}
 								}
 
@@ -338,7 +338,7 @@ internal class npc_son_of_flame : ScriptedAI //didnt work correctly in Eai for m
 
 	public npc_son_of_flame(Creature creature) : base(creature)
 	{
-		instance = me.GetInstanceScript();
+		instance = me.InstanceScript;
 	}
 
 	public override void JustDied(Unit killer)

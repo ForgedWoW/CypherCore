@@ -217,7 +217,7 @@ namespace Game.PvP
                 {
                     Player player = Global.ObjAccessor.FindPlayer(guid);
                     if (player)
-                        if (player.GetZoneId() == zoneId)
+                        if (player.Zone == zoneId)
                             _worker.Invoke(player);
                 }
             }

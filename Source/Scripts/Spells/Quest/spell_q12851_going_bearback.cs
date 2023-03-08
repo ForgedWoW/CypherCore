@@ -31,7 +31,7 @@ internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
 			if (target.HasAura(QuestSpellIds.Ablaze))
 				return;
 
-			var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+			var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
 
 			if (player)
 				switch (target.Entry)

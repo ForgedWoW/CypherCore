@@ -15,7 +15,7 @@ public class npc_monk_jade_serpent_statue : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (owner != null)
 		{

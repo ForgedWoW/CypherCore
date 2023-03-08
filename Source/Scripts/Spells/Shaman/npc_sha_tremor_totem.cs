@@ -19,12 +19,6 @@ public class npc_sha_tremor_totem : ScriptedAI
 
 	public npc_sha_tremor_totem(Creature c) : base(c) { }
 
-	public override void Reset()
-	{
-		base.Reset();
-		me.GetOwner();
-	}
-
 	public void OnUpdate(uint diff)
 	{
 		if (diff <= 1000)
@@ -33,7 +27,7 @@ public class npc_sha_tremor_totem : ScriptedAI
 
 			if (playerList.Count != 0)
 				foreach (Player target in playerList)
-					if (target.IsFriendlyTo(me.GetOwner()))
+					if (target.IsFriendlyTo(me.OwnerUnit))
 						if (target.HasAuraType(AuraType.ModFear) || target.HasAuraType(AuraType.ModFear2) || target.HasAuraType(AuraType.ModCharm))
 							me.CastSpell(target, SpellRelated.TREMOR_TOTEM_DISPELL, true);
 		}

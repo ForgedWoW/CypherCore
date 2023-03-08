@@ -224,7 +224,7 @@ public class AzeriteItem : Item
 
 	public void GiveXP(ulong xp)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 		uint level = AzeriteItemData.Level;
 
 		if (level < PlayerConst.MaxAzeriteItemLevel)
@@ -293,7 +293,7 @@ public class AzeriteItem : Item
 		var condition = CliDB.PlayerConditionStorage.LookupByKey(PlayerConst.PlayerConditionIdUnlockedAzeriteEssences);
 
 		if (condition != null)
-			return ConditionManager.IsPlayerMeetingCondition(GetOwner(), condition);
+			return ConditionManager.IsPlayerMeetingCondition(OwnerUnit, condition);
 
 		return false;
 	}

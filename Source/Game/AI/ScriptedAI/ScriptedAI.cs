@@ -21,8 +21,8 @@ namespace Game.AI
         public ScriptedAI(Creature creature) : base(creature)
         {
             _isCombatMovementAllowed = true;
-            _isHeroic = me.GetMap().IsHeroic();
-            _difficulty = me.GetMap().GetDifficultyID();
+            _isHeroic = me.Map.IsHeroic();
+            _difficulty = me.Map.GetDifficultyID();
         }
 
         public void AttackStartNoMove(Unit target)
@@ -270,8 +270,8 @@ namespace Game.AI
             //Check if each spell is viable(set it to null if not)
             for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
             {
-                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.Spells[i], me.GetMap().GetDifficultyID());
-                AISpellInfoType aiSpell = GetAISpellInfo(me.Spells[i], me.GetMap().GetDifficultyID());
+                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.Spells[i], me.Map.GetDifficultyID());
+                AISpellInfoType aiSpell = GetAISpellInfo(me.Spells[i], me.Map.GetDifficultyID());
 
                 //This spell doesn't exist
                 if (tempSpell == null || aiSpell == null)
@@ -357,7 +357,7 @@ namespace Game.AI
 
         public void DoTeleportAll(float x, float y, float z, float o)
         {
-            Map map = me.GetMap();
+            Map map = me.Map;
             if (!map.IsDungeon())
                 return;
 
@@ -509,7 +509,7 @@ namespace Game.AI
 
         public BossAI(Creature creature, uint bossId) : base(creature)
         {
-            instance = creature.GetInstanceScript();
+            instance = creature.InstanceScript;
             summons = new SummonList(creature);
             _bossId = bossId;
 
@@ -711,7 +711,7 @@ namespace Game.AI
             summons.Summon(summon);
             Unit target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
             if (target)
-                summon.GetAI().AttackStart(target);
+                summon.                AI.AttackStart(target);
         }
 
         public override void SummonedCreatureDespawn(Creature summon)
@@ -771,7 +771,7 @@ namespace Game.AI
                 Creature summon = ObjectAccessor.GetCreature(_me, id);
                 if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
                 {
-                    summon.GetAI().DoZoneInCombat(null);
+                    summon.                    AI.DoZoneInCombat(null);
                 }
             }
         }
@@ -857,7 +857,7 @@ namespace Game.AI
             {
                 Creature summon = ObjectAccessor.GetCreature(_me, guid);
                 if (summon && summon.IsAIEnabled)
-                    summon.GetAI().DoAction(action);
+                    summon.                    AI.DoAction(action);
             }
         }
     }

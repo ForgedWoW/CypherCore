@@ -24,7 +24,7 @@ namespace Game.Movement
             _navMeshQuery = null;
             Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-            uint mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
+            uint mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.GetTerrain(), _source.Location.X, _source.Location.Y);
             if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
             {
                 _navMesh = Global.MMapMgr.GetNavMesh(mapId);
@@ -158,7 +158,7 @@ namespace Game.Movement
                     // Check both start and end points, if they're both in water, then we can *safely* let the creature move
                     for (uint i = 0; i < _pathPoints.Length; ++i)
                     {
-                        ZLiquidStatus status = _source.GetMap().GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
+                        ZLiquidStatus status = _source.Map.GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
                         // One of the points is not in the water, cancel movement.
                         if (status == ZLiquidStatus.NoWater)
                         {
@@ -191,7 +191,7 @@ namespace Game.Movement
 
                 bool buildShotrcut = false;
                 var p = (distToStartPoly > 7.0f) ? startPos : endPos;
-                if (_source.GetMap().IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
+                if (_source.Map.IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
                 {
                     Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: underWater case");
                     Unit _sourceUnit = _source.AsUnit;
@@ -890,7 +890,7 @@ namespace Game.Movement
 
         NavTerrainFlag GetNavTerrain(float x, float y, float z)
         {
-            ZLiquidStatus liquidStatus = _source.GetMap().GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData data, _source.CollisionHeight);
+            ZLiquidStatus liquidStatus = _source.Map.GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData data, _source.CollisionHeight);
             if (liquidStatus == ZLiquidStatus.NoWater)
                 return NavTerrainFlag.Ground;
 
@@ -957,7 +957,7 @@ namespace Game.Movement
                 // check if the shortened path is still in LoS with the target
                 var hitPos = new Position();
                 _source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
-                if (!_source.GetMap().IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
+                if (!_source.Map.IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
                 {
                     // whenver we find a point that is not in LoS anymore, simply use last valid path
                     Array.Resize(ref _pathPoints, i + 1);

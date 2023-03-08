@@ -36,7 +36,7 @@ namespace Game
 
                 if (lguid.IsGameObject)
                 {
-                    GameObject go = player.GetMap().GetGameObject(lguid);
+                    GameObject go = player.Map.GetGameObject(lguid);
 
                     // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
                     if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
@@ -47,7 +47,7 @@ namespace Game
                 }
                 else if (lguid.IsCreatureOrVehicle)
                 {
-                    Creature creature = player.GetMap().GetCreature(lguid);
+                    Creature creature = player.Map.GetCreature(lguid);
                     if (creature == null)
                     {
                         player.SendLootError(req.Object, lguid, LootError.NoLoot);
@@ -93,7 +93,7 @@ namespace Game
                 ObjectGuid guid = loot.GetOwnerGUID();
                 bool shareMoney = loot.loot_type == LootType.Corpse;
 
-                loot.NotifyMoneyRemoved(player.GetMap());
+                loot.NotifyMoneyRemoved(player.Map);
                 if (shareMoney && player.GetGroup() != null)      //item, pickpocket and players can be looted only single player
                 {
                     Group group = player.GetGroup();
@@ -266,7 +266,7 @@ namespace Game
 
             if (lguid.IsGameObject)
             {
-                GameObject go = player.GetMap().GetGameObject(lguid);
+                GameObject go = player.Map.GetGameObject(lguid);
 
                 // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
                 if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
@@ -341,7 +341,7 @@ namespace Game
             }
             else
             {
-                Creature creature = player.GetMap().GetCreature(lguid);
+                Creature creature = player.Map.GetCreature(lguid);
                 if (creature == null)
                     return;
 
@@ -362,7 +362,7 @@ namespace Game
                     if (player.GUID == loot.roundRobinPlayer)
                     {
                         loot.roundRobinPlayer.Clear();
-                        loot.NotifyLootList(creature.GetMap());
+                        loot.NotifyLootList(creature.Map);
                     }
                 }
 
@@ -450,7 +450,7 @@ namespace Game
                 item.count = 0;
                 item.is_looted = true;
 
-                loot.NotifyItemRemoved(req.LootListID, Player.GetMap());
+                loot.NotifyItemRemoved(req.LootListID, Player.Map);
                 --loot.unlootedCount;
             }
 

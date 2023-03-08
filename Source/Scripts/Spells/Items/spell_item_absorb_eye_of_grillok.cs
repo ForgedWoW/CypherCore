@@ -33,6 +33,6 @@ internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
 			return;
 
 		Caster.CastSpell(Caster, ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
-		Target.		AsCreature.DespawnOrUnsummon();
+		Target.AsCreature.DespawnOrUnsummon();
 	}
 }

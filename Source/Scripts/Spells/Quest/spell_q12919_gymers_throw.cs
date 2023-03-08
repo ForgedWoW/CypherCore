@@ -25,7 +25,7 @@ internal class spell_q12919_gymers_throw : SpellScript, IHasSpellEffects
 
 		if (caster.IsVehicle)
 		{
-			var passenger = caster.GetVehicleKit().GetPassenger(1);
+			var passenger = caster.VehicleKit1.GetPassenger(1);
 
 			if (passenger)
 			{

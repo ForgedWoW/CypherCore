@@ -350,7 +350,7 @@ namespace Game.AI
             var targets = GetScript().GetStoredTargetList(SharedConst.SmartEscortTargets, me);
             if (targets != null)
             {
-                float checkDist = me.GetInstanceScript() != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
+                float checkDist = me.InstanceScript != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
                 if (targets.Count == 1 && GetScript().IsPlayer(targets.First()))
                 {
                     Player player = targets.First().AsPlayer;
@@ -538,7 +538,7 @@ namespace Game.AI
                 return false;
 
             //not a player
-            if (who.Victim.GetCharmerOrOwnerPlayerOrPlayerItself() == null)
+            if (who.Victim.CharmerOrOwnerPlayerOrPlayerItself == null)
                 return false;
 
             if (!who.IsInAccessiblePlaceFor(me))
@@ -968,7 +968,7 @@ namespace Game.AI
 
             if (_conditionsTimer <= diff)
             {
-                Vehicle vehicleKit = me.GetVehicleKit();
+                Vehicle vehicleKit = me.VehicleKit1;
                 if (vehicleKit != null)
                 {
                     foreach (var pair in vehicleKit.Seats)

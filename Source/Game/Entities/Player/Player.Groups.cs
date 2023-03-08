@@ -177,7 +177,7 @@ public partial class Player
 		if (!player || IsAlive)
 			player = this;
 
-		if (player.GetMap().IsDungeon())
+		if (player.Map.IsDungeon())
 			return true;
 
 		return pRewardSource.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.GroupXpDistance);
@@ -344,7 +344,7 @@ public partial class Player
 	{
 		if (Global.LFGMgr.SelectedRandomLfgDungeon(GUID))
 		{
-			var map = GetMap();
+			var map = Map;
 
 			return Global.LFGMgr.InLfgDungeonMap(GUID, map.GetId(), map.GetDifficultyID());
 		}

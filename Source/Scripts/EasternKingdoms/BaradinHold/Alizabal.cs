@@ -58,14 +58,14 @@ internal class at_alizabal_intro : ScriptObjectAutoAddDBBound, IAreaTriggerOnTri
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		var instance = player.GetInstanceScript();
+		var instance = player.InstanceScript;
 
 		if (instance != null)
 		{
 			var alizabal = ObjectAccessor.GetCreature(player, instance.GetGuidData(DataTypes.Alizabal));
 
 			if (alizabal)
-				alizabal.GetAI().DoAction(ActionIds.Intro);
+				alizabal.AI.DoAction(ActionIds.Intro);
 		}
 
 		return true;

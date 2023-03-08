@@ -399,7 +399,7 @@ internal class go_blackened_urn : GameObjectAI
 
 	public go_blackened_urn(GameObject go) : base(go)
 	{
-		instance = go.GetInstanceScript();
+		instance = go.InstanceScript;
 	}
 
 	public override bool OnGossipHello(Player player)
@@ -416,7 +416,7 @@ internal class go_blackened_urn : GameObjectAI
 		if (nightbane)
 		{
 			me.SetFlag(GameObjectFlags.InUse);
-			nightbane.GetAI().DoAction(MiscConst.ActionSummon);
+			nightbane.AI.DoAction(MiscConst.ActionSummon);
 		}
 
 		return false;

@@ -66,9 +66,9 @@ namespace Game.AI
                 owner.SetSpawnHealth();
                 owner.LoadCreaturesAddon();
                 if (owner.IsVehicle)
-                    owner.GetVehicleKit().Reset(true);
+                    owner.                    VehicleKit1.Reset(true);
 
-                CreatureAI ai = owner.GetAI();
+                CreatureAI ai = owner.AI;
                 if (ai != null)
                     ai.JustReachedHome();
             }

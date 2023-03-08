@@ -395,9 +395,9 @@ public class Aura
 								"Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
 								SpellInfo.Id,
 								_owner.GetName(),
-								_owner.IsInWorld ? (int)_owner.GetMap().GetId() : -1,
+								_owner.IsInWorld ? (int)_owner.Map.GetId() : -1,
 								unit.GetName(),
-								unit.IsInWorld ? (int)unit.GetMap().GetId() : -1);
+								unit.IsInWorld ? (int)unit.Map.GetId() : -1);
 
 				if (aurApp != null)
 				{
@@ -469,7 +469,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			modOwner = caster.GetSpellModOwner();
+			modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 			{
@@ -510,7 +510,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			modOwner = caster.GetSpellModOwner();
+			modOwner = caster.SpellModOwner;
 			maxDuration = caster.CalcSpellDuration(spellInfo);
 		}
 		else
@@ -541,7 +541,7 @@ public class Aura
 
 			if (caster)
 			{
-				var modOwner = caster.GetSpellModOwner();
+				var modOwner = caster.SpellModOwner;
 
 				if (modOwner)
 					modOwner.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
@@ -687,7 +687,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(_spellInfo, SpellModOp.MaxAuraStacks, ref maxStackAmount);
@@ -848,7 +848,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(SpellInfo, SpellModOp.DispelResistance, ref resistChance);
@@ -1156,7 +1156,7 @@ public class Aura
 				{
 					case 19574: // Bestial Wrath
 						// The Beast Within cast on owner if talent present
-						var owner = target.GetOwner();
+						var owner = target.OwnerUnit;
 
 						if (owner != null)
 							// Search talent
@@ -1340,7 +1340,7 @@ public class Aura
 			Vehicle veh = null;
 
 			if (Owner.AsUnit)
-				veh = Owner.AsUnit.GetVehicleKit();
+				veh = Owner.AsUnit.VehicleKit1;
 
 			if (!veh) // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
 				return true;
@@ -1386,7 +1386,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcCooldown, ref procCooldown);
@@ -1567,7 +1567,7 @@ public class Aura
 			}
 
 		if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOutdoors))
-			if (!target.IsOutdoors())
+			if (!target.IsOutdoors)
 				return 0;
 
 		if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOnCaster))
@@ -2098,7 +2098,7 @@ public class Aura
 				chance = CalcPPMProcChance(caster);
 
 			// apply chance modifer aura, applies also to ppm chance (see improved judgement of light spell)
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcChance, ref chance);
@@ -2186,7 +2186,7 @@ public class Aura
 
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(SpellInfo, SpellModOp.ProcCharges, ref maxProcCharges);

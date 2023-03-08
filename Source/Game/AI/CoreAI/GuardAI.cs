@@ -52,7 +52,7 @@ namespace Game.AI
         {
             if (killer != null)
             {
-                Player player = killer.GetCharmerOrOwnerPlayerOrPlayerItself();
+                Player player = killer.CharmerOrOwnerPlayerOrPlayerItself;
                 if (player != null)
                     me.SendZoneUnderAttackMessage(player);
             }

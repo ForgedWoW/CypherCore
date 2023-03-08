@@ -21,7 +21,7 @@ public class go_defias_cannon : GameObjectAI
 		if (me == null || player == null)
 			return false;
 
-		var instance = me.GetInstanceScript();
+		var instance = me.InstanceScript;
 		var ironCladDoor = me.FindNearestGameObject(DMGameObjects.GO_IRONCLAD_DOOR, 30.0f);
 
 		if (ironCladDoor != null)

@@ -25,7 +25,7 @@ internal class spell_q13264_q13276_q13288_q13289_area_restrict_abom : SpellScrip
 
 		if (creature != null)
 		{
-			var area = creature.GetAreaId();
+			var area = creature.Area;
 
 			if (area != Misc.AreaTheBrokenFront &&
 				area != Misc.AreaMordRetharTheDeathGate)

@@ -234,7 +234,7 @@ namespace Game.BattleGrounds
 
                         if (!sh && player.IsInWorld)
                         {
-                            sh = player.GetMap().GetCreature(pair.Key);
+                            sh = player.Map.GetCreature(pair.Key);
                             // only for visual effect
                             if (sh)
                                 // Spirit Heal, effect 117

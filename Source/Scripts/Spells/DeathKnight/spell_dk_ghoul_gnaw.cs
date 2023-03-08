@@ -18,7 +18,7 @@ public class spell_dk_ghoul_gnaw : SpellScript, ISpellAfterHit
 		if (caster == null || target == null)
 			return;
 
-		Unit owner = caster.GetOwner().AsPlayer;
+		Unit owner = caster.OwnerUnit.AsPlayer;
 
 		if (owner != null)
 			caster.CastSpell(target, caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_GNAW : DeathKnightSpells.GHOUL_GNAW, true);

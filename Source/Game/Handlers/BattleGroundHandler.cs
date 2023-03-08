@@ -618,7 +618,7 @@ namespace Game
             if (bg != null)
                 Global.BattlegroundMgr.SendAreaSpiritHealerQuery(Player, bg, areaSpiritHealerQuery.HealerGuid);
 
-            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.GetMap(), Player.GetZoneId());
+            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
             if (bf != null)
                 bf.SendAreaSpiritHealerQuery(Player, areaSpiritHealerQuery.HealerGuid);
         }
@@ -637,7 +637,7 @@ namespace Game
             if (bg)
                 bg.AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, Player.GUID);
 
-            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.GetMap(), Player.GetZoneId());
+            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
             if (bf != null)
                 bf.AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, Player.GUID);
         }
@@ -648,14 +648,14 @@ namespace Game
             if (Player.IsInFlight)
                 return;
 
-            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.GetMap(), Player.GetZoneId());
+            BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(Player.Map, Player.Zone);
             if (bf != null)
             {
                 bf.PlayerAskToLeave(_player);
                 return;
             }
 
-            AreaTableRecord atEntry = CliDB.AreaTableStorage.LookupByKey(Player.GetAreaId());
+            AreaTableRecord atEntry = CliDB.AreaTableStorage.LookupByKey(Player.Area);
             if (atEntry == null || !atEntry.HasFlag(AreaFlags.CanHearthAndResurrect))
                 return;
 

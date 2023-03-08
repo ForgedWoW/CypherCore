@@ -140,7 +140,7 @@ internal struct MiscConst
 
 			if (pCrone)
 				if (creature.Victim)
-					pCrone.GetAI().AttackStart(creature.Victim);
+					pCrone.AI.AttackStart(creature.Victim);
 		}
 	}
 
@@ -165,7 +165,7 @@ internal struct MiscConst
 		if (target.Victim)
 		{
 			target.MotionMaster.MoveChase(target.Victim);
-			target.GetAI().AttackStart(target.Victim);
+			target.AI.AttackStart(target.Victim);
 		}
 		else
 		{
@@ -196,7 +196,7 @@ internal class boss_dorothee : ScriptedAI
 	public boss_dorothee(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -305,7 +305,7 @@ internal class boss_dorothee : ScriptedAI
 		{
 			Talk(TextIds.SayDorotheeSummon);
 			pTito.GetAI<npc_tito>().DorotheeGUID = me.GUID;
-			pTito.GetAI().AttackStart(me.Victim);
+			pTito.AI.AttackStart(me.Victim);
 			SummonedTito = true;
 			TitoDied = false;
 		}
@@ -380,7 +380,7 @@ internal class boss_strawman : ScriptedAI
 	public boss_strawman(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -499,7 +499,7 @@ internal class boss_tinhead : ScriptedAI
 	public boss_tinhead(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -613,7 +613,7 @@ internal class boss_roar : ScriptedAI
 	public boss_roar(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -731,7 +731,7 @@ internal class boss_crone : ScriptedAI
 	public boss_crone(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -863,7 +863,7 @@ internal class npc_grandmother : ScriptedAI
 			Creature pBigBadWolf = me.SummonCreature(CreatureIds.BigBadWolf, me.Location.X, me.Location.Y, me.Location.Z, me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
 			if (pBigBadWolf)
-				pBigBadWolf.GetAI().AttackStart(player);
+				pBigBadWolf.AI.AttackStart(player);
 
 			me.DespawnOrUnsummon();
 		}
@@ -888,7 +888,7 @@ internal class boss_bigbadwolf : ScriptedAI
 	public boss_bigbadwolf(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -1034,7 +1034,7 @@ internal class boss_julianne : ScriptedAI
 	public boss_julianne(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 		EntryYellTimer = 1000;
 		AggroYellTimer = 10000;
 		IsFakingDeath = false;
@@ -1375,7 +1375,7 @@ internal class boss_romulo : ScriptedAI
 	public boss_romulo(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

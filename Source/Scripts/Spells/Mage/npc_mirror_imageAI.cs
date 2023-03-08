@@ -48,7 +48,7 @@ public class npc_mirror_imageAI : CasterAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (owner == null)
 			return;
@@ -85,7 +85,7 @@ public class npc_mirror_imageAI : CasterAI
 		if (me.IsInEvadeMode || !me.IsAlive)
 			return;
 
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		me.CombatStop(true);
 
@@ -98,7 +98,7 @@ public class npc_mirror_imageAI : CasterAI
 
 	public override void Reset()
 	{
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (owner != null)
 		{
@@ -143,7 +143,7 @@ public class npc_mirror_imageAI : CasterAI
 				if (me.HasUnitState(UnitState.Casting))
 					me.CastStop();
 
-				me.GetAI().EnterEvadeMode();
+				me.AI.EnterEvadeMode();
 			}
 		}
 		else
@@ -154,7 +154,7 @@ public class npc_mirror_imageAI : CasterAI
 			if (target == null)
 			{
 				/// No target? Let's see if our owner has a better target for us
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner != null)
 				{
@@ -166,7 +166,7 @@ public class npc_mirror_imageAI : CasterAI
 			}
 
 			if (target != null)
-				me.GetAI().AttackStart(target);
+				me.AI.AttackStart(target);
 		}
 	}
 

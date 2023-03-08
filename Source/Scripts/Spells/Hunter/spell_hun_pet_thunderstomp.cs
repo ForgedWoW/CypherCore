@@ -23,7 +23,7 @@ public class spell_hun_pet_thunderstomp : SpellScript, IHasSpellEffects
 	private void HandleDamage(int effIndex)
 	{
 		var caster = Caster;
-		var owner = Caster.GetOwner();
+		var owner = Caster.OwnerUnit;
 		var target = HitUnit;
 
 		if (owner == null || target == null)

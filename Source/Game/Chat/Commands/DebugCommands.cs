@@ -78,7 +78,7 @@ namespace Game.Chat
             if (duration <= TimeSpan.Zero || duration >= TimeSpan.FromMinutes(30)) // arbitrary upper limit
                 duration = TimeSpan.FromMinutes(3);
 
-            CypherStrings errMsg = target.GetAI().VisualizeBoundary(duration, player, fill == "fill");
+            CypherStrings errMsg = target.AI.VisualizeBoundary(duration, player, fill == "fill");
             if (errMsg > 0)
                 handler.SendSysMessage(errMsg);
 
@@ -458,9 +458,9 @@ namespace Game.Chat
                 return false;
             }
 
-            Map map = player.GetMap();
+            Map map = player.Map;
             string mapName = map.GetMapName();
-            InstanceScript instance = player.GetInstanceScript();
+            InstanceScript instance = player.InstanceScript;
             if (instance == null)
             {
                 handler.SendSysMessage($"{mapName} has no instance script.");
@@ -571,7 +571,7 @@ namespace Game.Chat
             if (player != null)
             {
                 // Fallback to player's map if no map has been specified
-                return HandleDebugLoadCellsCommandHelper(handler, player.GetMap(), tileX, tileY);
+                return HandleDebugLoadCellsCommandHelper(handler, player.Map, tileX, tileY);
             }
 
             return false;
@@ -687,7 +687,7 @@ namespace Game.Chat
                     nearestLoc = bg.GetClosestGraveYard(player);
                 else
                 {
-                    BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.GetMap(), player.GetZoneId());
+                    BattleField bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
                     if (bf != null)
                         nearestLoc = bf.GetClosestGraveYard(player);
                     else
@@ -913,7 +913,7 @@ namespace Game.Chat
             if (vehicleRecord == null)
                 return false;
 
-            Map map = handler.GetPlayer().GetMap();
+            Map map = handler.GetPlayer().Map;
 
             Creature creature = Creature.CreateCreature(entry, map, pos, id);
             if (!creature)

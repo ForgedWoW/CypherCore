@@ -283,7 +283,7 @@ public partial class WorldSession : IDisposable
 			if (!_player.InstanceValid && !_player.IsGameMaster)
 				_player.TeleportTo(_player.Homebind);
 
-			Global.OutdoorPvPMgr.HandlePlayerLeaveZone(_player, _player.GetZoneId());
+			Global.OutdoorPvPMgr.HandlePlayerLeaveZone(_player, _player.Zone);
 
 			for (uint i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
 			{
@@ -365,7 +365,7 @@ public partial class WorldSession : IDisposable
 			_player.CleanupsBeforeDelete();
 			Log.outInfo(LogFilter.Player, $"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
 
-			var map = Player.GetMap();
+			var map = Player.Map;
 
 			if (map != null)
 				map.RemovePlayerFromMap(Player, true);

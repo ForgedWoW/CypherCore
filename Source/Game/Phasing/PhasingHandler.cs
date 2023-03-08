@@ -49,20 +49,20 @@ public class PhasingHandler
 		{
 			var controlled = unit.Controlled[i];
 
-			if (controlled.TypeId != TypeId.Player && controlled.GetVehicle() == null) // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
+			if (controlled.TypeId != TypeId.Player && controlled.Vehicle1 == null) // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
 				func(controlled);
 		}
 
 		for (byte i = 0; i < SharedConst.MaxSummonSlot; ++i)
 			if (!unit.SummonSlot[i].IsEmpty)
 			{
-				var summon = unit.GetMap().GetCreature(unit.SummonSlot[i]);
+				var summon = unit.Map.GetCreature(unit.SummonSlot[i]);
 
 				if (summon)
 					func(summon);
 			}
 
-		var vehicle = unit.GetVehicleKit();
+		var vehicle = unit.VehicleKit1;
 
 		if (vehicle != null)
 			foreach (var seat in vehicle.Seats)
@@ -170,7 +170,7 @@ public class PhasingHandler
 		obj.PhaseShift.ClearPhases();
 		obj.SuppressedPhaseShift.ClearPhases();
 
-		var areaId = obj.GetAreaId();
+		var areaId = obj.Area;
 		var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
 
 		while (areaEntry != null)
@@ -674,7 +674,7 @@ public class PhasingHandler
 			if (updateVisibility)
 			{
 				if (player)
-					player.GetMap().SendUpdateTransportVisibility(player);
+					player.					Map.SendUpdateTransportVisibility(player);
 
 				obj.UpdateObjectVisibility();
 			}

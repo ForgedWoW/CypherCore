@@ -409,7 +409,7 @@ internal class boss_garothi_worldbreaker : BossAI
 		});
 
 		if (me.Victim &&
-			me.			Victim.IsWithinMeleeRange(me))
+			me.Victim.IsWithinMeleeRange(me))
 			DoMeleeAttackIfReady();
 		else
 			DoSpellAttackIfReady(SpellIds.Carnage);
@@ -555,7 +555,7 @@ internal class spell_garothi_fel_bombardment_selector : SpellScript, IHasSpellEf
 			return;
 
 		var target = HitUnit;
-		caster.GetAI().Talk(TextIds.SayAnnounceFelBombardment, target);
+		caster.AI.Talk(TextIds.SayAnnounceFelBombardment, target);
 		caster.CastSpell(target, SpellIds.FelBombardmentWarning, true);
 		caster.CastSpell(target, SpellIds.FelBombardmentDummy, true);
 	}
@@ -696,7 +696,7 @@ internal class spell_garothi_decimation_selector : SpellScript, IHasSpellEffects
 
 			if (decimator)
 				if (decimator.IsAIEnabled)
-					decimator.GetAI().Talk(TextIds.SayAnnounceDecimation, HitUnit);
+					decimator.AI.Talk(TextIds.SayAnnounceDecimation, HitUnit);
 		}
 	}
 }
@@ -857,42 +857,42 @@ internal class spell_garothi_cannon_chooser : SpellScript, IHasSpellEffects
 			!caster.IsAIEnabled)
 			return;
 
-		var instance = caster.GetInstanceScript();
+		var instance = caster.InstanceScript;
 
 		if (instance == null)
 			return;
 
 		var decimator = instance.GetCreature(DataTypes.Decimator);
 		var annihilator = instance.GetCreature(DataTypes.Annihilator);
-		var lastCannonEntry = caster.GetAI().GetData(MiscConst.DataLastFiredCannon);
+		var lastCannonEntry = caster.AI.GetData(MiscConst.DataLastFiredCannon);
 
 		if ((lastCannonEntry == CreatureIds.Annihilator && decimator) ||
 			(decimator && !annihilator))
 		{
 			decimator.CastSpell(decimator, SpellIds.DecimationSelector, true);
-			caster.GetAI().Talk(TextIds.SayDecimation, decimator);
+			caster.AI.Talk(TextIds.SayDecimation, decimator);
 			lastCannonEntry = CreatureIds.Decimator;
 		}
 		else if ((lastCannonEntry == CreatureIds.Decimator && annihilator) ||
 				(annihilator && !decimator))
 		{
-			var count = (byte)(caster.GetMap().GetDifficultyID() == Difficulty.MythicRaid ? MiscConst.MaxTargetsSize : Math.Max(MiscConst.MinTargetsSize, Math.Ceiling((double)caster.GetMap().GetPlayersCountExceptGMs() / 5)));
+			var count = (byte)(caster.Map.GetDifficultyID() == Difficulty.MythicRaid ? MiscConst.MaxTargetsSize : Math.Max(MiscConst.MinTargetsSize, Math.Ceiling((double)caster.Map.GetPlayersCountExceptGMs() / 5)));
 
 			for (byte i = 0; i < count; i++)
 			{
 				var x = MiscConst.AnnihilationCenterReferencePos.X + MathF.Cos(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
 				var y = MiscConst.AnnihilationCenterReferencePos.Y + MathF.Sin(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
-				var z = caster.GetMap().GetHeight(caster.PhaseShift, x, y, MiscConst.AnnihilationCenterReferencePos.Z);
+				var z = caster.Map.GetHeight(caster.PhaseShift, x, y, MiscConst.AnnihilationCenterReferencePos.Z);
 				annihilator.CastSpell(new Position(x, y, z), SpellIds.AnnihilationSummon, new CastSpellExtraArgs(true));
 			}
 
 			annihilator.CastSpell(annihilator, SpellIds.AnnihilationDummy);
 			annihilator.CastSpell(annihilator, SpellIds.AnnihilationSelector);
-			caster.GetAI().Talk(TextIds.SayAnnihilation);
+			caster.AI.Talk(TextIds.SayAnnihilation);
 			lastCannonEntry = CreatureIds.Annihilator;
 		}
 
-		caster.GetAI().SetData(MiscConst.DataLastFiredCannon, lastCannonEntry);
+		caster.AI.SetData(MiscConst.DataLastFiredCannon, lastCannonEntry);
 	}
 }
 
@@ -915,7 +915,7 @@ internal class VictimCheck : ICheck<WorldObject>
 			return true;
 
 		if (_caster.Victim &&
-			_caster.			Victim != unit)
+			_caster.Victim != unit)
 			return _keepTank;
 
 		return false;

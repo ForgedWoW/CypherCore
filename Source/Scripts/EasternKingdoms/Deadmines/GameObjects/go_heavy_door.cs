@@ -28,7 +28,7 @@ public class go_heavy_door : GameObjectAI
 			{
 				creature.MotionMaster.MoveCharge(me.Location.X, me.Location.Y, me.Location.Z, 5.0f);
 				creature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
-				creature.GetAI().Talk(0);
+				creature.AI.Talk(0);
 			}
 	}
 

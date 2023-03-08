@@ -41,7 +41,7 @@ internal class boss_magmus : ScriptedAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		var instance = me.GetInstanceScript();
+		var instance = me.InstanceScript;
 
 		instance?.SetData(DataTypes.TypeIronHall, (uint)EncounterState.InProgress);
 
@@ -81,7 +81,7 @@ internal class boss_magmus : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var instance = me.GetInstanceScript();
+		var instance = me.InstanceScript;
 
 		if (instance != null)
 		{
@@ -99,7 +99,7 @@ internal class npc_ironhand_guardian : ScriptedAI
 
 	public npc_ironhand_guardian(Creature creature) : base(creature)
 	{
-		_instance = me.GetInstanceScript();
+		_instance = me.InstanceScript;
 		_active = false;
 	}
 

@@ -881,7 +881,7 @@ namespace Game.Achievements
             }
 
             if (criteria.Entry.EligibilityWorldStateID != 0)
-                if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.GetMap()) != criteria.Entry.EligibilityWorldStateValue)
+                if (Global.WorldStateMgr.GetValue(criteria.Entry.EligibilityWorldStateID, referencePlayer.Map) != criteria.Entry.EligibilityWorldStateValue)
                     return false;
 
             return true;
@@ -1010,7 +1010,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId1);
+                    Map map = referencePlayer.IsInWorld ? referencePlayer.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId1);
                     if (!map || !map.IsDungeon())
                         return false;
 
@@ -1358,7 +1358,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.LegacyDungeonDifficulty: // 20
                 {
-                    DifficultyRecord difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.GetMap().GetDifficultyID());
+                    DifficultyRecord difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Map.GetDifficultyID());
                     if (difficulty == null || difficulty.OldEnumValue == -1 || difficulty.OldEnumValue != reqValue)
                         return false;
                     break;
@@ -1458,7 +1458,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerIsInZone: // 41
                 {
-                    uint zoneId = referencePlayer.GetAreaId();
+                    uint zoneId = referencePlayer.Area;
                     AreaTableRecord areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
                     if (areaEntry != null)
                         if (areaEntry.HasFlag(AreaFlags.Unk9))
@@ -1471,7 +1471,7 @@ namespace Game.Achievements
                 {
                     if (!refe)
                         return false;
-                    uint zoneId = refe.GetAreaId();
+                    uint zoneId = refe.Area;
                     AreaTableRecord areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
                     if (areaEntry != null)
                         if (areaEntry.HasFlag(AreaFlags.Unk9))
@@ -1587,7 +1587,7 @@ namespace Game.Achievements
                         return ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
                     return false;
                 case ModifierTreeType.DungeonDifficulty: // 68
-                    if (referencePlayer.GetMap().GetDifficultyID() != (Difficulty)reqValue)
+                    if (referencePlayer.Map.GetDifficultyID() != (Difficulty)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqualOrGreaterThan: // 69
@@ -1798,7 +1798,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayersRealmWorldState: // 108
-                    if (Global.WorldStateMgr.GetValue((int)reqValue, referencePlayer.GetMap()) != secondaryAsset)
+                    if (Global.WorldStateMgr.GetValue((int)reqValue, referencePlayer.Map) != secondaryAsset)
                         return false;
                     break;
                 case ModifierTreeType.TimeBetween: // 109
@@ -1856,7 +1856,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.Weather: // 115
-                    if (referencePlayer.GetMap().GetZoneWeather(referencePlayer.GetZoneId()) != (WeatherState)reqValue)
+                    if (referencePlayer.Map.GetZoneWeather(referencePlayer.Zone) != (WeatherState)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerFaction: // 116
@@ -1908,7 +1908,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerMapInstanceType: // 122
-                    if ((uint)referencePlayer.GetMap().GetEntry().InstanceType != reqValue)
+                    if ((uint)referencePlayer.Map.GetEntry().InstanceType != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerInTimeWalkerInstance: // 123
@@ -2104,7 +2104,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerIsInOwnGarrison: // 138
-                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() != referencePlayer.GUID.Counter)
+                    if (!referencePlayer.Map.IsGarrison() || referencePlayer.Map.GetInstanceId() != referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.GarrisonShipmentOfTypeIsPending: // 139 NYI
@@ -2377,7 +2377,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerCountIsValidToStartGarrisonInvasion: // 164
                     return true; // Only 1 player is required and referencePlayer.GetMap() will ALWAYS have at least the referencePlayer on it
                 case ModifierTreeType.InstancePlayerCountEqualOrLessThan: // 165
-                    if (referencePlayer.GetMap().GetPlayersCountExceptGMs() > reqValue)
+                    if (referencePlayer.Map.GetPlayersCountExceptGMs() > reqValue)
                         return false;
                     break;
                 case ModifierTreeType.AllGarrisonPlotsFilledWithBuildingsWithLevelEqualOrGreater: // 166
@@ -2442,7 +2442,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.InstancePlayerCountEqual: // 171
-                    if (referencePlayer.GetMap().GetPlayers().Count != reqValue)
+                    if (referencePlayer.Map.GetPlayers().Count != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.CurrencyId: // 172
@@ -2519,7 +2519,7 @@ namespace Game.Achievements
                 case ModifierTreeType.CurrencySource: // 179 NYI
                     return false;
                 case ModifierTreeType.PlayerIsInNotOwnGarrison: // 180
-                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() == referencePlayer.GUID.Counter)
+                    if (!referencePlayer.Map.IsGarrison() || referencePlayer.Map.GetInstanceId() == referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.HasActiveGarrisonFollower: // 181
@@ -3262,7 +3262,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerMapOrCosmeticChildMap: // 280
                 {
-                    MapRecord map = referencePlayer.GetMap().GetEntry();
+                    MapRecord map = referencePlayer.Map.GetEntry();
                     if (map.Id != reqValue && map.CosmeticParentMapID != reqValue)
                         return false;
                     break;
@@ -3326,7 +3326,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerIsInAreaGroup: // 298
                 {
                     var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-                    AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.GetAreaId());
+                    AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(referencePlayer.Area);
                     if (area != null)
                         foreach (uint areaInGroup in areas)
                             if (areaInGroup == area.Id || areaInGroup == area.ParentAreaID)
@@ -3339,7 +3339,7 @@ namespace Game.Achievements
                         return false;
 
                     var areas = Global.DB2Mgr.GetAreasForGroup(reqValue);
-                    var area = CliDB.AreaTableStorage.LookupByKey(refe.GetAreaId());
+                    var area = CliDB.AreaTableStorage.LookupByKey(refe.Area);
                     if (area != null)
                         foreach (uint areaInGroup in areas)
                             if (areaInGroup == area.Id || areaInGroup == area.ParentAreaID)
@@ -4502,7 +4502,7 @@ namespace Game.Achievements
                     return Global.ScriptMgr.RunScriptRet<IAchievementCriteriaOnCheck>(p => p.OnCheck(source.AsPlayer, unitTarget.AsUnit), ScriptId);
                     }
                 case CriteriaDataType.MapPlayerCount:
-                    return source.GetMap().GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
+                    return source.Map.GetPlayersCountExceptGMs() <= MapPlayers.MaxCount;
                 case CriteriaDataType.TTeam:
                     if (target == null || !target.IsTypeId(TypeId.Player))
                         return false;
@@ -4526,7 +4526,7 @@ namespace Game.Achievements
                 {
                     if (!source.IsInWorld)
                         return false;
-                    Map map = source.GetMap();
+                    Map map = source.Map;
                     if (!map.IsDungeon())
                     {
                         Log.outError(LogFilter.Achievement, "Achievement system call AchievementCriteriaDataType.InstanceScript ({0}) for achievement criteria {1} for non-dungeon/non-raid map {2}",

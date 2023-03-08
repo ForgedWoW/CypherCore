@@ -27,7 +27,7 @@ internal class spell_q12372_destabilize_azure_dragonshrine_dummy : SpellScript, 
 
 			if (caster)
 			{
-				var vehicle = caster.GetVehicleKit();
+				var vehicle = caster.VehicleKit1;
 
 				if (vehicle)
 				{

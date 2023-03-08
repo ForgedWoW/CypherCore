@@ -148,7 +148,7 @@ internal class spell_shazzrah_gate_dummy : SpellScript, IHasSpellEffects
 			var creature = Caster.AsCreature;
 
 			if (creature)
-				creature.GetAI().AttackStart(target); // Attack the Target which caster will teleport to.
+				creature.AI.AttackStart(target); // Attack the Target which caster will teleport to.
 		}
 	}
 }

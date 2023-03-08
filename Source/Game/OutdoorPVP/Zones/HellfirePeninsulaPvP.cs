@@ -111,8 +111,8 @@ namespace Game.PvP
         {
             InitWorldStates initWorldStates = new();
             initWorldStates.MapID = player.Location.MapId;
-            initWorldStates.AreaID = player.GetZoneId();
-            initWorldStates.SubareaID = player.GetAreaId();
+            initWorldStates.AreaID = player.Zone;
+            initWorldStates.SubareaID = player.Area;
             initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);
             initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_H, 0);
             initWorldStates.AddState(OutdoorPvPHPWorldStates.Count_H, 0);

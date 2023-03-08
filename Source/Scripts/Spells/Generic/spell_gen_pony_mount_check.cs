@@ -26,7 +26,7 @@ internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
 		if (!caster)
 			return;
 
-		var owner = caster.GetOwner().AsPlayer;
+		var owner = caster.OwnerUnit.AsPlayer;
 
 		if (!owner ||
 			!owner.HasAchieved(GenericSpellIds.AchievementPonyup))

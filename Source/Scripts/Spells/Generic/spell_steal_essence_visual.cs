@@ -28,7 +28,7 @@ internal class spell_steal_essence_visual : AuraScript, IHasAuraEffects
 			caster.CastSpell(caster, GenericSpellIds.CreateToken, true);
 			var soulTrader = caster.AsCreature;
 
-			soulTrader?.GetAI().Talk(TextIds.SayCreateToken);
+			soulTrader?.AI.Talk(TextIds.SayCreateToken);
 		}
 	}
 }

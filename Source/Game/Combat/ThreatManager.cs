@@ -200,7 +200,7 @@ namespace Game.Combat
             }
 
             // while riding a vehicle, all threat goes to the vehicle, not the pilot
-            Unit vehicle = target.GetVehicleBase();
+            Unit vehicle = target.VehicleBase;
             if (vehicle != null)
             {
                 AddThreat(vehicle, amount, spell, ignoreModifiers, ignoreRedirects);
@@ -496,7 +496,7 @@ namespace Game.Combat
 
         void ProcessAIUpdates()
         {
-            CreatureAI ai = _owner.AsCreature.GetAI();
+            CreatureAI ai = _owner.AsCreature.AI;
             List<ThreatReference> v = new(_needsAIUpdate); // _needClientUpdate is now empty in case this triggers a recursive call
             if (ai == null)
                 return;
@@ -526,7 +526,7 @@ namespace Game.Combat
                     if (threatEntry.PctMod != 1.0f) // flat/AP modifiers handled in Spell::HandleThreatSpells
                         threat *= threatEntry.PctMod;
 
-                Player modOwner = victim.GetSpellModOwner();
+                Player modOwner = victim.SpellModOwner;
                 if (modOwner != null)
                     modOwner.ApplySpellMod(spell, SpellModOp.Hate, ref threat);
             }

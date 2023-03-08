@@ -32,7 +32,7 @@ public class spell_warlock_seduction : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 
 		if (owner != null)
 			if (owner.HasAura(WarlockSpells.GLYPH_OF_DEMON_TRAINING))

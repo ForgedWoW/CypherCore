@@ -23,7 +23,7 @@ internal class spell_dk_pet_geist_transform : SpellScript, ISpellCheckCast
 
 	public SpellCastResult CheckCast()
 	{
-		var owner = Caster.GetOwner();
+		var owner = Caster.OwnerUnit;
 
 		if (owner)
 			if (owner.HasAura(DeathKnightSpells.GlyphOfTheGeist))

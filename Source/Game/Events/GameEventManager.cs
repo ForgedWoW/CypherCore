@@ -1785,7 +1785,7 @@ namespace Game
                 Creature creature = objs[i];
                 if (creature.IsInWorld && creature.IsAIEnabled)
                 {
-                    var ai = creature.GetAI();
+                    var ai = creature.AI;
 
                     if (ai != null)
                         ai.OnGameEvent(_activate, _eventId);

@@ -49,7 +49,7 @@ public class go_deadmines_tp : GameObjectAI
 		if (player.HasAura(DMSharedSpells.NIGHTMARE_ELIXIR))
 			return false;
 
-		var instance = me.GetInstanceScript();
+		var instance = me.InstanceScript;
 
 		if (instance == null)
 			return false;

@@ -23,7 +23,7 @@ public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
 	private void HandleHit(int effIndex)
 	{
 		// "Increases damage dealt by your Wild Imps' Firebolt by 10%."
-		var owner = Caster.GetOwner();
+		var owner = Caster.OwnerUnit;
 
 		if (owner != null)
 		{

@@ -97,7 +97,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 					if (visionPlayer.SeerView == player)
 						SendPacket(visionPlayer);
 
-			if (player.SeerView == player || player.GetVehicle() != null)
+			if (player.SeerView == player || player.Vehicle1 != null)
 				SendPacket(player);
 		}
 	}

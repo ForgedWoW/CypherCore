@@ -38,7 +38,7 @@ internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEff
 		foreach (Creature minion in minionList)
 			if (minion.IsAIEnabled)
 			{
-				minion.GetAI().Talk(TextIds.SayStealEssence);
+				minion.AI.Talk(TextIds.SayStealEssence);
 				minion.CastSpell(eventInfo.ProcTarget, GenericSpellIds.StealEssenceVisual);
 			}
 	}

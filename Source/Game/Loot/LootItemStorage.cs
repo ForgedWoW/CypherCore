@@ -91,7 +91,7 @@ namespace Game.Loots
 
             var container = _lootItemStorage[item.GUID.Counter];
 
-            Loot loot = new(player.GetMap(), item.GUID, LootType.Item, null);
+            Loot loot = new(player.Map, item.GUID, LootType.Item, null);
             loot.gold = container.GetMoney();
 
             LootTemplate lt = LootStorage.Items.GetLootFor(item.Entry);

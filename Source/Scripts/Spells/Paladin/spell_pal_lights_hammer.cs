@@ -27,7 +27,7 @@ public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
 
 			for (var i = tempList.GetEnumerator(); i.MoveNext();)
 			{
-				var owner = i.Current.GetOwner();
+				var owner = i.Current.OwnerUnit;
 
 				if (owner != null && owner.GUID == caster.GUID && i.Current.IsSummon)
 					continue;

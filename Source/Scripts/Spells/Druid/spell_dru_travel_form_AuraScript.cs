@@ -39,7 +39,7 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 	{
 		// Check what form is appropriate
 		if (player.HasSpell(DruidSpellIds.FormAquaticPassive) &&
-			player.			IsInWater) // Aquatic form
+			player.IsInWater) // Aquatic form
 			return DruidSpellIds.FormAquatic;
 
 		if (!player.IsInCombat &&
@@ -88,9 +88,9 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, difficulty);
 
-		if (requireOutdoors && !targetPlayer.IsOutdoors())
+		if (requireOutdoors && !targetPlayer.IsOutdoors)
 			return SpellCastResult.OnlyOutdoors;
 
-		return spellInfo.CheckLocation(targetPlayer.Location.MapId, targetPlayer.GetZoneId(), targetPlayer.GetAreaId(), targetPlayer);
+		return spellInfo.CheckLocation(targetPlayer.Location.MapId, targetPlayer.Zone, targetPlayer.Area, targetPlayer);
 	}
 }

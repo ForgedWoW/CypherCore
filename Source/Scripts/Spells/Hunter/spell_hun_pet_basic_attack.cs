@@ -25,7 +25,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 		if (caster == null)
 			return SpellCastResult.DontReport;
 
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 
 		if (owner == null)
 			return SpellCastResult.DontReport;
@@ -49,23 +49,21 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 				if (caster.AsCreature.IsAIEnabled && caster.AsPet)
 				{
-					caster.					AsPet.ClearUnitState(UnitState.Follow);
+					caster.AsPet.ClearUnitState(UnitState.Follow);
 
 					if (caster.AsPet.Victim)
-						caster.						AsPet.AttackStop();
+						caster.AsPet.AttackStop();
 
 					caster.MotionMaster.Clear();
-					caster.					AsPet.GetCharmInfo().SetIsCommandAttack(true);
-					caster.					AsPet.GetCharmInfo().SetIsAtStay(false);
-					caster.					AsPet.GetCharmInfo().SetIsReturning(false);
-					caster.					AsPet.GetCharmInfo().SetIsFollowing(false);
+					caster.AsPet.GetCharmInfo().SetIsCommandAttack(true);
+					caster.AsPet.GetCharmInfo().SetIsAtStay(false);
+					caster.AsPet.GetCharmInfo().SetIsReturning(false);
+					caster.AsPet.GetCharmInfo().SetIsFollowing(false);
 
-					caster.
-					AsCreature.GetAI().AttackStart(target);
+					caster.AsCreature.AI.AttackStart(target);
 				}
 
-				owner.
-				AsPlayer.GetSpellHistory().AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
+				owner.AsPlayer.GetSpellHistory().AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
 			}
 		}
 
@@ -83,7 +81,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 		if (pet != null)
 		{
-			var owner = Caster.GetOwner();
+			var owner = Caster.OwnerUnit;
 
 			if (owner != null)
 			{

@@ -23,7 +23,7 @@ public class npc_enraged_worgen_dm : ScriptedAI
 
 		if (Vanessa != null)
 		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.GetAI();
+			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
 			if (pAI != null)
 				pAI.WorgenKilled();

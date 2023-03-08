@@ -122,7 +122,7 @@ internal class boss_attumen : BossAI
 			var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
 
 			if (midnight)
-				midnight.GetAI().DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
+				midnight.AI.DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
 		}
 	}
 
@@ -144,8 +144,8 @@ internal class boss_attumen : BossAI
 				else
 					summon.SetHealth(me.GetHealth());
 
-				summon.GetAI().DoZoneInCombat();
-				summon.GetAI().SetGUID(_midnightGUID, (int)CreatureIds.Midnight);
+				summon.AI.DoZoneInCombat();
+				summon.AI.SetGUID(_midnightGUID, (int)CreatureIds.Midnight);
 			}
 		}
 
@@ -242,7 +242,7 @@ internal class boss_attumen : BossAI
 				midnight.RemoveAllAttackers();
 				midnight.ReactState = ReactStates.Passive;
 				midnight.MotionMaster.MoveFollow(me, 2.0f, 0.0f);
-				midnight.GetAI().Talk(TextIds.EmoteMountUp);
+				midnight.AI.Talk(TextIds.EmoteMountUp);
 
 				me.AttackStop();
 				me.RemoveAllAttackers();
@@ -328,9 +328,9 @@ internal class boss_midnight : BossAI
 		if (summon.Entry == CreatureIds.AttumenUnmounted)
 		{
 			_attumenGUID = summon.GUID;
-			summon.GetAI().SetGUID(me.GUID, (int)CreatureIds.Midnight);
-			summon.GetAI().AttackStart(me.Victim);
-			summon.GetAI().Talk(TextIds.SayAppear);
+			summon.AI.SetGUID(me.GUID, (int)CreatureIds.Midnight);
+			summon.AI.AttackStart(me.Victim);
+			summon.AI.Talk(TextIds.SayAppear);
 		}
 
 		base.JustSummoned(summon);

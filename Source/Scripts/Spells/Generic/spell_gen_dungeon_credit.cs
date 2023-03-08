@@ -27,7 +27,7 @@ internal class spell_gen_dungeon_credit : SpellScript, ISpellAfterHit
 
 		_handled = true;
 		var caster = Caster;
-		var instance = caster.GetInstanceScript();
+		var instance = caster.InstanceScript;
 
 		instance?.UpdateEncounterStateForSpellCast(SpellInfo.Id, caster);
 	}

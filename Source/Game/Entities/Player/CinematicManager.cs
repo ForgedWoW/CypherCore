@@ -69,7 +69,8 @@ public class CinematicManager : IDisposable
 				if (!pos.IsPositionValid())
 					return;
 
-				_player.GetMap().LoadGridForActiveObject(pos.X, pos.Y, _player);
+				_player.
+				Map.LoadGridForActiveObject(pos.X, pos.Y, _player);
 				_cinematicObject = _player.SummonCreature(1, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
 				if (_cinematicObject)

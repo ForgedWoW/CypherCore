@@ -121,7 +121,7 @@ namespace Game.Movement
             AddFlag(MovementGeneratorFlags.Finalized);
 
             if (movementInform && owner.IsCreature)
-                owner.                AsCreature.GetAI().MovementInform(MovementGeneratorType.Rotate, _id);
+                owner.                AsCreature.                AI.MovementInform(MovementGeneratorType.Rotate, _id);
         }
 
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Rotate; }

@@ -20,7 +20,7 @@ public class npc_captain_cookie_bad_food : ScriptedAI
 
 	public npc_captain_cookie_bad_food(Creature pCreature) : base(pCreature)
 	{
-		_pInstance = pCreature.GetInstanceScript();
+		_pInstance = pCreature.InstanceScript;
 	}
 
 	public override void JustDied(Unit killer)
@@ -39,7 +39,7 @@ public class npc_captain_cookie_bad_food : ScriptedAI
 
 	public override bool OnGossipHello(Player pPlayer)
 	{
-		var pInstance = me.GetInstanceScript();
+		var pInstance = me.InstanceScript;
 
 		if (pInstance == null)
 			return true;
@@ -47,7 +47,7 @@ public class npc_captain_cookie_bad_food : ScriptedAI
 		if (pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
 			return true;
 
-		pPlayer.CastSpell(pPlayer, (pPlayer.GetMap().IsHeroic() ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
+		pPlayer.CastSpell(pPlayer, (pPlayer.Map.IsHeroic() ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
 
 		me.DespawnOrUnsummon();
 

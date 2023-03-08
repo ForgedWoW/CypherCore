@@ -95,7 +95,7 @@ public class Pet : Guardian
 			// Register the pet for guid lookup
 			base.AddToWorld();
 			InitializeAI();
-			var zoneScript = ZoneScript1 != null ? ZoneScript1 : GetInstanceScript();
+			var zoneScript = ZoneScript1 != null ? ZoneScript1 : InstanceScript;
 
 			if (zoneScript != null)
 				zoneScript.OnCreatureCreate(this);
@@ -120,7 +120,7 @@ public class Pet : Guardian
 		{
 			// Don't call the function for Creature, normal mobs + totems go in a different storage
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class Pet : Guardian
 		if (petStable.GetCurrentPet() != null && owner.GetPet() != null && petStable.GetCurrentPet().PetNumber == petInfo.PetNumber)
 			return false;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.GetMap().GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Map.GetDifficultyID());
 
 		var isTemporarySummon = spellInfo != null && spellInfo.Duration > 0;
 
@@ -219,7 +219,7 @@ public class Pet : Guardian
 			return false;
 		}
 
-		var map = owner.GetMap();
+		var map = owner.Map;
 		var guid = map.GenerateLowGuid(HighGuid.Pet);
 
 		if (!Create(guid, map, petInfo.CreatureId, petInfo.PetNumber))
@@ -413,7 +413,7 @@ public class Pet : Guardian
 					LearnPetPassives();
 					InitLevelupSpellsForLevel();
 
-					if (GetMap().IsBattleArena())
+					if (Map.IsBattleArena())
 						RemoveArenaAuras();
 
 					CastPetAuras(current);
@@ -663,7 +663,7 @@ public class Pet : Guardian
 				// unsummon pet that lost owner
 				var owner = GetOwner();
 
-				if (owner == null || (!IsWithinDistInMap(owner, GetMap().GetVisibilityRange()) && !IsPossessed) || (IsControlled() && owner.PetGUID.IsEmpty))
+				if (owner == null || (!IsWithinDistInMap(owner, Map.GetVisibilityRange()) && !IsPossessed) || (IsControlled() && owner.PetGUID.IsEmpty))
 				{
 					Remove(PetSaveMode.NotInSlot, true);
 
@@ -792,7 +792,7 @@ public class Pet : Guardian
 	{
 		Cypher.Assert(creature);
 
-		if (!CreateBaseAtTamed(creature.CreatureTemplate, creature.GetMap()))
+		if (!CreateBaseAtTamed(creature.CreatureTemplate, creature.Map))
 			return false;
 
 		Location.Relocate(creature.Location);
@@ -831,7 +831,7 @@ public class Pet : Guardian
 
 	public bool CreateBaseAtCreatureInfo(CreatureTemplate cinfo, Unit owner)
 	{
-		if (!CreateBaseAtTamed(cinfo, owner.GetMap()))
+		if (!CreateBaseAtTamed(cinfo, owner.Map))
 			return false;
 
 		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
@@ -1005,7 +1005,7 @@ public class Pet : Guardian
 	public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
 	{
 		Cypher.Assert(map);
-		SetMap(map);
+		Map = map;
 
 		// TODO: counter should be constructed as (summon_count << 32) | petNumber
 		Create(ObjectGuid.Create(HighGuid.Pet, map.GetId(), entry, guidlow));
@@ -1069,7 +1069,7 @@ public class Pet : Guardian
 
 	public new Player GetOwner()
 	{
-		return base.GetOwner().AsPlayer;
+		return base.OwnerUnit.AsPlayer;
 	}
 
 	public override void SetDisplayId(uint modelId, float displayScale = 1f)
@@ -1360,7 +1360,7 @@ public class Pet : Guardian
 				}
 
 				var info = effectInfo[key];
-				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
 				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
 				createInfo.SetCasterGuid(casterGuid);

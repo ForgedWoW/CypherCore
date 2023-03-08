@@ -63,7 +63,7 @@ public class SpellArea
 				if (!player)
 					return false;
 
-				var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.GetMap(), player.GetZoneId());
+				var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
 
 				if (Bf == null || Bf.CanFlyIn() || (!player.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed) && !player.HasAuraType(AuraType.Fly)))
 					return false;
@@ -76,7 +76,7 @@ public class SpellArea
 				if (!player)
 					return false;
 
-				var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.GetMap(), player.GetZoneId());
+				var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
 
 				if (bf == null || bf.GetTypeId() != (int)BattleFieldTypes.WinterGrasp)
 					return false;
@@ -97,7 +97,7 @@ public class SpellArea
 				if (!player)
 					return false;
 
-				var battlefieldWG = Global.BattleFieldMgr.GetBattlefieldByBattleId(player.GetMap(), 1);
+				var battlefieldWG = Global.BattleFieldMgr.GetBattlefieldByBattleId(player.Map, 1);
 
 				if (battlefieldWG != null)
 					return battlefieldWG.IsEnabled() && (player.TeamId == battlefieldWG.GetDefenderTeam()) && !battlefieldWG.IsWarTime();
@@ -109,7 +109,7 @@ public class SpellArea
 				if (!player)
 					return false;
 
-				var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.GetMap(), player.GetZoneId());
+				var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(player.Map, player.Zone);
 
 				if (bf != null)
 					return bf.IsWarTime();

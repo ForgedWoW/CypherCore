@@ -79,7 +79,7 @@ namespace Game
             {
                 foreach (ItemEffectRecord effect in item.GetEffects())
                 {
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo((uint)effect.SpellID, user.GetMap().GetDifficultyID());
+                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo((uint)effect.SpellID, user.Map.GetDifficultyID());
                     if (spellInfo != null)
                     {
                         if (!spellInfo.CanBeUsedInCombat)
@@ -189,7 +189,7 @@ namespace Game
                 // fails then this is first time opening, generate loot
                 if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
                 {
-                    Loot loot = new(player.GetMap(), item.GUID, LootType.Item, null);
+                    Loot loot = new(player.Map, item.GUID, LootType.Item, null);
                     item.Loot = loot;
                     loot.GenerateMoneyLoot(item.GetTemplate().MinMoneyLoot, item.GetTemplate().MaxMoneyLoot);
                     loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.gold != 0);
@@ -285,7 +285,7 @@ namespace Game
             if (mover != Player && mover.IsTypeId(TypeId.Player))
                 return;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.Map.GetDifficultyID());
             if (spellInfo == null)
             {
                 Log.outError(LogFilter.Network, "WORLD: unknown spell id {0}", cast.Cast.SpellID);
@@ -388,7 +388,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.CancelAura, Processing = PacketProcessing.Inplace)]
         void HandleCancelAura(CancelAura cancelAura)
         {
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _player.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _player.Map.GetDifficultyID());
             if (spellInfo == null)
                 return;
 
@@ -496,7 +496,7 @@ namespace Game
             if (mover != _player && mover.IsTypeId(TypeId.Player))
                 return;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo((uint)cancelChanneling.ChannelSpell, mover.GetMap().GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo((uint)cancelChanneling.ChannelSpell, mover.Map.GetDifficultyID());
             if (spellInfo == null)
                 return;
 
@@ -539,14 +539,14 @@ namespace Game
             if (!selfResSpells.Contains(selfRes.SpellId))
                 return;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(selfRes.SpellId, _player.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(selfRes.SpellId, _player.Map.GetDifficultyID());
             if (spellInfo == null)
                 return;
 
             if (_player.HasAuraType(AuraType.PreventResurrection) && !spellInfo.HasAttribute(SpellAttr7.BypassNoResurrectAura))
                 return; // silent return, client should display error by itself and not send this opcode
 
-            _player.CastSpell(_player, selfRes.SpellId, new CastSpellExtraArgs(_player.GetMap().GetDifficultyID()));
+            _player.CastSpell(_player, selfRes.SpellId, new CastSpellExtraArgs(_player.Map.GetDifficultyID()));
             _player.RemoveSelfResSpell(selfRes.SpellId);
         }
 

@@ -5214,7 +5214,7 @@ public partial class Player
 			}
 			else //not freeforall, notify everyone
 			{
-				loot.NotifyItemRemoved(lootSlot, GetMap());
+				loot.NotifyItemRemoved(lootSlot, Map);
 			}
 
 			//if only one person is supposed to loot the item, then set it to looted
@@ -5270,7 +5270,7 @@ public partial class Player
 	public void RemovedInsignia(Player looterPlr)
 	{
 		// If player is not in battleground and not in worldpvpzone
-		if (GetBattlegroundId() == 0 && !IsInWorldPvpZone())
+		if (GetBattlegroundId() == 0 && !IsInWorldPvpZone)
 			return;
 
 		// If not released spirit, do it !
@@ -5285,7 +5285,7 @@ public partial class Player
 
 		// We have to convert player corpse to bones, not to be able to resurrect there
 		// SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
-		var bones = GetMap().ConvertCorpseToBones(GUID, true);
+		var bones = Map.ConvertCorpseToBones(GUID, true);
 
 		if (!bones)
 			return;
@@ -5293,7 +5293,7 @@ public partial class Player
 		// Now we must make bones lootable, and send player loot
 		bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-		bones.Loot = new Loot(GetMap(), bones.GUID, LootType.Insignia, looterPlr.GetGroup());
+		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.GetGroup());
 
 		// For AV Achievement
 		var bg = GetBattleground();
@@ -5304,7 +5304,7 @@ public partial class Player
 				bones.Loot.FillLoot(1, LootStorage.Creature, this, true);
 		}
 		// For wintergrasp Quests
-		else if (GetZoneId() == (uint)AreaId.Wintergrasp)
+		else if (Zone == (uint)AreaId.Wintergrasp)
 		{
 			bones.Loot.FillLoot(1, LootStorage.Creature, this, true);
 		}
@@ -5350,7 +5350,7 @@ public partial class Player
 		SendPacket(packet);
 
 		// add 'this' player as one of the players that are looting 'loot'
-		loot.OnLootOpened(GetMap(), GUID);
+		loot.OnLootOpened(Map, GUID);
 		_aeLootView[loot.GetGUID()] = loot;
 
 		if (loot.loot_type == LootType.Corpse && !loot.GetOwnerGUID().IsItem)
@@ -7487,7 +7487,7 @@ public partial class Player
 	void UpdateItemLevelAreaBasedScaling()
 	{
 		// @todo Activate pvp item levels during world pvp
-		var map = GetMap();
+		var map = Map;
 		var pvpActivity = map.IsBattlegroundOrArena() || ((int)map.GetEntry().Flags[1]).HasAnyFlag(0x40) || HasPvpRulesEnabled();
 
 		if (_usePvpItemLevels != pvpActivity)

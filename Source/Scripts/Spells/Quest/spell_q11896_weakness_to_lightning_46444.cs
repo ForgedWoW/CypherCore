@@ -25,7 +25,7 @@ internal class spell_q11896_weakness_to_lightning_46444 : SpellScript, IHasSpell
 
 		if (target != null)
 		{
-			var owner = target.GetOwner();
+			var owner = target.OwnerUnit;
 
 			if (owner != null)
 				target.CastSpell(owner, (uint)EffectValue, true);

@@ -208,7 +208,7 @@ namespace Game.Movement
         {
             if (args.TransformForTransport)
             {
-                Unit vehicle = unit.GetVehicleBase();
+                Unit vehicle = unit.VehicleBase;
                 if (vehicle != null)
                     angle -= vehicle.Location.Orientation;
                 else
@@ -344,7 +344,7 @@ namespace Game.Movement
             var pos = new Position(input);
             if (_transformForTransport)
             {
-                ITransport transport = _owner.GetDirectTransport();
+                ITransport transport = _owner.DirectTransport;
                 if (transport != null)
                 {
                     transport.CalculatePassengerOffset(pos);

@@ -1028,7 +1028,7 @@ public class UnitData : BaseUpdateData<Unit>
 				}
 
 			// this also applies for transform auras
-			var transform = Global.SpellMgr.GetSpellInfo(unit.GetTransformSpell(), unit.GetMap().GetDifficultyID());
+			var transform = Global.SpellMgr.GetSpellInfo(unit.TransformSpell, unit.Map.GetDifficultyID());
 
 			if (transform != null)
 				foreach (var spellEffectInfo in transform.Effects)

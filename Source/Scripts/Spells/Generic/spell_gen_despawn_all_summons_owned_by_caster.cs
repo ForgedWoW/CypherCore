@@ -27,7 +27,7 @@ internal class spell_gen_despawn_all_summons_owned_by_caster : SpellScript, IHas
 		{
 			var target = HitCreature;
 
-			if (target.GetOwner() == caster)
+			if (target.OwnerUnit == caster)
 				target.DespawnOrUnsummon();
 		}
 	}

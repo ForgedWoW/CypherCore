@@ -32,7 +32,7 @@ public class npc_rope_away : ScriptedAI
 	{
 		if (id == 1)
 		{
-			var passenger = me.GetVehicleKit().GetPassenger(0);
+			var passenger = me.VehicleKit1.GetPassenger(0);
 
 			if (passenger != null)
 				passenger.ExitVehicle();

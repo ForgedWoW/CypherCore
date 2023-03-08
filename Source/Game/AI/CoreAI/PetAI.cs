@@ -92,7 +92,7 @@ namespace Game.AI
                     if (spellID == 0)
                         continue;
 
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellID, me.GetMap().GetDifficultyID());
+                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellID, me.Map.GetDifficultyID());
                     if (spellInfo == null)
                         continue;
 
@@ -576,7 +576,7 @@ namespace Game.AI
             // dont allow pets to follow targets far away from owner
             Unit owner = me.CharmerOrOwner;
             if (owner)
-                if (owner.Location.GetExactDist(me.Location) >= (owner.GetVisibilityRange() - 10.0f))
+                if (owner.Location.GetExactDist(me.Location) >= (owner.VisibilityRange - 10.0f))
                     return true;
 
             return !me.IsValidAttackTarget(me.Victim);

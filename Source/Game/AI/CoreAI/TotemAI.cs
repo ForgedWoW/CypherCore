@@ -26,7 +26,7 @@ namespace Game.AI
                 return;
 
             // Search spell
-            var spellInfo = Global.SpellMgr.GetSpellInfo(me.ToTotem().GetSpell(), me.GetMap().GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo(me.ToTotem().GetSpell(), me.Map.GetDifficultyID());
             if (spellInfo == null)
                 return;
 
@@ -41,7 +41,7 @@ namespace Game.AI
             if (victim == null || !victim.IsTargetableForAttack() || !me.IsWithinDistInMap(victim, max_range) || me.IsFriendlyTo(victim) || !me.CanSeeOrDetect(victim))
             {
                 float extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-                var u_check = new NearestAttackableUnitInObjectRangeCheck(me, me.GetCharmerOrOwnerOrSelf(), max_range);
+                var u_check = new NearestAttackableUnitInObjectRangeCheck(me, me.CharmerOrOwnerOrSelf, max_range);
                 var checker = new UnitLastSearcher(me, u_check, GridType.All);
                 Cell.VisitGrid(me, checker, max_range + extraSearchRadius);
                 victim = checker.GetTarget();

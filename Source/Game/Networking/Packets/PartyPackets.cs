@@ -239,7 +239,7 @@ class PartyMemberFullState : ServerPacket
 		if (player.IsDND)
 			MemberStats.Status |= GroupMemberOnlineStatus.DND;
 
-		if (player.GetVehicle())
+		if (player.Vehicle1)
 			MemberStats.Status |= GroupMemberOnlineStatus.Vehicle;
 
 		// Level
@@ -256,7 +256,7 @@ class PartyMemberFullState : ServerPacket
 		MemberStats.MaxPower = (ushort)player.GetMaxPower(player.GetPowerType());
 
 		// Position
-		MemberStats.ZoneID = (ushort)player.GetZoneId();
+		MemberStats.ZoneID = (ushort)player.Zone;
 		MemberStats.PositionX = (short)player.Location.X;
 		MemberStats.PositionY = (short)(player.Location.Y);
 		MemberStats.PositionZ = (short)(player.Location.Z);
@@ -268,7 +268,7 @@ class PartyMemberFullState : ServerPacket
 		MemberStats.WmoDoodadPlacementID = 0;
 
 		// Vehicle
-		var vehicle = player.GetVehicle();
+		var vehicle = player.Vehicle1;
 
 		if (vehicle != null)
 		{

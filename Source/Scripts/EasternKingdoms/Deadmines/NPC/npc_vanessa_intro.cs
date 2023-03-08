@@ -110,7 +110,7 @@ public class npc_vanessa_introAI : BossAI
 						var controller_achi = me.FindNearestCreature(boss_vanessa_vancleef.eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
 
 						if (controller_achi != null)
-							controller_achi.GetAI().SetData(0, boss_vanessa_vancleef.eAchievementMisc.START_TIMER_ACHIEVEMENT);
+							controller_achi.AI.SetData(0, boss_vanessa_vancleef.eAchievementMisc.START_TIMER_ACHIEVEMENT);
 
 						foreach (var item in players)
 						{

@@ -845,7 +845,7 @@ public partial class Unit
 		}
 		else // victim->GetTypeId() == TYPEID_UNIT
 		{
-			var owner = victim.GetOwner();
+			var owner = victim.OwnerUnit;
 
 			if (owner != null)
 				if (owner.IsPlayer)
@@ -941,7 +941,7 @@ public partial class Unit
 
 		if (spellInfo != null)
 		{
-			var modOwner = GetSpellModOwner();
+			var modOwner = SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(spellInfo, SpellModOp.HitChance, ref resistMissChance);
@@ -1183,9 +1183,9 @@ public partial class Unit
 			return player.GetRatingBonusValue(cr);
 		}
 		// Player's pet get resilience from owner
-		else if (IsPet && GetOwner())
+		else if (IsPet && OwnerUnit)
 		{
-			var owner = GetOwner().AsPlayer;
+			var owner = OwnerUnit.AsPlayer;
 
 			if (owner)
 				return owner.GetRatingBonusValue(cr);

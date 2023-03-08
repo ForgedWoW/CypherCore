@@ -27,7 +27,7 @@ public class spell_warlock_soul_link : AuraScript, IHasAuraEffects
 		if (pet == null)
 			return splitAmount;
 
-		var owner = pet.GetOwner();
+		var owner = pet.OwnerUnit;
 
 		if (owner == null)
 			return splitAmount;

@@ -611,7 +611,7 @@ public class InstanceScript : ZoneScript
 
 	public DungeonEncounterRecord GetBossDungeonEncounter(Creature creature)
 	{
-		var bossAi = creature.GetAI() as BossAI;
+		var bossAi = creature.AI as BossAI;
 
 		if (bossAi != null)
 			return GetBossDungeonEncounter(bossAi.GetBossId());
@@ -774,7 +774,7 @@ public class InstanceScript : ZoneScript
 
 	public bool InstanceHasScript(WorldObject obj, string scriptName)
 	{
-		var instance = obj.GetMap().ToInstanceMap();
+		var instance = obj.Map.ToInstanceMap();
 
 		if (instance != null)
 			return instance.GetScriptName() == scriptName;
@@ -932,14 +932,14 @@ public class InstanceScript : ZoneScript
 				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.IsInCombat)
-					minion.GetAI().EnterEvadeMode();
+					minion.					AI.EnterEvadeMode();
 
 				break;
 			case EncounterState.InProgress:
 				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.Victim == null)
-					minion.GetAI().DoZoneInCombat();
+					minion.					AI.DoZoneInCombat();
 
 				break;
 			default:

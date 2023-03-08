@@ -36,7 +36,7 @@ namespace Game.Chat
             }
 
             Player player = handler.GetSession().Player;
-            if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out int despawnedCount))
+            if (!player.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out int despawnedCount))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
                 return false;
@@ -64,7 +64,7 @@ namespace Game.Chat
 
             if (force.Equals("force", StringComparison.OrdinalIgnoreCase))
                 creatureTarget.ClearUnitState(UnitState.Evade);
-            creatureTarget.GetAI().EnterEvadeMode(why.GetValueOrDefault(EvadeReason.Other));
+            creatureTarget.            AI.EnterEvadeMode(why.GetValueOrDefault(EvadeReason.Other));
 
             return true;
         }
@@ -88,7 +88,7 @@ namespace Game.Chat
             uint nativeid = target.NativeDisplayId;
             uint entry = target.Entry;
 
-            long curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.GetMap().GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
+            long curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
@@ -99,7 +99,7 @@ namespace Game.Chat
             if (target.CreatureData != null && target.CreatureData.SpawnGroupData.GroupId != 0)
             {
                 SpawnGroupTemplateData groupData = target.CreatureData.SpawnGroupData;
-                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.GetMap().IsSpawnGroupActive(groupData.GroupId));
+                handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.Map.IsSpawnGroupActive(groupData.GroupId));
             }
             handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.RespawnCompatibilityMode);
             handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.Level);
@@ -138,7 +138,7 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, target.GetAIName(), target.GetScriptName());
             handler.SendSysMessage(CypherStrings.ObjectinfoStringIds, target.StringIds[0], target.StringIds[1], target.StringIds[2]);
             handler.SendSysMessage(CypherStrings.NpcinfoReactstate, target.ReactState);
-            var ai = target.GetAI();
+            var ai = target.AI;
             if (ai != null)
                 handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
             handler.SendSysMessage(CypherStrings.NpcinfoFlagsExtra, cInfo.FlagsExtra);
@@ -376,7 +376,7 @@ namespace Game.Chat
             Player player = handler.GetSession().Player;
 
             List<WorldObject> creatureList = new();
-            if (!player.GetMap().SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
+            if (!player.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
                 return false;
@@ -439,7 +439,9 @@ namespace Game.Chat
             pet.SetLevel(level - 1);
 
             // add to world
-            pet.GetMap().AddToMap(pet.AsCreature);
+            pet.
+            // add to world
+            Map.AddToMap(pet.AsCreature);
 
             // visual effect for levelup
             pet.SetLevel(level);
@@ -556,7 +558,7 @@ namespace Game.Chat
                     return false;
 
                 Player chr = handler.GetSession().Player;
-                Map map = chr.GetMap();
+                Map map = chr.Map;
 
                 Transport trans = chr.GetTransport<Transport>();
                 if (trans)
@@ -890,7 +892,8 @@ namespace Game.Chat
                     return false;
                 }
 
-                creature.GetAI().SetData(data_1, data_2);
+                creature.
+                AI.SetData(data_1, data_2);
                 string AIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : (creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set");
                 handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GUID, creature.Entry, creature.GetName(), data_1, data_2, AIorScript);
                 return true;

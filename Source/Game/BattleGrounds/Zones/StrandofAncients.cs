@@ -557,7 +557,7 @@ namespace Game.BattleGrounds.Zones
                                     Unit unit = invoker.AsUnit;
                                     if (unit)
                                     {
-                                        Player player = unit.GetCharmerOrOwnerPlayerOrPlayerItself();
+                                        Player player = unit.CharmerOrOwnerPlayerOrPlayerItself;
                                         if (player)
                                         {
                                             UpdatePlayerScore(player, ScoreType.DestroyedWall, 1);
@@ -769,7 +769,7 @@ namespace Game.BattleGrounds.Zones
                     npc = SACreatureTypes.Rigspark;
                     Creature rigspark = AddCreature(SAMiscConst.NpcEntries[npc], (int)npc, SAMiscConst.NpcSpawnlocs[npc], Attackers);
                     if (rigspark)
-                        rigspark.GetAI().Talk(SATextIds.SparklightRigsparkSpawn);
+                        rigspark.                        AI.Talk(SATextIds.SparklightRigsparkSpawn);
 
                     for (byte j = SACreatureTypes.Demolisher7; j <= SACreatureTypes.Demolisher8; j++)
                     {
@@ -797,7 +797,7 @@ namespace Game.BattleGrounds.Zones
                     npc = SACreatureTypes.Sparklight;
                     Creature sparklight = AddCreature(SAMiscConst.NpcEntries[npc], (int)npc, SAMiscConst.NpcSpawnlocs[npc], Attackers);
                     if (sparklight)
-                        sparklight.GetAI().Talk(SATextIds.SparklightRigsparkSpawn);
+                        sparklight.                        AI.Talk(SATextIds.SparklightRigsparkSpawn);
 
                     for (byte j = SACreatureTypes.Demolisher5; j <= SACreatureTypes.Demolisher6; j++)
                     {

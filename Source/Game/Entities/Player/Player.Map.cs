@@ -129,7 +129,7 @@ public partial class Player
 		_zoneUpdateId = newZone;
 		_zoneUpdateTimer = 1 * Time.InMilliseconds;
 
-		GetMap().UpdatePlayerZoneStats(oldZone, newZone);
+		Map.UpdatePlayerZoneStats(oldZone, newZone);
 
 		// call leave script hooks immedately (before updating flags)
 		if (oldZone != newZone)
@@ -158,9 +158,9 @@ public partial class Player
 			return;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.Weather))
-			GetMap().GetOrGenerateZoneDefaultWeather(newZone);
+			Map.GetOrGenerateZoneDefaultWeather(newZone);
 
-		GetMap().SendZoneDynamicInfo(newZone, this);
+		Map.SendZoneDynamicInfo(newZone, this);
 
 		UpdateWarModeAuras();
 
@@ -224,7 +224,7 @@ public partial class Player
 		}
 		else if (overrideZonePvpType == ZonePVPTypeOverride.None)
 		{
-			if (InBattleground() || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, GetMap()) != 0))
+			if (InBattleground() || area.HasFlag(AreaFlags.Combat) || (area.PvpCombatWorldStateID != -1 && Global.WorldStateMgr.GetValue(area.PvpCombatWorldStateID, Map) != 0))
 			{
 				PvpInfo.IsInHostileArea = true;
 			}
@@ -280,7 +280,7 @@ public partial class Player
 
 	public void ConfirmPendingBind()
 	{
-		var map = GetMap().ToInstanceMap();
+		var map = Map.ToInstanceMap();
 
 		if (map == null || map.GetInstanceId() != _pendingBindId)
 			return;
@@ -435,7 +435,7 @@ public partial class Player
 			return true;
 
 		// non-instances are always valid
-		var map = GetMap();
+		var map = Map;
 		var instance = map?.ToInstanceMap();
 
 		if (instance == null)
@@ -567,7 +567,7 @@ public partial class Player
 		if (dungeonEncounter == null)
 			return false;
 
-		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(GetMap().GetEntry(), GetMap().GetMapDifficulty()));
+		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Map.GetEntry(), Map.GetMapDifficulty()));
 
 		if (instanceLock == null)
 			return false;
@@ -583,11 +583,11 @@ public partial class Player
 		_mirrorTimerFlags &= ~(PlayerUnderwaterState.InWater | PlayerUnderwaterState.InLava | PlayerUnderwaterState.InSlime | PlayerUnderwaterState.InDarkWater);
 
 		// player specific logic for mirror timers
-		if (GetLiquidStatus() != 0 && newLiquidData != null)
+		if (LiquidStatus != 0 && newLiquidData != null)
 		{
 			// Breath bar state (under water in any liquid type)
 			if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.AllLiquids))
-				if (GetLiquidStatus().HasAnyFlag(ZLiquidStatus.UnderWater))
+				if (LiquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater))
 					_mirrorTimerFlags |= PlayerUnderwaterState.InWater;
 
 			// Fatigue bar state (if not on flight path or transport)
@@ -596,12 +596,12 @@ public partial class Player
 
 			// Lava state (any contact)
 			if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Magma))
-				if (GetLiquidStatus().HasAnyFlag(ZLiquidStatus.InContact))
+				if (LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
 					_mirrorTimerFlags |= PlayerUnderwaterState.InLava;
 
 			// Slime state (any contact)
 			if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.Slime))
-				if (GetLiquidStatus().HasAnyFlag(ZLiquidStatus.InContact))
+				if (LiquidStatus.HasAnyFlag(ZLiquidStatus.InContact))
 					_mirrorTimerFlags |= PlayerUnderwaterState.InSlime;
 		}
 

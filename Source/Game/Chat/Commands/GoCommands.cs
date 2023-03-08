@@ -395,7 +395,7 @@ namespace Game.Chat.Commands
         {
             Player player = handler.GetSession().Player;
 
-            uint areaId = areaIdArg.HasValue ? areaIdArg.Value : player.GetZoneId();
+            uint areaId = areaIdArg.HasValue ? areaIdArg.Value : player.Zone;
 
             AreaTableRecord areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
             if (x < 0 || x > 100 || y < 0 || y > 100 || areaEntry == null)

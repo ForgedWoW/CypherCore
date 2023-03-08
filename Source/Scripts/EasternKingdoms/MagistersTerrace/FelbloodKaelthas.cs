@@ -370,7 +370,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 
 	public npc_felblood_kaelthas_phoenix(Creature creature) : base(creature)
 	{
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 		Initialize();
 	}
 
@@ -404,7 +404,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 
 					if (kaelthas)
 					{
-						kaelthas.GetAI().JustSummoned(egg);
+						kaelthas.AI.JustSummoned(egg);
 						_eggGUID = egg.GUID;
 					}
 				}

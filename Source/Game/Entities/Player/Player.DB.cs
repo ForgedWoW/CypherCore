@@ -681,7 +681,7 @@ public partial class Player
 			}
 		}
 
-		SetMap(map);
+		Map = map;
 		UpdatePositionData();
 
 		// now that map position is determined, check instance validity
@@ -1301,7 +1301,7 @@ public partial class Player
 				stmt.AddValue(index++, 0); // summonedPetNumber
 
 			stmt.AddValue(index++, (ushort)LoginFlags);
-			stmt.AddValue(index++, GetZoneId());
+			stmt.AddValue(index++, Zone);
 			stmt.AddValue(index++, _deathExpireTime);
 
 			ss.Clear();
@@ -2085,7 +2085,7 @@ public partial class Player
 
 		if (!result.IsEmpty())
 		{
-			var zoneId = GetZoneId();
+			var zoneId = Zone;
 			Dictionary<ObjectGuid, Bag> bagMap = new();         // fast guid lookup for bags
 			Dictionary<ObjectGuid, Item> invalidBagMap = new(); // fast guid lookup for bags
 			Queue<Item> problematicItems = new();
@@ -2688,7 +2688,7 @@ public partial class Player
 				}
 
 				var info = effectInfo[key];
-				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
 				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
 				createInfo.SetCasterGuid(casterGuid);

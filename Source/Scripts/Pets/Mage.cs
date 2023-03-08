@@ -36,7 +36,7 @@ namespace Scripts.Pets
 
 			public override void InitializeAI()
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return;
@@ -49,7 +49,7 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint diff)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 				{
@@ -85,7 +85,7 @@ namespace Scripts.Pets
 
 			public override bool CanAIAttack(Unit who)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				return owner &&
 						who.IsAlive &&
@@ -117,7 +117,7 @@ namespace Scripts.Pets
 			// we prioritize between things that are in combat with owner based on the owner's threat to them
 			private new bool UpdateVictim()
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return false;

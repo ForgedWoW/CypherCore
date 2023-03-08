@@ -25,10 +25,10 @@ public class spell_warlock_imp_firebolt : SpellScript, IHasSpellEffects
 		var caster = Caster;
 		var target = HitUnit;
 
-		if (caster == null || !caster.GetOwner() || target == null)
+		if (caster == null || !caster.OwnerUnit || target == null)
 			return;
 
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 		var damage = HitDamage;
 
 		if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GUID))

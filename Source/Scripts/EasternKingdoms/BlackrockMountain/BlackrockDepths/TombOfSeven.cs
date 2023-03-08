@@ -62,7 +62,7 @@ internal class boss_gloomrel : ScriptedAI
 
 	public boss_gloomrel(Creature creature) : base(creature)
 	{
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
@@ -124,7 +124,7 @@ internal class boss_doomrel : ScriptedAI
 	public boss_doomrel(Creature creature) : base(creature)
 	{
 		Initialize();
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -228,7 +228,7 @@ internal class boss_doomrel : ScriptedAI
 					Faction = (int)FactionTemplates.DarkIronDwarves;
 
 				me.SetImmuneToPC(false);
-				me.GetAI().AttackStart(player);
+				me.AI.AttackStart(player);
 
 				_instance.SetGuidData(DataTypes.DataEvenstarter, player.GUID);
 

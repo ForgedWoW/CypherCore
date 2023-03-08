@@ -158,7 +158,7 @@ namespace Game.Movement
 
             if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
             {
-                CreatureAI ai = owner.AsCreature.GetAI();
+                CreatureAI ai = owner.AsCreature.AI;
                 if (ai != null)
                     ai.MovementInform(MovementGeneratorType.SplineChain, _id);
             }

@@ -108,7 +108,7 @@ internal class boss_gyth : BossAI
 										var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
 
 										if (victor)
-											victor.GetAI().SetData(1, 1);
+											victor.AI.SetData(1, 1);
 
 										task.Schedule(TimeSpan.FromSeconds(2), summonTask2 => { me.MotionMaster.MovePath(MiscConst.GythPath1, false); });
 									});

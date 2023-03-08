@@ -26,7 +26,7 @@ public interface ITransport
 	public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, Position pos, bool setHomePosition)
 	{
 		// transport teleported but passenger not yet (can happen for players)
-		if (passenger.GetMap() != map)
+		if (passenger.Map != map)
 			return;
 
 		// Do not use Unit::UpdatePosition here, we don't want to remove auras
@@ -77,7 +77,7 @@ public interface ITransport
 
 		if (unit != null)
 		{
-			var vehicle = unit.GetVehicleKit();
+			var vehicle = unit.VehicleKit1;
 
 			if (vehicle != null)
 				vehicle.RelocatePassengers();

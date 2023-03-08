@@ -129,7 +129,7 @@ public class AuraEffect
 				break;
 			case AuraType.ShowConfirmationPromptWithDifficulty:
 				if (caster)
-					amount = (int)caster.GetMap().GetDifficultyID();
+					amount = (int)caster.Map.GetDifficultyID();
 
 				_canBeRecalculated = false;
 
@@ -228,7 +228,7 @@ public class AuraEffect
 		if (!_isPeriodic)
 			return;
 
-		var modOwner = caster != null ? caster.GetSpellModOwner() : null;
+		var modOwner = caster != null ? caster.SpellModOwner : null;
 
 		// Apply casting time mods
 		if (_period != 0)
@@ -1519,7 +1519,7 @@ public class AuraEffect
 
 					// and polymorphic affects
 					if (target.IsPolymorphed())
-						target.RemoveAura(target.GetTransformSpell());
+						target.RemoveAura(target.TransformSpell);
 
 					break;
 				}
@@ -1543,7 +1543,7 @@ public class AuraEffect
 
 			if (modelid > 0)
 			{
-				var transformSpellInfo = Global.SpellMgr.GetSpellInfo(target.GetTransformSpell(), Base.CastDifficulty);
+				var transformSpellInfo = Global.SpellMgr.GetSpellInfo(target.TransformSpell, Base.CastDifficulty);
 
 				if (transformSpellInfo == null || !SpellInfo.IsPositive)
 					target.SetDisplayId(modelid);
@@ -1656,11 +1656,11 @@ public class AuraEffect
 		if (apply)
 		{
 			// update active transform spell only when transform not set or not overwriting negative by positive case
-			var transformSpellInfo = Global.SpellMgr.GetSpellInfo(target.GetTransformSpell(), Base.CastDifficulty);
+			var transformSpellInfo = Global.SpellMgr.GetSpellInfo(target.TransformSpell, Base.CastDifficulty);
 
 			if (transformSpellInfo == null || !SpellInfo.IsPositive || transformSpellInfo.IsPositive)
 			{
-				target.SetTransformSpell(Id);
+				target.				TransformSpell = Id;
 
 				// special case (spell specific functionality)
 				if (MiscValue == 0)
@@ -1870,8 +1870,8 @@ public class AuraEffect
 		}
 		else
 		{
-			if (target.GetTransformSpell() == Id)
-				target.SetTransformSpell(0);
+			if (target.TransformSpell == Id)
+				target.				TransformSpell = 0;
 
 			target.RestoreDisplayId(target.IsMounted);
 
@@ -1945,10 +1945,10 @@ public class AuraEffect
 		if (apply)
 		{
 			List<Unit> targets = new();
-			var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.GetMap().GetVisibilityRange(), u => u.HasUnitState(UnitState.Casting));
+			var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(target, target, target.Map.GetVisibilityRange(), u => u.HasUnitState(UnitState.Casting));
 			var searcher = new UnitListSearcher(target, targets, u_check, GridType.All);
 
-			Cell.VisitGrid(target, searcher, target.GetMap().GetVisibilityRange());
+			Cell.VisitGrid(target, searcher, target.Map.GetVisibilityRange());
 
 			foreach (var unit in targets)
 				for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
@@ -1958,7 +1958,7 @@ public class AuraEffect
 			foreach (var pair in target.GetThreatManager().GetThreatenedByMeList())
 				pair.Value.ScaleThreat(0.0f);
 
-			if (target.GetMap().IsDungeon()) // feign death does not remove combat in dungeons
+			if (target.Map.IsDungeon()) // feign death does not remove combat in dungeons
 			{
 				target.AttackStop();
 				var targetPlayer = target.AsPlayer;
@@ -2025,7 +2025,7 @@ public class AuraEffect
 		// call functions which may have additional effects after changing state of unit
 		if (apply && mode.HasAnyFlag(AuraEffectHandleModes.Real))
 		{
-			if (target.GetMap().IsDungeon())
+			if (target.Map.IsDungeon())
 			{
 				target.AttackStop();
 				var targetPlayer = target.AsPlayer;
@@ -2870,7 +2870,7 @@ public class AuraEffect
 		{
 			pet.RemoveCharmedBy(caster);
 
-			if (!pet.IsWithinDistInMap(caster, pet.GetMap().GetVisibilityRange()))
+			if (!pet.IsWithinDistInMap(caster, pet.Map.GetVisibilityRange()))
 			{
 				pet.Remove(PetSaveMode.NotInSlot, true);
 			}
@@ -2946,12 +2946,13 @@ public class AuraEffect
 			// so this break such spells or most of them.
 			// Current formula about m_amount: effect base points + dieside - 1
 			// TO DO: Reasearch more about 0/0 and fix it.
-			caster._EnterVehicle(target.GetVehicleKit(), (sbyte)(Amount - 1), aurApp);
+			caster._EnterVehicle(target.VehicleKit1, (sbyte)(Amount - 1), aurApp);
 		}
 		else
 		{
 			// Remove pending passengers before exiting vehicle - might cause an Uninstall
-			target.GetVehicleKit().RemovePendingEventsForPassenger(caster);
+			target.			// Remove pending passengers before exiting vehicle - might cause an Uninstall
+			VehicleKit1.RemovePendingEventsForPassenger(caster);
 
 			if (Id == 53111) // Devour Humanoid
 			{
@@ -2968,7 +2969,7 @@ public class AuraEffect
 			if (!seatChange)
 				caster._ExitVehicle();
 			else
-				target.GetVehicleKit().RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
+				target.				VehicleKit1.RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
 
 			// some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
 			caster.RemoveAura(Id);
@@ -4741,7 +4742,7 @@ public class AuraEffect
 									if (bg)
 										bg.RemovePlayerFromResurrectQueue(target.GUID);
 
-									var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(target.GetMap(), target.GetZoneId());
+									var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(target.Map, target.Zone);
 
 									if (bf != null)
 										bf.RemovePlayerFromResurrectQueue(target.GUID);
@@ -4757,7 +4758,7 @@ public class AuraEffect
 								if (!target.IsTypeId(TypeId.Player) || aurApp.RemoveMode != AuraRemoveMode.Expire)
 									return;
 
-								if (target.GetMap().IsBattleground())
+								if (target.Map.IsBattleground())
 									target.									AsPlayer.LeaveBattleground();
 
 								break;
@@ -5376,7 +5377,7 @@ public class AuraEffect
 			if (!target.CreateVehicleKit((uint)vehicleId, 0))
 				return;
 		}
-		else if (target.GetVehicleKit() != null)
+		else if (target.VehicleKit1 != null)
 		{
 			target.RemoveVehicleKit();
 		}
@@ -5401,7 +5402,7 @@ public class AuraEffect
 
 		if (apply)
 			target.RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
-		else if (!target.GetMap().Instanceable())
+		else if (!target.Map.Instanceable())
 			target.SetPlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 	}
 
@@ -6014,7 +6015,7 @@ public class AuraEffect
 		if (!caster || !CanPeriodicTickCrit())
 			return 0.0f;
 
-		var modOwner = caster.GetSpellModOwner();
+		var modOwner = caster.SpellModOwner;
 
 		if (!modOwner)
 			return 0.0f;
@@ -6126,7 +6127,7 @@ public class AuraEffect
 		if (apply)
 			target.SendPacket(new WeatherPkt((WeatherState)MiscValue, 1.0f));
 		else
-			target.GetMap().SendZoneWeather(target.GetZoneId(), target);
+			target.			Map.SendZoneWeather(target.Zone, target);
 	}
 
 	[AuraEffectHandler(AuraType.EnableAltPower)]
@@ -6316,7 +6317,7 @@ public class AuraEffect
 				var nearbyEntries = target.GetCreatureListWithEntryInGrid(summonEntry);
 
 				foreach (var creature in nearbyEntries)
-					if (creature.GetOwner() == target)
+					if (creature.OwnerUnit == target)
 					{
 						creature.DespawnOrUnsummon();
 
@@ -6370,7 +6371,7 @@ public class AuraEffect
 		else
 			target.SetOverrideZonePvpType(ZonePVPTypeOverride.None);
 
-		target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.GetZoneId()));
+		target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.Zone));
 		target.UpdatePvPState();
 	}
 
@@ -6386,7 +6387,7 @@ public class AuraEffect
 		if (target == null)
 			return;
 
-		var battlegroundMap = target.GetMap().ToBattlegroundMap();
+		var battlegroundMap = target.Map.ToBattlegroundMap();
 
 		if (battlegroundMap == null)
 			return;

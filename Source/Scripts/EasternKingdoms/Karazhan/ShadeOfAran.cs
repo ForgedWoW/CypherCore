@@ -109,7 +109,7 @@ internal class boss_aran : ScriptedAI
 	public boss_aran(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -506,7 +506,7 @@ internal class boss_aran : ScriptedAI
 		base.MoveInLineOfSight(who);
 
 		if (SeenAtiesh ||
-			me.			IsInCombat ||
+			me.IsInCombat ||
 			me.GetDistance2d(who) > me.GetAttackDistance(who) + 10.0f)
 			return;
 

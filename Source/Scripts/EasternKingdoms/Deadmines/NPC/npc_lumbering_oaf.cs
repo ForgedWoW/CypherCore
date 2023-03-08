@@ -21,8 +21,8 @@ public class npc_lumbering_oafAI : ScriptedAI
 
 	public npc_lumbering_oafAI(Creature pCreature) : base(pCreature)
 	{
-		_vehicle = me.GetVehicleKit();
-		_instance = pCreature.GetInstanceScript();
+		_vehicle = me.VehicleKit1;
+		_instance = pCreature.InstanceScript;
 		_summons = new SummonList(pCreature);
 	}
 
@@ -48,7 +48,7 @@ public class npc_lumbering_oafAI : ScriptedAI
 
 		if (Helix != null)
 		{
-			var pAI = (boss_helix_gearbreaker)Helix.GetAI();
+			var pAI = (boss_helix_gearbreaker)Helix.AI;
 
 			if (pAI != null)
 				pAI.OafDead();

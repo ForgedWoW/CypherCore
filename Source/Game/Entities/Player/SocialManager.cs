@@ -67,7 +67,7 @@ public class SocialManager : Singleton<SocialManager>
 					friendInfo.Status |= FriendStatus.RAF;
 			}
 
-			friendInfo.Area = target.GetZoneId();
+			friendInfo.Area = target.Zone;
 			friendInfo.Level = target.Level;
 			friendInfo.Class = target.Class;
 		}

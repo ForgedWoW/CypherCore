@@ -59,7 +59,7 @@ namespace Game.Chat.Commands
                     // Get map (only support base map from console)
                     Map thisMap = null;
                     if (handler.GetSession() != null)
-                        thisMap = handler.GetSession().Player.GetMap();
+                        thisMap = handler.GetSession().Player.Map;
 
                     // If map found, try to find active version of this creature
                     if (thisMap)
@@ -399,7 +399,7 @@ namespace Game.Chat.Commands
                     // Get map (only support base map from console)
                     Map thisMap = null;
                     if (handler.GetSession() != null)
-                        thisMap = handler.GetSession().Player.GetMap();
+                        thisMap = handler.GetSession().Player.Map;
 
                     // If map found, try to find active version of this object
                     if (thisMap)
@@ -430,12 +430,12 @@ namespace Game.Chat.Commands
         static bool HandleListRespawnsCommand(CommandHandler handler, uint? range)
         {
             Player player = handler.GetSession().Player;
-            Map map = player.GetMap();
+            Map map = player.Map;
 
             Locale locale = handler.GetSession().SessionDbcLocale;
             string stringOverdue = Global.ObjectMgr.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
-            uint zoneId = player.GetZoneId();
+            uint zoneId = player.Zone;
             string zoneName = GetZoneName(zoneId, locale);
             for (SpawnObjectType type = 0; type < SpawnObjectType.NumSpawnTypes; type++)
             {
@@ -507,7 +507,7 @@ namespace Game.Chat.Commands
         static bool HandleListSpawnPointsCommand(CommandHandler handler)
         {
             Player player = handler.GetSession().Player;
-            Map map = player.GetMap();
+            Map map = player.Map;
             uint mapId = map.GetId();
             bool showAll = map.IsBattlegroundOrArena() || map.IsDungeon();
             handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.GetMapName()}){(showAll ? "" : " within 5000yd")}:");

@@ -37,12 +37,12 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		var caster = Caster;
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(caster.GetAreaId());
+		var areaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Area);
 		var success = true;
 
 		if (areaEntry != null &&
 			areaEntry.IsFlyable() &&
-			!caster.GetMap().IsDungeon())
+			!caster.Map.IsDungeon())
 			success = RandomHelper.randChance(95);
 
 		caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));

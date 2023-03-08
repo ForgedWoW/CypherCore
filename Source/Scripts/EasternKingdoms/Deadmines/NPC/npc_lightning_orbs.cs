@@ -17,7 +17,7 @@ public class npc_lightning_orbs : NullCreatureAI
 	public override void Reset()
 	{
 		TurnTimer = 100;
-		var vehicle = me.GetVehicleKit();
+		var vehicle = me.VehicleKit1;
 
 		if (vehicle != null)
 			for (sbyte i = 0; i < 8; i++)

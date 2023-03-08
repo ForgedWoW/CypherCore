@@ -23,7 +23,7 @@ internal class spell_hun_t9_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		if (eventInfo.Actor.IsTypeId(TypeId.Player) &&
-			eventInfo.Actor.			AsPlayer.GetPet())
+			eventInfo.Actor.AsPlayer.GetPet())
 			return true;
 
 		return false;

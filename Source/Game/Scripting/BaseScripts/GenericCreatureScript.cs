@@ -19,7 +19,7 @@ public class GenericCreatureScript<AI> : ScriptObjectAutoAddDBBound, ICreatureGe
 
 	public virtual CreatureAI GetAI(Creature me)
 	{
-		if (me.GetInstanceScript() != null)
+		if (me.InstanceScript != null)
 			return GetInstanceAI<AI>(me);
 		else
 			return (AI)Activator.CreateInstance(typeof(AI),

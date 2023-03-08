@@ -136,7 +136,7 @@ namespace Game.Conditions
                         condMeets = player.HasItemOrGemWithIdEquipped(ConditionValue1, 1);
                     break;
                 case ConditionTypes.Zoneid:
-                    condMeets = obj.GetZoneId() == ConditionValue1;
+                    condMeets = obj.Zone == ConditionValue1;
                     break;
                 case ConditionTypes.ReputationRank:
                     if (player != null)
@@ -196,7 +196,7 @@ namespace Game.Conditions
                     }
                     break;
                 case ConditionTypes.Areaid:
-                    condMeets = obj.GetAreaId() == ConditionValue1;
+                    condMeets = obj.Area == ConditionValue1;
                     break;
                 case ConditionTypes.Spell:
                     if (player != null)
@@ -643,7 +643,7 @@ namespace Game.Conditions
             mConditionTargets[0] = target0;
             mConditionTargets[1] = target1;
             mConditionTargets[2] = target2;
-            mConditionMap = target0 != null ? target0.GetMap() : null;
+            mConditionMap = target0 != null ? target0.Map : null;
             mLastFailedCondition = null;
         }
 

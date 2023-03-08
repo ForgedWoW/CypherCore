@@ -135,10 +135,10 @@ public class AreaTrigger : WorldObject
 		// Register the AreaTrigger for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GUID, this);
+			Map.GetObjectsStore().Add(GUID, this);
 
 			if (_spawnId != 0)
-				GetMap().GetAreaTriggerBySpawnIdStore().Add(_spawnId, this);
+				Map.GetAreaTriggerBySpawnIdStore().Add(_spawnId, this);
 
 			base.AddToWorld();
 		}
@@ -164,9 +164,9 @@ public class AreaTrigger : WorldObject
 			base.RemoveFromWorld();
 
 			if (_spawnId != 0)
-				GetMap().GetAreaTriggerBySpawnIdStore().Remove(_spawnId, this);
+				Map.GetAreaTriggerBySpawnIdStore().Remove(_spawnId, this);
 
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class AreaTrigger : WorldObject
 				var target = Target;
 
 				if (target)
-					GetMap().AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
+					Map.AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
 			}
 			else
 			{
@@ -447,7 +447,7 @@ public class AreaTrigger : WorldObject
 		_targetGuid = target ? target.GUID : ObjectGuid.Empty;
 		_aurEff = aurEff;
 
-		SetMap(caster.GetMap());
+		Map = caster.Map;
 		Location.Relocate(pos);
 
 		if (!Location.IsPositionValid())
@@ -468,7 +468,7 @@ public class AreaTrigger : WorldObject
 
 		_areaTriggerTemplate = _areaTriggerCreateProperties.Template;
 
-		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
+		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
 		if (GetTemplate() != null)
 			Entry = GetTemplate().Id.Id;
@@ -575,7 +575,7 @@ public class AreaTrigger : WorldObject
 		if (HasOrbit())
 			Location.Relocate(CalculateOrbitPosition());
 
-		if (!GetMap().AddToMap(this))
+		if (!Map.AddToMap(this))
 		{
 			// Returning false will cause the object to be deleted - remove from transport
 			if (transport != null)
@@ -593,7 +593,7 @@ public class AreaTrigger : WorldObject
 
 	bool CreateServer(Map map, AreaTriggerTemplate areaTriggerTemplate, AreaTriggerSpawn position)
 	{
-		SetMap(map);
+		Map = map;
 		Location.Relocate(position.SpawnPoint);
 
 		if (!Location.IsPositionValid())
@@ -605,7 +605,7 @@ public class AreaTrigger : WorldObject
 
 		_areaTriggerTemplate = areaTriggerTemplate;
 
-		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, areaTriggerTemplate.Id.Id, GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
+		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, areaTriggerTemplate.Id.Id, Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
 		Entry = areaTriggerTemplate.Id.Id;
 
@@ -923,9 +923,9 @@ public class AreaTrigger : WorldObject
 		switch (action.TargetType)
 		{
 			case AreaTriggerActionUserTypes.Friend:
-				return caster.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.GetMap().GetDifficultyID()));
+				return caster.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.GetDifficultyID()));
 			case AreaTriggerActionUserTypes.Enemy:
-				return caster.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.GetMap().GetDifficultyID()));
+				return caster.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.GetDifficultyID()));
 			case AreaTriggerActionUserTypes.Raid:
 				return caster.IsInRaidWith(unit);
 			case AreaTriggerActionUserTypes.Party:
@@ -1095,7 +1095,7 @@ public class AreaTrigger : WorldObject
 
 		var pos = CalculateOrbitPosition();
 
-		GetMap().AreaTriggerRelocation(this, pos.X, pos.Y, pos.Z, pos.Orientation);
+		Map.AreaTriggerRelocation(this, pos.X, pos.Y, pos.Z, pos.Orientation);
 
 		DebugVisualizePosition();
 	}
@@ -1116,7 +1116,7 @@ public class AreaTrigger : WorldObject
 			_lastSplineIndex = _spline.Last();
 
 			var lastSplinePosition = _spline.GetPoint(_lastSplineIndex);
-			GetMap().AreaTriggerRelocation(this, lastSplinePosition.X, lastSplinePosition.Y, lastSplinePosition.Z, Location.Orientation);
+			Map.AreaTriggerRelocation(this, lastSplinePosition.X, lastSplinePosition.Y, lastSplinePosition.Z, Location.Orientation);
 
 			DebugVisualizePosition();
 
@@ -1155,7 +1155,7 @@ public class AreaTrigger : WorldObject
 			orientation = Location.GetAbsoluteAngle(nextPoint.X, nextPoint.Y);
 		}
 
-		GetMap().AreaTriggerRelocation(this, currentPosition.X, currentPosition.Y, currentPosition.Z, orientation);
+		Map.AreaTriggerRelocation(this, currentPosition.X, currentPosition.Y, currentPosition.Z, orientation);
 
 		DebugVisualizePosition();
 

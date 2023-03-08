@@ -29,10 +29,10 @@ public class spell_rog_mutilate_SpellScript : SpellScript, IHasSpellEffects
 			return;
 
 		if (caster.HasAura(5374) || caster.HasAura(27576))
-			caster.			AsPlayer.ModifyPower(PowerType.ComboPoints, 1);
+			caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 1);
 
 		if (caster.HasAura(14190))
-			caster.			AsPlayer.ModifyPower(PowerType.ComboPoints, 2);
+			caster.AsPlayer.ModifyPower(PowerType.ComboPoints, 2);
 
 		caster.ModifyPower(PowerType.ComboPoints, -3);
 	}

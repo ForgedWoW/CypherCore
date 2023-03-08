@@ -74,8 +74,8 @@ public class boss_admiral_ripsnarl : BossAI
 
 	public override void JustSummoned(Creature summoned)
 	{
-		if (summoned.GetAI() != null)
-			summoned.GetAI().AttackStart(SelectTarget(SelectTargetMethod.Random));
+		if (summoned.AI != null)
+			summoned.AI.AttackStart(SelectTarget(SelectTargetMethod.Random));
 
 		summons.Summon(summoned);
 	}
@@ -117,7 +117,7 @@ public class boss_admiral_ripsnarl : BossAI
 
 			if (_numberCastCoalesce >= 3)
 			{
-				var map = me.GetMap();
+				var map = me.Map;
 				var its_frost_damage = Global.AchievementMgr.GetAchievementByReferencedId(eAchievementMisc.ACHIEVEMENT_ITS_FROST_DAMAGE).FirstOrDefault();
 
 				if (map != null && map.IsDungeon() && map.GetDifficultyID() == Difficulty.Heroic)

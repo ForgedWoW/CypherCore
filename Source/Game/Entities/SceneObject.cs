@@ -43,7 +43,7 @@ public class SceneObject : WorldObject
 	{
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GUID, this);
+			Map.GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -53,7 +53,7 @@ public class SceneObject : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -72,11 +72,11 @@ public class SceneObject : WorldObject
 		if (sceneTemplate == null)
 			return null;
 
-		var lowGuid = creator.GetMap().GenerateLowGuid(HighGuid.SceneObject);
+		var lowGuid = creator.Map.GenerateLowGuid(HighGuid.SceneObject);
 
 		SceneObject sceneObject = new();
 
-		if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate != null ? sceneTemplate.ScenePackageId : 0, creator.GetMap(), creator, pos, privateObjectOwner))
+		if (!sceneObject.Create(lowGuid, SceneType.Normal, sceneId, sceneTemplate != null ? sceneTemplate.ScenePackageId : 0, creator.Map, creator, pos, privateObjectOwner))
 		{
 			sceneObject.Dispose();
 
@@ -155,7 +155,7 @@ public class SceneObject : WorldObject
 
 	bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
 	{
-		SetMap(map);
+		Map = map;
 		Location.Relocate(pos);
 		RelocateStationaryPosition(pos);
 
@@ -172,7 +172,7 @@ public class SceneObject : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 
-		if (!GetMap().AddToMap(this))
+		if (!Map.AddToMap(this))
 			return false;
 
 		return true;

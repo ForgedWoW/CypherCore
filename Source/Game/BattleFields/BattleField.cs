@@ -300,7 +300,7 @@ namespace Game.BattleFields
         {
             Player player = Global.ObjAccessor.FindPlayer(guid);
             if (player)
-                if (player.GetZoneId() == GetZoneId())
+                if (player.Zone == GetZoneId())
                     player.TeleportTo(KickPosition);
         }
 

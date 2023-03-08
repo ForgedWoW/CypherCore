@@ -22,7 +22,7 @@ public class npc_vapor : ScriptedAI
 
 	public npc_vapor(Creature creature) : base(creature)
 	{
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -48,7 +48,7 @@ public class npc_vapor : ScriptedAI
 
 		if (Ripsnarl != null)
 		{
-			var pAI = (boss_admiral_ripsnarl)Ripsnarl.GetAI();
+			var pAI = (boss_admiral_ripsnarl)Ripsnarl.AI;
 
 			if (pAI != null)
 				pAI.VaporsKilled();

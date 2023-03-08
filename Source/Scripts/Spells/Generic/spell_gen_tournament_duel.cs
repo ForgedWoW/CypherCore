@@ -36,7 +36,7 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 			if (playerTarget)
 			{
 				if (playerTarget.HasAura(GenericSpellIds.OnTournamentMount) &&
-					playerTarget.GetVehicleBase())
+					playerTarget.VehicleBase)
 					rider.CastSpell(playerTarget, GenericSpellIds.MountedDuel, true);
 
 				return;

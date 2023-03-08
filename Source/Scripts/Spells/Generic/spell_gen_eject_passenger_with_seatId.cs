@@ -29,7 +29,7 @@ internal class spell_gen_eject_passenger_with_seatId : SpellScript, IHasSpellEff
 
 	private void EjectPassenger(int effIndex)
 	{
-		var vehicle = HitUnit.GetVehicleKit();
+		var vehicle = HitUnit.VehicleKit1;
 
 		if (vehicle != null)
 		{

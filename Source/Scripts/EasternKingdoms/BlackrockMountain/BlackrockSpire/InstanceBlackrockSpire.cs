@@ -468,7 +468,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 						var Emberseer = Instance.GetCreature(PyroguardEmberseer);
 
 						if (Emberseer)
-							Emberseer.GetAI().SetData(1, 1);
+							Emberseer.AI.SetData(1, 1);
 					}
 
 					break;
@@ -727,7 +727,7 @@ internal class at_dragonspire_hall : ScriptObjectAutoAddDBBound, IAreaTriggerOnT
 	{
 		if (player && player.IsAlive)
 		{
-			var instance = player.GetInstanceScript();
+			var instance = player.InstanceScript;
 
 			if (instance != null)
 			{
@@ -750,7 +750,7 @@ internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOn
 	{
 		if (player && player.IsAlive)
 		{
-			var instance = player.GetInstanceScript();
+			var instance = player.InstanceScript;
 
 			if (instance == null)
 				return false;
@@ -759,7 +759,7 @@ internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOn
 
 			if (rend)
 			{
-				rend.GetAI().SetData(BRSMiscConst.Areatrigger, BRSMiscConst.AreatriggerBlackrockStadium);
+				rend.AI.SetData(BRSMiscConst.Areatrigger, BRSMiscConst.AreatriggerBlackrockStadium);
 
 				return true;
 			}
@@ -778,7 +778,7 @@ internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IA
 	{
 		if (player.IsAlive)
 		{
-			var instance = player.GetInstanceScript();
+			var instance = player.InstanceScript;
 
 			if (instance != null)
 			{
@@ -787,9 +787,9 @@ internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IA
 				if (infiltrator)
 				{
 					if (player.Level >= 57)
-						infiltrator.GetAI().SetData(1, 1);
+						infiltrator.AI.SetData(1, 1);
 					else if (infiltrator.Entry == CreaturesIds.ScarshieldInfiltrator)
-						infiltrator.GetAI().Talk(0, player);
+						infiltrator.AI.Talk(0, player);
 
 					return true;
 				}

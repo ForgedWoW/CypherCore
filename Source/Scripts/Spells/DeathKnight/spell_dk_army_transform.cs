@@ -27,7 +27,7 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 
 	public SpellCastResult CheckCast()
 	{
-		var owner = Caster.GetOwner();
+		var owner = Caster.OwnerUnit;
 
 		if (owner)
 			if (owner.HasAura(DeathKnightSpells.GlyphOfFoulMenagerie))

@@ -90,8 +90,8 @@ namespace Game.Movement
                 owner.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
 
             Creature creature = owner.AsCreature;
-            if (creature != null && creature.GetAI() != null)
-                creature.GetAI().MovementInform(_type, _pointId);
+            if (creature != null && creature.AI != null)
+                creature.                AI.MovementInform(_type, _pointId);
         }
 
         public override MovementGeneratorType GetMovementGeneratorType() { return _type; }

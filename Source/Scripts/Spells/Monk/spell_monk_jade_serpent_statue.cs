@@ -25,7 +25,7 @@ public class spell_monk_jade_serpent_statue : SpellScript, ISpellOnCast
 
 		var serpentStatueList = player.GetCreatureListWithEntryInGrid(MonkSpells.MONK_NPC_JADE_SERPENT_STATUE, 500.0f);
 
-		serpentStatueList.RemoveIf(c => c.GetOwner() == null || c.GetOwner() != player || !c.IsSummon);
+		serpentStatueList.RemoveIf(c => c.OwnerUnit == null || c.OwnerUnit != player || !c.IsSummon);
 
 		if (serpentStatueList.Count >= 1)
 			serpentStatueList.Last().ToTempSummon().UnSummon();

@@ -34,7 +34,7 @@ internal class spell_summon_battle_pet : SpellScript, IHasSpellEffects
 			var duration = (uint)SpellInfo.CalcDuration(caster);
 			var pos = HitDest;
 
-			Creature summon = caster.GetMap().SummonCreature(creatureId, pos, properties, duration, caster, SpellInfo.Id);
+			Creature summon = caster.Map.SummonCreature(creatureId, pos, properties, duration, caster, SpellInfo.Id);
 
 			summon?.SetImmuneToAll(true);
 		}

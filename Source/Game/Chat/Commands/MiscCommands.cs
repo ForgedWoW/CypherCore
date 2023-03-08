@@ -43,7 +43,7 @@ namespace Game.Chat
 
                 string chrNameLink = handler.PlayerLink(targetName);
 
-                Map map = target.GetMap();
+                Map map = target.Map;
                 if (map.IsBattlegroundOrArena())
                 {
                     // only allow if gm mode is on
@@ -60,7 +60,7 @@ namespace Game.Chat
                     // when porting out from the bg, it will be reset to 0
                     _player.SetBattlegroundId(target.GetBattlegroundId(), target.GetBattlegroundTypeId());
                     // remember current position as entry point for return at bg end teleportation
-                    if (!_player.GetMap().IsBattlegroundOrArena())
+                    if (!_player.Map.IsBattlegroundOrArena())
                         _player.SetBattlegroundEntryPoint();
                 }
                 else if (map.IsDungeon())
@@ -327,7 +327,7 @@ namespace Game.Chat
             if (spellid == 0)
                 return false;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Map.GetDifficultyID());
             if (spellInfo == null)
                 return false;
 
@@ -632,7 +632,7 @@ namespace Game.Chat
 
             Global.DB2Mgr.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
 
-            Map map = obj.GetMap();
+            Map map = obj.Map;
             float groundZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
             float floorZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
 
@@ -648,7 +648,7 @@ namespace Game.Chat
 
             if (haveVMap)
             {
-                if (obj.IsOutdoors())
+                if (obj.IsOutdoors)
                     handler.SendSysMessage(CypherStrings.GpsPositionOutdoors);
                 else
                     handler.SendSysMessage(CypherStrings.GpsPositionIndoors);
@@ -823,7 +823,7 @@ namespace Game.Chat
 
             Player player = handler.GetSession().Player;
 
-            uint zoneId = player.GetZoneId();
+            uint zoneId = player.Zone;
 
             AreaTableRecord areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
             if (areaEntry == null || areaEntry.ParentAreaID != 0)
@@ -1100,7 +1100,7 @@ namespace Game.Chat
                 return false;
 
             Player player = handler.GetSession().Player;
-            uint zoneId = player.GetZoneId();
+            uint zoneId = player.Zone;
 
             WorldSafeLocsEntry graveyard = Global.ObjectMgr.GetClosestGraveYard(player.Location, team, null);
             if (graveyard != null)
@@ -1266,7 +1266,7 @@ namespace Game.Chat
                 classid = target.Class;
                 muteTime = target.Session.MuteTime;
                 mapId = target.Location.MapId;
-                areaId = target.GetAreaId();
+                areaId = target.Area;
                 alive = target.IsAlive ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No);
                 gender = target.NativeGender;
             }
@@ -1623,17 +1623,17 @@ namespace Game.Chat
 
             // First handle any creatures that still have a corpse around
             var worker = new WorldObjectWorker(player, new RespawnDo());
-            Cell.VisitGrid(player, worker, player.GetGridActivationRange());
+            Cell.VisitGrid(player, worker, player.GridActivationRange);
 
             // Now handle any that had despawned, but had respawn time logged.
             List<RespawnInfo> data = new();
-            player.GetMap().GetRespawnInfo(data, SpawnObjectTypeMask.All);
+            player.            Map.GetRespawnInfo(data, SpawnObjectTypeMask.All);
             if (!data.Empty())
             {
                 uint gridId = GridDefines.ComputeGridCoord(player.Location.X, player.Location.Y).GetId();
                 foreach (RespawnInfo info in data)
                     if (info.GridId == gridId)
-                        player.GetMap().RemoveRespawnTime(info.ObjectType, info.SpawnId);
+                        player.                        Map.RemoveRespawnTime(info.ObjectType, info.SpawnId);
             }
 
             return true;
@@ -1757,7 +1757,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                Map map = _player.GetMap();
+                Map map = _player.Map;
                 if (map.IsBattlegroundOrArena())
                 {
                     // only allow if gm mode is on
@@ -1774,12 +1774,12 @@ namespace Game.Chat
                     // when porting out from the bg, it will be reset to 0
                     target.SetBattlegroundId(_player.GetBattlegroundId(), _player.GetBattlegroundTypeId());
                     // remember current position as entry point for return at bg end teleportation
-                    if (!target.GetMap().IsBattlegroundOrArena())
+                    if (!target.Map.IsBattlegroundOrArena())
                         target.SetBattlegroundEntryPoint();
                 }
                 else if (map.IsDungeon())
                 {
-                    Map targetMap = target.GetMap();
+                    Map targetMap = target.Map;
 
                     Player targetGroupLeader = null;
                     Group targetGroup = target.GetGroup();
@@ -1833,7 +1833,7 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
                 // in point where GM stay
-                Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.GetZoneId(), targetGuid);
+                Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.Zone, targetGuid);
             }
 
             return true;
@@ -2021,7 +2021,7 @@ namespace Game.Chat
                 Player caster = handler.GetSession().Player;
                 if (caster)
                 {
-                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.GetMap().GenerateLowGuid(HighGuid.Cast));
+                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.Map.GenerateLowGuid(HighGuid.Cast));
                     Spell.SendCastResult(caster, spellInfo, new Networking.Packets.SpellCastVisual(SPELL_UNSTUCK_VISUAL, 0), castId, SpellCastResult.CantDoThatRightNow);
                 }
 
@@ -2055,9 +2055,9 @@ namespace Game.Chat
             }
 
             Player player = handler.GetSession().Player;
-            uint zoneid = player.GetZoneId();
+            uint zoneid = player.Zone;
 
-            Weather weather = player.GetMap().GetOrGenerateZoneDefaultWeather(zoneid);
+            Weather weather = player.Map.GetOrGenerateZoneDefaultWeather(zoneid);
             if (weather == null)
             {
                 handler.SendSysMessage(CypherStrings.NoWeather);

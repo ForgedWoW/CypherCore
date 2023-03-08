@@ -449,7 +449,7 @@ internal class BattlefieldWG : BattleField
 			case WGNpcs.TaunkaSpiritGuide:
 			{
 				var teamIndex = (creature.Entry == WGNpcs.DwarvenSpiritGuide ? TeamIds.Alliance : TeamIds.Horde);
-				var graveyardId = (byte)GetSpiritGraveyardId(creature.GetAreaId());
+				var graveyardId = (byte)GetSpiritGraveyardId(creature.Area);
 
 				m_GraveyardList[graveyardId]?.SetSpirit(creature, teamIndex);
 
@@ -602,7 +602,7 @@ internal class BattlefieldWG : BattleField
 
 		player.CastSpell(player, WGSpells.Recruit, true);
 
-		if (player.GetZoneId() != m_ZoneId)
+		if (player.Zone != m_ZoneId)
 		{
 			if (player.TeamId == GetDefenderTeam())
 			{
@@ -636,7 +636,7 @@ internal class BattlefieldWG : BattleField
 		// Remove all aura from WG // @todo false we can go out of this zone on retail and keep Rank buff, remove on end of WG
 		if (!player.Session.PlayerLogout)
 		{
-			var vehicle = player.GetVehicleCreatureBase();
+			var vehicle = player.VehicleCreatureBase;
 
 			if (vehicle) // Remove vehicle of player if he go out.
 				vehicle.DespawnOrUnsummon();
@@ -1744,7 +1744,7 @@ internal class npc_wg_give_promotion_credit : ScriptedAI
 			!killer.IsPlayer)
 			return;
 
-		var wintergrasp = (BattlefieldWG)Global.BattleFieldMgr.GetBattlefieldByBattleId(killer.GetMap(), BattlefieldIds.WG);
+		var wintergrasp = (BattlefieldWG)Global.BattleFieldMgr.GetBattlefieldByBattleId(killer.Map, BattlefieldIds.WG);
 
 		if (wintergrasp == null)
 			return;

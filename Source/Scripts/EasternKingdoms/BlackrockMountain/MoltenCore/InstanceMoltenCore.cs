@@ -217,7 +217,7 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
 				var summon = Instance.SummonCreature(MCCreatureIds.MajordomoExecutus, MCMiscConst.RagnarosTelePos);
 
 				if (summon)
-					summon.GetAI().DoAction(ActionIds.StartRagnarosAlt);
+					summon.AI.DoAction(ActionIds.StartRagnarosAlt);
 			}
 		}
 

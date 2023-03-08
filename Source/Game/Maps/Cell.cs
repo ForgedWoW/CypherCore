@@ -202,7 +202,7 @@ public class Cell
 		if (dont_load)
 			cell.SetNoCreate();
 
-		cell.Visit(p, visitor, center_obj.GetMap(), center_obj, radius);
+		cell.Visit(p, visitor, center_obj.Map, center_obj, radius);
 	}
 
 	public static void VisitGrid(float x, float y, Map map, IGridNotifier visitor, float radius, bool dont_load = true)

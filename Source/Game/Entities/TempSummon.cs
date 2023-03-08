@@ -250,7 +250,7 @@ public class TempSummon : Creature
 			{
 				if (!owner.SummonSlot[slot].IsEmpty && owner.SummonSlot[slot] != GUID)
 				{
-					var oldSummon = GetMap().GetCreature(owner.SummonSlot[slot]);
+					var oldSummon = Map.GetCreature(owner.SummonSlot[slot]);
 
 					if (oldSummon != null && oldSummon.IsSummon)
 						oldSummon.ToTempSummon().UnSummon();
@@ -282,12 +282,12 @@ public class TempSummon : Creature
 		if (owner != null)
 		{
 			if (owner.IsCreature)
-				owner.AsCreature.GetAI()?.JustSummoned(this);
+				owner.AsCreature.				AI?.JustSummoned(this);
 			else if (owner.IsGameObject)
 				owner.AsGameObject.GetAI()?.JustSummoned(this);
 
 			if (IsAIEnabled)
-				GetAI().IsSummonedBy(owner);
+				AI.IsSummonedBy(owner);
 		}
 	}
 
@@ -312,7 +312,7 @@ public class TempSummon : Creature
 		}
 
 		VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-		Cell.VisitGrid(this, notifier, GetVisibilityRange());
+		Cell.VisitGrid(this, notifier, VisibilityRange);
 	}
 
 	public override void UpdateObjectVisibilityOnDestroy()
@@ -343,7 +343,7 @@ public class TempSummon : Creature
 		}
 
 		VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-		Cell.VisitGrid(this, notifier, GetVisibilityRange());
+		Cell.VisitGrid(this, notifier, VisibilityRange);
 
 		if (original != null) // original is only != null when it was replaced
 		{
@@ -390,7 +390,7 @@ public class TempSummon : Creature
 		if (owner != null)
 		{
 			if (owner.IsCreature)
-				owner.AsCreature.GetAI()?.SummonedCreatureDespawn(this);
+				owner.AsCreature.				AI?.SummonedCreatureDespawn(this);
 			else if (owner.IsGameObject)
 				owner.AsGameObject.GetAI()?.SummonedCreatureDespawn(this);
 		}

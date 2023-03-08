@@ -18,7 +18,7 @@ public class npc_james_dm : ScriptedAI
 
 		if (Vanessa != null)
 		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.GetAI();
+			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
 			if (pAI != null)
 				pAI.WorgenKilled();
@@ -27,10 +27,10 @@ public class npc_james_dm : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me.GetVehicleKit())
+		if (!me.VehicleKit1)
 			return;
 
-		var Calissa = me.GetVehicleKit().GetPassenger(0);
+		var Calissa = me.VehicleKit1.GetPassenger(0);
 
 		if (Calissa != null)
 		{

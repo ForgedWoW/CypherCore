@@ -35,10 +35,10 @@ public class Minion : TempSummon
 
 		ReactState = ReactStates.Passive;
 
-		SetCreatorGUID(GetOwner().GUID);
-		Faction = GetOwner().Faction; // TODO: Is this correct? Overwrite the use of SummonPropertiesFlags::UseSummonerFaction
+		SetCreatorGUID(OwnerUnit.GUID);
+		Faction = OwnerUnit.Faction; // TODO: Is this correct? Overwrite the use of SummonPropertiesFlags::UseSummonerFaction
 
-		GetOwner().SetMinion(this, true);
+		OwnerUnit.SetMinion(this, true);
 	}
 
 	public override void RemoveFromWorld()
@@ -46,7 +46,7 @@ public class Minion : TempSummon
 		if (!IsInWorld)
 			return;
 
-		GetOwner().SetMinion(this, false);
+		OwnerUnit.SetMinion(this, false);
 		base.RemoveFromWorld();
 	}
 
@@ -57,7 +57,7 @@ public class Minion : TempSummon
 		if (s != DeathState.JustDied || !IsGuardianPet)
 			return;
 
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner == null || !owner.IsPlayer || owner.MinionGUID != GUID)
 			return;
@@ -75,15 +75,12 @@ public class Minion : TempSummon
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nOwner: {(GetOwner() ? GetOwner().GUID : "")}";
+		return $"{base.GetDebugInfo()}\nOwner: {(OwnerUnit ? OwnerUnit.GUID : "")}";
 	}
 
-	public override Unit GetOwner()
-	{
-		return Owner;
-	}
+    public override Unit OwnerUnit => Owner;
 
-	public void SetFollowAngle(float angle)
+    public void SetFollowAngle(float angle)
 	{
 		_followAngle = angle;
 	}

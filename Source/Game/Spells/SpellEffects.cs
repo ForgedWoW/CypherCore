@@ -415,7 +415,7 @@ public partial class Spell
 
 		// normal DB scripted effect
 		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-		_caster.GetMap().ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+		_caster.		Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TriggerSpell)]
@@ -557,7 +557,7 @@ public partial class Spell
 											args.OriginalCastId = originalCastId;
 											args.OriginalCastItemLevel = itemLevel;
 
-											var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.GetMap().GetDifficultyID());
+											var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Map.GetDifficultyID());
 
 											if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
 											{
@@ -1288,7 +1288,7 @@ public partial class Spell
 
 		DynamicObject dynObj = new(false);
 
-		if (!dynObj.CreateDynamicObject(unitCaster.GetMap().GenerateLowGuid(HighGuid.DynamicObject), unitCaster, SpellInfo, DestTarget, radius, DynamicObjectType.AreaSpell, SpellVisual))
+		if (!dynObj.CreateDynamicObject(unitCaster.Map.GenerateLowGuid(HighGuid.DynamicObject), unitCaster, SpellInfo, DestTarget, radius, DynamicObjectType.AreaSpell, SpellVisual))
 		{
 			dynObj.Dispose();
 
@@ -1437,7 +1437,7 @@ public partial class Spell
 
 				return;
 			}
-			else if (SpellInfo.Id == 1842 && GameObjTarget.GetGoInfo().type == GameObjectTypes.Trap && GameObjTarget.GetOwner() != null)
+			else if (SpellInfo.Id == 1842 && GameObjTarget.GetGoInfo().type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
 			{
 				GameObjTarget.SetLootState(LootState.JustDeactivated);
 
@@ -1486,7 +1486,7 @@ public partial class Spell
 		else if (ItemTarget != null)
 		{
 			ItemTarget.SetItemFlag(ItemFieldFlags.Unlocked);
-			ItemTarget.SetState(ItemUpdateState.Changed, ItemTarget.GetOwner());
+			ItemTarget.SetState(ItemUpdateState.Changed, ItemTarget.OwnerUnit);
 		}
 
 		// not allow use skill grow at item base open
@@ -1767,7 +1767,7 @@ public partial class Spell
 						if (unitCaster == null)
 							return;
 
-						summon = unitCaster.GetMap().SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
+						summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
 
 						break;
 					}
@@ -1777,7 +1777,7 @@ public partial class Spell
 						if (unitCaster == null)
 							return;
 
-						summon = unitCaster.GetMap().SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+						summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
 						if (summon == null || !summon.IsTotem)
 							return;
@@ -1795,7 +1795,7 @@ public partial class Spell
 						if (unitCaster == null)
 							return;
 
-						summon = unitCaster.GetMap().SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+						summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
 						if (summon == null || !summon.HasUnitTypeMask(UnitTypeMask.Minion))
 							return;
@@ -1820,7 +1820,7 @@ public partial class Spell
 								// randomize position for multiple summons
 								pos = caster.GetRandomPoint(DestTarget, radius);
 
-							summon = caster.GetMap().SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+							summon = caster.Map.SummonCreature(entry, pos, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
 							if (summon == null)
 								continue;
@@ -1847,7 +1847,7 @@ public partial class Spell
 				if (unitCaster == null)
 					return;
 
-				summon = unitCaster.GetMap().SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
+				summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id, 0, privateObjectOwner);
 
 				break;
 			}
@@ -1858,7 +1858,7 @@ public partial class Spell
 
 				// Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
 				// to cast a ride vehicle spell on the summoned unit.
-				summon = unitCaster.GetMap().SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
+				summon = unitCaster.Map.SummonCreature(entry, DestTarget, properties, (uint)duration, unitCaster, SpellInfo.Id);
 
 				if (summon == null || !summon.IsVehicle)
 					return;
@@ -2090,7 +2090,7 @@ public partial class Spell
 		{
 			creature.StartPickPocketRefillTimer();
 
-			creature.Loot = new Loot(creature.GetMap(), creature.GUID, LootType.Pickpocketing, null);
+			creature.Loot = new Loot(creature.Map, creature.GUID, LootType.Pickpocketing, null);
 			var lootid = creature.CreatureTemplate.PickPocketId;
 
 			if (lootid != 0)
@@ -2132,7 +2132,7 @@ public partial class Spell
 
 		DynamicObject dynObj = new(true);
 
-		if (!dynObj.CreateDynamicObject(player.GetMap().GenerateLowGuid(HighGuid.DynamicObject), player, SpellInfo, DestTarget, radius, DynamicObjectType.FarsightFocus, SpellVisual))
+		if (!dynObj.CreateDynamicObject(player.Map.GenerateLowGuid(HighGuid.DynamicObject), player, SpellInfo, DestTarget, radius, DynamicObjectType.FarsightFocus, SpellVisual))
 			return;
 
 		dynObj.SetDuration(duration);
@@ -2272,7 +2272,7 @@ public partial class Spell
 				return;
 
 			// item can be in trade slot and have owner diff. from caster
-			var item_owner = ItemTarget.GetOwner();
+			var item_owner = ItemTarget.OwnerUnit;
 
 			if (item_owner == null)
 				return;
@@ -2349,7 +2349,7 @@ public partial class Spell
 		}
 
 		// item can be in trade slot and have owner diff. from caster
-		var item_owner = ItemTarget.GetOwner();
+		var item_owner = ItemTarget.OwnerUnit;
 
 		if (item_owner == null)
 			return;
@@ -2412,7 +2412,7 @@ public partial class Spell
 		var duration = (uint)pEnchant.Duration;
 
 		// item can be in trade slot and have owner diff. from caster
-		var item_owner = ItemTarget.GetOwner();
+		var item_owner = ItemTarget.OwnerUnit;
 
 		if (item_owner == null)
 			return;
@@ -2478,7 +2478,9 @@ public partial class Spell
 		pet.SetLevel(level - 1);
 
 		// add to world
-		pet.GetMap().AddToMap(pet.AsCreature);
+		pet.
+		// add to world
+		Map.AddToMap(pet.AsCreature);
 
 		// visual effect for levelup
 		pet.SetLevel(level);
@@ -2508,7 +2510,7 @@ public partial class Spell
 			owner = unitCaster.AsPlayer;
 
 			if (owner == null && unitCaster.IsTotem)
-				owner = unitCaster.GetCharmerOrOwnerPlayerOrPlayerItself();
+				owner = unitCaster.CharmerOrOwnerPlayerOrPlayerItself;
 		}
 
 		var petentry = (uint)EffectInfo.MiscValue;
@@ -2534,7 +2536,7 @@ public partial class Spell
 				if (OldSummon.IsDead)
 					return;
 
-				Cypher.Assert(OldSummon.GetMap() == owner.GetMap());
+				Cypher.Assert(OldSummon.Map == owner.Map);
 				var newPos = new Position();
 				owner.GetClosePoint(newPos, OldSummon.CombatReach);
 				newPos.Orientation = OldSummon.Location.Orientation;
@@ -2908,7 +2910,7 @@ public partial class Spell
 			pos.Orientation = target.Location.Orientation;
 		}
 
-		var map = target.GetMap();
+		var map = target.Map;
 
 		var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 		var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
@@ -3111,7 +3113,7 @@ public partial class Spell
 								_originalCaster.CastSpell(UnitTarget, 58692, new CastSpellExtraArgs(true));
 							}
 
-							if (_originalCaster.GetMap().GetDifficultyID() == Difficulty.None)
+							if (_originalCaster.Map.GetDifficultyID() == Difficulty.None)
 							{
 								_originalCaster.CastSpell(UnitTarget, 58695, new CastSpellExtraArgs(true));
 								_originalCaster.CastSpell(UnitTarget, 58696, new CastSpellExtraArgs(true));
@@ -3131,11 +3133,11 @@ public partial class Spell
 
 						if (UnitTarget != null)
 						{
-							var seat = unitCaster.GetVehicleBase();
+							var seat = unitCaster.VehicleBase;
 
 							if (seat != null)
 							{
-								var parent = seat.GetVehicleBase();
+								var parent = seat.VehicleBase;
 
 								if (parent != null)
 								{
@@ -3156,7 +3158,7 @@ public partial class Spell
 
 		// normal DB scripted effect
 		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-		_caster.GetMap().ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+		_caster.		Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
 	[SpellEffectHandler(SpellEffectName.Sanctuary)]
@@ -3169,7 +3171,7 @@ public partial class Spell
 		if (UnitTarget == null)
 			return;
 
-		if (UnitTarget.IsPlayer && !UnitTarget.GetMap().IsDungeon())
+		if (UnitTarget.IsPlayer && !UnitTarget.Map.IsDungeon())
 			// stop all pve combat for players outside dungeons, suppress pvp combat
 			UnitTarget.CombatStop(false, false);
 		else
@@ -3198,7 +3200,7 @@ public partial class Spell
 			return;
 
 		// Players can only fight a duel in zones with this flag
-		var casterAreaEntry = CliDB.AreaTableStorage.LookupByKey(caster.GetAreaId());
+		var casterAreaEntry = CliDB.AreaTableStorage.LookupByKey(caster.Area);
 
 		if (casterAreaEntry != null && !casterAreaEntry.HasFlag(AreaFlags.AllowDuels))
 		{
@@ -3207,7 +3209,7 @@ public partial class Spell
 			return;
 		}
 
-		var targetAreaEntry = CliDB.AreaTableStorage.LookupByKey(target.GetAreaId());
+		var targetAreaEntry = CliDB.AreaTableStorage.LookupByKey(target.Area);
 
 		if (targetAreaEntry != null && !targetAreaEntry.HasFlag(AreaFlags.AllowDuels))
 		{
@@ -3217,7 +3219,7 @@ public partial class Spell
 		}
 
 		//CREATE DUEL FLAG OBJECT
-		var map = caster.GetMap();
+		var map = caster.Map;
 
 		Position pos = new()
 		{
@@ -3466,7 +3468,7 @@ public partial class Spell
 		if (caster != null)
 		{
 			caster.UpdateCraftSkill(SpellInfo);
-			ItemTarget.Loot = new Loot(caster.GetMap(), ItemTarget.GUID, LootType.Disenchanting, null);
+			ItemTarget.Loot = new Loot(caster.Map, ItemTarget.GUID, LootType.Disenchanting, null);
 			ItemTarget.Loot.FillLoot(ItemTarget.GetDisenchantLoot(caster).Id, LootStorage.Disenchant, caster, true);
 			caster.SendLoot(ItemTarget.Loot);
 		}
@@ -3581,7 +3583,7 @@ public partial class Spell
 
 		if (!guid.IsEmpty)
 		{
-			var obj = unitCaster.GetMap().GetGameObject(guid);
+			var obj = unitCaster.Map.GetGameObject(guid);
 
 			if (obj != null)
 			{
@@ -3609,7 +3611,7 @@ public partial class Spell
 			pos.Orientation = unitCaster.Location.Orientation;
 		}
 
-		var map = _caster.GetMap();
+		var map = _caster.Map;
 		var rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 		var go = GameObject.CreateGameObject((uint)EffectInfo.MiscValue, map, pos, rotation, 255, GameObjectState.Ready);
 
@@ -3779,7 +3781,7 @@ public partial class Spell
 		if (unitCaster == null)
 			return;
 
-		var dist = _caster.GetVisibilityRange();
+		var dist = _caster.VisibilityRange;
 
 		// clear focus
 		PacketSenderOwning<BreakTarget> breakTarget = new();
@@ -3868,7 +3870,7 @@ public partial class Spell
 
 		creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
 		creature.SetDynamicFlag(UnitDynFlags.Lootable);
-		Loot loot = new(creature.GetMap(), creature.GUID, LootType.Skinning, null);
+		Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
 		creature.PersonalLoot[player.GUID] = loot;
 		loot.FillLoot(creature.CreatureTemplate.SkinLootId, LootStorage.Skinning, player, true);
 		player.SendLoot(loot);
@@ -4019,7 +4021,7 @@ public partial class Spell
 		if (!UnitTarget)
 			return;
 
-		if (_caster.GetAffectingPlayer())
+		if (_caster.AffectingPlayer)
 		{
 			var creatureTarget = UnitTarget.AsCreature;
 
@@ -4354,7 +4356,7 @@ public partial class Spell
 			if (unitCaster.SummonSlot[slot].IsEmpty)
 				continue;
 
-			var totem = unitCaster.GetMap().GetCreature(unitCaster.SummonSlot[slot]);
+			var totem = unitCaster.Map.GetCreature(unitCaster.SummonSlot[slot]);
 
 			if (totem != null && totem.IsTotem)
 			{
@@ -4521,7 +4523,7 @@ public partial class Spell
 			pos.Orientation = unitCaster.Location.Orientation;
 		}
 
-		var cMap = unitCaster.GetMap();
+		var cMap = unitCaster.Map;
 
 		// if gameobject is summoning object, it should be spawned right on caster's position
 		if (goinfo.type == GameObjectTypes.Ritual)
@@ -4639,7 +4641,7 @@ public partial class Spell
 			player.UpdateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
 		}
 
-		ItemTarget.Loot = new Loot(player.GetMap(), ItemTarget.GUID, LootType.Prospecting, null);
+		ItemTarget.Loot = new Loot(player.Map, ItemTarget.GUID, LootType.Prospecting, null);
 		ItemTarget.Loot.FillLoot(ItemTarget.Entry, LootStorage.Prospecting, player, true);
 		player.SendLoot(ItemTarget.Loot);
 	}
@@ -4668,7 +4670,7 @@ public partial class Spell
 			player.UpdateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
 		}
 
-		ItemTarget.Loot = new Loot(player.GetMap(), ItemTarget.GUID, LootType.Milling, null);
+		ItemTarget.Loot = new Loot(player.Map, ItemTarget.GUID, LootType.Milling, null);
 		ItemTarget.Loot.FillLoot(ItemTarget.Entry, LootStorage.Milling, player, true);
 		player.SendLoot(ItemTarget.Loot);
 	}
@@ -4927,7 +4929,9 @@ public partial class Spell
 		pet.Location.Relocate(pos);
 
 		// add to world
-		pet.GetMap().AddToMap(pet.AsCreature);
+		pet.
+		// add to world
+		Map.AddToMap(pet.AsCreature);
 
 		// unitTarget has pet now
 		UnitTarget.SetMinion(pet, true);
@@ -5028,14 +5032,14 @@ public partial class Spell
 			return;
 
 		if (unitCaster.IsTotem)
-			unitCaster = unitCaster.ToTotem().GetOwner();
+			unitCaster = unitCaster.ToTotem().OwnerUnit;
 
 		// in another case summon new
 		var radius = 5.0f;
 		var duration = SpellInfo.CalcDuration(_originalCaster);
 
 		//TempSummonType summonType = (duration == 0) ? TempSummonType.DeadDespawn : TempSummonType.TimedDespawn;
-		var map = unitCaster.GetMap();
+		var map = unitCaster.Map;
 
 		for (uint count = 0; count < numGuardians; ++count)
 		{
@@ -5318,7 +5322,7 @@ public partial class Spell
 		var player = UnitTarget.AsPlayer;
 
 		WorldLocation homeLoc = new();
-		var areaId = player.GetAreaId();
+		var areaId = player.Area;
 
 		if (EffectInfo.MiscValue != 0)
 			areaId = (uint)EffectInfo.MiscValue;
@@ -5421,7 +5425,7 @@ public partial class Spell
 			pos.Orientation = _caster.Location.Orientation;
 		}
 
-		var map = _caster.GetMap();
+		var map = _caster.Map;
 		var rot = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(pos.Orientation, 0.0f, 0.0f));
 		var go = GameObject.CreateGameObject(goId, map, pos, rot, 255, GameObjectState.Ready);
 
@@ -5905,7 +5909,7 @@ public partial class Spell
 			return;
 
 		UnitTarget.
-		AsPlayer.UpdateAreaDependentAuras(UnitTarget.GetAreaId());
+		AsPlayer.UpdateAreaDependentAuras(UnitTarget.Area);
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveArtifactPower)]

@@ -48,10 +48,11 @@ public class VehicleJoinEvent : BasicEvent
 
 		//It's possible that multiple vehicle join
 		//events are executed in the same update
-		if (Passenger.GetVehicle() != null)
+		if (Passenger.Vehicle1 != null)
 			Passenger.ExitVehicle();
 
-		Passenger.SetVehicle(Target);
+		Passenger.
+		Vehicle1 = Target;
 		Seat.Value.Passenger.Guid = Passenger.GUID;
 		Seat.Value.Passenger.IsUninteractible = Passenger.HasUnitFlag(UnitFlags.Uninteractible);
 		Seat.Value.Passenger.IsGravityDisabled = Passenger.HasUnitMovementFlag(MovementFlag.DisableGravity);
@@ -138,7 +139,7 @@ public class VehicleJoinEvent : BasicEvent
 
 		if (creature != null)
 		{
-			var ai = creature.GetAI();
+			var ai = creature.AI;
 
 			if (ai != null)
 				ai.PassengerBoarded(Passenger, Seat.Key, true);

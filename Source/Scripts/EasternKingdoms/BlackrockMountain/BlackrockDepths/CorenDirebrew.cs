@@ -220,7 +220,7 @@ internal class boss_coren_direbrew : BossAI
 	{
 		_JustDied();
 
-		var players = me.GetMap().GetPlayers();
+		var players = me.Map.GetPlayers();
 
 		if (!players.Empty())
 		{
@@ -228,7 +228,7 @@ internal class boss_coren_direbrew : BossAI
 
 			if (group)
 				if (group.IsLFGGroup())
-					Global.LFGMgr.FinishDungeon(group.GetGUID(), 287, me.GetMap());
+					Global.LFGMgr.FinishDungeon(group.GetGUID(), 287, me.Map);
 		}
 	}
 
@@ -305,7 +305,7 @@ internal class npc_direbrew_minion : ScriptedAI
 
 	public npc_direbrew_minion(Creature creature) : base(creature)
 	{
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -319,7 +319,7 @@ internal class npc_direbrew_minion : ScriptedAI
 		var coren = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.DataCoren));
 
 		if (coren)
-			coren.GetAI().JustSummoned(me);
+			coren.AI.JustSummoned(me);
 	}
 }
 
@@ -432,7 +432,7 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
 		if (targets.Count > 1)
 			targets.RemoveAll(obj =>
 			{
-				if (obj.GUID == caster.GetAI().GetGUID(MiscConst.DataTargetGuid))
+				if (obj.GUID == caster.AI.GetGUID(MiscConst.DataTargetGuid))
 					return true;
 
 				return false;
@@ -449,7 +449,7 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		var caster = Caster;
-		caster.GetAI().SetGUID(HitUnit.GUID, MiscConst.DataTargetGuid);
+		caster.AI.SetGUID(HitUnit.GUID, MiscConst.DataTargetGuid);
 		caster.CastSpell(HitUnit, SpellIds.SendFirstMug, true);
 	}
 }

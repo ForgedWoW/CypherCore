@@ -67,7 +67,7 @@ namespace Game
             creature.            HomePosition = creature.Location;
 
             _player.PlayerTalkClass.ClearMenus();
-            if (creature.GetAI().OnGossipHello(_player))
+            if (creature.AI.OnGossipHello(_player))
                 return;
 
             _player.PrepareGossipMenu(creature, creature.CreatureTemplate.GossipMenuId, true);

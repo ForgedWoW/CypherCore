@@ -49,7 +49,7 @@ public class boss_glubtok : BossAI
 		me.RemoveUnitFlag2(UnitFlags2.FeignDeath);
 		me.ClearUnitState(UnitState.CannotTurn);
 
-		_platter.GetAI().DoAction(Actions.ACTION_STOP_FIREWALL);
+		_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 	}
 
 	public override void JustEnteredCombat(Unit who)
@@ -63,7 +63,7 @@ public class boss_glubtok : BossAI
 	public override void JustDied(Unit killer)
 	{
 		base.JustDied(killer);
-		_platter.GetAI().DoAction(Actions.ACTION_STOP_FIREWALL);
+		_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -75,7 +75,7 @@ public class boss_glubtok : BossAI
 	public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
 	{
 		me.ClearUnitState(UnitState.CannotTurn);
-		_platter.GetAI().DoAction(Actions.ACTION_STOP_FIREWALL);
+		_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 		base.EnterEvadeMode(why);
 	}
 
@@ -89,7 +89,7 @@ public class boss_glubtok : BossAI
 		}
 
 		base.JustSummoned(summon);
-		summon.GetAI().AttackStart(me.Victim);
+		summon.AI.AttackStart(me.Victim);
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
@@ -112,7 +112,7 @@ public class boss_glubtok : BossAI
 		if (me.HealthBelowPctDamaged(1, damage))
 			if (!_dying && _transitionDone)
 			{
-				_platter.GetAI().DoAction(Actions.ACTION_STOP_FIREWALL);
+				_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 				_events.Reset();
 				DoCast(me, Spells.ARCANE_OVERLOAD_INITIAL, new CastSpellExtraArgs(true));
 				SummonBeams();
@@ -286,8 +286,8 @@ public class boss_glubtok : BossAI
 
 					if (IsHeroic())
 					{
-						_platter.GetAI().DoAction(Actions.ACTION_STOP_FIREWALL);
-						_platter.GetAI().DoAction(Actions.ACTION_START_FIREWALL);
+						_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
+						_platter.AI.DoAction(Actions.ACTION_START_FIREWALL);
 						_events.ScheduleEvent(BossEvents.EVENT_SAY_FIREWALL, TimeSpan.FromMilliseconds(3500));
 					}
 

@@ -401,7 +401,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 	public boss_priestess_lackey_common(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -449,7 +449,9 @@ internal class boss_priestess_lackey_common : ScriptedAI
 			return;
 
 		//should delrissa really yell if dead?
-		delrissa.GetAI().Talk(MiscConst.LackeyDeath[uiLackeyDeathCount]);
+		delrissa.
+			//should delrissa really yell if dead?
+			AI.Talk(MiscConst.LackeyDeath[uiLackeyDeathCount]);
 
 		instance.SetData(DataTypes.DelrissaDeathCount, (uint)EncounterState.Special);
 
@@ -471,7 +473,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 		var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
 
 		if (delrissa)
-			delrissa.GetAI().KilledUnit(victim);
+			delrissa.AI.KilledUnit(victim);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -509,7 +511,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
 		if (delrissa)
 			for (byte i = 0; i < MiscConst.MaxActiveLackey; ++i)
-				_auiLackeyGUIDs[i] = (delrissa.GetAI() as boss_priestess_delrissa)._auiLackeyGUID[i];
+				_auiLackeyGUIDs[i] = (delrissa.AI as boss_priestess_delrissa)._auiLackeyGUID[i];
 	}
 }
 

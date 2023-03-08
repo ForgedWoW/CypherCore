@@ -27,7 +27,7 @@ public class spell_hun_pet_cobra_spit : SpellScript, IHasSpellEffects
 		if (caster == null)
 			return;
 
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 
 		if (owner == null)
 			return;

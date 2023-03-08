@@ -31,7 +31,7 @@ internal class spell_q13400_illidan_kill_master : SpellScript, IHasSpellEffects
 
 		if (caster.IsVehicle)
 		{
-			var passenger = caster.GetVehicleKit().GetPassenger(0);
+			var passenger = caster.VehicleKit1.GetPassenger(0);
 
 			if (passenger)
 				passenger.CastSpell(passenger, QuestSpellIds.IllidanKillCredit, true);

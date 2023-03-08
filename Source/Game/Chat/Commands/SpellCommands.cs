@@ -21,7 +21,7 @@ namespace Game.Chat
                 return false;
             }
 
-            Player owner = target.GetCharmerOrOwnerPlayerOrPlayerItself();
+            Player owner = target.CharmerOrOwnerPlayerOrPlayerItself;
             if (!owner)
             {
                 owner = handler.GetSession().Player;
@@ -37,7 +37,7 @@ namespace Game.Chat
             }
             else
             {
-                SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.GetMap().GetDifficultyID());
+                SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.Map.GetDifficultyID());
                 if (spellInfo == null)
                 {
                     handler.SendSysMessage(CypherStrings.UnknownSpell, owner == handler.GetSession().Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
@@ -62,12 +62,12 @@ namespace Game.Chat
                 return false;
             }
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellId, target.Map.GetDifficultyID());
             if (spellInfo == null)
                 return false;
 
-            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.GetMap().GenerateLowGuid(HighGuid.Cast));
-            AuraCreateInfo createInfo = new(castId, spellInfo, target.GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, target);
+            ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Map.GenerateLowGuid(HighGuid.Cast));
+            AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.GetDifficultyID(), SpellConst.MaxEffectMask, target);
             createInfo.SetCaster(target);
 
             Aura.TryRefreshStackOrCreate(createInfo);

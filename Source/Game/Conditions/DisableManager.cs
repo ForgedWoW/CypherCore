@@ -293,7 +293,7 @@ namespace Game
                         {
                             if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
                             {
-                                var map = refe.GetMap();
+                                var map = refe.Map;
                                 if (map != null)
                                 {
                                     if (spellFlags.HasFlag(DisableFlags.SpellArenas) && map.IsBattleArena())
@@ -319,7 +319,7 @@ namespace Game
                             if (spellFlags.HasFlag(DisableFlags.SpellArea))
                             {
                                 var areaIds = data.param1;
-                                if (areaIds.Contains(refe.GetAreaId()))
+                                if (areaIds.Contains(refe.Area))
                                     return true;                                        // Spell is disabled in this area
                                 return false;                                           // Spell is disabled in another area, but not this one, return false
                             }

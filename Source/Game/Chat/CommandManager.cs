@@ -322,7 +322,7 @@ namespace Game.Chat
 
             Player player = session.Player;
             ObjectGuid targetGuid = player.Target;
-            uint areaId = player.GetAreaId();
+            uint areaId = player.Area;
             string areaName = "Unknown";
             string zoneName = "Unknown";
 
@@ -337,7 +337,7 @@ namespace Game.Chat
             }
 
             Log.outCommand(session.AccountId, $"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
-                $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.GetMap() ? player.GetMap().GetMapName() : "Unknown")}) " +
+                $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Map ? player.Map.GetMapName() : "Unknown")}) " +
                 $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.GetSelectedUnit() ? player.GetSelectedUnit().GetName() : "")} ({targetGuid})]");
         }
 

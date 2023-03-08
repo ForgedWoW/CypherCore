@@ -180,7 +180,7 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 				return;
 		}
 
-		var vehicle = caster.GetVehicleKit();
+		var vehicle = caster.VehicleKit1;
 
 		if (vehicle != null)
 		{
@@ -248,19 +248,19 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
 			switch (aura.StackAmount)
 			{
 				case 10:
-					caster.GetAI().Talk(EmoteIds.TurkeyHunter, target);
+					caster.AI.Talk(EmoteIds.TurkeyHunter, target);
 
 					break;
 				case 20:
-					caster.GetAI().Talk(EmoteIds.TurkeyDomination, target);
+					caster.AI.Talk(EmoteIds.TurkeyDomination, target);
 
 					break;
 				case 30:
-					caster.GetAI().Talk(EmoteIds.TurkeySlaughter, target);
+					caster.AI.Talk(EmoteIds.TurkeySlaughter, target);
 
 					break;
 				case 40:
-					caster.GetAI().Talk(EmoteIds.TurkeyTriumph, target);
+					caster.AI.Talk(EmoteIds.TurkeyTriumph, target);
 					target.CastSpell(target, SpellIds.KillCounterVisualMax, true);
 					target.RemoveAura(SpellInfo.Id);
 
@@ -372,11 +372,11 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 	{
 		if (target.IsPlayer)
 		{
-			var vehBase = target.GetVehicleBase();
+			var vehBase = target.VehicleBase;
 
 			if (vehBase != null)
 			{
-				var table = vehBase.GetVehicle();
+				var table = vehBase.Vehicle1;
 
 				if (table != null)
 					if (table.GetCreatureEntry() == CreatureIds.BountifulTable)
@@ -385,7 +385,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 		}
 		else
 		{
-			var veh = target.GetVehicle();
+			var veh = target.Vehicle1;
 
 			if (veh != null)
 				if (veh.GetCreatureEntry() == CreatureIds.BountifulTable)
@@ -401,7 +401,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 
 		if (holderUnit != null)
 		{
-			var holder = holderUnit.GetVehicleKit();
+			var holder = holderUnit.VehicleKit1;
 
 			if (holder != null)
 				return holder.GetPassenger(seat);
@@ -425,7 +425,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 			table != GetTable(target))
 			return;
 
-		var casterChair = caster.GetVehicleKit();
+		var casterChair = caster.VehicleKit1;
 
 		if (casterChair != null)
 		{
@@ -441,8 +441,8 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 				var seat = target.TransSeat;
 
 				if (target.IsPlayer &&
-					target.GetVehicleBase())
-					seat = target.GetVehicleBase().TransSeat;
+					target.VehicleBase)
+					seat = target.VehicleBase.TransSeat;
 
 				var plate = GetPlateInSeat(table, seat);
 
@@ -451,7 +451,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 					if (target.IsPlayer) //Food Fight case
 					{
 						casterPlr.CastSpell(target, _triggeredSpellId1, true);
-						caster.CastSpell(target.GetVehicleBase(), _triggeredSpellId4, true); //CanEat-chair(always)
+						caster.CastSpell(target.VehicleBase, _triggeredSpellId4, true); //CanEat-chair(always)
 					}
 					else
 					{
@@ -507,7 +507,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
 
 	private void HandlePlate(Unit target, bool apply)
 	{
-		var table = target.GetVehicle();
+		var table = target.Vehicle1;
 
 		if (table != null)
 		{
@@ -515,7 +515,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
 
 			if (holderUnit != null)
 			{
-				var holder = holderUnit.GetVehicleKit();
+				var holder = holderUnit.VehicleKit1;
 
 				if (holder != null)
 				{

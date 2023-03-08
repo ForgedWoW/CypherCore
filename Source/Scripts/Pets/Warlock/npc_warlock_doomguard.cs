@@ -62,9 +62,9 @@ namespace Scripts.Pets
 			public override void UpdateAI(uint diff)
 			{
 				UpdateVictim();
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
-				if (me.GetOwner())
+				if (me.OwnerUnit)
 				{
 					var victim = owner.Victim;
 

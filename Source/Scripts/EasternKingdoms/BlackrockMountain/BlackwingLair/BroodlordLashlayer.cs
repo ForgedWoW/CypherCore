@@ -119,7 +119,7 @@ internal class go_suppression_device : GameObjectAI
 
 	public go_suppression_device(GameObject go) : base(go)
 	{
-		_instance = go.GetInstanceScript();
+		_instance = go.InstanceScript;
 		_active = true;
 	}
 

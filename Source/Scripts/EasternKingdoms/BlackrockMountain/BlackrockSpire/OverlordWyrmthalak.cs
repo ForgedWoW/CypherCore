@@ -95,12 +95,12 @@ internal class boss_overlord_wyrmthalak : BossAI
 				Creature warlord = me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation1, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
 				if (warlord)
-					warlord.GetAI().AttackStart(target);
+					warlord.AI.AttackStart(target);
 
 				Creature berserker = me.SummonCreature(MiscConst.NpcSmolderthornBerserker, MiscConst.SummonLocation2, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
 				if (berserker)
-					berserker.GetAI().AttackStart(target);
+					berserker.AI.AttackStart(target);
 
 				Summoned = true;
 			}

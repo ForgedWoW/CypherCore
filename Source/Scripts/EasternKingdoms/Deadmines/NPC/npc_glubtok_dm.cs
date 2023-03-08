@@ -51,7 +51,7 @@ public class npc_glubtok_dm : BossAI
 
 		if (Vanessa != null)
 		{
-			var pAI = (npc_vanessa_nightmare)Vanessa.GetAI();
+			var pAI = (npc_vanessa_nightmare)Vanessa.AI;
 
 			if (pAI != null)
 				pAI.NightmarePass();

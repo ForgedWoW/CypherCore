@@ -36,7 +36,7 @@ internal class spell_hun_pet_heart_of_the_phoenix : SpellScript, IHasSpellEffect
 	private void HandleScript(int effIndex)
 	{
 		var caster = Caster;
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 
 		if (owner)
 			if (!caster.HasAura(HunterSpells.PetHeartOfThePhoenixDebuff))

@@ -21,16 +21,16 @@ public class spell_dru_efflorescence_aura : AuraScript, IHasAuraEffects
 
 	private void HandleHeal(AuraEffect UnnamedParameter)
 	{
-		if (Caster && Caster.GetOwner())
+		if (Caster && Caster.OwnerUnit)
 		{
-			Caster.GetOwner().CastSpell(Caster.Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
+			Caster.OwnerUnit.CastSpell(Caster.Location, EfflorescenceSpells.EFFLORESCENCE_HEAL);
 
 			var playerList = Caster.GetPlayerListInGrid(11.2f);
 
 			foreach (var targets in playerList)
-				if (Caster.GetOwner().HasAura(DruidSpells.SPRING_BLOSSOMS))
+				if (Caster.OwnerUnit.HasAura(DruidSpells.SPRING_BLOSSOMS))
 					if (!targets.HasAura(DruidSpells.SPRING_BLOSSOMS_HEAL))
-						Caster.GetOwner().CastSpell(targets, DruidSpells.SPRING_BLOSSOMS_HEAL, true);
+						Caster.OwnerUnit.CastSpell(targets, DruidSpells.SPRING_BLOSSOMS_HEAL, true);
 		}
 	}
 }

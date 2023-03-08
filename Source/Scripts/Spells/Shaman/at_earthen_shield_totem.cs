@@ -30,7 +30,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (caster.IsFriendlyTo(target) || target == caster.GetOwner())
+			if (caster.IsFriendlyTo(target) || target == caster.OwnerUnit)
 				if (!target.IsTotem)
 					caster.CastSpell(target, SpellsUsed.EARTHEN_SHIELD_ABSORB, true);
 		}
@@ -46,7 +46,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (unit.IsTotem)
 			return;
 
-		if (caster.IsFriendlyTo(unit) || unit == caster.GetOwner())
+		if (caster.IsFriendlyTo(unit) || unit == caster.OwnerUnit)
 			caster.CastSpell(unit, SpellsUsed.EARTHEN_SHIELD_ABSORB, true);
 	}
 

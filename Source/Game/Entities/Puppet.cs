@@ -18,7 +18,7 @@ public class Puppet : Minion
 	{
 		base.InitStats(duration);
 
-		SetLevel(GetOwner().Level);
+		SetLevel(OwnerUnit.Level);
 		ReactState = ReactStates.Passive;
 	}
 
@@ -26,7 +26,7 @@ public class Puppet : Minion
 	{
 		base.InitSummon();
 
-		if (!SetCharmedBy(GetOwner(), CharmType.Possess))
+		if (!SetCharmedBy(OwnerUnit, CharmType.Possess))
 			Cypher.Assert(false);
 	}
 

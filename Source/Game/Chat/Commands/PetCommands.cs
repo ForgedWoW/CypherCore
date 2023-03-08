@@ -46,7 +46,9 @@ namespace Game.Chat
             pet.SetLevel(player.Level - 1);
 
             // add to world
-            pet.GetMap().AddToMap(pet.AsCreature);
+            pet.
+            // add to world
+            Map.AddToMap(pet.AsCreature);
 
             // visual effect for levelup
             pet.SetLevel(player.Level);

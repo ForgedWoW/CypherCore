@@ -27,6 +27,6 @@ internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 
-		return spellInfo.CheckLocation(player.Location.MapId, player.GetZoneId(), player.GetAreaId(), player);
+		return spellInfo.CheckLocation(player.Location.MapId, player.Zone, player.Area, player);
 	}
 }

@@ -82,7 +82,7 @@ namespace Game.BattleFields
 
         public void HandlePlayerEnterZone(Player player, uint zoneId)
         {
-            var bf = _battlefieldsByZone.LookupByKey((player.GetMap(), zoneId));
+            var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
             if (bf == null)
                 return;
 
@@ -95,7 +95,7 @@ namespace Game.BattleFields
 
         public void HandlePlayerLeaveZone(Player player, uint zoneId)
         {
-            var bf = _battlefieldsByZone.LookupByKey((player.GetMap(), zoneId));
+            var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
             if (bf == null)
                 return;
 

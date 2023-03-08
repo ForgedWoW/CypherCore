@@ -40,7 +40,7 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint UnnamedParameter)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return;

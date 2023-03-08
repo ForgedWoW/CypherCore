@@ -210,7 +210,7 @@ public partial class Spell : IDisposable
 						SpellSchoolMask = (SpellSchoolMask)(1 << (int)pItem.GetTemplate().GetDamageType());
 				}
 
-		var modOwner = caster.GetSpellModOwner();
+		var modOwner = caster.SpellModOwner;
 
 		if (modOwner != null)
 			modOwner.ApplySpellMod(info, SpellModOp.Doses, ref SpellValue.AuraStackAmount, this);
@@ -243,7 +243,7 @@ public partial class Spell : IDisposable
 		if (IsIgnoringCooldowns())
 			CastFlagsEx |= SpellCastFlagsEx.IgnoreCooldown;
 
-		CastId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, _caster.Location.MapId, SpellInfo.Id, _caster.GetMap().GenerateLowGuid(HighGuid.Cast));
+		CastId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, _caster.Location.MapId, SpellInfo.Id, _caster.Map.GenerateLowGuid(HighGuid.Cast));
 		OriginalCastId = originalCastId;
 		SpellVisual.SpellXSpellVisualID = caster.GetCastSpellXSpellVisualId(SpellInfo);
 
@@ -588,7 +588,7 @@ public partial class Spell : IDisposable
 				// assisting case, healing and resurrection
 				if (unit.HasUnitState(UnitState.AttackPlayer))
 				{
-					var playerOwner = _caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+					var playerOwner = _caster.CharmerOrOwnerPlayerOrPlayerItself;
 
 					if (playerOwner != null)
 					{
@@ -824,7 +824,7 @@ public partial class Spell : IDisposable
 			CastItemGuid = CastItem.GUID;
 			CastItemEntry = CastItem.Entry;
 
-			var owner = CastItem.GetOwner();
+			var owner = CastItem.OwnerUnit;
 
 			if (owner)
 			{
@@ -999,7 +999,7 @@ public partial class Spell : IDisposable
 
 			if (caster != null)
 				if (caster.IsAIEnabled)
-					caster.GetAI().OnSpellStart(SpellInfo);
+					caster.					AI.OnSpellStart(SpellInfo);
 
 			if (willCastDirectly)
 				Cast(true);
@@ -1074,7 +1074,7 @@ public partial class Spell : IDisposable
 
 	public void Cast(bool skipCheck = false)
 	{
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 		Spell lastSpellMod = null;
 
 		if (modOwner)
@@ -1129,7 +1129,7 @@ public partial class Spell : IDisposable
 		if (single_missile && offset == 0)
 			return _delayMoment;
 
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 
 		if (modOwner != null)
 			modOwner.SetSpellModTakingSpell(this, true);
@@ -1303,7 +1303,7 @@ public partial class Spell : IDisposable
 
 					if (creatureCaster != null)
 						if (creatureCaster.IsAIEnabled)
-							creatureCaster.GetAI().OnChannelFinished(SpellInfo);
+							creatureCaster.							AI.OnChannelFinished(SpellInfo);
 				}
 
 				break;
@@ -1633,10 +1633,10 @@ public partial class Spell : IDisposable
 
 		if (_caster.IsTypeId(TypeId.Player) && Global.VMapMgr.IsLineOfSightCalcEnabled())
 		{
-			if (SpellInfo.HasAttribute(SpellAttr0.OnlyOutdoors) && !_caster.IsOutdoors())
+			if (SpellInfo.HasAttribute(SpellAttr0.OnlyOutdoors) && !_caster.IsOutdoors)
 				return SpellCastResult.OnlyOutdoors;
 
-			if (SpellInfo.HasAttribute(SpellAttr0.OnlyIndoors) && _caster.IsOutdoors())
+			if (SpellInfo.HasAttribute(SpellAttr0.OnlyIndoors) && _caster.IsOutdoors)
 				return SpellCastResult.OnlyIndoors;
 		}
 
@@ -1857,7 +1857,7 @@ public partial class Spell : IDisposable
 
 		// Spell casted only on Battleground
 		if (SpellInfo.HasAttribute(SpellAttr3.OnlyBattlegrounds))
-			if (!_caster.GetMap().IsBattleground())
+			if (!_caster.Map.IsBattleground())
 				return SpellCastResult.OnlyBattlegrounds;
 
 		// do not allow spells to be cast in arenas or rated Battlegrounds
@@ -2434,7 +2434,7 @@ public partial class Spell : IDisposable
 						return SpellCastResult.SummonPending;
 
 					// check if our map is dungeon
-					var map = _caster.GetMap().ToInstanceMap();
+					var map = _caster.Map.ToInstanceMap();
 
 					if (map != null)
 					{
@@ -2723,7 +2723,7 @@ public partial class Spell : IDisposable
 						if (!target.CharmerGUID.IsEmpty)
 							return SpellCastResult.Charmed;
 
-						if (target.GetOwner() != null && target.GetOwner().IsTypeId(TypeId.Player))
+						if (target.OwnerUnit != null && target.OwnerUnit.IsTypeId(TypeId.Player))
 							return SpellCastResult.TargetIsPlayerControlled;
 
 						var damage = CalculateDamage(spellEffectInfo, target);
@@ -2769,8 +2769,8 @@ public partial class Spell : IDisposable
 					// allow always ghost flight spells
 					if (_originalCaster != null && _originalCaster.IsTypeId(TypeId.Player) && _originalCaster.IsAlive)
 					{
-						var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(_originalCaster.GetMap(), _originalCaster.GetZoneId());
-						var area = CliDB.AreaTableStorage.LookupByKey(_originalCaster.GetAreaId());
+						var Bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(_originalCaster.Map, _originalCaster.Zone);
+						var area = CliDB.AreaTableStorage.LookupByKey(_originalCaster.Area);
 
 						if (area != null)
 							if (area.HasFlag(AreaFlags.NoFlyZone) || (Bf != null && !Bf.CanFlyIn()))
@@ -2969,7 +2969,7 @@ public partial class Spell : IDisposable
 		var delaytime = 500;      // spellcasting delay is normally 500ms
 		double delayReduce = 100; // must be initialized to 100 for percent modifiers
 
-		var player = unitCaster.GetSpellModOwner();
+		var player = unitCaster.SpellModOwner;
 
 		if (player != null)
 			player.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
@@ -3018,7 +3018,7 @@ public partial class Spell : IDisposable
 		var delaytime = MathFunctions.CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
 		double delayReduce = 100;                                 // must be initialized to 100 for percent modifiers
 
-		var player = unitCaster.GetSpellModOwner();
+		var player = unitCaster.SpellModOwner;
 
 		if (player != null)
 			player.ApplySpellMod(SpellInfo, SpellModOp.ResistPushback, ref delayReduce, this);
@@ -3087,7 +3087,7 @@ public partial class Spell : IDisposable
 
 	public Difficulty GetCastDifficulty()
 	{
-		return _caster.GetMap().GetDifficultyID();
+		return _caster.Map.GetDifficultyID();
 	}
 
 	public bool IsPositive()
@@ -4007,7 +4007,7 @@ public partial class Spell : IDisposable
 
 				if (unit != null)
 				{
-					var vehicleKit = unit.GetVehicleKit();
+					var vehicleKit = unit.VehicleKit1;
 
 					if (vehicleKit != null)
 						for (sbyte seat = 0; seat < SharedConst.MaxVehicleSeats; ++seat)
@@ -4131,7 +4131,7 @@ public partial class Spell : IDisposable
 				var ground = _caster.GetMapHeight(pos);
 				var liquidLevel = MapConst.VMAPInvalidHeightValue;
 
-				if (_caster.GetMap().GetLiquidStatus(_caster.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, _caster.CollisionHeight) != 0)
+				if (_caster.Map.GetLiquidStatus(_caster.PhaseShift, pos, LiquidHeaderTypeFlags.AllLiquids, out var liquidData, _caster.CollisionHeight) != 0)
 					liquidLevel = liquidData.level;
 
 				if (liquidLevel <= ground) // When there is no liquid Map.GetWaterOrGroundLevel returns ground level
@@ -4420,7 +4420,7 @@ public partial class Spell : IDisposable
 				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
-					target = unitCaster.GetVehicleBase();
+					target = unitCaster.VehicleBase;
 
 				break;
 			}
@@ -4435,7 +4435,7 @@ public partial class Spell : IDisposable
 				var vehicleBase = _caster.AsCreature;
 
 				if (vehicleBase != null && vehicleBase.IsVehicle)
-					target = vehicleBase.GetVehicleKit().GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
+					target = vehicleBase.VehicleKit1.GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
 
 				break;
 			case Framework.Constants.Targets.UnitTargetTapList:
@@ -4500,7 +4500,7 @@ public partial class Spell : IDisposable
 	void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, uint effMask)
 	{
 		var maxTargets = spellEffectInfo.ChainTargets;
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 
 		if (modOwner)
 			modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainTargets, ref maxTargets, this);
@@ -4596,7 +4596,7 @@ public partial class Spell : IDisposable
 
 			if (unitTarget)
 			{
-				if (unitCaster == obj || unitCaster.IsOnVehicle(unitTarget) || unitTarget.GetVehicle())
+				if (unitCaster == obj || unitCaster.IsOnVehicle(unitTarget) || unitTarget.Vehicle1)
 					continue;
 
 				var creatureTarget = unitTarget.AsCreature;
@@ -4737,7 +4737,8 @@ public partial class Spell : IDisposable
 						var spell = this;
 						var targetGuid = rafTarget.GUID;
 
-						rafTarget.GetMap()
+						rafTarget.
+						Map
 								.AddFarSpellCallback(map =>
 								{
 									var player = Global.ObjAccessor.GetPlayer(map, targetGuid);
@@ -4849,7 +4850,7 @@ public partial class Spell : IDisposable
 			Cell cell = new(p);
 			cell.SetNoCreate();
 
-			var map = referer.GetMap();
+			var map = referer.Map;
 
 			if (searchInWorld)
 				Cell.VisitGrid(x, y, map, notifier, radius);
@@ -4912,7 +4913,7 @@ public partial class Spell : IDisposable
 				break;
 		}
 
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 
 		if (modOwner)
 			modOwner.ApplySpellMod(SpellInfo, SpellModOp.ChainJumpDistance, ref jumpRadius, this);
@@ -4994,7 +4995,7 @@ public partial class Spell : IDisposable
 	{
 		var check = new GameObjectFocusCheck(_caster, SpellInfo.RequiresSpellFocus);
 		var searcher = new GameObjectSearcher(_caster, check, GridType.All);
-		SearchTargets(searcher, GridMapTypeMask.GameObject, _caster, _caster.Location, _caster.GetVisibilityRange());
+		SearchTargets(searcher, GridMapTypeMask.GameObject, _caster, _caster.Location, _caster.VisibilityRange);
 
 		return searcher.GetTarget();
 	}
@@ -5338,7 +5339,7 @@ public partial class Spell : IDisposable
 		if (channelAuraMask != 0)
 		{
 			range = SpellInfo.GetMaxRange(IsPositive());
-			var modOwner = _caster.GetSpellModOwner();
+			var modOwner = _caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(SpellInfo, SpellModOp.Range, ref range, this);
@@ -5441,7 +5442,7 @@ public partial class Spell : IDisposable
 
 						if (cControlled != null)
 						{
-							var controlledAI = cControlled.GetAI();
+							var controlledAI = cControlled.AI;
 
 							if (controlledAI != null)
 								controlledAI.OwnerAttacked(target);
@@ -5453,7 +5454,7 @@ public partial class Spell : IDisposable
 		SetExecutedCurrently(true);
 
 		// Should this be done for original caster?
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 
 		if (modOwner != null)
 			// Set spell which will drop charges for triggered cast spells
@@ -5734,7 +5735,7 @@ public partial class Spell : IDisposable
 
 		if (caster)
 			if (caster.IsAIEnabled)
-				caster.GetAI().OnSpellCast(SpellInfo);
+				caster.				AI.OnSpellCast(SpellInfo);
 	}
 
 	void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase
@@ -5766,7 +5767,7 @@ public partial class Spell : IDisposable
 				{
 					// First mod_duration then haste - see Missile Barrage
 					// Apply duration mod
-					var modOwner = _caster.GetSpellModOwner();
+					var modOwner = _caster.SpellModOwner;
 
 					if (modOwner != null)
 						modOwner.ApplySpellMod(SpellInfo, SpellModOp.Duration, ref duration);
@@ -6899,7 +6900,7 @@ public partial class Spell : IDisposable
 						{
 							hit = false;
 							//lower spell cost on fail (by talent aura)
-							var modOwner = unitCaster.GetSpellModOwner();
+							var modOwner = unitCaster.SpellModOwner;
 
 							if (modOwner != null)
 								modOwner.ApplySpellMod(SpellInfo, SpellModOp.PowerCostOnMiss, ref cost.Amount);
@@ -7466,7 +7467,7 @@ public partial class Spell : IDisposable
 				maxRange *= ranged.GetTemplate().GetRangedModRange() * 0.01f;
 		}
 
-		var modOwner = _caster.GetSpellModOwner();
+		var modOwner = _caster.SpellModOwner;
 
 		if (modOwner)
 			modOwner.ApplySpellMod(SpellInfo, SpellModOp.Range, ref maxRange, this);
@@ -7819,7 +7820,7 @@ public partial class Spell : IDisposable
 					if (spellEffectInfo.ItemType != 0 && Targets.ItemTarget != null && Targets.ItemTarget.IsVellum())
 					{
 						// cannot enchant vellum for other player
-						if (Targets.ItemTarget.GetOwner() != player)
+						if (Targets.ItemTarget.OwnerUnit != player)
 							return SpellCastResult.NotTradeable;
 
 						// do not allow to enchant vellum from scroll made by vellum-prevent exploit
@@ -7846,7 +7847,7 @@ public partial class Spell : IDisposable
 						return SpellCastResult.ItemNotFound;
 
 					// required level has to be checked also! Exploit fix
-					if (targetItem.GetItemLevel(targetItem.GetOwner()) < SpellInfo.BaseLevel || (targetItem.GetRequiredLevel() != 0 && targetItem.GetRequiredLevel() < SpellInfo.BaseLevel))
+					if (targetItem.GetItemLevel(targetItem.OwnerUnit) < SpellInfo.BaseLevel || (targetItem.GetRequiredLevel() != 0 && targetItem.GetRequiredLevel() < SpellInfo.BaseLevel))
 						return SpellCastResult.Lowlevel;
 
 					var isItemUsable = false;
@@ -7887,7 +7888,7 @@ public partial class Spell : IDisposable
 							}
 
 					// Not allow enchant in trade slot for some enchant type
-					if (targetItem.GetOwner() != player)
+					if (targetItem.OwnerUnit != player)
 					{
 						if (enchantEntry == null)
 							return SpellCastResult.Error;
@@ -7906,7 +7907,7 @@ public partial class Spell : IDisposable
 						return SpellCastResult.ItemNotFound;
 
 					// Not allow enchant in trade slot for some enchant type
-					if (item.GetOwner() != player)
+					if (item.OwnerUnit != player)
 					{
 						var enchant_id = spellEffectInfo.MiscValue;
 						var enchantEntry = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
@@ -8230,7 +8231,7 @@ public partial class Spell : IDisposable
 			case AuraType.ModCharm:
 			case AuraType.ModPossessPet:
 			case AuraType.AoeCharm:
-				if (target.GetVehicleKit() && target.GetVehicleKit().IsControllableVehicle())
+				if (target.VehicleKit1 && target.VehicleKit1.IsControllableVehicle())
 					return false;
 
 				if (target.IsMounted)
@@ -8303,7 +8304,7 @@ public partial class Spell : IDisposable
 					WorldObject caster = null;
 
 					if (_originalCasterGuid.IsGameObject)
-						caster = _caster.GetMap().GetGameObject(_originalCasterGuid);
+						caster = _caster.Map.GetGameObject(_originalCasterGuid);
 
 					if (!caster)
 						caster = _caster;
@@ -8973,7 +8974,7 @@ public partial class Spell : IDisposable
 		if (gcd >= MinGCD && gcd <= MaxGCD)
 		{
 			// gcd modifier auras are applied only to own spells and only players have such mods
-			var modOwner = _caster.GetSpellModOwner();
+			var modOwner = _caster.SpellModOwner;
 
 			if (modOwner)
 			{

@@ -50,7 +50,7 @@ internal class boss_occuthar : BossAI
 
 	public boss_occuthar(Creature creature) : base(creature, DataTypes.Occuthar)
 	{
-		_vehicle = me.GetVehicleKit();
+		_vehicle = me.VehicleKit1;
 		Cypher.Assert(_vehicle != null);
 	}
 
@@ -146,7 +146,7 @@ internal class npc_eyestalk : ScriptedAI
 
 	public npc_eyestalk(Creature creature) : base(creature)
 	{
-		_instance = creature.GetInstanceScript();
+		_instance = creature.InstanceScript;
 	}
 
 	public override void IsSummonedBy(WorldObject summoner)
@@ -154,7 +154,7 @@ internal class npc_eyestalk : ScriptedAI
 		// player is the spellcaster so register summon manually
 		var occuthar = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.Occuthar));
 
-		occuthar?.GetAI().JustSummoned(me);
+		occuthar?.AI.JustSummoned(me);
 	}
 
 	public override void Reset()
@@ -241,7 +241,7 @@ internal class spell_occuthar_eyes_of_occuthar_vehicle_SpellScript : SpellScript
 {
 	public override bool Load()
 	{
-		var instance = Caster.GetMap().ToInstanceMap();
+		var instance = Caster.Map.ToInstanceMap();
 
 		if (instance != null)
 			return instance.GetScriptName() == nameof(instance_baradin_hold);
@@ -253,7 +253,7 @@ internal class spell_occuthar_eyes_of_occuthar_vehicle_SpellScript : SpellScript
 	{
 		Position pos = HitUnit.Location;
 
-		var occuthar = ObjectAccessor.GetCreature(Caster, Caster.GetInstanceScript().GetGuidData(DataTypes.Occuthar));
+		var occuthar = ObjectAccessor.GetCreature(Caster, Caster.InstanceScript.GetGuidData(DataTypes.Occuthar));
 
 		if (occuthar != null)
 		{
@@ -288,8 +288,7 @@ internal class spell_occuthar_occuthars_destruction_AuraScript : AuraScript, IHa
 			if (IsExpired)
 				caster.CastSpell((WorldObject)null, SpellIds.OccutharsDestuction, new CastSpellExtraArgs(aurEff));
 
-			caster.
-			AsCreature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+			caster.AsCreature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 		}
 	}
 }

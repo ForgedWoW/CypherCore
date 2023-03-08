@@ -1286,7 +1286,7 @@ namespace Game.DungeonFinding
                 error = LfgTeleportResult.Falling;
             else if (player.IsMirrorTimerActive(MirrorTimerType.Fatigue))
                 error = LfgTeleportResult.Exhaustion;
-            else if (player.GetVehicle())
+            else if (player.Vehicle1)
                 error = LfgTeleportResult.OnTransport;
             else if (!player.CharmedGUID.IsEmpty)
                 error = LfgTeleportResult.ImmuneToSummons;
@@ -1318,7 +1318,7 @@ namespace Game.DungeonFinding
                     }
                 }
 
-                if (!player.GetMap().IsDungeon())
+                if (!player.Map.IsDungeon())
                     player.SetBattlegroundEntryPoint();
 
                 player.FinishTaxiFlight();
@@ -1384,7 +1384,7 @@ namespace Game.DungeonFinding
                     continue;
                 }
 
-                if (player.GetMap() != currMap)
+                if (player.Map != currMap)
                 {
                     Log.outDebug(LogFilter.Lfg, $"Group: {gguid}, Player: {guid} is in a different map");
                     continue;

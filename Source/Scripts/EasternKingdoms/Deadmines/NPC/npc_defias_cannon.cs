@@ -30,7 +30,7 @@ public class npc_defias_cannon : ScriptedAI
 	public npc_defias_cannon(Creature creature) : base(creature)
 	{
 		;
-		Instance = creature.GetInstanceScript();
+		Instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

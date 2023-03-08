@@ -312,7 +312,7 @@ public partial class Player
 			opponent.CastSpell(Duel.Opponent, 52852, true);
 
 		//Remove Duel Flag object
-		var obj = GetMap().GetGameObject(PlayerData.DuelArbiter);
+		var obj = Map.GetGameObject(PlayerData.DuelArbiter);
 
 		if (obj)
 			Duel.Initiator.RemoveGameObject(obj, true);
@@ -374,7 +374,7 @@ public partial class Player
 			SetPlayerFlag(PlayerFlags.ContestedPVP);
 			// call MoveInLineOfSight for nearby contested guards
 			AIRelocationNotifier notifier = new(this, GridType.World);
-			Cell.VisitGrid(this, notifier, GetVisibilityRange());
+			Cell.VisitGrid(this, notifier, VisibilityRange);
 		}
 
 		foreach (var unit in Controlled)
@@ -382,7 +382,7 @@ public partial class Player
 			{
 				unit.AddUnitState(UnitState.AttackPlayer);
 				AIRelocationNotifier notifier = new(unit, GridType.World);
-				Cell.VisitGrid(this, notifier, GetVisibilityRange());
+				Cell.VisitGrid(this, notifier, VisibilityRange);
 			}
 	}
 
@@ -700,7 +700,7 @@ public partial class Player
 			return;
 
 		ObjectGuid duelFlagGuid = PlayerData.DuelArbiter;
-		var obj = GetMap().GetGameObject(duelFlagGuid);
+		var obj = Map.GetGameObject(duelFlagGuid);
 
 		if (!obj)
 			return;

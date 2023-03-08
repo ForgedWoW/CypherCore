@@ -50,7 +50,7 @@ public class Corpse : WorldObject
 	{
 		// Register the corpse for guid lookup
 		if (!IsInWorld)
-			GetMap().GetObjectsStore().Add(GUID, this);
+			Map.GetObjectsStore().Add(GUID, this);
 
 		base.AddToWorld();
 	}
@@ -59,7 +59,7 @@ public class Corpse : WorldObject
 	{
 		// Remove the corpse from the accessor
 		if (IsInWorld)
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 
 		base.RemoveFromWorld();
 	}

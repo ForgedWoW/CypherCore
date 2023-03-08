@@ -126,7 +126,7 @@ internal class npc_firework : ScriptedAI
 		if (isCluster())
 		{
 			// Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
-			if (me.GetZoneId() == MiscConst.ZoneMoonglade)
+			if (me.Zone == MiscConst.ZoneMoonglade)
 				if (!me.FindNearestCreature(CreatureIds.Omen, 100.0f) &&
 					me.GetDistance2d(MiscConst.OmenSummonPos.X, MiscConst.OmenSummonPos.Y) <= 100.0f)
 					switch (RandomHelper.URand(0, 9))
@@ -138,7 +138,7 @@ internal class npc_firework : ScriptedAI
 							Creature minion = me.SummonCreature(CreatureIds.MinionOfOmen, me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
 
 							if (minion)
-								minion.GetAI().AttackStart(me.SelectNearestPlayer(20.0f));
+								minion.AI.AttackStart(me.SelectNearestPlayer(20.0f));
 
 							break;
 						case 9:

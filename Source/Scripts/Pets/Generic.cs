@@ -53,7 +53,7 @@ namespace Scripts.Pets
 
 			public override void OnDespawn()
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner != null)
 					DoCast(owner, SpellIds.EtherealPetRemoveAura);
@@ -63,7 +63,7 @@ namespace Scripts.Pets
 			{
 				Talk(TextIds.SaySoulTraderInto);
 
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner != null)
 					DoCast(owner, SpellIds.EtherealOnSummon);
@@ -144,7 +144,7 @@ namespace Scripts.Pets
 
 				foreach (Creature minion in minionList)
 					if (minion.IsAIEnabled)
-						minion.GetAI().DoCastSelf(SpellIds.LichPetAuraOnkill);
+						minion.AI.DoCastSelf(SpellIds.LichPetAuraOnkill);
 			}
 		}
 

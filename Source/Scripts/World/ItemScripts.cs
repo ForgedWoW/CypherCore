@@ -75,17 +75,17 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 		switch (itemId)
 		{
 			case 24538:
-				if (player.GetAreaId() != 3628)
+				if (player.Area != 3628)
 					disabled = true;
 
 				break;
 			case 34489:
-				if (player.GetZoneId() != 4080)
+				if (player.Zone != 4080)
 					disabled = true;
 
 				break;
 			case 34475:
-				var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ArcaneCharges, player.GetMap().GetDifficultyID());
+				var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ArcaneCharges, player.Map.GetDifficultyID());
 
 				if (spellInfo != null)
 					Spell.SendCastResult(player, spellInfo, default, castId, SpellCastResult.NotOnGround);
@@ -165,11 +165,11 @@ internal class item_petrov_cluster_bombs : ScriptObjectAutoAddDBBound, IItemOnUs
 
 	public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
 	{
-		if (player.GetZoneId() != Misc.ZoneIdHowling)
+		if (player.Zone != Misc.ZoneIdHowling)
 			return false;
 
 		if (player.Transport == null ||
-			player.GetAreaId() != Misc.AreaIdShatteredStraits)
+			player.Area != Misc.AreaIdShatteredStraits)
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.PetrovBomb, Difficulty.None);
 

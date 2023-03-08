@@ -71,6 +71,6 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 	private void HandleScript(int effIndex)
 	{
-		Caster.		AsCreature.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+		Caster.AsCreature.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 	}
 }

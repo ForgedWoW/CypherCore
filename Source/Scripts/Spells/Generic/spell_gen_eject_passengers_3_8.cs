@@ -21,7 +21,7 @@ internal class spell_gen_eject_passengers_3_8 : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var vehicle = HitUnit.GetVehicleKit();
+		var vehicle = HitUnit.VehicleKit1;
 
 		if (vehicle == null)
 			return;

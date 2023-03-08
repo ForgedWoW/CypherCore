@@ -20,7 +20,7 @@ public class npc_deadmines_bird : ScriptedAI
 
 	public npc_deadmines_bird(Creature creature) : base(creature)
 	{
-		Instance = creature.GetInstanceScript();
+		Instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

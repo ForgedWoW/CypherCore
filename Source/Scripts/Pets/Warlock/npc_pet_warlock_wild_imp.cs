@@ -20,9 +20,9 @@ namespace Scripts.Pets
 
 			public npc_pet_warlock_wild_imp(Creature creature) : base(creature)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
-				if (me.GetOwner())
+				if (me.OwnerUnit)
 				{
 					me.SetLevel(owner.Level);
 					me.SetMaxHealth(owner.GetMaxHealth() / 3);
@@ -52,7 +52,7 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint UnnamedParameter)
 			{
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner == null)
 					return;
@@ -80,7 +80,7 @@ namespace Scripts.Pets
 
 			public override void OnDespawn()
 			{
-				var caster = me.GetOwner();
+				var caster = me.OwnerUnit;
 
 				if (caster == null) return;
 

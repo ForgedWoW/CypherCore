@@ -95,37 +95,37 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public static Corpse GetCorpse(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetCorpse(guid);
+        return u.Map.GetCorpse(guid);
     }
 
     public static GameObject GetGameObject(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetGameObject(guid);
+        return u.Map.GetGameObject(guid);
     }
 
     public static Transport GetTransport(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetTransport(guid);
+        return u.Map.GetTransport(guid);
     }
 
     static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetDynamicObject(guid);
+        return u.Map.GetDynamicObject(guid);
     }
 
     static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetAreaTrigger(guid);
+        return u.Map.GetAreaTrigger(guid);
     }
 
     static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetSceneObject(guid);
+        return u.Map.GetSceneObject(guid);
     }
     
     public static Conversation GetConversation(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetConversation(guid);
+        return u.Map.GetConversation(guid);
     }
 
     public Unit GetUnit(WorldObject u, ObjectGuid guid)
@@ -141,19 +141,19 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public static Creature GetCreature(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetCreature(guid);
+        return u.Map.GetCreature(guid);
     }
 
     public static Pet GetPet(WorldObject u, ObjectGuid guid)
     {
-        return u.GetMap().GetPet(guid);
+        return u.Map.GetPet(guid);
     }
 
     public Player GetPlayer(Map m, ObjectGuid guid)
     {
         Player player = _players.LookupByKey(guid);
         if (player)
-            if (player.IsInWorld && player.GetMap() == m)
+            if (player.IsInWorld && player.Map == m)
                 return player;
 
         return null;
@@ -161,7 +161,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public Player GetPlayer(WorldObject u, ObjectGuid guid)
     {
-        return GetPlayer(u.GetMap(), guid);
+        return GetPlayer(u.Map, guid);
     }
 
     public static Creature GetCreatureOrPetOrVehicle(WorldObject u, ObjectGuid guid)

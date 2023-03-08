@@ -30,7 +30,7 @@ public class spell_warlock_artifact_the_expendables : AuraScript, IHasAuraEffect
 		if (caster.AsPlayer)
 			return;
 
-		var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var player = caster.CharmerOrOwnerPlayerOrPlayerItself;
 
 		if (player == null)
 			return;

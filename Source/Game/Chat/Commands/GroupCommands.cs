@@ -219,7 +219,7 @@ namespace Game.Chat
                     onlineState = "online";
                     phases = PhasingHandler.FormatPhases(p.PhaseShift);
 
-                    AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(p.GetAreaId());
+                    AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(p.Area);
                     if (area != null)
                     {
                         AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
@@ -332,7 +332,7 @@ namespace Game.Chat
             }
 
             Player gmPlayer = handler.GetSession().Player;
-            Map gmMap = gmPlayer.GetMap();
+            Map gmMap = gmPlayer.Map;
             bool toInstance = gmMap.Instanceable();
             bool onlyLocalSummon = false;
 
@@ -370,7 +370,7 @@ namespace Game.Chat
 
                 if (toInstance)
                 {
-                    Map playerMap = player.GetMap();
+                    Map playerMap = player.Map;
 
                     if ((onlyLocalSummon || (playerMap.Instanceable() && playerMap.GetId() == gmMap.GetId())) && // either no far summon allowed or we're in the same map as player (no map switch)
                         ((playerMap.GetId() != gmMap.GetId()) || (playerMap.GetInstanceId() != gmMap.GetInstanceId()))) // so we need to be in the same map and instance of the map, otherwise skip

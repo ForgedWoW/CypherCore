@@ -27,7 +27,7 @@ public class GOTargetInfo : TargetInfoBase
 			go.GetAI().SpellHit(spell.Caster, spell.SpellInfo);
 
 		if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
-			spell.Caster.			AsCreature.GetAI().SpellHitTarget(go, spell.SpellInfo);
+			spell.Caster.			AsCreature.			AI.SpellHitTarget(go, spell.SpellInfo);
 		else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.GetAI() != null)
 			spell.Caster.			AsGameObject.GetAI().SpellHitTarget(go, spell.SpellInfo);
 

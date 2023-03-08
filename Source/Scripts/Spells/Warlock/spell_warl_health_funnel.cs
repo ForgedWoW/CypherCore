@@ -54,7 +54,7 @@ internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
 		//! HACK for self Damage, is not blizz :/
 		var damage = (uint)caster.CountPctFromMaxHealth(aurEff.BaseAmount);
 
-		var modOwner = caster.GetSpellModOwner();
+		var modOwner = caster.SpellModOwner;
 
 		if (modOwner)
 			modOwner.ApplySpellMod(SpellInfo, SpellModOp.PowerCost0, ref damage);

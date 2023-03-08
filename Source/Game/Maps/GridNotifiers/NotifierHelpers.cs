@@ -17,12 +17,12 @@ public static class NotifierHelpers
 		{
 			if (c.IsAIEnabled && c.CanSeeOrDetect(u, false, true))
 			{
-				c.GetAI().MoveInLineOfSight_Safe(u);
+				c.				AI.MoveInLineOfSight_Safe(u);
 			}
 			else
 			{
 				if (u.IsTypeId(TypeId.Player) && u.HasStealthAura() && c.IsAIEnabled && c.CanSeeOrDetect(u, false, true, true))
-					c.GetAI().TriggerAlert(u);
+					c.					AI.TriggerAlert(u);
 			}
 		}
 	}

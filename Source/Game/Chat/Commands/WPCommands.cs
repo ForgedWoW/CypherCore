@@ -482,7 +482,7 @@ namespace Game.Chat.Commands
                 handler.SendSysMessage("|cff00ff00DEBUG: wp move, PathID: |r|cff00ffff{0}|r", pathid);
 
                 Player chr = handler.GetSession().Player;
-                Map map = chr.GetMap();
+                Map map = chr.Map;
                 // What to do:
                 // Move the visual spawnpoint
                 // Respawn the owner of the waypoints
@@ -688,7 +688,7 @@ namespace Game.Chat.Commands
                     uint id = 1;
 
                     Player chr = handler.GetSession().Player;
-                    Map map = chr.GetMap();
+                    Map map = chr.Map;
 
                     Creature creature = Creature.CreateCreature(id, map, new Position(x, y, z, o));
                     if (!creature)
@@ -754,7 +754,7 @@ namespace Game.Chat.Commands
                 float o = result.Read<float>(3);
 
                 Player chr = handler.GetSession().Player;
-                Map map = chr.GetMap();
+                Map map = chr.Map;
 
                 Creature creature = Creature.CreateCreature(1, map, new Position(x, y, z, 0));
                 if (!creature)
@@ -808,7 +808,7 @@ namespace Game.Chat.Commands
                 float o = result.Read<float>(3);
 
                 Player chr = handler.GetSession().Player;
-                Map map = chr.GetMap();
+                Map map = chr.Map;
                 Position pos = new(x, y, z, o);
 
                 Creature creature = Creature.CreateCreature(1, map, pos);

@@ -29,7 +29,7 @@ public class npc_warr_banner : ScriptedAI
 	{
 		if (_timer <= diff)
 		{
-			var owner = me.GetOwner();
+			var owner = me.OwnerUnit;
 
 			if (owner != null)
 			{

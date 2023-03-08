@@ -14,7 +14,7 @@ internal class spell_gen_charmed_unit_spell_cooldown : SpellScript, ISpellOnCast
 	public void OnCast()
 	{
 		var caster = Caster;
-		var owner = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var owner = caster.CharmerOrOwnerPlayerOrPlayerItself;
 
 		if (owner != null)
 		{

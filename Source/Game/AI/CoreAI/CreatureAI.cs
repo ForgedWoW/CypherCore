@@ -60,7 +60,7 @@ namespace Game.AI
             if (!creature)
                 creature = me;
 
-            Map map = creature.GetMap();
+            Map map = creature.Map;
             if (!map.IsDungeon()) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
             {
                 Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.AsCreature.Entry : 0);
@@ -81,7 +81,7 @@ namespace Game.AI
                     foreach (Unit pet in player.Controlled)
                         creature.EngageWithTarget(pet);
 
-                    Unit vehicle = player.GetVehicleBase();
+                    Unit vehicle = player.VehicleBase;
                     if (vehicle != null)
                         creature.EngageWithTarget(vehicle);
                 }
@@ -181,7 +181,7 @@ namespace Game.AI
                 if (summon != null)
                 {
                     // Only apply this to specific types of summons
-                    if (!summon.GetVehicle() && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
+                    if (!summon.Vehicle1 && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
                     {
                         Unit owner = summon.CharmerOrOwner;
                         if (owner != null)
@@ -208,7 +208,7 @@ namespace Game.AI
 
             Log.outDebug(LogFilter.Unit, $"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({me.GUID})");
 
-            if (me.GetVehicle() == null) // otherwise me will be in evade mode forever
+            if (me.Vehicle1 == null) // otherwise me will be in evade mode forever
             {
                 Unit owner = me.CharmerOrOwner;
                 if (owner != null)

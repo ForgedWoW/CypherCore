@@ -98,7 +98,7 @@ internal class instance_antorus_the_burning_throne : InstanceMapScript, IInstanc
 					var garothi = GetCreature(DataTypes.GarothiWorldbreaker);
 
 					if (garothi)
-						garothi.GetAI().JustSummoned(creature);
+						garothi.AI.JustSummoned(creature);
 
 					break;
 				default:

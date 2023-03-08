@@ -174,7 +174,7 @@ internal class boss_rend_blackhand : BossAI
 		_JustDied();
 		var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
 
-		victor?.GetAI().SetData(1, 2);
+		victor?.AI.SetData(1, 2);
 	}
 
 	public override void SetData(uint type, uint data)
@@ -213,7 +213,7 @@ internal class boss_rend_blackhand : BossAI
 					var gyth = me.FindNearestCreature(CreaturesIds.Gyth, 10.0f, true);
 
 					if (gyth)
-						gyth.GetAI().SetData(1, 1);
+						gyth.AI.SetData(1, 1);
 
 					me.DespawnOrUnsummon(TimeSpan.FromSeconds(1), TimeSpan.FromDays(7));
 
@@ -235,7 +235,7 @@ internal class boss_rend_blackhand : BossAI
 					{
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius0);
+						victor?.AI.Talk(TextIds.SayNefarius0);
 
 						_events.ScheduleEvent(EventIds.Start2, TimeSpan.FromSeconds(4));
 
@@ -256,7 +256,7 @@ internal class boss_rend_blackhand : BossAI
 					{
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius1);
+						victor?.AI.Talk(TextIds.SayNefarius1);
 
 						_events.ScheduleEvent(EventIds.Wave1, TimeSpan.FromSeconds(2));
 						_events.ScheduleEvent(EventIds.TurnToRend, TimeSpan.FromSeconds(4));
@@ -323,7 +323,7 @@ internal class boss_rend_blackhand : BossAI
 						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius2);
+						victor?.AI.Talk(TextIds.SayNefarius2);
 
 						me.HandleEmoteCommand(Emote.OneshotTalk);
 						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
@@ -338,7 +338,7 @@ internal class boss_rend_blackhand : BossAI
 						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius3);
+						victor?.AI.Talk(TextIds.SayNefarius3);
 
 						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
 						_events.ScheduleEvent(EventIds.Wave3, TimeSpan.FromSeconds(2));
@@ -351,7 +351,7 @@ internal class boss_rend_blackhand : BossAI
 						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius4);
+						victor?.AI.Talk(TextIds.SayNefarius4);
 
 						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
 						_events.ScheduleEvent(EventIds.Wave4, TimeSpan.FromSeconds(2));
@@ -372,7 +372,7 @@ internal class boss_rend_blackhand : BossAI
 						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius5);
+						victor?.AI.Talk(TextIds.SayNefarius5);
 
 						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
 						_events.ScheduleEvent(EventIds.Wave6, TimeSpan.FromSeconds(2));
@@ -385,7 +385,7 @@ internal class boss_rend_blackhand : BossAI
 						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius6);
+						victor?.AI.Talk(TextIds.SayNefarius6);
 
 						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
 						_events.ScheduleEvent(EventIds.WavesCompleteText2, TimeSpan.FromSeconds(13));
@@ -396,7 +396,7 @@ internal class boss_rend_blackhand : BossAI
 					{
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius7);
+						victor?.AI.Talk(TextIds.SayNefarius7);
 
 						Talk(TextIds.SayBlackhand2);
 						_events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));
@@ -408,7 +408,7 @@ internal class boss_rend_blackhand : BossAI
 					{
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetAI().Talk(TextIds.SayNefarius8);
+						victor?.AI.Talk(TextIds.SayNefarius8);
 
 						_events.ScheduleEvent(EventIds.PathNefarius, TimeSpan.FromSeconds(1));
 						_events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));

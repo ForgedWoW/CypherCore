@@ -25,7 +25,7 @@ internal class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : Spell
 
 		if (target != null)
 		{
-			var owner = target.GetOwner();
+			var owner = target.OwnerUnit;
 
 			owner?.CastSpell(owner, (uint)EffectValue, true);
 		}

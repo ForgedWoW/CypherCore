@@ -23,7 +23,7 @@ public class spell_hun_kill_command_proc : SpellScript, IHasSpellEffects
 	private void HandleDamage(int effIndex)
 	{
 		var caster = Caster;
-		var owner = caster.GetOwner();
+		var owner = caster.OwnerUnit;
 		var target = ExplTargetUnit;
 
 		// (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))

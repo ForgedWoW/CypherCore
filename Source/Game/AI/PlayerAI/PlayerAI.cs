@@ -466,7 +466,7 @@ namespace Game.AI
             if (knownRank == 0)
                 return null;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, me.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, me.Map.GetDifficultyID());
             if (spellInfo == null)
                 return null;
 
@@ -588,7 +588,7 @@ namespace Game.AI
             if (rangedAttackSpell == 0)
                 return;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, me.GetMap().GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, me.Map.GetDifficultyID());
             if (spellInfo == null)
                 return;
 
@@ -695,7 +695,7 @@ namespace Game.AI
             Unit charmer = me.Charmer;
             if (charmer)
             {
-                IUnitAI charmerAI = charmer.GetAI();
+                IUnitAI charmerAI = charmer.AI;
                 if (charmerAI != null)
                     return charmerAI.SelectTarget(SelectTargetMethod.Random, 0, new ValidTargetSelectPredicate(this));
 

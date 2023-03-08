@@ -227,14 +227,14 @@ namespace Game.Movement
                 if (owner.IsAlive)
                 {
                     owner.AttackStop();
-                    owner.                    AsCreature.GetAI().AttackStart(victim);
+                    owner.                    AsCreature.                    AI.AttackStart(victim);
                 }
             }
 
             if (movementInform)
             {
                 Creature ownerCreature = owner.AsCreature;
-                CreatureAI ai = ownerCreature != null ? ownerCreature.GetAI() : null;
+                CreatureAI ai = ownerCreature != null ? ownerCreature.AI : null;
                 if (ai != null)
                     ai.MovementInform(MovementGeneratorType.TimedFleeing, 0);
             }

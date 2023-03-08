@@ -29,7 +29,7 @@ public class spell_hun_aimed_shot : SpellScript, IHasSpellEffects
 		var victimList = new List<Unit>();
 		var canApplyDamage = true;
 
-		var modOwner = Caster.GetSpellModOwner();
+		var modOwner = Caster.SpellModOwner;
 
 		if (modOwner != null)
 			if (modOwner.HasAura(199522))

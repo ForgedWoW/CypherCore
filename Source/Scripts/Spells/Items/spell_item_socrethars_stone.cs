@@ -17,7 +17,7 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return (Caster.GetAreaId() == 3900 || Caster.GetAreaId() == 3742);
+		return (Caster.Area == 3900 || Caster.Area == 3742);
 	}
 
 	public override bool Validate(SpellInfo spell)
@@ -34,7 +34,7 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 	{
 		var caster = Caster;
 
-		switch (caster.GetAreaId())
+		switch (caster.Area)
 		{
 			case 3900:
 				caster.CastSpell(caster, ItemSpellIds.SocretharToSeat, true);

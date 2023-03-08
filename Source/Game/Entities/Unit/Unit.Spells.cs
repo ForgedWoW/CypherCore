@@ -18,7 +18,7 @@ namespace Game.Entities;
 
 public partial class Unit
 {
-	public virtual bool IsAffectedByDiminishingReturns => (GetCharmerOrOwnerPlayerOrPlayerItself() != null);
+	public virtual bool IsAffectedByDiminishingReturns => (CharmerOrOwnerPlayerOrPlayerItself != null);
 
 	public virtual bool HasSpell(uint spellId)
 	{
@@ -85,7 +85,7 @@ public partial class Unit
 		// For totems get damage bonus from owner
 		if (IsTypeId(TypeId.Unit) && IsTotem)
 		{
-			var owner = GetOwner();
+			var owner = OwnerUnit;
 
 			if (owner != null)
 				return owner.SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, spellEffectInfo, stack, spell);
@@ -108,7 +108,7 @@ public partial class Unit
 		if (spellEffectInfo.BonusCoefficientFromAp > 0.0f)
 		{
 			var ApCoeffMod = spellEffectInfo.BonusCoefficientFromAp;
-			var modOwner = GetSpellModOwner();
+			var modOwner = SpellModOwner;
 
 			if (modOwner)
 			{
@@ -144,7 +144,7 @@ public partial class Unit
 			if (spell != null)
 				spell.ForEachSpellScript<ISpellCalculateBonusCoefficient>(a => coeff = a.CalcBonusCoefficient(coeff));
 
-			var modOwner1 = GetSpellModOwner();
+			var modOwner1 = SpellModOwner;
 
 			if (modOwner1)
 			{
@@ -158,7 +158,7 @@ public partial class Unit
 
 		var tmpDamage = (pdamage + DoneTotal) * DoneTotalMod;
 		// apply spellmod to Done damage (flat and pct)
-		var _modOwner = GetSpellModOwner();
+		var _modOwner = SpellModOwner;
 
 		if (_modOwner != null)
 			_modOwner.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref tmpDamage);
@@ -182,7 +182,7 @@ public partial class Unit
 		// For totems get damage bonus from owner
 		if (IsCreature && IsTotem)
 		{
-			var owner = GetOwner();
+			var owner = OwnerUnit;
 
 			if (owner != null)
 				return owner.SpellDamagePctDone(victim, spellProto, damagetype, spellEffectInfo, spell);
@@ -196,7 +196,7 @@ public partial class Unit
 			DoneTotalMod *= AsCreature.GetSpellDamageMod(AsCreature.CreatureTemplate.Rank);
 
 		// Versatility
-		var modOwner = GetSpellModOwner();
+		var modOwner = SpellModOwner;
 
 		if (modOwner)
 			MathFunctions.AddPct(ref DoneTotalMod, modOwner.GetRatingBonusValue(CombatRating.VersatilityDamageDone) + modOwner.GetTotalAuraModifier(AuraType.ModVersatility));
@@ -284,7 +284,7 @@ public partial class Unit
 		if (!spellProto.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
 		{
 			// Versatility
-			var modOwner = GetSpellModOwner();
+			var modOwner = SpellModOwner;
 
 			if (modOwner)
 			{
@@ -386,7 +386,7 @@ public partial class Unit
 		// adds additional damage to critBonus (from talents)
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref crit_bonus);
@@ -405,7 +405,7 @@ public partial class Unit
 		// For totems get healing bonus from owner (statue isn't totem in fact)
 		if (IsTypeId(TypeId.Unit) && IsTotem)
 		{
-			var owner = GetOwner();
+			var owner = OwnerUnit;
 
 			if (owner)
 				return owner.SpellHealingBonusDone(victim, spellProto, healamount, damagetype, spellEffectInfo, stack, spell);
@@ -419,7 +419,7 @@ public partial class Unit
 		var DoneTotalMod = SpellHealingPctDone(victim, spellProto, spell);
 
 		// done scripted mod (take it from owner)
-		var owner1 = GetOwner() ?? this;
+		var owner1 = OwnerUnit ?? this;
 		var mOverrideClassScript = owner1.GetAuraEffectsByType(AuraType.OverrideClassScripts);
 
 		foreach (var aurEff in mOverrideClassScript)
@@ -472,7 +472,7 @@ public partial class Unit
 			if (spell != null)
 				spell.ForEachSpellScript<ISpellCalculateBonusCoefficient>(a => coeff = a.CalcBonusCoefficient(coeff));
 
-			var modOwner = GetSpellModOwner();
+			var modOwner = SpellModOwner;
 
 			if (modOwner)
 			{
@@ -503,7 +503,7 @@ public partial class Unit
 		var heal = (healamount + DoneTotal) * DoneTotalMod;
 
 		// apply spellmod to Done amount
-		var _modOwner = GetSpellModOwner();
+		var _modOwner = SpellModOwner;
 
 		if (_modOwner)
 			_modOwner.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref heal);
@@ -516,7 +516,7 @@ public partial class Unit
 		// For totems get healing bonus from owner
 		if (IsCreature && IsTotem)
 		{
-			var owner = GetOwner();
+			var owner = OwnerUnit;
 
 			if (owner != null)
 				return owner.SpellHealingPctDone(victim, spellProto);
@@ -628,7 +628,7 @@ public partial class Unit
 		var spellInfo = spell != null ? spell.SpellInfo : aurEff.SpellInfo;
 
 		//! Mobs can't crit with spells. (Except player controlled)
-		if (IsCreature && !GetSpellModOwner())
+		if (IsCreature && !SpellModOwner)
 			return 0.0f;
 
 		// not critting spell
@@ -664,7 +664,7 @@ public partial class Unit
 
 		// percent done
 		// only players use intelligence for critical chance computations
-		var modOwner = GetSpellModOwner();
+		var modOwner = SpellModOwner;
 
 		if (modOwner != null)
 			modOwner.ApplySpellMod(spellInfo, SpellModOp.CritChance, ref crit_chance);
@@ -953,7 +953,7 @@ public partial class Unit
 
 				if (matches)
 				{
-					var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, GetMap().GetDifficultyID());
+					var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, Map.GetDifficultyID());
 
 					if (info != null)
 						return info;
@@ -983,7 +983,7 @@ public partial class Unit
 		foreach (var effect in visualOverrides)
 			if (effect.MiscValue == spellInfo.Id)
 			{
-				var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, GetMap().GetDifficultyID());
+				var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, Map.GetDifficultyID());
 
 				if (visualSpell != null)
 				{
@@ -1432,7 +1432,7 @@ public partial class Unit
 				if ((pair.Key & schoolMask) == 0)
 					continue;
 
-				var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, GetMap().GetDifficultyID());
+				var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, Map.GetDifficultyID());
 
 				if (requireImmunityPurgesEffectAttribute)
 					if (immuneSpellInfo == null || !immuneSpellInfo.HasAttribute(SpellAttr1.ImmunityPurgesEffect))
@@ -1596,7 +1596,7 @@ public partial class Unit
 			var schoolList = _spellImmune[(int)SpellImmunity.School];
 
 			foreach (var pair in schoolList.KeyValueList)
-				if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, GetMap().GetDifficultyID())))
+				if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, Map.GetDifficultyID())))
 					schoolImmunityMask |= pair.Key;
 
 			// // We need to be immune to all types
@@ -1796,7 +1796,7 @@ public partial class Unit
 			crit_bonus -= damage;
 
 			// adds additional damage to critBonus (from talents)
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(spellProto, SpellModOp.CritDamageAndHealing, ref crit_bonus);
@@ -1845,12 +1845,12 @@ public partial class Unit
 
 	public bool IsPolymorphed()
 	{
-		var transformId = GetTransformSpell();
+		var transformId = TransformSpell;
 
 		if (transformId == 0)
 			return false;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, GetMap().GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.GetDifficultyID());
 
 		if (spellInfo == null)
 			return false;
@@ -1865,12 +1865,12 @@ public partial class Unit
 		var victim = healInfo.GetTarget();
 		var addhealth = healInfo.GetHeal();
 
-		var victimAI = victim.GetAI();
+		var victimAI = victim.AI;
 
 		if (victimAI != null)
 			victimAI.HealReceived(healer, addhealth);
 
-		var healerAI = healer != null ? healer.GetAI() : null;
+		var healerAI = healer != null ? healer.AI : null;
 
 		if (healerAI != null)
 			healerAI.HealDone(victim, addhealth);
@@ -1884,7 +1884,7 @@ public partial class Unit
 		var unit = healer;
 
 		if (healer != null && healer.IsCreature && healer.IsTotem)
-			unit = healer.GetOwner();
+			unit = healer.OwnerUnit;
 
 		if (unit)
 		{
@@ -2002,7 +2002,7 @@ public partial class Unit
 						// Calculate crit bonus
 						var crit_bonus = (uint)damage;
 						// Apply crit_damage bonus for melee spells
-						var modOwner = GetSpellModOwner();
+						var modOwner = SpellModOwner;
 
 						if (modOwner != null)
 							modOwner.ApplySpellMod(spellInfo, SpellModOp.CritDamageAndHealing, ref crit_bonus);
@@ -2459,7 +2459,7 @@ public partial class Unit
 			}
 
 			if (IsCreature && IsAIEnabled)
-				AsCreature.GetAI().OnSpellFailed(spell.SpellInfo);
+				AsCreature.AI.OnSpellFailed(spell.SpellInfo);
 		}
 	}
 
@@ -2530,7 +2530,7 @@ public partial class Unit
 		if (target == null)
 			return null;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetMap().GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
 
 		if (spellInfo == null)
 			return null;
@@ -2561,9 +2561,9 @@ public partial class Unit
 		if (effMask == 0)
 			return null;
 
-		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
+		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
-		AuraCreateInfo createInfo = new(castId, spellInfo, GetMap().GetDifficultyID(), effMask, target);
+		AuraCreateInfo createInfo = new(castId, spellInfo, Map.GetDifficultyID(), effMask, target);
 		createInfo.SetCaster(this);
 
 		var aura = Aura.TryRefreshStackOrCreate(createInfo);
@@ -2582,8 +2582,8 @@ public partial class Unit
 	{
 		var spellClickHandled = false;
 
-		var spellClickEntry = GetVehicleKit() != null ? GetVehicleKit().GetCreatureEntry() : Entry;
-		var flags = GetVehicleKit() ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
+		var spellClickEntry = VehicleKit1 != null ? VehicleKit1.GetCreatureEntry() : Entry;
+		var flags = VehicleKit1 ? TriggerCastFlags.IgnoreCasterMountedOrOnVehicle : TriggerCastFlags.None;
 
 		var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(spellClickEntry);
 
@@ -2601,7 +2601,7 @@ public partial class Unit
 			var target = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.TargetClicker) ? clicker : this;
 			var origCasterGUID = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.OrigCasterOwner) ? OwnerGUID : clicker.GUID;
 
-			var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.GetMap().GetDifficultyID());
+			var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.Map.GetDifficultyID());
 			// if (!spellEntry) should be checked at npc_spellclick load
 
 			if (seatId > -1)
@@ -2644,7 +2644,7 @@ public partial class Unit
 
 					bp[i] = seatId;
 
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.GetDifficultyID(), SpellConst.MaxEffectMask, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetBaseAmount(bp);
 					createInfo.SetCasterGuid(origCasterGUID);
@@ -2660,7 +2660,7 @@ public partial class Unit
 				}
 				else
 				{
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, GetMap().GenerateLowGuid(HighGuid.Cast)), spellEntry, GetMap().GetDifficultyID(), SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.GetDifficultyID(), SpellConst.MaxEffectMask, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetCasterGuid(origCasterGUID);
 
@@ -2674,7 +2674,7 @@ public partial class Unit
 		var creature = AsCreature;
 
 		if (creature && creature.IsAIEnabled)
-			creature.GetAI().OnSpellClick(clicker, ref spellClickHandled);
+			creature.AI.OnSpellClick(clicker, ref spellClickHandled);
 	}
 
 	public bool HasAura<T>(T spellId) where T : struct, Enum
@@ -4407,7 +4407,7 @@ public partial class Unit
 			GetProcAurasTriggeredOnEvent(myAurasTriggeringProc, myProcAuras, myProcEventInfo);
 
 			// needed for example for Cobra Strikes, pet does the attack, but aura is on owner
-			var modOwner = GetSpellModOwner();
+			var modOwner = SpellModOwner;
 
 			if (modOwner)
 				if (modOwner != this && spell)

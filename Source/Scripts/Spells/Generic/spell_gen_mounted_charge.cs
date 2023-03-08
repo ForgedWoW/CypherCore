@@ -60,7 +60,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 					RandomHelper.randChance(12.5f))
 					spellId = GenericSpellIds.MissEffect;
 
-				var vehicle = Caster.GetVehicleBase();
+				var vehicle = Caster.VehicleBase;
 
 				if (vehicle)
 					vehicle.CastSpell(target, spellId, false);

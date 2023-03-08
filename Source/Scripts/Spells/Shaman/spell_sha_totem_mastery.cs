@@ -28,7 +28,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 
 		totemResoList.RemoveAll(creature =>
 		{
-			var owner = creature.GetOwner();
+			var owner = creature.OwnerUnit;
 
 			return owner == null || owner != player || !creature.IsSummon;
 		});
@@ -41,7 +41,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 
 		totemStormList.RemoveAll(creature =>
 		{
-			var owner = creature.GetOwner();
+			var owner = creature.OwnerUnit;
 
 			return owner == null || owner != player || !creature.IsSummon;
 		});
@@ -54,7 +54,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 
 		totemEmberList.RemoveAll(creature =>
 		{
-			var owner = creature.GetOwner();
+			var owner = creature.OwnerUnit;
 
 			return owner == null || owner != player || !creature.IsSummon;
 		});
@@ -67,7 +67,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 
 		totemTailwindList.RemoveAll(creature =>
 		{
-			var owner = creature.GetOwner();
+			var owner = creature.OwnerUnit;
 
 			return owner == null || owner != player || !creature.IsSummon;
 		});

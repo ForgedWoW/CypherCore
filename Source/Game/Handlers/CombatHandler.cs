@@ -32,7 +32,7 @@ namespace Game
             //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
             //! so we'll place the same check here. Note that it might be possible to reuse this snippet
             //! in other places as well.
-            Vehicle vehicle = Player.GetVehicle();
+            Vehicle vehicle = Player.Vehicle1;
             if (vehicle)
             {
                 VehicleSeatRecord seat = vehicle.GetSeatForPassenger(Player);

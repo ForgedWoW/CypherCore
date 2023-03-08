@@ -56,7 +56,7 @@ public class DynamicObject : WorldObject
 		// Register the dynamicObject for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GUID, this);
+			Map.GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 			BindToCaster();
 		}
@@ -79,13 +79,13 @@ public class DynamicObject : WorldObject
 
 			UnbindFromCaster();
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 		}
 	}
 
 	public bool CreateDynamicObject(ulong guidlow, Unit caster, SpellInfo spell, Position pos, float radius, DynamicObjectType type, SpellCastVisualField spellVisual)
 	{
-		SetMap(caster.GetMap());
+		Map = caster.Map;
 		Location.Relocate(pos);
 
 		if (!Location.IsPositionValid())
@@ -130,7 +130,7 @@ public class DynamicObject : WorldObject
 			transport.AddPassenger(this);
 		}
 
-		if (!GetMap().AddToMap(this))
+		if (!Map.AddToMap(this))
 		{
 			// Returning false will cause the object to be deleted - remove from transport
 			if (transport != null)
@@ -146,7 +146,7 @@ public class DynamicObject : WorldObject
 	{
 		// caster has to be always available and in the same map
 		Cypher.Assert(_caster != null);
-		Cypher.Assert(_caster.GetMap() == GetMap());
+		Cypher.Assert(_caster.Map == Map);
 
 		var expired = false;
 
@@ -211,7 +211,7 @@ public class DynamicObject : WorldObject
 
 	public SpellInfo GetSpellInfo()
 	{
-		return Global.SpellMgr.GetSpellInfo(GetSpellId(), GetMap().GetDifficultyID());
+		return Global.SpellMgr.GetSpellInfo(GetSpellId(), Map.GetDifficultyID());
 	}
 
 	public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -304,7 +304,7 @@ public class DynamicObject : WorldObject
 		Cypher.Assert(_caster == null);
 		_caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
 		Cypher.Assert(_caster != null);
-		Cypher.Assert(_caster.GetMap() == GetMap());
+		Cypher.Assert(_caster.Map == Map);
 		_caster._RegisterDynObject(this);
 	}
 

@@ -89,7 +89,7 @@ namespace Game.Chat
 
             Player player = handler.GetSession().Player;
 
-            if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out int n))
+            if (!player.Map.SpawnGroupDespawn(groupId, deleteRespawnTimes, out int n))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
                 return false;
@@ -149,7 +149,7 @@ namespace Game.Chat
                 if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().SpawnGroupData.GroupId != 0)
                 {
                     SpawnGroupTemplateData groupData = thisGO.AsGameObject.GetGameObjectData().SpawnGroupData;
-                    handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.GetMap().IsSpawnGroupActive(groupData.GroupId));
+                    handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.Map.IsSpawnGroupActive(groupData.GroupId));
                 }
 
                 GameObjectOverride goOverride = Global.ObjectMgr.GetGameObjectOverride(spawnId);
@@ -210,7 +210,7 @@ namespace Game.Chat
                 pos = handler.GetSession().Player.Location;
             }
 
-            Map map = obj.GetMap();
+            Map map = obj.Map;
 
             pos.
             Orientation = obj.Location.Orientation;
@@ -310,7 +310,7 @@ namespace Game.Chat
             Player player = handler.GetSession().Player;
 
             List<WorldObject> creatureList = new();
-            if (!player.GetMap().SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
+            if (!player.Map.SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
                 return false;
@@ -446,7 +446,7 @@ namespace Game.Chat
             if (!oz.HasValue)
                 oz = handler.GetSession().Player.Location.Orientation;
 
-            Map map = obj.GetMap();
+            Map map = obj.Map;
 
             obj.Location.Relocate(obj.Location.X, obj.Location.Y, obj.Location.Z, oz.Value);
             obj.SetLocalRotationAngles(oz.Value, oy.GetValueOrDefault(0f), ox.GetValueOrDefault(0f));
@@ -492,7 +492,7 @@ namespace Game.Chat
                 }
 
                 Player player = handler.GetPlayer();
-                Map map = player.GetMap();
+                Map map = player.Map;
 
                 GameObject obj = GameObject.CreateGameObject(objectInfo.entry, map, player.Location, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(player.Location.Orientation, 0.0f, 0.0f)), 255, GameObjectState.Ready);
                 if (!obj)

@@ -24,7 +24,7 @@ internal class spell_rog_killing_spree_SpellScript : SpellScript, IHasSpellEffec
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		if (targets.Empty() ||
-			Caster.GetVehicleBase())
+			Caster.VehicleBase)
 			FinishCast(SpellCastResult.OutOfRange);
 	}
 

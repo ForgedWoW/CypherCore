@@ -156,10 +156,10 @@ namespace Game.Entities
 				if (ZoneScript != null)
 					ZoneScript.OnGameObjectCreate(this);
 
-				GetMap().GetObjectsStore().Add(GUID, this);
+				Map.GetObjectsStore().Add(GUID, this);
 
 				if (_spawnId != 0)
-					GetMap().GetGameObjectBySpawnIdStore().Add(_spawnId, this);
+					Map.GetGameObjectBySpawnIdStore().Add(_spawnId, this);
 
 				// The state can be changed after GameObject.Create but before GameObject.AddToWorld
 				var toggledState = GetGoType() == GameObjectTypes.Chest ? GetLootState() == LootState.Ready : (GetGoState() == GameObjectState.Ready || IsTransport());
@@ -171,7 +171,7 @@ namespace Game.Entities
 					if (trans)
 						trans.SetDelayedAddModelToMap();
 					else
-						GetMap().InsertGameObjectModel(Model);
+						Map.InsertGameObjectModel(Model);
 				}
 
 				EnableCollision(toggledState);
@@ -190,8 +190,8 @@ namespace Game.Entities
 				RemoveFromOwner();
 
 				if (Model != null)
-					if (GetMap().ContainsGameObjectModel(Model))
-						GetMap().RemoveGameObjectModel(Model);
+					if (Map.ContainsGameObjectModel(Model))
+						Map.RemoveGameObjectModel(Model);
 
 				// If linked trap exists, despawn it
 				var linkedTrap = GetLinkedTrap();
@@ -202,9 +202,9 @@ namespace Game.Entities
 				base.RemoveFromWorld();
 
 				if (_spawnId != 0)
-					GetMap().GetGameObjectBySpawnIdStore().Remove(_spawnId, this);
+					Map.GetGameObjectBySpawnIdStore().Remove(_spawnId, this);
 
-				GetMap().GetObjectsStore().Remove(GUID);
+				Map.GetObjectsStore().Remove(GUID);
 			}
 		}
 
@@ -302,7 +302,7 @@ namespace Game.Entities
 							var goInfo = GetGoInfo();
 
 							// Bombs
-							var owner = GetOwner();
+							var owner = OwnerUnit;
 
 							if (goInfo.Trap.charges == 2)
 								_cooldownTime = GameTime.GetGameTimeMS() + 10 * Time.InMilliseconds; // Hardcoded tooltip value
@@ -320,7 +320,7 @@ namespace Game.Entities
 							if (GameTime.GetGameTime() > _respawnTime - 5)
 							{
 								// splash bobber (bobber ready now)
-								var caster = GetOwner();
+								var caster = OwnerUnit;
 
 								if (caster != null && caster.IsTypeId(TypeId.Player))
 									SendCustomAnim(0);
@@ -359,7 +359,7 @@ namespace Game.Entities
 							if (_respawnTime <= now) // timer expired
 							{
 								var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, Entry, _spawnId);
-								var linkedRespawntime = GetMap().GetLinkedRespawnTime(dbtableHighGuid);
+								var linkedRespawntime = Map.GetLinkedRespawnTime(dbtableHighGuid);
 
 								if (linkedRespawntime != 0) // Can't respawn, the master is dead
 								{
@@ -383,7 +383,7 @@ namespace Game.Entities
 								{
 									case GameObjectTypes.FishingNode: //  can't fish now
 									{
-										var caster = GetOwner();
+										var caster = OwnerUnit;
 
 										if (caster != null && caster.IsTypeId(TypeId.Player))
 										{
@@ -428,9 +428,9 @@ namespace Game.Entities
 								var poolid = GetGameObjectData() != null ? GetGameObjectData().poolId : 0;
 
 								if (poolid != 0)
-									Global.PoolMgr.UpdatePool<GameObject>(GetMap().GetPoolData(), poolid, GetSpawnId());
+									Global.PoolMgr.UpdatePool<GameObject>(Map.GetPoolData(), poolid, GetSpawnId());
 								else
-									GetMap().AddToMap(this);
+									Map.AddToMap(this);
 							}
 						}
 
@@ -476,7 +476,7 @@ namespace Game.Entities
 							Unit target;
 
 							// @todo this hack with search required until GO casting not implemented
-							if (GetOwner() != null || goInfo.Trap.Checkallunits != 0)
+							if (OwnerUnit != null || goInfo.Trap.Checkallunits != 0)
 							{
 								// Hunter trap: Search units which are unfriendly to the trap's owner
 								var checker = new NearestAttackableNoTotemUnitInObjectRangeCheck(this, radius);
@@ -510,7 +510,7 @@ namespace Game.Entities
 									if (hordeCapturing)
 									{
 										GoValue.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
-										var map = GetMap().ToBattlegroundMap();
+										var map = Map.ToBattlegroundMap();
 
 										if (map != null)
 										{
@@ -528,7 +528,7 @@ namespace Game.Entities
 									else
 									{
 										GoValue.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
-										var map = GetMap().ToBattlegroundMap();
+										var map = Map.ToBattlegroundMap();
 
 										if (map != null)
 										{
@@ -694,7 +694,7 @@ namespace Game.Entities
 					ClearLoot();
 
 					// Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
-					var isSummonedAndExpired = (GetOwner() != null || GetSpellId() != 0) && _respawnTime == 0;
+					var isSummonedAndExpired = (OwnerUnit != null || GetSpellId() != 0) && _respawnTime == 0;
 
 					if ((GetGoType() == GameObjectTypes.Chest || GetGoType() == GameObjectTypes.Goober) && !GetGoInfo().IsDespawnAtAction() && !isSummonedAndExpired)
 					{
@@ -754,7 +754,7 @@ namespace Game.Entities
 					var scalingMode = WorldConfig.GetUIntValue(WorldCfg.RespawnDynamicMode);
 
 					if (scalingMode != 0)
-						GetMap().ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
+						Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);
 
 					_respawnTime = GameTime.GetGameTime() + respawnDelay;
 
@@ -792,7 +792,7 @@ namespace Game.Entities
 				return;
 
 			if (IsSpawned())
-				GetMap().AddToMap(this);
+				Map.AddToMap(this);
 		}
 
 		public void AddUniqueUse(Player player)
@@ -844,7 +844,7 @@ namespace Game.Entities
 			var poolid = GetGameObjectData() != null ? GetGameObjectData().poolId : 0;
 
 			if (_respawnCompatibilityMode && poolid != 0)
-				Global.PoolMgr.UpdatePool<GameObject>(GetMap().GetPoolData(), poolid, GetSpawnId());
+				Global.PoolMgr.UpdatePool<GameObject>(Map.GetPoolData(), poolid, GetSpawnId());
 			else
 				AddObjectToRemoveList();
 		}
@@ -860,9 +860,9 @@ namespace Game.Entities
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(GetMap(), GUID, LootType.Fishing, null);
+			Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
 
-			var areaId = GetAreaId();
+			var areaId = Area;
 			AreaTableRecord areaEntry;
 
 			while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
@@ -885,9 +885,9 @@ namespace Game.Entities
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(GetMap(), GUID, LootType.FishingJunk, null);
+			Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
 
-			var areaId = GetAreaId();
+			var areaId = Area;
 			AreaTableRecord areaEntry;
 
 			while ((areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId)) != null)
@@ -1029,13 +1029,13 @@ namespace Game.Entities
 				else
 				{
 					_respawnDelayTime = (uint)data.spawntimesecs;
-					_respawnTime = GetMap().GetGORespawnTime(_spawnId);
+					_respawnTime = Map.GetGORespawnTime(_spawnId);
 
 					// ready to respawn
 					if (_respawnTime != 0 && _respawnTime <= GameTime.GetGameTime())
 					{
 						_respawnTime = 0;
-						GetMap().RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
+						Map.RemoveRespawnTime(SpawnObjectType.GameObject, _spawnId);
 					}
 				}
 			}
@@ -1054,7 +1054,7 @@ namespace Game.Entities
 
 			_goData = data;
 
-			if (addToMap && !GetMap().AddToMap(this))
+			if (addToMap && !Map.AddToMap(this))
 				return false;
 
 			return true;
@@ -1185,13 +1185,13 @@ namespace Game.Entities
 					ri.ObjectType = SpawnObjectType.GameObject;
 					ri.SpawnId = _spawnId;
 					ri.RespawnTime = _respawnTime;
-					GetMap().SaveRespawnInfoDB(ri);
+					Map.SaveRespawnInfoDB(ri);
 
 					return;
 				}
 
 				var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : _respawnTime;
-				GetMap().SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
+				Map.SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
 			}
 		}
 
@@ -1228,7 +1228,7 @@ namespace Game.Entities
 				if (seer.GUID == guid)
 					return true;
 
-				var owner = GetOwner();
+				var owner = OwnerUnit;
 
 				if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.IsFriendlyTo(seer.AsUnit))
 					return true;
@@ -1262,7 +1262,7 @@ namespace Game.Entities
 			if (_spawnedByDefault && _respawnTime > 0)
 			{
 				_respawnTime = GameTime.GetGameTime();
-				GetMap().Respawn(SpawnObjectType.GameObject, _spawnId);
+				Map.Respawn(SpawnObjectType.GameObject, _spawnId);
 			}
 		}
 
@@ -1330,7 +1330,7 @@ namespace Game.Entities
 			if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
 				return;
 
-			var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, GetMap().GetDifficultyID());
+			var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Map.GetDifficultyID());
 
 			if (trapSpell == null) // checked at load already
 				return;
@@ -1636,9 +1636,9 @@ namespace Game.Entities
 							var group = player.GetGroup();
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-							Loot = new Loot(GetMap(), GUID, LootType.Chest, groupRules ? group : null);
+							Loot = new Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
 							Loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
+							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, GetLootMode(), Map.GetDifficultyLootItemContext());
 
 							if (GetLootMode() > 0)
 							{
@@ -1688,16 +1688,16 @@ namespace Game.Entities
 																								addon != null ? addon.Mingold : 0,
 																								addon != null ? addon.Maxgold : 0,
 																								(ushort)GetLootMode(),
-																								GetMap().GetDifficultyLootItemContext(),
+																								Map.GetDifficultyLootItemContext(),
 																								tappers);
 							}
 							else
 							{
-								Loot loot = new(GetMap(), GUID, LootType.Chest, null);
+								Loot loot = new(Map, GUID, LootType.Chest, null);
 								_personalLoot[player.GUID] = loot;
 
 								loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-								loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
+								loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), Map.GetDifficultyLootItemContext());
 
 								if (GetLootMode() > 0 && addon != null)
 									loot.GenerateMoneyLoot(addon.Mingold, addon.Maxgold);
@@ -1709,8 +1709,8 @@ namespace Game.Entities
 					{
 						if (info.Chest.chestPushLoot != 0)
 						{
-							Loot pushLoot = new(GetMap(), GUID, LootType.Chest, null);
-							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
+							Loot pushLoot = new(Map, GUID, LootType.Chest, null);
+							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), Map.GetDifficultyLootItemContext());
 							pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
 						}
 
@@ -2056,7 +2056,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					var owner = GetOwner();
+					var owner = OwnerUnit;
 
 					var info = GetGoInfo();
 
@@ -2161,7 +2161,7 @@ namespace Game.Entities
 
 					if (info.SpellCaster.partyOnly != 0)
 					{
-						var caster = GetOwner();
+						var caster = OwnerUnit;
 
 						if (caster == null || !caster.IsTypeId(TypeId.Player))
 							return;
@@ -2228,7 +2228,7 @@ namespace Game.Entities
 						if (!bg)
 							return;
 
-						if (player.GetVehicle() != null)
+						if (player.Vehicle1 != null)
 							return;
 
 						player.RemoveAurasByType(AuraType.ModStealth);
@@ -2255,7 +2255,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					var loot = new Loot(GetMap(), GUID, LootType.Fishinghole, null);
+					var loot = new Loot(Map, GUID, LootType.Fishinghole, null);
 					loot.FillLoot(GetGoInfo().GetLootId(), LootStorage.Gameobject, player, true);
 					_personalLoot[player.GUID] = loot;
 
@@ -2280,7 +2280,7 @@ namespace Game.Entities
 						if (!bg)
 							return;
 
-						if (player.GetVehicle() != null)
+						if (player.Vehicle1 != null)
 							return;
 
 						player.RemoveAurasByType(AuraType.ModStealth);
@@ -2463,10 +2463,10 @@ namespace Game.Entities
 					{
 						if (info.GatheringNode.chestLoot != 0)
 						{
-							Loot newLoot = new(GetMap(), GUID, LootType.Chest, null);
+							Loot newLoot = new(Map, GUID, LootType.Chest, null);
 							_personalLoot[player.GUID] = newLoot;
 
-							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
+							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), Map.GetDifficultyLootItemContext());
 						}
 
 						if (info.GatheringNode.triggeredEvent != 0)
@@ -2534,7 +2534,7 @@ namespace Game.Entities
 			if (spellId == 0)
 				return;
 
-			if (!Global.SpellMgr.HasSpellInfo(spellId, GetMap().GetDifficultyID()))
+			if (!Global.SpellMgr.HasSpellInfo(spellId, Map.GetDifficultyID()))
 			{
 				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
 					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GetGoType());
@@ -2726,7 +2726,7 @@ namespace Game.Entities
 
 				if (lockEntry.LockType[i] == (byte)LockKeyType.Spell)
 				{
-					var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], GetMap().GetDifficultyID());
+					var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Map.GetDifficultyID());
 
 					if (spell != null)
 						return spell;
@@ -2737,7 +2737,7 @@ namespace Game.Entities
 
 				foreach (var playerSpell in player.GetSpellMap())
 				{
-					var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, GetMap().GetDifficultyID());
+					var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Map.GetDifficultyID());
 
 					if (spell != null)
 						foreach (var effect in spell.Effects)
@@ -2775,7 +2775,7 @@ namespace Game.Entities
 			SetGoAnimProgress(GoValue.Building.Health * 255 / GoValue.Building.MaxHealth);
 
 			// dealing damage, send packet
-			var player = attackerOrHealer != null ? attackerOrHealer.GetCharmerOrOwnerPlayerOrPlayerItself() : null;
+			var player = attackerOrHealer != null ? attackerOrHealer.CharmerOrOwnerPlayerOrPlayerItself : null;
 
 			if (player != null)
 			{
@@ -2866,7 +2866,7 @@ namespace Game.Entities
 
 					GetAI().Destroyed(attackerOrHealer, GoInfo.DestructibleBuilding.DestroyedEvent);
 
-					var player = attackerOrHealer != null ? attackerOrHealer.GetCharmerOrOwnerPlayerOrPlayerItself() : null;
+					var player = attackerOrHealer != null ? attackerOrHealer.CharmerOrOwnerPlayerOrPlayerItself : null;
 
 					if (player)
 					{
@@ -3289,11 +3289,11 @@ namespace Game.Entities
 			if (Model == null)
 				return;
 
-			if (GetMap().ContainsGameObjectModel(Model))
+			if (Map.ContainsGameObjectModel(Model))
 			{
-				GetMap().RemoveGameObjectModel(Model);
+				Map.RemoveGameObjectModel(Model);
 				Model.UpdatePosition();
-				GetMap().InsertGameObjectModel(Model);
+				Map.InsertGameObjectModel(Model);
 			}
 		}
 
@@ -3341,7 +3341,7 @@ namespace Game.Entities
 
 			// only supported in battlegrounds
 			Battleground battleground = null;
-			var map = GetMap().ToBattlegroundMap();
+			var map = Map.ToBattlegroundMap();
 
 			if (map != null)
 			{
@@ -3674,7 +3674,7 @@ namespace Game.Entities
 
 		public override uint GetLevelForTarget(WorldObject target)
 		{
-			var owner = GetOwner();
+			var owner = OwnerUnit;
 
 			if (owner != null)
 				return owner.GetLevelForTarget(target);
@@ -3777,7 +3777,7 @@ namespace Game.Entities
 		bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
 		{
 			Cypher.Assert(map);
-			SetMap(map);
+			Map = map;
 
 			Location.Relocate(pos);
 			StationaryPosition.Relocate(pos);
@@ -4106,15 +4106,15 @@ namespace Game.Entities
 				return;
 
 			if (Model != null)
-				if (GetMap().ContainsGameObjectModel(Model))
-					GetMap().RemoveGameObjectModel(Model);
+				if (Map.ContainsGameObjectModel(Model))
+					Map.RemoveGameObjectModel(Model);
 
 			RemoveFlag(GameObjectFlags.MapObject);
 			Model = null;
 			CreateModel();
 
 			if (Model != null)
-				GetMap().InsertGameObjectModel(Model);
+				Map.InsertGameObjectModel(Model);
 		}
 
 		void UpdateCapturePoint()
@@ -4167,7 +4167,7 @@ namespace Game.Entities
 			SetSpellVisualId(spellVisualId);
 			UpdateDynamicFlagsForNearbyPlayers();
 
-			var map = GetMap().ToBattlegroundMap();
+			var map = Map.ToBattlegroundMap();
 
 			if (map != null)
 			{
@@ -4186,7 +4186,7 @@ namespace Game.Entities
 				}
 			}
 
-			GetMap().UpdateSpawnGroupConditions();
+			Map.UpdateSpawnGroupConditions();
 		}
 
 		PerPlayerState GetOrCreatePerPlayerStates(ObjectGuid guid)

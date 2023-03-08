@@ -122,7 +122,7 @@ public class WorldManager : Singleton<WorldManager>
 			if (player == null)
 				continue;
 
-			if (player.IsInWorld && player.GetZoneId() == zone)
+			if (player.IsInWorld && player.Zone == zone)
 				// Used by the weather system. We return the player to broadcast the change weather message to him and all players in the zone.
 				return player;
 		}
@@ -1447,7 +1447,7 @@ public class WorldManager : Singleton<WorldManager>
 			if (session != null &&
 				session.Player &&
 				session.Player.IsInWorld &&
-				session.Player.GetZoneId() == zone &&
+				session.Player.				Zone == zone &&
 				session != self &&
 				(team == 0 || (uint)session.Player.Team == team))
 			{
@@ -2723,8 +2723,8 @@ public class WorldManager : Singleton<WorldManager>
 		foreach (var session in _sessions.Values)
 			if (session.Player != null && session.Player.IsInWorld)
 			{
-				session.Player.UpdateAreaDependentAuras(session.Player.GetAreaId());
-				session.Player.UpdateZoneDependentAuras(session.Player.GetZoneId());
+				session.Player.UpdateAreaDependentAuras(session.Player.Area);
+				session.Player.UpdateZoneDependentAuras(session.Player.Zone);
 			}
 	}
 

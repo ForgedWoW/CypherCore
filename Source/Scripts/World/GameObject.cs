@@ -263,7 +263,7 @@ internal class go_gilded_brazier : GameObjectAI
 				Creature Stillblade = player.SummonCreature(CreatureIds.Stillblade, 8106.11f, -7542.06f, 151.775f, 3.02598f, TempSummonType.DeadDespawn, TimeSpan.FromMinutes(1));
 
 				if (Stillblade)
-					Stillblade.GetAI().AttackStart(player);
+					Stillblade.AI.AttackStart(player);
 			}
 
 		return true;
@@ -449,7 +449,7 @@ internal class go_soulwell : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (!owner ||
 			!owner.IsTypeId(TypeId.Player) ||
@@ -496,7 +496,7 @@ internal class go_amberpine_outhouse : GameObjectAI
 
 			if (target)
 			{
-				target.GetAI().SetData(1, (uint)player.NativeGender);
+				target.AI.SetData(1, (uint)player.NativeGender);
 				me.CastSpell(target, SpellIds.IndisposedIii);
 			}
 
@@ -548,7 +548,7 @@ internal class go_veil_skith_cage : GameObjectAI
 				player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GUID);
 				creature.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
 				creature.MotionMaster.MovePoint(1, me.Location.X + 5, me.Location.Y, me.Location.Z);
-				creature.GetAI().Talk(TextIds.SayFree0);
+				creature.AI.Talk(TextIds.SayFree0);
 				creature.MotionMaster.Clear();
 			}
 		}
@@ -582,7 +582,7 @@ internal class go_midsummer_ribbon_pole : GameObjectAI
 
 		if (creature)
 		{
-			creature.GetAI().DoAction(0);
+			creature.AI.DoAction(0);
 			player.CastSpell(player, SpellIds.RibbonPoleSpells[RandomHelper.IRand(0, 2)], true);
 		}
 
@@ -613,7 +613,7 @@ internal class go_brewfest_music : GameObjectAI
 							{
 								if (Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest)) // Check if Brewfest is active
 								{
-									switch (me.GetAreaId())
+									switch (me.Area)
 									{
 										case AreaIds.Silvermoon:
 										case AreaIds.Undercity:
@@ -666,7 +666,7 @@ internal class go_brewfest_music : GameObjectAI
 
 											break;
 										case AreaIds.Shattrath:
-											var playersNearby = me.GetPlayerListInGrid(me.GetVisibilityRange());
+											var playersNearby = me.GetPlayerListInGrid(me.VisibilityRange);
 
 											foreach (Player player in playersNearby)
 												if (player.TeamId == TeamIds.Horde)
@@ -733,7 +733,7 @@ internal class go_midsummer_music : GameObjectAI
 								if (!Global.GameEventMgr.IsHolidayActive(HolidayIds.MidsummerFireFestival))
 									return;
 
-								var playersNearby = me.GetPlayerListInGrid(me.GetMap().GetVisibilityRange());
+								var playersNearby = me.GetPlayerListInGrid(me.Map.GetVisibilityRange());
 
 								foreach (Player player in playersNearby)
 									if (player.Team == TeamFaction.Horde)
@@ -804,7 +804,7 @@ internal class go_bells : GameObjectAI
 
 	public override void InitializeAI()
 	{
-		var zoneId = me.GetZoneId();
+		var zoneId = me.Zone;
 
 		switch (me.Entry)
 		{

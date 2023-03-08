@@ -35,7 +35,7 @@ public class spell_hun_barrage : SpellScript, IHasSpellEffects, ISpellOnHit
 		dmg = target.SpellDamageBonusTaken(player, SpellInfo, dmg, DamageEffectType.Direct);
 
 		// Barrage now deals only 80% of normal damage against player-controlled targets.
-		if (target.GetSpellModOwner())
+		if (target.SpellModOwner)
 			dmg = MathFunctions.CalculatePct(dmg, 80);
 
 		HitDamage = dmg;

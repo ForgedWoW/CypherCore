@@ -84,7 +84,7 @@ internal class netherspite_infernal : ScriptedAI
 			var creature = unit.AsCreature;
 
 			if (creature)
-				creature.GetAI().KilledUnit(who);
+				creature.AI.KilledUnit(who);
 		}
 	}
 
@@ -149,7 +149,7 @@ internal class boss_malchezaar : ScriptedAI
 	{
 		Initialize();
 
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -214,7 +214,7 @@ internal class boss_malchezaar : ScriptedAI
 			return;
 
 		if (me.Victim &&
-			me.			Target != me.Victim.GUID)
+			me.Target != me.Victim.GUID)
 			me.SetTarget(me.Victim.GUID);
 
 		if (phase == 1)
@@ -270,7 +270,7 @@ internal class boss_malchezaar : ScriptedAI
 
 						if (target)
 						{
-							axe.GetAI().AttackStart(target);
+							axe.AI.AttackStart(target);
 							AddThreat(target, 10000000.0f, axe);
 						}
 					}
@@ -373,7 +373,7 @@ internal class boss_malchezaar : ScriptedAI
 
 				if (phase == 1)
 					target = me.Victim; // the tank
-				else                         // anyone but the tank
+				else                    // anyone but the tank
 					target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
 				if (target)
@@ -578,7 +578,7 @@ internal class boss_malchezaar : ScriptedAI
 		{
 			//Check for base attack
 			if (me.IsAttackReady() &&
-				me.				Victim)
+				me.Victim)
 			{
 				me.AttackerStateUpdate(me.Victim);
 				me.ResetAttackTimer();
@@ -586,7 +586,7 @@ internal class boss_malchezaar : ScriptedAI
 
 			//Check for offhand attack
 			if (me.IsAttackReady(WeaponAttackType.OffAttack) &&
-				me.				Victim)
+				me.Victim)
 			{
 				me.AttackerStateUpdate(me.Victim, WeaponAttackType.OffAttack);
 				me.ResetAttackTimer(WeaponAttackType.OffAttack);

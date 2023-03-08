@@ -31,7 +31,7 @@ internal class boss_draganthaurissan : ScriptedAI
 
 	public boss_draganthaurissan(Creature creature) : base(creature)
 	{
-		_instance = me.GetInstanceScript();
+		_instance = me.InstanceScript;
 	}
 
 	public override void Reset()
@@ -75,9 +75,9 @@ internal class boss_draganthaurissan : ScriptedAI
 
 		if (moira)
 		{
-			moira.GetAI().EnterEvadeMode();
+			moira.AI.EnterEvadeMode();
 			moira.Faction = (uint)FactionTemplates.Friendly;
-			moira.GetAI().Talk(TextIds.EmoteShaken);
+			moira.AI.Talk(TextIds.EmoteShaken);
 		}
 	}
 

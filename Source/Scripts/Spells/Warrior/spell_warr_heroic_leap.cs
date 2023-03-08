@@ -31,7 +31,7 @@ internal class spell_warr_heroic_leap : SpellScript, ISpellCheckCast, IHasSpellE
 			if (Caster.HasUnitMovementFlag(MovementFlag.Root))
 				return SpellCastResult.Rooted;
 
-			if (Caster.GetMap().Instanceable())
+			if (Caster.Map.Instanceable())
 			{
 				var range = SpellInfo.GetMaxRange(true, Caster) * 1.5f;
 

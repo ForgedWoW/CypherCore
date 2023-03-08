@@ -60,9 +60,9 @@ public partial class Unit
 
 	public bool IsFalling => MovementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar) || MoveSpline.IsFalling();
 
-	public bool IsInWater => GetLiquidStatus().HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
+	public bool IsInWater => LiquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
-	public bool IsUnderWater => GetLiquidStatus().HasFlag(ZLiquidStatus.UnderWater);
+	public bool IsUnderWater => LiquidStatus.HasFlag(ZLiquidStatus.UnderWater);
 
 	public MovementForces MovementForces => _movementForces;
 
@@ -534,8 +534,8 @@ public partial class Unit
 				non_stack_bonus += GetMaxPositiveAuraModifier(AuraType.ModFlightSpeedNotStack) / 100.0f;
 
 				// Update speed for vehicle if available
-				if (IsTypeId(TypeId.Player) && GetVehicle() != null)
-					GetVehicleBase().UpdateSpeed(UnitMoveType.Flight);
+				if (IsTypeId(TypeId.Player) && Vehicle1 != null)
+					VehicleBase.UpdateSpeed(UnitMoveType.Flight);
 
 				break;
 			}
@@ -674,9 +674,9 @@ public partial class Unit
 		{
 			// move and update visible state if need
 			if (IsTypeId(TypeId.Player))
-				GetMap().PlayerRelocation(AsPlayer, x, y, z, orientation);
+				Map.PlayerRelocation(AsPlayer, x, y, z, orientation);
 			else
-				GetMap().CreatureRelocation(AsCreature, x, y, z, orientation);
+				Map.CreatureRelocation(AsCreature, x, y, z, orientation);
 		}
 		else if (turn)
 		{
@@ -766,7 +766,7 @@ public partial class Unit
 		if (capabilities == null)
 			return null;
 
-		var areaId = GetAreaId();
+		var areaId = Area;
 		uint ridingSkill = 5000;
 		AreaMountFlags mountFlags = 0;
 		bool isSubmerged;
@@ -788,7 +788,7 @@ public partial class Unit
 				mountFlags = (AreaMountFlags)areaTable.MountFlags;
 		}
 
-		var liquidStatus = GetMap().GetLiquidStatus(PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
+		var liquidStatus = Map.GetLiquidStatus(PhaseShift, Location.X, Location.Y, Location.Z, LiquidHeaderTypeFlags.AllLiquids);
 		isSubmerged = liquidStatus.HasAnyFlag(ZLiquidStatus.UnderWater) || HasUnitMovementFlag(MovementFlag.Swimming);
 		isInWater = liquidStatus.HasAnyFlag(ZLiquidStatus.InWater | ZLiquidStatus.UnderWater);
 
@@ -843,8 +843,8 @@ public partial class Unit
 
 			if (mountCapability.ReqMapID != -1 &&
 				Location.MapId != mountCapability.ReqMapID &&
-				GetMap().GetEntry().CosmeticParentMapID != mountCapability.ReqMapID &&
-				GetMap().GetEntry().ParentMapID != mountCapability.ReqMapID)
+				Map.GetEntry().CosmeticParentMapID != mountCapability.ReqMapID &&
+				Map.GetEntry().ParentMapID != mountCapability.ReqMapID)
 				continue;
 
 			if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))
@@ -898,7 +898,7 @@ public partial class Unit
 
 	public override void ProcessPositionDataChanged(PositionFullTerrainStatus data)
 	{
-		var oldLiquidStatus = GetLiquidStatus();
+		var oldLiquidStatus = LiquidStatus;
 		base.ProcessPositionDataChanged(data);
 		ProcessTerrainStatusUpdate(oldLiquidStatus, data.LiquidInfo);
 	}
@@ -925,7 +925,7 @@ public partial class Unit
 			if (LastLiquid != null && LastLiquid.SpellID != 0)
 				RemoveAura(LastLiquid.SpellID);
 
-			var player = GetCharmerOrOwnerPlayerOrPlayerItself();
+			var player = CharmerOrOwnerPlayerOrPlayerItself;
 
 			// Set _lastLiquid before casting liquid spell to avoid infinite loops
 			LastLiquid = curLiquid;
@@ -935,7 +935,7 @@ public partial class Unit
 		}
 
 		// mount capability depends on liquid state change
-		if (oldLiquidStatus != GetLiquidStatus())
+		if (oldLiquidStatus != LiquidStatus)
 			UpdateMountCapability();
 	}
 
@@ -1113,7 +1113,7 @@ public partial class Unit
 			//! No need to check height on ascent
 			AddUnitMovementFlag(MovementFlag.Hover);
 
-			if (hoverHeight != 0 && Location.Z - GetFloorZ() < hoverHeight)
+			if (hoverHeight != 0 && Location.Z - FloorZ < hoverHeight)
 				UpdateHeight(Location.Z + hoverHeight);
 		}
 		else
@@ -1123,7 +1123,7 @@ public partial class Unit
 			//! Dying creatures will MoveFall from setDeathState
 			if (hoverHeight != 0 && (!IsDying || !IsUnit))
 			{
-				var newZ = Math.Max(GetFloorZ(), Location.Z - hoverHeight);
+				var newZ = Math.Max(FloorZ, Location.Z - hoverHeight);
 				newZ = UpdateAllowedPositionZ(Location.X, Location.Y, newZ);
 				UpdateHeight(newZ);
 			}
@@ -1289,7 +1289,7 @@ public partial class Unit
 
 					break;
 				case UnitState.Root:
-					if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || GetVehicle() != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
+					if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || Vehicle1 != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
 						return;
 
 					ClearUnitState(state);
@@ -1393,7 +1393,7 @@ public partial class Unit
 					player.SendOnCancelExpectedVehicleRideAura();
 
 					// mounts can also have accessories
-					GetVehicleKit().InstallAllAccessories(false);
+					VehicleKit1.InstallAllAccessories(false);
 				}
 
 			// unsummon pet
@@ -1437,7 +1437,7 @@ public partial class Unit
 			thisPlayer.SendMovementSetCollisionHeight(thisPlayer.CollisionHeight, UpdateCollisionHeightReason.Mount);
 
 		// dismount as a vehicle
-		if (IsTypeId(TypeId.Player) && GetVehicleKit() != null)
+		if (IsTypeId(TypeId.Player) && VehicleKit1 != null)
 			// Remove vehicle from player
 			RemoveVehicleKit();
 
@@ -1651,8 +1651,8 @@ public partial class Unit
 	//Transport
 	public override ObjectGuid GetTransGUID()
 	{
-		if (GetVehicle() != null)
-			return GetVehicleBase().GUID;
+		if (Vehicle1 != null)
+			return VehicleBase.GUID;
 
 		if (Transport != null)
 			return Transport.GetTransportGUID();
@@ -1681,7 +1681,7 @@ public partial class Unit
 		{
 			var newPos = pos.Copy();
 
-			var transportBase = GetDirectTransport();
+			var transportBase = DirectTransport;
 
 			if (transportBase != null)
 				transportBase.CalculatePassengerOffset(newPos);
@@ -1706,7 +1706,7 @@ public partial class Unit
 			moveUpdateTeleport.Status.Guid = GUID;
 			moveUpdateTeleport.Status.Pos.Relocate(pos);
 			moveUpdateTeleport.Status.Time = Time.MSTime;
-			var transportBase = GetDirectTransport();
+			var transportBase = DirectTransport;
 
 			if (transportBase != null)
 			{
@@ -1774,7 +1774,7 @@ public partial class Unit
 		Location.Orientation = orientation;
 
 		if (IsVehicle)
-			GetVehicleKit().RelocatePassengers();
+			VehicleKit1.RelocatePassengers();
 	}
 
 	//! Only server-side height update, does not broadcast to client
@@ -1783,7 +1783,7 @@ public partial class Unit
 		Location.Relocate(Location.X, Location.Y, newZ);
 
 		if (IsVehicle)
-			GetVehicleKit().RelocatePassengers();
+			VehicleKit1.RelocatePassengers();
 	}
 
 	void ApplyControlStatesIfNeeded()
@@ -2052,7 +2052,7 @@ public partial class Unit
 		{
 			MovementInfo.Transport.Pos.Relocate(loc);
 
-			var transport = GetDirectTransport();
+			var transport = DirectTransport;
 
 			if (transport != null)
 				transport.CalculatePassengerPosition(loc);
@@ -2072,7 +2072,7 @@ public partial class Unit
 		if (_positionUpdateInfo.Turned)
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Turning);
 
-		if (_positionUpdateInfo.Relocated && !GetVehicle())
+		if (_positionUpdateInfo.Relocated && !Vehicle1)
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving);
 	}
 }

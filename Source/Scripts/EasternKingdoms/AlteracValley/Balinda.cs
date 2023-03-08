@@ -108,7 +108,7 @@ internal class boss_balinda : ScriptedAI
 
 																			if (elemental != null)
 																				if (elemental.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
-																					elemental.GetAI().EnterEvadeMode();
+																					elemental.AI.EnterEvadeMode();
 
 																			task.Repeat();
 																		}));
@@ -116,7 +116,7 @@ internal class boss_balinda : ScriptedAI
 
 	public override void JustSummoned(Creature summoned)
 	{
-		summoned.GetAI().AttackStart(SelectTarget(SelectTargetMethod.Random, 0, 50, true));
+		summoned.AI.AttackStart(SelectTarget(SelectTargetMethod.Random, 0, 50, true));
 		summoned.Faction = me.Faction;
 		WaterElementalGUID = summoned.GUID;
 		summons.Summon(summoned);

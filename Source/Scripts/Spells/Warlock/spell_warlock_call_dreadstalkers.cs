@@ -26,12 +26,12 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
 		var dreadstalkers = caster.GetCreatureListWithEntryInGrid(98035);
 
 		foreach (var dreadstalker in dreadstalkers)
-			if (dreadstalker.GetOwner() == caster)
+			if (dreadstalker.OwnerUnit == caster)
 			{
 				dreadstalker.SetLevel(caster.Level);
 				dreadstalker.SetMaxHealth(caster.GetMaxHealth() / 3);
 				dreadstalker.SetHealth(caster.GetHealth() / 3);
-				dreadstalker.GetAI().AttackStart(target);
+				dreadstalker.AI.AttackStart(target);
 			}
 
 		var impsToSummon = caster.GetAuraEffectAmount(WarlockSpells.IMPROVED_DREADSTALKERS, 0);

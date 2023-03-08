@@ -344,7 +344,7 @@ namespace Game
 
                 Group group = player.GetGroup();
                 if (group)
-                    if (group.IsLFGGroup() && player.GetMap().IsDungeon())
+                    if (group.IsLFGGroup() && player.Map.IsDungeon())
                         teleported = player.TeleportToBGEntryPoint();
             }
 
@@ -591,7 +591,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ResetInstances)]
         void HandleResetInstances(ResetInstances packet)
         {
-            Map map = _player.GetMap();
+            Map map = _player.Map;
             if (map != null && map.Instanceable())
                 return;
 
@@ -640,7 +640,7 @@ namespace Game
                 return;
 
             // cannot reset while in an instance
-            Map map = Player.GetMap();
+            Map map = Player.Map;
             if (map && map.Instanceable())
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetDungeonDifficulty: player (Name: {0}, {1}) tried to reset the instance while player is inside!",
@@ -706,7 +706,7 @@ namespace Game
                 return;
 
             // cannot reset while in an instance
-            Map map = Player.GetMap();
+            Map map = Player.Map;
             if (map && map.Instanceable())
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetRaidDifficulty: player (Name: {0}, {1} tried to reset the instance while inside!",

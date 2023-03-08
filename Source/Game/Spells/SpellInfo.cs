@@ -1318,7 +1318,7 @@ public class SpellInfo
 		}
 
 		// check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
-		if (unitTarget != caster && (caster.GetAffectingPlayer() != null || !IsPositive) && unitTarget.IsTypeId(TypeId.Player))
+		if (unitTarget != caster && (caster.AffectingPlayer != null || !IsPositive) && unitTarget.IsTypeId(TypeId.Player))
 		{
 			if (!unitTarget.AsPlayer.IsVisible())
 				return SpellCastResult.BmOrInvisgod;
@@ -1362,7 +1362,7 @@ public class SpellInfo
 
 		if (HasAttribute(SpellAttr8.BattleResurrection))
 		{
-			var map = caster.GetMap();
+			var map = caster.Map;
 
 			if (map)
 			{
@@ -1430,7 +1430,7 @@ public class SpellInfo
 		if (!caster.IsTypeId(TypeId.Player))
 			return SpellCastResult.SpellCastOk;
 
-		var vehicle = caster.GetVehicle();
+		var vehicle = caster.Vehicle1;
 
 		if (vehicle)
 		{
@@ -2384,7 +2384,7 @@ public class SpellInfo
 
 		if (caster != null)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(this, SpellModOp.Range, ref range, spell);
@@ -2399,7 +2399,7 @@ public class SpellInfo
 
 		if (caster)
 		{
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner)
 				modOwner.ApplySpellMod(this, SpellModOp.Duration, ref duration);
@@ -2620,7 +2620,7 @@ public class SpellInfo
 		}
 
 		// Apply cost mod by spell
-		var modOwner = unitCaster.GetSpellModOwner();
+		var modOwner = unitCaster.SpellModOwner;
 
 		if (modOwner != null)
 		{
@@ -2785,7 +2785,7 @@ public class SpellInfo
 				}
 				case SpellProcsPerMinuteModType.Battleground:
 				{
-					if (caster.GetMap().IsBattlegroundOrArena())
+					if (caster.Map.IsBattlegroundOrArena())
 						ppm *= 1.0f + mod.Coeff;
 
 					break;

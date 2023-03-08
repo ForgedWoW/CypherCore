@@ -82,7 +82,7 @@ public class Vehicle : ITransport, IDisposable
 		if (unit == null)
 			return null;
 
-		if (unit.GetVehicle() != this)
+		if (unit.Vehicle1 != this)
 			return null;
 
 		var seat = GetSeatKeyValuePairForPassenger(unit);
@@ -120,12 +120,13 @@ public class Vehicle : ITransport, IDisposable
 			_me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
 		if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
-			_me.AsCreature.GetAI().PassengerBoarded(unit, seat.Key, false);
+			_me.AsCreature.			AI.PassengerBoarded(unit, seat.Key, false);
 
 		if (GetBase().IsTypeId(TypeId.Unit))
 			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
-		unit.SetVehicle(null);
+		unit.
+		Vehicle1 = null;
 
 		return this;
 	}
@@ -404,7 +405,7 @@ public class Vehicle : ITransport, IDisposable
 
 	public void RelocatePassengers()
 	{
-		Cypher.Assert(_me.GetMap() != null);
+		Cypher.Assert(_me.Map != null);
 
 		List<Tuple<Unit, Position>> seatRelocation = new();
 
@@ -425,7 +426,7 @@ public class Vehicle : ITransport, IDisposable
 		}
 
 		foreach (var (passenger, position) in seatRelocation)
-			ITransport.UpdatePassengerPosition(this, _me.GetMap(), passenger, position, false);
+			ITransport.UpdatePassengerPosition(this, _me.Map, passenger, position, false);
 	}
 
 	public bool IsVehicleInUse()

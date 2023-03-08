@@ -465,7 +465,7 @@ internal class npc_air_force_bots : NullCreatureAI
 			return;
 
 		if ((_spawn.spawnType == SpawnType.Tripwire) &&
-			who.			IsFlying)
+			who.IsFlying)
 			return;
 
 		_toAttack.Add(who.GUID);
@@ -934,8 +934,8 @@ internal class npc_doctor : ScriptedAI
 					Patient.SetUnitFlag(UnitFlags.PlayerControlled);
 
 					Patients.Add(Patient.GUID);
-					((npc_injured_patient)Patient.GetAI()).DoctorGUID = me.GUID;
-					((npc_injured_patient)Patient.GetAI()).Coord = Coordinates[index];
+					((npc_injured_patient)Patient.AI).DoctorGUID = me.GUID;
+					((npc_injured_patient)Patient.AI).Coord = Coordinates[index];
 
 					Coordinates.RemoveAt(index);
 				}
@@ -1041,7 +1041,7 @@ public class npc_injured_patient : ScriptedAI
 				var doctor = ObjectAccessor.GetCreature(me, DoctorGUID);
 
 				if (doctor)
-					((npc_doctor)doctor.GetAI()).PatientSaved(me, player, Coord);
+					((npc_doctor)doctor.AI).PatientSaved(me, player, Coord);
 			}
 
 		//make not selectable
@@ -1095,7 +1095,7 @@ public class npc_injured_patient : ScriptedAI
 				var doctor = ObjectAccessor.GetCreature((me), DoctorGUID);
 
 				if (doctor)
-					((npc_doctor)doctor.GetAI()).PatientDied(Coord);
+					((npc_doctor)doctor.AI).PatientDied(Coord);
 			}
 		}
 	}
@@ -1518,7 +1518,7 @@ internal class npc_spring_rabbit : ScriptedAI
 	public override void Reset()
 	{
 		Initialize();
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (owner)
 			me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
@@ -1529,7 +1529,7 @@ internal class npc_spring_rabbit : ScriptedAI
 	public override void DoAction(int param)
 	{
 		inLove = true;
-		var owner = me.GetOwner();
+		var owner = me.OwnerUnit;
 
 		if (owner)
 			owner.CastSpell(owner, SpellIds.SpringFling, true);
@@ -1578,7 +1578,7 @@ internal class npc_spring_rabbit : ScriptedAI
 					me.AddAura(SpellIds.SpringRabbitInLove, me);
 					DoAction(1);
 					rabbit.AddAura(SpellIds.SpringRabbitInLove, rabbit);
-					rabbit.GetAI().DoAction(1);
+					rabbit.AI.DoAction(1);
 					rabbit.CastSpell(rabbit, SpellIds.SpringRabbitJump, true);
 					rabbitGUID = rabbit.GUID;
 				}
@@ -1791,7 +1791,7 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
 	public override void Reset()
 	{
-		var owner = me.GetOwner()?.AsPlayer;
+		var owner = me.OwnerUnit?.AsPlayer;
 
 		if (owner != null)
 		{
@@ -1950,7 +1950,7 @@ internal class npc_bountiful_table : PassiveAI
 				break;
 			case SeatIds.FoodHolder:
 			case SeatIds.PlateHolder:
-				var holders = who.GetVehicleKit();
+				var holders = who.VehicleKit1;
 
 				if (holders)
 					holders.InstallAllAccessories(true);

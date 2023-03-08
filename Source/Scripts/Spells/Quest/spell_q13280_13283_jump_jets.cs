@@ -15,7 +15,7 @@ internal class spell_q13280_13283_jump_jets : SpellScript, ISpellOnCast
 
 		if (caster.IsVehicle)
 		{
-			var rocketBunny = caster.GetVehicleKit().GetPassenger(1);
+			var rocketBunny = caster.VehicleKit1.GetPassenger(1);
 
 			rocketBunny?.CastSpell(rocketBunny, QuestSpellIds.JumpRocketBlast, true);
 		}

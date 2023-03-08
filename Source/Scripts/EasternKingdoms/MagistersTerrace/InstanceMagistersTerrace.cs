@@ -196,7 +196,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 							var kaelthas = GetCreature(DataTypes.KaelthasSunstrider);
 
 							if (kaelthas)
-								kaelthas.GetAI().SetData(DataTypes.KaelthasIntro, (uint)EncounterState.InProgress);
+								kaelthas.AI.SetData(DataTypes.KaelthasIntro, (uint)EncounterState.InProgress);
 						}
 					}
 
@@ -241,7 +241,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 				if (kalecgos)
 				{
 					kalecgos.MotionMaster.MovePath(MiscConst.PathKalecgosFlight, false);
-					kalecgos.GetAI().Talk(MiscConst.SayKalecgosSpawn);
+					kalecgos.AI.Talk(MiscConst.SayKalecgosSpawn);
 				}
 			}
 		}

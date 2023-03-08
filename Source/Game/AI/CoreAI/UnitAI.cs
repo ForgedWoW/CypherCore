@@ -86,12 +86,12 @@ namespace Game.AI
             if (me.HasUnitState(UnitState.Casting) || !me.IsAttackReady())
                 return true;
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.GetMap().GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.Map.GetDifficultyID());
             if (spellInfo != null)
             {
                 if (me.IsWithinCombatRange(me.Victim, spellInfo.GetMaxRange(false)))
                 {
-                    me.CastSpell(me.Victim, spellId, new CastSpellExtraArgs(me.GetMap().GetDifficultyID()));
+                    me.CastSpell(me.Victim, spellId, new CastSpellExtraArgs(me.Map.GetDifficultyID()));
                     me.ResetAttackTimer();
                     return true;
                 }
@@ -242,7 +242,7 @@ namespace Game.AI
             Unit target = null;
             AITarget aiTargetType = AITarget.Self;
 
-            AISpellInfoType info = GetAISpellInfo(spellId, me.GetMap().GetDifficultyID());
+            AISpellInfoType info = GetAISpellInfo(spellId, me.Map.GetDifficultyID());
             if (info != null)
                 aiTargetType = info.target;
 
@@ -257,7 +257,7 @@ namespace Game.AI
                     break;
                 case AITarget.Enemy:
                     {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.GetMap().GetDifficultyID());
+                        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.Map.GetDifficultyID());
                         if (spellInfo != null)
                         {
                             DefaultTargetSelector targetSelectorInner = new(me, spellInfo.GetMaxRange(false), false, true, 0);
@@ -286,7 +286,7 @@ namespace Game.AI
                     break;
                 case AITarget.Debuff:
                     {
-                        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.GetMap().GetDifficultyID());
+                        var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, me.Map.GetDifficultyID());
                         if (spellInfo != null)
                         {
                             float range = spellInfo.GetMaxRange(false);

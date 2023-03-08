@@ -16,7 +16,7 @@ public class spell_monk_zen_flight_check : SpellScript, ISpellCheckCast
 
 		if (_player != null)
 		{
-			if (_player.GetMap().IsBattlegroundOrArena())
+			if (_player.Map.IsBattlegroundOrArena())
 				return SpellCastResult.NotInBattleground;
 
 			// In Kalimdor or Eastern Kingdom with Flight Master's License

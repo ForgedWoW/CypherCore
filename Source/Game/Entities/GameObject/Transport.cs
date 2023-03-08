@@ -315,7 +315,8 @@ class Transport : GameObjectTypeBase, ITransport
 			dst = pathRotation.Multiply(dst);
 			dst += Owner.GetStationaryPosition();
 
-			Owner.GetMap().GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
+			Owner.
+			Map.GameObjectRelocation(Owner, dst.X, dst.Y, dst.Z, Owner.Location.Orientation);
 		}
 
 		var oldRotation = _animationInfo.GetPrevAnimRotation(newProgress);
@@ -416,7 +417,7 @@ class Transport : GameObjectTypeBase, ITransport
 		{
 			var pos = passenger.MovementInfo.Transport.Pos.Copy();
 			CalculatePassengerPosition(pos);
-			ITransport.UpdatePassengerPosition(this, Owner.GetMap(), passenger, pos, true);
+			ITransport.UpdatePassengerPosition(this, Owner.Map, passenger, pos, true);
 		}
 	}
 

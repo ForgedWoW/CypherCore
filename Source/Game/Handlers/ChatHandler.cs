@@ -590,7 +590,7 @@ namespace Game
             {
                 Creature creature = unit.AsCreature;
                 if (creature)
-                    creature.GetAI().ReceiveEmote(_player, (TextEmotes)packet.EmoteID);
+                    creature.                    AI.ReceiveEmote(_player, (TextEmotes)packet.EmoteID);
             }
 
             if (emote != Emote.OneshotNone)

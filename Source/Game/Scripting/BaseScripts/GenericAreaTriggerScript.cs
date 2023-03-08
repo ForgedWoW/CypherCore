@@ -19,7 +19,7 @@ public class GenericAreaTriggerScript<AI> : ScriptObjectAutoAddDBBound, IAreaTri
 
 	public AreaTriggerAI GetAI(AreaTrigger me)
 	{
-		if (me.GetInstanceScript() != null)
+		if (me.InstanceScript != null)
 			return GetInstanceAI<AI>(me);
 		else
 			return (AI)Activator.CreateInstance(typeof(AI),

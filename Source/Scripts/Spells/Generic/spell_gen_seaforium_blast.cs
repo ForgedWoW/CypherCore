@@ -34,7 +34,7 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 	private void AchievementCredit(int effIndex)
 	{
 		// but in effect handling OriginalCaster can become null
-		var owner = GObjCaster.GetOwner();
+		var owner = GObjCaster.OwnerUnit;
 
 		if (owner != null)
 		{

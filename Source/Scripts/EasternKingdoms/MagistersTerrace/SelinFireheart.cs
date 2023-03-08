@@ -256,14 +256,14 @@ internal class npc_fel_crystal : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var instance = me.GetInstanceScript();
+		var instance = me.InstanceScript;
 
 		if (instance != null)
 		{
 			var selin = instance.GetCreature(DataTypes.SelinFireheart);
 
 			if (selin && selin.IsAlive)
-				selin.GetAI().DoAction(MiscConst.ActionSwitchPhase);
+				selin.AI.DoAction(MiscConst.ActionSwitchPhase);
 		}
 	}
 }

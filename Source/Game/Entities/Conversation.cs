@@ -51,7 +51,7 @@ public class Conversation : WorldObject
 		//- Register the Conversation for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GUID, this);
+			Map.GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -62,7 +62,7 @@ public class Conversation : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GUID);
+			Map.GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -102,10 +102,10 @@ public class Conversation : WorldObject
 		if (conversationTemplate == null)
 			return null;
 
-		var lowGuid = creator.GetMap().GenerateLowGuid(HighGuid.Conversation);
+		var lowGuid = creator.Map.GenerateLowGuid(HighGuid.Conversation);
 
 		Conversation conversation = new();
-		conversation.Create(lowGuid, conversationEntry, creator.GetMap(), creator, pos, privateObjectOwner, spellInfo);
+		conversation.Create(lowGuid, conversationEntry, creator.Map, creator, pos, privateObjectOwner, spellInfo);
 
 		if (autoStart && !conversation.Start())
 			return null;
@@ -204,7 +204,7 @@ public class Conversation : WorldObject
 		_creatorGuid = creator.GUID;
 		PrivateObjectOwner = privateObjectOwner;
 
-		SetMap(map);
+		Map = map;
 		Location.Relocate(pos);
 		RelocateStationaryPosition(pos);
 
@@ -284,7 +284,7 @@ public class Conversation : WorldObject
 			}
 		}
 
-		if (!GetMap().AddToMap(this))
+		if (!Map.AddToMap(this))
 			return false;
 
 		return true;

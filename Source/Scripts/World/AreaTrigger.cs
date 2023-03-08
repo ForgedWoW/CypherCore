@@ -235,7 +235,7 @@ internal class AreaTrigger_at_nats_landing : ScriptObjectAutoAddDBBound, IAreaTr
 				Creature shark = player.SummonCreature(CreatureIds.LurkingShark, -4246.243f, -3922.356f, -7.488f, 5.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(100));
 
 				if (shark)
-					shark.GetAI().AttackStart(player);
+					shark.AI.AttackStart(player);
 
 				return false;
 			}
@@ -277,14 +277,14 @@ internal class AreaTrigger_at_brewfest : ScriptObjectAutoAddDBBound, IAreaTrigge
 				var tapper = player.FindNearestCreature(CreatureIds.TapperSwindlekeg, 20.0f);
 
 				if (tapper)
-					tapper.GetAI().Talk(TextIds.SayWelcome, player);
+					tapper.AI.Talk(TextIds.SayWelcome, player);
 
 				break;
 			case AreaTriggerIds.BrewfestDunMorogh:
 				var ipfelkofer = player.FindNearestCreature(CreatureIds.IpfelkoferIronkeg, 20.0f);
 
 				if (ipfelkofer)
-					ipfelkofer.GetAI().Talk(TextIds.SayWelcome, player);
+					ipfelkofer.AI.Talk(TextIds.SayWelcome, player);
 
 				break;
 			default:

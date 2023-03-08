@@ -15,7 +15,7 @@ public class npc_goblin_engineer : ScriptedAI
 
 	public npc_goblin_engineer(Creature creature) : base(creature)
 	{
-		Instance = creature.GetInstanceScript();
+		Instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

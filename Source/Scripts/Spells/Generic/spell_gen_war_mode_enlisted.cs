@@ -48,11 +48,11 @@ internal class spell_gen_war_mode_enlisted : AuraScript, IHasAuraEffects
 		switch (target.TeamId)
 		{
 			case TeamIds.Alliance:
-				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeAllianceBuffValue, target.GetMap());
+				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeAllianceBuffValue, target.Map);
 
 				break;
 			case TeamIds.Horde:
-				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeHordeBuffValue, target.GetMap());
+				amount.Value = Global.WorldStateMgr.GetValue(WorldStates.WarModeHordeBuffValue, target.Map);
 
 				break;
 		}

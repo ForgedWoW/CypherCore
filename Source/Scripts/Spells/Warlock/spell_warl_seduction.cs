@@ -32,8 +32,8 @@ internal class spell_warl_seduction : SpellScript, IHasSpellEffects
 		var target = HitUnit;
 
 		if (target)
-			if (caster.GetOwner() &&
-				caster.GetOwner().HasAura(WarlockSpells.GLYPH_OF_SUCCUBUS))
+			if (caster.OwnerUnit &&
+				caster.OwnerUnit.HasAura(WarlockSpells.GLYPH_OF_SUCCUBUS))
 			{
 				target.RemoveAurasByType(AuraType.PeriodicDamage, ObjectGuid.Empty, target.GetAura(WarlockSpells.PRIEST_SHADOW_WORD_DEATH)); // SW:D shall not be Removed.
 				target.RemoveAurasByType(AuraType.PeriodicDamagePercent);

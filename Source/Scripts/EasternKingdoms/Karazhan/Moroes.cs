@@ -113,7 +113,7 @@ internal class boss_moroes : BossAI
 
 										if (temp && temp.IsAlive)
 											if (!temp.Victim)
-												temp.GetAI().AttackStart(me.Victim);
+												temp.AI.AttackStart(me.Victim);
 									}
 
 								task.Repeat();
@@ -272,7 +272,7 @@ internal class boss_moroes : BossAI
 
 				if (temp && temp.IsAlive)
 				{
-					temp.GetAI().AttackStart(me.Victim);
+					temp.AI.AttackStart(me.Victim);
 					DoZoneInCombat(temp);
 				}
 				else
@@ -290,7 +290,7 @@ internal class boss_moroes_guest : ScriptedAI
 
 	public boss_moroes_guest(Creature creature) : base(creature)
 	{
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

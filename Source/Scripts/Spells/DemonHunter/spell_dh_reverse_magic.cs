@@ -57,7 +57,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 					if (creature.CreatureTemplate.Rank == CreatureEliteType.WorldBoss)
 						continue;
 
-					if (creature.CreatureTemplate.Rank == CreatureEliteType.Elite && creature.GetMap().IsDungeon())
+					if (creature.CreatureTemplate.Rank == CreatureEliteType.Elite && creature.Map.IsDungeon())
 						continue;
 				}
 

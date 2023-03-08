@@ -100,7 +100,7 @@ namespace Game
                 {
                     if (plrMover.Transport == null)
                     {
-                        GameObject go = plrMover.GetMap().GetGameObject(movementInfo.Transport.Guid);
+                        GameObject go = plrMover.Map.GetGameObject(movementInfo.Transport.Guid);
                         if (go != null)
                         {
                             ITransport transport = go.ToTransportBase();
@@ -111,7 +111,7 @@ namespace Game
                     else if (plrMover.Transport.GetTransportGUID() != movementInfo.Transport.Guid)
                     {
                         plrMover.                        Transport.RemovePassenger(plrMover);
-                        GameObject go = plrMover.GetMap().GetGameObject(movementInfo.Transport.Guid);
+                        GameObject go = plrMover.Map.GetGameObject(movementInfo.Transport.Guid);
                         if (go != null)
                         {
                             ITransport transport = go.ToTransportBase();
@@ -125,7 +125,7 @@ namespace Game
                     }
                 }
 
-                if (mover.Transport == null && !mover.GetVehicle())
+                if (mover.Transport == null && !mover.Vehicle1)
                     movementInfo.Transport.Reset();
             }
             else if (plrMover && plrMover.Transport != null)                // if we were on a transport, leave
@@ -144,7 +144,7 @@ namespace Game
             mover.MovementInfo = movementInfo;
 
             // Some vehicles allow the passenger to turn by himself
-            Vehicle vehicle = mover.GetVehicle();
+            Vehicle vehicle = mover.Vehicle1;
             if (vehicle)
             {
                 VehicleSeatRecord seat = vehicle.GetSeatForPassenger(mover);
@@ -175,7 +175,7 @@ namespace Game
 
                 plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
 
-                if (movementInfo.Pos.Z < plrMover.GetMap().GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
+                if (movementInfo.Pos.Z < plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
                 {
                     if (!(plrMover.GetBattleground() && plrMover.GetBattleground().HandlePlayerUnderMap(Player)))
                     {
@@ -184,7 +184,7 @@ namespace Game
                         // @todo discard movement packets after the player is rooted
                         if (plrMover.IsAlive)
                         {
-                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.GetMap().GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
+                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
                             plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
                             plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.GetMaxHealth());
                             // player can be alive if GM/etc
@@ -240,7 +240,7 @@ namespace Game
             if (!player.InstanceValid && !mapEntry.IsDungeon())
                 player.InstanceValid = true;
 
-            Map oldMap = player.GetMap();
+            Map oldMap = player.Map;
             Map newMap = Player.TeleportDestInstanceId.HasValue ? Global.MapMgr.FindMap(loc.MapId, Player.TeleportDestInstanceId.Value) : Global.MapMgr.CreateMap(loc.MapId, Player);
 
             MovementInfo.TransportInfo transportInfo = player.MovementInfo.Transport;
@@ -269,7 +269,7 @@ namespace Game
             player.SetFallInformation(0, player.Location.Z);
 
             player.ResetMap();
-            player.SetMap(newMap);
+            player.            Map = newMap;
 
             ResumeToken resumeToken = new();
             resumeToken.SequenceIndex = player.MovementCounter;
@@ -287,11 +287,11 @@ namespace Game
                 newTransport.AddPassenger(player);
             }
 
-            if (!player.GetMap().AddPlayerToMap(player, !seamlessTeleport))
+            if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
             {
                 Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.GetMapName() : "Unknown")}) because of unknown reason!");
                 player.ResetMap();
-                player.SetMap(oldMap);
+                player.                Map = oldMap;
                 player.TeleportTo(player.Homebind);
                 return;
             }
@@ -449,7 +449,7 @@ namespace Game
 
             plMover.SetSemaphoreTeleportNear(false);
 
-            uint old_zone = plMover.GetZoneId();
+            uint old_zone = plMover.Zone;
 
             WorldLocation dest = plMover.TeleportDest;
 

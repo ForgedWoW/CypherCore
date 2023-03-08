@@ -28,7 +28,7 @@ internal class spell_item_extract_gas : AuraScript, IHasAuraEffects
 		if (Caster != null &&
 			Caster.IsTypeId(TypeId.Player) &&
 			Target.IsTypeId(TypeId.Unit) &&
-			Target.			AsCreature.CreatureTemplate.CreatureType == CreatureType.GasCloud)
+			Target.AsCreature.CreatureTemplate.CreatureType == CreatureType.GasCloud)
 		{
 			var player = Caster.AsPlayer;
 			var creature = Target.AsCreature;

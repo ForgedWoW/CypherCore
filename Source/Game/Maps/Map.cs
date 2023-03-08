@@ -272,8 +272,8 @@ public class Map : IDisposable
 		EnsureGridLoadedForActiveObject(cell, player);
 		AddToGrid(player, cell);
 
-		Cypher.Assert(player.GetMap() == this);
-		player.SetMap(this);
+		Cypher.Assert(player.Map == this);
+		player.		Map = this;
 		player.AddToWorld();
 
 		if (initPlayer)
@@ -343,7 +343,7 @@ public class Map : IDisposable
 		{
 			if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
 			{
-				var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => Global.DB2Mgr.IsInArea(player.GetAreaId(), requiredAreaId));
+				var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => Global.DB2Mgr.IsInArea(player.Area, requiredAreaId));
 
 				if (!isInAllowedArea)
 					continue;
@@ -754,7 +754,7 @@ public class Map : IDisposable
 		player.Location.Relocate(x, y, z, orientation);
 
 		if (player.IsVehicle)
-			player.GetVehicleKit().RelocatePassengers();
+			player.			VehicleKit1.RelocatePassengers();
 
 		if (oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
 		{
@@ -809,7 +809,7 @@ public class Map : IDisposable
 			creature.Location.Relocate(x, y, z, ang);
 
 			if (creature.IsVehicle)
-				creature.GetVehicleKit().RelocatePassengers();
+				creature.				VehicleKit1.RelocatePassengers();
 
 			creature.UpdateObjectVisibility(false);
 			creature.UpdatePositionData();
@@ -1436,7 +1436,7 @@ public class Map : IDisposable
 	public void ApplyDynamicModeRespawnScaling(WorldObject obj, ulong spawnId, ref uint respawnDelay, uint mode)
 	{
 		Cypher.Assert(mode == 1);
-		Cypher.Assert(obj.GetMap() == this);
+		Cypher.Assert(obj.Map == this);
 
 		if (IsBattlegroundOrArena())
 			return;
@@ -1465,10 +1465,10 @@ public class Map : IDisposable
 		if (!data.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.DynamicSpawnRate))
 			return;
 
-		if (!_zonePlayerCountMap.ContainsKey(obj.GetZoneId()))
+		if (!_zonePlayerCountMap.ContainsKey(obj.Zone))
 			return;
 
-		var playerCount = _zonePlayerCountMap[obj.GetZoneId()];
+		var playerCount = _zonePlayerCountMap[obj.Zone];
 
 		if (playerCount == 0)
 			return;
@@ -2099,7 +2099,7 @@ public class Map : IDisposable
 
 	public void AddCorpse(Corpse corpse)
 	{
-		corpse.SetMap(this);
+		corpse.		Map = this;
 
 		_corpsesByCell.Add(corpse.GetCellCoord().GetId(), corpse);
 
@@ -2247,7 +2247,7 @@ public class Map : IDisposable
 			PlayMusic playMusic = new(musicId);
 
 			foreach (var player in players)
-				if (player.GetZoneId() == zoneId && !player.HasAuraType(AuraType.ForceWeather))
+				if (player.Zone == zoneId && !player.HasAuraType(AuraType.ForceWeather))
 					player.SendPacket(playMusic);
 		}
 	}
@@ -2306,7 +2306,7 @@ public class Map : IDisposable
 			WeatherPkt weather = new(weatherId, intensity);
 
 			foreach (var player in players)
-				if (player.GetZoneId() == zoneId)
+				if (player.Zone == zoneId)
 					player.SendPacket(weather);
 		}
 	}
@@ -2340,7 +2340,7 @@ public class Map : IDisposable
 			overrideLight.TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds;
 
 			foreach (var player in players)
-				if (player.GetZoneId() == zoneId)
+				if (player.Zone == zoneId)
 					player.SendPacket(overrideLight);
 		}
 	}
@@ -2353,8 +2353,8 @@ public class Map : IDisposable
 			if (player)
 				if (player.IsInWorld)
 				{
-					player.UpdateAreaDependentAuras(player.GetAreaId());
-					player.UpdateZoneDependentAuras(player.GetZoneId());
+					player.UpdateAreaDependentAuras(player.Area);
+					player.UpdateZoneDependentAuras(player.Zone);
 				}
 	}
 
@@ -3135,7 +3135,7 @@ public class Map : IDisposable
 			return;
 
 		// Update mobs/objects in ALL visible cells around object!
-		var area = Cell.CalculateCellArea(obj.Location.X, obj.Location.Y, obj.GetGridActivationRange());
+		var area = Cell.CalculateCellArea(obj.Location.X, obj.Location.Y, obj.GridActivationRange);
 
 		for (var x = area.LowBound.X_Coord; x <= area.HighBound.X_Coord; ++x)
 		{
@@ -3355,7 +3355,7 @@ public class Map : IDisposable
 			{
 				var creature = _creaturesToMove[i];
 
-				if (creature.GetMap() != this) //pet is teleported to another map
+				if (creature.Map != this) //pet is teleported to another map
 					continue;
 
 				if (creature.Location.MoveState != ObjectCellMoveState.Active)
@@ -3379,7 +3379,7 @@ public class Map : IDisposable
 						creature.Location.Relocate(creature.Location.NewPosition);
 
 						if (creature.IsVehicle)
-							creature.GetVehicleKit().RelocatePassengers();
+							creature.							VehicleKit1.RelocatePassengers();
 
 						creature.UpdatePositionData();
 						creature.UpdateObjectVisibility(false);
@@ -3417,7 +3417,7 @@ public class Map : IDisposable
 			{
 				var go = _gameObjectsToMove[i];
 
-				if (go.GetMap() != this) //transport is teleported to another map
+				if (go.Map != this) //transport is teleported to another map
 					continue;
 
 				if (go.Location.MoveState != ObjectCellMoveState.Active)
@@ -3471,7 +3471,7 @@ public class Map : IDisposable
 			{
 				var dynObj = _dynamicObjectsToMove[i];
 
-				if (dynObj.GetMap() != this) //transport is teleported to another map
+				if (dynObj.Map != this) //transport is teleported to another map
 					continue;
 
 				if (dynObj.Location.MoveState != ObjectCellMoveState.Active)
@@ -3516,7 +3516,7 @@ public class Map : IDisposable
 			{
 				var at = _areaTriggersToMove[i];
 
-				if (at.GetMap() != this) //transport is teleported to another map
+				if (at.Map != this) //transport is teleported to another map
 					continue;
 
 				if (at.Location.MoveState != ObjectCellMoveState.Active)
@@ -4704,7 +4704,7 @@ public class Map : IDisposable
 
 	private GameObject FindGameObject(WorldObject searchObject, ulong guid)
 	{
-		var bounds = searchObject.GetMap().GetGameObjectBySpawnIdStore().LookupByKey(guid);
+		var bounds = searchObject.Map.GetGameObjectBySpawnIdStore().LookupByKey(guid);
 
 		if (bounds.Empty())
 			return null;
@@ -5088,7 +5088,8 @@ public class Map : IDisposable
 								pGO.SetLootState(LootState.Ready);
 								pGO.SetRespawnTime(nTimeToDespawn);
 
-								pGO.GetMap().AddToMap(pGO);
+								pGO.
+								Map.AddToMap(pGO);
 							}
 						}
 

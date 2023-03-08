@@ -34,7 +34,7 @@ namespace Game.Combat
             if (!a.IsAlive || !b.IsAlive)
                 return false;
             // ...the two units need to be on the same map
-            if (a.GetMap() != b.GetMap())
+            if (a.Map != b.Map)
                 return false;
             // ...the two units need to be in the same phase
             if (!WorldObject.InSamePhase(a, b))
@@ -48,8 +48,8 @@ namespace Game.Combat
                 return false;
             if (a.IsFriendlyTo(b) || b.IsFriendlyTo(a))
                 return false;
-            Player playerA = a.GetCharmerOrOwnerPlayerOrPlayerItself();
-            Player playerB = b.GetCharmerOrOwnerPlayerOrPlayerItself();
+            Player playerA = a.CharmerOrOwnerPlayerOrPlayerItself;
+            Player playerB = b.CharmerOrOwnerPlayerOrPlayerItself;
             // ...neither of the two units must be (owned by) a player with .gm on
             if ((playerA && playerA.IsGameMaster) || (playerB && playerB.IsGameMaster))
                 return false;
@@ -224,7 +224,7 @@ namespace Game.Combat
 
             if (UpdateOwnerCombatState())
             {
-                IUnitAI ownerAI = _owner.GetAI();
+                IUnitAI ownerAI = _owner.AI;
                 if (ownerAI != null)
                     ownerAI.JustExitedCombat();
             }
@@ -268,7 +268,7 @@ namespace Game.Combat
 
         public static void NotifyAICombat(Unit me, Unit other)
         {
-            IUnitAI ai = me.GetAI();
+            IUnitAI ai = me.AI;
             if (ai != null)
                 ai.JustEnteredCombat(other);
         }
@@ -373,13 +373,13 @@ namespace Game.Combat
             // ...and if that happened, also notify the AI of it...
             if (needFirstAI)
             {
-                IUnitAI firstAI = first.GetAI();
+                IUnitAI firstAI = first.AI;
                 if (firstAI != null)
                     firstAI.JustExitedCombat();
             }
             if (needSecondAI)
             {
-                IUnitAI secondAI = second.GetAI();
+                IUnitAI secondAI = second.AI;
                 if (secondAI != null)
                     secondAI.JustExitedCombat();
             }
@@ -410,7 +410,7 @@ namespace Game.Combat
             Suppress(who);
             if (who.GetCombatManager().UpdateOwnerCombatState())
             {
-                IUnitAI ai = who.GetAI();
+                IUnitAI ai = who.AI;
                 if (ai != null)
                     ai.JustExitedCombat();
             }

@@ -19,7 +19,7 @@ public class npc_defias_watcher : ScriptedAI
 
 	public npc_defias_watcher(Creature creature) : base(creature)
 	{
-		Instance = creature.GetInstanceScript();
+		Instance = creature.InstanceScript;
 		Status = false;
 	}
 

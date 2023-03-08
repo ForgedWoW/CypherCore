@@ -97,7 +97,7 @@ internal class boss_netherspite : ScriptedAI
 	public boss_netherspite(Creature creature) : base(creature)
 	{
 		Initialize();
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 
 		PortalPhase = false;
 		PhaseTimer = 0;
@@ -317,7 +317,7 @@ internal class boss_netherspite : ScriptedAI
 				// temporary store for the best suitable beam reciever
 				Unit target = me;
 
-				var players = me.GetMap().GetPlayers();
+				var players = me.Map.GetPlayers();
 
 				// get the best suitable Target
 				foreach (var player in players)
@@ -368,7 +368,7 @@ internal class boss_netherspite : ScriptedAI
 
 				// aggro Target if Red Beam
 				if (j == (int)Portals.Red &&
-					me.					Victim != target &&
+					me.Victim != target &&
 					target.IsPlayer)
 					AddThreat(target, 100000.0f);
 			}

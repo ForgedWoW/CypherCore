@@ -16,7 +16,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
         void HandleJoinChannel(JoinChannel packet)
         {
-            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.GetZoneId());
+            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.Zone);
             if (packet.ChatChannelId != 0)
             {
                 ChatChannelsRecord channel = CliDB.ChatChannelsStorage.LookupByKey(packet.ChatChannelId);
@@ -77,7 +77,7 @@ namespace Game
             if (string.IsNullOrEmpty(packet.ChannelName) && packet.ZoneChannelID == 0)
                 return;
 
-            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.GetZoneId());
+            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.Zone);
             if (packet.ZoneChannelID != 0)
             {
                 ChatChannelsRecord channel = CliDB.ChatChannelsStorage.LookupByKey(packet.ZoneChannelID);

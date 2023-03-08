@@ -69,11 +69,11 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 				if (pet.Victim)
 				{
 					pet.AttackStop();
-					pet.					AsCreature.GetAI().AttackStart(ExplTargetUnit);
+					pet.AsCreature.AI.AttackStart(ExplTargetUnit);
 				}
 				else
 				{
-					pet.					AsCreature.GetAI().AttackStart(ExplTargetUnit);
+					pet.AsCreature.AI.AttackStart(ExplTargetUnit);
 				}
 				//pet->CastSpell(GetExplTargetUnit(), KILL_COMMAND_CHARGE, true);
 

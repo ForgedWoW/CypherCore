@@ -25,7 +25,7 @@ internal class spell_spawn_blood_pool : SpellScript, IHasSpellEffects
 		var caster = Caster;
 		var summonPos = caster.Location;
 
-		if (caster.GetMap().GetLiquidStatus(caster.PhaseShift, caster.Location.X, caster.Location.Y, caster.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus, caster.CollisionHeight) != ZLiquidStatus.NoWater)
+		if (caster.Map.GetLiquidStatus(caster.PhaseShift, caster.Location.X, caster.Location.Y, caster.Location.Z, LiquidHeaderTypeFlags.AllLiquids, out var liquidStatus, caster.CollisionHeight) != ZLiquidStatus.NoWater)
 
 			dest.Relocate(summonPos);
 	}

@@ -58,7 +58,7 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
 
 				for (var i = tempList.GetEnumerator(); i.MoveNext();)
 				{
-					var owner = i.Current.GetOwner();
+					var owner = i.Current.OwnerUnit;
 
 					if (owner != null && owner == player && i.Current.IsSummon)
 						continue;
@@ -71,9 +71,9 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
 					{
 						statue = statueList.First();
 
-						if (statue.GetOwner() != null && statue.GetOwner().GUID == player.GUID)
-							if (statue.GetOwner() && statue.GetOwner().GUID == player.GUID)
-								statue.CastSpell(statue.GetOwner().AsPlayer.GetSelectedUnit(), MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
+						if (statue.OwnerUnit != null && statue.OwnerUnit.GUID == player.GUID)
+							if (statue.OwnerUnit && statue.OwnerUnit.GUID == player.GUID)
+								statue.CastSpell(statue.OwnerUnit.AsPlayer.GetSelectedUnit(), MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
 					}
 			}
 	}

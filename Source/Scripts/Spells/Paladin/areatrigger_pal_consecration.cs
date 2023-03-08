@@ -23,7 +23,7 @@ internal class areatrigger_pal_consecration : AreaTriggerAI
 			// 243597 is also being cast as protection, but CreateObject is not sent, either serverside areatrigger for this aura or unused - also no visual is seen
 			if (unit == caster &&
 				caster.IsPlayer &&
-				caster.				AsPlayer.GetPrimarySpecialization() == TalentSpecialization.PaladinProtection)
+				caster.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.PaladinProtection)
 				caster.CastSpell(caster, PaladinSpells.ConsecrationProtectionAura);
 
 			if (caster.IsValidAttackTarget(unit))

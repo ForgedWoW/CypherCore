@@ -17,7 +17,7 @@ namespace Game.AI
         public override void InitializeAI()
         {
             for (var i = 0; i < SharedConst.MaxCreatureSpells; ++i)
-                if (me.Spells[i] != 0 && Global.SpellMgr.HasSpellInfo(me.Spells[i], me.GetMap().GetDifficultyID()))
+                if (me.Spells[i] != 0 && Global.SpellMgr.HasSpellInfo(me.Spells[i], me.Map.GetDifficultyID()))
                     _spells.Add(me.Spells[i]);
 
             base.InitializeAI();
@@ -32,7 +32,7 @@ namespace Game.AI
         {
             foreach (var id in _spells)
             {
-                AISpellInfoType info = GetAISpellInfo(id, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(id, me.Map.GetDifficultyID());
                 if (info != null && info.condition == AICondition.Die)
                     me.CastSpell(killer, id, true);
             }
@@ -42,7 +42,7 @@ namespace Game.AI
         {
             foreach (var id in _spells)
             {
-                AISpellInfoType info = GetAISpellInfo(id, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(id, me.Map.GetDifficultyID());
                 if (info != null)
                 {
                     if (info.condition == AICondition.Aggro)
@@ -67,7 +67,7 @@ namespace Game.AI
             if (spellId != 0)
             {
                 DoCast(spellId);
-                AISpellInfoType info = GetAISpellInfo(spellId, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(spellId, me.Map.GetDifficultyID());
                 if (info != null)
                     _events.ScheduleEvent(spellId, info.cooldown, info.cooldown * 2);
             }
@@ -110,7 +110,7 @@ namespace Game.AI
             _attackDistance = 30.0f;
             foreach (var id in _spells)
             {
-                AISpellInfoType info = GetAISpellInfo(id, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(id, me.Map.GetDifficultyID());
                 if (info != null && info.condition == AICondition.Combat && _attackDistance > info.maxRange)
                     _attackDistance = info.maxRange;
             }
@@ -133,7 +133,7 @@ namespace Game.AI
             uint count = 0;
             foreach (var id in _spells)
             {
-                AISpellInfoType info = GetAISpellInfo(id, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(id, me.Map.GetDifficultyID());
                 if (info != null)
                 {
                     if (info.condition == AICondition.Aggro)
@@ -174,7 +174,7 @@ namespace Game.AI
             {
                 DoCast(spellId);
                 uint casttime = (uint)me.GetCurrentSpellCastTime(spellId);
-                AISpellInfoType info = GetAISpellInfo(spellId, me.GetMap().GetDifficultyID());
+                AISpellInfoType info = GetAISpellInfo(spellId, me.Map.GetDifficultyID());
                 if (info != null)
                     _events.ScheduleEvent(spellId, TimeSpan.FromMilliseconds(casttime != 0 ? casttime : 500) + info.realCooldown);
             }
@@ -190,7 +190,7 @@ namespace Game.AI
             if (creature.Spells[0] == 0)
                 Log.outError(LogFilter.ScriptsAi, $"ArcherAI set for creature with spell1=0. AI will do nothing ({me.GUID})");
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.GetMap().GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Map.GetDifficultyID());
             _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
 
             if (_minRange == 0)
@@ -241,7 +241,7 @@ namespace Game.AI
             if (creature.Spells[0] == 0)
                 Log.outError(LogFilter.Server, $"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
 
-            var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.GetMap().GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Map.GetDifficultyID());
             _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
             creature.CombatDistance = spellInfo != null ? spellInfo.GetMaxRange(false) : 0;
             creature.SightDistance = creature.CombatDistance;
@@ -311,7 +311,7 @@ namespace Game.AI
         public override void OnCharmed(bool isNew)
         {
             bool charmed = me.IsCharmed;
-            if (!me.GetVehicleKit().IsVehicleInUse() && !charmed && _hasConditions)//was used and has conditions
+            if (!me.VehicleKit1.IsVehicleInUse() && !charmed && _hasConditions)//was used and has conditions
                 _doDismiss = true;//needs reset
             else if (charmed)
                 _doDismiss = false;//in use again
@@ -331,7 +331,7 @@ namespace Game.AI
 
             if (_conditionsTimer <= diff)
             {
-                Vehicle vehicleKit = me.GetVehicleKit();
+                Vehicle vehicleKit = me.VehicleKit1;
                 if (vehicleKit)
                 {
                     foreach (var pair in vehicleKit.Seats)

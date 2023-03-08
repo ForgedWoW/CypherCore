@@ -17,7 +17,7 @@ public class spell_dk_ghoul_huddle : SpellScript, ISpellAfterHit
 		if (caster == null)
 			return;
 
-		Unit owner = caster.GetOwner().AsPlayer;
+		Unit owner = caster.OwnerUnit.AsPlayer;
 
 		if (owner != null)
 			caster.CastSpell(caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_HUDDLE : DeathKnightSpells.GHOUL_HUDDLE, true);

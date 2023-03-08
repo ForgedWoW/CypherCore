@@ -228,8 +228,8 @@ namespace Game.Movement
 
         void MovementInform(Creature owner)
         {
-            if (owner.GetAI() != null)
-                owner.GetAI().MovementInform(MovementGeneratorType.Formation, 0);
+            if (owner.AI != null)
+                owner.                AI.MovementInform(MovementGeneratorType.Formation, 0);
         }
     }
 }

@@ -31,7 +31,7 @@ public class spell_pri_mana_leech : AuraScript, IHasAuraEffects, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
-		_procTarget = Target.GetOwner();
+		_procTarget = Target.OwnerUnit;
 
 		return _procTarget != null;
 	}

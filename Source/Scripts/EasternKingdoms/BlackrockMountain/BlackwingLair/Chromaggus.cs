@@ -227,7 +227,7 @@ internal class boss_chromaggus : BossAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								var players = me.GetMap().GetPlayers();
+								var players = me.Map.GetPlayers();
 
 								foreach (var player in players)
 									if (player)
@@ -285,7 +285,7 @@ internal class go_chromaggus_lever : GameObjectAI
 
 	public go_chromaggus_lever(GameObject go) : base(go)
 	{
-		_instance = go.GetInstanceScript();
+		_instance = go.InstanceScript;
 	}
 
 	public override bool OnGossipHello(Player player)
@@ -298,7 +298,7 @@ internal class go_chromaggus_lever : GameObjectAI
 			var creature = _instance.GetCreature(DataTypes.Chromaggus);
 
 			if (creature)
-				creature.GetAI().JustEngagedWith(player);
+				creature.AI.JustEngagedWith(player);
 
 			var go = _instance.GetGameObject(DataTypes.GoChromaggusDoor);
 

@@ -627,7 +627,7 @@ public class SpellEffectInfo
 	public double CalcValueMultiplier(WorldObject caster, Spell spell = null)
 	{
 		var multiplier = Amplitude;
-		var modOwner = (caster != null ? caster.GetSpellModOwner() : null);
+		var modOwner = (caster != null ? caster.SpellModOwner : null);
 
 		if (modOwner != null)
 			modOwner.ApplySpellMod(_spellInfo, SpellModOp.Amplitude, ref multiplier, spell);
@@ -638,7 +638,7 @@ public class SpellEffectInfo
 	public double CalcDamageMultiplier(WorldObject caster, Spell spell = null)
 	{
 		var multiplierPercent = ChainAmplitude * 100.0f;
-		var modOwner = (caster != null ? caster.GetSpellModOwner() : null);
+		var modOwner = (caster != null ? caster.SpellModOwner : null);
 
 		if (modOwner != null)
 			modOwner.ApplySpellMod(_spellInfo, SpellModOp.ChainAmplitude, ref multiplierPercent, spell);
@@ -692,7 +692,7 @@ public class SpellEffectInfo
 				radius += entry.RadiusPerLevel * casterUnit.Level;
 
 			radius = Math.Min(radius, entry.RadiusMax);
-			var modOwner = caster.GetSpellModOwner();
+			var modOwner = caster.SpellModOwner;
 
 			if (modOwner != null)
 				modOwner.ApplySpellMod(_spellInfo, SpellModOp.Radius, ref radius, spell);

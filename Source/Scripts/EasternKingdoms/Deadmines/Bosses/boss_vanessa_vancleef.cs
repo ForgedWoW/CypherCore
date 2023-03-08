@@ -88,7 +88,7 @@ public class boss_vanessa_vancleef : BossAI
 		var controller_achi = me.FindNearestCreature(eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
 
 		if (controller_achi != null)
-			controller_achi.GetAI().SetData(0, eAchievementMisc.ACHIEVEMENT_READY_GET);
+			controller_achi.AI.SetData(0, eAchievementMisc.ACHIEVEMENT_READY_GET);
 
 		_events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(12000));
 		_events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(10000));

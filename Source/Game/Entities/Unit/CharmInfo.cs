@@ -112,7 +112,7 @@ public class CharmInfo
 			for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 			{
 				var spellId = _unit.AsCreature.Spells[i];
-				var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.GetMap().GetDifficultyID());
+				var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Map.GetDifficultyID());
 
 				if (spellInfo != null)
 				{
@@ -146,7 +146,7 @@ public class CharmInfo
 		for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
 		{
 			var spellId = _unit.AsCreature.Spells[x];
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.GetMap().GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.Map.GetDifficultyID());
 
 			if (spellInfo == null)
 			{
@@ -287,7 +287,7 @@ public class CharmInfo
 			// check correctness
 			if (PetActionBar[index].IsActionBarForSpell())
 			{
-				var spelInfo = Global.SpellMgr.GetSpellInfo(PetActionBar[index].GetAction(), _unit.GetMap().GetDifficultyID());
+				var spelInfo = Global.SpellMgr.GetSpellInfo(PetActionBar[index].GetAction(), _unit.Map.GetDifficultyID());
 
 				if (spelInfo == null)
 					SetActionBar(index, 0, ActiveStates.Passive);
@@ -341,7 +341,7 @@ public class CharmInfo
 
 		if (_unit.MoveSpline.onTransport)
 		{
-			var transport = _unit.GetDirectTransport();
+			var transport = _unit.DirectTransport;
 
 			if (transport != null)
 				transport.CalculatePassengerPosition(stayPos);

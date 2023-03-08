@@ -21,7 +21,7 @@ public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckP
 		if (actor.IsPet ||
 			actor.IsGuardian)
 		{
-			var owner = actor.GetOwner();
+			var owner = actor.OwnerUnit;
 
 			if (owner == null)
 				return false;

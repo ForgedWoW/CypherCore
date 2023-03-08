@@ -44,7 +44,7 @@ namespace Game.AI
                 return false;
 
             //not a player
-            if (!who.Victim.GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (!who.Victim.CharmerOrOwnerPlayerOrPlayerItself)
                 return false;
 
             //never attack friendly
@@ -237,7 +237,7 @@ namespace Game.AI
                             if (!isEscort)
                                 me.DespawnOrUnsummon(TimeSpan.Zero, TimeSpan.FromSeconds(1));
                             else
-                                me.GetMap().Respawn(SpawnObjectType.Creature, me.SpawnId);
+                                me.                                Map.Respawn(SpawnObjectType.Creature, me.SpawnId);
                         }
                         else
                             me.DespawnOrUnsummon();

@@ -152,7 +152,7 @@ public class Item : WorldObject
 				}
 			}
 
-			CheckArtifactRelicSlotUnlock(owner != null ? owner : GetOwner());
+			CheckArtifactRelicSlotUnlock(owner != null ? owner : OwnerUnit);
 		}
 
 		return true;
@@ -769,12 +769,9 @@ public class Item : WorldObject
 		return Global.ObjectMgr.GetItemTemplate(Entry);
 	}
 
-	public override Player GetOwner()
-	{
-		return Global.ObjAccessor.FindPlayer(OwnerGUID);
-	}
+    public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
 
-	public SkillType GetSkill()
+    public SkillType GetSkill()
 	{
 		var proto = GetTemplate();
 
@@ -863,7 +860,7 @@ public class Item : WorldObject
 		if (IsBag() && (Player.IsBagPos(GetPos()) || !ToBag().IsEmpty()))
 			return false;
 
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner != null)
 		{
@@ -884,7 +881,7 @@ public class Item : WorldObject
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.StackCount), value);
 
-		var player = GetOwner();
+		var player = OwnerUnit;
 
 		if (player)
 		{
@@ -917,7 +914,7 @@ public class Item : WorldObject
 
 		var itemTemplate = GetTemplate();
 
-		var durabilityCost = CliDB.DurabilityCostsStorage.LookupByKey(GetItemLevel(GetOwner()));
+		var durabilityCost = CliDB.DurabilityCostsStorage.LookupByKey(GetItemLevel(OwnerUnit));
 
 		if (durabilityCost == null)
 			return 0;
@@ -1000,7 +997,7 @@ public class Item : WorldObject
 		if ((GetEnchantmentId(slot) == id) && (GetEnchantmentDuration(slot) == duration) && (GetEnchantmentCharges(slot) == charges))
 			return;
 
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (slot < EnchantmentSlot.MaxInspected)
 		{
@@ -1043,7 +1040,7 @@ public class Item : WorldObject
 
 		var enchantmentField = Values.ModifyValue(ItemData).ModifyValue(ItemData.Enchantment, (int)slot);
 		SetUpdateFieldValue(enchantmentField.ModifyValue(enchantmentField.Charges), (short)charges);
-		SetState(ItemUpdateState.Changed, GetOwner());
+		SetState(ItemUpdateState.Changed, OwnerUnit);
 	}
 
 	public void ClearEnchantment(EnchantmentSlot slot)
@@ -1056,7 +1053,7 @@ public class Item : WorldObject
 		SetUpdateFieldValue(enchantmentField.ModifyValue(enchantmentField.Duration), 0u);
 		SetUpdateFieldValue(enchantmentField.ModifyValue(enchantmentField.Charges), (short)0);
 		SetUpdateFieldValue(enchantmentField.ModifyValue(enchantmentField.Inactive), (ushort)0);
-		SetState(ItemUpdateState.Changed, GetOwner());
+		SetState(ItemUpdateState.Changed, OwnerUnit);
 	}
 
 	public SocketedGem GetGem(ushort slot)
@@ -1211,7 +1208,7 @@ public class Item : WorldObject
 		SocketGemsSuccess socketGems = new();
 		socketGems.Item = GUID;
 
-		GetOwner().SendPacket(socketGems);
+		OwnerUnit.SendPacket(socketGems);
 	}
 
 	public void SendTimeUpdate(Player owner)
@@ -1294,7 +1291,7 @@ public class Item : WorldObject
 
 	public override void BuildUpdate(Dictionary<Player, UpdateData> data)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner != null)
 			BuildFieldsUpdate(owner, data);
@@ -1364,11 +1361,11 @@ public class Item : WorldObject
 
 	public override bool AddToObjectUpdate()
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner)
 		{
-			owner.GetMap().AddUpdateObject(this);
+			owner.			Map.AddUpdateObject(this);
 
 			return true;
 		}
@@ -1378,10 +1375,10 @@ public class Item : WorldObject
 
 	public override void RemoveFromObjectUpdate()
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (owner)
-			owner.GetMap().RemoveUpdateObject(this);
+			owner.			Map.RemoveUpdateObject(this);
 	}
 
 	public void SaveRefundDataToDB()
@@ -1497,9 +1494,9 @@ public class Item : WorldObject
 	public bool CheckSoulboundTradeExpire()
 	{
 		// called from owner's update - GetOwner() MUST be valid
-		if (ItemData.CreatePlayedTime + 2 * Time.Hour < GetOwner().TotalPlayedTime)
+		if (ItemData.CreatePlayedTime + 2 * Time.Hour < OwnerUnit.TotalPlayedTime)
 		{
-			ClearSoulboundTradeable(GetOwner());
+			ClearSoulboundTradeable(OwnerUnit);
 
 			return true; // remove from tradeable list
 		}
@@ -2019,7 +2016,7 @@ public class Item : WorldObject
 
 	public void GiveArtifactXp(ulong amount, Item sourceItem, ArtifactCategory artifactCategoryId)
 	{
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		if (!owner)
 			return;
@@ -2924,7 +2921,7 @@ public class Item : WorldObject
 	bool HasStats()
 	{
 		var proto = GetTemplate();
-		var owner = GetOwner();
+		var owner = OwnerUnit;
 
 		for (byte i = 0; i < ItemConst.MaxStats; ++i)
 			if ((owner ? GetItemStatValue(i, owner) : proto.GetStatPercentEditor(i)) != 0)

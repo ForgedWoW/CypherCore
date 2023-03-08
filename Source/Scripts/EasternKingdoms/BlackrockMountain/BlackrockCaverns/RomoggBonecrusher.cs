@@ -58,7 +58,7 @@ internal class boss_romogg_bonecrusher : BossAI
 		var raz = instance.GetCreature(DataTypes.RazTheCrazed);
 
 		if (raz)
-			raz.GetAI().SetData(MiscConst.TypeRaz, MiscConst.DataRomoggDead);
+			raz.AI.SetData(MiscConst.TypeRaz, MiscConst.DataRomoggDead);
 	}
 
 	public override void KilledUnit(Unit who)

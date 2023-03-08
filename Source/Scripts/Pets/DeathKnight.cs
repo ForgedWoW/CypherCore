@@ -52,7 +52,7 @@ namespace Scripts.Pets
 			public override void JustDied(Unit killer)
 			{
 				// Stop Feeding Gargoyle when it dies
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner)
 					owner.RemoveAura(SpellIds.SummonGargoyle2);
@@ -65,7 +65,7 @@ namespace Scripts.Pets
 					!me.IsAlive)
 					return;
 
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (!owner ||
 					owner != caster)
@@ -104,7 +104,7 @@ namespace Scripts.Pets
 				if (!target)
 					return false;
 
-				var owner = me.GetOwner();
+				var owner = me.OwnerUnit;
 
 				if (owner && !target.IsInCombatWith(owner))
 					return false;

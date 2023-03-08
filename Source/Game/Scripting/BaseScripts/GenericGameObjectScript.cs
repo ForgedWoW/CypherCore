@@ -19,7 +19,7 @@ public class GenericGameObjectScript<AI> : ScriptObjectAutoAddDBBound, IGameObje
 
 	public GameObjectAI GetAI(GameObject me)
 	{
-		if (me.GetInstanceScript() != null)
+		if (me.InstanceScript != null)
 			return GetInstanceAI<AI>(me);
 		else
 			return (AI)Activator.CreateInstance(typeof(AI),

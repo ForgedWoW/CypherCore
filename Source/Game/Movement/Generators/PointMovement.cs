@@ -198,8 +198,8 @@ namespace Game.Movement
         {
             if (owner.IsTypeId(TypeId.Unit))
             {
-                if (owner.AsCreature.GetAI() != null)
-                    owner.                    AsCreature.GetAI().MovementInform(MovementGeneratorType.Point, _movementId);
+                if (owner.AsCreature.AI != null)
+                    owner.                    AsCreature.                    AI.MovementInform(MovementGeneratorType.Point, _movementId);
             }
         }
 

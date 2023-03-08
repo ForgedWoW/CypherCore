@@ -296,7 +296,7 @@ public partial class Player
 		{
 			//we should obtain map from GetMap() in 99% of cases. Special case
 			//only for quests which cast teleport spells on player
-			var _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
+			var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
 			Cypher.Assert(_map != null);
 			var gameObject = _map.GetGameObject(guid);
 
@@ -425,7 +425,7 @@ public partial class Player
 			{
 				//we should obtain map from GetMap() in 99% of cases. Special case
 				//only for quests which cast teleport spells on player
-				var _map = IsInWorld ? GetMap() : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
+				var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
 				Cypher.Assert(_map != null);
 				var gameObject = _map.GetGameObject(guid);
 
@@ -731,7 +731,7 @@ public partial class Player
 		{
 			case TypeId.Unit:
 				PlayerTalkClass.ClearMenus();
-				questGiver.AsCreature.GetAI().OnQuestAccept(this, quest);
+				questGiver.AsCreature.				AI.OnQuestAccept(this, quest);
 
 				break;
 			case TypeId.Item:
@@ -852,7 +852,7 @@ public partial class Player
 
 		if (quest.SourceSpellID > 0)
 		{
-			var spellInfo = Global.SpellMgr.GetSpellInfo(quest.SourceSpellID, GetMap().GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(quest.SourceSpellID, Map.GetDifficultyID());
 			Unit caster = this;
 
 			if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnAccept) && !spellInfo.HasTargetType(Targets.UnitCaster) && !spellInfo.HasTargetType(Targets.DestCasterSummon))
@@ -1203,7 +1203,7 @@ public partial class Player
 		// cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
 		if (quest.RewardSpell > 0)
 		{
-			var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, GetMap().GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Map.GetDifficultyID());
 			Unit caster = this;
 
 			if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -1226,7 +1226,7 @@ public partial class Player
 					if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 						continue;
 
-				var spellInfo = Global.SpellMgr.GetSpellInfo(displaySpell.SpellId, GetMap().GetDifficultyID());
+				var spellInfo = Global.SpellMgr.GetSpellInfo(displaySpell.SpellId, Map.GetDifficultyID());
 				Unit caster = this;
 
 				if (questGiver && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
@@ -1297,7 +1297,7 @@ public partial class Player
 						var creatureQGiver = questGiver.AsCreature;
 
 						if (creatureQGiver != null)
-							creatureQGiver.GetAI().OnQuestReward(this, quest, rewardType, rewardId);
+							creatureQGiver.							AI.OnQuestReward(this, quest, rewardType, rewardId);
 
 						break;
 					}
@@ -1997,7 +1997,7 @@ public partial class Player
 			}
 			case TypeId.Unit:
 			{
-				var ai = questgiver.AsCreature.GetAI();
+				var ai = questgiver.AsCreature.AI;
 
 				if (ai != null)
 				{
@@ -2334,7 +2334,7 @@ public partial class Player
 
 		if (!guid.IsEmpty)
 		{
-			killed = GetMap().GetCreature(guid);
+			killed = Map.GetCreature(guid);
 
 			if (killed != null && killed.Entry != 0)
 				real_entry = killed.Entry;
@@ -2388,7 +2388,7 @@ public partial class Player
 			var quest = Global.ObjectMgr.GetQuestTemplate(questId);
 
 			if (!QuestObjective.CanAlwaysBeProgressedInRaid(objectiveType))
-				if (GetGroup() && GetGroup().IsRaidGroup() && quest.IsAllowedInRaid(GetMap().GetDifficultyID()))
+				if (GetGroup() && GetGroup().IsRaidGroup() && quest.IsAllowedInRaid(Map.GetDifficultyID()))
 					continue;
 
 			var logSlot = objectiveStatusData.QuestStatusPair.Status.Slot;
@@ -2407,7 +2407,7 @@ public partial class Player
 				{
 					if (objectiveType == QuestObjectiveType.PlayerKills && objective.Flags.HasAnyFlag(QuestObjectiveFlags.KillPlayersSameFaction))
 					{
-						var victim = Global.ObjAccessor.GetPlayer(GetMap(), victimGuid);
+						var victim = Global.ObjAccessor.GetPlayer(Map, victimGuid);
 
 						if (victim?.EffectiveTeam != EffectiveTeam)
 							continue;
@@ -2521,7 +2521,7 @@ public partial class Player
 				continue;
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(GetMap().GetDifficultyID()))
+			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 
@@ -2538,7 +2538,7 @@ public partial class Player
 			var qInfo = Global.ObjectMgr.GetQuestTemplate(questStatus.Key);
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(GetMap().GetDifficultyID()))
+			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground())
 					continue;
 
@@ -2958,7 +2958,7 @@ public partial class Player
 			}
 			else if (itr.IsGameObject)
 			{
-				var questgiver = GetMap().GetGameObject(itr);
+				var questgiver = Map.GetGameObject(itr);
 
 				if (!questgiver || questgiver.GetGoType() != GameObjectTypes.QuestGiver)
 					continue;
@@ -3001,7 +3001,7 @@ public partial class Player
 				continue;
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(GetMap().GetDifficultyID()))
+			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 

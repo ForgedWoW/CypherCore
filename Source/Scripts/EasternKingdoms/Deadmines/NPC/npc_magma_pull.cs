@@ -26,7 +26,7 @@ public class npc_magma_pull : ScriptedAI
 
 	public npc_magma_pull(Creature creature) : base(creature)
 	{
-		instance = creature.GetInstanceScript();
+		instance = creature.InstanceScript;
 	}
 
 	public override void Reset()

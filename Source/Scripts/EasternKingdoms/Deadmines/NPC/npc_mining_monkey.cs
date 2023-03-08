@@ -22,7 +22,7 @@ public class npc_mining_monkey : ScriptedAI
 
 	public npc_mining_monkey(Creature creature) : base(creature)
 	{
-		Instance = creature.GetInstanceScript();
+		Instance = creature.InstanceScript;
 	}
 
 	public override void Reset()
@@ -54,7 +54,7 @@ public class npc_mining_monkey : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me || me.GetAI() != null || !UpdateVictim())
+		if (!me || me.AI != null || !UpdateVictim())
 			return;
 
 		switch (Phase)

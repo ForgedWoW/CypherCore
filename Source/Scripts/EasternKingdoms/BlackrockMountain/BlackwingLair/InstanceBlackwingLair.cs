@@ -153,7 +153,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 
 					if (razor != null)
 					{
-						var razorAI = razor.GetAI();
+						var razorAI = razor.AI;
 
 						razorAI?.JustSummoned(creature);
 					}
@@ -339,7 +339,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 							Creature summon = Instance.SummonCreature(BWLMisc.Entry[RandomHelper.URand(0, 4)], BWLMisc.SummonPosition[RandomHelper.URand(0, 7)]);
 
 							if (summon)
-								summon.GetAI().DoZoneInCombat();
+								summon.AI.DoZoneInCombat();
 						}
 
 						_events.ScheduleEvent(EventIds.RazorSpawn, TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(17));
@@ -350,7 +350,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 						var razor = GetCreature(DataTypes.RazorgoreTheUntamed);
 
 						if (razor)
-							razor.GetAI().DoAction(BWLMisc.ActionPhaseTwo);
+							razor.AI.DoAction(BWLMisc.ActionPhaseTwo);
 
 						break;
 					case EventIds.RespawnNefarius:

@@ -244,7 +244,9 @@ public class TransportManager : Singleton<TransportManager>
 		PhasingHandler.InitDbPhaseShift(trans.PhaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
 		// use preset map for instances (need to know which instance)
-		trans.SetMap(map);
+		trans.
+		// use preset map for instances (need to know which instance)
+		Map = map;
 
 		if (instanceMap != null)
 			trans.ZoneScript = instanceMap.GetInstanceScript();

@@ -51,7 +51,7 @@ public class InstanceMap : Map
 
 	public override TransferAbortParams CannotEnter(Player player)
 	{
-		if (player.GetMap() == this)
+		if (player.Map == this)
 		{
 			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), GetId(), GetInstanceId(), GetDifficultyID());
 			Cypher.Assert(false);
