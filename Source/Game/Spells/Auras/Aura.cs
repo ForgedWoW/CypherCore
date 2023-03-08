@@ -412,6 +412,12 @@ namespace Game.Spells
             return Global.ObjAccessor.GetUnit(m_owner, m_casterGuid);
         }
 
+        public bool TryGetCaster(out Unit caster)
+        {
+            caster = GetCaster();
+            return caster != null;
+        }
+
         WorldObject GetWorldObjectCaster()
         {
             if (GetCasterGUID().IsUnit())

@@ -66,9 +66,12 @@ namespace Game.Movement
             else
                 RemoveFlag(MovementGeneratorFlags.Interrupted);
 
-            _timer.Update(diff);
-            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
-                SetRandomLocation(owner);
+            lock (_reference)
+            {
+                _timer.Update(diff);
+                if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed() && owner.MoveSpline.Finalized()))
+                    SetRandomLocation(owner);
+            }
 
             if (_timer.Passed())
             {

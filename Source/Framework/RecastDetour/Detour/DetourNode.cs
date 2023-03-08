@@ -209,12 +209,13 @@ public partial class Detour
         private readonly dtNode[] m_heap;
         private readonly int m_capacity;
         private int m_size;
+        private object _lock = new object();
 
         public dtNodeQueue(int n)
         {
             m_capacity = n;
             Debug.Assert(m_capacity > 0);
-
+            lock (_lock)
             m_heap = new dtNode[m_capacity + 1];//(dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
             Debug.Assert(m_heap != null);
         }
@@ -226,33 +227,41 @@ public partial class Detour
 
         public dtNode top()
         {
-            return m_heap[0];
+            lock (_lock)
+                return m_heap[0];
         }
 
         public dtNode pop()
         {
-            dtNode result = m_heap[0];
-            m_size--;
-            trickleDown(0, m_heap[m_size]);
-            return result;
+            lock (_lock)
+            {
+                dtNode result = m_heap[0];
+                m_size--;
+                trickleDown(0, m_heap[m_size]);
+                return result;
+            }
         }
 
         public void push(dtNode node)
         {
-            m_size++;
-            bubbleUp(m_size - 1, node);
+            lock (_lock)
+            {
+                m_size++;
+                bubbleUp(m_size - 1, node);
+            }
         }
 
         public void modify(dtNode node)
         {
-            for (int i = 0; i < m_size; ++i)
-            {
-                if (m_heap[i] == node)
+            lock (_lock)
+                for (int i = 0; i < m_size; ++i)
                 {
-                    bubbleUp(i, node);
-                    return;
+                    if (m_heap[i] == node)
+                    {
+                        bubbleUp(i, node);
+                        return;
+                    }
                 }
-            }
         }
 
         public bool empty()

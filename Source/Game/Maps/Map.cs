@@ -522,7 +522,7 @@ public class Map : IDisposable
 		// update active cells around players and active objects
 		ResetMarkedCells();
 
-		var update = new UpdaterNotifier(diff, GridType.All);
+		var update = new UpdaterNotifier(diff, GridType.All, _threadManager);
 
 		for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
@@ -532,74 +532,67 @@ public class Map : IDisposable
 				continue;
 
 			_threadManager.Schedule(() =>
-									{
-										// update players at tick
-										_threadManager.Schedule(() => player.Update(diff));
+			{
+				// update players at tick
+				_threadManager.Schedule(() => player.Update(diff));
 
-										_threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+				VisitNearbyCellsOf(player, update);
 
-										// If player is using far sight or mind vision, visit that object too
-										var viewPoint = player.GetViewpoint();
+				// If player is using far sight or mind vision, visit that object too
+				var viewPoint = player.GetViewpoint();
 
-										if (viewPoint)
-											_threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+				if (viewPoint)
+					VisitNearbyCellsOf(viewPoint, update);
 
-										// Handle updates for creatures in combat with player and are more than 60 yards away
-										if (player.IsInCombat())
-										{
-											List<Unit> toVisit = new();
+                List<Unit> toVisit = new();
 
-											foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
-											{
-												var unit = pair.Value.GetOther(player).ToCreature();
+                // Handle updates for creatures in combat with player and are more than 60 yards away
+                if (player.IsInCombat())
+				{
+					foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
+					{
+						var unit = pair.Value.GetOther(player).ToCreature();
 
-												if (unit != null)
-													if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-														toVisit.Add(unit);
-											}
+						if (unit != null)
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(unit);
+					}
 
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
+					foreach (var unit in toVisit)
+						VisitNearbyCellsOf(unit, update);
+				}
 
-										{
-											// Update any creatures that own auras the player has applications of
-											List<Unit> toVisit = new();
+				// Update any creatures that own auras the player has applications of
+				toVisit.Clear();
 
-											player.GetAppliedAurasQuery()
-												  .IsPlayer(false)
-												  .ForEachResult(aur =>
-																 {
-																	 var caster = aur.GetBase().GetCaster();
+				player.GetAppliedAurasQuery()
+						.IsPlayer(false)
+						.ForEachResult(aur =>
+						{
+							if (aur.GetBase().TryGetCaster(out var caster) && !caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(caster);
+						});
 
-																	 if (caster != null)
-																		 if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
-																			 toVisit.Add(caster);
-																 });
+				foreach (var unit in toVisit)
+					VisitNearbyCellsOf(unit, update);
 
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
+				// Update player's summons
+				toVisit.Clear();
 
-										{
-											// Update player's summons
-											List<Unit> toVisit = new();
+				// Totems
+				foreach (var summonGuid in player.SummonSlot)
+					if (!summonGuid.IsEmpty())
+					{
+						var unit = GetCreature(summonGuid);
 
-											// Totems
-											foreach (var summonGuid in player.SummonSlot)
-												if (!summonGuid.IsEmpty())
-												{
-													var unit = GetCreature(summonGuid);
+						if (unit != null)
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(unit);
+					}
 
-													if (unit != null)
-														if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-															toVisit.Add(unit);
-												}
-
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
-									});
+				foreach (var unit in toVisit)
+					VisitNearbyCellsOf(unit, update);
+			});
 		}
 
 		for (var i = 0; i < _activeNonPlayers.Count; ++i)
@@ -609,20 +602,23 @@ public class Map : IDisposable
 			if (!obj.IsInWorld)
 				continue;
 
-			_threadManager.Schedule(() => VisitNearbyCellsOf(obj, update));
+			VisitNearbyCellsOf(obj, update);
 		}
 
-		for (var i = 0; i < _transports.Count; ++i)
-		{
-			var transport = _transports[i];
+        _threadManager.Wait();
+        update.ExecuteUpdate();
 
-			if (!transport)
-				continue;
+        for (var i = 0; i < _transports.Count; ++i)
+        {
+            var transport = _transports[i];
 
-			transport.Update(diff);
-		}
+            if (!transport)
+                continue;
 
-		_threadManager.Wait();
+            _threadManager.Schedule(() => transport.Update(diff));
+        }
+
+        _threadManager.Wait();
 		_threadManager.Schedule(SendObjectUpdates);
 
 		// Process necessary scripts
