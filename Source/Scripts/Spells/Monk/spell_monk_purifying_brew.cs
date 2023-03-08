@@ -29,7 +29,7 @@ public class spell_monk_purifying_brew : SpellScript, ISpellOnHit
 
 				if (staggerAmount != null)
 				{
-					var newStagger = staggerAmount.GetEffect(1).GetAmount();
+					var newStagger = staggerAmount.GetEffect(1).Amount;
 					newStagger = (int)(newStagger * 0.5);
 					staggerAmount.GetEffect(1).ChangeAmount(newStagger);
 				}

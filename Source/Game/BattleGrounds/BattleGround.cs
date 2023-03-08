@@ -426,9 +426,9 @@ namespace Game.BattleGrounds
                                 // remove auras with duration lower than 30s
                                 player.GetAppliedAurasQuery().IsPermanent(false).IsPositive().AlsoMatches(aurApp =>
                                 {
-                                    Aura aura = aurApp.GetBase();
-                                    return aura.GetDuration() <= 30 * Time.InMilliseconds && 
-                                           !aura.GetSpellInfo().HasAttribute(SpellAttr0.NoImmunities) && 
+                                    Aura aura = aurApp.Base;
+                                    return aura.Duration <= 30 * Time.InMilliseconds && 
+                                           !aura.SpellInfo.HasAttribute(SpellAttr0.NoImmunities) && 
                                            !aura.HasEffectType(AuraType.ModInvisibility);
                                 }).Execute(player.RemoveAura);
                             }

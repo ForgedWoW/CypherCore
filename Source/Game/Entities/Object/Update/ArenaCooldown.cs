@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -27,43 +30,37 @@ public class ArenaCooldown : BaseUpdateData<Player>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 8);
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteInt32(SpellID);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteInt32(Charges);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt32(Flags);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt32(StartTime);
-			}
+
 			if (changesMask[5])
-			{
 				data.WriteUInt32(EndTime);
-			}
+
 			if (changesMask[6])
-			{
 				data.WriteUInt32(NextChargeTime);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt8(MaxCharges);
-			}
 		}
 	}
 

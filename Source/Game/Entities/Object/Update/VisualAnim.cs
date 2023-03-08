@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -23,35 +26,31 @@ public class VisualAnim : BaseUpdateData<AreaTrigger>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, AreaTrigger owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 5);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
-			{
 				data.WriteBit(Field_C);
-			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
-			{
 				data.WriteInt32(AnimationDataID);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt32(AnimKitID);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt32(AnimProgress);
-			}
 		}
+
 		data.FlushBits();
 	}
 

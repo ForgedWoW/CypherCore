@@ -36,7 +36,7 @@ namespace Scripts.Spells.Paladin
             if (!procSpell.HasPowerTypeCost(PowerType.HolyPower))
                 return false;
 
-            return RandomHelper.randChance(aurEff.GetAmount());
+            return RandomHelper.randChance(aurEff.Amount);
         }
 
         private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

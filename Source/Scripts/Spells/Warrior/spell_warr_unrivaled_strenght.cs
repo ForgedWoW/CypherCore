@@ -21,7 +21,7 @@ namespace Scripts.Spells.Warrior
 			GetCaster().CastSpell(GetCaster(), 200977, true);
 
 			if (GetCaster().HasAura(200977))
-				GetCaster().GetAura(200977).GetEffect(0).SetAmount(aurEff.GetBaseAmount());
+				GetCaster().GetAura(200977).GetEffect(0).SetAmount(aurEff.BaseAmount);
 		}
 
 		public override void Register()

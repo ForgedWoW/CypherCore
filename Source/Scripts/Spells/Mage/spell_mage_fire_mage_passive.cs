@@ -37,12 +37,12 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 		if (player == null)
 			return;
 
-		var mod = new SpellModifierByClassMask(aurEffect.GetBase());
-		mod.op      = SpellModOp.CritChance;
-		mod.type    = SpellModType.Flat;
-		mod.spellId = MageSpells.FIRE_MAGE_PASSIVE;
-		mod.value   = 200;
-		mod.mask[0] = 0x2;
+		var mod = new SpellModifierByClassMask(aurEffect.Base);
+		mod.Op      = SpellModOp.CritChance;
+		mod.Type    = SpellModType.Flat;
+		mod.SpellId = MageSpells.FIRE_MAGE_PASSIVE;
+		mod.Value   = 200;
+		mod.Mask[0] = 0x2;
 
 		player.AddSpellMod(mod, true);
 	}

@@ -880,7 +880,7 @@ namespace Game.BattleFields
 
             if (aur != null)
             {
-                if (aur.GetStackAmount() >= 5)
+                if (aur.StackAmount >= 5)
                 {
                     killer.RemoveAura(WGSpells.Recruit);
                     killer.CastSpell(killer, WGSpells.Corporal, true);
@@ -896,7 +896,7 @@ namespace Game.BattleFields
             }
             else if ((aur = killer.GetAura(WGSpells.Corporal)) != null)
             {
-                if (aur.GetStackAmount() >= 5)
+                if (aur.StackAmount >= 5)
                 {
                     killer.RemoveAura(WGSpells.Corporal);
                     killer.CastSpell(killer, WGSpells.Lieutenant, true);

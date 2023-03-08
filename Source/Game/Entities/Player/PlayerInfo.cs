@@ -9,12 +9,6 @@ namespace Game.Entities;
 
 public class PlayerInfo
 {
-	public struct CreatePositionModel
-	{
-		public WorldLocation Loc;
-		public ulong? TransportGuid;
-	}
-
 	public CreatePositionModel CreatePosition;
 	public CreatePositionModel? CreatePositionNpe;
 
@@ -38,5 +32,11 @@ public class PlayerInfo
 
 		for (var i = 0; i < LevelInfo.Length; ++i)
 			LevelInfo[i] = new PlayerLevelInfo();
+	}
+
+	public struct CreatePositionModel
+	{
+		public WorldLocation Loc;
+		public ulong? TransportGuid;
 	}
 }

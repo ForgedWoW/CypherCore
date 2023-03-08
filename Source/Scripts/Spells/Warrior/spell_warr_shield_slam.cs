@@ -31,7 +31,7 @@ namespace Scripts.Spells.Warrior
 
 			if (caster != null)
 				if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS) && caster.HasAura(WarriorSpells.SHIELD_BLOCKC_TRIGGERED))
-					caster.GetAura(WarriorSpells.SHIELD_BLOCKC_TRIGGERED).SetDuration(caster.GetAura(WarriorSpells.SHIELD_BLOCKC_TRIGGERED).GetDuration() + 1500);
+					caster.GetAura(WarriorSpells.SHIELD_BLOCKC_TRIGGERED).SetDuration(caster.GetAura(WarriorSpells.SHIELD_BLOCKC_TRIGGERED).Duration + 1500);
 		}
 
 		public override void Register()

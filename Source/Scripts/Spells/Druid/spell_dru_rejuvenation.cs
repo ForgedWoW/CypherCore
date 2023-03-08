@@ -51,7 +51,7 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 		if (NewRejuvenationAuraEffect != null)
 			if (caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO))
 			{
-				NewRejuvenationAuraEffect.SetAmount(NewRejuvenationAuraEffect.GetAmount() * 2);
+				NewRejuvenationAuraEffect.SetAmount(NewRejuvenationAuraEffect.Amount * 2);
 				caster.RemoveAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO);
 			}
 
@@ -87,7 +87,7 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 			if (!target.HasAura(155777, caster.GetGUID()))
 			{
 				caster.CastSpell(target, 155777, true);
-				m_RejuvenationAura = RejuvenationAura.GetDuration();
+				m_RejuvenationAura = RejuvenationAura.Duration;
 			}
 			else
 			{
@@ -96,8 +96,8 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 
 				if (GerminationAura != null && RejuvenationAura != null)
 				{
-					var GerminationDuration  = GerminationAura.GetDuration();
-					var RejuvenationDuration = RejuvenationAura.GetDuration();
+					var GerminationDuration  = GerminationAura.Duration;
+					var RejuvenationDuration = RejuvenationAura.Duration;
 
 					if (GerminationDuration > RejuvenationDuration)
 					{

@@ -36,13 +36,13 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.SetOriginalCaster(GetCasterGUID());
 		args.SetTriggeringAura(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.GetAmount());
+		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
 		GetTarget().CastSpell(GetTarget(), PriestSpells.SHADOW_MEND_DAMAGE, args);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var newAmount = (int)(aurEff.GetAmount() - eventInfo.GetDamageInfo().GetDamage());
+		var newAmount = (int)(aurEff.Amount - eventInfo.GetDamageInfo().GetDamage());
 
 		aurEff.ChangeAmount(newAmount);
 

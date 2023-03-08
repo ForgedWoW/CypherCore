@@ -17,7 +17,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 {
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return !spellInfo.GetEffects().Empty() && ValidateSpellInfo(HunterSpells.MastersCallTriggered, (uint)spellInfo.GetEffect(0).CalcValue());
+		return !spellInfo.Effects.Empty() && ValidateSpellInfo(HunterSpells.MastersCallTriggered, (uint)spellInfo.GetEffect(0).CalcValue());
 	}
 
 	public override bool Load()

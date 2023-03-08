@@ -21,7 +21,7 @@ public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 		if (caster == null || !caster.IsAlive())
 			return;
 
-		var amount = MathFunctions.CalculatePct(caster.GetMaxHealth(), aurEff.GetBaseAmount());
+		var amount = MathFunctions.CalculatePct(caster.GetMaxHealth(), aurEff.BaseAmount);
 		var values = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
 		values.AddSpellMod(SpellValueMod.MaxTargets, 1);
 		values.AddSpellMod(SpellValueMod.BasePoint0, (int)amount);

@@ -1,29 +1,13 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 
 namespace Game.Entities;
 
 public class PetStable
 {
-	public class PetInfo
-	{
-		public string Name;
-		public string ActionBar;
-		public uint PetNumber;
-		public uint CreatureId;
-		public uint DisplayId;
-		public uint Experience;
-		public uint Health;
-		public uint Mana;
-		public uint LastSaveTime;
-		public uint CreatedBySpellId;
-		public ushort SpecializationId;
-		public byte Level = 0;
-		public ReactStates ReactState;
-		public PetType Type = PetType.Max;
-		public bool WasRenamed;
-	}
-
 	public uint? CurrentPetIndex;                                          // index into ActivePets or UnslottedPets if highest bit is set
 	public PetInfo[] ActivePets = new PetInfo[SharedConst.MaxActivePets];  // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
 	public PetInfo[] StabledPets = new PetInfo[SharedConst.MaxPetStables]; // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
@@ -66,5 +50,24 @@ public class PetStable
 	uint? GetCurrentUnslottedPetIndex()
 	{
 		return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) != 0) ? (CurrentPetIndex & ~UnslottedPetIndexMask) : null;
+	}
+
+	public class PetInfo
+	{
+		public string Name;
+		public string ActionBar;
+		public uint PetNumber;
+		public uint CreatureId;
+		public uint DisplayId;
+		public uint Experience;
+		public uint Health;
+		public uint Mana;
+		public uint LastSaveTime;
+		public uint CreatedBySpellId;
+		public ushort SpecializationId;
+		public byte Level = 0;
+		public ReactStates ReactState;
+		public PetType Type = PetType.Max;
+		public bool WasRenamed;
 	}
 }

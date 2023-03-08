@@ -17,7 +17,7 @@ internal class spell_mage_ice_lance_damage : SpellScript, IHasSpellEffects, ISpe
 
     public double CalcMultiplier(double multiplier)
     {
-        if (GetSpell().unitTarget.HasAuraState(AuraStateType.Frozen, GetSpellInfo(), GetCaster()))
+        if (GetSpell().UnitTarget.HasAuraState(AuraStateType.Frozen, GetSpellInfo(), GetCaster()))
             multiplier *= 3.0f;
 
 		return multiplier;

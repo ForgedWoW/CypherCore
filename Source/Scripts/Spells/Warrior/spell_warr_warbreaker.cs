@@ -40,8 +40,8 @@ namespace Scripts.Spells.Warrior
 
 				if (inForTheKill != null) // In For The Kill
 				{
-					var hpPct    = inForTheKill.GetSpellInfo().GetEffect(2).CalcValue(caster);
-					var hastePct = inForTheKill.GetEffect(0).GetAmount();
+					var hpPct    = inForTheKill.SpellInfo.GetEffect(2).CalcValue(caster);
+					var hastePct = inForTheKill.GetEffect(0).Amount;
 
 					for (var itr = targets.GetEnumerator(); itr.MoveNext();)
 					{
@@ -50,7 +50,7 @@ namespace Scripts.Spells.Warrior
 						if (target != null)
 							if (target.HealthBelowPct(hpPct))
 							{
-								hastePct = inForTheKill.GetSpellInfo().GetEffect(1).CalcValue(caster);
+								hastePct = inForTheKill.SpellInfo.GetEffect(1).CalcValue(caster);
 
 								break;
 							}

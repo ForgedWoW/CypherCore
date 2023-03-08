@@ -37,7 +37,7 @@ namespace Scripts.Spells.Warlock
 			{
 				var effect = aura.GetEffect(0);
 
-				if (RandomHelper.randChance(effect.GetBaseAmount()))
+				if (RandomHelper.randChance(effect.BaseAmount))
 					caster.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
 			}
 		}

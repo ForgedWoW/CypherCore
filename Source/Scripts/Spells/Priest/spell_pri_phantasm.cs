@@ -17,7 +17,7 @@ public class spell_pri_phantasm : AuraScript, IHasAuraEffects, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
-		return RandomHelper.randChance(GetEffect(0).GetAmount());
+		return RandomHelper.randChance(GetEffect(0).Amount);
 	}
 
 	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)

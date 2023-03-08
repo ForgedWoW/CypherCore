@@ -579,7 +579,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
         private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
         {
-            if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+            if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
             {
                 Unit caster = GetCaster();
 
@@ -596,7 +596,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
         public override bool Validate(SpellInfo spellInfo)
         {
-            return !spellInfo.GetEffects().Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
+            return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
         }
 
         public override void Register()
@@ -719,7 +719,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
         private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
         {
-            if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+            if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
             {
                 Unit caster = GetCaster();
 
@@ -760,7 +760,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
         public override bool Validate(SpellInfo spellInfo)
         {
-            return !spellInfo.GetEffects().Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
+            return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
         }
 
         public override void Register()
@@ -835,7 +835,7 @@ namespace Scripts.Argus.AntorusTheBurningThrone.GarothiWorldbreaker
 
         private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
         {
-            if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+            if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
                 GetTarget().CastSpell(GetTarget(), SpellIds.SurgingFelDamage, true);
         }
     }

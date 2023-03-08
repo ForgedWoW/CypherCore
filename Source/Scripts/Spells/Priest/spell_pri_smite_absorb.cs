@@ -37,11 +37,11 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 
 				if (aurEff != null)
 				{
-					var absorb = Math.Max(0, aurEff.GetAmount() - (int)dmgInfo.GetDamage());
+					var absorb = Math.Max(0, aurEff.Amount - (int)dmgInfo.GetDamage());
 
 					if (absorb <= 0)
 					{
-						absorbAmount = (uint)aurEff.GetAmount();
+						absorbAmount = (uint)aurEff.Amount;
 						aur.Remove();
 					}
 					else

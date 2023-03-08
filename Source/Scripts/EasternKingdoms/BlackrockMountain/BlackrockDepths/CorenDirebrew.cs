@@ -544,8 +544,8 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackrockDepths.CorenDirebre
 
             if (aura != null)
             {
-                aura.SetStackAmount((byte)(aura.GetStackAmount() + 1));
-                aura.SetDuration(aura.GetDuration() - 1500);
+                aura.SetStackAmount((byte)(aura.StackAmount + 1));
+                aura.SetDuration(aura.Duration - 1500);
             }
         }
 

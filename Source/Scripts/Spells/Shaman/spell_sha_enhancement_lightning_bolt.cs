@@ -31,8 +31,8 @@ namespace Scripts.Spells.Shaman
 
 			if (overcharge != null)
 			{
-				_maxTakenPower    = (int)overcharge.GetSpellInfo().GetEffect(0).BasePoints;
-				_maxDamagePercent = (int)overcharge.GetSpellInfo().GetEffect(1).BasePoints;
+				_maxTakenPower    = (int)overcharge.SpellInfo.GetEffect(0).BasePoints;
+				_maxDamagePercent = (int)overcharge.SpellInfo.GetEffect(1).BasePoints;
 			}
 
 			_takenPower = powerCost.Amount = Math.Min(GetCaster().GetPower(PowerType.Maelstrom), _maxTakenPower);

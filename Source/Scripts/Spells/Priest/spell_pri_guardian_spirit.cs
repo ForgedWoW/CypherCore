@@ -19,7 +19,7 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(PriestSpells.GUARDIAN_SPIRIT_HEAL) && spellInfo.GetEffects().Count > 1;
+		return ValidateSpellInfo(PriestSpells.GUARDIAN_SPIRIT_HEAL) && spellInfo.Effects.Count > 1;
 	}
 
 	public override bool Load()

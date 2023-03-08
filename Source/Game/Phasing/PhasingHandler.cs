@@ -319,13 +319,13 @@ namespace Game
             {
                 foreach (AuraEffect aurEff in unit.GetAuraEffectsByType(AuraType.Phase))
                 {
-                    uint phaseId = (uint)aurEff.GetMiscValueB();
+                    uint phaseId = (uint)aurEff.MiscValueB;
                     changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null) || changed;
                 }
 
                 foreach (AuraEffect aurEff in unit.GetAuraEffectsByType(AuraType.PhaseGroup))
                 {
-                    var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.GetMiscValueB());
+                    var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.MiscValueB);
                     foreach (uint phaseId in phasesInGroup)
                         changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null) || changed;
                 }
@@ -411,7 +411,7 @@ namespace Game
             {
                 foreach (AuraEffect aurEff in unit.GetAuraEffectsByType(AuraType.Phase))
                 {
-                    uint phaseId = (uint)aurEff.GetMiscValueB();
+                    uint phaseId = (uint)aurEff.MiscValueB;
                     // if condition was met previously there is nothing to erase
                     if (newSuppressions.RemovePhase(phaseId))
                         phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);//todo needs checked
@@ -419,7 +419,7 @@ namespace Game
 
                 foreach (AuraEffect aurEff in unit.GetAuraEffectsByType(AuraType.PhaseGroup))
                 {
-                    var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.GetMiscValueB());
+                    var phasesInGroup = Global.DB2Mgr.GetPhasesForGroup((uint)aurEff.MiscValueB);
                     if (!phasesInGroup.Empty())
                     {
                         foreach (uint phaseId in phasesInGroup)

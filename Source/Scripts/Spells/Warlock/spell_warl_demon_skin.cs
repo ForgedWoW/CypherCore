@@ -23,17 +23,17 @@ namespace Scripts.Spells.Warlock
 			if (caster == null)
 				return;
 
-			var absorb = (aurEff.GetAmount() / 10.0f) * caster.GetMaxHealth() / 100.0f;
+			var absorb = (aurEff.Amount / 10.0f) * caster.GetMaxHealth() / 100.0f;
 
 			// Add remaining amount if already applied
 			var soulLeechShield = caster.GetAuraEffect(WarlockSpells.SOUL_LEECH_SHIELD, 0);
 
 			if (soulLeechShield != null)
-				absorb += soulLeechShield.GetAmount();
+				absorb += soulLeechShield.Amount;
 
 			MathFunctions.AddPct(ref absorb, caster.GetAuraEffectAmount(WarlockSpells.ARENA_DAMPENING, 0));
 
-			double threshold = caster.CountPctFromMaxHealth(GetEffect(1).GetAmount());
+			double threshold = caster.CountPctFromMaxHealth(GetEffect(1).Amount);
 			absorb = Math.Min(absorb, threshold);
 
 			if (soulLeechShield != null)

@@ -4,26 +4,27 @@
 using Framework.Dynamic;
 using Game.Entities;
 
-namespace Game.Spells.Events
-{
-    public class DelayedCastEvent : BasicEvent
-    {
-        public Unit Trigger { get; set; }
-        public Unit Target { get; set; }
-        public uint SpellId { get; set; }
-        public CastSpellExtraArgs CastFlags { get; set; }
-        public DelayedCastEvent(Unit trigger, Unit target, uint spellId, CastSpellExtraArgs args)
-        {
-            Trigger = trigger;
-            Target = target;
-            SpellId = spellId;
-            CastFlags = args;
-        }
+namespace Game.Spells.Events;
 
-        public override bool Execute(ulong etime, uint pTime)
-        {
-            Trigger.CastSpell(Target, SpellId, CastFlags);
-            return true;
-        }
-    }
+public class DelayedCastEvent : BasicEvent
+{
+	public Unit Trigger { get; set; }
+	public Unit Target { get; set; }
+	public uint SpellId { get; set; }
+	public CastSpellExtraArgs CastFlags { get; set; }
+
+	public DelayedCastEvent(Unit trigger, Unit target, uint spellId, CastSpellExtraArgs args)
+	{
+		Trigger = trigger;
+		Target = target;
+		SpellId = spellId;
+		CastFlags = args;
+	}
+
+	public override bool Execute(ulong etime, uint pTime)
+	{
+		Trigger.CastSpell(Target, SpellId, CastFlags);
+
+		return true;
+	}
 }

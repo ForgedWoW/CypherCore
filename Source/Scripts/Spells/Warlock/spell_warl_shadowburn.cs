@@ -19,7 +19,7 @@ namespace Scripts.Spells.Warlock
 			var caster = GetCaster();
 			if (caster)
 			{
-				var removeMode = GetTargetApplication().GetRemoveMode();
+				var removeMode = GetTargetApplication().RemoveMode;
 
 				if (removeMode == AuraRemoveMode.Death)
 					caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);

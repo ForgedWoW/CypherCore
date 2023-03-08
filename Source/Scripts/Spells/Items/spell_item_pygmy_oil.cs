@@ -39,7 +39,7 @@ internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
 			aura = caster.GetAura(ItemSpellIds.PygmyOilSmallerAura);
 
 			if (aura == null ||
-			    aura.GetStackAmount() < 5 ||
+			    aura.StackAmount < 5 ||
 			    !RandomHelper.randChance(50))
 			{
 				caster.CastSpell(caster, ItemSpellIds.PygmyOilSmallerAura, true);

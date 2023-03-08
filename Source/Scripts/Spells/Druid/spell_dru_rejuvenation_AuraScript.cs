@@ -85,9 +85,9 @@ public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
 
 		if (GlyphOfRejuvenation != null)
 		{
-			GlyphOfRejuvenation.SetAmount(GlyphOfRejuvenation.GetAmount() + 1);
+			GlyphOfRejuvenation.SetAmount(GlyphOfRejuvenation.Amount + 1);
 
-			if (GlyphOfRejuvenation.GetAmount() >= 3)
+			if (GlyphOfRejuvenation.Amount >= 3)
 				caster.CastSpell(caster, Spells.GlyphofRejuvenationEffect, true);
 		}
 	}
@@ -103,9 +103,9 @@ public class spell_dru_rejuvenation_AuraScript : AuraScript, IHasAuraEffects
 
 		if (l_GlyphOfRejuvenation != null)
 		{
-			l_GlyphOfRejuvenation.SetAmount(l_GlyphOfRejuvenation.GetAmount() - 1);
+			l_GlyphOfRejuvenation.SetAmount(l_GlyphOfRejuvenation.Amount - 1);
 
-			if (l_GlyphOfRejuvenation.GetAmount() < 3)
+			if (l_GlyphOfRejuvenation.Amount < 3)
 				caster.RemoveAura(Spells.GlyphofRejuvenationEffect);
 		}
 	}

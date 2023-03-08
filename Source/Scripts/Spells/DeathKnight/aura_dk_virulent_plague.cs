@@ -16,7 +16,7 @@ public class aura_dk_virulent_plague : AuraScript, IHasAuraEffects
 
 	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var removeMode = GetTargetApplication().GetRemoveMode();
+		var removeMode = GetTargetApplication().RemoveMode;
 
 		if (removeMode == AuraRemoveMode.Death)
 		{

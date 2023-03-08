@@ -88,7 +88,7 @@ public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
 
 					if (soulBarrier != null)
 					{
-						var amount = soulBarrier.GetAmount() + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+						var amount = soulBarrier.Amount + ((double)(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOUL_BARRIER, Difficulty.None).GetEffect(1).BasePoints) / 100.0f) * caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
 						soulBarrier.SetAmount(amount);
 					}
 

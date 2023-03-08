@@ -12,8 +12,8 @@ namespace Scripts.Spells.Warlock
     {
         public void CalcCritChance(Unit victim, ref double chance)
         {
-            if (victim.TryGetAura(WarlockSpells.SHADOWBURN, out var shadowburn) == true && victim.HealthBelowPct(shadowburn.GetEffect(1).GetBaseAmount() + 5))
-				chance += shadowburn.GetEffect(2).GetBaseAmount();
+            if (victim.TryGetAura(WarlockSpells.SHADOWBURN, out var shadowburn) == true && victim.HealthBelowPct(shadowburn.GetEffect(1).BaseAmount + 5))
+				chance += shadowburn.GetEffect(2).BaseAmount;
         }
 
         public void OnHit()
@@ -47,7 +47,7 @@ namespace Scripts.Spells.Warlock
 
             if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
             {
-                if (RandomHelper.randChance(conflagrate.GetEffect(0).GetBaseAmount()))
+                if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
                     caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN, true);
             }
         }

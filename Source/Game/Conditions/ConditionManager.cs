@@ -659,7 +659,7 @@ namespace Game
             {
                 uint conditionEffMask = cond.SourceGroup;
                 List<uint> sharedMasks = new();
-                foreach (var spellEffectInfo in spellInfo.GetEffects())
+                foreach (var spellEffectInfo in spellInfo.Effects)
                 {
                     // additional checks by condition type
                     if ((conditionEffMask & (1 << spellEffectInfo.EffectIndex)) != 0)
@@ -668,7 +668,7 @@ namespace Game
                         {
                             case ConditionTypes.ObjectEntryGuid:
                             {
-                                SpellCastTargetFlags implicitTargetMask = SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetA.GetObjectType()) | SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetB.GetObjectType());
+                                SpellCastTargetFlags implicitTargetMask = SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(spellEffectInfo.TargetB.ObjectType);
                                 if (implicitTargetMask.HasFlag(SpellCastTargetFlags.UnitMask) && cond.ConditionValue1 != (uint)TypeId.Unit && cond.ConditionValue1 != (uint)TypeId.Player)
                                 {
                                     Log.outDebug(LogFilter.Sql, $"{cond} in `condition` table - spell {spellInfo.Id} EFFECT_{spellEffectInfo.EffectIndex} - target requires ConditionValue1 to be either TYPEID_UNIT ({(uint)TypeId.Unit}) or TYPEID_PLAYER ({(uint)TypeId.Player})");
@@ -700,7 +700,7 @@ namespace Game
                     // build new shared mask with found effect
                     uint sharedMask = (uint)(1 << spellEffectInfo.EffectIndex);
                     List<Condition> cmp = spellEffectInfo.ImplicitTargetConditions;
-                    for (int effIndex = spellEffectInfo.EffectIndex + 1; effIndex < spellInfo.GetEffects().Count; ++effIndex)
+                    for (int effIndex = spellEffectInfo.EffectIndex + 1; effIndex < spellInfo.Effects.Count; ++effIndex)
                         if (spellInfo.GetEffect(effIndex).ImplicitTargetConditions == cmp)
                             sharedMask |= (uint)(1 << effIndex);
 
@@ -714,7 +714,7 @@ namespace Game
                     if (commonMask != 0)
                     {
                         byte firstEffIndex = 0;
-                        int effectCount = spellInfo.GetEffects().Count;
+                        int effectCount = spellInfo.Effects.Count;
                         for (; firstEffIndex < effectCount; ++firstEffIndex)
                             if (((1 << firstEffIndex) & effectMask) != 0)
                                 break;
@@ -1032,7 +1032,7 @@ namespace Game
 
                     uint origGroup = cond.SourceGroup;
 
-                    foreach (SpellEffectInfo spellEffectInfo in spellInfo.GetEffects())
+                    foreach (SpellEffectInfo spellEffectInfo in spellInfo.Effects)
                     {
                         if (((1 << spellEffectInfo.EffectIndex) & cond.SourceGroup) == 0)
                             continue;
@@ -1040,7 +1040,7 @@ namespace Game
                         if (spellEffectInfo.ChainTargets > 0)
                             continue;
 
-                        switch (spellEffectInfo.TargetA.GetSelectionCategory())
+                        switch (spellEffectInfo.TargetA.SelectionCategory)
                         {
                             case SpellTargetSelectionCategories.Nearby:
                             case SpellTargetSelectionCategories.Cone:
@@ -1052,7 +1052,7 @@ namespace Game
                                 break;
                         }
 
-                        switch (spellEffectInfo.TargetB.GetSelectionCategory())
+                        switch (spellEffectInfo.TargetB.SelectionCategory)
                         {
                             case SpellTargetSelectionCategories.Nearby:
                             case SpellTargetSelectionCategories.Cone:
@@ -2558,7 +2558,7 @@ namespace Game
                 case UnitConditionVariable.HasHelpfulAuraMechanic:
                     return unit.GetAppliedAurasQuery()
                                     .HasNegitiveFlag(false)
-                                    .AlsoMatches(aurApp => (aurApp.GetBase().GetSpellInfo().GetSpellMechanicMaskByEffectMask(aurApp.GetEffectMask()) & (1ul << value)) != 0)
+                                    .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
                                     .GetResults().Any() ? value : 0;
                 case UnitConditionVariable.HasHarmfulAuraSpell:
                     return unit.GetAppliedAurasQuery()
@@ -2573,12 +2573,12 @@ namespace Game
                 case UnitConditionVariable.HasHarmfulAuraMechanic:
                     return unit.GetAppliedAurasQuery()
                                     .HasNegitiveFlag()
-                                    .AlsoMatches(aurApp => (aurApp.GetBase().GetSpellInfo().GetSpellMechanicMaskByEffectMask(aurApp.GetEffectMask()) & (1ul << value)) != 0)
+                                    .AlsoMatches(aurApp => (aurApp.Base.SpellInfo.GetSpellMechanicMaskByEffectMask(aurApp.EffectMask) & (1ul << value)) != 0)
                                     .GetResults().Any() ? value : 0;
                 case UnitConditionVariable.HasHarmfulAuraSchool:
                     return unit.GetAppliedAurasQuery()
                                     .HasNegitiveFlag()
-                                    .AlsoMatches(aurApp => ((int)aurApp.GetBase().GetSpellInfo().GetSchoolMask() & (1 << value)) != 0)
+                                    .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
                                     .GetResults().Any() ? value : 0;
                 case UnitConditionVariable.DamagePhysicalPct:
                     break;
@@ -2692,7 +2692,7 @@ namespace Game
                 case UnitConditionVariable.SpellKnown:
                     return unit.HasSpell((uint)value) ? value : 0;
                 case UnitConditionVariable.HasHarmfulAuraEffect:
-                    return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.GetBase().GetApplicationOfTarget(unit.GetGUID()).GetFlags().HasFlag(AuraFlags.Negative))) ? 1 : 0;
+                    return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GetGUID()).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
                 case UnitConditionVariable.IsImmuneToAreaOfEffect:
                     break;
                 case UnitConditionVariable.IsPlayer:
@@ -2761,11 +2761,11 @@ namespace Game
                 case UnitConditionVariable.IsHovering:
                     return unit.IsHovering() ? 1 : 0;
                 case UnitConditionVariable.HasHelpfulAuraEffect:
-                    return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.GetBase().GetApplicationOfTarget(unit.GetGUID()).GetFlags().HasFlag(AuraFlags.Negative))) ? 1 : 0;
+                    return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GetGUID()).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
                 case UnitConditionVariable.HasHelpfulAuraSchool:
                     return unit.GetAppliedAurasQuery()
                                     .HasNegitiveFlag()
-                                    .AlsoMatches(aurApp => ((int)aurApp.GetBase().GetSpellInfo().GetSchoolMask() & (1 << value)) != 0)
+                                    .AlsoMatches(aurApp => ((int)aurApp.Base.SpellInfo.GetSchoolMask() & (1 << value)) != 0)
                                     .GetResults().Any() ? 1 : 0;
                 default:
                     break;

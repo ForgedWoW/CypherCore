@@ -34,7 +34,7 @@ public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAur
 		{
 			GetTarget().CastSpell(GetTarget(), MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
 		}
-		else if (RandomHelper.randChance(aurEff.GetAmount()))
+		else if (RandomHelper.randChance(aurEff.Amount))
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
 

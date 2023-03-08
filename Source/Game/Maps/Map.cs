@@ -570,7 +570,7 @@ public class Map : IDisposable
 												  .IsPlayer(false)
 												  .ForEachResult(aur =>
 																 {
-																	 var caster = aur.GetBase().GetCaster();
+																	 var caster = aur.Base.GetCaster();
 
 																	 if (caster != null)
 																		 if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))

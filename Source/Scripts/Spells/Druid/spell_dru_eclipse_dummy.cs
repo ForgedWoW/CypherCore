@@ -70,7 +70,7 @@ namespace Scripts.Spells.Druid
 		private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 		{
 			// counters are applied with a delay
-			GetTarget().Events.AddEventAtOffset(new InitializeEclipseCountersEvent(GetTarget(), (uint)aurEff.GetAmount()), TimeSpan.FromSeconds(1));
+			GetTarget().Events.AddEventAtOffset(new InitializeEclipseCountersEvent(GetTarget(), (uint)aurEff.Amount), TimeSpan.FromSeconds(1));
 		}
 
 		private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
@@ -86,7 +86,7 @@ namespace Scripts.Spells.Druid
 
 			if (aura != null)
 			{
-				uint remaining = aura.GetStackAmount();
+				uint remaining = aura.StackAmount;
 
 				if (remaining == 0)
 					return;

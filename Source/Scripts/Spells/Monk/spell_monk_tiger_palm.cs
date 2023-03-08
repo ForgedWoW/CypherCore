@@ -20,7 +20,7 @@ public class spell_monk_tiger_palm : SpellScript, IHasSpellEffects
 
 		if (powerStrikes != null)
 		{
-			SetEffectValue(GetEffectValue() + powerStrikes.GetEffect(0).GetBaseAmount());
+			SetEffectValue(GetEffectValue() + powerStrikes.GetEffect(0).BaseAmount);
 			powerStrikes.Remove();
 		}
 	}

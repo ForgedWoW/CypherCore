@@ -25,7 +25,7 @@ namespace Scripts.Spells.Warlock
 
 				foreach (var effect in effectList)
 				{
-					var aura = effect.GetBase();
+					var aura = effect.Base;
 
 					if (aura != null)
 						aura.ModDuration(8 * Time.InMilliseconds);

@@ -27,7 +27,7 @@ internal class spell_gen_bonked : SpellScript, IHasSpellEffects
 		{
 			var aura = GetHitAura();
 
-			if (!(aura != null && aura.GetStackAmount() == 3))
+			if (!(aura != null && aura.StackAmount == 3))
 				return;
 
 			target.CastSpell(target, GenericSpellIds.FormSwordDefeat, true);
@@ -37,7 +37,7 @@ internal class spell_gen_bonked : SpellScript, IHasSpellEffects
 
 			if (aura != null)
 			{
-				var item = target.GetItemByGuid(aura.GetCastItemGUID());
+				var item = target.GetItemByGuid(aura.CastItemGuid);
 
 				if (item)
 					target.DestroyItemCount(item.GetEntry(), 1, true);

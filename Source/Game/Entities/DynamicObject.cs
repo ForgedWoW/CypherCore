@@ -11,28 +11,6 @@ namespace Game.Entities;
 
 public class DynamicObject : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly DynamicObject _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly DynamicObjectData _dynamicObjectData = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _dynamicObjectData.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	readonly DynamicObjectData _dynamicObjectData;
 	Aura _aura;
 	Aura _removedAura;
@@ -162,11 +140,11 @@ public class DynamicObject : WorldObject
 
 		if (_aura != null)
 		{
-			if (!_aura.IsRemoved())
+			if (!_aura.IsRemoved)
 				_aura.UpdateOwner(diff, this);
 
 			// _aura may be set to null in Aura.UpdateOwner call
-			if (_aura != null && (_aura.IsRemoved() || _aura.IsExpired()))
+			if (_aura != null && (_aura.IsRemoved || _aura.IsExpired))
 				expired = true;
 		}
 		else
@@ -297,7 +275,7 @@ public class DynamicObject : WorldObject
 		if (_aura == null)
 			return _duration;
 		else
-			return _aura.GetDuration();
+			return _aura.Duration;
 	}
 
 	void RemoveAura()
@@ -306,7 +284,7 @@ public class DynamicObject : WorldObject
 		_removedAura = _aura;
 		_aura = null;
 
-		if (!_removedAura.IsRemoved())
+		if (!_removedAura.IsRemoved)
 			_removedAura._Remove(AuraRemoveMode.Default);
 	}
 
@@ -363,5 +341,27 @@ public class DynamicObject : WorldObject
 		buffer1.WriteBytes(buffer.GetData());
 
 		data.AddUpdateBlock(buffer1);
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly DynamicObject _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly DynamicObjectData _dynamicObjectData = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _dynamicObjectData.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

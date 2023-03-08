@@ -35,9 +35,9 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
 
 			if (empoweredRenewAurEff != null)
 			{
-				var heal = caster.SpellHealingBonusDone(GetTarget(), GetSpellInfo(), aurEff.GetAmount(), DamageEffectType.DOT, aurEff.GetSpellEffectInfo());
+				var heal = caster.SpellHealingBonusDone(GetTarget(), GetSpellInfo(), aurEff.Amount, DamageEffectType.DOT, aurEff.GetSpellEffectInfo());
 				heal = GetTarget().SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DamageEffectType.DOT);
-				var basepoints0 = MathFunctions.CalculatePct((int)heal * aurEff.GetTotalTicks(), empoweredRenewAurEff.GetAmount());
+				var basepoints0 = MathFunctions.CalculatePct((int)heal * aurEff.GetTotalTicks(), empoweredRenewAurEff.Amount);
 				var args        = new CastSpellExtraArgs();
 				args.AddSpellMod(SpellValueMod.BasePoint0, (int)basepoints0);
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);

@@ -29,8 +29,8 @@ namespace Scripts.Spells.Warrior
 				caster.AddAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF, caster);
 				var thirst = caster.GetAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF).GetEffect(0);
 
-				if (thirst != null)
-					thirst.GetAmount();
+				//if (thirst != null)
+				//	thirst.Amount;
 			}
 
 			caster.AddAura(85739, caster);

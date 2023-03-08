@@ -266,9 +266,9 @@ public partial class Player
 	public bool IsInSameGroupWith(Player p)
 	{
 		return p == this ||
-		       (GetGroup() &&
-		        GetGroup() == p.GetGroup() &&
-		        GetGroup().SameSubGroup(this, p));
+				(GetGroup() &&
+				GetGroup() == p.GetGroup() &&
+				GetGroup().SameSubGroup(this, p));
 	}
 
 	public bool IsInSameRaidWith(Player p)
@@ -325,10 +325,10 @@ public partial class Player
 
 			// IsHostileTo check duel and controlled by enemy
 			if (target &&
-			    target != this &&
-			    IsWithinDistInMap(target, radius) &&
-			    !target.HasInvisibilityAura() &&
-			    !IsHostileTo(target))
+				target != this &&
+				IsWithinDistInMap(target, radius) &&
+				!target.HasInvisibilityAura() &&
+				!IsHostileTo(target))
 				nearMembers.Add(target);
 		}
 

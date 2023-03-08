@@ -32,7 +32,7 @@ public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPo
 		if (l_RunicEmpowerment != null)
 		{
 			/// 1.00% chance per Runic Power spent
-			var l_Chance = (l_RunicEmpowerment.GetAmount() / 100.0f);
+			var l_Chance = (l_RunicEmpowerment.Amount / 100.0f);
 
 			if (RandomHelper.randChance(l_Chance))
 			{

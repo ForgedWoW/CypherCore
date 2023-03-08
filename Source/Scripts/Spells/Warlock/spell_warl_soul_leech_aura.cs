@@ -24,13 +24,13 @@ namespace Scripts.Spells.Warlock
 
 			// Add remaining amount if already applied
 			if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
-				absorb += auraEffect.GetAmount();
+				absorb += auraEffect.Amount;
 
 			// Cannot go over 5% (or 10% with Demonskin) max health
 			var basePointNormal = GetSpellInfo().GetEffect(1).BasePoints;
 
 			if (caster.TryGetAura(WarlockSpells.DEMON_SKIN, out var ds))
-				basePointNormal = ds.GetEffect(1).GetAmount();
+				basePointNormal = ds.GetEffect(1).Amount;
 
 			var threshold = (caster.GetMaxHealth() * basePointNormal) / 100.0f;
 			absorb = Math.Min(absorb, threshold);

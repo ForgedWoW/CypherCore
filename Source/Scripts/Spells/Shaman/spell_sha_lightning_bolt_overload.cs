@@ -18,7 +18,7 @@ internal class spell_sha_lightning_bolt_overload : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(ShamanSpells.LightningBoltOverloadEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).GetEffects().Count > 1;
+		return ValidateSpellInfo(ShamanSpells.LightningBoltOverloadEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 1;
 	}
 
 	public override void Register()
@@ -35,6 +35,6 @@ internal class spell_sha_lightning_bolt_overload : SpellScript, IHasSpellEffects
 				.CastSpell(GetCaster(),
 				           ShamanSpells.LightningBoltOverloadEnergize,
 				           new CastSpellExtraArgs(energizeAmount)
-					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.GetAmount()));
+					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
 	}
 }

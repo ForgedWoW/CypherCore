@@ -32,7 +32,7 @@ namespace Scripts.Spells.Warrior
 
 		public void OnSpellCast(Player player, Spell spell, bool UnnamedParameter)
 		{
-			var power = spell.GetPowerCost().FirstOrDefault(p => p.Power == PowerType.Rage);
+			var power = spell.PowerCost.FirstOrDefault(p => p.Power == PowerType.Rage);
 
 			if (power == null)
 				return;
@@ -51,7 +51,7 @@ namespace Scripts.Spells.Warrior
 				//int32 mod = std::max(powerCost->Amount * 100, anger->GetEffect(EFFECT_0).GetAmount()) / 2;
 				if (spec == TalentSpecialization.WarriorArms)
 				{
-					var mod = CalculateCount(player, anger.GetEffect(0).GetAmount());
+					var mod = CalculateCount(player, anger.GetEffect(0).Amount);
 					var ts  = TimeSpan.FromSeconds(-1 * mod);
 					player.GetSpellHistory().ModifyCooldown(262161, ts); // Warbreaker
 					player.GetSpellHistory().ModifyCooldown(46924, ts);  // Bladestorm
@@ -60,14 +60,14 @@ namespace Scripts.Spells.Warrior
 				}
 				else if (spec == TalentSpecialization.WarriorFury)
 				{
-					var mod = CalculateCount(player, anger.GetEffect(2).GetAmount());
+					var mod = CalculateCount(player, anger.GetEffect(2).Amount);
 					var ts  = TimeSpan.FromSeconds(-1 * mod);
 					player.GetSpellHistory().ModifyCooldown(1719, ts);   // Recklessness
 					player.GetSpellHistory().ModifyCooldown(152277, ts); // Ravenger
 				}
 				else if (spec == TalentSpecialization.WarriorProtection)
 				{
-					var mod = CalculateCount(player, anger.GetEffect(1).GetAmount());
+					var mod = CalculateCount(player, anger.GetEffect(1).Amount);
 					var ts  = TimeSpan.FromSeconds(-1 * mod);
 					player.GetSpellHistory().ModifyCooldown(107574, ts); // Avatar
 					player.GetSpellHistory().ModifyCooldown(12975, ts);  // Last Stand

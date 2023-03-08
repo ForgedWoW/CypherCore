@@ -39,7 +39,7 @@ namespace Scripts.Spells.Druid
 			var bonus     = caster.GetAuraEffect(DruidSpellIds.RestorationT102PBonus, 0);
 
 			if (bonus != null)
-				reduction -= MathFunctions.CalculatePct(reduction, bonus.GetAmount());
+				reduction -= MathFunctions.CalculatePct(reduction, bonus.Amount);
 
 			reduction *= (aurEff.GetTickNumber() - 1);
 

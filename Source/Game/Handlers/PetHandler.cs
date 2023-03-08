@@ -277,9 +277,9 @@ namespace Game
                         return;
                     }
 
-                    foreach (var spellEffectInfo in spellInfo.GetEffects())
+                    foreach (var spellEffectInfo in spellInfo.Effects)
                     {
-                        if (spellEffectInfo.TargetA.GetTarget() == Targets.UnitSrcAreaEnemy || spellEffectInfo.TargetA.GetTarget() == Targets.UnitDestAreaEnemy || spellEffectInfo.TargetA.GetTarget() == Targets.DestDynobjEnemy)
+                        if (spellEffectInfo.TargetA.Target == Targets.UnitSrcAreaEnemy || spellEffectInfo.TargetA.Target == Targets.UnitDestAreaEnemy || spellEffectInfo.TargetA.Target == Targets.DestDynobjEnemy)
                             return;
                     }
 
@@ -304,7 +304,7 @@ namespace Game
                     //auto turn to target unless possessed
                     if (result == SpellCastResult.UnitNotInfront && !pet.IsPossessed() && !pet.IsVehicle())
                     {
-                        Unit unit_target2 = spell.m_targets.GetUnitTarget();
+                        Unit unit_target2 = spell.Targets.GetUnitTarget();
                         if (unit_target)
                         {
                             if (!pet.HasSpellFocus())
@@ -334,7 +334,7 @@ namespace Game
 
                     if (result == SpellCastResult.SpellCastOk)
                     {
-                        unit_target = spell.m_targets.GetUnitTarget();
+                        unit_target = spell.Targets.GetUnitTarget();
 
                         //10% chance to play special pet attack talk, else growl
                         //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
@@ -362,12 +362,12 @@ namespace Game
                             }
                         }
 
-                        spell.Prepare(spell.m_targets);
+                        spell.Prepare(spell.Targets);
                     }
                     else
                     {
                         if (pet.IsPossessed() || pet.IsVehicle()) // @todo: confirm this check
-                            Spell.SendCastResult(GetPlayer(), spellInfo, spell.m_SpellVisual, spell.m_castId, result);
+                            Spell.SendCastResult(GetPlayer(), spellInfo, spell.SpellVisual, spell.CastId, result);
                         else
                             spell.SendPetCastResult(result);
 
@@ -692,10 +692,10 @@ namespace Game
             }
 
             Spell spell = new(caster, spellInfo, triggerCastFlags);
-            spell.m_fromClient = true;
-            spell.m_misc.Data0 = petCastSpell.Cast.Misc[0];
-            spell.m_misc.Data1 = petCastSpell.Cast.Misc[1];
-            spell.m_targets = targets;
+            spell.FromClient = true;
+            spell.SpellMisc.Data0 = petCastSpell.Cast.Misc[0];
+            spell.SpellMisc.Data1 = petCastSpell.Cast.Misc[1];
+            spell.Targets = targets;
 
             SpellCastResult result = spell.CheckPetCast(null);
 
@@ -718,7 +718,7 @@ namespace Game
 
                 SpellPrepare spellPrepare = new();
                 spellPrepare.ClientCastID = petCastSpell.Cast.CastID;
-                spellPrepare.ServerCastID = spell.m_castId;
+                spellPrepare.ServerCastID = spell.CastId;
                 SendPacket(spellPrepare);
 
                 spell.Prepare(targets);

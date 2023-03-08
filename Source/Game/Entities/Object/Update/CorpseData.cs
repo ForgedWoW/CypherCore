@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -28,10 +31,10 @@ public class CorpseData : BaseUpdateData<Corpse>
 		data.WritePackedGuid(PartyGUID);
 		data.WritePackedGuid(GuildGUID);
 		data.WriteUInt32(DisplayID);
-		for (int i = 0; i < 19; ++i)
-		{
+
+		for (var i = 0; i < 19; ++i)
 			data.WriteUInt32(Items[i]);
-		}
+
 		data.WriteUInt8(RaceID);
 		data.WriteUInt8(Sex);
 		data.WriteUInt8(Class);
@@ -39,10 +42,9 @@ public class CorpseData : BaseUpdateData<Corpse>
 		data.WriteUInt32(Flags);
 		data.WriteInt32(FactionTemplate);
 		data.WriteUInt32(StateSpellVisualKitID);
-		for (int i = 0; i < Customizations.Size(); ++i)
-		{
+
+		for (var i = 0; i < Customizations.Size(); ++i)
 			Customizations[i].WriteCreate(data, owner, receiver);
-		}
 	}
 
 	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Corpse owner, Player receiver)
@@ -53,12 +55,12 @@ public class CorpseData : BaseUpdateData<Corpse>
 	public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Corpse owner, Player receiver)
 	{
 		data.WriteBits(changesMask.GetBlocksMask(0), 2);
+
 		for (uint i = 0; i < 2; ++i)
 			if (changesMask.GetBlock(i) != 0)
 				data.WriteBits(changesMask.GetBlock(i), 32);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
 			{
 				if (!ignoreNestedChangesMask)
@@ -66,75 +68,54 @@ public class CorpseData : BaseUpdateData<Corpse>
 				else
 					WriteCompleteDynamicFieldUpdateMask(Customizations.Size(), data);
 			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
-				for (int i = 0; i < Customizations.Size(); ++i)
-				{
+				for (var i = 0; i < Customizations.Size(); ++i)
 					if (Customizations.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						Customizations[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteUInt32(DynamicFlags);
-			}
+
 			if (changesMask[3])
-			{
 				data.WritePackedGuid(Owner);
-			}
+
 			if (changesMask[4])
-			{
 				data.WritePackedGuid(PartyGUID);
-			}
+
 			if (changesMask[5])
-			{
 				data.WritePackedGuid(GuildGUID);
-			}
+
 			if (changesMask[6])
-			{
 				data.WriteUInt32(DisplayID);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt8(RaceID);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt8(Sex);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteUInt8(Class);
-			}
+
 			if (changesMask[10])
-			{
 				data.WriteUInt32(Flags);
-			}
+
 			if (changesMask[11])
-			{
 				data.WriteInt32(FactionTemplate);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(StateSpellVisualKitID);
-			}
 		}
+
 		if (changesMask[13])
-		{
-			for (int i = 0; i < 19; ++i)
-			{
+			for (var i = 0; i < 19; ++i)
 				if (changesMask[14 + i])
-				{
 					data.WriteUInt32(Items[i]);
-				}
-			}
-		}
 	}
 
 	public override void ClearChangesMask()

@@ -25,7 +25,7 @@ public class spell_hun_mongoose_bite : SpellScript, ISpellAfterHit
 		var aur = GetCaster().GetAura(HunterSpells.MONGOOSE_FURY);
 
 		if (aur != null)
-			dur = aur.GetDuration();
+			dur = aur.Duration;
 
 		GetCaster().CastSpell(GetCaster(), HunterSpells.MONGOOSE_FURY, true);
 

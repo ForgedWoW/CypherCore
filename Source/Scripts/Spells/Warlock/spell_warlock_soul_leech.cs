@@ -47,13 +47,13 @@ namespace Scripts.Spells.Warlock
 			{
 				if (target == null) continue;
 
-				var finalAmount = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.GetAmount());
+				var finalAmount = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
 
 				if (finalAmount > 0)
 				{
-					var maxHealthPct = GetEffect(1).GetAmount();
+					var maxHealthPct = GetEffect(1).Amount;
 
-					if (GetEffect(1).GetAmount() != 0)
+					if (GetEffect(1).Amount != 0)
 					{
 						var soulLinkHeal = finalAmount; // save value for soul link
 
@@ -61,7 +61,7 @@ namespace Scripts.Spells.Warlock
 						var aura = target.GetAura(WarlockSpells.SOUL_LEECH_SHIELD);
 
 						if (aura != null)
-							finalAmount += (uint)aura.GetEffect(0).GetAmount();
+							finalAmount += (uint)aura.GetEffect(0).Amount;
 
 						MathFunctions.AddPct(ref finalAmount, caster.GetAuraEffectAmount(WarlockSpells.ARENA_DAMPENING, 0));
 
@@ -81,8 +81,8 @@ namespace Scripts.Spells.Warlock
 
 						if (target.ToPlayer() && target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
 						{
-							var playerHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(1).GetAmount());
-							var petHeal    = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(2).GetAmount());
+							var playerHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(1).Amount);
+							var petHeal    = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(2).Amount);
 							args = new CastSpellExtraArgs(true);
 							args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)playerHeal);
 							args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)petHeal);

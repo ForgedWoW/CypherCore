@@ -855,11 +855,11 @@ public class CollectionMgr
 					return false;
 
 				if (itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic ||
-				    itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic2 ||
-				    itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Miscellaneous ||
-				    itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Thrown ||
-				    itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Spear ||
-				    itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.FishingPole)
+					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic2 ||
+					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Miscellaneous ||
+					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Thrown ||
+					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Spear ||
+					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.FishingPole)
 					return false;
 
 				break;

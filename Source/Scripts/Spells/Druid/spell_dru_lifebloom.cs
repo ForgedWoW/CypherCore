@@ -27,8 +27,8 @@ namespace Scripts.Spells.Druid
 		private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 		{
 			// Final heal only on duration end
-			if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire ||
-			    GetTargetApplication().GetRemoveMode() == AuraRemoveMode.EnemySpell)
+			if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire ||
+			    GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell)
 				GetCaster().CastSpell(GetUnitOwner(), DruidSpellIds.LifebloomFinalHeal, true);
 		}
 	}

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Networking;
 
@@ -12,8 +15,8 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 
 	public BaseUpdateData(int blockBit, TypeId bit, int changeMask)
 	{
-		BlockBit    = blockBit;
-		Bit         = (int)bit;
+		BlockBit = blockBit;
+		Bit = (int)bit;
 		ChangesMask = new UpdateMask(changeMask);
 	}
 
@@ -62,17 +65,15 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 	public void ClearChangesMask<U>(UpdateFieldArray<U> updateField) where U : new()
 	{
 		if (typeof(IHasChangesMask).IsAssignableFrom(typeof(U)))
-		{
-			for (int i = 0; i < updateField.GetSize(); ++i)
+			for (var i = 0; i < updateField.GetSize(); ++i)
 				((IHasChangesMask)updateField[i]).ClearChangesMask();
-		}
 	}
 
 	public void ClearChangesMask<U>(DynamicUpdateField<U> updateField) where U : new()
 	{
 		if (typeof(IHasChangesMask).IsAssignableFrom(typeof(U)))
 		{
-			for (int i = 0; i < updateField.Size(); ++i)
+			for (var i = 0; i < updateField.Size(); ++i)
 				((IHasChangesMask)updateField[i]).ClearChangesMask();
 
 			updateField.ClearChangesMask();
@@ -82,18 +83,21 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 	public UpdateField<U> ModifyValue<U>(UpdateField<U> updateField) where U : new()
 	{
 		MarkChanged(updateField);
+
 		return updateField;
 	}
 
 	public UpdateFieldString ModifyValue(UpdateFieldString updateField)
 	{
 		MarkChanged(updateField);
+
 		return updateField;
 	}
 
 	public ref U ModifyValue<U>(UpdateFieldArray<U> updateField, int index) where U : new()
 	{
 		MarkChanged(updateField, index);
+
 		return ref updateField.Values[index];
 	}
 
@@ -101,6 +105,7 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 	{
 		ChangesMask.Set(updateField.BlockBit);
 		ChangesMask.Set(updateField.Bit);
+
 		return updateField;
 	}
 
@@ -141,18 +146,20 @@ public abstract class BaseUpdateData<T> : IHasChangesMask
 	public void WriteCompleteDynamicFieldUpdateMask(int size, WorldPacket data, int bitsForSize = 32)
 	{
 		data.WriteBits(size, bitsForSize);
+
 		if (size > 32)
 		{
 			if (data.HasUnfinishedBitPack())
-				for (int block = 0; block < size / 32; ++block)
+				for (var block = 0; block < size / 32; ++block)
 					data.WriteBits(0xFFFFFFFFu, 32);
 			else
-				for (int block = 0; block < size / 32; ++block)
+				for (var block = 0; block < size / 32; ++block)
 					data.WriteUInt32(0xFFFFFFFFu);
 		}
 		else if (size == 32)
 		{
 			data.WriteBits(0xFFFFFFFFu, 32);
+
 			return;
 		}
 

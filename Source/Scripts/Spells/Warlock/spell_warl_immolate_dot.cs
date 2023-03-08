@@ -33,7 +33,7 @@ namespace Scripts.Spells.Warlock
 		{
 			var target = GetTarget();
 
-			if (target != null && caster.TryGetAura(WarlockSpells.FLASHPOINT, out var fp) && target.HealthAbovePct(fp.GetEffect(1).GetBaseAmount()))
+			if (target != null && caster.TryGetAura(WarlockSpells.FLASHPOINT, out var fp) && target.HealthAbovePct(fp.GetEffect(1).BaseAmount))
 				caster.CastSpell(caster, WarlockSpells.FLASHPOINT_AURA, true);
 		}
 
@@ -53,7 +53,7 @@ namespace Scripts.Spells.Warlock
 
                 if (dmgEff != null)
                 {
-                    var damage = GetEffect(0).GetAmount();
+                    var damage = GetEffect(0).Amount;
                     MathFunctions.AddPct(ref damage, dmgEff.BasePoints);
 
                     GetEffect(0).SetAmount(damage);

@@ -25,7 +25,7 @@ namespace Scripts.Spells.Warrior
 			var GlyphOfVictoryRush = caster.GetAuraEffect(WarriorSpells.GLYPH_OF_MIGHTY_VICTORY, 0);
 
 			if (GlyphOfVictoryRush != null)
-				MathFunctions.AddPct(ref heal, GlyphOfVictoryRush.GetAmount());
+				MathFunctions.AddPct(ref heal, GlyphOfVictoryRush.Amount);
 
 			SetHitHeal(heal);
 		}

@@ -7,6 +7,21 @@ namespace Game.Entities;
 
 public class EquipmentSetInfo
 {
+	public enum EquipmentSetType
+	{
+		Equipment = 0,
+		Transmog = 1
+	}
+
+	public EquipmentSetUpdateState State { get; set; }
+	public EquipmentSetData Data { get; set; }
+
+	public EquipmentSetInfo()
+	{
+		State = EquipmentSetUpdateState.New;
+		Data = new EquipmentSetData();
+	}
+
 	// Data sent in EquipmentSet related packets
 	public class EquipmentSetData
 	{
@@ -24,20 +39,5 @@ public class EquipmentSetInfo
 		public int SecondaryShoulderSlot { get; set; }                       // Always 2 if secondary shoulder apperance is used
 		public int SecondaryWeaponAppearanceId { get; set; }                 // For legion artifacts: linked child item appearance
 		public int SecondaryWeaponSlot { get; set; }                         // For legion artifacts: which slot is used by child item
-	}
-
-	public enum EquipmentSetType
-	{
-		Equipment = 0,
-		Transmog = 1
-	}
-
-	public EquipmentSetUpdateState State { get; set; }
-	public EquipmentSetData Data { get; set; }
-
-	public EquipmentSetInfo()
-	{
-		State = EquipmentSetUpdateState.New;
-		Data = new EquipmentSetData();
 	}
 }

@@ -39,10 +39,10 @@ public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
 
 				if (sunfireDOT != null)
 				{
-					var duration    = sunfireDOT.GetDuration();
+					var duration    = sunfireDOT.Duration;
 					var newDuration = duration + 4 * Time.InMilliseconds;
 
-					if (newDuration > sunfireDOT.GetMaxDuration())
+					if (newDuration > sunfireDOT.MaxDuration)
 						sunfireDOT.SetMaxDuration(newDuration);
 
 					sunfireDOT.SetDuration(newDuration);

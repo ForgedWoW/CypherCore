@@ -158,11 +158,11 @@ public partial class Player : Unit
 		if (info == null)
 		{
 			Log.outError(LogFilter.Player,
-			             "PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid race/class pair ({2}/{3}) - refusing to do so.",
-			             GetSession().GetAccountId(),
-			             GetName(),
-			             createInfo.RaceId,
-			             createInfo.ClassId);
+						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid race/class pair ({2}/{3}) - refusing to do so.",
+						GetSession().GetAccountId(),
+						GetName(),
+						createInfo.RaceId,
+						createInfo.ClassId);
 
 			return false;
 		}
@@ -172,10 +172,10 @@ public partial class Player : Unit
 		if (cEntry == null)
 		{
 			Log.outError(LogFilter.Player,
-			             "PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid character class ({2}) - refusing to do so (wrong DBC-files?)",
-			             GetSession().GetAccountId(),
-			             GetName(),
-			             createInfo.ClassId);
+						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid character class ({2}) - refusing to do so (wrong DBC-files?)",
+						GetSession().GetAccountId(),
+						GetName(),
+						createInfo.ClassId);
 
 			return false;
 		}
@@ -183,9 +183,9 @@ public partial class Player : Unit
 		if (!GetSession().ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
 		{
 			Log.outError(LogFilter.Player,
-			             "Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
-			             GetSession().GetAccountId(),
-			             GetName());
+						"Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
+						GetSession().GetAccountId(),
+						GetName());
 
 			return false;
 		}
@@ -225,10 +225,10 @@ public partial class Player : Unit
 		if (!IsValidGender(createInfo.Sex))
 		{
 			Log.outError(LogFilter.Player,
-			             "Player:Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid gender ({2}) - refusing to do so",
-			             GetSession().GetAccountId(),
-			             GetName(),
-			             createInfo.Sex);
+						"Player:Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid gender ({2}) - refusing to do so",
+						GetSession().GetAccountId(),
+						GetName(),
+						createInfo.Sex);
 
 			return false;
 		}
@@ -396,8 +396,8 @@ public partial class Player : Unit
 			var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
 			if (aura != null)
-				if (!aura.IsPermanent())
-					aura.SetDuration(aura.GetSpellInfo().GetMaxDuration());
+				if (!aura.IsPermanent)
+					aura.SetDuration(aura.SpellInfo.GetMaxDuration());
 		}
 
 		AIUpdateTick(diff);
@@ -790,10 +790,10 @@ public partial class Player : Unit
 		if (viewpoint != null)
 		{
 			Log.outError(LogFilter.Player,
-			             "Player {0} has viewpoint {1} {2} when removed from world",
-			             GetName(),
-			             viewpoint.GetEntry(),
-			             viewpoint.GetTypeId());
+						"Player {0} has viewpoint {1} {2} when removed from world",
+						GetName(),
+						viewpoint.GetEntry(),
+						viewpoint.GetTypeId());
 
 			SetViewpoint(viewpoint, false);
 		}
@@ -1205,7 +1205,7 @@ public partial class Player : Unit
 
 		// Check faction
 		if ((currency.IsAlliance() && GetTeam() != Team.Alliance) ||
-		    (currency.IsHorde() && GetTeam() != Team.Horde))
+			(currency.IsHorde() && GetTeam() != Team.Horde))
 			return;
 
 		// Check award condition
@@ -1220,8 +1220,8 @@ public partial class Player : Unit
 		var isGainOnRefund = false;
 
 		if (gainSource == CurrencyGainSource.ItemRefund ||
-		    gainSource == CurrencyGainSource.GarrisonBuildingRefund ||
-		    gainSource == CurrencyGainSource.PlayerTraitRefund)
+			gainSource == CurrencyGainSource.GarrisonBuildingRefund ||
+			gainSource == CurrencyGainSource.PlayerTraitRefund)
 			isGainOnRefund = true;
 
 		if (amount > 0 && !isGainOnRefund && gainSource != CurrencyGainSource.Vendor)
@@ -1353,7 +1353,7 @@ public partial class Player : Unit
 
 		// Check faction
 		if ((currency.IsAlliance() && GetTeam() != Team.Alliance) ||
-		    (currency.IsHorde() && GetTeam() != Team.Horde))
+			(currency.IsHorde() && GetTeam() != Team.Horde))
 			return;
 
 		// Check dynamic maximum flag
@@ -1710,16 +1710,16 @@ public partial class Player : Unit
 		if (!GridDefines.IsValidMapCoord(mapid, x, y, z, orientation))
 		{
 			Log.outError(LogFilter.Maps,
-			             "TeleportTo: invalid map ({0}) or invalid coordinates (X: {1}, Y: {2}, Z: {3}, O: {4}) given when teleporting player (GUID: {5}, name: {6}, map: {7}, {8}).",
-			             mapid,
-			             x,
-			             y,
-			             z,
-			             orientation,
-			             GetGUID().ToString(),
-			             GetName(),
-			             Location.MapId,
-			             Location.ToString());
+						"TeleportTo: invalid map ({0}) or invalid coordinates (X: {1}, Y: {2}, Z: {3}, O: {4}) given when teleporting player (GUID: {5}, name: {6}, map: {7}, {8}).",
+						mapid,
+						x,
+						y,
+						z,
+						orientation,
+						GetGUID().ToString(),
+						GetName(),
+						Location.MapId,
+						Location.ToString());
 
 			return false;
 		}
@@ -1856,9 +1856,9 @@ public partial class Player : Unit
 
 			// Seamless teleport can happen only if cosmetic maps match
 			if (!oldmap ||
-			    (oldmap.GetEntry().CosmeticParentMapID != mapid &&
-			     Location.MapId != mEntry.CosmeticParentMapID &&
-			     !((oldmap.GetEntry().CosmeticParentMapID != -1) ^ (oldmap.GetEntry().CosmeticParentMapID != mEntry.CosmeticParentMapID))))
+				(oldmap.GetEntry().CosmeticParentMapID != mapid &&
+				Location.MapId != mEntry.CosmeticParentMapID &&
+				!((oldmap.GetEntry().CosmeticParentMapID != -1) ^ (oldmap.GetEntry().CosmeticParentMapID != mEntry.CosmeticParentMapID))))
 				options &= ~TeleportToOptions.Seamless;
 
 			//lets reset near teleport flag if it wasn't reset during chained teleports
@@ -2034,12 +2034,12 @@ public partial class Player : Unit
 			if (check)
 			{
 				Log.outDebug(LogFilter.Unit,
-				             "Player.ValidateMovementInfo: Violation of MovementFlags found ({0}). MovementFlags: {1}, MovementFlags2: {2} for player {3}. Mask {4} will be removed.",
-				             check,
-				             mi.GetMovementFlags(),
-				             mi.GetMovementFlags2(),
-				             GetGUID().ToString(),
-				             maskToRemove);
+							"Player.ValidateMovementInfo: Violation of MovementFlags found ({0}). MovementFlags: {1}, MovementFlags2: {2} for player {3}. Mask {4} will be removed.",
+							check,
+							mi.GetMovementFlags(),
+							mi.GetMovementFlags2(),
+							GetGUID().ToString(),
+							maskToRemove);
 
 				mi.RemoveMovementFlag(maskToRemove);
 			}
@@ -2056,37 +2056,37 @@ public partial class Player : Unit
 
 		//! Cannot hover without SPELL_AURA_HOVER
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Hover) && !UnitMovedByMe.HasAuraType(AuraType.Hover),
-		                     MovementFlag.Hover);
+							MovementFlag.Hover);
 
 		//! Cannot ascend and descend at the same time
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Ascending) && mi.HasMovementFlag(MovementFlag.Descending),
-		                     MovementFlag.Ascending | MovementFlag.Descending);
+							MovementFlag.Ascending | MovementFlag.Descending);
 
 		//! Cannot move left and right at the same time
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Left) && mi.HasMovementFlag(MovementFlag.Right),
-		                     MovementFlag.Left | MovementFlag.Right);
+							MovementFlag.Left | MovementFlag.Right);
 
 		//! Cannot strafe left and right at the same time
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.StrafeLeft) && mi.HasMovementFlag(MovementFlag.StrafeRight),
-		                     MovementFlag.StrafeLeft | MovementFlag.StrafeRight);
+							MovementFlag.StrafeLeft | MovementFlag.StrafeRight);
 
 		//! Cannot pitch up and down at the same time
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.PitchUp) && mi.HasMovementFlag(MovementFlag.PitchDown),
-		                     MovementFlag.PitchUp | MovementFlag.PitchDown);
+							MovementFlag.PitchUp | MovementFlag.PitchDown);
 
 		//! Cannot move forwards and backwards at the same time
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Forward) && mi.HasMovementFlag(MovementFlag.Backward),
-		                     MovementFlag.Forward | MovementFlag.Backward);
+							MovementFlag.Forward | MovementFlag.Backward);
 
 		//! Cannot walk on water without SPELL_AURA_WATER_WALK except for ghosts
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.WaterWalk) &&
-		                     !UnitMovedByMe.HasAuraType(AuraType.WaterWalk) &&
-		                     !UnitMovedByMe.HasAuraType(AuraType.Ghost),
-		                     MovementFlag.WaterWalk);
+							!UnitMovedByMe.HasAuraType(AuraType.WaterWalk) &&
+							!UnitMovedByMe.HasAuraType(AuraType.Ghost),
+							MovementFlag.WaterWalk);
 
 		//! Cannot feather fall without SPELL_AURA_FEATHER_FALL
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.FallingSlow) && !UnitMovedByMe.HasAuraType(AuraType.FeatherFall),
-		                     MovementFlag.FallingSlow);
+							MovementFlag.FallingSlow);
 
 		/*! Cannot fly if no fly auras present. Exception is being a GM.
 		    Note that we check for account level instead of Player.IsGameMaster() because in some
@@ -2095,13 +2095,13 @@ public partial class Player : Unit
 		*/
 
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Flying | MovementFlag.CanFly) &&
-		                     GetSession().GetSecurity() == AccountTypes.Player &&
-		                     !UnitMovedByMe.HasAuraType(AuraType.Fly) &&
-		                     !UnitMovedByMe.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed),
-		                     MovementFlag.Flying | MovementFlag.CanFly);
+							GetSession().GetSecurity() == AccountTypes.Player &&
+							!UnitMovedByMe.HasAuraType(AuraType.Fly) &&
+							!UnitMovedByMe.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed),
+							MovementFlag.Flying | MovementFlag.CanFly);
 
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.DisableGravity | MovementFlag.CanFly) && mi.HasMovementFlag(MovementFlag.Falling),
-		                     MovementFlag.Falling);
+							MovementFlag.Falling);
 
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.SplineElevation) && MathFunctions.fuzzyEq(mi.StepUpStartElevation, 0.0f), MovementFlag.SplineElevation);
 
@@ -2119,12 +2119,12 @@ public partial class Player : Unit
 		//Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
 		// 14.57 can be calculated by resolving damageperc formula below to 0
 		if (z_diff >= 14.57f &&
-		    !IsDead() &&
-		    !IsGameMaster() &&
-		    !HasAuraType(AuraType.Hover) &&
-		    !HasAuraType(AuraType.FeatherFall) &&
-		    !HasAuraType(AuraType.Fly) &&
-		    !IsImmunedToDamage(SpellSchoolMask.Normal))
+			!IsDead() &&
+			!IsGameMaster() &&
+			!HasAuraType(AuraType.Hover) &&
+			!HasAuraType(AuraType.FeatherFall) &&
+			!HasAuraType(AuraType.Fly) &&
+			!IsImmunedToDamage(SpellSchoolMask.Normal))
 		{
 			//Safe fall, fall height reduction
 			var safe_fall = GetTotalAuraModifier(AuraType.SafeFall);
@@ -3840,11 +3840,11 @@ public partial class Player : Unit
 		if (!pet.Location.IsPositionValid())
 		{
 			Log.outError(LogFilter.Server,
-			             "Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
-			             pet.GetGUID().ToString(),
-			             pet.GetEntry(),
-			             pet.Location.X,
-			             pet.Location.Y);
+						"Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
+						pet.GetGUID().ToString(),
+						pet.GetEntry(),
+						pet.Location.X,
+						pet.Location.Y);
 
 			return null;
 		}
@@ -4382,9 +4382,7 @@ public partial class Player : Unit
 
 	//Target
 	// Used for serverside target changes, does not apply to players
-	public override void SetTarget(ObjectGuid guid)
-	{
-	}
+	public override void SetTarget(ObjectGuid guid) { }
 
 	public void SetSelection(ObjectGuid guid)
 	{
@@ -4554,7 +4552,7 @@ public partial class Player : Unit
 
 		if (artifactAura != null)
 		{
-			var artifact = GetItemByGuid(artifactAura.GetCastItemGUID());
+			var artifact = GetItemByGuid(artifactAura.CastItemGuid);
 
 			if (artifact != null)
 				artifact.CheckArtifactRelicSlotUnlock(this);
@@ -5159,22 +5157,22 @@ public partial class Player : Unit
 
 		// cleanup unit flags (will be re-applied if need at aura load).
 		RemoveUnitFlag(UnitFlags.NonAttackable |
-		               UnitFlags.RemoveClientControl |
-		               UnitFlags.NotAttackable1 |
-		               UnitFlags.ImmuneToPc |
-		               UnitFlags.ImmuneToNpc |
-		               UnitFlags.Looting |
-		               UnitFlags.PetInCombat |
-		               UnitFlags.Pacified |
-		               UnitFlags.Stunned |
-		               UnitFlags.InCombat |
-		               UnitFlags.Disarmed |
-		               UnitFlags.Confused |
-		               UnitFlags.Fleeing |
-		               UnitFlags.Uninteractible |
-		               UnitFlags.Skinnable |
-		               UnitFlags.Mount |
-		               UnitFlags.OnTaxi);
+						UnitFlags.RemoveClientControl |
+						UnitFlags.NotAttackable1 |
+						UnitFlags.ImmuneToPc |
+						UnitFlags.ImmuneToNpc |
+						UnitFlags.Looting |
+						UnitFlags.PetInCombat |
+						UnitFlags.Pacified |
+						UnitFlags.Stunned |
+						UnitFlags.InCombat |
+						UnitFlags.Disarmed |
+						UnitFlags.Confused |
+						UnitFlags.Fleeing |
+						UnitFlags.Uninteractible |
+						UnitFlags.Skinnable |
+						UnitFlags.Mount |
+						UnitFlags.OnTaxi);
 
 		SetUnitFlag(UnitFlags.PlayerControlled); // must be set
 
@@ -5660,7 +5658,7 @@ public partial class Player : Unit
 			var spell = GetCurrentSpell(CurrentSpellTypes.Generic);
 
 			if (spell != null)
-				if (spell.m_spellInfo.Id != spellid)
+				if (spell.SpellInfo.Id != spellid)
 					InterruptSpell(CurrentSpellTypes.Generic, false);
 
 			InterruptSpell(CurrentSpellTypes.AutoRepeat, false);
@@ -5668,7 +5666,7 @@ public partial class Player : Unit
 			spell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 			if (spell != null)
-				if (spell.m_spellInfo.Id != spellid)
+				if (spell.SpellInfo.Id != spellid)
 					InterruptSpell(CurrentSpellTypes.Channeled, true);
 		}
 
@@ -7302,13 +7300,13 @@ public partial class Player : Unit
 
 			foreach (var auraEffect in auraList)
 				// Food emote comes above drinking emote if we have to decide (mage regen food for example)
-				if (auraEffect.GetBase().HasEffectType(AuraType.ModRegen) && auraEffect.GetSpellInfo().HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
+				if (auraEffect.Base.HasEffectType(AuraType.ModRegen) && auraEffect.SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
 				{
 					SendPlaySpellVisualKit(SpellConst.VisualKitFood, 0, 0);
 
 					break;
 				}
-				else if (auraEffect.GetBase().HasEffectType(AuraType.ModPowerRegen) && auraEffect.GetSpellInfo().HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
+				else if (auraEffect.Base.HasEffectType(AuraType.ModPowerRegen) && auraEffect.SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
 				{
 					SendPlaySpellVisualKit(SpellConst.VisualKitDrink, 0, 0);
 
@@ -7545,7 +7543,7 @@ public partial class Player : Unit
 
 		foreach (var eff in immune)
 		{
-			immuneMask |= eff.GetMiscValue();
+			immuneMask |= eff.MiscValue;
 
 			if (Convert.ToBoolean(immuneMask & (int)SpellSchoolMask.All)) // total immunity
 				return true;
@@ -7815,7 +7813,7 @@ public partial class Player : Unit
 		var pvp = _extraFlags.HasAnyFlag(PlayerExtraFlags.PVPDeath);
 
 		if ((pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-		    (!pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+			(!pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
 			return;
 
 		var now = GameTime.GetGameTime();
@@ -7855,7 +7853,7 @@ public partial class Player : Unit
 			ulong count = 0;
 
 			if ((pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-			    (!pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+				(!pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
 			{
 				count = (ulong)(_deathExpireTime - corpse.GetGhostTime()) / PlayerConst.DeathExpireStep;
 
@@ -8390,7 +8388,7 @@ public partial class Player : Unit
 
 			// Check faction
 			if ((currencyRecord.IsAlliance() && GetTeam() != Team.Alliance) ||
-			    (currencyRecord.IsHorde() && GetTeam() != Team.Horde))
+				(currencyRecord.IsHorde() && GetTeam() != Team.Horde))
 				continue;
 
 			// Check award condition
@@ -8485,13 +8483,13 @@ public partial class Player : Unit
 		if (areaEntry == null)
 		{
 			Log.outError(LogFilter.Player,
-			             "Player '{0}' ({1}) discovered unknown area (x: {2} y: {3} z: {4} map: {5})",
-			             GetName(),
-			             GetGUID().ToString(),
-			             Location.X,
-			             Location.Y,
-			             Location.Z,
-			             Location.MapId);
+						"Player '{0}' ({1}) discovered unknown area (x: {2} y: {3} z: {4} map: {5})",
+						GetName(),
+						GetGUID().ToString(),
+						Location.X,
+						Location.Y,
+						Location.Z,
+						Location.MapId);
 
 			return;
 		}
@@ -8501,13 +8499,13 @@ public partial class Player : Unit
 		if (offset >= PlayerConst.ExploredZonesSize)
 		{
 			Log.outError(LogFilter.Player,
-			             "Wrong area flag {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
-			             areaId,
-			             Location.X,
-			             Location.Y,
-			             offset,
-			             offset,
-			             PlayerConst.ExploredZonesSize);
+						"Wrong area flag {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
+						areaId,
+						Location.X,
+						Location.Y,
+						offset,
+						offset,
+						PlayerConst.ExploredZonesSize);
 
 			return;
 		}

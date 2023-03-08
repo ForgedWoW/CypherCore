@@ -46,12 +46,12 @@ namespace Scripts.Spells.Paladin
                 healInfo.GetHeal() == 0)
                 return;
 
-            double heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.GetAmount());
+            double heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
 
             var auras = GetCaster().GetSingleCastAuras();
 
             foreach (var eff in auras)
-                if (eff.GetId() == PaladinSpells.BeaconOfLight)
+                if (eff.Id == PaladinSpells.BeaconOfLight)
                 {
                     List<AuraApplication> applications = eff.GetApplicationList();
 
@@ -59,7 +59,7 @@ namespace Scripts.Spells.Paladin
                     {
                         CastSpellExtraArgs args = new(aurEff);
                         args.AddSpellMod(SpellValueMod.BasePoint0, (int)heal);
-                        eventInfo.GetActor().CastSpell(applications[0].GetTarget(), PaladinSpells.BeaconOfLightHeal, args);
+                        eventInfo.GetActor().CastSpell(applications[0].Target, PaladinSpells.BeaconOfLightHeal, args);
                     }
 
                     return;

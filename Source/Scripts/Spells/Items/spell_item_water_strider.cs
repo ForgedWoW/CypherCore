@@ -16,7 +16,7 @@ internal class spell_item_water_strider : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 1;
+		return spellInfo.Effects.Count > 1;
 	}
 
 	public override void Register()

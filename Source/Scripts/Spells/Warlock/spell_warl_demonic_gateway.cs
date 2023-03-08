@@ -55,9 +55,9 @@ namespace Scripts.Spells.Warlock
 			// check if player can reach the location
 			var spell = GetSpell();
 
-			if (spell.m_targets.HasDst())
+			if (spell.Targets.HasDst)
 			{
-				var pos = spell.m_targets.GetDst().Position;
+				var pos = spell.Targets.GetDst().Position;
 				var caster = GetCaster();
 
 				if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)

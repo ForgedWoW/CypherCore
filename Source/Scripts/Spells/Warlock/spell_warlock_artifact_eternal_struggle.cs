@@ -24,7 +24,7 @@ namespace Scripts.Spells.Warlock
 			if (caster == null)
 				return;
 
-			caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.GetAmount()));
+			caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 		}
 
 		public override void Register()

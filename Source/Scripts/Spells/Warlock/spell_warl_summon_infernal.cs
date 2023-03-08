@@ -14,7 +14,7 @@ namespace Scripts.Spells.Warlock
             var caster = GetCaster();
 
             if(caster != null && caster.TryGetAura(WarlockSpells.CRASHING_CHAOS, out var aura))
-                for (int i = 0; i < aura.GetEffect(0).m_baseAmount; i++) 
+                for (int i = 0; i < aura.GetEffect(0).BaseAmount; i++) 
                     caster.AddAura(WarlockSpells.CRASHING_CHAOS_AURA, caster);
         }
     }

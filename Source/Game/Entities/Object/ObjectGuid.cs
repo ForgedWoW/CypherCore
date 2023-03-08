@@ -17,7 +17,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 	public ObjectGuid(ulong high, ulong low)
 	{
-		_low  = low;
+		_low = low;
 		_high = high;
 	}
 
@@ -174,7 +174,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 		for (var i = 0; i < temp.Length / 2; ++i)
 		{
-			temp[i]     = lowBytes[i];
+			temp[i] = lowBytes[i];
 			temp[8 + i] = hiBytes[i];
 		}
 
@@ -183,20 +183,20 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 	public void SetRawValue(byte[] bytes)
 	{
-		_low  = BitConverter.ToUInt64(bytes, 0);
+		_low = BitConverter.ToUInt64(bytes, 0);
 		_high = BitConverter.ToUInt64(bytes, 8);
 	}
 
 	public void SetRawValue(ulong high, ulong low)
 	{
 		_high = high;
-		_low  = low;
+		_low = low;
 	}
 
 	public void Clear()
 	{
 		_high = 0;
-		_low  = 0;
+		_low = 0;
 	}
 
 	public ulong GetHighValue()
@@ -430,10 +430,10 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 	public override int GetHashCode()
 	{
 		return new
-		       {
-			       _high,
-			       _low
-		       }.GetHashCode();
+		{
+			_high,
+			_low
+		}.GetHashCode();
 	}
 
 	//Static Methods 

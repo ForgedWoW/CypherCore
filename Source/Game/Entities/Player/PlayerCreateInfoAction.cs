@@ -9,9 +9,7 @@ public class PlayerCreateInfoAction
 	public byte Type { get; set; }
 	public uint Action { get; set; }
 
-	public PlayerCreateInfoAction() : this(0, 0, 0)
-	{
-	}
+	public PlayerCreateInfoAction() : this(0, 0, 0) { }
 
 	public PlayerCreateInfoAction(byte button, uint action, byte type)
 	{

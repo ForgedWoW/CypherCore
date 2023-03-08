@@ -28,7 +28,7 @@ namespace Scripts.Spells.Paladin
                 Aura aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
                 if (aur != null)
                 {
-                    previousDuration = aur.GetDuration();
+                    previousDuration = aur.Duration;
                 }
 
                 double dmg = GetHitDamage();
@@ -43,7 +43,7 @@ namespace Scripts.Spells.Paladin
                 aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
                 if (aur != null)
                 {
-                    aur.SetDuration(aur.GetDuration() + previousDuration);
+                    aur.SetDuration(aur.Duration + previousDuration);
                 }
             }
             else
@@ -53,7 +53,7 @@ namespace Scripts.Spells.Paladin
                 Aura aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
                 if (aur != null)
                 {
-                    previousDuration = aur.GetDuration();
+                    previousDuration = aur.Duration;
                 }
 
                 player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, true);
@@ -61,14 +61,14 @@ namespace Scripts.Spells.Paladin
                 aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
                 if (aur != null)
                 {
-                    aur.SetDuration(aur.GetDuration() + previousDuration);
+                    aur.SetDuration(aur.Duration + previousDuration);
                 }
             }
 
             Aura aura = player.GetAura(PaladinSpells.RIGHTEOUS_PROTECTOR);
             if (aura != null) //reduce the CD of Light of the Protector and Avenging Wrath by 3
             {
-                TimeSpan cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).GetBaseAmount() * Time.InMilliseconds);
+                TimeSpan cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).BaseAmount * Time.InMilliseconds);
 
                 if (player.HasSpell(PaladinSpells.LIGHT_OF_THE_PROTECTOR))
                 {

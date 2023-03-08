@@ -45,7 +45,7 @@ namespace Scripts.Spells.Shaman
 
 		private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
 		{
-			SetDuration(GetDuration() + GetEffect(2).GetBaseAmount() * Time.InMilliseconds, (GetEffect(3).GetBaseAmount() * Time.InMilliseconds) > 0);
+			SetDuration(GetDuration() + GetEffect(2).BaseAmount * Time.InMilliseconds, (GetEffect(3).BaseAmount * Time.InMilliseconds) > 0);
 		}
 
 		public override void Register()

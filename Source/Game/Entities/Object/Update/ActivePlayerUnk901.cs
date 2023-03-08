@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -17,23 +20,22 @@ public class ActivePlayerUnk901 : BaseUpdateData<Player>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 3);
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WritePackedGuid(Field_0);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteInt32(Field_10);
-			}
 		}
 	}
 

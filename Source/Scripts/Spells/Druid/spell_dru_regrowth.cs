@@ -31,7 +31,7 @@ public class spell_dru_regrowth : SpellScript, IHasSpellEffects
 		{
 			if (GetCaster().HasAura(DruidSpells.MOMENT_OF_CLARITY))
 			{
-				var amount = clearcasting.GetEffect(0).GetAmount();
+				var amount = clearcasting.GetEffect(0).Amount;
 				clearcasting.GetEffect(0).SetAmount(amount - 1);
 
 				if (amount == -102)

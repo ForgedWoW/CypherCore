@@ -46,7 +46,7 @@ public class spell_dk_presence_AuraScript : AuraScript, IHasAuraEffects
 
 		if (impAurEff != null)
 			if (!target.HasAura(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
-				target.CastSpell(target, DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)impAurEff.GetAmount()).SetTriggeringAura(aurEff));
+				target.CastSpell(target, DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)impAurEff.Amount).SetTriggeringAura(aurEff));
 	}
 
 	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)

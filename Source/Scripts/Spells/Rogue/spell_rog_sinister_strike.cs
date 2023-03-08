@@ -31,10 +31,10 @@ internal class spell_rog_sinister_strike : SpellScript, IHasSpellEffects
 		var t5             = GetCaster().GetAuraEffect(RogueSpells.T52pSetBonus, 0);
 
 		if (t5 != null)
-			damagePerCombo += t5.GetAmount();
+			damagePerCombo += t5.Amount;
 
 		var finalDamage = damagePerCombo;
-		var costs       = GetSpell().GetPowerCost();
+		var costs       = GetSpell().PowerCost;
 		var c           = costs.Find(cost => cost.Power == PowerType.ComboPoints);
 
 		if (c != null)

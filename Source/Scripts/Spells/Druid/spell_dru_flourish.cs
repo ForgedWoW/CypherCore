@@ -23,12 +23,12 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 		var auraEffects = GetHitUnit().GetAuraEffectsByType(AuraType.PeriodicHeal);
 
 		foreach (var auraEffect in auraEffects)
-			if (auraEffect.GetCasterGUID() == GetCaster().GetGUID())
+			if (auraEffect.CasterGuid == GetCaster().GetGUID())
 			{
-				var healAura = auraEffect.GetBase();
+				var healAura = auraEffect.Base;
 
 				if (healAura != null)
-					healAura.SetDuration(healAura.GetDuration() + GetEffectValue() * Time.InMilliseconds);
+					healAura.SetDuration(healAura.Duration + GetEffectValue() * Time.InMilliseconds);
 			}
 	}
 

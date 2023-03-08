@@ -14,7 +14,7 @@ internal class spell_item_crystal_spire_of_karabor : AuraScript, IAuraCheckProc
 {
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return !spellInfo.GetEffects().Empty();
+		return !spellInfo.Effects.Empty();
 	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)

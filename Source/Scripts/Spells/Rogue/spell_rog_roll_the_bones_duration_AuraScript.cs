@@ -37,8 +37,8 @@ public class spell_rog_roll_the_bones_duration_AuraScript : AuraScript, IHasAura
 
 		if (aur != null)
 		{
-			aur.SetMaxDuration(rtb.GetDuration());
-			aur.SetDuration(rtb.GetDuration());
+			aur.SetMaxDuration(rtb.Duration);
+			aur.SetDuration(rtb.Duration);
 		}
 	}
 

@@ -32,7 +32,7 @@ internal class spell_sha_unlimited_power : AuraScript, IHasAuraEffects
 		var aura   = caster.GetAura(ShamanSpells.UnlimitedPowerBuff);
 
 		if (aura != null)
-			aura.SetStackAmount((byte)(aura.GetStackAmount() + 1));
+			aura.SetStackAmount((byte)(aura.StackAmount + 1));
 		else
 			caster.CastSpell(caster, ShamanSpells.UnlimitedPowerBuff, procInfo.GetProcSpell());
 	}

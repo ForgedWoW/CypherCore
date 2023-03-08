@@ -15,28 +15,6 @@ namespace Game.Entities;
 
 public partial class Unit
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Unit _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly UnitData _unitMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Unit owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
 	public bool m_canDualWield;
 	protected float[] CreateStats = new float[(int)Stats.Max];
@@ -147,4 +125,26 @@ public partial class Unit
 	public Vehicle VehicleKit { get; set; }
 	public uint LastSanctuaryTime { get; set; }
 	public SortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Unit _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly UnitData _unitMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Unit owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
+	}
 }

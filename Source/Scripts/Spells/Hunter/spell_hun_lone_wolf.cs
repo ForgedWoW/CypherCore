@@ -95,7 +95,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 
 				aurEff.ChangeAmount(GetSpellInfo().GetEffect(0).BasePoints, true, true);
 
-				var auraEffect = aurEff.GetBase().GetEffect(1);
+				var auraEffect = aurEff.Base.GetEffect(1);
 
 				if (auraEffect != null)
 					auraEffect.ChangeAmount(GetSpellInfo().GetEffect(0).BasePoints, true, true);

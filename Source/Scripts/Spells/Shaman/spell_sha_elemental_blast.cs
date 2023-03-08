@@ -21,7 +21,7 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).GetEffects().Count > 10;
+		return ValidateSpellInfo(ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 10;
 	}
 
 	public void AfterCast()
@@ -48,6 +48,6 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 				.CastSpell(GetCaster(),
 				           ShamanSpells.ElementalBlastEnergize,
 				           new CastSpellExtraArgs(energizeAmount)
-					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.GetAmount()));
+					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
 	}
 }

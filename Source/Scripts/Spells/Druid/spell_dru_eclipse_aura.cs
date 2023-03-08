@@ -32,7 +32,7 @@ namespace Scripts.Spells.Druid
 				return;
 
 			var spellId = GetSpellInfo().Id == DruidSpellIds.EclipseSolarAura ? DruidSpellIds.EclipseLunarSpellCnt : DruidSpellIds.EclipseSolarSpellCnt;
-			spell_dru_eclipse_common.SetSpellCount(GetTarget(), spellId, (uint)auraEffDummy.GetAmount());
+			spell_dru_eclipse_common.SetSpellCount(GetTarget(), spellId, (uint)auraEffDummy.Amount);
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Scripts.Spells.Warrior
 	{
 		public override bool Validate(SpellInfo spellInfo)
 		{
-			return ValidateSpellInfo(WarriorSpells.STOICISM) && spellInfo.GetEffects().Count > 1;
+			return ValidateSpellInfo(WarriorSpells.STOICISM) && spellInfo.Effects.Count > 1;
 		}
 
 		public void OnProc(ProcEventInfo eventInfo)

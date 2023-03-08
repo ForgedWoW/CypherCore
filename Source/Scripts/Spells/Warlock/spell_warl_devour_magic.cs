@@ -20,7 +20,7 @@ namespace Scripts.Spells.Warlock
 
 		public override bool Validate(SpellInfo spellInfo)
 		{
-			return ValidateSpellInfo(WarlockSpells.GLYPH_OF_DEMON_TRAINING, WarlockSpells.DEVOUR_MAGIC_HEAL) && spellInfo.GetEffects().Count > 1;
+			return ValidateSpellInfo(WarlockSpells.GLYPH_OF_DEMON_TRAINING, WarlockSpells.DEVOUR_MAGIC_HEAL) && spellInfo.Effects.Count > 1;
 		}
 
 		public override void Register()

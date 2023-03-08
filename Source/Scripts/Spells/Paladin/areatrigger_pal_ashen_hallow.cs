@@ -67,7 +67,7 @@ namespace Scripts.Spells.Paladin
                 AuraEffect ashen = caster.GetAuraEffect(PaladinSpells.AshenHallow, 1);
 
                 if (ashen != null)
-                    _period = TimeSpan.FromMilliseconds(ashen.GetPeriod());
+                    _period = TimeSpan.FromMilliseconds(ashen.Period);
             }
         }
     }

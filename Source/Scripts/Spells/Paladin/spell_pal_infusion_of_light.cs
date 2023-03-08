@@ -33,7 +33,7 @@ namespace Scripts.Spells.Paladin
 
         private bool CheckFlashOfLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)
         {
-            return eventInfo.GetProcSpell() && eventInfo.GetProcSpell().m_appliedMods.Contains(GetAura());
+            return eventInfo.GetProcSpell() && eventInfo.GetProcSpell().AppliedMods.Contains(GetAura());
         }
 
         private bool CheckHolyLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)

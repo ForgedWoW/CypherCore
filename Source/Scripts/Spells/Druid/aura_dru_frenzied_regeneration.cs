@@ -20,8 +20,8 @@ public class aura_dru_frenzied_regeneration : AuraScript, IHasAuraEffects
 	{
 		var frenzied = GetCaster().GetAura(22842);
 
-		if (frenzied != null)
-			frenzied.GetMaxDuration();
+		//if (frenzied != null)
+		//	frenzied.MaxDuration;
 
 		var healAmount = MathFunctions.CalculatePct(GetCaster().GetDamageOverLastSeconds(5), 50);
 		var minHealAmount = MathFunctions.CalculatePct(GetCaster().GetMaxHealth(), 5);

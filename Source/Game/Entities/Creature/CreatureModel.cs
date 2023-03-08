@@ -12,9 +12,7 @@ public class CreatureModel
 	public float DisplayScale;
 	public float Probability;
 
-	public CreatureModel()
-	{
-	}
+	public CreatureModel() { }
 
 	public CreatureModel(uint creatureDisplayId, float displayScale, float probability)
 	{

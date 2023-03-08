@@ -5,17 +5,15 @@ using System.Numerics;
 using Framework.Constants;
 using Game.Maps;
 
-namespace Game.Entities
+namespace Game.Entities;
+// From `gameobject_template_addon`, `gameobject_overrides`
+
+public class GameObjectData : SpawnData
 {
-    // From `gameobject_template_addon`, `gameobject_overrides`
+	public Quaternion Rotation;
+	public uint Animprogress;
+	public GameObjectState GoState;
+	public uint ArtKit;
 
-    public class GameObjectData : SpawnData
-    {
-        public Quaternion Rotation;
-        public uint Animprogress;
-        public GameObjectState GoState;
-        public uint ArtKit;
-
-        public GameObjectData() : base(SpawnObjectType.GameObject) { }
-    }
+	public GameObjectData() : base(SpawnObjectType.GameObject) { }
 }

@@ -44,7 +44,7 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 		var motes = caster.GetAura(ItemSpellIds.MoteOfAnger);
 
 		if (motes == null ||
-		    motes.GetStackAmount() < _stackAmount)
+		    motes.StackAmount < _stackAmount)
 			return;
 
 		caster.RemoveAura(ItemSpellIds.MoteOfAnger);

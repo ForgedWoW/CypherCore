@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -16,7 +19,7 @@ public class SkillInfo : BaseUpdateData<Player>
 
 	public void WriteCreate(WorldPacket data, Player owner, Player receiver)
 	{
-		for (int i = 0; i < 256; ++i)
+		for (var i = 0; i < 256; ++i)
 		{
 			data.WriteUInt16(SkillLineID[i]);
 			data.WriteUInt16(SkillStep[i]);
@@ -30,52 +33,46 @@ public class SkillInfo : BaseUpdateData<Player>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		for (uint i = 0; i < 1; ++i)
 			data.WriteUInt32(changesMask.GetBlocksMask(i));
+
 		data.WriteBits(changesMask.GetBlocksMask(1), 25);
+
 		for (uint i = 0; i < 57; ++i)
 			if (changesMask.GetBlock(i) != 0)
 				data.WriteBits(changesMask.GetBlock(i), 32);
 
 		data.FlushBits();
+
 		if (changesMask[0])
-		{
-			for (int i = 0; i < 256; ++i)
+			for (var i = 0; i < 256; ++i)
 			{
 				if (changesMask[1 + i])
-				{
 					data.WriteUInt16(SkillLineID[i]);
-				}
+
 				if (changesMask[257 + i])
-				{
 					data.WriteUInt16(SkillStep[i]);
-				}
+
 				if (changesMask[513 + i])
-				{
 					data.WriteUInt16(SkillRank[i]);
-				}
+
 				if (changesMask[769 + i])
-				{
 					data.WriteUInt16(SkillStartingRank[i]);
-				}
+
 				if (changesMask[1025 + i])
-				{
 					data.WriteUInt16(SkillMaxRank[i]);
-				}
+
 				if (changesMask[1281 + i])
-				{
 					data.WriteUInt16(SkillTempBonus[i]);
-				}
+
 				if (changesMask[1537 + i])
-				{
 					data.WriteUInt16(SkillPermBonus[i]);
-				}
 			}
-		}
 	}
 
 	public override void ClearChangesMask()

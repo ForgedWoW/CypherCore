@@ -117,9 +117,9 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 					var tmpCurrentAura = player.GetAura(IcicleAuras[i]);
 
 					if (tmpCurrentAura != null)
-						if (minDuration > tmpCurrentAura.GetDuration())
+						if (minDuration > tmpCurrentAura.Duration)
 						{
-							minDuration    = tmpCurrentAura.GetDuration();
+							minDuration    = tmpCurrentAura.Duration;
 							smallestIcicle = i;
 						}
 				}
@@ -129,7 +129,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
 				if (currentIcicleAuraEffect != null)
 				{
-					var basePoints = currentIcicleAuraEffect.GetAmount();
+					var basePoints = currentIcicleAuraEffect.Amount;
 
 					if (caster.HasAura(MageSpells.BLACK_ICE))
 						if (RandomHelper.randChance(20))
@@ -168,7 +168,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 							var glacialSpikeProc = player.GetAura(MageSpells.ICICLE_AURA);
 
 							if (glacialSpikeProc != null)
-								if (glacialSpikeProc.GetStackAmount() == 5)
+								if (glacialSpikeProc.StackAmount == 5)
 									player.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
 						}
 					}
@@ -188,9 +188,9 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 					var tmpCurrentAura = player.GetAura(IcicleAuras[i]);
 
 					if (tmpCurrentAura != null)
-						if (minDuration > tmpCurrentAura.GetDuration())
+						if (minDuration > tmpCurrentAura.Duration)
 						{
-							minDuration    = tmpCurrentAura.GetDuration();
+							minDuration    = tmpCurrentAura.Duration;
 							smallestIcicle = i;
 						}
 				}
@@ -200,7 +200,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
 				if (currentIcicleAuraEffect != null)
 				{
-					var basePoints = currentIcicleAuraEffect.GetAmount();
+					var basePoints = currentIcicleAuraEffect.Amount;
 
 					if (caster.HasAura(MageSpells.BLACK_ICE))
 						if (RandomHelper.randChance(20))
@@ -239,7 +239,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 							var glacialSpikeProc = player.GetAura(MageSpells.ICICLE_AURA);
 
 							if (glacialSpikeProc != null)
-								if (glacialSpikeProc.GetStackAmount() == 5)
+								if (glacialSpikeProc.StackAmount == 5)
 									player.CastSpell(player, MageSpells.GLACIAL_SPIKE_PROC, true);
 						}
 					}

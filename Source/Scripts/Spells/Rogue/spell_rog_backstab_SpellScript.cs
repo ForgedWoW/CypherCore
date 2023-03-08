@@ -17,7 +17,7 @@ internal class spell_rog_backstab_SpellScript : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 3;
+		return spellInfo.Effects.Count > 3;
 	}
 
 	public override void Register()

@@ -16,9 +16,7 @@ public class SocialManager : Singleton<SocialManager>
 	public const int IGNORE_LIMIT = 50;
 	readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
-	SocialManager()
-	{
-	}
+	SocialManager() { }
 
 	public static void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
 	{
@@ -44,7 +42,7 @@ public class SocialManager : Singleton<SocialManager>
 		// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
 		if (!player.GetSession().HasPermission(RBACPermissions.WhoSeeAllSecLevels) &&
-		    target.GetSession().GetSecurity() > (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
+			target.GetSession().GetSecurity() > (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
 			return;
 
 		// player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST

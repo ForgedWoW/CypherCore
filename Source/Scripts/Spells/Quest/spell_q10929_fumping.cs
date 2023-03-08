@@ -26,7 +26,7 @@ internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Expire)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
 			return;
 
 		var caster = GetCaster();

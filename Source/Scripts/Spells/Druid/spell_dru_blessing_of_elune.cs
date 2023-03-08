@@ -28,7 +28,7 @@ public class spell_dru_blessing_of_elune : SpellScript, ISpellOnHit
 			var aurEff = aura.GetEffect(0);
 
 			if (aurEff != null)
-				power += MathFunctions.CalculatePct(power, aurEff.GetAmount());
+				power += MathFunctions.CalculatePct(power, aurEff.Amount);
 		}
 
 		SetHitDamage(power);

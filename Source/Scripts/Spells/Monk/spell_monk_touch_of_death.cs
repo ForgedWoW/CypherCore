@@ -22,7 +22,7 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var effInfo = GetAura().GetSpellInfo().GetEffect(1).CalcValue();
+			var effInfo = GetAura().SpellInfo.GetEffect(1).CalcValue();
 
 			if (effInfo != 0)
 			{
@@ -39,7 +39,7 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var damage = aurEff.GetAmount();
+			var damage = aurEff.Amount;
 
 			// Damage reduced to Players, need to check reduction value
 			if (GetTarget().GetTypeId() == TypeId.Player)

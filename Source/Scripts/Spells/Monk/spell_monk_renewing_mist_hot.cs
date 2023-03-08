@@ -42,12 +42,12 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 
 			foreach (var kvp in appliedAuras.IsPositive(false).GetResults())
 			{
-				var baseAura = kvp.GetBase();
+				var baseAura = kvp.Base;
 
-				if ((baseAura.GetSpellInfo().GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
+				if ((baseAura.SpellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
 					continue;
 
-				if ((baseAura.GetSpellInfo().GetDispelMask() & (1 << (int)DispelType.Magic)) == 0)
+				if ((baseAura.SpellInfo.GetDispelMask() & (1 << (int)DispelType.Magic)) == 0)
 					continue;
 
 				if (baseAura.HasEffectType(AuraType.PeriodicDamage) || baseAura.HasEffectType(AuraType.PeriodicDamagePercent))
@@ -55,7 +55,7 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 					var effInfo = counteractAura.GetEffect(0);
 
 					if (effInfo != null)
-                        amount.Value = MathFunctions.AddPct(amount.Value, effInfo.GetAmount());
+                        amount.Value = MathFunctions.AddPct(amount.Value, effInfo.Amount);
 				}
 			}
 		}

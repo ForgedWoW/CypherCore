@@ -22,7 +22,7 @@ public class spell_dh_artifact_fueled_by_pain : AuraScript, IHasAuraEffects, IAu
 		if (caster == null)
 			return;
 
-		var duration = aurEff.GetAmount() * Time.InMilliseconds;
+		var duration = aurEff.Amount * Time.InMilliseconds;
 		var aur      = caster.AddAura(DemonHunterSpells.METAMORPHOSIS_VENGEANCE, caster);
 
 		if (aur != null)

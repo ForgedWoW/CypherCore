@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Runtime.InteropServices;
 using Framework.Constants;
 using Game.Networking.Packets;
 
@@ -7,218 +10,147 @@ namespace Game.Entities;
 [StructLayout(LayoutKind.Explicit)]
 public class GameObjectTemplate
 {
-	[FieldOffset(0)]
-	public uint entry;
+	[FieldOffset(0)] public uint entry;
 
-	[FieldOffset(4)]
-	public GameObjectTypes type;
+	[FieldOffset(4)] public GameObjectTypes type;
 
-	[FieldOffset(8)]
-	public uint displayId;
+	[FieldOffset(8)] public uint displayId;
 
-	[FieldOffset(16)]
-	public string name;
+	[FieldOffset(16)] public string name;
 
-	[FieldOffset(24)]
-	public string IconName;
+	[FieldOffset(24)] public string IconName;
 
-	[FieldOffset(32)]
-	public string castBarCaption;
+	[FieldOffset(32)] public string castBarCaption;
 
-	[FieldOffset(40)]
-	public string unk1;
+	[FieldOffset(40)] public string unk1;
 
-	[FieldOffset(48)]
-	public float size;
+	[FieldOffset(48)] public float size;
 
-	[FieldOffset(52)]
-	public uint ContentTuningId;
+	[FieldOffset(52)] public uint ContentTuningId;
 
-	[FieldOffset(56)]
-	public string AIName;
+	[FieldOffset(56)] public string AIName;
 
-	[FieldOffset(64)]
-	public uint ScriptId;
+	[FieldOffset(64)] public uint ScriptId;
 
-	[FieldOffset(68)]
-	public door Door;
+	[FieldOffset(68)] public door Door;
 
-	[FieldOffset(68)]
-	public button Button;
+	[FieldOffset(68)] public button Button;
 
-	[FieldOffset(68)]
-	public questgiver QuestGiver;
+	[FieldOffset(68)] public questgiver QuestGiver;
 
-	[FieldOffset(68)]
-	public chest Chest;
+	[FieldOffset(68)] public chest Chest;
 
-	[FieldOffset(68)]
-	public binder Binder;
+	[FieldOffset(68)] public binder Binder;
 
-	[FieldOffset(68)]
-	public generic Generic;
+	[FieldOffset(68)] public generic Generic;
 
-	[FieldOffset(68)]
-	public trap Trap;
+	[FieldOffset(68)] public trap Trap;
 
-	[FieldOffset(68)]
-	public chair Chair;
+	[FieldOffset(68)] public chair Chair;
 
-	[FieldOffset(68)]
-	public spellFocus SpellFocus;
+	[FieldOffset(68)] public spellFocus SpellFocus;
 
-	[FieldOffset(68)]
-	public text Text;
+	[FieldOffset(68)] public text Text;
 
-	[FieldOffset(68)]
-	public goober Goober;
+	[FieldOffset(68)] public goober Goober;
 
-	[FieldOffset(68)]
-	public transport Transport;
+	[FieldOffset(68)] public transport Transport;
 
-	[FieldOffset(68)]
-	public areadamage AreaDamage;
+	[FieldOffset(68)] public areadamage AreaDamage;
 
-	[FieldOffset(68)]
-	public camera Camera;
+	[FieldOffset(68)] public camera Camera;
 
-	[FieldOffset(68)]
-	public moTransport MoTransport;
+	[FieldOffset(68)] public moTransport MoTransport;
 
-	[FieldOffset(68)]
-	public duelflag DuelFlag;
+	[FieldOffset(68)] public duelflag DuelFlag;
 
-	[FieldOffset(68)]
-	public fishingnode FishingNode;
+	[FieldOffset(68)] public fishingnode FishingNode;
 
-	[FieldOffset(68)]
-	public ritual Ritual;
+	[FieldOffset(68)] public ritual Ritual;
 
-	[FieldOffset(68)]
-	public mailbox MailBox;
+	[FieldOffset(68)] public mailbox MailBox;
 
-	[FieldOffset(68)]
-	public guardpost GuardPost;
+	[FieldOffset(68)] public guardpost GuardPost;
 
-	[FieldOffset(68)]
-	public spellcaster SpellCaster;
+	[FieldOffset(68)] public spellcaster SpellCaster;
 
-	[FieldOffset(68)]
-	public meetingstone MeetingStone;
+	[FieldOffset(68)] public meetingstone MeetingStone;
 
-	[FieldOffset(68)]
-	public flagstand FlagStand;
+	[FieldOffset(68)] public flagstand FlagStand;
 
-	[FieldOffset(68)]
-	public fishinghole FishingHole;
+	[FieldOffset(68)] public fishinghole FishingHole;
 
-	[FieldOffset(68)]
-	public flagdrop FlagDrop;
+	[FieldOffset(68)] public flagdrop FlagDrop;
 
-	[FieldOffset(68)]
-	public controlzone ControlZone;
+	[FieldOffset(68)] public controlzone ControlZone;
 
-	[FieldOffset(68)]
-	public auraGenerator AuraGenerator;
+	[FieldOffset(68)] public auraGenerator AuraGenerator;
 
-	[FieldOffset(68)]
-	public dungeonDifficulty DungeonDifficulty;
+	[FieldOffset(68)] public dungeonDifficulty DungeonDifficulty;
 
-	[FieldOffset(68)]
-	public barberChair BarberChair;
+	[FieldOffset(68)] public barberChair BarberChair;
 
-	[FieldOffset(68)]
-	public destructiblebuilding DestructibleBuilding;
+	[FieldOffset(68)] public destructiblebuilding DestructibleBuilding;
 
-	[FieldOffset(68)]
-	public guildbank GuildBank;
+	[FieldOffset(68)] public guildbank GuildBank;
 
-	[FieldOffset(68)]
-	public trapDoor TrapDoor;
+	[FieldOffset(68)] public trapDoor TrapDoor;
 
-	[FieldOffset(68)]
-	public newflag NewFlag;
+	[FieldOffset(68)] public newflag NewFlag;
 
-	[FieldOffset(68)]
-	public newflagdrop NewFlagDrop;
+	[FieldOffset(68)] public newflagdrop NewFlagDrop;
 
-	[FieldOffset(68)]
-	public garrisonbuilding GarrisonBuilding;
+	[FieldOffset(68)] public garrisonbuilding GarrisonBuilding;
 
-	[FieldOffset(68)]
-	public garrisonplot GarrisonPlot;
+	[FieldOffset(68)] public garrisonplot GarrisonPlot;
 
-	[FieldOffset(68)]
-	public clientcreature ClientCreature;
+	[FieldOffset(68)] public clientcreature ClientCreature;
 
-	[FieldOffset(68)]
-	public clientitem ClientItem;
+	[FieldOffset(68)] public clientitem ClientItem;
 
-	[FieldOffset(68)]
-	public capturepoint CapturePoint;
+	[FieldOffset(68)] public capturepoint CapturePoint;
 
-	[FieldOffset(68)]
-	public phaseablemo PhaseableMO;
+	[FieldOffset(68)] public phaseablemo PhaseableMO;
 
-	[FieldOffset(68)]
-	public garrisonmonument GarrisonMonument;
+	[FieldOffset(68)] public garrisonmonument GarrisonMonument;
 
-	[FieldOffset(68)]
-	public garrisonshipment GarrisonShipment;
+	[FieldOffset(68)] public garrisonshipment GarrisonShipment;
 
-	[FieldOffset(68)]
-	public garrisonmonumentplaque GarrisonMonumentPlaque;
+	[FieldOffset(68)] public garrisonmonumentplaque GarrisonMonumentPlaque;
 
-	[FieldOffset(68)]
-	public itemforge ItemForge;
+	[FieldOffset(68)] public itemforge ItemForge;
 
-	[FieldOffset(68)]
-	public uilink UILink;
+	[FieldOffset(68)] public uilink UILink;
 
-	[FieldOffset(68)]
-	public keystonereceptacle KeystoneReceptacle;
+	[FieldOffset(68)] public keystonereceptacle KeystoneReceptacle;
 
-	[FieldOffset(68)]
-	public gatheringnode GatheringNode;
+	[FieldOffset(68)] public gatheringnode GatheringNode;
 
-	[FieldOffset(68)]
-	public challengemodereward ChallengeModeReward;
+	[FieldOffset(68)] public challengemodereward ChallengeModeReward;
 
-	[FieldOffset(68)]
-	public multi Multi;
+	[FieldOffset(68)] public multi Multi;
 
-	[FieldOffset(68)]
-	public siegeableMulti SiegeableMulti;
+	[FieldOffset(68)] public siegeableMulti SiegeableMulti;
 
-	[FieldOffset(68)]
-	public siegeableMO SiegeableMO;
+	[FieldOffset(68)] public siegeableMO SiegeableMO;
 
-	[FieldOffset(68)]
-	public pvpReward PvpReward;
+	[FieldOffset(68)] public pvpReward PvpReward;
 
-	[FieldOffset(68)]
-	public playerchoicechest PlayerChoiceChest;
+	[FieldOffset(68)] public playerchoicechest PlayerChoiceChest;
 
-	[FieldOffset(68)]
-	public legendaryforge LegendaryForge;
+	[FieldOffset(68)] public legendaryforge LegendaryForge;
 
-	[FieldOffset(68)]
-	public garrtalenttree GarrTalentTree;
+	[FieldOffset(68)] public garrtalenttree GarrTalentTree;
 
-	[FieldOffset(68)]
-	public weeklyrewardchest WeeklyRewardChest;
+	[FieldOffset(68)] public weeklyrewardchest WeeklyRewardChest;
 
-	[FieldOffset(68)]
-	public clientmodel ClientModel;
+	[FieldOffset(68)] public clientmodel ClientModel;
 
-	[FieldOffset(68)]
-	public craftingTable CraftingTable;
+	[FieldOffset(68)] public craftingTable CraftingTable;
 
-	[FieldOffset(68)]
-	public raw Raw;
+	[FieldOffset(68)] public raw Raw;
 
-	[FieldOffset(208)]
-	public QueryGameObjectResponse QueryData;
+	[FieldOffset(208)] public QueryGameObjectResponse QueryData;
 
 	// helpers
 	public bool IsDespawnAtAction()
@@ -284,7 +216,6 @@ public class GameObjectTemplate
 
 	public uint GetInteractRadiusOverride() => type switch
 	{
-
 		GameObjectTypes.Door                   => Door.InteractRadiusOverride,
 		GameObjectTypes.Button                 => Button.InteractRadiusOverride,
 		GameObjectTypes.QuestGiver             => QuestGiver.InteractRadiusOverride,
@@ -398,9 +329,9 @@ public class GameObjectTemplate
 	}
 
 	/// <summary>
-	/// Cannot be used/activated/looted by players under immunity effects (example: Divine Shield)
+	///  Cannot be used/activated/looted by players under immunity effects (example: Divine Shield)
 	/// </summary>
-	/// <returns></returns>
+	/// <returns> </returns>
 	public uint GetNoDamageImmune()
 	{
 		switch (type)
@@ -432,9 +363,9 @@ public class GameObjectTemplate
 	};
 
 	/// <summary>
-	/// despawn at uses amount
+	///  despawn at uses amount
 	/// </summary>
-	/// <returns></returns>
+	/// <returns> </returns>
 	public uint GetCharges()
 	{
 		switch (type)
@@ -469,32 +400,41 @@ public class GameObjectTemplate
 	public uint GetAutoCloseTime()
 	{
 		uint autoCloseTime = 0;
+
 		switch (type)
 		{
 			case GameObjectTypes.Door:
 				autoCloseTime = Door.autoClose;
+
 				break;
 			case GameObjectTypes.Button:
 				autoCloseTime = Button.autoClose;
+
 				break;
 			case GameObjectTypes.Trap:
 				autoCloseTime = Trap.autoClose;
+
 				break;
 			case GameObjectTypes.Goober:
 				autoCloseTime = Goober.autoClose;
+
 				break;
 			case GameObjectTypes.Transport:
 				autoCloseTime = Transport.autoClose;
+
 				break;
 			case GameObjectTypes.AreaDamage:
 				autoCloseTime = AreaDamage.autoClose;
+
 				break;
 			case GameObjectTypes.TrapDoor:
 				autoCloseTime = TrapDoor.autoClose;
+
 				break;
 			default:
 				break;
 		}
+
 		return autoCloseTime; // prior to 3.0.3, conversion was / 0x10000;
 	}
 
@@ -679,7 +619,7 @@ public class GameObjectTemplate
 		GameObjectTypes.AuraGenerator => AuraGenerator.serverOnly,
 		_                             => 0,
 	};
-        
+
 	public uint GetSpellFocusType()
 	{
 		switch (type)
@@ -725,12 +665,13 @@ public class GameObjectTemplate
 		stats.Size = size;
 
 		var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
-		foreach (uint item in items)
+
+		foreach (var item in items)
 			stats.QuestItems.Add(item);
 
 		unsafe
 		{
-			for (int i = 0; i < SharedConst.MaxGOData; i++)
+			for (var i = 0; i < SharedConst.MaxGOData; i++)
 				stats.Data[i] = Raw.data[i];
 		}
 
@@ -740,6 +681,7 @@ public class GameObjectTemplate
 	}
 
 	#region TypeStructs
+
 	public unsafe struct raw
 	{
 		public fixed int data[SharedConst.MaxGOData];
@@ -1513,5 +1455,6 @@ public class GameObjectTemplate
 		public uint Script;    // 0 Script, References: SpellScript, NoValue = 0
 		public uint autoClose; // 1 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
 	}
+
 	#endregion
 }

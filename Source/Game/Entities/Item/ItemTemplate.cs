@@ -67,10 +67,10 @@ public class ItemTemplate
 	public bool HasSignature()
 	{
 		return GetMaxStackSize() == 1 &&
-		       GetClass() != ItemClass.Consumable &&
-		       GetClass() != ItemClass.Quest &&
-		       !HasFlag(ItemFlags.NoCreator) &&
-		       GetId() != 6948; /*Hearthstone*/
+				GetClass() != ItemClass.Consumable &&
+				GetClass() != ItemClass.Quest &&
+				!HasFlag(ItemFlags.NoCreator) &&
+				GetId() != 6948; /*Hearthstone*/
 	}
 
 	public bool HasFlag(ItemFlags flag)
@@ -625,8 +625,8 @@ public class ItemTemplate
 	public bool IsRangedWeapon()
 	{
 		return IsWeapon() &&
-		       (GetSubClass() == (uint)ItemSubClassWeapon.Bow ||
-		        GetSubClass() == (uint)ItemSubClassWeapon.Gun ||
-		        GetSubClass() == (uint)ItemSubClassWeapon.Crossbow);
+				(GetSubClass() == (uint)ItemSubClassWeapon.Bow ||
+				GetSubClass() == (uint)ItemSubClassWeapon.Gun ||
+				GetSubClass() == (uint)ItemSubClassWeapon.Crossbow);
 	}
 }

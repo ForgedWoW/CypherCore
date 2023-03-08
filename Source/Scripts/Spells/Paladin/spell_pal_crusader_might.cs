@@ -28,7 +28,7 @@ namespace Scripts.Spells.Paladin
 
         private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
         {
-            GetTarget().GetSpellHistory().ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromSeconds(aurEff.GetAmount()));
+            GetTarget().GetSpellHistory().ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromSeconds(aurEff.Amount));
         }
     }
 }

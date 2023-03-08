@@ -64,7 +64,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 					if (spellInfo.SpellFamilyFlags & new FlagArray128(0x10000))
 						continue;
 
-					if (spellInfo.IsPositive())
+					if (spellInfo.IsPositive)
 						player.CastSpell(player, enchant.EffectArg[s], item);
 					else
 						player.CastSpell(target, enchant.EffectArg[s], item);
@@ -92,7 +92,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 			var aurEff = target.GetAuraEffect(AuraType.PeriodicDummy, SpellFamilyNames.Rogue, new FlagArray128(0x10000, 0x80000, 0), GetCaster().GetGUID());
 
 			if (aurEff != null)
-				_stackAmount = aurEff.GetBase().GetStackAmount();
+				_stackAmount = aurEff.Base.StackAmount;
 		}
 	}
 }

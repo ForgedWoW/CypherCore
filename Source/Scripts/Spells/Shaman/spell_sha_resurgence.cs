@@ -36,7 +36,7 @@ namespace Scripts.Spells.Shaman
 
 			if (target != null)
 			{
-				healAmount = target.CalculateSpellDamage(target, procInfo.GetProcSpell().GetSpellInfo().GetEffect(0), 0);
+				healAmount = target.CalculateSpellDamage(target, procInfo.GetProcSpell().SpellInfo.GetEffect(0), 0);
 
 				if (healAmount != 0)
 				{

@@ -111,24 +111,24 @@ namespace Game.Scripting
         // returns proto of the spell
         public SpellInfo GetSpellInfo()
         {
-            return _aura.GetSpellInfo();
+            return _aura.SpellInfo;
         }
 
         public SpellEffectInfo GetEffectInfo(int effIndex)
         {
-            return _aura.GetSpellInfo().GetEffect(effIndex);
+            return _aura.SpellInfo.GetEffect(effIndex);
         }
 
         // returns spellid of the spell
         public uint GetId()
         {
-            return _aura.GetId();
+            return _aura.Id;
         }
 
         // returns Guid of object which casted the aura (_originalCaster of the Spell class)
         public ObjectGuid GetCasterGUID()
         {
-            return _aura.GetCasterGUID();
+            return _aura.CasterGuid;
         }
 
         // returns unit which casted the aura or null if not avalible (caster logged out for example)
@@ -168,13 +168,13 @@ namespace Game.Scripting
         // returns object on which aura was casted, Target for non-area Auras, area aura source for area Auras
         public WorldObject GetOwner()
         {
-            return _aura.GetOwner();
+            return _aura.Owner;
         }
 
         // returns owner if it's unit or unit derived object, null otherwise (only for persistent area Auras null is returned)
         public Unit GetUnitOwner()
         {
-            return _aura.GetUnitOwner();
+            return _aura.UnitOwner;
         }
 
         // removes aura with remove mode (see AuraRemoveMode enum)
@@ -192,7 +192,7 @@ namespace Game.Scripting
         // aura duration manipulation - when duration goes to 0 aura is removed
         public int GetDuration()
         {
-            return _aura.GetDuration();
+            return _aura.Duration;
         }
 
         public void SetDuration(double duration, bool withMods = false)
@@ -207,7 +207,7 @@ namespace Game.Scripting
 
         public int GetMaxDuration()
         {
-            return _aura.GetMaxDuration();
+            return _aura.MaxDuration;
         }
 
         public void SetMaxDuration(double duration)
@@ -223,13 +223,13 @@ namespace Game.Scripting
         // expired - duration just went to 0
         public bool IsExpired()
         {
-            return _aura.IsExpired();
+            return _aura.IsExpired;
         }
 
         // stack amount manipulation
         public byte GetStackAmount()
         {
-            return _aura.GetStackAmount();
+            return _aura.StackAmount;
         }
 
         public bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -277,7 +277,7 @@ namespace Game.Scripting
                 case AuraScriptHookType.EffectProc:
                 case AuraScriptHookType.EffectAfterProc:
                 case AuraScriptHookType.EnterLeaveCombat:
-                    return _auraApplication.GetTarget();
+                    return _auraApplication.Target;
                 default:
                     Log.outError(LogFilter.Scripts, "Script: `{0}` Spell: `{1}` AuraScript.GetTarget called in a hook in which the call won't have effect!", ScriptName, ScriptSpellId);
 
@@ -295,13 +295,13 @@ namespace Game.Scripting
 
         public Difficulty GetCastDifficulty()
         {
-            return GetAura().GetCastDifficulty();
+            return GetAura().CastDifficulty;
         }
 
         // returns owner if it's dynobj, null otherwise
         public DynamicObject GetDynobjOwner()
         {
-            return _aura.GetDynobjOwner();
+            return _aura.DynobjOwner;
         }
 
         // returns Type of the aura, may be dynobj owned aura or unit owned aura
@@ -318,7 +318,7 @@ namespace Game.Scripting
 
         public long GetApplyTime()
         {
-            return _aura.GetApplyTime();
+            return _aura.ApplyTime;
         }
 
         public int CalcMaxDuration()
@@ -329,13 +329,13 @@ namespace Game.Scripting
         // permament - has infinite duration
         public bool IsPermanent()
         {
-            return _aura.IsPermanent();
+            return _aura.IsPermanent;
         }
 
         // charges manipulation - 0 - not charged aura
         public byte GetCharges()
         {
-            return _aura.GetCharges();
+            return _aura.Charges;
         }
 
         public void SetCharges(byte charges)

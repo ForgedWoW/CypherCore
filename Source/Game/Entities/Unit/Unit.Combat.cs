@@ -21,12 +21,12 @@ public partial class Unit
 	public virtual void AtEnterCombat()
 	{
 		foreach (var pair in GetAppliedAuras())
-			pair.GetBase().CallScriptEnterLeaveCombatHandlers(pair, true);
+			pair.Base.CallScriptEnterLeaveCombatHandlers(pair, true);
 
 		var spell = GetCurrentSpell(CurrentSpellTypes.Generic);
 
 		if (spell != null)
-			if (spell.GetState() == SpellState.Preparing && spell.m_spellInfo.HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful) && spell.m_spellInfo.InterruptFlags.HasFlag(SpellInterruptFlags.Combat))
+			if (spell.State == SpellState.Preparing && spell.SpellInfo.HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful) && spell.SpellInfo.InterruptFlags.HasFlag(SpellInterruptFlags.Combat))
 				InterruptNonMeleeSpells(false);
 
 		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.EnteringCombat);
@@ -36,18 +36,14 @@ public partial class Unit
 	public virtual void AtExitCombat()
 	{
 		foreach (var pair in GetAppliedAuras())
-			pair.GetBase().CallScriptEnterLeaveCombatHandlers(pair, false);
+			pair.Base.CallScriptEnterLeaveCombatHandlers(pair, false);
 
 		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeavingCombat);
 	}
 
-	public virtual void AtEngage(Unit target)
-	{
-	}
+	public virtual void AtEngage(Unit target) { }
 
-	public virtual void AtDisengage()
-	{
-	}
+	public virtual void AtDisengage() { }
 
 	public void CombatStop(bool includingCast = false, bool mutualPvP = true)
 	{
@@ -173,7 +169,7 @@ public partial class Unit
 	public virtual void OnCombatExit()
 	{
 		foreach (var aurApp in GetAppliedAuras())
-			aurApp.GetBase().CallScriptEnterLeaveCombatHandlers(aurApp, false);
+			aurApp.Base.CallScriptEnterLeaveCombatHandlers(aurApp, false);
 	}
 
 	public bool CanHaveThreatList()
@@ -472,11 +468,11 @@ public partial class Unit
 
 		if (victim)
 			Log.outInfo(LogFilter.Unit,
-			            "{0} {1} stopped attacking {2} {3}",
-			            (IsTypeId(TypeId.Player) ? "Player" : "Creature"),
-			            GetGUID().ToString(),
-			            (victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
-			            victim.GetGUID().ToString());
+						"{0} {1} stopped attacking {2} {3}",
+						(IsTypeId(TypeId.Player) ? "Player" : "Creature"),
+						GetGUID().ToString(),
+						(victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
+						victim.GetGUID().ToString());
 		else
 			Log.outInfo(LogFilter.Unit, "{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GetGUID().ToString());
 	}
@@ -486,9 +482,7 @@ public partial class Unit
 		return UnitData.Target;
 	}
 
-	public virtual void SetTarget(ObjectGuid guid)
-	{
-	}
+	public virtual void SetTarget(ObjectGuid guid) { }
 
 	public bool AttackStop()
 	{
@@ -699,13 +693,13 @@ public partial class Unit
 				ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.GetHitMask(), null, dmgInfo, null);
 
 				Log.outDebug(LogFilter.Unit,
-				             "AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
-				             GetGUID().ToString(),
-				             victim.GetGUID().ToString(),
-				             damageInfo.Damage,
-				             damageInfo.Absorb,
-				             damageInfo.Blocked,
-				             damageInfo.Resist);
+							"AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
+							GetGUID().ToString(),
+							victim.GetGUID().ToString(),
+							damageInfo.Damage,
+							damageInfo.Absorb,
+							damageInfo.Blocked,
+							damageInfo.Resist);
 			}
 			else
 			{
@@ -732,12 +726,12 @@ public partial class Unit
 
 		foreach (var i in interceptAuras)
 		{
-			var magnet = i.GetCaster();
+			var magnet = i.Caster;
 
 			if (magnet != null)
 				if (IsValidAttackTarget(magnet, spellInfo) && magnet.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
 				{
-					i.GetBase().DropCharge(AuraRemoveMode.Expire);
+					i.Base.DropCharge(AuraRemoveMode.Expire);
 
 					return magnet;
 				}
@@ -901,15 +895,15 @@ public partial class Unit
 					if (dungeonEncounter != null)
 					{
 						creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-						                                                                         creature.GetCreatureTemplate().LootId,
-						                                                                         LootStorage.Creature,
-						                                                                         LootType.Corpse,
-						                                                                         creature,
-						                                                                         creature.GetCreatureTemplate().MinGold,
-						                                                                         creature.GetCreatureTemplate().MaxGold,
-						                                                                         (ushort)creature.GetLootMode(),
-						                                                                         creature.GetMap().GetDifficultyLootItemContext(),
-						                                                                         tappers);
+																								creature.GetCreatureTemplate().LootId,
+																								LootStorage.Creature,
+																								LootType.Corpse,
+																								creature,
+																								creature.GetCreatureTemplate().MinGold,
+																								creature.GetCreatureTemplate().MaxGold,
+																								(ushort)creature.GetLootMode(),
+																								creature.GetMap().GetDifficultyLootItemContext(),
+																								tappers);
 					}
 					else if (!tappers.Empty())
 					{
@@ -1400,7 +1394,7 @@ public partial class Unit
 	}
 
 	/// <summary>
-	/// returns if the unit can't enter combat
+	///  returns if the unit can't enter combat
 	/// </summary>
 	public bool IsCombatDisallowed()
 	{
@@ -1408,7 +1402,7 @@ public partial class Unit
 	}
 
 	/// <summary>
-	/// enables / disables combat interaction of this unit
+	///  enables / disables combat interaction of this unit
 	/// </summary>
 	public void SetIsCombatDisallowed(bool apply)
 	{
@@ -1710,8 +1704,8 @@ public partial class Unit
 			tmp = dodge_chance;
 
 			if (tmp > 0 // check if unit _can_ dodge
-			    &&
-			    roll < (sum += tmp))
+				&&
+				roll < (sum += tmp))
 				return MeleeHitOutcome.Dodge;
 		}
 
@@ -1721,17 +1715,17 @@ public partial class Unit
 			tmp = parry_chance;
 
 			if (tmp > 0 // check if unit _can_ parry
-			    &&
-			    roll < (sum += tmp))
+				&&
+				roll < (sum += tmp))
 				return MeleeHitOutcome.Parry;
 		}
 
 		// 4. GLANCING
 		// Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
 		if ((IsTypeId(TypeId.Player) || IsPet()) &&
-		    !victim.IsTypeId(TypeId.Player) &&
-		    !victim.IsPet() &&
-		    attackerLevel + 3 < victimLevel)
+			!victim.IsTypeId(TypeId.Player) &&
+			!victim.IsPet() &&
+			attackerLevel + 3 < victimLevel)
 		{
 			// cap possible value (with bonuses > max skill)
 			tmp = (int)(10 + 10 * (victimLevel - attackerLevel)) * 100;
@@ -1746,8 +1740,8 @@ public partial class Unit
 			tmp = block_chance;
 
 			if (tmp > 0 // check if unit _can_ block
-			    &&
-			    roll < (sum += tmp))
+				&&
+				roll < (sum += tmp))
 				return MeleeHitOutcome.Block;
 		}
 
@@ -1760,9 +1754,9 @@ public partial class Unit
 		// 7. CRUSHING
 		// mobs can score crushing blows if they're 4 or more levels above victim
 		if (attackerLevel >= victimLevel + 4 &&
-		    // can be from by creature (if can) or from controlled player that considered as creature
-		    !IsControlledByPlayer() &&
-		    !(GetTypeId() == TypeId.Unit && ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
+			// can be from by creature (if can) or from controlled player that considered as creature
+			!IsControlledByPlayer() &&
+			!(GetTypeId() == TypeId.Unit && ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
 		{
 			// add 2% chance per level, min. is 15%
 			tmp = (int)(attackerLevel - victimLevel * 1000 - 1500);

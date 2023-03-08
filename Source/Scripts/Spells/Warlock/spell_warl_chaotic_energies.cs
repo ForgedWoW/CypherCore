@@ -33,7 +33,7 @@ namespace Scripts.Spells.Warlock
 			}
 
 			// You take ${$s2/3}% reduced Damage
-			var damageReductionPct = (double)auraEffect.GetAmount() / 3;
+			var damageReductionPct = (double)auraEffect.Amount / 3;
 			// plus a random amount of up to ${$s2/3}% additional reduced Damage
 			damageReductionPct += RandomHelper.FRand(0.0f, damageReductionPct);
 

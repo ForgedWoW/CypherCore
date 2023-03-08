@@ -10,6 +10,6 @@ class VisibleAuraSlotCompare : IComparer<AuraApplication>
 {
 	public int Compare(AuraApplication x, AuraApplication y)
 	{
-		return x.GetSlot().CompareTo(y.GetSlot());
+		return x.Slot.CompareTo(y.Slot);
 	}
 }

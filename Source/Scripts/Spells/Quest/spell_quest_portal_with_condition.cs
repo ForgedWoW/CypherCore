@@ -17,7 +17,7 @@ internal class spell_quest_portal_with_condition : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 1 && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue()) && Global.ObjectMgr.GetQuestTemplate((uint)spellInfo.GetEffect(1).CalcValue()) != null;
+		return spellInfo.Effects.Count > 1 && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue()) && Global.ObjectMgr.GetQuestTemplate((uint)spellInfo.GetEffect(1).CalcValue()) != null;
 	}
 
 	public override void Register()

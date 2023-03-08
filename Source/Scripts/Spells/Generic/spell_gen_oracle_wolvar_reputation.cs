@@ -18,7 +18,7 @@ internal class spell_gen_oracle_wolvar_reputation : SpellScript, IHasSpellEffect
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 1;
+		return spellInfo.Effects.Count > 1;
 	}
 
 	public override bool Load()

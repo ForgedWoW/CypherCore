@@ -180,9 +180,9 @@ public class CinematicManager : IDisposable
 		var zDiff = nextPosition.Z - lastPosition.Z;
 
 		Position interPosition = new(lastPosition.X + (xDiff * ((float)interDiff / timeDiff)),
-		                             lastPosition.Y +
-		                             (yDiff * ((float)interDiff / timeDiff)),
-		                             lastPosition.Z + (zDiff * ((float)interDiff / timeDiff)));
+									lastPosition.Y +
+									(yDiff * ((float)interDiff / timeDiff)),
+									lastPosition.Z + (zDiff * ((float)interDiff / timeDiff)));
 
 		// Advance (at speed) to this position. The remote sight object is used
 		// to send update information to player in cinematic

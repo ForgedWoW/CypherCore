@@ -27,7 +27,7 @@ public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 
 			if (aura != null)
 			{
-				int stack    = aura.GetStackAmount();
+				int stack    = aura.StackAmount;
 				var maxStack = (int)GetSpellInfo().GetEffect(4).CalcValue(caster);
 
 				if (stack > maxStack)
@@ -49,7 +49,7 @@ public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 					var aurEff = caster.GetAuraEffect(251876, 0); // Item - Death Knight T21 Blood 2P Bonus
 
 					if (aurEff != null)
-						_player.CastSpell(_player, 49028, aurEff.GetAmount() * stack);
+						_player.CastSpell(_player, 49028, aurEff.Amount * stack);
 
 					aura.ModStackAmount(-1 * stack, AuraRemoveMode.EnemySpell);
 				}

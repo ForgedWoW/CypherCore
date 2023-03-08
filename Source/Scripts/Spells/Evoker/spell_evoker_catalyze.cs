@@ -12,8 +12,8 @@ namespace Scripts.Spells.Evoker
                 if (GetHitUnit().TryGetAura(EvokerSpells.FIRE_BREATH_CHARGED, out var aura))
                 {
                     var eff = aura.GetEffect(1);
-                    _period = eff.GetPeriod();
-                    eff.SetPeriod(_period / 2);
+                    _period = eff.Period;
+                    eff.Period = _period / 2;
                 }
         }
 
@@ -22,7 +22,7 @@ namespace Scripts.Spells.Evoker
             if (GetCaster().TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.CATALYZE))
                 if (GetHitUnit().TryGetAura(EvokerSpells.FIRE_BREATH_CHARGED, out var aura))
                 {
-                    aura.GetEffect(1).SetPeriod(_period);
+                    aura.GetEffect(1).Period = _period;
                 }
         }
 

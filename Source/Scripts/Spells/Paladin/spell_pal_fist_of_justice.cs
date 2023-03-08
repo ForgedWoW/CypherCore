@@ -39,7 +39,7 @@ namespace Scripts.Spells.Paladin
 
         private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
         {
-            var value = aurEff.GetAmount() / 10;
+            var value = aurEff.Amount / 10;
 
             GetTarget().GetSpellHistory().ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
         }

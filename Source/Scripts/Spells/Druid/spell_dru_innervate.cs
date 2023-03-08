@@ -42,7 +42,7 @@ namespace Scripts.Spells.Druid
 					                 DruidSpellIds.Innervate,
 					                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
 						                 .SetTriggeringSpell(GetSpell())
-						                 .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.GetAmount()));
+						                 .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
 			}
 		}
 	}

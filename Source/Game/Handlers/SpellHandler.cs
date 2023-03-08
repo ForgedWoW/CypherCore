@@ -82,7 +82,7 @@ namespace Game
                     SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo((uint)effect.SpellID, user.GetMap().GetDifficultyID());
                     if (spellInfo != null)
                     {
-                        if (!spellInfo.CanBeUsedInCombat())
+                        if (!spellInfo.CanBeUsedInCombat)
                         {
                             user.SendEquipError(InventoryResult.NotInCombat, item);
                             return;
@@ -344,11 +344,11 @@ namespace Game
             // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
             // Skip it to prevent "interrupt" message
             // Also check targets! target may have changed and we need to interrupt current spell
-            if (spellInfo.IsAutoRepeatRangedSpell())
+            if (spellInfo.IsAutoRepeatRangedSpell)
             {
                 Spell autoRepeatSpell = caster.GetCurrentSpell(CurrentSpellTypes.AutoRepeat);
                 if (autoRepeatSpell != null)
-                    if (autoRepeatSpell.m_spellInfo == spellInfo && autoRepeatSpell.m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
+                    if (autoRepeatSpell.SpellInfo == spellInfo && autoRepeatSpell.Targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
                         return;
             }
 
@@ -369,12 +369,12 @@ namespace Game
 
             SpellPrepare spellPrepare = new();
             spellPrepare.ClientCastID = cast.Cast.CastID;
-            spellPrepare.ServerCastID = spell.m_castId;
+            spellPrepare.ServerCastID = spell.CastId;
             SendPacket(spellPrepare);
 
-            spell.m_fromClient = true;
-            spell.m_misc.Data0 = cast.Cast.Misc[0];
-            spell.m_misc.Data1 = cast.Cast.Misc[1];
+            spell.FromClient = true;
+            spell.SpellMisc.Data0 = cast.Cast.Misc[0];
+            spell.SpellMisc.Data1 = cast.Cast.Misc[1];
             spell.Prepare(targets);
         }
 
@@ -397,11 +397,11 @@ namespace Game
                 return;
 
             // channeled spell case (it currently casted then)
-            if (spellInfo.IsChanneled())
+            if (spellInfo.IsChanneled)
             {
                 Spell curSpell = GetPlayer().GetCurrentSpell(CurrentSpellTypes.Channeled);
                 if (curSpell != null)
-                    if (curSpell.GetSpellInfo().Id == cancelAura.SpellID)
+                    if (curSpell.SpellInfo.Id == cancelAura.SpellID)
                         GetPlayer().InterruptSpell(CurrentSpellTypes.Channeled);
                 return;
             }
@@ -409,7 +409,7 @@ namespace Game
             // non channeled case:
             // don't allow remove non positive spells
             // don't allow cancelling passive auras (some of them are visible)
-            if (!spellInfo.IsPositive() || spellInfo.IsPassive())
+            if (!spellInfo.IsPositive || spellInfo.IsPassive())
                 return;
 
             GetPlayer().RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
@@ -420,8 +420,8 @@ namespace Game
         {
             GetPlayer().RemoveAurasByType(AuraType.ModScale, aurApp =>
             {
-                SpellInfo spellInfo = aurApp.GetBase().GetSpellInfo();
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive() && !spellInfo.IsPassive();
+                SpellInfo spellInfo = aurApp.Base.SpellInfo;
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
             });
         }
 
@@ -430,8 +430,8 @@ namespace Game
         {
             GetPlayer().RemoveAurasByType(AuraType.Mounted, aurApp =>
             {
-                SpellInfo spellInfo = aurApp.GetBase().GetSpellInfo();
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive() && !spellInfo.IsPassive();
+                SpellInfo spellInfo = aurApp.Base.SpellInfo;
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
             });
         }
 
@@ -475,8 +475,8 @@ namespace Game
 
             _player.RemoveAurasByType(AuraType.ModSpeedNoControl, aurApp =>
             {
-                SpellInfo spellInfo = aurApp.GetBase().GetSpellInfo();
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive() && !spellInfo.IsPassive();
+                SpellInfo spellInfo = aurApp.Base.SpellInfo;
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
             });
         }
 
@@ -505,7 +505,7 @@ namespace Game
                 return;
 
             var spell = mover.GetCurrentSpell(CurrentSpellTypes.Channeled);
-            if (spell == null || spell.GetSpellInfo().Id != spellInfo.Id)
+            if (spell == null || spell.SpellInfo.Id != spellInfo.Id)
                 return;
 
             mover.InterruptSpell(CurrentSpellTypes.Channeled);
@@ -579,7 +579,7 @@ namespace Game
                 return;
 
             // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
-            Unit creator = unit.GetAuraEffectsByType(AuraType.CloneCaster).FirstOrDefault().GetCaster();
+            Unit creator = unit.GetAuraEffectsByType(AuraType.CloneCaster).FirstOrDefault().Caster;
             if (!creator)
                 return;
 
@@ -651,12 +651,12 @@ namespace Game
                 return;
 
             Spell spell = caster.FindCurrentSpellBySpellId(packet.SpellID);
-            if (spell == null || !spell.m_targets.HasDst())
+            if (spell == null || !spell.Targets.HasDst)
                 return;
 
-            Position pos = spell.m_targets.GetDstPos();
+            Position pos = spell.Targets.GetDstPos();
             pos.Relocate(packet.CollisionPos);
-            spell.m_targets.ModDst(pos);
+            spell.Targets.ModDst(pos);
 
             // we changed dest, recalculate flight time
             spell.RecalculateDelayMomentForDst();
@@ -673,19 +673,20 @@ namespace Game
         {
             Unit caster = Global.ObjAccessor.GetUnit(GetPlayer(), packet.Guid);
             Spell spell = caster ? caster.GetCurrentSpell(CurrentSpellTypes.Generic) : null;
-            if (!spell || spell.m_spellInfo.Id != packet.SpellID || spell.m_castId != packet.CastID || !spell.m_targets.HasDst() || !spell.m_targets.HasSrc())
+            if (!spell || spell.SpellInfo.Id != packet.SpellID || spell.CastId != packet.CastID || !spell.Targets.HasDst || !spell.Targets.HasSrc)
                 return;
 
-            Position pos = spell.m_targets.GetSrcPos();
+            Position pos = spell.Targets.GetSrcPos();
             pos.Relocate(packet.FirePos);
-            spell.m_targets.ModSrc(pos);
+            spell.Targets.ModSrc(pos);
 
-            pos = spell.m_targets.GetDstPos();
+            pos = spell.Targets.GetDstPos();
             pos.Relocate(packet.ImpactPos);
-            spell.m_targets.ModDst(pos);
+            spell.Targets.ModDst(pos);
 
-            spell.m_targets.SetPitch(packet.Pitch);
-            spell.m_targets.SetSpeed(packet.Speed);
+            spell.Targets.
+            Pitch = packet.Pitch;
+            spell.Targets.            Speed = packet.Speed;
 
             if (packet.Status != null)
             {

@@ -199,7 +199,7 @@ namespace Scripts.m_Events.LoveIsInTheAir
 
         public override void Register()
         {
-            if (GetTargetApplication() != null && GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+            if (GetTargetApplication() != null && GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
                 GetTarget().CastSpell(GetTarget(), SpellIds.HeavilyPerfumed);
         }
 

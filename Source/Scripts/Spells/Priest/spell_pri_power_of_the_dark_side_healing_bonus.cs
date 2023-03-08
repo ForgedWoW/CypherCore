@@ -35,7 +35,7 @@ internal class spell_pri_power_of_the_dark_side_healing_bonus : SpellScript, IHa
 
 			double healingBonus = GetCaster().SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), (uint)GetEffectValue(), DamageEffectType.Heal, GetEffectInfo(), 1, GetSpell());
 			var   value        = healingBonus + healingBonus * GetEffectVariance();
-			value *= 1.0f + (powerOfTheDarkSide.GetAmount() / 100.0f);
+			value *= 1.0f + (powerOfTheDarkSide.Amount / 100.0f);
 			value =  GetHitUnit().SpellHealingBonusTaken(GetCaster(), GetSpellInfo(), (uint)value, DamageEffectType.Heal);
 			SetHitHeal((int)value);
 		}

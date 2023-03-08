@@ -151,10 +151,10 @@ public class Totem : Minion
 		// immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
 		// totems positive spells have unit_caster target
 		if (spellEffectInfo.Effect != SpellEffectName.Dummy &&
-		    spellEffectInfo.Effect != SpellEffectName.ScriptEffect &&
-		    spellInfo.IsPositive() &&
-		    spellEffectInfo.TargetA.GetTarget() != Targets.UnitCaster &&
-		    spellEffectInfo.TargetA.GetCheckType() != SpellTargetCheckTypes.Entry)
+			spellEffectInfo.Effect != SpellEffectName.ScriptEffect &&
+			spellInfo.IsPositive &&
+			spellEffectInfo.TargetA.Target != Targets.UnitCaster &&
+			spellEffectInfo.TargetA.CheckType != SpellTargetCheckTypes.Entry)
 			return true;
 
 		switch (spellEffectInfo.ApplyAuraName)
@@ -201,27 +201,15 @@ public class Totem : Minion
 		return true;
 	}
 
-	public override void UpdateResistances(SpellSchools school)
-	{
-	}
+	public override void UpdateResistances(SpellSchools school) { }
 
-	public override void UpdateArmor()
-	{
-	}
+	public override void UpdateArmor() { }
 
-	public override void UpdateMaxHealth()
-	{
-	}
+	public override void UpdateMaxHealth() { }
 
-	public override void UpdateMaxPower(PowerType power)
-	{
-	}
+	public override void UpdateMaxPower(PowerType power) { }
 
-	public override void UpdateAttackPowerAndDamage(bool ranged = false)
-	{
-	}
+	public override void UpdateAttackPowerAndDamage(bool ranged = false) { }
 
-	public override void UpdateDamagePhysical(WeaponAttackType attType)
-	{
-	}
+	public override void UpdateDamagePhysical(WeaponAttackType attType) { }
 }

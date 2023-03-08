@@ -118,7 +118,7 @@ public partial class Player
 		// check learned spells state
 		var found = false;
 
-		foreach (var spellEffectInfo in spellInfo.GetEffects())
+		foreach (var spellEffectInfo in spellInfo.Effects)
 			if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && !HasSpell(spellEffectInfo.TriggerSpell))
 			{
 				found = true;
@@ -450,16 +450,16 @@ public partial class Player
 	public bool CanSeeStartQuest(Quest quest)
 	{
 		if (!Global.DisableMgr.IsDisabledFor(DisableType.Quest, quest.Id, this) &&
-		    SatisfyQuestClass(quest, false) &&
-		    SatisfyQuestRace(quest, false) &&
-		    SatisfyQuestSkill(quest, false) &&
-		    SatisfyQuestExclusiveGroup(quest, false) &&
-		    SatisfyQuestReputation(quest, false) &&
-		    SatisfyQuestDependentQuests(quest, false) &&
-		    SatisfyQuestDay(quest, false) &&
-		    SatisfyQuestWeek(quest, false) &&
-		    SatisfyQuestMonth(quest, false) &&
-		    SatisfyQuestSeasonal(quest, false))
+			SatisfyQuestClass(quest, false) &&
+			SatisfyQuestRace(quest, false) &&
+			SatisfyQuestSkill(quest, false) &&
+			SatisfyQuestExclusiveGroup(quest, false) &&
+			SatisfyQuestReputation(quest, false) &&
+			SatisfyQuestDependentQuests(quest, false) &&
+			SatisfyQuestDay(quest, false) &&
+			SatisfyQuestWeek(quest, false) &&
+			SatisfyQuestMonth(quest, false) &&
+			SatisfyQuestSeasonal(quest, false))
 			return GetLevel() + WorldConfig.GetIntValue(WorldCfg.QuestHighLevelHideDiff) >= GetQuestMinLevel(quest);
 
 		return false;
@@ -798,11 +798,11 @@ public partial class Player
 		foreach (var obj in quest.Objectives)
 		{
 			_questObjectiveStatus.Add((obj.Type, obj.ObjectID),
-			                          new QuestObjectiveStatusData()
-			                          {
-				                          QuestStatusPair = (questId, questStatusData),
-				                          Objective = obj
-			                          });
+									new QuestObjectiveStatusData()
+									{
+										QuestStatusPair = (questId, questStatusData),
+										Objective = obj
+									});
 
 			switch (obj.Type)
 			{
@@ -930,7 +930,7 @@ public partial class Player
 		var ModXPPctAuras = GetAuraEffectsByType(AuraType.ModXpQuestPct);
 
 		foreach (var eff in ModXPPctAuras)
-			MathFunctions.AddPct(ref XP, eff.GetAmount());
+			MathFunctions.AddPct(ref XP, eff.Amount);
 
 		return XP;
 	}
@@ -943,7 +943,7 @@ public partial class Player
 			return false;
 
 		if ((rewardProto.HasFlag(ItemFlags2.FactionAlliance) && GetTeam() != Team.Alliance) ||
-		    (rewardProto.HasFlag(ItemFlags2.FactionHorde) && GetTeam() != Team.Horde))
+			(rewardProto.HasFlag(ItemFlags2.FactionHorde) && GetTeam() != Team.Horde))
 			return false;
 
 		switch (questPackageItem.DisplayType)
@@ -1497,9 +1497,9 @@ public partial class Player
 	public bool SatisfyQuestDependentQuests(Quest qInfo, bool msg)
 	{
 		return SatisfyQuestPreviousQuest(qInfo, msg) &&
-		       SatisfyQuestDependentPreviousQuests(qInfo, msg) &&
-		       SatisfyQuestBreadcrumbQuest(qInfo, msg) &&
-		       SatisfyQuestDependentBreadcrumbQuests(qInfo, msg);
+				SatisfyQuestDependentPreviousQuests(qInfo, msg) &&
+				SatisfyQuestBreadcrumbQuest(qInfo, msg) &&
+				SatisfyQuestDependentBreadcrumbQuests(qInfo, msg);
 	}
 
 	public bool SatisfyQuestPreviousQuest(Quest qInfo, bool msg)
@@ -1611,10 +1611,10 @@ public partial class Player
 				SendCanTakeQuestResponse(QuestFailedReasons.AlreadyDone);
 
 				Log.outDebug(LogFilter.Misc,
-				             "Player.SatisfyQuestStatus: Sent QUEST_STATUS_REWARDED (QuestID: {0}) because player '{1}' ({2}) quest status is already REWARDED.",
-				             qInfo.Id,
-				             GetName(),
-				             GetGUID().ToString());
+							"Player.SatisfyQuestStatus: Sent QUEST_STATUS_REWARDED (QuestID: {0}) because player '{1}' ({2}) quest status is already REWARDED.",
+							qInfo.Id,
+							GetName(),
+							GetGUID().ToString());
 			}
 
 			return false;
@@ -2746,11 +2746,11 @@ public partial class Player
 				break;
 			default:
 				Log.outError(LogFilter.Player,
-				             "Player.CanCompleteQuest: Player '{0}' ({1}) tried to complete a quest (ID: {2}) with an unknown objective type {3}",
-				             GetName(),
-				             GetGUID().ToString(),
-				             objective.QuestID,
-				             objective.Type);
+							"Player.CanCompleteQuest: Player '{0}' ({1}) tried to complete a quest (ID: {2}) with an unknown objective type {3}",
+							GetName(),
+							GetGUID().ToString(),
+							objective.QuestID,
+							objective.Type);
 
 				return false;
 		}
@@ -3239,10 +3239,10 @@ public partial class Player
 			GetZoneAndAreaId(out var zone, out var area);
 
 			foreach (var spell in saBounds)
-				if (spell.flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spell.IsFitToRequirements(this, zone, area))
-					aurasToRemove.Add(spell.spellId);
-				else if (spell.flags.HasAnyFlag(SpellAreaFlag.AutoCast) && !spell.flags.HasAnyFlag(SpellAreaFlag.IgnoreAutocastOnQuestStatusChange))
-					aurasToCast.Add(spell.spellId);
+				if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spell.IsFitToRequirements(this, zone, area))
+					aurasToRemove.Add(spell.SpellId);
+				else if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && !spell.Flags.HasAnyFlag(SpellAreaFlag.IgnoreAutocastOnQuestStatusChange))
+					aurasToCast.Add(spell.SpellId);
 
 			// Auras matching the requirements will be inside the aurasToCast container.
 			// Auras not matching the requirements may prevent using auras matching the requirements.

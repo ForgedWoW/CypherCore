@@ -21,7 +21,5 @@ public class CreatureData : SpawnData
 	public uint UnitFlags3; // enum UnitFlags3 mask values
 	public uint Dynamicflags;
 
-	public CreatureData() : base(SpawnObjectType.Creature)
-	{
-	}
+	public CreatureData() : base(SpawnObjectType.Creature) { }
 }

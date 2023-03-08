@@ -23,7 +23,7 @@ namespace Scripts.Spells.Paladin
             Aura aura = GetCaster().GetAura(GetSpellInfo().Id);
             if (aura != null)
             {
-                aura.SetDuration((int)(aura.GetDuration() * m_powerTaken));
+                aura.SetDuration((int)(aura.Duration * m_powerTaken));
             }
         }
     }

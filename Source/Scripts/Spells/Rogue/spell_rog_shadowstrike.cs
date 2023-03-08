@@ -17,7 +17,7 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(RogueSpells.PremeditationAura, RogueSpells.SliceAndDice, RogueSpells.PremeditationPassive) && Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffects().Count > 0;
+		return ValidateSpellInfo(RogueSpells.PremeditationAura, RogueSpells.SliceAndDice, RogueSpells.PremeditationPassive) && Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).Effects.Count > 0;
 	}
 
 	public SpellCastResult CheckCast()
@@ -51,7 +51,7 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 					var auraEff = premeditationPassive.GetEffect(1);
 
 					if (auraEff != null)
-						SetHitDamage(GetHitDamage() + auraEff.GetAmount());
+						SetHitDamage(GetHitDamage() + auraEff.Amount);
 				}
 			}
 

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Networking;
 
@@ -20,16 +23,16 @@ public class ConversationData : BaseUpdateData<Conversation>
 		data.WriteInt32(Lines.GetValue().Count);
 		data.WriteUInt32(GetViewerLastLineEndTime(this, owner, receiver));
 		data.WriteUInt32(Progress);
-		for (int i = 0; i < Lines.GetValue().Count; ++i)
-		{
+
+		for (var i = 0; i < Lines.GetValue().Count; ++i)
 			Lines.GetValue()[i].WriteCreate(data, owner, receiver);
-		}
+
 		data.WriteBit(DontPlayBroadcastTextSounds);
 		data.WriteInt32(Actors.Size());
-		for (int i = 0; i < Actors.Size(); ++i)
-		{
+
+		for (var i = 0; i < Actors.Size(); ++i)
 			Actors[i].WriteCreate(data, owner, receiver);
-		}
+
 		data.FlushBits();
 	}
 
@@ -45,22 +48,21 @@ public class ConversationData : BaseUpdateData<Conversation>
 		if (ChangesMask[0])
 		{
 			if (ChangesMask[1])
-			{
 				data.WriteBit(DontPlayBroadcastTextSounds);
-			}
+
 			if (changesMask[2])
 			{
 				List<ConversationLine> list = Lines;
 				data.WriteBits(list.Count, 32);
-				for (int i = 0; i < list.Count; ++i)
-				{
+
+				for (var i = 0; i < list.Count; ++i)
 					list[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-				}
 			}
 		}
+
 		data.FlushBits();
+
 		if (ChangesMask[0])
-		{
 			if (ChangesMask[3])
 			{
 				if (!ignoreNestedChangesMask)
@@ -68,29 +70,23 @@ public class ConversationData : BaseUpdateData<Conversation>
 				else
 					WriteCompleteDynamicFieldUpdateMask(Actors.Size(), data);
 			}
-		}
+
 		data.FlushBits();
+
 		if (ChangesMask[0])
 		{
 			if (ChangesMask[3])
-			{
-				for (int i = 0; i < Actors.Size(); ++i)
-				{
+				for (var i = 0; i < Actors.Size(); ++i)
 					if (Actors.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						Actors[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (ChangesMask[4])
-			{
 				data.WriteUInt32(GetViewerLastLineEndTime(this, owner, receiver));
-			}
+
 			if (ChangesMask[5])
-			{
 				data.WriteUInt32(Progress);
-			}
 		}
+
 		data.FlushBits();
 	}
 
@@ -106,7 +102,8 @@ public class ConversationData : BaseUpdateData<Conversation>
 
 	public uint GetViewerLastLineEndTime(ConversationData conversationLineData, Conversation conversation, Player receiver)
 	{
-		Locale locale = receiver.GetSession().GetSessionDbLocaleIndex();
+		var locale = receiver.GetSession().GetSessionDbLocaleIndex();
+
 		return (uint)conversation.GetLastLineEndTime(locale).TotalMilliseconds;
 	}
 }

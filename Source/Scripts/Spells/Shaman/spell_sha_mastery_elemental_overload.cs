@@ -51,7 +51,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 		if (GetTriggeredSpellId(spellInfo.Id) == 0)
 			return false;
 
-		double chance = aurEff.GetAmount(); // Mastery % amount
+		double chance = aurEff.Amount; // Mastery % amount
 
 		if (spellInfo.Id == ShamanSpells.ChainLightning)
 			chance /= 3.0f;
@@ -59,7 +59,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 		var stormkeeper = eventInfo.GetActor().GetAura(ShamanSpells.Stormkeeper);
 
 		if (stormkeeper != null)
-			if (eventInfo.GetProcSpell().m_appliedMods.Contains(stormkeeper))
+			if (eventInfo.GetProcSpell().AppliedMods.Contains(stormkeeper))
 				chance = 100.0f;
 
 		return RandomHelper.randChance(chance);
@@ -73,7 +73,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 
 		var targets         = new CastSpellTargetArg(procInfo.GetProcTarget());
 		var overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo().Id);
-		var originalCastId  = procInfo.GetProcSpell().m_castId;
+		var originalCastId  = procInfo.GetProcSpell().CastId;
 
 		caster.Events.AddEventAtOffset(() =>
 		                                 {

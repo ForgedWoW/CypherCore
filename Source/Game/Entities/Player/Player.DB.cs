@@ -301,7 +301,7 @@ public partial class Player
 
 		// check name limitations
 		if (ObjectManager.CheckPlayerName(GetName(), GetSession().GetSessionDbcLocale()) != ResponseCodes.CharNameSuccess ||
-		    (!GetSession().HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(GetName())))
+			(!GetSession().HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(GetName())))
 		{
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.Rename);
@@ -533,10 +533,10 @@ public partial class Player
 				transport.CalculatePassengerPosition(pos);
 
 				if (!GridDefines.IsValidMapCoord(pos) ||
-				    // transport size limited
-				    Math.Abs(MovementInfo.Transport.Pos.X) > 250.0f ||
-				    Math.Abs(MovementInfo.Transport.Pos.Y) > 250.0f ||
-				    Math.Abs(MovementInfo.Transport.Pos.Z) > 250.0f)
+					// transport size limited
+					Math.Abs(MovementInfo.Transport.Pos.X) > 250.0f ||
+					Math.Abs(MovementInfo.Transport.Pos.Y) > 250.0f ||
+					Math.Abs(MovementInfo.Transport.Pos.Z) > 250.0f)
 				{
 					Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid transport coordinates ({1}). Teleport to bind location.", guid.ToString(), pos.ToString());
 
@@ -809,12 +809,12 @@ public partial class Player
 		_reputationMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Reputation));
 
 		_LoadInventory(holder.GetResult(PlayerLoginQueryLoad.Inventory),
-		               holder.GetResult(PlayerLoginQueryLoad.Artifacts),
-		               holder.GetResult(PlayerLoginQueryLoad.Azerite),
-		               holder.GetResult(PlayerLoginQueryLoad.AzeriteMilestonePowers),
-		               holder.GetResult(PlayerLoginQueryLoad.AzeriteUnlockedEssences),
-		               holder.GetResult(PlayerLoginQueryLoad.AzeriteEmpowered),
-		               time_diff);
+						holder.GetResult(PlayerLoginQueryLoad.Artifacts),
+						holder.GetResult(PlayerLoginQueryLoad.Azerite),
+						holder.GetResult(PlayerLoginQueryLoad.AzeriteMilestonePowers),
+						holder.GetResult(PlayerLoginQueryLoad.AzeriteUnlockedEssences),
+						holder.GetResult(PlayerLoginQueryLoad.AzeriteEmpowered),
+						time_diff);
 
 		if (IsVoidStorageUnlocked())
 			_LoadVoidStorage(holder.GetResult(PlayerLoginQueryLoad.VoidStorage));
@@ -826,12 +826,12 @@ public partial class Player
 
 		// unread mails and next delivery time, actual mails not loaded
 		_LoadMail(holder.GetResult(PlayerLoginQueryLoad.Mails),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItems),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItemsArtifact),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItemsAzerite),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteMilestonePower),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteUnlockedEssence),
-		          holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteEmpowered));
+				holder.GetResult(PlayerLoginQueryLoad.MailItems),
+				holder.GetResult(PlayerLoginQueryLoad.MailItemsArtifact),
+				holder.GetResult(PlayerLoginQueryLoad.MailItemsAzerite),
+				holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteMilestonePower),
+				holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteUnlockedEssence),
+				holder.GetResult(PlayerLoginQueryLoad.MailItemsAzeriteEmpowered));
 
 		_social = Global.SocialMgr.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.SocialList), GetGUID());
 
@@ -845,7 +845,7 @@ public partial class Player
 		// has to be called after last Relocate() in Player.LoadFromDB
 		SetFallInformation(0, Location.Z);
 
-		GetSpellHistory().LoadFromDB<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
+		GetSpellHistory().LoadFromDb<Player>(holder.GetResult(PlayerLoginQueryLoad.SpellCooldowns), holder.GetResult(PlayerLoginQueryLoad.SpellCharges));
 
 		var savedHealth = health;
 
@@ -983,10 +983,10 @@ public partial class Player
 		var garrison = new Garrison(this);
 
 		if (garrison.LoadFromDB(holder.GetResult(PlayerLoginQueryLoad.Garrison),
-		                        holder.GetResult(PlayerLoginQueryLoad.GarrisonBlueprints),
-		                        holder.GetResult(PlayerLoginQueryLoad.GarrisonBuildings),
-		                        holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowers),
-		                        holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowerAbilities)))
+								holder.GetResult(PlayerLoginQueryLoad.GarrisonBlueprints),
+								holder.GetResult(PlayerLoginQueryLoad.GarrisonBuildings),
+								holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowers),
+								holder.GetResult(PlayerLoginQueryLoad.GarrisonFollowerAbilities)))
 			_garrison = garrison;
 
 		_InitHonorLevelOnLoadFromDB(honor, honorLevel);
@@ -1001,8 +1001,8 @@ public partial class Player
 			var bubble1 = 0.125f;
 
 			var bubble = is_logout_resting > 0
-				             ? bubble1 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInTavernOrCity)
-				             : bubble0 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInWilderness);
+							? bubble1 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInTavernOrCity)
+							: bubble0 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInWilderness);
 
 			_restMgr.AddRestBonus(RestTypes.XP, time_diff * _restMgr.CalcExtraPerSec(RestTypes.XP, bubble));
 		}
@@ -1414,7 +1414,7 @@ public partial class Player
 		_SaveTalents(characterTransaction);
 		_SaveTraits(characterTransaction);
 		_SaveSpells(characterTransaction);
-		GetSpellHistory().SaveToDB<Player>(characterTransaction);
+		GetSpellHistory().SaveToDb<Player>(characterTransaction);
 		_SaveActions(characterTransaction);
 		_SaveAuras(characterTransaction);
 		_SaveSkills(characterTransaction);
@@ -2221,13 +2221,13 @@ public partial class Player
 						else
 						{
 							Log.outError(LogFilter.Player,
-							             "LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which doesnt have a valid bag (Bag GUID: {4}, slot: {5}). Possible cheat?",
-							             GetGUID().ToString(),
-							             GetName(),
-							             item.GetGUID().ToString(),
-							             item.GetEntry(),
-							             bagGuid,
-							             slot);
+										"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which doesnt have a valid bag (Bag GUID: {4}, slot: {5}). Possible cheat?",
+										GetGUID().ToString(),
+										GetName(),
+										item.GetGUID().ToString(),
+										item.GetEntry(),
+										bagGuid,
+										slot);
 
 							item.DeleteFromInventoryDB(trans);
 
@@ -2243,15 +2243,15 @@ public partial class Player
 					else
 					{
 						Log.outError(LogFilter.Player,
-						             "LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
-						             "Item will be sent by mail.",
-						             GetGUID().ToString(),
-						             GetName(),
-						             item.GetGUID().ToString(),
-						             item.GetEntry(),
-						             bagGuid,
-						             slot,
-						             err);
+									"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
+									"Item will be sent by mail.",
+									GetGUID().ToString(),
+									GetName(),
+									item.GetGUID().ToString(),
+									item.GetEntry(),
+									bagGuid,
+									slot,
+									err);
 
 						item.DeleteFromInventoryDB(trans);
 						problematicItems.Enqueue(item);
@@ -2301,13 +2301,13 @@ public partial class Player
 				if (IsAlive() && item.IsLimitedToAnotherMapOrZone(Location.MapId, zoneId))
 				{
 					Log.outDebug(LogFilter.Player,
-					             "LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
-					             GetGUID().ToString(),
-					             GetName(),
-					             Location.MapId,
-					             item.GetGUID().ToString(),
-					             item.GetEntry(),
-					             zoneId);
+								"LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
+								GetGUID().ToString(),
+								GetName(),
+								Location.MapId,
+								item.GetGUID().ToString(),
+								item.GetEntry(),
+								zoneId);
 
 					remove = true;
 				}
@@ -2315,12 +2315,12 @@ public partial class Player
 				else if (timeDiff > 15 * Time.Minute && proto.HasFlag(ItemFlags.Conjured))
 				{
 					Log.outDebug(LogFilter.Player,
-					             "LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
-					             GetGUID().ToString(),
-					             GetName(),
-					             timeDiff,
-					             item.GetGUID().ToString(),
-					             item.GetEntry());
+								"LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
+								GetGUID().ToString(),
+								GetName(),
+								timeDiff,
+								item.GetGUID().ToString(),
+								item.GetEntry());
 
 					remove = true;
 				}
@@ -2330,13 +2330,13 @@ public partial class Player
 					if (item.GetPlayedTime() > (2 * Time.Hour))
 					{
 						Log.outDebug(LogFilter.Player,
-						             "LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
-						             "efundable flag.",
-						             GetGUID().ToString(),
-						             GetName(),
-						             item.GetGUID().ToString(),
-						             item.GetEntry(),
-						             item.GetPlayedTime());
+									"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
+									"efundable flag.",
+									GetGUID().ToString(),
+									GetName(),
+									item.GetGUID().ToString(),
+									item.GetEntry(),
+									item.GetPlayedTime());
 
 						stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
 						stmt.AddValue(0, item.GetGUID().ToString());
@@ -2361,11 +2361,11 @@ public partial class Player
 						else
 						{
 							Log.outDebug(LogFilter.Player,
-							             "LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
-							             GetGUID().ToString(),
-							             GetName(),
-							             item.GetGUID().ToString(),
-							             item.GetEntry());
+										"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
+										GetGUID().ToString(),
+										GetName(),
+										item.GetGUID().ToString(),
+										item.GetEntry());
 
 							item.RemoveItemFlag(ItemFieldFlags.Refundable);
 						}
@@ -2400,12 +2400,12 @@ public partial class Player
 					else
 					{
 						Log.outDebug(LogFilter.ServerLoading,
-						             "LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
-						             "but without data in item_soulbound_trade_data. Removing flag.",
-						             GetGUID().ToString(),
-						             GetName(),
-						             item.GetGUID().ToString(),
-						             item.GetEntry());
+									"LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
+									"but without data in item_soulbound_trade_data. Removing flag.",
+									GetGUID().ToString(),
+									GetName(),
+									item.GetGUID().ToString(),
+									item.GetEntry());
 
 						item.RemoveItemFlag(ItemFieldFlags.BopTradeable);
 					}
@@ -2428,11 +2428,11 @@ public partial class Player
 			else
 			{
 				Log.outError(LogFilter.Player,
-				             "LoadInventory: player (GUID: {0}, name: {1}) has broken item (GUID: {2}, entry: {3}) in inventory. Deleting item.",
-				             GetGUID().ToString(),
-				             GetName(),
-				             itemGuid,
-				             itemEntry);
+							"LoadInventory: player (GUID: {0}, name: {1}) has broken item (GUID: {2}, entry: {3}) in inventory. Deleting item.",
+							GetGUID().ToString(),
+							GetName(),
+							itemGuid,
+							itemEntry);
 
 				remove = true;
 			}
@@ -2449,10 +2449,10 @@ public partial class Player
 		else
 		{
 			Log.outError(LogFilter.Player,
-			             "LoadInventory: player (GUID: {0}, name: {1}) has unknown item (entry: {2}) in inventory. Deleting item.",
-			             GetGUID().ToString(),
-			             GetName(),
-			             itemEntry);
+						"LoadInventory: player (GUID: {0}, name: {1}) has unknown item (entry: {2}) in inventory. Deleting item.",
+						GetGUID().ToString(),
+						GetName(),
+						itemEntry);
 
 			Item.DeleteFromInventoryDB(trans, itemGuid);
 			Item.DeleteFromDB(trans, itemGuid);
@@ -2663,7 +2663,7 @@ public partial class Player
 				}
 
 				// negative effects should continue counting down after logout
-				if (remainTime != -1 && (!spellInfo.IsPositive() || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
+				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
 					if (remainTime / Time.InMilliseconds <= timediff)
 						continue;
@@ -2688,7 +2688,7 @@ public partial class Player
 				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
 
 				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
-				createInfo.SetCasterGUID(casterGuid);
+				createInfo.SetCasterGuid(casterGuid);
 				createInfo.SetBaseAmount(info.BaseAmounts);
 				createInfo.SetCastItem(itemGuid, castItemId, castItemLevel);
 
@@ -2732,8 +2732,8 @@ public partial class Player
 
 			// accept saved data only for valid position (and non instanceable), and accessable
 			if (GridDefines.IsValidMapCoord(_homebind) &&
-			    !map.Instanceable() &&
-			    GetSession().GetExpansion() >= map.Expansion())
+				!map.Instanceable() &&
+				GetSession().GetExpansion() >= map.Expansion())
 			{
 				ok = true;
 			}
@@ -2883,11 +2883,11 @@ public partial class Player
 						questStatusData.Status = QuestStatus.Incomplete;
 
 						Log.outError(LogFilter.Player,
-						             "Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
-						             GetName(),
-						             GetGUID().ToString(),
-						             questId,
-						             qstatus);
+									"Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
+									GetName(),
+									GetGUID().ToString(),
+									questId,
+									qstatus);
 					}
 
 					questStatusData.Explored = result.Read<byte>(2) > 0;
@@ -2916,11 +2916,11 @@ public partial class Player
 
 						foreach (var obj in quest.Objectives)
 							_questObjectiveStatus.Add((obj.Type, obj.ObjectID),
-							                          new QuestObjectiveStatusData()
-							                          {
-								                          QuestStatusPair = (questId, questStatusData),
-								                          Objective = obj
-							                          });
+													new QuestObjectiveStatusData()
+													{
+														QuestStatusPair = (questId, questStatusData),
+														Objective = obj
+													});
 
 						SetQuestSlot(slot, questId);
 						SetQuestSlotEndTime(slot, endTime);
@@ -3447,10 +3447,10 @@ public partial class Player
 		{
 			if (item.GetTemplate().GetArtifactID() != 0 && addionalData.Artifact != null)
 				item.LoadArtifactData(player,
-				                      addionalData.Artifact.Xp,
-				                      addionalData.Artifact.ArtifactAppearanceId,
-				                      addionalData.Artifact.ArtifactTierId,
-				                      addionalData.Artifact.ArtifactPowers);
+									addionalData.Artifact.Xp,
+									addionalData.Artifact.ArtifactAppearanceId,
+									addionalData.Artifact.ArtifactTierId,
+									addionalData.Artifact.ArtifactPowers);
 
 			if (addionalData.AzeriteItem != null)
 			{
@@ -3850,14 +3850,14 @@ public partial class Player
 						bagTestGUID = test2.GetGUID().GetCounter();
 
 					Log.outError(LogFilter.Player,
-					             "Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} (state {5}) are incorrect, " +
-					             "the player doesn't have an item at that position!",
-					             GetGUID().ToString(),
-					             GetName(),
-					             item.GetBagSlot(),
-					             item.GetSlot(),
-					             item.GetGUID().ToString(),
-					             item.GetState());
+								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} (state {5}) are incorrect, " +
+								"the player doesn't have an item at that position!",
+								GetGUID().ToString(),
+								GetName(),
+								item.GetBagSlot(),
+								item.GetSlot(),
+								item.GetGUID().ToString(),
+								item.GetState());
 
 					// according to the test that was just performed nothing should be in this slot, delete
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_BAG_SLOT);
@@ -3877,14 +3877,14 @@ public partial class Player
 				else if (test != item)
 				{
 					Log.outError(LogFilter.Player,
-					             "Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} are incorrect, " +
-					             "the item with guid {5} is there instead!",
-					             GetGUID().ToString(),
-					             GetName(),
-					             item.GetBagSlot(),
-					             item.GetSlot(),
-					             item.GetGUID().ToString(),
-					             test.GetGUID().ToString());
+								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} are incorrect, " +
+								"the item with guid {5} is there instead!",
+								GetGUID().ToString(),
+								GetName(),
+								item.GetBagSlot(),
+								item.GetSlot(),
+								item.GetGUID().ToString(),
+								test.GetGUID().ToString());
 
 					// save all changes to the item...
 					if (item.GetState() != ItemUpdateState.New) // only for existing items, no dupes
@@ -4052,16 +4052,16 @@ public partial class Player
 			stmt.AddValue(index++, key.SpellId);
 			stmt.AddValue(index++, key.EffectMask);
 			stmt.AddValue(index++, recalculateMask);
-			stmt.AddValue(index++, (byte)aura.GetCastDifficulty());
-			stmt.AddValue(index++, aura.GetStackAmount());
-			stmt.AddValue(index++, aura.GetMaxDuration());
-			stmt.AddValue(index++, aura.GetDuration());
-			stmt.AddValue(index++, aura.GetCharges());
-			stmt.AddValue(index++, aura.GetCastItemId());
-			stmt.AddValue(index, aura.GetCastItemLevel());
+			stmt.AddValue(index++, (byte)aura.CastDifficulty);
+			stmt.AddValue(index++, aura.StackAmount);
+			stmt.AddValue(index++, aura.MaxDuration);
+			stmt.AddValue(index++, aura.Duration);
+			stmt.AddValue(index++, aura.Charges);
+			stmt.AddValue(index++, aura.CastItemId);
+			stmt.AddValue(index, aura.CastItemLevel);
 			trans.Append(stmt);
 
-			foreach (var effect in aura.GetAuraEffects())
+			foreach (var effect in aura.AuraEffects)
 			{
 				index = 0;
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_AURA_EFFECT);
@@ -4070,9 +4070,9 @@ public partial class Player
 				stmt.AddValue(index++, key.Item.GetRawValue());
 				stmt.AddValue(index++, key.SpellId);
 				stmt.AddValue(index++, key.EffectMask);
-				stmt.AddValue(index++, effect.Value.GetEffIndex());
-				stmt.AddValue(index++, effect.Value.GetAmount());
-				stmt.AddValue(index++, effect.Value.GetBaseAmount());
+				stmt.AddValue(index++, effect.Value.EffIndex);
+				stmt.AddValue(index++, effect.Value.Amount);
+				stmt.AddValue(index++, effect.Value.BaseAmount);
 				trans.Append(stmt);
 			}
 		}

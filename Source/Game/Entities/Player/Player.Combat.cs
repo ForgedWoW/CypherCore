@@ -267,8 +267,8 @@ public partial class Player
 		DisablePvpRules();
 
 		Global.ScriptMgr.ForEach<IPlayerOnDuelEnd>(p => p.OnDuelEnd(type == DuelCompleteType.Won ? this : opponent,
-		                                                            type == DuelCompleteType.Won ? opponent : this,
-		                                                            type));
+																	type == DuelCompleteType.Won ? opponent : this,
+																	type));
 
 		switch (type)
 		{
@@ -318,8 +318,8 @@ public partial class Player
 			Duel.Initiator.RemoveGameObject(obj, true);
 
 		//remove auras
-		opponent.GetAppliedAurasQuery().HasCasterGuid(GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.GetBase().GetApplyTime() >= Duel.StartTime).Execute(RemoveAura);
-		GetAppliedAurasQuery().HasCasterGuid(opponent.GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.GetBase().GetApplyTime() >= Duel.StartTime).Execute(RemoveAura);
+		opponent.GetAppliedAurasQuery().HasCasterGuid(GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
+		GetAppliedAurasQuery().HasCasterGuid(opponent.GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
 
 		// cleanup combo points
 		ClearComboPoints();
@@ -658,8 +658,8 @@ public partial class Player
 		var itemTemplate = mainItem.GetTemplate();
 
 		return (itemTemplate.GetInventoryType() == InventoryType.Weapon2Hand && !CanTitanGrip()) ||
-		       itemTemplate.GetInventoryType() == InventoryType.Ranged ||
-		       (itemTemplate.GetInventoryType() == InventoryType.RangedRight && itemTemplate.GetClass() == ItemClass.Weapon && (ItemSubClassWeapon)itemTemplate.GetSubClass() != ItemSubClassWeapon.Wand);
+				itemTemplate.GetInventoryType() == InventoryType.Ranged ||
+				(itemTemplate.GetInventoryType() == InventoryType.RangedRight && itemTemplate.GetClass() == ItemClass.Weapon && (ItemSubClassWeapon)itemTemplate.GetSubClass() != ItemSubClassWeapon.Wand);
 	}
 
 	bool IsUsingTwoHandedWeaponInOneHand()

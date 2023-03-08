@@ -342,9 +342,9 @@ namespace Game
                     }
 
                     my_spell = new Spell(GetPlayer(), spellEntry, TriggerCastFlags.FullMask);
-                    my_spell.m_CastItem = castItem;
+                    my_spell.CastItem = castItem;
                     my_targets.SetTradeItemTarget(GetPlayer());
-                    my_spell.m_targets = my_targets;
+                    my_spell.Targets = my_targets;
 
                     SpellCastResult res = my_spell.CheckCast(true);
                     if (res != SpellCastResult.SpellCastOk)
@@ -377,9 +377,9 @@ namespace Game
                     }
 
                     his_spell = new Spell(trader, spellEntry, TriggerCastFlags.FullMask);
-                    his_spell.m_CastItem = castItem;
+                    his_spell.CastItem = castItem;
                     his_targets.SetTradeItemTarget(trader);
-                    his_spell.m_targets = his_targets;
+                    his_spell.Targets = his_targets;
 
                     SpellCastResult res = his_spell.CheckCast(true);
                     if (res != SpellCastResult.SpellCastOk)

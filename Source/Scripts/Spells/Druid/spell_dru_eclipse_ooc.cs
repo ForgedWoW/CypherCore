@@ -36,8 +36,8 @@ namespace Scripts.Spells.Druid
 			    (!owner.HasAura(DruidSpellIds.EclipseSolarSpellCnt) || !owner.HasAura(DruidSpellIds.EclipseLunarSpellCnt)))
 			{
 				// Restore 2 stacks to each spell when out of combat
-				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.GetAmount());
-				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.GetAmount());
+				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.Amount);
+				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.Amount);
 			}
 		}
 	}

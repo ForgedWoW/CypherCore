@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -30,24 +33,20 @@ public class SceneObjectData : BaseUpdateData<WorldObject>
 		data.WriteBits(ChangesMask.GetBlock(0), 5);
 
 		data.FlushBits();
+
 		if (ChangesMask[0])
 		{
 			if (ChangesMask[1])
-			{
 				data.WriteInt32(ScriptPackageID);
-			}
+
 			if (ChangesMask[2])
-			{
 				data.WriteUInt32(RndSeedVal);
-			}
+
 			if (ChangesMask[3])
-			{
 				data.WritePackedGuid(CreatedBy);
-			}
+
 			if (ChangesMask[4])
-			{
 				data.WriteUInt32(SceneType);
-			}
 		}
 	}
 

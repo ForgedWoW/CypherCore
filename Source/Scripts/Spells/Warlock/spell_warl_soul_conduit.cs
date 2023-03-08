@@ -33,7 +33,7 @@ namespace Scripts.Spells.Warlock
 
 			if (spell == null)
 			{
-				var costs = spell.GetPowerCost();
+				var costs = spell.PowerCost;
 
 				var costData = costs.FirstOrDefault(cost => cost.Power == PowerType.Mana && cost.Amount > 0);
 

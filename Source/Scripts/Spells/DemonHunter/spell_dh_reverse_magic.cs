@@ -34,7 +34,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 
 			foreach (var iter in AuraList.IsPositive(false).GetResults())
 			{
-				var aura = iter.GetBase();
+				var aura = iter.Base;
 
 				if (aura == null)
 					continue;
@@ -47,7 +47,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 				if (!caster.IsWithinDist(unit, 40.0f))
 					continue;
 
-				if (aura.GetSpellInfo().Dispel != DispelType.Magic)
+				if (aura.SpellInfo.Dispel != DispelType.Magic)
 					continue;
 
 				var creature = caster.ToCreature();
@@ -61,26 +61,26 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 						continue;
 				}
 
-				var targetAura = unit.AddAura(aura.GetId(), caster);
+				var targetAura = unit.AddAura(aura.Id, caster);
 
 				if (targetAura != null)
 				{
-					foreach (var aurEff in targetAura.GetAuraEffects())
+					foreach (var aurEff in targetAura.AuraEffects)
 					{
-						targetAura.SetMaxDuration(aura.GetMaxDuration());
-						targetAura.SetDuration(aura.GetDuration());
+						targetAura.SetMaxDuration(aura.MaxDuration);
+						targetAura.SetDuration(aura.Duration);
 
 						if (aura.GetEffect(aurEff.Key) != null)
 						{
-							var auraEffect = unit.GetAuraEffect(aura.GetId(), aurEff.Key);
+							var auraEffect = unit.GetAuraEffect(aura.Id, aurEff.Key);
 
 							if (auraEffect == null)
 								continue;
 
-							var amount = auraEffect.GetAmount();
+							var amount = auraEffect.Amount;
 
-							if (auraEffect.GetAuraType() == AuraType.PeriodicDamage || auraEffect.GetAuraType() == AuraType.PeriodicDamagePercent)
-								amount = (int)caster.SpellDamageBonusDone(unit, aura.GetSpellInfo(), amount, DamageEffectType.DOT, aura.GetSpellInfo().GetEffects()[aurEff.Key], auraEffect.GetBase().GetStackAmount(), GetSpell());
+							if (auraEffect.AuraType == AuraType.PeriodicDamage || auraEffect.AuraType == AuraType.PeriodicDamagePercent)
+								amount = (int)caster.SpellDamageBonusDone(unit, aura.SpellInfo, amount, DamageEffectType.DOT, aura.SpellInfo.Effects[aurEff.Key], auraEffect.Base.StackAmount, GetSpell());
 
                             //targetAura->GetEffect(i)->VariableStorage.Set("DontRecalculatePerodics", true);
                             aurEff.Value.SetAmount(amount);
@@ -91,7 +91,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 					targetAura.SetNeedClientUpdateForTargets();
 				}
 
-				auraListToRemove.Add(new auraData(aura.GetId(), caster.GetGUID()));
+				auraListToRemove.Add(new auraData(aura.Id, caster.GetGUID()));
 			}
 
 			foreach (var aura in auraListToRemove)

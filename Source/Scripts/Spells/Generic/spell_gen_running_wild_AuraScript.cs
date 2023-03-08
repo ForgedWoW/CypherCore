@@ -36,7 +36,7 @@ internal class spell_gen_running_wild_AuraScript : AuraScript, IHasAuraEffects
 		target.Mount(SharedConst.DisplayIdHiddenMount, 0, 0);
 
 		// cast speed aura
-		var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.GetAmount());
+		var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
 
 		if (mountCapability != null)
 			target.CastSpell(target, mountCapability.ModSpellAuraID, new CastSpellExtraArgs(TriggerCastFlags.FullMask));

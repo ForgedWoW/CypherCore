@@ -1,5 +1,7 @@
-﻿using System;
-using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -35,10 +37,11 @@ public class ConversationLine
 
 	public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
 	{
-		uint startTime = conversationLine.StartTime;
-		Locale locale = receiver.GetSession().GetSessionDbLocaleIndex();
+		var startTime = conversationLine.StartTime;
+		var locale = receiver.GetSession().GetSessionDbLocaleIndex();
 
-		TimeSpan localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
+		var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
+
 		if (localizedStartTime != TimeSpan.Zero)
 			startTime = (uint)localizedStartTime.TotalMilliseconds;
 

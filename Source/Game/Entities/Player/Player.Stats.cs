@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
@@ -295,17 +298,17 @@ public partial class Player
 		for (var i = (int)SpellSchools.Holy; i < (int)SpellSchools.Max; ++i)
 		{
 			SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDoneNeg, i),
-			                    (int)modDamageAuras.Aggregate(0f,
-			                                                  (negativeMod, aurEff) =>
-			                                                  {
-				                                                  if (aurEff.GetAmount() < 0 && Convert.ToBoolean(aurEff.GetMiscValue() & (1 << i)))
-					                                                  negativeMod += (float)aurEff.GetAmount();
+								(int)modDamageAuras.Aggregate(0f,
+															(negativeMod, aurEff) =>
+															{
+																if (aurEff.Amount < 0 && Convert.ToBoolean(aurEff.MiscValue & (1 << i)))
+																	negativeMod += (float)aurEff.Amount;
 
-				                                                  return negativeMod;
-			                                                  }));
+																return negativeMod;
+															}));
 
 			SetUpdateFieldStatValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ModDamageDonePos, i),
-			                        (int)(SpellBaseDamageBonusDone((SpellSchoolMask)(1 << i)) - ActivePlayerData.ModDamageDoneNeg[i]));
+									(int)(SpellBaseDamageBonusDone((SpellSchoolMask)(1 << i)) - ActivePlayerData.ModDamageDoneNeg[i]));
 		}
 
 		if (HasAuraType(AuraType.OverrideAttackPowerBySpPct))
@@ -417,15 +420,15 @@ public partial class Player
 
 		// SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
 		GetTotalAuraModifier(AuraType.ModArmorPctFromStat,
-		                     aurEff =>
-		                     {
-			                     var miscValue = aurEff.GetMiscValue();
-			                     var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
+							aurEff =>
+							{
+								var miscValue = aurEff.MiscValue;
+								var stat = (miscValue != -2) ? (Stats)miscValue : GetPrimaryStat();
 
-			                     value += MathFunctions.CalculatePct((float)GetStat(stat), aurEff.GetAmount());
+								value += MathFunctions.CalculatePct((float)GetStat(stat), aurEff.Amount);
 
-			                     return true;
-		                     });
+								return true;
+							});
 
 		var baseValue = value;
 
@@ -448,21 +451,21 @@ public partial class Player
 		var amount = _baseRatingValue[(int)cr];
 
 		foreach (var aurEff in GetAuraEffectsByType(AuraType.ModCombatRatingFromCombatRating))
-			if ((aurEff.GetMiscValueB() & (1 << (int)cr)) != 0)
+			if ((aurEff.MiscValueB & (1 << (int)cr)) != 0)
 			{
 				short? highestRating = null;
 
 				for (byte dependentRating = 0; dependentRating < (int)CombatRating.Max; ++dependentRating)
-					if ((aurEff.GetMiscValue() & (1 << dependentRating)) != 0)
+					if ((aurEff.MiscValue & (1 << dependentRating)) != 0)
 						highestRating = (short)Math.Max(highestRating.HasValue ? highestRating.Value : _baseRatingValue[dependentRating], _baseRatingValue[dependentRating]);
 
 				if (highestRating != 0)
-					amount += MathFunctions.CalculatePct(highestRating.Value, aurEff.GetAmount());
+					amount += MathFunctions.CalculatePct(highestRating.Value, aurEff.Amount);
 			}
 
 		foreach (var aurEff in GetAuraEffectsByType(AuraType.ModRatingPct))
-			if (Convert.ToBoolean(aurEff.GetMiscValue() & (1 << (int)cr)))
-				amount += MathFunctions.CalculatePct(amount, aurEff.GetAmount());
+			if (Convert.ToBoolean(aurEff.MiscValue & (1 << (int)cr)))
+				amount += MathFunctions.CalculatePct(amount, aurEff.Amount);
 
 		if (amount < 0)
 			amount = 0;
@@ -612,7 +615,7 @@ public partial class Player
 			var aura = GetAura(masterySpellId);
 
 			if (aura != null)
-				foreach (var spellEffectInfo in aura.GetSpellInfo().GetEffects())
+				foreach (var spellEffectInfo in aura.SpellInfo.Effects)
 				{
 					var mult = spellEffectInfo.BonusCoefficient;
 
@@ -642,7 +645,7 @@ public partial class Player
 		MathFunctions.AddPct(ref value, GetRatingBonusValue(CombatRating.VersatilityHealingDone) + GetTotalAuraModifier(AuraType.ModVersatility));
 
 		foreach (var auraEffect in GetAuraEffectsByType(AuraType.ModHealingDonePercent))
-			MathFunctions.AddPct(ref value, auraEffect.GetAmount());
+			MathFunctions.AddPct(ref value, auraEffect.Amount);
 
 		var val = (float)value;
 
@@ -726,18 +729,18 @@ public partial class Player
 		{
 			case WeaponAttackType.OffAttack:
 				SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OffhandCritPercentage),
-				                        applyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+										applyCritLimit(GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.OffhandCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
 
 				break;
 			case WeaponAttackType.RangedAttack:
 				SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.RangedCritPercentage),
-				                        applyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
+										applyCritLimit(GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.RangedCritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritRanged)));
 
 				break;
 			case WeaponAttackType.BaseAttack:
 			default:
 				SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CritPercentage),
-				                        applyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
+										applyCritLimit(GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.FlatMod) + GetBaseModValue(BaseModGroup.CritPercentage, BaseModType.PctMod) + GetRatingBonusValue(CombatRating.CritMelee)));
 
 				break;
 		}
@@ -752,7 +755,7 @@ public partial class Player
 
 		var weapon = GetWeaponForAttack(attack, true);
 
-		expertise += (int)GetTotalAuraModifier(AuraType.ModExpertise, aurEff => aurEff.GetSpellInfo().IsItemFitToSpellRequirements(weapon));
+		expertise += (int)GetTotalAuraModifier(AuraType.ModExpertise, aurEff => aurEff.SpellInfo.IsItemFitToSpellRequirements(weapon));
 
 		if (expertise < 0)
 			expertise = 0;

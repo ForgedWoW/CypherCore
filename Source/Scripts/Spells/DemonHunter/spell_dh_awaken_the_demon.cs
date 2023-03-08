@@ -26,7 +26,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 		if (!GetSpellInfo().GetEffect(1).IsEffect() || !GetSpellInfo().GetEffect(2).IsEffect())
 			return;
 
-		var threshold1 = caster.CountPctFromMaxHealth(aurEff.GetBaseAmount());
+		var threshold1 = caster.CountPctFromMaxHealth(aurEff.BaseAmount);
 		var threshold2 = caster.CountPctFromMaxHealth(GetSpellInfo().GetEffect(1).BasePoints);
 		var duration   = GetSpellInfo().GetEffect(2).BasePoints;
 
@@ -40,7 +40,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 
 			if (aur != null)
 			{
-				aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.GetDuration(), aur.GetMaxDuration()));
+				aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.Duration, aur.MaxDuration));
 
 				return;
 			}
@@ -58,7 +58,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 
 			if (aur != null)
 			{
-				aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.GetDuration(), aur.GetMaxDuration()));
+				aur.SetDuration(Math.Min(duration * Time.InMilliseconds + aur.Duration, aur.MaxDuration));
 
 				return;
 			}

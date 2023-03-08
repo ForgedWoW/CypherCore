@@ -348,7 +348,7 @@ namespace Game.Combat
 
             // Only the last taunt effect applied by something still on our threat list is considered
             foreach (var auraEffect in tauntEffects)
-                tauntStates[auraEffect.GetCasterGUID()] = state++;
+                tauntStates[auraEffect.CasterGuid] = state++;
 
             foreach (var pair in _myThreatListEntries)
             {
@@ -523,8 +523,8 @@ namespace Game.Combat
             {
                 SpellThreatEntry threatEntry = Global.SpellMgr.GetSpellThreatEntry(spell.Id);
                 if (threatEntry != null)
-                    if (threatEntry.pctMod != 1.0f) // flat/AP modifiers handled in Spell::HandleThreatSpells
-                        threat *= threatEntry.pctMod;
+                    if (threatEntry.PctMod != 1.0f) // flat/AP modifiers handled in Spell::HandleThreatSpells
+                        threat *= threatEntry.PctMod;
 
                 Player modOwner = victim.GetSpellModOwner();
                 if (modOwner != null)
@@ -616,7 +616,7 @@ namespace Game.Combat
         {
             double mod = 0;
             foreach (AuraEffect eff in _owner.GetAuraEffectsByType(AuraType.ModTotalThreat))
-                mod += eff.GetAmount();
+                mod += eff.Amount;
 
             if (_threatenedByMe.Empty())
                 return;

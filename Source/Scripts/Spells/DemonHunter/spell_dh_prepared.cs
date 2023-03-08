@@ -21,7 +21,7 @@ public class spell_dh_prepared : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		caster.ModifyPower(PowerType.Fury, aurEff.GetAmount() / 10.0f);
+		caster.ModifyPower(PowerType.Fury, aurEff.Amount / 10.0f);
 	}
 
 	public override void Register()

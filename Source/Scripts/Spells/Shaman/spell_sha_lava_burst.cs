@@ -26,7 +26,7 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 		var lavaSurge = caster.GetAura(ShamanSpells.LavaSurge);
 
 		if (lavaSurge != null)
-			if (!GetSpell().m_appliedMods.Contains(lavaSurge))
+			if (!GetSpell().AppliedMods.Contains(lavaSurge))
 			{
 				var chargeCategoryId = GetSpellInfo().ChargeCategoryId;
 

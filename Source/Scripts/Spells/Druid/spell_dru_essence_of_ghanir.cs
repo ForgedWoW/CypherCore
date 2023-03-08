@@ -19,14 +19,14 @@ public class spell_dru_essence_of_ghanir : AuraScript, IHasAuraEffects
 		if (spellMod == null)
 		{
 			var mod = new SpellModifierByClassMask(GetAura());
-			mod.op      = SpellModOp.PeriodicHealingAndDamage;
-			mod.type    = SpellModType.Flat;
-			mod.spellId = GetId();
-			mod.mask    = aurEff.GetSpellEffectInfo().SpellClassMask;
+			mod.Op      = SpellModOp.PeriodicHealingAndDamage;
+			mod.Type    = SpellModType.Flat;
+			mod.SpellId = GetId();
+			mod.Mask    = aurEff.GetSpellEffectInfo().SpellClassMask;
 			spellMod    = mod;
 		}
 
-		((SpellModifierByClassMask)spellMod).value = aurEff.GetAmount() / 7;
+		((SpellModifierByClassMask)spellMod).Value = aurEff.Amount / 7;
 	}
 
 	public override void Register()

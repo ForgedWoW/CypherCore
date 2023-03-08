@@ -89,12 +89,12 @@ public class Vehicle : ITransport, IDisposable
 		Cypher.Assert(seat.Value != null);
 
 		Log.outDebug(LogFilter.Vehicle,
-		             "Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
-		             unit.GetName(),
-		             _me.GetEntry(),
-		             _vehicleInfo.Id,
-		             _me.GetGUID().ToString(),
-		             seat.Key);
+					"Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
+					unit.GetName(),
+					_me.GetEntry(),
+					_vehicleInfo.Id,
+					_me.GetGUID().ToString(),
+					seat.Key);
 
 		if (seat.Value.SeatInfo.CanEnterOrExit() && ++UsableSeatNum != 0)
 			_me.SetNpcFlag(_me.IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
@@ -148,19 +148,19 @@ public class Vehicle : ITransport, IDisposable
 	public void CalculatePassengerPosition(Position pos)
 	{
 		ITransport.CalculatePassengerPosition(pos,
-		                                      GetBase().Location.X,
-		                                      GetBase().Location.Y,
-		                                      GetBase().Location.Z,
-		                                      GetBase().Location.Orientation);
+											GetBase().Location.X,
+											GetBase().Location.Y,
+											GetBase().Location.Z,
+											GetBase().Location.Orientation);
 	}
 
 	public void CalculatePassengerOffset(Position pos)
 	{
 		ITransport.CalculatePassengerOffset(pos,
-		                                    GetBase().Location.X,
-		                                    GetBase().Location.Y,
-		                                    GetBase().Location.Z,
-		                                    GetBase().Location.Orientation);
+											GetBase().Location.X,
+											GetBase().Location.Y,
+											GetBase().Location.Z,
+											GetBase().Location.Orientation);
 	}
 
 	public int GetMapIdForSpawning()
@@ -197,10 +197,10 @@ public class Vehicle : ITransport, IDisposable
 		if (_status == Status.UnInstalling && !GetBase().HasUnitTypeMask(UnitTypeMask.Minion))
 		{
 			Log.outError(LogFilter.Vehicle,
-			             "Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
-			             "Check Uninstall/PassengerBoarded script hooks for errors.",
-			             _me.GetGUID().ToString(),
-			             _me.GetEntry());
+						"Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
+						"Check Uninstall/PassengerBoarded script hooks for errors.",
+						_me.GetGUID().ToString(),
+						_me.GetEntry());
 
 			return;
 		}
@@ -308,10 +308,10 @@ public class Vehicle : ITransport, IDisposable
 	}
 
 	/// <summary>
-	/// Gets the vehicle seat addon data for the seat of a passenger
+	///  Gets the vehicle seat addon data for the seat of a passenger
 	/// </summary>
-	/// <param name="passenger">Identifier for the current seat user</param>
-	/// <returns>The seat addon data for the currently used seat of a passenger</returns>
+	/// <param name="passenger"> Identifier for the current seat user </param>
+	/// <returns> The seat addon data for the currently used seat of a passenger </returns>
 	public VehicleSeatAddon GetSeatAddonForSeatOfPassenger(Unit passenger)
 	{
 		foreach (var pair in Seats)
@@ -327,24 +327,24 @@ public class Vehicle : ITransport, IDisposable
 		if (_status == Status.UnInstalling)
 		{
 			Log.outError(LogFilter.Vehicle,
-			             "Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
-			             unit.GetGUID().ToString(),
-			             unit.GetEntry(),
-			             _me.GetGUID().ToString(),
-			             _me.GetEntry(),
-			             seatId);
+						"Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
+						unit.GetGUID().ToString(),
+						unit.GetEntry(),
+						_me.GetGUID().ToString(),
+						_me.GetEntry(),
+						seatId);
 
 			return false;
 		}
 
 		Log.outDebug(LogFilter.Vehicle,
-		             "Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
-		             unit.GetName(),
-		             _me.GetEntry(),
-		             _vehicleInfo.Id,
-		             _me.GetGUID().ToString(),
-		             (_me.IsTypeId(TypeId.Unit) ? _me.ToCreature().GetSpawnId() : 0),
-		             seatId);
+					"Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
+					unit.GetName(),
+					_me.GetEntry(),
+					_vehicleInfo.Id,
+					_me.GetGUID().ToString(),
+					(_me.IsTypeId(TypeId.Unit) ? _me.ToCreature().GetSpawnId() : 0),
+					seatId);
 
 		// The seat selection code may kick other passengers off the vehicle.
 		// While the validity of the following may be arguable, it is possible that when such a passenger
@@ -624,12 +624,12 @@ public class Vehicle : ITransport, IDisposable
 		if (_status == Status.UnInstalling)
 		{
 			Log.outError(LogFilter.Vehicle,
-			             "Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
-			             "Check Uninstall/PassengerBoarded script hooks for errors.",
-			             _me.GetGUID().ToString(),
-			             GetCreatureEntry(),
-			             entry,
-			             seatId);
+						"Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
+						"Check Uninstall/PassengerBoarded script hooks for errors.",
+						_me.GetGUID().ToString(),
+						GetCreatureEntry(),
+						entry,
+						seatId);
 
 			return;
 		}

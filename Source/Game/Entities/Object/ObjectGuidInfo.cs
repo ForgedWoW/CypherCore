@@ -96,9 +96,9 @@ class ObjectGuidInfo
 
 	static void SET_GUID_INFO(HighGuid type, Func<HighGuid, ObjectGuid, string> format, Func<HighGuid, string, ObjectGuid> parse)
 	{
-		Names[type]                = type.ToString();
+		Names[type] = type.ToString();
 		ClientFormatFunction[type] = format;
-		ClientParseFunction[type]  = parse;
+		ClientParseFunction[type] = parse;
 	}
 
 	static string FormatNull(HighGuid typeName, ObjectGuid guid)
@@ -194,11 +194,11 @@ class ObjectGuidInfo
 			return ObjectGuid.FromStringFailed;
 
 		if (!byte.TryParse(split[0], out var subType) ||
-		    !uint.TryParse(split[1], out var realmId) ||
-		    !ushort.TryParse(split[2], out var mapId) ||
-		    !uint.TryParse(split[3], out var serverId) ||
-		    !uint.TryParse(split[4], out var id) ||
-		    !ulong.TryParse(split[5], out var counter))
+			!uint.TryParse(split[1], out var realmId) ||
+			!ushort.TryParse(split[2], out var mapId) ||
+			!uint.TryParse(split[3], out var serverId) ||
+			!uint.TryParse(split[4], out var id) ||
+			!ulong.TryParse(split[5], out var counter))
 			return ObjectGuid.FromStringFailed;
 
 		return ObjectGuidFactory.CreateWorldObject(type, subType, realmId, mapId, serverId, id, counter);
@@ -258,11 +258,11 @@ class ObjectGuidInfo
 			return ObjectGuid.FromStringFailed;
 
 		if (!uint.TryParse(split[0], out var realmId) ||
-		    !uint.TryParse(split[1], out var builtIn) ||
-		    !uint.TryParse(split[2], out var trade) ||
-		    !ushort.TryParse(split[3], out var zoneId) ||
-		    !byte.TryParse(split[4], out var factionGroupMask) ||
-		    !ulong.TryParse(split[5], out var id))
+			!uint.TryParse(split[1], out var builtIn) ||
+			!uint.TryParse(split[2], out var trade) ||
+			!ushort.TryParse(split[3], out var zoneId) ||
+			!byte.TryParse(split[4], out var factionGroupMask) ||
+			!ulong.TryParse(split[5], out var id))
 			return ObjectGuid.FromStringFailed;
 
 		return ObjectGuidFactory.CreateChatChannel(realmId, builtIn != 0, trade != 0, zoneId, factionGroupMask, id);
@@ -343,7 +343,7 @@ class ObjectGuidInfo
 	static string FormatLFGObject(HighGuid typeName, ObjectGuid guid)
 	{
 		return $"{typeName}-{(guid.GetHighValue() >> 54) & 0xF}-{(guid.GetHighValue() >> 50) & 0xF}-{(guid.GetHighValue() >> 46) & 0xF}-" +
-		       $"{(guid.GetHighValue() >> 38) & 0xFF}-{(guid.GetHighValue() >> 37) & 0x1}-{(guid.GetHighValue() >> 35) & 0x3}-0x{guid.GetLowValue():X6}";
+				$"{(guid.GetHighValue() >> 38) & 0xFF}-{(guid.GetHighValue() >> 37) & 0x1}-{(guid.GetHighValue() >> 35) & 0x3}-0x{guid.GetLowValue():X6}";
 	}
 
 	static ObjectGuid ParseLFGObject(HighGuid type, string guidString)
@@ -354,12 +354,12 @@ class ObjectGuidInfo
 			return ObjectGuid.FromStringFailed;
 
 		if (!byte.TryParse(split[0], out var arg1) ||
-		    !byte.TryParse(split[1], out var arg2) ||
-		    !byte.TryParse(split[2], out var arg3) ||
-		    !byte.TryParse(split[3], out var arg4) ||
-		    !byte.TryParse(split[4], out var arg5) ||
-		    !byte.TryParse(split[5], out var arg6) ||
-		    !ulong.TryParse(split[6], out var counter))
+			!byte.TryParse(split[1], out var arg2) ||
+			!byte.TryParse(split[2], out var arg3) ||
+			!byte.TryParse(split[3], out var arg4) ||
+			!byte.TryParse(split[4], out var arg5) ||
+			!byte.TryParse(split[5], out var arg6) ||
+			!ulong.TryParse(split[6], out var counter))
 			return ObjectGuid.FromStringFailed;
 
 		return ObjectGuidFactory.CreateLFGObject(arg1, arg2, arg3, arg4, arg5 != 0, arg6, counter);

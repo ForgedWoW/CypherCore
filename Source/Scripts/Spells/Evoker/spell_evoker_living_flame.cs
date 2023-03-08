@@ -45,7 +45,7 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 			var manaCost = GetSpell().GetPowerTypeCostAmount(PowerType.Mana).GetValueOrDefault(0);
 
 			if (manaCost != 0)
-				GetCaster().ModifyPower(PowerType.Mana, MathFunctions.CalculatePct(manaCost, auraEffect.GetAmount()));
+				GetCaster().ModifyPower(PowerType.Mana, MathFunctions.CalculatePct(manaCost, auraEffect.Amount));
 		}
 	}
 

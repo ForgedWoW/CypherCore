@@ -44,10 +44,10 @@ public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
 
 			if (moonfireDOT != null)
 			{
-				var duration    = moonfireDOT.GetDuration();
+				var duration    = moonfireDOT.Duration;
 				var newDuration = duration + 6 * Time.InMilliseconds;
 
-				if (newDuration > moonfireDOT.GetMaxDuration())
+				if (newDuration > moonfireDOT.MaxDuration)
 					moonfireDOT.SetMaxDuration(newDuration);
 
 				moonfireDOT.SetDuration(newDuration);
@@ -64,7 +64,7 @@ public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
 
 		if (WarriorOfElune != null)
 		{
-			var amount = WarriorOfElune.GetEffect(0).GetAmount();
+			var amount = WarriorOfElune.GetEffect(0).Amount;
 			WarriorOfElune.GetEffect(0).SetAmount(amount - 1);
 
 			if (amount == -102)

@@ -54,7 +54,7 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 
 	private void OnEffectRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 			return;
 
 		var aura   = GetAura();
@@ -74,7 +74,7 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 		if (cost == null)
 			return;
 
-		var pct         = (double)aura.GetDuration() / (double)aura.GetMaxDuration();
+		var pct         = (double)aura.Duration / (double)aura.MaxDuration;
 		var extraAmount = (int)((double)cost.Amount * pct);
 		caster.ModifyPower(PowerType.Energy, extraAmount);
 	}

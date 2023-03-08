@@ -47,10 +47,10 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 		if (protEff != null)
 		{
 			// The shield can grow to a maximum size of 20,000 Damage absorbtion
-			protEff.SetAmount(Math.Min(protEff.GetAmount() + absorb, 20000));
+			protEff.SetAmount(Math.Min(protEff.Amount + absorb, 20000));
 
 			// Refresh and return to prevent replacing the aura
-			protEff.GetBase().RefreshDuration();
+			protEff.Base.RefreshDuration();
 		}
 		else
 		{

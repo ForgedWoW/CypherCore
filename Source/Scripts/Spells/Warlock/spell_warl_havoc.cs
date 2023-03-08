@@ -33,7 +33,7 @@ namespace Scripts.Spells.Warlock
 				if (target != null)
 					if (victim != target)
 					{
-						var spellInfo = aurEff.GetSpellInfo();
+						var spellInfo = aurEff.SpellInfo;
 
 						if (spellInfo != null)
 						{

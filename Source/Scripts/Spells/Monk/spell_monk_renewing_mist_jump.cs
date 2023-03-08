@@ -74,7 +74,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 
 				if (newAura != null)
 				{
-					newAura.SetDuration(oldAura.GetDuration());
+					newAura.SetDuration(oldAura.Duration);
 					previousTarget.SendPlaySpellVisual(GetHitUnit().Location, previousTarget.Location.Orientation, MonkSpells.VISUAL_RENEWING_MIST, 0, 0, 50.0f, false);
 					oldAura.Remove();
 				}

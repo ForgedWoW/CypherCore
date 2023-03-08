@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -12,10 +15,9 @@ public class SelectedAzeriteEssences : BaseUpdateData<AzeriteItem>
 
 	public void WriteCreate(WorldPacket data, AzeriteItem owner, Player receiver)
 	{
-		for (int i = 0; i < 4; ++i)
-		{
+		for (var i = 0; i < 4; ++i)
 			data.WriteUInt32(AzeriteEssenceID[i]);
-		}
+
 		data.WriteUInt32(SpecializationID);
 		data.WriteBit(Enabled);
 		data.FlushBits();
@@ -23,39 +25,30 @@ public class SelectedAzeriteEssences : BaseUpdateData<AzeriteItem>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, AzeriteItem owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlocksMask(0), 1);
+
 		if (changesMask.GetBlock(0) != 0)
 			data.WriteBits(changesMask.GetBlock(0), 32);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
-			{
 				data.WriteBit(Enabled);
-			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
-		{
 			if (changesMask[2])
-			{
 				data.WriteUInt32(SpecializationID);
-			}
-		}
+
 		if (changesMask[3])
-		{
-			for (int i = 0; i < 4; ++i)
-			{
+			for (var i = 0; i < 4; ++i)
 				if (changesMask[4 + i])
-				{
 					data.WriteUInt32(AzeriteEssenceID[i]);
-				}
-			}
-		}
 
 		data.FlushBits();
 	}

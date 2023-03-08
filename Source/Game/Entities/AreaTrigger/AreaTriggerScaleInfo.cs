@@ -11,6 +11,10 @@ namespace Game.Entities;
 [StructLayout(LayoutKind.Explicit)]
 public class AreaTriggerScaleInfo
 {
+	[FieldOffset(0)] public StructuredData Structured;
+
+	[FieldOffset(0)] public RawData Raw;
+
 	[StructLayout(LayoutKind.Explicit)]
 	public struct StructuredData
 	{
@@ -58,8 +62,4 @@ public class AreaTriggerScaleInfo
 	{
 		public fixed uint Data[SharedConst.MaxAreatriggerScale];
 	}
-
-	[FieldOffset(0)] public StructuredData Structured;
-
-	[FieldOffset(0)] public RawData Raw;
 }

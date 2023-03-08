@@ -39,7 +39,7 @@ namespace Scripts.Spells.Paladin
             Unit target = eventInfo.GetProcTarget();
 
             SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, GetCastDifficulty());
-            int amount = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.GetAmount());
+            int amount = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
             amount /= (int)spellInfo.GetMaxTicks();
 
             CastSpellExtraArgs args = new(aurEff);

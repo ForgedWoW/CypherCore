@@ -12,29 +12,6 @@ namespace Game.Entities;
 
 public class AzeriteEmpoweredItem : Item
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly AzeriteEmpoweredItem Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
-		{
-			Owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(Owner.Location.MapId);
-
-			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteEmpoweredItemMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	readonly AzeriteEmpoweredItemData _azeriteEmpoweredItemData;
 	List<AzeritePowerSetMemberRecord> _azeritePowers;
 	int _maxTier;
@@ -264,5 +241,28 @@ public class AzeriteEmpoweredItem : Item
 
 		if (_azeritePowers != null)
 			_maxTier = _azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly AzeriteEmpoweredItem Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ItemData ItemMask = new();
+		readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
+		{
+			Owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
+
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteEmpoweredItemMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

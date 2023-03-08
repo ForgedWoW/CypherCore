@@ -17,7 +17,7 @@ internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(MonkSpells.StaggerDamageAura) && !Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, Difficulty.None).GetEffects().Empty();
+		return ValidateSpellInfo(MonkSpells.StaggerDamageAura) && !Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, Difficulty.None).Effects.Empty();
 	}
 
 	public override bool Load()
@@ -36,7 +36,7 @@ internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
 	private void OnReapply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Calculate Damage per tick
-		double total   = aurEff.GetAmount();
+		double total   = aurEff.Amount;
 		var   perTick = total * _period / (double)GetDuration(); // should be same as GetMaxDuration() TODO: verify
 
 		// Set amount on effect for tooltip

@@ -27,6 +27,6 @@ internal class spell_mage_comet_storm_damage : SpellScript, IHasSpellEffects
 
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitDest(), MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(GetSpell().m_originalCastId));
+		GetCaster().CastSpell(GetHitDest(), MageSpells.CometStormDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(GetSpell().OriginalCastId));
 	}
 }

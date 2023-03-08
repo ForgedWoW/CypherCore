@@ -37,16 +37,16 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 				var extra = MathFunctions.CalculatePct(damageInfo.GetDamage(), 25);
 
 				if (extra > 0)
-					aurEff.ChangeAmount(aurEff.GetAmount() + (int)extra);
+					aurEff.ChangeAmount(aurEff.Amount + (int)extra);
 			}
 	}
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var amount = aurEff.GetAmount();
+		var amount = aurEff.Amount;
 
 		if (amount == 0 ||
-		    GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Expire)
+		    GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
 			return;
 
 		var caster = GetCaster();

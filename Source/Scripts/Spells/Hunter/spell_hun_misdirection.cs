@@ -28,8 +28,8 @@ internal class spell_hun_misdirection : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Default ||
-		    GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Interrupt)
+		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Default ||
+		    GetTargetApplication().RemoveMode == AuraRemoveMode.Interrupt)
 			return;
 
 		if (!GetTarget().HasAura(HunterSpells.MisdirectionProc))

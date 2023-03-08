@@ -22,7 +22,7 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		if (spellInfo.GetEffects().Empty() ||
+		if (spellInfo.Effects.Empty() ||
 		    !spellInfo.GetEffect(0).IsAura(AuraType.ModPowerRegen))
 		{
 			Log.outError(LogFilter.Spells, "Aura {GetId()} structure has been changed - first aura is no longer AURA_MOD_POWER_REGEN");
@@ -88,15 +88,15 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 
 				break;
 			case 2: // 166%
-				regen.ChangeAmount(aurEff.GetAmount() * 5 / 3);
+				regen.ChangeAmount(aurEff.Amount * 5 / 3);
 
 				break;
 			case 3: // 133%
-				regen.ChangeAmount(aurEff.GetAmount() * 4 / 3);
+				regen.ChangeAmount(aurEff.Amount * 4 / 3);
 
 				break;
 			default: // 100% - normal regen
-				regen.ChangeAmount(aurEff.GetAmount());
+				regen.ChangeAmount(aurEff.Amount);
 				// No need to update after 4th tick
 				aurEff.SetPeriodic(false);
 

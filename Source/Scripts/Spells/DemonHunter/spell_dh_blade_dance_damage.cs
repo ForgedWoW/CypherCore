@@ -23,11 +23,11 @@ internal class spell_dh_blade_dance_damage : SpellScript, ISpellOnHit
 
 		if (aurEff != null)
 		{
-			var script = aurEff.GetBase().GetScript<spell_dh_first_blood>();
+			var script = aurEff.Base.GetScript<spell_dh_first_blood>();
 
 			if (script != null)
 				if (GetHitUnit().GetGUID() == script.GetFirstTarget())
-					MathFunctions.AddPct(ref damage, aurEff.GetAmount());
+					MathFunctions.AddPct(ref damage, aurEff.Amount);
 		}
 
 		SetHitDamage(damage);

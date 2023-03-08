@@ -33,7 +33,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 			var earthquake = caster.GetAuraEffect(ShamanSpells.Earthquake, 1);
 
 			if (earthquake != null)
-				_period = TimeSpan.FromMilliseconds(earthquake.GetPeriod());
+				_period = TimeSpan.FromMilliseconds(earthquake.Period);
 		}
 	}
 

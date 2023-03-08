@@ -45,7 +45,7 @@ namespace Scripts.Spells.Warrior
 			if (l_SpellInfo == null || l_SpellInfoDamage == null)
 				return;
 
-			double l_Damage = MathFunctions.CalculatePct(p_ProcInfo.GetDamageInfo().GetDamage(), aurEff.GetBaseAmount());
+			double l_Damage = MathFunctions.CalculatePct(p_ProcInfo.GetDamageInfo().GetDamage(), aurEff.BaseAmount);
 
 			double l_PreviousTotalDamage = 0;
 
@@ -53,8 +53,8 @@ namespace Scripts.Spells.Warrior
 
 			if (l_PreviousBloodBath != null)
 			{
-				var l_PeriodicDamage = l_PreviousBloodBath.GetAmount();
-				var l_Duration       = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID()).GetDuration();
+				var l_PeriodicDamage = l_PreviousBloodBath.Amount;
+				var l_Duration       = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID()).Duration;
 				var l_Amplitude      = l_PreviousBloodBath.GetSpellEffectInfo().Amplitude;
 
 				if (l_Amplitude != 0)
@@ -73,7 +73,7 @@ namespace Scripts.Spells.Warrior
 				var l_ActualBloodBath = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID());
 
 				if (l_ActualBloodBath != null)
-					l_ActualBloodBath.SetDuration(l_ActualBloodBath.GetMaxDuration());
+					l_ActualBloodBath.SetDuration(l_ActualBloodBath.MaxDuration);
 			}
 			else
 			{

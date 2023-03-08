@@ -18,7 +18,7 @@ public class spell_rog_serrated_blades_SpellScript : SpellScript, ISpellOnHit
 		{
 			var combo = GetCaster().ToPlayer().GetPower(PowerType.ComboPoints);
 
-			if (RandomHelper.randChance(blade.GetAmount() * combo))
+			if (RandomHelper.randChance(blade.Amount * combo))
 			{
 				var dot = GetHitUnit().GetAura(RogueSpells.RUPTURE, GetCaster().GetGUID());
 

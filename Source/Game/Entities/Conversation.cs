@@ -15,28 +15,6 @@ namespace Game.Entities;
 
 public class Conversation : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Conversation Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ConversationData ConversationMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
-		{
-			Owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(Owner.Location.MapId);
-
-			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ConversationMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	readonly ConversationData m_conversationData;
 	readonly Position _stationaryPosition = new();
 	readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
@@ -366,5 +344,27 @@ public class Conversation : WorldObject
 	void RelocateStationaryPosition(Position pos)
 	{
 		_stationaryPosition.Relocate(pos);
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Conversation Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ConversationData ConversationMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
+		{
+			Owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
+
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ConversationMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

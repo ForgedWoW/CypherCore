@@ -34,7 +34,7 @@ internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraChe
 				{
 					// backfire Damage
 					CastSpellExtraArgs args = new(aurEff);
-					args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.GetAmount() * 8);
+					args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount * 8);
 					caster.CastSpell(target, PriestSpells.VAMPIRIC_TOUCH_DISPEL, args);
 				}
 			}

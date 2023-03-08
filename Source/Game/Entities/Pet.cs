@@ -156,7 +156,7 @@ public class Pet : Guardian
 		var petStable = owner.GetPetStable();
 
 		var ownerid = owner.GetGUID().GetCounter();
-		(var petInfo, var slot) = GetLoadPetInfo(petStable, petEntry, petnumber, forcedSlot);
+		var (petInfo, slot) = GetLoadPetInfo(petStable, petEntry, petnumber, forcedSlot);
 
 		if (petInfo == null || (slot >= PetSaveMode.FirstStableSlot && slot < PetSaveMode.LastStableSlot))
 		{
@@ -214,11 +214,11 @@ public class Pet : Guardian
 			if (!Location.IsPositionValid())
 			{
 				Log.outError(LogFilter.Pet,
-				             "Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
-				             GetGUID().ToString(),
-				             GetEntry(),
-				             Location.X,
-				             Location.Y);
+							"Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
+							GetGUID().ToString(),
+							GetEntry(),
+							Location.X,
+							Location.Y);
 
 				return false;
 			}
@@ -364,71 +364,71 @@ public class Pet : Guardian
 		var specializationId = petInfo.SpecializationId;
 
 		owner.GetSession()
-		     .AddQueryHolderCallback(DB.Characters.DelayQueryHolder(new PetLoadQueryHolder(ownerid, petInfo.PetNumber)))
-		     .AfterComplete(holder =>
-		     {
-			     if (session.GetPlayer() != owner || owner.GetPet() != this)
-				     return;
+			.AddQueryHolderCallback(DB.Characters.DelayQueryHolder(new PetLoadQueryHolder(ownerid, petInfo.PetNumber)))
+			.AfterComplete(holder =>
+			{
+				if (session.GetPlayer() != owner || owner.GetPet() != this)
+					return;
 
-			     // passing previous checks ensure that 'this' is still valid
-			     if (Removed)
-				     return;
+				// passing previous checks ensure that 'this' is still valid
+				if (Removed)
+					return;
 
-			     var timediff = (uint)(GameTime.GetGameTime() - lastSaveTime);
-			     _LoadAuras(holder.GetResult(PetLoginQueryLoad.Auras), holder.GetResult(PetLoginQueryLoad.AuraEffects), timediff);
+				var timediff = (uint)(GameTime.GetGameTime() - lastSaveTime);
+				_LoadAuras(holder.GetResult(PetLoginQueryLoad.Auras), holder.GetResult(PetLoginQueryLoad.AuraEffects), timediff);
 
-			     // load action bar, if data broken will fill later by default spells.
-			     if (!isTemporarySummon)
-			     {
-				     _LoadSpells(holder.GetResult(PetLoginQueryLoad.Spells));
-				     GetSpellHistory().LoadFromDB<Pet>(holder.GetResult(PetLoginQueryLoad.Cooldowns), holder.GetResult(PetLoginQueryLoad.Charges));
-				     LearnPetPassives();
-				     InitLevelupSpellsForLevel();
+				// load action bar, if data broken will fill later by default spells.
+				if (!isTemporarySummon)
+				{
+					_LoadSpells(holder.GetResult(PetLoginQueryLoad.Spells));
+					GetSpellHistory().LoadFromDb<Pet>(holder.GetResult(PetLoginQueryLoad.Cooldowns), holder.GetResult(PetLoginQueryLoad.Charges));
+					LearnPetPassives();
+					InitLevelupSpellsForLevel();
 
-				     if (GetMap().IsBattleArena())
-					     RemoveArenaAuras();
+					if (GetMap().IsBattleArena())
+						RemoveArenaAuras();
 
-				     CastPetAuras(current);
-			     }
+					CastPetAuras(current);
+				}
 
-			     Log.outDebug(LogFilter.Pet, $"New Pet has {GetGUID()}");
+				Log.outDebug(LogFilter.Pet, $"New Pet has {GetGUID()}");
 
-			     var specId = specializationId;
-			     var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
+				var specId = specializationId;
+				var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
 
-			     if (petSpec != null)
-				     specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? Class.Max : 0, petSpec.OrderIndex).Id;
+				if (petSpec != null)
+					specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? Class.Max : 0, petSpec.OrderIndex).Id;
 
-			     SetSpecialization(specId);
+				SetSpecialization(specId);
 
-			     // The SetSpecialization function will run these functions if the pet's spec is not 0
-			     if (GetSpecialization() == 0)
-			     {
-				     CleanupActionBar(); // remove unknown spells from action bar after load
+				// The SetSpecialization function will run these functions if the pet's spec is not 0
+				if (GetSpecialization() == 0)
+				{
+					CleanupActionBar(); // remove unknown spells from action bar after load
 
-				     owner.PetSpellInitialize();
-			     }
+					owner.PetSpellInitialize();
+				}
 
 
-			     SetGroupUpdateFlag(GroupUpdatePetFlags.Full);
+				SetGroupUpdateFlag(GroupUpdatePetFlags.Full);
 
-			     if (GetPetType() == PetType.Hunter)
-			     {
-				     var result = holder.GetResult(PetLoginQueryLoad.DeclinedNames);
+				if (GetPetType() == PetType.Hunter)
+				{
+					var result = holder.GetResult(PetLoginQueryLoad.DeclinedNames);
 
-				     if (!result.IsEmpty())
-				     {
-					     _declinedname = new DeclinedName();
+					if (!result.IsEmpty())
+					{
+						_declinedname = new DeclinedName();
 
-					     for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-						     _declinedname.Name[i] = result.Read<string>(i);
-				     }
-			     }
+						for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
+							_declinedname.Name[i] = result.Read<string>(i);
+					}
+				}
 
-			     // must be after SetMinion (owner guid check)
-			     LoadTemplateImmunities();
-			     _loading = false;
-		     });
+				// must be after SetMinion (owner guid check)
+				LoadTemplateImmunities();
+				_loading = false;
+			});
 
 		return true;
 	}
@@ -453,8 +453,8 @@ public class Pet : Guardian
 
 		// not save pet as current if another pet temporary unsummoned
 		if (mode == PetSaveMode.AsCurrent &&
-		    owner.GetTemporaryUnsummonedPetNumber() != 0 &&
-		    owner.GetTemporaryUnsummonedPetNumber() != GetCharmInfo().GetPetNumber())
+			owner.GetTemporaryUnsummonedPetNumber() != 0 &&
+			owner.GetTemporaryUnsummonedPetNumber() != GetCharmInfo().GetPetNumber())
 		{
 			// pet will lost anyway at restore temporary unsummoned
 			if (GetPetType() == PetType.Hunter)
@@ -484,7 +484,7 @@ public class Pet : Guardian
 			RemoveAllAuras();
 
 		_SaveSpells(trans);
-		GetSpellHistory().SaveToDB<Pet>(trans);
+		GetSpellHistory().SaveToDb<Pet>(trans);
 		DB.Characters.CommitTransaction(trans);
 
 		// current/stable/not_in_slot
@@ -772,11 +772,11 @@ public class Pet : Guardian
 		if (!Location.IsPositionValid())
 		{
 			Log.outError(LogFilter.Pet,
-			             "Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
-			             GetGUID().ToString(),
-			             GetEntry(),
-			             Location.X,
-			             Location.Y);
+						"Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
+						GetGUID().ToString(),
+						GetEntry(),
+						Location.X,
+						Location.Y);
 
 			return false;
 		}
@@ -1343,7 +1343,7 @@ public class Pet : Guardian
 				}
 
 				// negative effects should continue counting down after logout
-				if (remainTime != -1 && (!spellInfo.IsPositive() || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
+				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
 					if (remainTime / Time.InMilliseconds <= timediff)
 						continue;
@@ -1366,7 +1366,7 @@ public class Pet : Guardian
 				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, GetMap().GenerateLowGuid(HighGuid.Cast));
 
 				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
-				createInfo.SetCasterGUID(casterGuid);
+				createInfo.SetCasterGuid(casterGuid);
 				createInfo.SetBaseAmount(info.BaseAmounts);
 
 				var aura = Aura.TryCreate(createInfo);
@@ -1414,14 +1414,14 @@ public class Pet : Guardian
 			stmt.AddValue(index++, key.SpellId);
 			stmt.AddValue(index++, key.EffectMask);
 			stmt.AddValue(index++, recalculateMask);
-			stmt.AddValue(index++, (byte)aura.GetCastDifficulty());
-			stmt.AddValue(index++, aura.GetStackAmount());
-			stmt.AddValue(index++, aura.GetMaxDuration());
-			stmt.AddValue(index++, aura.GetDuration());
-			stmt.AddValue(index++, aura.GetCharges());
+			stmt.AddValue(index++, (byte)aura.CastDifficulty);
+			stmt.AddValue(index++, aura.StackAmount);
+			stmt.AddValue(index++, aura.MaxDuration);
+			stmt.AddValue(index++, aura.Duration);
+			stmt.AddValue(index++, aura.Charges);
 			trans.Append(stmt);
 
-			foreach (var effect in aura.GetAuraEffects())
+			foreach (var effect in aura.AuraEffects)
 			{
 				index = 0;
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_AURA_EFFECT);
@@ -1429,9 +1429,9 @@ public class Pet : Guardian
 				stmt.AddValue(index++, key.Caster.GetRawValue());
 				stmt.AddValue(index++, key.SpellId);
 				stmt.AddValue(index++, key.EffectMask);
-				stmt.AddValue(index++, effect.Value.GetEffIndex());
-				stmt.AddValue(index++, effect.Value.GetAmount());
-				stmt.AddValue(index++, effect.Value.GetBaseAmount());
+				stmt.AddValue(index++, effect.Value.EffIndex);
+				stmt.AddValue(index++, effect.Value.Amount);
+				stmt.AddValue(index++, effect.Value.BaseAmount);
 				trans.Append(stmt);
 			}
 		}
@@ -1585,7 +1585,7 @@ public class Pet : Guardian
 		var defSpells = Global.SpellMgr.GetPetDefaultSpellsEntry((int)GetEntry());
 
 		if (defSpells != null)
-			foreach (var spellId in defSpells.spellid)
+			foreach (var spellId in defSpells.Spellid)
 			{
 				var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
@@ -1701,7 +1701,7 @@ public class Pet : Guardian
 
 		// if the owner has that pet aura, return true
 		foreach (var petAura in owner.PetAuras)
-			if (petAura.GetAura(GetEntry()) == aura.GetId())
+			if (petAura.GetAura(GetEntry()) == aura.Id)
 				return true;
 
 		return false;

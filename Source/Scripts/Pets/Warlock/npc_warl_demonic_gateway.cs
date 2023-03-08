@@ -105,7 +105,7 @@ namespace Scripts.Pets
                     {
                         Aura aura = target.GetAura(WarlockSpells.DEMONIC_GATEWAY_DEBUFF);
 
-                        aura?.SetDuration(aura.GetDuration() - eff.Amount * Time.InMilliseconds);
+                        aura?.SetDuration(aura.Duration - eff.Amount * Time.InMilliseconds);
                     }
 
                     break;

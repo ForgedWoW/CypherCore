@@ -24,7 +24,7 @@ public class spell_monk_chi_wave_heal_missile : AuraScript, IHasAuraEffects
 
 		caster.CastSpell(target, 132463, true);
 		// rerun target selector
-		caster.CastSpell(target, 132466, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, aurEff.GetAmount() - 1).SetTriggeringAura(aurEff));
+		caster.CastSpell(target, 132466, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, aurEff.Amount - 1).SetTriggeringAura(aurEff));
 	}
 
 	public override void Register()

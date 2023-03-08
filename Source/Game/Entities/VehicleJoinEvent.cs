@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
@@ -26,11 +29,11 @@ public class VehicleJoinEvent : BasicEvent
 		Cypher.Assert(Target != null && Target.GetBase().IsInWorld);
 
 		var vehicleAuras = Target.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
-		var aurEffect = vehicleAuras.Find(aurEff => aurEff.GetCasterGUID() == Passenger.GetGUID());
+		var aurEffect = vehicleAuras.Find(aurEff => aurEff.CasterGuid == Passenger.GetGUID());
 		Cypher.Assert(aurEffect != null);
 
-		var aurApp = aurEffect.GetBase().GetApplicationOfTarget(Target.GetBase().GetGUID());
-		Cypher.Assert(aurApp != null && !aurApp.HasRemoveMode());
+		var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.GetBase().GetGUID());
+		Cypher.Assert(aurApp != null && !aurApp.HasRemoveMode);
 
 		Target.RemovePendingEventsForSeat(Seat.Key);
 		Target.RemovePendingEventsForPassenger(Passenger);
@@ -156,12 +159,12 @@ public class VehicleJoinEvent : BasicEvent
 		if (Target != null)
 		{
 			Log.outDebug(LogFilter.Vehicle,
-			             "Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
-			             Passenger.GetGUID().ToString(),
-			             Passenger.GetEntry(),
-			             Target.GetBase().GetGUID().ToString(),
-			             Target.GetBase().GetEntry(),
-			             Seat.Key);
+						"Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
+						Passenger.GetGUID().ToString(),
+						Passenger.GetEntry(),
+						Target.GetBase().GetGUID().ToString(),
+						Target.GetBase().GetEntry(),
+						Seat.Key);
 
 			// Remove the pending event when Abort was called on the event directly
 			Target.RemovePendingEvent(this);
@@ -174,10 +177,10 @@ public class VehicleJoinEvent : BasicEvent
 		else
 		{
 			Log.outDebug(LogFilter.Vehicle,
-			             "Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
-			             Passenger.GetGUID().ToString(),
-			             Passenger.GetEntry(),
-			             Seat.Key);
+						"Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
+						Passenger.GetGUID().ToString(),
+						Passenger.GetEntry(),
+						Seat.Key);
 		}
 
 		if (Passenger.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))

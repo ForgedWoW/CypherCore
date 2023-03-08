@@ -24,7 +24,7 @@ namespace Scripts.Spells.Warlock
 			if (caster == null)
 				return;
 
-			if (RandomHelper.randChance(aurEff.GetAmount()))
+			if (RandomHelper.randChance(aurEff.Amount))
 				caster.CastSpell(caster, WarlockSpells.SOULSNATCHER_PROC, true);
 		}
 

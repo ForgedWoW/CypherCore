@@ -439,15 +439,15 @@ public partial class Player
 		// BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
 		// Note: Mount, stealth and invisibility will be removed when used
 		return (!IsTotalImmune() &&                                     // Damage immune
-		        !HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held flag debuff
-		        IsAlive());                                             // Alive
+				!HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held flag debuff
+				IsAlive());                                             // Alive
 	}
 
 	public bool CanCaptureTowerPoint()
 	{
 		return (!HasStealthAura() &&      // not stealthed
-		        !HasInvisibilityAura() && // not invisible
-		        IsAlive());               // live player
+				!HasInvisibilityAura() && // not invisible
+				IsAlive());               // live player
 	}
 
 	public void SetBattlegroundEntryPoint()
@@ -472,7 +472,7 @@ public partial class Player
 				var auras = GetAuraEffectsByType(AuraType.Mounted);
 
 				if (!auras.Empty())
-					_bgData.MountSpell = auras[0].GetId();
+					_bgData.MountSpell = auras[0].Id;
 			}
 			else
 			{
@@ -559,9 +559,9 @@ public partial class Player
 	}
 
 	/// <summary>
-	/// This player has been blamed to be inactive in a Battleground
+	///  This player has been blamed to be inactive in a Battleground
 	/// </summary>
-	/// <param name="reporter"></param>
+	/// <param name="reporter"> </param>
 	public void ReportedAfkBy(Player reporter)
 	{
 		ReportPvPPlayerAFKResult reportAfkResult = new();
@@ -640,9 +640,7 @@ public partial class Player
 	}
 
 	//Arenas
-	public void SetArenaTeamInfoField(byte slot, ArenaTeamInfoType type, uint value)
-	{
-	}
+	public void SetArenaTeamInfoField(byte slot, ArenaTeamInfoType type, uint value) { }
 
 	public void SetInArenaTeam(uint arenaTeamId, byte slot, byte type)
 	{
@@ -795,7 +793,7 @@ public partial class Player
 			var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
 			if (aura != null)
-				aura.SetDuration(aura.GetSpellInfo().GetMaxDuration());
+				aura.SetDuration(aura.SpellInfo.GetMaxDuration());
 		}
 	}
 

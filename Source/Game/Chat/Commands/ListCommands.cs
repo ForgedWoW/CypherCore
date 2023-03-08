@@ -584,20 +584,20 @@ namespace Game.Chat.Commands
                 handler.SendSysMessage(CypherStrings.CommandTargetListauras, unit.GetAppliedAurasCount());
                 foreach (var aurApp in auras)
                 {
-                    Aura aura = aurApp.GetBase();
-                    string name = aura.GetSpellInfo().SpellName[handler.GetSessionDbcLocale()];
-                    bool talent = aura.GetSpellInfo().HasAttribute(SpellCustomAttributes.IsTalent);
+                    Aura aura = aurApp.Base;
+                    string name = aura.SpellInfo.SpellName[handler.GetSessionDbcLocale()];
+                    bool talent = aura.SpellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
 
-                    if (!ShouldListAura(aura.GetSpellInfo(), spellId, namePart, handler.GetSessionDbcLocale()))
+                    if (!ShouldListAura(aura.SpellInfo, spellId, namePart, handler.GetSessionDbcLocale()))
                         continue;
 
-                    string ss_name = "|cffffffff|Hspell:" + aura.GetId() + "|h[" + name + "]|h|r";
+                    string ss_name = "|cffffffff|Hspell:" + aura.Id + "|h[" + name + "]|h|r";
 
-                    handler.SendSysMessage(CypherStrings.CommandTargetAuradetail, aura.GetId(), (handler.GetSession() != null ? ss_name : name),
-                        aurApp.GetEffectMask(), aura.GetCharges(), aura.GetStackAmount(), aurApp.GetSlot(),
-                        aura.GetDuration(), aura.GetMaxDuration(), (aura.IsPassive() ? passiveStr : ""),
-                        (talent ? talentStr : ""), aura.GetCasterGUID().IsPlayer() ? "player" : "creature",
-                        aura.GetCasterGUID().ToString());
+                    handler.SendSysMessage(CypherStrings.CommandTargetAuradetail, aura.Id, (handler.GetSession() != null ? ss_name : name),
+                        aurApp.EffectMask, aura.Charges, aura.StackAmount, aurApp.Slot,
+                        aura.Duration, aura.MaxDuration, (aura.IsPassive() ? passiveStr : ""),
+                        (talent ? talentStr : ""), aura.CasterGuid.IsPlayer() ? "player" : "creature",
+                        aura.CasterGuid.ToString());
                 }
 
                 for (AuraType auraType = 0; auraType < AuraType.Total; ++auraType)
@@ -610,7 +610,7 @@ namespace Game.Chat.Commands
 
                     foreach (var effect in auraList)
                     {
-                        if (!ShouldListAura(effect.GetSpellInfo(), spellId, namePart, handler.GetSessionDbcLocale()))
+                        if (!ShouldListAura(effect.SpellInfo, spellId, namePart, handler.GetSessionDbcLocale()))
                             continue;
 
                         if (!sizeLogged)
@@ -619,7 +619,7 @@ namespace Game.Chat.Commands
                             handler.SendSysMessage(CypherStrings.CommandTargetListauratype, auraList.Count, auraType);
                         }
 
-                        handler.SendSysMessage(CypherStrings.CommandTargetAurasimple, effect.GetId(), effect.GetEffIndex(), effect.GetAmount());
+                        handler.SendSysMessage(CypherStrings.CommandTargetAurasimple, effect.Id, effect.EffIndex, effect.Amount);
                     }
                 }
 

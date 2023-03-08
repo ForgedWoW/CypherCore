@@ -29,10 +29,10 @@ namespace Scripts.Spells.Warlock
 			if (owner == null)
 				return;
 
-			if (eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsPositive())
+			if (eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsPositive)
 				return;
 
-			var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.GetAmount());
+			var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
 
 			if (damage == 0)
 				return;

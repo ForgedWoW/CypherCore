@@ -33,8 +33,8 @@ namespace Scripts.Spells.Warrior
 					GetCaster().CastSpell(null, WarriorSpells.BATTLE_TRANCE_BUFF, true);
 					var battleTrance = GetCaster().GetAura(WarriorSpells.BATTLE_TRANCE_BUFF).GetEffect(0);
 
-					if (battleTrance != null)
-						battleTrance.GetAmount();
+					//if (battleTrance != null)
+					//	battleTrance.Amount;
 				}
 			}
 

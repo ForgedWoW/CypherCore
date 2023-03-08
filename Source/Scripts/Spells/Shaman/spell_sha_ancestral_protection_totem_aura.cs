@@ -23,7 +23,7 @@ namespace Scripts.Spells.Shaman
 
 		private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 		{
-			if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+			if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 				return;
 
 			var totem = GetCaster();
@@ -31,7 +31,7 @@ namespace Scripts.Spells.Shaman
 			if (totem == null)
 				return;
 
-			totem.CastSpell(GetTargetApplication().GetTarget(), TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
+			totem.CastSpell(GetTargetApplication().Target, TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
 			totem.KillSelf();
 		}
 

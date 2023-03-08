@@ -50,7 +50,7 @@ public class spell_mage_pyroblast_clearcasting_driver : AuraScript, IAuraCheckPr
 			var burn = caster.GetAuraEffect(MageSpells.CONTROLLED_BURN, 0);
 
 			if (burn != null)
-				if (RandomHelper.randChance(burn.GetAmount()))
+				if (RandomHelper.randChance(burn.Amount))
 					procCheck = false;
 		}
 

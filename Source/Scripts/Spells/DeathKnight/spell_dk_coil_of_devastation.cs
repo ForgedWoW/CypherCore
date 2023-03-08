@@ -28,7 +28,7 @@ public class spell_dk_coil_of_devastation : AuraScript, IAuraCheckProc, IHasAura
         // TODO: This doesn't seem to actually do damage
         PreventDefaultAction();
         var devDot = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_DEVASTATION_DOT);
-        var pct = aurEff.GetAmount();
+        var pct = aurEff.Amount;
         var amount = (int)(MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), pct) / devDot.GetMaxTicks());
 
         CastSpellExtraArgs args = new CastSpellExtraArgs(aurEff);

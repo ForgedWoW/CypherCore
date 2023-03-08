@@ -24,7 +24,7 @@ public class spell_monk_mana_tea_AuraScript : AuraScript, IHasAuraEffects
 
 			if (manaTea != null)
 			{
-				if (manaTea.GetStackAmount() > 1)
+				if (manaTea.StackAmount > 1)
 					manaTea.ModStackAmount(-1);
 				else
 					GetCaster().RemoveAura(MonkSpells.MANA_TEA_STACKS);

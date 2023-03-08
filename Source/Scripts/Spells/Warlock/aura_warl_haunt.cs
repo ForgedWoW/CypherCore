@@ -19,7 +19,7 @@ namespace Scripts.Spells.Warlock
 		{
 			var caster = GetCaster();
 
-			if (caster == null || GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+			if (caster == null || GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 				return;
 
 			caster.GetSpellHistory().ResetCooldown(WarlockSpells.HAUNT, true);

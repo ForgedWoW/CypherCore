@@ -180,40 +180,40 @@ public partial class Unit
 		modNeg = MathFunctions.CalculatePct(modNeg, Math.Max(GetFlatModifierValue(unitMod, UnitModifierFlatType.BasePCTExcludeCreate), -100.0f));
 
 		modPos += GetTotalAuraModifier(AuraType.ModStat,
-		                               aurEff =>
-		                               {
-			                               if ((aurEff.GetMiscValue() < 0 || aurEff.GetMiscValue() == (int)stat) && aurEff.GetAmount() > 0)
-				                               return true;
+										aurEff =>
+										{
+											if ((aurEff.MiscValue < 0 || aurEff.MiscValue == (int)stat) && aurEff.Amount > 0)
+												return true;
 
-			                               return false;
-		                               });
+											return false;
+										});
 
 		modNeg += GetTotalAuraModifier(AuraType.ModStat,
-		                               aurEff =>
-		                               {
-			                               if ((aurEff.GetMiscValue() < 0 || aurEff.GetMiscValue() == (int)stat) && aurEff.GetAmount() < 0)
-				                               return true;
+										aurEff =>
+										{
+											if ((aurEff.MiscValue < 0 || aurEff.MiscValue == (int)stat) && aurEff.Amount < 0)
+												return true;
 
-			                               return false;
-		                               });
+											return false;
+										});
 
 		factor = GetTotalAuraMultiplier(AuraType.ModPercentStat,
-		                                aurEff =>
-		                                {
-			                                if (aurEff.GetMiscValue() == -1 || aurEff.GetMiscValue() == (int)stat)
-				                                return true;
+										aurEff =>
+										{
+											if (aurEff.MiscValue == -1 || aurEff.MiscValue == (int)stat)
+												return true;
 
-			                                return false;
-		                                });
+											return false;
+										});
 
 		factor *= GetTotalAuraMultiplier(AuraType.ModTotalStatPercentage,
-		                                 aurEff =>
-		                                 {
-			                                 if (aurEff.GetMiscValue() == -1 || aurEff.GetMiscValue() == (int)stat)
-				                                 return true;
+										aurEff =>
+										{
+											if (aurEff.MiscValue == -1 || aurEff.MiscValue == (int)stat)
+												return true;
 
-			                                 return false;
-		                                 });
+											return false;
+										});
 
 		modPos *= factor;
 		modNeg *= factor;
@@ -256,21 +256,13 @@ public partial class Unit
 		}
 	}
 
-	public virtual void UpdateArmor()
-	{
-	}
+	public virtual void UpdateArmor() { }
 
-	public virtual void UpdateMaxHealth()
-	{
-	}
+	public virtual void UpdateMaxHealth() { }
 
-	public virtual void UpdateMaxPower(PowerType power)
-	{
-	}
+	public virtual void UpdateMaxPower(PowerType power) { }
 
-	public virtual void UpdateAttackPowerAndDamage(bool ranged = false)
-	{
-	}
+	public virtual void UpdateAttackPowerAndDamage(bool ranged = false) { }
 
 	public virtual void UpdateDamagePhysical(WeaponAttackType attType)
 	{
@@ -987,7 +979,7 @@ public partial class Unit
 
 		double resistMech = 0;
 
-		foreach (var spellEffectInfo in spellInfo.GetEffects())
+		foreach (var spellEffectInfo in spellInfo.Effects)
 		{
 			if (!spellEffectInfo.IsEffect())
 				break;
@@ -1141,30 +1133,30 @@ public partial class Unit
 		effects.AddRange(effectsAmount);
 
 		foreach (var effect in effects)
-			if (effect.GetMiscValue() == (int)power)
+			if (effect.MiscValue == (int)power)
 			{
-				var effectAmount = effect.GetAmount();
+				var effectAmount = effect.Amount;
 				var triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
 
 				float oldValueCheck = oldVal;
 				float newValueCheck = newVal;
 
-				if (effect.GetAuraType() == AuraType.TriggerSpellOnPowerPct)
+				if (effect.AuraType == AuraType.TriggerSpellOnPowerPct)
 				{
 					var maxPower = GetMaxPower(power);
 					oldValueCheck = MathFunctions.GetPctOf(oldVal, maxPower);
 					newValueCheck = MathFunctions.GetPctOf(newVal, maxPower);
 				}
 
-				switch ((AuraTriggerOnPowerChangeDirection)effect.GetMiscValueB())
+				switch ((AuraTriggerOnPowerChangeDirection)effect.MiscValueB)
 				{
 					case AuraTriggerOnPowerChangeDirection.Gain:
-						if (oldValueCheck >= effect.GetAmount() || newValueCheck < effectAmount)
+						if (oldValueCheck >= effect.Amount || newValueCheck < effectAmount)
 							continue;
 
 						break;
 					case AuraTriggerOnPowerChangeDirection.Loss:
-						if (oldValueCheck <= effect.GetAmount() || newValueCheck > effectAmount)
+						if (oldValueCheck <= effect.Amount || newValueCheck > effectAmount)
 							continue;
 
 						break;
@@ -1255,14 +1247,14 @@ public partial class Unit
 		else
 			chance += GetTotalAuraModifier(AuraType.ModAttackerMeleeCritChance);
 
-		chance += GetTotalAuraModifier(AuraType.ModCritChanceVersusTargetHealth, aurEff => !HealthBelowPct(aurEff.GetMiscValueB()));
+		chance += GetTotalAuraModifier(AuraType.ModCritChanceVersusTargetHealth, aurEff => !HealthBelowPct(aurEff.MiscValueB));
 
-		chance += GetTotalAuraModifier(AuraType.ModCritChanceForCaster, aurEff => aurEff.GetCasterGUID() == attacker.GetGUID());
+		chance += GetTotalAuraModifier(AuraType.ModCritChanceForCaster, aurEff => aurEff.CasterGuid == attacker.GetGUID());
 
 		var tempSummon = attacker.ToTempSummon();
 
 		if (tempSummon != null)
-			chance += GetTotalAuraModifier(AuraType.ModCritChanceForCasterPet, aurEff => aurEff.GetCasterGUID() == tempSummon.GetSummonerGUID());
+			chance += GetTotalAuraModifier(AuraType.ModCritChanceForCasterPet, aurEff => aurEff.CasterGuid == tempSummon.GetSummonerGUID());
 
 		chance += GetTotalAuraModifier(AuraType.ModAttackerSpellAndWeaponCritChance);
 

@@ -73,7 +73,7 @@ namespace Scripts.Spells.Warlock
 				var aurEff = aur.GetEffect(1);
 
 				if (aurEff != null)
-					if (RandomHelper.randChance(aurEff.GetBaseAmount()))
+					if (RandomHelper.randChance(aurEff.BaseAmount))
 						caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
 			}
 		}

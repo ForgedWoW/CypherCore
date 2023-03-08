@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using Game.Networking;
 using Game.Networking.Packets;
 
@@ -49,32 +52,31 @@ public class CraftingOrderData : BaseUpdateData<Player>
 		data.WriteBits(CustomerNotes.GetValue().GetByteCount(), 10);
 		data.WriteBits(OutputItem.HasValue(), 1);
 		data.WriteBits(OutputItemData.HasValue(), 1);
-		for (int i = 0; i < Reagents.Size(); ++i)
-		{
+
+		for (var i = 0; i < Reagents.Size(); ++i)
 			Reagents[i].WriteCreate(data, owner, receiver);
-		}
+
 		data.WriteString(CustomerNotes);
+
 		if (OutputItem.HasValue())
-		{
 			OutputItem.GetValue().WriteCreate(data, owner, receiver);
-		}
+
 		if (OutputItemData.HasValue())
-		{
 			OutputItemData.GetValue().Write(data);
-		}
+
 		data.FlushBits();
 	}
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 24);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
 			{
 				if (!ignoreChangesMask)
@@ -82,90 +84,71 @@ public class CraftingOrderData : BaseUpdateData<Player>
 				else
 					WriteCompleteDynamicFieldUpdateMask(Reagents.Size(), data);
 			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
-				for (int i = 0; i < Reagents.Size(); ++i)
-				{
+				for (var i = 0; i < Reagents.Size(); ++i)
 					if (Reagents.HasChanged(i) || ignoreChangesMask)
-					{
 						Reagents[i].WriteUpdate(data, ignoreChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteInt32(Field_0);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt64(OrderID);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteInt32(SkillLineAbilityID);
-			}
 		}
+
 		if (changesMask[5])
 		{
 			if (changesMask[6])
-			{
 				data.WriteUInt8(OrderState);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt8(OrderType);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt8(MinQuality);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteInt64(ExpirationTime);
-			}
 		}
+
 		if (changesMask[10])
 		{
 			if (changesMask[11])
-			{
 				data.WriteInt64(ClaimEndTime);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteInt64(TipAmount);
-			}
+
 			if (changesMask[13])
-			{
 				data.WriteInt64(ConsortiumCut);
-			}
+
 			if (changesMask[14])
-			{
 				data.WriteUInt32(Flags);
-			}
 		}
+
 		if (changesMask[15])
 		{
 			if (changesMask[16])
-			{
 				data.WritePackedGuid(CustomerGUID);
-			}
+
 			if (changesMask[17])
-			{
 				data.WritePackedGuid(CustomerAccountGUID);
-			}
+
 			if (changesMask[18])
-			{
 				data.WritePackedGuid(CrafterGUID);
-			}
+
 			if (changesMask[19])
-			{
 				data.WritePackedGuid(PersonalCrafterGUID);
-			}
 		}
+
 		if (changesMask[20])
 		{
 			if (changesMask[21])
@@ -173,25 +156,19 @@ public class CraftingOrderData : BaseUpdateData<Player>
 				data.WriteBits(CustomerNotes.GetValue().GetByteCount(), 10);
 				data.WriteString(CustomerNotes);
 			}
+
 			data.WriteBits(OutputItem.HasValue(), 1);
 			data.WriteBits(OutputItemData.HasValue(), 1);
+
 			if (changesMask[22])
-			{
 				if (OutputItem.HasValue())
-				{
 					OutputItem.GetValue().WriteUpdate(data, ignoreChangesMask, owner, receiver);
-				}
-			}
 
 			if (changesMask[23])
-			{
-
 				if (OutputItemData.HasValue())
-				{
 					OutputItemData.GetValue().Write(data);
-				}
-			}
 		}
+
 		data.FlushBits();
 	}
 

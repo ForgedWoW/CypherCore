@@ -20,7 +20,7 @@ internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 		if (!ValidateSpellInfo(MageSpells.ArcaneMage, MageSpells.Reverberate))
 			return false;
 
-		if (spellInfo.GetEffects().Count <= 1)
+		if (spellInfo.Effects.Count <= 1)
 			return false;
 
 		return spellInfo.GetEffect(1).IsEffect(SpellEffectName.SchoolDamage);
@@ -51,7 +51,7 @@ internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 			var requiredTargets = caster.GetAuraEffect(MageSpells.Reverberate, 1);
 
 			if (requiredTargets != null)
-				procTriggered = GetUnitTargetCountForEffect(1) >= requiredTargets.GetAmount() && RandomHelper.randChance(triggerChance.GetAmount());
+				procTriggered = GetUnitTargetCountForEffect(1) >= requiredTargets.Amount && RandomHelper.randChance(triggerChance.Amount);
 		}
 
 		if (!procTriggered)

@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Numerics;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -15,10 +18,10 @@ public class ScaleCurve : BaseUpdateData<AreaTrigger>
 	public void WriteCreate(WorldPacket data, AreaTrigger owner, Player receiver)
 	{
 		data.WriteUInt32(StartTimeOffset);
-		for (int i = 0; i < 2; ++i)
-		{
+
+		for (var i = 0; i < 2; ++i)
 			data.WriteVector2(Points[i]);
-		}
+
 		data.WriteUInt32(ParameterCurve);
 		data.WriteBit((bool)OverrideActive);
 		data.FlushBits();
@@ -26,42 +29,33 @@ public class ScaleCurve : BaseUpdateData<AreaTrigger>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, AreaTrigger owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 7);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
-			{
 				data.WriteBit(OverrideActive);
-			}
-		}
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
-			{
 				data.WriteUInt32(StartTimeOffset);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt32(ParameterCurve);
-			}
 		}
+
 		if (changesMask[4])
-		{
-			for (int i = 0; i < 2; ++i)
-			{
+			for (var i = 0; i < 2; ++i)
 				if (changesMask[5 + i])
-				{
 					data.WriteVector2(Points[i]);
-				}
-			}
-		}
+
 		data.FlushBits();
 	}
 

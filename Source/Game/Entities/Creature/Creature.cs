@@ -19,9 +19,7 @@ namespace Game.Entities;
 
 public partial class Creature : Unit
 {
-	public Creature() : this(false)
-	{
-	}
+	public Creature() : this(false) { }
 
 	public Creature(bool worldObject) : base(worldObject)
 	{
@@ -956,7 +954,7 @@ public partial class Creature : Unit
 		if (!iAuras.Empty())
 		{
 			foreach (var itr in iAuras)
-				if (itr.GetBase().IsPermanent())
+				if (itr.Base.IsPermanent)
 				{
 					GetAI().EnterEvadeMode(EvadeReason.Other);
 
@@ -1176,7 +1174,7 @@ public partial class Creature : Unit
 		var spell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 		if (spell != null)
-			if (spell.GetState() != SpellState.Finished && spell.IsChannelActive())
+			if (spell.State != SpellState.Finished && spell.IsChannelActive())
 				if (spell.CheckMovement() != SpellCastResult.SpellCastOk)
 					return true;
 
@@ -1392,8 +1390,8 @@ public partial class Creature : Unit
 
 		// prevent add data integrity problems
 		data.MovementType = (byte)(_wanderDistance == 0 && GetDefaultMovementType() == MovementGeneratorType.Random
-			                           ? MovementGeneratorType.Idle
-			                           : GetDefaultMovementType());
+										? MovementGeneratorType.Idle
+										: GetDefaultMovementType());
 
 		data.SpawnDifficulties = spawnDifficulties;
 		data.Npcflag = npcflag;
@@ -1674,19 +1672,19 @@ public partial class Creature : Unit
 		SQLTransaction trans = new();
 
 		Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-		                                    map =>
-		                                    {
-			                                    // despawn all active creatures, and remove their respawns
-			                                    List<Creature> toUnload = new();
+											map =>
+											{
+												// despawn all active creatures, and remove their respawns
+												List<Creature> toUnload = new();
 
-			                                    foreach (var creature in map.GetCreatureBySpawnIdStore().LookupByKey(spawnId))
-				                                    toUnload.Add(creature);
+												foreach (var creature in map.GetCreatureBySpawnIdStore().LookupByKey(spawnId))
+													toUnload.Add(creature);
 
-			                                    foreach (var creature in toUnload)
-				                                    map.AddObjectToRemoveList(creature);
+												foreach (var creature in toUnload)
+													map.AddObjectToRemoveList(creature);
 
-			                                    map.RemoveRespawnTime(SpawnObjectType.Creature, spawnId, trans);
-		                                    });
+												map.RemoveRespawnTime(SpawnObjectType.Creature, spawnId, trans);
+											});
 
 		// delete data from memory ...
 		Global.ObjectMgr.DeleteCreatureData(spawnId);
@@ -3041,14 +3039,14 @@ public partial class Creature : Unit
 		if (focusSpell.IsFocusDisabled())
 			return;
 
-		var spellInfo = focusSpell.GetSpellInfo();
+		var spellInfo = focusSpell.SpellInfo;
 
 		// don't use spell focus for vehicle spells
 		if (spellInfo.HasAura(AuraType.ControlVehicle))
 			return;
 
 		// instant non-channeled casts and non-target spells don't need facing updates
-		if (target == null && (focusSpell.GetCastTime() == 0 && !spellInfo.IsChanneled()))
+		if (target == null && (focusSpell.CastTime == 0 && !spellInfo.IsChanneled))
 			return;
 
 		// store pre-cast values for target and orientation (used to later restore)
@@ -3086,7 +3084,7 @@ public partial class Creature : Unit
 		if (IsDead()) // dead creatures cannot focus
 		{
 			if (_spellFocusInfo.Spell != null || _spellFocusInfo.Delay != 0)
-				Log.outWarn(LogFilter.Unit, $"Creature '{GetName()}' (entry {GetEntry()}) has spell focus (spell id {(_spellFocusInfo.Spell != null ? _spellFocusInfo.Spell.GetSpellInfo().Id : 0)}, delay {_spellFocusInfo.Delay}ms) despite being dead.");
+				Log.outWarn(LogFilter.Unit, $"Creature '{GetName()}' (entry {GetEntry()}) has spell focus (spell id {(_spellFocusInfo.Spell != null ? _spellFocusInfo.Spell.SpellInfo.Id : 0)}, delay {_spellFocusInfo.Delay}ms) despite being dead.");
 
 			return false;
 		}
@@ -3106,7 +3104,7 @@ public partial class Creature : Unit
 		if (focusSpell && focusSpell != _spellFocusInfo.Spell)
 			return;
 
-		if (_spellFocusInfo.Spell.GetSpellInfo().HasAttribute(SpellAttr5.AiDoesntFaceTarget))
+		if (_spellFocusInfo.Spell.SpellInfo.HasAttribute(SpellAttr5.AiDoesntFaceTarget))
 			ClearUnitState(UnitState.Focusing);
 
 		if (IsPet()) // player pets do not use delay system

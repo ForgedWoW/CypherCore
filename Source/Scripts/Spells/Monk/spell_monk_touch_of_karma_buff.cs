@@ -28,7 +28,7 @@ public class spell_monk_touch_of_karma_buff : AuraScript, IHasAuraEffects
 			
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
 		{
-			var targetAura = aurApp.GetBase();
+			var targetAura = aurApp.Base;
 
 			if (targetAura != null)
 				targetAura.Remove();

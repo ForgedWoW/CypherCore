@@ -172,10 +172,10 @@ namespace Scripts.m_Events.Midsummer
 
             if (aur != null)
             {
-                aur.SetMaxDuration(Math.Min(3600000, aur.GetMaxDuration() + 180000));
+                aur.SetMaxDuration(Math.Min(3600000, aur.MaxDuration + 180000));
                 aur.RefreshDuration();
 
-                if (aur.GetMaxDuration() == 3600000 &&
+                if (aur.MaxDuration == 3600000 &&
                     target.HasAura(SpellIds.HasFullMidsummerSet))
                     target.CastSpell(target, SpellIds.BurningHotPoleDance, true);
             }

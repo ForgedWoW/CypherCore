@@ -18,7 +18,7 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(MageSpells.ArcaneBarrageR3, MageSpells.ArcaneBarrageEnergize) && spellInfo.GetEffects().Count > 1;
+		return ValidateSpellInfo(MageSpells.ArcaneBarrageR3, MageSpells.ArcaneBarrageEnergize) && spellInfo.Effects.Count > 1;
 	}
 
 	public void AfterCast()
@@ -33,7 +33,7 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 			var auraEffect = caster.GetAuraEffect(MageSpells.ArcaneBarrageR3, 0, caster.GetGUID());
 
 			if (auraEffect != null)
-				caster.CastSpell(caster, MageSpells.ArcaneBarrageEnergize, new CastSpellExtraArgs(SpellValueMod.BasePoint0, arcaneCharges * auraEffect.GetAmount() / 100));
+				caster.CastSpell(caster, MageSpells.ArcaneBarrageEnergize, new CastSpellExtraArgs(SpellValueMod.BasePoint0, arcaneCharges * auraEffect.Amount / 100));
 		}
 	}
 

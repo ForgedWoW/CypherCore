@@ -1306,7 +1306,7 @@ namespace Game.Networking.Packets
 
         public void Initialize(Spell spell)
         {
-            Unit unitCaster = spell.GetCaster().ToUnit();
+            Unit unitCaster = spell.Caster.ToUnit();
             if (unitCaster != null)
             {
                 Health = unitCaster.GetHealth();
@@ -1315,7 +1315,7 @@ namespace Game.Networking.Packets
                 Armor = unitCaster.GetArmor();
                 PowerType primaryPowerType = unitCaster.GetPowerType();
                 bool primaryPowerAdded = false;
-                foreach (SpellPowerCost cost in spell.GetPowerCost())
+                foreach (SpellPowerCost cost in spell.PowerCost)
                 {
                     PowerData.Add(new SpellLogPowerData((int)cost.Power, unitCaster.GetPower(cost.Power), (int)cost.Amount));
                     if (cost.Power == primaryPowerType)

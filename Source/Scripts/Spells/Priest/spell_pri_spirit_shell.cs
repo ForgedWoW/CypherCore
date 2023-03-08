@@ -31,7 +31,7 @@ public class spell_pri_spirit_shell : SpellScript, ISpellOnHit
 
 					if (shell != null)
 					{
-						shell.SetAmount(Math.Min(shell.GetAmount() + bp, (int)_player.CountPctFromMaxHealth(60)));
+						shell.SetAmount(Math.Min(shell.Amount + bp, (int)_player.CountPctFromMaxHealth(60)));
 					}
 					else
 					{

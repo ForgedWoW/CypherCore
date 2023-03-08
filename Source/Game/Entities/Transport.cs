@@ -41,8 +41,9 @@ public class Transport : GameObject, ITransport
 		if (!IsInWorld)
 			return;
 
-        lock (_staticPassengers)
-            if (_passengers.Add(passenger))
+		lock (_staticPassengers)
+		{
+			if (_passengers.Add(passenger))
 			{
 				passenger.SetTransport(this);
 				passenger.MovementInfo.Transport.Guid = GetGUID();
@@ -52,12 +53,14 @@ public class Transport : GameObject, ITransport
 				if (player)
 					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), GetScriptId());
 			}
+		}
 	}
 
 	public ITransport RemovePassenger(WorldObject passenger)
 	{
-        lock (_staticPassengers)
-            if (_passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
+		lock (_staticPassengers)
+		{
+			if (_passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
 			{
 				passenger.SetTransport(null);
 				passenger.MovementInfo.Transport.Reset();
@@ -71,6 +74,7 @@ public class Transport : GameObject, ITransport
 					plr.SetFallInformation(0, plr.Location.Z);
 				}
 			}
+		}
 
 		return this;
 	}
@@ -287,13 +291,15 @@ public class Transport : GameObject, ITransport
 					*/
 					var gridActive = GetMap().IsGridLoaded(Location.X, Location.Y);
 
-                    lock (_staticPassengers)
-                        if (_staticPassengers.Empty() && gridActive) // 2.
+					lock (_staticPassengers)
+					{
+						if (_staticPassengers.Empty() && gridActive) // 2.
 							LoadStaticPassengers();
 						else if (!_staticPassengers.Empty() && !gridActive)
 							// 4. - if transports stopped on grid edge, some passengers can remain in active grids
 							//      unload all static passengers otherwise passengers won't load correctly when the grid that transport is currently in becomes active
 							UnloadStaticPassengers();
+					}
 				}
 			}
 		}
@@ -348,8 +354,10 @@ public class Transport : GameObject, ITransport
 		if (!map.AddToMap(creature))
 			return null;
 
-        lock (_staticPassengers)
-            _staticPassengers.Add(creature);
+		lock (_staticPassengers)
+		{
+			_staticPassengers.Add(creature);
+		}
 
 		Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), GetScriptId());
 
@@ -477,8 +485,10 @@ public class Transport : GameObject, ITransport
 		if (!map.AddToMap(summon))
 			return null;
 
-        lock (_staticPassengers)
-            _staticPassengers.Add(summon);
+		lock (_staticPassengers)
+		{
+			_staticPassengers.Add(summon);
+		}
 
 		summon.InitSummon();
 		summon.SetTempSummonType(summonType);
@@ -499,19 +509,21 @@ public class Transport : GameObject, ITransport
 
 		UpdatePassengerPositions(_passengers);
 
-        /* There are four possible scenarios that trigger loading/unloading passengers:
-		 1. transport moves from inactive to active grid
-		 2. the grid that transport is currently in becomes active
-		 3. transport moves from active to inactive grid
-		 4. the grid that transport is currently in unloads
-		 */
-        lock (_staticPassengers)
-            if (_staticPassengers.Empty() && newActive) // 1. and 2.
+		/* There are four possible scenarios that trigger loading/unloading passengers:
+		1. transport moves from inactive to active grid
+		2. the grid that transport is currently in becomes active
+		3. transport moves from active to inactive grid
+		4. the grid that transport is currently in unloads
+		*/
+		lock (_staticPassengers)
+		{
+			if (_staticPassengers.Empty() && newActive) // 1. and 2.
 				LoadStaticPassengers();
 			else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(Location.X, Location.Y))) // 3.
 				UnloadStaticPassengers();
 			else
 				UpdatePassengerPositions(_staticPassengers);
+		}
 		// 4. is handed by grid unload
 	}
 
@@ -611,8 +623,10 @@ public class Transport : GameObject, ITransport
 		if (!map.AddToMap(go))
 			return null;
 
-        lock (_staticPassengers)
-            _staticPassengers.Add(go);
+		lock (_staticPassengers)
+		{
+			_staticPassengers.Add(go);
+		}
 
 		return go;
 	}
@@ -640,11 +654,13 @@ public class Transport : GameObject, ITransport
 	void UnloadStaticPassengers()
 	{
 		lock (_staticPassengers)
+		{
 			while (!_staticPassengers.Empty())
 			{
 				var obj = _staticPassengers.First();
 				obj.AddObjectToRemoveList(); // also removes from _staticPassengers
 			}
+		}
 	}
 
 	bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)

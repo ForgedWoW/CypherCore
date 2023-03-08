@@ -32,14 +32,14 @@ public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 
 			if (l_AurEff != null)
 			{
-				var l_FutureAbsorb = Convert.ToInt32(p_AurEff.GetAmount() - p_AbsorbAmount);
-				var l_MinimaAbsorb = Convert.ToInt32(l_Target.CountPctFromMaxHealth(l_AurEff.GetAmount()));
+				var l_FutureAbsorb = Convert.ToInt32(p_AurEff.Amount - p_AbsorbAmount);
+				var l_MinimaAbsorb = Convert.ToInt32(l_Target.CountPctFromMaxHealth(l_AurEff.Amount));
 
 				/// We need to add some absorb amount to correct the absorb amount after that, and set it to 3% of max health
 				if (l_FutureAbsorb < l_MinimaAbsorb)
 				{
 					var l_AddedAbsorb = l_MinimaAbsorb - l_FutureAbsorb;
-					p_AurEff.ChangeAmount(p_AurEff.GetAmount() + l_AddedAbsorb);
+					p_AurEff.ChangeAmount(p_AurEff.Amount + l_AddedAbsorb);
 				}
 			}
 		}

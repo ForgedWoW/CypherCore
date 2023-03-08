@@ -48,7 +48,7 @@ internal class spell_quest_taming_the_beast : AuraScript, IHasAuraEffects
 		    !GetTarget().IsAlive())
 			return;
 
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Expire)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
 			return;
 
 		uint finalSpellId = GetId() switch

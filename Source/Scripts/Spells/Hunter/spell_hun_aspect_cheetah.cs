@@ -26,7 +26,7 @@ internal class spell_hun_aspect_cheetah : AuraScript, IHasAuraEffects
 
 	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
 			GetTarget().CastSpell(GetTarget(), HunterSpells.AspectCheetahSlow, true);
 	}
 }

@@ -12,9 +12,7 @@ public class PetitionManager : Singleton<PetitionManager>
 {
 	readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
-	PetitionManager()
-	{
-	}
+	PetitionManager() { }
 
 	public void LoadPetitions()
 	{

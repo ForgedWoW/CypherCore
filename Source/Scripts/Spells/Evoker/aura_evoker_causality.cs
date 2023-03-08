@@ -10,7 +10,7 @@ namespace Scripts.Spells.Evoker
     {
         public bool CheckProc(ProcEventInfo info)
         {
-            var id = info.GetProcSpell().GetSpellInfo().Id;
+            var id = info.GetProcSpell().SpellInfo.Id;
             return id.EqualsAny(EvokerSpells.DISINTEGRATE, EvokerSpells.ECHO, EvokerSpells.PYRE) 
                 || (id == EvokerSpells.EMERALD_BLOSSOM && GetCaster().TryGetAsPlayer(out var player) 
                 && player.HasSpell(EvokerSpells.IMPROVED_EMERALD_BLOSSOM));

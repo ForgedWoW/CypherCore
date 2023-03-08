@@ -1,4 +1,7 @@
-﻿namespace Game.Entities;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+namespace Game.Entities;
 
 public class OptionalUpdateField<T> : IUpdateField<T> where T : new()
 {
@@ -10,7 +13,18 @@ public class OptionalUpdateField<T> : IUpdateField<T> where T : new()
 	public OptionalUpdateField(int blockBit, int bit)
 	{
 		BlockBit = blockBit;
-		Bit      = bit;
+		Bit = bit;
+	}
+
+	public void SetValue(T value)
+	{
+		_hasValue = true;
+		Value = value;
+	}
+
+	public T GetValue()
+	{
+		return Value;
 	}
 
 	public static implicit operator T(OptionalUpdateField<T> updateField)
@@ -18,13 +32,8 @@ public class OptionalUpdateField<T> : IUpdateField<T> where T : new()
 		return updateField.Value;
 	}
 
-	public void SetValue(T value)
+	public bool HasValue()
 	{
-		_hasValue = true;
-		Value     = value;
+		return _hasValue;
 	}
-
-	public T GetValue() { return Value; }
-
-	public bool HasValue() { return _hasValue; }
 }

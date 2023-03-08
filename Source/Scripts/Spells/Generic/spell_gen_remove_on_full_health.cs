@@ -22,7 +22,7 @@ internal class spell_gen_remove_on_full_health : AuraScript, IHasAuraEffects
 	private void PeriodicTick(AuraEffect aurEff)
 	{
 		// if it has only periodic effect, allow 1 tick
-		var onlyEffect = GetSpellInfo().GetEffects().Count == 1;
+		var onlyEffect = GetSpellInfo().Effects.Count == 1;
 
 		if (onlyEffect && aurEff.GetTickNumber() <= 1)
 			return;

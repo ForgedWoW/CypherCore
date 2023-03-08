@@ -16,35 +16,14 @@ namespace Game.Entities;
 
 public class Corpse : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Corpse _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly CorpseData _corpseData = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _corpseData.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
+	readonly CorpseType _type;
+	long _time;
+	CellCoord _cellCoord; // gride for corpse position for fast search
 
 	public CorpseData CorpseData { get; set; }
 
 	public Loot Loot { get; set; }
 	public Player LootRecipient { get; set; }
-	readonly CorpseType _type;
-	long _time;
-	CellCoord _cellCoord; // gride for corpse position for fast search
 
 	public Corpse(CorpseType type = CorpseType.Bones) : base(type != CorpseType.Bones)
 	{
@@ -93,11 +72,11 @@ public class Corpse : WorldObject
 		if (!Location.IsPositionValid())
 		{
 			Log.outError(LogFilter.Player,
-			             "Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
-			             guidlow,
-			             owner.GetName(),
-			             owner.Location.X,
-			             owner.Location.Y);
+						"Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
+						guidlow,
+						owner.GetName(),
+						owner.Location.X,
+						owner.Location.Y);
 
 			return false;
 		}
@@ -134,22 +113,22 @@ public class Corpse : WorldObject
 
 		byte index = 0;
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE);
-		stmt.AddValue(index++, GetOwnerGUID().GetCounter());     // guid
-		stmt.AddValue(index++, Location.X);                      // posX
-		stmt.AddValue(index++, Location.Y);                      // posY
-		stmt.AddValue(index++, Location.Z);                      // posZ
-		stmt.AddValue(index++, Location.Orientation);            // orientation
-		stmt.AddValue(index++, Location.MapId);                  // mapId
+		stmt.AddValue(index++, GetOwnerGUID().GetCounter());   // guid
+		stmt.AddValue(index++, Location.X);                    // posX
+		stmt.AddValue(index++, Location.Y);                    // posY
+		stmt.AddValue(index++, Location.Z);                    // posZ
+		stmt.AddValue(index++, Location.Orientation);          // orientation
+		stmt.AddValue(index++, Location.MapId);                // mapId
 		stmt.AddValue(index++, (uint)CorpseData.DisplayID);    // displayId
-		stmt.AddValue(index++, items.ToString());                // itemCache
+		stmt.AddValue(index++, items.ToString());              // itemCache
 		stmt.AddValue(index++, (byte)CorpseData.RaceID);       // race
 		stmt.AddValue(index++, (byte)CorpseData.Class);        // class
 		stmt.AddValue(index++, (byte)CorpseData.Sex);          // gender
 		stmt.AddValue(index++, (uint)CorpseData.Flags);        // flags
 		stmt.AddValue(index++, (uint)CorpseData.DynamicFlags); // dynFlags
-		stmt.AddValue(index++, (uint)_time);                    // time
-		stmt.AddValue(index++, (uint)GetCorpseType());           // corpseType
-		stmt.AddValue(index++, GetInstanceId());                 // instanceId
+		stmt.AddValue(index++, (uint)_time);                   // time
+		stmt.AddValue(index++, (uint)GetCorpseType());         // corpseType
+		stmt.AddValue(index++, GetInstanceId());               // instanceId
 		trans.Append(stmt);
 
 		foreach (var phaseId in GetPhaseShift().GetPhases().Keys)
@@ -235,12 +214,12 @@ public class Corpse : WorldObject
 		if (!Location.IsPositionValid())
 		{
 			Log.outError(LogFilter.Player,
-			             "Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
-			             GetGUID().ToString(),
-			             GetOwnerGUID().ToString(),
-			             posX,
-			             posY,
-			             posZ);
+						"Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
+						GetGUID().ToString(),
+						GetOwnerGUID().ToString(),
+						posX,
+						posY,
+						posZ);
 
 			return false;
 		}
@@ -457,5 +436,27 @@ public class Corpse : WorldObject
 		buffer1.WriteBytes(buffer.GetData());
 
 		data.AddUpdateBlock(buffer1);
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Corpse _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly CorpseData _corpseData = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _corpseData.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

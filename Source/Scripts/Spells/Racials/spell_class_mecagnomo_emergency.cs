@@ -22,7 +22,7 @@ namespace Scripts.Spells.Racials
 			PreventDefaultAction();
 			var caster = GetCaster();
 
-			var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.GetAmount());
+			var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);
 			var currentHealth   = caster.GetHealth();
 
 			// Just falling below threshold

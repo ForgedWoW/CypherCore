@@ -25,8 +25,8 @@ namespace Scripts.Spells.Druid
 
 			if (effRunSpeed != null)
 			{
-				var reduction = aurEff.GetAmount();
-				effRunSpeed.ChangeAmount(effRunSpeed.GetAmount() - reduction);
+				var reduction = aurEff.Amount;
+				effRunSpeed.ChangeAmount(effRunSpeed.Amount - reduction);
 			}
 		}
 	}

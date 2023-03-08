@@ -40,7 +40,7 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 
 	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Death)
+		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Death)
 		{
 			var caster = GetCaster();
 

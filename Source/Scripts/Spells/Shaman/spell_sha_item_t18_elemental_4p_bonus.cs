@@ -25,6 +25,6 @@ internal class spell_sha_item_t18_elemental_4p_bonus : AuraScript, IHasAuraEffec
 		PreventDefaultAction();
 		var hasteBuff = GetEffect(0);
 
-		hasteBuff?.ChangeAmount(hasteBuff.GetAmount() - aurEff.GetAmount());
+		hasteBuff?.ChangeAmount(hasteBuff.Amount - aurEff.Amount);
 	}
 }

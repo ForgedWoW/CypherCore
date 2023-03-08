@@ -17,7 +17,7 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 2 && ValidateSpellInfo(MageSpells.CauterizeDot, MageSpells.Cauterized, spellInfo.GetEffect(2).TriggerSpell);
+		return spellInfo.Effects.Count > 2 && ValidateSpellInfo(MageSpells.CauterizeDot, MageSpells.Cauterized, spellInfo.GetEffect(2).TriggerSpell);
 	}
 
 	public override void Register()
@@ -40,7 +40,7 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 			return absorbAmount;
 		}
 
-		GetTarget().SetHealth(GetTarget().CountPctFromMaxHealth(effectInfo.GetAmount()));
+		GetTarget().SetHealth(GetTarget().CountPctFromMaxHealth(effectInfo.Amount));
 		GetTarget().CastSpell(GetTarget(), GetEffectInfo(2).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 		GetTarget().CastSpell(GetTarget(), MageSpells.CauterizeDot, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 		GetTarget().CastSpell(GetTarget(), MageSpells.Cauterized, new CastSpellExtraArgs(TriggerCastFlags.FullMask));

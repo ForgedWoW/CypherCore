@@ -28,7 +28,7 @@ public class spell_dk_chilblains : SpellScript, ISpellOnHit
 
 			if (coldHeartCharge != null)
 			{
-				var stacks = coldHeartCharge.GetStackAmount();
+				var stacks = coldHeartCharge.StackAmount;
 				SetHitDamage(GetHitDamage() * stacks);
 				GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.COLD_HEART_DAMAGE, true);
 				coldHeartCharge.ModStackAmount(-stacks);

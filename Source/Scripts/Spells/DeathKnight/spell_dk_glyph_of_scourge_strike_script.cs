@@ -29,14 +29,14 @@ internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellE
 
 		foreach (var aurEff in mPeriodic)
 		{
-			var spellInfo = aurEff.GetSpellInfo();
+			var spellInfo = aurEff.SpellInfo;
 
 			// search our Blood Plague and Frost Fever on Target
 			if (spellInfo.SpellFamilyName == SpellFamilyNames.Deathknight &&
 			    spellInfo.SpellFamilyFlags[2].HasAnyFlag(0x2u) &&
-			    aurEff.GetCasterGUID() == caster.GetGUID())
+			    aurEff.CasterGuid == caster.GetGUID())
 			{
-				var countMin = aurEff.GetBase().GetMaxDuration();
+				var countMin = aurEff.Base.MaxDuration;
 				var countMax = spellInfo.GetMaxDuration();
 
 				// this Glyph
@@ -44,8 +44,8 @@ internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellE
 
 				if (countMin < countMax)
 				{
-					aurEff.GetBase().SetDuration(aurEff.GetBase().GetDuration() + 3000);
-					aurEff.GetBase().SetMaxDuration(countMin + 3000);
+					aurEff.Base.SetDuration(aurEff.Base.Duration + 3000);
+					aurEff.Base.SetMaxDuration(countMin + 3000);
 				}
 			}
 		}

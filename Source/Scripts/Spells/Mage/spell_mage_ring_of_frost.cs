@@ -18,7 +18,7 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(MageSpells.RingOfFrostSummon, MageSpells.RingOfFrostFreeze) && !Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, Difficulty.None).GetEffects().Empty();
+		return ValidateSpellInfo(MageSpells.RingOfFrostSummon, MageSpells.RingOfFrostFreeze) && !Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, Difficulty.None).Effects.Empty();
 	}
 
 	public override void Register()

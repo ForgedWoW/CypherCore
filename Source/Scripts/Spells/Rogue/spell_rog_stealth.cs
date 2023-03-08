@@ -59,7 +59,7 @@ internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 
 			if (masterOfSubtletyAura != null)
 			{
-				masterOfSubtletyAura.SetMaxDuration(masterOfSubtletyPassive.GetAmount());
+				masterOfSubtletyAura.SetMaxDuration(masterOfSubtletyPassive.Amount);
 				masterOfSubtletyAura.RefreshDuration();
 			}
 		}

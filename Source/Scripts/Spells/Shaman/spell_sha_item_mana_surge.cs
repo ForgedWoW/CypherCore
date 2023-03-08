@@ -35,7 +35,7 @@ internal class spell_sha_item_mana_surge : AuraScript, IAuraCheckProc, IHasAuraE
 	{
 		PreventDefaultAction();
 
-		var costs = eventInfo.GetProcSpell().GetPowerCost();
+		var costs = eventInfo.GetProcSpell().PowerCost;
 		var m     = costs.Find(cost => cost.Power == PowerType.Mana);
 
 		if (m != null)

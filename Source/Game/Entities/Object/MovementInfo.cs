@@ -7,55 +7,6 @@ namespace Game.Entities;
 
 public class MovementInfo
 {
-	public struct TransportInfo
-	{
-		public void Reset()
-		{
-			Guid      = ObjectGuid.Empty;
-			Pos       = new Position();
-			Seat      = -1;
-			Time      = 0;
-			PrevTime  = 0;
-			VehicleId = 0;
-		}
-
-		public ObjectGuid Guid;
-		public Position Pos;
-		public sbyte Seat;
-		public uint Time;
-		public uint PrevTime;
-		public uint VehicleId;
-	}
-
-	public struct MovementInertia
-	{
-		public int Id;
-		public Position Force;
-		public uint Lifetime;
-	}
-
-	public struct JumpInfo
-	{
-		public void Reset()
-		{
-			FallTime = 0;
-			Zspeed   = SinAngle = CosAngle = Xyspeed = 0.0f;
-		}
-
-		public uint FallTime;
-		public float Zspeed;
-		public float SinAngle;
-		public float CosAngle;
-		public float Xyspeed;
-	}
-
-	// advflying
-	public struct AdvFlyingMovement
-	{
-		public float ForwardVelocity;
-		public float UpVelocity;
-	}
-
 	public TransportInfo Transport;
 	public MovementInertia? Inertia;
 	public JumpInfo Jump;
@@ -64,24 +15,24 @@ public class MovementInfo
 	MovementFlag2 _flags2;
 	MovementFlags3 _flags3;
 
-	public MovementInfo()
-	{
-		Guid    = ObjectGuid.Empty;
-		_flags  = MovementFlag.None;
-		_flags2 = MovementFlag2.None;
-		Time    = 0;
-		Pitch   = 0.0f;
-
-		Pos = new Position();
-		Transport.Reset();
-		Jump.Reset();
-	}
-
 	public ObjectGuid Guid { get; set; }
 	public Position Pos { get; set; }
 	public uint Time { get; set; }
 	public float Pitch { get; set; }
 	public float StepUpStartElevation { get; set; }
+
+	public MovementInfo()
+	{
+		Guid = ObjectGuid.Empty;
+		_flags = MovementFlag.None;
+		_flags2 = MovementFlag2.None;
+		Time = 0;
+		Pitch = 0.0f;
+
+		Pos = new Position();
+		Transport.Reset();
+		Jump.Reset();
+	}
 
 	public MovementFlag GetMovementFlags()
 	{
@@ -171,5 +122,54 @@ public class MovementInfo
 	public void ResetJump()
 	{
 		Jump.Reset();
+	}
+
+	public struct TransportInfo
+	{
+		public void Reset()
+		{
+			Guid = ObjectGuid.Empty;
+			Pos = new Position();
+			Seat = -1;
+			Time = 0;
+			PrevTime = 0;
+			VehicleId = 0;
+		}
+
+		public ObjectGuid Guid;
+		public Position Pos;
+		public sbyte Seat;
+		public uint Time;
+		public uint PrevTime;
+		public uint VehicleId;
+	}
+
+	public struct MovementInertia
+	{
+		public int Id;
+		public Position Force;
+		public uint Lifetime;
+	}
+
+	public struct JumpInfo
+	{
+		public void Reset()
+		{
+			FallTime = 0;
+			Zspeed = SinAngle = CosAngle = Xyspeed = 0.0f;
+		}
+
+		public uint FallTime;
+		public float Zspeed;
+		public float SinAngle;
+		public float CosAngle;
+		public float Xyspeed;
+	}
+
+	// advflying
+	public struct AdvFlyingMovement
+	{
+		public float ForwardVelocity;
+		public float UpVelocity;
 	}
 }

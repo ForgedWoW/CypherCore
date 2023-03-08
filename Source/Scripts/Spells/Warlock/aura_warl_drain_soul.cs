@@ -26,7 +26,7 @@ namespace Scripts.Spells.Warlock
 
 		private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 		{
-			if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+			if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 				return;
 
 			var caster = GetCaster();

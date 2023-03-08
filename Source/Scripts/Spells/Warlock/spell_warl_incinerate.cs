@@ -58,7 +58,7 @@ namespace Scripts.Spells.Warlock
                 if (target != GetExplTargetUnit())
                 {
                     if (_brimstoneDamage == 0)
-                        _brimstoneDamage = MathFunctions.CalculatePct(GetHitDamage(), fab.GetEffect(0).GetBaseAmount());
+                        _brimstoneDamage = MathFunctions.CalculatePct(GetHitDamage(), fab.GetEffect(0).BaseAmount);
 
                     SetHitDamage(_brimstoneDamage);
                 }

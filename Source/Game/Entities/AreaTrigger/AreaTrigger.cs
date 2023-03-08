@@ -18,28 +18,6 @@ namespace Game.Entities;
 
 public class AreaTrigger : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly AreaTrigger _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly AreaTriggerFieldData _areaTriggerMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(AreaTrigger owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _areaTriggerMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var updateObject);
-			player.SendPacket(updateObject);
-		}
-	}
-
 	readonly AreaTriggerFieldData _areaTriggerData;
 	readonly Spline<int> _spline;
 	readonly HashSet<ObjectGuid> _insideUnits = new();
@@ -1033,9 +1011,9 @@ public class AreaTrigger : WorldObject
 					{
 						case AreaTriggerActionTypes.Cast:
 							caster.CastSpell(unit,
-							                 action.Param,
-							                 new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-								                 .SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast() ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
+											action.Param,
+											new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+												.SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast() ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
 
 							break;
 						case AreaTriggerActionTypes.AddAura:
@@ -1283,5 +1261,27 @@ public class AreaTrigger : WorldObject
 	float GetMaxSearchRadius()
 	{
 		return _maxSearchRadius;
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly AreaTrigger _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly AreaTriggerFieldData _areaTriggerMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(AreaTrigger owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _areaTriggerMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var updateObject);
+			player.SendPacket(updateObject);
+		}
 	}
 }

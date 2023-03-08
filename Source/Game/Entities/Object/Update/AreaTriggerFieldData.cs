@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Numerics;
 using Framework.Constants;
 using Game.Networking;
 
@@ -69,96 +72,74 @@ public class AreaTriggerFieldData : BaseUpdateData<AreaTrigger>
 		data.WriteBits(ChangesMask.GetBlock(0), 23);
 
 		data.FlushBits();
+
 		if (ChangesMask[0])
 		{
 			if (ChangesMask[1])
-			{
 				OverrideScaleCurve.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (ChangesMask[6])
-			{
 				data.WritePackedGuid(Caster);
-			}
+
 			if (ChangesMask[7])
-			{
 				data.WriteUInt32(Duration);
-			}
+
 			if (ChangesMask[8])
-			{
 				data.WriteUInt32(TimeToTarget);
-			}
+
 			if (ChangesMask[9])
-			{
 				data.WriteUInt32(TimeToTargetScale);
-			}
+
 			if (ChangesMask[10])
-			{
 				data.WriteUInt32(TimeToTargetExtraScale);
-			}
+
 			if (ChangesMask[11])
-			{
 				data.WriteUInt32(Field_B0);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(SpellID);
-			}
+
 			if (ChangesMask[13])
-			{
 				data.WriteUInt32(SpellForVisuals);
-			}
+
 			if (ChangesMask[14])
-			{
 				SpellVisual.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (ChangesMask[15])
-			{
 				data.WriteFloat(BoundsRadius2D);
-			}
+
 			if (ChangesMask[16])
-			{
 				data.WriteUInt32(DecalPropertiesID);
-			}
+
 			if (ChangesMask[17])
-			{
 				data.WritePackedGuid(CreatingEffectGUID);
-			}
+
 			if (changesMask[18])
-			{
 				data.WriteUInt32(Field_80);
-			}
+
 			if (changesMask[19])
-			{
 				data.WriteUInt32(Field_84);
-			}
+
 			if (changesMask[20])
-			{
 				data.WritePackedGuid(Field_88);
-			}
+
 			if (changesMask[21])
-			{
 				data.WriteVector3(Field_F8);
-			}
+
 			if (ChangesMask[2])
-			{
 				ExtraScaleCurve.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (changesMask[3])
-			{
 				Field_C38.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (changesMask[4])
-			{
 				Field_C54.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (changesMask[5])
-			{
 				Field_C70.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (changesMask[22])
-			{
 				VisualAnim.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
 		}
 	}
 

@@ -35,7 +35,7 @@ public class spell_monk_touch_of_death_amplifier : AuraScript, IHasAuraEffects, 
 
 			if (aurEffAmplifier != null)
 			{
-				var damage = aurEff.GetAmount() + MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEffAmplifier.GetAmount());
+				var damage = aurEff.Amount + MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEffAmplifier.Amount);
 				aurEff.SetAmount(damage);
 			}
 		}

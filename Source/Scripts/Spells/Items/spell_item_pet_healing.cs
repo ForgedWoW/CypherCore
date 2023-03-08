@@ -35,7 +35,7 @@ internal class spell_item_pet_healing : AuraScript, IHasAuraEffects
 			return;
 
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount()));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
 		eventInfo.GetActor().CastSpell((Unit)null, ItemSpellIds.HealthLink, args);
 	}
 }

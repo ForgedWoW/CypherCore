@@ -24,21 +24,21 @@ public class spell_dh_eye_of_leotheras : AuraScript, IAuraCheckProc
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		var caster = GetCaster();
-		var target = GetAura().GetOwner();
+		var target = GetAura().Owner;
 
 		if (caster == null || target == null || eventInfo.GetSpellInfo() != null || !caster.ToPlayer())
 			return false;
 
 		var unitTarget = target.ToUnit();
 
-		if (unitTarget == null || eventInfo.GetSpellInfo().IsPositive())
+		if (unitTarget == null || eventInfo.GetSpellInfo().IsPositive)
 			return false;
 
 		var aurEff = GetAura().GetEffect(0);
 
 		if (aurEff != null)
 		{
-			var bp = aurEff.GetAmount();
+			var bp = aurEff.Amount;
 			GetAura().RefreshDuration();
 
 

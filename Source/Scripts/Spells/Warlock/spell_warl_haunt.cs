@@ -17,7 +17,7 @@ namespace Scripts.Spells.Warlock
 			{
 				var aurEff = aura.GetEffect(1);
 
-				aurEff?.SetAmount(MathFunctions.CalculatePct(GetHitDamage(), aurEff.GetAmount()));
+				aurEff?.SetAmount(MathFunctions.CalculatePct(GetHitDamage(), aurEff.Amount));
 			}
 		}
 	}

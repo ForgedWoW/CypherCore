@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -21,31 +24,28 @@ public class ItemEnchantment : BaseUpdateData<Item>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Item owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 5);
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteUInt32(ID);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteUInt32(Duration);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteInt16(Charges);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt16(Inactive);
-			}
 		}
 	}
 

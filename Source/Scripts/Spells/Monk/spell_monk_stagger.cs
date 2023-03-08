@@ -59,7 +59,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		if (effect == null)
 			return absorbAmount;
 
-		Absorb(dmgInfo, effect.GetAmount() / 100.0f);
+		Absorb(dmgInfo, effect.Amount / 100.0f);
 		return absorbAmount; 
 	}
 
@@ -82,7 +82,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
 		var target     = GetTarget();
 		var agility    = target.GetStat(Stats.Agility);
-		var baseAmount = MathFunctions.CalculatePct(agility, effect.GetAmount());
+		var baseAmount = MathFunctions.CalculatePct(agility, effect.Amount);
 		var K          = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.GetLevel(), -2, 0, target.GetClass());
 
 		var newAmount = (baseAmount / (baseAmount + K));
@@ -112,10 +112,10 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 			if (effStaggerRemaining == null)
 				return;
 
-			var newAmount = effStaggerRemaining.GetAmount() + amount;
+			var newAmount = effStaggerRemaining.Amount + amount;
 			var spellId   = GetStaggerSpellId(target, newAmount);
 
-			if (spellId == effStaggerRemaining.GetSpellInfo().Id)
+			if (spellId == effStaggerRemaining.SpellInfo.Id)
 			{
 				auraStagger.RefreshDuration();
 				effStaggerRemaining.ChangeAmount((int)newAmount, false, true /* reapply */);

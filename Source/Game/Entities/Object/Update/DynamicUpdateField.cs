@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Networking;
@@ -12,22 +15,34 @@ public class DynamicUpdateField<T> where T : new()
 	public int BlockBit { get; set; }
 	public int Bit { get; set; }
 
+	public T this[int index]
+	{
+		get
+		{
+			if (Values.Count <= index)
+				Values.Add(new T());
+
+			return Values[index];
+		}
+		set { Values[index] = value; }
+	}
+
 	public DynamicUpdateField()
 	{
-		Values     = new List<T>();
+		Values = new List<T>();
 		UpdateMask = new List<uint>();
 
 		BlockBit = -1;
-		Bit      = -1;
+		Bit = -1;
 	}
 
 	public DynamicUpdateField(int blockBit, int bit)
 	{
-		Values     = new List<T>();
+		Values = new List<T>();
 		UpdateMask = new List<uint>();
 
 		BlockBit = blockBit;
-		Bit      = bit;
+		Bit = bit;
 	}
 
 	public int FindIndex(T value)
@@ -48,19 +63,21 @@ public class DynamicUpdateField<T> where T : new()
 	public void WriteUpdateMask(WorldPacket data, int bitsForSize = 32)
 	{
 		data.WriteBits(Values.Count, bitsForSize);
+
 		if (Values.Count > 32)
 		{
 			if (data.HasUnfinishedBitPack())
-				for (int block = 0; block < Values.Count / 32; ++block)
+				for (var block = 0; block < Values.Count / 32; ++block)
 					data.WriteBits(UpdateMask[block], 32);
 			else
-				for (int block = 0; block < Values.Count / 32; ++block)
+				for (var block = 0; block < Values.Count / 32; ++block)
 					data.WriteUInt32(UpdateMask[block]);
 		}
 
 		else if (Values.Count == 32)
 		{
 			data.WriteBits(UpdateMask.Last(), 32);
+
 			return;
 		}
 
@@ -85,7 +102,8 @@ public class DynamicUpdateField<T> where T : new()
 	public void InsertValue(int index, T value)
 	{
 		Values.Insert(index, value);
-		for (int i = index; i < Values.Count; ++i)
+
+		for (var i = index; i < Values.Count; ++i)
 		{
 			MarkChanged(i);
 			// also mark all fields of value as changed
@@ -100,22 +118,18 @@ public class DynamicUpdateField<T> where T : new()
 
 		// remove by shifting entire container - client might rely on values being sorted for certain fields
 		Values.RemoveAt(index);
-		for (int i = index; i < Values.Count; ++i)
+
+		for (var i = index; i < Values.Count; ++i)
 		{
 			MarkChanged(i);
 			// also mark all fields of value as changed
 			MarkAllUpdateMaskFields(Values[i]);
 		}
+
 		if ((Values.Count % 32) != 0)
 			UpdateMask[Entities.UpdateMask.GetBlockIndex(Values.Count)] &= (uint)~Entities.UpdateMask.GetBlockFlag(Values.Count);
 		else
 			UpdateMask.RemoveAt(UpdateMask.Count - 1);
-	}
-
-	void MarkAllUpdateMaskFields(T value)
-	{
-		if (value is IHasChangesMask)
-			((IHasChangesMask)value).GetUpdateMask().SetAll();
 	}
 
 	public void Clear()
@@ -126,7 +140,8 @@ public class DynamicUpdateField<T> where T : new()
 
 	public void MarkChanged(int index)
 	{
-		int block = Entities.UpdateMask.GetBlockIndex(index);
+		var block = Entities.UpdateMask.GetBlockIndex(index);
+
 		if (block >= UpdateMask.Count)
 			UpdateMask.Add(0);
 
@@ -135,7 +150,8 @@ public class DynamicUpdateField<T> where T : new()
 
 	public void ClearChanged(int index)
 	{
-		int block = Entities.UpdateMask.GetBlockIndex(index);
+		var block = Entities.UpdateMask.GetBlockIndex(index);
+
 		if (block >= UpdateMask.Count)
 			UpdateMask.Add(0);
 
@@ -152,21 +168,6 @@ public class DynamicUpdateField<T> where T : new()
 		return Values.Count;
 	}
 
-	public T this[int index]
-	{
-		get
-		{
-			if (Values.Count <= index)
-				Values.Add(new T());
-
-			return Values[index];
-		}
-		set
-		{
-			Values[index] = value;
-		}
-	}
-
 	public static implicit operator List<T>(DynamicUpdateField<T> updateField)
 	{
 		return updateField.Values;
@@ -176,5 +177,11 @@ public class DynamicUpdateField<T> where T : new()
 	{
 		foreach (var obj in Values)
 			yield return obj;
+	}
+
+	void MarkAllUpdateMaskFields(T value)
+	{
+		if (value is IHasChangesMask)
+			((IHasChangesMask)value).GetUpdateMask().SetAll();
 	}
 }

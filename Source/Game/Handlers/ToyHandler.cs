@@ -69,14 +69,14 @@ namespace Game
 
             SpellPrepare spellPrepare = new();
             spellPrepare.ClientCastID = packet.Cast.CastID;
-            spellPrepare.ServerCastID = spell.m_castId;
+            spellPrepare.ServerCastID = spell.CastId;
             SendPacket(spellPrepare);
 
-            spell.m_fromClient = true;
-            spell.m_castItemEntry = itemId;
-            spell.m_misc.Data0 = packet.Cast.Misc[0];
-            spell.m_misc.Data1 = packet.Cast.Misc[1];
-            spell.m_castFlagsEx |= SpellCastFlagsEx.UseToySpell;
+            spell.FromClient = true;
+            spell.CastItemEntry = itemId;
+            spell.SpellMisc.Data0 = packet.Cast.Misc[0];
+            spell.SpellMisc.Data1 = packet.Cast.Misc[1];
+            spell.CastFlagsEx |= SpellCastFlagsEx.UseToySpell;
             spell.Prepare(targets);
         }
 

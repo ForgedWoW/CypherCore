@@ -27,7 +27,7 @@ internal class spell_gen_paralytic_poison : AuraScript, IHasAuraEffects
 
 	private void HandleStun(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Expire)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
 			return;
 
 		GetTarget().CastSpell((Unit)null, GenericSpellIds.Paralysis, new CastSpellExtraArgs(aurEff));

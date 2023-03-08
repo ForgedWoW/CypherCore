@@ -36,7 +36,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 		var aurEff = target.GetAuraEffect(211078, 0);
 
 		if (aurEff != null) // Spectral Deflection
-			if (target.CountPctFromMaxHealth(aurEff.GetAmount()) < dmgInfo.GetDamage())
+			if (target.CountPctFromMaxHealth(aurEff.Amount) < dmgInfo.GetDamage())
 			{
 				absorbPerc  *= 2;
 				absorbStack *= 2;
@@ -51,7 +51,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 			if (thisPlayer != null)
 				if (RandomHelper.randChance(thisPlayer.ActivePlayerData.SpellCritPercentage))
-					absorbPerc += aurEff.GetAmount();
+					absorbPerc += aurEff.Amount;
 		}
 
 		absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPerc);
@@ -88,7 +88,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 		if (aurEff != null) // Ossuary
 		{
-			if (GetStackAmount() >= aurEff.GetAmount())
+			if (GetStackAmount() >= aurEff.Amount)
 			{
 				if (!target.HasAura(219788))
 					target.CastSpell(target, 219788, true);

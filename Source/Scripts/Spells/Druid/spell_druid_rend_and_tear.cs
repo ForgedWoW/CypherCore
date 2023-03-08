@@ -46,7 +46,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 			var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GetGUID());
 
 			if (trashDOT != null)
-				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.GetStackAmount() * GetSpellInfo().GetEffect(1).BasePoints);
+				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.StackAmount * GetSpellInfo().GetEffect(1).BasePoints);
 		}
 
 		return absorbAmount;
@@ -57,7 +57,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		if (spellMod == null)
 			return;
 
-		((SpellModifierByClassMask)spellMod).value = GetCaster().GetShapeshiftForm() == ShapeShiftForm.BearForm ? aurEff.GetAmount() : 0;
+		((SpellModifierByClassMask)spellMod).Value = GetCaster().GetShapeshiftForm() == ShapeShiftForm.BearForm ? aurEff.Amount : 0;
 	}
 
 	public override void Register()

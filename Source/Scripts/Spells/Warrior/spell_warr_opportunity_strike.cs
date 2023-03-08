@@ -34,7 +34,7 @@ namespace Scripts.Spells.Warrior
 						var eff = aur.GetEffect(0);
 
 						if (eff != null)
-							if (RandomHelper.randChance(eff.GetAmount()))
+							if (RandomHelper.randChance(eff.Amount))
 								_player.CastSpell(target, WarriorSpells.OPPORTUNITY_STRIKE_DAMAGE, true);
 					}
 				}

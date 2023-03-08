@@ -19,7 +19,7 @@ namespace Scripts.Spells.Druid
 
 		public override bool Validate(SpellInfo spellInfo)
 		{
-			if (spellInfo.GetEffects().Count <= 2 ||
+			if (spellInfo.Effects.Count <= 2 ||
 			    spellInfo.GetEffect(2).IsEffect() ||
 			    spellInfo.GetEffect(2).CalcValue() <= 0)
 				return false;

@@ -20,7 +20,7 @@ public class ProcEventInfo
 	readonly HealInfo _healInfo;
 
 	public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
-	                     ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
+						ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
 	{
 		_actor = actor;
 		_actionTarget = actionTarget;
@@ -72,7 +72,7 @@ public class ProcEventInfo
 	public SpellInfo GetSpellInfo()
 	{
 		if (_spell)
-			return _spell.GetSpellInfo();
+			return _spell.SpellInfo;
 
 		if (_damageInfo != null)
 			return _damageInfo.GetSpellInfo();
@@ -86,7 +86,7 @@ public class ProcEventInfo
 	public SpellSchoolMask GetSchoolMask()
 	{
 		if (_spell)
-			return _spell.GetSpellInfo().GetSchoolMask();
+			return _spell.SpellInfo.GetSchoolMask();
 
 		if (_damageInfo != null)
 			return _damageInfo.GetSchoolMask();

@@ -39,7 +39,7 @@ namespace Scripts.Spells.Druid
 			var target = eventInfo.GetProcTarget();
 
 			var spellInfo = Global.SpellMgr.GetSpellInfo(DruidSpellIds.Languish, GetCastDifficulty());
-			var amount    = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount());
+			var amount    = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
 			amount /= (int)spellInfo.GetMaxTicks();
 
 			CastSpellExtraArgs args = new(aurEff);

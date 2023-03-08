@@ -45,15 +45,15 @@ namespace Scripts.Spells.Warlock
 
             if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
             {
-                if (RandomHelper.randChance(conflagrate.GetEffect(0).GetBaseAmount()))
+                if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
                     caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_CONFLAGRATE, true);
             }
         }
 
         private void Decimation(Unit caster, Unit target)
         {
-            if (caster.TryGetAura(WarlockSpells.DECIMATION, out var dec) && target.HealthBelowPct(dec.GetEffect(1).GetBaseAmount()))
-                caster.GetSpellHistory().ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromMilliseconds(dec.GetEffect(0).GetBaseAmount()));
+            if (caster.TryGetAura(WarlockSpells.DECIMATION, out var dec) && target.HealthBelowPct(dec.GetEffect(1).BaseAmount))
+                caster.GetSpellHistory().ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromMilliseconds(dec.GetEffect(0).BaseAmount));
         }
 
         private void Backdraft(Unit caster)
@@ -75,7 +75,7 @@ namespace Scripts.Spells.Warlock
 
                     if (aurEff != null && dmgEff != null)
                     {
-                        var damage = aurEff.GetAmount();
+                        var damage = aurEff.Amount;
                         aurEff.SetAmount(MathFunctions.AddPct(ref damage, dmgEff.BasePoints));
                         aur.SetNeedClientUpdateForTargets();
                     }

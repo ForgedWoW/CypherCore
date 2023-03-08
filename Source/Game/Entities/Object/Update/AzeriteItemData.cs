@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -27,31 +30,34 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 			data.WriteUInt32(KnowledgeLevel);
 			data.WriteInt32(DEBUGknowledgeWeek);
 		}
+
 		data.WriteInt32(UnlockedEssences.Size());
 		data.WriteInt32(SelectedEssences.Size());
 		data.WriteInt32(UnlockedEssenceMilestones.Size());
-		for (int i = 0; i < UnlockedEssences.Size(); ++i)
-		{
+
+		for (var i = 0; i < UnlockedEssences.Size(); ++i)
 			UnlockedEssences[i].WriteCreate(data, owner, receiver);
-		}
-		for (int i = 0; i < UnlockedEssenceMilestones.Size(); ++i)
-		{
+
+		for (var i = 0; i < UnlockedEssenceMilestones.Size(); ++i)
 			data.WriteUInt32(UnlockedEssenceMilestones[i]);
-		}
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-		{
 			data.WriteBit(Enabled);
-		}
-		for (int i = 0; i < SelectedEssences.Size(); ++i)
-		{
+
+		for (var i = 0; i < SelectedEssences.Size(); ++i)
 			SelectedEssences[i].WriteCreate(data, owner, receiver);
-		}
+
 		data.FlushBits();
 	}
 
 	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, AzeriteItem owner, Player receiver)
 	{
-		UpdateMask allowedMaskForTarget = new(9, new[] { 0x0000001Du });
+		UpdateMask allowedMaskForTarget = new(9,
+											new[]
+											{
+												0x0000001Du
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
 	}
@@ -59,12 +65,21 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 	public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
 	{
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-			allowedMaskForTarget.OR(new UpdateMask(9, new[] { 0x000003E2u }));
+			allowedMaskForTarget.OR(new UpdateMask(9,
+													new[]
+													{
+														0x000003E2u
+													}));
 	}
 
 	public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
 	{
-		UpdateMask allowedMaskForTarget = new(9, new[] { 0x0000001Du });
+		UpdateMask allowedMaskForTarget = new(9,
+											new[]
+											{
+												0x0000001Du
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		changesMask.AND(allowedMaskForTarget);
 	}
@@ -76,9 +91,8 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteBit(Enabled);
-			}
+
 			if (changesMask[2])
 			{
 				if (!ignoreNestedChangesMask)
@@ -86,6 +100,7 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 				else
 					WriteCompleteDynamicFieldUpdateMask(UnlockedEssences.Size(), data);
 			}
+
 			if (changesMask[3])
 			{
 				if (!ignoreNestedChangesMask)
@@ -93,6 +108,7 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 				else
 					WriteCompleteDynamicFieldUpdateMask(SelectedEssences.Size(), data);
 			}
+
 			if (changesMask[4])
 			{
 				if (!ignoreNestedChangesMask)
@@ -101,60 +117,42 @@ public class AzeriteItemData : BaseUpdateData<AzeriteItem>
 					WriteCompleteDynamicFieldUpdateMask(UnlockedEssenceMilestones.Size(), data);
 			}
 		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
-			{
-				for (int i = 0; i < UnlockedEssences.Size(); ++i)
-				{
+				for (var i = 0; i < UnlockedEssences.Size(); ++i)
 					if (UnlockedEssences.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						UnlockedEssences[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[4])
-			{
-				for (int i = 0; i < UnlockedEssenceMilestones.Size(); ++i)
-				{
+				for (var i = 0; i < UnlockedEssenceMilestones.Size(); ++i)
 					if (UnlockedEssenceMilestones.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						data.WriteUInt32(UnlockedEssenceMilestones[i]);
-					}
-				}
-			}
+
 			if (changesMask[3])
-			{
-				for (int i = 0; i < SelectedEssences.Size(); ++i)
-				{
+				for (var i = 0; i < SelectedEssences.Size(); ++i)
 					if (SelectedEssences.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						SelectedEssences[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[5])
-			{
 				data.WriteUInt64(Xp);
-			}
+
 			if (changesMask[6])
-			{
 				data.WriteUInt32(Level);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt32(AuraLevel);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt32(KnowledgeLevel);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteInt32(DEBUGknowledgeWeek);
-			}
 		}
+
 		data.FlushBits();
 	}
 

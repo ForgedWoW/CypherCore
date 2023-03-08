@@ -10,8 +10,8 @@ namespace Scripts.Spells.Evoker
     {
         public bool CheckProc(ProcEventInfo info)
         {
-            return info.GetProcSpell().GetSpellInfo().Id.EqualsAny(EvokerSpells.AZURE_STRIKE, EvokerSpells.DISINTEGRATE,
-                EvokerSpells.ETERNITY_SURGE_CHARGED, EvokerSpells.SHATTERING_STAR);
+            return info.GetProcSpell().SpellInfo.Id.EqualsAny(EvokerSpells.AZURE_STRIKE, EvokerSpells.DISINTEGRATE,
+                                                              EvokerSpells.ETERNITY_SURGE_CHARGED, EvokerSpells.SHATTERING_STAR);
         }
     }
 }

@@ -25,7 +25,7 @@ internal class spell_dk_vile_contagion : SpellScript, ISpellOnHit
 		if (target != null) {
 			var pustules = target.GetAura(DeathKnightSpells.FESTERING_WOUND);
 			if(pustules != null) {
-				var stacks = pustules.GetStackAmount();
+				var stacks = pustules.StackAmount;
 				var jumps = 7;
                 for (int i = 0; i < jumps; i++){
 					var bounce = target.SelectNearbyAllyUnit(exclude, 8f);

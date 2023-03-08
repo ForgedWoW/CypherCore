@@ -33,7 +33,7 @@ public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 			if (cost == null)
 				return;
 
-			var manaRestored = MathFunctions.CalculatePct(cost.Amount, auraEffect.GetAmount());
+			var manaRestored = MathFunctions.CalculatePct(cost.Amount, auraEffect.Amount);
 			GetCaster().ModifyPower(PowerType.Mana, manaRestored);
 		}
 	}

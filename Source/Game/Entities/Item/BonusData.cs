@@ -11,16 +11,6 @@ namespace Game.Entities;
 
 public class BonusData
 {
-	struct State
-	{
-		public int SuffixPriority;
-		public int AppearanceModPriority;
-		public int ScalingStatDistributionPriority;
-		public int AzeriteTierUnlockSetPriority;
-		public int RequiredLevelCurvePriority;
-		public bool HasQualityBonus;
-	}
-
 	public ItemQuality Quality;
 	public int ItemLevelBonus;
 	public int RequiredLevel;
@@ -257,5 +247,15 @@ public class BonusData
 
 				break;
 		}
+	}
+
+	struct State
+	{
+		public int SuffixPriority;
+		public int AppearanceModPriority;
+		public int ScalingStatDistributionPriority;
+		public int AzeriteTierUnlockSetPriority;
+		public int RequiredLevelCurvePriority;
+		public bool HasQualityBonus;
 	}
 }

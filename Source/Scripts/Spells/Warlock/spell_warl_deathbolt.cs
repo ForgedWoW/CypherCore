@@ -29,14 +29,14 @@ namespace Scripts.Spells.Warlock
 
 			foreach (var aura in auras.HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
 			{
-				var spell = aura.GetBase().GetSpellInfo();
+				var spell = aura.Base.SpellInfo;
 
 				if (spell.SpellFamilyName == SpellFamilyNames.Warlock && (spell.SpellFamilyFlags & new FlagArray128(502, 8110, 300000, 0))) // out of Mastery : Potent Afflictions
 				{
-					var effects = aura.GetBase().GetAuraEffects();
+					var effects = aura.Base.AuraEffects;
 
 					foreach (var iter in effects)
-						if (iter.Value.GetAuraType() == AuraType.PeriodicDamage)
+						if (iter.Value.AuraType == AuraType.PeriodicDamage)
 						{
 							double valToUse = 0f;
 

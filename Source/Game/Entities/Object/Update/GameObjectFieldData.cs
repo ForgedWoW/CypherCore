@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Networking;
@@ -43,10 +46,10 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		data.WriteUInt32(SpawnTrackingStateAnimKitID);
 		data.WriteInt32(((List<uint>)StateWorldEffectIDs).Count);
 		data.WriteUInt32(StateWorldEffectsQuestObjectiveID);
-		for (int i = 0; i < ((List<uint>)StateWorldEffectIDs).Count; ++i)
-		{
+
+		for (var i = 0; i < ((List<uint>)StateWorldEffectIDs).Count; ++i)
 			data.WriteUInt32(((List<uint>)StateWorldEffectIDs)[i]);
-		}
+
 		data.WritePackedGuid(CreatedBy);
 		data.WritePackedGuid(GuildGUID);
 		data.WriteUInt32(GetViewerGameObjectFlags(this, owner, receiver));
@@ -68,14 +71,12 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		data.WriteUInt32(UiWidgetItemQuality);
 		data.WriteUInt32(UiWidgetItemUnknown1000);
 		data.WriteInt32(WorldEffects.Size());
-		for (int i = 0; i < EnableDoodadSets.Size(); ++i)
-		{
+
+		for (var i = 0; i < EnableDoodadSets.Size(); ++i)
 			data.WriteInt32(EnableDoodadSets[i]);
-		}
-		for (int i = 0; i < WorldEffects.Size(); ++i)
-		{
+
+		for (var i = 0; i < WorldEffects.Size(); ++i)
 			data.WriteInt32(WorldEffects[i]);
-		}
 	}
 
 	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, GameObject owner, Player receiver)
@@ -88,17 +89,16 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		data.WriteBits(changesMask.GetBlock(0), 25);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
 			{
 				data.WriteBits(((List<uint>)StateWorldEffectIDs).Count, 32);
-				for (int i = 0; i < ((List<uint>)StateWorldEffectIDs).Count; ++i)
-				{
+
+				for (var i = 0; i < ((List<uint>)StateWorldEffectIDs).Count; ++i)
 					data.WriteUInt32(((List<uint>)StateWorldEffectIDs)[i]);
-				}
 			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
@@ -108,6 +108,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 				else
 					WriteCompleteDynamicFieldUpdateMask(EnableDoodadSets.Size(), data);
 			}
+
 			if (changesMask[3])
 			{
 				if (!ignoreNestedChangesMask)
@@ -116,65 +117,48 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 					WriteCompleteDynamicFieldUpdateMask(WorldEffects.Size(), data);
 			}
 		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
-			{
-				for (int i = 0; i < EnableDoodadSets.Size(); ++i)
-				{
+				for (var i = 0; i < EnableDoodadSets.Size(); ++i)
 					if (EnableDoodadSets.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						data.WriteInt32(EnableDoodadSets[i]);
-					}
-				}
-			}
+
 			if (changesMask[3])
-			{
-				for (int i = 0; i < WorldEffects.Size(); ++i)
-				{
+				for (var i = 0; i < WorldEffects.Size(); ++i)
 					if (WorldEffects.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						data.WriteInt32(WorldEffects[i]);
-					}
-				}
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt32(DisplayID);
-			}
+
 			if (changesMask[5])
-			{
 				data.WriteUInt32(SpellVisualID);
-			}
+
 			if (changesMask[6])
-			{
 				data.WriteUInt32(StateSpellVisualID);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt32(SpawnTrackingStateAnimID);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt32(SpawnTrackingStateAnimKitID);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteUInt32(StateWorldEffectsQuestObjectiveID);
-			}
+
 			if (changesMask[10])
-			{
 				data.WritePackedGuid(CreatedBy);
-			}
+
 			if (changesMask[11])
-			{
 				data.WritePackedGuid(GuildGUID);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(GetViewerGameObjectFlags(this, owner, receiver));
-			}
+
 			if (changesMask[13])
 			{
 				data.WriteFloat(((Quaternion)ParentRotation).X);
@@ -182,50 +166,39 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 				data.WriteFloat(((Quaternion)ParentRotation).Z);
 				data.WriteFloat(((Quaternion)ParentRotation).W);
 			}
+
 			if (changesMask[14])
-			{
 				data.WriteUInt32(FactionTemplate);
-			}
+
 			if (changesMask[15])
-			{
 				data.WriteInt8(GetViewerGameObjectState(this, owner, receiver));
-			}
+
 			if (changesMask[16])
-			{
 				data.WriteInt8(TypeID);
-			}
+
 			if (changesMask[17])
-			{
 				data.WriteUInt8(PercentHealth);
-			}
+
 			if (changesMask[18])
-			{
 				data.WriteUInt32(ArtKit);
-			}
+
 			if (changesMask[19])
-			{
 				data.WriteUInt32(CustomParam);
-			}
+
 			if (changesMask[20])
-			{
 				data.WriteUInt32(Level);
-			}
+
 			if (changesMask[21])
-			{
 				data.WriteUInt32(AnimGroupInstance);
-			}
+
 			if (changesMask[22])
-			{
 				data.WriteUInt32(UiWidgetItemID);
-			}
+
 			if (changesMask[23])
-			{
 				data.WriteUInt32(UiWidgetItemQuality);
-			}
+
 			if (changesMask[24])
-			{
 				data.WriteUInt32(UiWidgetItemUnknown1000);
-			}
 		}
 	}
 
@@ -261,6 +234,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 	uint GetViewerGameObjectFlags(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
 	{
 		uint flags = gameObjectData.Flags;
+
 		if (gameObject.GetGoType() == GameObjectTypes.Chest)
 			if (gameObject.GetGoInfo().Chest.usegrouplootrules != 0 && !gameObject.IsLootAllowedFor(receiver))
 				flags |= (uint)(GameObjectFlags.Locked | GameObjectFlags.NotSelectable);

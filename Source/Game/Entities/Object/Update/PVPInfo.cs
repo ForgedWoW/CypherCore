@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -50,91 +53,73 @@ public class PVPInfo : BaseUpdateData<Player>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 19);
 
 		if (changesMask[0])
-		{
 			if (changesMask[1])
-			{
 				data.WriteBit(Disqualified);
-			}
-		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[2])
-			{
 				data.WriteInt8(Bracket);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt32(PvpRatingID);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt32(WeeklyPlayed);
-			}
+
 			if (changesMask[5])
-			{
 				data.WriteUInt32(WeeklyWon);
-			}
+
 			if (changesMask[6])
-			{
 				data.WriteUInt32(SeasonPlayed);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt32(SeasonWon);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt32(Rating);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteUInt32(WeeklyBestRating);
-			}
+
 			if (changesMask[10])
-			{
 				data.WriteUInt32(SeasonBestRating);
-			}
+
 			if (changesMask[11])
-			{
 				data.WriteUInt32(PvpTierID);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(WeeklyBestWinPvpTierID);
-			}
+
 			if (changesMask[13])
-			{
 				data.WriteUInt32(Field_28);
-			}
+
 			if (changesMask[14])
-			{
 				data.WriteUInt32(Field_2C);
-			}
+
 			if (changesMask[15])
-			{
 				data.WriteUInt32(WeeklyRoundsPlayed);
-			}
+
 			if (changesMask[16])
-			{
 				data.WriteUInt32(WeeklyRoundsWon);
-			}
+
 			if (changesMask[17])
-			{
 				data.WriteUInt32(SeasonRoundsPlayed);
-			}
+
 			if (changesMask[18])
-			{
 				data.WriteUInt32(SeasonRoundsWon);
-			}
 		}
+
 		data.FlushBits();
 	}
 

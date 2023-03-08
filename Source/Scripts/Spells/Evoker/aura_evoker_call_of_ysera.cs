@@ -10,7 +10,7 @@ namespace Scripts.Spells.Evoker
     {
         public bool CheckProc(ProcEventInfo info)
         {
-            return info.GetProcSpell().GetSpellInfo().Id.EqualsAny(EvokerSpells.DREAM_BREATH_CHARGED, EvokerSpells.LIVING_FLAME_HEAL);
+            return info.GetProcSpell().SpellInfo.Id.EqualsAny(EvokerSpells.DREAM_BREATH_CHARGED, EvokerSpells.LIVING_FLAME_HEAL);
         }
     }
 }

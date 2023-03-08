@@ -29,7 +29,7 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(DeathKnightSpells.RunicPowerEnergize, DeathKnightSpells.VolatileShielding) && spellInfo.GetEffects().Count > 1;
+		return ValidateSpellInfo(DeathKnightSpells.RunicPowerEnergize, DeathKnightSpells.VolatileShielding) && spellInfo.Effects.Count > 1;
 	}
 
 	public override bool Load()
@@ -74,7 +74,7 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 		if (volatileShielding != null)
 		{
 			CastSpellExtraArgs args = new(volatileShielding);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(absorbedAmount, volatileShielding.GetAmount()));
+			args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(absorbedAmount, volatileShielding.Amount));
 			GetTarget().CastSpell((Unit)null, DeathKnightSpells.VolatileShieldingDamage, args);
 		}
 	}

@@ -32,7 +32,7 @@ internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpe
 		if (gatheringStorms != null)
 		{
 			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)(gatheringStorms.GetAmount() * _targetsHit));
+			args.AddSpellMod(SpellValueMod.BasePoint0, (int)(gatheringStorms.Amount * _targetsHit));
 			GetCaster().CastSpell(GetCaster(), ShamanSpells.GatheringStormsBuff, args);
 		}
 	}

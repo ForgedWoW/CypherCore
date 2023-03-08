@@ -28,7 +28,7 @@ namespace Scripts.Spells.Shaman
 		{
 			PreventDefaultAction();
 
-			var heal = MathFunctions.CalculatePct(eventInfo.GetHealInfo().GetHeal(), aurEff.GetAmount());
+			var heal = MathFunctions.CalculatePct(eventInfo.GetHealInfo().GetHeal(), aurEff.Amount);
 			GetTarget().CastSpell(GetTarget(), ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
 		}
 

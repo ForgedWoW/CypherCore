@@ -35,7 +35,7 @@ public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
 
 				if (frozenEff0 != null)
 				{
-					var pct = frozenEff0.GetAmount();
+					var pct = frozenEff0.Amount;
 					MathFunctions.AddPct(ref fingersFrostChance, pct);
 				}
 			}

@@ -33,6 +33,6 @@ internal class spell_sha_item_t10_elemental_2p_bonus : AuraScript, IHasAuraEffec
 		var target = GetTarget().ToPlayer();
 
 		if (target)
-			target.GetSpellHistory().ModifyCooldown(ShamanSpells.ElementalMastery, TimeSpan.FromMilliseconds(-aurEff.GetAmount()));
+			target.GetSpellHistory().ModifyCooldown(ShamanSpells.ElementalMastery, TimeSpan.FromMilliseconds(-aurEff.Amount));
 	}
 }

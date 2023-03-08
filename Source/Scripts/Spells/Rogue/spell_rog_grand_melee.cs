@@ -35,7 +35,7 @@ internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffec
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
 		var procSpell = procInfo.GetProcSpell();
-		var amount    = aurEff.GetAmount() * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
+		var amount    = aurEff.Amount * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
 
 		var target = GetTarget();
 
@@ -45,7 +45,7 @@ internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffec
 
 			if (aura != null)
 			{
-				aura.SetDuration(aura.GetDuration() + amount);
+				aura.SetDuration(aura.Duration + amount);
 			}
 			else
 			{

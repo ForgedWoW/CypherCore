@@ -104,7 +104,7 @@ public partial class Player
 		RemoveSpell(talent.SpellID, true);
 
 		// search for spells that the talent teaches and unlearn them
-		foreach (var spellEffectInfo in spellInfo.GetEffects())
+		foreach (var spellEffectInfo in spellInfo.Effects)
 			if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && spellEffectInfo.TriggerSpell > 0)
 				RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
@@ -297,7 +297,7 @@ public partial class Player
 		var scAuras = GetSingleCastAuras().ToList();
 
 		foreach (var aura in scAuras)
-			if (aura.GetUnitOwner() != this)
+			if (aura.UnitOwner != this)
 				aura.Remove();
 
 		// Let client clear his current Actions
@@ -322,7 +322,7 @@ public partial class Player
 			RemoveSpell(talentInfo.SpellID, true);
 
 			// search for spells that the talent teaches and unlearn them
-			foreach (var spellEffectInfo in spellInfo.GetEffects())
+			foreach (var spellEffectInfo in spellInfo.Effects)
 				if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && spellEffectInfo.TriggerSpell > 0)
 					RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
@@ -340,7 +340,7 @@ public partial class Player
 			RemoveSpell(talentInfo.SpellID, true);
 
 			// search for spells that the talent teaches and unlearn them
-			foreach (var spellEffectInfo in spellInfo.GetEffects())
+			foreach (var spellEffectInfo in spellInfo.Effects)
 				if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell) && spellEffectInfo.TriggerSpell > 0)
 					RemoveSpell(spellEffectInfo.TriggerSpell, true);
 
@@ -900,8 +900,8 @@ public partial class Player
 			return;
 
 		RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData)
-		                                    .ModifyValue(ActivePlayerData.TraitConfigs),
-		                              deletedIndex);
+											.ModifyValue(ActivePlayerData.TraitConfigs),
+									deletedIndex);
 
 		_traitConfigStates[deletedConfigId] = PlayerSpellState.Removed;
 	}
@@ -1031,19 +1031,19 @@ public partial class Player
 		var mySess = GetSession();
 
 		mySess.GetQueryProcessor()
-		      .AddCallback(DB.Characters.AsyncQuery(stmt)
-		                     .WithCallback(result =>
-		                     {
-			                     // safe callback, we can't pass this pointer directly
-			                     // in case player logs out before db response (player would be deleted in that case)
-			                     var thisPlayer = mySess.GetPlayer();
+			.AddCallback(DB.Characters.AsyncQuery(stmt)
+							.WithCallback(result =>
+							{
+								// safe callback, we can't pass this pointer directly
+								// in case player logs out before db response (player would be deleted in that case)
+								var thisPlayer = mySess.GetPlayer();
 
-			                     if (thisPlayer != null && thisPlayer.GetGUID() == myGuid)
-				                     thisPlayer.LoadActions(result);
+								if (thisPlayer != null && thisPlayer.GetGUID() == myGuid)
+									thisPlayer.LoadActions(result);
 
-			                     if (callback != null)
-				                     callback();
-		                     }));
+								if (callback != null)
+									callback();
+							}));
 	}
 
 	//Pvp

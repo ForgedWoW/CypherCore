@@ -44,13 +44,13 @@ namespace Scripts.Spells.Shaman
 			var targetInfo = new SpellImplicitTargetInfo(Targets.UnitChainhealAlly);
 			var conditions = GetSpellInfo().GetEffect(0).ImplicitTargetConditions;
 
-			var containerTypeMask = GetSpell().GetSearcherTypeMask(targetInfo.GetObjectType(), conditions);
+			var containerTypeMask = GetSpell().GetSearcherTypeMask(targetInfo.ObjectType, conditions);
 
 			if (containerTypeMask == 0)
 				return;
 
 			var chainTargets = new List<WorldObject>();
-			var check        = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget.Location, caster, caster, GetSpellInfo(), targetInfo.GetCheckType(), conditions, SpellTargetObjectTypes.Unit);
+			var check        = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget.Location, caster, caster, GetSpellInfo(), targetInfo.CheckType, conditions, SpellTargetObjectTypes.Unit);
 			var searcher     = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
 			Cell.VisitGrid(_primaryTarget, searcher, range);
 
@@ -64,7 +64,7 @@ namespace Scripts.Spells.Shaman
 
 			var extraTargets = new List<WorldObject>();
 			extraTargets = chainTargets.Except(targets).ToList();
-			extraTargets.RandomResize((uint)highTide.GetAmount());
+			extraTargets.RandomResize((uint)highTide.Amount);
 			targets.AddRange(extraTargets);
 		}
 

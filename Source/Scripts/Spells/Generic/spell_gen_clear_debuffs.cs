@@ -26,9 +26,9 @@ internal class spell_gen_clear_debuffs : SpellScript, IHasSpellEffects
 		if (target)
 			target.RemoveOwnedAuras(aura =>
 			                        {
-				                        var spellInfo = aura.GetSpellInfo();
+				                        var spellInfo = aura.SpellInfo;
 
-				                        return !spellInfo.IsPositive() && !spellInfo.IsPassive();
+				                        return !spellInfo.IsPositive && !spellInfo.IsPassive();
 			                        });
 	}
 }

@@ -131,7 +131,7 @@ namespace Scripts.m_Events.Brewfest
                     break;
             }
 
-            if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Default)
+            if (GetTargetApplication().RemoveMode == AuraRemoveMode.Default)
             {
                 target.RemoveAura(SpellIds.RamTrot);
                 target.CastSpell(target, SpellIds.RamLevelNeutral, true);
@@ -311,7 +311,7 @@ namespace Scripts.m_Events.Brewfest
 
             if (aura != null)
             {
-                aura.SetDuration(aura.GetDuration() + 30 * Time.InMilliseconds);
+                aura.SetDuration(aura.Duration + 30 * Time.InMilliseconds);
                 GetCaster().CastSpell(GetHitUnit(), SpellIds.RelayRaceTurnIn, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
             }
         }

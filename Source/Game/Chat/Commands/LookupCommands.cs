@@ -1229,7 +1229,7 @@ namespace Game.Chat
                             }
 
                             bool known = target && target.HasSpell(spellInfo.Id);
-                            var spellEffectInfo = spellInfo.GetEffects().Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
+                            var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
 
                             SpellInfo learnSpellInfo = spellEffectInfo != null ? Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
 
@@ -1297,7 +1297,7 @@ namespace Game.Chat
                     }
 
                     bool known = target && target.HasSpell(id);
-                    var spellEffectInfo = spellInfo.GetEffects().Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
+                    var spellEffectInfo = spellInfo.Effects.Find(spelleffectInfo => spelleffectInfo.IsEffect(SpellEffectName.LearnSpell));
 
                     SpellInfo learnSpellInfo = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
 

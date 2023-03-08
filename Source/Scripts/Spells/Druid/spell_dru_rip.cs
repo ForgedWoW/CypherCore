@@ -42,10 +42,10 @@ namespace Scripts.Spells.Druid
 				var idol = caster.GetAuraEffect(DruidSpellIds.IdolOfFeralShadows, 0);
 
 				if (idol != null)
-					amount.Value += cp * idol.GetAmount();
+					amount.Value += cp * idol.Amount;
 				// Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
 				else if ((idol = caster.GetAuraEffect(DruidSpellIds.IdolOfWorship, 0)) != null)
-					amount.Value += cp * idol.GetAmount();
+					amount.Value += cp * idol.Amount;
 
 				amount.Value += MathFunctions.CalculatePct(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), cp);
 			}

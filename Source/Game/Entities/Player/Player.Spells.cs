@@ -280,13 +280,13 @@ public partial class Player
 
 		foreach (var aurEff in categoryCooldownAuras)
 		{
-			var categoryId = (uint)aurEff.GetMiscValue();
+			var categoryId = (uint)aurEff.MiscValue;
 			var cooldownInfo = cooldowns.CategoryCooldowns.Find(p => p.Category == categoryId);
 
 			if (cooldownInfo == null)
-				cooldowns.CategoryCooldowns.Add(new SpellCategoryCooldown.CategoryCooldownInfo(categoryId, -(int)aurEff.GetAmount()));
+				cooldowns.CategoryCooldowns.Add(new SpellCategoryCooldown.CategoryCooldownInfo(categoryId, -(int)aurEff.Amount));
 			else
-				cooldownInfo.ModCooldown -= (int)aurEff.GetAmount();
+				cooldownInfo.ModCooldown -= (int)aurEff.Amount;
 		}
 
 		SendPacket(cooldowns);
@@ -865,7 +865,7 @@ public partial class Player
 			if (spell.IsIgnoringCooldowns())
 				return;
 			else
-				GetSpellHistory().SendCooldownEvent(spell.m_spellInfo, _lastPotionId, spell);
+				GetSpellHistory().SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);
 		}
 
 		_lastPotionId = 0;
@@ -922,16 +922,16 @@ public partial class Player
 		{
 			// Temporary bonuses
 			foreach (var effect in GetAuraEffectsByType(AuraType.ModSkill))
-				if (effect.GetMiscValue() == id)
+				if (effect.MiscValue == id)
 					effect.HandleEffect(this, AuraEffectHandleModes.Skill, true);
 
 			foreach (var effect in GetAuraEffectsByType(AuraType.ModSkill2))
-				if (effect.GetMiscValue() == id)
+				if (effect.MiscValue == id)
 					effect.HandleEffect(this, AuraEffectHandleModes.Skill, true);
 
 			// Permanent bonuses
 			foreach (var effect in GetAuraEffectsByType(AuraType.ModSkillTalent))
-				if (effect.GetMiscValue() == id)
+				if (effect.MiscValue == id)
 					effect.HandleEffect(this, AuraEffectHandleModes.Skill, true);
 		}
 
@@ -1161,11 +1161,11 @@ public partial class Player
 				var craft_skill_gain = _spell_idx.NumSkillUps * WorldConfig.GetUIntValue(WorldCfg.SkillGainCrafting);
 
 				return UpdateSkillPro(_spell_idx.SkillupSkillLineID,
-				                      SkillGainChance(SkillValue,
-				                                      _spell_idx.TrivialSkillLineRankHigh,
-				                                      (uint)(_spell_idx.TrivialSkillLineRankHigh + _spell_idx.TrivialSkillLineRankLow) / 2,
-				                                      _spell_idx.TrivialSkillLineRankLow),
-				                      craft_skill_gain);
+									SkillGainChance(SkillValue,
+													_spell_idx.TrivialSkillLineRankHigh,
+													(uint)(_spell_idx.TrivialSkillLineRankHigh + _spell_idx.TrivialSkillLineRankLow) / 2,
+													_spell_idx.TrivialSkillLineRankLow),
+									craft_skill_gain);
 			}
 
 		return false;
@@ -1297,13 +1297,13 @@ public partial class Player
 
 				SpellPrepare spellPrepare = new();
 				spellPrepare.ClientCastID = castCount;
-				spellPrepare.ServerCastID = spell.m_castId;
+				spellPrepare.ServerCastID = spell.CastId;
 				SendPacket(spellPrepare);
 
-				spell.m_fromClient = true;
-				spell.m_CastItem = item;
-				spell.m_misc.Data0 = misc[0];
-				spell.m_misc.Data1 = misc[1];
+				spell.FromClient = true;
+				spell.CastItem = item;
+				spell.SpellMisc.Data0 = misc[0];
+				spell.SpellMisc.Data1 = misc[1];
 				spell.Prepare(targets);
 
 				return;
@@ -1336,13 +1336,13 @@ public partial class Player
 
 				SpellPrepare spellPrepare = new();
 				spellPrepare.ClientCastID = castCount;
-				spellPrepare.ServerCastID = spell.m_castId;
+				spellPrepare.ServerCastID = spell.CastId;
 				SendPacket(spellPrepare);
 
-				spell.m_fromClient = true;
-				spell.m_CastItem = item;
-				spell.m_misc.Data0 = misc[0];
-				spell.m_misc.Data1 = misc[1];
+				spell.FromClient = true;
+				spell.CastItem = item;
+				spell.SpellMisc.Data0 = misc[0];
+				spell.SpellMisc.Data1 = misc[1];
 				spell.Prepare(targets);
 
 				return;
@@ -1384,7 +1384,7 @@ public partial class Player
 					break;
 				case AbilityLearnType.RewardedFromQuest:
 					if (!ability.Flags.HasAnyFlag(SkillLineAbilityFlags.CanFallbackToLearnedOnSkillLearn) ||
-					    !spellInfo.MeetsFutureSpellPlayerCondition(this))
+						!spellInfo.MeetsFutureSpellPlayerCondition(this))
 						continue;
 
 					break;
@@ -1482,7 +1482,7 @@ public partial class Player
 
 						// special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
 						if (!spellInfo.IsPassive())
-							foreach (var spellEffectInfo in spellInfo.GetEffects())
+							foreach (var spellEffectInfo in spellInfo.Effects)
 								if (spellEffectInfo.IsAura())
 									return true;
 					}
@@ -1501,9 +1501,9 @@ public partial class Player
 				{
 					// requires item equipped in all armor slots
 					foreach (var i in new[]
-					                  {
-						                  EquipmentSlot.Head, EquipmentSlot.Shoulders, EquipmentSlot.Chest, EquipmentSlot.Waist, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Wrist, EquipmentSlot.Hands
-					                  })
+							{
+								EquipmentSlot.Head, EquipmentSlot.Shoulders, EquipmentSlot.Chest, EquipmentSlot.Waist, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Wrist, EquipmentSlot.Hands
+							})
 					{
 						var item = GetUseableItemByPos(InventorySlots.Bag0, i);
 
@@ -1581,7 +1581,7 @@ public partial class Player
 
 	public override bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect aurEff)
 	{
-		var spellInfo = aurEff.GetSpellInfo();
+		var spellInfo = aurEff.SpellInfo;
 
 		if (spellInfo.EquippedItemClass == ItemClass.None)
 			return true;
@@ -1632,9 +1632,9 @@ public partial class Player
 		var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newZone);
 
 		foreach (var spell in saBounds)
-			if (spell.flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, newZone, 0))
-				if (!HasAura(spell.spellId))
-					CastSpell(this, spell.spellId, true);
+			if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, newZone, 0))
+				if (!HasAura(spell.SpellId))
+					CastSpell(this, spell.SpellId, true);
 	}
 
 	public void UpdateAreaDependentAuras(uint newArea)
@@ -1642,16 +1642,16 @@ public partial class Player
 		// remove auras from spells with area limitations
 		// use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
 		GetOwnedAurasList()
-			.CallOnMatch((aura) => aura.GetSpellInfo().CheckLocation(Location.MapId, _zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
-			             (pair) => RemoveOwnedAura(pair.GetSpellInfo().Id, pair));
+			.CallOnMatch((aura) => aura.SpellInfo.CheckLocation(Location.MapId, _zoneUpdateId, newArea, this) != SpellCastResult.SpellCastOk,
+						(pair) => RemoveOwnedAura(pair.SpellInfo.Id, pair));
 
 		// some auras applied at subzone enter
 		var saBounds = Global.SpellMgr.GetSpellAreaForAreaMapBounds(newArea);
 
 		foreach (var spell in saBounds)
-			if (spell.flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, _zoneUpdateId, newArea))
-				if (!HasAura(spell.spellId))
-					CastSpell(this, spell.spellId, true);
+			if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && spell.IsFitToRequirements(this, _zoneUpdateId, newArea))
+				if (!HasAura(spell.SpellId))
+					CastSpell(this, spell.SpellId, true);
 	}
 
 	public void ApplyModToSpell(SpellModifier mod, Spell spell)
@@ -1660,11 +1660,11 @@ public partial class Player
 			return;
 
 		// don't do anything with no charges
-		if (mod.ownerAura.IsUsingCharges() && mod.ownerAura.GetCharges() == 0)
+		if (mod.OwnerAura.IsUsingCharges && mod.OwnerAura.Charges == 0)
 			return;
 
 		// register inside spell, proc system uses this to drop charges
-		spell.m_appliedMods.Add(mod.ownerAura);
+		spell.AppliedMods.Add(mod.OwnerAura);
 	}
 
 	public void LearnCustomSpells()
@@ -1890,7 +1890,7 @@ public partial class Player
 
 			if (prev_spell == 0) // first rank, remove skill
 			{
-				SetSkill(spellLearnSkill.skill, 0, 0, 0);
+				SetSkill(spellLearnSkill.Skill, 0, 0, 0);
 			}
 			else
 			{
@@ -1905,22 +1905,22 @@ public partial class Player
 
 				if (prevSkill == null) // not found prev skill setting, remove skill
 				{
-					SetSkill(spellLearnSkill.skill, 0, 0, 0);
+					SetSkill(spellLearnSkill.Skill, 0, 0, 0);
 				}
 				else // set to prev. skill setting values
 				{
-					uint skill_value = GetPureSkillValue(prevSkill.skill);
-					uint skill_max_value = GetPureMaxSkillValue(prevSkill.skill);
+					uint skill_value = GetPureSkillValue(prevSkill.Skill);
+					uint skill_max_value = GetPureMaxSkillValue(prevSkill.Skill);
 
-					if (skill_value > prevSkill.value)
-						skill_value = prevSkill.value;
+					if (skill_value > prevSkill.Value)
+						skill_value = prevSkill.Value;
 
-					uint new_skill_max_value = prevSkill.maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill.maxvalue;
+					uint new_skill_max_value = prevSkill.Maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill.Maxvalue;
 
 					if (skill_max_value > new_skill_max_value)
 						skill_max_value = new_skill_max_value;
 
-					SetSkill(prevSkill.skill, prevSkill.step, skill_value, skill_max_value);
+					SetSkill(prevSkill.Skill, prevSkill.Step, skill_value, skill_max_value);
 				}
 			}
 		}
@@ -2058,53 +2058,53 @@ public partial class Player
 
 	public void AddSpellMod(SpellModifier mod, bool apply)
 	{
-		Log.outDebug(LogFilter.Spells, "Player.AddSpellMod {0}", mod.spellId);
+		Log.outDebug(LogFilter.Spells, "Player.AddSpellMod {0}", mod.SpellId);
 
 		// First, manipulate our spellmodifier container
 		if (apply)
-			_spellModifiers[(int)mod.op][(int)mod.type].Add(mod);
+			_spellModifiers[(int)mod.Op][(int)mod.Type].Add(mod);
 		else
-			_spellModifiers[(int)mod.op][(int)mod.type].Remove(mod);
+			_spellModifiers[(int)mod.Op][(int)mod.Type].Remove(mod);
 
 		// Now, send spellmodifier packet
-		switch (mod.type)
+		switch (mod.Type)
 		{
 			case SpellModType.Flat:
 			case SpellModType.Pct:
 				if (!IsLoading())
 				{
-					var opcode = (mod.type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
+					var opcode = (mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
 					SetSpellModifier packet = new(opcode);
 
 					// @todo Implement sending of bulk modifiers instead of single
 					SpellModifierInfo spellMod = new();
 
-					spellMod.ModIndex = (byte)mod.op;
+					spellMod.ModIndex = (byte)mod.Op;
 
 					for (var eff = 0; eff < 128; ++eff)
 					{
 						FlagArray128 mask = new();
 						mask[eff / 32] = 1u << (eff % 32);
 
-						if ((mod as SpellModifierByClassMask).mask & mask)
+						if ((mod as SpellModifierByClassMask).Mask & mask)
 						{
 							SpellModifierData modData = new();
 
-							if (mod.type == SpellModType.Flat)
+							if (mod.Type == SpellModType.Flat)
 							{
 								modData.ModifierValue = 0.0f;
 
-								foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.op][(int)SpellModType.Flat])
-									if (spell.mask & mask)
-										modData.ModifierValue += spell.value;
+								foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Flat])
+									if (spell.Mask & mask)
+										modData.ModifierValue += spell.Value;
 							}
 							else
 							{
 								modData.ModifierValue = 1.0f;
 
-								foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.op][(int)SpellModType.Pct])
-									if (spell.mask & mask)
-										modData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, spell.value);
+								foreach (SpellModifierByClassMask spell in _spellModifiers[(int)mod.Op][(int)SpellModType.Pct])
+									if (spell.Mask & mask)
+										modData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, spell.Value);
 							}
 
 							modData.ClassIndex = (byte)eff;
@@ -2122,11 +2122,11 @@ public partial class Player
 			case SpellModType.LabelFlat:
 				if (apply)
 				{
-					AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), (mod as SpellFlatModifierByLabel).value);
+					AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), (mod as SpellFlatModifierByLabel).Value);
 				}
 				else
 				{
-					var firstIndex = ActivePlayerData.SpellFlatModByLabel.FindIndex((mod as SpellFlatModifierByLabel).value);
+					var firstIndex = ActivePlayerData.SpellFlatModByLabel.FindIndex((mod as SpellFlatModifierByLabel).Value);
 
 					if (firstIndex >= 0)
 						RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellFlatModByLabel), firstIndex);
@@ -2136,11 +2136,11 @@ public partial class Player
 			case SpellModType.LabelPct:
 				if (apply)
 				{
-					AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), (mod as SpellPctModifierByLabel).value);
+					AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), (mod as SpellPctModifierByLabel).Value);
 				}
 				else
 				{
-					var firstIndex = ActivePlayerData.SpellPctModByLabel.FindIndex((mod as SpellPctModifierByLabel).value);
+					var firstIndex = ActivePlayerData.SpellPctModByLabel.FindIndex((mod as SpellPctModifierByLabel).Value);
 
 					if (firstIndex >= 0)
 						RemoveDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SpellPctModByLabel), firstIndex);
@@ -2202,7 +2202,7 @@ public partial class Player
 					if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 						continue;
 
-					if (baseValue.CompareTo(10000d) < 0 && mod.value <= -100)
+					if (baseValue.CompareTo(10000d) < 0 && mod.Value <= -100)
 					{
 						modInstantSpell = mod;
 
@@ -2216,7 +2216,7 @@ public partial class Player
 						if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 							continue;
 
-						if (baseValue.CompareTo(10000d) < 0 && mod.value.ModifierValue <= -1.0f)
+						if (baseValue.CompareTo(10000d) < 0 && mod.Value.ModifierValue <= -1.0f)
 						{
 							modInstantSpell = mod;
 
@@ -2244,7 +2244,7 @@ public partial class Player
 					if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 						continue;
 
-					if (mod.value >= 100)
+					if (mod.Value >= 100)
 					{
 						modCritical = mod;
 
@@ -2258,7 +2258,7 @@ public partial class Player
 						if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 							continue;
 
-						if (mod.value.ModifierValue >= 100)
+						if (mod.Value.ModifierValue >= 100)
 						{
 							modCritical = mod;
 
@@ -2285,7 +2285,7 @@ public partial class Player
 			if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 				continue;
 
-			var value = mod.value;
+			var value = mod.Value;
 
 			if (value == 0)
 				continue;
@@ -2299,7 +2299,7 @@ public partial class Player
 			if (!IsAffectedBySpellmod(spellInfo, mod, spell))
 				continue;
 
-			var value = mod.value.ModifierValue;
+			var value = mod.Value.ModifierValue;
 
 			if (value == 0)
 				continue;
@@ -2317,7 +2317,7 @@ public partial class Player
 			if (baseValue + (dynamic)flat == 0)
 				continue;
 
-			var value = mod.value;
+			var value = mod.Value;
 
 			if (value == 0)
 				continue;
@@ -2340,7 +2340,7 @@ public partial class Player
 			if (baseValue + (dynamic)flat == 0)
 				continue;
 
-			var value = mod.value.ModifierValue;
+			var value = mod.Value.ModifierValue;
 
 			if (value == 1.0f)
 				continue;
@@ -2388,12 +2388,12 @@ public partial class Player
 		// remove cooldowns on spells that have < 10 min CD
 		GetSpellHistory()
 			.ResetCooldowns(p =>
-			                {
-				                var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
+							{
+								var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
 
-				                return spellInfo.RecoveryTime < 10 * Time.Minute * Time.InMilliseconds && spellInfo.CategoryRecoveryTime < 10 * Time.Minute * Time.InMilliseconds && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
-			                },
-			                true);
+								return spellInfo.RecoveryTime < 10 * Time.Minute * Time.InMilliseconds && spellInfo.CategoryRecoveryTime < 10 * Time.Minute * Time.InMilliseconds && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
+							},
+							true);
 
 		// pet cooldowns
 		if (removeActivePetCooldowns)
@@ -2430,8 +2430,8 @@ public partial class Player
 		var regenAura = GetAuraEffectsByType(AuraType.ModPowerRegenPercent);
 
 		foreach (var i in regenAura)
-			if (i.GetMiscValue() == (int)PowerType.Runes)
-				cooldown *= 1.0f - i.GetAmount() / 100.0f;
+			if (i.MiscValue == (int)PowerType.Runes)
+				cooldown *= 1.0f - i.Amount / 100.0f;
 
 		// Runes cooldown are now affected by player's haste from equipment ...
 		var hastePct = GetRatingBonusValue(CombatRating.HasteMelee);
@@ -2509,7 +2509,7 @@ public partial class Player
 	{
 		// don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
 		if (spellInfo.HasAttribute(SpellAttr5.NoReagentCostWithAura) &&
-		    HasUnitFlag(UnitFlags.Preparation))
+			HasUnitFlag(UnitFlags.Preparation))
 			return true;
 
 		// Check no reagent use mask
@@ -2665,11 +2665,11 @@ public partial class Player
 				if (spellInfo == null)
 				{
 					Log.outError(LogFilter.Player,
-					             "Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
-					             GetGUID().ToString(),
-					             GetName(),
-					             enchant_id,
-					             pEnchant.EffectArg[s]);
+								"Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
+								GetGUID().ToString(),
+								GetName(),
+								enchant_id,
+								pEnchant.EffectArg[s]);
 
 					continue;
 				}
@@ -2693,7 +2693,7 @@ public partial class Player
 
 				if (RandomHelper.randChance(chance))
 				{
-					if (spellInfo.IsPositive())
+					if (spellInfo.IsPositive)
 						CastSpell(this, spellInfo.Id, item);
 					else
 						CastSpell(damageInfo.GetVictim(), spellInfo.Id, item);
@@ -2701,7 +2701,7 @@ public partial class Player
 
 				if (RandomHelper.randChance(chance))
 				{
-					var target = spellInfo.IsPositive() ? this : damageInfo.GetVictim();
+					var target = spellInfo.IsPositive ? this : damageInfo.GetVictim();
 
 					CastSpellExtraArgs args = new(item);
 
@@ -2713,7 +2713,7 @@ public partial class Player
 
 						var effectPct = Math.Max(0, 100 - (lvlDifference * lvlPenaltyFactor));
 
-						foreach (var spellEffectInfo in spellInfo.GetEffects())
+						foreach (var spellEffectInfo in spellInfo.Effects)
 							if (spellEffectInfo.IsEffect())
 								args.AddSpellMod(SpellValueMod.BasePoint0 + spellEffectInfo.EffectIndex, MathFunctions.CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
 					}
@@ -2856,10 +2856,10 @@ public partial class Player
 
 		foreach (var auraEffect in dummyAuras)
 			// Soulstone Resurrection                           // prio: 3 (max, non death persistent)
-			if (auraEffect.GetSpellInfo().SpellFamilyName == SpellFamilyNames.Warlock && auraEffect.GetSpellInfo().SpellFamilyFlags[1].HasAnyFlag(0x1000000u))
+			if (auraEffect.SpellInfo.SpellFamilyName == SpellFamilyNames.Warlock && auraEffect.SpellInfo.SpellFamilyFlags[1].HasAnyFlag(0x1000000u))
 				spells[0] = 3026;
 			// Twisting Nether                                  // prio: 2 (max)
-			else if (auraEffect.GetId() == 23701 && RandomHelper.randChance(10))
+			else if (auraEffect.Id == 23701 && RandomHelper.randChance(10))
 				spells[1] = 23700;
 
 		// Reincarnation (passive spell)  // prio: 1
@@ -3236,21 +3236,21 @@ public partial class Player
 	{
 		GetOwnedAurasList()
 			.CallOnMatch((aura) =>
-			             {
-				             // skip not self applied auras
-				             var spellInfo = aura.GetSpellInfo();
+						{
+							// skip not self applied auras
+							var spellInfo = aura.SpellInfo;
 
-				             if (aura.GetCasterGUID() != GetGUID())
-					             return false;
+							if (aura.CasterGuid != GetGUID())
+								return false;
 
-				             // skip if not item dependent or have alternative item
-				             if (HasItemFitToSpellRequirements(spellInfo, pItem))
-					             return false;
+							// skip if not item dependent or have alternative item
+							if (HasItemFitToSpellRequirements(spellInfo, pItem))
+								return false;
 
-				             // no alt item, remove aura, restart check
-				             return true;
-			             },
-			             (pair) => RemoveOwnedAura(pair));
+							// no alt item, remove aura, restart check
+							return true;
+						},
+						(pair) => RemoveOwnedAura(pair));
 
 		// currently casted spells can be dependent from item
 		for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
@@ -3258,7 +3258,7 @@ public partial class Player
 			var spell = GetCurrentSpell(i);
 
 			if (spell != null)
-				if (spell.GetState() != SpellState.Delayed && !HasItemFitToSpellRequirements(spell.m_spellInfo, pItem))
+				if (spell.State != SpellState.Delayed && !HasItemFitToSpellRequirements(spell.SpellInfo, pItem))
 					InterruptSpell(i);
 		}
 	}
@@ -3386,13 +3386,13 @@ public partial class Player
 		var form = GetShapeshiftForm();
 
 		var need_cast = (spellInfo.Stances == 0 ||
-		                 (form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
-		                 (form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm)));
+						(form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
+						(form == 0 && spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm)));
 
 		// Check EquippedItemClass
 		// passive spells which apply aura and have an item requirement are to be added manually, instead of casted
 		if (spellInfo.EquippedItemClass >= 0)
-			foreach (var spellEffectInfo in spellInfo.GetEffects())
+			foreach (var spellEffectInfo in spellInfo.Effects)
 				if (spellEffectInfo.IsAura())
 				{
 					if (!HasAura(spellInfo.Id) && HasItemFitToSpellRequirements(spellInfo))
@@ -3474,9 +3474,9 @@ public partial class Player
 
 			// not do anything if already known in expected state
 			if (spell.State != PlayerSpellState.Removed &&
-			    spell.Active == active &&
-			    spell.Dependent == dependent &&
-			    spell.Disabled == disabled)
+				spell.Active == active &&
+				spell.Dependent == dependent &&
+				spell.Disabled == disabled)
 			{
 				if (!IsInWorld && !learning)
 					spell.State = PlayerSpellState.Unchanged;
@@ -3690,7 +3690,7 @@ public partial class Player
 						if (traitDefinitionEffectPoints != null)
 							foreach (var traitDefinitionEffectPoint in traitDefinitionEffectPoints)
 							{
-								if (traitDefinitionEffectPoint.EffectIndex >= spellInfo.GetEffects().Count)
+								if (traitDefinitionEffectPoint.EffectIndex >= spellInfo.Effects.Count)
 									continue;
 
 								double basePoints = Global.DB2Mgr.GetCurveValueAt((uint)traitDefinitionEffectPoint.CurveID, rank);
@@ -3732,20 +3732,20 @@ public partial class Player
 		if (spellLearnSkill != null)
 		{
 			// add dependent skills if this spell is not learned from adding skill already
-			if ((uint)spellLearnSkill.skill != fromSkill)
+			if ((uint)spellLearnSkill.Skill != fromSkill)
 			{
-				var skill_value = GetPureSkillValue(spellLearnSkill.skill);
-				var skill_max_value = GetPureMaxSkillValue(spellLearnSkill.skill);
+				var skill_value = GetPureSkillValue(spellLearnSkill.Skill);
+				var skill_max_value = GetPureMaxSkillValue(spellLearnSkill.Skill);
 
-				if (skill_value < spellLearnSkill.value)
-					skill_value = spellLearnSkill.value;
+				if (skill_value < spellLearnSkill.Value)
+					skill_value = spellLearnSkill.Value;
 
-				var new_skill_max_value = spellLearnSkill.maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill.maxvalue;
+				var new_skill_max_value = spellLearnSkill.Maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill.Maxvalue;
 
 				if (skill_max_value < new_skill_max_value)
 					skill_max_value = new_skill_max_value;
 
-				SetSkill(spellLearnSkill.skill, spellLearnSkill.step, skill_value, skill_max_value);
+				SetSkill(spellLearnSkill.Skill, spellLearnSkill.Step, skill_value, skill_max_value);
 			}
 		}
 		else
@@ -3816,10 +3816,10 @@ public partial class Player
 			return false;
 
 		// First time this aura applies a mod to us and is out of charges
-		if (spell && mod.ownerAura.IsUsingCharges() && mod.ownerAura.GetCharges() == 0 && !spell.m_appliedMods.Contains(mod.ownerAura))
+		if (spell && mod.OwnerAura.IsUsingCharges && mod.OwnerAura.Charges == 0 && !spell.AppliedMods.Contains(mod.OwnerAura))
 			return false;
 
-		switch (mod.op)
+		switch (mod.Op)
 		{
 			case SpellModOp.Duration: // +duration to infinite duration spells making them limited
 				if (spellInfo.GetDuration() == -1)
@@ -3833,27 +3833,27 @@ public partial class Player
 				break;
 			case SpellModOp.PointsIndex0: // check if spell has any effect at that index
 			case SpellModOp.Points:
-				if (spellInfo.GetEffects().Count <= 0)
+				if (spellInfo.Effects.Count <= 0)
 					return false;
 
 				break;
 			case SpellModOp.PointsIndex1: // check if spell has any effect at that index
-				if (spellInfo.GetEffects().Count <= 1)
+				if (spellInfo.Effects.Count <= 1)
 					return false;
 
 				break;
 			case SpellModOp.PointsIndex2: // check if spell has any effect at that index
-				if (spellInfo.GetEffects().Count <= 2)
+				if (spellInfo.Effects.Count <= 2)
 					return false;
 
 				break;
 			case SpellModOp.PointsIndex3: // check if spell has any effect at that index
-				if (spellInfo.GetEffects().Count <= 3)
+				if (spellInfo.Effects.Count <= 3)
 					return false;
 
 				break;
 			case SpellModOp.PointsIndex4: // check if spell has any effect at that index
-				if (spellInfo.GetEffects().Count <= 4)
+				if (spellInfo.Effects.Count <= 4)
 					return false;
 
 				break;
@@ -3889,12 +3889,12 @@ public partial class Player
 				pctData.ModifierValue = 1.0f;
 
 				foreach (SpellModifierByClassMask mod in _spellModifiers[i][(int)SpellModType.Flat])
-					if (mod.mask & mask)
-						flatData.ModifierValue += mod.value;
+					if (mod.Mask & mask)
+						flatData.ModifierValue += mod.Value;
 
 				foreach (SpellModifierByClassMask mod in _spellModifiers[i][(int)SpellModType.Pct])
-					if (mod.mask & mask)
-						pctData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, mod.value);
+					if (mod.Mask & mask)
+						pctData.ModifierValue *= 1.0f + MathFunctions.CalculatePct(1.0f, mod.Value);
 
 				flatMod.ModifierData.Add(flatData);
 				pctMod.ModifierData.Add(pctData);

@@ -28,7 +28,7 @@ namespace Scripts.Spells.Shaman
 			if (Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None) != null)
 			{
 				var l_SpellInfo = Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None);
-				GetEffect((byte)p_AurEff.GetEffIndex()).SetAmount(p_AurEff.GetAmount() + (int)MathFunctions.CalculatePct(l_HealInfo.GetHeal(), l_SpellInfo.GetEffect(0).BasePoints));
+				GetEffect((byte)p_AurEff.EffIndex).SetAmount(p_AurEff.Amount + (int)MathFunctions.CalculatePct(l_HealInfo.GetHeal(), l_SpellInfo.GetEffect(0).BasePoints));
 			}
 		}
 
@@ -38,12 +38,12 @@ namespace Scripts.Spells.Shaman
 
 			if (l_Owner != null)
 			{
-				double l_Amount = p_AurEff.GetAmount();
+				double l_Amount = p_AurEff.Amount;
 
-				if (p_AurEff.GetAmount() != 0)
+				if (p_AurEff.Amount != 0)
 				{
 					l_Owner.CastSpell(l_Owner, TotemSpells.TOTEM_CLOUDBURST, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)l_Amount));
-					GetEffect((byte)p_AurEff.GetEffIndex()).SetAmount(0);
+					GetEffect((byte)p_AurEff.EffIndex).SetAmount(0);
 				}
 			}
 		}

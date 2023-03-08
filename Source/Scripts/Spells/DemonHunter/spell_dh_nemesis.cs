@@ -19,12 +19,12 @@ public class spell_dh_nemesis : AuraScript, IHasAuraEffects
 		if (GetTargetApplication() == null)
 			return;
 
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 			return;
 
-		var target = GetTargetApplication().GetTarget();
+		var target = GetTargetApplication().Target;
 		var type   = target.GetCreatureType();
-		var dur    = GetTargetApplication().GetBase().GetDuration();
+		var dur    = GetTargetApplication().Base.Duration;
 		var caster = GetAura().GetCaster();
 
 		if (caster == null || target == null)

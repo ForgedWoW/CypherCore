@@ -32,12 +32,12 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 		// This spell must end when insanity hit 0
 		if (caster.GetPower(PowerType.Insanity) == 0)
 		{
-			caster.RemoveAura(aurEff.GetBase());
+			caster.RemoveAura(aurEff.Base);
 
 			return;
 		}
 
-		var tick = GetAura().GetStackAmount() - 1;
+		var tick = GetAura().StackAmount - 1;
 
 		switch (tick)
 		{
@@ -74,14 +74,14 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 		for (uint i = 0; i < 4; ++i)
 			caster.RemoveAura(PriestSpells.VOIDFORM_TENTACLES + i);
 
-		var haste = aurEff.GetAmount();
+		var haste = aurEff.Amount;
 		var mod   = new CastSpellExtraArgs();
 		mod.AddSpellMod(SpellValueMod.BasePoint0, haste);
 
 		var aEff = caster.GetAuraEffectOfRankedSpell(PriestSpells.VOIDFORM_BUFFS, 3, caster.GetGUID());
 
 		if (aEff != null)
-			mod.AddSpellMod(SpellValueMod.BasePoint1, aEff.GetAmount());
+			mod.AddSpellMod(SpellValueMod.BasePoint1, aEff.Amount);
 
 		mod.TriggerFlags = TriggerCastFlags.FullMask;
 		caster.CastSpell(caster, PriestSpells.LINGERING_INSANITY, mod);

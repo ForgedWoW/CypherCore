@@ -23,28 +23,6 @@ namespace Game.Entities
 {
 	public class GameObject : WorldObject
 	{
-		class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-		{
-			public readonly GameObject Owner;
-			public readonly ObjectFieldData ObjectMask = new();
-			public readonly GameObjectFieldData GameObjectMask = new();
-
-			public ValuesUpdateForPlayerWithMaskSender(GameObject owner)
-			{
-				Owner = owner;
-			}
-
-			public void Invoke(Player player)
-			{
-				UpdateData udata = new(Owner.Location.MapId);
-
-				Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), GameObjectMask.GetUpdateMask(), player);
-
-				udata.BuildPacket(out var packet);
-				player.SendPacket(packet);
-			}
-		}
-
 		protected GameObjectValue GoValue; // TODO: replace with m_goTypeImpl
 		protected GameObjectTemplate GoInfo;
 		protected GameObjectTemplateAddon GoTemplateAddon;
@@ -1074,19 +1052,19 @@ namespace Game.Entities
 			SQLTransaction trans = new();
 
 			Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-			                                    map =>
-			                                    {
-				                                    // despawn all active objects, and remove their respawns
-				                                    List<GameObject> toUnload = new();
+												map =>
+												{
+													// despawn all active objects, and remove their respawns
+													List<GameObject> toUnload = new();
 
-				                                    foreach (var creature in map.GetGameObjectBySpawnIdStore().LookupByKey(spawnId))
-					                                    toUnload.Add(creature);
+													foreach (var creature in map.GetGameObjectBySpawnIdStore().LookupByKey(spawnId))
+														toUnload.Add(creature);
 
-				                                    foreach (var obj in toUnload)
-					                                    map.AddObjectToRemoveList(obj);
+													foreach (var obj in toUnload)
+														map.AddObjectToRemoveList(obj);
 
-				                                    map.RemoveRespawnTime(SpawnObjectType.GameObject, spawnId, trans);
-			                                    });
+													map.RemoveRespawnTime(SpawnObjectType.GameObject, spawnId, trans);
+												});
 
 			// delete data from memory
 			Global.ObjectMgr.DeleteGameObjectData(spawnId);
@@ -1685,15 +1663,15 @@ namespace Game.Entities
 									tappers.Add(player);
 
 								_personalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(info.Chest.DungeonEncounter,
-								                                                                 info.Chest.chestPersonalLoot,
-								                                                                 LootStorage.Gameobject,
-								                                                                 LootType.Chest,
-								                                                                 this,
-								                                                                 addon != null ? addon.Mingold : 0,
-								                                                                 addon != null ? addon.Maxgold : 0,
-								                                                                 (ushort)GetLootMode(),
-								                                                                 GetMap().GetDifficultyLootItemContext(),
-								                                                                 tappers);
+																								info.Chest.chestPersonalLoot,
+																								LootStorage.Gameobject,
+																								LootType.Chest,
+																								this,
+																								addon != null ? addon.Mingold : 0,
+																								addon != null ? addon.Maxgold : 0,
+																								(ushort)GetLootMode(),
+																								GetMap().GetDifficultyLootItemContext(),
+																								tappers);
 							}
 							else
 							{
@@ -2382,7 +2360,7 @@ namespace Game.Entities
 						case 1: // Relic Forge
 						{
 							var artifactAura = player.GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
-							var item = artifactAura != null ? player.GetItemByGuid(artifactAura.GetCastItemGUID()) : null;
+							var item = artifactAura != null ? player.GetItemByGuid(artifactAura.CastItemGuid) : null;
 
 							if (!item)
 							{
@@ -2523,14 +2501,14 @@ namespace Game.Entities
 				default:
 					if (GetGoType() >= GameObjectTypes.Max)
 						Log.outError(LogFilter.Server,
-						             "GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
-						             user.GetTypeId(),
-						             user.GetGUID().ToString(),
-						             user.GetName(),
-						             GetGUID().ToString(),
-						             GetEntry(),
-						             GetGoInfo().name,
-						             GetGoType());
+									"GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
+									user.GetTypeId(),
+									user.GetGUID().ToString(),
+									user.GetName(),
+									GetGUID().ToString(),
+									GetEntry(),
+									GetGoInfo().name,
+									GetGoType());
 
 					break;
 			}
@@ -2691,7 +2669,7 @@ namespace Game.Entities
 		{
 			if (spell != null || (spell = GetSpellForLock(player)) != null)
 			{
-				var maxRange = spell.GetMaxRange(spell.IsPositive());
+				var maxRange = spell.GetMaxRange(spell.IsPositive);
 
 				if (GetGoType() == GameObjectTypes.SpellFocus)
 					return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
@@ -2744,7 +2722,7 @@ namespace Game.Entities
 					var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, GetMap().GetDifficultyID());
 
 					if (spell != null)
-						foreach (var effect in spell.GetEffects())
+						foreach (var effect in spell.Effects)
 							if (effect.Effect == SpellEffectName.OpenLock && effect.MiscValue == lockEntry.Index[i])
 								if (effect.CalcValue(player) >= lockEntry.Skill[i])
 									return spell;
@@ -2980,9 +2958,9 @@ namespace Game.Entities
 
 					if (goInfo.Chest.consumable == 0 && goInfo.Chest.chestPersonalLoot != 0)
 						DespawnForPlayer(looter,
-						                 goInfo.Chest.chestRestockTime != 0
-							                 ? TimeSpan.FromSeconds(goInfo.Chest.chestRestockTime)
-							                 : TimeSpan.FromSeconds(_respawnDelayTime)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
+										goInfo.Chest.chestRestockTime != 0
+											? TimeSpan.FromSeconds(goInfo.Chest.chestRestockTime)
+											: TimeSpan.FromSeconds(_respawnDelayTime)); // not hiding this object permanently to prevent infinite growth of m_perPlayerState
 
 					// while also maintaining some sort of cheater protection (not getting rid of entries on logout)
 					break;
@@ -3563,8 +3541,8 @@ namespace Game.Entities
 		public bool IsSpawned()
 		{
 			return _respawnDelayTime == 0 ||
-			       (_respawnTime > 0 && !_spawnedByDefault) ||
-			       (_respawnTime == 0 && _spawnedByDefault);
+					(_respawnTime > 0 && !_spawnedByDefault) ||
+					(_respawnTime == 0 && _spawnedByDefault);
 		}
 
 		public bool IsSpawnedByDefault()
@@ -3808,12 +3786,12 @@ namespace Game.Entities
 
 			// This happens when a mage portal is despawned after the caster changes map (for example using the portal)
 			Log.outDebug(LogFilter.Server,
-			             "Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
-			             GetGUID().ToString(),
-			             GetGoInfo().entry,
-			             _spellId,
-			             GetGoInfo().GetLinkedGameObjectEntry(),
-			             ownerGUID.ToString());
+						"Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
+						GetGUID().ToString(),
+						GetGoInfo().entry,
+						_spellId,
+						GetGoInfo().GetLinkedGameObjectEntry(),
+						ownerGUID.ToString());
 
 			SetOwnerGUID(ObjectGuid.Empty);
 		}
@@ -4331,6 +4309,28 @@ namespace Game.Entities
 		void SetRespawnCompatibilityMode(bool mode = true)
 		{
 			_respawnCompatibilityMode = mode;
+		}
+
+		class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+		{
+			public readonly GameObject Owner;
+			public readonly ObjectFieldData ObjectMask = new();
+			public readonly GameObjectFieldData GameObjectMask = new();
+
+			public ValuesUpdateForPlayerWithMaskSender(GameObject owner)
+			{
+				Owner = owner;
+			}
+
+			public void Invoke(Player player)
+			{
+				UpdateData udata = new(Owner.Location.MapId);
+
+				Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), GameObjectMask.GetUpdateMask(), player);
+
+				udata.BuildPacket(out var packet);
+				player.SendPacket(packet);
+			}
 		}
 	}
 

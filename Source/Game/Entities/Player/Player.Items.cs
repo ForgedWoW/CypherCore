@@ -19,8 +19,6 @@ namespace Game.Entities;
 
 public partial class Player
 {
-	delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
-
 	public void DeleteRefundReference(ObjectGuid it)
 	{
 		_refundableItems.Remove(it);
@@ -708,8 +706,8 @@ public partial class Player
 
 						// not plain container check
 						if (pBagProto != null &&
-						    (pBagProto.GetClass() != ItemClass.Container || pBagProto.GetSubClass() != (uint)ItemSubClassContainer.Container) &&
-						    Item.ItemCanGoIntoBag(pProto, pBagProto))
+							(pBagProto.GetClass() != ItemClass.Container || pBagProto.GetSubClass() != (uint)ItemSubClassContainer.Container) &&
+							Item.ItemCanGoIntoBag(pProto, pBagProto))
 							for (uint j = 0; j < bag.GetBagSize(); j++)
 								if (bagCounts[t - InventorySlots.BagStart][j] == 0)
 								{
@@ -2235,13 +2233,13 @@ public partial class Player
 		List<Item> itemList = new();
 
 		ForEachItem(ItemSearchLocation.Inventory,
-		            item =>
-		            {
-			            if (item.GetTemplate().IsCraftingReagent())
-				            itemList.Add(item);
+					item =>
+					{
+						if (item.GetTemplate().IsCraftingReagent())
+							itemList.Add(item);
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return itemList;
 	}
@@ -2251,17 +2249,17 @@ public partial class Player
 		Item result = null;
 
 		ForEachItem(ItemSearchLocation.Everywhere,
-		            item =>
-		            {
-			            if (item.GetGUID() == guid)
-			            {
-				            result = item;
+					item =>
+					{
+						if (item.GetGUID() == guid)
+						{
+							result = item;
 
-				            return false;
-			            }
+							return false;
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return result;
 	}
@@ -2278,19 +2276,19 @@ public partial class Player
 		uint count = 0;
 
 		ForEachItem(location,
-		            pItem =>
-		            {
-			            if (pItem != skipItem)
-			            {
-				            if (pItem.GetEntry() == item)
-					            count += pItem.GetCount();
+					pItem =>
+					{
+						if (pItem != skipItem)
+						{
+							if (pItem.GetEntry() == item)
+								count += pItem.GetCount();
 
-				            if (countGems)
-					            count += pItem.GetGemCountWithID(item);
-			            }
+							if (countGems)
+								count += pItem.GetGemCountWithID(item);
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return count;
 	}
@@ -2334,17 +2332,17 @@ public partial class Player
 		Item result = null;
 
 		ForEachItem(where,
-		            item =>
-		            {
-			            if (item.GetEntry() == entry)
-			            {
-				            result = item;
+					item =>
+					{
+						if (item.GetEntry() == entry)
+						{
+							result = item;
 
-				            return false;
-			            }
+							return false;
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return result;
 	}
@@ -2359,13 +2357,13 @@ public partial class Player
 		List<Item> itemList = new();
 
 		ForEachItem(location,
-		            item =>
-		            {
-			            if (item.GetEntry() == entry)
-				            itemList.Add(item);
+					item =>
+					{
+						if (item.GetEntry() == entry)
+							itemList.Add(item);
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return itemList;
 	}
@@ -2380,18 +2378,18 @@ public partial class Player
 		uint currentCount = 0;
 
 		return !ForEachItem(location,
-		                    pItem =>
-		                    {
-			                    if (pItem && pItem.GetEntry() == item && !pItem.IsInTrade())
-			                    {
-				                    currentCount += pItem.GetCount();
+							pItem =>
+							{
+								if (pItem && pItem.GetEntry() == item && !pItem.IsInTrade())
+								{
+									currentCount += pItem.GetCount();
 
-				                    if (currentCount >= count)
-					                    return false;
-			                    }
+									if (currentCount >= count)
+										return false;
+								}
 
-			                    return true;
-		                    });
+								return true;
+							});
 	}
 
 	public static bool IsChildEquipmentPos(byte bag, byte slot)
@@ -2468,17 +2466,17 @@ public partial class Player
 		Item result = null;
 
 		ForEachItem(ItemSearchLocation.Equipment | ItemSearchLocation.Inventory,
-		            item =>
-		            {
-			            if (item.GetGUID() == guid)
-			            {
-				            result = item;
+					item =>
+					{
+						if (item.GetGUID() == guid)
+						{
+							result = item;
 
-				            return false;
-			            }
+							return false;
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return result;
 	}
@@ -3182,7 +3180,7 @@ public partial class Player
 	public bool HasItemTotemCategory(uint TotemCategory)
 	{
 		foreach (var providedTotemCategory in GetAuraEffectsByType(AuraType.ProvideTotemCategory))
-			if (Global.DB2Mgr.IsTotemCategoryCompatibleWith((uint)providedTotemCategory.GetMiscValueB(), TotemCategory))
+			if (Global.DB2Mgr.IsTotemCategoryCompatibleWith((uint)providedTotemCategory.MiscValueB, TotemCategory))
 				return true;
 
 		var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
@@ -3767,11 +3765,11 @@ public partial class Player
 		if (pItem.IsCurrencyToken())
 		{
 			Log.outError(LogFilter.Player,
-			             "Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
-			             GetName(),
-			             GetGUID().ToString(),
-			             pItem.GetGUID().ToString(),
-			             pProto.GetId());
+						"Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
+						GetName(),
+						GetGUID().ToString(),
+						pItem.GetGUID().ToString(),
+						pProto.GetId());
 
 			return InventoryResult.CantSwap;
 		}
@@ -4177,13 +4175,13 @@ public partial class Player
 					var currentGenericSpell = GetCurrentSpell(CurrentSpellTypes.Generic);
 
 					if (currentGenericSpell != null)
-						if (!currentGenericSpell.GetSpellInfo().HasAttribute(SpellAttr6.AllowEquipWhileCasting))
+						if (!currentGenericSpell.SpellInfo.HasAttribute(SpellAttr6.AllowEquipWhileCasting))
 							return InventoryResult.ClientLockedOut;
 
 					var currentChanneledSpell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 					if (currentChanneledSpell != null)
-						if (!currentChanneledSpell.GetSpellInfo().HasAttribute(SpellAttr6.AllowEquipWhileCasting))
+						if (!currentChanneledSpell.SpellInfo.HasAttribute(SpellAttr6.AllowEquipWhileCasting))
 							return InventoryResult.ClientLockedOut;
 				}
 
@@ -4282,8 +4280,8 @@ public partial class Player
 								if (pBagProto != null)
 									if (pBagProto.GetClass() == pProto.GetClass() && (!swap || pBag.GetSlot() != eslot))
 										return (pBagProto.GetSubClass() == (uint)ItemSubClassQuiver.AmmoPouch)
-											       ? InventoryResult.OnlyOneAmmo
-											       : InventoryResult.OnlyOneQuiver;
+													? InventoryResult.OnlyOneAmmo
+													: InventoryResult.OnlyOneQuiver;
 							}
 					}
 
@@ -4336,9 +4334,9 @@ public partial class Player
 						List<ItemPosCount> off_dest = new();
 
 						if (offItem != null &&
-						    (!not_loading ||
-						     CanUnequipItem(((int)InventorySlots.Bag0 << 8) | (int)EquipmentSlot.OffHand, false) != InventoryResult.Ok ||
-						     CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, off_dest, offItem, false) != InventoryResult.Ok))
+							(!not_loading ||
+							CanUnequipItem(((int)InventorySlots.Bag0 << 8) | (int)EquipmentSlot.OffHand, false) != InventoryResult.Ok ||
+							CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, off_dest, offItem, false) != InventoryResult.Ok))
 							return swap ? InventoryResult.CantSwap : InventoryResult.InvFull;
 					}
 				}
@@ -4531,8 +4529,8 @@ public partial class Player
 			{
 				if (apply)
 				{
-					foreach (var auraEffect in powerAura.GetBase().GetAuraEffects())
-						if (powerAura.HasEffect(auraEffect.Value.GetEffIndex()))
+					foreach (var auraEffect in powerAura.Base.AuraEffects)
+						if (powerAura.HasEffect(auraEffect.Value.EffIndex))
 							auraEffect.Value.ChangeAmount((int)(artifactPowerRank.AuraPointsOverride != 0 ? artifactPowerRank.AuraPointsOverride : auraEffect.Value.GetSpellEffectInfo().CalcValue()));
 				}
 				else
@@ -4546,7 +4544,7 @@ public partial class Player
 				args.SetCastItem(artifact);
 
 				if (artifactPowerRank.AuraPointsOverride != 0)
-					foreach (var spellEffectInfo in spellInfo.GetEffects())
+					foreach (var spellEffectInfo in spellInfo.Effects)
 						args.AddSpellMod(SpellValueMod.BasePoint0 + spellEffectInfo.EffectIndex, (int)artifactPowerRank.AuraPointsOverride);
 
 				CastSpell(this, artifactPowerRank.SpellID, args);
@@ -4641,22 +4639,22 @@ public partial class Player
 		var includeGems = pProto?.GetGemProperties() != 0;
 
 		return !ForEachItem(ItemSearchLocation.Equipment,
-		                    pItem =>
-		                    {
-			                    if (pItem.GetSlot() != except_slot)
-			                    {
-				                    if (pItem.GetEntry() == item)
-					                    tempcount += pItem.GetCount();
+							pItem =>
+							{
+								if (pItem.GetSlot() != except_slot)
+								{
+									if (pItem.GetEntry() == item)
+										tempcount += pItem.GetCount();
 
-				                    if (includeGems)
-					                    tempcount += pItem.GetGemCountWithID(item);
+									if (includeGems)
+										tempcount += pItem.GetGemCountWithID(item);
 
-				                    if (tempcount >= count)
-					                    return false;
-			                    }
+									if (tempcount >= count)
+										return false;
+								}
 
-			                    return true;
-		                    });
+								return true;
+							});
 	}
 
 	//Visual
@@ -5265,10 +5263,10 @@ public partial class Player
 	}
 
 	/// <summary>
-	/// if in a Battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
-	/// Called by remove insignia spell effect
+	///  if in a Battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
+	///  Called by remove insignia spell effect
 	/// </summary>
-	/// <param name="looterPlr"></param>
+	/// <param name="looterPlr"> </param>
 	public void RemovedInsignia(Player looterPlr)
 	{
 		// If player is not in battleground and not in worldpvpzone
@@ -5661,52 +5659,52 @@ public partial class Player
 		float sum = 0;
 
 		ForEachItem(ItemSearchLocation.Everywhere,
-		            item =>
-		            {
-			            var itemTemplate = item.GetTemplate();
+					item =>
+					{
+						var itemTemplate = item.GetTemplate();
 
-			            if (itemTemplate != null && itemTemplate.GetInventoryType() < InventoryType.ProfessionTool)
-			            {
-				            if (item.IsEquipped())
-				            {
-					            var itemLevel = item.GetItemLevel(this);
-					            var inventoryType = itemTemplate.GetInventoryType();
-					            ref var slotData = ref bestItemLevels[item.GetSlot()];
+						if (itemTemplate != null && itemTemplate.GetInventoryType() < InventoryType.ProfessionTool)
+						{
+							if (item.IsEquipped())
+							{
+								var itemLevel = item.GetItemLevel(this);
+								var inventoryType = itemTemplate.GetInventoryType();
+								ref var slotData = ref bestItemLevels[item.GetSlot()];
 
-					            if (itemLevel > slotData.Item2)
-					            {
-						            sum += itemLevel - slotData.Item2;
-						            slotData = (inventoryType, itemLevel, item.GetGUID());
-					            }
-				            }
-				            else if (CanEquipItem(ItemConst.NullSlot, out var dest, item, true, false) == InventoryResult.Ok)
-				            {
-					            var itemLevel = item.GetItemLevel(this);
-					            var inventoryType = itemTemplate.GetInventoryType();
+								if (itemLevel > slotData.Item2)
+								{
+									sum += itemLevel - slotData.Item2;
+									slotData = (inventoryType, itemLevel, item.GetGUID());
+								}
+							}
+							else if (CanEquipItem(ItemConst.NullSlot, out var dest, item, true, false) == InventoryResult.Ok)
+							{
+								var itemLevel = item.GetItemLevel(this);
+								var inventoryType = itemTemplate.GetInventoryType();
 
-					            ForEachEquipmentSlot(inventoryType,
-					                                 m_canDualWield,
-					                                 _canTitanGrip,
-					                                 (slot, checkDuplicateGuid) =>
-					                                 {
-						                                 if (checkDuplicateGuid)
-							                                 foreach (var slotData1 in bestItemLevels)
-								                                 if (slotData1.guid == item.GetGUID())
-									                                 return;
+								ForEachEquipmentSlot(inventoryType,
+													m_canDualWield,
+													_canTitanGrip,
+													(slot, checkDuplicateGuid) =>
+													{
+														if (checkDuplicateGuid)
+															foreach (var slotData1 in bestItemLevels)
+																if (slotData1.guid == item.GetGUID())
+																	return;
 
-						                                 ref var slotData = ref bestItemLevels[slot];
+														ref var slotData = ref bestItemLevels[slot];
 
-						                                 if (itemLevel > slotData.itemLevel)
-						                                 {
-							                                 sum += itemLevel - slotData.itemLevel;
-							                                 slotData = (inventoryType, itemLevel, item.GetGUID());
-						                                 }
-					                                 });
-				            }
-			            }
+														if (itemLevel > slotData.itemLevel)
+														{
+															sum += itemLevel - slotData.itemLevel;
+															slotData = (inventoryType, itemLevel, item.GetGUID());
+														}
+													});
+							}
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		// If main hand is a 2h weapon, count it twice
 		var mainHand = bestItemLevels[EquipmentSlot.MainHand];
@@ -6118,9 +6116,9 @@ public partial class Player
 
 		// new bags can be directly equipped
 		if (!pItem &&
-		    pProto.GetClass() == ItemClass.Container &&
-		    (ItemSubClassContainer)pProto.GetSubClass() == ItemSubClassContainer.Container &&
-		    (pProto.GetBonding() == ItemBondingType.None || pProto.GetBonding() == ItemBondingType.OnAcquire))
+			pProto.GetClass() == ItemClass.Container &&
+			(ItemSubClassContainer)pProto.GetSubClass() == ItemSubClassContainer.Container &&
+			(pProto.GetBonding() == ItemBondingType.None || pProto.GetBonding() == ItemBondingType.OnAcquire))
 			searchSlotStart = InventorySlots.BagStart;
 
 		res = CanStoreItem_InInventorySlots(searchSlotStart, inventoryEnd, dest, pProto, ref count, false, pItem, bag, slot);
@@ -6188,8 +6186,8 @@ public partial class Player
 				return null;
 
 			if (pItem.GetBonding() == ItemBondingType.OnAcquire ||
-			    pItem.GetBonding() == ItemBondingType.Quest ||
-			    (pItem.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
+				pItem.GetBonding() == ItemBondingType.Quest ||
+				(pItem.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
 				pItem.SetBinding(true);
 
 			var pBag = bag == InventorySlots.Bag0 ? null : GetBagByPos(bag);
@@ -6231,8 +6229,8 @@ public partial class Player
 		else
 		{
 			if (pItem2.GetBonding() == ItemBondingType.OnAcquire ||
-			    pItem2.GetBonding() == ItemBondingType.Quest ||
-			    (pItem2.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
+				pItem2.GetBonding() == ItemBondingType.Quest ||
+				(pItem2.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
 				pItem2.SetBinding(true);
 
 			pItem2.SetCount(pItem2.GetCount() + count);
@@ -6403,27 +6401,27 @@ public partial class Player
 		uint tempcount = 0;
 
 		var result = ForEachItem(ItemSearchLocation.Equipment,
-		                         pItem =>
-		                         {
-			                         if (pItem.GetEntry() == item)
-			                         {
-				                         var ires = CanUnequipItem(pItem.GetPos(), false);
+								pItem =>
+								{
+									if (pItem.GetEntry() == item)
+									{
+										var ires = CanUnequipItem(pItem.GetPos(), false);
 
-				                         if (ires == InventoryResult.Ok)
-				                         {
-					                         tempcount += pItem.GetCount();
+										if (ires == InventoryResult.Ok)
+										{
+											tempcount += pItem.GetCount();
 
-					                         if (tempcount >= count)
-						                         return false;
-				                         }
-				                         else
-				                         {
-					                         res = ires;
-				                         }
-			                         }
+											if (tempcount >= count)
+												return false;
+										}
+										else
+										{
+											res = ires;
+										}
+									}
 
-			                         return true;
-		                         });
+									return true;
+								});
 
 		if (!result) // we stopped early due to a sucess
 			return InventoryResult.Ok;
@@ -6569,19 +6567,19 @@ public partial class Player
 		uint count = 0;
 
 		ForEachItem(ItemSearchLocation.Everywhere,
-		            item =>
-		            {
-			            if (item != skipItem)
-			            {
-				            var pProto = item.GetTemplate();
+					item =>
+					{
+						if (item != skipItem)
+						{
+							var pProto = item.GetTemplate();
 
-				            if (pProto != null)
-					            if (pProto.GetItemLimitCategory() == limitCategory)
-						            count += item.GetCount();
-			            }
+							if (pProto != null)
+								if (pProto.GetItemLimitCategory() == limitCategory)
+									count += item.GetCount();
+						}
 
-			            return true;
-		            });
+						return true;
+					});
 
 		return count;
 	}
@@ -7329,10 +7327,10 @@ public partial class Player
 				for (byte slot = 0; slot < SharedConst.MaxAzeriteEssenceSlot; ++slot)
 					if (selectedEssences.AzeriteEssenceID[slot] != 0)
 						ApplyAzeriteEssence(azeriteItem,
-						                    selectedEssences.AzeriteEssenceID[slot],
-						                    azeriteItem.GetEssenceRank(selectedEssences.AzeriteEssenceID[slot]),
-						                    (AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(slot).Type == AzeriteItemMilestoneType.MajorEssence,
-						                    apply);
+											selectedEssences.AzeriteEssenceID[slot],
+											azeriteItem.GetEssenceRank(selectedEssences.AzeriteEssenceID[slot]),
+											(AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(slot).Type == AzeriteItemMilestoneType.MajorEssence,
+											apply);
 		}
 		else
 		{
@@ -7391,21 +7389,21 @@ public partial class Player
 		uint tempcount = 0;
 
 		return !ForEachItem(ItemSearchLocation.Equipment,
-		                    pItem =>
-		                    {
-			                    if (pItem.GetSlot() == except_slot)
-				                    return true;
+							pItem =>
+							{
+								if (pItem.GetSlot() == except_slot)
+									return true;
 
-			                    if (pItem.GetTemplate().GetItemLimitCategory() != limitCategory)
-				                    return true;
+								if (pItem.GetTemplate().GetItemLimitCategory() != limitCategory)
+									return true;
 
-			                    tempcount += pItem.GetCount();
+								tempcount += pItem.GetCount();
 
-			                    if (tempcount >= count)
-				                    return false;
+								if (tempcount >= count)
+									return false;
 
-			                    return true;
-		                    });
+								return true;
+							});
 	}
 
 	bool HasGemWithLimitCategoryEquipped(uint limitCategory, uint count, byte except_slot)
@@ -7413,23 +7411,23 @@ public partial class Player
 		uint tempcount = 0;
 
 		return !ForEachItem(ItemSearchLocation.Equipment,
-		                    pItem =>
-		                    {
-			                    if (pItem.GetSlot() == except_slot)
-				                    return true;
+							pItem =>
+							{
+								if (pItem.GetSlot() == except_slot)
+									return true;
 
-			                    var pProto = pItem.GetTemplate();
+								var pProto = pItem.GetTemplate();
 
-			                    if (pProto == null)
-				                    return true;
+								if (pProto == null)
+									return true;
 
-			                    tempcount += pItem.GetGemCountWithLimitCategory(limitCategory);
+								tempcount += pItem.GetGemCountWithLimitCategory(limitCategory);
 
-			                    if (tempcount >= count)
-				                    return false;
+								if (tempcount >= count)
+									return false;
 
-			                    return true;
-		                    });
+								return true;
+							});
 	}
 
 	void VisualizeItem(uint slot, Item pItem)
@@ -7592,4 +7590,6 @@ public partial class Player
 				return false;
 		}
 	}
+
+	delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
 }

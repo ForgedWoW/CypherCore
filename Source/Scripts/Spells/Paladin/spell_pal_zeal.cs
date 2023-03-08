@@ -28,7 +28,7 @@ namespace Scripts.Spells.Paladin
         private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo procInfo)
         {
             Unit target = GetTarget();
-            target.CastSpell(target, PaladinSpells.ZealAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, aurEff.GetAmount()));
+            target.CastSpell(target, PaladinSpells.ZealAura, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, aurEff.Amount));
 
             PreventDefaultAction();
         }

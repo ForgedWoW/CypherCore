@@ -25,7 +25,7 @@ public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
 			if (aurEff != null)
 			{
 				var heal = GetHitHeal();
-				MathFunctions.AddPct(ref heal, aurEff.GetAmount());
+				MathFunctions.AddPct(ref heal, aurEff.Amount);
 				SetHitHeal(heal);
 			}
 		}

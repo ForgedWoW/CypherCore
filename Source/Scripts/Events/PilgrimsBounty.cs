@@ -140,7 +140,7 @@ namespace Scripts.m_Events.PilgrimsBounty
 
         public override bool Validate(SpellInfo spellInfo)
         {
-            return !spellInfo.GetEffects().Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue()) && !Global.SpellMgr.GetSpellInfo((uint)spellInfo.GetEffect(0).CalcValue(), Difficulty.None).GetEffects().Empty();
+            return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue()) && !Global.SpellMgr.GetSpellInfo((uint)spellInfo.GetEffect(0).CalcValue(), Difficulty.None).Effects.Empty();
         }
 
         public override void Register()
@@ -206,8 +206,8 @@ namespace Scripts.m_Events.PilgrimsBounty
 
             if (aura != null)
             {
-                if (aura.GetStackAmount() == 1)
-                    caster.RemoveAura((uint)aura.GetSpellInfo().GetEffect(0).CalcValue());
+                if (aura.StackAmount == 1)
+                    caster.RemoveAura((uint)aura.SpellInfo.GetEffect(0).CalcValue());
 
                 aura.ModStackAmount(-1);
             }
@@ -245,7 +245,7 @@ namespace Scripts.m_Events.PilgrimsBounty
 
             if (aura != null)
             {
-                switch (aura.GetStackAmount())
+                switch (aura.StackAmount)
                 {
                     case 10:
                         caster.GetAI().Talk(EmoteIds.TurkeyHunter, target);
@@ -311,7 +311,7 @@ namespace Scripts.m_Events.PilgrimsBounty
             Aura aura = target.GetAura(GetSpellInfo().Id);
 
             if (aura != null)
-                if (aura.GetStackAmount() == 5)
+                if (aura.StackAmount == 5)
                     target.CastSpell(target, _triggeredSpellId, true);
 
             Aura turkey = target.GetAura(SpellIds.TurkeyHelpins);
@@ -320,11 +320,11 @@ namespace Scripts.m_Events.PilgrimsBounty
             Aura sweetPotatoes = target.GetAura(SpellIds.SweetPotatoHelpins);
             Aura pie = target.GetAura(SpellIds.PieHelpins);
 
-            if ((turkey != null && turkey.GetStackAmount() == 5) &&
-                (cranberies != null && cranberies.GetStackAmount() == 5) &&
-                (stuffing != null && stuffing.GetStackAmount() == 5) &&
-                (sweetPotatoes != null && sweetPotatoes.GetStackAmount() == 5) &&
-                (pie != null && pie.GetStackAmount() == 5))
+            if ((turkey != null && turkey.StackAmount == 5) &&
+                (cranberies != null && cranberies.StackAmount == 5) &&
+                (stuffing != null && stuffing.StackAmount == 5) &&
+                (sweetPotatoes != null && sweetPotatoes.StackAmount == 5) &&
+                (pie != null && pie.StackAmount == 5))
             {
                 target.CastSpell(target, SpellIds.TheSpiritOfSharing, true);
                 target.RemoveAura(SpellIds.TurkeyHelpins);
@@ -494,14 +494,14 @@ namespace Scripts.m_Events.PilgrimsBounty
         private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
         {
             Unit target = GetTarget();
-            target.CastSpell(target, (uint)aurEff.GetAmount(), true);
+            target.CastSpell(target, (uint)aurEff.Amount, true);
             HandlePlate(target, true);
         }
 
         private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
         {
             Unit target = GetTarget();
-            target.RemoveAura((uint)aurEff.GetAmount());
+            target.RemoveAura((uint)aurEff.Amount);
             HandlePlate(target, false);
         }
 

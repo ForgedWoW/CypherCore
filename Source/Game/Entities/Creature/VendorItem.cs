@@ -17,9 +17,7 @@ public class VendorItem
 	public uint PlayerConditionId { get; set; }
 	public bool IgnoreFiltering { get; set; }
 
-	public VendorItem()
-	{
-	}
+	public VendorItem() { }
 
 	public VendorItem(uint item, int maxcount, uint incrtime, uint extendedCost, ItemVendorType type)
 	{

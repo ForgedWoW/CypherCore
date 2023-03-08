@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 
 namespace Game.Entities;
@@ -12,10 +15,9 @@ public class ContainerData : BaseUpdateData<Bag>
 
 	public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Bag owner, Player receiver)
 	{
-		for (int i = 0; i < 36; ++i)
-		{
+		for (var i = 0; i < 36; ++i)
 			data.WritePackedGuid(Slots[i]);
-		}
+
 		data.WriteUInt32(NumSlots);
 	}
 
@@ -27,28 +29,21 @@ public class ContainerData : BaseUpdateData<Bag>
 	public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Bag owner, Player receiver)
 	{
 		data.WriteBits(ChangesMask.GetBlocksMask(0), 2);
+
 		for (uint i = 0; i < 2; ++i)
 			if (ChangesMask.GetBlock(i) != 0)
 				data.WriteBits(ChangesMask.GetBlock(i), 32);
 
 		data.FlushBits();
+
 		if (ChangesMask[0])
-		{
 			if (ChangesMask[1])
-			{
 				data.WriteUInt32(NumSlots);
-			}
-		}
+
 		if (ChangesMask[2])
-		{
-			for (int i = 0; i < 36; ++i)
-			{
+			for (var i = 0; i < 36; ++i)
 				if (ChangesMask[3 + i])
-				{
 					data.WritePackedGuid(Slots[i]);
-				}
-			}
-		}
 	}
 
 	public override void ClearChangesMask()

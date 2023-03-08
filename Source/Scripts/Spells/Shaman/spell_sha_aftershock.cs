@@ -36,7 +36,7 @@ internal class spell_sha_aftershock : AuraScript, IHasAuraEffects
 			var cost = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
 
 			if (cost.HasValue)
-				return cost > 0 && RandomHelper.randChance(aurEff.GetAmount());
+				return cost > 0 && RandomHelper.randChance(aurEff.Amount);
 		}
 
 		return false;

@@ -29,7 +29,7 @@ namespace Scripts.Spells.Paladin
 
         private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
         {
-            return RandomHelper.randChance(aurEff.GetAmount());
+            return RandomHelper.randChance(aurEff.Amount);
         }
 
         private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)

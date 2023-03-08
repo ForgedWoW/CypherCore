@@ -181,12 +181,12 @@ public class KillRewarder
 			//        * set to 0 if player's level is more than maximum level of not gray member;
 			//        * cut XP in half if _isFullXP is false.
 			if (_maxNotGrayMember != null &&
-			    player.IsAlive() &&
-			    _maxNotGrayMember.GetLevel() >= player.GetLevel())
+				player.IsAlive() &&
+				_maxNotGrayMember.GetLevel() >= player.GetLevel())
 				xp = _isFullXp
-					     ? (uint)(xp * rate)
-					     :                          // Reward FULL XP if all group members are not gray.
-					     (uint)(xp * rate / 2) + 1; // Reward only HALF of XP if some of group members are gray.
+						? (uint)(xp * rate)
+						:                          // Reward FULL XP if all group members are not gray.
+						(uint)(xp * rate / 2) + 1; // Reward only HALF of XP if some of group members are gray.
 			else
 				xp = 0;
 		}

@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 using Game.Networking.Packets;
 
 namespace Game.Entities;
@@ -18,24 +21,23 @@ public class CraftingOrder : BaseUpdateData<Player>
 		data.WriteBits(RecraftItemInfo.HasValue(), 1);
 		data.WriteBits(Enchantments.Size(), 4);
 		data.WriteBits(Gems.Size(), 2);
+
 		if (RecraftItemInfo.HasValue())
-		{
 			RecraftItemInfo.GetValue().Write(data);
-		}
-		for (int i = 0; i < Enchantments.Size(); ++i)
-		{
+
+		for (var i = 0; i < Enchantments.Size(); ++i)
 			Enchantments[i].Write(data);
-		}
-		for (int i = 0; i < Gems.Size(); ++i)
-		{
+
+		for (var i = 0; i < Gems.Size(); ++i)
 			Gems[i].Write(data);
-		}
+
 		data.FlushBits();
 	}
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
@@ -48,6 +50,7 @@ public class CraftingOrder : BaseUpdateData<Player>
 			else
 				WriteCompleteDynamicFieldUpdateMask(Enchantments.Size(), data, 4);
 		}
+
 		if (changesMask[1])
 		{
 			if (!ignoreChangesMask)
@@ -55,40 +58,28 @@ public class CraftingOrder : BaseUpdateData<Player>
 			else
 				WriteCompleteDynamicFieldUpdateMask(Gems.Size(), data, 2);
 		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
-		{
-			for (int i = 0; i < Enchantments.Size(); ++i)
-			{
+			for (var i = 0; i < Enchantments.Size(); ++i)
 				if (Enchantments.HasChanged(i) || ignoreChangesMask)
-				{
 					Enchantments[i].Write(data);
-				}
-			}
-		}
+
 		if (changesMask[1])
-		{
-			for (int i = 0; i < Gems.Size(); ++i)
-			{
+			for (var i = 0; i < Gems.Size(); ++i)
 				if (Gems.HasChanged(i) || ignoreChangesMask)
-				{
 					Gems[i].Write(data);
-				}
-			}
-		}
 
 		if (changesMask[2])
-		{
 			Data.GetValue().WriteUpdate(data, ignoreChangesMask, owner, receiver);
-		}
+
 		data.WriteBits(RecraftItemInfo.HasValue(), 1);
+
 		if (changesMask[3])
-		{
 			if (RecraftItemInfo.HasValue())
-			{
 				RecraftItemInfo.GetValue().Write(data);
-			}
-		}
+
 		data.FlushBits();
 	}
 

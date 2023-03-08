@@ -16,7 +16,7 @@ internal class spell_gen_aura_of_fear : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return !spellInfo.GetEffects().Empty() && ValidateSpellInfo(spellInfo.GetEffect(0).TriggerSpell);
+		return !spellInfo.Effects.Empty() && ValidateSpellInfo(spellInfo.GetEffect(0).TriggerSpell);
 	}
 
 	public override void Register()

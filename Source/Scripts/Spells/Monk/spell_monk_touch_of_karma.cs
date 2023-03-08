@@ -22,9 +22,9 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var effInfo = GetAura().GetSpellInfo().GetEffect(2).CalcValue();
+			var effInfo = GetAura().SpellInfo.GetEffect(2).CalcValue();
 
-			if (GetAura().GetSpellInfo().GetEffect(2).CalcValue() != 0)
+			if (GetAura().SpellInfo.GetEffect(2).CalcValue() != 0)
 			{
 				amount.Value = caster.CountPctFromMaxHealth(effInfo);
 
@@ -41,11 +41,11 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 			return UnnamedParameter;
 
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
-			if (aurApp.GetTarget() != caster)
+			if (aurApp.Target != caster)
 			{
 				var periodicDamage = dmgInfo.GetDamage() / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).GetMaxTicks();
 				//  periodicDamage += int32(aurApp->GetTarget()->GetRemainingPeriodicAmount(GetCasterGUID(), TOUCH_OF_KARMA_DAMAGE, AuraType.PeriodicDamage));
-				caster.CastSpell(aurApp.GetTarget(), MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
+				caster.CastSpell(aurApp.Target, MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
 
 				if (caster.HasAura(MonkSpells.GOOD_KARMA_TALENT))
 					caster.CastSpell(caster, MonkSpells.GOOD_KARMA_TALENT_HEAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
@@ -70,7 +70,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
 		{
-			var targetAura = aurApp.GetBase();
+			var targetAura = aurApp.Base;
 
 			if (targetAura != null)
 				targetAura.Remove();

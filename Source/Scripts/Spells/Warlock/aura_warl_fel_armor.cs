@@ -26,7 +26,7 @@ namespace Scripts.Spells.Warlock
                 if (rem <= 0)
                 {
                     player.RemoveAura(felArmor);
-                    player.RemoveAura(eff.GetBase());
+                    player.RemoveAura(eff.Base);
                 }
                 else
                     remaining.SetAmount(rem);

@@ -37,7 +37,7 @@ namespace Scripts.Spells.Warlock
                     SpellManager.Instance.TryGetSpellInfo(WarlockSpells.FEL_ARMOR_DMG_DELAY, out var si) &&
                     si.TryGetEffect(0, out var spellEffectInfo))
                 {
-                    var duration = dmgDelayRemaining.GetDuration();
+                    var duration = dmgDelayRemaining.Duration;
                     var numTicks = duration / spellEffectInfo.ApplyAuraPeriod;
 
                     if (player.TryGetAura(WarlockSpells.FEL_ARMOR_DMG_DELAY, out var pDamageAura))

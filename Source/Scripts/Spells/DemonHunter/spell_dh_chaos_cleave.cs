@@ -23,7 +23,7 @@ public class spell_dh_chaos_cleave : AuraScript, IHasAuraEffects
 		if (caster == null || eventInfo.GetDamageInfo() != null)
 			return;
 
-		var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.GetAmount());
+		var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
 		caster.CastSpell(caster, DemonHunterSpells.CHAOS_CLEAVE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
 	}
 

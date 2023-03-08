@@ -20,7 +20,7 @@ namespace Scripts.Spells.Mage
                 // looping over all spells that have cooldowns
                 foreach (var spell in spellHistory.SpellsOnCooldown)
                 {
-                    spellHistory.ModifyCooldown(spell, System.TimeSpan.FromMilliseconds(aura.GetSpellInfo().GetEffect(1).BasePoints));
+                    spellHistory.ModifyCooldown(spell, System.TimeSpan.FromMilliseconds(aura.SpellInfo.GetEffect(1).BasePoints));
                 }
             }
         }

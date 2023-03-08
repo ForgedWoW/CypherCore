@@ -17,7 +17,7 @@ internal class spell_dk_ghoul_explode : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(DeathKnightSpells.CorpseExplosionTriggered) && spellInfo.GetEffects().Count > 2;
+		return ValidateSpellInfo(DeathKnightSpells.CorpseExplosionTriggered) && spellInfo.Effects.Count > 2;
 	}
 
 	public override void Register()

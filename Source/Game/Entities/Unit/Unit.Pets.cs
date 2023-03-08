@@ -216,7 +216,7 @@ public partial class Unit
 				var spInfo = Global.SpellMgr.GetSpellInfo(minion.ToTotem().GetSpell(), Difficulty.None);
 
 				if (spInfo != null)
-					foreach (var spellEffectInfo in spInfo.GetEffects())
+					foreach (var spellEffectInfo in spInfo.Effects)
 					{
 						if (spellEffectInfo == null || !spellEffectInfo.IsEffect(SpellEffectName.Summon))
 							continue;
@@ -339,7 +339,7 @@ public partial class Unit
 
 		// charm is set by aura, and aura effect remove handler was called during apply handler execution
 		// prevent undefined behaviour
-		if (aurApp != null && aurApp.GetRemoveMode() != 0)
+		if (aurApp != null && aurApp.RemoveMode != 0)
 			return false;
 
 		_oldFactionId = GetFaction();
@@ -372,7 +372,7 @@ public partial class Unit
 
 		// charm is set by aura, and aura effect remove handler was called during apply handler execution
 		// prevent undefined behaviour
-		if (aurApp != null && aurApp.GetRemoveMode() != 0)
+		if (aurApp != null && aurApp.RemoveMode != 0)
 		{
 			// properly clean up charm changes up to this point to avoid leaving the unit in partially charmed state
 			SetFaction(_oldFactionId);

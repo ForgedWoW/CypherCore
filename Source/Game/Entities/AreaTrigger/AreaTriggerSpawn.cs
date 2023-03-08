@@ -11,7 +11,5 @@ public class AreaTriggerSpawn : SpawnData
 	public AreaTriggerId TriggerId;
 	public AreaTriggerShapeInfo Shape = new();
 
-	public AreaTriggerSpawn() : base(SpawnObjectType.AreaTrigger)
-	{
-	}
+	public AreaTriggerSpawn() : base(SpawnObjectType.AreaTrigger) { }
 }

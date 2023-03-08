@@ -11,6 +11,16 @@ public class Position
 {
 	private float _orientation;
 
+	public float X { get; set; }
+	public float Y { get; set; }
+	public float Z { get; set; }
+
+	public float Orientation
+	{
+		get => _orientation;
+		set => _orientation = NormalizeOrientation(value);
+	}
+
 	public Position(float x = 0f, float y = 0f, float z = 0f, float o = 0f)
 	{
 		X = x;
@@ -40,16 +50,6 @@ public class Position
 		Y = position.Y;
 		Z = position.Z;
 		_orientation = position.Orientation;
-	}
-
-	public float X { get; set; }
-	public float Y { get; set; }
-	public float Z { get; set; }
-
-	public float Orientation
-	{
-		get => _orientation;
-		set => _orientation = NormalizeOrientation(value);
 	}
 
 	public void Relocate(float x, float y)
@@ -320,22 +320,22 @@ public class Position
 	public Vector3 ToVector3()
 	{
 		return new Vector3()
-		       {
-			       X = X,
-			       Y = Y,
-			       Z = Z
-		       };
+		{
+			X = X,
+			Y = Y,
+			Z = Z
+		};
 	}
 
 	public Vector4 ToVector4()
 	{
 		return new Vector4()
-		       {
-			       X = X,
-			       Y = Y,
-			       Z = Z,
-			       W = Orientation
-		       };
+		{
+			X = X,
+			Y = Y,
+			Z = Z,
+			W = Orientation
+		};
 	}
 
 	public static implicit operator Vector2(Position position)

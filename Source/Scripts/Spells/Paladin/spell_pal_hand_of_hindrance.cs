@@ -19,7 +19,7 @@ namespace Scripts.Spells.Paladin
 
         private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes mode)
         {
-            if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.EnemySpell)
+            if (GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell)
             {
                 Unit caster = GetCaster();
                 if (caster != null)

@@ -224,13 +224,13 @@ public class PlayerMenu
 		var locale = _session.GetSessionDbLocaleIndex();
 
 		packet.ConditionalDescriptionText = quest.ConditionalQuestDescription.Select(text =>
-		                                         {
-			                                         var content = text.Text[(int)Locale.enUS];
-			                                         ObjectManager.GetLocaleString(text.Text, locale, ref content);
+												{
+													var content = text.Text[(int)Locale.enUS];
+													ObjectManager.GetLocaleString(text.Text, locale, ref content);
 
-			                                         return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
-		                                         })
-		                                         .ToList();
+													return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
+												})
+												.ToList();
 
 		if (locale != Locale.enUS)
 		{
@@ -274,7 +274,7 @@ public class PlayerMenu
 		var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Difficulty.None);
 
 		if (spellInfo != null)
-			foreach (var spellEffectInfo in spellInfo.GetEffects())
+			foreach (var spellEffectInfo in spellInfo.Effects)
 				if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
 					packet.LearnSpells.Add(spellEffectInfo.TriggerSpell);
 
@@ -328,13 +328,13 @@ public class PlayerMenu
 		var locale = _session.GetSessionDbLocaleIndex();
 
 		packet.ConditionalRewardText = quest.ConditionalOfferRewardText.Select(text =>
-		                                    {
-			                                    var content = text.Text[(int)Locale.enUS];
-			                                    ObjectManager.GetLocaleString(text.Text, locale, ref content);
+											{
+												var content = text.Text[(int)Locale.enUS];
+												ObjectManager.GetLocaleString(text.Text, locale, ref content);
 
-			                                    return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
-		                                    })
-		                                    .ToList();
+												return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
+											})
+											.ToList();
 
 		if (locale != Locale.enUS)
 		{
@@ -411,13 +411,13 @@ public class PlayerMenu
 		var locale = _session.GetSessionDbLocaleIndex();
 
 		packet.ConditionalCompletionText = quest.ConditionalRequestItemsText.Select(text =>
-		                                        {
-			                                        var content = text.Text[(int)Locale.enUS];
-			                                        ObjectManager.GetLocaleString(text.Text, locale, ref content);
+												{
+													var content = text.Text[(int)Locale.enUS];
+													ObjectManager.GetLocaleString(text.Text, locale, ref content);
 
-			                                        return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
-		                                        })
-		                                        .ToList();
+													return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
+												})
+												.ToList();
 
 		if (locale != Locale.enUS)
 		{

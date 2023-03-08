@@ -29,7 +29,7 @@ namespace Scripts.Spells.Warrior
 		{
 			var target = eventInfo.GetActionTarget();
 			//Get 25% of Damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-			var                damage = (int)(MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.GetAmount()) / Global.SpellMgr.GetSpellInfo(WarriorSpells.TRAUMA_EFFECT, GetCastDifficulty()).GetMaxTicks());
+			var                damage = (int)(MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount) / Global.SpellMgr.GetSpellInfo(WarriorSpells.TRAUMA_EFFECT, GetCastDifficulty()).GetMaxTicks());
 			CastSpellExtraArgs args   = new(TriggerCastFlags.FullMask);
 			args.AddSpellMod(SpellValueMod.BasePoint0, damage);
 			GetCaster().CastSpell(target, WarriorSpells.TRAUMA_EFFECT, args);

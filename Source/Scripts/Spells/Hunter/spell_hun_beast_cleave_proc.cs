@@ -31,7 +31,7 @@ public class spell_hun_beast_cleave_proc : AuraScript, IHasAuraEffects
 		var player = GetCaster().ToPlayer();
 
 		if (player != null)
-			if (GetTarget().HasAura(aurEff.GetSpellInfo().Id, player.GetGUID()))
+			if (GetTarget().HasAura(aurEff.SpellInfo.Id, player.GetGUID()))
 			{
 				var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
 				args.AddSpellMod(SpellValueMod.BasePoint0, eventInfo.GetDamageInfo().GetDamage() * 0.75f);

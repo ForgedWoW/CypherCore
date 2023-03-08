@@ -19,13 +19,13 @@ public class spell_pri_improved_power_word_shield : AuraScript, IHasAuraEffects
 		if (spellMod == null)
 		{
 			var mod = new SpellModifierByClassMask(GetAura());
-			spellMod.op      = (SpellModOp)aurEff.GetMiscValue();
-			spellMod.type    = SpellModType.Pct;
-			spellMod.spellId = GetId();
-			mod.mask         = aurEff.GetSpellEffectInfo().SpellClassMask;
+			spellMod.Op      = (SpellModOp)aurEff.MiscValue;
+			spellMod.Type    = SpellModType.Pct;
+			spellMod.SpellId = GetId();
+			mod.Mask         = aurEff.GetSpellEffectInfo().SpellClassMask;
 		}
 
-		((SpellModifierByClassMask)spellMod).value = aurEff.GetAmount();
+		((SpellModifierByClassMask)spellMod).Value = aurEff.Amount;
 	}
 
 	public override void Register()

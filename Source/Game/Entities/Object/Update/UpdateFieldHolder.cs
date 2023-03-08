@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 
 namespace Game.Entities;
 
@@ -11,6 +14,7 @@ public class UpdateFieldHolder
 	public BaseUpdateData<T> ModifyValue<T>(BaseUpdateData<T> updateData)
 	{
 		_changesMask.Set(updateData.Bit);
+
 		return updateData;
 	}
 
@@ -24,7 +28,8 @@ public class UpdateFieldHolder
 	{
 		_changesMask.Reset(updateData.Bit);
 
-		IHasChangesMask hasChangesMask = (IHasChangesMask)updateField.Value;
+		var hasChangesMask = (IHasChangesMask)updateField.Value;
+
 		if (hasChangesMask != null)
 			hasChangesMask.ClearChangesMask();
 	}

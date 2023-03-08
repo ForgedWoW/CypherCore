@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -23,53 +26,45 @@ public class CraftingOrderItem : BaseUpdateData<Player>
 		data.WriteUInt32(Quantity);
 		data.WriteInt32(ReagentQuality);
 		data.WriteBits(DataSlotIndex.HasValue(), 1);
+
 		if (DataSlotIndex.HasValue())
-		{
 			data.WriteUInt8(DataSlotIndex);
-		}
 	}
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 7);
 
 		data.FlushBits();
+
 		if (changesMask[0])
-		{
 			data.WriteUInt64(Field_0);
-		}
+
 		if (changesMask[1])
-		{
 			data.WritePackedGuid(ItemGUID);
-		}
+
 		if (changesMask[2])
-		{
 			data.WritePackedGuid(OwnerGUID);
-		}
+
 		if (changesMask[3])
-		{
 			data.WriteInt32(ItemID);
-		}
+
 		if (changesMask[4])
-		{
 			data.WriteUInt32(Quantity);
-		}
+
 		if (changesMask[5])
-		{
 			data.WriteInt32(ReagentQuality);
-		}
+
 		data.WriteBits(DataSlotIndex.HasValue(), 1);
+
 		if (changesMask[6])
-		{
 			if (DataSlotIndex.HasValue())
-			{
 				data.WriteUInt8(DataSlotIndex);
-			}
-		}
 	}
 
 	public override void ClearChangesMask()

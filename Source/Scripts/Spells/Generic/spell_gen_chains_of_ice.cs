@@ -28,7 +28,7 @@ internal class spell_gen_chains_of_ice : AuraScript, IHasAuraEffects
 		if (slow == null)
 			return;
 
-		var newAmount = Math.Min(slow.GetAmount() + aurEff.GetAmount(), 0);
+		var newAmount = Math.Min(slow.Amount + aurEff.Amount, 0);
 		slow.ChangeAmount(newAmount);
 	}
 }

@@ -23,6 +23,6 @@ internal class spell_sha_natures_guardian : AuraScript, IHasAuraEffects
 
 	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetActionTarget().HealthBelowPct(aurEff.GetAmount());
+		return eventInfo.GetActionTarget().HealthBelowPct(aurEff.Amount);
 	}
 }

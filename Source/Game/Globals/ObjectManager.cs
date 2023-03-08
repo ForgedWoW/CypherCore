@@ -1667,7 +1667,7 @@ namespace Game
                 }
 
                 byte spellEffIndex = (byte)((script.Key >> 24) & 0x000000FF);
-                if (spellEffIndex >= spellInfo.GetEffects().Count)
+                if (spellEffIndex >= spellInfo.Effects.Count)
                 {
                     Log.outError(LogFilter.Sql, $"Table `spell_scripts` has too high effect index {spellEffIndex} for spell (Id: {spellId}) as script id");
                     continue;
@@ -1697,7 +1697,7 @@ namespace Game
                 SpellInfo spell = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
                 if (spell != null)
                 {
-                    foreach (var spellEffectInfo in spell.GetEffects())
+                    foreach (var spellEffectInfo in spell.Effects)
                     {
                         if (spellEffectInfo.IsEffect(SpellEffectName.SendEvent))
                             if (spellEffectInfo.MiscValue != 0)
@@ -8502,7 +8502,7 @@ namespace Game
                 if (spellInfo == null)
                     continue;
 
-                foreach (var spellEffectInfo in spellInfo.GetEffects())
+                foreach (var spellEffectInfo in spellInfo.Effects)
                 {
                     if (spellEffectInfo.Effect != SpellEffectName.QuestComplete)
                         continue;

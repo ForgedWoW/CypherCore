@@ -428,9 +428,7 @@ public class TempSummon : Creature
 		return $"{base.GetDebugInfo()}\nTempSummonType : {GetSummonType()} Summoner: {GetSummonerGUID()} Timer: {GetTimer()}";
 	}
 
-	public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties)
-	{
-	}
+	public override void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties) { }
 
 	public ObjectGuid GetSummonerGUID()
 	{

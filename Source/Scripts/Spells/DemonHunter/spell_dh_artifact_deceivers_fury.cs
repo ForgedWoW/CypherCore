@@ -23,7 +23,7 @@ public class spell_dh_artifact_deceivers_fury : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		caster.CastSpell(caster, DemonHunterSpells.DECEIVERS_FURY_ENERGIZE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.GetAmount()));
+		caster.CastSpell(caster, DemonHunterSpells.DECEIVERS_FURY_ENERGIZE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 	}
 
 	public override void Register()

@@ -63,13 +63,13 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 				if (mastery != null)
 					if (GetUnitOwner().HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
 					    GetUnitOwner().HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
-						MathFunctions.AddPct(ref amountF, mastery.GetAmount());
+						MathFunctions.AddPct(ref amountF, mastery.Amount);
 			}
 
 			var rapture = caster.GetAuraEffect(PriestSpells.RAPTURE, 1);
 
 			if (rapture != null)
-				MathFunctions.AddPct(ref amountF, rapture.GetAmount());
+				MathFunctions.AddPct(ref amountF, rapture.Amount);
 
 			amount.Value = amountF;
 		}
@@ -106,7 +106,7 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 		var caster = GetCaster();
 
 		if (caster)
-			if (GetTargetApplication().GetRemoveMode() == AuraRemoveMode.EnemySpell &&
+			if (GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell &&
 			    caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
 				caster.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
 	}

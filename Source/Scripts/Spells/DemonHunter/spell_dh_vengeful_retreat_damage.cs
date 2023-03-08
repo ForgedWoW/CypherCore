@@ -51,7 +51,7 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
 					var blur = caster.AddAura(DemonHunterSpells.BLUR_BUFF, caster);
 
 					if (blur != null)
-						blur.SetDuration(aurEff.GetBaseAmount());
+						blur.SetDuration(aurEff.BaseAmount);
 				}
 			}
 

@@ -23,7 +23,7 @@ namespace Scripts.Spells.Warlock
 			if (caster == null)
 				return;
 
-			if (RandomHelper.randChance(aurEff.GetAmount()))
+			if (RandomHelper.randChance(aurEff.Amount))
 				caster.CastSpell(caster, WarlockSpells.DEVOURER_OF_LIFE_PROC, true);
 		}
 

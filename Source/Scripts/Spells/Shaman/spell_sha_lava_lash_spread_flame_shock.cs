@@ -41,8 +41,8 @@ namespace Scripts.Spells.Shaman
 
 					if (newAura != null)
 					{
-						newAura.SetDuration(flameShock.GetDuration());
-						newAura.SetMaxDuration(flameShock.GetDuration());
+						newAura.SetDuration(flameShock.Duration);
+						newAura.SetMaxDuration(flameShock.Duration);
 					}
 				}
 			}

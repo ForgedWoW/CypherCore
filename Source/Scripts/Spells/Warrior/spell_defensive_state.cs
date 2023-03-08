@@ -23,8 +23,8 @@ namespace Scripts.Spells.Warrior
 			{
 				var defensiveState = caster?.GetAura(197690)?.GetEffect(0);
 
-				if (defensiveState != null)
-					defensiveState.GetAmount();
+				//if (defensiveState != null)
+				//	defensiveState.Amount;
 			}
 		}
 

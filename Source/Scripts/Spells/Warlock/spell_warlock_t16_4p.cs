@@ -30,7 +30,7 @@ namespace Scripts.Spells.Warlock
 
 
 			var currentPower = caster.GetPower(PowerType.BurningEmbers) / 10;
-			var oldPower     = aurEffConst.GetAmount();
+			var oldPower     = aurEffConst.Amount;
 
 			if (currentPower > oldPower)
 			{

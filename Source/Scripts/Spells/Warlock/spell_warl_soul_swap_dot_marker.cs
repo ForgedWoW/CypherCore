@@ -42,10 +42,10 @@ namespace Scripts.Spells.Warlock
             var appliedAuras = swapVictim.GetAppliedAurasQuery();
             foreach (var itr in appliedAuras.HasCasterGuid(warlock.GetGUID()).HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
 			{
-				var spellProto = itr.GetBase().GetSpellInfo();
+				var spellProto = itr.Base.SpellInfo;
 
 				if (spellProto.SpellFamilyFlags & classMask)
-					swapSpellScript.AddDot(itr.GetBase().GetId());
+					swapSpellScript.AddDot(itr.Base.Id);
 			}
 
 			swapSpellScript.SetOriginalSwapSource(swapVictim);

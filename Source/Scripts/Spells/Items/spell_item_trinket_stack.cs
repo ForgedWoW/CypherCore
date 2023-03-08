@@ -50,7 +50,7 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 
 		//dont do anything if it's not the right amount of stacks;
 		if (dummy == null ||
-		    dummy.GetStackAmount() < aurEff.GetAmount())
+		    dummy.StackAmount < aurEff.Amount)
 			return;
 
 		// if right amount, Remove the aura and cast real trigger

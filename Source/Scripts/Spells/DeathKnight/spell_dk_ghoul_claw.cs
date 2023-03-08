@@ -22,7 +22,7 @@ public class spell_dk_ghoul_claw : SpellScript, ISpellOnHit, ISpellAfterHit
 		if (owner != null) {
 			var infectedClaws = owner.GetAura(DeathKnightSpells.INFECTED_CLAWS);
 			if (infectedClaws != null)
-				if (RandomHelper.randChance(infectedClaws.GetSpellInfo().GetEffect(0).BasePoints))
+				if (RandomHelper.randChance(infectedClaws.SpellInfo.GetEffect(0).BasePoints))
 					owner.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
 		}
 	}

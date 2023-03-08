@@ -65,11 +65,11 @@ namespace Scripts.Spells.Shaman
 				// Earth Shock releases the charges
 				if ((eventInfo.GetSpellInfo().SpellFamilyFlags[0] & 0x00100000) != 0)
 				{
-					uint stacks = aura.GetCharges();
+					uint stacks = aura.Charges;
 
 					if (stacks > 1)
 					{
-						var triggerSpell  = Global.SpellMgr.AssertSpellInfo(aura.GetSpellInfo().GetEffect(0).TriggerSpell, Difficulty.None);
+						var triggerSpell  = Global.SpellMgr.AssertSpellInfo(aura.SpellInfo.GetEffect(0).TriggerSpell, Difficulty.None);
 						var triggerEffect = triggerSpell.GetEffect(0);
 
 						double damage;
@@ -87,10 +87,10 @@ namespace Scripts.Spells.Shaman
 
 							if (gatheringVortex != null)
 							{
-								if (gatheringVortex.GetStackAmount() + stacks >= (uint)t18_4p.GetAmount())
+								if (gatheringVortex.StackAmount + stacks >= (uint)t18_4p.Amount)
 									caster.CastSpell(caster, ShamanSpells.ITEM_T18_LIGHTNING_VORTEX, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
-								var newStacks = (byte)((gatheringVortex.GetStackAmount() + stacks) % t18_4p.GetAmount());
+								var newStacks = (byte)((gatheringVortex.StackAmount + stacks) % t18_4p.Amount);
 
 								if (newStacks != 0)
 									gatheringVortex.SetStackAmount(newStacks);
@@ -106,7 +106,7 @@ namespace Scripts.Spells.Shaman
 						var t18_2p = caster.GetAuraEffect(ShamanSpells.ITEM_T18_ELEMENTAL_2P_BONUS, 0);
 
 						if (t18_2p != null)
-							if (RandomHelper.randChance(t18_2p.GetAmount()))
+							if (RandomHelper.randChance(t18_2p.Amount))
 							{
 								caster.GetSpellHistory().ResetCooldown(ShamanSpells.EARTH_SHOCK, true);
 
@@ -114,16 +114,16 @@ namespace Scripts.Spells.Shaman
 							}
 
 						aura.SetCharges(1);
-						aura.SetUsingCharges(false);
+						aura.IsUsingCharges = false;
 					}
 				}
 				else
 				{
-					aura.SetCharges(Math.Min(aura.GetCharges() + 1, (byte)aurEff.GetAmount()));
-					aura.SetUsingCharges(false);
+					aura.SetCharges(Math.Min(aura.Charges + 1, (byte)aurEff.Amount));
+					aura.IsUsingCharges = false;
 					aura.RefreshDuration();
 
-					if (aura.GetCharges() == aurEff.GetAmount())
+					if (aura.Charges == aurEff.Amount)
 						caster.CastSpell(caster, ShamanSpells.FULMINATION_INFO, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 				}
 			}

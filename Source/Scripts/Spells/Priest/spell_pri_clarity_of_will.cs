@@ -17,7 +17,7 @@ public class spell_pri_clarity_of_will : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = aurEff.GetCaster();
+		var caster = aurEff.Caster;
 
 		if (caster != null)
 		{

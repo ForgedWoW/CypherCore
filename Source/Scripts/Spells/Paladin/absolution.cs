@@ -26,7 +26,7 @@ namespace Scripts.Spells.Paladin
 
             uint absolution = 212056;
 
-            if (spell.GetSpellInfo().Id == absolution)
+            if (spell.SpellInfo.Id == absolution)
             {
                 List<Unit> allies = new List<Unit>();
                 player.GetFriendlyUnitListInRange(allies, 30.0f, false);

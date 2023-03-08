@@ -43,7 +43,7 @@ namespace Scripts.Spells.Warlock
 			    damageInfo.GetDamage() == 0)
 				return;
 
-			var amount = aurEff.GetAmount() - (int)damageInfo.GetDamage();
+			var amount = aurEff.Amount - (int)damageInfo.GetDamage();
 
 			if (amount > 0)
 			{

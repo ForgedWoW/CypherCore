@@ -118,35 +118,35 @@ public partial class Unit
 
 		// Spline packets are for creatures and move_update are for players
 		var moveTypeToOpcode = new ServerOpcodes[(int)UnitMoveType.Max, 3]
-		                       {
-			                       {
-				                       ServerOpcodes.MoveSplineSetWalkSpeed, ServerOpcodes.MoveSetWalkSpeed, ServerOpcodes.MoveUpdateWalkSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetRunSpeed, ServerOpcodes.MoveSetRunSpeed, ServerOpcodes.MoveUpdateRunSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetRunBackSpeed, ServerOpcodes.MoveSetRunBackSpeed, ServerOpcodes.MoveUpdateRunBackSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetSwimSpeed, ServerOpcodes.MoveSetSwimSpeed, ServerOpcodes.MoveUpdateSwimSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetSwimBackSpeed, ServerOpcodes.MoveSetSwimBackSpeed, ServerOpcodes.MoveUpdateSwimBackSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetTurnRate, ServerOpcodes.MoveSetTurnRate, ServerOpcodes.MoveUpdateTurnRate
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetFlightSpeed, ServerOpcodes.MoveSetFlightSpeed, ServerOpcodes.MoveUpdateFlightSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetFlightBackSpeed, ServerOpcodes.MoveSetFlightBackSpeed, ServerOpcodes.MoveUpdateFlightBackSpeed
-			                       },
-			                       {
-				                       ServerOpcodes.MoveSplineSetPitchRate, ServerOpcodes.MoveSetPitchRate, ServerOpcodes.MoveUpdatePitchRate
-			                       },
-		                       };
+		{
+			{
+				ServerOpcodes.MoveSplineSetWalkSpeed, ServerOpcodes.MoveSetWalkSpeed, ServerOpcodes.MoveUpdateWalkSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetRunSpeed, ServerOpcodes.MoveSetRunSpeed, ServerOpcodes.MoveUpdateRunSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetRunBackSpeed, ServerOpcodes.MoveSetRunBackSpeed, ServerOpcodes.MoveUpdateRunBackSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetSwimSpeed, ServerOpcodes.MoveSetSwimSpeed, ServerOpcodes.MoveUpdateSwimSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetSwimBackSpeed, ServerOpcodes.MoveSetSwimBackSpeed, ServerOpcodes.MoveUpdateSwimBackSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetTurnRate, ServerOpcodes.MoveSetTurnRate, ServerOpcodes.MoveUpdateTurnRate
+			},
+			{
+				ServerOpcodes.MoveSplineSetFlightSpeed, ServerOpcodes.MoveSetFlightSpeed, ServerOpcodes.MoveUpdateFlightSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetFlightBackSpeed, ServerOpcodes.MoveSetFlightBackSpeed, ServerOpcodes.MoveUpdateFlightBackSpeed
+			},
+			{
+				ServerOpcodes.MoveSplineSetPitchRate, ServerOpcodes.MoveSetPitchRate, ServerOpcodes.MoveUpdatePitchRate
+			},
+		};
 
 		if (IsTypeId(TypeId.Player))
 		{
@@ -686,9 +686,9 @@ public partial class Unit
 
 		// G3D::fuzzyEq won't help here, in some cases magnitudes differ by a little more than G3D::eps, but should be considered equal
 		var relocated = (teleport ||
-		                 Math.Abs(Location.X - x) > 0.001f ||
-		                 Math.Abs(Location.Y - y) > 0.001f ||
-		                 Math.Abs(Location.Z - z) > 0.001f);
+						Math.Abs(Location.X - x) > 0.001f ||
+						Math.Abs(Location.Y - y) > 0.001f ||
+						Math.Abs(Location.Z - z) > 0.001f);
 
 		if (relocated)
 		{
@@ -803,7 +803,7 @@ public partial class Unit
 		if (HasAuraType(AuraType.MountRestrictions))
 		{
 			foreach (var auraEffect in GetAuraEffectsByType(AuraType.MountRestrictions))
-				mountFlags |= (AreaMountFlags)auraEffect.GetMiscValue();
+				mountFlags |= (AreaMountFlags)auraEffect.MiscValue;
 		}
 		else
 		{
@@ -867,9 +867,9 @@ public partial class Unit
 			}
 
 			if (mountCapability.ReqMapID != -1 &&
-			    Location.MapId != mountCapability.ReqMapID &&
-			    GetMap().GetEntry().CosmeticParentMapID != mountCapability.ReqMapID &&
-			    GetMap().GetEntry().ParentMapID != mountCapability.ReqMapID)
+				Location.MapId != mountCapability.ReqMapID &&
+				GetMap().GetEntry().CosmeticParentMapID != mountCapability.ReqMapID &&
+				GetMap().GetEntry().ParentMapID != mountCapability.ReqMapID)
 				continue;
 
 			if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))
@@ -906,13 +906,13 @@ public partial class Unit
 		{
 			aurEff.RecalculateAmount();
 
-			if (aurEff.GetAmount() == 0)
+			if (aurEff.Amount == 0)
 			{
-				aurEff.GetBase().Remove();
+				aurEff.Base.Remove();
 			}
 			else
 			{
-				var capability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.GetAmount());
+				var capability = CliDB.MountCapabilityStorage.LookupByKey(aurEff.Amount);
 
 				if (capability != null) // aura may get removed by interrupt flag, reapply
 					if (!HasAura(capability.ModSpellAuraID))
@@ -1390,12 +1390,12 @@ public partial class Unit
 	public bool CanFreeMove()
 	{
 		return !HasUnitState(UnitState.Confused |
-		                     UnitState.Fleeing |
-		                     UnitState.InFlight |
-		                     UnitState.Root |
-		                     UnitState.Stunned |
-		                     UnitState.Distracted) &&
-		       GetOwnerGUID().IsEmpty();
+							UnitState.Fleeing |
+							UnitState.InFlight |
+							UnitState.Root |
+							UnitState.Stunned |
+							UnitState.Distracted) &&
+				GetOwnerGUID().IsEmpty();
 	}
 
 	public void Mount(uint mount, uint VehicleId = 0, uint creatureEntry = 0)
@@ -1895,7 +1895,7 @@ public partial class Unit
 			var fearAuras = GetAuraEffectsByType(AuraType.ModFear);
 
 			if (!fearAuras.Empty())
-				caster = Global.ObjAccessor.GetUnit(this, fearAuras[0].GetCasterGUID());
+				caster = Global.ObjAccessor.GetUnit(this, fearAuras[0].CasterGuid);
 
 			if (caster == null)
 				caster = GetAttackerForHelper();

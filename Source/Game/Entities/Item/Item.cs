@@ -19,28 +19,6 @@ namespace Game.Entities;
 
 public class Item : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Item _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly ItemData _itemMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Item owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _itemMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	public static int[] ItemTransmogrificationSlots =
 	{
 		-1,                      // INVTYPE_NON_EQUIP
@@ -1004,8 +982,8 @@ public class Item : WorldObject
 		{
 			// Special case - accept weapon type for main and offhand requirements
 			if (proto.GetInventoryType() == InventoryType.Weapon &&
-			    Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponMainhand)) ||
-			    Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponOffhand)))
+				Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponMainhand)) ||
+				Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponOffhand)))
 				return true;
 			else if ((spellInfo.EquippedItemInventoryTypeMask & (1 << (int)proto.GetInventoryType())) == 0)
 				return false; // inventory type not present in mask
@@ -1222,8 +1200,8 @@ public class Item : WorldObject
 		var proto = GetTemplate();
 
 		return proto != null &&
-		       ((proto.GetMap() != 0 && proto.GetMap() != cur_mapId) ||
-		        ((proto.GetArea(0) != 0 && proto.GetArea(0) != cur_zoneId) && (proto.GetArea(1) != 0 && proto.GetArea(1) != cur_zoneId)));
+				((proto.GetMap() != 0 && proto.GetMap() != cur_mapId) ||
+				((proto.GetArea(0) != 0 && proto.GetArea(0) != cur_zoneId) && (proto.GetArea(1) != 0 && proto.GetArea(1) != cur_zoneId)));
 	}
 
 	public void SendUpdateSockets()
@@ -1545,11 +1523,11 @@ public class Item : WorldObject
 			return false;
 
 		if (source.GetInventoryType() == InventoryType.Bag ||
-		    source.GetInventoryType() == InventoryType.Relic ||
-		    source.GetInventoryType() == InventoryType.Finger ||
-		    source.GetInventoryType() == InventoryType.Trinket ||
-		    source.GetInventoryType() == InventoryType.Ammo ||
-		    source.GetInventoryType() == InventoryType.Quiver)
+			source.GetInventoryType() == InventoryType.Relic ||
+			source.GetInventoryType() == InventoryType.Finger ||
+			source.GetInventoryType() == InventoryType.Trinket ||
+			source.GetInventoryType() == InventoryType.Ammo ||
+			source.GetInventoryType() == InventoryType.Quiver)
 			return false;
 
 		if (source.GetSubClass() != target.GetSubClass())
@@ -1622,14 +1600,14 @@ public class Item : WorldObject
 			azeriteLevel = azeriteItem.GetEffectiveLevel();
 
 		return GetItemLevel(itemTemplate,
-		                    BonusData,
-		                    owner.GetLevel(),
-		                    GetModifier(ItemModifier.TimewalkerLevel),
-		                    minItemLevel,
-		                    minItemLevelCutoff,
-		                    maxItemLevel,
-		                    pvpBonus,
-		                    azeriteLevel);
+							BonusData,
+							owner.GetLevel(),
+							GetModifier(ItemModifier.TimewalkerLevel),
+							minItemLevel,
+							minItemLevelCutoff,
+							maxItemLevel,
+							pvpBonus,
+							azeriteLevel);
 	}
 
 	public static uint GetItemLevel(ItemTemplate itemTemplate, BonusData bonusData, uint level, uint fixedLevel, uint minItemLevel, uint minItemLevelCutoff, uint maxItemLevel, bool pvpBonus, uint azeriteLevel)
@@ -2931,7 +2909,7 @@ public class Item : WorldObject
 			return false;
 
 		if (proto.GetClass() != ItemClass.Armor &&
-		    proto.GetClass() != ItemClass.Weapon)
+			proto.GetClass() != ItemClass.Weapon)
 			return false;
 
 		if (proto.GetClass() == ItemClass.Weapon && proto.GetSubClass() == (uint)ItemSubClassWeapon.FishingPole)
@@ -3026,12 +3004,12 @@ public class Item : WorldObject
 		var inventoryType = proto.GetInventoryType();
 
 		if (inventoryType == InventoryType.Weapon ||
-		    inventoryType == InventoryType.Weapon2Hand ||
-		    inventoryType == InventoryType.WeaponMainhand ||
-		    inventoryType == InventoryType.WeaponOffhand ||
-		    inventoryType == InventoryType.Ranged ||
-		    inventoryType == InventoryType.Thrown ||
-		    inventoryType == InventoryType.RangedRight)
+			inventoryType == InventoryType.Weapon2Hand ||
+			inventoryType == InventoryType.WeaponMainhand ||
+			inventoryType == InventoryType.WeaponOffhand ||
+			inventoryType == InventoryType.Ranged ||
+			inventoryType == InventoryType.Thrown ||
+			inventoryType == InventoryType.RangedRight)
 			baseFactor = basePrice.Weapon;
 		else
 			baseFactor = basePrice.Armor;
@@ -3279,5 +3257,27 @@ public class Item : WorldObject
 	bool IsInBag()
 	{
 		return _container != null;
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Item _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly ItemData _itemMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Item owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _itemMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

@@ -9,7 +9,7 @@ namespace Scripts.Spells.Evoker
     {
         public bool CheckProc(ProcEventInfo info)
         {
-            return info.GetProcSpell().GetSpellInfo().Id == EvokerSpells.FIRE_BREATH_CHARGED;
+            return info.GetProcSpell().SpellInfo.Id == EvokerSpells.FIRE_BREATH_CHARGED;
         }
 
         public void OnProc(ProcEventInfo info)

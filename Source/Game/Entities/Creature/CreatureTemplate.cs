@@ -146,9 +146,9 @@ public class CreatureTemplate
 	public int[] GetMinMaxLevel()
 	{
 		return new[]
-		       {
-			       HealthScalingExpansion != (int)Expansion.LevelCurrent ? Minlevel : Minlevel + SharedConst.MaxLevel, HealthScalingExpansion != (int)Expansion.LevelCurrent ? Maxlevel : Maxlevel + SharedConst.MaxLevel
-		       };
+		{
+			HealthScalingExpansion != (int)Expansion.LevelCurrent ? Minlevel : Minlevel + SharedConst.MaxLevel, HealthScalingExpansion != (int)Expansion.LevelCurrent ? Maxlevel : Maxlevel + SharedConst.MaxLevel
+		};
 	}
 
 	public int GetHealthScalingExpansion()

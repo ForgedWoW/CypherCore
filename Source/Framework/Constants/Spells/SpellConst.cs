@@ -1533,6 +1533,7 @@ namespace Framework.Constants
         FullDebugMask = 0xFFFFFFFF
     }
 
+    [Flags]
     public enum SpellSchoolMask
     {
         None = 0x0,                       // Not Exist
@@ -1618,6 +1619,7 @@ namespace Framework.Constants
     }
 
     #region Spell Attributes
+    [Flags]
     public enum SpellAttr0 : uint
     {
         ProcFailureBurnsCharge = 0x01, /*Nyi*/ // Proc Failure Burns Charge
@@ -1653,6 +1655,7 @@ namespace Framework.Constants
         HeartbeatResist = 0x40000000, // Heartbeat Resist Description Periodically Re-Rolls Against Resistance To Potentially Expire Aura Early
         NoAuraCancel = 0x80000000  // No Aura Cancel Description Prevents The Player From Voluntarily Canceling A Positive Aura
     }
+    [Flags]
     public enum SpellAttr1 : uint
     {
         DismissPetFirst = 0x01, // Dismiss Pet First Description Without This Attribute, Summoning Spells Will Fail If Caster Already Has A Pet

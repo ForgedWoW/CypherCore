@@ -52,14 +52,14 @@ namespace Scripts.Spells.Warlock
 				return;
 
 			//! HACK for self Damage, is not blizz :/
-			var damage = (uint)caster.CountPctFromMaxHealth(aurEff.GetBaseAmount());
+			var damage = (uint)caster.CountPctFromMaxHealth(aurEff.BaseAmount);
 
 			var modOwner = caster.GetSpellModOwner();
 
 			if (modOwner)
 				modOwner.ApplySpellMod(GetSpellInfo(), SpellModOp.PowerCost0, ref damage);
 
-			SpellNonMeleeDamage damageInfo = new(caster, caster, GetSpellInfo(), GetAura().GetSpellVisual(), GetSpellInfo().SchoolMask, GetAura().GetCastId());
+			SpellNonMeleeDamage damageInfo = new(caster, caster, GetSpellInfo(), GetAura().SpellVisual, GetSpellInfo().SchoolMask, GetAura().CastId);
 			damageInfo.PeriodicLog = true;
 			damageInfo.Damage      = damage;
 			caster.DealSpellDamage(damageInfo, false);

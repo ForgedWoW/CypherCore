@@ -22,7 +22,7 @@ public class spell_dk_harbinger_of_doom_aura : AuraScript, IHasAuraEffects
 			var player = caster.ToPlayer();
 			if (player != null) {
 				Spell spell = GetTarget().FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
-				spell.m_spellInfo.ProcBasePPM = MathFunctions.CalculatePct(spell.m_spellInfo.ProcBasePPM, 100-30);
+				spell.SpellInfo.ProcBasePpm = MathFunctions.CalculatePct(spell.SpellInfo.ProcBasePpm, 100-30);
             }
 		}
 		
@@ -32,7 +32,7 @@ public class spell_dk_harbinger_of_doom_aura : AuraScript, IHasAuraEffects
     {
 
         Spell spell = GetTarget().FindCurrentSpellBySpellId(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM);
-        spell.m_spellInfo.ProcBasePPM = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM).ProcBasePPM;
+        spell.SpellInfo.ProcBasePpm = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM).ProcBasePpm;
     }
 
     public override void Register()

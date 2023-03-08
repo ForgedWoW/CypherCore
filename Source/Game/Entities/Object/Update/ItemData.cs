@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
 
@@ -37,58 +40,65 @@ public class ItemData : BaseUpdateData<Item>
 		data.WritePackedGuid(ContainedIn);
 		data.WritePackedGuid(Creator);
 		data.WritePackedGuid(GiftCreator);
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
 		{
 			data.WriteUInt32(StackCount);
 			data.WriteUInt32(Expiration);
-			for (int i = 0; i < 5; ++i)
-			{
+
+			for (var i = 0; i < 5; ++i)
 				data.WriteInt32(SpellCharges[i]);
-			}
 		}
+
 		data.WriteUInt32(DynamicFlags);
-		for (int i = 0; i < 13; ++i)
-		{
+
+		for (var i = 0; i < 13; ++i)
 			Enchantment[i].WriteCreate(data, owner, receiver);
-		}
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
 		{
 			data.WriteUInt32(Durability);
 			data.WriteUInt32(MaxDurability);
 		}
+
 		data.WriteUInt32(CreatePlayedTime);
 		data.WriteInt32(Context);
 		data.WriteUInt64(CreateTime);
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
 		{
 			data.WriteUInt64(ArtifactXP);
 			data.WriteUInt8(ItemAppearanceModID);
 		}
+
 		data.WriteInt32(ArtifactPowers.Size());
 		data.WriteInt32(Gems.Size());
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-		{
 			data.WriteUInt32(DynamicFlags2);
-		}
+
 		ItemBonusKey.GetValue().Write(data);
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-		{
 			data.WriteUInt16(DEBUGItemLevel);
-		}
-		for (int i = 0; i < ArtifactPowers.Size(); ++i)
-		{
+
+		for (var i = 0; i < ArtifactPowers.Size(); ++i)
 			ArtifactPowers[i].WriteCreate(data, owner, receiver);
-		}
-		for (int i = 0; i < Gems.Size(); ++i)
-		{
+
+		for (var i = 0; i < Gems.Size(); ++i)
 			Gems[i].WriteCreate(data, owner, receiver);
-		}
+
 		Modifiers.GetValue().WriteCreate(data, owner, receiver);
 	}
 
 	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Item owner, Player receiver)
 	{
-		UpdateMask allowedMaskForTarget = new(41, new uint[] { 0xF80A727Fu, 0x000001FFu });
+		UpdateMask allowedMaskForTarget = new(41,
+											new uint[]
+											{
+												0xF80A727Fu, 0x000001FFu
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
 	}
@@ -96,12 +106,21 @@ public class ItemData : BaseUpdateData<Item>
 	public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
 	{
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.Owner))
-			allowedMaskForTarget.OR(new UpdateMask(41, new uint[] { 0x07F58D80u, 0x00000000u }));
+			allowedMaskForTarget.OR(new UpdateMask(41,
+													new uint[]
+													{
+														0x07F58D80u, 0x00000000u
+													}));
 	}
 
 	public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
 	{
-		UpdateMask allowedMaskForTarget = new(41, new[] { 0xF80A727Fu, 0x000001FFu });
+		UpdateMask allowedMaskForTarget = new(41,
+											new[]
+											{
+												0xF80A727Fu, 0x000001FFu
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		changesMask.AND(allowedMaskForTarget);
 	}
@@ -109,6 +128,7 @@ public class ItemData : BaseUpdateData<Item>
 	public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Item owner, Player receiver)
 	{
 		data.WriteBits(changesMask.GetBlocksMask(0), 2);
+
 		for (uint i = 0; i < 2; ++i)
 			if (changesMask.GetBlock(i) != 0)
 				data.WriteBits(changesMask.GetBlock(i), 32);
@@ -122,6 +142,7 @@ public class ItemData : BaseUpdateData<Item>
 				else
 					WriteCompleteDynamicFieldUpdateMask(ArtifactPowers.Size(), data);
 			}
+
 			if (changesMask[2])
 			{
 				if (!ignoreNestedChangesMask)
@@ -130,122 +151,85 @@ public class ItemData : BaseUpdateData<Item>
 					WriteCompleteDynamicFieldUpdateMask(Gems.Size(), data);
 			}
 		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
-				for (int i = 0; i < ArtifactPowers.Size(); ++i)
-				{
+				for (var i = 0; i < ArtifactPowers.Size(); ++i)
 					if (ArtifactPowers.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						ArtifactPowers[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[2])
-			{
-				for (int i = 0; i < Gems.Size(); ++i)
-				{
+				for (var i = 0; i < Gems.Size(); ++i)
 					if (Gems.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						Gems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[3])
-			{
 				data.WritePackedGuid(Owner);
-			}
+
 			if (changesMask[4])
-			{
 				data.WritePackedGuid(ContainedIn);
-			}
+
 			if (changesMask[5])
-			{
 				data.WritePackedGuid(Creator);
-			}
+
 			if (changesMask[6])
-			{
 				data.WritePackedGuid(GiftCreator);
-			}
+
 			if (changesMask[7])
-			{
 				data.WriteUInt32(StackCount);
-			}
+
 			if (changesMask[8])
-			{
 				data.WriteUInt32(Expiration);
-			}
+
 			if (changesMask[9])
-			{
 				data.WriteUInt32(DynamicFlags);
-			}
+
 			if (changesMask[10])
-			{
 				data.WriteUInt32(Durability);
-			}
+
 			if (changesMask[11])
-			{
 				data.WriteUInt32(MaxDurability);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(CreatePlayedTime);
-			}
+
 			if (changesMask[13])
-			{
 				data.WriteInt32(Context);
-			}
+
 			if (changesMask[14])
-			{
 				data.WriteUInt64(CreateTime);
-			}
+
 			if (changesMask[15])
-			{
 				data.WriteUInt64(ArtifactXP);
-			}
+
 			if (changesMask[16])
-			{
 				data.WriteUInt8(ItemAppearanceModID);
-			}
+
 			if (changesMask[18])
-			{
 				data.WriteUInt32(DynamicFlags2);
-			}
+
 			if (changesMask[19])
-			{
 				ItemBonusKey.GetValue().Write(data);
-			}
+
 			if (changesMask[20])
-			{
 				data.WriteUInt16(DEBUGItemLevel);
-			}
+
 			if (changesMask[17])
-			{
 				Modifiers.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
 		}
+
 		if (changesMask[21])
-		{
-			for (int i = 0; i < 5; ++i)
-			{
+			for (var i = 0; i < 5; ++i)
 				if (changesMask[22 + i])
-				{
 					data.WriteInt32(SpellCharges[i]);
-				}
-			}
-		}
+
 		if (changesMask[27])
-		{
-			for (int i = 0; i < 13; ++i)
-			{
+			for (var i = 0; i < 13; ++i)
 				if (changesMask[28 + i])
-				{
 					Enchantment[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-				}
-			}
-		}
 	}
 
 	public override void ClearChangesMask()

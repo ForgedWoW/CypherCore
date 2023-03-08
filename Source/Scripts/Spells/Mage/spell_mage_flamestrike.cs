@@ -30,7 +30,7 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
 				var pyromaniacEff0 = caster.GetAuraEffect(MageSpells.PYROMANIAC, 0);
 
 				if (pyromaniacEff0 != null)
-					if (RandomHelper.randChance(pyromaniacEff0.GetAmount()))
+					if (RandomHelper.randChance(pyromaniacEff0.Amount))
 					{
 						if (caster.HasAura(MageSpells.HEATING_UP))
 							caster.RemoveAura(MageSpells.HEATING_UP);

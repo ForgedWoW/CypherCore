@@ -42,7 +42,7 @@ internal class spell_gen_blood_reserve : AuraScript, IAuraCheckProc, IHasAuraEff
 
 		var                caster = eventInfo.GetActionTarget();
 		CastSpellExtraArgs args   = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.GetAmount());
+		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
 		caster.CastSpell(caster, GenericSpellIds.BloodReserveHeal, args);
 		caster.RemoveAura(GenericSpellIds.BloodReserveAura);
 	}

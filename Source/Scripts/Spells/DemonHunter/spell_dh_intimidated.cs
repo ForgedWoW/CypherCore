@@ -21,7 +21,7 @@ public class spell_dh_intimidated : AuraScript, IHasAuraEffects
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
 		var attacker  = eventInfo.GetActor();
-		var auraOwner = GetAura().GetOwner();
+		var auraOwner = GetAura().Owner;
 
 		if (attacker == null || auraOwner == null)
 			return;

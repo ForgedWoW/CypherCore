@@ -38,7 +38,7 @@ public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 			return absorbAmount;
 
 		absorbAmount = dmgInfo.GetDamage() * (GetSpellInfo().GetEffect(0).CalcValue(GetCaster()) / 100);
-		auraEffect.GetBase().DropCharge();
+		auraEffect.Base.DropCharge();
 
 		return absorbAmount;
 	}

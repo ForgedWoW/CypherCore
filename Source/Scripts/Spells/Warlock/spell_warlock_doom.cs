@@ -27,7 +27,7 @@ namespace Scripts.Spells.Warlock
 				caster.CastSpell(GetTarget(), WarlockSpells.WILD_IMP_SUMMON, true);
 
 			if (caster.HasAura(WarlockSpells.DOOM_DOUBLED) && RandomHelper.randChance(25))
-				GetEffect(0).SetAmount(aurEff.GetAmount() * 2);
+				GetEffect(0).SetAmount(aurEff.Amount * 2);
 		}
 
 		public override void Register()

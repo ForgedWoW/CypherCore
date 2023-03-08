@@ -35,7 +35,7 @@ namespace Scripts.Spells.Druid
 
 			if (caster.IsInCombat())
 			{
-				var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).GetAmount(), 0);
+				var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
 
 				// don't regen when permanent aura target has full power
 				if (caster.GetPower(PowerType.LunarPower) == caster.GetMaxPower(PowerType.LunarPower))

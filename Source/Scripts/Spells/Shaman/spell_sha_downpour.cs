@@ -20,7 +20,7 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 1;
+		return spellInfo.Effects.Count > 1;
 	}
 
 	public void AfterCast()

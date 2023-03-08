@@ -27,7 +27,7 @@ namespace Scripts.Spells.Warrior
 			if (GetTarget().IsSplineEnabled())
 				for (uint i = 0; i < 5; ++i)
 				{
-					var timeOffset = (int)(6 * i * aurEff.GetPeriod() / 25);
+					var timeOffset = (int)(6 * i * aurEff.Period / 25);
 					var loc        = GetTarget().MoveSpline.ComputePosition(timeOffset);
 					GetTarget().SendPlaySpellVisual(new Position(loc.X, loc.Y, loc.Z), Misc.SpellVisualBlazingCharge, 0, 0, 1.0f, true);
 				}

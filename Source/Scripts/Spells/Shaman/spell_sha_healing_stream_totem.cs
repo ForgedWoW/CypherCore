@@ -22,7 +22,7 @@ namespace Scripts.Spells.Shaman
 			if (caster.HasAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER))
 			{
 				var auraeffx = caster.GetAura(ShamanSpells.CARESS_OF_THE_TIDEMOTHER).GetEffect(0);
-				var amount   = auraeffx.GetAmount();
+				var amount   = auraeffx.Amount;
 				caster.CastSpell(caster, ShamanSpells.CARESS_OF_THE_TIDEMOTHER_AURA, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
 			}
 		}

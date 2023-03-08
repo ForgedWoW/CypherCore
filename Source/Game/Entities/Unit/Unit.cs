@@ -39,9 +39,9 @@ public partial class Unit : WorldObject
 		_updateFlag.MovementUpdate = true;
 
 		ModAttackSpeedPct = new double[]
-		                    {
-			                    1.0f, 1.0f, 1.0f
-		                    };
+		{
+			1.0f, 1.0f, 1.0f
+		};
 
 		DeathState = DeathState.Alive;
 
@@ -67,9 +67,9 @@ public partial class Unit : WorldObject
 
 		for (byte i = 0; i < (int)WeaponAttackType.Max; ++i)
 			WeaponDamage[i] = new double[]
-			                  {
-				                  1.0f, 2.0f
-			                  };
+			{
+				1.0f, 2.0f
+			};
 
 		if (IsTypeId(TypeId.Player))
 		{
@@ -161,7 +161,7 @@ public partial class Unit : WorldObject
 
 		bool spellPausesCombatTimer(CurrentSpellTypes type)
 		{
-			return GetCurrentSpell(type) != null && GetCurrentSpell(type).GetSpellInfo().HasAttribute(SpellAttr6.DelayCombatTimerDuringCast);
+			return GetCurrentSpell(type) != null && GetCurrentSpell(type).SpellInfo.HasAttribute(SpellAttr6.DelayCombatTimerDuringCast);
 		}
 
 		if (!spellPausesCombatTimer(CurrentSpellTypes.Generic) && !spellPausesCombatTimer(CurrentSpellTypes.Channeled))
@@ -914,16 +914,16 @@ public partial class Unit : WorldObject
 	public bool IsServiceProvider()
 	{
 		return HasNpcFlag(NPCFlags.Vendor |
-		                  NPCFlags.Trainer |
-		                  NPCFlags.FlightMaster |
-		                  NPCFlags.Petitioner |
-		                  NPCFlags.BattleMaster |
-		                  NPCFlags.Banker |
-		                  NPCFlags.Innkeeper |
-		                  NPCFlags.SpiritHealer |
-		                  NPCFlags.SpiritGuide |
-		                  NPCFlags.TabardDesigner |
-		                  NPCFlags.Auctioneer);
+						NPCFlags.Trainer |
+						NPCFlags.FlightMaster |
+						NPCFlags.Petitioner |
+						NPCFlags.BattleMaster |
+						NPCFlags.Banker |
+						NPCFlags.Innkeeper |
+						NPCFlags.SpiritHealer |
+						NPCFlags.SpiritGuide |
+						NPCFlags.TabardDesigner |
+						NPCFlags.Auctioneer);
 	}
 
 	public bool IsSpiritService()
@@ -991,8 +991,8 @@ public partial class Unit : WorldObject
 	public override string GetDebugInfo()
 	{
 		var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled()} DeathState: {GetDeathState()} UnitMovementFlags: {GetUnitMovementFlags()} UnitMovementFlags2: {GetUnitMovementFlags2()} Class: {GetClass()}\n" +
-		          $" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {GetCharmedGUID()}\nGetCharmerGUID(): {GetCharmerGUID()}\n{(GetVehicleKit() != null ? GetVehicleKit().GetDebugInfo() : "No vehicle kit")}\n" +
-		          $"m_Controlled size: {Controlled.Count}";
+				$" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {GetCharmedGUID()}\nGetCharmerGUID(): {GetCharmerGUID()}\n{(GetVehicleKit() != null ? GetVehicleKit().GetDebugInfo() : "No vehicle kit")}\n" +
+				$"m_Controlled size: {Controlled.Count}";
 
 		var controlledCount = 0;
 
@@ -1113,11 +1113,11 @@ public partial class Unit : WorldObject
 			else
 			{
 				//Exit the current vehicle because unit will reenter in a new seat.
-				Vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID(), aurApp.GetBase());
+				Vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID(), aurApp.Base);
 			}
 		}
 
-		if (aurApp.HasRemoveMode())
+		if (aurApp.HasRemoveMode)
 			return;
 
 		var player = ToPlayer();
@@ -1165,7 +1165,7 @@ public partial class Unit : WorldObject
 
 		foreach (var eff in vehicleAuras)
 		{
-			if (eff.GetCasterGUID() != GetGUID())
+			if (eff.CasterGuid != GetGUID())
 				continue;
 
 			// Make sure there is only one ride vehicle aura on target cast by the unit changing seat
@@ -1436,9 +1436,7 @@ public partial class Unit : WorldObject
 		return HasUnitState(UnitState.Possessed);
 	}
 
-	public virtual void OnPhaseChange()
-	{
-	}
+	public virtual void OnPhaseChange() { }
 
 	public uint GetModelForForm(ShapeShiftForm form, uint spellId)
 	{
@@ -1468,7 +1466,7 @@ public partial class Unit : WorldObject
 
 			if (artifactAura != null)
 			{
-				var artifact = ToPlayer().GetItemByGuid(artifactAura.GetCastItemGUID());
+				var artifact = ToPlayer().GetItemByGuid(artifactAura.CastItemGuid);
 
 				if (artifact != null)
 				{
@@ -1689,7 +1687,7 @@ public partial class Unit : WorldObject
 
 		// just return if the aura has been already removed
 		// this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
-		if (aura.IsRemoved())
+		if (aura.IsRemoved)
 		{
 			Log.outError(LogFilter.Spells, $"Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: {GetDebugInfo()}\nAura: {aura.GetDebugInfo()}");
 
@@ -1699,12 +1697,12 @@ public partial class Unit : WorldObject
 		// aura mustn't be already applied on target
 		Cypher.Assert(!aura.IsAppliedOnTarget(GetGUID()), "Unit._CreateAuraApplication: aura musn't be applied on target");
 
-		var aurSpellInfo = aura.GetSpellInfo();
+		var aurSpellInfo = aura.SpellInfo;
 
 		// ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
 		if (!IsAlive() &&
-		    !aurSpellInfo.IsDeathPersistent() &&
-		    (!IsTypeId(TypeId.Player) || !ToPlayer().GetSession().PlayerLoading()))
+			!aurSpellInfo.IsDeathPersistent &&
+			(!IsTypeId(TypeId.Player) || !ToPlayer().GetSession().PlayerLoading()))
 			return null;
 
 		var caster = aura.GetCaster();
@@ -1718,7 +1716,7 @@ public partial class Unit : WorldObject
 			AddInterruptMask(aurSpellInfo.AuraInterruptFlags, aurSpellInfo.AuraInterruptFlags2);
 		}
 
-		var aState = aura.GetSpellInfo().GetAuraState();
+		var aState = aura.SpellInfo.GetAuraState();
 
 		if (aState != 0)
 			_auraStateAuras.Add(aState, aurApp);
@@ -1761,7 +1759,7 @@ public partial class Unit : WorldObject
 				if (!powerTypeAuras.Empty())
 				{
 					var powerTypeAura = powerTypeAuras.First();
-					displayPower = (PowerType)powerTypeAura.GetMiscValue();
+					displayPower = (PowerType)powerTypeAura.MiscValue;
 				}
 				else if (GetTypeId() == TypeId.Player)
 				{
@@ -2113,7 +2111,7 @@ public partial class Unit : WorldObject
 			// iterate over already applied transform auras - from newest to oldest
 			foreach (var eff in transforms)
 			{
-				var aurApp = eff.GetBase().GetApplicationOfTarget(GetGUID());
+				var aurApp = eff.Base.GetApplicationOfTarget(GetGUID());
 
 				if (aurApp != null)
 				{
@@ -2125,16 +2123,16 @@ public partial class Unit : WorldObject
 						}
 						else
 						{
-							var ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.GetMiscValue());
+							var ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.MiscValue);
 
 							if (ci != null)
-								if (!IsDisallowedMountForm(eff.GetId(), ShapeShiftForm.None, ObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
+								if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, ObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
 									handledAura = eff;
 						}
 					}
 
 					// prefer negative auras
-					if (!aurApp.IsPositive())
+					if (!aurApp.IsPositive)
 					{
 						handledAura = eff;
 
@@ -2156,7 +2154,7 @@ public partial class Unit : WorldObject
 		else if (!shapeshiftAura.Empty()) // we've found shapeshift
 		{
 			// only one such aura possible at a time
-			var modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura[0].GetId());
+			var modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura[0].Id);
 
 			if (modelId != 0)
 			{
@@ -2695,7 +2693,7 @@ public partial class Unit : WorldObject
 	{
 		if (HasAuraType(AuraType.ModFaction))
 		{
-			SetFaction((uint)GetAuraEffectsByType(AuraType.ModFaction).LastOrDefault().GetMiscValue());
+			SetFaction((uint)GetAuraEffectsByType(AuraType.ModFaction).LastOrDefault().MiscValue);
 
 			return;
 		}
@@ -2739,7 +2737,7 @@ public partial class Unit : WorldObject
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
 			return u1.ToPlayer().IsInSameGroupWith(u2.ToPlayer());
 		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-		         (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		return u1.GetTypeId() == TypeId.Unit && u2.GetTypeId() == TypeId.Unit && u1.GetFaction() == u2.GetFaction();
@@ -2759,7 +2757,7 @@ public partial class Unit : WorldObject
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
 			return u1.ToPlayer().IsInSameRaidWith(u2.ToPlayer());
 		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-		         (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		// else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
@@ -3174,7 +3172,7 @@ public partial class Unit : WorldObject
 					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
 
 					if (spell != null)
-						if (spell.GetState() == SpellState.Preparing && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageAbsorb))
+						if (spell.State == SpellState.Preparing && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageAbsorb))
 							victim.InterruptNonMeleeSpells(false);
 				}
 
@@ -3186,21 +3184,21 @@ public partial class Unit : WorldObject
 			foreach (var aura in vCopyDamageCopy)
 			{
 				// Check if aura was removed during iteration - we don't need to work on such auras
-				if (!aura.GetBase().IsAppliedOnTarget(victim.GetGUID()))
+				if (!aura.Base.IsAppliedOnTarget(victim.GetGUID()))
 					continue;
 
 				// check damage school mask
-				if ((aura.GetMiscValue() & (int)damageSchoolMask) == 0)
+				if ((aura.MiscValue & (int)damageSchoolMask) == 0)
 					continue;
 
-				var shareDamageTarget = aura.GetCaster();
+				var shareDamageTarget = aura.Caster;
 
 				if (shareDamageTarget == null)
 					continue;
 
-				var spell = aura.GetSpellInfo();
+				var spell = aura.SpellInfo;
 
-				var share = MathFunctions.CalculatePct(damageDone, aura.GetAmount());
+				var share = MathFunctions.CalculatePct(damageDone, aura.Amount);
 
 				// @todo check packets if damage is done by victim, or by attacker of victim
 				DealDamageMods(attacker, shareDamageTarget, ref share);
@@ -3305,21 +3303,21 @@ public partial class Unit : WorldObject
 
 				foreach (var absorbAurEff in vAbsorbOverkill)
 				{
-					var baseAura = absorbAurEff.GetBase();
+					var baseAura = absorbAurEff.Base;
 					var aurApp = baseAura.GetApplicationOfTarget(victim.GetGUID());
 
 					if (aurApp == null)
 						continue;
 
-					if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
+					if ((absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()) == 0)
 						continue;
 
 					// cannot absorb over limit
-					if (damageTaken >= victim.CountPctFromMaxHealth(100 + absorbAurEff.GetMiscValueB()))
+					if (damageTaken >= victim.CountPctFromMaxHealth(100 + absorbAurEff.MiscValueB))
 						continue;
 
 					// get amount which can be still absorbed by the aura
-					var currentAbsorb = absorbAurEff.GetAmount();
+					var currentAbsorb = absorbAurEff.Amount;
 
 					// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
 					if (currentAbsorb < 0)
@@ -3331,7 +3329,7 @@ public partial class Unit : WorldObject
 					// repurpose PreventDefaultAction for this
 					var deathFullyPrevented = false;
 
-					absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref deathFullyPrevented);
+					absorbAurEff.Base.CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref deathFullyPrevented);
 					currentAbsorb = tempAbsorb;
 
 					// absorb must be smaller than the damage itself
@@ -3348,9 +3346,9 @@ public partial class Unit : WorldObject
 						SpellAbsorbLog absorbLog = new();
 						absorbLog.Attacker = attacker != null ? attacker.GetGUID() : ObjectGuid.Empty;
 						absorbLog.Victim = victim.GetGUID();
-						absorbLog.Caster = baseAura.GetCasterGUID();
+						absorbLog.Caster = baseAura.CasterGuid;
 						absorbLog.AbsorbedSpellID = spellProto != null ? spellProto.Id : 0;
-						absorbLog.AbsorbSpellID = baseAura.GetId();
+						absorbLog.AbsorbSpellID = baseAura.Id;
 						absorbLog.Absorbed = (int)currentAbsorb;
 						absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
 						absorbLog.LogData.Initialize(victim);
@@ -3413,17 +3411,17 @@ public partial class Unit : WorldObject
 					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
 
 					if (spell != null)
-						if (spell.GetState() == SpellState.Preparing)
+						if (spell.State == SpellState.Preparing)
 						{
 							bool isCastInterrupted()
 							{
 								if (damageTaken == 0)
-									return spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
+									return spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
 
-								if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
+								if (victim.IsPlayer() && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
 									return true;
 
-								if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
+								if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
 									return true;
 
 								return false;
@@ -3436,10 +3434,10 @@ public partial class Unit : WorldObject
 								if (damageTaken == 0)
 									return false;
 
-								if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
+								if (victim.IsPlayer() && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
 									return true;
 
-								if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
+								if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
 									return true;
 
 								return false;
@@ -3457,7 +3455,7 @@ public partial class Unit : WorldObject
 					var spell1 = victim.GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 					if (spell1 != null)
-						if (spell1.GetState() == SpellState.Casting && spell1.m_spellInfo.HasChannelInterruptFlag(SpellAuraInterruptFlags.DamageChannelDuration))
+						if (spell1.State == SpellState.Casting && spell1.SpellInfo.HasChannelInterruptFlag(SpellAuraInterruptFlags.DamageChannelDuration))
 							spell1.DelayedChannel();
 				}
 			}
@@ -3790,7 +3788,7 @@ public partial class Unit : WorldObject
 		if (count == 0)
 			return;
 
-		var comboPoints = (sbyte)(spell != null ? spell.m_comboPointGain : GetPower(PowerType.ComboPoints));
+		var comboPoints = (sbyte)(spell != null ? spell.ComboPointGain : GetPower(PowerType.ComboPoints));
 
 		comboPoints += count;
 
@@ -3802,7 +3800,7 @@ public partial class Unit : WorldObject
 		if (!spell)
 			SetPower(PowerType.ComboPoints, comboPoints);
 		else
-			spell.m_comboPointGain = comboPoints;
+			spell.ComboPointGain = comboPoints;
 	}
 
 	public void ClearComboPoints()
@@ -3865,29 +3863,29 @@ public partial class Unit : WorldObject
 			var absorbAurEff = vSchoolAbsorbCopy[i];
 
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
 
 			if (aurApp == null)
 				continue;
 
-			if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
+			if ((absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()) == 0)
 				continue;
 
 			// get amount which can be still absorbed by the aura
-			var currentAbsorb = absorbAurEff.GetAmount();
+			var currentAbsorb = absorbAurEff.Amount;
 
 			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
 			if (currentAbsorb < 0)
 				currentAbsorb = 0;
 
-			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+			if (!absorbAurEff.SpellInfo.HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
 				damageInfo.ModifyDamage(-absorbIgnoringDamage);
 
 			var tempAbsorb = currentAbsorb;
 
 			var defaultPrevented = false;
 
-			absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
+			absorbAurEff.Base.CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
 			currentAbsorb = (int)tempAbsorb;
 
 			if (!defaultPrevented)
@@ -3898,21 +3896,21 @@ public partial class Unit : WorldObject
 				damageInfo.AbsorbDamage(currentAbsorb);
 
 				tempAbsorb = (uint)currentAbsorb;
-				absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
+				absorbAurEff.Base.CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
 
 				// Check if our aura is using amount to count heal
-				if (absorbAurEff.GetAmount() >= 0)
+				if (absorbAurEff.Amount >= 0)
 				{
 					// Reduce shield amount
-					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+					absorbAurEff.ChangeAmount(absorbAurEff.Amount - currentAbsorb);
 
 					// Aura cannot absorb anything more - remove it
-					if (absorbAurEff.GetAmount() <= 0 && !absorbAurEff.GetBase().GetSpellInfo().HasAttribute(SpellAttr0.Passive))
-						absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+					if (absorbAurEff.Amount <= 0 && !absorbAurEff.Base.SpellInfo.HasAttribute(SpellAttr0.Passive))
+						absorbAurEff.Base.Remove(AuraRemoveMode.EnemySpell);
 				}
 			}
 
-			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+			if (!absorbAurEff.SpellInfo.HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
 				damageInfo.ModifyDamage(absorbIgnoringDamage);
 
 			if (currentAbsorb != 0)
@@ -3920,9 +3918,9 @@ public partial class Unit : WorldObject
 				SpellAbsorbLog absorbLog = new();
 				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
 				absorbLog.Victim = damageInfo.GetVictim().GetGUID();
-				absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.Caster = absorbAurEff.Base.CasterGuid;
 				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
-				absorbLog.AbsorbSpellID = absorbAurEff.GetId();
+				absorbLog.AbsorbSpellID = absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
 				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
 				absorbLog.LogData.Initialize(damageInfo.GetVictim());
@@ -3939,30 +3937,30 @@ public partial class Unit : WorldObject
 				break;
 
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
 
 			if (aurApp == null)
 				continue;
 
 			// check damage school mask
-			if (!Convert.ToBoolean(absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
+			if (!Convert.ToBoolean(absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()))
 				continue;
 
 			// get amount which can be still absorbed by the aura
-			var currentAbsorb = absorbAurEff.GetAmount();
+			var currentAbsorb = absorbAurEff.Amount;
 
 			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
 			if (currentAbsorb < 0)
 				currentAbsorb = 0;
 
-			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+			if (!absorbAurEff.SpellInfo.HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
 				damageInfo.ModifyDamage(-absorbIgnoringDamage);
 
 			var tempAbsorb = currentAbsorb;
 
 			var defaultPrevented = false;
 
-			absorbAurEff.GetBase().CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
+			absorbAurEff.Base.CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
 			currentAbsorb = (int)tempAbsorb;
 
 			if (!defaultPrevented)
@@ -3973,7 +3971,7 @@ public partial class Unit : WorldObject
 				var manaReduction = currentAbsorb;
 
 				// lower absorb amount by talents
-				var manaMultiplier = absorbAurEff.GetSpellEffectInfo().CalcValueMultiplier(absorbAurEff.GetCaster());
+				var manaMultiplier = absorbAurEff.GetSpellEffectInfo().CalcValueMultiplier(absorbAurEff.Caster);
 
 				if (manaMultiplier != 0)
 					manaReduction = (int)(manaReduction * manaMultiplier);
@@ -3986,19 +3984,19 @@ public partial class Unit : WorldObject
 				damageInfo.AbsorbDamage((uint)currentAbsorb);
 
 				tempAbsorb = (uint)currentAbsorb;
-				absorbAurEff.GetBase().CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
+				absorbAurEff.Base.CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
 
 				// Check if our aura is using amount to count damage
-				if (absorbAurEff.GetAmount() >= 0)
+				if (absorbAurEff.Amount >= 0)
 				{
-					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+					absorbAurEff.ChangeAmount(absorbAurEff.Amount - currentAbsorb);
 
-					if ((absorbAurEff.GetAmount() <= 0))
-						absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+					if ((absorbAurEff.Amount <= 0))
+						absorbAurEff.Base.Remove(AuraRemoveMode.EnemySpell);
 				}
 			}
 
-			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+			if (!absorbAurEff.SpellInfo.HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
 				damageInfo.ModifyDamage(absorbIgnoringDamage);
 
 			if (currentAbsorb != 0)
@@ -4006,9 +4004,9 @@ public partial class Unit : WorldObject
 				SpellAbsorbLog absorbLog = new();
 				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
 				absorbLog.Victim = damageInfo.GetVictim().GetGUID();
-				absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.Caster = absorbAurEff.Base.CasterGuid;
 				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
-				absorbLog.AbsorbSpellID = absorbAurEff.GetId();
+				absorbLog.AbsorbSpellID = absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
 				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
 				absorbLog.LogData.Initialize(damageInfo.GetVictim());
@@ -4029,24 +4027,24 @@ public partial class Unit : WorldObject
 					break;
 
 				// Check if aura was removed during iteration - we don't need to work on such auras
-				var aurApp = itr.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+				var aurApp = itr.Base.GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
 
 				if (aurApp == null)
 					continue;
 
 				// check damage school mask
-				if (!Convert.ToBoolean(itr.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
+				if (!Convert.ToBoolean(itr.MiscValue & (int)damageInfo.GetSchoolMask()))
 					continue;
 
 				// Damage can be splitted only if aura has an alive caster
-				var caster = itr.GetCaster();
+				var caster = itr.Caster;
 
 				if (!caster || (caster == damageInfo.GetVictim()) || !caster.IsInWorld || !caster.IsAlive())
 					continue;
 
-				var splitDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), itr.GetAmount());
+				var splitDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), itr.Amount);
 
-				itr.GetBase().CallScriptEffectSplitHandlers(itr, aurApp, damageInfo, ref splitDamage);
+				itr.Base.CallScriptEffectSplitHandlers(itr, aurApp, damageInfo, ref splitDamage);
 
 				// absorb must be smaller than the damage itself
 				splitDamage = MathFunctions.RoundToInterval(ref splitDamage, 0, damageInfo.GetDamage());
@@ -4056,7 +4054,7 @@ public partial class Unit : WorldObject
 				// check if caster is immune to damage
 				if (caster.IsImmunedToDamage(damageInfo.GetSchoolMask()))
 				{
-					damageInfo.GetVictim().SendSpellMiss(caster, itr.GetSpellInfo().Id, SpellMissInfo.Immune);
+					damageInfo.GetVictim().SendSpellMiss(caster, itr.SpellInfo.Id, SpellMissInfo.Immune);
 
 					continue;
 				}
@@ -4064,9 +4062,9 @@ public partial class Unit : WorldObject
 				double split_absorb = 0;
 				DealDamageMods(damageInfo.GetAttacker(), caster, ref splitDamage, ref split_absorb);
 
-				SpellNonMeleeDamage log = new(damageInfo.GetAttacker(), caster, itr.GetSpellInfo(), itr.GetBase().GetSpellVisual(), damageInfo.GetSchoolMask(), itr.GetBase().GetCastId());
+				SpellNonMeleeDamage log = new(damageInfo.GetAttacker(), caster, itr.SpellInfo, itr.Base.SpellVisual, damageInfo.GetSchoolMask(), itr.Base.CastId);
 				CleanDamage cleanDamage = new(splitDamage, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
-				splitDamage = DealDamage(damageInfo.GetAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.GetSchoolMask(), itr.GetSpellInfo(), false);
+				splitDamage = DealDamage(damageInfo.GetAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.GetSchoolMask(), itr.SpellInfo, false);
 				log.Damage = splitDamage;
 				log.OriginalDamage = splitDamage;
 				log.Absorb = split_absorb;
@@ -4095,16 +4093,16 @@ public partial class Unit : WorldObject
 		{
 			var absorbAurEff = vHealAbsorb[i];
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(healInfo.GetTarget().GetGUID());
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(healInfo.GetTarget().GetGUID());
 
 			if (aurApp == null)
 				continue;
 
-			if ((absorbAurEff.GetMiscValue() & (int)healInfo.GetSchoolMask()) == 0)
+			if ((absorbAurEff.MiscValue & (int)healInfo.GetSchoolMask()) == 0)
 				continue;
 
 			// get amount which can be still absorbed by the aura
-			var currentAbsorb = absorbAurEff.GetAmount();
+			var currentAbsorb = absorbAurEff.Amount;
 
 			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
 			if (currentAbsorb < 0)
@@ -4114,7 +4112,7 @@ public partial class Unit : WorldObject
 
 			var defaultPrevented = false;
 
-			absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb, ref defaultPrevented);
+			absorbAurEff.Base.CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb, ref defaultPrevented);
 			currentAbsorb = tempAbsorb;
 
 			if (!defaultPrevented)
@@ -4125,16 +4123,16 @@ public partial class Unit : WorldObject
 				healInfo.AbsorbHeal((uint)currentAbsorb);
 
 				tempAbsorb = currentAbsorb;
-				absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb);
+				absorbAurEff.Base.CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb);
 
 				// Check if our aura is using amount to count heal
-				if (absorbAurEff.GetAmount() >= 0)
+				if (absorbAurEff.Amount >= 0)
 				{
 					// Reduce shield amount
-					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+					absorbAurEff.ChangeAmount(absorbAurEff.Amount - currentAbsorb);
 
 					// Aura cannot absorb anything more - remove it
-					if (absorbAurEff.GetAmount() <= 0)
+					if (absorbAurEff.Amount <= 0)
 						existExpired = true;
 				}
 			}
@@ -4144,9 +4142,9 @@ public partial class Unit : WorldObject
 				SpellHealAbsorbLog absorbLog = new();
 				absorbLog.Healer = healInfo.GetHealer() ? healInfo.GetHealer().GetGUID() : ObjectGuid.Empty;
 				absorbLog.Target = healInfo.GetTarget().GetGUID();
-				absorbLog.AbsorbCaster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.AbsorbCaster = absorbAurEff.Base.CasterGuid;
 				absorbLog.AbsorbedSpellID = (int)(healInfo.GetSpellInfo() != null ? healInfo.GetSpellInfo().Id : 0);
-				absorbLog.AbsorbSpellID = (int)absorbAurEff.GetId();
+				absorbLog.AbsorbSpellID = (int)absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
 				absorbLog.OriginalHeal = (int)healInfo.GetOriginalHeal();
 				healInfo.GetTarget().SendMessageToSet(absorbLog, true);
@@ -4160,10 +4158,10 @@ public partial class Unit : WorldObject
 				var auraEff = vHealAbsorb[i];
 				++i;
 
-				if (auraEff.GetAmount() <= 0)
+				if (auraEff.Amount <= 0)
 				{
 					var removedAuras = healInfo.GetTarget()._removedAurasCount;
-					auraEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+					auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
 
 					if (removedAuras + 1 < healInfo.GetTarget()._removedAurasCount)
 						i = 0;
@@ -4184,8 +4182,8 @@ public partial class Unit : WorldObject
 			var reductionAuras = victim.GetAuraEffectsByType(AuraType.BypassArmorForCaster);
 
 			foreach (var eff in reductionAuras)
-				if (eff.GetCasterGUID() == attacker.GetGUID())
-					armorBypassPct += eff.GetAmount();
+				if (eff.CasterGuid == attacker.GetGUID())
+					armorBypassPct += eff.Amount;
 
 			armor = MathFunctions.CalculatePct(armor, 100 - Math.Min(armorBypassPct, 100));
 
@@ -4203,8 +4201,8 @@ public partial class Unit : WorldObject
 			var resIgnoreAuras = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
 
 			foreach (var eff in resIgnoreAuras)
-				if (eff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal) && eff.IsAffectingSpell(spellInfo))
-					armor = (float)Math.Floor(MathFunctions.AddPct(ref armor, -eff.GetAmount()));
+				if (eff.MiscValue.HasAnyFlag((int)SpellSchoolMask.Normal) && eff.IsAffectingSpell(spellInfo))
+					armor = (float)Math.Floor(MathFunctions.AddPct(ref armor, -eff.Amount));
 
 			// Apply Player CR_ARMOR_PENETRATION rating
 			if (attacker.IsPlayer())
@@ -4320,19 +4318,19 @@ public partial class Unit : WorldObject
 		if (spellProto == null)
 			// melee attack
 			foreach (var autoAttackDamage in GetAuraEffectsByType(AuraType.ModAutoAttackDamage))
-				MathFunctions.AddPct(ref DoneTotalMod, autoAttackDamage.GetAmount());
+				MathFunctions.AddPct(ref DoneTotalMod, autoAttackDamage.Amount);
 
 		DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamageDoneVersus, creatureTypeMask);
 
 		// bonus against aurastate
 		DoneTotalMod *= GetTotalAuraMultiplier(AuraType.ModDamageDoneVersusAurastate,
-		                                       aurEff =>
-		                                       {
-			                                       if (victim.HasAuraState((AuraStateType)aurEff.GetMiscValue()))
-				                                       return true;
+												aurEff =>
+												{
+													if (victim.HasAuraState((AuraStateType)aurEff.MiscValue))
+														return true;
 
-			                                       return false;
-		                                       });
+													return false;
+												});
 
 		// Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
 		if (spellEffectInfo != null && spellEffectInfo.Mechanic != 0)
@@ -4385,9 +4383,9 @@ public partial class Unit : WorldObject
 		if (spellProto != null)
 		{
 			// From caster spells
-			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID() && (aurEff.GetMiscValue() & (int)spellProto.GetSchoolMask()) != 0; });
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GetGUID() && (aurEff.MiscValue & (int)spellProto.GetSchoolMask()) != 0; });
 
-			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID() && aurEff.IsAffectingSpell(spellProto); });
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GetGUID() && aurEff.IsAffectingSpell(spellProto); });
 
 			// Mod damage from spell mechanic
 			var mechanicMask = spellProto.GetAllEffectsMechanicMask();
@@ -4398,26 +4396,26 @@ public partial class Unit : WorldObject
 
 			if (mechanicMask != 0)
 				TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMechanicDamageTakenPercent,
-				                                        aurEff =>
-				                                        {
-					                                        if ((mechanicMask & (1ul << (aurEff.GetMiscValue()))) != 0)
-						                                        return true;
+														aurEff =>
+														{
+															if ((mechanicMask & (1ul << (aurEff.MiscValue))) != 0)
+																return true;
 
-					                                        return false;
-				                                        });
+															return false;
+														});
 
 			if (damagetype == DamageEffectType.DOT)
-				TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.GetMiscValue() & (uint)spellProto.GetSchoolMask()) != 0);
+				TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.MiscValue & (uint)spellProto.GetSchoolMask()) != 0);
 		}
 		else // melee attack
 		{
-			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID(); });
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff => { return aurEff.CasterGuid == attacker.GetGUID(); });
 		}
 
 		var cheatDeath = GetAuraEffect(45182, 0);
 
 		if (cheatDeath != null)
-			MathFunctions.AddPct(ref TakenTotalMod, cheatDeath.GetAmount());
+			MathFunctions.AddPct(ref TakenTotalMod, cheatDeath.Amount);
 
 		if (attType != WeaponAttackType.RangedAttack)
 			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageTakenPct);
@@ -4444,10 +4442,10 @@ public partial class Unit : WorldObject
 
 			foreach (var aurEff in casterIgnoreResist)
 			{
-				if ((aurEff.GetMiscValue() & (int)attackSchoolMask) == 0)
+				if ((aurEff.MiscValue & (int)attackSchoolMask) == 0)
 					continue;
 
-				MathFunctions.AddPct(ref damageReduction, -aurEff.GetAmount());
+				MathFunctions.AddPct(ref damageReduction, -aurEff.Amount);
 			}
 
 			TakenTotalMod = 1.0f - damageReduction;
@@ -4499,13 +4497,13 @@ public partial class Unit : WorldObject
 		};
 
 		var amount = GetTotalAuraModifier(AuraType.ModDamageDone,
-		                                  aurEff =>
-		                                  {
-			                                  if ((aurEff.GetMiscValue() & (int)SpellSchoolMask.Normal) == 0)
-				                                  return false;
+										aurEff =>
+										{
+											if ((aurEff.MiscValue & (int)SpellSchoolMask.Normal) == 0)
+												return false;
 
-			                                  return CheckAttackFitToAuraRequirement(attackType, aurEff);
-		                                  });
+											return CheckAttackFitToAuraRequirement(attackType, aurEff);
+										});
 
 		SetStatFlatModifier(unitMod, UnitModifierFlatType.Total, amount);
 	}
@@ -4527,13 +4525,13 @@ public partial class Unit : WorldObject
 		};
 
 		factor *= GetTotalAuraMultiplier(AuraType.ModDamagePercentDone,
-		                                 aurEff =>
-		                                 {
-			                                 if (!aurEff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal))
-				                                 return false;
+										aurEff =>
+										{
+											if (!aurEff.MiscValue.HasAnyFlag((int)SpellSchoolMask.Normal))
+												return false;
 
-			                                 return CheckAttackFitToAuraRequirement(attackType, aurEff);
-		                                 });
+											return CheckAttackFitToAuraRequirement(attackType, aurEff);
+										});
 
 		if (attackType == WeaponAttackType.OffAttack)
 			factor *= GetTotalAuraMultiplier(AuraType.ModOffhandDamagePct, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
@@ -4660,7 +4658,7 @@ public partial class Unit : WorldObject
 			_UpdateAutoRepeatSpell();
 
 		for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
-			if (GetCurrentSpell(i) != null && CurrentSpells[i].GetState() == SpellState.Finished)
+			if (GetCurrentSpell(i) != null && CurrentSpells[i].State == SpellState.Finished)
 			{
 				CurrentSpells[i].SetReferencedFromCurrent(false);
 				CurrentSpells[i] = null;
@@ -4675,18 +4673,18 @@ public partial class Unit : WorldObject
 
 			aura.UpdateOwner(diff, this);
 
-			if (aura.IsExpired())
+			if (aura.IsExpired)
 				toRemove.Add(aura);
 
-			if (aura.GetSpellInfo().IsChanneled() &&
-			    aura.GetCasterGUID() != GetGUID() &&
-			    !Global.ObjAccessor.GetWorldObject(this, aura.GetCasterGUID()))
+			if (aura.SpellInfo.IsChanneled &&
+				aura.CasterGuid != GetGUID() &&
+				!Global.ObjAccessor.GetWorldObject(this, aura.CasterGuid))
 				toRemove.Add(aura);
 		}
 
 		// remove expired auras - do that after updates(used in scripts?)
 		foreach (var pair in toRemove)
-			RemoveOwnedAura(pair.GetId(), pair, AuraRemoveMode.Expire);
+			RemoveOwnedAura(pair.Id, pair, AuraRemoveMode.Expire);
 
 		foreach (var aura in _visibleAurasToUpdate.ToArray())
 			aura.ClientUpdate();
@@ -4757,7 +4755,7 @@ public partial class Unit : WorldObject
 			var spell = Spell.ExtractSpellFromEvent(e);
 
 			if (spell != null)
-				if (spell.GetSpellInfo().Id == spellId)
+				if (spell.SpellInfo.Id == spellId)
 				{
 					hasMissile = true;
 
@@ -4823,7 +4821,7 @@ public partial class Unit : WorldObject
 
 	void _UpdateAutoRepeatSpell()
 	{
-		var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].m_spellInfo;
+		var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo;
 
 		// check "realtime" interrupts
 		// don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
@@ -4837,7 +4835,7 @@ public partial class Unit : WorldObject
 		}
 
 		// castroutine
-		if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).GetState() != SpellState.Preparing)
+		if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).State != SpellState.Preparing)
 		{
 			// Check if able to cast
 			var result = CurrentSpells[CurrentSpellTypes.AutoRepeat].CheckCast(true);
@@ -4847,14 +4845,14 @@ public partial class Unit : WorldObject
 				if (autoRepeatSpellInfo.Id != 75)
 					InterruptSpell(CurrentSpellTypes.AutoRepeat);
 				else if (GetTypeId() == TypeId.Player)
-					Spell.SendCastResult(ToPlayer(), autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].m_SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].m_castId, result);
+					Spell.SendCastResult(ToPlayer(), autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].CastId, result);
 
 				return;
 			}
 
 			// we want to shoot
 			Spell spell = new(this, autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
-			spell.Prepare(CurrentSpells[CurrentSpellTypes.AutoRepeat].m_targets);
+			spell.Prepare(CurrentSpells[CurrentSpellTypes.AutoRepeat].Targets);
 		}
 	}
 
@@ -4895,7 +4893,7 @@ public partial class Unit : WorldObject
 			return;
 
 		if (damageInfo.TargetState == VictimState.Parry &&
-		    (!victim.IsCreature() || victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
+			(!victim.IsCreature() || victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
 		{
 			// Get attack timers
 			float offtime = victim.GetAttackTimer(WeaponAttackType.OffAttack);
@@ -4940,11 +4938,11 @@ public partial class Unit : WorldObject
 
 		// If this is a creature and it attacks from behind it has a probability to daze it's victim
 		if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
-		    !IsTypeId(TypeId.Player) &&
-		    !ToCreature().IsControlledByPlayer() &&
-		    !victim.Location.HasInArc(MathFunctions.PI, Location) &&
-		    (victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss()) &&
-		    !victim.IsVehicle())
+			!IsTypeId(TypeId.Player) &&
+			!ToCreature().IsControlledByPlayer() &&
+			!victim.Location.HasInArc(MathFunctions.PI, Location) &&
+			(victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss()) &&
+			!victim.IsVehicle())
 		{
 			// 20% base chance
 			var chance = 20.0f;
@@ -4980,7 +4978,7 @@ public partial class Unit : WorldObject
 
 			foreach (var dmgShield in vDamageShieldsCopy)
 			{
-				var spellInfo = dmgShield.GetSpellInfo();
+				var spellInfo = dmgShield.SpellInfo;
 
 				// Damage shield can be resisted...
 				var missInfo = victim.SpellHitResult(this, spellInfo, false);
@@ -5000,8 +4998,8 @@ public partial class Unit : WorldObject
 					continue;
 				}
 
-				var damage = dmgShield.GetAmount();
-				var caster = dmgShield.GetCaster();
+				var damage = dmgShield.Amount;
+				var caster = dmgShield.Caster;
 
 				if (caster)
 				{
@@ -5037,11 +5035,11 @@ public partial class Unit : WorldObject
 	{
 		foreach (var effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
 		{
-			var triggerHealthPct = effect.GetAmount();
+			var triggerHealthPct = effect.Amount;
 			var triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
 			var threshold = CountPctFromMaxHealth(triggerHealthPct);
 
-			switch ((AuraTriggerOnHealthChangeDirection)effect.GetMiscValue())
+			switch ((AuraTriggerOnHealthChangeDirection)effect.MiscValue)
 			{
 				case AuraTriggerOnHealthChangeDirection.Above:
 					if (newVal < threshold || oldVal > threshold)

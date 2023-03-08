@@ -20,7 +20,7 @@ public class spell_dh_artifact_demon_speed : SpellScript, ISpellOnCast
 		var aurEff = caster.GetAuraEffect(DemonHunterSpells.DEMON_SPEED, 0);
 
 		if (aurEff != null)
-			for (byte i = 0; i < aurEff.GetAmount(); ++i)
+			for (byte i = 0; i < aurEff.Amount; ++i)
 				caster.GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH, Difficulty.None).ChargeCategoryId);
 	}
 }

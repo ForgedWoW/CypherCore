@@ -2653,7 +2653,7 @@ namespace Game.Achievements
                     Aura artifactAura = referencePlayer.GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
                     if (artifactAura != null)
                     {
-                        Item artifact = referencePlayer.GetItemByGuid(artifactAura.GetCastItemGUID());
+                        Item artifact = referencePlayer.GetItemByGuid(artifactAura.CastItemGuid);
                         if (artifact != null)
                         {
                             ArtifactAppearanceRecord artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
@@ -2764,7 +2764,7 @@ namespace Game.Achievements
                     if (artifactAura == null)
                         return false;
 
-                    Item artifact = referencePlayer.GetItemByGuid(artifactAura.GetCastItemGUID());
+                    Item artifact = referencePlayer.GetItemByGuid(artifactAura.CastItemGuid);
                     if (!artifact)
                         return false;
 
@@ -3507,7 +3507,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerAuraWithLabelStackCountEqualOrGreaterThan: // 335
                 {
                     uint count = 0;
-                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.GetStackAmount());
+                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.StackAmount);
           
                     if (count < reqValue)
                         return false;
@@ -3517,7 +3517,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerAuraWithLabelStackCountEqual: // 336
                 {
                     uint count = 0;
-                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.GetStackAmount());
+                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.StackAmount);
 
                     if (count != reqValue)
                         return false;
@@ -3527,7 +3527,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerAuraWithLabelStackCountEqualOrLessThan: // 337
                 {
                     uint count = 0;
-                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.GetStackAmount());
+                    referencePlayer.GetAuraQuery().HasLabel((uint)secondaryAsset).ForEachResult(aura => count += aura.StackAmount);
 
                     if (count > reqValue)
                         return false;
@@ -4289,7 +4289,7 @@ namespace Game.Achievements
                             criteria.Id, criteria.Entry.Type, DataType, Aura.SpellId);
                         return false;
                     }
-                    if (spellEntry.GetEffects().Count <= Aura.EffectIndex)
+                    if (spellEntry.Effects.Count <= Aura.EffectIndex)
                     {
                         Log.outError(LogFilter.Sql, "Table `criteria_data` (Entry: {0} Type: {1}) for data type {2} has wrong spell effect index in value2 ({3}), ignored.",
                             criteria.Id, criteria.Entry.Type, DataType, Aura.EffectIndex);

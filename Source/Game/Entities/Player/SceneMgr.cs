@@ -239,9 +239,9 @@ public class SceneMgr
 		var scenePlayAuras = Player.GetAuraEffectsByType(AuraType.PlayScene);
 
 		foreach (var scenePlayAura in scenePlayAuras)
-			if (scenePlayAura.GetMiscValue() == sceneId)
+			if (scenePlayAura.MiscValue == sceneId)
 			{
-				Player.RemoveAura(scenePlayAura.GetBase());
+				Player.RemoveAura(scenePlayAura.Base);
 
 				break;
 			}

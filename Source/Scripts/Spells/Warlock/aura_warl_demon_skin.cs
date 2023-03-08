@@ -19,12 +19,12 @@ namespace Scripts.Spells.Warlock
         {
             if (!TryGetCaster(out var caster)) return;
 
-            double absorb = (caster.GetMaxHealth() * (GetEffect(0).GetBaseAmount() / 10)) / 100.0f;
+            double absorb = (caster.GetMaxHealth() * (GetEffect(0).BaseAmount / 10)) / 100.0f;
 
             if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
-                absorb += auraEffect.GetAmount();
+                absorb += auraEffect.Amount;
 
-            var threshold = (caster.GetMaxHealth() * GetEffect(1).GetBaseAmount()) / 100.0f;
+            var threshold = (caster.GetMaxHealth() * GetEffect(1).BaseAmount) / 100.0f;
             absorb = Math.Min(absorb, threshold);
             caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
         }

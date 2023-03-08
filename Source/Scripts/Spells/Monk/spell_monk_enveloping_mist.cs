@@ -12,10 +12,10 @@ public class spell_monk_enveloping_mist : SpellScript, ISpellAfterCast, ISpellBe
 {
 	public void BeforeCast()
 	{
-		if (GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled) && GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).GetSpellInfo().Id == MonkSpells.SOOTHING_MIST)
+		if (GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled) && GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).SpellInfo.Id == MonkSpells.SOOTHING_MIST)
 		{
-			GetSpell().m_castFlagsEx = SpellCastFlagsEx.None;
-			var targets = GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).m_targets;
+			GetSpell().CastFlagsEx = SpellCastFlagsEx.None;
+			var targets = GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).Targets;
 			GetSpell().InitExplicitTargets(targets);
 		}
 	}

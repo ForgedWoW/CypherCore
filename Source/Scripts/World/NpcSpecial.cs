@@ -1833,7 +1833,7 @@ namespace Scripts.World.NpcSpecial
                 {
                     Aura squireTired = me.AddAura(IsArgentSquire() ? SpellIds.AuraTiredS : SpellIds.AuraTiredG, me);
 
-                    squireTired?.SetDuration(ownerTired.GetDuration());
+                    squireTired?.SetDuration(ownerTired.Duration);
                 }
 
                 if (owner.HasAchieved(Misc.AchievementPonyUp) &&

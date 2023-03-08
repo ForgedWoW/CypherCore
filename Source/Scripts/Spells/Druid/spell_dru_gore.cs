@@ -28,7 +28,7 @@ namespace Scripts.Spells.Druid
 
 		private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 		{
-			return RandomHelper.randChance(aurEff.GetAmount());
+			return RandomHelper.randChance(aurEff.Amount);
 		}
 
 		private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)

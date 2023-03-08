@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
 
@@ -65,27 +68,27 @@ public class PlayerData : BaseUpdateData<Player>
 		data.WriteUInt8(ArenaFaction);
 		data.WriteUInt32(DuelTeam);
 		data.WriteInt32(GuildTimeStamp);
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
 		{
-			for (int i = 0; i < 125; ++i)
-			{
+			for (var i = 0; i < 125; ++i)
 				QuestLog[i].WriteCreate(data, owner, receiver);
-			}
+
 			data.WriteInt32(QuestSessionQuestLog.Size());
 		}
-		for (int i = 0; i < 19; ++i)
-		{
+
+		for (var i = 0; i < 19; ++i)
 			VisibleItems[i].WriteCreate(data, owner, receiver);
-		}
+
 		data.WriteUInt32(PlayerTitle);
 		data.WriteInt32(FakeInebriation);
 		data.WriteUInt32(VirtualPlayerRealm);
 		data.WriteUInt32(CurrentSpecID);
 		data.WriteInt32(TaxiMountAnimKitID);
-		for (int i = 0; i < 6; ++i)
-		{
+
+		for (var i = 0; i < 6; ++i)
 			data.WriteFloat(AvgItemLevel[i]);
-		}
+
 		data.WriteUInt8(CurrentBattlePetBreedQuality);
 		data.WriteUInt32(HonorLevel);
 		data.WriteInt64(LogoutTime);
@@ -96,29 +99,23 @@ public class PlayerData : BaseUpdateData<Player>
 		data.WriteInt32(CovenantID);
 		data.WriteInt32(SoulbindID);
 		data.WriteInt32(VisualItemReplacements.Size());
-		for (int i = 0; i < Customizations.Size(); ++i)
-		{
+
+		for (var i = 0; i < Customizations.Size(); ++i)
 			Customizations[i].WriteCreate(data, owner, receiver);
-		}
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
-		{
-			for (int i = 0; i < QuestSessionQuestLog.Size(); ++i)
-			{
+			for (var i = 0; i < QuestSessionQuestLog.Size(); ++i)
 				QuestSessionQuestLog[i].WriteCreate(data, owner, receiver);
-			}
-		}
-		for (int i = 0; i < ArenaCooldowns.Size(); ++i)
-		{
+
+		for (var i = 0; i < ArenaCooldowns.Size(); ++i)
 			ArenaCooldowns[i].WriteCreate(data, owner, receiver);
-		}
-		for (int i = 0; i < VisualItemReplacements.Size(); ++i)
-		{
+
+		for (var i = 0; i < VisualItemReplacements.Size(); ++i)
 			data.WriteInt32(VisualItemReplacements[i]);
-		}
+
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
-		{
 			data.WriteBit(HasQuestSession);
-		}
+
 		data.WriteBit(HasLevelLink);
 		DungeonScore.Value.Write(data);
 		data.FlushBits();
@@ -126,7 +123,12 @@ public class PlayerData : BaseUpdateData<Player>
 
 	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, Player owner, Player receiver)
 	{
-		UpdateMask allowedMaskForTarget = new(188, new[] { 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u });
+		UpdateMask allowedMaskForTarget = new(188,
+											new[]
+											{
+												0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		WriteUpdate(data, ChangesMask & allowedMaskForTarget, false, owner, receiver);
 	}
@@ -134,12 +136,21 @@ public class PlayerData : BaseUpdateData<Player>
 	public void AppendAllowedFieldsMaskForFlag(UpdateMask allowedMaskForTarget, UpdateFieldFlag fieldVisibilityFlags)
 	{
 		if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag.PartyMember))
-			allowedMaskForTarget.OR(new UpdateMask(188, new[] { 0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000007u }));
+			allowedMaskForTarget.OR(new UpdateMask(188,
+													new[]
+													{
+														0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000007u
+													}));
 	}
 
 	public void FilterDisallowedFieldsMaskForFlag(UpdateMask changesMask, UpdateFieldFlag fieldVisibilityFlags)
 	{
-		UpdateMask allowedMaskForTarget = new(188, new[] { 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u });
+		UpdateMask allowedMaskForTarget = new(188,
+											new[]
+											{
+												0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u
+											});
+
 		AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
 		changesMask.AND(allowedMaskForTarget);
 	}
@@ -147,21 +158,21 @@ public class PlayerData : BaseUpdateData<Player>
 	public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, Player owner, Player receiver)
 	{
 		data.WriteBits(changesMask.GetBlocksMask(0), 6);
+
 		for (uint i = 0; i < 6; ++i)
 			if (changesMask.GetBlock(i) != 0)
 				data.WriteBits(changesMask.GetBlock(i), 32);
 
-		bool noQuestLogChangesMask = data.WriteBit(IsQuestLogChangesMaskSkipped());
+		var noQuestLogChangesMask = data.WriteBit(IsQuestLogChangesMaskSkipped());
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteBit(HasQuestSession);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteBit(HasLevelLink);
-			}
+
 			if (changesMask[3])
 			{
 				if (!ignoreNestedChangesMask)
@@ -169,6 +180,7 @@ public class PlayerData : BaseUpdateData<Player>
 				else
 					WriteCompleteDynamicFieldUpdateMask(Customizations.Size(), data);
 			}
+
 			if (changesMask[4])
 			{
 				if (!ignoreNestedChangesMask)
@@ -176,6 +188,7 @@ public class PlayerData : BaseUpdateData<Player>
 				else
 					WriteCompleteDynamicFieldUpdateMask(QuestSessionQuestLog.Size(), data);
 			}
+
 			if (changesMask[5])
 			{
 				if (!ignoreNestedChangesMask)
@@ -183,6 +196,7 @@ public class PlayerData : BaseUpdateData<Player>
 				else
 					WriteCompleteDynamicFieldUpdateMask(ArenaCooldowns.Size(), data);
 			}
+
 			if (changesMask[6])
 			{
 				if (!ignoreNestedChangesMask)
@@ -191,23 +205,18 @@ public class PlayerData : BaseUpdateData<Player>
 					WriteCompleteDynamicFieldUpdateMask(VisualItemReplacements.Size(), data);
 			}
 		}
+
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[3])
-			{
-				for (int i = 0; i < Customizations.Size(); ++i)
-				{
+				for (var i = 0; i < Customizations.Size(); ++i)
 					if (Customizations.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						Customizations[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[4])
-			{
-				for (int i = 0; i < QuestSessionQuestLog.Size(); ++i)
-				{
+				for (var i = 0; i < QuestSessionQuestLog.Size(); ++i)
 					if (QuestSessionQuestLog.HasChanged(i) || ignoreNestedChangesMask)
 					{
 						if (noQuestLogChangesMask)
@@ -215,152 +224,110 @@ public class PlayerData : BaseUpdateData<Player>
 						else
 							QuestSessionQuestLog[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 					}
-				}
-			}
+
 			if (changesMask[5])
-			{
-				for (int i = 0; i < ArenaCooldowns.Size(); ++i)
-				{
+				for (var i = 0; i < ArenaCooldowns.Size(); ++i)
 					if (ArenaCooldowns.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						ArenaCooldowns[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-					}
-				}
-			}
+
 			if (changesMask[6])
-			{
-				for (int i = 0; i < VisualItemReplacements.Size(); ++i)
-				{
+				for (var i = 0; i < VisualItemReplacements.Size(); ++i)
 					if (VisualItemReplacements.HasChanged(i) || ignoreNestedChangesMask)
-					{
 						data.WriteInt32(VisualItemReplacements[i]);
-					}
-				}
-			}
+
 			if (changesMask[7])
-			{
 				data.WritePackedGuid(DuelArbiter);
-			}
+
 			if (changesMask[8])
-			{
 				data.WritePackedGuid(WowAccount);
-			}
+
 			if (changesMask[9])
-			{
 				data.WritePackedGuid(LootTargetGUID);
-			}
+
 			if (changesMask[10])
-			{
 				data.WriteUInt32(PlayerFlags);
-			}
+
 			if (changesMask[11])
-			{
 				data.WriteUInt32(PlayerFlagsEx);
-			}
+
 			if (changesMask[12])
-			{
 				data.WriteUInt32(GuildRankID);
-			}
+
 			if (changesMask[13])
-			{
 				data.WriteUInt32(GuildDeleteDate);
-			}
+
 			if (changesMask[14])
-			{
 				data.WriteUInt32(GuildLevel);
-			}
+
 			if (changesMask[15])
-			{
 				data.WriteUInt8(PartyType);
-			}
+
 			if (changesMask[16])
-			{
 				data.WriteUInt8(NativeSex);
-			}
+
 			if (changesMask[17])
-			{
 				data.WriteUInt8(Inebriation);
-			}
+
 			if (changesMask[18])
-			{
 				data.WriteUInt8(PvpTitle);
-			}
+
 			if (changesMask[19])
-			{
 				data.WriteUInt8(ArenaFaction);
-			}
+
 			if (changesMask[20])
-			{
 				data.WriteUInt32(DuelTeam);
-			}
+
 			if (changesMask[21])
-			{
 				data.WriteInt32(GuildTimeStamp);
-			}
+
 			if (changesMask[22])
-			{
 				data.WriteUInt32(PlayerTitle);
-			}
+
 			if (changesMask[23])
-			{
 				data.WriteInt32(FakeInebriation);
-			}
+
 			if (changesMask[24])
-			{
 				data.WriteUInt32(VirtualPlayerRealm);
-			}
+
 			if (changesMask[25])
-			{
 				data.WriteUInt32(CurrentSpecID);
-			}
+
 			if (changesMask[26])
-			{
 				data.WriteInt32(TaxiMountAnimKitID);
-			}
+
 			if (changesMask[27])
-			{
 				data.WriteUInt8(CurrentBattlePetBreedQuality);
-			}
+
 			if (changesMask[28])
-			{
 				data.WriteUInt32(HonorLevel);
-			}
+
 			if (changesMask[29])
-			{
 				data.WriteInt64(LogoutTime);
-			}
+
 			if (changesMask[30])
-			{
 				data.WriteInt32(Field_B0);
-			}
+
 			if (changesMask[31])
-			{
 				data.WriteInt32(Field_B4);
-			}
 		}
+
 		if (changesMask[32])
 		{
 			if (changesMask[33])
-			{
 				CtrOptions.GetValue().WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-			}
+
 			if (changesMask[34])
-			{
 				data.WriteInt32(CovenantID);
-			}
+
 			if (changesMask[35])
-			{
 				data.WriteInt32(SoulbindID);
-			}
+
 			if (changesMask[36])
-			{
 				DungeonScore.GetValue().Write(data);
-			}
 		}
+
 		if (changesMask[37])
-		{
-			for (int i = 0; i < 125; ++i)
-			{
+			for (var i = 0; i < 125; ++i)
 				if (changesMask[38 + i])
 				{
 					if (noQuestLogChangesMask)
@@ -368,28 +335,17 @@ public class PlayerData : BaseUpdateData<Player>
 					else
 						QuestLog[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
 				}
-			}
-		}
+
 		if (changesMask[163])
-		{
-			for (int i = 0; i < 19; ++i)
-			{
+			for (var i = 0; i < 19; ++i)
 				if (changesMask[164 + i])
-				{
 					VisibleItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
-				}
-			}
-		}
+
 		if (changesMask[183])
-		{
-			for (int i = 0; i < 6; ++i)
-			{
+			for (var i = 0; i < 6; ++i)
 				if (changesMask[184 + i])
-				{
 					data.WriteFloat(AvgItemLevel[i]);
-				}
-			}
-		}
+
 		data.FlushBits();
 	}
 
@@ -436,5 +392,8 @@ public class PlayerData : BaseUpdateData<Player>
 		ChangesMask.ResetAll();
 	}
 
-	bool IsQuestLogChangesMaskSkipped() { return false; } // bandwidth savings aren't worth the cpu time
+	bool IsQuestLogChangesMaskSkipped()
+	{
+		return false;
+	} // bandwidth savings aren't worth the cpu time
 }

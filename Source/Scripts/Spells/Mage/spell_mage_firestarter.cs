@@ -21,7 +21,7 @@ internal class spell_mage_firestarter : SpellScript, ISpellCalcCritChance
 		var aurEff = GetCaster().GetAuraEffect(MageSpells.Firestarter, 0);
 
 		if (aurEff != null)
-			if (victim.GetHealthPct() >= aurEff.GetAmount())
+			if (victim.GetHealthPct() >= aurEff.Amount)
 				critChance = 100.0f;
 	}
 }

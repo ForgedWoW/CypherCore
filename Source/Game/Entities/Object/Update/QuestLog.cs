@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -20,56 +23,47 @@ public class QuestLog : BaseUpdateData<Player>
 		data.WriteUInt32(EndTime);
 		data.WriteUInt32(AcceptTime);
 		data.WriteUInt32(ObjectiveFlags);
-		for (int i = 0; i < 24; ++i)
-		{
+
+		for (var i = 0; i < 24; ++i)
 			data.WriteUInt16(ObjectiveProgress[i]);
-		}
 	}
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Player owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlocksMask(0), 1);
+
 		if (changesMask.GetBlock(0) != 0)
 			data.WriteBits(changesMask.GetBlock(0), 32);
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteUInt32(QuestID);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteUInt32(StateFlags);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt32(EndTime);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt32(AcceptTime);
-			}
+
 			if (changesMask[5])
-			{
 				data.WriteUInt32(ObjectiveFlags);
-			}
 		}
+
 		if (changesMask[6])
-		{
-			for (int i = 0; i < 24; ++i)
-			{
+			for (var i = 0; i < 24; ++i)
 				if (changesMask[7 + i])
-				{
 					data.WriteUInt16(ObjectiveProgress[i]);
-				}
-			}
-		}
 	}
 
 	public override void ClearChangesMask()

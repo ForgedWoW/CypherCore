@@ -11,6 +11,12 @@ public class WorldLocation : Position
 {
 	Cell _currentCell;
 
+	public ObjectCellMoveState MoveState { get; set; }
+
+	public Position NewPosition { get; set; } = new();
+
+	public uint MapId { get; set; }
+
 	public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
 	{
 		MapId = mapId;
@@ -34,12 +40,6 @@ public class WorldLocation : Position
 		MapId = 0xFFFFFFFF;
 		Relocate(pos);
 	}
-
-	public ObjectCellMoveState MoveState { get; set; }
-
-	public Position NewPosition { get; set; } = new();
-
-	public uint MapId { get; set; }
 
 	public void WorldRelocate(uint mapId, Position pos)
 	{

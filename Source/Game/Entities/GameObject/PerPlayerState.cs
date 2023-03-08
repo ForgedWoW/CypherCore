@@ -8,7 +8,7 @@ namespace Game.Entities;
 
 public class PerPlayerState
 {
-	public DateTime ValidUntil { get; set; } = DateTime.MinValue;
 	public GameObjectState? State;
-	public bool Despawned{ get; set; }
+	public DateTime ValidUntil { get; set; } = DateTime.MinValue;
+	public bool Despawned { get; set; }
 }

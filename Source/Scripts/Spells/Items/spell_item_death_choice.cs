@@ -33,7 +33,7 @@ internal class spell_item_death_choice : AuraScript, IHasAuraEffects
 		var str    = caster.GetStat(Stats.Strength);
 		var agi    = caster.GetStat(Stats.Agility);
 
-		switch (aurEff.GetId())
+		switch (aurEff.Id)
 		{
 			case ItemSpellIds.DeathChoiceNormalAura:
 			{

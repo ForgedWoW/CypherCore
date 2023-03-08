@@ -19,7 +19,7 @@ namespace Scripts.Spells.Paladin
 
         public override bool Validate(SpellInfo spellInfo)
         {
-            return ValidateSpellInfo(PaladinSpells.AvengingWrath) && spellInfo.GetEffects().Count >= 1;
+            return ValidateSpellInfo(PaladinSpells.AvengingWrath) && spellInfo.Effects.Count >= 1;
         }
 
         public override void Register()
@@ -30,7 +30,7 @@ namespace Scripts.Spells.Paladin
 
         private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
         {
-            return RandomHelper.randChance(aurEff.GetAmount());
+            return RandomHelper.randChance(aurEff.Amount);
         }
 
         private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
@@ -39,14 +39,14 @@ namespace Scripts.Spells.Paladin
             AuraEffect durationEffect = GetEffect(1);
 
             if (durationEffect != null)
-                extraDuration = TimeSpan.FromSeconds(durationEffect.GetAmount());
+                extraDuration = TimeSpan.FromSeconds(durationEffect.Amount);
 
             Aura avengingWrath = GetTarget().GetAura(PaladinSpells.AvengingWrath);
 
             if (avengingWrath != null)
             {
-                avengingWrath.SetDuration((int)(avengingWrath.GetDuration() + extraDuration.TotalMilliseconds));
-                avengingWrath.SetMaxDuration((int)(avengingWrath.GetMaxDuration() + extraDuration.TotalMilliseconds));
+                avengingWrath.SetDuration((int)(avengingWrath.Duration + extraDuration.TotalMilliseconds));
+                avengingWrath.SetMaxDuration((int)(avengingWrath.MaxDuration + extraDuration.TotalMilliseconds));
             }
             else
             {

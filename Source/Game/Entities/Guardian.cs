@@ -1,4 +1,7 @@
-﻿using Framework.Constants;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Framework.Constants;
 using Game.DataStorage;
 
 namespace Game.Entities;
@@ -67,9 +70,9 @@ public class Guardian : Minion
 		if (IsPet() && GetOwner().IsTypeId(TypeId.Player))
 		{
 			if (GetOwner().GetClass() == Class.Warlock ||
-			    GetOwner().GetClass() == Class.Shaman // Fire Elemental
-			    ||
-			    GetOwner().GetClass() == Class.Deathknight) // Risen Ghoul
+				GetOwner().GetClass() == Class.Shaman // Fire Elemental
+				||
+				GetOwner().GetClass() == Class.Deathknight) // Risen Ghoul
 			{
 				petType = PetType.Summon;
 			}

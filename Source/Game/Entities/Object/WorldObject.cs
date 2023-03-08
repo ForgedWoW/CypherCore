@@ -53,28 +53,6 @@ public abstract class WorldObject : IDisposable
 
 	SmoothPhasing _smoothPhasing;
 
-	public WorldObject(bool isWorldObject)
-	{
-		_name          = "";
-		_isWorldObject = isWorldObject;
-
-		ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
-		ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-
-		ObjectTypeId   = TypeId.Object;
-		ObjectTypeMask = TypeMask.Object;
-
-		Values = new UpdateFieldHolder(this);
-
-		MovementInfo = new MovementInfo();
-		_updateFlag.Clear();
-
-		ObjectData = new ObjectFieldData();
-
-		_staticFloorZ = MapConst.VMAPInvalidHeightValue;
-		Location      = new WorldLocation();
-	}
-
 	public VariableStore VariableStorage { get; } = new();
 
 	public TypeMask ObjectTypeMask { get; set; }
@@ -101,6 +79,28 @@ public abstract class WorldObject : IDisposable
 	public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibilityDetect { get; set; } = new(2);
 
 	public WorldLocation Location { get; set; }
+
+	public WorldObject(bool isWorldObject)
+	{
+		_name = "";
+		_isWorldObject = isWorldObject;
+
+		ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
+		ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+
+		ObjectTypeId = TypeId.Object;
+		ObjectTypeMask = TypeMask.Object;
+
+		Values = new UpdateFieldHolder(this);
+
+		MovementInfo = new MovementInfo();
+		_updateFlag.Clear();
+
+		ObjectData = new ObjectFieldData();
+
+		_staticFloorZ = MapConst.VMAPInvalidHeightValue;
+		Location = new WorldLocation();
+	}
 
 	public virtual void Dispose()
 	{
@@ -136,7 +136,7 @@ public abstract class WorldObject : IDisposable
 	public void Create(ObjectGuid guid)
 	{
 		_objectUpdated = false;
-		_guid          = guid;
+		_guid = guid;
 	}
 
 	public virtual void AddToWorld()
@@ -180,7 +180,7 @@ public abstract class WorldObject : IDisposable
 			if (area.ParentAreaID != 0)
 				_zoneId = area.ParentAreaID;
 
-		_outdoors     = data.Outdoors;
+		_outdoors = data.Outdoors;
 		_staticFloorZ = data.FloorZ;
 		_liquidStatus = data.LiquidStatus;
 	}
@@ -196,9 +196,9 @@ public abstract class WorldObject : IDisposable
 
 		if (target == this)
 		{
-			flags.ThisIsYou    = true;
+			flags.ThisIsYou = true;
 			flags.ActivePlayer = true;
-			tempObjectType     = TypeId.ActivePlayer;
+			tempObjectType = TypeId.ActivePlayer;
 		}
 
 		if (!flags.MovementUpdate && !MovementInfo.Transport.Guid.IsEmpty())
@@ -1297,8 +1297,8 @@ public abstract class WorldObject : IDisposable
 			if (thisPlayer != null)
 			{
 				if (thisPlayer.IsDead() &&
-				    thisPlayer.GetHealth() > 0 && // Cheap way to check for ghost state
-				    !Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost))
+					thisPlayer.GetHealth() > 0 && // Cheap way to check for ghost state
+					!Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost))
 				{
 					var corpse = thisPlayer.GetCorpse();
 
@@ -1436,9 +1436,9 @@ public abstract class WorldObject : IDisposable
 		if (_currMap == map)
 			return;
 
-		_currMap       = map;
+		_currMap = map;
 		Location.MapId = map.GetId();
-		InstanceId     = map.GetInstanceId();
+		InstanceId = map.GetInstanceId();
 
 		if (IsWorldObject())
 			_currMap.AddWorldObject(this);
@@ -1974,7 +1974,7 @@ public abstract class WorldObject : IDisposable
 
 		if (unit != null)
 		{
-			comboPoints    = unit.GetPower(PowerType.ComboPoints);
+			comboPoints = unit.GetPower(PowerType.ComboPoints);
 			maxComboPoints = unit.GetMaxPower(PowerType.ComboPoints);
 		}
 
@@ -2013,7 +2013,7 @@ public abstract class WorldObject : IDisposable
 
 			bool mechanicCheck(AuraEffect aurEff)
 			{
-				if ((mechanicMask & (1ul << aurEff.GetMiscValue())) != 0)
+				if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
 					return true;
 
 				return false;
@@ -2031,7 +2031,7 @@ public abstract class WorldObject : IDisposable
 				MathFunctions.AddPct(ref duration, durationMod);
 
 			// there are only negative mods currently
-			durationMod_always    = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
+			durationMod_always = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
 			durationMod_not_stack = unitTarget.GetMaxNegativeAuraModifierByMiscValue(AuraType.ModAuraDurationByDispelNotStack, (int)spellInfo.Dispel);
 
 			durationMod = Math.Min(durationMod_always, durationMod_not_stack);
@@ -2047,9 +2047,9 @@ public abstract class WorldObject : IDisposable
 			// Mixology - duration boost
 			if (unitTarget.IsPlayer())
 				if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
-				    (
-					    Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
-					    Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
+					(
+						Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
+						Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
 				{
 					var effect = spellInfo.GetEffect(0);
 
@@ -2092,7 +2092,7 @@ public abstract class WorldObject : IDisposable
 		if (spellInfo == null || duration < 0)
 			return;
 
-		if (spellInfo.IsChanneled() && !spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
+		if (spellInfo.IsChanneled && !spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
 			return;
 
 		// called from caster
@@ -2107,7 +2107,7 @@ public abstract class WorldObject : IDisposable
 			return;
 
 		if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&
-		    ((IsPlayer() && spellInfo.SpellFamilyName != 0) || IsCreature()))
+			((IsPlayer() && spellInfo.SpellFamilyName != 0) || IsCreature()))
 			duration = (int)(duration * unitCaster.UnitData.ModCastingSpeed);
 		else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
 			duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
@@ -2144,7 +2144,7 @@ public abstract class WorldObject : IDisposable
 
 		// All positive spells can`t miss
 		/// @todo client not show miss log for this spells - so need find info for this in dbc and use it!
-		if (spellInfo.IsPositive() && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
+		if (spellInfo.IsPositive && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
 			return SpellMissInfo.None;
 
 		if (this == victim)
@@ -2185,7 +2185,7 @@ public abstract class WorldObject : IDisposable
 	{
 		SpellMissLog spellMissLog = new();
 		spellMissLog.SpellID = spellID;
-		spellMissLog.Caster  = GetGUID();
+		spellMissLog.Caster = GetGUID();
 		spellMissLog.Entries.Add(new SpellLogMissEntry(target.GetGUID(), (byte)missInfo));
 		SendMessageToSet(spellMissLog, true);
 	}
@@ -2555,27 +2555,27 @@ public abstract class WorldObject : IDisposable
 		foreach (var pair in args.SpellValueOverrides)
 			spell.SetSpellValue(pair.Key, (float)pair.Value);
 
-		spell.m_CastItem = args.CastItem;
+		spell.CastItem = args.CastItem;
 
 		if (args.OriginalCastItemLevel.HasValue)
-			spell.m_castItemLevel = args.OriginalCastItemLevel.Value;
+			spell.CastItemLevel = args.OriginalCastItemLevel.Value;
 
-		if (spell.m_CastItem == null && info.HasAttribute(SpellAttr2.RetainItemCast))
+		if (spell.CastItem == null && info.HasAttribute(SpellAttr2.RetainItemCast))
 		{
 			if (args.TriggeringSpell)
 			{
-				spell.m_CastItem = args.TriggeringSpell.m_CastItem;
+				spell.CastItem = args.TriggeringSpell.CastItem;
 			}
-			else if (args.TriggeringAura != null && !args.TriggeringAura.GetBase().GetCastItemGUID().IsEmpty())
+			else if (args.TriggeringAura != null && !args.TriggeringAura.Base.CastItemGuid.IsEmpty())
 			{
-				var triggeringAuraCaster = args.TriggeringAura.GetCaster()?.ToPlayer();
+				var triggeringAuraCaster = args.TriggeringAura.Caster?.ToPlayer();
 
 				if (triggeringAuraCaster != null)
-					spell.m_CastItem = triggeringAuraCaster.GetItemByGuid(args.TriggeringAura.GetBase().GetCastItemGUID());
+					spell.CastItem = triggeringAuraCaster.GetItemByGuid(args.TriggeringAura.Base.CastItemGuid);
 			}
 		}
 
-		spell.m_customArg = args.CustomArg;
+		spell.CustomArg = args.CustomArg;
 
 		return spell.Prepare(targets.Targets, args.TriggeringAura);
 	}
@@ -2583,51 +2583,51 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source         = GetGUID();
-		playSpellVisual.Target         = target.GetGUID();
+		playSpellVisual.Source = GetGUID();
+		playSpellVisual.Target = target.GetGUID();
 		playSpellVisual.TargetPosition = target.Location;
-		playSpellVisual.SpellVisualID  = spellVisualId;
-		playSpellVisual.TravelSpeed    = travelSpeed;
-		playSpellVisual.MissReason     = missReason;
-		playSpellVisual.ReflectStatus  = reflectStatus;
-		playSpellVisual.SpeedAsTime    = speedAsTime;
-		playSpellVisual.LaunchDelay    = launchDelay;
+		playSpellVisual.SpellVisualID = spellVisualId;
+		playSpellVisual.TravelSpeed = travelSpeed;
+		playSpellVisual.MissReason = missReason;
+		playSpellVisual.ReflectStatus = reflectStatus;
+		playSpellVisual.SpeedAsTime = speedAsTime;
+		playSpellVisual.LaunchDelay = launchDelay;
 		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisual(Position targetPosition, float launchDelay, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source         = GetGUID();
+		playSpellVisual.Source = GetGUID();
 		playSpellVisual.TargetPosition = targetPosition;
-		playSpellVisual.LaunchDelay    = launchDelay;
-		playSpellVisual.SpellVisualID  = spellVisualId;
-		playSpellVisual.TravelSpeed    = travelSpeed;
-		playSpellVisual.MissReason     = missReason;
-		playSpellVisual.ReflectStatus  = reflectStatus;
-		playSpellVisual.SpeedAsTime    = speedAsTime;
+		playSpellVisual.LaunchDelay = launchDelay;
+		playSpellVisual.SpellVisualID = spellVisualId;
+		playSpellVisual.TravelSpeed = travelSpeed;
+		playSpellVisual.MissReason = missReason;
+		playSpellVisual.ReflectStatus = reflectStatus;
+		playSpellVisual.SpeedAsTime = speedAsTime;
 		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisual(Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source         = GetGUID();
+		playSpellVisual.Source = GetGUID();
 		playSpellVisual.TargetPosition = targetPosition;
-		playSpellVisual.SpellVisualID  = spellVisualId;
-		playSpellVisual.TravelSpeed    = travelSpeed;
-		playSpellVisual.MissReason     = missReason;
-		playSpellVisual.ReflectStatus  = reflectStatus;
-		playSpellVisual.SpeedAsTime    = speedAsTime;
+		playSpellVisual.SpellVisualID = spellVisualId;
+		playSpellVisual.TravelSpeed = travelSpeed;
+		playSpellVisual.MissReason = missReason;
+		playSpellVisual.ReflectStatus = reflectStatus;
+		playSpellVisual.SpeedAsTime = speedAsTime;
 		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
 	{
 		PlaySpellVisualKit playSpellVisualKit = new();
-		playSpellVisualKit.Unit     = GetGUID();
+		playSpellVisualKit.Unit = GetGUID();
 		playSpellVisualKit.KitRecID = id;
-		playSpellVisualKit.KitType  = type;
+		playSpellVisualKit.KitType = type;
 		playSpellVisualKit.Duration = duration;
 
 		SendMessageToSet(playSpellVisualKit, true);
@@ -2639,7 +2639,7 @@ public abstract class WorldObject : IDisposable
 		Cypher.Assert(target != null);
 
 		// some positive spells can be casted at hostile target
-		var isPositiveSpell = bySpell != null && bySpell.IsPositive();
+		var isPositiveSpell = bySpell != null && bySpell.IsPositive;
 
 		// can't attack self (spells can, attribute check)
 		if (bySpell == null && this == target)
@@ -2786,7 +2786,7 @@ public abstract class WorldObject : IDisposable
 				return true;
 
 			return playerAffectingAttacker.HasPvpFlag(UnitPVPStateFlags.Unk1) ||
-			       playerAffectingTarget.HasPvpFlag(UnitPVPStateFlags.Unk1);
+					playerAffectingTarget.HasPvpFlag(UnitPVPStateFlags.Unk1);
 		}
 
 		return true;
@@ -2798,7 +2798,7 @@ public abstract class WorldObject : IDisposable
 		Cypher.Assert(target);
 
 		// some negative spells can be casted at friendly target
-		var isNegativeSpell = bySpell != null && !bySpell.IsPositive();
+		var isNegativeSpell = bySpell != null && !bySpell.IsPositive;
 
 		// can assist to self
 		if (this == target)
@@ -2914,13 +2914,13 @@ public abstract class WorldObject : IDisposable
 
 		foreach (var aurEff in magnetAuras)
 		{
-			var magnet = aurEff.GetBase().GetCaster();
+			var magnet = aurEff.Base.GetCaster();
 
 			if (magnet != null)
 				if (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && IsValidAttackTarget(magnet, spellInfo))
 				{
 					/// @todo handle this charge drop by proc in cast phase on explicit target
-					if (spellInfo.HasHitDelay())
+					if (spellInfo.HasHitDelay)
 					{
 						// Set up missile speed based delay
 						var hitDelay = spellInfo.LaunchDelay;
@@ -2932,11 +2932,11 @@ public abstract class WorldObject : IDisposable
 
 						var delay = (uint)Math.Floor(hitDelay * 1000.0f);
 						// Schedule charge drop
-						aurEff.GetBase().DropChargeDelayed(delay, AuraRemoveMode.Expire);
+						aurEff.Base.DropChargeDelayed(delay, AuraRemoveMode.Expire);
 					}
 					else
 					{
-						aurEff.GetBase().DropCharge(AuraRemoveMode.Expire);
+						aurEff.Base.DropCharge(AuraRemoveMode.Expire);
 					}
 
 					return magnet;
@@ -3121,10 +3121,10 @@ public abstract class WorldObject : IDisposable
 	{
 		//updates object's visibility for nearby players
 		var notifier = new VisibleChangesNotifier(new[]
-		                                          {
-			                                          this
-		                                          },
-		                                          GridType.World);
+												{
+													this
+												},
+												GridType.World);
 
 		Cell.VisitGrid(this, notifier, GetVisibilityRange());
 	}
@@ -3598,9 +3598,7 @@ public abstract class WorldObject : IDisposable
 		return 0;
 	}
 
-	public virtual void SetFaction(uint faction)
-	{
-	}
+	public virtual void SetFaction(uint faction) { }
 
 	//Position
 
@@ -3625,7 +3623,7 @@ public abstract class WorldObject : IDisposable
 
 		if (GetTransport() != null && obj.GetTransport() != null && obj.GetTransport().GetTransportGUID() == GetTransport().GetTransportGUID())
 		{
-			thisOrTransport   = MovementInfo.Transport.Pos;
+			thisOrTransport = MovementInfo.Transport.Pos;
 			objOrObjTransport = obj.MovementInfo.Transport.Pos;
 		}
 
@@ -3731,7 +3729,7 @@ public abstract class WorldObject : IDisposable
 
 			if (IsTypeId(TypeId.Player))
 			{
-				pos   =  Location.Copy();
+				pos = Location.Copy();
 				pos.Z += GetCollisionHeight();
 			}
 			else
@@ -3754,7 +3752,7 @@ public abstract class WorldObject : IDisposable
 
 		if (obj.IsTypeId(TypeId.Player))
 		{
-			pos   =  obj.Location.Copy();
+			pos = obj.Location.Copy();
 			pos.Z += GetCollisionHeight();
 		}
 		else
@@ -3766,7 +3764,7 @@ public abstract class WorldObject : IDisposable
 
 		if (IsPlayer())
 		{
-			pos2   =  Location.Copy();
+			pos2 = Location.Copy();
 			pos2.Z += GetCollisionHeight();
 		}
 		else
@@ -3950,7 +3948,7 @@ public abstract class WorldObject : IDisposable
 				{
 					// hovering units cannot go below their hover height
 					var hoverOffset = unit.GetHoverOffset();
-					max_z    += hoverOffset;
+					max_z += hoverOffset;
 					ground_z += hoverOffset;
 
 					if (z > max_z)
@@ -4129,11 +4127,11 @@ public abstract class WorldObject : IDisposable
 			// do not allow too big z changes
 			if (Math.Abs(pos.Z - destz) > 6)
 			{
-				destx  -= step * (float)Math.Cos(angle);
-				desty  -= step * (float)Math.Sin(angle);
-				ground =  GetMap().GetHeight(GetPhaseShift(), destx, desty, MapConst.MaxHeight, true);
-				floor  =  GetMap().GetHeight(GetPhaseShift(), destx, desty, pos.Z, true);
-				destz  =  Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
+				destx -= step * (float)Math.Cos(angle);
+				desty -= step * (float)Math.Sin(angle);
+				ground = GetMap().GetHeight(GetPhaseShift(), destx, desty, MapConst.MaxHeight, true);
+				floor = GetMap().GetHeight(GetPhaseShift(), destx, desty, pos.Z, true);
+				destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
 			}
 			// we have correct destz now
 			else
@@ -4143,9 +4141,9 @@ public abstract class WorldObject : IDisposable
 				break;
 			}
 
-		pos.X           = GridDefines.NormalizeMapCoord(pos.X);
-		pos.Y           = GridDefines.NormalizeMapCoord(pos.Y);
-		pos.Z           = UpdateGroundPositionZ(pos.X, pos.Y, pos.Z);
+		pos.X = GridDefines.NormalizeMapCoord(pos.X);
+		pos.Y = GridDefines.NormalizeMapCoord(pos.Y);
+		pos.Z = UpdateGroundPositionZ(pos.X, pos.Y, pos.Z);
 		pos.Orientation = Location.Orientation;
 	}
 
@@ -4187,16 +4185,16 @@ public abstract class WorldObject : IDisposable
 		if (path.GetPathType().HasFlag(PathType.NotUsingPath))
 		{
 			col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(GetPhaseShift(), Location.MapId, GetMap().GetTerrain(), pos.X, pos.Y),
-			                                     pos.X,
-			                                     pos.Y,
-			                                     pos.Z + halfHeight,
-			                                     destx,
-			                                     desty,
-			                                     destz + halfHeight,
-			                                     out destx,
-			                                     out desty,
-			                                     out destz,
-			                                     -0.5f);
+												pos.X,
+												pos.Y,
+												pos.Z + halfHeight,
+												destx,
+												desty,
+												destz + halfHeight,
+												out destx,
+												out desty,
+												out destz,
+												-0.5f);
 
 			destz -= halfHeight;
 
@@ -4205,7 +4203,7 @@ public abstract class WorldObject : IDisposable
 			{
 				destx -= SharedConst.ContactDistance * MathF.Cos(angle);
 				desty -= SharedConst.ContactDistance * MathF.Sin(angle);
-				dist  =  MathF.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
+				dist = MathF.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
 			}
 		}
 
@@ -4219,7 +4217,7 @@ public abstract class WorldObject : IDisposable
 		{
 			destx -= SharedConst.ContactDistance * (float)Math.Cos(angle);
 			desty -= SharedConst.ContactDistance * (float)Math.Sin(angle);
-			dist  =  (float)Math.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
+			dist = (float)Math.Sqrt((pos.X - destx) * (pos.X - destx) + (pos.Y - desty) * (pos.Y - desty));
 		}
 
 		var groundZ = MapConst.VMAPInvalidHeightValue;
@@ -4487,12 +4485,12 @@ public abstract class WorldObject : IDisposable
 			{
 				if (!victim.IsPlayer())
 				{
-					modHitChance      =  94 - 3 * Math.Min(levelBasedHitDiff, 3);
+					modHitChance = 94 - 3 * Math.Min(levelBasedHitDiff, 3);
 					levelBasedHitDiff -= 3;
 				}
 				else
 				{
-					modHitChance      =  96 - Math.Min(levelBasedHitDiff, 2);
+					modHitChance = 96 - Math.Min(levelBasedHitDiff, 2);
 					levelBasedHitDiff -= 2;
 				}
 
@@ -4556,7 +4554,7 @@ public abstract class WorldObject : IDisposable
 	void SendCancelSpellVisual(uint id)
 	{
 		CancelSpellVisual cancelSpellVisual = new();
-		cancelSpellVisual.Source        = GetGUID();
+		cancelSpellVisual.Source = GetGUID();
 		cancelSpellVisual.SpellVisualID = id;
 		SendMessageToSet(cancelSpellVisual, true);
 	}
@@ -4573,8 +4571,8 @@ public abstract class WorldObject : IDisposable
 				var rotation = ToGameObject().GetWorldRotation();
 
 				rotation.toEulerAnglesZYX(out playOrphanSpellVisual.SourceRotation.Z,
-				                          out playOrphanSpellVisual.SourceRotation.Y,
-				                          out playOrphanSpellVisual.SourceRotation.X);
+										out playOrphanSpellVisual.SourceRotation.Y,
+										out playOrphanSpellVisual.SourceRotation.X);
 			}
 			else
 			{
@@ -4582,11 +4580,11 @@ public abstract class WorldObject : IDisposable
 			}
 		}
 
-		playOrphanSpellVisual.Target        = target; // exclusive with TargetLocation
+		playOrphanSpellVisual.Target = target; // exclusive with TargetLocation
 		playOrphanSpellVisual.SpellVisualID = spellVisualId;
-		playOrphanSpellVisual.TravelSpeed   = travelSpeed;
-		playOrphanSpellVisual.SpeedAsTime   = speedAsTime;
-		playOrphanSpellVisual.LaunchDelay   = 0.0f;
+		playOrphanSpellVisual.TravelSpeed = travelSpeed;
+		playOrphanSpellVisual.SpeedAsTime = speedAsTime;
+		playOrphanSpellVisual.LaunchDelay = 0.0f;
 		SendMessageToSet(playOrphanSpellVisual, true);
 	}
 
@@ -4602,8 +4600,8 @@ public abstract class WorldObject : IDisposable
 				var rotation = ToGameObject().GetWorldRotation();
 
 				rotation.toEulerAnglesZYX(out playOrphanSpellVisual.SourceRotation.Z,
-				                          out playOrphanSpellVisual.SourceRotation.Y,
-				                          out playOrphanSpellVisual.SourceRotation.X);
+										out playOrphanSpellVisual.SourceRotation.Y,
+										out playOrphanSpellVisual.SourceRotation.X);
 			}
 			else
 			{
@@ -4612,10 +4610,10 @@ public abstract class WorldObject : IDisposable
 		}
 
 		playOrphanSpellVisual.TargetLocation = targetLocation; // exclusive with Target
-		playOrphanSpellVisual.SpellVisualID  = spellVisualId;
-		playOrphanSpellVisual.TravelSpeed    = travelSpeed;
-		playOrphanSpellVisual.SpeedAsTime    = speedAsTime;
-		playOrphanSpellVisual.LaunchDelay    = 0.0f;
+		playOrphanSpellVisual.SpellVisualID = spellVisualId;
+		playOrphanSpellVisual.TravelSpeed = travelSpeed;
+		playOrphanSpellVisual.SpeedAsTime = speedAsTime;
+		playOrphanSpellVisual.LaunchDelay = 0.0f;
 		SendMessageToSet(playOrphanSpellVisual, true);
 	}
 
@@ -4629,7 +4627,7 @@ public abstract class WorldObject : IDisposable
 	void SendCancelSpellVisualKit(uint id)
 	{
 		CancelSpellVisualKit cancelSpellVisualKit = new();
-		cancelSpellVisualKit.Source           = GetGUID();
+		cancelSpellVisualKit.Source = GetGUID();
 		cancelSpellVisualKit.SpellVisualKitID = id;
 		SendMessageToSet(cancelSpellVisualKit, true);
 	}

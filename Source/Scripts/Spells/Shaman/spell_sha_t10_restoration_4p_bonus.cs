@@ -37,7 +37,7 @@ internal class spell_sha_t10_restoration_4p_bonus : AuraScript, IHasAuraEffects
 			return;
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.ChainedHeal, GetCastDifficulty());
-		var amount    = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.GetAmount());
+		var amount    = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
 		amount /= (int)spellInfo.GetMaxTicks();
 
 		var caster = eventInfo.GetActor();

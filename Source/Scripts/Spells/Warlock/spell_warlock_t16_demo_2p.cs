@@ -31,18 +31,18 @@ namespace Scripts.Spells.Warlock
 			{
 				case WarlockSpells.CONFLAGRATE:
 				case WarlockSpells.CONFLAGRATE_FIRE_AND_BRIMSTONE:
-					chance = aurEff.GetSpellInfo().GetEffect(3).BasePoints;
+					chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
 					triggeredSpellId = 145075; // Destructive Influence
 
 					break;
 				case WarlockSpells.UNSTABLE_AFFLICTION:
-					chance = aurEff.GetSpellInfo().GetEffect(1).BasePoints;
+					chance = aurEff.SpellInfo.GetEffect(1).BasePoints;
 					triggeredSpellId = 145082; // Empowered Grasp
 
 					break;
 				case WarlockSpells.SOUL_FIRE:
 				case WarlockSpells.SOUL_FIRE_METAMORPHOSIS:
-					chance = aurEff.GetSpellInfo().GetEffect(3).BasePoints;
+					chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
 					triggeredSpellId = 145085; // Fiery Wrath
 
 					break;

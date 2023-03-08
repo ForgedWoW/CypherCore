@@ -17,7 +17,7 @@ internal class spell_item_artifical_damage : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.GetEffects().Count > 1;
+		return spellInfo.Effects.Count > 1;
 	}
 
 	public override bool Load()
@@ -32,7 +32,7 @@ internal class spell_item_artifical_damage : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var artifact = GetOwner().ToPlayer().GetItemByGuid(GetAura().GetCastItemGUID());
+		var artifact = GetOwner().ToPlayer().GetItemByGuid(GetAura().CastItemGuid);
 
 		if (artifact)
 			amount.Value = (GetSpellInfo().GetEffect(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);

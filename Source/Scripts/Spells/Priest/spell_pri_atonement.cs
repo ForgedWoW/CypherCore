@@ -18,7 +18,7 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(PriestSpells.ATONEMENT_HEAL, PriestSpells.SINS_OF_THE_MANY) && spellInfo.GetEffects().Count > 1 && Global.SpellMgr.GetSpellInfo(PriestSpells.SINS_OF_THE_MANY, Difficulty.None).GetEffects().Count > 2;
+		return ValidateSpellInfo(PriestSpells.ATONEMENT_HEAL, PriestSpells.SINS_OF_THE_MANY) && spellInfo.Effects.Count > 1 && Global.SpellMgr.GetSpellInfo(PriestSpells.SINS_OF_THE_MANY, Difficulty.None).Effects.Count > 2;
 	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
@@ -51,7 +51,7 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 	{
 		var                damageInfo = eventInfo.GetDamageInfo();
 		CastSpellExtraArgs args       = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount()));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
 
         _appliedAtonements.RemoveAll(targetGuid =>
 		                             {

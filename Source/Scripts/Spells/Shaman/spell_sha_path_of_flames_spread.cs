@@ -48,8 +48,8 @@ internal class spell_sha_path_of_flames_spread : SpellScript, IHasSpellEffects
 
 				if (newAura != null)
 				{
-					newAura.SetDuration(flameShock.GetDuration());
-					newAura.SetMaxDuration(flameShock.GetDuration());
+					newAura.SetDuration(flameShock.Duration);
+					newAura.SetMaxDuration(flameShock.Duration);
 				}
 			}
 		}

@@ -17,7 +17,7 @@ internal class spell_gen_eject_passenger : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		if (spellInfo.GetEffects().Empty())
+		if (spellInfo.Effects.Empty())
 			return false;
 
 		if (spellInfo.GetEffect(0).CalcValue() < 1)

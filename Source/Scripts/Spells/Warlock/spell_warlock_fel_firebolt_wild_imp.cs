@@ -32,7 +32,7 @@ namespace Scripts.Spells.Warlock
 					var aur = owner.AddAura(WarlockSpells.STOLEN_POWER_COUNTER, owner);
 
 					if (aur != null)
-						if (aur.GetStackAmount() == 100)
+						if (aur.StackAmount == 100)
 						{
 							owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
 							aur.Remove();

@@ -21,7 +21,7 @@ namespace Scripts.Spells.Warrior
 			if (!ValidateSpellInfo(WarriorSpells.SHOCKWAVE, WarriorSpells.SHOCKWAVE_STUN))
 				return false;
 
-			return spellInfo.GetEffects().Count > 3;
+			return spellInfo.Effects.Count > 3;
 		}
 
 		public override bool Load()

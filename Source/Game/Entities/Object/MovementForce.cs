@@ -20,13 +20,13 @@ public class MovementForce
 
 	public void Read(WorldPacket data)
 	{
-		ID          = data.ReadPackedGuid();
-		Origin      = data.ReadVector3();
-		Direction   = data.ReadVector3();
+		ID = data.ReadPackedGuid();
+		Origin = data.ReadVector3();
+		Direction = data.ReadVector3();
 		TransportID = data.ReadUInt32();
-		Magnitude   = data.ReadFloat();
-		Unused910   = data.ReadInt32();
-		Type        = (MovementForceType)data.ReadBits<byte>(2);
+		Magnitude = data.ReadFloat();
+		Unused910 = data.ReadInt32();
+		Type = (MovementForceType)data.ReadBits<byte>(2);
 	}
 
 	public void Write(WorldPacket data)

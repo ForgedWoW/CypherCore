@@ -43,7 +43,7 @@ internal class spell_item_shadowmourne : AuraScript, IAuraCheckProc, IHasAuraEff
 		var soulFragments = GetTarget().GetAura(ItemSpellIds.ShadowmourneSoulFragment);
 
 		if (soulFragments != null)
-			if (soulFragments.GetStackAmount() >= 10)
+			if (soulFragments.StackAmount >= 10)
 			{
 				GetTarget().CastSpell(eventInfo.GetProcTarget(), ItemSpellIds.ShadowmourneChaosBaneDamage, new CastSpellExtraArgs(aurEff));
 				soulFragments.Remove();

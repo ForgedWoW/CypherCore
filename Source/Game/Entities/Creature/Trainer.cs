@@ -145,7 +145,7 @@ public class Trainer
 		if (trainerSpellInfo.IsPrimaryProfessionFirstRank() && player.GetFreePrimaryProfessionPoints() == 0)
 			return false;
 
-		foreach (var effect in trainerSpellInfo.GetEffects())
+		foreach (var effect in trainerSpellInfo.Effects)
 		{
 			if (!effect.IsEffect(SpellEffectName.LearnSpell))
 				continue;
@@ -184,7 +184,7 @@ public class Trainer
 		var hasLearnSpellEffect = false;
 		var knowsAllLearnedSpells = true;
 
-		foreach (var spellEffectInfo in Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None).GetEffects())
+		foreach (var spellEffectInfo in Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None).Effects)
 		{
 			if (!spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
 				continue;

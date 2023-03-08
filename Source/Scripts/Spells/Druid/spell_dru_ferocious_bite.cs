@@ -19,7 +19,7 @@ namespace Scripts.Spells.Druid
 
 		public override bool Validate(SpellInfo spellInfo)
 		{
-			return ValidateSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle) && Global.SpellMgr.GetSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle, Difficulty.None).GetEffects().Count > 1;
+			return ValidateSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle) && Global.SpellMgr.GetSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle, Difficulty.None).Effects.Count > 1;
 		}
 
 		public override void Register()
@@ -51,7 +51,7 @@ namespace Scripts.Spells.Druid
 
 			if (auraEffect != null)
 			{
-				var multiplier = 1.0f + (double)auraEffect.GetAmount() / 100.0f;
+				var multiplier = 1.0f + (double)auraEffect.Amount / 100.0f;
 				maxExtraConsumedPower = (int)((double)maxExtraConsumedPower * multiplier);
 				SetEffectValue(maxExtraConsumedPower);
 			}

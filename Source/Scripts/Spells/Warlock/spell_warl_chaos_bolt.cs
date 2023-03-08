@@ -77,10 +77,10 @@ namespace Scripts.Spells.Warlock
             if (cryHavocDmgSpll == null)
                 return;
 
-            var havocDamageBase = havoc.GetEffect(0).m_baseAmount * .01; // .6 or 60% by default.
-            var dmg = (cryHavoc.GetEffect(0).GetAmount() * .01) * (cryHavocDmgSpll.GetEffect(1).BonusCoefficient * (GetHitDamage() * havocDamageBase));
+            var havocDamageBase = havoc.GetEffect(0).BaseAmount * .01; // .6 or 60% by default.
+            var dmg = (cryHavoc.GetEffect(0).Amount * .01) * (cryHavocDmgSpll.GetEffect(1).BonusCoefficient * (GetHitDamage() * havocDamageBase));
 
-            var spellInfo = cryHavoc.GetSpellInfo();
+            var spellInfo = cryHavoc.SpellInfo;
 
             if (spellInfo != null)
             {
@@ -109,8 +109,8 @@ namespace Scripts.Spells.Warlock
                 !immolationAura.GetEffect(0).TryGetEstimatedAmount(out var dmgPerTick))
                 return;
 
-            var duration = immolationAura.GetDuration();
-            var modDur = (int)(internalCombustion.GetEffect(0).m_baseAmount * Time.InMilliseconds);
+            var duration = immolationAura.Duration;
+            var modDur = (int)(internalCombustion.GetEffect(0).BaseAmount * Time.InMilliseconds);
 
             if (modDur <= 0)
                 modDur = Time.InMilliseconds;

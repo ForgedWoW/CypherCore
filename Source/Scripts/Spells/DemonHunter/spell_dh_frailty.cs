@@ -24,7 +24,7 @@ public class spell_dh_frailty : AuraScript, IHasAuraEffects
 		if (caster == null || caster != eventInfo.GetActor() || eventInfo.GetDamageInfo() != null)
 			return;
 
-		_damage += MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.GetAmount());
+		_damage += MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
 	}
 
 	private void PeriodicTick(AuraEffect UnnamedParameter)

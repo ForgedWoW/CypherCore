@@ -617,15 +617,15 @@ namespace Game.AI
             List<Aura> removableShapeshifts = new();
             foreach (AuraEffect auraEff in shapeshiftAuras)
             {
-                Aura aura = auraEff.GetBase();
+                Aura aura = auraEff.Base;
                 if (aura == null)
                     continue;
-                SpellInfo auraInfo = aura.GetSpellInfo();
+                SpellInfo auraInfo = aura.SpellInfo;
                 if (auraInfo == null)
                     continue;
                 if (auraInfo.HasAttribute(SpellAttr0.NoAuraCancel))
                     continue;
-                if (!auraInfo.IsPositive() || auraInfo.IsPassive())
+                if (!auraInfo.IsPositive || auraInfo.IsPassive())
                     continue;
                 removableShapeshifts.Add(aura);
             }
@@ -1243,7 +1243,7 @@ namespace Game.AI
                 var auras = me.GetAuraEffectsByType(AuraType.ModCharm);
                 foreach (var effect in auras)
                 {
-                    if (effect.GetCasterGUID() == charmer.GetGUID() && effect.GetBase().IsPermanent())
+                    if (effect.CasterGuid == charmer.GetGUID() && effect.Base.IsPermanent)
                     {
                         me.KillSelf();
                         return;

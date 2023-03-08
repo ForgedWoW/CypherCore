@@ -40,7 +40,7 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
 		var shield = target.GetAuraEffect(ItemSpellIds.PersistentShieldTriggered, 0, caster.GetGUID());
 
 		if (shield != null)
-			if (shield.GetAmount() > bp0)
+			if (shield.Amount > bp0)
 				return;
 
 		CastSpellExtraArgs args = new(aurEff);

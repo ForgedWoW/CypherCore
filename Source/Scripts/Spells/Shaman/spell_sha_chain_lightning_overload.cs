@@ -18,7 +18,7 @@ internal class spell_sha_chain_lightning_overload : SpellScript, IHasSpellEffect
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(ShamanSpells.ChainLightningOverloadEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).GetEffects().Count > 5;
+		return ValidateSpellInfo(ShamanSpells.ChainLightningOverloadEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 5;
 	}
 
 	public override void Register()
@@ -35,6 +35,6 @@ internal class spell_sha_chain_lightning_overload : SpellScript, IHasSpellEffect
 				.CastSpell(GetCaster(),
 				           ShamanSpells.ChainLightningOverloadEnergize,
 				           new CastSpellExtraArgs(energizeAmount)
-					           .AddSpellMod(SpellValueMod.BasePoint0, (int)(energizeAmount.GetAmount() * GetUnitTargetCountForEffect(0))));
+					           .AddSpellMod(SpellValueMod.BasePoint0, (int)(energizeAmount.Amount * GetUnitTargetCountForEffect(0))));
 	}
 }

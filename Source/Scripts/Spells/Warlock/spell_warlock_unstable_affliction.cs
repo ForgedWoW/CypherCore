@@ -43,10 +43,10 @@ namespace Scripts.Spells.Warlock
 
 				if (ua != null)
 				{
-					if (ua.GetDuration() < minDuration)
+					if (ua.Duration < minDuration)
 					{
-						minDuration         = ua.GetDuration();
-						lowestDurationSpell = ua.GetSpellInfo().Id;
+						minDuration         = ua.Duration;
+						lowestDurationSpell = ua.SpellInfo.Id;
 					}
 				}
 				else

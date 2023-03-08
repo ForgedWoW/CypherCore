@@ -41,7 +41,7 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 		    damageInfo.GetDamage() == 0)
 			return;
 
-		var selfHeal = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount());
+		var selfHeal = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
 		var teamHeal = selfHeal / 2;
 
 		CastSpellExtraArgs args = new(aurEff);

@@ -35,7 +35,7 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 
 		if (aura != null)
 		{
-			uint stacks = aura.GetStackAmount();
+			uint stacks = aura.StackAmount;
 
 			// Force always to values between 1 and 5
 			if ((modifier == -1 && stacks == 1) ||

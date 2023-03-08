@@ -29,7 +29,7 @@ namespace Scripts.Spells.Warlock
 			{
 				case WarlockSpells.SHADOWBURN:
 				case WarlockSpells.CONFLAGRATE:
-					caster.CastSpell(target, GetSpellInfo().GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.GetAmount()));
+					caster.CastSpell(target, GetSpellInfo().GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 
 					break;
 				case WarlockSpells.INCINERATE:

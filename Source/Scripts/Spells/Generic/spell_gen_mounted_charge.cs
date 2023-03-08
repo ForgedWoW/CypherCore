@@ -76,7 +76,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
 					foreach (var pair in auras.HasSpellIds(62552, 62719, 64100, 66482).GetResults())
 					{
-						var aura = pair.GetBase();
+						var aura = pair.Base;
 
 						if (aura != null)
 						{
@@ -86,7 +86,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
 							if (rider)
 							{
-								var defend = rider.GetAura(aura.GetId());
+								var defend = rider.GetAura(aura.Id);
 
 								defend?.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
 							}

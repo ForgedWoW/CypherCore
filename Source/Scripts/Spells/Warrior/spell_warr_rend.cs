@@ -30,7 +30,7 @@ namespace Scripts.Spells.Warrior
 				var mwbMin = caster.GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage);
 				var mwbMax = caster.GetWeaponDamageRange(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage);
 				var mwb    = ((mwbMin + mwbMax) / 2 + ap * mws / 14000) * 0.266f;
-				amount.Value += caster.ApplyEffectModifiers(GetSpellInfo(), aurEff.GetEffIndex(), mwb);
+				amount.Value += caster.ApplyEffectModifiers(GetSpellInfo(), aurEff.EffIndex, mwb);
 			}
 		}
 

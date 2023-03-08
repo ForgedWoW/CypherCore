@@ -27,7 +27,7 @@ namespace Scripts.Spells.Warlock
 			var aur    = caster.GetAura(WarlockSpells.COMPOUNDING_HORROR);
 
 			if (aur != null)
-				stacks = aur.GetStackAmount();
+				stacks = aur.StackAmount;
 
 			SetHitDamage(damage * stacks);
 

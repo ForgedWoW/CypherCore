@@ -31,7 +31,7 @@ public class spell_dk_presence_SpellScript : SpellScript
 			var aurEff     = caster.GetAuraEffect(58647, 0);
 
 			if (aurEff != null)
-				runicPower = MathFunctions.CalculatePct(runicPower, aurEff.GetAmount());
+				runicPower = MathFunctions.CalculatePct(runicPower, aurEff.Amount);
 			else
 				runicPower = 0;
 

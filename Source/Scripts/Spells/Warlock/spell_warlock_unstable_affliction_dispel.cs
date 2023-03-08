@@ -28,7 +28,7 @@ namespace Scripts.Spells.Warlock
 
 			if (dispeller != null)
 			{
-				var damage = GetAura().GetEffect(0).GetAmount() * 4;
+				var damage = GetAura().GetEffect(0).Amount * 4;
 				var args   = new CastSpellExtraArgs();
 				args.AddSpellMod(SpellValueMod.BasePoint0, (int)damage);
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);
@@ -45,7 +45,7 @@ namespace Scripts.Spells.Warlock
 				return;
 
 			if (caster.HasAura(WarlockSpells.UNSTABLE_AFFLICTION_RANK2))
-				if (GetTargetApplication() != null && GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Death)
+				if (GetTargetApplication() != null && GetTargetApplication().RemoveMode == AuraRemoveMode.Death)
 				{
 					if (caster.VariableStorage.Exist("_uaLockout"))
 						return;
@@ -59,7 +59,7 @@ namespace Scripts.Spells.Warlock
 				}
 
 			// When Unstable Affliction expires, it has a 6% chance to reapply itself.
-			if (GetTargetApplication() != null && GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
+			if (GetTargetApplication() != null && GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
 				if (RandomHelper.randChance(caster.GetAuraEffectAmount(WarlockSpells.FATAL_ECHOES, 0)))
 					caster.Events.AddEventAtOffset(() => { caster.CastSpell(target, GetSpellInfo().Id, true); }, TimeSpan.FromMilliseconds(100));
 		}

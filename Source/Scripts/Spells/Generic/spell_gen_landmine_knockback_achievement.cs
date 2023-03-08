@@ -28,7 +28,7 @@ internal class spell_gen_landmine_knockback_achievement : SpellScript, IHasSpell
 			var aura = GetHitAura();
 
 			if (aura == null ||
-			    aura.GetStackAmount() < 10)
+			    aura.StackAmount < 10)
 				return;
 
 			target.CastSpell(target, GenericSpellIds.LandmineKnockbackAchievement, true);

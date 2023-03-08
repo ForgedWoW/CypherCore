@@ -29,7 +29,7 @@ internal class spell_dh_chaos_strike : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.GetAmount());
+		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
 		args.SetTriggeringAura(aurEff);
 		GetTarget().CastSpell(GetTarget(), DemonHunterSpells.ChaosStrikeEnergize, args);
 	}

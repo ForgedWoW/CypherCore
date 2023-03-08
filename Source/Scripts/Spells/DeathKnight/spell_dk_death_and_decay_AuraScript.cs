@@ -44,7 +44,7 @@ internal class spell_dk_death_and_decay_damage_procs : SpellScript, ISpellAfterH
             return;
         var pestilence = caster.GetAura(DeathKnightSpells.PESTILENCE);
         if (pestilence != null) {
-			if(RandomHelper.randChance(pestilence.GetEffect(0).GetAmount()))
+			if(RandomHelper.randChance(pestilence.GetEffect(0).Amount))
                 caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, 1));
         }
     }

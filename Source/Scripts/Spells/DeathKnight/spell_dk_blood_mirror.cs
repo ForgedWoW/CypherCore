@@ -24,7 +24,7 @@ public class spell_dk_blood_mirror : AuraScript, IHasAuraEffects
 
 	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
-		absorbAmount = dmgInfo.GetDamage() * ((uint)aurEff.GetBaseAmount() / 100);
+		absorbAmount = dmgInfo.GetDamage() * ((uint)aurEff.BaseAmount / 100);
 		var caster = GetCaster();
 		var target = GetTarget();
 

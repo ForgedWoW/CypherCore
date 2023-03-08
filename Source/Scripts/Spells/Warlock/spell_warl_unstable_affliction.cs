@@ -32,7 +32,7 @@ namespace Scripts.Spells.Warlock
 				{
 					// backfire Damage and silence
 					CastSpellExtraArgs args = new(aurEff);
-					args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.GetAmount() * 9);
+					args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount * 9);
 					caster.CastSpell(dispelInfo.GetDispeller(), WarlockSpells.UNSTABLE_AFFLICTION_DISPEL, args);
 				}
 			}

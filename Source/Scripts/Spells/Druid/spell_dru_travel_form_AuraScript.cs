@@ -60,7 +60,7 @@ namespace Scripts.Spells.Druid
 			triggeredSpellId = 0;
 
 			// We should only handle aura interrupts.
-			if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Interrupt)
+			if (GetTargetApplication().RemoveMode != AuraRemoveMode.Interrupt)
 				return;
 
 			// Check what form is appropriate

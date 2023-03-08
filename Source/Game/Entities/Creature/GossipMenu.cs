@@ -15,8 +15,8 @@ public class GossipMenu
 	Locale _locale;
 
 	public uint AddMenuItem(int gossipOptionId, int orderIndex, GossipOptionNpc optionNpc, string optionText, uint language,
-	                        GossipOptionFlags flags, int? gossipNpcOptionId, uint actionMenuId, uint actionPoiId, bool boxCoded, uint boxMoney,
-	                        string boxText, int? spellId, int? overrideIconId, uint sender, uint action)
+							GossipOptionFlags flags, int? gossipNpcOptionId, uint actionMenuId, uint actionPoiId, bool boxCoded, uint boxMoney,
+							string boxText, int? spellId, int? overrideIconId, uint sender, uint action)
 	{
 		Cypher.Assert(_menuItems.Count <= SharedConst.MaxGossipMenuItems);
 
@@ -72,12 +72,12 @@ public class GossipMenu
 	}
 
 	/// <summary>
-	/// Adds a localized gossip menu item from db by menu id and menu item id.
+	///  Adds a localized gossip menu item from db by menu id and menu item id.
 	/// </summary>
-	/// <param name="menuId">menuId Gossip menu id.</param>
-	/// <param name="menuItemId">menuItemId Gossip menu item id.</param>
-	/// <param name="sender">sender Identifier of the current menu.</param>
-	/// <param name="action">action Custom action given to OnGossipHello.</param>
+	/// <param name="menuId"> menuId Gossip menu id. </param>
+	/// <param name="menuItemId"> menuItemId Gossip menu item id. </param>
+	/// <param name="sender"> sender Identifier of the current menu. </param>
+	/// <param name="action"> action Custom action given to OnGossipHello. </param>
 	public void AddMenuItem(uint menuId, uint menuItemId, uint sender, uint action)
 	{
 		// Find items for given menu id.
@@ -142,21 +142,21 @@ public class GossipMenu
 		}
 
 		AddMenuItem(menuItem.GossipOptionId,
-		            (int)menuItem.OrderIndex,
-		            menuItem.OptionNpc,
-		            strOptionText,
-		            menuItem.Language,
-		            menuItem.Flags,
-		            menuItem.GossipNpcOptionId,
-		            menuItem.ActionMenuId,
-		            menuItem.ActionPoiId,
-		            menuItem.BoxCoded,
-		            menuItem.BoxMoney,
-		            strBoxText,
-		            menuItem.SpellId,
-		            menuItem.OverrideIconId,
-		            sender,
-		            action);
+					(int)menuItem.OrderIndex,
+					menuItem.OptionNpc,
+					strOptionText,
+					menuItem.Language,
+					menuItem.Flags,
+					menuItem.GossipNpcOptionId,
+					menuItem.ActionMenuId,
+					menuItem.ActionPoiId,
+					menuItem.BoxCoded,
+					menuItem.BoxMoney,
+					strBoxText,
+					menuItem.SpellId,
+					menuItem.OverrideIconId,
+					sender,
+					action);
 	}
 
 	public GossipMenuItem GetItem(int gossipOptionId)

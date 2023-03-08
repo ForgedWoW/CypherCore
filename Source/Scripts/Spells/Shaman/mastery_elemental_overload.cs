@@ -26,10 +26,10 @@ namespace Scripts.Spells.Shaman
 
 			if (player.HasAura(ShamanSpells.MASTERY_ELEMENTAL_OVERLOAD) && RandomHelper.randChance(15))
 			{
-				var spellInfo = spell.GetSpellInfo();
+				var spellInfo = spell.SpellInfo;
 
 				if (spellInfo != null)
-					switch (spell.GetSpellInfo().Id)
+					switch (spell.SpellInfo.Id)
 					{
 						case ShamanSpells.LIGHTNING_BOLT_ELEM:
 							player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LIGHTNING_BOLT_ELEM, true);

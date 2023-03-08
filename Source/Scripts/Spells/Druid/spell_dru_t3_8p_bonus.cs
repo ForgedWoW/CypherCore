@@ -35,13 +35,13 @@ namespace Scripts.Spells.Druid
 				return;
 
 			var caster             = eventInfo.GetActor();
-			var spellPowerCostList = spell.GetPowerCost();
+			var spellPowerCostList = spell.PowerCost;
 			var spellPowerCost     = spellPowerCostList.First(cost => cost.Power == PowerType.Mana);
 
 			if (spellPowerCost == null)
 				return;
 
-			var                amount = MathFunctions.CalculatePct(spellPowerCost.Amount, aurEff.GetAmount());
+			var                amount = MathFunctions.CalculatePct(spellPowerCost.Amount, aurEff.Amount);
 			CastSpellExtraArgs args   = new(aurEff);
 			args.AddSpellMod(SpellValueMod.BasePoint0, amount);
 			caster.CastSpell((Unit)null, DruidSpellIds.Exhilarate, args);

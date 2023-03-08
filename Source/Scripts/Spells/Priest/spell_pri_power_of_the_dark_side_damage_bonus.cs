@@ -35,7 +35,7 @@ internal class spell_pri_power_of_the_dark_side_damage_bonus : SpellScript, IHas
 
 			double damageBonus = GetCaster().SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), (uint)GetEffectValue(), DamageEffectType.SpellDirect, GetEffectInfo(), 1, GetSpell());
 			var   value       = damageBonus + damageBonus * GetEffectVariance();
-			value *= 1.0f + (powerOfTheDarkSide.GetAmount() / 100.0f);
+			value *= 1.0f + (powerOfTheDarkSide.Amount / 100.0f);
 			value =  GetHitUnit().SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), (uint)value, DamageEffectType.SpellDirect);
 			SetHitDamage((int)value);
 		}

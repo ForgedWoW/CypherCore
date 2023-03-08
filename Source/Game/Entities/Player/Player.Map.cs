@@ -367,7 +367,7 @@ public partial class Player
 				if (ar.Item != 0)
 				{
 					if (!HasItemCount(ar.Item) &&
-					    (ar.Item2 == 0 || !HasItemCount(ar.Item2)))
+						(ar.Item2 == 0 || !HasItemCount(ar.Item2)))
 						missingItem = ar.Item;
 				}
 				else if (ar.Item2 != 0 && !HasItemCount(ar.Item2))

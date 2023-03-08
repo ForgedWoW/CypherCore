@@ -25,7 +25,7 @@ public class spell_mage_jouster_buff : AuraScript, IHasAuraEffects
 		var jousterRank = caster.GetAuraEffect(MageSpells.JOUSTER, 0);
 
 		if (jousterRank != null)
-			amount.Value = jousterRank.GetAmount();
+			amount.Value = jousterRank.Amount;
 	}
 
 	public override void Register()

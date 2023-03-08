@@ -47,11 +47,11 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
 			// Thermal Void
 			var thermalVoid = caster.GetAura(MageSpells.ThermalVoid);
 
-			if (!thermalVoid.GetSpellInfo().GetEffects().Empty())
+			if (!thermalVoid.SpellInfo.Effects.Empty())
 			{
 				var icyVeins = caster.GetAura(MageSpells.IcyVeins);
 
-				icyVeins?.SetDuration(icyVeins.GetDuration() + thermalVoid.GetSpellInfo().GetEffect(0).CalcValue(caster) * Time.InMilliseconds);
+				icyVeins?.SetDuration(icyVeins.Duration + thermalVoid.SpellInfo.GetEffect(0).CalcValue(caster) * Time.InMilliseconds);
 			}
 
 			// Chain Reaction

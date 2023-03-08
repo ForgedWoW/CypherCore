@@ -5,162 +5,175 @@ using System;
 using Framework.Constants;
 using Game.Networking;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class ObjectFieldData : BaseUpdateData<WorldObject>
 {
-    public class ObjectFieldData : BaseUpdateData<WorldObject>
-    {
-        public UpdateField<uint> EntryId = new(0, 1);
-        public UpdateField<uint> DynamicFlags = new(0, 2);
-        public UpdateField<float> Scale = new(0, 3);
+	public UpdateField<uint> EntryId = new(0, 1);
+	public UpdateField<uint> DynamicFlags = new(0, 2);
+	public UpdateField<float> Scale = new(0, 3);
 
-        public ObjectFieldData() : base(0, TypeId.Object, 4) { }
+	public ObjectFieldData() : base(0, TypeId.Object, 4) { }
 
-        public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
-        {
-            data.WriteUInt32(GetViewerDependentEntryId(this, owner, receiver));
-            data.WriteUInt32(GetViewerDependentDynamicFlags(this, owner, receiver));
-            data.WriteFloat(Scale);
-        }
+	public void WriteCreate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
+	{
+		data.WriteUInt32(GetViewerDependentEntryId(this, owner, receiver));
+		data.WriteUInt32(GetViewerDependentDynamicFlags(this, owner, receiver));
+		data.WriteFloat(Scale);
+	}
 
-        public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
-        {
-            WriteUpdate(data, ChangesMask, false, owner, receiver);
-        }
+	public void WriteUpdate(WorldPacket data, UpdateFieldFlag fieldVisibilityFlags, WorldObject owner, Player receiver)
+	{
+		WriteUpdate(data, ChangesMask, false, owner, receiver);
+	}
 
-        public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, WorldObject owner, Player receiver)
-        {
-            data.WriteBits(changesMask.GetBlock(0), 4);
+	public void WriteUpdate(WorldPacket data, UpdateMask changesMask, bool ignoreNestedChangesMask, WorldObject owner, Player receiver)
+	{
+		data.WriteBits(changesMask.GetBlock(0), 4);
 
-            data.FlushBits();
-            if (changesMask[0])
-            {
-                if (changesMask[1])
-                {
-                    data.WriteUInt32(GetViewerDependentEntryId(this, owner, receiver));
-                }
-                if (changesMask[2])
-                {
-                    data.WriteUInt32(GetViewerDependentDynamicFlags(this, owner, receiver));
-                }
-                if (changesMask[3])
-                {
-                    data.WriteFloat(Scale);
-                }
-            }
-        }
+		data.FlushBits();
 
-        public override void ClearChangesMask()
-        {
-            ClearChangesMask(EntryId);
-            ClearChangesMask(DynamicFlags);
-            ClearChangesMask(Scale);
-            ChangesMask.ResetAll();
-        }
+		if (changesMask[0])
+		{
+			if (changesMask[1])
+				data.WriteUInt32(GetViewerDependentEntryId(this, owner, receiver));
 
-        uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
-        {
-            uint entryId = objectData.EntryId;
-            Unit unit = obj.ToUnit();
-            if (unit != null)
-            {
-                TempSummon summon = unit.ToTempSummon();
-                if (summon != null)
-                    if (summon.GetSummonerGUID() == receiver.GetGUID() && summon.GetCreatureIdVisibleToSummoner().HasValue)
-                        entryId = summon.GetCreatureIdVisibleToSummoner().Value;
-            }
+			if (changesMask[2])
+				data.WriteUInt32(GetViewerDependentDynamicFlags(this, owner, receiver));
 
-            return entryId;
-        }
+			if (changesMask[3])
+				data.WriteFloat(Scale);
+		}
+	}
 
-        uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
-        {
-            uint unitDynFlags = objectData.DynamicFlags;
+	public override void ClearChangesMask()
+	{
+		ClearChangesMask(EntryId);
+		ClearChangesMask(DynamicFlags);
+		ClearChangesMask(Scale);
+		ChangesMask.ResetAll();
+	}
 
-            Unit unit = obj.ToUnit();
-            if (unit != null)
-            {
-                Creature creature = obj.ToCreature();
-                if (creature != null)
-                {
-                    if ((unitDynFlags & (uint)UnitDynFlags.Tapped) != 0 && !creature.IsTappedBy(receiver))
-                        unitDynFlags &= ~(uint)UnitDynFlags.Tapped;
+	uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
+	{
+		uint entryId = objectData.EntryId;
+		var unit = obj.ToUnit();
 
-                    if ((unitDynFlags & (uint)UnitDynFlags.Lootable) != 0 && !receiver.IsAllowedToLoot(creature))
-                        unitDynFlags &= ~(uint)UnitDynFlags.Lootable;
+		if (unit != null)
+		{
+			var summon = unit.ToTempSummon();
 
-                    if ((unitDynFlags & (uint)UnitDynFlags.CanSkin) != 0 && creature.IsSkinnedBy(receiver))
-                        unitDynFlags &= ~(uint)UnitDynFlags.CanSkin;
-                }
+			if (summon != null)
+				if (summon.GetSummonerGUID() == receiver.GetGUID() && summon.GetCreatureIdVisibleToSummoner().HasValue)
+					entryId = summon.GetCreatureIdVisibleToSummoner().Value;
+		}
 
-                // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
-                if (unitDynFlags.HasAnyFlag((uint)UnitDynFlags.TrackUnit))
-                    if (!unit.HasAuraTypeWithCaster(AuraType.ModStalked, receiver.GetGUID()))
-                        unitDynFlags &= ~(uint)UnitDynFlags.TrackUnit;
-            }
-            else
-            {
-                GameObject gameObject = obj.ToGameObject();
-                if (gameObject != null)
-                {
-                    GameObjectDynamicLowFlags dynFlags = 0;
-                    ushort pathProgress = 0xFFFF;
-                    switch (gameObject.GetGoType())
-                    {
-                        case GameObjectTypes.QuestGiver:
-                            if (gameObject.ActivateToQuest(receiver))
-                                dynFlags |= GameObjectDynamicLowFlags.Activate;
-                            break;
-                        case GameObjectTypes.Chest:
-                            if (gameObject.ActivateToQuest(receiver))
-                                dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
-                            else if (receiver.IsGameMaster())
-                                dynFlags |= GameObjectDynamicLowFlags.Activate;
-                            break;
-                        case GameObjectTypes.Goober:
-                            if (gameObject.ActivateToQuest(receiver))
-                            {
-                                dynFlags |= GameObjectDynamicLowFlags.Highlight;
-                                if (gameObject.GetGoStateFor(receiver.GetGUID()) != GameObjectState.Active)
-                                    dynFlags |= GameObjectDynamicLowFlags.Activate;
-                            }
-                            else if (receiver.IsGameMaster())
-                                dynFlags |= GameObjectDynamicLowFlags.Activate;
-                            break;
-                        case GameObjectTypes.Generic:
-                            if (gameObject.ActivateToQuest(receiver))
-                                dynFlags |= GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
-                            break;
-                        case GameObjectTypes.Transport:
-                        case GameObjectTypes.MapObjTransport:
-                        {
-                            dynFlags = (GameObjectDynamicLowFlags)((int)unitDynFlags & 0xFFFF);
-                            pathProgress = (ushort)((int)unitDynFlags >> 16);
-                            break;
-                        }
-                        case GameObjectTypes.CapturePoint:
-                            if (!gameObject.CanInteractWithCapturePoint(receiver))
-                                dynFlags |= GameObjectDynamicLowFlags.NoInterract;
-                            else
-                                dynFlags &= ~GameObjectDynamicLowFlags.NoInterract;
-                            break;
-                        case GameObjectTypes.GatheringNode:
-                            if (gameObject.ActivateToQuest(receiver))
-                                dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
-                            if (gameObject.GetGoStateFor(receiver.GetGUID()) == GameObjectState.Active)
-                                dynFlags |= GameObjectDynamicLowFlags.Depleted;
-                            break;
-                        default:
-                            break;
-                    }
+		return entryId;
+	}
 
-                    if (!gameObject.MeetsInteractCondition(receiver))
-                        dynFlags |= GameObjectDynamicLowFlags.NoInterract;
+	uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
+	{
+		uint unitDynFlags = objectData.DynamicFlags;
 
-                    unitDynFlags = ((uint)pathProgress << 16) | (uint)dynFlags;
-                }
-            }
+		var unit = obj.ToUnit();
 
-            return unitDynFlags;
-        }
-    }
+		if (unit != null)
+		{
+			var creature = obj.ToCreature();
+
+			if (creature != null)
+			{
+				if ((unitDynFlags & (uint)UnitDynFlags.Tapped) != 0 && !creature.IsTappedBy(receiver))
+					unitDynFlags &= ~(uint)UnitDynFlags.Tapped;
+
+				if ((unitDynFlags & (uint)UnitDynFlags.Lootable) != 0 && !receiver.IsAllowedToLoot(creature))
+					unitDynFlags &= ~(uint)UnitDynFlags.Lootable;
+
+				if ((unitDynFlags & (uint)UnitDynFlags.CanSkin) != 0 && creature.IsSkinnedBy(receiver))
+					unitDynFlags &= ~(uint)UnitDynFlags.CanSkin;
+			}
+
+			// unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
+			if (unitDynFlags.HasAnyFlag((uint)UnitDynFlags.TrackUnit))
+				if (!unit.HasAuraTypeWithCaster(AuraType.ModStalked, receiver.GetGUID()))
+					unitDynFlags &= ~(uint)UnitDynFlags.TrackUnit;
+		}
+		else
+		{
+			var gameObject = obj.ToGameObject();
+
+			if (gameObject != null)
+			{
+				GameObjectDynamicLowFlags dynFlags = 0;
+				ushort pathProgress = 0xFFFF;
+
+				switch (gameObject.GetGoType())
+				{
+					case GameObjectTypes.QuestGiver:
+						if (gameObject.ActivateToQuest(receiver))
+							dynFlags |= GameObjectDynamicLowFlags.Activate;
+
+						break;
+					case GameObjectTypes.Chest:
+						if (gameObject.ActivateToQuest(receiver))
+							dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
+						else if (receiver.IsGameMaster())
+							dynFlags |= GameObjectDynamicLowFlags.Activate;
+
+						break;
+					case GameObjectTypes.Goober:
+						if (gameObject.ActivateToQuest(receiver))
+						{
+							dynFlags |= GameObjectDynamicLowFlags.Highlight;
+
+							if (gameObject.GetGoStateFor(receiver.GetGUID()) != GameObjectState.Active)
+								dynFlags |= GameObjectDynamicLowFlags.Activate;
+						}
+						else if (receiver.IsGameMaster())
+						{
+							dynFlags |= GameObjectDynamicLowFlags.Activate;
+						}
+
+						break;
+					case GameObjectTypes.Generic:
+						if (gameObject.ActivateToQuest(receiver))
+							dynFlags |= GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
+
+						break;
+					case GameObjectTypes.Transport:
+					case GameObjectTypes.MapObjTransport:
+					{
+						dynFlags = (GameObjectDynamicLowFlags)((int)unitDynFlags & 0xFFFF);
+						pathProgress = (ushort)((int)unitDynFlags >> 16);
+
+						break;
+					}
+					case GameObjectTypes.CapturePoint:
+						if (!gameObject.CanInteractWithCapturePoint(receiver))
+							dynFlags |= GameObjectDynamicLowFlags.NoInterract;
+						else
+							dynFlags &= ~GameObjectDynamicLowFlags.NoInterract;
+
+						break;
+					case GameObjectTypes.GatheringNode:
+						if (gameObject.ActivateToQuest(receiver))
+							dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
+
+						if (gameObject.GetGoStateFor(receiver.GetGUID()) == GameObjectState.Active)
+							dynFlags |= GameObjectDynamicLowFlags.Depleted;
+
+						break;
+					default:
+						break;
+				}
+
+				if (!gameObject.MeetsInteractCondition(receiver))
+					dynFlags |= GameObjectDynamicLowFlags.NoInterract;
+
+				unitDynFlags = ((uint)pathProgress << 16) | (uint)dynFlags;
+			}
+		}
+
+		return unitDynFlags;
+	}
 }

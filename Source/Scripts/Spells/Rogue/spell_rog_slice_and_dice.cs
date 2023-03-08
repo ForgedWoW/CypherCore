@@ -21,7 +21,7 @@ public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
 
 			if (sliceAndDice != null)
 			{
-				var costs = GetSpell().GetPowerCost();
+				var costs = GetSpell().PowerCost;
 				var c     = costs.FirstOrDefault(p => p.Power == PowerType.ComboPoints);
 
 				if (c != null)

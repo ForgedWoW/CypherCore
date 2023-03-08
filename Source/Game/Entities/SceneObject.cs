@@ -11,28 +11,6 @@ namespace Game.Entities;
 
 public class SceneObject : WorldObject
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly SceneObject _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly SceneObjectData _sceneObjectData = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _sceneObjectData.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	readonly SceneObjectData _sceneObjectData;
 	readonly Position _stationaryPosition = new();
 	ObjectGuid _createdBySpellCast;
@@ -249,5 +227,27 @@ public class SceneObject : WorldObject
 	void RelocateStationaryPosition(Position pos)
 	{
 		_stationaryPosition.Relocate(pos);
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly SceneObject _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly SceneObjectData _sceneObjectData = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _sceneObjectData.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

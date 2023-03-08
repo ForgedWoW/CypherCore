@@ -18,7 +18,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo((uint)RequiredMixologySpells.Mixology) && !spellInfo.GetEffects().Empty();
+		return ValidateSpellInfo((uint)RequiredMixologySpells.Mixology) && !spellInfo.Effects.Empty();
 	}
 
 	public override bool Load()
@@ -33,7 +33,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 	private void SetBonusValueForEffect(uint effIndex, int value, AuraEffect aurEff)
 	{
-		if (aurEff.GetEffIndex() == effIndex)
+		if (aurEff.EffIndex == effIndex)
 			bonus = value;
 	}
 

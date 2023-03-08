@@ -36,7 +36,7 @@ internal class spell_gen_furious_rage : AuraScript, IHasAuraEffects
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Expire)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
 			return;
 
 		var target = GetTarget();

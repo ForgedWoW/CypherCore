@@ -10,29 +10,6 @@ namespace Game.Entities;
 
 public class Bag : Item
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Bag Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly ContainerData ContainerMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Bag owner)
-		{
-			Owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(Owner.Location.MapId);
-
-			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), ContainerMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	readonly ContainerData m_containerData;
 	Item[] m_bagslot = new Item[36];
 
@@ -55,14 +32,14 @@ public class Bag : Item
 				if (item.IsInWorld)
 				{
 					Log.outFatal(LogFilter.PlayerItems,
-					             "Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
-					             item.GetEntry(),
-					             item.GetSlot(),
-					             item.GetBagSlot(),
-					             GetEntry(),
-					             GetSlot(),
-					             GetBagSlot(),
-					             i);
+								"Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
+								item.GetEntry(),
+								item.GetSlot(),
+								item.GetBagSlot(),
+								GetEntry(),
+								GetSlot(),
+								GetBagSlot(),
+								i);
 
 					item.RemoveFromWorld();
 				}
@@ -315,5 +292,28 @@ public class Bag : Item
 	void SetSlot(int slot, ObjectGuid guid)
 	{
 		SetUpdateFieldValue(ref Values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid);
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Bag Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ItemData ItemMask = new();
+		readonly ContainerData ContainerMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Bag owner)
+		{
+			Owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
+
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), ContainerMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }

@@ -283,16 +283,16 @@ namespace Game.Networking.Packets
             foreach (AuraApplication aurApp in player.GetVisibleAuras())
             {
                 PartyMemberAuraStates aura = new();
-                aura.SpellID = (int)aurApp.GetBase().GetId();
-                aura.ActiveFlags = aurApp.GetEffectMask();
-                aura.Flags = (byte)aurApp.GetFlags();
+                aura.SpellID = (int)aurApp.Base.Id;
+                aura.ActiveFlags = aurApp.EffectMask;
+                aura.Flags = (byte)aurApp.Flags;
 
-                if (aurApp.GetFlags().HasAnyFlag(AuraFlags.Scalable))
+                if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
                 {
-                    foreach (var aurEff in aurApp.GetBase().GetAuraEffects())
+                    foreach (var aurEff in aurApp.Base.AuraEffects)
                     {
-                        if (aurApp.HasEffect(aurEff.Value.GetEffIndex()))
-                            aura.Points.Add((float)aurEff.Value.GetAmount());
+                        if (aurApp.HasEffect(aurEff.Value.EffIndex))
+                            aura.Points.Add((float)aurEff.Value.Amount);
                     }
                 }
 
@@ -320,15 +320,15 @@ namespace Game.Networking.Packets
                 {
                     PartyMemberAuraStates aura = new();
 
-                    aura.SpellID = (int)aurApp.GetBase().GetId();
-                    aura.ActiveFlags = aurApp.GetEffectMask();
-                    aura.Flags = (byte)aurApp.GetFlags();
+                    aura.SpellID = (int)aurApp.Base.Id;
+                    aura.ActiveFlags = aurApp.EffectMask;
+                    aura.Flags = (byte)aurApp.Flags;
 
-                    if (aurApp.GetFlags().HasAnyFlag(AuraFlags.Scalable))
+                    if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
                     {
-                        foreach (var aurEff in aurApp.GetBase().GetAuraEffects())
-                            if (aurApp.HasEffect(aurEff.Value.GetEffIndex()))
-                                aura.Points.Add((float)aurEff.Value.GetAmount());
+                        foreach (var aurEff in aurApp.Base.AuraEffects)
+                            if (aurApp.HasEffect(aurEff.Value.EffIndex))
+                                aura.Points.Add((float)aurEff.Value.Amount);
                     }
 
                     MemberStats.PetStats.Auras.Add(aura);

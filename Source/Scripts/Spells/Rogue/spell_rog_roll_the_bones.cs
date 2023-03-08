@@ -41,7 +41,7 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
 
 			if (aura != null)
 			{
-				currentDuration = aura.GetDuration();
+				currentDuration = aura.Duration;
 				GetCaster().RemoveAura(aura);
 			}
 		}

@@ -24,7 +24,7 @@ public class spell_pri_void_bolt : SpellScript, IHasSpellEffects
 
 			if (unit != null)
 			{
-				var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).GetBaseAmount();
+				var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).BaseAmount;
 
 				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, GetCaster().GetGUID());
 

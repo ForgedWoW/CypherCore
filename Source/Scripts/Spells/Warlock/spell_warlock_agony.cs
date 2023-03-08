@@ -39,7 +39,7 @@ namespace Scripts.Spells.Warlock
 			caster.VariableStorage.Set("SoulShardAgonyTick", soulShardAgonyTick);
 
 			// If we have more than maxStackAmount, dont do anything
-			if (GetStackAmount() >= auraEffect.GetBase().CalcMaxStackAmount())
+			if (GetStackAmount() >= auraEffect.Base.CalcMaxStackAmount())
 				return;
 
 			SetStackAmount((byte)(GetStackAmount() + 1));

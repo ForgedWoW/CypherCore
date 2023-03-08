@@ -16,7 +16,7 @@ class ItemAdditionalLoadInfo
 	public AzeriteEmpoweredData AzeriteEmpoweredItem;
 
 	public static void Init(Dictionary<ulong, ItemAdditionalLoadInfo> loadInfo, SQLResult artifactResult, SQLResult azeriteItemResult, SQLResult azeriteItemMilestonePowersResult,
-	                        SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult)
+							SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult)
 	{
 		ItemAdditionalLoadInfo GetOrCreateLoadInfo(ulong guid)
 		{

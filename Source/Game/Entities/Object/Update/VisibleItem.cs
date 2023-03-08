@@ -1,4 +1,7 @@
-﻿using Game.Networking;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Game.Networking;
 
 namespace Game.Entities;
 
@@ -21,31 +24,28 @@ public class VisibleItem : BaseUpdateData<Unit>
 
 	public void WriteUpdate(WorldPacket data, bool ignoreChangesMask, Unit owner, Player receiver)
 	{
-		UpdateMask changesMask = ChangesMask;
+		var changesMask = ChangesMask;
+
 		if (ignoreChangesMask)
 			changesMask.SetAll();
 
 		data.WriteBits(changesMask.GetBlock(0), 5);
 
 		data.FlushBits();
+
 		if (changesMask[0])
 		{
 			if (changesMask[1])
-			{
 				data.WriteUInt32(ItemID);
-			}
+
 			if (changesMask[2])
-			{
 				data.WriteUInt32(SecondaryItemModifiedAppearanceID);
-			}
+
 			if (changesMask[3])
-			{
 				data.WriteUInt16(ItemAppearanceModID);
-			}
+
 			if (changesMask[4])
-			{
 				data.WriteUInt16(ItemVisual);
-			}
 		}
 	}
 

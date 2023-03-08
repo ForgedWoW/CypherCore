@@ -40,7 +40,7 @@ internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraE
 			return;
 
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.GetAmount()));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
 		GetTarget().CastSpell((Unit)null, ItemSpellIds.ItemNecroticTouchProc, args);
 	}
 }

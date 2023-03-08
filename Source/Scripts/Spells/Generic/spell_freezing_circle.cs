@@ -39,7 +39,7 @@ internal class spell_freezing_circle : SpellScript, IHasSpellEffects
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetCastDifficulty());
 
 		if (spellInfo != null)
-			if (!spellInfo.GetEffects().Empty())
+			if (!spellInfo.Effects.Empty())
 				SetHitDamage(spellInfo.GetEffect(0).CalcValue());
 	}
 }

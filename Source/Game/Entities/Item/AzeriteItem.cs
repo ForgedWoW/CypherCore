@@ -13,29 +13,6 @@ namespace Game.Entities;
 
 public class AzeriteItem : Item
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly AzeriteItem Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly AzeriteItemData AzeriteItemMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
-		{
-			Owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(Owner.Location.MapId);
-
-			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteItemMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	public AzeriteItemData AzeriteItemData;
 
 	public AzeriteItem()
@@ -572,6 +549,29 @@ public class AzeriteItem : Item
 			{
 				hasPreviousMilestone = false;
 			}
+		}
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly AzeriteItem Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ItemData ItemMask = new();
+		readonly AzeriteItemData AzeriteItemMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
+		{
+			Owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
+
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteItemMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
 		}
 	}
 }

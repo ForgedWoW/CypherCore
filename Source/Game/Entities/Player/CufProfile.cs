@@ -32,14 +32,14 @@ public class CufProfile
 	}
 
 	public CufProfile(string name, ushort frameHeight, ushort frameWidth, byte sortBy, byte healthText, uint boolOptions,
-	                  byte topPoint, byte bottomPoint, byte leftPoint, ushort topOffset, ushort bottomOffset, ushort leftOffset)
+					byte topPoint, byte bottomPoint, byte leftPoint, ushort topOffset, ushort bottomOffset, ushort leftOffset)
 	{
 		ProfileName = name;
 
 		BoolOptions = new BitSet(new uint[]
-		                         {
-			                         boolOptions
-		                         });
+		{
+			boolOptions
+		});
 
 		FrameHeight = frameHeight;
 		FrameWidth = frameWidth;

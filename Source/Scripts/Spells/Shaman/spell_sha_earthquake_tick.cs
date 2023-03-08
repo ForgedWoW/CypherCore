@@ -18,7 +18,7 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return ValidateSpellInfo(ShamanSpells.EarthquakeKnockingDown) && spellInfo.GetEffects().Count > 1;
+		return ValidateSpellInfo(ShamanSpells.EarthquakeKnockingDown) && spellInfo.Effects.Count > 1;
 	}
 
 	public void OnHit()
@@ -29,7 +29,7 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 			if (RandomHelper.randChance(GetEffectInfo(1).CalcValue()))
 			{
 				var areaTriggers     = GetCaster().GetAreaTriggers(ShamanSpells.Earthquake);
-				var foundAreaTrigger = areaTriggers.Find(at => at.GetGUID() == GetSpell().GetOriginalCasterGUID());
+				var foundAreaTrigger = areaTriggers.Find(at => at.GetGUID() == GetSpell().OriginalCasterGuid);
 
 				if (foundAreaTrigger != null)
 				{

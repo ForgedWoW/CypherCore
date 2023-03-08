@@ -26,23 +26,23 @@ public struct CreateObjectBits
 
 	public void Clear()
 	{
-		NoBirthAnim       = false;
-		EnablePortals     = false;
-		PlayHoverAnim     = false;
-		MovementUpdate    = false;
+		NoBirthAnim = false;
+		EnablePortals = false;
+		PlayHoverAnim = false;
+		MovementUpdate = false;
 		MovementTransport = false;
-		Stationary        = false;
-		CombatVictim      = false;
-		ServerTime        = false;
-		Vehicle           = false;
-		AnimKit           = false;
-		Rotation          = false;
-		AreaTrigger       = false;
-		GameObject        = false;
-		SmoothPhasing     = false;
-		ThisIsYou         = false;
-		SceneObject       = false;
-		ActivePlayer      = false;
-		Conversation      = false;
+		Stationary = false;
+		CombatVictim = false;
+		ServerTime = false;
+		Vehicle = false;
+		AnimKit = false;
+		Rotation = false;
+		AreaTrigger = false;
+		GameObject = false;
+		SmoothPhasing = false;
+		ThisIsYou = false;
+		SceneObject = false;
+		ActivePlayer = false;
+		Conversation = false;
 	}
 }

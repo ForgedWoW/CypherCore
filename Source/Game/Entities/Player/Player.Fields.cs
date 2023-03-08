@@ -16,30 +16,6 @@ namespace Game.Entities;
 
 public partial class Player
 {
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Player _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly UnitData _unitMask = new();
-		readonly PlayerData _playerMask = new();
-		readonly ActivePlayerData _activePlayerMask = new();
-
-		public ValuesUpdateForPlayerWithMaskSender(Player owner)
-		{
-			_owner = owner;
-		}
-
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
-
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), _playerMask.GetUpdateMask(), _activePlayerMask.GetUpdateMask(), player);
-
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
-
 	public PvPInfo PvpInfo;
 	readonly List<Channel> _channels = new();
 	readonly List<ObjectGuid> _whisperList = new();
@@ -270,6 +246,30 @@ public partial class Player
 	public PlayerSocial GetSocial()
 	{
 		return _social;
+	}
+
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Player _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly UnitData _unitMask = new();
+		readonly PlayerData _playerMask = new();
+		readonly ActivePlayerData _activePlayerMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Player owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), _playerMask.GetUpdateMask(), _activePlayerMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
 	}
 }
 

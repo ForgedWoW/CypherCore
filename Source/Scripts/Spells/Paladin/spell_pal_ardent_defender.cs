@@ -52,7 +52,7 @@ namespace Scripts.Spells.Paladin
 
             double healAmount = target.CountPctFromMaxHealth(healPct);
             target.CastSpell(target, PaladinSpells.ARDENT_DEFENDER_HEAL, (int)healAmount);
-            aurEff.GetBase().Remove();
+            aurEff.Base.Remove();
 
             return absorbAmount;
         }

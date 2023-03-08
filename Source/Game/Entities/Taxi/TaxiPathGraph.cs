@@ -95,14 +95,14 @@ public class TaxiPathGraph
 	public static void GetReachableNodesMask(TaxiNodesRecord from, byte[] mask)
 	{
 		DepthFirstSearch depthFirst = new(_graph,
-		                                  GetVertexIDFromNodeID(from),
-		                                  vertex =>
-		                                  {
-			                                  var taxiNode = CliDB.TaxiNodesStorage.LookupByKey(GetNodeIDFromVertexID(vertex));
+										GetVertexIDFromNodeID(from),
+										vertex =>
+										{
+											var taxiNode = CliDB.TaxiNodesStorage.LookupByKey(GetNodeIDFromVertexID(vertex));
 
-			                                  if (taxiNode != null)
-				                                  mask[(taxiNode.Id - 1) / 8] |= (byte)(1 << (int)((taxiNode.Id - 1) % 8));
-		                                  });
+											if (taxiNode != null)
+												mask[(taxiNode.Id - 1) / 8] |= (byte)(1 << (int)((taxiNode.Id - 1) % 8));
+										});
 	}
 
 	static void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)

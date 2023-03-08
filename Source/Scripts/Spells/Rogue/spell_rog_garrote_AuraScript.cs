@@ -21,7 +21,7 @@ public class spell_rog_garrote_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		if (GetTargetApplication().GetRemoveMode() != AuraRemoveMode.Death)
+		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
 			return;
 
 		var caster = GetAura().GetCaster();

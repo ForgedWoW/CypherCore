@@ -14,9 +14,7 @@ public class AssistDelayEvent : BasicEvent
 
 	readonly ObjectGuid m_victim;
 
-	AssistDelayEvent()
-	{
-	}
+	AssistDelayEvent() { }
 
 	public AssistDelayEvent(ObjectGuid victim, Unit owner)
 	{

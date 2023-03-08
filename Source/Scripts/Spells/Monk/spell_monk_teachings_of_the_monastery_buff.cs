@@ -37,7 +37,7 @@ public class spell_monk_teachings_of_the_monastery_buff : AuraScript, IHasAuraEf
 
 		if (monasteryBuff != null)
 		{
-			for (byte i = 0; i < monasteryBuff.GetStackAmount(); ++i)
+			for (byte i = 0; i < monasteryBuff.StackAmount; ++i)
 				GetTarget().CastSpell(eventInfo.GetProcTarget(), MonkSpells.BLACKOUT_KICK_TRIGGERED);
 
 			monasteryBuff.Remove();
