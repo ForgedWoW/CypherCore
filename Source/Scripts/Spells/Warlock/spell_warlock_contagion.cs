@@ -40,7 +40,7 @@ public class spell_warlock_contagion : AuraScript, IHasAuraEffects
 		var hasUa = false;
 
 		foreach (var ua in uaspells)
-			if (target.HasAura(ua, caster.GetGUID()))
+			if (target.HasAura(ua, caster.GUID))
 				hasUa = true;
 
 		if (!hasUa)

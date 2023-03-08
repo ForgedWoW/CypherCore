@@ -32,7 +32,7 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 		if (!caster.ToPlayer())
 			return;
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 

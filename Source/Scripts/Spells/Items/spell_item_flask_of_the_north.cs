@@ -30,7 +30,7 @@ internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 		var caster = Caster;
 		List<uint> possibleSpells = new();
 
-		switch (caster.GetClass())
+		switch (caster.Class)
 		{
 			case Class.Warlock:
 			case Class.Mage:
@@ -63,7 +63,7 @@ internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 
 		if (possibleSpells.Empty())
 		{
-			Log.outWarn(LogFilter.Spells, "Missing spells for class {0} in script spell_item_flask_of_the_north", caster.GetClass());
+			Log.outWarn(LogFilter.Spells, "Missing spells for class {0} in script spell_item_flask_of_the_north", caster.Class);
 
 			return;
 		}

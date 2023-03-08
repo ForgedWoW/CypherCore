@@ -37,7 +37,7 @@ public class npc_defias_watcher : ScriptedAI
 			if (!me.HasAura(eSpell.ON_FIRE))
 				me.AddAura(eSpell.ON_FIRE, me);
 
-			me.SetFaction(35);
+			me.Faction = 35;
 		}
 	}
 
@@ -56,7 +56,7 @@ public class npc_defias_watcher : ScriptedAI
 		Status = true;
 		me.SetHealth(15);
 		me.SetRegenerateHealth(false);
-		me.SetFaction(35);
+		me.Faction = 35;
 		me.AddAura(eSpell.ON_FIRE, me);
 		me.CastSpell(me, eSpell.ON_FIRE);
 		me.SetInCombatWithZone();

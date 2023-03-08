@@ -30,8 +30,8 @@ public class PlayerSocial
 
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
 			stmt.AddValue(0, (byte)friendInfo.Flags);
-			stmt.AddValue(1, GetPlayerGUID().GetCounter());
-			stmt.AddValue(2, friendGuid.GetCounter());
+			stmt.AddValue(1, GetPlayerGUID().Counter);
+			stmt.AddValue(2, friendGuid.Counter);
 			DB.Characters.Execute(stmt);
 		}
 		else
@@ -42,8 +42,8 @@ public class PlayerSocial
 			PlayerSocialMap[friendGuid] = fi;
 
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_SOCIAL);
-			stmt.AddValue(0, GetPlayerGUID().GetCounter());
-			stmt.AddValue(1, friendGuid.GetCounter());
+			stmt.AddValue(0, GetPlayerGUID().Counter);
+			stmt.AddValue(1, friendGuid.Counter);
 			stmt.AddValue(2, (byte)flag);
 			DB.Characters.Execute(stmt);
 		}
@@ -66,8 +66,8 @@ public class PlayerSocial
 		if (friendInfo.Flags == 0)
 		{
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_SOCIAL);
-			stmt.AddValue(0, GetPlayerGUID().GetCounter());
-			stmt.AddValue(1, friendGuid.GetCounter());
+			stmt.AddValue(0, GetPlayerGUID().Counter);
+			stmt.AddValue(1, friendGuid.Counter);
 			DB.Characters.Execute(stmt);
 
 			var accountGuid = friendInfo.WowAccountGuid;
@@ -86,8 +86,8 @@ public class PlayerSocial
 		{
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
 			stmt.AddValue(0, (byte)friendInfo.Flags);
-			stmt.AddValue(1, GetPlayerGUID().GetCounter());
-			stmt.AddValue(2, friendGuid.GetCounter());
+			stmt.AddValue(1, GetPlayerGUID().Counter);
+			stmt.AddValue(2, friendGuid.Counter);
 			DB.Characters.Execute(stmt);
 		}
 	}
@@ -99,8 +99,8 @@ public class PlayerSocial
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
 		stmt.AddValue(0, note);
-		stmt.AddValue(1, GetPlayerGUID().GetCounter());
-		stmt.AddValue(2, friendGuid.GetCounter());
+		stmt.AddValue(1, GetPlayerGUID().Counter);
+		stmt.AddValue(2, friendGuid.Counter);
 		DB.Characters.Execute(stmt);
 
 		PlayerSocialMap[friendGuid].Note = note;

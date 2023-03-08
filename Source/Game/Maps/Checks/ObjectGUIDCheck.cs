@@ -18,7 +18,7 @@ public class ObjectGUIDCheck : ICheck<WorldObject>
 
 	public bool Invoke(WorldObject obj)
 	{
-		return obj.GetGUID() == _gUID;
+		return obj.GUID == _gUID;
 	}
 
 	public static implicit operator Predicate<WorldObject>(ObjectGUIDCheck check)

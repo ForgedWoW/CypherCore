@@ -37,9 +37,9 @@ namespace Scripts.Pets
 
 			public override void JustAppeared()
 			{
-				_isViper = me.GetEntry() == CreatureIds.Viper ? true : false;
+				_isViper = me.Entry == CreatureIds.Viper ? true : false;
 
-				me.SetMaxHealth((uint)(107 * (me.GetLevel() - 40) * 0.025f));
+				me.SetMaxHealth((uint)(107 * (me.Level - 40) * 0.025f));
 				// Add delta to make them not all hit the same Time
 				me.SetBaseAttackTime(WeaponAttackType.BaseAttack, me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.InMilliseconds);
 
@@ -64,7 +64,7 @@ namespace Scripts.Pets
 					return;
 				}
 
-				if (me.IsSummon() &&
+				if (me.IsSummon &&
 					!me.GetThreatManager().GetFixateTarget())
 				{
 					// find new Target

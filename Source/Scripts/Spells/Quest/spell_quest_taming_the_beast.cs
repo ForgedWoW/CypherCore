@@ -44,8 +44,8 @@ internal class spell_quest_taming_the_beast : AuraScript, IHasAuraEffects
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		if (!Caster ||
-			!Caster.IsAlive() ||
-			!Target.IsAlive())
+			!Caster.IsAlive ||
+			!Target.IsAlive)
 			return;
 
 		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)

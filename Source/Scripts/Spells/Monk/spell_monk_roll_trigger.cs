@@ -64,7 +64,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 		aur.SetMaxDuration(600);
 		aur.SetDuration(600);
 
-		var aurApp = Aura.GetApplicationOfTarget(caster.GetGUID());
+		var aurApp = Aura.GetApplicationOfTarget(caster.GUID);
 
 		if (aurApp != null)
 			aurApp.ClientUpdate();

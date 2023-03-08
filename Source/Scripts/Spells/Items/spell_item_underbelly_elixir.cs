@@ -17,7 +17,7 @@ internal class spell_item_underbelly_elixir : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spellInfo)

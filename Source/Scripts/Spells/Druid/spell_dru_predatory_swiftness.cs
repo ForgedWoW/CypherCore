@@ -23,7 +23,7 @@ public class spell_dru_predatory_swiftness : SpellScript, ISpellCheckCast, ISpel
 	{
 		if (Caster)
 		{
-			if (Caster.GetTypeId() != TypeId.Player)
+			if (Caster.TypeId != TypeId.Player)
 				return SpellCastResult.DontReport;
 
 			if (Caster.ToPlayer().GetPower(PowerType.ComboPoints) != 0)

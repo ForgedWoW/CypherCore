@@ -50,9 +50,9 @@ namespace Game
         {
             // Full guids are only used when receiving/sending data to client
             // everywhere else guild id is used
-            if (guid.IsGuild())
+            if (guid.IsGuild)
             {
-                ulong guildId = guid.GetCounter();
+                ulong guildId = guid.Counter;
                 if (guildId != 0)
                     return GetGuildById(guildId);
             }

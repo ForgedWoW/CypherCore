@@ -81,6 +81,8 @@ public class Item : WorldObject
 	public Loot Loot { get; set; }
 	public BonusData BonusData { get; set; }
 
+	public override ObjectGuid OwnerGUID => ItemData.Owner;
+
 	public Item() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.Item;
@@ -97,13 +99,13 @@ public class Item : WorldObject
 	{
 		Create(ObjectGuid.Create(HighGuid.Item, guidlow));
 
-		SetEntry(itemId);
-		SetObjectScale(1.0f);
+		Entry = itemId;
+		ObjectScale = 1.0f;
 
 		if (owner)
 		{
-			SetOwnerGUID(owner.GetGUID());
-			SetContainedIn(owner.GetGUID());
+			SetOwnerGUID(owner.GUID);
+			SetContainedIn(owner.GUID);
 		}
 
 		var itemProto = Global.ObjectMgr.GetItemTemplate(itemId);
@@ -184,7 +186,7 @@ public class Item : WorldObject
 		if (duration == 0)
 			return;
 
-		Log.outDebug(LogFilter.Player, "Item.UpdateDuration Item (Entry: {0} Duration {1} Diff {2})", GetEntry(), duration, diff);
+		Log.outDebug(LogFilter.Player, "Item.UpdateDuration Item (Entry: {0} Duration {1} Diff {2})", Entry, duration, diff);
 
 		if (duration <= diff)
 		{
@@ -211,10 +213,10 @@ public class Item : WorldObject
 			{
 				byte index = 0;
 				stmt = CharacterDatabase.GetPreparedStatement(_updateState == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
-				stmt.AddValue(index, GetEntry());
-				stmt.AddValue(++index, GetOwnerGUID().GetCounter());
-				stmt.AddValue(++index, GetCreator().GetCounter());
-				stmt.AddValue(++index, GetGiftCreator().GetCounter());
+				stmt.AddValue(index, Entry);
+				stmt.AddValue(++index, OwnerGUID.Counter);
+				stmt.AddValue(++index, GetCreator().Counter);
+				stmt.AddValue(++index, GetGiftCreator().Counter);
 				stmt.AddValue(++index, GetCount());
 				stmt.AddValue(++index, (uint)ItemData.Expiration);
 
@@ -255,26 +257,26 @@ public class Item : WorldObject
 					ss.Append($"{bonusListID} ");
 
 				stmt.AddValue(++index, ss.ToString());
-				stmt.AddValue(++index, GetGUID().GetCounter());
+				stmt.AddValue(++index, GUID.Counter);
 
 				DB.Characters.Execute(stmt);
 
 				if ((_updateState == ItemUpdateState.Changed) && IsWrapped())
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
-					stmt.AddValue(0, GetOwnerGUID().GetCounter());
-					stmt.AddValue(1, GetGUID().GetCounter());
+					stmt.AddValue(0, OwnerGUID.Counter);
+					stmt.AddValue(1, GUID.Counter);
 					DB.Characters.Execute(stmt);
 				}
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (ItemData.Gems.Size() != 0)
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_GEMS);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					var i = 0;
 					var gemFields = 4;
 
@@ -321,13 +323,13 @@ public class Item : WorldObject
 				};
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (transmogMods.Any(modifier => GetModifier(modifier) != 0))
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_TRANSMOG);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 					stmt.AddValue(2, GetModifier(ItemModifier.TransmogAppearanceSpec1));
 					stmt.AddValue(3, GetModifier(ItemModifier.TransmogAppearanceSpec2));
@@ -350,17 +352,17 @@ public class Item : WorldObject
 				}
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (GetTemplate().GetArtifactID() != 0)
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, (ulong)ItemData.ArtifactXP);
 					stmt.AddValue(2, GetModifier(ItemModifier.ArtifactAppearanceId));
 					stmt.AddValue(3, GetModifier(ItemModifier.ArtifactTier));
@@ -369,7 +371,7 @@ public class Item : WorldObject
 					foreach (var artifactPower in ItemData.ArtifactPowers)
 					{
 						stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT_POWERS);
-						stmt.AddValue(0, GetGUID().GetCounter());
+						stmt.AddValue(0, GUID.Counter);
 						stmt.AddValue(1, artifactPower.ArtifactPowerId);
 						stmt.AddValue(2, artifactPower.PurchasedRank);
 						trans.Append(stmt);
@@ -382,13 +384,13 @@ public class Item : WorldObject
 				};
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (modifiersTable.Any(modifier => GetModifier(modifier) != 0))
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_MODIFIERS);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, GetModifier(ItemModifier.TimewalkerLevel));
 					stmt.AddValue(2, GetModifier(ItemModifier.ArtifactKnowledgeLevel));
 					trans.Append(stmt);
@@ -399,39 +401,39 @@ public class Item : WorldObject
 			case ItemUpdateState.Removed:
 			{
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (IsWrapped())
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					trans.Append(stmt);
 				}
 
 				// Delete the items if this is a container
 				if (Loot != null && !Loot.IsLooted())
-					Global.LootItemStorage.RemoveStoredLootForContainer(GetGUID().GetCounter());
+					Global.LootItemStorage.RemoveStoredLootForContainer(GUID.Counter);
 
 				Dispose();
 
@@ -450,8 +452,8 @@ public class Item : WorldObject
 		// and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
 		Create(ObjectGuid.Create(HighGuid.Item, guid));
 
-		SetEntry(entry);
-		SetObjectScale(1.0f);
+		Entry = entry;
+		ObjectScale = 1.0f;
 
 		var proto = GetTemplate();
 
@@ -461,7 +463,7 @@ public class Item : WorldObject
 		BonusData = new BonusData(proto);
 
 		// set owner (not if item is only loaded for gbank/auction/mail
-		if (!ownerGuid.IsEmpty())
+		if (!ownerGuid.IsEmpty)
 			SetOwnerGUID(ownerGuid);
 
 		var itemFlags = fields.Read<uint>(7);
@@ -743,11 +745,11 @@ public class Item : WorldObject
 
 	public virtual void DeleteFromDB(SQLTransaction trans)
 	{
-		DeleteFromDB(trans, GetGUID().GetCounter());
+		DeleteFromDB(trans, GUID.Counter);
 
 		// Delete the items if this is a container
 		if (Loot != null && !Loot.IsLooted())
-			Global.LootItemStorage.RemoveStoredLootForContainer(GetGUID().GetCounter());
+			Global.LootItemStorage.RemoveStoredLootForContainer(GUID.Counter);
 	}
 
 	public static void DeleteFromInventoryDB(SQLTransaction trans, ulong itemGuid)
@@ -759,17 +761,17 @@ public class Item : WorldObject
 
 	public void DeleteFromInventoryDB(SQLTransaction trans)
 	{
-		DeleteFromInventoryDB(trans, GetGUID().GetCounter());
+		DeleteFromInventoryDB(trans, GUID.Counter);
 	}
 
 	public ItemTemplate GetTemplate()
 	{
-		return Global.ObjectMgr.GetItemTemplate(GetEntry());
+		return Global.ObjectMgr.GetItemTemplate(Entry);
 	}
 
 	public override Player GetOwner()
 	{
-		return Global.ObjAccessor.FindPlayer(GetOwnerGUID());
+		return Global.ObjAccessor.FindPlayer(OwnerGUID);
 	}
 
 	public SkillType GetSkill()
@@ -795,7 +797,7 @@ public class Item : WorldObject
 			if (forplayer)
 			{
 				RemoveItemFromUpdateQueueOf(this, forplayer);
-				forplayer.DeleteRefundReference(GetGUID());
+				forplayer.DeleteRefundReference(GUID);
 			}
 
 			return;
@@ -826,9 +828,9 @@ public class Item : WorldObject
 
 		Cypher.Assert(player != null);
 
-		if (player.GetGUID() != item.GetOwnerGUID())
+		if (player.GUID != item.OwnerGUID)
 		{
-			Log.outError(LogFilter.Player, "Item.RemoveFromUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.GetOwnerGUID().ToString(), player.GetGUID().ToString());
+			Log.outError(LogFilter.Player, "Item.RemoveFromUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID.ToString(), player.GUID.ToString());
 
 			return;
 		}
@@ -868,7 +870,7 @@ public class Item : WorldObject
 			if (owner.CanUnequipItem(GetPos(), false) != InventoryResult.Ok)
 				return false;
 
-			if (owner.GetLootGUID() == GetGUID())
+			if (owner.GetLootGUID() == GUID)
 				return false;
 		}
 
@@ -890,7 +892,7 @@ public class Item : WorldObject
 
 			if (tradeData != null)
 			{
-				var slot = tradeData.GetTradeSlotForItem(GetGUID());
+				var slot = tradeData.GetTradeSlotForItem(GUID);
 
 				if (slot != TradeSlots.Invalid)
 					tradeData.SetItem(slot, this, true);
@@ -949,7 +951,7 @@ public class Item : WorldObject
 			return InventoryResult.LootGone;
 
 		// check item type
-		if (GetEntry() != proto.GetId())
+		if (Entry != proto.GetId())
 			return InventoryResult.CantStack;
 
 		// check free space (full stacks can't be target of merge
@@ -1005,12 +1007,12 @@ public class Item : WorldObject
 			var oldEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(GetEnchantmentId(slot));
 
 			if (oldEnchant != null && !oldEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
-				owner.GetSession().SendEnchantmentLog(GetOwnerGUID(), ObjectGuid.Empty, GetGUID(), GetEntry(), oldEnchant.Id, (uint)slot);
+				owner.Session.SendEnchantmentLog(OwnerGUID, ObjectGuid.Empty, GUID, Entry, oldEnchant.Id, (uint)slot);
 
 			var newEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(id);
 
 			if (newEnchant != null && !newEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.DoNotLog))
-				owner.GetSession().SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, (uint)slot);
+				owner.Session.SendEnchantmentLog(OwnerGUID, caster, GUID, Entry, id, (uint)slot);
 		}
 
 		ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);
@@ -1207,7 +1209,7 @@ public class Item : WorldObject
 	public void SendUpdateSockets()
 	{
 		SocketGemsSuccess socketGems = new();
-		socketGems.Item = GetGUID();
+		socketGems.Item = GUID;
 
 		GetOwner().SendPacket(socketGems);
 	}
@@ -1220,7 +1222,7 @@ public class Item : WorldObject
 			return;
 
 		ItemTimeUpdate itemTimeUpdate = new();
-		itemTimeUpdate.ItemGuid = GetGUID();
+		itemTimeUpdate.ItemGuid = GUID;
 		itemTimeUpdate.DurationLeft = duration;
 		owner.SendPacket(itemTimeUpdate);
 	}
@@ -1252,7 +1254,7 @@ public class Item : WorldObject
 
 	public Item CloneItem(uint count, Player player = null)
 	{
-		var newItem = CreateItem(GetEntry(), count, GetContext(), player);
+		var newItem = CreateItem(Entry, count, GetContext(), player);
 
 		if (newItem == null)
 			return null;
@@ -1276,11 +1278,11 @@ public class Item : WorldObject
 			return false;
 
 		// own item
-		if (GetOwnerGUID() == player.GetGUID())
+		if (OwnerGUID == player.GUID)
 			return false;
 
 		if (IsBOPTradeable())
-			if (_allowedGuiDs.Contains(player.GetGUID()))
+			if (_allowedGuiDs.Contains(player.GUID))
 				return false;
 
 		// BOA item case
@@ -1302,7 +1304,7 @@ public class Item : WorldObject
 
 	public override UpdateFieldFlag GetUpdateFieldFlagsFor(Player target)
 	{
-		if (target.GetGUID() == GetOwnerGUID())
+		if (target.GUID == OwnerGUID)
 			return UpdateFieldFlag.Owner;
 
 		return UpdateFieldFlag.None;
@@ -1387,8 +1389,8 @@ public class Item : WorldObject
 		DeleteRefundDataFromDB();
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_REFUND_INSTANCE);
-		stmt.AddValue(0, GetGUID().GetCounter());
-		stmt.AddValue(1, GetRefundRecipient().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
+		stmt.AddValue(1, GetRefundRecipient().Counter);
 		stmt.AddValue(2, GetPaidMoney());
 		stmt.AddValue(3, (ushort)GetPaidExtendedCost());
 		DB.Characters.Execute(stmt);
@@ -1397,7 +1399,7 @@ public class Item : WorldObject
 	public void DeleteRefundDataFromDB(SQLTransaction trans = null)
 	{
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 
 		if (trans != null)
 			trans.Append(stmt);
@@ -1411,7 +1413,7 @@ public class Item : WorldObject
 			return;
 
 		ItemExpirePurchaseRefund itemExpirePurchaseRefund = new();
-		itemExpirePurchaseRefund.ItemGUID = GetGUID();
+		itemExpirePurchaseRefund.ItemGUID = GUID;
 		owner.SendPacket(itemExpirePurchaseRefund);
 
 		RemoveItemFlag(ItemFieldFlags.Refundable);
@@ -1425,10 +1427,10 @@ public class Item : WorldObject
 		SetPaidExtendedCost(0);
 		DeleteRefundDataFromDB(trans);
 
-		owner.DeleteRefundReference(GetGUID());
+		owner.DeleteRefundReference(GUID);
 
 		if (addToCollection)
-			owner.GetSession().GetCollectionMgr().AddItemAppearance(this);
+			owner.Session.			CollectionMgr.AddItemAppearance(this);
 	}
 
 	public void UpdatePlayedTime(Player owner)
@@ -1484,18 +1486,19 @@ public class Item : WorldObject
 		if (_allowedGuiDs.Empty())
 			return;
 
-		currentOwner.GetSession().GetCollectionMgr().AddItemAppearance(this);
+		currentOwner.Session.
+		CollectionMgr.AddItemAppearance(this);
 		_allowedGuiDs.Clear();
 		SetState(ItemUpdateState.Changed, currentOwner);
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_BOP_TRADE);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		DB.Characters.Execute(stmt);
 	}
 
 	public bool CheckSoulboundTradeExpire()
 	{
 		// called from owner's update - GetOwner() MUST be valid
-		if (ItemData.CreatePlayedTime + 2 * Time.Hour < GetOwner().GetTotalPlayedTime())
+		if (ItemData.CreatePlayedTime + 2 * Time.Hour < GetOwner().TotalPlayedTime)
 		{
 			ClearSoulboundTradeable(GetOwner());
 
@@ -1601,7 +1604,7 @@ public class Item : WorldObject
 
 		return GetItemLevel(itemTemplate,
 							BonusData,
-							owner.GetLevel(),
+							owner.Level,
 							GetModifier(ItemModifier.TimewalkerLevel),
 							minItemLevel,
 							minItemLevelCutoff,
@@ -1753,12 +1756,12 @@ public class Item : WorldObject
 				return itemAppearance.ItemDisplayInfoID;
 		}
 
-		return Global.DB2Mgr.GetItemDisplayId(GetEntry(), GetAppearanceModId());
+		return Global.DB2Mgr.GetItemDisplayId(Entry, GetAppearanceModId());
 	}
 
 	public ItemModifiedAppearanceRecord GetItemModifiedAppearance()
 	{
-		return Global.DB2Mgr.GetItemModifiedAppearance(GetEntry(), BonusData.AppearanceModID);
+		return Global.DB2Mgr.GetItemModifiedAppearance(Entry, BonusData.AppearanceModID);
 	}
 
 	public uint GetModifier(ItemModifier modifier)
@@ -1813,7 +1816,7 @@ public class Item : WorldObject
 		if (transmog != null)
 			return transmog.ItemID;
 
-		return GetEntry();
+		return Entry;
 	}
 
 	public ushort GetVisibleAppearanceModId(Player owner)
@@ -1881,7 +1884,7 @@ public class Item : WorldObject
 		if (bonuses != null)
 		{
 			ItemBonusKey itemBonusKey = new();
-			itemBonusKey.ItemID = GetEntry();
+			itemBonusKey.ItemID = Entry;
 			itemBonusKey.BonusListIDs = GetBonusListIDs();
 			itemBonusKey.BonusListIDs.Add(bonusListID);
 			SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
@@ -1899,7 +1902,7 @@ public class Item : WorldObject
 			bonusListIDs = new List<uint>();
 
 		ItemBonusKey itemBonusKey = new();
-		itemBonusKey.ItemID = GetEntry();
+		itemBonusKey.ItemID = Entry;
 		itemBonusKey.BonusListIDs = bonusListIDs;
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
 
@@ -1912,7 +1915,7 @@ public class Item : WorldObject
 	public void ClearBonuses()
 	{
 		ItemBonusKey itemBonusKey = new();
-		itemBonusKey.ItemID = GetEntry();
+		itemBonusKey.ItemID = Entry;
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
 		BonusData = new BonusData(GetTemplate());
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemAppearanceModID), (byte)BonusData.AppearanceModID);
@@ -2045,7 +2048,7 @@ public class Item : WorldObject
 		SetArtifactXP(ItemData.ArtifactXP + amount);
 
 		ArtifactXpGain artifactXpGain = new();
-		artifactXpGain.ArtifactGUID = GetGUID();
+		artifactXpGain.ArtifactGUID = GUID;
 		artifactXpGain.Amount = amount;
 		owner.SendPacket(artifactXpGain);
 
@@ -2108,7 +2111,7 @@ public class Item : WorldObject
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nOwner: {GetOwnerGUID()} Count: {GetCount()} BagSlot: {GetBagSlot()} Slot: {GetSlot()} Equipped: {IsEquipped()}";
+		return $"{base.GetDebugInfo()}\nOwner: {OwnerGUID} Count: {GetCount()} BagSlot: {GetBagSlot()} Slot: {GetSlot()} Equipped: {IsEquipped()}";
 	}
 
 	public static Item NewItemOrBag(ItemTemplate proto)
@@ -2146,7 +2149,7 @@ public class Item : WorldObject
 			return;
 
 		// Check player level for heirlooms
-		if (Global.DB2Mgr.GetHeirloomByItemId(item.GetEntry()) != null)
+		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
 			if (item.GetBonus().PlayerLevelToItemLevelCurveId != 0)
 			{
 				var maxLevel = (uint)Global.DB2Mgr.GetCurveXAxisRange(item.GetBonus().PlayerLevelToItemLevelCurveId).Item2;
@@ -2156,7 +2159,7 @@ public class Item : WorldObject
 				if (contentTuning.HasValue)
 					maxLevel = Math.Min(maxLevel, (uint)contentTuning.Value.MaxLevel);
 
-				if (player.GetLevel() > maxLevel)
+				if (player.Level > maxLevel)
 					return;
 			}
 
@@ -2225,7 +2228,7 @@ public class Item : WorldObject
 
 		if (set == null)
 		{
-			Log.outError(LogFilter.Sql, $"Item set {setid} for item {item.GetEntry()} not found, mods not removed.");
+			Log.outError(LogFilter.Sql, $"Item set {setid} for item {item.Entry} not found, mods not removed.");
 
 			return;
 		}
@@ -2272,11 +2275,6 @@ public class Item : WorldObject
 	public BonusData GetBonus()
 	{
 		return BonusData;
-	}
-
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return ItemData.Owner;
 	}
 
 	public void SetOwnerGUID(ObjectGuid guid)
@@ -2424,12 +2422,12 @@ public class Item : WorldObject
 
 	public bool IsAzeriteItem()
 	{
-		return GetTypeId() == TypeId.AzeriteItem;
+		return TypeId == TypeId.AzeriteItem;
 	}
 
 	public bool IsAzeriteEmpoweredItem()
 	{
-		return GetTypeId() == TypeId.AzeriteEmpoweredItem;
+		return TypeId == TypeId.AzeriteEmpoweredItem;
 	}
 
 	public bool IsCurrencyToken()
@@ -2794,9 +2792,9 @@ public class Item : WorldObject
 
 		Cypher.Assert(player != null);
 
-		if (player.GetGUID() != item.GetOwnerGUID())
+		if (player.GUID != item.OwnerGUID)
 		{
-			Log.outError(LogFilter.Player, "Item.AddToUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.GetOwnerGUID(), player.GetGUID().ToString());
+			Log.outError(LogFilter.Player, "Item.AddToUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID, player.GUID.ToString());
 
 			return;
 		}
@@ -2894,7 +2892,7 @@ public class Item : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

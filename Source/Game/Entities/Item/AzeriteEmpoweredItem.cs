@@ -37,7 +37,7 @@ public class AzeriteEmpoweredItem : Item
 	public override void SaveToDB(SQLTransaction trans)
 	{
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
 		switch (GetState())
@@ -45,7 +45,7 @@ public class AzeriteEmpoweredItem : Item
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 
 				for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 					stmt.AddValue(1 + i, _azeriteEmpoweredItemData.Selections[i]);
@@ -68,7 +68,7 @@ public class AzeriteEmpoweredItem : Item
 			{
 				var selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
 
-				if (GetTierForAzeritePower(owner.GetClass(), selection) != i)
+				if (GetTierForAzeritePower(owner.Class, selection) != i)
 				{
 					needSave = true;
 
@@ -87,7 +87,7 @@ public class AzeriteEmpoweredItem : Item
 			for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 				stmt.AddValue(i, _azeriteEmpoweredItemData.Selections[i]);
 
-			stmt.AddValue(5, GetGUID().GetCounter());
+			stmt.AddValue(5, GUID.Counter);
 			DB.Characters.Execute(stmt);
 		}
 	}
@@ -101,7 +101,7 @@ public class AzeriteEmpoweredItem : Item
 
 	public override void DeleteFromDB(SQLTransaction trans)
 	{
-		DeleteFromDB(trans, GetGUID().GetCounter());
+		DeleteFromDB(trans, GUID.Counter);
 		base.DeleteFromDB(trans);
 	}
 
@@ -133,7 +133,7 @@ public class AzeriteEmpoweredItem : Item
 		var owner = GetOwner();
 
 		if (owner != null)
-			return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.GetNumRespecs()));
+			return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.NumRespecs));
 
 		return (long)PlayerConst.MaxMoneyAmount + 1;
 	}
@@ -228,7 +228,7 @@ public class AzeriteEmpoweredItem : Item
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 
@@ -237,7 +237,7 @@ public class AzeriteEmpoweredItem : Item
 
 	void InitAzeritePowerData()
 	{
-		_azeritePowers = Global.DB2Mgr.GetAzeritePowers(GetEntry());
+		_azeritePowers = Global.DB2Mgr.GetAzeritePowers(Entry);
 
 		if (_azeritePowers != null)
 			_maxTier = _azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;

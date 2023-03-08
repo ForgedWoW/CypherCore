@@ -179,7 +179,7 @@ internal class boss_felblood_kaelthas : BossAI
 			_phase != Phase.Outro)
 		{
 			me.AttackStop();
-			me.SetReactState(ReactStates.Passive);
+			me.ReactState = ReactStates.Passive;
 			me.InterruptNonMeleeSpells(true);
 			me.RemoveAura(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
 			summons.DespawnAll();
@@ -209,9 +209,9 @@ internal class boss_felblood_kaelthas : BossAI
 								{
 									Talk(_firstGravityLapse ? TextIds.SayGravityLapse1 : TextIds.SayGravityLapse2);
 									_firstGravityLapse = false;
-									me.SetReactState(ReactStates.Passive);
+									me.ReactState = ReactStates.Passive;
 									me.AttackStop();
-									me.GetMotionMaster().Clear();
+									me.MotionMaster.Clear();
 
 									task.Schedule(TimeSpan.FromSeconds(1),
 												_ =>
@@ -267,7 +267,7 @@ internal class boss_felblood_kaelthas : BossAI
 								task =>
 								{
 									Talk(TextIds.SayIntro1);
-									me.SetEmoteState(Emote.StateTalk);
+									me.EmoteState = Emote.StateTalk;
 
 									_scheduler.Schedule(TimeSpan.FromSeconds(20.6),
 														_ =>
@@ -277,7 +277,7 @@ internal class boss_felblood_kaelthas : BossAI
 															_scheduler.Schedule(TimeSpan.FromSeconds(15) + TimeSpan.FromMilliseconds(500),
 																				_ =>
 																				{
-																					me.SetEmoteState(Emote.OneshotNone);
+																					me.EmoteState = Emote.OneshotNone;
 																					me.SetImmuneToPC(false);
 																				});
 														});
@@ -325,13 +325,13 @@ internal class boss_felblood_kaelthas : BossAI
 	{
 		summons.Summon(summon);
 
-		switch (summon.GetEntry())
+		switch (summon.Entry)
 		{
 			case CreatureIds.ArcaneSphere:
 				var target = SelectTarget(SelectTargetMethod.Random, 0, 70.0f, true);
 
 				if (target)
-					summon.GetMotionMaster().MoveFollow(target, 0.0f, 0.0f);
+					summon.MotionMaster.MoveFollow(target, 0.0f, 0.0f);
 
 				break;
 			case CreatureIds.FlameStrike:
@@ -379,7 +379,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 		DoZoneInCombat();
 		DoCastSelf(SpellIds.Burn);
 		DoCastSelf(SpellIds.Rebirth);
-		_scheduler.Schedule(TimeSpan.FromSeconds(2), task => me.SetReactState(ReactStates.Aggressive));
+		_scheduler.Schedule(TimeSpan.FromSeconds(2), task => me.ReactState = ReactStates.Aggressive);
 	}
 
 	public override void JustEngagedWith(Unit who) { }
@@ -391,7 +391,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 			if (!_isInEgg)
 			{
 				me.AttackStop();
-				me.SetReactState(ReactStates.Passive);
+				me.ReactState = ReactStates.Passive;
 				me.RemoveAllAuras();
 				me.SetUnitFlag(UnitFlags.Uninteractible);
 				DoCastSelf(SpellIds.EmberBlast);
@@ -405,7 +405,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 					if (kaelthas)
 					{
 						kaelthas.GetAI().JustSummoned(egg);
-						_eggGUID = egg.GetGUID();
+						_eggGUID = egg.GUID;
 					}
 				}
 
@@ -431,7 +431,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 																				DoCastSelf(SpellIds.FullHeal);
 																				DoCastSelf(SpellIds.Burn);
 																				me.RemoveUnitFlag(UnitFlags.Uninteractible);
-																				engageTask.Schedule(TimeSpan.FromSeconds(2), task => me.SetReactState(ReactStates.Aggressive));
+																				engageTask.Schedule(TimeSpan.FromSeconds(2), task => me.ReactState = ReactStates.Aggressive);
 																			});
 													});
 									});
@@ -459,7 +459,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 
 	private void Initialize()
 	{
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		_isInEgg = false;
 	}
 }

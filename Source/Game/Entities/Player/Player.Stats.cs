@@ -224,7 +224,7 @@ public partial class Player
 
 		MathFunctions.AddPct(ref versaDmgMod, GetRatingBonusValue(CombatRating.VersatilityDamageDone) + (float)GetTotalAuraModifier(AuraType.ModVersatility));
 
-		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(GetShapeshiftForm());
+		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
 
 		if (shapeshift != null && shapeshift.CombatRoundTime != 0)
 		{
@@ -271,7 +271,7 @@ public partial class Player
 			return;
 
 		// Get base of Mana Pool in sBaseMPGameTable
-		Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out var basemana);
+		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 		double base_regen = basemana / 100.0f;
 
 		base_regen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);
@@ -326,9 +326,9 @@ public partial class Player
 	public override void UpdateAttackPowerAndDamage(bool ranged = false)
 	{
 		float val2;
-		float level = GetLevel();
+		float level = Level;
 
-		var entry = CliDB.ChrClassesStorage.LookupByKey(GetClass());
+		var entry = CliDB.ChrClassesStorage.LookupByKey(Class);
 		var unitMod = ranged ? UnitMods.AttackPowerRanged : UnitMods.AttackPower;
 
 		if (!HasAuraType(AuraType.OverrideAttackPowerBySpPct))
@@ -338,7 +338,7 @@ public partial class Player
 				var strengthValue = Math.Max((GetStat(Stats.Strength)) * entry.AttackPowerPerStrength, 0.0f);
 				var agilityValue = Math.Max((GetStat(Stats.Agility)) * entry.AttackPowerPerAgility, 0.0f);
 
-				var form = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)GetShapeshiftForm());
+				var form = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)ShapeshiftForm);
 
 				// Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
 				if (form != null && Convert.ToBoolean((uint)form.Flags & 0x20))
@@ -388,7 +388,7 @@ public partial class Player
 		{
 			UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 
-			if (pet != null && pet.IsHunterPet()) // At ranged attack change for hunter pet
+			if (pet != null && pet.IsHunterPet) // At ranged attack change for hunter pet
 				pet.UpdateAttackPowerAndDamage();
 		}
 		else
@@ -397,7 +397,7 @@ public partial class Player
 			var offhand = GetWeaponForAttack(WeaponAttackType.OffAttack, true);
 
 			if (offhand)
-				if (CanDualWield() || offhand.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield))
+				if (CanDualWield || offhand.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield))
 					UpdateDamagePhysical(WeaponAttackType.OffAttack);
 
 			if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
@@ -544,7 +544,7 @@ public partial class Player
 						ApplyAttackTimePercentMod(WeaponAttackType.BaseAttack, newVal, true);
 						ApplyAttackTimePercentMod(WeaponAttackType.OffAttack, newVal, true);
 
-						if (GetClass() == Class.Deathknight)
+						if (Class == Class.Deathknight)
 							UpdateAllRunesRegen();
 
 						break;
@@ -632,7 +632,7 @@ public partial class Player
 		// No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Versatility), (int)ActivePlayerData.CombatRatings[(int)CombatRating.VersatilityDamageDone]);
 
-		if (GetClass() == Class.Hunter)
+		if (Class == Class.Hunter)
 			UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 		else
 			UpdateDamagePhysical(WeaponAttackType.BaseAttack);
@@ -657,9 +657,9 @@ public partial class Player
 	{
 		// No parry
 		double value = 0.0f;
-		var pclass = (int)GetClass() - 1;
+		var pclass = (int)Class - 1;
 
-		if (CanParry() && parry_cap[pclass] > 0.0f)
+		if (CanParry && parry_cap[pclass] > 0.0f)
 		{
 			double nondiminishing = 5.0f;
 			// Parry from rating
@@ -668,7 +668,7 @@ public partial class Player
 			nondiminishing += GetTotalAuraModifier(AuraType.ModParryPercent);
 
 			// apply diminishing formula to diminishing parry chance
-			value = CalculateDiminishingReturns(parry_cap, GetClass(), nondiminishing, diminishing);
+			value = CalculateDiminishingReturns(parry_cap, Class, nondiminishing, diminishing);
 
 			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
 				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) : value;
@@ -686,7 +686,7 @@ public partial class Player
 		// Dodge from rating
 		diminishing += GetRatingBonusValue(CombatRating.Dodge);
 		// apply diminishing formula to diminishing dodge chance
-		var value = CalculateDiminishingReturns(dodge_cap, GetClass(), nondiminishing, diminishing);
+		var value = CalculateDiminishingReturns(dodge_cap, Class, nondiminishing, diminishing);
 
 		if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
 			value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) : value;
@@ -699,7 +699,7 @@ public partial class Player
 		// No block
 		double value = 0.0f;
 
-		if (CanBlock())
+		if (CanBlock)
 		{
 			// Base value
 			value = 5.0f;
@@ -819,7 +819,7 @@ public partial class Player
 
 	public override uint GetPowerIndex(PowerType powerType)
 	{
-		return Global.DB2Mgr.GetPowerIndexByClass(powerType, GetClass());
+		return Global.DB2Mgr.GetPowerIndexByClass(powerType, Class);
 	}
 
 	public override void UpdateMaxPower(PowerType power)
@@ -1062,7 +1062,7 @@ public partial class Player
 		if (specialization != null)
 			primaryStatPriority = (byte)specialization.PrimaryStatPriority;
 		else
-			primaryStatPriority = CliDB.ChrClassesStorage.LookupByKey(GetClass()).PrimaryStatPriority;
+			primaryStatPriority = CliDB.ChrClassesStorage.LookupByKey(Class).PrimaryStatPriority;
 
 
 		if (primaryStatPriority >= 4)
@@ -1078,7 +1078,7 @@ public partial class Player
 	{
 		// Taken from PaperDollFrame.lua - 6.0.3.19085
 		var ratio = 10.0f;
-		var hpBase = CliDB.HpPerStaGameTable.GetRow(GetLevel());
+		var hpBase = CliDB.HpPerStaGameTable.GetRow(Level);
 
 		if (hpBase != null)
 			ratio = hpBase.Health;

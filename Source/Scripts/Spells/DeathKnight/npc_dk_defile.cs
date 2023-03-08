@@ -15,7 +15,7 @@ public class npc_dk_defile : ScriptedAI
 	public npc_dk_defile(Creature creature) : base(creature)
 	{
 		SetCombatMovement(false);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
 		me.AddUnitState(UnitState.Root);
 	}

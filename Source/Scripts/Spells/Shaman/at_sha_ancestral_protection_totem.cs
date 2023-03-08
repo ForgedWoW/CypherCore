@@ -24,12 +24,12 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 			return;
 
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
 			if (caster.IsFriendlyTo(target) || target == caster.GetOwner())
-				if (!target.IsTotem())
+				if (!target.IsTotem)
 					caster.CastSpell(target, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
 		}
 	}
@@ -43,7 +43,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 
 		if (caster.IsFriendlyTo(unit) || unit == caster.GetOwner())
 		{
-			if (unit.IsTotem())
+			if (unit.IsTotem)
 				return;
 			else
 				caster.CastSpell(unit, SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA, true);
@@ -68,11 +68,11 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (!target.IsTotem())
+			if (!target.IsTotem)
 				if (target.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA))
 					target.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
 		}

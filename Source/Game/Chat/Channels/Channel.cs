@@ -16,7 +16,7 @@ namespace Game.Chat
 {
     public class Channel
     {
-        public Channel(ObjectGuid guid, uint channelId, Team team = 0, AreaTableRecord zoneEntry = null)
+        public Channel(ObjectGuid guid, uint channelId, TeamFaction team = 0, AreaTableRecord zoneEntry = null)
         {
             _channelFlags = ChannelFlags.General;
             _channelId = channelId;
@@ -37,7 +37,7 @@ namespace Game.Chat
                 _channelFlags |= ChannelFlags.NotLfg;
         }
 
-        public Channel(ObjectGuid guid, string name, Team team = 0, string banList = "")
+        public Channel(ObjectGuid guid, string name, TeamFaction team = 0, string banList = "")
         {
             _announceEnabled = true;
             _ownershipEnabled = true;
@@ -53,7 +53,7 @@ namespace Game.Chat
                 string bannedGuidStr = token.Contains("0x") ? token.Substring(2) : token;
                 ObjectGuid banned = new();
                 banned.SetRawValue(ulong.Parse(bannedGuidStr.Substring(0, 16)), ulong.Parse(bannedGuidStr.Substring(16)));
-                if (banned.IsEmpty())
+                if (banned.IsEmpty)
                     continue;
 
                 Log.outDebug(LogFilter.ChatSystem, $"Channel({name}) loaded player {banned} into bannedStore");
@@ -123,7 +123,7 @@ namespace Game.Chat
 
         public void JoinChannel(Player player, string pass = "")
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             if (IsOn(guid))
             {
                 // Do not send error message for built-in channels
@@ -150,7 +150,7 @@ namespace Game.Chat
             }
 
             if (HasFlag(ChannelFlags.Lfg) && WorldConfig.GetBoolValue(WorldCfg.RestrictedLfgChannel) &&
-                Global.AccountMgr.IsPlayerAccount(player.GetSession().GetSecurity()) && //FIXME: Move to RBAC
+                Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
                 player.GetGroup())
             {
                 var builder = new ChannelNameBuilder(this, new NotInLFGAppend());
@@ -160,7 +160,7 @@ namespace Game.Chat
 
             player.JoinedChannel(this);
 
-            if (_announceEnabled && !player.GetSession().HasPermission(RBACPermissions.SilentlyJoinChannel))
+            if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
             {
                 var builder = new ChannelNameBuilder(this, new JoinedAppend(guid));
                 SendToAll(builder);
@@ -171,7 +171,7 @@ namespace Game.Chat
                 _nextActivityUpdateTime = 0; // force activity update on next channel tick
 
             PlayerInfo playerInfo = new();
-            playerInfo.SetInvisible(!player.IsGMVisible());
+            playerInfo.SetInvisible(!player.IsGMVisible);
             _playersStore[guid] = playerInfo;
 
             /*
@@ -189,7 +189,7 @@ namespace Game.Chat
                 // If the channel has no owner yet and ownership is allowed, set the new owner.
                 // or if the owner was a GM with .gm visible off
                 // don't do this if the new player is, too, an invis GM, unless the channel was empty
-                if (_ownershipEnabled && (newChannel || !playerInfo.IsInvisible()) && (_ownerGuid.IsEmpty() || _isOwnerInvisible))
+                if (_ownershipEnabled && (newChannel || !playerInfo.IsInvisible()) && (_ownerGuid.IsEmpty || _isOwnerInvisible))
                 {
                     _isOwnerInvisible = playerInfo.IsInvisible();
 
@@ -201,7 +201,7 @@ namespace Game.Chat
 
         public void LeaveChannel(Player player, bool send = true, bool suspend = false)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             if (!IsOn(guid))
             {
                 if (send)
@@ -228,7 +228,7 @@ namespace Game.Chat
             bool changeowner = info.IsOwner();
             _playersStore.Remove(guid);
 
-            if (_announceEnabled && !player.GetSession().HasPermission(RBACPermissions.SilentlyJoinChannel))
+            if (_announceEnabled && !player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
             {
                 var builder = new ChannelNameBuilder(this, new LeftAppend(guid));
                 SendToAll(builder);
@@ -252,7 +252,7 @@ namespace Game.Chat
                         }
                     }
 
-                    if (newowner.IsEmpty())
+                    if (newowner.IsEmpty)
                         newowner = _playersStore.First().Key;
 
                     _playersStore[newowner].SetModerator(true);
@@ -268,7 +268,7 @@ namespace Game.Chat
 
         void KickOrBan(Player player, string badname, bool ban)
         {
-            ObjectGuid good = player.GetGUID();
+            ObjectGuid good = player.GUID;
 
             if (!IsOn(good))
             {
@@ -278,7 +278,7 @@ namespace Game.Chat
             }
 
             PlayerInfo info = _playersStore.LookupByKey(good);
-            if (!info.IsModerator() && !player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator))
+            if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
             {
                 ChannelNameBuilder builder = new(this, new NotModeratorAppend());
                 SendToOne(builder, good);
@@ -286,8 +286,8 @@ namespace Game.Chat
             }
 
             Player bad = Global.ObjAccessor.FindPlayerByName(badname);
-            ObjectGuid victim = bad ? bad.GetGUID() : ObjectGuid.Empty;
-            if (bad == null || victim.IsEmpty() || !IsOn(victim))
+            ObjectGuid victim = bad ? bad.GUID : ObjectGuid.Empty;
+            if (bad == null || victim.IsEmpty || !IsOn(victim))
             {
                 ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
                 SendToOne(builder, good);
@@ -296,7 +296,7 @@ namespace Game.Chat
 
             bool changeowner = _ownerGuid == victim;
 
-            if (!player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator) && changeowner && good != _ownerGuid)
+            if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && changeowner && good != _ownerGuid)
             {
                 ChannelNameBuilder builder = new(this, new NotOwnerAppend());
                 SendToOne(builder, good);
@@ -308,14 +308,14 @@ namespace Game.Chat
                 _bannedStore.Add(victim);
                 _isDirty = true;
 
-                if (!player.GetSession().HasPermission(RBACPermissions.SilentlyJoinChannel))
+                if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
                 {
                     ChannelNameBuilder builder = new(this, new PlayerBannedAppend(good, victim));
                     SendToAll(builder);
                 }
 
             }
-            else if (!player.GetSession().HasPermission(RBACPermissions.SilentlyJoinChannel))
+            else if (!player.Session.HasPermission(RBACPermissions.SilentlyJoinChannel))
             {
                 ChannelNameBuilder builder = new(this, new PlayerKickedAppend(good, victim));
                 SendToAll(builder);
@@ -333,7 +333,7 @@ namespace Game.Chat
 
         public void UnBan(Player player, string badname)
         {
-            ObjectGuid good = player.GetGUID();
+            ObjectGuid good = player.GUID;
 
             if (!IsOn(good))
             {
@@ -343,7 +343,7 @@ namespace Game.Chat
             }
 
             PlayerInfo info = _playersStore.LookupByKey(good);
-            if (!info.IsModerator() && !player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator))
+            if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
             {
                 ChannelNameBuilder builder = new(this, new NotModeratorAppend());
                 SendToOne(builder, good);
@@ -351,9 +351,9 @@ namespace Game.Chat
             }
 
             Player bad = Global.ObjAccessor.FindPlayerByName(badname);
-            ObjectGuid victim = bad ? bad.GetGUID() : ObjectGuid.Empty;
+            ObjectGuid victim = bad ? bad.GUID : ObjectGuid.Empty;
 
-            if (victim.IsEmpty() || !IsBanned(victim))
+            if (victim.IsEmpty || !IsBanned(victim))
             {
                 ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(badname));
                 SendToOne(builder, good);
@@ -370,7 +370,7 @@ namespace Game.Chat
 
         public void Password(Player player, string pass)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -380,7 +380,7 @@ namespace Game.Chat
             }
 
             PlayerInfo info = _playersStore.LookupByKey(guid);
-            if (!info.IsModerator() && !player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator))
+            if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
             {
                 ChannelNameBuilder builder = new(this, new NotModeratorAppend());
                 SendToOne(builder, guid);
@@ -397,7 +397,7 @@ namespace Game.Chat
 
         void SetMode(Player player, string p2n, bool mod, bool set)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -407,7 +407,7 @@ namespace Game.Chat
             }
 
             PlayerInfo info = _playersStore.LookupByKey(guid);
-            if (!info.IsModerator() && !player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator))
+            if (!info.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
             {
                 ChannelNameBuilder builder = new(this, new NotModeratorAppend());
                 SendToOne(builder, guid);
@@ -418,12 +418,12 @@ namespace Game.Chat
                 return;
 
             Player newp = Global.ObjAccessor.FindPlayerByName(p2n);
-            ObjectGuid victim = newp ? newp.GetGUID() : ObjectGuid.Empty;
+            ObjectGuid victim = newp ? newp.GUID : ObjectGuid.Empty;
 
-            if (newp == null || victim.IsEmpty() || !IsOn(victim) ||
-                (player.GetTeam() != newp.GetTeam() &&
-            (!player.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-            !newp.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel))))
+            if (newp == null || victim.IsEmpty || !IsOn(victim) ||
+                (player.Team != newp.Team &&
+            (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+            !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
             {
                 ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(p2n));
                 SendToOne(builder, guid);
@@ -438,27 +438,27 @@ namespace Game.Chat
             }
 
             if (mod)
-                SetModerator(newp.GetGUID(), set);
+                SetModerator(newp.GUID, set);
             else
-                SetMute(newp.GetGUID(), set);
+                SetMute(newp.GUID, set);
         }
 
         public void SetInvisible(Player player, bool on)
         {
-            var playerInfo = _playersStore.LookupByKey(player.GetGUID());
+            var playerInfo = _playersStore.LookupByKey(player.GUID);
             if (playerInfo == null)
                 return;
 
             playerInfo.SetInvisible(on);
 
             // we happen to be owner too, update flag
-            if (_ownerGuid == player.GetGUID())
+            if (_ownerGuid == player.GUID)
                 _isOwnerInvisible = on;
         }
 
         public void SetOwner(Player player, string newname)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -466,7 +466,7 @@ namespace Game.Chat
                 SendToOne(builder, guid);
                 return;
             }
-            if (!player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator) && guid != _ownerGuid)
+            if (!player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator) && guid != _ownerGuid)
             {
                 ChannelNameBuilder builder = new(this, new NotOwnerAppend());
                 SendToOne(builder, guid);
@@ -474,12 +474,12 @@ namespace Game.Chat
             }
 
             Player newp = Global.ObjAccessor.FindPlayerByName(newname);
-            ObjectGuid victim = newp ? newp.GetGUID() : ObjectGuid.Empty;
+            ObjectGuid victim = newp ? newp.GUID : ObjectGuid.Empty;
 
-            if (newp == null || victim.IsEmpty() || !IsOn(victim) ||
-                (player.GetTeam() != newp.GetTeam() &&
-            (!player.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-            !newp.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel))))
+            if (newp == null || victim.IsEmpty || !IsOn(victim) ||
+                (player.Team != newp.Team &&
+            (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+            !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel))))
             {
                 ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
                 SendToOne(builder, guid);
@@ -492,7 +492,7 @@ namespace Game.Chat
 
         public void SendWhoOwner(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             if (IsOn(guid))
             {
                 ChannelNameBuilder builder = new(this, new ChannelOwnerAppend(this, _ownerGuid));
@@ -507,7 +507,7 @@ namespace Game.Chat
 
         public void List(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -516,8 +516,8 @@ namespace Game.Chat
                 return;
             }
 
-            string channelName = GetName(player.GetSession().GetSessionDbcLocale());
-            Log.outDebug(LogFilter.ChatSystem, "SMSG_CHANNEL_LIST {0} Channel: {1}", player.GetSession().GetPlayerInfo(), channelName);
+            string channelName = GetName(player.Session.SessionDbcLocale);
+            Log.outDebug(LogFilter.ChatSystem, "SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
 
             ChannelListResponse list = new();
             list.Display = true; // always true?
@@ -532,8 +532,8 @@ namespace Game.Chat
 
                 // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
                 // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-                if (member && (player.GetSession().HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
-                    member.GetSession().GetSecurity() <= (AccountTypes)gmLevelInWhoList) &&
+                if (member && (player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
+                    member.                    Session.                    Security <= (AccountTypes)gmLevelInWhoList) &&
                     member.IsVisibleGloballyFor(player))
                 {
                     list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.GetVirtualRealmAddress(), pair.Value.GetFlags()));
@@ -545,7 +545,7 @@ namespace Game.Chat
 
         public void Announce(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -555,7 +555,7 @@ namespace Game.Chat
             }
 
             PlayerInfo playerInfo = _playersStore.LookupByKey(guid);
-            if (!playerInfo.IsModerator() && !player.GetSession().HasPermission(RBACPermissions.ChangeChannelNotModerator))
+            if (!playerInfo.IsModerator() && !player.Session.HasPermission(RBACPermissions.ChangeChannelNotModerator))
             {
                 ChannelNameBuilder builder = new(this, new NotModeratorAppend());
                 SendToOne(builder, guid);
@@ -603,7 +603,7 @@ namespace Game.Chat
             }
 
             Player player = Global.ObjAccessor.FindConnectedPlayer(guid);
-            SendToAll(new ChannelSayBuilder(this, lang, what, guid, _channelGuid), !playerInfo.IsModerator() ? guid : ObjectGuid.Empty, !playerInfo.IsModerator() && player ? player.GetSession().GetAccountGUID() : ObjectGuid.Empty);
+            SendToAll(new ChannelSayBuilder(this, lang, what, guid, _channelGuid), !playerInfo.IsModerator() ? guid : ObjectGuid.Empty, !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
         }
 
         public void AddonSay(ObjectGuid guid, string prefix, string what, bool isLogged)
@@ -630,12 +630,12 @@ namespace Game.Chat
 
             Player player = Global.ObjAccessor.FindConnectedPlayer(guid);
             SendToAllWithAddon(new ChannelWhisperBuilder(this, isLogged ? Language.AddonLogged : Language.Addon, what, prefix, guid), prefix, !playerInfo.IsModerator() ? guid : ObjectGuid.Empty,
-                !playerInfo.IsModerator() && player ? player.GetSession().GetAccountGUID() : ObjectGuid.Empty);
+                !playerInfo.IsModerator() && player ? player.Session.AccountGUID : ObjectGuid.Empty);
         }
 
         public void Invite(Player player, string newname)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (!IsOn(guid))
             {
@@ -645,40 +645,40 @@ namespace Game.Chat
             }
 
             Player newp = Global.ObjAccessor.FindPlayerByName(newname);
-            if (!newp || !newp.IsGMVisible())
+            if (!newp || !newp.IsGMVisible)
             {
                 ChannelNameBuilder builder = new(this, new PlayerNotFoundAppend(newname));
                 SendToOne(builder, guid);
                 return;
             }
 
-            if (IsBanned(newp.GetGUID()))
+            if (IsBanned(newp.GUID))
             {
                 ChannelNameBuilder builder = new(this, new PlayerInviteBannedAppend(newname));
                 SendToOne(builder, guid);
                 return;
             }
 
-            if (newp.GetTeam() != player.GetTeam() &&
-                (!player.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
-                !newp.GetSession().HasPermission(RBACPermissions.TwoSideInteractionChannel)))
+            if (newp.Team != player.Team &&
+                (!player.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel) ||
+                !newp.Session.HasPermission(RBACPermissions.TwoSideInteractionChannel)))
             {
                 ChannelNameBuilder builder = new(this, new InviteWrongFactionAppend());
                 SendToOne(builder, guid);
                 return;
             }
 
-            if (IsOn(newp.GetGUID()))
+            if (IsOn(newp.GUID))
             {
-                ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GetGUID()));
+                ChannelNameBuilder builder = new(this, new PlayerAlreadyMemberAppend(newp.GUID));
                 SendToOne(builder, guid);
                 return;
             }
 
-            if (!newp.GetSocial().HasIgnore(guid, player.GetSession().GetAccountGUID()))
+            if (!newp.Social.HasIgnore(guid, player.Session.AccountGUID))
             {
                 ChannelNameBuilder builder = new(this, new InviteAppend(guid));
-                SendToOne(builder, newp.GetGUID());
+                SendToOne(builder, newp.GUID);
             }
 
             ChannelNameBuilder builder1 = new(this, new PlayerInvitedAppend(newp.GetName()));
@@ -687,7 +687,7 @@ namespace Game.Chat
 
         public void SetOwner(ObjectGuid guid, bool exclaim = true)
         {
-            if (!_ownerGuid.IsEmpty())
+            if (!_ownerGuid.IsEmpty)
             {
                 // [] will re-add player after it possible removed
                 var playerInfo = _playersStore.LookupByKey(_ownerGuid);
@@ -696,7 +696,7 @@ namespace Game.Chat
             }
 
             _ownerGuid = guid;
-            if (!_ownerGuid.IsEmpty())
+            if (!_ownerGuid.IsEmpty)
             {
                 ChannelMemberFlags oldFlag = GetPlayerFlags(_ownerGuid);
                 var playerInfo = _playersStore.LookupByKey(_ownerGuid);
@@ -727,7 +727,7 @@ namespace Game.Chat
 
         void JoinNotify(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             if (IsConstant())
                 SendToAllButOne(new ChannelUserlistAddBuilder(this, guid), guid);
@@ -737,7 +737,7 @@ namespace Game.Chat
 
         void LeaveNotify(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
 
             var builder = new ChannelUserlistRemoveBuilder(this, guid);
 
@@ -787,7 +787,7 @@ namespace Game.Chat
             {
                 Player player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
                 if (player)
-                    if (guid.IsEmpty() || !player.GetSocial().HasIgnore(guid, accountGuid))
+                    if (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid))
                         localizer.Invoke(player);
             }
         }
@@ -824,7 +824,7 @@ namespace Game.Chat
             {
                 Player player = Global.ObjAccessor.FindConnectedPlayer(pair.Key);
                 if (player)
-                    if (player.GetSession().IsAddonRegistered(addonPrefix) && (guid.IsEmpty() || !player.GetSocial().HasIgnore(guid, accountGuid)))
+                    if (player.Session.IsAddonRegistered(addonPrefix) && (guid.IsEmpty || !player.Social.HasIgnore(guid, accountGuid)))
                         localizer.Invoke(player);
             }
         }
@@ -878,7 +878,7 @@ namespace Game.Chat
         bool _isOwnerInvisible;
         readonly ChannelFlags _channelFlags;
         readonly uint _channelId;
-        readonly Team _channelTeam;
+        readonly TeamFaction _channelTeam;
         ObjectGuid _channelGuid;
         ObjectGuid _ownerGuid;
         readonly string _channelName;

@@ -18,7 +18,7 @@ public class UnitSearcher : IGridNotifierPlayer, IGridNotifierCreature
 
 	public UnitSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_check = check;
 		GridType = gridType;
 	}

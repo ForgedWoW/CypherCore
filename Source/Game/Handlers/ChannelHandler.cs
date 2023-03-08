@@ -16,18 +16,18 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
         void HandleJoinChannel(JoinChannel packet)
         {
-            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(GetPlayer().GetZoneId());
+            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.GetZoneId());
             if (packet.ChatChannelId != 0)
             {
                 ChatChannelsRecord channel = CliDB.ChatChannelsStorage.LookupByKey(packet.ChatChannelId);
                 if (channel == null)
                     return;
 
-                if (zone == null || !GetPlayer().CanJoinConstantChannelInZone(channel, zone))
+                if (zone == null || !Player.CanJoinConstantChannelInZone(channel, zone))
                     return;
             }
 
-            ChannelManager cMgr = ChannelManager.ForTeam(GetPlayer().GetTeam());
+            ChannelManager cMgr = ChannelManager.ForTeam(Player.Team);
             if (cMgr == null)
                 return;
 
@@ -35,7 +35,7 @@ namespace Game
             { // system channel
                 Channel channel = cMgr.GetSystemChannel((uint)packet.ChatChannelId, zone);
                 if (channel != null)
-                    channel.JoinChannel(GetPlayer());
+                    channel.JoinChannel(Player);
             }
             else
             { // custom channel
@@ -50,7 +50,7 @@ namespace Game
 
                 if (packet.Password.Length > 127)
                 {
-                    Log.outError(LogFilter.Network, $"Player {GetPlayer().GetGUID()} tried to create a channel with a password more than {127} characters long - blocked");
+                    Log.outError(LogFilter.Network, $"Player {Player.GUID} tried to create a channel with a password more than {127} characters long - blocked");
                     return;
                 }
                 if (!DisallowHyperlinksAndMaybeKick(packet.ChannelName))
@@ -58,14 +58,14 @@ namespace Game
 
                 Channel channel = cMgr.GetCustomChannel(packet.ChannelName);
                 if (channel != null)
-                    channel.JoinChannel(GetPlayer(), packet.Password);
+                    channel.JoinChannel(Player, packet.Password);
                 else
                 {
                     channel = cMgr.CreateCustomChannel(packet.ChannelName);
                     if (channel != null)
                     {
                         channel.SetPassword(packet.Password);
-                        channel.JoinChannel(GetPlayer(), packet.Password);
+                        channel.JoinChannel(Player, packet.Password);
                     }
                 }
             }
@@ -77,23 +77,23 @@ namespace Game
             if (string.IsNullOrEmpty(packet.ChannelName) && packet.ZoneChannelID == 0)
                 return;
 
-            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(GetPlayer().GetZoneId());
+            AreaTableRecord zone = CliDB.AreaTableStorage.LookupByKey(Player.GetZoneId());
             if (packet.ZoneChannelID != 0)
             {
                 ChatChannelsRecord channel = CliDB.ChatChannelsStorage.LookupByKey(packet.ZoneChannelID);
                 if (channel == null)
                     return;
 
-                if (zone == null || !GetPlayer().CanJoinConstantChannelInZone(channel, zone))
+                if (zone == null || !Player.CanJoinConstantChannelInZone(channel, zone))
                     return;
             }
 
-            ChannelManager cMgr = ChannelManager.ForTeam(GetPlayer().GetTeam());
+            ChannelManager cMgr = ChannelManager.ForTeam(Player.Team);
             if (cMgr != null)
             {
-                Channel channel = cMgr.GetChannel((uint)packet.ZoneChannelID, packet.ChannelName, GetPlayer(), true, zone);
+                Channel channel = cMgr.GetChannel((uint)packet.ZoneChannelID, packet.ChannelName, Player, true, zone);
                 if (channel != null)
-                    channel.LeaveChannel(GetPlayer(), true);
+                    channel.LeaveChannel(Player, true);
 
                 if (packet.ZoneChannelID != 0)
                     cMgr.LeftChannel((uint)packet.ZoneChannelID, zone);
@@ -107,24 +107,24 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ChatChannelOwner)]
         void HandleChannelCommand(ChannelCommand packet)
         {
-            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer());
+            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
             if (channel == null)
                 return;
 
             switch (packet.GetOpcode())
             {
                 case ClientOpcodes.ChatChannelAnnouncements:
-                    channel.Announce(GetPlayer());
+                    channel.Announce(Player);
                     break;
                 case ClientOpcodes.ChatChannelDeclineInvite:
-                    channel.DeclineInvite(GetPlayer());
+                    channel.DeclineInvite(Player);
                     break;
                 case ClientOpcodes.ChatChannelDisplayList:
                 case ClientOpcodes.ChatChannelList:
-                    channel.List(GetPlayer());
+                    channel.List(Player);
                     break;
                 case ClientOpcodes.ChatChannelOwner:
-                    channel.SendWhoOwner(GetPlayer());
+                    channel.SendWhoOwner(Player);
                     break;
             }
         }
@@ -149,38 +149,38 @@ namespace Game
             if (!ObjectManager.NormalizePlayerName(ref packet.Name))
                 return;
 
-            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer());
+            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
             if (channel == null)
                 return;
 
             switch (packet.GetOpcode())
             {
                 case ClientOpcodes.ChatChannelBan:
-                    channel.Ban(GetPlayer(), packet.Name);
+                    channel.Ban(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelInvite:
-                    channel.Invite(GetPlayer(), packet.Name);
+                    channel.Invite(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelKick:
-                    channel.Kick(GetPlayer(), packet.Name);
+                    channel.Kick(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelModerator:
-                    channel.SetModerator(GetPlayer(), packet.Name);
+                    channel.SetModerator(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelSetOwner:
-                    channel.SetOwner(GetPlayer(), packet.Name);
+                    channel.SetOwner(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelSilenceAll:
-                    channel.SilenceAll(GetPlayer(), packet.Name);
+                    channel.SilenceAll(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelUnban:
-                    channel.UnBan(GetPlayer(), packet.Name);
+                    channel.UnBan(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelUnmoderator:
-                    channel.UnsetModerator(GetPlayer(), packet.Name);
+                    channel.UnsetModerator(Player, packet.Name);
                     break;
                 case ClientOpcodes.ChatChannelUnsilenceAll:
-                    channel.UnsilenceAll(GetPlayer(), packet.Name);
+                    channel.UnsilenceAll(Player, packet.Name);
                     break;
             }
         }
@@ -197,9 +197,9 @@ namespace Game
 
             Log.outDebug(LogFilter.ChatSystem, "{0} {1} ChannelName: {2}, Password: {3}", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Password);
 
-            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, GetPlayer());
+            Channel channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
             if (channel != null)
-                channel.Password(GetPlayer(), packet.Password);
+                channel.Password(Player, packet.Password);
         }
     }
 }

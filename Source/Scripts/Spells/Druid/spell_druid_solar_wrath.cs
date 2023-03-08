@@ -32,7 +32,7 @@ public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
 		if (target != null)
 			if (Caster.HasAura(Spells.NATURES_BALANCE))
 			{
-				var sunfireDOT = target.GetAura(Spells.SUNFIRE_DOT, Caster.GetGUID());
+				var sunfireDOT = target.GetAura(Spells.SUNFIRE_DOT, Caster.GUID);
 
 				if (sunfireDOT != null)
 				{

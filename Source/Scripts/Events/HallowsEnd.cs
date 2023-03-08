@@ -96,13 +96,13 @@ internal class spell_hallow_end_candy_pirate_AuraScript : AuraScript, IHasAuraEf
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var spell = Target.GetNativeGender() == Gender.Female ? SpellIds.CandyFemaleDefiasPirate : SpellIds.CandyMaleDefiasPirate;
+		var spell = Target.NativeGender == Gender.Female ? SpellIds.CandyFemaleDefiasPirate : SpellIds.CandyMaleDefiasPirate;
 		Target.CastSpell(Target, spell, true);
 	}
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var spell = Target.GetNativeGender() == Gender.Female ? SpellIds.CandyFemaleDefiasPirate : SpellIds.CandyMaleDefiasPirate;
+		var spell = Target.NativeGender == Gender.Female ? SpellIds.CandyFemaleDefiasPirate : SpellIds.CandyMaleDefiasPirate;
 		Target.RemoveAura(spell);
 	}
 }
@@ -138,7 +138,7 @@ internal class spell_hallow_end_trick : SpellScript, IHasSpellEffects
 
 		if (target)
 		{
-			var gender = target.GetNativeGender();
+			var gender = target.NativeGender;
 			var spellId = SpellIds.TrickBuff;
 
 			switch (RandomHelper.URand(0, 5))
@@ -247,7 +247,7 @@ internal class spell_hallow_end_wand : SpellScript, ISpellOnHit
 		var target = HitUnit;
 
 		uint spellId;
-		var female = target.GetNativeGender() == Gender.Female;
+		var female = target.NativeGender == Gender.Female;
 
 		switch (SpellInfo.Id)
 		{

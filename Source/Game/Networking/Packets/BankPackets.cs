@@ -3,95 +3,90 @@
 
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+public class AutoBankItem : ClientPacket
 {
-    public class AutoBankItem : ClientPacket
-    {
-        public InvUpdate Inv;
-        public byte Bag;
-        public byte Slot;
+	public InvUpdate Inv;
+	public byte Bag;
+	public byte Slot;
 
-        public AutoBankItem(WorldPacket packet) : base(packet) { }
+	public AutoBankItem(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Inv = new InvUpdate(_worldPacket);
-            Bag = _worldPacket.ReadUInt8();
-            Slot = _worldPacket.ReadUInt8();
-        }
-    }
+	public override void Read()
+	{
+		Inv = new InvUpdate(_worldPacket);
+		Bag = _worldPacket.ReadUInt8();
+		Slot = _worldPacket.ReadUInt8();
+	}
+}
 
-    public class AutoStoreBankItem : ClientPacket
-    {
-        public InvUpdate Inv;
-        public byte Bag;
-        public byte Slot;
+public class AutoStoreBankItem : ClientPacket
+{
+	public InvUpdate Inv;
+	public byte Bag;
+	public byte Slot;
 
-        public AutoStoreBankItem(WorldPacket packet) : base(packet) { }
+	public AutoStoreBankItem(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Inv = new InvUpdate(_worldPacket);
-            Bag = _worldPacket.ReadUInt8();
-            Slot = _worldPacket.ReadUInt8();
-        }
-    }
+	public override void Read()
+	{
+		Inv = new InvUpdate(_worldPacket);
+		Bag = _worldPacket.ReadUInt8();
+		Slot = _worldPacket.ReadUInt8();
+	}
+}
 
-    public class BuyBankSlot : ClientPacket
-    {
-        public BuyBankSlot(WorldPacket packet) : base(packet) { }
+public class BuyBankSlot : ClientPacket
+{
+	public ObjectGuid Guid;
+	public BuyBankSlot(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Guid = _worldPacket.ReadPackedGuid();
-        }
+	public override void Read()
+	{
+		Guid = _worldPacket.ReadPackedGuid();
+	}
+}
 
-        public ObjectGuid Guid;
-    }
+class AutoBankReagent : ClientPacket
+{
+	public InvUpdate Inv;
+	public byte Slot;
+	public byte PackSlot;
+	public AutoBankReagent(WorldPacket packet) : base(packet) { }
 
-    class AutoBankReagent : ClientPacket
-    {
-        public AutoBankReagent(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		Inv = new InvUpdate(_worldPacket);
+		PackSlot = _worldPacket.ReadUInt8();
+		Slot = _worldPacket.ReadUInt8();
+	}
+}
 
-        public override void Read()
-        {
-            Inv = new(_worldPacket);
-            PackSlot = _worldPacket.ReadUInt8();
-            Slot = _worldPacket.ReadUInt8();
-        }
+class AutoStoreBankReagent : ClientPacket
+{
+	public InvUpdate Inv;
+	public byte Slot;
+	public byte PackSlot;
+	public AutoStoreBankReagent(WorldPacket packet) : base(packet) { }
 
-        public InvUpdate Inv;
-        public byte Slot;
-        public byte PackSlot;
-    }
+	public override void Read()
+	{
+		Inv = new InvUpdate(_worldPacket);
+		Slot = _worldPacket.ReadUInt8();
+		PackSlot = _worldPacket.ReadUInt8();
+	}
+}
 
-    class AutoStoreBankReagent : ClientPacket
-    {
-        public AutoStoreBankReagent(WorldPacket packet) : base(packet) { }
+// CMSG_BUY_REAGENT_BANK
+// CMSG_REAGENT_BANK_DEPOSIT
+class ReagentBank : ClientPacket
+{
+	public ObjectGuid Banker;
+	public ReagentBank(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Inv = new(_worldPacket);
-            Slot = _worldPacket.ReadUInt8();
-            PackSlot = _worldPacket.ReadUInt8();
-        }
-
-        public InvUpdate Inv;
-        public byte Slot;
-        public byte PackSlot;
-    }
-
-    // CMSG_BUY_REAGENT_BANK
-    // CMSG_REAGENT_BANK_DEPOSIT
-    class ReagentBank : ClientPacket
-    {
-        public ReagentBank(WorldPacket packet) : base(packet) { }
-
-        public override void Read()
-        {
-            Banker = _worldPacket.ReadPackedGuid();
-        }
-
-        public ObjectGuid Banker;
-    }
+	public override void Read()
+	{
+		Banker = _worldPacket.ReadPackedGuid();
+	}
 }

@@ -22,7 +22,7 @@ internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraE
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive();
+		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive;
 	}
 
 	public override void Register()

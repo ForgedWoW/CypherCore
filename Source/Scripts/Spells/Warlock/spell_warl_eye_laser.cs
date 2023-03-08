@@ -27,7 +27,7 @@ public class spell_warl_eye_laser : SpellScript, IHasSpellEffects
 		var check = new AllWorldObjectsInRange(caster, 100.0f);
 		var search = new WorldObjectListSearcher(caster, targets, check);
 		Cell.VisitGrid(caster, search, 100.0f);
-		targets.RemoveAll(new UnitAuraCheck<WorldObject>(false, WarlockSpells.DOOM, caster.GetGUID()));
+		targets.RemoveAll(new UnitAuraCheck<WorldObject>(false, WarlockSpells.DOOM, caster.GUID));
 	}
 
 	public override void Register()

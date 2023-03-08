@@ -71,8 +71,8 @@ namespace Game.Achievements
                 return false;
             }
 
-            if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.GetTeam() != Team.Horde) ||
-                (achievement.Faction == AchievementFaction.Alliance && referencePlayer.GetTeam() != Team.Alliance))
+            if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.Team != TeamFaction.Horde) ||
+                (achievement.Faction == AchievementFaction.Alliance && referencePlayer.Team != TeamFaction.Alliance))
             {
                 Log.outTrace(LogFilter.Achievement, "CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong faction",
                     criteria.Id, criteria.Entry.Type, achievement.Id);
@@ -81,7 +81,7 @@ namespace Game.Achievements
 
             // Don't update realm first achievements if the player's account isn't allowed to do so
             if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
-                if (referencePlayer.GetSession().HasPermission(RBACPermissions.CannotEarnRealmFirstAchievements))
+                if (referencePlayer.Session.HasPermission(RBACPermissions.CannotEarnRealmFirstAchievements))
                     return false;
 
             if (achievement.CovenantID != 0 && referencePlayer.PlayerData.CovenantID != achievement.CovenantID)
@@ -217,7 +217,7 @@ namespace Game.Achievements
 
             _completedAchievements.Clear();
             _achievementPoints = 0;
-            DeleteFromDB(_owner.GetGUID());
+            DeleteFromDB(_owner.GUID);
 
             // re-fill data
             CheckAllAchievementCriteria(_owner);
@@ -228,11 +228,11 @@ namespace Game.Achievements
             SQLTransaction trans = new();
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT);
-            stmt.AddValue(0, guid.GetCounter());
+            stmt.AddValue(0, guid.Counter);
             DB.Characters.Execute(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
-            stmt.AddValue(0, guid.GetCounter());
+            stmt.AddValue(0, guid.Counter);
             DB.Characters.Execute(stmt);
 
             DB.Characters.CommitTransaction(trans);
@@ -261,7 +261,7 @@ namespace Game.Achievements
                     var reward = Global.AchievementMgr.GetAchievementReward(achievement);
                     if (reward != null)
                     {
-                        uint titleId = reward.TitleId[Player.TeamForRace(_owner.GetRace()) == Team.Alliance ? 0 : 1];
+                        uint titleId = reward.TitleId[Player.TeamForRace(_owner.Race) == TeamFaction.Alliance ? 0 : 1];
                         if (titleId != 0)
                         {
                             CharTitlesRecord titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
@@ -301,7 +301,7 @@ namespace Game.Achievements
                     CriteriaProgress progress = new();
                     progress.Counter = counter;
                     progress.Date = date;
-                    progress.PlayerGUID = _owner.GetGUID();
+                    progress.PlayerGUID = _owner.GUID;
                     progress.Changed = false;
 
                     _criteriaProgress[id] = progress;
@@ -321,11 +321,11 @@ namespace Game.Achievements
 
                     PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
                     stmt.AddValue(0, pair.Key);
-                    stmt.AddValue(1, _owner.GetGUID().GetCounter());
+                    stmt.AddValue(1, _owner.GUID.Counter);
                     trans.Append(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
-                    stmt.AddValue(0, _owner.GetGUID().GetCounter());
+                    stmt.AddValue(0, _owner.GUID.Counter);
                     stmt.AddValue(1, pair.Key);
                     stmt.AddValue(2, pair.Value.Date);
                     trans.Append(stmt);
@@ -342,14 +342,14 @@ namespace Game.Achievements
                         continue;
 
                     PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-                    stmt.AddValue(0, _owner.GetGUID().GetCounter());
+                    stmt.AddValue(0, _owner.GUID.Counter);
                     stmt.AddValue(1, pair.Key);
                     trans.Append(stmt);
 
                     if (pair.Value.Counter != 0)
                     {
                         stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
-                        stmt.AddValue(0, _owner.GetGUID().GetCounter());
+                        stmt.AddValue(0, _owner.GUID.Counter);
                         stmt.AddValue(1, pair.Key);
                         stmt.AddValue(2, pair.Value.Counter);
                         stmt.AddValue(3, pair.Value.Date);
@@ -366,7 +366,7 @@ namespace Game.Achievements
             Log.outDebug(LogFilter.Achievement, $"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
 
             // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
-            if (_owner.IsGameMaster() || _owner.GetSession().HasPermission(RBACPermissions.CannotEarnAchievements))
+            if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
                 return;
 
             var achievementCriteriaList = Global.CriteriaMgr.GetCriteriaByFailEvent(failEvent, (int)failAsset);
@@ -411,7 +411,7 @@ namespace Game.Achievements
                 earned.Date = pair.Value.Date;
                 if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
                 {
-                    earned.Owner = _owner.GetGUID();
+                    earned.Owner = _owner.GUID;
                     earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
                 }
                 achievementData.Data.Earned.Add(earned);
@@ -436,7 +436,7 @@ namespace Game.Achievements
                     CriteriaProgressPkt accountProgress = new();
                     accountProgress.Id = pair.Key;
                     accountProgress.Quantity = pair.Value.Counter;
-                    accountProgress.Player = _owner.GetSession().GetBattlenetAccountGUID();
+                    accountProgress.Player = _owner.Session.BattlenetAccountGUID;
                     accountProgress.Flags = 0;
                     accountProgress.Date = pair.Value.Date;
                     accountProgress.TimeFromStart = 0;
@@ -454,7 +454,7 @@ namespace Game.Achievements
         public void SendAchievementInfo(Player receiver)
         {
             RespondInspectAchievements inspectedAchievements = new();
-            inspectedAchievements.Player = _owner.GetGUID();
+            inspectedAchievements.Player = _owner.GUID;
 
             foreach (var pair in _completedAchievements)
             {
@@ -467,7 +467,7 @@ namespace Game.Achievements
                 earned.Date = pair.Value.Date;
                 if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
                 {
-                    earned.Owner = _owner.GetGUID();
+                    earned.Owner = _owner.GUID;
                     earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
                 }
                 inspectedAchievements.Data.Earned.Add(earned);
@@ -492,11 +492,11 @@ namespace Game.Achievements
         public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
         {
             // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
-            if (_owner.IsGameMaster() || _owner.GetSession().HasPermission(RBACPermissions.CannotEarnAchievements))
+            if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
                 return;
 
-            if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.GetTeam() != Team.Horde) ||
-                (achievement.Faction == AchievementFaction.Alliance && referencePlayer.GetTeam() != Team.Alliance))
+            if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.Team != TeamFaction.Horde) ||
+                (achievement.Faction == AchievementFaction.Alliance && referencePlayer.Team != TeamFaction.Alliance))
                 return;
 
             if (achievement.Flags.HasAnyFlag(AchievementFlags.Counter) || HasAchieved(achievement.Id))
@@ -504,12 +504,12 @@ namespace Game.Achievements
 
             if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
             {
-                Guild guild = referencePlayer.GetGuild();
+                Guild guild = referencePlayer.Guild;
                 if (guild)
-                    guild.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GetGUID(), (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
+                    guild.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GUID, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
             }
 
-            if (!_owner.GetSession().PlayerLoading())
+            if (!_owner.Session.PlayerLoading)
                 SendAchievementEarned(achievement);
 
             Log.outDebug(LogFilter.Achievement, "PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
@@ -541,7 +541,7 @@ namespace Game.Achievements
             //! Since no common attributes were found, (not even in titleRewardFlags field)
             //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
             //! condition fields to the condition system.
-            uint titleId = reward.TitleId[achievement.Id == 1793 ? (int)_owner.GetNativeGender() : (_owner.GetTeam() == Team.Alliance ? 0 : 1)];
+            uint titleId = reward.TitleId[achievement.Id == 1793 ? (int)_owner.NativeGender : (_owner.Team == TeamFaction.Alliance ? 0 : 1)];
             if (titleId != 0)
             {
                 CharTitlesRecord titleEntry = CliDB.CharTitlesStorage.LookupByKey(titleId);
@@ -560,7 +560,7 @@ namespace Game.Achievements
                     string subject = reward.Subject;
                     string text = reward.Body;
 
-                    Locale localeConstant = _owner.GetSession().GetSessionDbLocaleIndex();
+                    Locale localeConstant = _owner.Session.SessionDbLocaleIndex;
                     if (localeConstant != Locale.enUS)
                     {
                         AchievementRewardLocale loc = Global.AchievementMgr.GetAchievementRewardLocale(achievement);
@@ -607,7 +607,7 @@ namespace Game.Achievements
                 AccountCriteriaUpdate criteriaUpdate = new();
                 criteriaUpdate.Progress.Id = criteria.Id;
                 criteriaUpdate.Progress.Quantity = progress.Counter;
-                criteriaUpdate.Progress.Player = _owner.GetSession().GetBattlenetAccountGUID();
+                criteriaUpdate.Progress.Player = _owner.Session.BattlenetAccountGUID;
                 criteriaUpdate.Progress.Flags = 0;
                 if (criteria.Entry.StartTimer != 0)
                     criteriaUpdate.Progress.Flags = timedCompleted ? 1 : 0u; // 1 is for keeping the counter at 0 in client
@@ -623,7 +623,7 @@ namespace Game.Achievements
 
                 criteriaUpdate.CriteriaID = criteria.Id;
                 criteriaUpdate.Quantity = progress.Counter;
-                criteriaUpdate.PlayerGUID = _owner.GetGUID();
+                criteriaUpdate.PlayerGUID = _owner.GUID;
                 criteriaUpdate.Flags = 0;
                 if (criteria.Entry.StartTimer != 0)
                     criteriaUpdate.Flags = timedCompleted ? 1 : 0u; // 1 is for keeping the counter at 0 in client
@@ -653,10 +653,10 @@ namespace Game.Achievements
 
             if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
             {
-                Guild guild = Global.GuildMgr.GetGuildById(_owner.GetGuildId());
+                Guild guild = Global.GuildMgr.GetGuildById(_owner.GuildId);
                 if (guild)
                 {
-                    BroadcastTextBuilder say_builder = new(_owner, ChatMsg.GuildAchievement, (uint)BroadcastTextIds.AchivementEarned, _owner.GetNativeGender(), _owner, achievement.Id);
+                    BroadcastTextBuilder say_builder = new(_owner, ChatMsg.GuildAchievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                     var say_do = new LocalizedDo(say_builder);
                     guild.BroadcastWorker(say_do, _owner);
                 }
@@ -666,14 +666,14 @@ namespace Game.Achievements
                     // broadcast realm first reached
                     BroadcastAchievement serverFirstAchievement = new();
                     serverFirstAchievement.Name = _owner.GetName();
-                    serverFirstAchievement.PlayerGUID = _owner.GetGUID();
+                    serverFirstAchievement.PlayerGUID = _owner.GUID;
                     serverFirstAchievement.AchievementID = achievement.Id;
                     Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
                 }
                 // if player is in world he can tell his friends about new achievement
                 else if (_owner.IsInWorld)
                 {
-                    BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.GetNativeGender(), _owner, achievement.Id);
+                    BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
                     var _localizer = new LocalizedDo(_builder);
                     var _worker = new PlayerDistWorker(_owner, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), _localizer, GridType.World);
                     Cell.VisitGrid(_owner, _worker, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
@@ -681,8 +681,8 @@ namespace Game.Achievements
             }
 
             AchievementEarned achievementEarned = new();
-            achievementEarned.Sender = _owner.GetGUID();
-            achievementEarned.Earner = _owner.GetGUID();
+            achievementEarned.Sender = _owner.GUID;
+            achievementEarned.Earner = _owner.GUID;
             achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.GetVirtualRealmAddress();
             achievementEarned.AchievementID = achievement.Id;
             achievementEarned.Time = GameTime.GetGameTime();
@@ -705,7 +705,7 @@ namespace Game.Achievements
 
         public override string GetOwnerInfo()
         {
-            return $"{_owner.GetGUID()} {_owner.GetName()}";
+            return $"{_owner.GUID} {_owner.GetName()}";
         }
     }
 
@@ -742,11 +742,11 @@ namespace Game.Achievements
             SQLTransaction trans = new();
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
-            stmt.AddValue(0, guid.GetCounter());
+            stmt.AddValue(0, guid.Counter);
             trans.Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
-            stmt.AddValue(0, guid.GetCounter());
+            stmt.AddValue(0, guid.Counter);
             trans.Append(stmt);
 
             DB.Characters.CommitTransaction(trans);
@@ -841,7 +841,7 @@ namespace Game.Achievements
                 stmt.AddValue(1, pair.Key);
                 stmt.AddValue(2, pair.Value.Date);
                 foreach (var guid in pair.Value.CompletingPlayers)
-                    guidstr.AppendFormat("{0},", guid.GetCounter());
+                    guidstr.AppendFormat("{0},", guid.Counter);
 
                 stmt.AddValue(3, guidstr.ToString());
                 trans.Append(stmt);
@@ -864,7 +864,7 @@ namespace Game.Achievements
                 stmt.AddValue(1, pair.Key);
                 stmt.AddValue(2, pair.Value.Counter);
                 stmt.AddValue(3, pair.Value.Date);
-                stmt.AddValue(4, pair.Value.PlayerGUID.GetCounter());
+                stmt.AddValue(4, pair.Value.PlayerGUID.Counter);
                 trans.Append(stmt);
             }
         }
@@ -973,7 +973,7 @@ namespace Game.Achievements
 
             if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
             {
-                Guild guild = referencePlayer.GetGuild();
+                Guild guild = referencePlayer.Guild;
                 if (guild)
                     guild.AddGuildNews(GuildNews.Achievement, ObjectGuid.Empty, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
             }
@@ -985,8 +985,8 @@ namespace Game.Achievements
 
             if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowGuildMembers))
             {
-                if (referencePlayer.GetGuildId() == _owner.GetId())
-                    ca.CompletingPlayers.Add(referencePlayer.GetGUID());
+                if (referencePlayer.GuildId == _owner.GetId())
+                    ca.CompletingPlayers.Add(referencePlayer.GUID);
 
                 Group group = referencePlayer.GetGroup();
                 if (group)
@@ -995,8 +995,8 @@ namespace Game.Achievements
                     {
                         Player groupMember = refe.GetSource();
                         if (groupMember)
-                            if (groupMember.GetGuildId() == _owner.GetId())
-                                ca.CompletingPlayers.Add(groupMember.GetGUID());
+                            if (groupMember.GuildId == _owner.GetId())
+                                ca.CompletingPlayers.Add(groupMember.GUID);
                     }
                 }
             }

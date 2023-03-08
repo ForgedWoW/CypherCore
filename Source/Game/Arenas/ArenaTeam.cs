@@ -42,7 +42,7 @@ namespace Game.Arenas
             EmblemColor = emblemColor;
             BorderStyle = borderStyle;
             BorderColor = borderColor;
-            ulong captainLowGuid = captainGuid.GetCounter();
+            ulong captainLowGuid = captainGuid.Counter;
 
             // Save arena team to db
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ARENA_TEAM);
@@ -79,7 +79,7 @@ namespace Game.Arenas
             Player player = Global.ObjAccessor.FindPlayer(playerGuid);
             if (player)
             {
-                playerClass = player.GetClass();
+                playerClass = player.Class;
                 playerName = player.GetName();
             }
             else if ((characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid)) != null)
@@ -107,7 +107,7 @@ namespace Game.Arenas
 
             // Try to get player's match maker rating from db and fall back to config setting if not found
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_MATCH_MAKER_RATING);
-            stmt.AddValue(0, playerGuid.GetCounter());
+            stmt.AddValue(0, playerGuid.Counter);
             stmt.AddValue(1, GetSlot());
             SQLResult result = DB.Characters.Query(stmt);
 
@@ -139,7 +139,7 @@ namespace Game.Arenas
             // Save player's arena team membership to db
             stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ARENA_TEAM_MEMBER);
             stmt.AddValue(0, teamId);
-            stmt.AddValue(1, playerGuid.GetCounter());
+            stmt.AddValue(1, playerGuid.Counter);
             stmt.AddValue(2, (ushort)personalRating);
             DB.Characters.Execute(stmt);
 
@@ -262,7 +262,7 @@ namespace Game.Arenas
 
             // Update database
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_CAPTAIN);
-            stmt.AddValue(0, guid.GetCounter());
+            stmt.AddValue(0, guid.Counter);
             stmt.AddValue(1, GetId());
             DB.Characters.Execute(stmt);
 
@@ -274,8 +274,8 @@ namespace Game.Arenas
                 if (oldCaptain)
                 {
                     Log.outDebug(LogFilter.Arena, "Player: {0} [GUID: {1}] promoted player: {2} [GUID: {3}] to leader of arena team [Id: {4}, Name: {5}] [Type: {6}].",
-                        oldCaptain.GetName(), oldCaptain.GetGUID().ToString(), newCaptain.GetName(),
-                        newCaptain.GetGUID().ToString(), GetId(), GetName(), GetArenaType());
+                        oldCaptain.GetName(), oldCaptain.GUID.ToString(), newCaptain.GetName(),
+                        newCaptain.                        GUID.ToString(), GetId(), GetName(), GetArenaType());
                 }
             }
         }
@@ -300,7 +300,7 @@ namespace Game.Arenas
                 // delete all info regarding this team
                 for (uint i = 0; i < (int)ArenaTeamInfoType.End; ++i)
                     player.SetArenaTeamInfoField(GetSlot(), (ArenaTeamInfoType)i, 0);
-                Log.outDebug(LogFilter.Arena, "Player: {0} [GUID: {1}] left arena team type: {2} [Id: {3}, Name: {4}].", player.GetName(), player.GetGUID().ToString(), GetArenaType(), GetId(), GetName());
+                Log.outDebug(LogFilter.Arena, "Player: {0} [GUID: {1}] left arena team type: {2} [Id: {3}, Name: {4}].", player.GetName(), player.GUID.ToString(), GetArenaType(), GetId(), GetName());
             }
 
             // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -308,7 +308,7 @@ namespace Game.Arenas
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBER);
                 stmt.AddValue(0, GetId());
-                stmt.AddValue(1, guid.GetCounter());
+                stmt.AddValue(1, guid.Counter);
                 DB.Characters.Execute(stmt);
             }
         }
@@ -318,9 +318,9 @@ namespace Game.Arenas
             // Broadcast update
             if (session != null)
             {
-                Player player = session.GetPlayer();
+                Player player = session.Player;
                 if (player)
-                    Log.outDebug(LogFilter.Arena, "Player: {0} [GUID: {1}] disbanded arena team type: {2} [Id: {3}, Name: {4}].", player.GetName(), player.GetGUID().ToString(), GetArenaType(), GetId(), GetName());
+                    Log.outDebug(LogFilter.Arena, "Player: {0} [GUID: {1}] disbanded arena team type: {2} [Id: {3}, Name: {4}].", player.GetName(), player.GUID.ToString(), GetArenaType(), GetId(), GetName());
             }
 
             // Remove all members from arena team
@@ -388,7 +388,7 @@ namespace Game.Arenas
             {
                 Player player = Global.ObjAccessor.FindPlayer(member.Guid);
                 if (player)
-                    SendStats(player.GetSession());
+                    SendStats(player.Session);
             }
         }
 
@@ -602,7 +602,7 @@ namespace Game.Arenas
             // Called for each participant of a match after losing
             foreach (var member in Members)
             {
-                if (member.Guid == player.GetGUID())
+                if (member.Guid == player.GUID)
                 {
                     // Update personal rating
                     int mod = GetRatingMod(member.PersonalRating, againstMatchmakerRating, false);
@@ -650,7 +650,7 @@ namespace Game.Arenas
             // called for each participant after winning a match
             foreach (var member in Members)
             {
-                if (member.Guid == player.GetGUID())
+                if (member.Guid == player.GUID)
                 {
                     // update personal rating
                     int mod = GetRatingMod(member.PersonalRating, againstMatchmakerRating, true);
@@ -702,11 +702,11 @@ namespace Game.Arenas
                 stmt.AddValue(3, member.SeasonGames);
                 stmt.AddValue(4, member.SeasonWins);
                 stmt.AddValue(5, GetId());
-                stmt.AddValue(6, member.Guid.GetCounter());
+                stmt.AddValue(6, member.Guid.Counter);
                 trans.Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_CHARACTER_ARENA_STATS);
-                stmt.AddValue(0, member.Guid.GetCounter());
+                stmt.AddValue(0, member.Guid.Counter);
                 stmt.AddValue(1, GetSlot());
                 stmt.AddValue(2, member.MatchMakerRating);
                 trans.Append(stmt);

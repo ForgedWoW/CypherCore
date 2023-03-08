@@ -14,7 +14,8 @@ namespace Game
         {
             Log.outDebug(LogFilter.Scenes, "HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 
-            GetPlayer().GetSceneMgr().OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+            Player.
+            SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
         }
 
         [WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
@@ -22,7 +23,8 @@ namespace Game
         {
             Log.outDebug(LogFilter.Scenes, "HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
 
-            GetPlayer().GetSceneMgr().OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
+            Player.
+            SceneMgr.OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
         }
 
         [WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
@@ -30,7 +32,8 @@ namespace Game
         {
             Log.outDebug(LogFilter.Scenes, "HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
 
-            GetPlayer().GetSceneMgr().OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
+            Player.
+            SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
         }
 
     }

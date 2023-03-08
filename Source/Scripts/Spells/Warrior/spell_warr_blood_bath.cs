@@ -48,12 +48,12 @@ public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 
 		double l_PreviousTotalDamage = 0;
 
-		var l_PreviousBloodBath = l_Target.GetAuraEffect(eSpells.BLOOD_BATH_DAMAGE, 0, l_Caster.GetGUID());
+		var l_PreviousBloodBath = l_Target.GetAuraEffect(eSpells.BLOOD_BATH_DAMAGE, 0, l_Caster.GUID);
 
 		if (l_PreviousBloodBath != null)
 		{
 			var l_PeriodicDamage = l_PreviousBloodBath.Amount;
-			var l_Duration = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID()).Duration;
+			var l_Duration = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GUID).Duration;
 			var l_Amplitude = l_PreviousBloodBath.GetSpellEffectInfo().Amplitude;
 
 			if (l_Amplitude != 0)
@@ -67,9 +67,9 @@ public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 
 		l_Damage += l_PreviousTotalDamage;
 
-		if (l_Target.HasAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID()))
+		if (l_Target.HasAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GUID))
 		{
-			var l_ActualBloodBath = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GetGUID());
+			var l_ActualBloodBath = l_Target.GetAura(eSpells.BLOOD_BATH_DAMAGE, l_Caster.GUID);
 
 			if (l_ActualBloodBath != null)
 				l_ActualBloodBath.SetDuration(l_ActualBloodBath.MaxDuration);
@@ -79,7 +79,7 @@ public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 			l_Caster.CastSpell(l_Target, eSpells.BLOOD_BATH_DAMAGE, true);
 		}
 
-		var l_NewBloodBath = l_Target.GetAuraEffect(eSpells.BLOOD_BATH_DAMAGE, 0, l_Caster.GetGUID());
+		var l_NewBloodBath = l_Target.GetAuraEffect(eSpells.BLOOD_BATH_DAMAGE, 0, l_Caster.GUID);
 
 		if (l_NewBloodBath != null)
 			l_NewBloodBath.SetAmount((int)Math.Floor(l_Damage));

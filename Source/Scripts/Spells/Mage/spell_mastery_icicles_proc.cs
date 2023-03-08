@@ -93,7 +93,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 			hitDamage *= (uint)((player.ActivePlayerData.Mastery * 2.25f) / 100.0f);
 
 			// Prevent huge hits on player after hitting low level creatures
-			if (player.GetLevel() > target.GetLevel())
+			if (player.Level > target.Level)
 				hitDamage = (uint)Math.Min((int)hitDamage, (int)target.GetMaxHealth());
 
 			// We need to get the first free icicle slot

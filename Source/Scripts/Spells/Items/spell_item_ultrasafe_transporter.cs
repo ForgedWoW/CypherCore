@@ -22,7 +22,7 @@ internal class spell_item_ultrasafe_transporter : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public override void Register()
@@ -58,7 +58,7 @@ internal class spell_item_ultrasafe_transporter : SpellScript, IHasSpellEffects
 
 				break;
 			case 4:
-				if (caster.ToPlayer().GetTeamId() == TeamId.Alliance)
+				if (caster.ToPlayer().TeamId == TeamIds.Alliance)
 					spellId = ItemSpellIds.TransformHorde;
 				else
 					spellId = ItemSpellIds.TransformAlliance;

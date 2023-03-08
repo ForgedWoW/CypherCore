@@ -43,7 +43,7 @@ namespace Game.BattleGrounds
         }
 
         // add group or player (grp == null) to bg queue with the given leader and bg specifications
-        public GroupQueueInfo AddGroup(Player leader, Group group, Team team, PvpDifficultyRecord bracketEntry, bool isPremade, uint ArenaRating, uint MatchmakerRating, uint arenateamid = 0)
+        public GroupQueueInfo AddGroup(Player leader, Group group, TeamFaction team, PvpDifficultyRecord bracketEntry, bool isPremade, uint ArenaRating, uint MatchmakerRating, uint arenateamid = 0)
         {
             BattlegroundBracketId bracketId = bracketEntry.GetBracketId();
 
@@ -65,7 +65,7 @@ namespace Game.BattleGrounds
             uint index = 0;
             if (!m_queueId.Rated && !isPremade)
                 index += SharedConst.PvpTeamsCount;
-            if (ginfo.Team == Team.Horde)
+            if (ginfo.Team == TeamFaction.Horde)
                 index++;
             Log.outDebug(LogFilter.Battleground, "Adding Group to BattlegroundQueue bgTypeId : {0}, bracket_id : {1}, index : {2}", m_queueId.BattlemasterListId, bracketId, index);
 
@@ -92,9 +92,9 @@ namespace Game.BattleGrounds
                     pl_info.LastOnlineTime = lastOnlineTime;
                     pl_info.GroupInfo = ginfo;
 
-                    m_QueuedPlayers[member.GetGUID()] = pl_info;
+                    m_QueuedPlayers[member.GUID] = pl_info;
                     // add the pinfo to ginfo's list
-                    ginfo.Players[member.GetGUID()] = pl_info;
+                    ginfo.Players[member.GUID] = pl_info;
                 }
             }
             else
@@ -103,8 +103,8 @@ namespace Game.BattleGrounds
                 pl_info.LastOnlineTime = lastOnlineTime;
                 pl_info.GroupInfo = ginfo;
 
-                m_QueuedPlayers[leader.GetGUID()] = pl_info;
-                ginfo.Players[leader.GetGUID()] = pl_info;
+                m_QueuedPlayers[leader.GUID] = pl_info;
+                ginfo.Players[leader.GUID] = pl_info;
             }
 
             //add GroupInfo to m_QueuedGroups
@@ -155,16 +155,16 @@ namespace Game.BattleGrounds
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
         {
             uint timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
-            uint team_index = TeamId.Alliance;                    //default set to TeamIndex.Alliance - or non rated arenas!
+            uint team_index = TeamIds.Alliance;                    //default set to TeamIndex.Alliance - or non rated arenas!
             if (m_queueId.TeamSize == 0)
             {
-                if (ginfo.Team == Team.Horde)
-                    team_index = TeamId.Horde;
+                if (ginfo.Team == TeamFaction.Horde)
+                    team_index = TeamIds.Horde;
             }
             else
             {
                 if (m_queueId.Rated)
-                    team_index = TeamId.Horde;                     //for rated arenas use TeamIndex.Horde
+                    team_index = TeamIds.Horde;                     //for rated arenas use TeamIndex.Horde
             }
 
             //store pointer to arrayindex of player that was added first
@@ -182,16 +182,16 @@ namespace Game.BattleGrounds
 
         public uint GetAverageQueueWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
         {
-            uint team_index = TeamId.Alliance;                    //default set to TeamIndex.Alliance - or non rated arenas!
+            uint team_index = TeamIds.Alliance;                    //default set to TeamIndex.Alliance - or non rated arenas!
             if (m_queueId.TeamSize == 0)
             {
-                if (ginfo.Team == Team.Horde)
-                    team_index = TeamId.Horde;
+                if (ginfo.Team == TeamFaction.Horde)
+                    team_index = TeamIds.Horde;
             }
             else
             {
                 if (m_queueId.Rated)
-                    team_index = TeamId.Horde;                     //for rated arenas use TeamIndex.Horde
+                    team_index = TeamIds.Horde;                     //for rated arenas use TeamIndex.Horde
             }
             //check if there is enought values(we always add values > 0)
             if (m_WaitTimes[team_index][(int)bracket_id][SharedConst.CountOfPlayersToAverageWaitTime - 1] != 0)
@@ -223,7 +223,7 @@ namespace Game.BattleGrounds
             // mostly people with the highest levels are in Battlegrounds, thats why
             // we count from MAX_Battleground_QUEUES - 1 to 0
 
-            uint index = (group.Team == Team.Horde) ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
+            uint index = (group.Team == TeamFaction.Horde) ? BattlegroundConst.BgQueuePremadeHorde : BattlegroundConst.BgQueuePremadeAlliance;
 
             for (int bracket_id_tmp = (int)BattlegroundBracketId.Max - 1; bracket_id_tmp >= 0 && bracket_id == -1; --bracket_id_tmp)
             {
@@ -352,7 +352,7 @@ namespace Game.BattleGrounds
             return m_SelectionPools[id].GetPlayerCount();
         }
 
-        bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, Team side)
+        bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, TeamFaction side)
         {
             // set side if needed
             if (side != 0)
@@ -391,16 +391,16 @@ namespace Game.BattleGrounds
                     player.SetInviteForBattlegroundQueueType(bgQueueTypeId, ginfo.IsInvitedToBGInstanceGUID);
 
                     // create remind invite events
-                    BGQueueInviteEvent inviteEvent = new(player.GetGUID(), ginfo.IsInvitedToBGInstanceGUID, bgTypeId, (ArenaTypes)m_queueId.TeamSize, ginfo.RemoveInviteTime);
+                    BGQueueInviteEvent inviteEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgTypeId, (ArenaTypes)m_queueId.TeamSize, ginfo.RemoveInviteTime);
                     m_events.AddEvent(inviteEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InvitationRemindTime)));
                     // create automatic remove events
-                    BGQueueRemoveEvent removeEvent = new(player.GetGUID(), ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId, ginfo.RemoveInviteTime);
+                    BGQueueRemoveEvent removeEvent = new(player.GUID, ginfo.IsInvitedToBGInstanceGUID, bgQueueTypeId, ginfo.RemoveInviteTime);
                     m_events.AddEvent(removeEvent, m_events.CalculateTime(TimeSpan.FromMilliseconds(BattlegroundConst.InviteAcceptWaitTime)));
 
                     uint queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
 
                     Log.outDebug(LogFilter.Battleground, "Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
-                         player.GetName(), player.GetGUID().ToString(), bg.GetInstanceID(), queueSlot, bg.GetTypeID());
+                         player.GetName(), player.GUID.ToString(), bg.GetInstanceID(), queueSlot, bg.GetTypeID());
 
                     Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
                     player.SendPacket(battlefieldStatus);
@@ -418,8 +418,8 @@ namespace Game.BattleGrounds
         */
         void FillPlayersToBG(Battleground bg, BattlegroundBracketId bracket_id)
         {
-            uint hordeFree = bg.GetFreeSlotsForTeam(Team.Horde);
-            uint aliFree = bg.GetFreeSlotsForTeam(Team.Alliance);
+            uint hordeFree = bg.GetFreeSlotsForTeam(TeamFaction.Horde);
+            uint aliFree = bg.GetFreeSlotsForTeam(TeamFaction.Alliance);
             int aliCount = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance].Count;
             int hordeCount = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalHorde].Count;
 
@@ -453,7 +453,7 @@ namespace Game.BattleGrounds
             {
                 int listIndex = 0;
                 var info = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance].FirstOrDefault();
-                for (; alyIndex < aliCount && m_SelectionPools[TeamId.Alliance].AddGroup(info, aliFree); alyIndex++)
+                for (; alyIndex < aliCount && m_SelectionPools[TeamIds.Alliance].AddGroup(info, aliFree); alyIndex++)
                     info = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance][listIndex++];
             }
 
@@ -462,7 +462,7 @@ namespace Game.BattleGrounds
             {
                 int listIndex = 0;
                 var info = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalHorde].FirstOrDefault();
-                for (; hordeIndex < hordeCount && m_SelectionPools[TeamId.Horde].AddGroup(info, hordeFree); hordeIndex++)
+                for (; hordeIndex < hordeCount && m_SelectionPools[TeamIds.Horde].AddGroup(info, hordeFree); hordeIndex++)
                     info = m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalHorde][listIndex++];
             }
 
@@ -478,45 +478,45 @@ namespace Game.BattleGrounds
             */
 
             // At first we need to compare free space in bg and our selection pool
-            int diffAli = (int)(aliFree - m_SelectionPools[TeamId.Alliance].GetPlayerCount());
-            int diffHorde = (int)(hordeFree - m_SelectionPools[TeamId.Horde].GetPlayerCount());
-            while (Math.Abs(diffAli - diffHorde) > 1 && (m_SelectionPools[TeamId.Horde].GetPlayerCount() > 0 || m_SelectionPools[TeamId.Alliance].GetPlayerCount() > 0))
+            int diffAli = (int)(aliFree - m_SelectionPools[TeamIds.Alliance].GetPlayerCount());
+            int diffHorde = (int)(hordeFree - m_SelectionPools[TeamIds.Horde].GetPlayerCount());
+            while (Math.Abs(diffAli - diffHorde) > 1 && (m_SelectionPools[TeamIds.Horde].GetPlayerCount() > 0 || m_SelectionPools[TeamIds.Alliance].GetPlayerCount() > 0))
             {
                 //each cycle execution we need to kick at least 1 group
                 if (diffAli < diffHorde)
                 {
                     //kick alliance group, add to pool new group if needed
-                    if (m_SelectionPools[TeamId.Alliance].KickGroup((uint)(diffHorde - diffAli)))
+                    if (m_SelectionPools[TeamIds.Alliance].KickGroup((uint)(diffHorde - diffAli)))
                     {
-                        for (; alyIndex < aliCount && m_SelectionPools[TeamId.Alliance].AddGroup(m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance][alyIndex], (uint)((aliFree >= diffHorde) ? aliFree - diffHorde : 0)); alyIndex++)
+                        for (; alyIndex < aliCount && m_SelectionPools[TeamIds.Alliance].AddGroup(m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance][alyIndex], (uint)((aliFree >= diffHorde) ? aliFree - diffHorde : 0)); alyIndex++)
                             ++alyIndex;
                     }
                     //if ali selection is already empty, then kick horde group, but if there are less horde than ali in bg - break;
-                    if (m_SelectionPools[TeamId.Alliance].GetPlayerCount() == 0)
+                    if (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() == 0)
                     {
                         if (aliFree <= diffHorde + 1)
                             break;
-                        m_SelectionPools[TeamId.Horde].KickGroup((uint)(diffHorde - diffAli));
+                        m_SelectionPools[TeamIds.Horde].KickGroup((uint)(diffHorde - diffAli));
                     }
                 }
                 else
                 {
                     //kick horde group, add to pool new group if needed
-                    if (m_SelectionPools[TeamId.Horde].KickGroup((uint)(diffAli - diffHorde)))
+                    if (m_SelectionPools[TeamIds.Horde].KickGroup((uint)(diffAli - diffHorde)))
                     {
-                        for (; hordeIndex < hordeCount && m_SelectionPools[TeamId.Horde].AddGroup(m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalHorde][hordeIndex], (uint)((hordeFree >= diffAli) ? hordeFree - diffAli : 0)); hordeIndex++)
+                        for (; hordeIndex < hordeCount && m_SelectionPools[TeamIds.Horde].AddGroup(m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalHorde][hordeIndex], (uint)((hordeFree >= diffAli) ? hordeFree - diffAli : 0)); hordeIndex++)
                             ++hordeIndex;
                     }
-                    if (m_SelectionPools[TeamId.Horde].GetPlayerCount() == 0)
+                    if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() == 0)
                     {
                         if (hordeFree <= diffAli + 1)
                             break;
-                        m_SelectionPools[TeamId.Alliance].KickGroup((uint)(diffAli - diffHorde));
+                        m_SelectionPools[TeamIds.Alliance].KickGroup((uint)(diffAli - diffHorde));
                     }
                 }
                 //count diffs after small update
-                diffAli = (int)(aliFree - m_SelectionPools[TeamId.Alliance].GetPlayerCount());
-                diffHorde = (int)(hordeFree - m_SelectionPools[TeamId.Horde].GetPlayerCount());
+                diffAli = (int)(aliFree - m_SelectionPools[TeamIds.Alliance].GetPlayerCount());
+                diffHorde = (int)(hordeFree - m_SelectionPools[TeamIds.Horde].GetPlayerCount());
             }
         }
 
@@ -547,10 +547,10 @@ namespace Game.BattleGrounds
 
                 if (ali_group != null && horde_group != null)
                 {
-                    m_SelectionPools[TeamId.Alliance].AddGroup(ali_group, MaxPlayersPerTeam);
-                    m_SelectionPools[TeamId.Horde].AddGroup(horde_group, MaxPlayersPerTeam);
+                    m_SelectionPools[TeamIds.Alliance].AddGroup(ali_group, MaxPlayersPerTeam);
+                    m_SelectionPools[TeamIds.Horde].AddGroup(horde_group, MaxPlayersPerTeam);
                     //add groups/players from normal queue to size of bigger group
-                    uint maxPlayers = Math.Min(m_SelectionPools[TeamId.Alliance].GetPlayerCount(), m_SelectionPools[TeamId.Horde].GetPlayerCount());
+                    uint maxPlayers = Math.Min(m_SelectionPools[TeamIds.Alliance].GetPlayerCount(), m_SelectionPools[TeamIds.Horde].GetPlayerCount());
                     for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
                     {
                         foreach (var groupQueueInfo in m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueueNormalAlliance + i])
@@ -605,12 +605,12 @@ namespace Game.BattleGrounds
                 }
             }
             //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
-            uint j = TeamId.Alliance;
-            if (m_SelectionPools[TeamId.Horde].GetPlayerCount() < m_SelectionPools[TeamId.Alliance].GetPlayerCount())
-                j = TeamId.Horde;
+            uint j = TeamIds.Alliance;
+            if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() < m_SelectionPools[TeamIds.Alliance].GetPlayerCount())
+                j = TeamIds.Horde;
 
             if (WorldConfig.GetIntValue(WorldCfg.BattlegroundInvitationType) != (int)BattlegroundQueueInvitationType.NoBalance
-                && m_SelectionPools[TeamId.Horde].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamId.Alliance].GetPlayerCount() >= minPlayers)
+                && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers)
             {
                 //we will try to invite more groups to team with less players indexed by j
                 ++(teamIndex[j]);                                         //this will not cause a crash, because for cycle above reached break;
@@ -622,30 +622,30 @@ namespace Game.BattleGrounds
                             break;
                 }
                 // do not allow to start bg with more than 2 players more on 1 faction
-                if (Math.Abs((m_SelectionPools[TeamId.Horde].GetPlayerCount() - m_SelectionPools[TeamId.Alliance].GetPlayerCount())) > 2)
+                if (Math.Abs((m_SelectionPools[TeamIds.Horde].GetPlayerCount() - m_SelectionPools[TeamIds.Alliance].GetPlayerCount())) > 2)
                     return false;
             }
             //allow 1v0 if debug bg
-            if (Global.BattlegroundMgr.IsTesting() && (m_SelectionPools[TeamId.Alliance].GetPlayerCount() != 0 || m_SelectionPools[TeamId.Horde].GetPlayerCount() != 0))
+            if (Global.BattlegroundMgr.IsTesting() && (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() != 0 || m_SelectionPools[TeamIds.Horde].GetPlayerCount() != 0))
                 return true;
             //return true if there are enough players in selection pools - enable to work .debug bg command correctly
-            return m_SelectionPools[TeamId.Alliance].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamId.Horde].GetPlayerCount() >= minPlayers;
+            return m_SelectionPools[TeamIds.Alliance].GetPlayerCount() >= minPlayers && m_SelectionPools[TeamIds.Horde].GetPlayerCount() >= minPlayers;
         }
 
         // this method will check if we can invite players to same faction skirmish match
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint minPlayersPerTeam)
         {
-            if (m_SelectionPools[TeamId.Alliance].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TeamId.Horde].GetPlayerCount() < minPlayersPerTeam)
+            if (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TeamIds.Horde].GetPlayerCount() < minPlayersPerTeam)
                 return false;
 
-            uint teamIndex = TeamId.Alliance;
-            uint otherTeam = TeamId.Horde;
-            Team otherTeamId = Team.Horde;
-            if (m_SelectionPools[TeamId.Horde].GetPlayerCount() == minPlayersPerTeam)
+            uint teamIndex = TeamIds.Alliance;
+            uint otherTeam = TeamIds.Horde;
+            TeamFaction otherTeamId = TeamFaction.Horde;
+            if (m_SelectionPools[TeamIds.Horde].GetPlayerCount() == minPlayersPerTeam)
             {
-                teamIndex = TeamId.Horde;
-                otherTeam = TeamId.Alliance;
-                otherTeamId = Team.Alliance;
+                teamIndex = TeamIds.Horde;
+                otherTeam = TeamIds.Alliance;
+                otherTeamId = TeamFaction.Alliance;
             }
             //clear other team's selection
             m_SelectionPools[otherTeam].Init();
@@ -731,17 +731,17 @@ namespace Game.BattleGrounds
                     bg.GetStatus() > BattlegroundStatus.WaitQueue && bg.GetStatus() < BattlegroundStatus.WaitLeave)
                 {
                     // clear selection pools
-                    m_SelectionPools[TeamId.Alliance].Init();
-                    m_SelectionPools[TeamId.Horde].Init();
+                    m_SelectionPools[TeamIds.Alliance].Init();
+                    m_SelectionPools[TeamIds.Horde].Init();
 
                     // call a function that does the job for us
                     FillPlayersToBG(bg, bracket_id);
 
                     // now everything is set, invite players
-                    foreach (var queueInfo in m_SelectionPools[TeamId.Alliance].SelectedGroups)
+                    foreach (var queueInfo in m_SelectionPools[TeamIds.Alliance].SelectedGroups)
                         InviteGroupToBG(queueInfo, bg, queueInfo.Team);
 
-                    foreach (var queueInfo in m_SelectionPools[TeamId.Horde].SelectedGroups)
+                    foreach (var queueInfo in m_SelectionPools[TeamIds.Horde].SelectedGroups)
                         InviteGroupToBG(queueInfo, bg, queueInfo.Team);
 
                     if (!bg.HasFreeSlots())
@@ -777,8 +777,8 @@ namespace Game.BattleGrounds
             else if (Global.BattlegroundMgr.IsTesting())
                 MinPlayersPerTeam = 1;
 
-            m_SelectionPools[TeamId.Alliance].Init();
-            m_SelectionPools[TeamId.Horde].Init();
+            m_SelectionPools[TeamIds.Alliance].Init();
+            m_SelectionPools[TeamIds.Horde].Init();
 
             if (bg_template.IsBattleground())
             {
@@ -793,13 +793,13 @@ namespace Game.BattleGrounds
                     }
                     // invite those selection pools
                     for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
-                        foreach (var queueInfo in m_SelectionPools[TeamId.Alliance + i].SelectedGroups)
+                        foreach (var queueInfo in m_SelectionPools[TeamIds.Alliance + i].SelectedGroups)
                             InviteGroupToBG(queueInfo, bg2, queueInfo.Team);
 
                     bg2.StartBattleground();
                     //clear structures
-                    m_SelectionPools[TeamId.Alliance].Init();
-                    m_SelectionPools[TeamId.Horde].Init();
+                    m_SelectionPools[TeamIds.Alliance].Init();
+                    m_SelectionPools[TeamIds.Horde].Init();
                 }
             }
 
@@ -821,7 +821,7 @@ namespace Game.BattleGrounds
                     // invite those selection pools
                     for (uint i = 0; i < SharedConst.PvpTeamsCount; i++)
                     {
-                        foreach (var queueInfo in m_SelectionPools[TeamId.Alliance + i].SelectedGroups)
+                        foreach (var queueInfo in m_SelectionPools[TeamIds.Alliance + i].SelectedGroups)
                             InviteGroupToBG(queueInfo, bg2, queueInfo.Team);
                     }
                     // start bg
@@ -908,8 +908,8 @@ namespace Game.BattleGrounds
                 //if we have 2 teams, then start new arena and invite players!
                 if (found == 2)
                 {
-                    GroupQueueInfo aTeam = queueArray[TeamId.Alliance];
-                    GroupQueueInfo hTeam = queueArray[TeamId.Horde];
+                    GroupQueueInfo aTeam = queueArray[TeamIds.Alliance];
+                    GroupQueueInfo hTeam = queueArray[TeamIds.Horde];
                     Battleground arena = Global.BattlegroundMgr.CreateNewBattleground(m_queueId, bracketEntry);
                     if (!arena)
                     {
@@ -925,21 +925,21 @@ namespace Game.BattleGrounds
                     Log.outDebug(LogFilter.Battleground, "setting oposite teamrating for team {0} to {1}", hTeam.ArenaTeamId, hTeam.OpponentsTeamRating);
 
                     // now we must move team if we changed its faction to another faction queue, because then we will spam log by errors in Queue.RemovePlayer
-                    if (aTeam.Team != Team.Alliance)
+                    if (aTeam.Team != TeamFaction.Alliance)
                     {
                         m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Insert(0, aTeam);
-                        m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Remove(queueArray[TeamId.Alliance]);
+                        m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Remove(queueArray[TeamIds.Alliance]);
                     }
-                    if (hTeam.Team != Team.Horde)
+                    if (hTeam.Team != TeamFaction.Horde)
                     {
                         m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Insert(0, hTeam);
-                        m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Remove(queueArray[TeamId.Horde]);
+                        m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Remove(queueArray[TeamIds.Horde]);
                     }
 
-                    arena.SetArenaMatchmakerRating(Team.Alliance, aTeam.ArenaMatchmakerRating);
-                    arena.SetArenaMatchmakerRating(Team.Horde, hTeam.ArenaMatchmakerRating);
-                    InviteGroupToBG(aTeam, arena, Team.Alliance);
-                    InviteGroupToBG(hTeam, arena, Team.Horde);
+                    arena.SetArenaMatchmakerRating(TeamFaction.Alliance, aTeam.ArenaMatchmakerRating);
+                    arena.SetArenaMatchmakerRating(TeamFaction.Horde, hTeam.ArenaMatchmakerRating);
+                    InviteGroupToBG(aTeam, arena, TeamFaction.Alliance);
+                    InviteGroupToBG(hTeam, arena, TeamFaction.Horde);
 
                     Log.outDebug(LogFilter.Battleground, "Starting rated arena match!");
                     arena.StartBattleground();
@@ -1123,7 +1123,7 @@ namespace Game.BattleGrounds
     public class GroupQueueInfo
     {
         public Dictionary<ObjectGuid, PlayerQueueInfo> Players = new();             // player queue info map
-        public Team Team;                                           // Player team (ALLIANCE/HORDE)
+        public TeamFaction Team;                                           // Player team (ALLIANCE/HORDE)
         public uint ArenaTeamId;                                    // team id if rated match
         public uint JoinTime;                                       // time when group was added
         public uint RemoveInviteTime;                               // time when we will remove invite for players in group
@@ -1218,7 +1218,7 @@ namespace Game.BattleGrounds
                 BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(m_BgQueueTypeId);
                 if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
                 {
-                    Log.outDebug(LogFilter.Battleground, "Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GetGUID().ToString(), m_BgInstanceGUID);
+                    Log.outDebug(LogFilter.Battleground, "Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), m_BgInstanceGUID);
 
                     player.RemoveBattlegroundQueueId(m_BgQueueTypeId);
                     bgQueue.RemovePlayer(m_PlayerGuid, true);

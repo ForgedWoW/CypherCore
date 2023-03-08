@@ -21,10 +21,10 @@ namespace Scripts.Pets
 				if (!me.TryGetOwner(out Player owner))
 					return;
 
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Assist);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Assist;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 
@@ -32,8 +32,8 @@ namespace Scripts.Pets
 				if (summon != null)
 				{
 					summon.SetCanFollowOwner(true);
-					summon.GetMotionMaster().Clear();
-					summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+					summon.MotionMaster.Clear();
+					summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
 					StartAttackOnOwnersInCombatWith();
 				}
 			}
@@ -49,8 +49,8 @@ namespace Scripts.Pets
 
 				if (target != null)
 				{
-					target.RemoveAura(WarlockSpells.DOOM, owner.GetGUID());
-					me.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GetGUID()));
+					target.RemoveAura(WarlockSpells.DOOM, owner.GUID);
+					me.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GUID));
 				}
 			}
 		}

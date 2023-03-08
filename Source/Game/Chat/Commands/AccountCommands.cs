@@ -18,7 +18,7 @@ namespace Game.Chat
                 return false;
 
             // GM Level
-            AccountTypes securityLevel = handler.GetSession().GetSecurity();
+            AccountTypes securityLevel = handler.GetSession().Security;
             handler.SendSysMessage(CypherStrings.AccountLevel, securityLevel);
 
             // Security level required
@@ -38,7 +38,7 @@ namespace Game.Chat
             if (session.HasPermission(RBACPermissions.MayCheckOwnEmail))
             {
                 string emailoutput;
-                uint accountId = session.GetAccountId();
+                uint accountId = session.AccountId;
 
                 PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
                 stmt.AddValue(0, accountId);
@@ -189,7 +189,7 @@ namespace Game.Chat
 
             PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
             stmt.AddValue(0, expansion);
-            stmt.AddValue(1, handler.GetSession().GetAccountId());
+            stmt.AddValue(1, handler.GetSession().AccountId);
             DB.Login.Execute(stmt);
 
             handler.SendSysMessage(CypherStrings.AccountAddon, expansion);
@@ -213,8 +213,8 @@ namespace Game.Chat
                     if (handler.GetSession() != null)
                     {
                         Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) created Account {4} (Email: '{5}')",
-                            handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                            handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString(),
+                            handler.GetSession().                            AccountId, handler.GetSession().RemoteAddress,
+                            handler.GetSession().                            Player.GetName(), handler.GetSession().Player.GUID.ToString(),
                             accountName, email ?? "");
                     }
                     break;
@@ -274,22 +274,22 @@ namespace Game.Chat
         [Command("email", CypherStrings.CommandAccEmailHelp, RBACPermissions.CommandAccountEmail)]
         static bool HandleAccountEmailCommand(CommandHandler handler, string oldEmail, string password, string email, string emailConfirm)
         {
-            if (!Global.AccountMgr.CheckEmail(handler.GetSession().GetAccountId(), oldEmail))
+            if (!Global.AccountMgr.CheckEmail(handler.GetSession().AccountId, oldEmail))
             {
                 handler.SendSysMessage(CypherStrings.CommandWrongemail);
                 Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided email [{4}] is not equal to registration email [{5}].",
-                    handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                    handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString(),
+                    handler.GetSession().                    AccountId, handler.GetSession().RemoteAddress,
+                    handler.GetSession().                    Player.GetName(), handler.GetSession().Player.GUID.ToString(),
                     email, oldEmail);
                 return false;
             }
 
-            if (!Global.AccountMgr.CheckPassword(handler.GetSession().GetAccountId(), password))
+            if (!Global.AccountMgr.CheckPassword(handler.GetSession().AccountId, password))
             {
                 handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
                 Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
-                    handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                    handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                    handler.GetSession().                    AccountId, handler.GetSession().RemoteAddress,
+                    handler.GetSession().                    Player.GetName(), handler.GetSession().Player.GUID.ToString());
                 return false;
             }
 
@@ -303,20 +303,20 @@ namespace Game.Chat
             {
                 handler.SendSysMessage(CypherStrings.NewEmailsNotMatch);
                 Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
-                    handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                    handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                    handler.GetSession().                    AccountId, handler.GetSession().RemoteAddress,
+                    handler.GetSession().                    Player.GetName(), handler.GetSession().Player.GUID.ToString());
                 return false;
             }
 
 
-            AccountOpResult result = Global.AccountMgr.ChangeEmail(handler.GetSession().GetAccountId(), email);
+            AccountOpResult result = Global.AccountMgr.ChangeEmail(handler.GetSession().AccountId, email);
             switch (result)
             {
                 case AccountOpResult.Ok:
                     handler.SendSysMessage(CypherStrings.CommandEmail);
                     Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Email from [{4}] to [{5}].",
-                        handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                        handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString(),
+                        handler.GetSession().                        AccountId, handler.GetSession().RemoteAddress,
+                        handler.GetSession().                        Player.GetName(), handler.GetSession().Player.GUID.ToString(),
                         oldEmail, email);
                     break;
                 case AccountOpResult.EmailTooLong:
@@ -337,24 +337,24 @@ namespace Game.Chat
             uint pwConfig = WorldConfig.GetUIntValue(WorldCfg.AccPasschangesec); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
             // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-            if (!Global.AccountMgr.CheckPassword(handler.GetSession().GetAccountId(), oldPassword))
+            if (!Global.AccountMgr.CheckPassword(handler.GetSession().AccountId, oldPassword))
             {
                 handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
                 Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the provided old password is wrong.",
-                    handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                    handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                    handler.GetSession().                    AccountId, handler.GetSession().RemoteAddress,
+                    handler.GetSession().                    Player.GetName(), handler.GetSession().Player.GUID.ToString());
                 return false;
             }
             // This compares the old, current email to the entered email - however, only...
             if ((pwConfig == 1 || (pwConfig == 2 && handler.GetSession().HasPermission(RBACPermissions.EmailConfirmForPassChange))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
-                && !Global.AccountMgr.CheckEmail(handler.GetSession().GetAccountId(), confirmEmail)) // ... and returns false if the comparison fails.
+                && !Global.AccountMgr.CheckEmail(handler.GetSession().AccountId, confirmEmail)) // ... and returns false if the comparison fails.
             {
                 handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
                 Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the entered email [{4}] is wrong.",
-                    handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                    handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString(),
+                    handler.GetSession().                    AccountId, handler.GetSession().RemoteAddress,
+                    handler.GetSession().                    Player.GetName(), handler.GetSession().Player.GUID.ToString(),
                     confirmEmail);
                 return false;
             }
@@ -367,14 +367,14 @@ namespace Game.Chat
             }
 
             // Changes password and prints result.
-            AccountOpResult result = Global.AccountMgr.ChangePassword(handler.GetSession().GetAccountId(), newPassword);
+            AccountOpResult result = Global.AccountMgr.ChangePassword(handler.GetSession().AccountId, newPassword);
             switch (result)
             {
                 case AccountOpResult.Ok:
                     handler.SendSysMessage(CypherStrings.CommandPassword);
                     Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Password.",
-                        handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(),
-                        handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                        handler.GetSession().                        AccountId, handler.GetSession().RemoteAddress,
+                        handler.GetSession().                        Player.GetName(), handler.GetSession().Player.GUID.ToString());
                     break;
                 case AccountOpResult.PassTooLong:
                     handler.SendSysMessage(CypherStrings.PasswordTooLong);
@@ -421,7 +421,7 @@ namespace Game.Chat
                 {
                     PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
                     stmt.AddValue(0, "00");
-                    stmt.AddValue(1, handler.GetSession().GetAccountId());
+                    stmt.AddValue(1, handler.GetSession().AccountId);
                     DB.Login.Execute(stmt);
                     handler.SendSysMessage(CypherStrings.CommandAcclockunlocked);
                 }
@@ -444,7 +444,7 @@ namespace Game.Chat
                     handler.SendSysMessage(CypherStrings.CommandAcclockunlocked);
                 }
 
-                stmt.AddValue(1, handler.GetSession().GetAccountId());
+                stmt.AddValue(1, handler.GetSession().AccountId);
 
                 DB.Login.Execute(stmt);
                 return true;
@@ -490,7 +490,7 @@ namespace Game.Chat
 
                 foreach (var session in Global.WorldMgr.GetAllSessions())
                 {
-                    Player player = session.GetPlayer();
+                    Player player = session.Player;
 
                     // Ignore sessions on character selection screen
                     if (player == null)
@@ -500,7 +500,7 @@ namespace Game.Chat
                     uint playerZoneId = player.GetZoneId();
 
                     // Apply optional ipAddress filter
-                    if (!ipAddress.IsEmpty() && ipAddress != session.GetRemoteAddress())
+                    if (!ipAddress.IsEmpty() && ipAddress != session.RemoteAddress)
                         continue;
 
                     // Apply optional mapId filter
@@ -520,13 +520,13 @@ namespace Game.Chat
                     }
 
                     handler.SendSysMessage(CypherStrings.AccountListLine,
-                        session.GetAccountName(),
-                        session.GetPlayerName(),
-                        session.GetRemoteAddress(),
+                        session.                        AccountName,
+                        session.                        PlayerName,
+                        session.                        RemoteAddress,
                         playerMapId,
                         playerZoneId,
-                        session.GetAccountExpansion(),
-                        session.GetSecurity());
+                        session.                        AccountExpansion,
+                        session.                        Security);
 
                     ++sessionsMatchCount;
 
@@ -626,13 +626,13 @@ namespace Game.Chat
                     if (!player)
                         return false;
 
-                    accountId = player.GetSession().GetAccountId();
+                    accountId = player.Session.AccountId;
                     Global.AccountMgr.GetName(accountId, out accountName);
                 }
 
                 // Let set addon state only for lesser (strong) security level
                 // or to self account
-                if (handler.GetSession() != null && handler.GetSession().GetAccountId() != accountId &&
+                if (handler.GetSession() != null && handler.GetSession().AccountId != accountId &&
                     handler.HasLowerSecurityAccount(null, accountId, true))
                     return false;
 
@@ -711,7 +711,7 @@ namespace Game.Chat
                     if (!player)
                         return false;
 
-                    accountId = player.GetSession().GetAccountId();
+                    accountId = player.Session.AccountId;
                     Global.AccountMgr.GetName(accountId, out accountName);
                 }
 
@@ -729,7 +729,7 @@ namespace Game.Chat
                 if (handler.IsConsole())
                     playerSecurity = AccountTypes.Console;
                 else
-                    playerSecurity = Global.AccountMgr.GetSecurity(handler.GetSession().GetAccountId(), realmID);
+                    playerSecurity = Global.AccountMgr.GetSecurity(handler.GetSession().AccountId, realmID);
 
                 // can set security level only for target with less security and to less security that we have
                 // This is also reject self apply in fact

@@ -63,7 +63,7 @@ public class go_deadmines_tp : GameObjectAI
 		if (instance.GetBossState(DMData.DATA_RIPSNARL) == EncounterState.Done)
 			player.AddGossipItem(GossipOptionNpc.None, GOSSIP_BOSS_3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GetGUID());
+		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
 
 		return true;
 	}

@@ -33,7 +33,9 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 		if (player)
 		{
 			// stop combat + make player unattackable + Duel stop + stop some spells
-			player.SetFaction(35);
+			player. // stop combat + make player unattackable + Duel stop + stop some spells
+				Faction = 35;
+
 			player.CombatStop();
 
 			if (player.IsNonMeleeSpellCast(true))
@@ -42,8 +44,8 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 			player.SetUnitFlag(UnitFlags.NonAttackable);
 
 			// if player class = hunter || warlock Remove pet if alive
-			if ((player.GetClass() == Class.Hunter) ||
-				(player.GetClass() == Class.Warlock))
+			if ((player.Class == Class.Hunter) ||
+				(player.Class == Class.Warlock))
 			{
 				var pet = player.GetPet();
 
@@ -52,7 +54,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 					pet.SavePetToDB(PetSaveMode.AsCurrent);
 
 					// not let dismiss dead pet
-					if (pet.IsAlive())
+					if (pet.IsAlive)
 						player.RemovePet(pet, PetSaveMode.NotInSlot);
 				}
 			}
@@ -67,7 +69,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 		if (player)
 		{
 			// Reset player faction + allow combat + allow duels
-			player.SetFactionForRace(player.GetRace());
+			player.SetFactionForRace(player.Race);
 			player.RemoveUnitFlag(UnitFlags.NonAttackable);
 			// save player
 			player.SaveToDB();

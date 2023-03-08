@@ -103,7 +103,7 @@ public class MapManager : Singleton<MapManager>
 				var group = player.GetGroup();
 				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 				MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
-				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GetGUID();
+				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
 				var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
 
 				if (instanceLock != null)
@@ -140,7 +140,7 @@ public class MapManager : Singleton<MapManager>
 
 				if (!map)
 				{
-					map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.GetTeamId(), group);
+					map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.TeamId, group);
 
 					if (group)
 						group.SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
@@ -150,7 +150,7 @@ public class MapManager : Singleton<MapManager>
 			}
 			else if (entry.IsGarrison())
 			{
-				newInstanceId = (uint)player.GetGUID().GetCounter();
+				newInstanceId = (uint)player.GUID.Counter;
 				map = FindMap_i(mapId, newInstanceId);
 
 				if (!map)
@@ -161,7 +161,7 @@ public class MapManager : Singleton<MapManager>
 				newInstanceId = 0;
 
 				if (entry.IsSplitByFaction())
-					newInstanceId = (uint)player.GetTeamId();
+					newInstanceId = (uint)player.TeamId;
 
 				map = FindMap_i(mapId, newInstanceId);
 
@@ -201,7 +201,7 @@ public class MapManager : Singleton<MapManager>
 			var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 			MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 
-			var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(mapId) : player.GetGUID();
+			var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(mapId) : player.GUID;
 			var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
 			uint newInstanceId = 0;
 
@@ -223,12 +223,12 @@ public class MapManager : Singleton<MapManager>
 		}
 		else if (entry.IsGarrison())
 		{
-			return (uint)player.GetGUID().GetCounter();
+			return (uint)player.GUID.Counter;
 		}
 		else
 		{
 			if (entry.IsSplitByFaction())
-				return (uint)player.GetTeamId();
+				return (uint)player.TeamId;
 
 			return 0;
 		}
@@ -527,7 +527,7 @@ public class MapManager : Singleton<MapManager>
 
 	GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
 	{
-		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GetGUID());
+		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
 		Cypher.Assert(map.IsGarrison());
 
 		return map;

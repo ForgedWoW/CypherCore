@@ -93,7 +93,7 @@ internal class emerald_dragonAI : WorldBossAI
 	{
 		base.Reset();
 		me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-		me.SetReactState(ReactStates.Aggressive);
+		me.ReactState = ReactStates.Aggressive;
 		DoCast(me, SpellIds.MarkOfNatureAura, new CastSpellExtraArgs(true));
 
 		_scheduler.Schedule(TimeSpan.FromSeconds(4),
@@ -179,14 +179,14 @@ internal class npc_dream_fog : ScriptedAI
 			if (target)
 			{
 				_roamTimer = RandomHelper.URand(15000, 30000);
-				me.GetMotionMaster().Clear();
-				me.GetMotionMaster().MoveChase(target, 0.2f);
+				me.MotionMaster.Clear();
+				me.MotionMaster.MoveChase(target, 0.2f);
 			}
 			else
 			{
 				_roamTimer = 2500;
-				me.GetMotionMaster().Clear();
-				me.GetMotionMaster().MoveRandom(25.0f);
+				me.MotionMaster.Clear();
+				me.MotionMaster.MoveRandom(25.0f);
 			}
 
 			// Seeping fog movement is slow enough for a player to be able to walk backwards and still outpace it
@@ -296,7 +296,7 @@ internal class boss_lethon : emerald_dragonAI
 	public override void SpellHitTarget(WorldObject target, SpellInfo spellInfo)
 	{
 		if (spellInfo.Id == SpellIds.DrawSpirit &&
-			target.IsPlayer())
+			target.IsPlayer)
 		{
 			Position targetPos = target.Location;
 			me.SummonCreature(CreatureIds.SpiritShade, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
@@ -323,14 +323,14 @@ internal class npc_spirit_shade : PassiveAI
 		if (unitSummoner == null)
 			return;
 
-		_summonerGuid = summoner.GetGUID();
-		me.GetMotionMaster().MoveFollow(unitSummoner, 0.0f, 0.0f);
+		_summonerGuid = summoner.GUID;
+		me.MotionMaster.MoveFollow(unitSummoner, 0.0f, 0.0f);
 	}
 
 	public override void MovementInform(MovementGeneratorType moveType, uint data)
 	{
 		if (moveType == MovementGeneratorType.Follow &&
-			data == _summonerGuid.GetCounter())
+			data == _summonerGuid.Counter)
 		{
 			me.CastSpell((Unit)null, SpellIds.DarkOffering, false);
 			me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
@@ -459,7 +459,7 @@ internal class boss_taerar : emerald_dragonAI
 
 			DoCast(SpellIds.Shade);
 			me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-			me.SetReactState(ReactStates.Passive);
+			me.ReactState = ReactStates.Passive;
 
 			++_stage;
 		}
@@ -480,7 +480,7 @@ internal class boss_taerar : emerald_dragonAI
 
 				me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
 				me.RemoveAura(SpellIds.Shade);
-				me.SetReactState(ReactStates.Aggressive);
+				me.ReactState = ReactStates.Aggressive;
 			}
 			// _banishtimer has not expired, and we still have active shades:
 			else

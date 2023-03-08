@@ -13,7 +13,7 @@ namespace Game.AI
 
         public TotemAI(Creature creature) : base(creature)
         {
-            Cypher.Assert(creature.IsTotem(), $"TotemAI: AI assigned to a no-totem creature ({creature.GetGUID()})!");
+            Cypher.Assert(creature.IsTotem, $"TotemAI: AI assigned to a no-totem creature ({creature.GUID})!");
             _victimGuid = ObjectGuid.Empty;
         }
 
@@ -22,7 +22,7 @@ namespace Game.AI
             if (me.ToTotem().GetTotemType() != TotemType.Active)
                 return;
 
-            if (!me.IsAlive() || me.IsNonMeleeSpellCast(false))
+            if (!me.IsAlive || me.IsNonMeleeSpellCast(false))
                 return;
 
             // Search spell
@@ -35,7 +35,7 @@ namespace Game.AI
 
             // SpellModOp.Range not applied in this place just because not existence range mods for attacking totems
 
-            Unit victim = !_victimGuid.IsEmpty() ? Global.ObjAccessor.GetUnit(me, _victimGuid) : null;
+            Unit victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(me, _victimGuid) : null;
 
             // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
             if (victim == null || !victim.IsTargetableForAttack() || !me.IsWithinDistInMap(victim, max_range) || me.IsFriendlyTo(victim) || !me.CanSeeOrDetect(victim))
@@ -51,7 +51,7 @@ namespace Game.AI
             if (victim != null)
             {
                 // remember
-                _victimGuid = victim.GetGUID();
+                _victimGuid = victim.GUID;
 
                 // attack
                 me.CastSpell(victim, me.ToTotem().GetSpell());

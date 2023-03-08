@@ -29,7 +29,7 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 		Unit pet = Caster.GetGuardianPet();
 		var petTarget = ExplTargetUnit;
 
-		if (pet == null || pet.IsDead())
+		if (pet == null || pet.IsDead)
 			return SpellCastResult.NoPet;
 
 		// pet has a target and target is within 5 yards and target is in line of sight
@@ -49,7 +49,7 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 
 	private void HandleDummy(int effIndex)
 	{
-		if (Caster.IsPlayer())
+		if (Caster.IsPlayer)
 		{
 			Unit pet = Caster.GetGuardianPet();
 

@@ -111,13 +111,13 @@ namespace Game.Chat
                 target = it.GetSource();
                 if (target != null)
                 {
-                    uint oldlevel = target.GetLevel();
+                    uint oldlevel = target.Level;
 
                     if (level != oldlevel)
                     {
                         target.SetLevel((uint)level);
                         target.InitTalentForLevel();
-                        target.SetXP(0);
+                        target.                        XP = 0;
                     }
 
                     if (handler.NeedReportToTarget(target))
@@ -165,7 +165,7 @@ namespace Game.Chat
             if (!groupTarget)
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
-                stmt.AddValue(0, guidTarget.GetCounter());
+                stmt.AddValue(0, guidTarget.Counter);
                 SQLResult resultGroup = DB.Characters.Query(stmt);
                 if (!resultGroup.IsEmpty())
                     groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
@@ -217,7 +217,7 @@ namespace Game.Chat
                 {
                     // ... than, it prints information like "is online", where he is, etc...
                     onlineState = "online";
-                    phases = PhasingHandler.FormatPhases(p.GetPhaseShift());
+                    phases = PhasingHandler.FormatPhases(p.PhaseShift);
 
                     AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(p.GetAreaId());
                     if (area != null)
@@ -298,7 +298,7 @@ namespace Game.Chat
                 Player target = it.GetSource();
                 if (target)
                 {
-                    target.ResurrectPlayer(target.GetSession().HasPermission(RBACPermissions.ResurrectWithFullHps) ? 1.0f : 0.5f);
+                    target.ResurrectPlayer(target.Session.HasPermission(RBACPermissions.ResurrectWithFullHps) ? 1.0f : 0.5f);
                     target.SpawnCorpseBones();
                     target.SaveToDB();
                 }
@@ -331,7 +331,7 @@ namespace Game.Chat
                 return false;
             }
 
-            Player gmPlayer = handler.GetSession().GetPlayer();
+            Player gmPlayer = handler.GetSession().Player;
             Map gmMap = gmPlayer.GetMap();
             bool toInstance = gmMap.Instanceable();
             bool onlyLocalSummon = false;
@@ -342,7 +342,7 @@ namespace Game.Chat
             if (toInstance)
             {
                 Player groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.GetLeaderGUID());
-                if (!groupLeader || (groupLeader.Location.MapId != gmMap.GetId()) || (groupLeader.GetInstanceId() != gmMap.GetInstanceId()))
+                if (!groupLeader || (groupLeader.Location.MapId != gmMap.GetId()) || (groupLeader.InstanceId1 != gmMap.GetInstanceId()))
                 {
                     handler.SendSysMessage(CypherStrings.PartialGroupSummon);
                     onlyLocalSummon = true;
@@ -353,7 +353,7 @@ namespace Game.Chat
             {
                 Player player = refe.GetSource();
 
-                if (!player || player == gmPlayer || player.GetSession() == null)
+                if (!player || player == gmPlayer || player.Session == null)
                     continue;
 
                 // check online security
@@ -362,7 +362,7 @@ namespace Game.Chat
 
                 string plNameLink = handler.GetNameLink(player);
 
-                if (player.IsBeingTeleported())
+                if (player.IsBeingTeleported)
                 {
                     handler.SendSysMessage(CypherStrings.IsTeleported, plNameLink);
                     continue;
@@ -386,16 +386,16 @@ namespace Game.Chat
                     player.SendSysMessage(CypherStrings.SummonedBy, handler.GetNameLink());
 
                 // stop flight if need
-                if (player.IsInFlight())
+                if (player.IsInFlight)
                     player.FinishTaxiFlight();                
                 else
                     player.SaveRecallPosition(); // save only in non-flight case
 
                 // before GM
                 var pos = new Position();
-                gmPlayer.GetClosePoint(pos, player.GetCombatReach());
+                gmPlayer.GetClosePoint(pos, player.CombatReach);
                 pos.Orientation = player.Location.Orientation;
-                player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.GetInstanceId());
+                player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.InstanceId1);
             }
 
             return true;

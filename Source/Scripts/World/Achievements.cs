@@ -49,7 +49,7 @@ internal class achievement_arena_kills : ScriptObjectAutoAddDBBound, IAchievemen
 	public bool OnCheck(Player source, Unit target)
 	{
 		// this checks GetBattleground() for Null already
-		if (!source.InArena())
+		if (!source.InArena)
 			return false;
 
 		return source.GetBattleground().GetArenaType() == _arenaType;
@@ -114,7 +114,7 @@ internal class achievement_newbie : ScriptObjectAutoAddDBBound, IAchievementOnCo
 
 	public void OnCompleted(Player player, AchievementRecord achievement)
 	{
-		player.GetSession().GetBattlePetMgr().UnlockSlot(BattlePetSlots.Slot1);
+		player.Session.BattlePetMgr.UnlockSlot(BattlePetSlots.Slot1);
 		// TODO: Unlock trap
 	}
 }
@@ -126,6 +126,6 @@ internal class achievement_just_a_pup : ScriptObjectAutoAddDBBound, IAchievement
 
 	public void OnCompleted(Player player, AchievementRecord achievement)
 	{
-		player.GetSession().GetBattlePetMgr().UnlockSlot(BattlePetSlots.Slot2);
+		player.Session.BattlePetMgr.UnlockSlot(BattlePetSlots.Slot2);
 	}
 }

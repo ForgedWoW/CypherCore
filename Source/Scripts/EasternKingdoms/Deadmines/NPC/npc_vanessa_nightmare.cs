@@ -187,7 +187,7 @@ public class npc_vanessa_nightmare : BossAI
 						if (Glubtok != null)
 						{
 							Glubtok.SetVisible(false);
-							Glubtok.GetMotionMaster().MoveCharge(-174.85f, -579.76f, 19.31f, 10.0f);
+							Glubtok.MotionMaster.MoveCharge(-174.85f, -579.76f, 19.31f, 10.0f);
 						}
 
 						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_4, null, true);
@@ -199,7 +199,7 @@ public class npc_vanessa_nightmare : BossAI
 					case 3:
 						Nightmare = false;
 						me.SetVisible(false);
-						me.GetMotionMaster().MovePoint(0, -178.85f, -585.76f, 19.31f);
+						me.MotionMaster.MovePoint(0, -178.85f, -585.76f, 19.31f);
 
 						break;
 				}
@@ -241,7 +241,7 @@ public class npc_vanessa_nightmare : BossAI
 						break;
 					case 8:
 						ShiftToTwo = false;
-						me.GetMotionMaster().MovePoint(1, -150.96f, -579.99f, 19.31f);
+						me.MotionMaster.MovePoint(1, -150.96f, -579.99f, 19.31f);
 
 						break;
 					default:
@@ -283,7 +283,7 @@ public class npc_vanessa_nightmare : BossAI
 					case 12:
 						ShiftToThree = false;
 						me.SetVisible(false);
-						me.GetMotionMaster().MovePoint(2, -96.46f, -660.42f, 7.41f);
+						me.MotionMaster.MovePoint(2, -96.46f, -660.42f, 7.41f);
 
 						break;
 				}
@@ -332,7 +332,7 @@ public class npc_vanessa_nightmare : BossAI
 						SummonWorgen_1();
 
 						me.SetVisible(false);
-						me.GetMotionMaster().MovePoint(3, -103.72f, -724.06f, 8.47f);
+						me.MotionMaster.MovePoint(3, -103.72f, -724.06f, 8.47f);
 						Phase++;
 						NightmareTimer = 1000;
 					}
@@ -357,7 +357,7 @@ public class npc_vanessa_nightmare : BossAI
 						me.SummonCreature(DMCreatures.NPC_ERIK_HARRINGTON, FamilySpawn[1], TempSummonType.ManualDespawn);
 						SummonWorgen_2();
 
-						me.GetMotionMaster().MovePoint(4, 2.56f, -776.13f, 9.52f);
+						me.MotionMaster.MovePoint(4, 2.56f, -776.13f, 9.52f);
 						Phase++;
 						NightmareTimer = 3000;
 					}
@@ -379,7 +379,7 @@ public class npc_vanessa_nightmare : BossAI
 							item.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_12, null, true);
 						}
 
-						me.GetMotionMaster().MovePoint(5, -83.16319f, -774.9636f, 26.90351f);
+						me.MotionMaster.MovePoint(5, -83.16319f, -774.9636f, 26.90351f);
 						me.SummonCreature(DMCreatures.NPC_JAMES_HARRINGTON, FamilySpawn[3], TempSummonType.ManualDespawn);
 						NightmareTimer = 5000;
 						Phase++;

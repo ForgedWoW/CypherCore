@@ -366,7 +366,7 @@ internal class boss_aran : ScriptedAI
 
 					if (pSpawn)
 					{
-						pSpawn.SetFaction(me.GetFaction());
+						pSpawn.Faction = me.Faction;
 						pSpawn.CastSpell(pSpawn, SpellIds.CircularBlizzard, false);
 					}
 
@@ -392,7 +392,7 @@ internal class boss_aran : ScriptedAI
 				if (unit)
 				{
 					unit.Attack(me.GetVictim(), true);
-					unit.SetFaction(me.GetFaction());
+					unit.Faction = me.Faction;
 				}
 			}
 
@@ -408,7 +408,7 @@ internal class boss_aran : ScriptedAI
 				if (unit)
 				{
 					unit.Attack(me.GetVictim(), true);
-					unit.SetFaction(me.GetFaction());
+					unit.Faction = me.Faction;
 				}
 			}
 
@@ -432,7 +432,7 @@ internal class boss_aran : ScriptedAI
 			{
 				for (byte i = 0; i < 3; ++i)
 				{
-					if (FlameWreathTarget[i].IsEmpty())
+					if (FlameWreathTarget[i].IsEmpty)
 						continue;
 
 					var unit = Global.ObjAccessor.GetUnit(me, FlameWreathTarget[i]);
@@ -442,7 +442,7 @@ internal class boss_aran : ScriptedAI
 						unit.CastSpell(unit,
 										20476,
 										new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-											.SetOriginalCaster(me.GetGUID()));
+											.SetOriginalCaster(me.GUID));
 
 						unit.CastSpell(unit, 11027, true);
 						FlameWreathTarget[i].Clear();
@@ -524,7 +524,7 @@ internal class boss_aran : ScriptedAI
 			Talk(TextIds.SayAtiesh);
 			me.SetFacingTo(me.Location.GetAbsoluteAngle(player.Location));
 			me.ClearUnitState(UnitState.Moving);
-			me.GetMotionMaster().MoveDistract(7 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
+			me.MotionMaster.MoveDistract(7 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
 
 			break;
 		}
@@ -564,8 +564,8 @@ internal class boss_aran : ScriptedAI
 		{
 			var target = refe.GetVictim();
 
-			if (refe.GetVictim().IsPlayer() &&
-				refe.GetVictim().IsAlive())
+			if (refe.GetVictim().IsPlayer &&
+				refe.GetVictim().IsAlive)
 				targets.Add(target);
 		}
 
@@ -577,7 +577,7 @@ internal class boss_aran : ScriptedAI
 		foreach (var unit in targets)
 			if (unit)
 			{
-				FlameWreathTarget[i] = unit.GetGUID();
+				FlameWreathTarget[i] = unit.GUID;
 				FWTargPosX[i] = unit.Location.X;
 				FWTargPosY[i] = unit.Location.Y;
 				DoCast(unit, SpellIds.FlameWreath, new CastSpellExtraArgs(true));
@@ -589,7 +589,7 @@ internal class boss_aran : ScriptedAI
 	{
 		var item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-		if (item && item.GetEntry() == itemEntry)
+		if (item && item.Entry == itemEntry)
 			return true;
 
 		return false;

@@ -25,7 +25,7 @@ internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEf
 		if (!eventInfo.ActionTarget)
 			return false;
 
-		if (eventInfo.ActionTarget.HasAura(PaladinSpells.BeaconOfLight, eventInfo.Actor.GetGUID()))
+		if (eventInfo.ActionTarget.HasAura(PaladinSpells.BeaconOfLight, eventInfo.Actor.GUID))
 			return false;
 
 		return true;

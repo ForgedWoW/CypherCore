@@ -26,10 +26,10 @@ namespace Scripts.Pets
 				if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
 					me.AddAura(WarlockSpells.INFERNAL_BRAND_INFERNAL_AURA, me);
 
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Assist);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Assist;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 
@@ -42,12 +42,14 @@ namespace Scripts.Pets
 				spawnPos = me.Location;
 
 				// if we leave default State (ASSIST) it will passively be controlled by warlock
-				me.SetReactState(ReactStates.Passive);
+				me.
+					// if we leave default State (ASSIST) it will passively be controlled by warlock
+					ReactState = ReactStates.Passive;
 
 				// melee Damage
 				if (me.TryGetOwner(out Player owner) && owner.TryGetAsPlayer(out var player))
 				{
-					var isLordSummon = me.GetEntry() == 108452;
+					var isLordSummon = me.Entry == 108452;
 
 					var spellPower = player.SpellBaseDamageBonusDone(SpellSchoolMask.Fire);
 					var dmg = MathFunctions.CalculatePct(spellPower, isLordSummon ? 30 : 50);

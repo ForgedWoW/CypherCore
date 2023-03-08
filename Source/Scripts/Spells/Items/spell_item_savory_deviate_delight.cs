@@ -17,7 +17,7 @@ internal class spell_item_savory_deviate_delight : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -39,12 +39,12 @@ internal class spell_item_savory_deviate_delight : SpellScript, IHasSpellEffects
 		{
 			// Flip Out - ninja
 			case 1:
-				spellId = (caster.GetNativeGender() == Gender.Male ? ItemSpellIds.FlipOutMale : ItemSpellIds.FlipOutFemale);
+				spellId = (caster.NativeGender == Gender.Male ? ItemSpellIds.FlipOutMale : ItemSpellIds.FlipOutFemale);
 
 				break;
 			// Yaaarrrr - pirate
 			case 2:
-				spellId = (caster.GetNativeGender() == Gender.Male ? ItemSpellIds.YaaarrrrMale : ItemSpellIds.YaaarrrrFemale);
+				spellId = (caster.NativeGender == Gender.Male ? ItemSpellIds.YaaarrrrMale : ItemSpellIds.YaaarrrrFemale);
 
 				break;
 		}

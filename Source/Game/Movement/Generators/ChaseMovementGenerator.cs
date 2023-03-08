@@ -54,7 +54,7 @@ namespace Game.Movement
         public override bool Update(Unit owner, uint diff)
         {
             // owner might be dead or gone (can we even get nullptr here?)
-            if (!owner || !owner.IsAlive())
+            if (!owner || !owner.IsAlive)
                 return false;
 
             // our target might have gone away
@@ -74,7 +74,7 @@ namespace Game.Movement
             }
 
             bool mutualChase = IsMutualChase(owner, target);
-            float hitboxSum = owner.GetCombatReach() + target.GetCombatReach();
+            float hitboxSum = owner.CombatReach + target.CombatReach;
             float minRange = _range.HasValue ? _range.Value.MinRange + hitboxSum : SharedConst.ContactDistance;
             float minTarget = (_range.HasValue ? _range.Value.MinTolerance : 0.0f) + hitboxSum;
             float maxRange = _range.HasValue ? _range.Value.MaxRange + hitboxSum : owner.GetMeleeRange(target); // melee range already includes hitboxes
@@ -158,7 +158,7 @@ namespace Game.Movement
                     if (owner.IsHovering())
                         owner.UpdateAllowedPositionZ(pos);
 
-                    bool success = _path.CalculatePath(pos, owner.CanFly());
+                    bool success = _path.CalculatePath(pos, owner.CanFly);
                     if (!success || _path.GetPathType().HasAnyFlag(PathType.NoPath))
                     {
                         if (cOwner)
@@ -175,9 +175,9 @@ namespace Game.Movement
                         cOwner.SetCannotReachTarget(false);
 
                     bool walk = false;
-                    if (cOwner && !cOwner.IsPet())
+                    if (cOwner && !cOwner.IsPet)
                     {
-                        switch (cOwner.GetMovementTemplate().GetChase())
+                        switch (cOwner.MovementTemplate.GetChase())
                         {
                             case CreatureChaseMovementType.CanWalk:
                                 walk = owner.IsWalking();
@@ -238,10 +238,10 @@ namespace Game.Movement
 
         static bool IsMutualChase(Unit owner, Unit target)
         {
-            if (target.GetMotionMaster().GetCurrentMovementGeneratorType() != MovementGeneratorType.Chase)
+            if (target.MotionMaster.GetCurrentMovementGeneratorType() != MovementGeneratorType.Chase)
                 return false;
 
-            ChaseMovementGenerator movement = target.GetMotionMaster().GetCurrentMovementGenerator() as ChaseMovementGenerator;
+            ChaseMovementGenerator movement = target.MotionMaster.GetCurrentMovementGenerator() as ChaseMovementGenerator;
             if (movement != null)
                 return movement.GetTarget() == owner;
 
@@ -264,12 +264,12 @@ namespace Game.Movement
 
         static void DoMovementInform(Unit owner, Unit target)
         {
-            if (!owner.IsCreature())
+            if (!owner.IsCreature)
                 return;
 
             CreatureAI ai = owner.ToCreature().GetAI();
             if (ai != null)
-                ai.MovementInform(MovementGeneratorType.Chase, (uint)target.GetGUID().GetCounter());
+                ai.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
         }
 
         public Unit GetTarget()

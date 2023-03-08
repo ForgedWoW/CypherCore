@@ -59,9 +59,9 @@ namespace Game.Achievements
             }
 
             // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
-            if (referencePlayer.IsGameMaster() || referencePlayer.GetSession().HasPermission(RBACPermissions.CannotEarnAchievements))
+            if (referencePlayer.IsGameMaster || referencePlayer.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
             {
-                Log.outDebug(LogFilter.Achievement, $"CriteriaHandler::UpdateCriteria: [Player {referencePlayer.GetName()} {(referencePlayer.IsGameMaster() ? "GM mode on" : "disallowed by RBAC")}]" +
+                Log.outDebug(LogFilter.Achievement, $"CriteriaHandler::UpdateCriteria: [Player {referencePlayer.GetName()} {(referencePlayer.IsGameMaster ? "GM mode on" : "disallowed by RBAC")}]" +
                     $" {GetOwnerInfo()}, {type} ({(uint)type}), {miscValue1}, {miscValue2}, {miscValue3}");
                 return;
             }
@@ -177,7 +177,7 @@ namespace Game.Achievements
                         SetCriteriaProgress(criteria, miscValue1, referencePlayer, ProgressType.Highest);
                         break;
                     case CriteriaType.ReachLevel:
-                        SetCriteriaProgress(criteria, referencePlayer.GetLevel(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.Level, referencePlayer);
                         break;
                     case CriteriaType.SkillRaised:
                         uint skillvalue = referencePlayer.GetBaseSkillValue((SkillType)criteria.Entry.Asset);
@@ -264,13 +264,13 @@ namespace Game.Achievements
                         break;
                     case CriteriaType.ReputationGained:
                     {
-                        int reputation = referencePlayer.GetReputationMgr().GetReputation(criteria.Entry.Asset);
+                        int reputation = referencePlayer.ReputationMgr.GetReputation(criteria.Entry.Asset);
                         if (reputation > 0)
                             SetCriteriaProgress(criteria, (uint)reputation, referencePlayer);
                         break;
                     }
                     case CriteriaType.TotalExaltedFactions:
-                        SetCriteriaProgress(criteria, referencePlayer.GetReputationMgr().GetExaltedFactionCount(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.ReputationMgr.ExaltedFactionCount, referencePlayer);
                         break;
                     case CriteriaType.LearnSpellFromSkillLine:
                     case CriteriaType.LearnTradeskillSkillLine:
@@ -293,19 +293,19 @@ namespace Game.Achievements
                         break;
                     }
                     case CriteriaType.TotalReveredFactions:
-                        SetCriteriaProgress(criteria, referencePlayer.GetReputationMgr().GetReveredFactionCount(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.ReputationMgr.ReveredFactionCount, referencePlayer);
                         break;
                     case CriteriaType.TotalHonoredFactions:
-                        SetCriteriaProgress(criteria, referencePlayer.GetReputationMgr().GetHonoredFactionCount(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.ReputationMgr.HonoredFactionCount, referencePlayer);
                         break;
                     case CriteriaType.TotalFactionsEncountered:
-                        SetCriteriaProgress(criteria, referencePlayer.GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.ReputationMgr.VisibleFactionCount, referencePlayer);
                         break;
                     case CriteriaType.HonorableKills:
                         SetCriteriaProgress(criteria, referencePlayer.ActivePlayerData.LifetimeHonorableKills, referencePlayer);
                         break;
                     case CriteriaType.MostMoneyOwned:
-                        SetCriteriaProgress(criteria, referencePlayer.GetMoney(), referencePlayer, ProgressType.Highest);
+                        SetCriteriaProgress(criteria, referencePlayer.Money, referencePlayer, ProgressType.Highest);
                         break;
                     case CriteriaType.EarnAchievementPoints:
                         if (miscValue1 == 0)
@@ -336,7 +336,7 @@ namespace Game.Achievements
                                 if (team == null || team.GetArenaType() != reqTeamType)
                                     continue;
 
-                                ArenaTeamMember member = team.GetMember(referencePlayer.GetGUID());
+                                ArenaTeamMember member = team.GetMember(referencePlayer.GUID);
                                 if (member != null)
                                 {
                                     SetCriteriaProgress(criteria, member.PersonalRating, referencePlayer, ProgressType.Highest);
@@ -347,7 +347,7 @@ namespace Game.Achievements
                         break;
                     }
                     case CriteriaType.UniquePetsOwned:
-                        SetCriteriaProgress(criteria, referencePlayer.GetSession().GetBattlePetMgr().GetPetUniqueSpeciesCount(), referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.Session.BattlePetMgr.GetPetUniqueSpeciesCount(), referencePlayer);
                         break;
                     case CriteriaType.GuildAttainedLevel:
                         SetCriteriaProgress(criteria, miscValue1, referencePlayer);
@@ -591,7 +591,7 @@ namespace Game.Achievements
 
             progress.Changed = true;
             progress.Date = GameTime.GetGameTime(); // set the date to the latest update.
-            progress.PlayerGUID = referencePlayer ? referencePlayer.GetGUID() : ObjectGuid.Empty;
+            progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
             _criteriaProgress[criteria.Id] = progress;
 
             TimeSpan timeElapsed = TimeSpan.Zero;
@@ -726,8 +726,8 @@ namespace Game.Achievements
 
         public virtual bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)
         {
-            if ((tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.GetTeam() != Team.Horde) ||
-                (tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.GetTeam() != Team.Alliance))
+            if ((tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.Team != TeamFaction.Horde) ||
+                (tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.Team != TeamFaction.Alliance))
             {
                 Log.outTrace(LogFilter.Achievement, "CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
                     criteria.Id, criteria.Entry.Type, tree.Entry.Id);
@@ -1010,7 +1010,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.GetInstanceId());
+                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId1);
                     if (!map || !map.IsDungeon())
                         return false;
 
@@ -1256,7 +1256,7 @@ namespace Game.Achievements
             {
                 case ModifierTreeType.PlayerInebriationLevelEqualOrGreaterThan: // 1
                 {
-                    uint inebriation = (uint)Math.Min(Math.Max(referencePlayer.GetDrunkValue(), referencePlayer.PlayerData.FakeInebriation), 100);
+                    uint inebriation = (uint)Math.Min(Math.Max(referencePlayer.DrunkValue, referencePlayer.PlayerData.FakeInebriation), 100);
                     if (inebriation < reqValue)
                         return false;
                     break;
@@ -1277,7 +1277,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.TargetCreatureId: // 4
-                    if (refe == null || refe.GetEntry() != reqValue)
+                    if (refe == null || refe.Entry != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetIsPlayer: // 5
@@ -1285,7 +1285,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetIsDead: // 6
-                    if (refe == null || !refe.IsUnit() || refe.ToUnit().IsAlive())
+                    if (refe == null || !refe.IsUnit || refe.ToUnit().IsAlive)
                         return false;
                     break;
                 case ModifierTreeType.TargetIsOppositeFaction: // 7
@@ -1301,15 +1301,15 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetHasAura: // 10
-                    if (refe == null || !refe.IsUnit() || !refe.ToUnit().HasAura(reqValue))
+                    if (refe == null || !refe.IsUnit || !refe.ToUnit().HasAura(reqValue))
                         return false;
                     break;
                 case ModifierTreeType.TargetHasAuraEffect: // 11
-                    if (refe == null || !refe.IsUnit() || !refe.ToUnit().HasAuraType((AuraType)reqValue))
+                    if (refe == null || !refe.IsUnit || !refe.ToUnit().HasAuraType((AuraType)reqValue))
                         return false;
                     break;
                 case ModifierTreeType.TargetHasAuraState: // 12
-                    if (refe == null || !refe.IsUnit() || !refe.ToUnit().HasAuraState((AuraStateType)reqValue))
+                    if (refe == null || !refe.IsUnit || !refe.ToUnit().HasAuraState((AuraStateType)reqValue))
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasAuraState: // 13
@@ -1333,7 +1333,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerIsAlive: // 16
-                    if (referencePlayer.IsDead())
+                    if (referencePlayer.IsDead)
                         return false;
                     break;
                 case ModifierTreeType.PlayerIsInArea: // 17
@@ -1364,15 +1364,15 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerToTargetLevelDeltaGreaterThan: // 21
-                    if (refe == null || !refe.IsUnit() || referencePlayer.GetLevel() < refe.ToUnit().GetLevel() + reqValue)
+                    if (refe == null || !refe.IsUnit || referencePlayer.Level < refe.ToUnit().Level + reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetToPlayerLevelDeltaGreaterThan: // 22
-                    if (!refe || !refe.IsUnit() || referencePlayer.GetLevel() + reqValue < refe.ToUnit().GetLevel())
+                    if (!refe || !refe.IsUnit || referencePlayer.Level + reqValue < refe.ToUnit().Level)
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqualTargetLevel: // 23
-                    if (!refe || !refe.IsUnit() || referencePlayer.GetLevel() != refe.ToUnit().GetLevel())
+                    if (!refe || !refe.IsUnit || referencePlayer.Level != refe.ToUnit().Level)
                         return false;
                     break;
                 case ModifierTreeType.PlayerInArenaWithTeamSize: // 24
@@ -1383,19 +1383,19 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerRace: // 25
-                    if ((uint)referencePlayer.GetRace() != reqValue)
+                    if ((uint)referencePlayer.Race != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerClass: // 26
-                    if ((uint)referencePlayer.GetClass() != reqValue)
+                    if ((uint)referencePlayer.Class != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetRace: // 27
-                    if (refe == null || !refe.IsUnit() || refe.ToUnit().GetRace() != (Race)reqValue)
+                    if (refe == null || !refe.IsUnit || refe.ToUnit().Race != (Race)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetClass: // 28
-                    if (refe == null || !refe.IsUnit() || refe.ToUnit().GetClass() != (Class)reqValue)
+                    if (refe == null || !refe.IsUnit || refe.ToUnit().Class != (Class)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.LessThanTappers: // 29
@@ -1407,7 +1407,7 @@ namespace Game.Achievements
                     if (refe == null)
                         return false;
 
-                    if (!refe.IsUnit() || refe.ToUnit().GetCreatureType() != (CreatureType)reqValue)
+                    if (!refe.IsUnit || refe.ToUnit().CreatureType != (CreatureType)reqValue)
                         return false;
                     break;
                 }
@@ -1415,7 +1415,7 @@ namespace Game.Achievements
                 {
                     if (!refe)
                         return false;
-                    if (!refe.IsCreature() || refe.ToCreature().GetCreatureTemplate().Family != (CreatureFamily)reqValue)
+                    if (!refe.IsCreature || refe.ToCreature().CreatureTemplate.Family != (CreatureFamily)reqValue)
                         return false;
                     break;
                 }
@@ -1428,7 +1428,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.BattlePetTeamLevel: // 34
-                    foreach (BattlePetSlot slot in referencePlayer.GetSession().GetBattlePetMgr().GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
                         if (slot.Pet.Level < reqValue)
                             return false;
                     break;
@@ -1449,7 +1449,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqual: // 39
-                    if (referencePlayer.GetLevel() != reqValue)
+                    if (referencePlayer.Level != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetLevelEqual: // 40
@@ -1493,15 +1493,15 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthBelowPercent: // 46
-                    if (refe == null || !refe.IsUnit() || refe.ToUnit().GetHealthPct() > reqValue)
+                    if (refe == null || !refe.IsUnit || refe.ToUnit().GetHealthPct() > reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthAbovePercent: // 47
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetHealthPct() < reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetHealthPct() < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthEqualsPercent: // 48
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetHealthPct() != reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetHealthPct() != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHealthBelowValue: // 49
@@ -1517,20 +1517,20 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthBelowValue: // 52
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetHealth() > reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetHealth() > reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthAboveValue: // 53
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetHealth() < reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetHealth() < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetHealthEqualsValue: // 54
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetHealth() != reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetHealth() != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetIsPlayerAndMeetsCondition: // 55
                 {
-                    if (refe == null || !refe.IsPlayer())
+                    if (refe == null || !refe.IsPlayer)
                         return false;
 
                     PlayerConditionRecord playerCondition = CliDB.PlayerConditionStorage.LookupByKey(reqValue);
@@ -1564,7 +1564,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerInGuildParty: // 61 NYI
                     return false;
                 case ModifierTreeType.PlayerGuildReputationEqualOrGreaterThan: // 62
-                    if (referencePlayer.GetReputationMgr().GetReputation(1168) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetReputation(1168) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerInRatedBattleground: // 63
@@ -1591,19 +1591,19 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqualOrGreaterThan: // 69
-                    if (referencePlayer.GetLevel() < reqValue)
+                    if (referencePlayer.Level < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetLevelEqualOrGreaterThan: // 70
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetLevel() < reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().Level < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqualOrLessThan: // 71
-                    if (referencePlayer.GetLevel() > reqValue)
+                    if (referencePlayer.Level > reqValue)
                         return false;
                     break;
                 case ModifierTreeType.TargetLevelEqualOrLessThan: // 72
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetLevel() > reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().Level > reqValue)
                         return false;
                     break;
                 case ModifierTreeType.ModifierTree: // 73
@@ -1613,13 +1613,13 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerScenario: // 74
                 {
-                    Scenario scenario = referencePlayer.GetScenario();
+                    Scenario scenario = referencePlayer.Scenario;
                     if (scenario == null || scenario.GetEntry().Id != reqValue)
                         return false;
                     break;
                 }
                 case ModifierTreeType.TillersReputationGreaterThan: // 75
-                    if (referencePlayer.GetReputationMgr().GetReputation(1272) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetReputation(1272) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.BattlePetAchievementPointsEqualOrGreaterThan: // 76
@@ -1652,7 +1652,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.UniqueBattlePetsEqualOrGreaterThan: // 77
-                    if (referencePlayer.GetSession().GetBattlePetMgr().GetPetUniqueSpeciesCount() < reqValue)
+                    if (referencePlayer.Session.BattlePetMgr.GetPetUniqueSpeciesCount() < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.BattlePetType: // 78
@@ -1671,7 +1671,7 @@ namespace Game.Achievements
                     if (group != null)
                     {
                         for (var itr = group.GetFirstMember(); itr != null; itr = itr.Next())
-                            if (itr.GetSource().GetGuildId() == referencePlayer.GetGuildId())
+                            if (itr.GetSource().GuildId == referencePlayer.GuildId)
                                 ++guildMemberCount;
                     }
 
@@ -1683,7 +1683,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerScenarioStep: // 82
                 {
-                    Scenario scenario = referencePlayer.GetScenario();
+                    Scenario scenario = referencePlayer.Scenario;
                     if (scenario == null)
                         return false;
 
@@ -1698,7 +1698,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.ExaltedWithFaction: // 85
-                    if (referencePlayer.GetReputationMgr().GetReputation(reqValue) < 42000)
+                    if (referencePlayer.ReputationMgr.GetReputation(reqValue) < 42000)
                         return false;
                     break;
                 case ModifierTreeType.EarnedAchievementOnAccount: // 86
@@ -1707,7 +1707,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.OrderOfTheCloudSerpentReputationGreaterThan: // 88
-                    if (referencePlayer.GetReputationMgr().GetReputation(1271) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetReputation(1271) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.BattlePetQuality: // 89 NYI
@@ -1722,7 +1722,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasBattlePetJournalLock: // 93
-                    if (!referencePlayer.GetSession().GetBattlePetMgr().HasJournalLock())
+                    if (!referencePlayer.Session.BattlePetMgr.HasJournalLock())
                         return false;
                     break;
                 case ModifierTreeType.FriendshipRepReactionIsMet: // 94
@@ -1740,7 +1740,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.ReputationWithFactionIsEqualOrGreaterThan: // 95
-                    if (referencePlayer.GetReputationMgr().GetReputation(reqValue) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetReputation(reqValue) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.ItemClassAndSubclass: // 96
@@ -1751,11 +1751,11 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerGender: // 97
-                    if ((int)referencePlayer.GetGender() != reqValue)
+                    if ((int)referencePlayer.Gender != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerNativeGender: // 98
-                    if (referencePlayer.GetNativeGender() != (Gender)reqValue)
+                    if (referencePlayer.NativeGender != (Gender)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerSkillEqualOrGreaterThan: // 99
@@ -1790,7 +1790,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerExpansionLevelEqualOrGreaterThan: // 106
-                    if (referencePlayer.GetSession().GetExpansion() < (Expansion)reqValue)
+                    if (referencePlayer.Session.Expansion < (Expansion)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasAuraWithLabel: // 107
@@ -1861,7 +1861,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerFaction: // 116
                 {
-                    ChrRacesRecord race = CliDB.ChrRacesStorage.LookupByKey(referencePlayer.GetRace());
+                    ChrRacesRecord race = CliDB.ChrRacesStorage.LookupByKey(referencePlayer.Race);
                     if (race == null)
                         return false;
 
@@ -1925,14 +1925,14 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.GarrisonTierEqualOrGreaterThan: // 126
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset || garrison.GetSiteLevel().GarrLevel < reqValue)
                         return false;
                     break;
                 }
                 case ModifierTreeType.GarrisonFollowersWithLevelEqualOrGreaterThan: // 127
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -1948,7 +1948,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowersWithQualityEqualOrGreaterThan: // 128
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -1964,7 +1964,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerWithAbilityAtLevelEqualOrGreaterThan: // 129
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -1980,7 +1980,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerWithTraitAtLevelEqualOrGreaterThan: // 130
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2000,7 +2000,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerWithAbilityAssignedToBuilding: // 131
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2019,7 +2019,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerWithTraitAssignedToBuilding: // 132
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2042,7 +2042,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerWithLevelAssignedToBuilding: // 133
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2063,7 +2063,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonBuildingWithLevelEqualOrGreaterThan: // 134
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2082,7 +2082,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.HasBlueprintForGarrisonBuilding: // 135
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset)
                         return false;
 
@@ -2094,7 +2094,7 @@ namespace Game.Achievements
                     return false; // OBSOLETE
                 case ModifierTreeType.AllGarrisonPlotsAreFull: // 137
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)reqValue)
                         return false;
 
@@ -2104,7 +2104,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerIsInOwnGarrison: // 138
-                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() != referencePlayer.GetGUID().GetCounter())
+                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() != referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.GarrisonShipmentOfTypeIsPending: // 139 NYI
@@ -2115,7 +2115,7 @@ namespace Game.Achievements
                     if (building == null)
                         return false;
 
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2132,7 +2132,7 @@ namespace Game.Achievements
                     return true;
                 case ModifierTreeType.GarrisonBuildingLevelEqual: // 142
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2151,7 +2151,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerHasAbility: // 143
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset)
                         return false;
 
@@ -2182,7 +2182,7 @@ namespace Game.Achievements
                     if (traitEntry == null || !traitEntry.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
                         return false;
 
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset)
                         return false;
 
@@ -2206,7 +2206,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerQualityEqual: // 145
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != GarrisonType.Garrison)
                         return false;
 
@@ -2230,7 +2230,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerLevelEqual: // 146
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset)
                         return false;
 
@@ -2260,7 +2260,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2279,7 +2279,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonPlotInstanceHasBuildingThatIsReadyToActivate: // 150
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2294,7 +2294,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithSpeciesEqualOrGreaterThan: // 151
                 {
                     uint count = 0;
-                    foreach (BattlePetSlot slot in referencePlayer.GetSession().GetBattlePetMgr().GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
                         if (slot.Pet.Species == secondaryAsset)
                             ++count;
 
@@ -2305,7 +2305,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithTypeEqualOrGreaterThan: // 152
                 {
                     uint count = 0;
-                    foreach (BattlePetSlot slot in referencePlayer.GetSession().GetBattlePetMgr().GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
                     {
                         BattlePetSpeciesRecord species = CliDB.BattlePetSpeciesStorage.LookupByKey(slot.Pet.Species);
                         if (species != null)
@@ -2323,7 +2323,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithAliveEqualOrGreaterThan: // 155
                 {
                     uint count = 0;
-                    foreach (var slot in referencePlayer.GetSession().GetBattlePetMgr().GetSlots())
+                    foreach (var slot in referencePlayer.Session.BattlePetMgr.GetSlots())
                         if (slot.Pet.Health > 0)
                             ++count;
 
@@ -2335,7 +2335,7 @@ namespace Game.Achievements
                     return false; // OBSOLETE
                 case ModifierTreeType.HasGarrisonFollower: // 157
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2382,7 +2382,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.AllGarrisonPlotsFilledWithBuildingsWithLevelEqualOrGreater: // 166
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)reqValue)
                         return false;
 
@@ -2404,7 +2404,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2419,7 +2419,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerCountWithItemLevelEqualOrGreaterThan: // 169
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2436,7 +2436,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonTierEqual: // 170
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)secondaryAsset || garrison.GetSiteLevel().GarrLevel != reqValue)
                         return false;
                     break;
@@ -2450,7 +2450,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.SelectionIsPlayerCorpse: // 173
-                    if (referencePlayer.GetTarget().GetHigh() != HighGuid.Corpse)
+                    if (referencePlayer.GetTarget().High != HighGuid.Corpse)
                         return false;
                     break;
                 case ModifierTreeType.PlayerCanAcceptQuest: // 174
@@ -2465,7 +2465,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerCountWithLevelEqualOrGreaterThan: // 175
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)tertiaryAsset)
                         return false;
 
@@ -2481,7 +2481,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerIsInBuilding: // 176
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2498,7 +2498,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.GarrisonPlotInstanceCountEqualOrGreaterThan: // 178
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null || garrison.GetGarrisonType() != (GarrisonType)reqValue)
                         return false;
 
@@ -2519,12 +2519,12 @@ namespace Game.Achievements
                 case ModifierTreeType.CurrencySource: // 179 NYI
                     return false;
                 case ModifierTreeType.PlayerIsInNotOwnGarrison: // 180
-                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() == referencePlayer.GetGUID().GetCounter())
+                    if (!referencePlayer.GetMap().IsGarrison() || referencePlayer.GetMap().GetInstanceId() == referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.HasActiveGarrisonFollower: // 181
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2537,7 +2537,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerHasMount: // 183
                 {
-                    foreach (var pair in referencePlayer.GetSession().GetCollectionMgr().GetAccountMounts())
+                    foreach (var pair in referencePlayer.Session.CollectionMgr.GetAccountMounts())
                     {
                         var mount = Global.DB2Mgr.GetMount(pair.Key);
                         if (mount == null)
@@ -2550,7 +2550,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerCountWithInactiveWithItemLevelEqualOrGreaterThan: // 184
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2569,7 +2569,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.GarrisonFollowerIsOnAMission: // 185
                 {
-                    Garrison garrison = referencePlayer.GetGarrison();
+                    Garrison garrison = referencePlayer.Garrison;
                     if (garrison == null)
                         return false;
 
@@ -2607,18 +2607,18 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerIsInstanceOwner: // 196 NYI
                     return false;
                 case ModifierTreeType.PlayerHasHeirloom: // 197
-                    if (!referencePlayer.GetSession().GetCollectionMgr().GetAccountHeirlooms().ContainsKey(reqValue))
+                    if (!referencePlayer.Session.CollectionMgr.GetAccountHeirlooms().ContainsKey(reqValue))
                         return false;
                     break;
                 case ModifierTreeType.TeamPoints: // 198 NYI
                     return false;
                 case ModifierTreeType.PlayerHasToy: // 199
-                    if (!referencePlayer.GetSession().GetCollectionMgr().HasToy(reqValue))
+                    if (!referencePlayer.Session.CollectionMgr.HasToy(reqValue))
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasTransmog: // 200
                 {
-                    var (PermAppearance, TempAppearance) = referencePlayer.GetSession().GetCollectionMgr().HasItemAppearance(reqValue);
+                    var (PermAppearance, TempAppearance) = referencePlayer.Session.CollectionMgr.HasItemAppearance(reqValue);
                     if (!PermAppearance || TempAppearance)
                         return false;
                     break;
@@ -2636,7 +2636,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerCreatedCharacterLessThanHoursAgoRealTime: // 204 NYI
                     return false;
                 case ModifierTreeType.PlayerCreatedCharacterLessThanHoursAgoGameTime: // 205
-                    if (TimeSpan.FromHours(reqValue) >= TimeSpan.FromSeconds(referencePlayer.GetTotalPlayedTime()))
+                    if (TimeSpan.FromHours(reqValue) >= TimeSpan.FromSeconds(referencePlayer.TotalPlayedTime))
                         return false;
                     break;
                 case ModifierTreeType.QuestHasQuestInfoId: // 206
@@ -2672,7 +2672,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerScenarioType: // 211
                 {
-                    Scenario scenario = referencePlayer.GetScenario();
+                    Scenario scenario = referencePlayer.Scenario;
                     if (scenario == null)
                         return false;
 
@@ -2681,7 +2681,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayersAuthExpansionLevelEqualOrGreaterThan: // 212
-                    if (referencePlayer.GetSession().GetAccountExpansion() < (Expansion)reqValue)
+                    if (referencePlayer.Session.AccountExpansion < (Expansion)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerLastWeek2v2Rating: // 213 NYI
@@ -2714,7 +2714,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.ParagonReputationLevelEqualOrGreaterThan: // 218
-                    if (referencePlayer.GetReputationMgr().GetParagonLevel((uint)miscValue1) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetParagonLevel((uint)miscValue1) < reqValue)
                         return false;
                     return false;
                 case ModifierTreeType.GarrisonShipmentIsReady: // 219 NYI
@@ -2732,7 +2732,7 @@ namespace Game.Achievements
                     if (faction == null)
                         return false;
 
-                    if (referencePlayer.GetReputationMgr().GetParagonLevel(faction.ParagonFactionID) < reqValue)
+                    if (referencePlayer.ReputationMgr.GetParagonLevel(faction.ParagonFactionID) < reqValue)
                         return false;
                     break;
                 }
@@ -2791,7 +2791,7 @@ namespace Game.Achievements
                 case ModifierTreeType.IsTournamentRealm: // 229
                     return false;
                 case ModifierTreeType.PlayerCanAccessAlliedRaces: // 230
-                    if (!referencePlayer.GetSession().CanAccessAlliedRaces())
+                    if (!referencePlayer.Session.CanAccessAlliedRaces())
                         return false;
                     break;
                 case ModifierTreeType.GroupMemberCountWithAchievementEqualOrLessThan: // 231
@@ -2996,7 +2996,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerVisibleRace: // 252
                 {
-                    CreatureDisplayInfoRecord creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(referencePlayer.GetDisplayId());
+                    CreatureDisplayInfoRecord creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(referencePlayer.DisplayId);
                     if (creatureDisplayInfo == null)
                         return false;
 
@@ -3010,9 +3010,9 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.TargetVisibleRace: // 253
                 {
-                    if (refe == null || !refe.IsUnit())
+                    if (refe == null || !refe.IsUnit)
                         return false;
-                    CreatureDisplayInfoRecord creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(refe.ToUnit().GetDisplayId());
+                    CreatureDisplayInfoRecord creatureDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(refe.ToUnit().DisplayId);
                     if (creatureDisplayInfo == null)
                         return false;
 
@@ -3051,7 +3051,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetAuraStackCountEqual: // 256
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetAuraCount((uint)secondaryAsset) != reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetAuraCount((uint)secondaryAsset) != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerAuraStackCountEqualOrGreaterThan: // 257
@@ -3059,7 +3059,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetAuraStackCountEqualOrGreaterThan: // 258
-                    if (!refe || !refe.IsUnit() || refe.ToUnit().GetAuraCount((uint)secondaryAsset) < reqValue)
+                    if (!refe || !refe.IsUnit || refe.ToUnit().GetAuraCount((uint)secondaryAsset) < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasAzeriteEssenceRankLessThan: // 259
@@ -3119,7 +3119,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerIsAtMaxExpansionLevel: // 264
-                    if (!referencePlayer.IsMaxLevel())
+                    if (!referencePlayer.IsMaxLevel)
                         return false;
                     break;
                 case ModifierTreeType.TransmogSource: // 265
@@ -3172,7 +3172,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.PlayerLevelWithinContentTuning: // 268
                 {
-                    uint level = referencePlayer.GetLevel();
+                    uint level = referencePlayer.Level;
                     var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
                     if (levels.HasValue)
                     {
@@ -3184,10 +3184,10 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.TargetLevelWithinContentTuning: // 269
                 {
-                    if (!refe || !refe.IsUnit())
+                    if (!refe || !refe.IsUnit)
                         return false;
 
-                    uint level = refe.ToUnit().GetLevel();
+                    uint level = refe.ToUnit().Level;
                     var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
                     if (levels.HasValue)
                     {
@@ -3208,7 +3208,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.PlayerLevelWithinOrAboveContentTuning: // 272
                 {
-                    uint level = referencePlayer.GetLevel();
+                    uint level = referencePlayer.Level;
                     var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
                     if (levels.HasValue)
                         return secondaryAsset != 0 ? level >= levels.Value.MinLevelWithDelta : level >= levels.Value.MinLevel;
@@ -3216,10 +3216,10 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.TargetLevelWithinOrAboveContentTuning: // 273
                 {
-                    if (!refe || !refe.IsUnit())
+                    if (!refe || !refe.IsUnit)
                         return false;
 
-                    uint level = refe.ToUnit().GetLevel();
+                    uint level = refe.ToUnit().Level;
                     var levels = Global.DB2Mgr.GetContentTuningData(reqValue, 0);
                     if (levels.HasValue)
                         return secondaryAsset != 0 ? level >= levels.Value.MinLevelWithDelta : level >= levels.Value.MinLevel;
@@ -3239,7 +3239,7 @@ namespace Game.Achievements
                         return false;
 
                     for (var itr = group.GetFirstMember(); itr != null; itr = itr.Next())
-                        if (itr.GetSource().GetSession().GetRecruiterId() == referencePlayer.GetSession().GetAccountId())
+                        if (itr.GetSource().Session.RecruiterId == referencePlayer.Session.AccountId)
                             return true;
 
                     return false;
@@ -3251,7 +3251,7 @@ namespace Game.Achievements
                         return false;
 
                     for (var itr = group.GetFirstMember(); itr != null; itr = itr.Next())
-                        if (itr.GetSource().GetSession().GetAccountId() == referencePlayer.GetSession().GetRecruiterId())
+                        if (itr.GetSource().Session.AccountId == referencePlayer.Session.RecruiterId)
                             return true;
 
                     return false;
@@ -3268,7 +3268,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerCanAccessShadowlandsPrepurchaseContent: // 281
-                    if (referencePlayer.GetSession().GetAccountExpansion() < Expansion.ShadowLands)
+                    if (referencePlayer.Session.AccountExpansion < Expansion.ShadowLands)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasEntitlement: // 282 NYI
@@ -3372,7 +3372,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.IsRaFRecruit: // 305
-                    if (referencePlayer.GetSession().GetRecruiterId() == 0)
+                    if (referencePlayer.Session.RecruiterId == 0)
                         return false;
                     break;
                 case ModifierTreeType.AllPlayersInGroupHaveAchievement: // 306
@@ -3392,7 +3392,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerSpellShapeshiftFormCreatureDisplayInfoSelection: // 308
                 {
-                    ShapeshiftFormModelData formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(referencePlayer.GetRace(), referencePlayer.GetNativeGender(), (ShapeShiftForm)secondaryAsset);
+                    ShapeshiftFormModelData formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(referencePlayer.Race, referencePlayer.NativeGender, (ShapeShiftForm)secondaryAsset);
                     if (formModelData == null)
                         return false;
 
@@ -3415,7 +3415,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerScenarioIsLastStep: // 312
                 {
-                    Scenario scenario = referencePlayer.GetScenario();
+                    Scenario scenario = referencePlayer.Scenario;
                     if (scenario == null)
                         return false;
 
@@ -3428,7 +3428,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.TargetCovenant: // 314
-                    if (!refe || !refe.IsPlayer())
+                    if (!refe || !refe.IsPlayer)
                         return false;
                     if (refe.ToPlayer().PlayerData.CovenantID != reqValue)
                         return false;
@@ -3491,7 +3491,7 @@ namespace Game.Achievements
                 {
                     bool bagScanReachedEnd = referencePlayer.ForEachItem(ItemSearchLocation.Inventory, item =>
                     {
-                        if (item.GetEntry() != reqValue)
+                        if (item.Entry != reqValue)
                             return true;
 
                         if (item.GetModifier(ItemModifier.ChallengeKeystoneLevel) < secondaryAsset)
@@ -4344,7 +4344,7 @@ namespace Game.Achievements
                     }
                     return true;
                 case CriteriaDataType.TTeam:
-                    if (TeamId.Team != (int)Team.Alliance && TeamId.Team != (int)Team.Horde)
+                    if (TeamId.Team != (int)TeamFaction.Alliance && TeamId.Team != (int)TeamFaction.Horde)
                     {
                         Log.outError(LogFilter.Sql, "Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_T_TEAM ({2}) has unknown team in value1 ({3}), ignored.",
                             criteria.Id, criteria.Entry.Type, DataType, TeamId.Team);
@@ -4447,21 +4447,21 @@ namespace Game.Achievements
                 case CriteriaDataType.TCreature:
                     if (target == null || !target.IsTypeId(TypeId.Unit))
                         return false;
-                    return target.GetEntry() == Creature.Id;
+                    return target.Entry == Creature.Id;
                 case CriteriaDataType.TPlayerClassRace:
                     if (target == null || !target.IsTypeId(TypeId.Player))
                         return false;
-                    if (ClassRace.ClassId != 0 && ClassRace.ClassId != (uint)target.ToPlayer().GetClass())
+                    if (ClassRace.ClassId != 0 && ClassRace.ClassId != (uint)target.ToPlayer().Class)
                         return false;
-                    if (ClassRace.RaceId != 0 && ClassRace.RaceId != (uint)target.ToPlayer().GetRace())
+                    if (ClassRace.RaceId != 0 && ClassRace.RaceId != (uint)target.ToPlayer().Race)
                         return false;
                     return true;
                 case CriteriaDataType.SPlayerClassRace:
                     if (source == null || !source.IsTypeId(TypeId.Player))
                         return false;
-                    if (ClassRace.ClassId != 0 && ClassRace.ClassId != (uint)source.ToPlayer().GetClass())
+                    if (ClassRace.ClassId != 0 && ClassRace.ClassId != (uint)source.ToPlayer().Class)
                         return false;
-                    if (ClassRace.RaceId != 0 && ClassRace.RaceId != (uint)source.ToPlayer().GetRace())
+                    if (ClassRace.RaceId != 0 && ClassRace.RaceId != (uint)source.ToPlayer().Race)
                         return false;
                     return true;
                 case CriteriaDataType.TPlayerLessHealth:
@@ -4492,7 +4492,7 @@ namespace Game.Achievements
                     Unit unitTarget = target.ToUnit();
                     if (unitTarget == null)
                         return false;
-                    return unitTarget.GetGender() == (Gender)Gender.Gender;
+                    return unitTarget.Gender == (Gender)Gender.Gender;
                 }
                 case CriteriaDataType.Script:
                 {
@@ -4506,9 +4506,9 @@ namespace Game.Achievements
                 case CriteriaDataType.TTeam:
                     if (target == null || !target.IsTypeId(TypeId.Player))
                         return false;
-                    return (uint)target.ToPlayer().GetTeam() == TeamId.Team;
+                    return (uint)target.ToPlayer().Team == TeamId.Team;
                 case CriteriaDataType.SDrunk:
-                    return Player.GetDrunkenstateByValue(source.GetDrunkValue()) >= (DrunkenState)Drunk.State;
+                    return Player.GetDrunkenstateByValue(source.DrunkValue) >= (DrunkenState)Drunk.State;
                 case CriteriaDataType.Holiday:
                     return Global.GameEventMgr.IsHolidayActive((HolidayIds)Holiday.Id);
                 case CriteriaDataType.GameEvent:
@@ -4519,7 +4519,7 @@ namespace Game.Achievements
                     if (!bg)
                         return false;
 
-                    int score = (int)bg.GetTeamScore(bg.GetPlayerTeam(source.GetGUID()) == Team.Alliance ? Framework.Constants.TeamId.Horde : Framework.Constants.TeamId.Alliance);
+                    int score = (int)bg.GetTeamScore(bg.GetPlayerTeam(source.GUID) == TeamFaction.Alliance ? Framework.Constants.TeamIds.Horde : Framework.Constants.TeamIds.Alliance);
                     return score >= BattlegroundScore.Min && score <= BattlegroundScore.Max;
                 }
                 case CriteriaDataType.InstanceScript:

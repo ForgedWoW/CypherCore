@@ -5,279 +5,263 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+class UpdateLastInstance : ServerPacket
 {
-    class UpdateLastInstance : ServerPacket
-    {
-        public UpdateLastInstance() : base(ServerOpcodes.UpdateLastInstance) { }
+	public uint MapID;
+	public UpdateLastInstance() : base(ServerOpcodes.UpdateLastInstance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(MapID);
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(MapID);
+	}
+}
 
-        public uint MapID;
-    }
+class InstanceInfoPkt : ServerPacket
+{
+	public List<InstanceLockPkt> LockList = new();
+	public InstanceInfoPkt() : base(ServerOpcodes.InstanceInfo) { }
 
-    class InstanceInfoPkt : ServerPacket
-    {
-        public InstanceInfoPkt() : base(ServerOpcodes.InstanceInfo) { }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(LockList.Count);
 
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(LockList.Count);
+		foreach (var lockInfos in LockList)
+			lockInfos.Write(_worldPacket);
+	}
+}
 
-            foreach (InstanceLockPkt lockInfos in LockList)
-                lockInfos.Write(_worldPacket);
-        }
+class ResetInstances : ClientPacket
+{
+	public ResetInstances(WorldPacket packet) : base(packet) { }
 
-        public List<InstanceLockPkt> LockList = new();
-    }
+	public override void Read() { }
+}
 
-    class ResetInstances : ClientPacket
-    {
-        public ResetInstances(WorldPacket packet) : base(packet) { }
+class InstanceReset : ServerPacket
+{
+	public uint MapID;
+	public InstanceReset() : base(ServerOpcodes.InstanceReset) { }
 
-        public override void Read() { }
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(MapID);
+	}
+}
 
-    class InstanceReset : ServerPacket
-    {
-        public InstanceReset() : base(ServerOpcodes.InstanceReset) { }
+class InstanceResetFailed : ServerPacket
+{
+	public uint MapID;
+	public ResetFailedReason ResetFailedReason;
+	public InstanceResetFailed() : base(ServerOpcodes.InstanceResetFailed) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(MapID);
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(MapID);
+		_worldPacket.WriteBits(ResetFailedReason, 2);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public uint MapID;
-    }
+class ResetFailedNotify : ServerPacket
+{
+	public ResetFailedNotify() : base(ServerOpcodes.ResetFailedNotify) { }
 
-    class InstanceResetFailed : ServerPacket
-    {
-        public InstanceResetFailed() : base(ServerOpcodes.InstanceResetFailed) { }
+	public override void Write() { }
+}
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(MapID);
-            _worldPacket.WriteBits(ResetFailedReason, 2);
-            _worldPacket.FlushBits();
-        }
+class InstanceSaveCreated : ServerPacket
+{
+	public bool Gm;
+	public InstanceSaveCreated() : base(ServerOpcodes.InstanceSaveCreated) { }
 
-        public uint MapID;
-        public ResetFailedReason ResetFailedReason;
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteBit(Gm);
+		_worldPacket.FlushBits();
+	}
+}
 
-    class ResetFailedNotify : ServerPacket
-    {
-        public ResetFailedNotify() : base(ServerOpcodes.ResetFailedNotify) { }
+class InstanceLockResponse : ClientPacket
+{
+	public bool AcceptLock;
+	public InstanceLockResponse(WorldPacket packet) : base(packet) { }
 
-        public override void Write() { }
-    }
+	public override void Read()
+	{
+		AcceptLock = _worldPacket.HasBit();
+	}
+}
 
-    class InstanceSaveCreated : ServerPacket
-    {
-        public InstanceSaveCreated() : base(ServerOpcodes.InstanceSaveCreated) { }
+class RaidGroupOnly : ServerPacket
+{
+	public int Delay;
+	public RaidGroupReason Reason;
+	public RaidGroupOnly() : base(ServerOpcodes.RaidGroupOnly) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteBit(Gm);
-            _worldPacket.FlushBits();
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(Delay);
+		_worldPacket.WriteUInt32((uint)Reason);
+	}
+}
 
-        public bool Gm;
-    }
+class PendingRaidLock : ServerPacket
+{
+	public int TimeUntilLock;
+	public uint CompletedMask;
+	public bool Extending;
+	public bool WarningOnly;
+	public PendingRaidLock() : base(ServerOpcodes.PendingRaidLock) { }
 
-    class InstanceLockResponse : ClientPacket
-    {
-        public InstanceLockResponse(WorldPacket packet) : base(packet) { }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(TimeUntilLock);
+		_worldPacket.WriteUInt32(CompletedMask);
+		_worldPacket.WriteBit(Extending);
+		_worldPacket.WriteBit(WarningOnly);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public override void Read()
-        {
-            AcceptLock = _worldPacket.HasBit();
-        }
+class RaidInstanceMessage : ServerPacket
+{
+	public InstanceResetWarningType Type;
+	public uint MapID;
+	public Difficulty DifficultyID;
+	public bool Locked;
+	public bool Extended;
+	public RaidInstanceMessage() : base(ServerOpcodes.RaidInstanceMessage) { }
 
-        public bool AcceptLock;
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt8((byte)Type);
+		_worldPacket.WriteUInt32(MapID);
+		_worldPacket.WriteUInt32((uint)DifficultyID);
+		_worldPacket.WriteBit(Locked);
+		_worldPacket.WriteBit(Extended);
+		_worldPacket.FlushBits();
+	}
+}
 
-    class RaidGroupOnly : ServerPacket
-    {
-        public RaidGroupOnly() : base(ServerOpcodes.RaidGroupOnly) { }
+class InstanceEncounterEngageUnit : ServerPacket
+{
+	public ObjectGuid Unit;
+	public byte TargetFramePriority; // used to set the initial position of the frame if multiple frames are sent
+	public InstanceEncounterEngageUnit() : base(ServerOpcodes.InstanceEncounterEngageUnit, ConnectionType.Instance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(Delay);
-            _worldPacket.WriteUInt32((uint)Reason);
-        }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(Unit);
+		_worldPacket.WriteUInt8(TargetFramePriority);
+	}
+}
 
-        public int Delay;
-        public RaidGroupReason Reason;
-    }
+class InstanceEncounterDisengageUnit : ServerPacket
+{
+	public ObjectGuid Unit;
+	public InstanceEncounterDisengageUnit() : base(ServerOpcodes.InstanceEncounterDisengageUnit, ConnectionType.Instance) { }
 
-    class PendingRaidLock : ServerPacket
-    {
-        public PendingRaidLock() : base(ServerOpcodes.PendingRaidLock) { }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(Unit);
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(TimeUntilLock);
-            _worldPacket.WriteUInt32(CompletedMask);
-            _worldPacket.WriteBit(Extending);
-            _worldPacket.WriteBit(WarningOnly);
-            _worldPacket.FlushBits();
-        }
+class InstanceEncounterChangePriority : ServerPacket
+{
+	public ObjectGuid Unit;
+	public byte TargetFramePriority; // used to update the position of the unit's current frame
+	public InstanceEncounterChangePriority() : base(ServerOpcodes.InstanceEncounterChangePriority, ConnectionType.Instance) { }
 
-        public int TimeUntilLock;
-        public uint CompletedMask;
-        public bool Extending;
-        public bool WarningOnly;
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(Unit);
+		_worldPacket.WriteUInt8(TargetFramePriority);
+	}
+}
 
-    class RaidInstanceMessage : ServerPacket
-    {
-        public RaidInstanceMessage() : base(ServerOpcodes.RaidInstanceMessage) { }
+class InstanceEncounterStart : ServerPacket
+{
+	public uint InCombatResCount; // amount of usable battle ressurections
+	public uint MaxInCombatResCount;
+	public uint CombatResChargeRecovery;
+	public uint NextCombatResChargeTime;
+	public bool InProgress = true;
+	public InstanceEncounterStart() : base(ServerOpcodes.InstanceEncounterStart, ConnectionType.Instance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt8((byte)Type);
-            _worldPacket.WriteUInt32(MapID);
-            _worldPacket.WriteUInt32((uint)DifficultyID);
-            _worldPacket.WriteBit(Locked);
-            _worldPacket.WriteBit(Extended);
-            _worldPacket.FlushBits();
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(InCombatResCount);
+		_worldPacket.WriteUInt32(MaxInCombatResCount);
+		_worldPacket.WriteUInt32(CombatResChargeRecovery);
+		_worldPacket.WriteUInt32(NextCombatResChargeTime);
+		_worldPacket.WriteBit(InProgress);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public InstanceResetWarningType Type;
-        public uint MapID;
-        public Difficulty DifficultyID;
-        public bool Locked;
-        public bool Extended;
-    }
+class InstanceEncounterEnd : ServerPacket
+{
+	public InstanceEncounterEnd() : base(ServerOpcodes.InstanceEncounterEnd, ConnectionType.Instance) { }
 
-    class InstanceEncounterEngageUnit : ServerPacket
-    {
-        public InstanceEncounterEngageUnit() : base(ServerOpcodes.InstanceEncounterEngageUnit, ConnectionType.Instance) { }
+	public override void Write() { }
+}
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(Unit);
-            _worldPacket.WriteUInt8(TargetFramePriority);
-        }
+class InstanceEncounterInCombatResurrection : ServerPacket
+{
+	public InstanceEncounterInCombatResurrection() : base(ServerOpcodes.InstanceEncounterInCombatResurrection, ConnectionType.Instance) { }
 
-        public ObjectGuid Unit;
-        public byte TargetFramePriority; // used to set the initial position of the frame if multiple frames are sent
-    }
+	public override void Write() { }
+}
 
-    class InstanceEncounterDisengageUnit : ServerPacket
-    {
-        public InstanceEncounterDisengageUnit() : base(ServerOpcodes.InstanceEncounterDisengageUnit, ConnectionType.Instance) { }
+class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
+{
+	public int InCombatResCount;
+	public uint CombatResChargeRecovery;
+	public InstanceEncounterGainCombatResurrectionCharge() : base(ServerOpcodes.InstanceEncounterGainCombatResurrectionCharge, ConnectionType.Instance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(Unit);
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(InCombatResCount);
+		_worldPacket.WriteUInt32(CombatResChargeRecovery);
+	}
+}
 
-        public ObjectGuid Unit;
-    }
+class BossKill : ServerPacket
+{
+	public uint DungeonEncounterID;
+	public BossKill() : base(ServerOpcodes.BossKill, ConnectionType.Instance) { }
 
-    class InstanceEncounterChangePriority : ServerPacket
-    {
-        public InstanceEncounterChangePriority() : base(ServerOpcodes.InstanceEncounterChangePriority, ConnectionType.Instance) { }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(DungeonEncounterID);
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(Unit);
-            _worldPacket.WriteUInt8(TargetFramePriority);
-        }
+//Structs
+public struct InstanceLockPkt
+{
+	public void Write(WorldPacket data)
+	{
+		data.WriteUInt32(MapID);
+		data.WriteUInt32(DifficultyID);
+		data.WriteUInt64(InstanceID);
+		data.WriteInt32(TimeRemaining);
+		data.WriteUInt32(CompletedMask);
 
-        public ObjectGuid Unit;
-        public byte TargetFramePriority; // used to update the position of the unit's current frame
-    }
+		data.WriteBit(Locked);
+		data.WriteBit(Extended);
+		data.FlushBits();
+	}
 
-    class InstanceEncounterStart : ServerPacket
-    {
-        public InstanceEncounterStart() : base(ServerOpcodes.InstanceEncounterStart, ConnectionType.Instance) { }
+	public ulong InstanceID;
+	public uint MapID;
+	public uint DifficultyID;
+	public int TimeRemaining;
+	public uint CompletedMask;
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(InCombatResCount);
-            _worldPacket.WriteUInt32(MaxInCombatResCount);
-            _worldPacket.WriteUInt32(CombatResChargeRecovery);
-            _worldPacket.WriteUInt32(NextCombatResChargeTime);
-            _worldPacket.WriteBit(InProgress);
-            _worldPacket.FlushBits();
-        }
-
-        public uint InCombatResCount; // amount of usable battle ressurections
-        public uint MaxInCombatResCount;
-        public uint CombatResChargeRecovery;
-        public uint NextCombatResChargeTime;
-        public bool InProgress = true;
-    }
-
-    class InstanceEncounterEnd : ServerPacket
-    {
-        public InstanceEncounterEnd() : base(ServerOpcodes.InstanceEncounterEnd, ConnectionType.Instance) { }
-
-        public override void Write() { }
-    }
-
-    class InstanceEncounterInCombatResurrection : ServerPacket
-    {
-        public InstanceEncounterInCombatResurrection() : base(ServerOpcodes.InstanceEncounterInCombatResurrection, ConnectionType.Instance) { }
-
-        public override void Write() { }
-    }
-
-    class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
-    {
-        public InstanceEncounterGainCombatResurrectionCharge() : base(ServerOpcodes.InstanceEncounterGainCombatResurrectionCharge, ConnectionType.Instance) { }
-
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(InCombatResCount);
-            _worldPacket.WriteUInt32(CombatResChargeRecovery);
-        }
-
-        public int InCombatResCount;
-        public uint CombatResChargeRecovery;
-    }
-
-    class BossKill : ServerPacket
-    {
-        public BossKill() : base(ServerOpcodes.BossKill, ConnectionType.Instance) { }
-
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(DungeonEncounterID);
-        }
-
-        public uint DungeonEncounterID;
-    }
-
-    //Structs
-    public struct InstanceLockPkt
-    {
-        public void Write(WorldPacket data)
-        {
-            data.WriteUInt32(MapID);
-            data.WriteUInt32(DifficultyID);
-            data.WriteUInt64(InstanceID);
-            data.WriteInt32(TimeRemaining);
-            data.WriteUInt32(CompletedMask);
-
-            data.WriteBit(Locked);
-            data.WriteBit(Extended);
-            data.FlushBits();
-        }
-
-        public ulong InstanceID;
-        public uint MapID;
-        public uint DifficultyID;
-        public int TimeRemaining;
-        public uint CompletedMask;
-
-        public bool Locked;
-        public bool Extended;
-    }
+	public bool Locked;
+	public bool Extended;
 }

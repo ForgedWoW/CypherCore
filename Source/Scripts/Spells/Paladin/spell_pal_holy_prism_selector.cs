@@ -42,7 +42,7 @@ internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
 
 	private void SaveTargetGuid(int effIndex)
 	{
-		_targetGUID = HitUnit.GetGUID();
+		_targetGUID = HitUnit.GUID;
 	}
 
 	private void FilterTargets(List<WorldObject> targets)

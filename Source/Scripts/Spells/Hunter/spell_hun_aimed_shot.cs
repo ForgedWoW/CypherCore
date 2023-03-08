@@ -63,7 +63,7 @@ public class spell_hun_aimed_shot : SpellScript, IHasSpellEffects
 							var castTime = 0;
 							mainTarget.ModSpellCastTime(SpellInfo, ref castTime);
 							args.AddSpellMod(SpellValueMod.BasePoint0, (int)damagePct);
-							args.SetOriginalCaster(modOwner.GetGUID());
+							args.SetOriginalCaster(modOwner.GUID);
 							args.SetTriggerFlags(TriggerCastFlags.FullMask);
 
 							mainTarget.CastSpell(victim, 164340, args);

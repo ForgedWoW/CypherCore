@@ -25,7 +25,7 @@ public class WorldObjectSpellLineTargetCheck : WorldObjectSpellAreaTargetCheck
 
 	public override bool Invoke(WorldObject target)
 	{
-		if (!_position.HasInLine(target.Location, target.GetCombatReach(), _lineWidth))
+		if (!_position.HasInLine(target.Location, target.CombatReach, _lineWidth))
 			return false;
 
 		return base.Invoke(target);

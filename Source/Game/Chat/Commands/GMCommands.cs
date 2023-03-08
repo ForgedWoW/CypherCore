@@ -18,7 +18,7 @@ namespace Game.Chat
             {
                 if (!enableArg.HasValue)
                 {
-                    if (session.HasPermission(RBACPermissions.ChatUseStaffBadge) && session.GetPlayer().IsGMChat())
+                    if (session.HasPermission(RBACPermissions.ChatUseStaffBadge) && session.Player.IsGMChat)
                         session.SendNotification(CypherStrings.GmChatOn);
                     else
                         session.SendNotification(CypherStrings.GmChatOff);
@@ -27,12 +27,12 @@ namespace Game.Chat
 
                 if (enableArg.HasValue)
                 {
-                    session.GetPlayer().SetGMChat(true);
+                    session.                    Player.SetGMChat(true);
                     session.SendNotification(CypherStrings.GmChatOn);
                 }
                 else
                 {
-                    session.GetPlayer().SetGMChat(false);
+                    session.                    Player.SetGMChat(false);
                     session.SendNotification(CypherStrings.GmChatOff);
                 }
 
@@ -73,11 +73,11 @@ namespace Game.Chat
 
             foreach (var player in Global.ObjAccessor.GetPlayers())
             {
-                AccountTypes playerSec = player.GetSession().GetSecurity();
-                if ((player.IsGameMaster() ||
-                    (player.GetSession().HasPermission(RBACPermissions.CommandsAppearInGmList) &&
+                AccountTypes playerSec = player.Session.Security;
+                if ((player.IsGameMaster ||
+                    (player.Session.HasPermission(RBACPermissions.CommandsAppearInGmList) &&
                      playerSec <= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInGmList))) &&
-                    (handler.GetSession() == null || player.IsVisibleGloballyFor(handler.GetSession().GetPlayer())))
+                    (handler.GetSession() == null || player.IsVisibleGloballyFor(handler.GetSession().Player)))
                 {
                     if (first)
                     {
@@ -161,11 +161,11 @@ namespace Game.Chat
         [Command("visible", RBACPermissions.CommandGmVisible)]
         static bool HandleGMVisibleCommand(CommandHandler handler, bool? visibleArg)
         {
-            Player _player = handler.GetSession().GetPlayer();
+            Player _player = handler.GetSession().Player;
 
             if (!visibleArg.HasValue)
             {
-                handler.SendSysMessage(CypherStrings.YouAre, _player.IsGMVisible() ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
+                handler.SendSysMessage(CypherStrings.YouAre, _player.IsGMVisible ? Global.ObjectMgr.GetCypherString(CypherStrings.Visible) : Global.ObjectMgr.GetCypherString(CypherStrings.Invisible));
                 return true;
             }
 

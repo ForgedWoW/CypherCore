@@ -29,7 +29,7 @@ internal class spell_gen_feign_death_all_flags : AuraScript, IHasAuraEffects
 
 		var creature = target.ToCreature();
 
-		creature?.SetReactState(ReactStates.Passive);
+		creature.ReactState = ReactStates.Passive;
 	}
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

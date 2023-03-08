@@ -21,7 +21,7 @@ public class PlayerMenu
 		_session = session;
 
 		if (_session != null)
-			_gossipMenu.SetLocale(_session.GetSessionDbLocaleIndex());
+			_gossipMenu.SetLocale(_session.SessionDbLocaleIndex);
 	}
 
 	public void ClearMenus()
@@ -81,10 +81,10 @@ public class PlayerMenu
 				gossipText.QuestType = item.QuestIcon;
 				gossipText.QuestFlags = (uint)quest.Flags;
 				gossipText.QuestFlagsEx = (uint)quest.FlagsEx;
-				gossipText.Repeatable = quest.IsAutoComplete() && quest.IsRepeatable() && !quest.IsDailyOrWeekly() && !quest.IsMonthly();
+				gossipText.Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly;
 
 				gossipText.QuestTitle = quest.LogTitle;
-				var locale = _session.GetSessionDbLocaleIndex();
+				var locale = _session.SessionDbLocaleIndex;
 
 				if (locale != Locale.enUS)
 				{
@@ -123,7 +123,7 @@ public class PlayerMenu
 		packet.Id = pointOfInterest.Id;
 		packet.Name = pointOfInterest.Name;
 
-		var locale = _session.GetSessionDbLocaleIndex();
+		var locale = _session.SessionDbLocaleIndex;
 
 		if (locale != Locale.enUS)
 		{
@@ -144,13 +144,13 @@ public class PlayerMenu
 
 	public void SendQuestGiverQuestListMessage(WorldObject questgiver)
 	{
-		var guid = questgiver.GetGUID();
-		var localeConstant = _session.GetSessionDbLocaleIndex();
+		var guid = questgiver.GUID;
+		var localeConstant = _session.SessionDbLocaleIndex;
 
 		QuestGiverQuestListMessage questList = new();
 		questList.QuestGiverGUID = guid;
 
-		var questGreeting = Global.ObjectMgr.GetQuestGreeting(questgiver.GetTypeId(), questgiver.GetEntry());
+		var questGreeting = Global.ObjectMgr.GetQuestGreeting(questgiver.TypeId, questgiver.Entry);
 
 		if (questGreeting != null)
 		{
@@ -160,7 +160,7 @@ public class PlayerMenu
 
 			if (localeConstant != Locale.enUS)
 			{
-				var questGreetingLocale = Global.ObjectMgr.GetQuestGreetingLocale(questgiver.GetTypeId(), questgiver.GetEntry());
+				var questGreetingLocale = Global.ObjectMgr.GetQuestGreetingLocale(questgiver.TypeId, questgiver.Entry);
 
 				if (questGreetingLocale != null)
 					ObjectManager.GetLocaleString(questGreetingLocale.Greeting, localeConstant, ref questList.Greeting);
@@ -182,7 +182,7 @@ public class PlayerMenu
 				text.QuestType = questMenuItem.QuestIcon;
 				text.QuestFlags = (uint)quest.Flags;
 				text.QuestFlagsEx = (uint)quest.FlagsEx;
-				text.Repeatable = quest.IsAutoComplete() && quest.IsRepeatable() && !quest.IsDailyOrWeekly() && !quest.IsMonthly();
+				text.Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly;
 				text.QuestTitle = quest.LogTitle;
 
 				if (localeConstant != Locale.enUS)
@@ -221,7 +221,7 @@ public class PlayerMenu
 		packet.PortraitTurnInText = quest.PortraitTurnInText;
 		packet.PortraitTurnInName = quest.PortraitTurnInName;
 
-		var locale = _session.GetSessionDbLocaleIndex();
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalDescriptionText = quest.ConditionalQuestDescription.Select(text =>
 												{
@@ -249,7 +249,7 @@ public class PlayerMenu
 		}
 
 		packet.QuestGiverGUID = npcGUID;
-		packet.InformUnit = _session.GetPlayer().GetPlayerSharingQuest();
+		packet.InformUnit = _session.Player.GetPlayerSharingQuest();
 		packet.QuestID = quest.Id;
 		packet.QuestPackageID = (int)quest.PackageID;
 		packet.PortraitGiver = quest.QuestGiverPortrait;
@@ -265,10 +265,10 @@ public class PlayerMenu
 		packet.SuggestedPartyMembers = quest.SuggestedPlayers;
 
 		// Is there a better way? what about game objects?
-		var creature = ObjectAccessor.GetCreature(_session.GetPlayer(), npcGUID);
+		var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
 		if (creature != null)
-			packet.QuestGiverCreatureID = (int)creature.GetCreatureTemplate().Entry;
+			packet.QuestGiverCreatureID = (int)creature.CreatureTemplate.Entry;
 
 		// RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
 		var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Difficulty.None);
@@ -278,7 +278,7 @@ public class PlayerMenu
 				if (spellEffectInfo.IsEffect(SpellEffectName.LearnSpell))
 					packet.LearnSpells.Add(spellEffectInfo.TriggerSpell);
 
-		quest.BuildQuestRewards(packet.Rewards, _session.GetPlayer());
+		quest.BuildQuestRewards(packet.Rewards, _session.Player);
 
 		for (var i = 0; i < SharedConst.QuestEmoteCount; ++i)
 		{
@@ -305,11 +305,11 @@ public class PlayerMenu
 	{
 		if (WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
 		{
-			_session.SendPacket(quest.response[(int)_session.GetSessionDbLocaleIndex()]);
+			_session.SendPacket(quest.response[(int)_session.SessionDbLocaleIndex]);
 		}
 		else
 		{
-			var queryPacket = quest.BuildQueryData(_session.GetSessionDbLocaleIndex(), _session.GetPlayer());
+			var queryPacket = quest.BuildQueryData(_session.SessionDbLocaleIndex, _session.Player);
 			_session.SendPacket(queryPacket);
 		}
 	}
@@ -325,7 +325,7 @@ public class PlayerMenu
 		packet.PortraitTurnInText = quest.PortraitTurnInText;
 		packet.PortraitTurnInName = quest.PortraitTurnInName;
 
-		var locale = _session.GetSessionDbLocaleIndex();
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalRewardText = quest.ConditionalOfferRewardText.Select(text =>
 											{
@@ -357,16 +357,16 @@ public class PlayerMenu
 
 		QuestGiverOfferReward offer = new();
 
-		quest.BuildQuestRewards(offer.Rewards, _session.GetPlayer());
+		quest.BuildQuestRewards(offer.Rewards, _session.Player);
 		offer.QuestGiverGUID = npcGUID;
 
 		// Is there a better way? what about game objects?
-		var creature = ObjectAccessor.GetCreature(_session.GetPlayer(), npcGUID);
+		var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
 		if (creature)
 		{
-			packet.QuestGiverCreatureID = creature.GetEntry();
-			offer.QuestGiverCreatureID = creature.GetCreatureTemplate().Entry;
+			packet.QuestGiverCreatureID = creature.Entry;
+			offer.QuestGiverCreatureID = creature.CreatureTemplate.Entry;
 		}
 
 		offer.QuestID = quest.Id;
@@ -408,7 +408,7 @@ public class PlayerMenu
 		packet.QuestTitle = quest.LogTitle;
 		packet.CompletionText = quest.RequestItemsText;
 
-		var locale = _session.GetSessionDbLocaleIndex();
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalCompletionText = quest.ConditionalRequestItemsText.Select(text =>
 												{
@@ -435,10 +435,10 @@ public class PlayerMenu
 		packet.QuestGiverGUID = npcGUID;
 
 		// Is there a better way? what about game objects?
-		var creature = ObjectAccessor.GetCreature(_session.GetPlayer(), npcGUID);
+		var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
 		if (creature)
-			packet.QuestGiverCreatureID = creature.GetCreatureTemplate().Entry;
+			packet.QuestGiverCreatureID = creature.CreatureTemplate.Entry;
 
 		packet.QuestID = quest.Id;
 

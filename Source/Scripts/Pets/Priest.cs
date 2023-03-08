@@ -28,7 +28,7 @@ namespace Scripts.Pets
 
 			public override void EnterEvadeMode(EvadeReason why)
 			{
-				if (!me.IsAlive())
+				if (!me.IsAlive)
 					return;
 
 				me.CombatStop(true);

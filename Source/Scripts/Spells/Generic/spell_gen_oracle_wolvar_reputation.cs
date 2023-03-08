@@ -44,8 +44,8 @@ internal class spell_gen_oracle_wolvar_reputation : SpellScript, IHasSpellEffect
 
 		// Set rep to baserep + basepoints (expecting spillover for oposite faction . become hated)
 		// Not when player already has equal or higher rep with this faction
-		if (player.GetReputationMgr().GetBaseReputation(factionEntry) < repChange)
-			player.GetReputationMgr().SetReputation(factionEntry, repChange);
+		if (player.ReputationMgr.GetBaseReputation(factionEntry) < repChange)
+			player.ReputationMgr.SetReputation(factionEntry, repChange);
 
 		// EFFECT_INDEX_2 most likely update at war State, we already handle this in SetReputation
 	}

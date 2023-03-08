@@ -32,7 +32,7 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
 		if (arcaneCharges != 0)
 		{
-			var auraEffect = caster.GetAuraEffect(MageSpells.ArcaneBarrageR3, 0, caster.GetGUID());
+			var auraEffect = caster.GetAuraEffect(MageSpells.ArcaneBarrageR3, 0, caster.GUID);
 
 			if (auraEffect != null)
 				caster.CastSpell(caster, MageSpells.ArcaneBarrageEnergize, new CastSpellExtraArgs(SpellValueMod.BasePoint0, arcaneCharges * auraEffect.Amount / 100));
@@ -47,12 +47,12 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		if (HitUnit.GetGUID() != _primaryTarget)
+		if (HitUnit.GUID != _primaryTarget)
 			HitDamage = MathFunctions.CalculatePct(HitDamage, GetEffectInfo(1).CalcValue(Caster));
 	}
 
 	private void MarkPrimaryTarget(int effIndex)
 	{
-		_primaryTarget = HitUnit.GetGUID();
+		_primaryTarget = HitUnit.GUID;
 	}
 }

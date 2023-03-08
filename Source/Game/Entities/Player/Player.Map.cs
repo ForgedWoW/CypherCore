@@ -182,7 +182,7 @@ public partial class Player
 
 		// remove items with area/map limitations (delete only for alive player to allow back in ghost mode)
 		// if player resurrected at teleport this will be applied in resurrect code
-		if (IsAlive())
+		if (IsAlive)
 			DestroyZoneLimitedItem(true, newZone);
 
 		// check some item equip limitations (in result lost CanTitanGrip at talent reset, for example)
@@ -201,7 +201,7 @@ public partial class Player
 			Global.OutdoorPvPMgr.HandlePlayerEnterZone(this, newZone);
 			Global.BattleFieldMgr.HandlePlayerEnterZone(this, newZone);
 			SendInitWorldStates(newZone, newArea); // only if really enters to new zone, not just area change, works strange...
-			var guild = GetGuild();
+			var guild = Guild;
 
 			if (guild)
 				guild.UpdateMemberData(this, GuildMemberData.ZoneId, newZone);
@@ -228,11 +228,11 @@ public partial class Player
 			{
 				PvpInfo.IsInHostileArea = true;
 			}
-			else if (IsWarModeLocalActive() || area.HasFlag(AreaFlags.Unk3))
+			else if (IsWarModeLocalActive || area.HasFlag(AreaFlags.Unk3))
 			{
 				if (area.HasFlag(AreaFlags.ContestedArea))
 				{
-					PvpInfo.IsInHostileArea = IsWarModeLocalActive();
+					PvpInfo.IsInHostileArea = IsWarModeLocalActive;
 				}
 				else
 				{
@@ -265,7 +265,7 @@ public partial class Player
 		}
 
 		// Treat players having a quest flagging for PvP as always in hostile area
-		PvpInfo.IsHostile = PvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive();
+		PvpInfo.IsHostile = PvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive;
 	}
 
 	public ZonePVPTypeOverride GetOverrideZonePvpType()
@@ -285,7 +285,7 @@ public partial class Player
 		if (map == null || map.GetInstanceId() != _pendingBindId)
 			return;
 
-		if (!IsGameMaster())
+		if (!IsGameMaster)
 			map.CreateInstanceLockForPlayer(this);
 	}
 
@@ -299,7 +299,7 @@ public partial class Player
 	{
 		var now = GameTime.GetSystemTime();
 
-		var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(GetGUID());
+		var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(GUID);
 
 		InstanceInfoPkt instanceInfo = new();
 
@@ -323,7 +323,7 @@ public partial class Player
 
 	public bool Satisfy(AccessRequirement ar, uint targetMap, TransferAbortParams abortParams = null, bool report = false)
 	{
-		if (!IsGameMaster())
+		if (!IsGameMaster)
 		{
 			byte levelMin = 0;
 			byte levelMax = 0;
@@ -357,10 +357,10 @@ public partial class Player
 			{
 				if (!WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
 				{
-					if (ar.LevelMin != 0 && GetLevel() < ar.LevelMin)
+					if (ar.LevelMin != 0 && Level < ar.LevelMin)
 						levelMin = ar.LevelMin;
 
-					if (ar.LevelMax != 0 && GetLevel() > ar.LevelMax)
+					if (ar.LevelMax != 0 && Level > ar.LevelMax)
 						levelMax = ar.LevelMax;
 				}
 
@@ -375,15 +375,15 @@ public partial class Player
 					missingItem = ar.Item2;
 				}
 
-				if (GetTeam() == Team.Alliance && ar.QuestA != 0 && !GetQuestRewardStatus(ar.QuestA))
+				if (Team == TeamFaction.Alliance && ar.QuestA != 0 && !GetQuestRewardStatus(ar.QuestA))
 					missingQuest = ar.QuestA;
-				else if (GetTeam() == Team.Horde && ar.QuestH != 0 && !GetQuestRewardStatus(ar.QuestH))
+				else if (Team == TeamFaction.Horde && ar.QuestH != 0 && !GetQuestRewardStatus(ar.QuestH))
 					missingQuest = ar.QuestH;
 
 				var leader = this;
-				var leaderGuid = GetGroup() != null ? GetGroup().GetLeaderGUID() : GetGUID();
+				var leaderGuid = GetGroup() != null ? GetGroup().GetLeaderGUID() : GUID;
 
-				if (leaderGuid != GetGUID())
+				if (leaderGuid != GUID)
 					leader = Global.ObjAccessor.FindPlayer(leaderGuid);
 
 				if (ar.Achievement != 0)
@@ -413,11 +413,11 @@ public partial class Player
 					}
 					else if (missingItem != 0)
 					{
-						GetSession().SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, Global.ObjectMgr.GetItemTemplate(missingItem).GetName());
+						Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, Global.ObjectMgr.GetItemTemplate(missingItem).GetName());
 					}
 					else if (levelMin != 0)
 					{
-						GetSession().SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
+						Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
 					}
 				}
 
@@ -431,7 +431,7 @@ public partial class Player
 	public bool CheckInstanceValidity(bool isLogin)
 	{
 		// game masters' instances are always valid
-		if (IsGameMaster())
+		if (IsGameMaster)
 			return true;
 
 		// non-instances are always valid
@@ -567,7 +567,7 @@ public partial class Player
 		if (dungeonEncounter == null)
 			return false;
 
-		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GetGUID(), new MapDb2Entries(GetMap().GetEntry(), GetMap().GetMapDifficulty()));
+		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(GetMap().GetEntry(), GetMap().GetMapDifficulty()));
 
 		if (instanceLock == null)
 			return false;
@@ -591,7 +591,7 @@ public partial class Player
 					_mirrorTimerFlags |= PlayerUnderwaterState.InWater;
 
 			// Fatigue bar state (if not on flight path or transport)
-			if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.DarkWater) && !IsInFlight() && GetTransport() == null)
+			if (newLiquidData.type_flags.HasAnyFlag(LiquidHeaderTypeFlags.DarkWater) && !IsInFlight && Transport == null)
 				_mirrorTimerFlags |= PlayerUnderwaterState.InDarkWater;
 
 			// Lava state (any contact)
@@ -658,7 +658,7 @@ public partial class Player
 			RemovePvpFlag(UnitPVPStateFlags.Sanctuary);
 		}
 
-		var areaRestFlag = (GetTeam() == Team.Alliance) ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
+		var areaRestFlag = (Team == TeamFaction.Alliance) ? AreaFlags.RestZoneAlliance : AreaFlags.RestZoneHorde;
 
 		if (area != null && area.HasFlag(areaRestFlag))
 			_restMgr.SetRestFlag(RestFlag.FactionArea);
@@ -674,7 +674,7 @@ public partial class Player
 
 	bool IsInstanceLoginGameMasterException()
 	{
-		if (!CanBeGameMaster())
+		if (!CanBeGameMaster)
 			return false;
 
 		SendSysMessage(CypherStrings.InstanceLoginGamemasterException);

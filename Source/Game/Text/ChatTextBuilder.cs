@@ -54,7 +54,7 @@ namespace Game.Chat
             if (TranslatedPacket == null)
             {
                 TranslatedPacket = new();
-                TranslatedPacket.Initialize(Type, Language, Sender, Receiver, Global.LanguageMgr.Translate(Text, (uint)Language, player.GetSession().GetSessionDbcLocale()), AchievementId, "", Locale);
+                TranslatedPacket.Initialize(Type, Language, Sender, Receiver, Global.LanguageMgr.Translate(Text, (uint)Language, player.Session.SessionDbcLocale), AchievementId, "", Locale);
                 TranslatedPacket.Write();
             }
 

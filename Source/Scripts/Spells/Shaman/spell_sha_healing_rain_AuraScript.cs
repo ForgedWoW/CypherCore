@@ -20,7 +20,7 @@ internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 
 	public void SetVisualDummy(TempSummon summon)
 	{
-		_visualDummy = summon.GetGUID();
+		_visualDummy = summon.GUID;
 		_pos = summon.Location;
 	}
 

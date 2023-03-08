@@ -13,12 +13,12 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.LogoutRequest)]
         void HandleLogoutRequest(LogoutRequest packet)
         {
-            Player pl = GetPlayer();
-            if (!GetPlayer().GetLootGUID().IsEmpty())
-                GetPlayer().SendLootReleaseAll();
+            Player pl = Player;
+            if (!Player.GetLootGUID().IsEmpty)
+                Player.SendLootReleaseAll();
 
             bool instantLogout = (pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat() ||
-                pl.IsInFlight() || HasPermission(RBACPermissions.InstantLogout));
+                pl.                IsInFlight || HasPermission(RBACPermissions.InstantLogout));
 
             bool canLogoutInCombat = pl.HasPlayerFlag(PlayerFlags.Resting);
 
@@ -51,7 +51,7 @@ namespace Game
             // not set flags if player can't free move to prevent lost state at logout cancel
             if (pl.CanFreeMove())
             {
-                if (pl.GetStandState() == UnitStandStateType.Stand)
+                if (pl.StandState == UnitStandStateType.Stand)
                     pl.SetStandState(UnitStandStateType.Sit);
                 pl.SetRooted(true);
                 pl.SetUnitFlag(UnitFlags.Stunned);
@@ -64,7 +64,7 @@ namespace Game
         void HandleLogoutCancel(LogoutCancel packet)
         {
             // Player have already logged out serverside, too late to cancel
-            if (!GetPlayer())
+            if (!Player)
                 return;
 
             SetLogoutStartTime(0);
@@ -72,16 +72,16 @@ namespace Game
             SendPacket(new LogoutCancelAck());
 
             // not remove flags if can't free move - its not set in Logout request code.
-            if (GetPlayer().CanFreeMove())
+            if (Player.CanFreeMove())
             {
                 //!we can move again
-                GetPlayer().SetRooted(false);
+                Player.SetRooted(false);
 
                 //! Stand Up
-                GetPlayer().SetStandState(UnitStandStateType.Stand);
+                Player.SetStandState(UnitStandStateType.Stand);
 
                 //! DISABLE_ROTATE
-                GetPlayer().RemoveUnitFlag(UnitFlags.Stunned);
+                Player.RemoveUnitFlag(UnitFlags.Stunned);
             }
         }
     }

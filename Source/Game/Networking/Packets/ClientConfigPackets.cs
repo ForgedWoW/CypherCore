@@ -5,113 +5,108 @@ using Framework.Constants;
 using Framework.IO;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+public class AccountDataTimes : ServerPacket
 {
-    public class AccountDataTimes : ServerPacket
-    {
-        public AccountDataTimes() : base(ServerOpcodes.AccountDataTimes) { }
+	public ObjectGuid PlayerGuid;
+	public long ServerTime;
+	public long[] AccountTimes = new long[(int)AccountDataTypes.Max];
+	public AccountDataTimes() : base(ServerOpcodes.AccountDataTimes) { }
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(PlayerGuid);
-            _worldPacket.WriteInt64(ServerTime);
-            foreach (var accounttime in AccountTimes)
-                _worldPacket.WriteInt64(accounttime);
-        }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(PlayerGuid);
+		_worldPacket.WriteInt64(ServerTime);
 
-        public ObjectGuid PlayerGuid;
-        public long ServerTime;
-        public long[] AccountTimes = new long[(int)AccountDataTypes.Max];
-    }
+		foreach (var accounttime in AccountTimes)
+			_worldPacket.WriteInt64(accounttime);
+	}
+}
 
-    public class ClientCacheVersion : ServerPacket
-    {
-        public ClientCacheVersion() : base(ServerOpcodes.CacheVersion) { }
+public class ClientCacheVersion : ServerPacket
+{
+	public uint CacheVersion = 0;
+	public ClientCacheVersion() : base(ServerOpcodes.CacheVersion) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(CacheVersion);
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(CacheVersion);
+	}
+}
 
-        public uint CacheVersion = 0;
-    }
+public class RequestAccountData : ClientPacket
+{
+	public ObjectGuid PlayerGuid;
+	public AccountDataTypes DataType = 0;
+	public RequestAccountData(WorldPacket packet) : base(packet) { }
 
-    public class RequestAccountData : ClientPacket
-    {
-        public RequestAccountData(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		PlayerGuid = _worldPacket.ReadPackedGuid();
+		DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
+	}
+}
 
-        public override void Read()
-        {
-            PlayerGuid = _worldPacket.ReadPackedGuid();
-            DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
-        }
+public class UpdateAccountData : ServerPacket
+{
+	public ObjectGuid Player;
+	public long Time; // UnixTime
+	public uint Size; // decompressed size
+	public AccountDataTypes DataType = 0;
+	public ByteBuffer CompressedData;
+	public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
 
-        public ObjectGuid PlayerGuid;
-        public AccountDataTypes DataType = 0;
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(Player);
+		_worldPacket.WriteInt64(Time);
+		_worldPacket.WriteUInt32(Size);
+		_worldPacket.WriteBits(DataType, 4);
 
-    public class UpdateAccountData : ServerPacket
-    {
-        public UpdateAccountData() : base(ServerOpcodes.UpdateAccountData) { }
+		if (CompressedData == null)
+		{
+			_worldPacket.WriteUInt32(0);
+		}
+		else
+		{
+			var bytes = CompressedData.GetData();
+			_worldPacket.WriteInt32(bytes.Length);
+			_worldPacket.WriteBytes(bytes);
+		}
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(Player);
-            _worldPacket.WriteInt64(Time);
-            _worldPacket.WriteUInt32(Size);
-            _worldPacket.WriteBits(DataType, 4);
+public class UserClientUpdateAccountData : ClientPacket
+{
+	public ObjectGuid PlayerGuid;
+	public long Time; // UnixTime
+	public uint Size; // decompressed size
+	public AccountDataTypes DataType = 0;
+	public ByteBuffer CompressedData;
+	public UserClientUpdateAccountData(WorldPacket packet) : base(packet) { }
 
-            if (CompressedData == null)
-                _worldPacket.WriteUInt32(0);
-            else
-            {
-                var bytes = CompressedData.GetData();
-                _worldPacket.WriteInt32(bytes.Length);
-                _worldPacket.WriteBytes(bytes);
-            }
-        }
+	public override void Read()
+	{
+		PlayerGuid = _worldPacket.ReadPackedGuid();
+		Time = _worldPacket.ReadInt64();
+		Size = _worldPacket.ReadUInt32();
+		DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
 
-        public ObjectGuid Player;
-        public long Time; // UnixTime
-        public uint Size; // decompressed size
-        public AccountDataTypes DataType = 0;
-        public ByteBuffer CompressedData;
-    }
+		var compressedSize = _worldPacket.ReadUInt32();
 
-    public class UserClientUpdateAccountData : ClientPacket
-    {
-        public UserClientUpdateAccountData(WorldPacket packet) : base(packet) { }
+		if (compressedSize != 0)
+			CompressedData = new ByteBuffer(_worldPacket.ReadBytes(compressedSize));
+	}
+}
 
-        public override void Read()
-        {
-            PlayerGuid = _worldPacket.ReadPackedGuid();
-            Time = _worldPacket.ReadInt64();
-            Size = _worldPacket.ReadUInt32();
-            DataType = (AccountDataTypes)_worldPacket.ReadBits<uint>(4);
+class SetAdvancedCombatLogging : ClientPacket
+{
+	public bool Enable;
+	public SetAdvancedCombatLogging(WorldPacket packet) : base(packet) { }
 
-            uint compressedSize = _worldPacket.ReadUInt32();
-            if (compressedSize != 0)
-            {
-                CompressedData = new ByteBuffer(_worldPacket.ReadBytes(compressedSize));
-            }
-        }
-
-        public ObjectGuid PlayerGuid;
-        public long Time; // UnixTime
-        public uint Size; // decompressed size
-        public AccountDataTypes DataType = 0;
-        public ByteBuffer CompressedData;
-    }
-
-    class SetAdvancedCombatLogging : ClientPacket
-    {
-        public SetAdvancedCombatLogging(WorldPacket packet) : base(packet) { }
-
-        public override void Read()
-        {
-            Enable = _worldPacket.HasBit();
-        }
-
-        public bool Enable;
-    }
+	public override void Read()
+	{
+		Enable = _worldPacket.HasBit();
+	}
 }

@@ -21,6 +21,12 @@ public class MovementInfo
 	public float Pitch { get; set; }
 	public float StepUpStartElevation { get; set; }
 
+	public MovementFlag MovementFlags
+	{
+		get => _flags;
+		set => _flags = value;
+	}
+
 	public MovementInfo()
 	{
 		Guid = ObjectGuid.Empty;
@@ -32,16 +38,6 @@ public class MovementInfo
 		Pos = new Position();
 		Transport.Reset();
 		Jump.Reset();
-	}
-
-	public MovementFlag GetMovementFlags()
-	{
-		return _flags;
-	}
-
-	public void SetMovementFlags(MovementFlag f)
-	{
-		_flags = f;
 	}
 
 	public void AddMovementFlag(MovementFlag f)

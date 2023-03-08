@@ -20,7 +20,7 @@ class PlayerAtMinimumRangeAway : ICheck<Player>
 	public bool Invoke(Player player)
 	{
 		//No threat list check, must be done explicit if expected to be in combat with creature
-		if (!player.IsGameMaster() && player.IsAlive() && !_unit.IsWithinDist(player, _fRange, false))
+		if (!player.IsGameMaster && player.IsAlive && !_unit.IsWithinDist(player, _fRange, false))
 			return true;
 
 		return false;

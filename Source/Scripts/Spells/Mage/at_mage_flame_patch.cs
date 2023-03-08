@@ -28,7 +28,7 @@ public class at_mage_flame_patch : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
 		timeInterval += (int)diff;

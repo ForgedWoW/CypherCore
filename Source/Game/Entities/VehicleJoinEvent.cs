@@ -29,17 +29,17 @@ public class VehicleJoinEvent : BasicEvent
 		Cypher.Assert(Target != null && Target.GetBase().IsInWorld);
 
 		var vehicleAuras = Target.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
-		var aurEffect = vehicleAuras.Find(aurEff => aurEff.CasterGuid == Passenger.GetGUID());
+		var aurEffect = vehicleAuras.Find(aurEff => aurEff.CasterGuid == Passenger.GUID);
 		Cypher.Assert(aurEffect != null);
 
-		var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.GetBase().GetGUID());
+		var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.GetBase().GUID);
 		Cypher.Assert(aurApp != null && !aurApp.HasRemoveMode);
 
 		Target.RemovePendingEventsForSeat(Seat.Key);
 		Target.RemovePendingEventsForPassenger(Passenger);
 
 		// Passenger might've died in the meantime - abort if this is the case
-		if (!Passenger.IsAlive())
+		if (!Passenger.IsAlive)
 		{
 			Abort(0);
 
@@ -52,7 +52,7 @@ public class VehicleJoinEvent : BasicEvent
 			Passenger.ExitVehicle();
 
 		Passenger.SetVehicle(Target);
-		Seat.Value.Passenger.Guid = Passenger.GetGUID();
+		Seat.Value.Passenger.Guid = Passenger.GUID;
 		Seat.Value.Passenger.IsUninteractible = Passenger.HasUnitFlag(UnitFlags.Uninteractible);
 		Seat.Value.Passenger.IsGravityDisabled = Passenger.HasUnitMovementFlag(MovementFlag.DisableGravity);
 
@@ -105,7 +105,7 @@ public class VehicleJoinEvent : BasicEvent
 		Passenger.MovementInfo.Transport.Pos.Relocate(x, y, z, o);
 		Passenger.MovementInfo.Transport.Time = 0;
 		Passenger.MovementInfo.Transport.Seat = Seat.Key;
-		Passenger.MovementInfo.Transport.Guid = Target.GetBase().GetGUID();
+		Passenger.MovementInfo.Transport.Guid = Target.GetBase().GUID;
 
 		if (Target.GetBase().IsTypeId(TypeId.Unit) && Passenger.IsTypeId(TypeId.Player) && Seat.Value.SeatInfo.HasFlag(VehicleSeatFlags.CanControl))
 			// handles SMSG_CLIENT_CONTROL
@@ -129,7 +129,7 @@ public class VehicleJoinEvent : BasicEvent
 			init.SetTransportEnter();
 		};
 
-		Passenger.GetMotionMaster().LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
+		Passenger.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
 
 		foreach (var (_, threatRef) in Passenger.GetThreatManager().GetThreatenedByMeList())
 			threatRef.GetOwner().GetThreatManager().AddThreat(Target.GetBase(), threatRef.GetThreat(), null, true, true);
@@ -160,10 +160,10 @@ public class VehicleJoinEvent : BasicEvent
 		{
 			Log.outDebug(LogFilter.Vehicle,
 						"Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
-						Passenger.GetGUID().ToString(),
-						Passenger.GetEntry(),
-						Target.GetBase().GetGUID().ToString(),
-						Target.GetBase().GetEntry(),
+						Passenger.GUID.ToString(),
+						Passenger.Entry,
+						Target.GetBase().GUID.ToString(),
+						Target.GetBase().Entry,
 						Seat.Key);
 
 			// Remove the pending event when Abort was called on the event directly
@@ -172,14 +172,14 @@ public class VehicleJoinEvent : BasicEvent
 			// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
 			// When this code is triggered it means that something went wrong in @Vehicle.AddPassenger, and we should remove
 			// the aura manually.
-			Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GetGUID());
+			Target.GetBase().RemoveAurasByType(AuraType.ControlVehicle, Passenger.GUID);
 		}
 		else
 		{
 			Log.outDebug(LogFilter.Vehicle,
 						"Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
-						Passenger.GetGUID().ToString(),
-						Passenger.GetEntry(),
+						Passenger.GUID.ToString(),
+						Passenger.Entry,
 						Seat.Key);
 		}
 

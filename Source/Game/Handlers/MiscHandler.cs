@@ -31,7 +31,7 @@ namespace Game
             AccountData adata = GetAccountData(request.DataType);
 
             UpdateAccountData data = new();
-            data.Player = GetPlayer() ? GetPlayer().GetGUID() : ObjectGuid.Empty;
+            data.Player = Player ? Player.GUID : ObjectGuid.Empty;
             data.Time = (uint)adata.Time;
             data.DataType = request.DataType;
 
@@ -69,33 +69,33 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetSelection)]
         void HandleSetSelection(SetSelection packet)
         {
-            GetPlayer().SetSelection(packet.Selection);
+            Player.SetSelection(packet.Selection);
         }
 
         [WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
         void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
         {
-            Log.outError(LogFilter.Network, "Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), GetPlayerName(), GetPlayer().GetGUID().ToString());
+            Log.outError(LogFilter.Network, "Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
             // If create object failed for current player then client will be stuck on loading screen
-            if (GetPlayer().GetGUID() == objectUpdateFailed.ObjectGUID)
+            if (Player.GUID == objectUpdateFailed.ObjectGUID)
             {
                 LogoutPlayer(true);
                 return;
             }
 
             // Pretend we've never seen this object
-            GetPlayer().ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
+            Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
         void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
         {
-            Log.outError(LogFilter.Network, "Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), GetPlayerName(), GetPlayer().GetGUID().ToString());
+            Log.outError(LogFilter.Network, "Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
             // Client received values update after destroying object
             // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-            GetPlayer().ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
+            Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetActionButton)]
@@ -105,46 +105,49 @@ namespace Game
             uint type = packet.GetButtonType();
 
             if (packet.Action == 0)
-                GetPlayer().RemoveActionButton(packet.Index);
+                Player.RemoveActionButton(packet.Index);
             else
-                GetPlayer().AddActionButton(packet.Index, action, type);
+                Player.AddActionButton(packet.Index, action, type);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
         void HandleSetActionBarToggles(SetActionBarToggles packet)
         {
-            if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
+            if (!Player)                                        // ignore until not logged (check needed because STATUS_AUTHED)
             {
                 if (packet.Mask != 0)
                     Log.outError(LogFilter.Network, "WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
                 return;
             }
 
-            GetPlayer().SetMultiActionBars(packet.Mask);
+            Player.SetMultiActionBars(packet.Mask);
         }
 
         [WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
         void HandleCompleteCinematic(CompleteCinematic packet)
         {
             // If player has sight bound to visual waypoint NPC we should remove it
-            GetPlayer().GetCinematicMgr().EndCinematic();
+            Player.            // If player has sight bound to visual waypoint NPC we should remove it
+            CinematicMgr.EndCinematic();
         }
 
         [WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
         void HandleNextCinematicCamera(NextCinematicCamera packet)
         {
             // Sent by client when cinematic actually begun. So we begin the server side process
-            GetPlayer().GetCinematicMgr().NextCinematicCamera();
+            Player.            // Sent by client when cinematic actually begun. So we begin the server side process
+            CinematicMgr.NextCinematicCamera();
         }
 
         [WorldPacketHandler(ClientOpcodes.CompleteMovie)]
         void HandleCompleteMovie(CompleteMovie packet)
         {
-            uint movie = _player.GetMovie();
+            uint movie = _player.Movie;
             if (movie == 0)
                 return;
 
-            _player.SetMovie(0);
+            _player.
+            Movie = 0;
             Global.ScriptMgr.ForEach<IPlayerOnMovieComplete>(p => p.OnMovieComplete(_player, movie));
         }
 
@@ -157,11 +160,11 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.AreaTrigger, Processing = PacketProcessing.Inplace)]
         void HandleAreaTrigger(AreaTriggerPkt packet)
         {
-            Player player = GetPlayer();
-            if (player.IsInFlight())
+            Player player = Player;
+            if (player.IsInFlight)
             {
                 Log.outDebug(LogFilter.Network, "HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
-                    player.GetName(), player.GetGUID().ToString(), packet.AreaTriggerID);
+                    player.GetName(), player.GUID.ToString(), packet.AreaTriggerID);
                 return;
             }
 
@@ -169,14 +172,14 @@ namespace Game
             if (atEntry == null)
             {
                 Log.outDebug(LogFilter.Network, "HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
-                    player.GetName(), player.GetGUID().ToString(), packet.AreaTriggerID);
+                    player.GetName(), player.GUID.ToString(), packet.AreaTriggerID);
                 return;
             }
 
             if (packet.Entered && !player.IsInAreaTriggerRadius(atEntry))
             {
                 Log.outDebug(LogFilter.Network, "HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
-                    player.GetName(), player.GetGUID().ToString(), packet.AreaTriggerID);
+                    player.GetName(), player.GUID.ToString(), packet.AreaTriggerID);
                 return;
             }
 
@@ -189,7 +192,7 @@ namespace Game
             if (Global.ScriptMgr.OnAreaTrigger(player, atEntry, packet.Entered))
                 return;
 
-            if (player.IsAlive())
+            if (player.IsAlive)
             {
                 // not using Player.UpdateQuestObjectiveProgress, ObjectID in quest_objectives can be set to -1, areatrigger_involvedrelation then holds correct id
                 List<uint> quests = Global.ObjectMgr.GetQuestsForAreaTrigger(packet.AreaTriggerID);
@@ -237,7 +240,8 @@ namespace Game
             if (Global.ObjectMgr.IsTavernAreaTrigger(packet.AreaTriggerID))
             {
                 // set resting flag we are in the inn
-                player.GetRestMgr().SetRestFlag(RestFlag.Tavern, atEntry.Id);
+                player.                // set resting flag we are in the inn
+                RestMgr.SetRestFlag(RestFlag.Tavern, atEntry.Id);
 
                 if (Global.WorldMgr.IsFFAPvPRealm())
                     player.RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
@@ -262,12 +266,12 @@ namespace Game
             bool teleported = false;
             if (player.Location.MapId != at.target_mapId)
             {
-                if (!player.IsAlive())
+                if (!player.IsAlive)
                 {
-                    if (player.HasCorpse())
+                    if (player.HasCorpse)
                     {
                         // let enter in ghost mode in instance that connected to inner instance with corpse
-                        uint corpseMap = player.GetCorpseLocation().MapId;
+                        uint corpseMap = player.CorpseLocation.MapId;
                         do
                         {
                             if (corpseMap == at.target_mapId)
@@ -326,9 +330,9 @@ namespace Game
                     if (denyReason.Reason != TransferAbortReason.NeedGroup)
                         player.SendTransferAborted(at.target_mapId, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
 
-                    if (!player.IsAlive() && player.HasCorpse())
+                    if (!player.IsAlive && player.HasCorpse)
                     {
-                        if (player.GetCorpseLocation().MapId == at.target_mapId)
+                        if (player.CorpseLocation.MapId == at.target_mapId)
                         {
                             player.ResurrectPlayer(0.5f);
                             player.SpawnCorpseBones();
@@ -372,7 +376,7 @@ namespace Game
                     {
                         Group group = player.GetGroup();
                         Difficulty difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyId(mapEntry);
-                        ObjectGuid instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GetGUID();
+                        ObjectGuid instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GUID;
                         InstanceLock instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, Global.DB2Mgr.GetDownscaledMapDifficultyData(at.target_mapId, ref difficulty)));
                         if (instanceLock != null)
                             entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceLock.GetData().EntranceWorldSafeLocId);
@@ -390,8 +394,8 @@ namespace Game
         void HandlePlayedTime(RequestPlayedTime packet)
         {
             PlayedTime playedTime = new();
-            playedTime.TotalTime = GetPlayer().GetTotalPlayedTime();
-            playedTime.LevelTime = GetPlayer().GetLevelPlayedTime();
+            playedTime.TotalTime = Player.TotalPlayedTime;
+            playedTime.LevelTime = Player.LevelPlayedTime;
             playedTime.TriggerEvent = packet.TriggerScriptEvent;  // 0-1 - will not show in chat frame
             SendPacket(playedTime);
         }
@@ -401,20 +405,20 @@ namespace Game
         {
             if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
             {
-                Log.outError(LogFilter.Player, "HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", GetPlayerName(), PlayerConst.MaxCUFProfiles);
+                Log.outError(LogFilter.Player, "HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
                 return;
             }
 
             for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
-                GetPlayer().SaveCUFProfile(i, packet.CUFProfiles[i]);
+                Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
 
             for (byte i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
-                GetPlayer().SaveCUFProfile(i, null);
+                Player.SaveCUFProfile(i, null);
         }
 
         public void SendLoadCUFProfiles()
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             LoadCUFProfiles loadCUFProfiles = new();
 
@@ -431,17 +435,17 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
         void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
         {
-            GetPlayer().SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+            Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
         }
 
         [WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
         void HandleMountSpecialAnim(MountSpecial mountSpecial)
         {
             SpecialMountAnim specialMountAnim = new();
-            specialMountAnim.UnitGUID = _player.GetGUID();
+            specialMountAnim.UnitGUID = _player.GUID;
             specialMountAnim.SpellVisualKitIDs.AddRange(mountSpecial.SpellVisualKitIDs);
             specialMountAnim.SequenceVariation = mountSpecial.SequenceVariation;
-            GetPlayer().SendMessageToSet(specialMountAnim, false);
+            Player.SendMessageToSet(specialMountAnim, false);
         }
 
         [WorldPacketHandler(ClientOpcodes.MountSetFavorite)]
@@ -507,19 +511,19 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.TogglePvp)]
         void HandleTogglePvP(TogglePvP packet)
         {
-            if (!GetPlayer().HasPlayerFlag(PlayerFlags.InPVP))
+            if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
             {
-                GetPlayer().SetPlayerFlag(PlayerFlags.InPVP);
-                GetPlayer().RemovePlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().IsPvP() || GetPlayer().PvpInfo.EndTimer != 0)
-                    GetPlayer().UpdatePvP(true, true);
+                Player.SetPlayerFlag(PlayerFlags.InPVP);
+                Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+                if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                    Player.UpdatePvP(true, true);
             }
-            else if (!GetPlayer().IsWarModeLocalActive())
+            else if (!Player.IsWarModeLocalActive)
             {
-                GetPlayer().RemovePlayerFlag(PlayerFlags.InPVP);
-                GetPlayer().SetPlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().PvpInfo.IsHostile && GetPlayer().IsPvP())
-                    GetPlayer().PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+                Player.RemovePlayerFlag(PlayerFlags.InPVP);
+                Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+                if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                    Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
             }
         }
 
@@ -528,17 +532,17 @@ namespace Game
         {
             if (packet.EnablePVP)
             {
-                GetPlayer().SetPlayerFlag(PlayerFlags.InPVP);
-                GetPlayer().RemovePlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().IsPvP() || GetPlayer().PvpInfo.EndTimer != 0)
-                    GetPlayer().UpdatePvP(true, true);
+                Player.SetPlayerFlag(PlayerFlags.InPVP);
+                Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+                if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
+                    Player.UpdatePvP(true, true);
             }
-            else if (!GetPlayer().IsWarModeLocalActive())
+            else if (!Player.IsWarModeLocalActive)
             {
-                GetPlayer().RemovePlayerFlag(PlayerFlags.InPVP);
-                GetPlayer().SetPlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().PvpInfo.IsHostile && GetPlayer().IsPvP())
-                    GetPlayer().PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+                Player.RemovePlayerFlag(PlayerFlags.InPVP);
+                Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+                if (!Player.PvpInfo.IsHostile && Player.IsPvP)
+                    Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
             }
         }
 
@@ -553,20 +557,20 @@ namespace Game
         {
             if (farSight.Enable)
             {
-                Log.outDebug(LogFilter.Network, "Added FarSight {0} to player {1}", GetPlayer().ActivePlayerData.FarsightObject.ToString(), GetPlayer().GetGUID().ToString());
-                WorldObject target = GetPlayer().GetViewpoint();
+                Log.outDebug(LogFilter.Network, "Added FarSight {0} to player {1}", Player.ActivePlayerData.FarsightObject.ToString(), Player.GUID.ToString());
+                WorldObject target = Player.Viewpoint;
                 if (target)
-                    GetPlayer().SetSeer(target);
+                    Player.SetSeer(target);
                 else
-                    Log.outDebug(LogFilter.Network, "Player {0} (GUID: {1}) requests non-existing seer {2}", GetPlayer().GetName(), GetPlayer().GetGUID().ToString(), GetPlayer().ActivePlayerData.FarsightObject.ToString());
+                    Log.outDebug(LogFilter.Network, "Player {0} (GUID: {1}) requests non-existing seer {2}", Player.GetName(), Player.GUID.ToString(), Player.ActivePlayerData.FarsightObject.ToString());
             }
             else
             {
-                Log.outDebug(LogFilter.Network, "Player {0} set vision to self", GetPlayer().GetGUID().ToString());
-                GetPlayer().SetSeer(GetPlayer());
+                Log.outDebug(LogFilter.Network, "Player {0} set vision to self", Player.GUID.ToString());
+                Player.SetSeer(Player);
             }
 
-            GetPlayer().UpdateVisibilityForPlayer();
+            Player.UpdateVisibilityForPlayer();
         }
 
         [WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
@@ -575,13 +579,13 @@ namespace Game
             // -1 at none
             if (packet.TitleID > 0)
             {
-                if (!GetPlayer().HasTitle((uint)packet.TitleID))
+                if (!Player.HasTitle((uint)packet.TitleID))
                     return;
             }
             else
                 packet.TitleID = 0;
 
-            GetPlayer().SetChosenTitle((uint)packet.TitleID);
+            Player.SetChosenTitle((uint)packet.TitleID);
         }
 
         [WorldPacketHandler(ClientOpcodes.ResetInstances)]
@@ -591,10 +595,10 @@ namespace Game
             if (map != null && map.Instanceable())
                 return;
 
-            Group group = GetPlayer().GetGroup();
+            Group group = Player.GetGroup();
             if (group)
             {
-                if (!group.IsLeader(GetPlayer().GetGUID()))
+                if (!group.IsLeader(Player.GUID))
                     return;
 
                 if (group.IsLFGGroup())
@@ -603,7 +607,7 @@ namespace Game
                 group.ResetInstances(InstanceResetMethod.Manual, _player);
             }
             else
-                GetPlayer().ResetInstances(InstanceResetMethod.Manual);
+                Player.ResetInstances(InstanceResetMethod.Manual);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetDungeonDifficulty)]
@@ -613,41 +617,41 @@ namespace Game
             if (difficultyEntry == null)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), setDungeonDifficulty.DifficultyID);
+                    Player.                    GUID.ToString(), setDungeonDifficulty.DifficultyID);
                 return;
             }
 
             if (difficultyEntry.InstanceType != MapTypes.Instance)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), difficultyEntry.Id);
+                    Player.                    GUID.ToString(), difficultyEntry.Id);
                 return;
             }
 
             if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), difficultyEntry.Id);
+                    Player.                    GUID.ToString(), difficultyEntry.Id);
                 return;
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == GetPlayer().GetDungeonDifficultyId())
+            if (difficultyID == Player.GetDungeonDifficultyId())
                 return;
 
             // cannot reset while in an instance
-            Map map = GetPlayer().GetMap();
+            Map map = Player.GetMap();
             if (map && map.Instanceable())
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetDungeonDifficulty: player (Name: {0}, {1}) tried to reset the instance while player is inside!",
-                    GetPlayer().GetName(), GetPlayer().GetGUID().ToString());
+                    Player.GetName(), Player.GUID.ToString());
                 return;
             }
 
-            Group group = GetPlayer().GetGroup();
+            Group group = Player.GetGroup();
             if (group)
             {
-                if (!group.IsLeader(_player.GetGUID()))
+                if (!group.IsLeader(_player.GUID))
                     return;
 
                 if (group.IsLFGGroup())
@@ -659,9 +663,9 @@ namespace Game
             }
             else
             {
-                GetPlayer().ResetInstances(InstanceResetMethod.OnChangeDifficulty);
-                GetPlayer().SetDungeonDifficultyId(difficultyID);
-                GetPlayer().SendDungeonDifficulty();
+                Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
+                Player.SetDungeonDifficultyId(difficultyID);
+                Player.SendDungeonDifficulty();
             }
         }
 
@@ -672,48 +676,48 @@ namespace Game
             if (difficultyEntry == null)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), setRaidDifficulty.DifficultyID);
+                    Player.                    GUID.ToString(), setRaidDifficulty.DifficultyID);
                 return;
             }
 
             if (difficultyEntry.InstanceType != MapTypes.Raid)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), difficultyEntry.Id);
+                    Player.                    GUID.ToString(), difficultyEntry.Id);
                 return;
             }
 
             if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
-                    GetPlayer().GetGUID().ToString(), difficultyEntry.Id);
+                    Player.                    GUID.ToString(), difficultyEntry.Id);
                 return;
             }
 
             if (((int)(difficultyEntry.Flags & DifficultyFlags.Legacy) != 0) != (setRaidDifficulty.Legacy != 0))
             {
                 Log.outDebug(LogFilter.Network, "WorldSession.HandleSetDungeonDifficulty: {0} sent not matching legacy difficulty {1}!",
-                    GetPlayer().GetGUID().ToString(), difficultyEntry.Id);
+                    Player.                    GUID.ToString(), difficultyEntry.Id);
                 return;
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? GetPlayer().GetLegacyRaidDifficultyId() : GetPlayer().GetRaidDifficultyId()))
+            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? Player.GetLegacyRaidDifficultyId() : Player.GetRaidDifficultyId()))
                 return;
 
             // cannot reset while in an instance
-            Map map = GetPlayer().GetMap();
+            Map map = Player.GetMap();
             if (map && map.Instanceable())
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetRaidDifficulty: player (Name: {0}, {1} tried to reset the instance while inside!",
-                    GetPlayer().GetName(), GetPlayer().GetGUID().ToString());
+                    Player.GetName(), Player.GUID.ToString());
                 return;
             }
 
-            Group group = GetPlayer().GetGroup();
+            Group group = Player.GetGroup();
             if (group)
             {
-                if (!group.IsLeader(_player.GetGUID()))
+                if (!group.IsLeader(_player.GUID))
                     return;
 
                 if (group.IsLFGGroup())
@@ -728,13 +732,13 @@ namespace Game
             }
             else
             {
-                GetPlayer().ResetInstances(InstanceResetMethod.OnChangeDifficulty);
+                Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
                 if (setRaidDifficulty.Legacy != 0)
-                    GetPlayer().SetLegacyRaidDifficultyId(difficultyID);
+                    Player.SetLegacyRaidDifficultyId(difficultyID);
                 else
-                    GetPlayer().SetRaidDifficultyId(difficultyID);
+                    Player.SetRaidDifficultyId(difficultyID);
 
-                GetPlayer().SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
+                Player.SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
             }
         }
 
@@ -750,27 +754,27 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
         void HandleGuildSetFocusedAchievement(GuildSetFocusedAchievement setFocusedAchievement)
         {
-            Guild guild = Global.GuildMgr.GetGuildById(GetPlayer().GetGuildId());
+            Guild guild = Global.GuildMgr.GetGuildById(Player.GuildId);
             if (guild)
-                guild.GetAchievementMgr().SendAchievementInfo(GetPlayer(), setFocusedAchievement.AchievementID);
+                guild.GetAchievementMgr().SendAchievementInfo(Player, setFocusedAchievement.AchievementID);
         }
 
         [WorldPacketHandler(ClientOpcodes.InstanceLockResponse)]
         void HandleInstanceLockResponse(InstanceLockResponse packet)
         {
-            if (!GetPlayer().HasPendingBind())
+            if (!Player.HasPendingBind)
             {
                 Log.outInfo(LogFilter.Network, "InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
-                    GetPlayer().GetName(), GetPlayer().GetGUID().ToString());
+                    Player.GetName(), Player.GUID.ToString());
                 return;
             }
 
             if (packet.AcceptLock)
-                GetPlayer().ConfirmPendingBind();
+                Player.ConfirmPendingBind();
             else
-                GetPlayer().RepopAtGraveyard();
+                Player.RepopAtGraveyard();
 
-            GetPlayer().SetPendingBind(0, 0);
+            Player.SetPendingBind(0, 0);
         }
 
         [WorldPacketHandler(ClientOpcodes.Warden3Data)]

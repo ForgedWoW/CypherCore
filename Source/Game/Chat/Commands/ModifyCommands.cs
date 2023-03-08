@@ -107,11 +107,11 @@ namespace Game.Chat
 
             if (!uint.TryParse(pfactionid, out uint factionid))
             {
-                uint _factionid = target.GetFaction();
+                uint _factionid = target.Faction;
                 uint _flag = target.UnitData.Flags;
                 ulong _npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
                 uint _dyflag = target.ObjectData.DynamicFlags;
-                handler.SendSysMessage(CypherStrings.CurrentFaction, target.GetGUID().ToString(), _factionid, _flag, _npcflag, _dyflag);
+                handler.SendSysMessage(CypherStrings.CurrentFaction, target.GUID.ToString(), _factionid, _flag, _npcflag, _dyflag);
                 return true;
             }
 
@@ -130,9 +130,10 @@ namespace Game.Chat
                 return false;
             }
 
-            handler.SendSysMessage(CypherStrings.YouChangeFaction, target.GetGUID().ToString(), factionid, flag, npcflag, dyflag);
+            handler.SendSysMessage(CypherStrings.YouChangeFaction, target.GUID.ToString(), factionid, flag, npcflag, dyflag);
 
-            target.SetFaction(factionid);
+            target.
+            Faction = factionid;
             target.ReplaceAllUnitFlags((UnitFlags)flag);
             target.ReplaceAllNpcFlags((NPCFlags)(npcflag & 0xFFFFFFFF));
             target.ReplaceAllNpcFlags2((NPCFlags2)(npcflag >> 32));
@@ -202,9 +203,9 @@ namespace Game.Chat
                 NotifyModification(handler, target, CypherStrings.YouChangeSize, CypherStrings.YoursSizeChanged, Scale);
                 Creature creatureTarget = target.ToCreature();
                 if (creatureTarget)
-                    creatureTarget.SetDisplayId(creatureTarget.GetDisplayId(), Scale);
+                    creatureTarget.SetDisplayId(creatureTarget.DisplayId, Scale);
                 else
-                    target.SetObjectScale(Scale);
+                    target.                    ObjectScale = Scale;
                 return true;
             }
             return false;
@@ -261,7 +262,7 @@ namespace Game.Chat
                 return false;
 
             long moneyToAdd = args.NextInt64();
-            ulong targetMoney = target.GetMoney();
+            ulong targetMoney = target.Money;
 
             if (moneyToAdd < 0)
             {
@@ -274,7 +275,8 @@ namespace Game.Chat
                     if (handler.NeedReportToTarget(target))
                         target.SendSysMessage(CypherStrings.YoursAllMoneyGone, handler.GetNameLink());
 
-                    target.SetMoney(0);
+                    target.
+                    Money = 0;
                 }
                 else
                 {
@@ -285,7 +287,7 @@ namespace Game.Chat
                     handler.SendSysMessage(CypherStrings.YouTakeMoney, moneyToAddMsg, handler.GetNameLink(target));
                     if (handler.NeedReportToTarget(target))
                         target.SendSysMessage(CypherStrings.YoursMoneyTaken, handler.GetNameLink(), moneyToAddMsg);
-                    target.SetMoney((ulong)newmoney);
+                    target.                    Money = (ulong)newmoney;
                 }
             }
             else
@@ -302,7 +304,7 @@ namespace Game.Chat
                 target.ModifyMoney(moneyToAdd);
             }
 
-            Log.outDebug(LogFilter.ChatSystem, Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.GetMoney());
+            Log.outDebug(LogFilter.ChatSystem, Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
             return true;
         }
 
@@ -434,9 +436,10 @@ namespace Game.Chat
                 }
             }
 
-            target.GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
-            target.GetReputationMgr().SendState(target.GetReputationMgr().GetState(factionEntry));
-            handler.SendSysMessage(CypherStrings.CommandModifyRep, factionEntry.Name[handler.GetSessionDbcLocale()], factionId, handler.GetNameLink(target), target.GetReputationMgr().GetReputation(factionEntry));
+            target.
+            ReputationMgr.SetOneFactionReputation(factionEntry, amount, false);
+            target.            ReputationMgr.SendState(target.ReputationMgr.GetState(factionEntry));
+            handler.SendSysMessage(CypherStrings.CommandModifyRep, factionEntry.Name[handler.GetSessionDbcLocale()], factionId, handler.GetNameLink(target), target.ReputationMgr.GetReputation(factionEntry));
 
             return true;
         }
@@ -467,7 +470,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                if (!target.GetPhaseShift().HasVisibleMapId(visibleMapId))
+                if (!target.PhaseShift.HasVisibleMapId(visibleMapId))
                     PhasingHandler.AddVisibleMapId(target, visibleMapId);
                 else
                     PhasingHandler.RemoveVisibleMapId(target, visibleMapId);
@@ -475,7 +478,7 @@ namespace Game.Chat
 
             if (phaseId != 0)
             {
-                if (!target.GetPhaseShift().HasPhase(phaseId))
+                if (!target.PhaseShift.HasPhase(phaseId))
                     PhasingHandler.AddPhase(target, phaseId, true);
                 else
                     PhasingHandler.RemovePhase(target, phaseId, true);
@@ -538,7 +541,7 @@ namespace Game.Chat
                 return false;
 
             uint anim_id = args.NextUInt32();
-            handler.GetSession().GetPlayer().SetEmoteState((Emote)anim_id);
+            handler.GetSession().            Player.            EmoteState = (Emote)anim_id;
 
             return true;
         }
@@ -556,7 +559,7 @@ namespace Game.Chat
                 return false;
             }
 
-            PlayerInfo info = Global.ObjectMgr.GetPlayerInfo(target.GetRace(), target.GetClass());
+            PlayerInfo info = Global.ObjectMgr.GetPlayerInfo(target.Race, target.Class);
             if (info == null)
                 return false;
 
@@ -565,14 +568,14 @@ namespace Game.Chat
 
             if (gender_str == "male")            // MALE
             {
-                if (target.GetGender() == Gender.Male)
+                if (target.Gender == Gender.Male)
                     return true;
 
                 gender = Gender.Male;
             }
             else if (gender_str == "female")    // FEMALE
             {
-                if (target.GetGender() == Gender.Female)
+                if (target.Gender == Gender.Female)
                     return true;
 
                 gender = Gender.Female;
@@ -584,24 +587,26 @@ namespace Game.Chat
             }
 
             // Set gender
-            target.SetGender(gender);
-            target.SetNativeGender(gender);
+            target.
+            // Set gender
+            Gender = gender;
+            target.            NativeGender = gender;
 
             // Change display ID
             target.InitDisplayIds();
 
             target.RestoreDisplayId(false);
-            Global.CharacterCacheStorage.UpdateCharacterGender(target.GetGUID(), (byte)gender);
+            Global.CharacterCacheStorage.UpdateCharacterGender(target.GUID, (byte)gender);
 
             // Generate random customizations
             List<ChrCustomizationChoice> customizations = new();
 
-            var options = Global.DB2Mgr.GetCustomiztionOptions(target.GetRace(), gender);
-            WorldSession worldSession = target.GetSession();
+            var options = Global.DB2Mgr.GetCustomiztionOptions(target.Race, gender);
+            WorldSession worldSession = target.Session;
             foreach (ChrCustomizationOptionRecord option in options)
             {
                 ChrCustomizationReqRecord optionReq = CliDB.ChrCustomizationReqStorage.LookupByKey(option.ChrCustomizationReqID);
-                if (optionReq != null && !worldSession.MeetsChrCustomizationReq(optionReq, target.GetClass(), false, customizations))
+                if (optionReq != null && !worldSession.MeetsChrCustomizationReq(optionReq, target.Class, false, customizations))
                     continue;
 
                 // Loop over the options until the first one fits
@@ -609,7 +614,7 @@ namespace Game.Chat
                 foreach (ChrCustomizationChoiceRecord choiceForOption in choicesForOption)
                 {
                     var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(choiceForOption.ChrCustomizationReqID);
-                    if (choiceReq != null && !worldSession.MeetsChrCustomizationReq(choiceReq, target.GetClass(), false, customizations))
+                    if (choiceReq != null && !worldSession.MeetsChrCustomizationReq(choiceReq, target.Class, false, customizations))
                         continue;
 
                     ChrCustomizationChoiceRecord choiceEntry = choicesForOption[0];
@@ -697,7 +702,7 @@ namespace Game.Chat
 
             Unit target = handler.GetSelectedUnit();
             if (!target)
-                target = handler.GetSession().GetPlayer();
+                target = handler.GetSession().Player;
 
             // check online security
             else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.ToPlayer(), ObjectGuid.Empty))
@@ -713,7 +718,7 @@ namespace Game.Chat
         {
             Unit target = handler.GetSelectedUnit();
             if (!target)
-                target = handler.GetSession().GetPlayer();
+                target = handler.GetSession().Player;
 
             // check online security
             else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.ToPlayer(), ObjectGuid.Empty))
@@ -866,7 +871,7 @@ namespace Game.Chat
                 if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                     return false;
 
-                if (player.IsInFlight() && checkInFlight)
+                if (player.IsInFlight && checkInFlight)
                 {
                     handler.SendSysMessage(CypherStrings.CharInFlight, handler.GetNameLink(player));
                     return false;

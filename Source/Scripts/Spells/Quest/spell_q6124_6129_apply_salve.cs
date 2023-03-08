@@ -36,15 +36,15 @@ internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
 			{
 				uint newEntry = 0;
 
-				switch (caster.GetTeam())
+				switch (caster.Team)
 				{
-					case Team.Horde:
-						if (creatureTarget.GetEntry() == CreatureIds.SicklyGazelle)
+					case TeamFaction.Horde:
+						if (creatureTarget.Entry == CreatureIds.SicklyGazelle)
 							newEntry = CreatureIds.CuredGazelle;
 
 						break;
-					case Team.Alliance:
-						if (creatureTarget.GetEntry() == CreatureIds.SicklyDeer)
+					case TeamFaction.Alliance:
+						if (creatureTarget.Entry == CreatureIds.SicklyDeer)
 							newEntry = CreatureIds.CuredDeer;
 
 						break;

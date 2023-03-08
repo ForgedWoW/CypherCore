@@ -143,7 +143,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 		{
 			base.OnCreatureCreate(creature);
 
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case BWLCreatureIds.BlackwingDragon:
 				case BWLCreatureIds.BlackwingTaskmaster:
@@ -177,10 +177,10 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 		{
 			base.OnGameObjectCreate(go);
 
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case BWLGameObjectIds.BlackDragonEgg:
-					EggList.Add(go.GetGUID());
+					EggList.Add(go.GUID);
 
 					break;
 				default:
@@ -192,8 +192,8 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 		{
 			base.OnGameObjectRemove(go);
 
-			if (go.GetEntry() == BWLGameObjectIds.BlackDragonEgg)
-				EggList.Remove(go.GetGUID());
+			if (go.Entry == BWLGameObjectIds.BlackDragonEgg)
+				EggList.Remove(go.GUID);
 		}
 
 		public override bool CheckRequiredBosses(uint bossId, Player player = null)
@@ -317,7 +317,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 		public override void OnUnitDeath(Unit unit)
 		{
 			//! Hack, needed because of buggy CreatureAI after charm
-			if (unit.GetEntry() == BWLCreatureIds.Razorgore &&
+			if (unit.Entry == BWLCreatureIds.Razorgore &&
 				GetBossState(DataTypes.RazorgoreTheUntamed) != EncounterState.Done)
 				SetBossState(DataTypes.RazorgoreTheUntamed, EncounterState.Done);
 		}
@@ -361,7 +361,7 @@ internal class instance_blackwing_lair : InstanceMapScript, IInstanceMapGetInsta
 							nefarius.SetActive(true);
 							nefarius.SetFarVisible(true);
 							nefarius.Respawn();
-							nefarius.GetMotionMaster().MoveTargetedHome();
+							nefarius.MotionMaster.MoveTargetedHome();
 						}
 
 						break;

@@ -80,6 +80,175 @@ public abstract class WorldObject : IDisposable
 
 	public WorldLocation Location { get; set; }
 
+	public Scenario Scenario
+	{
+		get
+		{
+			if (IsInWorld)
+			{
+				var instanceMap = GetMap().ToInstanceMap();
+
+				if (instanceMap != null)
+					return instanceMap.GetInstanceScenario();
+			}
+
+			return null;
+		}
+	}
+
+	public ObjectGuid CharmerOrOwnerOrOwnGUID
+	{
+		get
+		{
+			var guid = CharmerOrOwnerGUID;
+
+			if (!guid.IsEmpty)
+				return guid;
+
+			return GUID;
+		}
+	}
+
+	public PhaseShift PhaseShift
+	{
+		get => _phaseShift;
+		set => _phaseShift = new PhaseShift(value);
+	}
+
+	public PhaseShift SuppressedPhaseShift
+	{
+		get => _suppressedPhaseShift;
+		set => _suppressedPhaseShift = new PhaseShift(value);
+	}
+
+	// if negative it is used as PhaseGroupId
+	public int DBPhase
+	{
+		get => _dbPhase;
+		set => _dbPhase = value;
+	}
+
+	public virtual float CombatReach => 0.0f;
+
+	public uint InstanceId1 => InstanceId;
+
+	public virtual ushort AIAnimKitId => 0;
+
+	public virtual ushort MovementAnimKitId => 0;
+
+	public virtual ushort MeleeAnimKitId => 0;
+
+	// Watcher
+	public bool IsPrivateObject => !_privateObjectOwner.IsEmpty;
+
+	public ObjectGuid PrivateObjectOwner
+	{
+		get => _privateObjectOwner;
+		set => _privateObjectOwner = value;
+	}
+
+	public ObjectGuid GUID => _guid;
+
+	public uint Entry
+	{
+		get => ObjectData.EntryId;
+		set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
+	}
+
+	public float ObjectScale
+	{
+		get => ObjectData.Scale;
+		set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), value);
+	}
+
+	public TypeId TypeId => ObjectTypeId;
+
+	public bool IsDestroyedObject => _isDestroyedObject;
+
+	public bool IsCreature => ObjectTypeId == TypeId.Unit;
+
+	public bool IsPlayer => ObjectTypeId == TypeId.Player;
+
+	public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
+
+	public bool IsItem => ObjectTypeId == TypeId.Item;
+
+	public bool IsUnit => IsTypeMask(TypeMask.Unit);
+
+	public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
+
+	public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
+
+	public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
+
+	public bool IsConversation => ObjectTypeId == TypeId.Conversation;
+
+	public bool IsSceneObject => ObjectTypeId == TypeId.SceneObject;
+
+	public ZoneScript ZoneScript1 => ZoneScript;
+
+	public bool IsActiveObject => m_isActive;
+
+	public bool IsPermanentWorldObject => _isWorldObject;
+
+	public ITransport Transport => _transport;
+
+	public float TransOffsetX => MovementInfo.Transport.Pos.X;
+
+	public float TransOffsetY => MovementInfo.Transport.Pos.Y;
+
+	public float TransOffsetZ => MovementInfo.Transport.Pos.Z;
+
+	public float TransOffsetO => MovementInfo.Transport.Pos.Orientation;
+
+	public uint TransTime => MovementInfo.Transport.Time;
+
+	public sbyte TransSeat => MovementInfo.Transport.Seat;
+
+	public virtual float StationaryX => Location.X;
+
+	public virtual float StationaryY => Location.Y;
+
+	public virtual float StationaryZ => Location.Z;
+
+	public virtual float StationaryO => Location.Orientation;
+
+	public virtual float CollisionHeight => 0.0f;
+
+	public float MidsectionHeight => CollisionHeight / 2.0f;
+
+	public virtual ObjectGuid OwnerGUID => default;
+
+	public virtual ObjectGuid CharmerOrOwnerGUID => OwnerGUID;
+
+	public virtual uint Faction { get; set; }
+
+	NotifyFlags NotifyFlags => _notifyflags;
+
+	Position TransOffset => MovementInfo.Transport.Pos;
+
+	public virtual Unit CharmerOrOwner
+	{
+		get
+		{
+			var unit = ToUnit();
+
+			if (unit != null)
+			{
+				return unit.CharmerOrOwner;
+			}
+			else
+			{
+				var go = ToGameObject();
+
+				if (go != null)
+					return go.GetOwner();
+			}
+
+			return null;
+		}
+	}
+
 	public WorldObject(bool isWorldObject)
 	{
 		_name = "";
@@ -109,7 +278,7 @@ public abstract class WorldObject : IDisposable
 		{
 			if (IsTypeId(TypeId.Corpse))
 			{
-				Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", ToCorpse().GetCorpseType(), GetGUID().ToString());
+				Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", ToCorpse().GetCorpseType(), GUID.ToString());
 				Cypher.Assert(false);
 			}
 
@@ -118,7 +287,7 @@ public abstract class WorldObject : IDisposable
 
 		if (IsInWorld)
 		{
-			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in world!!", GetGUID().ToString());
+			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
 			if (IsTypeMask(TypeMask.Item))
 				Log.outFatal(LogFilter.Misc, "Item slot {0}", ((Item)this).GetSlot());
@@ -128,7 +297,7 @@ public abstract class WorldObject : IDisposable
 
 		if (_objectUpdated)
 		{
-			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in update list!!", GetGUID().ToString());
+			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
 			Cypher.Assert(false);
 		}
 	}
@@ -166,7 +335,7 @@ public abstract class WorldObject : IDisposable
 	public void UpdatePositionData()
 	{
 		PositionFullTerrainStatus data = new();
-		GetMap().GetFullTerrainStatusForPosition(_phaseShift, Location.X, Location.Y, Location.Z, data, LiquidHeaderTypeFlags.AllLiquids, GetCollisionHeight());
+		GetMap().GetFullTerrainStatusForPosition(_phaseShift, Location.X, Location.Y, Location.Z, data, LiquidHeaderTypeFlags.AllLiquids, CollisionHeight);
 		ProcessPositionDataChanged(data);
 	}
 
@@ -201,13 +370,13 @@ public abstract class WorldObject : IDisposable
 			tempObjectType = TypeId.ActivePlayer;
 		}
 
-		if (!flags.MovementUpdate && !MovementInfo.Transport.Guid.IsEmpty())
+		if (!flags.MovementUpdate && !MovementInfo.Transport.Guid.IsEmpty)
 			flags.MovementTransport = true;
 
-		if (GetAIAnimKitId() != 0 || GetMovementAnimKitId() != 0 || GetMeleeAnimKitId() != 0)
+		if (AIAnimKitId != 0 || MovementAnimKitId != 0 || MeleeAnimKitId != 0)
 			flags.AnimKit = true;
 
-		if (GetSmoothPhasing()?.GetInfoForSeer(target.GetGUID()) != null)
+		if (GetSmoothPhasing()?.GetInfoForSeer(target.GUID) != null)
 			flags.SmoothPhasing = true;
 
 		var unit = ToUnit();
@@ -222,7 +391,7 @@ public abstract class WorldObject : IDisposable
 
 		WorldPacket buffer = new();
 		buffer.WriteUInt8((byte)updateType);
-		buffer.WritePackedGuid(GetGUID());
+		buffer.WritePackedGuid(GUID);
 		buffer.WriteUInt8((byte)tempObjectType);
 
 		BuildMovementUpdate(buffer, flags, target);
@@ -248,7 +417,7 @@ public abstract class WorldObject : IDisposable
 	{
 		WorldPacket buffer = new();
 		buffer.WriteUInt8((byte)UpdateType.Values);
-		buffer.WritePackedGuid(GetGUID());
+		buffer.WritePackedGuid(GUID);
 
 		BuildValuesUpdate(buffer, target);
 
@@ -259,7 +428,7 @@ public abstract class WorldObject : IDisposable
 	{
 		WorldPacket buffer = new();
 		buffer.WriteUInt8((byte)UpdateType.Values);
-		buffer.WritePackedGuid(GetGUID());
+		buffer.WritePackedGuid(GUID);
 
 		BuildValuesUpdateWithFlag(buffer, flags, target);
 
@@ -268,12 +437,12 @@ public abstract class WorldObject : IDisposable
 
 	public void BuildDestroyUpdateBlock(UpdateData data)
 	{
-		data.AddDestroyObject(GetGUID());
+		data.AddDestroyObject(GUID);
 	}
 
 	public void BuildOutOfRangeUpdateBlock(UpdateData data)
 	{
-		data.AddOutOfRangeGUID(GetGUID());
+		data.AddOutOfRangeGUID(GUID);
 	}
 
 	public virtual void DestroyForPlayer(Player target)
@@ -331,7 +500,7 @@ public abstract class WorldObject : IDisposable
 			var HasInertia = unit.MovementInfo.Inertia.HasValue;
 			var HasAdvFlying = unit.MovementInfo.AdvFlying.HasValue;
 
-			data.WritePackedGuid(GetGUID()); // MoverGUID
+			data.WritePackedGuid(GUID); // MoverGUID
 
 			data.WriteUInt32((uint)unit.GetUnitMovementFlags());
 			data.WriteUInt32((uint)unit.GetUnitMovementFlags2());
@@ -352,14 +521,14 @@ public abstract class WorldObject : IDisposable
 			//for (public uint i = 0; i < RemoveForcesIDs.Count; ++i)
 			//    *data << ObjectGuid(RemoveForcesIDs);
 
-			data.WriteBit(!unit.MovementInfo.Transport.Guid.IsEmpty()); // HasTransport
-			data.WriteBit(HasFall);                                     // HasFall
-			data.WriteBit(HasSpline);                                   // HasSpline - marks that the unit uses spline movement
-			data.WriteBit(false);                                       // HeightChangeFailed
-			data.WriteBit(false);                                       // RemoteTimeValid
-			data.WriteBit(HasInertia);                                  // HasInertia
+			data.WriteBit(!unit.MovementInfo.Transport.Guid.IsEmpty); // HasTransport
+			data.WriteBit(HasFall);                                   // HasFall
+			data.WriteBit(HasSpline);                                 // HasSpline - marks that the unit uses spline movement
+			data.WriteBit(false);                                     // HeightChangeFailed
+			data.WriteBit(false);                                     // RemoteTimeValid
+			data.WriteBit(HasInertia);                                // HasInertia
 
-			if (!unit.MovementInfo.Transport.Guid.IsEmpty())
+			if (!unit.MovementInfo.Transport.Guid.IsEmpty)
 				MovementExtensions.WriteTransportInfo(data, unit.MovementInfo.Transport);
 
 			if (HasInertia)
@@ -403,7 +572,7 @@ public abstract class WorldObject : IDisposable
 			if (movementForces != null)
 			{
 				data.WriteInt32(movementForces.GetForces().Count);
-				data.WriteFloat(movementForces.GetModMagnitude()); // MovementForcesModMagnitude
+				data.WriteFloat(movementForces.ModMagnitude); // MovementForcesModMagnitude
 			}
 			else
 			{
@@ -446,14 +615,14 @@ public abstract class WorldObject : IDisposable
 		if (flags.Stationary)
 		{
 			var self = this;
-			data.WriteFloat(self.GetStationaryX());
-			data.WriteFloat(self.GetStationaryY());
-			data.WriteFloat(self.GetStationaryZ());
-			data.WriteFloat(self.GetStationaryO());
+			data.WriteFloat(self.StationaryX);
+			data.WriteFloat(self.StationaryY);
+			data.WriteFloat(self.StationaryZ);
+			data.WriteFloat(self.StationaryO);
 		}
 
 		if (flags.CombatVictim)
-			data.WritePackedGuid(ToUnit().GetVictim().GetGUID()); // CombatVictim
+			data.WritePackedGuid(ToUnit().GetVictim().GUID); // CombatVictim
 
 		if (flags.ServerTime)
 			data.WriteUInt32(GameTime.GetGameTimeMS());
@@ -467,9 +636,9 @@ public abstract class WorldObject : IDisposable
 
 		if (flags.AnimKit)
 		{
-			data.WriteUInt16(GetAIAnimKitId());       // AiID
-			data.WriteUInt16(GetMovementAnimKitId()); // MovementID
-			data.WriteUInt16(GetMeleeAnimKitId());    // MeleeID
+			data.WriteUInt16(AIAnimKitId);       // AiID
+			data.WriteUInt16(MovementAnimKitId); // MovementID
+			data.WriteUInt16(MeleeAnimKitId);    // MeleeID
 		}
 
 		if (flags.Rotation)
@@ -488,13 +657,13 @@ public abstract class WorldObject : IDisposable
 		if (flags.AreaTrigger)
 		{
 			var areaTrigger = ToAreaTrigger();
-			var createProperties = areaTrigger.GetCreateProperties();
+			var createProperties = areaTrigger.CreateProperties;
 			var areaTriggerTemplate = areaTrigger.GetTemplate();
-			var shape = areaTrigger.GetShape();
+			var shape = areaTrigger.Shape;
 
-			data.WriteUInt32(areaTrigger.GetTimeSinceCreated());
+			data.WriteUInt32(areaTrigger.TimeSinceCreated);
 
-			data.WriteVector3(areaTrigger.GetRollPitchYaw());
+			data.WriteVector3(areaTrigger.RollPitchYaw);
 
 			var hasAbsoluteOrientation = areaTriggerTemplate != null && areaTriggerTemplate.HasFlag(AreaTriggerFlags.HasAbsoluteOrientation);
 			var hasDynamicShape = areaTriggerTemplate != null && areaTriggerTemplate.HasFlag(AreaTriggerFlags.HasDynamicShape);
@@ -514,7 +683,7 @@ public abstract class WorldObject : IDisposable
 			var hasAreaTriggerCylinder = shape.IsCylinder();
 			var hasDisk = shape.IsDisk();
 			var hasBoundedPlane = shape.IsBoudedPlane();
-			var hasAreaTriggerSpline = areaTrigger.HasSplines();
+			var hasAreaTriggerSpline = areaTrigger.HasSplines;
 			var hasOrbit = areaTrigger.HasOrbit();
 			var hasMovementScript = false;
 
@@ -544,14 +713,14 @@ public abstract class WorldObject : IDisposable
 
 			if (hasAreaTriggerSpline)
 			{
-				data.WriteUInt32(areaTrigger.GetTimeToTarget());
-				data.WriteUInt32(areaTrigger.GetElapsedTimeForMovement());
+				data.WriteUInt32(areaTrigger.TimeToTarget);
+				data.WriteUInt32(areaTrigger.ElapsedTimeForMovement);
 
-				MovementExtensions.WriteCreateObjectAreaTriggerSpline(areaTrigger.GetSpline(), data);
+				MovementExtensions.WriteCreateObjectAreaTriggerSpline(areaTrigger.Spline, data);
 			}
 
 			if (hasTargetRollPitchYaw)
-				data.WriteVector3(areaTrigger.GetTargetRollPitchYaw());
+				data.WriteVector3(areaTrigger.TargetRollPitchYaw);
 
 			if (hasScaleCurveID)
 				data.WriteUInt32(createProperties.ScaleCurveId);
@@ -632,7 +801,7 @@ public abstract class WorldObject : IDisposable
 			//    *data << *areaTrigger.GetMovementScript(); // AreaTriggerMovementScriptInfo
 
 			if (hasOrbit)
-				areaTrigger.GetCircularMovementInfo().Write(data);
+				areaTrigger.CircularMovementInfo.Write(data);
 		}
 
 		if (flags.GameObject)
@@ -653,7 +822,7 @@ public abstract class WorldObject : IDisposable
 
 		if (flags.SmoothPhasing)
 		{
-			var smoothPhasingInfo = GetSmoothPhasing().GetInfoForSeer(target.GetGUID());
+			var smoothPhasingInfo = GetSmoothPhasing().GetInfoForSeer(target.GUID);
 			Cypher.Assert(smoothPhasingInfo != null);
 
 			data.WriteBit(smoothPhasingInfo.ReplaceActive);
@@ -779,7 +948,7 @@ public abstract class WorldObject : IDisposable
 		{
 			var player = ToPlayer();
 
-			var HasSceneInstanceIDs = !player.GetSceneMgr().GetSceneTemplateByInstanceMap().Empty();
+			var HasSceneInstanceIDs = !player.SceneMgr.GetSceneTemplateByInstanceMap().Empty();
 			var HasRuneState = ToUnit().GetPowerIndex(PowerType.Runes) != (int)PowerType.Max;
 
 			data.WriteBit(HasSceneInstanceIDs);
@@ -788,9 +957,9 @@ public abstract class WorldObject : IDisposable
 
 			if (HasSceneInstanceIDs)
 			{
-				data.WriteInt32(player.GetSceneMgr().GetSceneTemplateByInstanceMap().Count);
+				data.WriteInt32(player.SceneMgr.GetSceneTemplateByInstanceMap().Count);
 
-				foreach (var pair in player.GetSceneMgr().GetSceneTemplateByInstanceMap())
+				foreach (var pair in player.SceneMgr.GetSceneTemplateByInstanceMap())
 					data.WriteUInt32(pair.Key);
 			}
 
@@ -871,7 +1040,7 @@ public abstract class WorldObject : IDisposable
 
 	public virtual string GetDebugInfo()
 	{
-		return $"{Location.GetDebugInfo()}\n{GetGUID()} Entry: {GetEntry()}\nName: {GetName()}";
+		return $"{Location.GetDebugInfo()}\n{GUID} Entry: {Entry}\nName: {GetName()}";
 	}
 
 	public virtual Loot GetLootForPlayer(Player player)
@@ -1071,7 +1240,7 @@ public abstract class WorldObject : IDisposable
 
 	public void SetFarVisible(bool on)
 	{
-		if (IsPlayer())
+		if (IsPlayer)
 			return;
 
 		_isFarVisible = on;
@@ -1081,7 +1250,7 @@ public abstract class WorldObject : IDisposable
 	{
 		Cypher.Assert(type < VisibilityDistanceType.Max);
 
-		if (GetTypeId() == TypeId.Player)
+		if (TypeId == TypeId.Player)
 			return;
 
 		var creature = ToCreature();
@@ -1117,7 +1286,7 @@ public abstract class WorldObject : IDisposable
 		if (IsInWorld)
 			RemoveFromWorld();
 
-		var transport = GetTransport();
+		var transport = Transport;
 
 		if (transport != null)
 			transport.RemovePassenger(this);
@@ -1173,9 +1342,9 @@ public abstract class WorldObject : IDisposable
 
 	public float GetGridActivationRange()
 	{
-		if (IsActiveObject())
+		if (IsActiveObject)
 		{
-			if (GetTypeId() == TypeId.Player && ToPlayer().GetCinematicMgr().IsOnCinematic())
+			if (TypeId == TypeId.Player && ToPlayer().CinematicMgr.IsOnCinematic())
 				return Math.Max(SharedConst.DefaultVisibilityInstance, GetMap().GetVisibilityRange());
 
 			return GetMap().GetVisibilityRange();
@@ -1191,9 +1360,9 @@ public abstract class WorldObject : IDisposable
 
 	public float GetVisibilityRange()
 	{
-		if (IsVisibilityOverridden() && !IsPlayer())
+		if (IsVisibilityOverridden() && !IsPlayer)
 			return _visibilityDistanceOverride.Value;
-		else if (IsFarVisible() && !IsPlayer())
+		else if (IsFarVisible() && !IsPlayer)
 			return SharedConst.MaxVisibilityDistance;
 		else
 			return GetMap().GetVisibilityRange();
@@ -1201,20 +1370,20 @@ public abstract class WorldObject : IDisposable
 
 	public float GetSightRange(WorldObject target = null)
 	{
-		if (IsPlayer() || IsCreature())
+		if (IsPlayer || IsCreature)
 		{
-			if (IsPlayer())
+			if (IsPlayer)
 			{
-				if (target != null && target.IsVisibilityOverridden() && !target.IsPlayer())
+				if (target != null && target.IsVisibilityOverridden() && !target.IsPlayer)
 					return target._visibilityDistanceOverride.Value;
-				else if (target != null && target.IsFarVisible() && !target.IsPlayer())
+				else if (target != null && target.IsFarVisible() && !target.IsPlayer)
 					return SharedConst.MaxVisibilityDistance;
-				else if (ToPlayer().GetCinematicMgr().IsOnCinematic())
+				else if (ToPlayer().CinematicMgr.IsOnCinematic())
 					return SharedConst.DefaultVisibilityInstance;
 				else
 					return GetMap().GetVisibilityRange();
 			}
-			else if (IsCreature())
+			else if (IsCreature)
 			{
 				return ToCreature().SightDistance;
 			}
@@ -1224,7 +1393,7 @@ public abstract class WorldObject : IDisposable
 			}
 		}
 
-		if (IsDynObject() && IsActiveObject())
+		if (IsDynObject && IsActiveObject)
 			return GetMap().GetVisibilityRange();
 
 		return 0.0f;
@@ -1232,15 +1401,15 @@ public abstract class WorldObject : IDisposable
 
 	public bool CheckPrivateObjectOwnerVisibility(WorldObject seer)
 	{
-		if (!IsPrivateObject())
+		if (!IsPrivateObject)
 			return true;
 
 		// Owner of this private object
-		if (_privateObjectOwner == seer.GetGUID())
+		if (_privateObjectOwner == seer.GUID)
 			return true;
 
 		// Another private object of the same owner
-		if (_privateObjectOwner == seer.GetPrivateObjectOwner())
+		if (_privateObjectOwner == seer.PrivateObjectOwner)
 			return true;
 
 		var playerSeer = seer.ToPlayer();
@@ -1281,10 +1450,10 @@ public abstract class WorldObject : IDisposable
 
 		var smoothPhasing = obj.GetSmoothPhasing();
 
-		if (smoothPhasing != null && smoothPhasing.IsBeingReplacedForSeer(GetGUID()))
+		if (smoothPhasing != null && smoothPhasing.IsBeingReplacedForSeer(GUID))
 			return false;
 
-		if (!obj.IsPrivateObject() && !Global.ConditionMgr.IsObjectMeetingVisibilityByObjectIdConditions((uint)obj.GetTypeId(), obj.GetEntry(), this))
+		if (!obj.IsPrivateObject && !Global.ConditionMgr.IsObjectMeetingVisibilityByObjectIdConditions((uint)obj.TypeId, obj.Entry, this))
 			return false;
 
 		var corpseVisibility = false;
@@ -1296,7 +1465,7 @@ public abstract class WorldObject : IDisposable
 
 			if (thisPlayer != null)
 			{
-				if (thisPlayer.IsDead() &&
+				if (thisPlayer.IsDead &&
 					thisPlayer.GetHealth() > 0 && // Cheap way to check for ghost state
 					!Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost))
 				{
@@ -1329,7 +1498,7 @@ public abstract class WorldObject : IDisposable
 			var player = ToPlayer();
 
 			if (player != null)
-				viewpoint = player.GetViewpoint();
+				viewpoint = player.Viewpoint;
 
 			if (viewpoint == null)
 				viewpoint = this;
@@ -1469,7 +1638,7 @@ public abstract class WorldObject : IDisposable
 
 		if (map == null)
 		{
-			Log.outError(LogFilter.Server, "Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", GetTypeId(), GetEntry(), GetGUID().ToString(), Location.MapId);
+			Log.outError(LogFilter.Server, "Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", TypeId, Entry, GUID.ToString(), Location.MapId);
 
 			return;
 		}
@@ -1512,19 +1681,6 @@ public abstract class WorldObject : IDisposable
 		ZoneScript = FindZoneScript();
 	}
 
-	public Scenario GetScenario()
-	{
-		if (IsInWorld)
-		{
-			var instanceMap = GetMap().ToInstanceMap();
-
-			if (instanceMap != null)
-				return instanceMap.GetInstanceScenario();
-		}
-
-		return null;
-	}
-
 	public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
 	{
 		return SummonCreature(entry, new Position(x, y, z, o), despawnType, despawnTime, vehId, spellId, privateObjectOwner);
@@ -1532,8 +1688,8 @@ public abstract class WorldObject : IDisposable
 
 	public TempSummon SummonCreature(uint entry, Position pos, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
 	{
-		if (pos.IsDefault())
-			GetClosePoint(pos, GetCombatReach());
+		if (pos.IsDefault)
+			GetClosePoint(pos, CombatReach);
 
 		if (pos.Orientation == 0.0f)
 			pos.Orientation = Location.Orientation;
@@ -1561,7 +1717,7 @@ public abstract class WorldObject : IDisposable
 
 		if (map != null)
 		{
-			var summon = map.SummonCreature(GetEntry(), pos, null, (uint)despawnTime.TotalMilliseconds, privateObjectOwner, spellId, vehId, privateObjectOwner.GetGUID(), new SmoothPhasingInfo(GetGUID(), true, true));
+			var summon = map.SummonCreature(Entry, pos, null, (uint)despawnTime.TotalMilliseconds, privateObjectOwner, spellId, vehId, privateObjectOwner.GUID, new SmoothPhasingInfo(GUID, true, true));
 
 			if (summon != null)
 			{
@@ -1581,9 +1737,9 @@ public abstract class WorldObject : IDisposable
 
 	public GameObject SummonGameObject(uint entry, Position pos, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
 	{
-		if (pos.IsDefault())
+		if (pos.IsDefault)
 		{
-			GetClosePoint(pos, GetCombatReach());
+			GetClosePoint(pos, CombatReach);
 			pos.Orientation = Location.Orientation;
 		}
 
@@ -1609,7 +1765,7 @@ public abstract class WorldObject : IDisposable
 
 		go.SetRespawnTime((int)respawnTime.TotalSeconds);
 
-		if (IsPlayer() || (IsCreature() && summonType == GameObjectSummonType.TimedOrCorpseDespawn)) //not sure how to handle this
+		if (IsPlayer || (IsCreature && summonType == GameObjectSummonType.TimedOrCorpseDespawn)) //not sure how to handle this
 			ToUnit().AddGameObject(go);
 		else
 			go.SetSpawnedByDefault(false);
@@ -1629,8 +1785,8 @@ public abstract class WorldObject : IDisposable
 
 		if (IsTypeId(TypeId.Player) || IsTypeId(TypeId.Unit))
 		{
-			summon.SetFaction(ToUnit().GetFaction());
-			summon.SetLevel(ToUnit().GetLevel());
+			summon.Faction = ToUnit().Faction;
+			summon.SetLevel(ToUnit().Level);
 		}
 
 		if (AI != null)
@@ -1648,11 +1804,11 @@ public abstract class WorldObject : IDisposable
 	{
 		Cypher.Assert((IsTypeId(TypeId.GameObject) || IsTypeId(TypeId.Unit)), "Only GOs and creatures can summon npc groups!");
 		list = new List<TempSummon>();
-		var data = Global.ObjectMgr.GetSummonGroup(GetEntry(), IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
+		var data = Global.ObjectMgr.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
 
 		if (data.Empty())
 		{
-			Log.outWarn(LogFilter.Scripts, "{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GetGUID().ToString(), group);
+			Log.outWarn(LogFilter.Scripts, "{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
 
 			return;
 		}
@@ -1697,7 +1853,7 @@ public abstract class WorldObject : IDisposable
 	{
 		GetAlliesWithinRange(unitList, maxSearchRange, includeSelf);
 
-		unitList.RemoveIf((creature) => { return !creature.HasAura(auraId, GetGUID()); });
+		unitList.RemoveIf((creature) => { return !creature.HasAura(auraId, GUID); });
 	}
 
 	public void GetEnemiesWithinRange(List<Unit> unitList, float maxSearchRange)
@@ -1711,7 +1867,7 @@ public abstract class WorldObject : IDisposable
 	{
 		GetEnemiesWithinRange(unitList, maxSearchRange);
 
-		unitList.RemoveIf((unit) => { return !unit.HasAura(auraId, GetGUID()); });
+		unitList.RemoveIf((unit) => { return !unit.HasAura(auraId, GUID); });
 	}
 
 	public Creature FindNearestCreature(uint entry, float range, bool alive = true)
@@ -1777,19 +1933,9 @@ public abstract class WorldObject : IDisposable
 		return searcher.GetTarget();
 	}
 
-	public ObjectGuid GetCharmerOrOwnerOrOwnGUID()
-	{
-		var guid = GetCharmerOrOwnerGUID();
-
-		if (!guid.IsEmpty())
-			return guid;
-
-		return GetGUID();
-	}
-
 	public virtual Unit GetOwner()
 	{
-		return Global.ObjAccessor.GetUnit(this, GetOwnerGUID());
+		return Global.ObjAccessor.GetUnit(this, OwnerGUID);
 	}
 
 	public bool TryGetOwner(out Unit owner)
@@ -1806,28 +1952,9 @@ public abstract class WorldObject : IDisposable
 		return owner != null;
 	}
 
-	public virtual Unit GetCharmerOrOwner()
-	{
-		var unit = ToUnit();
-
-		if (unit != null)
-		{
-			return unit.GetCharmerOrOwner();
-		}
-		else
-		{
-			var go = ToGameObject();
-
-			if (go != null)
-				return go.GetOwner();
-		}
-
-		return null;
-	}
-
 	public Unit GetCharmerOrOwnerOrSelf()
 	{
-		var u = GetCharmerOrOwner();
+		var u = CharmerOrOwner;
 
 		if (u != null)
 			return u;
@@ -1837,9 +1964,9 @@ public abstract class WorldObject : IDisposable
 
 	public Player GetCharmerOrOwnerPlayerOrPlayerItself()
 	{
-		var guid = GetCharmerOrOwnerGUID();
+		var guid = CharmerOrOwnerGUID;
 
-		if (guid.IsPlayer())
+		if (guid.IsPlayer)
 			return Global.ObjAccessor.GetPlayer(this, guid);
 
 		return ToPlayer();
@@ -1847,10 +1974,10 @@ public abstract class WorldObject : IDisposable
 
 	public Player GetAffectingPlayer()
 	{
-		if (GetCharmerOrOwnerGUID().IsEmpty())
+		if (CharmerOrOwnerGUID.IsEmpty)
 			return ToPlayer();
 
-		var owner = GetCharmerOrOwner();
+		var owner = CharmerOrOwner;
 
 		if (owner != null)
 			return owner.GetCharmerOrOwnerPlayerOrPlayerItself();
@@ -1865,11 +1992,11 @@ public abstract class WorldObject : IDisposable
 		if (player != null)
 			return player;
 
-		if (IsCreature())
+		if (IsCreature)
 		{
 			var creature = ToCreature();
 
-			if (creature.IsPet() || creature.IsTotem())
+			if (creature.IsPet || creature.IsTotem)
 			{
 				var owner = creature.GetOwner();
 
@@ -1877,7 +2004,7 @@ public abstract class WorldObject : IDisposable
 					return owner.ToPlayer();
 			}
 		}
-		else if (IsGameObject())
+		else if (IsGameObject)
 		{
 			var go = ToGameObject();
 			var owner = go.GetOwner();
@@ -2045,7 +2172,7 @@ public abstract class WorldObject : IDisposable
 			// when there will be, change GetTotalAuraModifierByMiscValue to GetMaxPositiveAuraModifierByMiscValue
 
 			// Mixology - duration boost
-			if (unitTarget.IsPlayer())
+			if (unitTarget.IsPlayer)
 				if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
 					(
 						Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
@@ -2077,9 +2204,9 @@ public abstract class WorldObject : IDisposable
 		if (!unitCaster)
 			return;
 
-		if (unitCaster.IsPlayer() && unitCaster.ToPlayer().GetCommandStatus(PlayerCommandStates.Casttime))
+		if (unitCaster.IsPlayer && unitCaster.ToPlayer().GetCommandStatus(PlayerCommandStates.Casttime))
 			castTime = 0;
-		else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((IsPlayer() && spellInfo.SpellFamilyName != 0) || IsCreature()))
+		else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((IsPlayer && spellInfo.SpellFamilyName != 0) || IsCreature))
 			castTime = unitCaster.CanInstantCast() ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
 		else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
 			castTime = (int)(castTime * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
@@ -2107,7 +2234,7 @@ public abstract class WorldObject : IDisposable
 			return;
 
 		if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&
-			((IsPlayer() && spellInfo.SpellFamilyName != 0) || IsCreature()))
+			((IsPlayer && spellInfo.SpellFamilyName != 0) || IsCreature))
 			duration = (int)(duration * unitCaster.UnitData.ModCastingSpeed);
 		else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
 			duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
@@ -2151,7 +2278,7 @@ public abstract class WorldObject : IDisposable
 			return SpellMissInfo.None;
 
 		// Return evade for units in evade mode
-		if (victim.IsCreature() && victim.ToCreature().IsEvadingAttacks())
+		if (victim.IsCreature && victim.ToCreature().IsEvadingAttacks)
 			return SpellMissInfo.Evade;
 
 		// Try victim reflect spell
@@ -2185,25 +2312,25 @@ public abstract class WorldObject : IDisposable
 	{
 		SpellMissLog spellMissLog = new();
 		spellMissLog.SpellID = spellID;
-		spellMissLog.Caster = GetGUID();
-		spellMissLog.Entries.Add(new SpellLogMissEntry(target.GetGUID(), (byte)missInfo));
+		spellMissLog.Caster = GUID;
+		spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
 		SendMessageToSet(spellMissLog, true);
 	}
 
 	public FactionTemplateRecord GetFactionTemplateEntry()
 	{
-		var factionId = GetFaction();
+		var factionId = Faction;
 		var entry = CliDB.FactionTemplateStorage.LookupByKey(factionId);
 
 		if (entry == null)
-			switch (GetTypeId())
+			switch (TypeId)
 			{
 				case TypeId.Player:
 					Log.outError(LogFilter.Unit, $"Player {ToPlayer().GetName()} has invalid faction (faction template id) #{factionId}");
 
 					break;
 				case TypeId.Unit:
-					Log.outError(LogFilter.Unit, $"Creature (template id: {ToCreature().GetCreatureTemplate().Entry}) has invalid faction (faction template Id) #{factionId}");
+					Log.outError(LogFilter.Unit, $"Creature (template id: {ToCreature().CreatureTemplate.Entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				case TypeId.GameObject:
@@ -2212,7 +2339,7 @@ public abstract class WorldObject : IDisposable
 
 					break;
 				default:
-					Log.outError(LogFilter.Unit, $"Object (name={GetName()}, type={GetTypeId()}) has invalid faction (faction template Id) #{factionId}");
+					Log.outError(LogFilter.Unit, $"Object (name={GetName()}, type={TypeId}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 			}
@@ -2243,7 +2370,7 @@ public abstract class WorldObject : IDisposable
 			return false;
 		}
 
-		if (isAttackableBySummoner(ToUnit(), target.GetGUID()) || isAttackableBySummoner(target.ToUnit(), GetGUID()))
+		if (isAttackableBySummoner(ToUnit(), target.GUID) || isAttackableBySummoner(target.ToUnit(), GUID))
 			return ReputationRank.Neutral;
 
 		// always friendly to charmer or owner
@@ -2260,7 +2387,7 @@ public abstract class WorldObject : IDisposable
 
 			if (targetFactionTemplateEntry != null)
 			{
-				var repRank = selfPlayerOwner.GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry);
+				var repRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTemplateEntry);
 
 				if (repRank != ReputationRank.None)
 					return repRank;
@@ -2272,7 +2399,7 @@ public abstract class WorldObject : IDisposable
 
 			if (selfFactionTemplateEntry != null)
 			{
-				var repRank = targetPlayerOwner.GetReputationMgr().GetForcedRankIfAny(selfFactionTemplateEntry);
+				var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(selfFactionTemplateEntry);
 
 				if (repRank != ReputationRank.None)
 					return repRank;
@@ -2303,7 +2430,7 @@ public abstract class WorldObject : IDisposable
 				}
 
 				// check FFA_PVP
-				if (unit.IsFFAPvP() && targetUnit.IsFFAPvP())
+				if (unit.IsFFAPvP && targetUnit.IsFFAPvP)
 					return ReputationRank.Hostile;
 
 				if (selfPlayerOwner)
@@ -2312,7 +2439,7 @@ public abstract class WorldObject : IDisposable
 
 					if (targetFactionTemplateEntry != null)
 					{
-						var repRank = selfPlayerOwner.GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry);
+						var repRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTemplateEntry);
 
 						if (repRank != ReputationRank.None)
 							return repRank;
@@ -2329,7 +2456,7 @@ public abstract class WorldObject : IDisposable
 										return ReputationRank.Hostile;
 
 									// if faction has reputation, hostile state depends only from AtWar state
-									if (selfPlayerOwner.GetReputationMgr().IsAtWar(targetFactionEntry))
+									if (selfPlayerOwner.ReputationMgr.IsAtWar(targetFactionEntry))
 										return ReputationRank.Hostile;
 
 									return ReputationRank.Friendly;
@@ -2362,12 +2489,12 @@ public abstract class WorldObject : IDisposable
 			if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && targetPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
 				return ReputationRank.Hostile;
 
-			var repRank = targetPlayerOwner.GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry);
+			var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(factionTemplateEntry);
 
 			if (repRank != ReputationRank.None)
 				return repRank;
 
-			if (target.IsUnit() && !target.ToUnit().HasUnitFlag2(UnitFlags2.IgnoreReputation))
+			if (target.IsUnit && !target.ToUnit().HasUnitFlag2(UnitFlags2.IgnoreReputation))
 			{
 				var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
 
@@ -2375,9 +2502,9 @@ public abstract class WorldObject : IDisposable
 					if (factionEntry.CanHaveReputation())
 					{
 						// CvP case - check reputation, don't allow state higher than neutral when at war
-						var repRank1 = targetPlayerOwner.GetReputationMgr().GetRank(factionEntry);
+						var repRank1 = targetPlayerOwner.ReputationMgr.GetRank(factionEntry);
 
-						if (targetPlayerOwner.GetReputationMgr().IsAtWar(factionEntry))
+						if (targetPlayerOwner.ReputationMgr.IsAtWar(factionEntry))
 							repRank1 = (ReputationRank)Math.Min((int)ReputationRank.Neutral, (int)repRank1);
 
 						return repRank1;
@@ -2538,14 +2665,14 @@ public abstract class WorldObject : IDisposable
 
 		if (info == null)
 		{
-			Log.outError(LogFilter.Unit, $"CastSpell: unknown spell {spellId} by caster {GetGUID()}");
+			Log.outError(LogFilter.Unit, $"CastSpell: unknown spell {spellId} by caster {GUID}");
 
 			return SpellCastResult.SpellUnavailable;
 		}
 
 		if (targets.Targets == null)
 		{
-			Log.outError(LogFilter.Unit, $"CastSpell: Invalid target passed to spell cast {spellId} by {GetGUID()}");
+			Log.outError(LogFilter.Unit, $"CastSpell: Invalid target passed to spell cast {spellId} by {GUID}");
 
 			return SpellCastResult.BadTargets;
 		}
@@ -2566,7 +2693,7 @@ public abstract class WorldObject : IDisposable
 			{
 				spell.CastItem = args.TriggeringSpell.CastItem;
 			}
-			else if (args.TriggeringAura != null && !args.TriggeringAura.Base.CastItemGuid.IsEmpty())
+			else if (args.TriggeringAura != null && !args.TriggeringAura.Base.CastItemGuid.IsEmpty)
 			{
 				var triggeringAuraCaster = args.TriggeringAura.Caster?.ToPlayer();
 
@@ -2583,8 +2710,8 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source = GetGUID();
-		playSpellVisual.Target = target.GetGUID();
+		playSpellVisual.Source = GUID;
+		playSpellVisual.Target = target.GUID;
 		playSpellVisual.TargetPosition = target.Location;
 		playSpellVisual.SpellVisualID = spellVisualId;
 		playSpellVisual.TravelSpeed = travelSpeed;
@@ -2598,7 +2725,7 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisual(Position targetPosition, float launchDelay, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source = GetGUID();
+		playSpellVisual.Source = GUID;
 		playSpellVisual.TargetPosition = targetPosition;
 		playSpellVisual.LaunchDelay = launchDelay;
 		playSpellVisual.SpellVisualID = spellVisualId;
@@ -2612,7 +2739,7 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisual(Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new();
-		playSpellVisual.Source = GetGUID();
+		playSpellVisual.Source = GUID;
 		playSpellVisual.TargetPosition = targetPosition;
 		playSpellVisual.SpellVisualID = spellVisualId;
 		playSpellVisual.TravelSpeed = travelSpeed;
@@ -2625,7 +2752,7 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
 	{
 		PlaySpellVisualKit playSpellVisualKit = new();
-		playSpellVisualKit.Unit = GetGUID();
+		playSpellVisualKit.Unit = GUID;
 		playSpellVisualKit.KitRecID = id;
 		playSpellVisualKit.KitType = type;
 		playSpellVisualKit.Duration = duration;
@@ -2652,7 +2779,7 @@ public abstract class WorldObject : IDisposable
 			return false;
 
 		// can't attack GMs
-		if (target.IsPlayer() && target.ToPlayer().IsGameMaster())
+		if (target.IsPlayer && target.ToPlayer().IsGameMaster)
 			return false;
 
 		var unit = ToUnit();
@@ -2665,7 +2792,7 @@ public abstract class WorldObject : IDisposable
 					return false;
 
 		// can't attack dead
-		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget != null && !unitTarget.IsAlive())
+		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget != null && !unitTarget.IsAlive)
 			return false;
 
 		// can't attack untargetable
@@ -2746,13 +2873,13 @@ public abstract class WorldObject : IDisposable
 				var factionTemplate = creature.GetFactionTemplateEntry();
 
 				if (factionTemplate != null)
-					if (player.GetReputationMgr().GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
+					if (player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
 					{
 						var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplate.Faction);
 
 						if (factionEntry != null)
 						{
-							var repState = player.GetReputationMgr().GetState(factionEntry);
+							var repState = player.ReputationMgr.GetState(factionEntry);
 
 							if (repState != null)
 								if (!repState.Flags.HasFlag(ReputationFlags.AtWar))
@@ -2764,7 +2891,7 @@ public abstract class WorldObject : IDisposable
 
 		var creatureAttacker = ToCreature();
 
-		if (creatureAttacker && creatureAttacker.GetCreatureTemplate().TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
+		if (creatureAttacker && creatureAttacker.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
 			return false;
 
 		if (playerAffectingAttacker && playerAffectingTarget)
@@ -2773,16 +2900,16 @@ public abstract class WorldObject : IDisposable
 
 		// PvP case - can't attack when attacker or target are in sanctuary
 		// however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
-		if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner != null && unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && (unitTarget.IsInSanctuary() || unitOrOwner.IsInSanctuary()))
+		if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner != null && unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && (unitTarget.IsInSanctuary || unitOrOwner.IsInSanctuary))
 			return false;
 
 		// additional checks - only PvP case
 		if (playerAffectingAttacker && playerAffectingTarget)
 		{
-			if (playerAffectingTarget.IsPvP() || (bySpell != null && bySpell.HasAttribute(SpellAttr5.IgnoreAreaEffectPvpCheck)))
+			if (playerAffectingTarget.IsPvP || (bySpell != null && bySpell.HasAttribute(SpellAttr5.IgnoreAreaEffectPvpCheck)))
 				return true;
 
-			if (playerAffectingAttacker.IsFFAPvP() && playerAffectingTarget.IsFFAPvP())
+			if (playerAffectingAttacker.IsFFAPvP && playerAffectingTarget.IsFFAPvP)
 				return true;
 
 			return playerAffectingAttacker.HasPvpFlag(UnitPVPStateFlags.Unk1) ||
@@ -2811,7 +2938,7 @@ public abstract class WorldObject : IDisposable
 			return false;
 
 		// can't assist GMs
-		if (target.IsPlayer() && target.ToPlayer().IsGameMaster())
+		if (target.IsPlayer && target.ToPlayer().IsGameMaster)
 			return false;
 
 		// can't assist own vehicle or passenger
@@ -2831,7 +2958,7 @@ public abstract class WorldObject : IDisposable
 			return false;
 
 		// can't assist dead
-		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive())
+		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive)
 			return false;
 
 		// can't assist untargetable
@@ -2861,7 +2988,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		// can't assist non-friendly targets
-		if (GetReactionTo(target) < ReputationRank.Neutral && target.GetReactionTo(this) < ReputationRank.Neutral && (!ToCreature() || !ToCreature().GetCreatureTemplate().TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+		if (GetReactionTo(target) < ReputationRank.Neutral && target.GetReactionTo(this) < ReputationRank.Neutral && (!ToCreature() || !ToCreature().CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return false;
 
 		// PvP case
@@ -2878,12 +3005,12 @@ public abstract class WorldObject : IDisposable
 						return false;
 
 				// can't assist player in ffa_pvp zone from outside
-				if (unitTarget.IsFFAPvP() && !unit.IsFFAPvP())
+				if (unitTarget.IsFFAPvP && !unit.IsFFAPvP)
 					return false;
 
 				// can't assist player out of sanctuary from sanctuary if has pvp enabled
-				if (unitTarget.IsPvP())
-					if (unit.IsInSanctuary() && !unitTarget.IsInSanctuary())
+				if (unitTarget.IsPvP)
+					if (unit.IsInSanctuary && !unitTarget.IsInSanctuary)
 						return false;
 			}
 		}
@@ -2892,12 +3019,12 @@ public abstract class WorldObject : IDisposable
 		else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
 		{
 			if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-				if (unitTarget != null && !unitTarget.IsPvP())
+				if (unitTarget != null && !unitTarget.IsPvP)
 				{
 					var creatureTarget = target.ToCreature();
 
 					if (creatureTarget != null)
-						return (creatureTarget.GetCreatureTemplate().TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.GetCreatureTemplate().TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
+						return (creatureTarget.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
 				}
 		}
 
@@ -3011,34 +3138,14 @@ public abstract class WorldObject : IDisposable
 		return playerList;
 	}
 
-	public PhaseShift GetPhaseShift()
-	{
-		return _phaseShift;
-	}
-
-	public void SetPhaseShift(PhaseShift phaseShift)
-	{
-		_phaseShift = new PhaseShift(phaseShift);
-	}
-
-	public PhaseShift GetSuppressedPhaseShift()
-	{
-		return _suppressedPhaseShift;
-	}
-
-	public void SetSuppressedPhaseShift(PhaseShift phaseShift)
-	{
-		_suppressedPhaseShift = new PhaseShift(phaseShift);
-	}
-
 	public bool InSamePhase(PhaseShift phaseShift)
 	{
-		return GetPhaseShift().CanSee(phaseShift);
+		return PhaseShift.CanSee(phaseShift);
 	}
 
 	public bool InSamePhase(WorldObject obj)
 	{
-		return GetPhaseShift().CanSee(obj.GetPhaseShift());
+		return PhaseShift.CanSee(obj.PhaseShift);
 	}
 
 	public static bool InSamePhase(WorldObject a, WorldObject b)
@@ -3046,25 +3153,9 @@ public abstract class WorldObject : IDisposable
 		return a != null && b != null && a.InSamePhase(b);
 	}
 
-	public int GetDBPhase()
-	{
-		return _dbPhase;
-	}
-
-	// if negative it is used as PhaseGroupId
-	public void SetDBPhase(int p)
-	{
-		_dbPhase = p;
-	}
-
-	public virtual float GetCombatReach()
-	{
-		return 0.0f;
-	} // overridden (only) in Unit
-
 	public void PlayDistanceSound(uint soundId, Player target = null)
 	{
-		PlaySpeakerBoxSound playSpeakerBoxSound = new(GetGUID(), soundId);
+		PlaySpeakerBoxSound playSpeakerBoxSound = new(GUID, soundId);
 
 		if (target != null)
 			target.SendPacket(playSpeakerBoxSound);
@@ -3074,7 +3165,7 @@ public abstract class WorldObject : IDisposable
 
 	public void PlayDirectSound(uint soundId, Player target = null, uint broadcastTextId = 0)
 	{
-		PlaySound sound = new(GetGUID(), soundId, broadcastTextId);
+		PlaySound sound = new(GUID, soundId, broadcastTextId);
 
 		if (target)
 			target.SendPacket(sound);
@@ -3109,11 +3200,11 @@ public abstract class WorldObject : IDisposable
 			if (!player.HaveAtClient(this))
 				continue;
 
-			if (IsTypeMask(TypeMask.Unit) && (ToUnit().GetCharmerGUID() == player.GetGUID())) // @todo this is for puppet
+			if (IsTypeMask(TypeMask.Unit) && (ToUnit().CharmerGUID == player.GUID)) // @todo this is for puppet
 				continue;
 
 			DestroyForPlayer(player);
-			player.ClientGuiDs.Remove(GetGUID());
+			player.ClientGuiDs.Remove(GUID);
 		}
 	}
 
@@ -3159,42 +3250,6 @@ public abstract class WorldObject : IDisposable
 		GetMap().RemoveUpdateObject(this);
 	}
 
-	public uint GetInstanceId()
-	{
-		return InstanceId;
-	}
-
-	public virtual ushort GetAIAnimKitId()
-	{
-		return 0;
-	}
-
-	public virtual ushort GetMovementAnimKitId()
-	{
-		return 0;
-	}
-
-	public virtual ushort GetMeleeAnimKitId()
-	{
-		return 0;
-	}
-
-	// Watcher
-	public bool IsPrivateObject()
-	{
-		return !_privateObjectOwner.IsEmpty();
-	}
-
-	public ObjectGuid GetPrivateObjectOwner()
-	{
-		return _privateObjectOwner;
-	}
-
-	public void SetPrivateObjectOwner(ObjectGuid owner)
-	{
-		_privateObjectOwner = owner;
-	}
-
 	public virtual string GetName(Locale locale = Locale.enUS)
 	{
 		return _name;
@@ -3205,39 +3260,9 @@ public abstract class WorldObject : IDisposable
 		_name = name;
 	}
 
-	public ObjectGuid GetGUID()
-	{
-		return _guid;
-	}
-
-	public uint GetEntry()
-	{
-		return ObjectData.EntryId;
-	}
-
-	public void SetEntry(uint entry)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), entry);
-	}
-
-	public float GetObjectScale()
-	{
-		return ObjectData.Scale;
-	}
-
-	public virtual void SetObjectScale(float scale)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), scale);
-	}
-
-	public TypeId GetTypeId()
-	{
-		return ObjectTypeId;
-	}
-
 	public bool IsTypeId(TypeId typeId)
 	{
-		return GetTypeId() == typeId;
+		return TypeId == typeId;
 	}
 
 	public bool IsTypeMask(TypeMask mask)
@@ -3260,64 +3285,9 @@ public abstract class WorldObject : IDisposable
 		_isNewObject = enable;
 	}
 
-	public bool IsDestroyedObject()
-	{
-		return _isDestroyedObject;
-	}
-
 	public void SetDestroyedObject(bool destroyed)
 	{
 		_isDestroyedObject = destroyed;
-	}
-
-	public bool IsCreature()
-	{
-		return ObjectTypeId == TypeId.Unit;
-	}
-
-	public bool IsPlayer()
-	{
-		return ObjectTypeId == TypeId.Player;
-	}
-
-	public bool IsGameObject()
-	{
-		return ObjectTypeId == TypeId.GameObject;
-	}
-
-	public bool IsItem()
-	{
-		return ObjectTypeId == TypeId.Item;
-	}
-
-	public bool IsUnit()
-	{
-		return IsTypeMask(TypeMask.Unit);
-	}
-
-	public bool IsCorpse()
-	{
-		return ObjectTypeId == TypeId.Corpse;
-	}
-
-	public bool IsDynObject()
-	{
-		return ObjectTypeId == TypeId.DynamicObject;
-	}
-
-	public bool IsAreaTrigger()
-	{
-		return ObjectTypeId == TypeId.AreaTrigger;
-	}
-
-	public bool IsConversation()
-	{
-		return ObjectTypeId == TypeId.Conversation;
-	}
-
-	public bool IsSceneObject()
-	{
-		return ObjectTypeId == TypeId.SceneObject;
 	}
 
 	public Creature ToCreature()
@@ -3445,11 +3415,6 @@ public abstract class WorldObject : IDisposable
 		return 1;
 	}
 
-	public ZoneScript GetZoneScript()
-	{
-		return ZoneScript;
-	}
-
 	public void AddToNotify(NotifyFlags f)
 	{
 		_notifyflags |= f;
@@ -3465,60 +3430,15 @@ public abstract class WorldObject : IDisposable
 		_notifyflags = 0;
 	}
 
-	public bool IsActiveObject()
-	{
-		return m_isActive;
-	}
-
-	public bool IsPermanentWorldObject()
-	{
-		return _isWorldObject;
-	}
-
-	public ITransport GetTransport()
-	{
-		return _transport;
-	}
-
 	public T GetTransport<T>() where T : class, ITransport
 	{
 		return _transport as T;
 	}
 
-	public float GetTransOffsetX()
-	{
-		return MovementInfo.Transport.Pos.X;
-	}
-
-	public float GetTransOffsetY()
-	{
-		return MovementInfo.Transport.Pos.Y;
-	}
-
-	public float GetTransOffsetZ()
-	{
-		return MovementInfo.Transport.Pos.Z;
-	}
-
-	public float GetTransOffsetO()
-	{
-		return MovementInfo.Transport.Pos.Orientation;
-	}
-
-	public uint GetTransTime()
-	{
-		return MovementInfo.Transport.Time;
-	}
-
-	public sbyte GetTransSeat()
-	{
-		return MovementInfo.Transport.Seat;
-	}
-
 	public virtual ObjectGuid GetTransGUID()
 	{
-		if (GetTransport() != null)
-			return GetTransport().GetTransportGUID();
+		if (Transport != null)
+			return Transport.GetTransportGUID();
 
 		return ObjectGuid.Empty;
 	}
@@ -3528,39 +3448,9 @@ public abstract class WorldObject : IDisposable
 		_transport = t;
 	}
 
-	public virtual float GetStationaryX()
-	{
-		return Location.X;
-	}
-
-	public virtual float GetStationaryY()
-	{
-		return Location.Y;
-	}
-
-	public virtual float GetStationaryZ()
-	{
-		return Location.Z;
-	}
-
-	public virtual float GetStationaryO()
-	{
-		return Location.Orientation;
-	}
-
-	public virtual float GetCollisionHeight()
-	{
-		return 0.0f;
-	}
-
-	public float GetMidsectionHeight()
-	{
-		return GetCollisionHeight() / 2.0f;
-	}
-
 	public virtual bool IsNeverVisibleFor(WorldObject seer)
 	{
-		return !IsInWorld || IsDestroyedObject();
+		return !IsInWorld || IsDestroyedObject;
 	}
 
 	public virtual bool IsAlwaysVisibleFor(WorldObject seer)
@@ -3583,29 +3473,12 @@ public abstract class WorldObject : IDisposable
 		return true;
 	}
 
-	public virtual ObjectGuid GetOwnerGUID()
-	{
-		return default;
-	}
-
-	public virtual ObjectGuid GetCharmerOrOwnerGUID()
-	{
-		return GetOwnerGUID();
-	}
-
-	public virtual uint GetFaction()
-	{
-		return 0;
-	}
-
-	public virtual void SetFaction(uint faction) { }
-
 	//Position
 
 	public float GetDistanceZ(WorldObject obj)
 	{
 		var dz = Math.Abs(Location.Z - obj.Location.Z);
-		var sizefactor = GetCombatReach() + obj.GetCombatReach();
+		var sizefactor = CombatReach + obj.CombatReach;
 		var dist = dz - sizefactor;
 
 		return (dist > 0 ? dist : 0);
@@ -3614,14 +3487,14 @@ public abstract class WorldObject : IDisposable
 	public virtual bool _IsWithinDist(WorldObject obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true)
 	{
 		float sizefactor = 0;
-		sizefactor += incOwnRadius ? GetCombatReach() : 0.0f;
-		sizefactor += incTargetRadius ? obj.GetCombatReach() : 0.0f;
+		sizefactor += incOwnRadius ? CombatReach : 0.0f;
+		sizefactor += incTargetRadius ? obj.CombatReach : 0.0f;
 		var maxdist = dist2compare + sizefactor;
 
 		Position thisOrTransport = Location;
 		Position objOrObjTransport = obj.Location;
 
-		if (GetTransport() != null && obj.GetTransport() != null && obj.GetTransport().GetTransportGUID() == GetTransport().GetTransportGUID())
+		if (Transport != null && obj.Transport != null && obj.Transport.GetTransportGUID() == Transport.GetTransportGUID())
 		{
 			thisOrTransport = MovementInfo.Transport.Pos;
 			objOrObjTransport = obj.MovementInfo.Transport.Pos;
@@ -3636,35 +3509,35 @@ public abstract class WorldObject : IDisposable
 
 	public float GetDistance(WorldObject obj)
 	{
-		var d = Location.GetExactDist(obj.Location) - GetCombatReach() - obj.GetCombatReach();
+		var d = Location.GetExactDist(obj.Location) - CombatReach - obj.CombatReach;
 
 		return d > 0.0f ? d : 0.0f;
 	}
 
 	public float GetDistance(Position pos)
 	{
-		var d = Location.GetExactDist(pos) - GetCombatReach();
+		var d = Location.GetExactDist(pos) - CombatReach;
 
 		return d > 0.0f ? d : 0.0f;
 	}
 
 	public float GetDistance(float x, float y, float z)
 	{
-		var d = Location.GetExactDist(x, y, z) - GetCombatReach();
+		var d = Location.GetExactDist(x, y, z) - CombatReach;
 
 		return d > 0.0f ? d : 0.0f;
 	}
 
 	public float GetDistance2d(WorldObject obj)
 	{
-		var d = Location.GetExactDist2d(obj.Location) - GetCombatReach() - obj.GetCombatReach();
+		var d = Location.GetExactDist2d(obj.Location) - CombatReach - obj.CombatReach;
 
 		return d > 0.0f ? d : 0.0f;
 	}
 
 	public float GetDistance2d(float x, float y)
 	{
-		var d = Location.GetExactDist2d(x, y) - GetCombatReach();
+		var d = Location.GetExactDist2d(x, y) - CombatReach;
 
 		return d > 0.0f ? d : 0.0f;
 	}
@@ -3687,22 +3560,22 @@ public abstract class WorldObject : IDisposable
 
 	public bool IsWithinDist3d(float x, float y, float z, float dist)
 	{
-		return Location.IsInDist(x, y, z, dist + GetCombatReach());
+		return Location.IsInDist(x, y, z, dist + CombatReach);
 	}
 
 	public bool IsWithinDist3d(Position pos, float dist)
 	{
-		return Location.IsInDist(pos, dist + GetCombatReach());
+		return Location.IsInDist(pos, dist + CombatReach);
 	}
 
 	public bool IsWithinDist2d(float x, float y, float dist)
 	{
-		return Location.IsInDist2d(x, y, dist + GetCombatReach());
+		return Location.IsInDist2d(x, y, dist + CombatReach);
 	}
 
 	public bool IsWithinDist2d(Position pos, float dist)
 	{
-		return Location.IsInDist2d(pos, dist + GetCombatReach());
+		return Location.IsInDist2d(pos, dist + CombatReach);
 	}
 
 	public bool IsWithinDist(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
@@ -3724,20 +3597,20 @@ public abstract class WorldObject : IDisposable
 	{
 		if (IsInWorld)
 		{
-			oz += GetCollisionHeight();
+			oz += CollisionHeight;
 			var pos = new Position();
 
 			if (IsTypeId(TypeId.Player))
 			{
 				pos = Location.Copy();
-				pos.Z += GetCollisionHeight();
+				pos.Z += CollisionHeight;
 			}
 			else
 			{
 				GetHitSpherePointFor(new Position(ox, oy, oz), pos);
 			}
 
-			return GetMap().IsInLineOfSight(GetPhaseShift(), pos, ox, oy, oz, checks, ignoreFlags);
+			return GetMap().IsInLineOfSight(PhaseShift, pos, ox, oy, oz, checks, ignoreFlags);
 		}
 
 		return true;
@@ -3753,33 +3626,33 @@ public abstract class WorldObject : IDisposable
 		if (obj.IsTypeId(TypeId.Player))
 		{
 			pos = obj.Location.Copy();
-			pos.Z += GetCollisionHeight();
+			pos.Z += CollisionHeight;
 		}
 		else
 		{
-			obj.GetHitSpherePointFor(new Position(Location.X, Location.Y, Location.Z + GetCollisionHeight()), pos);
+			obj.GetHitSpherePointFor(new Position(Location.X, Location.Y, Location.Z + CollisionHeight), pos);
 		}
 
 		var pos2 = new Position();
 
-		if (IsPlayer())
+		if (IsPlayer)
 		{
 			pos2 = Location.Copy();
-			pos2.Z += GetCollisionHeight();
+			pos2.Z += CollisionHeight;
 		}
 		else
 		{
-			GetHitSpherePointFor(new Position(obj.Location.X, obj.Location.Y, obj.Location.Z + obj.GetCollisionHeight()), pos2);
+			GetHitSpherePointFor(new Position(obj.Location.X, obj.Location.Y, obj.Location.Z + obj.CollisionHeight), pos2);
 		}
 
-		return GetMap().IsInLineOfSight(GetPhaseShift(), pos2, pos, checks, ignoreFlags);
+		return GetMap().IsInLineOfSight(PhaseShift, pos2, pos, checks, ignoreFlags);
 	}
 
 	public Position GetHitSpherePointFor(Position dest)
 	{
-		Vector3 vThis = new(Location.X, Location.Y, Location.Z + GetCollisionHeight());
+		Vector3 vThis = new(Location.X, Location.Y, Location.Z + CollisionHeight);
 		Vector3 vObj = new(dest.X, dest.Y, dest.Z);
-		var contactPoint = vThis + (vObj - vThis).directionOrZero() * Math.Min(dest.GetExactDist(Location), GetCombatReach());
+		var contactPoint = vThis + (vObj - vThis).directionOrZero() * Math.Min(dest.GetExactDist(Location), CombatReach);
 
 		return new Position(contactPoint.X, contactPoint.Y, contactPoint.Z, Location.GetAbsoluteAngle(contactPoint.X, contactPoint.Y));
 	}
@@ -3829,7 +3702,7 @@ public abstract class WorldObject : IDisposable
 			distsq += dz * dz;
 		}
 
-		var sizefactor = GetCombatReach() + obj.GetCombatReach();
+		var sizefactor = CombatReach + obj.CombatReach;
 
 		// check only for real range
 		if (minRange > 0.0f)
@@ -3897,7 +3770,7 @@ public abstract class WorldObject : IDisposable
 		var newZ = GetMapHeight(x, y, z);
 
 		if (newZ > MapConst.InvalidHeight)
-			z = newZ + (IsUnit() ? ToUnit().GetHoverOffset() : 0.0f);
+			z = newZ + (IsUnit ? ToUnit().GetHoverOffset() : 0.0f);
 
 		return z;
 	}
@@ -3922,7 +3795,7 @@ public abstract class WorldObject : IDisposable
 	public float UpdateAllowedPositionZ(float x, float y, float z, ref float groundZ)
 	{
 		// TODO: Allow transports to be part of dynamic vmap tree
-		if (GetTransport() != null)
+		if (Transport != null)
 		{
 			groundZ = z;
 
@@ -3933,9 +3806,9 @@ public abstract class WorldObject : IDisposable
 
 		if (unit != null)
 		{
-			if (!unit.CanFly())
+			if (!unit.CanFly)
 			{
-				var canSwim = unit.CanSwim();
+				var canSwim = unit.CanSwim;
 				var ground_z = z;
 				float max_z;
 
@@ -3984,11 +3857,11 @@ public abstract class WorldObject : IDisposable
 
 	public void GetNearPoint2D(WorldObject searcher, out float x, out float y, float distance2d, float absAngle)
 	{
-		var effectiveReach = GetCombatReach();
+		var effectiveReach = CombatReach;
 
 		if (searcher)
 		{
-			effectiveReach += searcher.GetCombatReach();
+			effectiveReach += searcher.CombatReach;
 
 			if (this != searcher)
 			{
@@ -4129,8 +4002,8 @@ public abstract class WorldObject : IDisposable
 			{
 				destx -= step * (float)Math.Cos(angle);
 				desty -= step * (float)Math.Sin(angle);
-				ground = GetMap().GetHeight(GetPhaseShift(), destx, desty, MapConst.MaxHeight, true);
-				floor = GetMap().GetHeight(GetPhaseShift(), destx, desty, pos.Z, true);
+				ground = GetMap().GetHeight(PhaseShift, destx, desty, MapConst.MaxHeight, true);
+				floor = GetMap().GetHeight(PhaseShift, destx, desty, pos.Z, true);
 				destz = Math.Abs(ground - pos.Z) <= Math.Abs(floor - pos.Z) ? ground : floor;
 			}
 			// we have correct destz now
@@ -4178,13 +4051,13 @@ public abstract class WorldObject : IDisposable
 		destz = result.Z;
 
 		// check static LOS
-		var halfHeight = GetCollisionHeight() * 0.5f;
+		var halfHeight = CollisionHeight * 0.5f;
 		var col = false;
 
 		// Unit is flying, check for potential collision via vmaps
 		if (path.GetPathType().HasFlag(PathType.NotUsingPath))
 		{
-			col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(GetPhaseShift(), Location.MapId, GetMap().GetTerrain(), pos.X, pos.Y),
+			col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(PhaseShift, Location.MapId, GetMap().GetTerrain(), pos.X, pos.Y),
 												pos.X,
 												pos.Y,
 												pos.Z + halfHeight,
@@ -4208,7 +4081,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		// check dynamic collision
-		col = GetMap().GetObjectHitPos(GetPhaseShift(), pos.X, pos.Y, pos.Z + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
+		col = GetMap().GetObjectHitPos(PhaseShift, pos.X, pos.Y, pos.Z + halfHeight, destx, desty, destz + halfHeight, out destx, out desty, out destz, -0.5f);
 
 		destz -= halfHeight;
 
@@ -4236,11 +4109,11 @@ public abstract class WorldObject : IDisposable
 			if (unit != null)
 			{
 				// unit can fly, ignore.
-				if (unit.CanFly())
+				if (unit.CanFly)
 					return;
 
 				// fall back to gridHeight if any
-				var gridHeight = GetMap().GetGridHeight(GetPhaseShift(), pos.X, pos.Y);
+				var gridHeight = GetMap().GetGridHeight(PhaseShift, pos.X, pos.Y);
 
 				if (gridHeight > MapConst.InvalidHeight)
 					pos.Z = gridHeight + unit.GetHoverOffset();
@@ -4253,7 +4126,7 @@ public abstract class WorldObject : IDisposable
 		if (!IsInWorld)
 			return _staticFloorZ;
 
-		return Math.Max(_staticFloorZ, GetMap().GetGameObjectFloor(GetPhaseShift(), Location.X, Location.Y, Location.Z + MapConst.ZOffsetFindHeight));
+		return Math.Max(_staticFloorZ, GetMap().GetGameObjectFloor(PhaseShift, Location.X, Location.Y, Location.Z + MapConst.ZOffsetFindHeight));
 	}
 
 	public float GetMapWaterOrGroundLevel(float x, float y, float z)
@@ -4265,7 +4138,7 @@ public abstract class WorldObject : IDisposable
 
 	public float GetMapWaterOrGroundLevel(float x, float y, float z, ref float ground)
 	{
-		return GetMap().GetWaterOrGroundLevel(GetPhaseShift(), x, y, z, ref ground, IsTypeMask(TypeMask.Unit) ? !ToUnit().HasAuraType(AuraType.WaterWalk) : false, GetCollisionHeight());
+		return GetMap().GetWaterOrGroundLevel(PhaseShift, x, y, z, ref ground, IsTypeMask(TypeMask.Unit) ? !ToUnit().HasAuraType(AuraType.WaterWalk) : false, CollisionHeight);
 	}
 
 	public float GetMapHeight(Position pos, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)
@@ -4278,7 +4151,7 @@ public abstract class WorldObject : IDisposable
 		if (z != MapConst.MaxHeight)
 			z += MapConst.ZOffsetFindHeight;
 
-		return GetMap().GetHeight(GetPhaseShift(), x, y, z, vmap, distanceToSearch);
+		return GetMap().GetHeight(PhaseShift, x, y, z, vmap, distanceToSearch);
 	}
 
 	public void SetLocationInstanceId(uint _instanceId)
@@ -4312,16 +4185,16 @@ public abstract class WorldObject : IDisposable
 
 		if (thisUnit != null)
 		{
-			if (thisUnit.IsPossessing())
+			if (thisUnit.IsPossessing)
 			{
-				var charmed = thisUnit.GetCharmed();
+				var charmed = thisUnit.Charmed;
 
 				if (charmed != null)
 					seer = charmed;
 			}
 			else
 			{
-				var controller = thisUnit.GetCharmerOrOwner();
+				var controller = thisUnit.CharmerOrOwner;
 
 				if (controller != null)
 					seer = controller;
@@ -4379,7 +4252,7 @@ public abstract class WorldObject : IDisposable
 		var unit = ToUnit();
 
 		if (unit != null)
-			combatReach = unit.GetCombatReach();
+			combatReach = unit.CombatReach;
 
 		if (distance < combatReach)
 			return true;
@@ -4453,7 +4326,7 @@ public abstract class WorldObject : IDisposable
 	SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
 	{
 		// Can`t miss on dead target (on skinning for example)
-		if (!victim.IsAlive() && !victim.IsPlayer())
+		if (!victim.IsAlive && !victim.IsPlayer)
 			return SpellMissInfo.None;
 
 		if (spellInfo.HasAttribute(SpellAttr3.NoAvoidance))
@@ -4469,10 +4342,10 @@ public abstract class WorldObject : IDisposable
 		{
 			var schoolMask = spellInfo.GetSchoolMask();
 			// PvP - PvE spell misschances per leveldif > 2
-			var lchance = victim.IsPlayer() ? 7 : 11;
+			var lchance = victim.IsPlayer ? 7 : 11;
 			var thisLevel = GetLevelForTarget(victim);
 
-			if (IsCreature() && ToCreature().IsTrigger())
+			if (IsCreature && ToCreature().IsTrigger)
 				thisLevel = Math.Max(thisLevel, spellInfo.SpellLevel);
 
 			var leveldif = (int)(victim.GetLevelForTarget(this) - thisLevel);
@@ -4483,7 +4356,7 @@ public abstract class WorldObject : IDisposable
 
 			if (levelBasedHitDiff >= 0)
 			{
-				if (!victim.IsPlayer())
+				if (!victim.IsPlayer)
 				{
 					modHitChance = 94 - 3 * Math.Min(levelBasedHitDiff, 3);
 					levelBasedHitDiff -= 3;
@@ -4554,7 +4427,7 @@ public abstract class WorldObject : IDisposable
 	void SendCancelSpellVisual(uint id)
 	{
 		CancelSpellVisual cancelSpellVisual = new();
-		cancelSpellVisual.Source = GetGUID();
+		cancelSpellVisual.Source = GUID;
 		cancelSpellVisual.SpellVisualID = id;
 		SendMessageToSet(cancelSpellVisual, true);
 	}
@@ -4566,7 +4439,7 @@ public abstract class WorldObject : IDisposable
 
 		if (withSourceOrientation)
 		{
-			if (IsGameObject())
+			if (IsGameObject)
 			{
 				var rotation = ToGameObject().GetWorldRotation();
 
@@ -4595,7 +4468,7 @@ public abstract class WorldObject : IDisposable
 
 		if (withSourceOrientation)
 		{
-			if (IsGameObject())
+			if (IsGameObject)
 			{
 				var rotation = ToGameObject().GetWorldRotation();
 
@@ -4627,19 +4500,9 @@ public abstract class WorldObject : IDisposable
 	void SendCancelSpellVisualKit(uint id)
 	{
 		CancelSpellVisualKit cancelSpellVisualKit = new();
-		cancelSpellVisualKit.Source = GetGUID();
+		cancelSpellVisualKit.Source = GUID;
 		cancelSpellVisualKit.SpellVisualKitID = id;
 		SendMessageToSet(cancelSpellVisualKit, true);
-	}
-
-	NotifyFlags GetNotifyFlags()
-	{
-		return _notifyflags;
-	}
-
-	Position GetTransOffset()
-	{
-		return MovementInfo.Transport.Pos;
 	}
 
 	bool IsInBetween(Position pos1, Position pos2, float size)
@@ -4651,7 +4514,7 @@ public abstract class WorldObject : IDisposable
 			return false;
 
 		if (size == 0)
-			size = GetCombatReach() / 2;
+			size = CombatReach / 2;
 
 		var angle = pos1.GetAbsoluteAngle(pos2);
 

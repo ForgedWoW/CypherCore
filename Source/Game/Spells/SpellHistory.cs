@@ -123,11 +123,11 @@ public class SpellHistory
 		else
 		{
 			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_COOLDOWNS);
-			stmt.AddValue(0, _owner.GetGUID().GetCounter());
+			stmt.AddValue(0, _owner.GUID.Counter);
 			trans.Append(stmt);
 
 			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_CHARGES);
-			stmt.AddValue(0, _owner.GetGUID().GetCounter());
+			stmt.AddValue(0, _owner.GUID.Counter);
 			trans.Append(stmt);
 
 			byte index;
@@ -137,7 +137,7 @@ public class SpellHistory
 				{
 					index = 0;
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_COOLDOWN);
-					stmt.AddValue(index++, _owner.GetGUID().GetCounter());
+					stmt.AddValue(index++, _owner.GUID.Counter);
 					stmt.AddValue(index++, pair.Key);
 					stmt.AddValue(index++, pair.Value.ItemId);
 					stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.CooldownEnd));
@@ -150,7 +150,7 @@ public class SpellHistory
 			{
 				index = 0;
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_CHARGES);
-				stmt.AddValue(index++, _owner.GetGUID().GetCounter());
+				stmt.AddValue(index++, _owner.GUID.Counter);
 				stmt.AddValue(index++, pair.Key);
 				stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeStart));
 				stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeEnd));
@@ -179,7 +179,7 @@ public class SpellHistory
 
 	public void HandleCooldowns(SpellInfo spellInfo, Item item, Spell spell = null)
 	{
-		HandleCooldowns(spellInfo, item ? item.GetEntry() : 0u, spell);
+		HandleCooldowns(spellInfo, item ? item.Entry : 0u, spell);
 	}
 
 	public void HandleCooldowns(SpellInfo spellInfo, uint itemId, Spell spell = null)
@@ -460,7 +460,7 @@ public class SpellHistory
 			var playerOwner = GetPlayerOwner();
 
 			if (playerOwner)
-				Global.ScriptMgr.ForEach<IPlayerOnCooldownStart>(playerOwner.GetClass(), c => c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, ref recTime, ref catrecTime, ref onHold));
+				Global.ScriptMgr.ForEach<IPlayerOnCooldownStart>(playerOwner.Class, c => c.OnCooldownStart(playerOwner, spellInfo, itemId, categoryId, cooldown, ref recTime, ref catrecTime, ref onHold));
 
 			AddCooldown(spellInfo.Id, itemId, recTime, categoryId, catrecTime, onHold);
 
@@ -468,7 +468,7 @@ public class SpellHistory
 				if (needsCooldownPacket)
 				{
 					SpellCooldownPkt spellCooldown = new();
-					spellCooldown.Caster = _owner.GetGUID();
+					spellCooldown.Caster = _owner.GUID;
 					spellCooldown.Flags = SpellCooldownFlags.None;
 					spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(spellInfo.Id, (uint)cooldown.TotalMilliseconds));
 					playerOwner.SendPacket(spellCooldown);
@@ -730,7 +730,7 @@ public class SpellHistory
 				if (p.Value.State != PlayerSpellState.Removed)
 					knownSpells.Add(p.Key);
 		}
-		else if (_owner.IsPet())
+		else if (_owner.IsPet)
 		{
 			var petOwner = _owner.ToPet();
 
@@ -748,7 +748,7 @@ public class SpellHistory
 		}
 
 		SpellCooldownPkt spellCooldown = new();
-		spellCooldown.Caster = _owner.GetGUID();
+		spellCooldown.Caster = _owner.GUID;
 		spellCooldown.Flags = SpellCooldownFlags.LossOfControlUi;
 
 		foreach (var spellId in knownSpells)
@@ -810,7 +810,7 @@ public class SpellHistory
 			var p = GetPlayerOwner();
 
 			if (p != null)
-				Global.ScriptMgr.ForEach<IPlayerOnChargeRecoveryTimeStart>(p.GetClass(), c => c.OnChargeRecoveryTimeStart(p, chargeCategoryId, ref chargeRecovery));
+				Global.ScriptMgr.ForEach<IPlayerOnChargeRecoveryTimeStart>(p.Class, c => c.OnChargeRecoveryTimeStart(p, chargeCategoryId, ref chargeRecovery));
 
 			_categoryCharges.Add(chargeCategoryId, new ChargeEntry(recoveryStart, TimeSpan.FromMilliseconds(chargeRecovery)));
 
@@ -980,7 +980,7 @@ public class SpellHistory
 
 			// update the client: restore old cooldowns
 			SpellCooldownPkt spellCooldown = new();
-			spellCooldown.Caster = _owner.GetGUID();
+			spellCooldown.Caster = _owner.GUID;
 			spellCooldown.Flags = SpellCooldownFlags.IncludeEventCooldowns;
 
 			foreach (var c in _spellCooldowns)
@@ -1055,7 +1055,7 @@ public class SpellHistory
 		if (cooldownEntry.CooldownEnd <= now)
 		{
 			if (playerOwner)
-				Global.ScriptMgr.ForEach<IPlayerOnCooldownEnd>(playerOwner.GetClass(), c => c.OnCooldownEnd(playerOwner, Global.SpellMgr.GetSpellInfo(cooldownEntry.SpellId), cooldownEntry.ItemId, cooldownEntry.CategoryId));
+				Global.ScriptMgr.ForEach<IPlayerOnCooldownEnd>(playerOwner.Class, c => c.OnCooldownEnd(playerOwner, Global.SpellMgr.GetSpellInfo(cooldownEntry.SpellId), cooldownEntry.ItemId, cooldownEntry.CategoryId));
 
 			_categoryCooldowns.Remove(cooldownEntry.CategoryId);
 			_spellCooldowns.Remove(cooldownEntry.SpellId);

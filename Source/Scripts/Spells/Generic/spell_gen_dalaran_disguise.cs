@@ -37,7 +37,7 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 
 		if (player)
 		{
-			var gender = player.GetNativeGender();
+			var gender = player.NativeGender;
 
 			var spellId = SpellInfo.Id;
 

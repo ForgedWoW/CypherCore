@@ -18,7 +18,7 @@ internal class spell_dk_pet_geist_transform : SpellScript, ISpellCheckCast
 
 	public override bool Load()
 	{
-		return Caster.IsPet();
+		return Caster.IsPet;
 	}
 
 	public SpellCastResult CheckCast()

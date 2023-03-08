@@ -17,7 +17,7 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return Caster && Caster.GetTypeId() == TypeId.Player;
+		return Caster && Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

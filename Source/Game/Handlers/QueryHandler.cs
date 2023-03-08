@@ -68,7 +68,7 @@ namespace Game
 
                 QueryGameObjectResponse queryGameObjectResponse = info.QueryData;
 
-                Locale loc = GetSessionDbLocaleIndex();
+                Locale loc = SessionDbLocaleIndex;
                 if (loc != Locale.enUS)
                 {
                     GameObjectLocale gameObjectLocale = Global.ObjectMgr.GetGameObjectLocale(queryGameObjectResponse.GameObjectID);
@@ -104,7 +104,7 @@ namespace Game
 
                 QueryCreatureResponse queryCreatureResponse = ci.QueryData;
 
-                Locale loc = GetSessionDbLocaleIndex();
+                Locale loc = SessionDbLocaleIndex;
                 if (loc != Locale.enUS)
                 {
                     CreatureLocale creatureLocale = Global.ObjectMgr.GetCreatureLocale(ci.Entry);
@@ -181,7 +181,7 @@ namespace Game
                 page.PlayerConditionID = pageText.PlayerConditionID;
                 page.Flags = pageText.Flags;
 
-                Locale locale = GetSessionDbLocaleIndex();
+                Locale locale = SessionDbLocaleIndex;
                 if (locale != Locale.enUS)
                 {
                     PageTextLocale pageLocale = Global.ObjectMgr.GetPageTextLocale(pageID);
@@ -202,7 +202,7 @@ namespace Game
         {
             CorpseLocation packet = new();
             Player player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseLocation.Player);
-            if (!player || !player.HasCorpse() || !_player.IsInSameRaidWith(player))
+            if (!player || !player.HasCorpse || !_player.IsInSameRaidWith(player))
             {
                 packet.Valid = false;                               // corpse not found
                 packet.Player = queryCorpseLocation.Player;
@@ -210,7 +210,7 @@ namespace Game
                 return;
             }
 
-            WorldLocation corpseLocation = player.GetCorpseLocation();
+            WorldLocation corpseLocation = player.CorpseLocation;
             uint corpseMapID = corpseLocation.MapId;
             uint mapID = corpseLocation.MapId;
             float x = corpseLocation.X;
@@ -233,7 +233,7 @@ namespace Game
                             mapID = (uint)corpseMapEntry.CorpseMapID;
                             x = corpseMapEntry.Corpse.X;
                             y = corpseMapEntry.Corpse.Y;
-                            z = entranceTerrain.GetStaticHeight(player.GetPhaseShift(), mapID, x, y, MapConst.MaxHeight);
+                            z = entranceTerrain.GetStaticHeight(player.PhaseShift, mapID, x, y, MapConst.MaxHeight);
                         }
                     }
                 }
@@ -258,10 +258,10 @@ namespace Game
             if (player)
             {
                 Corpse corpse = player.GetCorpse();
-                if (_player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty() && corpse.GetTransGUID() == queryCorpseTransport.Transport)
+                if (_player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
                 {
-                    response.Position = new Vector3(corpse.GetTransOffsetX(), corpse.GetTransOffsetY(), corpse.GetTransOffsetZ());
-                    response.Facing = corpse.GetTransOffsetO();
+                    response.Position = new Vector3(corpse.TransOffsetX, corpse.TransOffsetY, corpse.TransOffsetZ);
+                    response.Facing = corpse.TransOffsetO;
                 }
             }
 
@@ -279,7 +279,7 @@ namespace Game
 
                 if (Global.ObjectMgr.GetQuestTemplate(questID) == null)
                 {
-                    Log.outDebug(LogFilter.Network, "WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, GetPlayer().GetGUID());
+                    Log.outDebug(LogFilter.Network, "WORLD: Unknown quest {0} in CMSG_QUEST_NPC_QUERY by {1}", questID, Player.GUID);
                     continue;
                 }
 
@@ -329,7 +329,7 @@ namespace Game
             QueryItemTextResponse queryItemTextResponse = new();
             queryItemTextResponse.Id = packet.Id;
 
-            Item item = GetPlayer().GetItemByGuid(packet.Id);
+            Item item = Player.GetItemByGuid(packet.Id);
             if (item)
             {
                 queryItemTextResponse.Valid = true;

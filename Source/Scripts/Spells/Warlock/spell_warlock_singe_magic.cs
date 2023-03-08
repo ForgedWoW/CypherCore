@@ -23,7 +23,7 @@ public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpell
 		if (caster == null || !caster.ToPlayer())
 			return SpellCastResult.BadTargets;
 
-		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().GetEntry() == 416)
+		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().Entry == 416)
 			return SpellCastResult.SpellCastOk;
 
 		return SpellCastResult.CantDoThatRightNow;

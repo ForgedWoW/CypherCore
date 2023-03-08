@@ -51,7 +51,7 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 						return;
 				}
 
-				var rider = Caster.GetCharmer();
+				var rider = Caster.Charmer;
 
 				if (rider)
 					rider.CastSpell(target, spellId, false);
@@ -72,7 +72,7 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 					{
 						aura.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
 						// Remove dummys from rider (Necessary for updating visual shields)
-						var rider = target.GetCharmer();
+						var rider = target.Charmer;
 
 						if (rider)
 						{

@@ -32,7 +32,7 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
 		{
 			uint spellId = 0;
 
-			switch (unitTarget.GetClass())
+			switch (unitTarget.Class)
 			{
 				case Class.Druid:
 					spellId = ItemSpellIds.BlessingOfLowerCityDruid;

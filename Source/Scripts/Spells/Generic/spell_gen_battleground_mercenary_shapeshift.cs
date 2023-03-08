@@ -388,29 +388,29 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		var owner = UnitOwner;
-		var otherFactionRace = GetReplacementRace(owner.GetRace(), owner.GetClass());
+		var otherFactionRace = GetReplacementRace(owner.Race, owner.Class);
 
 		if (otherFactionRace == Race.None)
 			return;
 
-		var displayId = GetDisplayIdForRace(otherFactionRace, owner.GetNativeGender());
+		var displayId = GetDisplayIdForRace(otherFactionRace, owner.NativeGender);
 
 		if (displayId != 0)
 			owner.SetDisplayId(displayId);
 
 		if (mode.HasFlag(AuraEffectHandleModes.Real))
-			UpdateRacials(owner.GetRace(), otherFactionRace);
+			UpdateRacials(owner.Race, otherFactionRace);
 	}
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		var owner = UnitOwner;
-		var otherFactionRace = GetReplacementRace(owner.GetRace(), owner.GetClass());
+		var otherFactionRace = GetReplacementRace(owner.Race, owner.Class);
 
 		if (otherFactionRace == Race.None)
 			return;
 
-		UpdateRacials(otherFactionRace, owner.GetRace());
+		UpdateRacials(otherFactionRace, owner.Race);
 	}
 
 	private void UpdateRacials(Race oldRace, Race newRace)
@@ -422,7 +422,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 		foreach (var racialSkillId in RacialSkills)
 		{
-			if (Global.DB2Mgr.GetSkillRaceClassInfo(racialSkillId, oldRace, player.GetClass()) != null)
+			if (Global.DB2Mgr.GetSkillRaceClassInfo(racialSkillId, oldRace, player.Class) != null)
 			{
 				var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(racialSkillId);
 
@@ -431,7 +431,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 						player.RemoveSpell(ability.Spell, false, false);
 			}
 
-			if (Global.DB2Mgr.GetSkillRaceClassInfo(racialSkillId, newRace, player.GetClass()) != null)
+			if (Global.DB2Mgr.GetSkillRaceClassInfo(racialSkillId, newRace, player.Class) != null)
 				player.LearnSkillRewardedSpells(racialSkillId, player.GetMaxSkillValueForLevel(), newRace);
 		}
 	}

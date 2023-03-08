@@ -40,7 +40,7 @@ internal class npc_guard_generic : GuardAI
 
 	public npc_guard_generic(Creature creature) : base(creature)
 	{
-		_scheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting) && !me.IsInEvadeMode() && me.IsAlive());
+		_scheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting) && !me.IsInEvadeMode && me.IsAlive);
 		_combatScheduler = new TaskScheduler();
 		_combatScheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting));
 	}
@@ -65,7 +65,7 @@ internal class npc_guard_generic : GuardAI
 
 	public override void ReceiveEmote(Player player, TextEmotes textEmote)
 	{
-		switch (me.GetEntry())
+		switch (me.Entry)
 		{
 			case CreatureIds.StormwindCityGuard:
 			case CreatureIds.StormwindCityPatroller:
@@ -83,7 +83,7 @@ internal class npc_guard_generic : GuardAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		if (me.GetEntry() == CreatureIds.CenarionHoldInfantry)
+		if (me.Entry == CreatureIds.CenarionHoldInfantry)
 			Talk(TextIds.SayGuardSilAggro, who);
 
 		_combatScheduler.Schedule(TimeSpan.FromSeconds(1),
@@ -228,8 +228,8 @@ internal class npc_guard_shattrath_faction : GuardAI
 
 								if (temp && temp.IsTypeId(TypeId.Player))
 								{
-									DoCast(temp, me.GetEntry() == CreatureIds.AldorVindicator ? SpellIds.BanishedShattrathS : SpellIds.BanishedShattrathA);
-									var playerGUID = temp.GetGUID();
+									DoCast(temp, me.Entry == CreatureIds.AldorVindicator ? SpellIds.BanishedShattrathS : SpellIds.BanishedShattrathA);
+									var playerGUID = temp.GUID;
 
 									task.Schedule(TimeSpan.FromSeconds(9),
 												task =>

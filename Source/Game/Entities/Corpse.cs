@@ -25,6 +25,14 @@ public class Corpse : WorldObject
 	public Loot Loot { get; set; }
 	public Player LootRecipient { get; set; }
 
+	public override ObjectGuid OwnerGUID => CorpseData.Owner;
+
+	public override uint Faction
+	{
+		get => (uint)(int)CorpseData.FactionTemplate;
+		set => SetFactionTemplate((int)value);
+	}
+
 	public Corpse(CorpseType type = CorpseType.Bones) : base(type != CorpseType.Bones)
 	{
 		_type = type;
@@ -42,7 +50,7 @@ public class Corpse : WorldObject
 	{
 		// Register the corpse for guid lookup
 		if (!IsInWorld)
-			GetMap().GetObjectsStore().Add(GetGUID(), this);
+			GetMap().GetObjectsStore().Add(GUID, this);
 
 		base.AddToWorld();
 	}
@@ -51,7 +59,7 @@ public class Corpse : WorldObject
 	{
 		// Remove the corpse from the accessor
 		if (IsInWorld)
-			GetMap().GetObjectsStore().Remove(GetGUID());
+			GetMap().GetObjectsStore().Remove(GUID);
 
 		base.RemoveFromWorld();
 	}
@@ -83,8 +91,8 @@ public class Corpse : WorldObject
 
 		Create(ObjectGuid.Create(HighGuid.Corpse, owner.Location.MapId, 0, guidlow));
 
-		SetObjectScale(1);
-		SetOwnerGUID(owner.GetGUID());
+		ObjectScale = 1;
+		SetOwnerGUID(owner.GUID);
 
 		_cellCoord = GridDefines.ComputeCellCoord(Location.X, Location.Y);
 
@@ -113,7 +121,7 @@ public class Corpse : WorldObject
 
 		byte index = 0;
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE);
-		stmt.AddValue(index++, GetOwnerGUID().GetCounter());   // guid
+		stmt.AddValue(index++, OwnerGUID.Counter);             // guid
 		stmt.AddValue(index++, Location.X);                    // posX
 		stmt.AddValue(index++, Location.Y);                    // posY
 		stmt.AddValue(index++, Location.Z);                    // posZ
@@ -128,15 +136,15 @@ public class Corpse : WorldObject
 		stmt.AddValue(index++, (uint)CorpseData.DynamicFlags); // dynFlags
 		stmt.AddValue(index++, (uint)_time);                   // time
 		stmt.AddValue(index++, (uint)GetCorpseType());         // corpseType
-		stmt.AddValue(index++, GetInstanceId());               // instanceId
+		stmt.AddValue(index++, InstanceId1);                   // instanceId
 		trans.Append(stmt);
 
-		foreach (var phaseId in GetPhaseShift().GetPhases().Keys)
+		foreach (var phaseId in PhaseShift.Phases.Keys)
 		{
 			index = 0;
 			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE_PHASES);
-			stmt.AddValue(index++, GetOwnerGUID().GetCounter()); // OwnerGuid
-			stmt.AddValue(index++, phaseId);                     // PhaseId
+			stmt.AddValue(index++, OwnerGUID.Counter); // OwnerGuid
+			stmt.AddValue(index++, phaseId);           // PhaseId
 			trans.Append(stmt);
 		}
 
@@ -144,7 +152,7 @@ public class Corpse : WorldObject
 		{
 			index = 0;
 			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CORPSE_CUSTOMIZATIONS);
-			stmt.AddValue(index++, GetOwnerGUID().GetCounter()); // OwnerGuid
+			stmt.AddValue(index++, OwnerGUID.Counter); // OwnerGuid
 			stmt.AddValue(index++, customization.ChrCustomizationOptionID);
 			stmt.AddValue(index++, customization.ChrCustomizationChoiceID);
 			trans.Append(stmt);
@@ -155,21 +163,21 @@ public class Corpse : WorldObject
 
 	public void DeleteFromDB(SQLTransaction trans)
 	{
-		DeleteFromDB(GetOwnerGUID(), trans);
+		DeleteFromDB(OwnerGUID, trans);
 	}
 
 	public static void DeleteFromDB(ObjectGuid ownerGuid, SQLTransaction trans)
 	{
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE);
-		stmt.AddValue(0, ownerGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE_PHASES);
-		stmt.AddValue(0, ownerGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSE_CUSTOMIZATIONS);
-		stmt.AddValue(0, ownerGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
 	}
 
@@ -186,7 +194,7 @@ public class Corpse : WorldObject
 
 		Create(ObjectGuid.Create(HighGuid.Corpse, mapId, 0, guid));
 
-		SetObjectScale(1.0f);
+		ObjectScale = 1.0f;
 		SetDisplayId(field.Read<uint>(5));
 		StringArray items = new(field.Read<string>(6), ' ');
 
@@ -215,8 +223,8 @@ public class Corpse : WorldObject
 		{
 			Log.outError(LogFilter.Player,
 						"Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
-						GetGUID().ToString(),
-						GetOwnerGUID().ToString(),
+						GUID.ToString(),
+						OwnerGUID.ToString(),
 						posX,
 						posY,
 						posZ);
@@ -232,7 +240,7 @@ public class Corpse : WorldObject
 	public bool IsExpired(long t)
 	{
 		// Deleted character
-		if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(GetOwnerGUID()))
+		if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(OwnerGUID))
 			return true;
 
 		if (_type == CorpseType.Bones)
@@ -302,11 +310,6 @@ public class Corpse : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.DynamicFlags), (uint)dynamicFlags);
 	}
 
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return CorpseData.Owner;
-	}
-
 	public void SetOwnerGUID(ObjectGuid owner)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.Owner), owner);
@@ -350,16 +353,6 @@ public class Corpse : WorldObject
 	public void SetFactionTemplate(int factionTemplate)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.FactionTemplate), factionTemplate);
-	}
-
-	public override uint GetFaction()
-	{
-		return (uint)(int)CorpseData.FactionTemplate;
-	}
-
-	public override void SetFaction(uint faction)
-	{
-		SetFactionTemplate((int)faction);
 	}
 
 	public void SetItem(uint slot, uint item)
@@ -431,7 +424,7 @@ public class Corpse : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

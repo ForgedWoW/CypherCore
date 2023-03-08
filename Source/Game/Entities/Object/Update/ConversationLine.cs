@@ -38,7 +38,7 @@ public class ConversationLine
 	public uint GetViewerStartTime(ConversationLine conversationLine, Conversation conversation, Player receiver)
 	{
 		var startTime = conversationLine.StartTime;
-		var locale = receiver.GetSession().GetSessionDbLocaleIndex();
+		var locale = receiver.Session.SessionDbLocaleIndex;
 
 		var localizedStartTime = conversation.GetLineStartTime(locale, (int)conversationLine.ConversationLineID);
 

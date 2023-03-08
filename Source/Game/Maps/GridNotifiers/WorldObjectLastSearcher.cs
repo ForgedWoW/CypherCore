@@ -22,7 +22,7 @@ public class WorldObjectLastSearcher : IGridNotifierPlayer, IGridNotifierCreatur
 	public WorldObjectLastSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
 	{
 		Mask = mapTypeMask;
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_check = check;
 		GridType = gridType;
 	}

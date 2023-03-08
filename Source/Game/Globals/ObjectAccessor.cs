@@ -17,7 +17,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public WorldObject GetWorldObject(WorldObject p, ObjectGuid guid)
     {
-        switch (guid.GetHigh())
+        switch (guid.High)
         {
             case HighGuid.Player:
                 return GetPlayer(p, guid);
@@ -46,7 +46,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public WorldObject GetObjectByTypeMask(WorldObject p, ObjectGuid guid, TypeMask typemask)
     {
-        switch (guid.GetHigh())
+        switch (guid.High)
         {
             case HighGuid.Item:
                 if (typemask.HasAnyFlag(TypeMask.Item) && p.IsTypeId(TypeId.Player))
@@ -130,10 +130,10 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public Unit GetUnit(WorldObject u, ObjectGuid guid)
     {
-        if (guid.IsPlayer())
+        if (guid.IsPlayer)
             return GetPlayer(u, guid);
 
-        if (guid.IsPet())
+        if (guid.IsPet)
             return GetPet(u, guid);
 
         return GetCreature(u, guid);
@@ -166,10 +166,10 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 
     public static Creature GetCreatureOrPetOrVehicle(WorldObject u, ObjectGuid guid)
     {
-        if (guid.IsPet())
+        if (guid.IsPet)
             return GetPet(u, guid);
 
-        if (guid.IsCreatureOrVehicle())
+        if (guid.IsCreatureOrVehicle)
             return GetCreature(u, guid);
 
         return null;
@@ -226,7 +226,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
         lock (_lockObject)
         {
             PlayerNameMapHolder.Insert(obj);
-            _players[obj.GetGUID()] = obj;
+            _players[obj.GUID] = obj;
         }
     }
 
@@ -235,7 +235,7 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
         lock (_lockObject)
         {
             PlayerNameMapHolder.Remove(obj);
-            _players.Remove(obj.GetGUID());
+            _players.Remove(obj.GUID);
         }
     }
 }

@@ -22,7 +22,7 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 
 	public override bool Load()
 	{
-		return Caster.IsGuardian();
+		return Caster.IsGuardian;
 	}
 
 	public SpellCastResult CheckCast()

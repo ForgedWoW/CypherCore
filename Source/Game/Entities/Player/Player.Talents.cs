@@ -17,13 +17,13 @@ public partial class Player
 {
 	public void InitTalentForLevel()
 	{
-		var level = GetLevel();
+		var level = Level;
 
 		// talents base at level diff (talents = level - 9 but some can be used already)
 		if (level < PlayerConst.MinSpecializationLevel)
 			ResetTalentSpecialization();
 
-		var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, GetClass());
+		var talentTiers = Global.DB2Mgr.GetNumTalentsAtLevel(level, Class);
 
 		if (level < 10)
 		{
@@ -32,19 +32,19 @@ public partial class Player
 		}
 		else
 		{
-			if (!GetSession().HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
+			if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
 				for (var t = talentTiers; t < PlayerConst.MaxTalentTiers; ++t)
 					for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-						foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(GetClass(), t, c))
+						foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, t, c))
 							RemoveTalent(talent);
 		}
 
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxTalentTiers), talentTiers);
 
-		if (!GetSession().HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
+		if (!Session.HasPermission(RBACPermissions.SkipCheckMoreTalentsThanAllowed))
 			for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
 			{
-				for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, GetClass()); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
+				for (var slot = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class); slot < PlayerConst.MaxPvpTalentSlots; ++slot)
 				{
 					var pvpTalent = CliDB.PvpTalentStorage.LookupByKey(GetPvpTalentMap(spec)[slot]);
 
@@ -53,7 +53,7 @@ public partial class Player
 				}
 			}
 
-		if (!GetSession().PlayerLoading())
+		if (!Session.PlayerLoading)
 			SendTalentsInfoData(); // update at client
 	}
 
@@ -123,7 +123,7 @@ public partial class Player
 		if (IsInCombat())
 			return TalentLearnResult.FailedAffectingCombat;
 
-		if (IsDead())
+		if (IsDead)
 			return TalentLearnResult.FailedCantDoThatRightNow;
 
 		if (GetPrimarySpecialization() == 0)
@@ -138,7 +138,7 @@ public partial class Player
 			return TalentLearnResult.FailedUnknown;
 
 		// prevent learn talent for different class (cheating)
-		if (talentInfo.ClassID != (byte)GetClass())
+		if (talentInfo.ClassID != (byte)Class)
 			return TalentLearnResult.FailedUnknown;
 
 		// check if we have enough talent points
@@ -155,7 +155,7 @@ public partial class Player
 		// We need to make sure that if player is in one of these defined specs he will not learn the other choice
 		TalentRecord bestSlotMatch = null;
 
-		foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(GetClass(), talentInfo.TierID, talentInfo.ColumnIndex))
+		foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, talentInfo.ColumnIndex))
 			if (talent.SpecID == 0)
 			{
 				bestSlotMatch = talent;
@@ -173,7 +173,7 @@ public partial class Player
 
 		// Check if player doesn't have any talent in current tier
 		for (uint c = 0; c < PlayerConst.MaxTalentColumns; ++c)
-			foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(GetClass(), talentInfo.TierID, c))
+			foreach (var talent in Global.DB2Mgr.GetTalentsByPosition(Class, talentInfo.TierID, c))
 			{
 				if (talent.SpecID != 0 && talent.SpecID != GetPrimarySpecialization())
 					continue;
@@ -219,7 +219,7 @@ public partial class Player
 	public void ResetTalentSpecialization()
 	{
 		// Reset only talents that have different spells for each spec
-		var class_ = GetClass();
+		var class_ = Class;
 
 		for (uint t = 0; t < PlayerConst.MaxTalentTiers; ++t)
 		{
@@ -232,7 +232,7 @@ public partial class Player
 		ResetPvpTalents();
 		RemoveSpecializationSpells();
 
-		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(GetClass());
+		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
 		SetPrimarySpecialization(defaultSpec.Id);
 		SetActiveTalentGroup(defaultSpec.OrderIndex);
 
@@ -265,7 +265,7 @@ public partial class Player
 
 	public uint GetDefaultSpecId()
 	{
-		return Global.DB2Mgr.GetDefaultChrSpecializationForClass(GetClass()).Id;
+		return Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class).Id;
 	}
 
 	public void ActivateTalentGroup(ChrSpecializationRecord spec)
@@ -308,7 +308,7 @@ public partial class Player
 			// unlearn only talents for character class
 			// some spell learned by one class as normal spells or know at creation but another class learn it as talent,
 			// to prevent unexpected lost normal learned spell skip another class talents
-			if (talentInfo.ClassID != (int)GetClass())
+			if (talentInfo.ClassID != (int)Class)
 				continue;
 
 			if (talentInfo.SpellID == 0)
@@ -368,7 +368,7 @@ public partial class Player
 		foreach (var talentInfo in CliDB.TalentStorage.Values)
 		{
 			// learn only talents for character class
-			if (talentInfo.ClassID != (int)GetClass())
+			if (talentInfo.ClassID != (int)Class)
 				continue;
 
 			if (talentInfo.SpellID == 0)
@@ -565,7 +565,7 @@ public partial class Player
 			// unlearn only talents for character class
 			// some spell learned by one class as normal spells or know at creation but another class learn it as talent,
 			// to prevent unexpected lost normal learned spell skip another class talents
-			if (talentInfo.ClassID != (uint)GetClass())
+			if (talentInfo.ClassID != (uint)Class)
 				continue;
 
 			// skip non-existant talent ranks
@@ -600,7 +600,7 @@ public partial class Player
 
 		for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(GetClass(), i);
+			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
 
 			if (spec == null)
 				continue;
@@ -646,7 +646,7 @@ public partial class Player
 
 				if (talentInfo == null)
 				{
-					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GetGUID()}) has unknown pvp talent id: {pvpTalents[slot]}");
+					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent id: {pvpTalents[slot]}");
 
 					continue;
 				}
@@ -655,7 +655,7 @@ public partial class Player
 
 				if (spellEntry == null)
 				{
-					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GetGUID()}) has unknown pvp talent spell: {talentInfo.SpellID}");
+					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent spell: {talentInfo.SpellID}");
 
 					continue;
 				}
@@ -693,7 +693,7 @@ public partial class Player
 		if (IsInCombat())
 			return TalentLearnResult.FailedAffectingCombat;
 
-		if (IsDead())
+		if (IsDead)
 			return TalentLearnResult.FailedCantDoThatRightNow;
 
 		var talentInfo = CliDB.PvpTalentStorage.LookupByKey(talentID);
@@ -704,10 +704,10 @@ public partial class Player
 		if (talentInfo.SpecID != GetPrimarySpecialization())
 			return TalentLearnResult.FailedUnknown;
 
-		if (talentInfo.LevelRequired > GetLevel())
+		if (talentInfo.LevelRequired > Level)
 			return TalentLearnResult.FailedUnknown;
 
-		if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, GetClass()) > GetLevel())
+		if (Global.DB2Mgr.GetRequiredLevelForPvpTalentSlot(slot, Class) > Level)
 			return TalentLearnResult.FailedUnknown;
 
 		var talentCategory = CliDB.PvpTalentCategoryStorage.LookupByKey(talentInfo.PvpTalentCategoryID);
@@ -951,7 +951,7 @@ public partial class Player
 			SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
-			stmt.AddValue(0, GetGUID().GetCounter());
+			stmt.AddValue(0, GUID.Counter);
 			stmt.AddValue(1, traitConfigId);
 			DB.Characters.Execute(stmt);
 
@@ -1022,23 +1022,24 @@ public partial class Player
 
 		// load them asynchronously
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		stmt.AddValue(1, GetActiveTalentGroup());
 		stmt.AddValue(2, traitConfigId);
 
-		var myGuid = GetGUID();
+		var myGuid = GUID;
 
-		var mySess = GetSession();
+		var mySess = Session;
 
-		mySess.GetQueryProcessor()
+		mySess.
+		QueryProcessor
 			.AddCallback(DB.Characters.AsyncQuery(stmt)
 							.WithCallback(result =>
 							{
 								// safe callback, we can't pass this pointer directly
 								// in case player logs out before db response (player would be deleted in that case)
-								var thisPlayer = mySess.GetPlayer();
+								var thisPlayer = mySess.Player;
 
-								if (thisPlayer != null && thisPlayer.GetGUID() == myGuid)
+								if (thisPlayer != null && thisPlayer.GUID == myGuid)
 									thisPlayer.LoadActions(result);
 
 								if (callback != null)

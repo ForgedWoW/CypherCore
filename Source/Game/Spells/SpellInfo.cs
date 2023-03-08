@@ -1232,7 +1232,7 @@ public class SpellInfo
 						var targetCreature = unitTarget.ToCreature();
 
 						if (targetCreature != null)
-							if (targetCreature.HasLootRecipient() && !targetCreature.IsTappedBy(caster.ToPlayer()))
+							if (targetCreature.HasLootRecipient && !targetCreature.IsTappedBy(caster.ToPlayer()))
 								return SpellCastResult.CantCastOnTapped;
 					}
 
@@ -1243,7 +1243,7 @@ public class SpellInfo
 						if (targetCreature == null)
 							return SpellCastResult.BadTargets;
 
-						if (!Loots.LootStorage.Pickpocketing.HaveLootFor(targetCreature.GetCreatureTemplate().PickPocketId))
+						if (!Loots.LootStorage.Pickpocketing.HaveLootFor(targetCreature.CreatureTemplate.PickPocketId))
 							return SpellCastResult.TargetNoPockets;
 					}
 
@@ -1274,7 +1274,7 @@ public class SpellInfo
 				return SpellCastResult.BadTargets;
 
 			// we have to use owner for some checks (aura preventing resurrection for example)
-			var owner = Global.ObjAccessor.FindPlayer(corpseTarget.GetOwnerGUID());
+			var owner = Global.ObjAccessor.FindPlayer(corpseTarget.OwnerGUID);
 
 			if (owner != null)
 				unitTarget = owner;
@@ -1289,12 +1289,12 @@ public class SpellInfo
 		}
 
 		// corpseOwner and unit specific target checks
-		if (!unitTarget.IsPlayer())
+		if (!unitTarget.IsPlayer)
 		{
 			if (HasAttribute(SpellAttr3.OnlyOnPlayer))
 				return SpellCastResult.TargetNotPlayer;
 
-			if (HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && unitTarget.IsControlledByPlayer())
+			if (HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && unitTarget.IsControlledByPlayer)
 				return SpellCastResult.TargetIsPlayerControlled;
 		}
 		else if (HasAttribute(SpellAttr5.NotOnPlayer))
@@ -1302,7 +1302,7 @@ public class SpellInfo
 			return SpellCastResult.TargetIsPlayer;
 		}
 
-		if (!IsAllowingDeadTarget && !unitTarget.IsAlive())
+		if (!IsAllowingDeadTarget && !unitTarget.IsAlive)
 			return SpellCastResult.TargetsDead;
 
 		// check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
@@ -1323,7 +1323,7 @@ public class SpellInfo
 			if (!unitTarget.ToPlayer().IsVisible())
 				return SpellCastResult.BmOrInvisgod;
 
-			if (unitTarget.ToPlayer().IsGameMaster())
+			if (unitTarget.ToPlayer().IsGameMaster)
 				return SpellCastResult.BmOrInvisgod;
 		}
 
@@ -1341,7 +1341,7 @@ public class SpellInfo
 		var unitCaster = caster.ToUnit();
 
 		if (unitCaster != null)
-			if (!unitCaster.IsVehicle() && unitCaster.GetCharmerOrOwner() != target)
+			if (!unitCaster.IsVehicle && unitCaster.CharmerOrOwner != target)
 			{
 				if (TargetAuraState != 0 && !unitTarget.HasAuraState(TargetAuraState, this, unitCaster))
 					return SpellCastResult.TargetAurastate;
@@ -1411,7 +1411,7 @@ public class SpellInfo
 						return SpellCastResult.SpellCastOk;
 
 				if (neededTargets.HasFlag(SpellCastTargetFlags.UnitMinipet) && unitCaster != null)
-					if (unitTarget.GetGUID() == unitCaster.GetCritterGUID())
+					if (unitTarget.GUID == unitCaster.CritterGUID)
 						return SpellCastResult.SpellCastOk;
 
 				if (neededTargets.HasFlag(SpellCastTargetFlags.UnitPassenger) && unitCaster != null)
@@ -1488,11 +1488,11 @@ public class SpellInfo
 		}
 
 		// if target is magnet (i.e Grounding Totem) the check is skipped
-		if (target.IsMagnet())
+		if (target.IsMagnet)
 			return true;
 
 
-		var creatureType = target.GetCreatureTypeMask();
+		var creatureType = target.CreatureTypeMask;
 
 		return TargetCreatureType == 0 || creatureType == 0 || Convert.ToBoolean(creatureType & TargetCreatureType);
 	}
@@ -2572,7 +2572,7 @@ public class SpellInfo
 		if (HasAttribute(SpellAttr4.WeaponSpeedCostScaling))
 		{
 			uint speed = 0;
-			var ss = CliDB.SpellShapeshiftFormStorage.LookupByKey(unitCaster.GetShapeshiftForm());
+			var ss = CliDB.SpellShapeshiftFormStorage.LookupByKey(unitCaster.ShapeshiftForm);
 
 			if (ss != null)
 			{
@@ -2661,11 +2661,11 @@ public class SpellInfo
 			}
 		}
 
-		if (!unitCaster.IsControlledByPlayer() && MathFunctions.fuzzyEq(power.PowerCostPct, 0.0f) && SpellLevel != 0 && power.PowerType == PowerType.Mana)
+		if (!unitCaster.IsControlledByPlayer && MathFunctions.fuzzyEq(power.PowerCostPct, 0.0f) && SpellLevel != 0 && power.PowerType == PowerType.Mana)
 			if (HasAttribute(SpellAttr0.ScalesWithCreatureLevel))
 			{
 				var spellScaler = CliDB.NpcManaCostScalerGameTable.GetRow(SpellLevel);
-				var casterScaler = CliDB.NpcManaCostScalerGameTable.GetRow(unitCaster.GetLevel());
+				var casterScaler = CliDB.NpcManaCostScalerGameTable.GetRow(unitCaster.Level);
 
 				if (spellScaler != null && casterScaler != null)
 					powerCost *= (int)(casterScaler.Scaler / spellScaler.Scaler);
@@ -2688,7 +2688,7 @@ public class SpellInfo
 	{
 		List<SpellPowerCost> costs = new();
 
-		if (caster.IsUnit())
+		if (caster.IsUnit)
 		{
 			SpellPowerCost getOrCreatePowerCost(PowerType powerType)
 			{
@@ -2755,7 +2755,7 @@ public class SpellInfo
 				}
 				case SpellProcsPerMinuteModType.Class:
 				{
-					if (caster.GetClassMask().HasAnyFlag((uint)mod.Param))
+					if (caster.ClassMask.HasAnyFlag((uint)mod.Param))
 						ppm *= 1.0f + mod.Coeff;
 
 					break;
@@ -2772,7 +2772,7 @@ public class SpellInfo
 				}
 				case SpellProcsPerMinuteModType.Race:
 				{
-					if (SharedConst.GetMaskForRace(caster.GetRace()).HasAnyFlag((int)mod.Param))
+					if (SharedConst.GetMaskForRace(caster.Race).HasAnyFlag((int)mod.Param))
 						ppm *= 1.0f + mod.Coeff;
 
 					break;
@@ -2881,13 +2881,13 @@ public class SpellInfo
 			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(visual.CasterPlayerConditionID);
 
 			if (playerCondition != null)
-				if (!caster || !caster.IsPlayer() || !ConditionManager.IsPlayerMeetingCondition(caster.ToPlayer(), playerCondition))
+				if (!caster || !caster.IsPlayer || !ConditionManager.IsPlayerMeetingCondition(caster.ToPlayer(), playerCondition))
 					continue;
 
 			var unitCondition = CliDB.UnitConditionStorage.LookupByKey(visual.CasterUnitConditionID);
 
 			if (unitCondition != null)
-				if (!caster || !caster.IsUnit() || !ConditionManager.IsUnitMeetingCondition(caster.ToUnit(), viewer?.ToUnit(), unitCondition))
+				if (!caster || !caster.IsUnit || !ConditionManager.IsUnitMeetingCondition(caster.ToUnit(), viewer?.ToUnit(), unitCondition))
 					continue;
 
 			return visual.Id;
@@ -3160,7 +3160,7 @@ public class SpellInfo
 
 	public bool CanBeInterrupted(WorldObject interruptCaster, Unit interruptTarget, bool ignoreImmunity = false)
 	{
-		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit() && interruptCaster.ToUnit().HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.GetMechanicImmunityMask() & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
+		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit && interruptCaster.ToUnit().HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.GetMechanicImmunityMask() & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
 	}
 
 	public bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag)

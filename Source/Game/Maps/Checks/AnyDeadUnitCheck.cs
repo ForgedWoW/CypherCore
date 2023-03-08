@@ -10,6 +10,6 @@ public class AnyDeadUnitCheck : ICheck<Unit>
 {
 	public bool Invoke(Unit u)
 	{
-		return !u.IsAlive();
+		return !u.IsAlive;
 	}
 }

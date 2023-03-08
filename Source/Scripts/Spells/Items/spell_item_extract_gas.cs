@@ -28,16 +28,16 @@ internal class spell_item_extract_gas : AuraScript, IHasAuraEffects
 		if (Caster != null &&
 			Caster.IsTypeId(TypeId.Player) &&
 			Target.IsTypeId(TypeId.Unit) &&
-			Target.ToCreature().GetCreatureTemplate().CreatureType == CreatureType.GasCloud)
+			Target.ToCreature().CreatureTemplate.CreatureType == CreatureType.GasCloud)
 		{
 			var player = Caster.ToPlayer();
 			var creature = Target.ToCreature();
 
 			// missing lootid has been reported on startup - just return
-			if (creature.GetCreatureTemplate().SkinLootId == 0)
+			if (creature.CreatureTemplate.SkinLootId == 0)
 				return;
 
-			player.AutoStoreLoot(creature.GetCreatureTemplate().SkinLootId, LootStorage.Skinning, ItemContext.None, true);
+			player.AutoStoreLoot(creature.CreatureTemplate.SkinLootId, LootStorage.Skinning, ItemContext.None, true);
 			creature.DespawnOrUnsummon();
 		}
 	}

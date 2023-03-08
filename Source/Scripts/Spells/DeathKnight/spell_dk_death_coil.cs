@@ -35,7 +35,7 @@ internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
 
 			if (target != null)
 			{
-				if (target.IsFriendlyTo(caster) && target.GetCreatureType() == CreatureType.Undead)
+				if (target.IsFriendlyTo(caster) && target.CreatureType == CreatureType.Undead)
 				{
 					caster.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_HEAL, true);
 				}

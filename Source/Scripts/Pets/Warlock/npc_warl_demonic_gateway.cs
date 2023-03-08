@@ -35,7 +35,7 @@ namespace Scripts.Pets
 
 					me.SetUnitFlag(UnitFlags.NonAttackable);
 					me.SetNpcFlag(NPCFlags.SpellClick);
-					me.SetReactState(ReactStates.Passive);
+					me.ReactState = ReactStates.Passive;
 					me.SetControlled(true, UnitState.Root);
 
 					firstTick = false;
@@ -81,14 +81,14 @@ namespace Scripts.Pets
 				if (!target.CanFreeMove())
 					return;
 
-				var otherGateway = me.GetEntry() == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE : WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN;
-				var teleportSpell = me.GetEntry() == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.DEMONIC_GATEWAY_JUMP_GREEN : WarlockSpells.DEMONIC_GATEWAY_JUMP_PURPLE;
+				var otherGateway = me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE : WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN;
+				var teleportSpell = me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.DEMONIC_GATEWAY_JUMP_GREEN : WarlockSpells.DEMONIC_GATEWAY_JUMP_PURPLE;
 
 				var gateways = me.GetCreatureListWithEntryInGrid(otherGateway, 100.0f);
 
 				foreach (var gateway in gateways)
 				{
-					if (gateway.GetOwnerGUID() != me.GetOwnerGUID())
+					if (gateway.OwnerGUID != me.OwnerGUID)
 						continue;
 
 					target.SetFacingToUnit(gateway);

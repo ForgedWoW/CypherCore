@@ -28,16 +28,16 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (!u.IsAlive())
+		if (!u.IsAlive)
 			return false;
 
 		var searchRadius = _range;
 
 		if (_incOwnRadius)
-			searchRadius += _obj.GetCombatReach();
+			searchRadius += _obj.CombatReach;
 
 		if (_incTargetRadius)
-			searchRadius += u.GetCombatReach();
+			searchRadius += u.CombatReach;
 
 		if (!u.IsInMap(_obj) || !u.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
 			return false;
@@ -45,6 +45,6 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
 		if (!_funit.IsFriendlyTo(u))
 			return false;
 
-		return !_playerOnly || u.GetTypeId() == TypeId.Player;
+		return !_playerOnly || u.TypeId == TypeId.Player;
 	}
 }

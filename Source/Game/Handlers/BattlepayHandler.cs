@@ -32,7 +32,7 @@ namespace Game
             data.ResultCode = (uint)result;
             data.ProductID = purchase.ProductID;
             data.UnkInt = purchase.ServerToken;
-            data.WalletName = session.GetBattlePayMgr().GetDefaultWalletName();
+            data.WalletName = session.BattlePayMgr.GetDefaultWalletName();
             packet.Purchase.Add(data);
             session.SendPacket(packet);
         }
@@ -55,36 +55,36 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.BattlePayDistributionAssignToTarget)]
         public void HandleBattlePayDistributionAssign(DistributionAssignToTarget packet)
         {
-            if (!GetBattlePayMgr().IsAvailable())
+            if (!BattlePayMgr.IsAvailable())
             {
                 return;
             }
 
-            GetBattlePayMgr().AssignDistributionToCharacter(packet.TargetCharacter, packet.DistributionID, packet.ProductID, packet.SpecializationID, packet.ChoiceID);
+            BattlePayMgr.AssignDistributionToCharacter(packet.TargetCharacter, packet.DistributionID, packet.ProductID, packet.SpecializationID, packet.ChoiceID);
         }
 
         [WorldPacketHandler(ClientOpcodes.BattlePayGetProductList)]
         public void HandleGetProductList(GetProductList UnnamedParameter)
         {
-            if (!GetBattlePayMgr().IsAvailable())
+            if (!BattlePayMgr.IsAvailable())
             {
                 return;
             }
 
-            GetBattlePayMgr().SendProductList();
-            GetBattlePayMgr().SendAccountCredits();
+            BattlePayMgr.SendProductList();
+            BattlePayMgr.SendAccountCredits();
         }
 
 
         public void SendMakePurchase(ObjectGuid targetCharacter, uint clientToken, uint productID, WorldSession session)
         {
-            if (session == null || !session.GetBattlePayMgr().IsAvailable())
+            if (session == null || !session.BattlePayMgr.IsAvailable())
             {
                 return;
             }
 
-            var mgr = session.GetBattlePayMgr();
-            var player = session.GetPlayer();
+            var mgr = session.BattlePayMgr;
+            var player = session.Player;
             //    auto accountID = session->GetAccountId();
 
             Purchase purchase = new Purchase();
@@ -100,7 +100,7 @@ namespace Game
 
             mgr.RegisterStartPurchase(purchase);
 
-            var accountCredits = GetBattlePayMgr().GetBattlePayCredits();
+            var accountCredits = BattlePayMgr.GetBattlePayCredits();
             var purchaseData = mgr.GetPurchase();
 
             if (accountCredits < (ulong)purchaseData.CurrentPrice)
@@ -131,7 +131,7 @@ namespace Game
                         {
                             if (product.Items.Count > player.GetFreeBagSlotCount())
                             {
-                                GetBattlePayMgr().SendBattlePayMessage(11, product.Name);
+                                BattlePayMgr.SendBattlePayMessage(11, product.Name);
                                 SendStartPurchaseResponse(session, purchaseData, BpayError.PurchaseDenied);
                                 return;
                             }
@@ -141,7 +141,7 @@ namespace Game
                         {
                             if (mgr.AlreadyOwnProduct(itr.ItemID))
                             {
-                                GetBattlePayMgr().SendBattlePayMessage(12, product.Name);
+                                BattlePayMgr.SendBattlePayMessage(12, product.Name);
                                 SendStartPurchaseResponse(session, purchaseData, BpayError.PurchaseDenied);
                                 return;
                             }
@@ -176,10 +176,10 @@ namespace Game
         //C++ TO C# CONVERTER WARNING: The original C++ declaration of the following method implementation was not found:
         public void HandleBattlePayConfirmPurchase(ConfirmPurchaseResponse packet)
         {
-            if (!GetBattlePayMgr().IsAvailable())
+            if (!BattlePayMgr.IsAvailable())
                 return;
 
-            var purchase = GetBattlePayMgr().GetPurchase();
+            var purchase = BattlePayMgr.GetPurchase();
 
             if (purchase == null)
                 return;
@@ -199,7 +199,7 @@ namespace Game
                 return;
             }
 
-            var accountBalance = GetBattlePayMgr().GetBattlePayCredits();
+            var accountBalance = BattlePayMgr.GetBattlePayCredits();
             if (accountBalance < purchase.CurrentPrice)
             {
                 SendPurchaseUpdate(this, purchase, BpayError.PurchaseDenied);
@@ -210,14 +210,14 @@ namespace Game
             purchase.Status = (ushort)BpayUpdateStatus.Finish;
 
             SendPurchaseUpdate(this, purchase, BpayError.Other);
-            GetBattlePayMgr().SavePurchase(purchase);
-            GetBattlePayMgr().ProcessDelivery(purchase);
-            GetBattlePayMgr().UpdateBattlePayCredits(purchase.CurrentPrice);
+            BattlePayMgr.SavePurchase(purchase);
+            BattlePayMgr.ProcessDelivery(purchase);
+            BattlePayMgr.UpdateBattlePayCredits(purchase.CurrentPrice);
 
             if (displayInfo.Name1.Length != 0)
-                GetBattlePayMgr().SendBattlePayMessage(1, displayInfo.Name1);
+                BattlePayMgr.SendBattlePayMessage(1, displayInfo.Name1);
             
-            GetBattlePayMgr().SendProductList();
+            BattlePayMgr.SendProductList();
         }
 
 
@@ -234,7 +234,7 @@ namespace Game
         {
             SendPacket(new DisplayPromotion(promotionID));
 
-            if (!GetBattlePayMgr().IsAvailable())
+            if (!BattlePayMgr.IsAvailable())
             {
                 return;
             }
@@ -249,9 +249,9 @@ namespace Game
             packet.Result = (uint)BpayError.Ok;
 
             BpayDistributionObject data = new BpayDistributionObject();
-            data.TargetPlayer = GetPlayer().GetGUID();
-            data.DistributionID = GetBattlePayMgr().GenerateNewDistributionId();
-            data.PurchaseID = GetBattlePayMgr().GenerateNewPurchaseID();
+            data.TargetPlayer = Player.GUID;
+            data.DistributionID = BattlePayMgr.GenerateNewDistributionId();
+            data.PurchaseID = BattlePayMgr.GenerateNewPurchaseID();
             data.Status = (uint)BpayDistributionStatus.AVAILABLE;
             data.ProductID = 260;
             data.TargetVirtualRealm = 0;
@@ -296,7 +296,7 @@ namespace Game
                     if (BattlePayDataStoreMgr.Instance.DisplayInfoExist(productInfo.Entry))
                     {
                         // productinfo entry and display entry must be the same
-                        var dispInfo = GetBattlePayMgr().WriteDisplayInfo(productInfo.Entry);
+                        var dispInfo = BattlePayMgr.WriteDisplayInfo(productInfo.Entry);
 
                         if (dispInfo.Item1)
                             pItem.Display = dispInfo.Item2;
@@ -307,7 +307,7 @@ namespace Game
             }
 
             // productinfo entry and display entry must be the same
-            var display = GetBattlePayMgr().WriteDisplayInfo(productInfo.Entry);
+            var display = BattlePayMgr.WriteDisplayInfo(productInfo.Entry);
 
             if (display.Item1)
                 pProduct.Display = display.Item2;

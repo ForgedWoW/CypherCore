@@ -31,7 +31,7 @@ public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
 			return;
 
 		var enemies = new List<Unit>();
-		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID()).Invoke);
+		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GUID).Invoke);
 		var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
 		Cell.VisitGrid(caster, searcher, rangeInfoSpell.GetMaxRange());
 

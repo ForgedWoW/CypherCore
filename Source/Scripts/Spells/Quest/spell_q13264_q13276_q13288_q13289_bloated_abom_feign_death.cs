@@ -28,7 +28,7 @@ internal class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : Aura
 
 		var creature = target.ToCreature();
 
-		creature?.SetReactState(ReactStates.Passive);
+		creature.ReactState = ReactStates.Passive;
 	}
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

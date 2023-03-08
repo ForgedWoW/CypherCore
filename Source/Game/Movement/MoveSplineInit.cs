@@ -18,9 +18,9 @@ namespace Game.Movement
             args.splineId = MotionMaster.SplineId;
 
             // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-            args.TransformForTransport = !unit.GetTransGUID().IsEmpty();
+            args.TransformForTransport = !unit.GetTransGUID().IsEmpty;
             // mix existing state into new
-            args.flags.SetUnsetFlag(SplineFlag.CanSwim, unit.CanSwim());
+            args.flags.SetUnsetFlag(SplineFlag.CanSwim, unit.CanSwim);
             args.walk = unit.HasUnitMovementFlag(MovementFlag.Walking);
             args.flags.SetUnsetFlag(SplineFlag.Flying, unit.HasUnitMovementFlag(MovementFlag.CanFly | MovementFlag.DisableGravity));
             args.flags.SetUnsetFlag(SplineFlag.SmoothGroundPath, true); // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
@@ -59,7 +59,7 @@ namespace Game.Movement
         {
             MoveSpline move_spline = unit.MoveSpline;
 
-            bool transport = !unit.GetTransGUID().IsEmpty();
+            bool transport = !unit.GetTransGUID().IsEmpty;
             Vector4 real_position = new();            
             // there is a big chance that current position is unknown if current state is not finalized, need compute it
             // this also allows calculate spline position and update map position in much greater intervals
@@ -90,7 +90,7 @@ namespace Game.Movement
             args.flags.SetUnsetFlag(SplineFlag.EnterCycle, args.flags.HasFlag(SplineFlag.Cyclic));
             move_spline.onTransport = transport;
 
-            MovementFlag moveFlags = unit.MovementInfo.GetMovementFlags();
+            MovementFlag moveFlags = unit.MovementInfo.MovementFlags;
             if (!args.flags.HasFlag(SplineFlag.Backward))
                 moveFlags = (moveFlags & ~MovementFlag.Backward) | MovementFlag.Forward;
             else
@@ -133,17 +133,18 @@ namespace Game.Movement
             if (!args.Validate(unit))
                 return 0;
 
-            unit.MovementInfo.SetMovementFlags(moveFlags);
+            unit.MovementInfo.
+            MovementFlags = moveFlags;
             move_spline.Initialize(args);
 
             MonsterMove packet = new();
-            packet.MoverGUID = unit.GetGUID();
+            packet.MoverGUID = unit.GUID;
             packet.Pos = new Vector3(real_position.X, real_position.Y, real_position.Z);
             packet.InitializeSplineData(move_spline);
             if (transport)
             {
                 packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
-                packet.SplineData.Move.VehicleSeat = unit.GetTransSeat();
+                packet.SplineData.Move.VehicleSeat = unit.TransSeat;
             }
             unit.SendMessageToSet(packet, true);
 
@@ -158,7 +159,7 @@ namespace Game.Movement
             if (move_spline.Finalized())
                 return;
 
-            bool transport = !unit.GetTransGUID().IsEmpty();
+            bool transport = !unit.GetTransGUID().IsEmpty;
             Vector4 loc = new();
             if (move_spline.onTransport == transport)
                 loc = move_spline.ComputePosition();
@@ -182,7 +183,7 @@ namespace Game.Movement
             move_spline.Initialize(args);
 
             MonsterMove packet = new();
-            packet.MoverGUID = unit.GetGUID();
+            packet.MoverGUID = unit.GUID;
             packet.Pos = new Vector3(loc.X, loc.Y, loc.Z);
             packet.SplineData.StopDistanceTolerance = 2;
             packet.SplineData.Id = move_spline.GetId();
@@ -190,7 +191,7 @@ namespace Game.Movement
             if (transport)
             {
                 packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
-                packet.SplineData.Move.VehicleSeat = unit.GetTransSeat();
+                packet.SplineData.Move.VehicleSeat = unit.TransSeat;
             }
 
             unit.SendMessageToSet(packet, true);
@@ -199,7 +200,7 @@ namespace Game.Movement
         public void SetFacing(Unit target)
         {
             args.facing.angle = unit.Location.GetAbsoluteAngle(target.Location);
-            args.facing.target = target.GetGUID();
+            args.facing.target = target.GUID;
             args.facing.type = MonsterMoveType.FacingTarget;
         }
 
@@ -212,7 +213,7 @@ namespace Game.Movement
                     angle -= vehicle.Location.Orientation;
                 else
                 {
-                    ITransport transport = unit.GetTransport();
+                    ITransport transport = unit.Transport;
                     if (transport != null)
                         angle -= transport.GetTransportOrientation();
                 }

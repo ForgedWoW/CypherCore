@@ -19,61 +19,61 @@ public class ProcEventInfo
 	readonly DamageInfo _damageInfo;
 	readonly HealInfo _healInfo;
 
-    public Unit Actor => _actor;
+	public Unit Actor => _actor;
 
-    public Unit ActionTarget => _actionTarget;
+	public Unit ActionTarget => _actionTarget;
 
-    public Unit ProcTarget => _procTarget;
+	public Unit ProcTarget => _procTarget;
 
-    public ProcFlagsInit TypeMask => _typeMask;
+	public ProcFlagsInit TypeMask => _typeMask;
 
-    public ProcFlagsSpellType SpellTypeMask => _spellTypeMask;
+	public ProcFlagsSpellType SpellTypeMask => _spellTypeMask;
 
-    public ProcFlagsSpellPhase SpellPhaseMask => _spellPhaseMask;
+	public ProcFlagsSpellPhase SpellPhaseMask => _spellPhaseMask;
 
-    public ProcFlagsHit HitMask => _hitMask;
+	public ProcFlagsHit HitMask => _hitMask;
 
-    public SpellInfo SpellInfo
-    {
-        get
-        {
-            if (_spell)
-                return _spell.SpellInfo;
+	public SpellInfo SpellInfo
+	{
+		get
+		{
+			if (_spell)
+				return _spell.SpellInfo;
 
-            if (_damageInfo != null)
-                return _damageInfo.GetSpellInfo();
+			if (_damageInfo != null)
+				return _damageInfo.GetSpellInfo();
 
-            if (_healInfo != null)
-                return _healInfo.GetSpellInfo();
+			if (_healInfo != null)
+				return _healInfo.GetSpellInfo();
 
-            return null;
-        }
-    }
+			return null;
+		}
+	}
 
-    public SpellSchoolMask SchoolMask
-    {
-        get
-        {
-            if (_spell)
-                return _spell.SpellInfo.GetSchoolMask();
+	public SpellSchoolMask SchoolMask
+	{
+		get
+		{
+			if (_spell)
+				return _spell.SpellInfo.GetSchoolMask();
 
-            if (_damageInfo != null)
-                return _damageInfo.GetSchoolMask();
+			if (_damageInfo != null)
+				return _damageInfo.GetSchoolMask();
 
-            if (_healInfo != null)
-                return _healInfo.GetSchoolMask();
+			if (_healInfo != null)
+				return _healInfo.GetSchoolMask();
 
-            return SpellSchoolMask.None;
-        }
-    }
+			return SpellSchoolMask.None;
+		}
+	}
 
-    public DamageInfo DamageInfo => _damageInfo;
+	public DamageInfo DamageInfo => _damageInfo;
 
-    public HealInfo HealInfo => _healInfo;
+	public HealInfo HealInfo => _healInfo;
 
-    public Spell ProcSpell => _spell;
+	public Spell ProcSpell => _spell;
 
-    public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
+	public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
 						ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
 	{
 		_actor = actor;

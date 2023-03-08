@@ -203,7 +203,7 @@ public class AuraApplication
 		// stack amount has priority over charges (checked on retail with spell 50262)
 		auraData.Applications = aura.IsUsingStacks() ? aura.StackAmount : aura.Charges;
 
-		if (!aura.CasterGuid.IsUnit())
+		if (!aura.CasterGuid.IsUnit)
 			auraData.CastUnit = ObjectGuid.Empty; // optional data is filled in, but cast unit contains empty guid in packet
 		else if (!auraData.Flags.HasFlag(AuraFlags.NoCaster))
 			auraData.CastUnit = aura.CasterGuid;
@@ -242,7 +242,7 @@ public class AuraApplication
 
 		AuraUpdate update = new();
 		update.UpdateAll = false;
-		update.UnitGUID = Target.GetGUID();
+		update.UnitGUID = Target.GUID;
 
 		AuraInfo auraInfo = new();
 		BuildUpdatePacket(ref auraInfo, remove);
@@ -264,7 +264,7 @@ public class AuraApplication
 	void _InitFlags(Unit caster, uint effMask)
 	{
 		// mark as selfcasted if needed
-		_flags |= (Base.CasterGuid == Target.GetGUID()) ? AuraFlags.NoCaster : AuraFlags.None;
+		_flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;
 
 		// aura is casted by self or an enemy
 		// one negative effect and we know aura is negative

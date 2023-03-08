@@ -287,9 +287,9 @@ namespace Game
                     DisableFlags spellFlags = (DisableFlags)data.flags;
                     if (refe != null)
                     {
-                        if ((refe.IsPlayer() && spellFlags.HasFlag(DisableFlags.SpellPlayer)) ||
-                        (refe.IsCreature() && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.ToUnit().IsPet() && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
-                        (refe.IsGameObject() && spellFlags.HasFlag(DisableFlags.SpellGameobject)))
+                        if ((refe.IsPlayer && spellFlags.HasFlag(DisableFlags.SpellPlayer)) ||
+                        (refe.IsCreature && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.ToUnit().IsPet && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
+                        (refe.IsGameObject && spellFlags.HasFlag(DisableFlags.SpellGameobject)))
                         {
                             if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
                             {

@@ -28,7 +28,7 @@ public class spell_mage_combustion : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		if (!caster.IsPlayer())
+		if (!caster.IsPlayer)
 			return;
 
 		var crit = caster.ToPlayer().GetRatingBonusValue(CombatRating.CritSpell);

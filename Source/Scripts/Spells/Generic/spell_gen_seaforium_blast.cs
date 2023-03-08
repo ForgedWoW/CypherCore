@@ -23,7 +23,7 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 	public override bool Load()
 	{
 		// OriginalCaster is always available in Spell.prepare
-		return GObjCaster.GetOwnerGUID().IsPlayer();
+		return GObjCaster.OwnerGUID.IsPlayer;
 	}
 
 	public override void Register()

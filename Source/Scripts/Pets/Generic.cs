@@ -127,7 +127,7 @@ namespace Scripts.Pets
 
 			public bool CheckProc(ProcEventInfo eventInfo)
 			{
-				return eventInfo.ProcTarget.IsPlayer();
+				return eventInfo.ProcTarget.IsPlayer;
 			}
 
 			public override void Register()
@@ -143,7 +143,7 @@ namespace Scripts.Pets
 				UnitOwner.GetAllMinionsByEntry(minionList, CreatureIds.LichPet);
 
 				foreach (Creature minion in minionList)
-					if (minion.IsAIEnabled())
+					if (minion.IsAIEnabled)
 						minion.GetAI().DoCastSelf(SpellIds.LichPetAuraOnkill);
 			}
 		}

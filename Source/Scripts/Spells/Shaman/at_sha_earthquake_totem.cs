@@ -43,8 +43,8 @@ public class at_sha_earthquake_totem : AreaTriggerAI
 
 		if (tempSumm != null)
 		{
-			tempSumm.SetFaction(caster.GetFaction());
-			tempSumm.SetSummonerGUID(caster.GetGUID());
+			tempSumm.Faction = caster.Faction;
+			tempSumm.SetSummonerGUID(caster.GUID);
 			PhasingHandler.InheritPhaseShift(tempSumm, caster);
 
 			tempSumm.CastSpell(caster,

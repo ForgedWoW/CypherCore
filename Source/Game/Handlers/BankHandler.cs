@@ -21,41 +21,41 @@ namespace Game
                 return;
             }
 
-            Item item = GetPlayer().GetItemByPos(packet.Bag, packet.Slot);
+            Item item = Player.GetItemByPos(packet.Bag, packet.Slot);
             if (!item)
                 return;
 
             List<ItemPosCount> dest = new();
-            InventoryResult msg = GetPlayer().CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+            InventoryResult msg = Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
             if (msg != InventoryResult.Ok)
             {
-                GetPlayer().SendEquipError(msg, item);
+                Player.SendEquipError(msg, item);
                 return;
             }
 
             if (dest.Count == 1 && dest[0].Pos == item.GetPos())
             {
-                GetPlayer().SendEquipError(InventoryResult.CantSwap, item);
+                Player.SendEquipError(InventoryResult.CantSwap, item);
                 return;
             }
 
-            GetPlayer().RemoveItem(packet.Bag, packet.Slot, true);
-            GetPlayer().ItemRemovedQuestCheck(item.GetEntry(), item.GetCount());
-            GetPlayer().BankItem(dest, item, true);
+            Player.RemoveItem(packet.Bag, packet.Slot, true);
+            Player.ItemRemovedQuestCheck(item.Entry, item.GetCount());
+            Player.BankItem(dest, item, true);
         }
 
         [WorldPacketHandler(ClientOpcodes.BankerActivate, Processing = PacketProcessing.Inplace)]
         void HandleBankerActivate(Hello packet)
         {
-            Creature unit = GetPlayer().GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Banker, NPCFlags2.None);
+            Creature unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Banker, NPCFlags2.None);
             if (!unit)
             {
                 Log.outError(LogFilter.Network, "HandleBankerActivate: {0} not found or you can not interact with him.", packet.Unit.ToString());
                 return;
             }
 
-            if (GetPlayer().HasUnitState(UnitState.Died))
-                GetPlayer().RemoveAurasByType(AuraType.FeignDeath);
+            if (Player.HasUnitState(UnitState.Died))
+                Player.RemoveAurasByType(AuraType.FeignDeath);
 
             SendShowBank(packet.Unit);
         }
@@ -69,37 +69,37 @@ namespace Game
                 return;
             }
 
-            Item item = GetPlayer().GetItemByPos(packet.Bag, packet.Slot);
+            Item item = Player.GetItemByPos(packet.Bag, packet.Slot);
             if (!item)
                 return;
 
             if (Player.IsBankPos(packet.Bag, packet.Slot))                 // moving from bank to inventory
             {
                 List<ItemPosCount> dest = new();
-                InventoryResult msg = GetPlayer().CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+                InventoryResult msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
                 if (msg != InventoryResult.Ok)
                 {
-                    GetPlayer().SendEquipError(msg, item);
+                    Player.SendEquipError(msg, item);
                     return;
                 }
 
-                GetPlayer().RemoveItem(packet.Bag, packet.Slot, true);
-                Item storedItem = GetPlayer().StoreItem(dest, item, true);
+                Player.RemoveItem(packet.Bag, packet.Slot, true);
+                Item storedItem = Player.StoreItem(dest, item, true);
                 if (storedItem)
-                    GetPlayer().ItemAddedQuestCheck(storedItem.GetEntry(), storedItem.GetCount());
+                    Player.ItemAddedQuestCheck(storedItem.Entry, storedItem.GetCount());
             }
             else                                                    // moving from inventory to bank
             {
                 List<ItemPosCount> dest = new();
-                InventoryResult msg = GetPlayer().CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
+                InventoryResult msg = Player.CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item, false);
                 if (msg != InventoryResult.Ok)
                 {
-                    GetPlayer().SendEquipError(msg, item);
+                    Player.SendEquipError(msg, item);
                     return;
                 }
 
-                GetPlayer().RemoveItem(packet.Bag, packet.Slot, true);
-                GetPlayer().BankItem(dest, item, true);
+                Player.RemoveItem(packet.Bag, packet.Slot, true);
+                Player.BankItem(dest, item, true);
             }
         }
 
@@ -112,7 +112,7 @@ namespace Game
                 return;
             }
 
-            uint slot = GetPlayer().GetBankBagSlotCount();
+            uint slot = Player.GetBankBagSlotCount();
             // next slot
             ++slot;
 
@@ -121,12 +121,12 @@ namespace Game
                 return;
 
             uint price = slotEntry.Cost;
-            if (!GetPlayer().HasEnoughMoney(price))
+            if (!Player.HasEnoughMoney(price))
                 return;
 
-            GetPlayer().SetBankBagSlotCount((byte)slot);
-            GetPlayer().ModifyMoney(-price);
-            GetPlayer().UpdateCriteria(CriteriaType.BankSlotsPurchased);
+            Player.SetBankBagSlotCount((byte)slot);
+            Player.ModifyMoney(-price);
+            Player.UpdateCriteria(CriteriaType.BankSlotsPurchased);
         }
 
         [WorldPacketHandler(ClientOpcodes.BuyReagentBank)]
@@ -138,9 +138,9 @@ namespace Game
                 return;
             }
 
-            if (_player.IsReagentBankUnlocked())
+            if (_player.IsReagentBankUnlocked)
             {
-                Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GetGUID()}, name: {_player.GetName()}) tried to unlock reagent bank a 2nd time.");
+                Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GUID}, name: {_player.GetName()}) tried to unlock reagent bank a 2nd time.");
                 return;
             }
 
@@ -148,7 +148,7 @@ namespace Game
 
             if (!_player.HasEnoughMoney(price))
             {
-                Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GetGUID()}, name: {_player.GetName()}) without enough gold.");
+                Log.outDebug(LogFilter.Network, $"WORLD: HandleBuyReagentBankOpcode - Player ({_player.GUID}, name: {_player.GetName()}) without enough gold.");
                 return;
             }
 
@@ -165,7 +165,7 @@ namespace Game
                 return;
             }
 
-            if (!_player.IsReagentBankUnlocked())
+            if (!_player.IsReagentBankUnlocked)
             {
                 _player.SendEquipError(InventoryResult.ReagentBankLocked);
                 return;
@@ -206,7 +206,7 @@ namespace Game
                 return;
             }
 
-            if (!_player.IsReagentBankUnlocked())
+            if (!_player.IsReagentBankUnlocked)
             {
                 _player.SendEquipError(InventoryResult.ReagentBankLocked);
                 return;
@@ -243,7 +243,7 @@ namespace Game
                 return;
             }
 
-            if (!_player.IsReagentBankUnlocked())
+            if (!_player.IsReagentBankUnlocked)
             {
                 _player.SendEquipError(InventoryResult.ReagentBankLocked);
                 return;

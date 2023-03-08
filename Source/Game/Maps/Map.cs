@@ -175,7 +175,7 @@ public class Map : IDisposable
 	{
 		var grid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
-		switch (obj.GetTypeId())
+		switch (obj.TypeId)
 		{
 			case TypeId.Corpse:
 				if (grid.IsGridObjectDataLoaded())
@@ -261,7 +261,7 @@ public class Map : IDisposable
 		{
 			Log.outError(LogFilter.Maps,
 						"Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
-						player.GetGUID().ToString(),
+						player.						GUID.ToString(),
 						player.Location.X,
 						player.Location.Y);
 
@@ -287,8 +287,8 @@ public class Map : IDisposable
 		player.UpdateObjectVisibility(false);
 		PhasingHandler.SendToPlayer(player);
 
-		if (player.IsAlive())
-			ConvertCorpseToBones(player.GetGUID());
+		if (player.IsAlive)
+			ConvertCorpseToBones(player.GUID);
 
 		ActivePlayers.Add(player);
 
@@ -369,7 +369,7 @@ public class Map : IDisposable
 		{
 			Log.outError(LogFilter.Maps,
 						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-						obj.GetGUID(),
+						obj.						GUID,
 						obj.Location.X,
 						obj.Location.Y,
 						cellCoord.X_Coord,
@@ -380,19 +380,19 @@ public class Map : IDisposable
 
 		var cell = new Cell(cellCoord);
 
-		if (obj.IsActiveObject())
+		if (obj.IsActiveObject)
 			EnsureGridLoadedForActiveObject(cell, obj);
 		else
 			EnsureGridCreated(new GridCoord(cell.GetGridX(), cell.GetGridY()));
 
 		AddToGrid(obj, cell);
-		Log.outDebug(LogFilter.Maps, "Object {0} enters grid[{1}, {2}]", obj.GetGUID().ToString(), cell.GetGridX(), cell.GetGridY());
+		Log.outDebug(LogFilter.Maps, "Object {0} enters grid[{1}, {2}]", obj.GUID.ToString(), cell.GetGridX(), cell.GetGridY());
 
 		obj.AddToWorld();
 
 		InitializeObject(obj);
 
-		if (obj.IsActiveObject())
+		if (obj.IsActiveObject)
 			AddToActive(obj);
 
 		//something, such as vehicle, needs to be update immediately
@@ -416,7 +416,7 @@ public class Map : IDisposable
 		{
 			Log.outError(LogFilter.Maps,
 						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-						obj.GetGUID(),
+						obj.						GUID,
 						obj.Location.X,
 						obj.Location.Y,
 						cellCoord.X_Coord,
@@ -433,11 +433,11 @@ public class Map : IDisposable
 
 			// Broadcast creation to players
 			foreach (var player in GetPlayers())
-				if (player.GetTransport() != obj && player.InSamePhase(obj))
+				if (player.Transport != obj && player.InSamePhase(obj))
 				{
 					var data = new UpdateData(GetId());
 					obj.BuildCreateUpdateBlockForPlayer(data, player);
-					player.VisibleTransports.Add(obj.GetGUID());
+					player.VisibleTransports.Add(obj.GUID);
 					data.BuildPacket(out var packet);
 					player.SendPacket(packet);
 				}
@@ -500,7 +500,7 @@ public class Map : IDisposable
 
 			if (player.IsInWorld)
 			{
-				var session = player.GetSession();
+				var session = player.Session;
 				var updater = new MapSessionFilter(session);
 				_threadManager.Schedule(() => session.Update(diff, updater));
 			}
@@ -539,7 +539,7 @@ public class Map : IDisposable
 				VisitNearbyCellsOf(player, update);
 
 				// If player is using far sight or mind vision, visit that object too
-				var viewPoint = player.GetViewpoint();
+				var viewPoint = player.Viewpoint;
 
 				if (viewPoint)
 					VisitNearbyCellsOf(viewPoint, update);
@@ -584,7 +584,7 @@ public class Map : IDisposable
 
 				// Totems
 				foreach (var summonGuid in player.SummonSlot)
-					if (!summonGuid.IsEmpty())
+					if (!summonGuid.IsEmpty)
 					{
 						var unit = GetCreature(summonGuid);
 
@@ -665,7 +665,7 @@ public class Map : IDisposable
 		player.UpdateZone(MapConst.InvalidZone, 0);
 		OnPlayerLeaveMap(this, player);
 
-		GetMultiPersonalPhaseTracker().MarkAllPhasesForDeletion(player.GetGUID());
+		GetMultiPersonalPhaseTracker().MarkAllPhasesForDeletion(player.GUID);
 
 		player.CombatStop();
 
@@ -687,10 +687,10 @@ public class Map : IDisposable
 
 	public void RemoveFromMap(WorldObject obj, bool remove)
 	{
-		var inWorld = obj.IsInWorld && obj.GetTypeId() >= TypeId.Unit && obj.GetTypeId() <= TypeId.GameObject;
+		var inWorld = obj.IsInWorld && obj.TypeId >= TypeId.Unit && obj.TypeId <= TypeId.GameObject;
 		obj.RemoveFromWorld();
 
-		if (obj.IsActiveObject())
+		if (obj.IsActiveObject)
 			RemoveFromActive(obj);
 
 		GetMultiPersonalPhaseTracker().UnregisterTrackedObject(obj);
@@ -715,7 +715,7 @@ public class Map : IDisposable
 
 			UpdateData data = new(GetId());
 
-			if (obj.IsDestroyedObject())
+			if (obj.IsDestroyedObject)
 				obj.BuildDestroyUpdateBlock(data);
 			else
 				obj.BuildOutOfRangeUpdateBlock(data);
@@ -723,10 +723,10 @@ public class Map : IDisposable
 			data.BuildPacket(out var packet);
 
 			foreach (var player in GetPlayers())
-				if (player.GetTransport() != obj && player.VisibleTransports.Contains(obj.GetGUID()))
+				if (player.Transport != obj && player.VisibleTransports.Contains(obj.GUID))
 				{
 					player.SendPacket(packet);
-					player.VisibleTransports.Remove(obj.GetGUID());
+					player.VisibleTransports.Remove(obj.GUID);
 				}
 		}
 
@@ -753,7 +753,7 @@ public class Map : IDisposable
 
 		player.Location.Relocate(x, y, z, orientation);
 
-		if (player.IsVehicle())
+		if (player.IsVehicle)
 			player.GetVehicleKit().RelocatePassengers();
 
 		if (oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
@@ -808,7 +808,7 @@ public class Map : IDisposable
 		{
 			creature.Location.Relocate(x, y, z, ang);
 
-			if (creature.IsVehicle())
+			if (creature.IsVehicle)
 				creature.GetVehicleKit().RelocatePassengers();
 
 			creature.UpdateObjectVisibility(false);
@@ -840,8 +840,8 @@ public class Map : IDisposable
 		{
 			Log.outDebug(LogFilter.Maps,
 						"GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
-						go.GetGUID().ToString(),
-						go.GetEntry(),
+						go.						GUID.ToString(),
+						go.						Entry,
 						old_cell.GetGridX(),
 						old_cell.GetGridY(),
 						old_cell.GetCellX(),
@@ -884,7 +884,7 @@ public class Map : IDisposable
 		{
 			Log.outDebug(LogFilter.Maps,
 						"DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
-						dynObj.GetGUID().ToString(),
+						dynObj.						GUID.ToString(),
 						old_cell.GetGridX(),
 						old_cell.GetGridY(),
 						old_cell.GetCellX(),
@@ -926,7 +926,7 @@ public class Map : IDisposable
 		// delay areatrigger move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
-			Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GetGUID().ToString(), old_cell.ToString(), new_cell.ToString());
+			Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GUID.ToString(), old_cell.ToString(), new_cell.ToString());
 
 			AddAreaTriggerToMoveList(at, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move at in Map::MoveAllAreaTriggersInMoveList
@@ -944,7 +944,7 @@ public class Map : IDisposable
 
 	public bool CreatureRespawnRelocation(Creature c, bool diffGridOnly)
 	{
-		var respPos = c.GetRespawnPosition();
+		var respPos = c.RespawnPosition;
 		var resp_cell = new Cell(respPos.X, respPos.Y);
 
 		//creature will be unloaded with grid
@@ -952,13 +952,13 @@ public class Map : IDisposable
 			return true;
 
 		c.CombatStop();
-		c.GetMotionMaster().Clear();
+		c.		MotionMaster.Clear();
 
 		// teleport it to respawn point (like normal respawn if player see)
 		if (CreatureCellRelocation(c, resp_cell))
 		{
 			c.Location.Relocate(respPos);
-			c.GetMotionMaster().Initialize(); // prevent possible problems with default move generators
+			c.			MotionMaster.Initialize(); // prevent possible problems with default move generators
 			c.UpdatePositionData();
 			c.UpdateObjectVisibility(false);
 
@@ -979,8 +979,8 @@ public class Map : IDisposable
 
 		Log.outDebug(LogFilter.Maps,
 					"GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
-					go.GetGUID().ToString(),
-					go.GetEntry(),
+					go.					GUID.ToString(),
+					go.					Entry,
 					go.Location.GetCurrentCell().GetGridX(),
 					go.Location.GetCurrentCell().GetGridY(),
 					resp_cell.GetGridX(),
@@ -1071,11 +1071,11 @@ public class Map : IDisposable
 	{
 		if (HavePlayers())
 			foreach (var pl in ActivePlayers)
-				if (!pl.IsBeingTeleportedFar())
+				if (!pl.IsBeingTeleportedFar)
 				{
 					// this is happening for bg
 					Log.outError(LogFilter.Maps, $"Map.UnloadAll: player {pl.GetName()} is still in map {GetId()} during unload, this should not happen!");
-					pl.TeleportTo(pl.GetHomebind());
+					pl.TeleportTo(pl.Homebind);
 				}
 	}
 
@@ -1281,7 +1281,7 @@ public class Map : IDisposable
 			return new TransferAbortParams(TransferAbortReason.Difficulty);
 
 		//Bypass checks for GMs
-		if (player.IsGameMaster())
+		if (player.IsGameMaster)
 			return null;
 
 		//Other requirements
@@ -1313,7 +1313,7 @@ public class Map : IDisposable
 			}
 
 			// players are only allowed to enter 10 instances per hour
-			if (!entry.GetFlags2().HasFlag(MapFlags2.IgnoreInstanceFarmLimit) && entry.IsDungeon() && !player.CheckInstanceCount(instanceIdToCheck) && !player.IsDead())
+			if (!entry.GetFlags2().HasFlag(MapFlags2.IgnoreInstanceFarmLimit) && entry.IsDungeon() && !player.CheckInstanceCount(instanceIdToCheck) && !player.IsDead)
 				return new TransferAbortParams(TransferAbortReason.TooManyInstances);
 		}
 
@@ -1335,7 +1335,7 @@ public class Map : IDisposable
 		if (transport != null)
 		{
 			transport.BuildCreateUpdateBlockForPlayer(data, player);
-			player.VisibleTransports.Add(transport.GetGUID());
+			player.VisibleTransports.Add(transport.GUID);
 		}
 
 		player.BuildCreateUpdateBlockForPlayer(data, player);
@@ -1360,20 +1360,20 @@ public class Map : IDisposable
 			if (!transport.IsInWorld)
 				continue;
 
-			var hasTransport = player.VisibleTransports.Contains(transport.GetGUID());
+			var hasTransport = player.VisibleTransports.Contains(transport.GUID);
 
 			if (player.InSamePhase(transport))
 			{
 				if (!hasTransport)
 				{
 					transport.BuildCreateUpdateBlockForPlayer(transData, player);
-					player.VisibleTransports.Add(transport.GetGUID());
+					player.VisibleTransports.Add(transport.GUID);
 				}
 			}
 			else
 			{
 				transport.BuildOutOfRangeUpdateBlock(transData);
-				player.VisibleTransports.Remove(transport.GetGUID());
+				player.VisibleTransports.Remove(transport.GUID);
 			}
 		}
 
@@ -1443,7 +1443,7 @@ public class Map : IDisposable
 
 		SpawnObjectType type;
 
-		switch (obj.GetTypeId())
+		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
 				type = SpawnObjectType.Creature;
@@ -1532,7 +1532,7 @@ public class Map : IDisposable
 					var obj = GetWorldObjectBySpawnId(data.Type, data.SpawnId);
 
 					if (obj != null)
-						if ((data.Type != SpawnObjectType.Creature) || obj.ToCreature().IsAlive())
+						if ((data.Type != SpawnObjectType.Creature) || obj.ToCreature().IsAlive)
 							continue;
 				}
 
@@ -1727,7 +1727,7 @@ public class Map : IDisposable
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.Location.MapId == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == GetId() && obj.InstanceId1 == GetInstanceId());
 
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
@@ -1737,7 +1737,7 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.Location.MapId == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == GetId() && obj.InstanceId1 == GetInstanceId());
 
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
@@ -1757,7 +1757,7 @@ public class Map : IDisposable
 		uint count = 0;
 
 		foreach (var pl in ActivePlayers)
-			if (!pl.IsGameMaster())
+			if (!pl.IsGameMaster)
 				++count;
 
 		return count;
@@ -1813,13 +1813,13 @@ public class Map : IDisposable
 
 		Position respawnLocation = null;
 
-		switch (obj.GetTypeId())
+		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
 				var creature = obj.ToCreature();
 
-				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-					respawnLocation = creature.GetRespawnPosition();
+				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
+					respawnLocation = creature.RespawnPosition;
 
 				break;
 			case TypeId.GameObject:
@@ -1844,7 +1844,7 @@ public class Map : IDisposable
 			else
 			{
 				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-				Log.outError(LogFilter.Maps, $"Active object {obj.GetGUID()} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+				Log.outError(LogFilter.Maps, $"Active object {obj.GUID} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
 	}
@@ -1855,13 +1855,13 @@ public class Map : IDisposable
 
 		Position respawnLocation = null;
 
-		switch (obj.GetTypeId())
+		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
 				var creature = obj.ToCreature();
 
-				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-					respawnLocation = creature.GetRespawnPosition();
+				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
+					respawnLocation = creature.RespawnPosition;
 
 				break;
 			case TypeId.GameObject:
@@ -1886,7 +1886,7 @@ public class Map : IDisposable
 			else
 			{
 				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-				Log.outDebug(LogFilter.Maps, $"Active object {obj.GetGUID()} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+				Log.outDebug(LogFilter.Maps, $"Active object {obj.GUID} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
 	}
@@ -1997,12 +1997,12 @@ public class Map : IDisposable
 	{
 		var linkedGuid = Global.ObjectMgr.GetLinkedRespawnGuid(guid);
 
-		switch (linkedGuid.GetHigh())
+		switch (linkedGuid.High)
 		{
 			case HighGuid.Creature:
-				return GetCreatureRespawnTime(linkedGuid.GetCounter());
+				return GetCreatureRespawnTime(linkedGuid.Counter);
 			case HighGuid.GameObject:
-				return GetGORespawnTime(linkedGuid.GetCounter());
+				return GetGORespawnTime(linkedGuid.Counter);
 			default:
 				break;
 		}
@@ -2104,7 +2104,7 @@ public class Map : IDisposable
 		_corpsesByCell.Add(corpse.GetCellCoord().GetId(), corpse);
 
 		if (corpse.GetCorpseType() != CorpseType.Bones)
-			_corpsesByPlayer[corpse.GetOwnerGUID()] = corpse;
+			_corpsesByPlayer[corpse.OwnerGUID] = corpse;
 		else
 			_corpseBones.Add(corpse);
 	}
@@ -2133,7 +2133,7 @@ public class Map : IDisposable
 		{
 			// Create bones, don't change Corpse
 			bones = new Corpse();
-			bones.Create(corpse.GetGUID().GetCounter(), this);
+			bones.Create(corpse.GUID.Counter, this);
 
 			bones.ReplaceAllCorpseDynamicFlags((CorpseDynFlags)(byte)corpse.CorpseData.DynamicFlags);
 			bones.SetOwnerGUID(corpse.CorpseData.Owner);
@@ -2601,7 +2601,7 @@ public class Map : IDisposable
 		return _dynamicTree.GetHeight(x, y, z, maxSearchDist, phaseShift);
 	}
 
-	public virtual uint GetOwnerGuildId(Team team = Team.Other)
+	public virtual uint GetOwnerGuildId(TeamFaction team = TeamFaction.Other)
 	{
 		return 0;
 	}
@@ -2632,7 +2632,7 @@ public class Map : IDisposable
 
 	public AreaTrigger GetAreaTrigger(ObjectGuid guid)
 	{
-		if (!guid.IsAreaTrigger())
+		if (!guid.IsAreaTrigger)
 			return null;
 
 		return (AreaTrigger)_objectsStore.LookupByKey(guid);
@@ -2655,7 +2655,7 @@ public class Map : IDisposable
 
 	public Corpse GetCorpse(ObjectGuid guid)
 	{
-		if (!guid.IsCorpse())
+		if (!guid.IsCorpse)
 			return null;
 
 		return (Corpse)_objectsStore.LookupByKey(guid);
@@ -2663,7 +2663,7 @@ public class Map : IDisposable
 
 	public Creature GetCreature(ObjectGuid guid)
 	{
-		if (!guid.IsCreatureOrVehicle())
+		if (!guid.IsCreatureOrVehicle)
 			return null;
 
 		return (Creature)_objectsStore.LookupByKey(guid);
@@ -2671,7 +2671,7 @@ public class Map : IDisposable
 
 	public DynamicObject GetDynamicObject(ObjectGuid guid)
 	{
-		if (!guid.IsDynamicObject())
+		if (!guid.IsDynamicObject)
 			return null;
 
 		return (DynamicObject)_objectsStore.LookupByKey(guid);
@@ -2679,7 +2679,7 @@ public class Map : IDisposable
 
 	public GameObject GetGameObject(ObjectGuid guid)
 	{
-		if (!guid.IsAnyTypeGameObject())
+		if (!guid.IsAnyTypeGameObject)
 			return null;
 
 		return (GameObject)_objectsStore.LookupByKey(guid);
@@ -2687,7 +2687,7 @@ public class Map : IDisposable
 
 	public Pet GetPet(ObjectGuid guid)
 	{
-		if (!guid.IsPet())
+		if (!guid.IsPet)
 			return null;
 
 		return (Pet)_objectsStore.LookupByKey(guid);
@@ -2695,7 +2695,7 @@ public class Map : IDisposable
 
 	public Transport GetTransport(ObjectGuid guid)
 	{
-		if (!guid.IsMOTransport())
+		if (!guid.IsMOTransport)
 			return null;
 
 		var go = GetGameObject(guid);
@@ -2710,7 +2710,7 @@ public class Map : IDisposable
 		if (bounds.Empty())
 			return null;
 
-		var foundCreature = bounds.Find(creature => creature.IsAlive());
+		var foundCreature = bounds.Find(creature => creature.IsAlive);
 
 		return foundCreature != null ? foundCreature : bounds[0];
 	}
@@ -2857,7 +2857,7 @@ public class Map : IDisposable
 		if (!summon.Create(GenerateLowGuid(HighGuid.Creature), this, entry, pos, null, vehId, true))
 			return null;
 
-		var transport = summoner?.GetTransport();
+		var transport = summoner?.Transport;
 
 		if (transport != null)
 		{
@@ -2876,7 +2876,7 @@ public class Map : IDisposable
 		summon.SetCreatedBySpell(spellId);
 		summon.SetHomePosition(pos);
 		summon.InitStats(duration);
-		summon.SetPrivateObjectOwner(privateObjectOwner);
+		summon.		PrivateObjectOwner = privateObjectOwner;
 
 		if (smoothPhasingInfo != null)
 		{
@@ -2887,10 +2887,11 @@ public class Map : IDisposable
 				if (replacedObject != null)
 				{
 					var originalSmoothPhasingInfo = smoothPhasingInfo;
-					originalSmoothPhasingInfo.ReplaceObject = summon.GetGUID();
+					originalSmoothPhasingInfo.ReplaceObject = summon.GUID;
 					replacedObject.GetOrCreateSmoothPhasing().SetViewerDependentInfo(privateObjectOwner, originalSmoothPhasingInfo);
 
-					summon.SetDemonCreatorGUID(privateObjectOwner);
+					summon.
+					DemonCreatorGUID = privateObjectOwner;
 				}
 			}
 
@@ -2960,7 +2961,7 @@ public class Map : IDisposable
 
 	private void SwitchGridContainers(WorldObject obj, bool on)
 	{
-		if (obj.IsPermanentWorldObject())
+		if (obj.IsPermanentWorldObject)
 			return;
 
 		var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
@@ -2969,7 +2970,7 @@ public class Map : IDisposable
 		{
 			Log.outError(LogFilter.Maps,
 						"Map.SwitchGridContainers: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-						obj.GetGUID(),
+						obj.						GUID,
 						obj.Location.X,
 						obj.Location.Y,
 						p.X_Coord,
@@ -2983,7 +2984,7 @@ public class Map : IDisposable
 		if (!IsGridLoaded(cell.GetGridX(), cell.GetGridY()))
 			return;
 
-		Log.outDebug(LogFilter.Maps, "Switch object {0} from grid[{1}, {2}] {3}", obj.GetGUID(), cell.GetGridX(), cell.GetGridY(), on);
+		Log.outDebug(LogFilter.Maps, "Switch object {0} from grid[{1}, {2}] {3}", obj.GUID, cell.GetGridX(), cell.GetGridY(), on);
 		var ngrid = GetGrid(cell.GetGridX(), cell.GetGridY());
 		Cypher.Assert(ngrid != null);
 
@@ -3052,15 +3053,15 @@ public class Map : IDisposable
 		EnsureGridLoaded(cell);
 		var grid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
-		if (obj.IsPlayer())
-			GetMultiPersonalPhaseTracker().LoadGrid(obj.GetPhaseShift(), grid, this, cell);
+		if (obj.IsPlayer)
+			GetMultiPersonalPhaseTracker().LoadGrid(obj.PhaseShift, grid, this, cell);
 
 		// refresh grid state & timer
 		if (grid.GetGridState() != GridState.Active)
 		{
 			Log.outDebug(LogFilter.Maps,
 						"Active object {0} triggers loading of grid [{1}, {2}] on map {3}",
-						obj.GetGUID(),
+						obj.						GUID,
 						cell.GetGridX(),
 						cell.GetGridY(),
 						GetId());
@@ -3258,7 +3259,7 @@ public class Map : IDisposable
 		if (xy_cell != cur_cell)
 		{
 			//$"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
-			Log.outDebug(LogFilter.Maps, $"{obj.GetTypeId()} ({obj.GetGUID()}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
+			Log.outDebug(LogFilter.Maps, $"{obj.TypeId} ({obj.GUID}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
 
 			return true; // not crash at error, just output error in debug mode
 		}
@@ -3377,7 +3378,7 @@ public class Map : IDisposable
 						// update pos
 						creature.Location.Relocate(creature.Location.NewPosition);
 
-						if (creature.IsVehicle())
+						if (creature.IsVehicle)
 							creature.GetVehicleKit().RelocatePassengers();
 
 						creature.UpdatePositionData();
@@ -3395,7 +3396,7 @@ public class Map : IDisposable
 							//But this check is always needed to ensure safety
 							// @todo pets will disappear if this is outside CreatureRespawnRelocation
 							//need to check why pet is frequently relocated to an unloaded cell
-							if (creature.IsPet())
+							if (creature.IsPet)
 								((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
 							else
 								AddObjectToRemoveList(creature);
@@ -3449,8 +3450,8 @@ public class Map : IDisposable
 							// ... or unload (if respawn grid also not loaded)
 							Log.outDebug(LogFilter.Maps,
 										"GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
-										go.GetGUID().ToString(),
-										go.GetEntry());
+										go.										GUID.ToString(),
+										go.										Entry);
 
 							AddObjectToRemoveList(go);
 						}
@@ -3498,7 +3499,7 @@ public class Map : IDisposable
 					}
 					else
 					{
-						Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GetGUID().ToString());
+						Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GUID.ToString());
 					}
 				});
 			}
@@ -3542,7 +3543,7 @@ public class Map : IDisposable
 					}
 					else
 					{
-						Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GetGUID().ToString());
+						Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
 					}
 				});
 			}
@@ -3568,14 +3569,14 @@ public class Map : IDisposable
 		}
 
 		// in diff. grids but active creature
-		if (obj.IsActiveObject())
+		if (obj.IsActiveObject)
 		{
 			EnsureGridLoadedForActiveObject(new_cell, obj);
 
 			Log.outDebug(LogFilter.Maps,
 						"Active creature (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to grid[{4}, {5}].",
-						obj.GetGUID().ToString(),
-						obj.GetEntry(),
+						obj.						GUID.ToString(),
+						obj.						Entry,
 						old_cell.GetGridX(),
 						old_cell.GetGridY(),
 						new_cell.GetGridX(),
@@ -3589,7 +3590,7 @@ public class Map : IDisposable
 
 		var c = obj.ToCreature();
 
-		if (c != null && c.GetCharmerOrOwnerGUID().IsPlayer())
+		if (c != null && c.CharmerOrOwnerGUID.IsPlayer)
 			EnsureGridLoaded(new_cell);
 
 		// in diff. loaded grid normal creature
@@ -3638,10 +3639,10 @@ public class Map : IDisposable
 		var transData = new UpdateData(GetId());
 
 		foreach (var transport in _transports)
-			if (transport.IsInWorld && transport != player.GetTransport() && player.InSamePhase(transport))
+			if (transport.IsInWorld && transport != player.Transport && player.InSamePhase(transport))
 			{
 				transport.BuildCreateUpdateBlockForPlayer(transData, player);
-				player.VisibleTransports.Add(transport.GetGUID());
+				player.VisibleTransports.Add(transport.GUID);
 			}
 
 		transData.BuildPacket(out var packet);
@@ -3653,10 +3654,10 @@ public class Map : IDisposable
 		var transData = new UpdateData(player.Location.MapId);
 
 		foreach (var transport in _transports)
-			if (player.VisibleTransports.Contains(transport.GetGUID()) && transport != player.GetTransport())
+			if (player.VisibleTransports.Contains(transport.GUID) && transport != player.Transport)
 			{
 				transport.BuildOutOfRangeUpdateBlock(transData);
-				player.VisibleTransports.Remove(transport.GetGUID());
+				player.VisibleTransports.Remove(transport.GUID);
 			}
 
 		transData.BuildPacket(out var packet);
@@ -3728,11 +3729,11 @@ public class Map : IDisposable
 
 				foreach (var creature in range)
 				{
-					if (!creature.IsAlive())
+					if (!creature.IsAlive)
 						continue;
 
 					// escort NPCs are allowed to respawn as long as all other instances are already escorting
-					if (isEscort && creature.IsEscorted())
+					if (isEscort && creature.IsEscorted)
 						continue;
 
 					alreadyExists = true;
@@ -4049,8 +4050,8 @@ public class Map : IDisposable
 			var on = pair.Value;
 			_objectsToSwitch.Remove(pair.Key);
 
-			if (!obj.IsPermanentWorldObject())
-				switch (obj.GetTypeId())
+			if (!obj.IsPermanentWorldObject)
+				switch (obj.TypeId)
 				{
 					case TypeId.Unit:
 						SwitchGridContainers(obj.ToCreature(), on);
@@ -4065,14 +4066,14 @@ public class Map : IDisposable
 		{
 			var obj = _objectsToRemove.First();
 
-			switch (obj.GetTypeId())
+			switch (obj.TypeId)
 			{
 				case TypeId.Corpse:
 				{
-					var corpse = ObjectAccessor.GetCorpse(obj, obj.GetGUID());
+					var corpse = ObjectAccessor.GetCorpse(obj, obj.GUID);
 
 					if (corpse == null)
-						Log.outError(LogFilter.Maps, "Tried to delete corpse/bones {0} that is not in map.", obj.GetGUID().ToString());
+						Log.outError(LogFilter.Maps, "Tried to delete corpse/bones {0} that is not in map.", obj.GUID.ToString());
 					else
 						RemoveFromMap(corpse, true);
 
@@ -4108,7 +4109,7 @@ public class Map : IDisposable
 
 					break;
 				default:
-					Log.outError(LogFilter.Maps, "Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.GetTypeId());
+					Log.outError(LogFilter.Maps, "Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.TypeId);
 
 					break;
 			}
@@ -4146,7 +4147,7 @@ public class Map : IDisposable
 		_corpsesByCell.Remove(corpse.GetCellCoord().GetId(), corpse);
 
 		if (corpse.GetCorpseType() != CorpseType.Bones)
-			_corpsesByPlayer.Remove(corpse.GetOwnerGUID());
+			_corpsesByPlayer.Remove(corpse.OwnerGUID);
 		else
 			_corpseBones.Remove(corpse);
 	}
@@ -4339,9 +4340,9 @@ public class Map : IDisposable
 			return;
 
 		// prepare static data
-		var sourceGUID = source != null ? source.GetGUID() : ObjectGuid.Empty; //some script commands doesn't have source
-		var targetGUID = target != null ? target.GetGUID() : ObjectGuid.Empty;
-		var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).GetOwnerGUID() : ObjectGuid.Empty;
+		var sourceGUID = source != null ? source.GUID : ObjectGuid.Empty; //some script commands doesn't have source
+		var targetGUID = target != null ? target.GUID : ObjectGuid.Empty;
+		var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
 		// Schedule script execution for all scripts in the script map
 		var immedScript = false;
@@ -4375,9 +4376,9 @@ public class Map : IDisposable
 		// NOTE: script record _must_ exist until command executed
 
 		// prepare static data
-		var sourceGUID = source != null ? source.GetGUID() : ObjectGuid.Empty;
-		var targetGUID = target != null ? target.GetGUID() : ObjectGuid.Empty;
-		var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).GetOwnerGUID() : ObjectGuid.Empty;
+		var sourceGUID = source != null ? source.GUID : ObjectGuid.Empty;
+		var targetGUID = target != null ? target.GUID : ObjectGuid.Empty;
+		var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
 		var sa = new ScriptAction();
 		sa.SourceGUID = sourceGUID;
@@ -4419,12 +4420,12 @@ public class Map : IDisposable
 				Log.outError(LogFilter.Scripts,
 							"{0} neither source nor target object is player (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
 							scriptInfo.GetDebugInfo(),
-							source ? source.GetTypeId() : 0,
-							source ? source.GetEntry() : 0,
-							source ? source.GetGUID().ToString() : "",
-							target ? target.GetTypeId() : 0,
-							target ? target.GetEntry() : 0,
-							target ? target.GetGUID().ToString() : "");
+							source ? source.TypeId : 0,
+							source ? source.Entry : 0,
+							source ? source.GUID.ToString() : "",
+							target ? target.TypeId : 0,
+							target ? target.Entry : 0,
+							target ? target.GUID.ToString() : "");
 		}
 
 		return player;
@@ -4463,12 +4464,12 @@ public class Map : IDisposable
 				Log.outError(LogFilter.Scripts,
 							"{0} neither source nor target are creatures (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
 							scriptInfo.GetDebugInfo(),
-							source ? source.GetTypeId() : 0,
-							source ? source.GetEntry() : 0,
-							source ? source.GetGUID().ToString() : "",
-							target ? target.GetTypeId() : 0,
-							target ? target.GetEntry() : 0,
-							target ? target.GetGUID().ToString() : "");
+							source ? source.TypeId : 0,
+							source ? source.Entry : 0,
+							source ? source.GUID.ToString() : "",
+							target ? target.TypeId : 0,
+							target ? target.Entry : 0,
+							target ? target.GUID.ToString() : "");
 		}
 
 		return creature;
@@ -4506,8 +4507,8 @@ public class Map : IDisposable
 			if (gameobject == null)
 				Log.outError(LogFilter.MapsScript,
 							$"{scriptInfo.GetDebugInfo()} neither source nor target are gameobjects " +
-							$"(source: TypeId: {(source != null ? source.GetTypeId() : 0)}, Entry: {(source != null ? source.GetEntry() : 0)}, {(source != null ? source.GetGUID() : ObjectGuid.Empty)}; " +
-							$"target: TypeId: {(target != null ? target.GetTypeId() : 0)}, Entry: {(target != null ? target.GetEntry() : 0)}, {(target != null ? target.GetGUID() : ObjectGuid.Empty)}), skipping.");
+							$"(source: TypeId: {(source != null ? source.TypeId : 0)}, Entry: {(source != null ? source.Entry : 0)}, {(source != null ? source.GUID : ObjectGuid.Empty)}; " +
+							$"target: TypeId: {(target != null ? target.TypeId : 0)}, Entry: {(target != null ? target.Entry : 0)}, {(target != null ? target.GUID : ObjectGuid.Empty)}), skipping.");
 		}
 
 		return gameobject;
@@ -4530,9 +4531,9 @@ public class Map : IDisposable
 						"{0} {1} object is not unit (TypeId: {2}, Entry: {3}, GUID: {4}), skipping.",
 						scriptInfo.GetDebugInfo(),
 						isSource ? "source" : "target",
-						obj.GetTypeId(),
-						obj.GetEntry(),
-						obj.GetGUID().ToString());
+						obj.						TypeId,
+						obj.						Entry,
+						obj.						GUID.ToString());
 		}
 		else
 		{
@@ -4565,9 +4566,9 @@ public class Map : IDisposable
 							"{0} {1} object is not a player (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
-							obj.GetTypeId(),
-							obj.GetEntry(),
-							obj.GetGUID().ToString());
+							obj.							TypeId,
+							obj.							Entry,
+							obj.							GUID.ToString());
 		}
 
 		return player;
@@ -4590,9 +4591,9 @@ public class Map : IDisposable
 							"{0} {1} object is not a creature (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
-							obj.GetTypeId(),
-							obj.GetEntry(),
-							obj.GetGUID().ToString());
+							obj.							TypeId,
+							obj.							Entry,
+							obj.							GUID.ToString());
 		}
 
 		return creature;
@@ -4615,9 +4616,9 @@ public class Map : IDisposable
 							"{0} {1} object is not a world object (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
-							obj.GetTypeId(),
-							obj.GetEntry(),
-							obj.GetGUID().ToString());
+							obj.							TypeId,
+							obj.							Entry,
+							obj.							GUID.ToString());
 		}
 
 		return pWorldObject;
@@ -4656,9 +4657,9 @@ public class Map : IDisposable
 			Log.outError(LogFilter.Scripts,
 						"{0} source object is not unit (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 						scriptInfo.GetDebugInfo(),
-						source.GetTypeId(),
-						source.GetEntry(),
-						source.GetGUID().ToString());
+						source.						TypeId,
+						source.						Entry,
+						source.						GUID.ToString());
 		}
 		else
 		{
@@ -4667,9 +4668,9 @@ public class Map : IDisposable
 				Log.outError(LogFilter.Scripts,
 							"{0} source object could not be casted to world object (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 							scriptInfo.GetDebugInfo(),
-							source.GetTypeId(),
-							source.GetEntry(),
-							source.GetGUID().ToString());
+							source.							TypeId,
+							source.							Entry,
+							source.							GUID.ToString());
 			}
 			else
 			{
@@ -4681,7 +4682,7 @@ public class Map : IDisposable
 				}
 				else if (pDoor.GetGoType() != GameObjectTypes.Door)
 				{
-					Log.outError(LogFilter.Scripts, "{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GetGoType(), pDoor.GetEntry(), pDoor.GetGUID().ToString());
+					Log.outError(LogFilter.Scripts, "{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GetGoType(), pDoor.Entry, pDoor.GUID.ToString());
 				}
 				else if (bOpen == (pDoor.GetGoState() == GameObjectState.Ready))
 				{
@@ -4730,8 +4731,8 @@ public class Map : IDisposable
 			{
 				WorldObject source = null;
 
-				if (!step.SourceGUID.IsEmpty())
-					switch (step.SourceGUID.GetHigh())
+				if (!step.SourceGUID.IsEmpty)
+					switch (step.SourceGUID.High)
 					{
 						case HighGuid.Item: // as well as HIGHGUID_CONTAINER
 							var player = GetPlayer(step.OwnerGUID);
@@ -4774,8 +4775,8 @@ public class Map : IDisposable
 
 				WorldObject target = null;
 
-				if (!step.TargetGUID.IsEmpty())
-					switch (step.TargetGUID.GetHigh())
+				if (!step.TargetGUID.IsEmpty)
+					switch (step.TargetGUID.High)
 					{
 						case HighGuid.Creature:
 						case HighGuid.Vehicle:
@@ -4830,7 +4831,7 @@ public class Map : IDisposable
 
 							if (!sourceUnit)
 							{
-								Log.outError(LogFilter.Scripts, "{0} source object ({1}) is not an unit, skipping.", step.Script.GetDebugInfo(), source.GetGUID().ToString());
+								Log.outError(LogFilter.Scripts, "{0} source object ({1}) is not an unit, skipping.", step.Script.GetDebugInfo(), source.GUID.ToString());
 
 								break;
 							}
@@ -4877,7 +4878,7 @@ public class Map : IDisposable
 						if (cSource)
 						{
 							if (step.Script.Emote.Flags.HasAnyFlag(eScriptFlags.EmoteUseState))
-								cSource.SetEmoteState((Emote)step.Script.Emote.EmoteID);
+								cSource.								EmoteState = (Emote)step.Script.Emote.EmoteID;
 							else
 								cSource.HandleEmoteCommand((Emote)step.Script.Emote.EmoteID);
 						}
@@ -4972,9 +4973,9 @@ public class Map : IDisposable
 								Log.outError(LogFilter.Scripts,
 											"{0} source is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
-											source.GetTypeId(),
-											source.GetEntry(),
-											source.GetGUID().ToString());
+											source.											TypeId,
+											source.											Entry,
+											source.											GUID.ToString());
 
 								break;
 							}
@@ -4992,9 +4993,9 @@ public class Map : IDisposable
 									Log.outError(LogFilter.Scripts,
 												"{0} target is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 												step.Script.GetDebugInfo(),
-												target.GetTypeId(),
-												target.GetEntry(),
-												target.GetGUID().ToString());
+												target.												TypeId,
+												target.												Entry,
+												target.												GUID.ToString());
 
 									break;
 								}
@@ -5006,17 +5007,17 @@ public class Map : IDisposable
 								Log.outError(LogFilter.Scripts,
 											"{0} neither source nor target is player (Entry: {0}, GUID: {1}; target: Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
-											source.GetEntry(),
-											source.GetGUID().ToString(),
-											target.GetEntry(),
-											target.GetGUID().ToString());
+											source.											Entry,
+											source.											GUID.ToString(),
+											target.											Entry,
+											target.											GUID.ToString());
 
 								break;
 							}
 						}
 
 						// quest id and flags checked at script loading
-						if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.ToUnit().IsAlive()) &&
+						if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.ToUnit().IsAlive) &&
 							(step.Script.QuestExplored.Distance == 0 ||
 							worldObject.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
 							player.AreaExploredOrEventHappens(step.Script.QuestExplored.QuestID);
@@ -5142,9 +5143,9 @@ public class Map : IDisposable
 								Log.outError(LogFilter.Scripts,
 											"{0} target object is not gameobject (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
-											target.GetTypeId(),
-											target.GetEntry(),
-											target.GetGUID().ToString());
+											target.											TypeId,
+											target.											Entry,
+											target.											GUID.ToString());
 
 								break;
 							}
@@ -5312,7 +5313,7 @@ public class Map : IDisposable
 							if (Global.WaypointMgr.GetPath(step.Script.LoadPath.PathID) == null)
 								Log.outError(LogFilter.Scripts, "{0} source object has an invalid path ({1}), skipping.", step.Script.GetDebugInfo(), step.Script.LoadPath.PathID);
 							else
-								unit.GetMotionMaster().MovePath(step.Script.LoadPath.PathID, step.Script.LoadPath.IsRepeatable != 0);
+								unit.								MotionMaster.MovePath(step.Script.LoadPath.PathID, step.Script.LoadPath.IsRepeatable != 0);
 						}
 
 						break;
@@ -5339,7 +5340,7 @@ public class Map : IDisposable
 						if (!creatureBounds.Empty())
 						{
 							// Prefer alive (last respawned) creature
-							var foundCreature = creatureBounds.Find(creature => creature.IsAlive());
+							var foundCreature = creatureBounds.Find(creature => creature.IsAlive);
 
 							cTarget = foundCreature ?? creatureBounds[0];
 						}
@@ -5364,9 +5365,9 @@ public class Map : IDisposable
 
 						if (cSource)
 						{
-							if (cSource.IsDead())
+							if (cSource.IsDead)
 							{
-								Log.outError(LogFilter.Scripts, "{0} creature is already dead (Entry: {1}, GUID: {2})", step.Script.GetDebugInfo(), cSource.GetEntry(), cSource.GetGUID().ToString());
+								Log.outError(LogFilter.Scripts, "{0} creature is already dead (Entry: {1}, GUID: {2})", step.Script.GetDebugInfo(), cSource.Entry, cSource.GUID.ToString());
 							}
 							else
 							{
@@ -5450,19 +5451,20 @@ public class Map : IDisposable
 
 						if (cSource)
 						{
-							if (!cSource.IsAlive())
+							if (!cSource.IsAlive)
 								return;
 
-							cSource.GetMotionMaster().MoveIdle();
+							cSource.
+							MotionMaster.MoveIdle();
 
 							switch ((MovementGeneratorType)step.Script.Movement.MovementType)
 							{
 								case MovementGeneratorType.Random:
-									cSource.GetMotionMaster().MoveRandom(step.Script.Movement.MovementDistance);
+									cSource.									MotionMaster.MoveRandom(step.Script.Movement.MovementDistance);
 
 									break;
 								case MovementGeneratorType.Waypoint:
-									cSource.GetMotionMaster().MovePath((uint)step.Script.Movement.Path, false);
+									cSource.									MotionMaster.MovePath((uint)step.Script.Movement.Path, false);
 
 									break;
 							}

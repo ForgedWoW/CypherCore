@@ -84,7 +84,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public ObjectGuid GetTransportGUID()
 	{
-		return Owner.GetGUID();
+		return Owner.GUID;
 	}
 
 	public float GetTransportOrientation()

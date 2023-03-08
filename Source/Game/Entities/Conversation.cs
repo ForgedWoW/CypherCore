@@ -23,6 +23,18 @@ public class Conversation : WorldObject
 	TimeSpan _duration;
 	uint _textureKitId;
 
+	public override ObjectGuid OwnerGUID => GetCreatorGuid();
+
+	public override uint Faction => 0;
+
+	public override float StationaryX => _stationaryPosition.X;
+
+	public override float StationaryY => _stationaryPosition.Y;
+
+	public override float StationaryZ => _stationaryPosition.Z;
+
+	public override float StationaryO => _stationaryPosition.Orientation;
+
 	public Conversation() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.Conversation;
@@ -39,7 +51,7 @@ public class Conversation : WorldObject
 		//- Register the Conversation for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GetGUID(), this);
+			GetMap().GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -50,7 +62,7 @@ public class Conversation : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GetGUID());
+			GetMap().GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -135,7 +147,7 @@ public class Conversation : WorldObject
 
 	public uint GetScriptId()
 	{
-		return Global.ConversationDataStorage.GetConversationTemplate(GetEntry()).ScriptId;
+		return Global.ConversationDataStorage.GetConversationTemplate(Entry).ScriptId;
 	}
 
 	public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -184,43 +196,13 @@ public class Conversation : WorldObject
 		return _creatorGuid;
 	}
 
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return GetCreatorGuid();
-	}
-
-	public override uint GetFaction()
-	{
-		return 0;
-	}
-
-	public override float GetStationaryX()
-	{
-		return _stationaryPosition.X;
-	}
-
-	public override float GetStationaryY()
-	{
-		return _stationaryPosition.Y;
-	}
-
-	public override float GetStationaryZ()
-	{
-		return _stationaryPosition.Z;
-	}
-
-	public override float GetStationaryO()
-	{
-		return _stationaryPosition.Orientation;
-	}
-
 	void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
 	{
 		var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
 		//ASSERT(conversationTemplate);
 
-		_creatorGuid = creator.GetGUID();
-		SetPrivateObjectOwner(privateObjectOwner);
+		_creatorGuid = creator.GUID;
+		PrivateObjectOwner = privateObjectOwner;
 
 		SetMap(map);
 		Location.Relocate(pos);
@@ -232,8 +214,8 @@ public class Conversation : WorldObject
 		UpdatePositionData();
 		SetZoneScript();
 
-		SetEntry(conversationEntry);
-		SetObjectScale(1.0f);
+		Entry = conversationEntry;
+		ObjectScale = 1.0f;
 
 		_textureKitId = conversationTemplate.TextureKitId;
 
@@ -294,9 +276,9 @@ public class Conversation : WorldObject
 		{
 			var actor = line.ActorIndex < m_conversationData.Actors.Size() ? m_conversationData.Actors[line.ActorIndex] : null;
 
-			if (actor == null || (actor.CreatureID == 0 && actor.ActorGUID.IsEmpty() && actor.NoActorObject == 0))
+			if (actor == null || (actor.CreatureID == 0 && actor.ActorGUID.IsEmpty && actor.NoActorObject == 0))
 			{
-				Log.outError(LogFilter.Conversation, $"Failed to create conversation (Id: {GetEntry()}) due to missing actor (Idx: {line.ActorIndex}).");
+				Log.outError(LogFilter.Conversation, $"Failed to create conversation (Id: {Entry}) due to missing actor (Idx: {line.ActorIndex}).");
 
 				return false;
 			}
@@ -329,7 +311,7 @@ public class Conversation : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

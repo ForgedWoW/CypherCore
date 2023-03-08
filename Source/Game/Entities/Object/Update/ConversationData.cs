@@ -102,7 +102,7 @@ public class ConversationData : BaseUpdateData<Conversation>
 
 	public uint GetViewerLastLineEndTime(ConversationData conversationLineData, Conversation conversation, Player receiver)
 	{
-		var locale = receiver.GetSession().GetSessionDbLocaleIndex();
+		var locale = receiver.Session.SessionDbLocaleIndex;
 
 		return (uint)conversation.GetLastLineEndTime(locale).TotalMilliseconds;
 	}

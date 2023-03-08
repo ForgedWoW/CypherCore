@@ -869,7 +869,7 @@ namespace Game
                 ++count;
                 uint safeLocId = result.Read<uint>(0);
                 uint zoneId = result.Read<uint>(1);
-                Team team = (Team)result.Read<uint>(2);
+                TeamFaction team = (TeamFaction)result.Read<uint>(2);
 
                 WorldSafeLocsEntry entry = GetWorldSafeLoc(safeLocId);
                 if (entry == null)
@@ -885,7 +885,7 @@ namespace Game
                     continue;
                 }
 
-                if (team != 0 && team != Team.Horde && team != Team.Alliance)
+                if (team != 0 && team != TeamFaction.Horde && team != TeamFaction.Alliance)
                 {
                     Log.outError(LogFilter.Sql, "Table `graveyard_zone` has a record for non player faction ({0}), skipped.", team);
                     continue;
@@ -928,22 +928,22 @@ namespace Game
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {_worldSafeLocs.Count} world locations {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
         }
 
-        public WorldSafeLocsEntry GetDefaultGraveYard(Team team)
+        public WorldSafeLocsEntry GetDefaultGraveYard(TeamFaction team)
         {
-            if (team == Team.Horde)
+            if (team == TeamFaction.Horde)
                 return GetWorldSafeLoc(10);
-            else if (team == Team.Alliance)
+            else if (team == TeamFaction.Alliance)
                 return GetWorldSafeLoc(4);
             else return null;
         }
 
-        public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, Team team, WorldObject conditionObject)
+        public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, TeamFaction team, WorldObject conditionObject)
         {
             
             uint MapId = location.MapId;
 
             // search for zone associated closest graveyard
-            uint zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.GetPhaseShift() : PhasingHandler.EmptyPhaseShift, MapId, location);
+            uint zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.PhaseShift : PhasingHandler.EmptyPhaseShift, MapId, location);
             if (zoneId == 0)
             {
                 if (location.Z > -500)
@@ -1005,7 +1005,7 @@ namespace Game
                     if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.safeLocId, conditionSource))
                         continue;
 
-                    if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.GetPhaseShift().HasVisibleMapId(entry.Loc.MapId))
+                    if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.PhaseShift.HasVisibleMapId(entry.Loc.MapId))
                         continue;
                 }
 
@@ -1089,7 +1089,7 @@ namespace Game
             return _worldSafeLocs;
         }
 
-        public bool AddGraveYardLink(uint id, uint zoneId, Team team, bool persist = true)
+        public bool AddGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = true)
         {
             if (FindGraveYardData(id, zoneId) != null)
                 return false;
@@ -1115,7 +1115,7 @@ namespace Game
 
             return true;
         }
-        public void RemoveGraveYardLink(uint id, uint zoneId, Team team, bool persist = false)
+        public void RemoveGraveYardLink(uint id, uint zoneId, TeamFaction team, bool persist = false)
         {
             var range = GraveYardStorage.LookupByKey(zoneId);
             if (range.Empty())
@@ -4275,7 +4275,7 @@ namespace Game
         public ObjectGuid GetLinkedRespawnGuid(ObjectGuid spawnId)
         {
             var retGuid = linkedRespawnStorage.LookupByKey(spawnId);
-            if (retGuid.IsEmpty())
+            if (retGuid.IsEmpty)
                 return ObjectGuid.Empty;
             return retGuid;
         }
@@ -5695,6 +5695,9 @@ namespace Game
         {
             return creatureMovementOverrides.LookupByKey(spawnId);
         }
+
+        public bool TryGetGetCreatureMovementOverride(ulong spawnId, out CreatureMovementData movementData) => creatureMovementOverrides.TryGetValue(spawnId, out movementData);
+
         public EquipmentInfo GetEquipmentInfo(uint entry, int id)
         {
             var equip = equipmentInfoStorage.LookupByKey(entry);
@@ -7559,7 +7562,7 @@ namespace Game
             {
                 Quest newQuest = new(result.GetFields());
                 _questTemplates[newQuest.Id] = newQuest;
-                if (newQuest.IsAutoPush())
+                if (newQuest.IsAutoPush)
                     _questTemplatesAutoPush.Add(newQuest);
             }
             while (result.NextRow());
@@ -9605,13 +9608,13 @@ namespace Game
 
                 RepRewardRate repRate = new();
 
-                repRate.questRate = result.Read<float>(1);
-                repRate.questDailyRate = result.Read<float>(2);
-                repRate.questWeeklyRate = result.Read<float>(3);
-                repRate.questMonthlyRate = result.Read<float>(4);
-                repRate.questRepeatableRate = result.Read<float>(5);
-                repRate.creatureRate = result.Read<float>(6);
-                repRate.spellRate = result.Read<float>(7);
+                repRate.QuestRate = result.Read<float>(1);
+                repRate.QuestDailyRate = result.Read<float>(2);
+                repRate.QuestWeeklyRate = result.Read<float>(3);
+                repRate.QuestMonthlyRate = result.Read<float>(4);
+                repRate.QuestRepeatableRate = result.Read<float>(5);
+                repRate.CreatureRate = result.Read<float>(6);
+                repRate.SpellRate = result.Read<float>(7);
 
                 FactionRecord factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
                 if (factionEntry == null)
@@ -9620,45 +9623,45 @@ namespace Game
                     continue;
                 }
 
-                if (repRate.questRate < 0.0f)
+                if (repRate.QuestRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_rate with invalid rate {0}, skipping data for faction {1}", repRate.questRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRate, factionId);
                     continue;
                 }
 
-                if (repRate.questDailyRate < 0.0f)
+                if (repRate.QuestDailyRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_daily_rate with invalid rate {0}, skipping data for faction {1}", repRate.questDailyRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_daily_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestDailyRate, factionId);
                     continue;
                 }
 
-                if (repRate.questWeeklyRate < 0.0f)
+                if (repRate.QuestWeeklyRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_weekly_rate with invalid rate {0}, skipping data for faction {1}", repRate.questWeeklyRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_weekly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestWeeklyRate, factionId);
                     continue;
                 }
 
-                if (repRate.questMonthlyRate < 0.0f)
+                if (repRate.QuestMonthlyRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_monthly_rate with invalid rate {0}, skipping data for faction {1}", repRate.questMonthlyRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_monthly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestMonthlyRate, factionId);
                     continue;
                 }
 
-                if (repRate.questRepeatableRate < 0.0f)
+                if (repRate.QuestRepeatableRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate {0}, skipping data for faction {1}", repRate.questRepeatableRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRepeatableRate, factionId);
                     continue;
                 }
 
-                if (repRate.creatureRate < 0.0f)
+                if (repRate.CreatureRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has creature_rate with invalid rate {0}, skipping data for faction {1}", repRate.creatureRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has creature_rate with invalid rate {0}, skipping data for faction {1}", repRate.CreatureRate, factionId);
                     continue;
                 }
 
-                if (repRate.spellRate < 0.0f)
+                if (repRate.SpellRate < 0.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has spell_rate with invalid rate {0}, skipping data for faction {1}", repRate.spellRate, factionId);
+                    Log.outError(LogFilter.Sql, "Table reputation_reward_rate has spell_rate with invalid rate {0}, skipping data for faction {1}", repRate.SpellRate, factionId);
                     continue;
                 }
 
@@ -9758,21 +9761,21 @@ namespace Game
                 uint factionId = result.Read<uint>(0);
 
                 RepSpilloverTemplate repTemplate = new();
-                repTemplate.faction[0] = result.Read<uint>(1);
-                repTemplate.faction_rate[0] = result.Read<float>(2);
-                repTemplate.faction_rank[0] = result.Read<uint>(3);
-                repTemplate.faction[1] = result.Read<uint>(4);
-                repTemplate.faction_rate[1] = result.Read<float>(5);
-                repTemplate.faction_rank[1] = result.Read<uint>(6);
-                repTemplate.faction[2] = result.Read<uint>(7);
-                repTemplate.faction_rate[2] = result.Read<float>(8);
-                repTemplate.faction_rank[2] = result.Read<uint>(9);
-                repTemplate.faction[3] = result.Read<uint>(10);
-                repTemplate.faction_rate[3] = result.Read<float>(11);
-                repTemplate.faction_rank[3] = result.Read<uint>(12);
-                repTemplate.faction[4] = result.Read<uint>(13);
-                repTemplate.faction_rate[4] = result.Read<float>(14);
-                repTemplate.faction_rank[4] = result.Read<uint>(15);
+                repTemplate.Faction[0] = result.Read<uint>(1);
+                repTemplate.FactionRate[0] = result.Read<float>(2);
+                repTemplate.FactionRank[0] = result.Read<uint>(3);
+                repTemplate.Faction[1] = result.Read<uint>(4);
+                repTemplate.FactionRate[1] = result.Read<float>(5);
+                repTemplate.FactionRank[1] = result.Read<uint>(6);
+                repTemplate.Faction[2] = result.Read<uint>(7);
+                repTemplate.FactionRate[2] = result.Read<float>(8);
+                repTemplate.FactionRank[2] = result.Read<uint>(9);
+                repTemplate.Faction[3] = result.Read<uint>(10);
+                repTemplate.FactionRate[3] = result.Read<float>(11);
+                repTemplate.FactionRank[3] = result.Read<uint>(12);
+                repTemplate.Faction[4] = result.Read<uint>(13);
+                repTemplate.FactionRate[4] = result.Read<float>(14);
+                repTemplate.FactionRank[4] = result.Read<uint>(15);
 
                 var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
                 if (factionEntry == null)
@@ -9790,12 +9793,12 @@ namespace Game
                 bool invalidSpilloverFaction = false;
                 for (var i = 0; i < 5; ++i)
                 {
-                    if (repTemplate.faction[i] != 0)
+                    if (repTemplate.Faction[i] != 0)
                     {
-                        var factionSpillover = CliDB.FactionStorage.LookupByKey(repTemplate.faction[i]);
+                        var factionSpillover = CliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]);
                         if (factionSpillover.Id == 0)
                         {
-                            Log.outError(LogFilter.Sql, "Spillover faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template` for faction {1}, skipping", repTemplate.faction[i], factionId);
+                            Log.outError(LogFilter.Sql, "Spillover faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template` for faction {1}, skipping", repTemplate.Faction[i], factionId);
                             invalidSpilloverFaction = true;
                             break;
                         }
@@ -9803,14 +9806,14 @@ namespace Game
                         if (!factionSpillover.CanHaveReputation())
                         {
                             Log.outError(LogFilter.Sql, "Spillover faction (faction.dbc) {0} for faction {1} in `reputation_spillover_template` can not be listed for client, and then useless, skipping",
-                                repTemplate.faction[i], factionId);
+                                repTemplate.Faction[i], factionId);
                             invalidSpilloverFaction = true;
                             break;
                         }
 
-                        if (repTemplate.faction_rank[i] >= (uint)ReputationRank.Max)
+                        if (repTemplate.FactionRank[i] >= (uint)ReputationRank.Max)
                         {
-                            Log.outError(LogFilter.Sql, "Rank {0} used in `reputation_spillover_template` for spillover faction {1} is not valid, skipping", repTemplate.faction_rank[i], repTemplate.faction[i]);
+                            Log.outError(LogFilter.Sql, "Rank {0} used in `reputation_spillover_template` for spillover faction {1} is not valid, skipping", repTemplate.FactionRank[i], repTemplate.Faction[i]);
                             invalidSpilloverFaction = true;
                             break;
                         }
@@ -11053,13 +11056,13 @@ namespace Game
             return _pageTextStorage.LookupByKey(pageEntry);
         }
 
-        public uint GetNearestTaxiNode(float x, float y, float z, uint mapid, Team team)
+        public uint GetNearestTaxiNode(float x, float y, float z, uint mapid, TeamFaction team)
         {
             bool found = false;
             float dist = 10000;
             uint id = 0;
 
-            TaxiNodeFlags requireFlag = (team == Team.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
+            TaxiNodeFlags requireFlag = (team == TeamFaction.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
             foreach (var node in CliDB.TaxiNodesStorage.Values)
             {
                 var i = node.Id;
@@ -11113,7 +11116,7 @@ namespace Game
             cost = dest_i.price;
             path = dest_i.Id;
         }
-        public uint GetTaxiMountDisplayId(uint id, Team team, bool allowed_alt_team = false)
+        public uint GetTaxiMountDisplayId(uint id, TeamFaction team, bool allowed_alt_team = false)
         {
             CreatureModel mountModel = new();
             CreatureTemplate mount_info = null;
@@ -11123,7 +11126,7 @@ namespace Game
             if (node != null)
             {
                 uint mount_entry;
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                     mount_entry = node.MountCreatureID[1];
                 else
                     mount_entry = node.MountCreatureID[0];
@@ -11133,7 +11136,7 @@ namespace Game
                 if (mount_entry == 0 && allowed_alt_team)
                 {
                     // Simply reverse the selection. At least one team in theory should have a valid mount ID to choose.
-                    mount_entry = team == Team.Alliance ? node.MountCreatureID[0] : node.MountCreatureID[1];
+                    mount_entry = team == TeamFaction.Alliance ? node.MountCreatureID[0] : node.MountCreatureID[1];
                 }
 
                 mount_info = GetCreatureTemplate(mount_entry);
@@ -11414,7 +11417,7 @@ namespace Game
             if (cre != null)
             {
                 // Give preference to GUID-based accessories
-                var list = _vehicleAccessoryStore.LookupByKey(cre.GetSpawnId());
+                var list = _vehicleAccessoryStore.LookupByKey(cre.SpawnId);
                 if (!list.Empty())
                     return list;
             }
@@ -11948,7 +11951,7 @@ namespace Game
 
             Unit summoner = null;
             // Check summoners for party
-            if (clickee.IsSummon())
+            if (clickee.IsSummon)
                 summoner = clickee.ToTempSummon().GetSummonerUnit();
             if (summoner == null)
                 summoner = clickee;

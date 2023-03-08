@@ -25,7 +25,7 @@ public class aura_dk_defile : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 			foreach (var at in caster.GetAreaTriggers(Id))
-				if (at.GetInsideUnits().Count != 0)
+				if (at.InsideUnits.Count != 0)
 					caster.CastSpell(caster, DeathKnightSpells.DEFILE_MASTERY, true);
 	}
 }

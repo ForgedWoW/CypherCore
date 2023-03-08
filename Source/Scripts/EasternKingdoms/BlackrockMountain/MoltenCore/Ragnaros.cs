@@ -69,7 +69,7 @@ internal class boss_ragnaros : BossAI
 	{
 		Initialize();
 		_introState = 0;
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.SetUnitFlag(UnitFlags.NonAttackable);
 		SetCombatMovement(false);
 	}
@@ -78,7 +78,7 @@ internal class boss_ragnaros : BossAI
 	{
 		base.Reset();
 		Initialize();
-		me.SetEmoteState(Emote.OneshotNone);
+		me.EmoteState = Emote.OneshotNone;
 	}
 
 	public override void JustEngagedWith(Unit victim)
@@ -141,7 +141,7 @@ internal class boss_ragnaros : BossAI
 
 						break;
 					case EventIds.Intro5:
-						me.SetReactState(ReactStates.Aggressive);
+						me.ReactState = ReactStates.Aggressive;
 						me.RemoveUnitFlag(UnitFlags.NonAttackable);
 						me.SetImmuneToPC(false);
 						_introState = 2;
@@ -157,10 +157,12 @@ internal class boss_ragnaros : BossAI
 			if (_isBanished && ((_emergeTimer <= diff) || (instance.GetData(MCMiscConst.DataRagnarosAdds)) > 8))
 			{
 				//Become unbanished again
-				me.SetReactState(ReactStates.Aggressive);
-				me.SetFaction((uint)FactionTemplates.Monster);
+				me. //Become unbanished again
+					ReactState = ReactStates.Aggressive;
+
+				me.Faction = (uint)FactionTemplates.Monster;
 				me.RemoveUnitFlag(UnitFlags.Uninteractible);
-				me.SetEmoteState(Emote.OneshotNone);
+				me.EmoteState = Emote.OneshotNone;
 				me.HandleEmoteCommand(Emote.OneshotEmerge);
 				var target = SelectTarget(SelectTargetMethod.Random, 0);
 
@@ -248,13 +250,17 @@ internal class boss_ragnaros : BossAI
 							//so added normaly spawning and banish workaround and attack again after 90 secs.
 							me.AttackStop();
 							ResetThreatList();
-							me.SetReactState(ReactStates.Passive);
+							me.ReactState = ReactStates.Passive;
 							me.InterruptNonMeleeSpells(false);
+
 							//Root self
 							//DoCast(me, 23973);
-							me.SetFaction((uint)FactionTemplates.Friendly);
+							me. //Root self
+								//DoCast(me, 23973);
+								Faction = (uint)FactionTemplates.Friendly;
+
 							me.SetUnitFlag(UnitFlags.Uninteractible);
-							me.SetEmoteState(Emote.StateSubmerged);
+							me.EmoteState = Emote.StateSubmerged;
 							me.HandleEmoteCommand(Emote.OneshotSubmerge);
 							instance.SetData(MCMiscConst.DataRagnarosAdds, 0);
 

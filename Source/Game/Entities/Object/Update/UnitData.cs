@@ -1012,13 +1012,13 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		uint displayId = unitData.DisplayID;
 
-		if (unit.IsCreature())
+		if (unit.IsCreature)
 		{
-			var cinfo = unit.ToCreature().GetCreatureTemplate();
+			var cinfo = unit.ToCreature().CreatureTemplate;
 			var summon = unit.ToTempSummon();
 
 			if (summon != null)
-				if (summon.GetSummonerGUID() == receiver.GetGUID())
+				if (summon.GetSummonerGUID() == receiver.GUID)
 				{
 					if (summon.GetCreatureIdVisibleToSummoner().HasValue)
 						cinfo = Global.ObjectMgr.GetCreatureTemplate(summon.GetCreatureIdVisibleToSummoner().Value);
@@ -1045,7 +1045,7 @@ public class UnitData : BaseUpdateData<Unit>
 					}
 
 			if (cinfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Trigger))
-				if (receiver.IsGameMaster())
+				if (receiver.IsGameMaster)
 					displayId = cinfo.GetFirstVisibleModel().CreatureDisplayId;
 		}
 
@@ -1056,7 +1056,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		var npcFlag = unitData.NpcFlags[i];
 
-		if (i == 0 && unit.IsCreature() && !receiver.CanSeeSpellClickOn(unit.ToCreature()))
+		if (i == 0 && unit.IsCreature && !receiver.CanSeeSpellClickOn(unit.ToCreature()))
 			npcFlag &= ~(uint)NPCFlags.SpellClick;
 
 		return npcFlag;
@@ -1066,14 +1066,14 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		uint factionTemplate = unitData.FactionTemplate;
 
-		if (unit.IsControlledByPlayer() && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
+		if (unit.IsControlledByPlayer && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
 		{
 			var ft1 = unit.GetFactionTemplateEntry();
 			var ft2 = receiver.GetFactionTemplateEntry();
 
 			if (ft1 != null && ft2 != null && !ft1.IsFriendlyTo(ft2))
 				// pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-				factionTemplate = receiver.GetFaction();
+				factionTemplate = receiver.Faction;
 		}
 
 		return factionTemplate;
@@ -1084,7 +1084,7 @@ public class UnitData : BaseUpdateData<Unit>
 		uint flags = unitData.Flags;
 
 		// Update fields of triggers, transformed units or uninteractible units (values dependent on GM state)
-		if (receiver.IsGameMaster())
+		if (receiver.IsGameMaster)
 			flags &= ~(uint)UnitFlags.Uninteractible;
 
 		return flags;
@@ -1094,7 +1094,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		uint flags = unitData.Flags3;
 
-		if ((flags & (uint)UnitFlags3.AlreadySkinned) != 0 && unit.IsCreature() && !unit.ToCreature().IsSkinnedBy(receiver))
+		if ((flags & (uint)UnitFlags3.AlreadySkinned) != 0 && unit.IsCreature && !unit.ToCreature().IsSkinnedBy(receiver))
 			flags &= ~(uint)UnitFlags3.AlreadySkinned;
 
 		return flags;
@@ -1110,7 +1110,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		byte pvpFlags = unitData.PvpFlags;
 
-		if (unit.IsControlledByPlayer() && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
+		if (unit.IsControlledByPlayer && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
 		{
 			var ft1 = unit.GetFactionTemplateEntry();
 			var ft2 = receiver.GetFactionTemplateEntry();

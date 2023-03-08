@@ -73,10 +73,10 @@ public class AuraApplicationCollection
 
 			var casterGuid = aura.CasterGuid;
 
-			if (!casterGuid.IsEmpty())
+			if (!casterGuid.IsEmpty)
 				_byCasterGuid.Add(casterGuid, auraApp.Guid);
 
-			if (!aura.CastItemGuid.IsEmpty())
+			if (!aura.CastItemGuid.IsEmpty)
 				_byCastItemGuid.Add(aura.CastItemGuid, auraApp.Guid);
 
 			_isSingleTarget.Add(aura.IsSingleTarget, auraApp.Guid);
@@ -99,13 +99,13 @@ public class AuraApplicationCollection
 
 			var castId = aura.CastId;
 
-			if (!castId.IsEmpty())
+			if (!castId.IsEmpty)
 				_byCastId.Add(castId, auraApp.Guid);
 
 			var caster = aura.GetCaster();
 
 			if (caster != null)
-				_isPlayer.Add(caster.IsPlayer(), auraApp.Guid);
+				_isPlayer.Add(caster.IsPlayer, auraApp.Guid);
 
 			_deminishGroup.Add(si.DiminishingReturnsGroupForSpell, auraApp.Guid);
 			_casterAuraState.Add(si.CasterAuraState, auraApp.Guid);
@@ -142,7 +142,7 @@ public class AuraApplicationCollection
 			var caster = aura.GetCaster();
 
 			if (caster != null)
-				_isPlayer.Remove(aura.GetCaster().IsPlayer(), auraApp.Guid);
+				_isPlayer.Remove(aura.GetCaster().IsPlayer, auraApp.Guid);
 
 			_deminishGroup.Remove(si.DiminishingReturnsGroupForSpell, auraApp.Guid);
 			_casterAuraState.Remove(si.CasterAuraState, auraApp.Guid);
@@ -158,7 +158,7 @@ public class AuraApplicationCollection
 			_spellFamily.Remove(si.SpellFamilyName, auraApp.Guid);
 			_isPositive.Remove(auraApp.IsPositive, auraApp.Guid);
 
-			if (!aura.CastItemGuid.IsEmpty())
+			if (!aura.CastItemGuid.IsEmpty)
 				_byCastItemGuid.Remove(aura.CastItemGuid, auraApp.Guid);
 
 			_isSingleTarget.Remove(aura.IsSingleTarget, auraApp.Guid);
@@ -168,7 +168,7 @@ public class AuraApplicationCollection
 
 			var casterGuid = aura.CasterGuid;
 
-			if (!casterGuid.IsEmpty())
+			if (!casterGuid.IsEmpty)
 				_byCasterGuid.Remove(casterGuid);
 
 			var owner = aura.Owner;
@@ -178,7 +178,7 @@ public class AuraApplicationCollection
 
 			var castId = aura.CastId;
 
-			if (!castId.IsEmpty())
+			if (!castId.IsEmpty)
 				_byCastId.Remove(castId, auraApp.Guid);
 
 			var flags = auraApp.Flags;
@@ -286,7 +286,7 @@ public class AuraApplicationCollection
 		{
 			lock (_collection._auras)
 			{
-				if (!caster.IsEmpty() && _collection._byCasterGuid.TryGetValue(caster, out var result))
+				if (!caster.IsEmpty && _collection._byCasterGuid.TryGetValue(caster, out var result))
 					Sync(result);
 			}
 
@@ -299,7 +299,7 @@ public class AuraApplicationCollection
 		{
 			lock (_collection._auras)
 			{
-				if (!item.IsEmpty() && _collection._byCastItemGuid.TryGetValue(item, out var result))
+				if (!item.IsEmpty && _collection._byCastItemGuid.TryGetValue(item, out var result))
 					Sync(result);
 			}
 
@@ -312,7 +312,7 @@ public class AuraApplicationCollection
 		{
 			lock (_collection._auras)
 			{
-				if (!id.IsEmpty() && _collection._byCastId.TryGetValue(id, out var result))
+				if (!id.IsEmpty && _collection._byCastId.TryGetValue(id, out var result))
 					Sync(result);
 			}
 

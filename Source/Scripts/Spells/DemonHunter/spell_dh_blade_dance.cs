@@ -41,16 +41,16 @@ internal class spell_dh_blade_dance : SpellScript, IHasSpellEffects
 
 		// Prefer the selected Target if he is one of the enemies
 		if (targetList.Count > 1 &&
-			!selectedTarget.IsEmpty())
+			!selectedTarget.IsEmpty)
 		{
-			var foundObj = targetList.Find(obj => obj.GetGUID() == selectedTarget);
+			var foundObj = targetList.Find(obj => obj.GUID == selectedTarget);
 
 			if (foundObj != null)
-				firstTargetGUID = foundObj.GetGUID();
+				firstTargetGUID = foundObj.GUID;
 		}
 
-		if (firstTargetGUID.IsEmpty())
-			firstTargetGUID = targetList[0].GetGUID();
+		if (firstTargetGUID.IsEmpty)
+			firstTargetGUID = targetList[0].GUID;
 
 		var script = aura.GetScript<spell_dh_first_blood>();
 

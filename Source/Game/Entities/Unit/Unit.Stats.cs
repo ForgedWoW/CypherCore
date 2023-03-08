@@ -165,7 +165,7 @@ public partial class Unit
 		else
 			modNeg += modValue;
 
-		if (IsGuardian())
+		if (IsGuardian)
 		{
 			modValue = ((Guardian)this).GetBonusStatFromOwner(stat);
 
@@ -491,11 +491,11 @@ public partial class Unit
 
 	public void SetHealth(long val)
 	{
-		if (GetDeathState() == DeathState.JustDied || GetDeathState() == DeathState.Corpse)
+		if (DeathState == DeathState.JustDied || DeathState == DeathState.Corpse)
 		{
 			val = 0;
 		}
-		else if (IsTypeId(TypeId.Player) && GetDeathState() == DeathState.Dead)
+		else if (IsTypeId(TypeId.Player) && DeathState == DeathState.Dead)
 		{
 			val = 1;
 		}
@@ -520,7 +520,7 @@ public partial class Unit
 			if (player.GetGroup())
 				player.SetGroupUpdateFlag(GroupUpdateFlags.CurHp);
 		}
-		else if (IsPet())
+		else if (IsPet)
 		{
 			var pet = ToCreature().ToPet();
 
@@ -553,7 +553,7 @@ public partial class Unit
 			if (ToPlayer().GetGroup())
 				ToPlayer().SetGroupUpdateFlag(GroupUpdateFlags.MaxHp);
 		}
-		else if (IsPet())
+		else if (IsPet)
 		{
 			var pet = ToCreature().ToPet();
 
@@ -747,7 +747,7 @@ public partial class Unit
 		if (TryGetAsPlayer(out var player))
 		{
 			var newVal = val;
-			Global.ScriptMgr.ForEach<IPlayerOnModifyPower>(player.GetClass(), p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
+			Global.ScriptMgr.ForEach<IPlayerOnModifyPower>(player.Class, p => p.OnModifyPower(player, powerType, oldPower, ref val, isRegen));
 			val = newVal;
 		}
 
@@ -756,7 +756,7 @@ public partial class Unit
 		if (IsInWorld && withPowerUpdate)
 		{
 			PowerUpdate packet = new();
-			packet.Guid = GetGUID();
+			packet.Guid = GUID;
 			packet.Powers.Add(new PowerUpdatePower(val, (byte)powerType));
 			SendMessageToSet(packet, IsTypeId(TypeId.Player));
 		}
@@ -774,8 +774,8 @@ public partial class Unit
 		        pet.SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
 		}*/
 
-		if (IsPlayer())
-			Global.ScriptMgr.ForEach<IPlayerOnAfterModifyPower>(player.GetClass(), p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
+		if (IsPlayer)
+			Global.ScriptMgr.ForEach<IPlayerOnAfterModifyPower>(player.Class, p => p.OnAfterModifyPower(player, powerType, oldPower, val, isRegen));
 	}
 
 	public void SetFullPower(PowerType powerType)
@@ -828,18 +828,18 @@ public partial class Unit
 
 	public bool CanApplyResilience()
 	{
-		return !IsVehicle() && GetOwnerGUID().IsPlayer();
+		return !IsVehicle && OwnerGUID.IsPlayer;
 	}
 
 	public static void ApplyResilience(Unit victim, ref double damage)
 	{
 		// player mounted on multi-passenger mount is also classified as vehicle
-		if (victim.IsVehicle() && !victim.IsPlayer())
+		if (victim.IsVehicle && !victim.IsPlayer)
 			return;
 
 		Unit target = null;
 
-		if (victim.IsPlayer())
+		if (victim.IsPlayer)
 		{
 			target = victim;
 		}
@@ -848,7 +848,7 @@ public partial class Unit
 			var owner = victim.GetOwner();
 
 			if (owner != null)
-				if (owner.IsPlayer())
+				if (owner.IsPlayer)
 					target = owner;
 		}
 
@@ -862,7 +862,7 @@ public partial class Unit
 	{
 		damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModAoeDamageAvoidance, schoolMask));
 
-		if (casterGuid.IsAnyTypeCreature())
+		if (casterGuid.IsAnyTypeCreature)
 			damage = (damage * GetTotalAuraMultiplierByMiscMask(AuraType.ModCreatureAoeDamageAvoidance, schoolMask));
 
 		return damage;
@@ -933,7 +933,7 @@ public partial class Unit
 		double missChance = victim.GetUnitMissChance();
 
 		// melee attacks while dual wielding have +19% chance to miss
-		if (spellInfo == null && HaveOffhandWeapon() && !IsInFeralForm() && !HasAuraType(AuraType.IgnoreDualWieldHitPenalty))
+		if (spellInfo == null && HaveOffhandWeapon() && !IsInFeralForm && !HasAuraType(AuraType.IgnoreDualWieldHitPenalty))
 			missChance += 19.0f;
 
 		// Spellmod from SpellModOp.HitChance
@@ -1183,7 +1183,7 @@ public partial class Unit
 			return player.GetRatingBonusValue(cr);
 		}
 		// Player's pet get resilience from owner
-		else if (IsPet() && GetOwner())
+		else if (IsPet && GetOwner())
 		{
 			var owner = GetOwner().ToPlayer();
 
@@ -1226,7 +1226,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
+			if (!ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
 			{
 				chance = 5.0f;
 				chance += GetTotalAuraModifier(AuraType.ModWeaponCritPercent);
@@ -1249,7 +1249,7 @@ public partial class Unit
 
 		chance += GetTotalAuraModifier(AuraType.ModCritChanceVersusTargetHealth, aurEff => !HealthBelowPct(aurEff.MiscValueB));
 
-		chance += GetTotalAuraModifier(AuraType.ModCritChanceForCaster, aurEff => aurEff.CasterGuid == attacker.GetGUID());
+		chance += GetTotalAuraModifier(AuraType.ModCritChanceForCaster, aurEff => aurEff.CasterGuid == attacker.GUID);
 
 		var tempSummon = attacker.ToTempSummon();
 
@@ -1275,7 +1275,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem())
+			if (!victim.IsTotem)
 			{
 				chance = 3.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModDodgePercent);
@@ -1312,7 +1312,7 @@ public partial class Unit
 
 		if (playerVictim)
 		{
-			if (playerVictim.CanParry())
+			if (playerVictim.CanParry)
 			{
 				var tmpitem = playerVictim.GetWeaponForAttack(WeaponAttackType.BaseAttack, true);
 
@@ -1325,7 +1325,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem() && !victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
+			if (!victim.IsTotem && !victim.ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
 			{
 				chance = 6.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModParryPercent);
@@ -1363,7 +1363,7 @@ public partial class Unit
 
 		if (playerVictim)
 		{
-			if (playerVictim.CanBlock())
+			if (playerVictim.CanBlock)
 			{
 				var tmpitem = playerVictim.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
@@ -1373,7 +1373,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem() && !(victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
+			if (!victim.IsTotem && !(victim.ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
 			{
 				chance = 3.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModBlockPercent);

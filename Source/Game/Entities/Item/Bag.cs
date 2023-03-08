@@ -33,10 +33,10 @@ public class Bag : Item
 				{
 					Log.outFatal(LogFilter.PlayerItems,
 								"Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
-								item.GetEntry(),
+								item.Entry,
 								item.GetSlot(),
 								item.GetBagSlot(),
-								GetEntry(),
+								Entry,
 								GetSlot(),
 								GetBagSlot(),
 								i);
@@ -80,13 +80,13 @@ public class Bag : Item
 
 		BonusData = new BonusData(itemProto);
 
-		SetEntry(itemid);
-		SetObjectScale(1.0f);
+		Entry = itemid;
+		ObjectScale = 1.0f;
 
 		if (owner)
 		{
-			SetOwnerGUID(owner.GetGUID());
-			SetContainedIn(owner.GetGUID());
+			SetOwnerGUID(owner.GUID);
+			SetContainedIn(owner.GUID);
 		}
 
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.MaxDurability), itemProto.MaxDurability);
@@ -155,12 +155,12 @@ public class Bag : Item
 
 	public void StoreItem(byte slot, Item pItem, bool update)
 	{
-		if (pItem != null && pItem.GetGUID() != GetGUID())
+		if (pItem != null && pItem.GUID != GUID)
 		{
 			m_bagslot[slot] = pItem;
-			SetSlot(slot, pItem.GetGUID());
-			pItem.SetContainedIn(GetGUID());
-			pItem.SetOwnerGUID(GetOwnerGUID());
+			SetSlot(slot, pItem.GUID);
+			pItem.SetContainedIn(GUID);
+			pItem.SetOwnerGUID(OwnerGUID);
 			pItem.SetContainer(this);
 			pItem.SetSlot(slot);
 		}
@@ -267,7 +267,7 @@ public class Bag : Item
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 
@@ -278,7 +278,7 @@ public class Bag : Item
 	{
 		for (byte i = 0; i < GetBagSize(); ++i)
 			if (m_bagslot[i] != null)
-				if (m_bagslot[i].GetGUID() == guid)
+				if (m_bagslot[i].GUID == guid)
 					return i;
 
 		return ItemConst.NullSlot;

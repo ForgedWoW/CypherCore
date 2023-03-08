@@ -28,7 +28,8 @@ namespace Game.Chat
             if (!triggerFlags.HasValue)
                 return false;
 
-            handler.GetSession().GetPlayer().CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+            handler.GetSession().
+            Player.CastSpell(target, spellId, new CastSpellExtraArgs(triggerFlags.Value));
             return true;
         }
 
@@ -49,7 +50,7 @@ namespace Game.Chat
             if (!triggerFlags.HasValue)
                 return false;
 
-            caster.CastSpell(handler.GetSession().GetPlayer(), spellId, new CastSpellExtraArgs(triggerFlags.Value));
+            caster.CastSpell(handler.GetSession().Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
             return true;
         }
@@ -65,9 +66,10 @@ namespace Game.Chat
                 return false;
 
             Position closestPos = new Position();
-            handler.GetSession().GetPlayer().GetClosePoint(closestPos, dist);
+            handler.GetSession().            Player.GetClosePoint(closestPos, dist);
 
-            handler.GetSession().GetPlayer().CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+            handler.GetSession().
+            Player.CastSpell(closestPos, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
             return true;
         }

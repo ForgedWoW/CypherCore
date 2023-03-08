@@ -19,7 +19,7 @@ internal class spell_dru_tiger_dash : SpellScript, ISpellBeforeCast
 	public void BeforeCast()
 	{
 		// Change into cat form
-		if (Caster.GetShapeshiftForm() != ShapeShiftForm.CatForm)
+		if (Caster.ShapeshiftForm != ShapeShiftForm.CatForm)
 			Caster.CastSpell(Caster, DruidSpellIds.CatForm, true);
 	}
 }

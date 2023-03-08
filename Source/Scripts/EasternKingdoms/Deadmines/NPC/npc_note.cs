@@ -22,7 +22,7 @@ public class npc_note : NullCreatureAI
 		if (player != null)
 			player.AddGossipItem(GossipOptionNpc.None, boss_vanessa_vancleef.INTRUDER_SAY, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GetGUID());
+		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
 
 		return true;
 	}

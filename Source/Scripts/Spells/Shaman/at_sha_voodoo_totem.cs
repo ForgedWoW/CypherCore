@@ -30,6 +30,6 @@ public class at_sha_voodoo_totem : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		unit.RemoveAurasDueToSpell(TotemSpells.TOTEM_VOODOO_EFFECT, at.GetCasterGuid());
+		unit.RemoveAurasDueToSpell(TotemSpells.TOTEM_VOODOO_EFFECT, at.CasterGuid);
 	}
 }

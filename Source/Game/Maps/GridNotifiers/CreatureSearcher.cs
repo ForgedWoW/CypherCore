@@ -18,7 +18,7 @@ public class CreatureSearcher : IGridNotifierCreature
 
 	public CreatureSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_check = check;
 		GridType = gridType;
 	}

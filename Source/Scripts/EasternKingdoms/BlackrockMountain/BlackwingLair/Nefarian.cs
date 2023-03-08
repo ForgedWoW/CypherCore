@@ -177,7 +177,7 @@ internal class boss_victor_nefarius : BossAI
 
 			me.SetVisible(true);
 			me.SetNpcFlag(NPCFlags.Gossip);
-			me.SetFaction((uint)FactionTemplates.Friendly);
+			me.Faction = (uint)FactionTemplates.Friendly;
 			me.SetStandState(UnitStandStateType.SitHighChair);
 			me.RemoveAura(SpellIds.NefariansBarrier);
 		}
@@ -190,11 +190,11 @@ internal class boss_victor_nefarius : BossAI
 
 	public override void SummonedCreatureDies(Creature summon, Unit killer)
 	{
-		if (summon.GetEntry() != BWLCreatureIds.Nefarian)
+		if (summon.Entry != BWLCreatureIds.Nefarian)
 		{
 			summon.UpdateEntry(CreatureIds.BoneConstruct);
 			summon.SetUnitFlag(UnitFlags.Uninteractible);
-			summon.SetReactState(ReactStates.Passive);
+			summon.ReactState = ReactStates.Passive;
 			summon.SetStandState(UnitStandStateType.Dead);
 		}
 	}
@@ -226,7 +226,7 @@ internal class boss_victor_nefarius : BossAI
 				switch (eventId)
 				{
 					case EventIds.Path2:
-						me.GetMotionMaster().MovePath(MiscConst.NefariusPath2, false);
+						me.MotionMaster.MovePath(MiscConst.NefariusPath2, false);
 						_events.ScheduleEvent(EventIds.Chaos1, TimeSpan.FromSeconds(7));
 
 						break;
@@ -274,7 +274,7 @@ internal class boss_victor_nefarius : BossAI
 
 						break;
 					case EventIds.Path3:
-						me.GetMotionMaster().MovePath(MiscConst.NefariusPath3, false);
+						me.MotionMaster.MovePath(MiscConst.NefariusPath3, false);
 
 						break;
 					default:
@@ -354,7 +354,7 @@ internal class boss_victor_nefarius : BossAI
 
 							if (dragon)
 							{
-								dragon.SetFaction((uint)FactionTemplates.DragonflightBlack);
+								dragon.Faction = (uint)FactionTemplates.DragonflightBlack;
 								dragon.GetAI().AttackStart(me.GetVictim());
 							}
 
@@ -369,7 +369,7 @@ internal class boss_victor_nefarius : BossAI
 									nefarian.SetCanFly(true);
 									nefarian.SetDisableGravity(true);
 									nefarian.CastSpell(SpellIds.ShadowflameInitial);
-									nefarian.GetMotionMaster().MovePoint(1, MiscConst.NefarianLoc[1]);
+									nefarian.MotionMaster.MovePoint(1, MiscConst.NefarianLoc[1]);
 								}
 
 								_events.CancelEvent(EventIds.MindControl);
@@ -416,7 +416,7 @@ internal class boss_victor_nefarius : BossAI
 
 		Talk(TextIds.SayGamesbegin2);
 
-		me.SetFaction((uint)FactionTemplates.DragonflightBlack);
+		me.Faction = (uint)FactionTemplates.DragonflightBlack;
 		me.RemoveNpcFlag(NPCFlags.Gossip);
 		DoCast(me, SpellIds.NefariansBarrier);
 		me.SetStandState(UnitStandStateType.Stand);
@@ -551,7 +551,7 @@ internal class boss_nefarian : BossAI
 					var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
 
 					if (target)
-						switch (target.GetClass())
+						switch (target.Class)
 						{
 							case Class.Mage:
 								Talk(TextIds.SayMage);
@@ -624,12 +624,12 @@ internal class boss_nefarian : BossAI
 
 			foreach (var creature in constructList)
 				if (creature != null &&
-					!creature.IsAlive())
+					!creature.IsAlive)
 				{
 					creature.Respawn();
 					DoZoneInCombat(creature);
 					creature.RemoveUnitFlag(UnitFlags.Uninteractible);
-					creature.SetReactState(ReactStates.Aggressive);
+					creature.ReactState = ReactStates.Aggressive;
 					creature.SetStandState(UnitStandStateType.Stand);
 				}
 

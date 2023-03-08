@@ -40,26 +40,26 @@ public class Guardian : Minion
 	{
 		base.InitStats(duration);
 
-		InitStatsForLevel(GetOwner().GetLevel());
+		InitStatsForLevel(GetOwner().Level);
 
 		if (GetOwner().IsTypeId(TypeId.Player) && HasUnitTypeMask(UnitTypeMask.ControlableGuardian))
 			GetCharmInfo().InitCharmCreateSpells();
 
-		SetReactState(ReactStates.Aggressive);
+		ReactState = ReactStates.Aggressive;
 	}
 
 	public override void InitSummon()
 	{
 		base.InitSummon();
 
-		if (GetOwner().IsTypeId(TypeId.Player) && GetOwner().GetMinionGUID() == GetGUID() && GetOwner().GetCharmedGUID().IsEmpty())
+		if (GetOwner().IsTypeId(TypeId.Player) && GetOwner().MinionGUID == GUID && GetOwner().CharmedGUID.IsEmpty)
 			GetOwner().ToPlayer().CharmSpellInitialize();
 	}
 
 	// @todo Move stat mods code to pet passive auras
 	public bool InitStatsForLevel(uint petlevel)
 	{
-		var cinfo = GetCreatureTemplate();
+		var cinfo = CreatureTemplate;
 		Cypher.Assert(cinfo != null);
 
 		SetLevel(petlevel);
@@ -67,23 +67,23 @@ public class Guardian : Minion
 		//Determine pet type
 		var petType = PetType.Max;
 
-		if (IsPet() && GetOwner().IsTypeId(TypeId.Player))
+		if (IsPet && GetOwner().IsTypeId(TypeId.Player))
 		{
-			if (GetOwner().GetClass() == Class.Warlock ||
-				GetOwner().GetClass() == Class.Shaman // Fire Elemental
+			if (GetOwner().Class == Class.Warlock ||
+				GetOwner().Class == Class.Shaman // Fire Elemental
 				||
-				GetOwner().GetClass() == Class.Deathknight) // Risen Ghoul
+				GetOwner().Class == Class.Deathknight) // Risen Ghoul
 			{
 				petType = PetType.Summon;
 			}
-			else if (GetOwner().GetClass() == Class.Hunter)
+			else if (GetOwner().Class == Class.Hunter)
 			{
 				petType = PetType.Hunter;
 				UnitTypeMask |= UnitTypeMask.HunterPet;
 			}
 			else
 			{
-				Log.outError(LogFilter.Unit, "Unknown type pet {0} is summoned by player class {1}", GetEntry(), GetOwner().GetClass());
+				Log.outError(LogFilter.Unit, "Unknown type pet {0} is summoned by player class {1}", Entry, GetOwner().Class);
 			}
 		}
 
@@ -98,11 +98,11 @@ public class Guardian : Minion
 		SetBaseAttackTime(WeaponAttackType.RangedAttack, SharedConst.BaseAttackTime);
 
 		//scale
-		SetObjectScale(GetNativeObjectScale());
+		ObjectScale = NativeObjectScale;
 
 		// Resistance
 		// Hunters pet should not inherit resistances from creature_template, they have separate auras for that
-		if (!IsHunterPet())
+		if (!IsHunterPet)
 			for (var i = (int)SpellSchools.Holy; i < (int)SpellSchools.Max; ++i)
 				SetStatFlatModifier(UnitMods.ResistanceStart + i, UnitModifierFlatType.Base, cinfo.Resistance[i]);
 
@@ -190,7 +190,7 @@ public class Guardian : Minion
 			}
 			default:
 			{
-				switch (GetEntry())
+				switch (Entry)
 				{
 					case 510: // mage Water Elemental
 					{
@@ -283,7 +283,7 @@ public class Guardian : Minion
 					case 31216: // Mirror Image
 					{
 						SetBonusDamage((int)(GetOwner().SpellBaseDamageBonusDone(SpellSchoolMask.Frost) * 0.33f));
-						SetDisplayId(GetOwner().GetDisplayId());
+						SetDisplayId(GetOwner().DisplayId);
 
 						if (pInfo == null)
 						{
@@ -382,7 +382,7 @@ public class Guardian : Minion
 		//warlock's and mage's pets gain 30% of owner's intellect
 		else if (stat == Stats.Intellect)
 		{
-			if (owner.GetClass() == Class.Warlock || owner.GetClass() == Class.Mage)
+			if (owner.Class == Class.Warlock || owner.Class == Class.Mage)
 			{
 				ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
 				value += ownersBonus;
@@ -441,7 +441,7 @@ public class Guardian : Minion
 			var bonusValue = GetTotalAuraModValue(UnitMods.ResistanceStart + (int)school) - baseValue;
 
 			// hunter and warlock pets gain 40% of owner's resistance
-			if (IsPet())
+			if (IsPet)
 			{
 				baseValue += MathFunctions.CalculatePct(Owner.GetResistance(school), 40);
 				bonusValue += MathFunctions.CalculatePct(Owner.GetBonusResistanceMod(school), 40);
@@ -462,9 +462,9 @@ public class Guardian : Minion
 		var unitMod = UnitMods.Armor;
 
 		// hunter pets gain 35% of owner's armor value, warlock pets gain 100% of owner's armor
-		if (IsHunterPet())
+		if (IsHunterPet)
 			bonus_armor = MathFunctions.CalculatePct(GetOwner().GetArmor(), 70);
-		else if (IsPet())
+		else if (IsPet)
 			bonus_armor = GetOwner().GetArmor();
 
 		var value = GetFlatModifierValue(unitMod, UnitModifierFlatType.Base);
@@ -483,7 +483,7 @@ public class Guardian : Minion
 
 		float multiplicator;
 
-		switch (GetEntry())
+		switch (Entry)
 		{
 			case ENTRY_IMP:
 				multiplicator = 8.4f;
@@ -547,7 +547,7 @@ public class Guardian : Minion
 		double bonusAP = 0.0f;
 		var unitMod = UnitMods.AttackPower;
 
-		if (GetEntry() == ENTRY_IMP) // imp's attack power
+		if (Entry == ENTRY_IMP) // imp's attack power
 			val = GetStat(Stats.Strength) - 10.0f;
 		else
 			val = 2 * GetStat(Stats.Strength) - 20.0f;
@@ -556,7 +556,7 @@ public class Guardian : Minion
 
 		if (owner != null)
 		{
-			if (IsHunterPet()) //hunter pets benefit from owner's attack power
+			if (IsHunterPet) //hunter pets benefit from owner's attack power
 			{
 				var mod = 1.0f; //Hunter contribution modifier
 				bonusAP = owner.GetTotalAttackPowerValue(WeaponAttackType.RangedAttack) * 0.22f * mod;
@@ -574,7 +574,7 @@ public class Guardian : Minion
 				SetBonusDamage((int)(owner.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * dmg_multiplier));
 			}
 			//demons benefit from warlocks shadow or fire damage
-			else if (IsPet())
+			else if (IsPet)
 			{
 				var fire = owner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Fire] - owner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Fire];
 				var shadow = owner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Shadow] - owner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Shadow];
@@ -587,7 +587,7 @@ public class Guardian : Minion
 				bonusAP = maximum * 0.57f;
 			}
 			//water elementals benefit from mage's frost damage
-			else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
+			else if (Entry == ENTRY_WATER_ELEMENTAL)
 			{
 				var frost = owner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Frost] - owner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Frost];
 
@@ -622,7 +622,7 @@ public class Guardian : Minion
 		if (playerOwner != null)
 		{
 			//force of nature
-			if (GetEntry() == ENTRY_TREANT)
+			if (Entry == ENTRY_TREANT)
 			{
 				var spellDmg = playerOwner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Nature] - playerOwner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Nature];
 
@@ -630,7 +630,7 @@ public class Guardian : Minion
 					bonusDamage = spellDmg * 0.09f;
 			}
 			//greater fire elemental
-			else if (GetEntry() == ENTRY_FIRE_ELEMENTAL)
+			else if (Entry == ENTRY_FIRE_ELEMENTAL)
 			{
 				var spellDmg = playerOwner.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Fire] - playerOwner.ActivePlayerData.ModDamageDoneNeg[(int)SpellSchools.Fire];
 

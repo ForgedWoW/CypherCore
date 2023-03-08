@@ -29,11 +29,11 @@ namespace Game.Garrisons
         public Garrison GetGarrison()
         {
             if (_loadingPlayer)
-                return _loadingPlayer.GetGarrison();
+                return _loadingPlayer.Garrison;
 
             Player owner = Global.ObjAccessor.FindConnectedPlayer(_owner);
             if (owner)
-                return owner.GetGarrison();
+                return owner.Garrison;
 
             return null;
         }
@@ -47,12 +47,12 @@ namespace Game.Garrisons
 
         public override bool AddPlayerToMap(Player player, bool initPlayer = true)
         {
-            if (player.GetGUID() == _owner)
+            if (player.GUID == _owner)
                 _loadingPlayer = player;
 
             bool result = base.AddPlayerToMap(player, initPlayer);
 
-            if (player.GetGUID() == _owner)
+            if (player.GUID == _owner)
                 _loadingPlayer = null;
 
             return result;

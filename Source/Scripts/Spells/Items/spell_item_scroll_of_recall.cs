@@ -16,7 +16,7 @@ internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()
@@ -47,14 +47,14 @@ internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
 				break;
 		}
 
-		if (caster.GetLevel() > maxSafeLevel)
+		if (caster.Level > maxSafeLevel)
 		{
 			caster.CastSpell(caster, ItemSpellIds.Lost, true);
 
 			// ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
 			var spellId = ItemSpellIds.ScrollOfRecallFailAlliance1;
 
-			if (Caster.ToPlayer().GetTeam() == Team.Horde)
+			if (Caster.ToPlayer().Team == TeamFaction.Horde)
 				spellId = ItemSpellIds.ScrollOfRecallFailHorde1;
 
 			Caster.CastSpell(Caster, spellId + RandomHelper.URand(0, 7), true);

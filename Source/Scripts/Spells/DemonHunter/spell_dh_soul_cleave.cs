@@ -30,7 +30,7 @@ public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
 		if (caster == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
 		if (caster.HasAura(DemonHunterSpells.FEAST_OF_SOULS))
@@ -62,8 +62,8 @@ public class spell_dh_soul_cleave : SpellScript, IHasSpellEffects
 
 				if (tempSumm != null)
 				{
-					tempSumm.SetFaction(caster.GetFaction());
-					tempSumm.SetSummonerGUID(caster.GetGUID());
+					tempSumm.Faction = caster.Faction;
+					tempSumm.SetSummonerGUID(caster.GUID);
 					var bp = 0;
 
 					switch (at.GetTemplate().Id.Id)

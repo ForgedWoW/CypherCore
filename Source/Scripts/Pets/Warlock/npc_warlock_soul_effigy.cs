@@ -20,9 +20,9 @@ namespace Scripts.Pets
 				if (!me.TryGetOwner(out Player owner))
 					return;
 
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Aggressive);
+				creature.ReactState = ReactStates.Aggressive;
 			}
 
 			public override void Reset()

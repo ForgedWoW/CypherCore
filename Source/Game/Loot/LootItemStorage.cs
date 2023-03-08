@@ -86,15 +86,15 @@ namespace Game.Loots
 
         public bool LoadStoredLoot(Item item, Player player)
         {
-            if (!_lootItemStorage.ContainsKey(item.GetGUID().GetCounter()))
+            if (!_lootItemStorage.ContainsKey(item.GUID.Counter))
                 return false;
 
-            var container = _lootItemStorage[item.GetGUID().GetCounter()];
+            var container = _lootItemStorage[item.GUID.Counter];
 
-            Loot loot = new(player.GetMap(), item.GetGUID(), LootType.Item, null);
+            Loot loot = new(player.GetMap(), item.GUID, LootType.Item, null);
             loot.gold = container.GetMoney();
 
-            LootTemplate lt = LootStorage.Items.GetLootFor(item.GetEntry());
+            LootTemplate lt = LootStorage.Items.GetLootFor(item.Entry);
             if (lt != null)
             {
                 foreach (var (id, storedItem) in container.GetLootItems().KeyValueList)
@@ -174,7 +174,7 @@ namespace Game.Loots
             
             if (_lootItemStorage.ContainsKey(containerId))
             {
-                Log.outError(LogFilter.Misc, $"Trying to store item loot by player: {player.GetGUID()} for container id: {containerId} that is already in storage!");
+                Log.outError(LogFilter.Misc, $"Trying to store item loot by player: {player.GUID} for container id: {containerId} that is already in storage!");
                 return;
             }
 

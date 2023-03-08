@@ -54,7 +54,7 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 		private ObjectGuid _vanessaBoss;
 		private ObjectGuid _glubtokGUID;
 
-		private Team _teamInInstance;
+		private TeamFaction _teamInInstance;
 
 
 		public instance_deadmines_InstanceMapScript(InstanceMap map) : base(map)
@@ -71,59 +71,59 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 			var players = Instance.GetPlayers();
 
 			if (!players.Empty())
-				_teamInInstance = players.First().GetTeam();
+				_teamInInstance = players.First().Team;
 
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case 46889: // Kagtha
-					if (_teamInInstance == Team.Alliance)
+					if (_teamInInstance == TeamFaction.Alliance)
 						creature.UpdateEntry(42308); // Lieutenant Horatio Laine
 
 					break;
 				case 46902: // Miss Mayhem
-					if (_teamInInstance == Team.Alliance)
+					if (_teamInInstance == TeamFaction.Alliance)
 						creature.UpdateEntry(491); // Quartermaster Lewis <Quartermaster>
 
 					break;
 				case 46903: // Mayhem Reaper Prototype
-					if (_teamInInstance == Team.Alliance)
+					if (_teamInInstance == TeamFaction.Alliance)
 						creature.UpdateEntry(1); // GM WAYPOINT
 
 					break;
 				case 46906: // Slinky Sharpshiv
-					if (_teamInInstance == Team.Alliance)
+					if (_teamInInstance == TeamFaction.Alliance)
 						creature.UpdateEntry(46612); // Lieutenant Horatio Laine
 
 					break;
 				case 46613: // Crime Scene Alarm-O-Bot
-					if (_teamInInstance == Team.Horde)
+					if (_teamInInstance == TeamFaction.Horde)
 						creature.UpdateEntry(1); // GM WAYPOINT
 
 					break;
 				case 50595: // Stormwind Defender
-					if (_teamInInstance == Team.Horde)
+					if (_teamInInstance == TeamFaction.Horde)
 						creature.UpdateEntry(46890); // Shattered Hand Assassin
 
 					break;
 				case 46614: // Stormwind Investigator
-					if (_teamInInstance == Team.Horde)
+					if (_teamInInstance == TeamFaction.Horde)
 						creature.UpdateEntry(1); // GM WAYPOINT
 
 					break;
 				case DMCreatures.NPC_VANESSA_VANCLEEF:
-					_vanessa = creature.GetGUID();
+					_vanessa = creature.GUID;
 
 					break;
 				case DMCreatures.NPC_VANESSA_BOSS:
-					_vanessaBoss = creature.GetGUID();
+					_vanessaBoss = creature.GUID;
 
 					break;
 				case DMCreatures.NPC_VANESSA_NOTE:
-					_vanessaNote = creature.GetGUID();
+					_vanessaNote = creature.GUID;
 
 					break;
 				case DMCreatures.NPC_GLUBTOK:
-					_glubtokGUID = creature.GetGUID();
+					_glubtokGUID = creature.GUID;
 
 					break;
 			}
@@ -159,16 +159,16 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 			switch (data)
 			{
 				case DMCreatures.NPC_VANESSA_VANCLEEF:
-					return _vanessa.GetCounter();
+					return _vanessa.Counter;
 
 				case DMCreatures.NPC_VANESSA_BOSS:
-					return _vanessaBoss.GetCounter();
+					return _vanessaBoss.Counter;
 
 				case DMCreatures.NPC_VANESSA_NOTE:
-					return _vanessaNote.GetCounter();
+					return _vanessaNote.Counter;
 
 				case DMCreatures.NPC_GLUBTOK:
-					return _glubtokGUID.GetCounter();
+					return _glubtokGUID.Counter;
 			}
 
 			return 0;

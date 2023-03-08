@@ -30,12 +30,12 @@ public class spell_pri_archangel : SpellScript, IHasSpellEffects
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GetGUID()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GUID));
 	}
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var aura = HitUnit.GetAura(PriestSpells.ATONEMENT_AURA, Caster.GetGUID());
+		var aura = HitUnit.GetAura(PriestSpells.ATONEMENT_AURA, Caster.GUID);
 
 		if (aura != null)
 			aura.RefreshDuration();

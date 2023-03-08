@@ -22,7 +22,7 @@ public class at_pal_aura_of_sacrifice : AreaTriggerAI
 		var caster = at.GetCaster();
 
 		if (caster != null)
-			if (unit.IsPlayer() && caster.IsPlayer() && caster != unit)
+			if (unit.IsPlayer && caster.IsPlayer && caster != unit)
 				if (caster.ToPlayer().IsInSameRaidWith(unit.ToPlayer()))
 					caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
 	}

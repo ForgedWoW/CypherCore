@@ -115,7 +115,7 @@ internal class npc_core_rager : ScriptedAI
 		var pGolemagg = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.GolemaggTheIncinerator));
 
 		if (pGolemagg)
-			if (pGolemagg.IsAlive())
+			if (pGolemagg.IsAlive)
 			{
 				me.AddAura(SpellIds.GolemaggTrust, me);
 				Talk(TextIds.EmoteLowhp);

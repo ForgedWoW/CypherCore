@@ -17,7 +17,7 @@ public class GameObjectWorker : IGridNotifierGameObject
 
 	public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> work, GridType gridType)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_doWork = work;
 		GridType = gridType;
 	}

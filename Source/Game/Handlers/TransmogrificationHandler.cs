@@ -15,7 +15,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.TransmogrifyItems)]
         void HandleTransmogrifyItems(TransmogrifyItems transmogrifyItems)
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             // Validate
             if (!player.GetNPCIfCanInteractWith(transmogrifyItems.Npc, NPCFlags.Transmogrifier, NPCFlags2.None))
@@ -37,34 +37,34 @@ namespace Game
                 var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(itemModifiedAppearanceId);
                 if (itemModifiedAppearance == null)
                 {
-                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GetGUID()}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
+                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
                     return false;
                 }
 
                 if (isSecondary && itemTransmogrified.GetTemplate().GetInventoryType() != InventoryType.Shoulders)
                 {
-                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GetGUID()}, Name: {player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
+                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
                     return false;
                 }
 
                 bool hasAppearance, isTemporary;
-                (hasAppearance, isTemporary) = GetCollectionMgr().HasItemAppearance(itemModifiedAppearanceId);
+                (hasAppearance, isTemporary) = CollectionMgr.HasItemAppearance(itemModifiedAppearanceId);
                 if (!hasAppearance)
                 {
-                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GetGUID()}, Name: {player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
+                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
                     return false;
                 }
                 ItemTemplate itemTemplate = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID);
                 if (player.CanUseItem(itemTemplate) != InventoryResult.Ok)
                 {
-                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GetGUID()}, Name: {player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
+                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
                     return false;
                 }
 
                 // validity of the transmogrification items
                 if (!Item.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
                 {
-                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GetGUID()}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.GetEntry()} with appearance {itemModifiedAppearanceId}).");
+                    Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
                     return false;
                 }
 
@@ -87,7 +87,7 @@ namespace Game
                 // slot of the transmogrified item
                 if (transmogItem.Slot >= EquipmentSlot.End)
                 {
-                    Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", player.GetGUID().ToString(), player.GetName(), transmogItem.Slot);
+                    Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
                     return;
                 }
 
@@ -95,7 +95,7 @@ namespace Game
                 Item itemTransmogrified = player.GetItemByPos(InventorySlots.Bag0, (byte)transmogItem.Slot);
                 if (!itemTransmogrified)
                 {
-                    Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", player.GetGUID().ToString(), player.GetName(), transmogItem.Slot);
+                    Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
                     return;
                 }
 
@@ -117,14 +117,14 @@ namespace Game
                 {
                     if (transmogItem.Slot != EquipmentSlot.MainHand && transmogItem.Slot != EquipmentSlot.OffHand)
                     {
-                        Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", player.GetGUID().ToString(), player.GetName(), transmogItem.Slot);
+                        Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
                         return;
                     }
 
                     TransmogIllusionRecord illusion = Global.DB2Mgr.GetTransmogIllusionForEnchantment((uint)transmogItem.SpellItemEnchantmentID);
                     if (illusion == null)
                     {
-                        Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", player.GetGUID().ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+                        Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
                         return;
                     }
 
@@ -133,7 +133,7 @@ namespace Game
                     {
                         if (!ConditionManager.IsPlayerMeetingCondition(player, condition))
                         {
-                            Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GetGUID().ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+                            Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
                             return;
                         }
                     }
@@ -311,7 +311,7 @@ namespace Game
 
             foreach (uint itemModifedAppearanceId in bindAppearances)
             {
-                var itemsProvidingAppearance = GetCollectionMgr().GetItemsProvidingTemporaryAppearance(itemModifedAppearanceId);
+                var itemsProvidingAppearance = CollectionMgr.GetItemsProvidingTemporaryAppearance(itemModifedAppearanceId);
                 foreach (ObjectGuid itemGuid in itemsProvidingAppearance)
                 {
                     Item item = player.GetItemByGuid(itemGuid);
@@ -319,7 +319,7 @@ namespace Game
                     {
                         item.SetNotRefundable(player);
                         item.ClearSoulboundTradeable(player);
-                        GetCollectionMgr().AddItemAppearance(item);
+                        CollectionMgr.AddItemAppearance(item);
                     }
                 }
             }

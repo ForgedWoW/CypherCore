@@ -51,14 +51,14 @@ public class npc_vanessa_introAI : BossAI
 
 						break;
 					case 1:
-						me.GetMotionMaster().MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+						me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
 						me.Say(boss_vanessa_vancleef.VANESSA_SAY_1, Language.Universal);
 						PongTimer = 6000;
 						Phase++;
 
 						break;
 					case 2:
-						me.GetMotionMaster().MovePoint(0, -65.41f, -838.43f, 41.10f);
+						me.MotionMaster.MovePoint(0, -65.41f, -838.43f, 41.10f);
 						me.Say(boss_vanessa_vancleef.VANESSA_SAY_2, Language.Universal);
 						PongTimer = 8000;
 						Phase++;

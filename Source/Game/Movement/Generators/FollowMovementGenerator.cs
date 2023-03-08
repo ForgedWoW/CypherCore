@@ -52,7 +52,7 @@ namespace Game.Movement
         public override bool Update(Unit owner, uint diff)
         {
             // owner might be dead or gone
-            if (owner == null || !owner.IsAlive())
+            if (owner == null || !owner.IsAlive)
                 return false;
 
             // our target might have gone away
@@ -124,7 +124,7 @@ namespace Game.Movement
                     bool allowShortcut = false;
                     Pet oPet = owner.ToPet();
                     if (oPet != null)
-                        if (target.GetGUID() == oPet.GetOwnerGUID())
+                        if (target.GUID == oPet.OwnerGUID)
                             allowShortcut = true;
 
                     bool success = _path.CalculatePath(newPos, allowShortcut);
@@ -169,7 +169,7 @@ namespace Game.Movement
             Pet oPet = owner.ToPet();
             if (oPet != null)
             {
-                if (!_abstractFollower.GetTarget() || _abstractFollower.GetTarget().GetGUID() == owner.GetOwnerGUID())
+                if (!_abstractFollower.GetTarget() || _abstractFollower.GetTarget().GUID == owner.OwnerGUID)
                 {
                     oPet.UpdateSpeed(UnitMoveType.Run);
                     oPet.UpdateSpeed(UnitMoveType.Walk);
@@ -191,7 +191,7 @@ namespace Game.Movement
 
         static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
         {
-            if (owner.Location.GetExactDistSq(target.Location) > (owner.GetCombatReach() + target.GetCombatReach() + range) * (owner.GetCombatReach() + target.GetCombatReach() + range))
+            if (owner.Location.GetExactDistSq(target.Location) > (owner.CombatReach + target.CombatReach + range) * (owner.CombatReach + target.CombatReach + range))
                 return false;
 
             return !angle.HasValue || angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location));
@@ -199,12 +199,12 @@ namespace Game.Movement
 
         static void DoMovementInform(Unit owner, Unit target)
         {
-            if (!owner.IsCreature())
+            if (!owner.IsCreature)
                 return;
 
             CreatureAI ai = owner.ToCreature().GetAI();
             if (ai != null)
-                ai.MovementInform(MovementGeneratorType.Follow, (uint)target.GetGUID().GetCounter());
+                ai.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
         }
     }
 }

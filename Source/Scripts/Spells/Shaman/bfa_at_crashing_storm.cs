@@ -43,7 +43,7 @@ public class bfa_at_crashing_storm : AreaTriggerAI
 
 			if (targetList.Count != 0)
 				foreach (Player player in targetList)
-					if (!player.IsGameMaster())
+					if (!player.IsGameMaster)
 						caster.CastSpell(player, ShamanSpells.CRASHING_STORM_TALENT_DAMAGE, true);
 		}
 	}

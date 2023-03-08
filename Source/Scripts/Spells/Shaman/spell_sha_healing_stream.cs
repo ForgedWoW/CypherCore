@@ -32,7 +32,7 @@ public class spell_sha_healing_stream : SpellScript, ISpellOnHit
 
 			if (target != null)
 				// Glyph of Healing Stream Totem
-				if (target.GetGUID() != _player.GetGUID() && _player.HasAura(ShamanSpells.GLYPH_OF_HEALING_STREAM_TOTEM))
+				if (target.GUID != _player.GUID && _player.HasAura(ShamanSpells.GLYPH_OF_HEALING_STREAM_TOTEM))
 					_player.CastSpell(target, ShamanSpells.GLYPH_OF_HEALING_STREAM, true);
 		}
 	}

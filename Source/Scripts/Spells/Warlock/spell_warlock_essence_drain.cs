@@ -49,7 +49,7 @@ public class spell_warlock_essence_drain : AuraScript, IHasAuraEffects
 
 			foreach (var dot in dots)
 			{
-				var aur = target.GetAura(dot, caster.GetGUID());
+				var aur = target.GetAura(dot, caster.GUID);
 
 				if (aur != null)
 					aur.ModDuration(durationBonus);

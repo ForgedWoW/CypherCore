@@ -340,7 +340,7 @@ internal class go_ethereum_prison : GameObjectAI
 					if (spellId != 0)
 						creature.CastSpell(player, spellId, false);
 					else
-						Log.outError(LogFilter.Scripts, $"go_ethereum_prison summoned Creature (entry {creature.GetEntry()}) but faction ({creature.GetFaction()}) are not expected by script.");
+						Log.outError(LogFilter.Scripts, $"go_ethereum_prison summoned Creature (entry {creature.Entry}) but faction ({creature.Faction}) are not expected by script.");
 				}
 			}
 
@@ -407,7 +407,7 @@ internal class go_tele_to_dalaran_crystal : GameObjectAI
 		if (player.GetQuestRewardStatus(QuestIds.TeleCrystalFlag))
 			return false;
 
-		player.GetSession().SendNotification(GossipConst.GoTeleToDalaranCrystalFailed);
+		player.Session.SendNotification(GossipConst.GoTeleToDalaranCrystalFailed);
 
 		return true;
 	}
@@ -474,11 +474,11 @@ internal class go_amberpine_outhouse : GameObjectAI
 			status == QuestStatus.Rewarded)
 		{
 			player.AddGossipItem(GossipOptionNpc.None, GossipConst.GossipUseOuthouse, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-			player.SendGossipMenu(GossipConst.GossipOuthouseVacant, me.GetGUID());
+			player.SendGossipMenu(GossipConst.GossipOuthouseVacant, me.GUID);
 		}
 		else
 		{
-			player.SendGossipMenu(GossipConst.GossipOuthouseInuse, me.GetGUID());
+			player.SendGossipMenu(GossipConst.GossipOuthouseInuse, me.GUID);
 		}
 
 		return true;
@@ -496,7 +496,7 @@ internal class go_amberpine_outhouse : GameObjectAI
 
 			if (target)
 			{
-				target.GetAI().SetData(1, (uint)player.GetNativeGender());
+				target.GetAI().SetData(1, (uint)player.NativeGender);
 				me.CastSpell(target, SpellIds.IndisposedIii);
 			}
 
@@ -510,7 +510,7 @@ internal class go_amberpine_outhouse : GameObjectAI
 		else
 		{
 			player.CloseGossipMenu();
-			player.GetSession().SendNotification(GossipConst.AnderholsSliderCiderNotFound);
+			player.Session.SendNotification(GossipConst.AnderholsSliderCiderNotFound);
 
 			return false;
 		}
@@ -545,11 +545,11 @@ internal class go_veil_skith_cage : GameObjectAI
 
 			foreach (var creature in childrenList)
 			{
-				player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GetGUID());
+				player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GUID);
 				creature.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
-				creature.GetMotionMaster().MovePoint(1, me.Location.X + 5, me.Location.Y, me.Location.Z);
+				creature.MotionMaster.MovePoint(1, me.Location.X + 5, me.Location.Y, me.Location.Z);
 				creature.GetAI().Talk(TextIds.SayFree0);
-				creature.GetMotionMaster().Clear();
+				creature.MotionMaster.Clear();
 			}
 		}
 
@@ -669,7 +669,7 @@ internal class go_brewfest_music : GameObjectAI
 											var playersNearby = me.GetPlayerListInGrid(me.GetVisibilityRange());
 
 											foreach (Player player in playersNearby)
-												if (player.GetTeamId() == TeamId.Horde)
+												if (player.TeamId == TeamIds.Horde)
 													switch (rnd)
 													{
 														case 0:
@@ -736,7 +736,7 @@ internal class go_midsummer_music : GameObjectAI
 								var playersNearby = me.GetPlayerListInGrid(me.GetMap().GetVisibilityRange());
 
 								foreach (Player player in playersNearby)
-									if (player.GetTeam() == Team.Horde)
+									if (player.Team == TeamFaction.Horde)
 										me.PlayDirectMusic(12325, player);
 									else
 										me.PlayDirectMusic(12319, player);
@@ -806,7 +806,7 @@ internal class go_bells : GameObjectAI
 	{
 		var zoneId = me.GetZoneId();
 
-		switch (me.GetEntry())
+		switch (me.Entry)
 		{
 			case GameObjectIds.HordeBell:
 			{

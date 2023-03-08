@@ -27,65 +27,65 @@ namespace Game.BattleGrounds.Zones
             {
                 if (GetElapsedTime() >= 17 * Time.Minute * Time.InMilliseconds)
                 {
-                    if (GetTeamScore(TeamId.Alliance) == 0)
+                    if (GetTeamScore(TeamIds.Alliance) == 0)
                     {
-                        if (GetTeamScore(TeamId.Horde) == 0)        // No one scored - result is tie
-                            EndBattleground(Team.Other);
+                        if (GetTeamScore(TeamIds.Horde) == 0)        // No one scored - result is tie
+                            EndBattleground(TeamFaction.Other);
                         else                                 // Horde has more points and thus wins
-                            EndBattleground(Team.Horde);
+                            EndBattleground(TeamFaction.Horde);
                     }
-                    else if (GetTeamScore(TeamId.Horde) == 0)
-                        EndBattleground(Team.Alliance);           // Alliance has > 0, Horde has 0, alliance wins
-                    else if (GetTeamScore(TeamId.Horde) == GetTeamScore(TeamId.Alliance)) // Team score equal, winner is team that scored the last flag
-                        EndBattleground((Team)_lastFlagCaptureTeam);
-                    else if (GetTeamScore(TeamId.Horde) > GetTeamScore(TeamId.Alliance))  // Last but not least, check who has the higher score
-                        EndBattleground(Team.Horde);
+                    else if (GetTeamScore(TeamIds.Horde) == 0)
+                        EndBattleground(TeamFaction.Alliance);           // Alliance has > 0, Horde has 0, alliance wins
+                    else if (GetTeamScore(TeamIds.Horde) == GetTeamScore(TeamIds.Alliance)) // Team score equal, winner is team that scored the last flag
+                        EndBattleground((TeamFaction)_lastFlagCaptureTeam);
+                    else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))  // Last but not least, check who has the higher score
+                        EndBattleground(TeamFaction.Horde);
                     else
-                        EndBattleground(Team.Alliance);
+                        EndBattleground(TeamFaction.Alliance);
                 }
 
-                if (_flagState[TeamId.Alliance] == WSGFlagState.WaitRespawn)
+                if (_flagState[TeamIds.Alliance] == WSGFlagState.WaitRespawn)
                 {
-                    _flagsTimer[TeamId.Alliance] -= (int)diff;
+                    _flagsTimer[TeamIds.Alliance] -= (int)diff;
 
-                    if (_flagsTimer[TeamId.Alliance] < 0)
+                    if (_flagsTimer[TeamIds.Alliance] < 0)
                     {
-                        _flagsTimer[TeamId.Alliance] = 0;
-                        RespawnFlag(Team.Alliance, true);
+                        _flagsTimer[TeamIds.Alliance] = 0;
+                        RespawnFlag(TeamFaction.Alliance, true);
                     }
                 }
 
-                if (_flagState[TeamId.Alliance] == WSGFlagState.OnGround)
+                if (_flagState[TeamIds.Alliance] == WSGFlagState.OnGround)
                 {
-                    _flagsDropTimer[TeamId.Alliance] -= (int)diff;
+                    _flagsDropTimer[TeamIds.Alliance] -= (int)diff;
 
-                    if (_flagsDropTimer[TeamId.Alliance] < 0)
+                    if (_flagsDropTimer[TeamIds.Alliance] < 0)
                     {
-                        _flagsDropTimer[TeamId.Alliance] = 0;
-                        RespawnFlagAfterDrop(Team.Alliance);
+                        _flagsDropTimer[TeamIds.Alliance] = 0;
+                        RespawnFlagAfterDrop(TeamFaction.Alliance);
                         _bothFlagsKept = false;
                     }
                 }
 
-                if (_flagState[TeamId.Horde] == WSGFlagState.WaitRespawn)
+                if (_flagState[TeamIds.Horde] == WSGFlagState.WaitRespawn)
                 {
-                    _flagsTimer[TeamId.Horde] -= (int)diff;
+                    _flagsTimer[TeamIds.Horde] -= (int)diff;
 
-                    if (_flagsTimer[TeamId.Horde] < 0)
+                    if (_flagsTimer[TeamIds.Horde] < 0)
                     {
-                        _flagsTimer[TeamId.Horde] = 0;
-                        RespawnFlag(Team.Horde, true);
+                        _flagsTimer[TeamIds.Horde] = 0;
+                        RespawnFlag(TeamFaction.Horde, true);
                     }
                 }
 
-                if (_flagState[TeamId.Horde] == WSGFlagState.OnGround)
+                if (_flagState[TeamIds.Horde] == WSGFlagState.OnGround)
                 {
-                    _flagsDropTimer[TeamId.Horde] -= (int)diff;
+                    _flagsDropTimer[TeamIds.Horde] -= (int)diff;
 
-                    if (_flagsDropTimer[TeamId.Horde] < 0)
+                    if (_flagsDropTimer[TeamIds.Horde] < 0)
                     {
-                        _flagsDropTimer[TeamId.Horde] = 0;
-                        RespawnFlagAfterDrop(Team.Horde);
+                        _flagsDropTimer[TeamIds.Horde] = 0;
+                        RespawnFlagAfterDrop(TeamFaction.Horde);
                         _bothFlagsKept = false;
                     }
                 }
@@ -125,8 +125,8 @@ namespace Game.BattleGrounds.Zones
                         _flagDebuffState = 2;
                     }
                 }
-                else if ((_flagState[TeamId.Alliance] == WSGFlagState.OnBase || _flagState[TeamId.Alliance] == WSGFlagState.WaitRespawn) &&
-                 (_flagState[TeamId.Horde] == WSGFlagState.OnBase || _flagState[TeamId.Horde] == WSGFlagState.WaitRespawn))
+                else if ((_flagState[TeamIds.Alliance] == WSGFlagState.OnBase || _flagState[TeamIds.Alliance] == WSGFlagState.WaitRespawn) &&
+                 (_flagState[TeamIds.Horde] == WSGFlagState.OnBase || _flagState[TeamIds.Horde] == WSGFlagState.WaitRespawn))
                 {
                     // Both flags are in base or awaiting respawn.
                     // Remove assault debuffs, reset timers
@@ -186,23 +186,23 @@ namespace Game.BattleGrounds.Zones
 
         public override void AddPlayer(Player player)
         {
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundWGScore(player.GetGUID(), player.GetBgTeam());
+                PlayerScores[player.GUID] = new BattlegroundWGScore(player.GUID, player.GetBgTeam());
         }
 
-        void RespawnFlag(Team Team, bool captured)
+        void RespawnFlag(TeamFaction Team, bool captured)
         {
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
             {
                 Log.outDebug(LogFilter.Battleground, "Respawn Alliance flag");
-                _flagState[TeamId.Alliance] = WSGFlagState.OnBase;
+                _flagState[TeamIds.Alliance] = WSGFlagState.OnBase;
             }
             else
             {
                 Log.outDebug(LogFilter.Battleground, "Respawn Horde flag");
-                _flagState[TeamId.Horde] = WSGFlagState.OnBase;
+                _flagState[TeamIds.Horde] = WSGFlagState.OnBase;
             }
 
             if (captured)
@@ -216,13 +216,13 @@ namespace Game.BattleGrounds.Zones
             _bothFlagsKept = false;
         }
 
-        void RespawnFlagAfterDrop(Team team)
+        void RespawnFlagAfterDrop(TeamFaction team)
         {
             if (GetStatus() != BattlegroundStatus.InProgress)
                 return;
 
             RespawnFlag(team, false);
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
                 SpawnBGObject(WSGObjectTypes.AFlag, BattlegroundConst.RespawnImmediately);
             else
                 SpawnBGObject(WSGObjectTypes.HFlag, BattlegroundConst.RespawnImmediately);
@@ -239,7 +239,7 @@ namespace Game.BattleGrounds.Zones
             SetDroppedFlagGUID(ObjectGuid.Empty, GetTeamIndexByTeamId(team));
             _bothFlagsKept = false;
             // Check opposing flag if it is in capture zone; if so, capture it
-            HandleFlagRoomCapturePoint(team == Team.Alliance ? TeamId.Horde : TeamId.Alliance);
+            HandleFlagRoomCapturePoint(team == TeamFaction.Alliance ? TeamIds.Horde : TeamIds.Alliance);
         }
 
         void EventPlayerCapturedFlag(Player player)
@@ -247,17 +247,17 @@ namespace Game.BattleGrounds.Zones
             if (GetStatus() != BattlegroundStatus.InProgress)
                 return;
 
-            Team winner = 0;
+            TeamFaction winner = 0;
 
             player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
-            Team team = GetPlayerTeam(player.GetGUID());
-            if (team == Team.Alliance)
+            TeamFaction team = GetPlayerTeam(player.GUID);
+            if (team == TeamFaction.Alliance)
             {
                 if (!IsHordeFlagPickedup())
                     return;
                 SetHordeFlagPicker(ObjectGuid.Empty);                              // must be before aura remove to prevent 2 events (drop+capture) at the same time
                                                                                    // horde flag in base (but not respawned yet)
-                _flagState[TeamId.Horde] = WSGFlagState.WaitRespawn;
+                _flagState[TeamIds.Horde] = WSGFlagState.WaitRespawn;
                 // Drop Horde Flag from Player
                 player.RemoveAura(WSGSpellId.WarsongFlag);
                 if (_flagDebuffState == 1)
@@ -265,10 +265,10 @@ namespace Game.BattleGrounds.Zones
                 else if (_flagDebuffState == 2)
                     player.RemoveAura(WSGSpellId.BrutalAssault);
 
-                if (GetTeamScore(TeamId.Alliance) < WSGTimerOrScore.MaxTeamScore)
-                    AddPoint(Team.Alliance, 1);
+                if (GetTeamScore(TeamIds.Alliance) < WSGTimerOrScore.MaxTeamScore)
+                    AddPoint(TeamFaction.Alliance, 1);
                 PlaySoundToAll(WSGSound.FlagCapturedAlliance);
-                RewardReputationToTeam(890, m_ReputationCapture, Team.Alliance);
+                RewardReputationToTeam(890, m_ReputationCapture, TeamFaction.Alliance);
             }
             else
             {
@@ -276,7 +276,7 @@ namespace Game.BattleGrounds.Zones
                     return;
                 SetAllianceFlagPicker(ObjectGuid.Empty);                           // must be before aura remove to prevent 2 events (drop+capture) at the same time
                                                                                    // alliance flag in base (but not respawned yet)
-                _flagState[TeamId.Alliance] = WSGFlagState.WaitRespawn;
+                _flagState[TeamIds.Alliance] = WSGFlagState.WaitRespawn;
                 // Drop Alliance Flag from Player
                 player.RemoveAura(WSGSpellId.SilverwingFlag);
                 if (_flagDebuffState == 1)
@@ -284,10 +284,10 @@ namespace Game.BattleGrounds.Zones
                 else if (_flagDebuffState == 2)
                     player.RemoveAura(WSGSpellId.BrutalAssault);
 
-                if (GetTeamScore(TeamId.Horde) < WSGTimerOrScore.MaxTeamScore)
-                    AddPoint(Team.Horde, 1);
+                if (GetTeamScore(TeamIds.Horde) < WSGTimerOrScore.MaxTeamScore)
+                    AddPoint(TeamFaction.Horde, 1);
                 PlaySoundToAll(WSGSound.FlagCapturedHorde);
-                RewardReputationToTeam(889, m_ReputationCapture, Team.Horde);
+                RewardReputationToTeam(889, m_ReputationCapture, TeamFaction.Horde);
             }
             //for flag capture is reward 2 honorable kills
             RewardHonorToTeam(GetBonusHonorFromKill(2), team);
@@ -295,7 +295,7 @@ namespace Game.BattleGrounds.Zones
             SpawnBGObject(WSGObjectTypes.HFlag, WSGTimerOrScore.FlagRespawnTime);
             SpawnBGObject(WSGObjectTypes.AFlag, WSGTimerOrScore.FlagRespawnTime);
 
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
                 SendBroadcastText(WSGBroadcastTexts.CapturedHordeFlag, ChatMsg.BgSystemAlliance, player);
             else
                 SendBroadcastText(WSGBroadcastTexts.CapturedAllianceFlag, ChatMsg.BgSystemHorde, player);
@@ -308,11 +308,11 @@ namespace Game.BattleGrounds.Zones
             // update last flag capture to be used if teamscore is equal
             SetLastFlagCapture(team);
 
-            if (GetTeamScore(TeamId.Alliance) == WSGTimerOrScore.MaxTeamScore)
-                winner = Team.Alliance;
+            if (GetTeamScore(TeamIds.Alliance) == WSGTimerOrScore.MaxTeamScore)
+                winner = TeamFaction.Alliance;
 
-            if (GetTeamScore(TeamId.Horde) == WSGTimerOrScore.MaxTeamScore)
-                winner = Team.Horde;
+            if (GetTeamScore(TeamIds.Horde) == WSGTimerOrScore.MaxTeamScore)
+                winner = TeamFaction.Horde;
 
             if (winner != 0)
             {
@@ -332,24 +332,24 @@ namespace Game.BattleGrounds.Zones
         void HandleFlagRoomCapturePoint(int team)
         {
             Player flagCarrier = Global.ObjAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
-            uint areaTrigger = team == TeamId.Alliance ? 3647 : 3646u;
+            uint areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
             if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(CliDB.AreaTriggerStorage.LookupByKey(areaTrigger)))
                 EventPlayerCapturedFlag(flagCarrier);
         }
 
         public override void EventPlayerDroppedFlag(Player player)
         {
-            Team team = GetPlayerTeam(player.GetGUID());
+            TeamFaction team = GetPlayerTeam(player.GUID);
             if (GetStatus() != BattlegroundStatus.InProgress)
             {
                 // if not running, do not cast things at the dropper player (prevent spawning the "dropped" flag), neither send unnecessary messages
                 // just take off the aura
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                 {
                     if (!IsHordeFlagPickedup())
                         return;
 
-                    if (GetFlagPickerGUID(TeamId.Horde) == player.GetGUID())
+                    if (GetFlagPickerGUID(TeamIds.Horde) == player.GUID)
                     {
                         SetHordeFlagPicker(ObjectGuid.Empty);
                         player.RemoveAura(WSGSpellId.WarsongFlag);
@@ -360,7 +360,7 @@ namespace Game.BattleGrounds.Zones
                     if (!IsAllianceFlagPickedup())
                         return;
 
-                    if (GetFlagPickerGUID(TeamId.Alliance) == player.GetGUID())
+                    if (GetFlagPickerGUID(TeamIds.Alliance) == player.GUID)
                     {
                         SetAllianceFlagPicker(ObjectGuid.Empty);
                         player.RemoveAura(WSGSpellId.SilverwingFlag);
@@ -371,11 +371,11 @@ namespace Game.BattleGrounds.Zones
 
             bool set = false;
 
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
             {
                 if (!IsHordeFlagPickedup())
                     return;
-                if (GetFlagPickerGUID(TeamId.Horde) == player.GetGUID())
+                if (GetFlagPickerGUID(TeamIds.Horde) == player.GUID)
                 {
                     SetHordeFlagPicker(ObjectGuid.Empty);
                     player.RemoveAura(WSGSpellId.WarsongFlag);
@@ -383,7 +383,7 @@ namespace Game.BattleGrounds.Zones
                         player.RemoveAura(WSGSpellId.FocusedAssault);
                     else if (_flagDebuffState == 2)
                         player.RemoveAura(WSGSpellId.BrutalAssault);
-                    _flagState[TeamId.Horde] = WSGFlagState.OnGround;
+                    _flagState[TeamIds.Horde] = WSGFlagState.OnGround;
                     player.CastSpell(player, WSGSpellId.WarsongFlagDropped, true);
                     set = true;
                 }
@@ -392,7 +392,7 @@ namespace Game.BattleGrounds.Zones
             {
                 if (!IsAllianceFlagPickedup())
                     return;
-                if (GetFlagPickerGUID(TeamId.Alliance) == player.GetGUID())
+                if (GetFlagPickerGUID(TeamIds.Alliance) == player.GUID)
                 {
                     SetAllianceFlagPicker(ObjectGuid.Empty);
                     player.RemoveAura(WSGSpellId.SilverwingFlag);
@@ -400,7 +400,7 @@ namespace Game.BattleGrounds.Zones
                         player.RemoveAura(WSGSpellId.FocusedAssault);
                     else if (_flagDebuffState == 2)
                         player.RemoveAura(WSGSpellId.BrutalAssault);
-                    _flagState[TeamId.Alliance] = WSGFlagState.OnGround;
+                    _flagState[TeamIds.Alliance] = WSGFlagState.OnGround;
                     player.CastSpell(player, WSGSpellId.SilverwingFlagDropped, true);
                     set = true;
                 }
@@ -411,7 +411,7 @@ namespace Game.BattleGrounds.Zones
                 player.CastSpell(player, BattlegroundConst.SpellRecentlyDroppedFlag, true);
                 UpdateFlagState(team, WSGFlagState.OnGround);
 
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                     SendBroadcastText(WSGBroadcastTexts.HordeFlagDropped, ChatMsg.BgSystemHorde, player);
                 else
                     SendBroadcastText(WSGBroadcastTexts.AllianceFlagDropped, ChatMsg.BgSystemAlliance, player);
@@ -425,19 +425,19 @@ namespace Game.BattleGrounds.Zones
             if (GetStatus() != BattlegroundStatus.InProgress)
                 return;
 
-            Team team = GetPlayerTeam(player.GetGUID());
+            TeamFaction team = GetPlayerTeam(player.GUID);
 
             //alliance flag picked up from base
-            if (team == Team.Horde && GetFlagState(Team.Alliance) == WSGFlagState.OnBase
-                && BgObjects[WSGObjectTypes.AFlag] == target_obj.GetGUID())
+            if (team == TeamFaction.Horde && GetFlagState(TeamFaction.Alliance) == WSGFlagState.OnBase
+                && BgObjects[WSGObjectTypes.AFlag] == target_obj.GUID)
             {
                 SendBroadcastText(WSGBroadcastTexts.AllianceFlagPickedUp, ChatMsg.BgSystemHorde, player);
                 PlaySoundToAll(WSGSound.AllianceFlagPickedUp);
                 SpawnBGObject(WSGObjectTypes.AFlag, BattlegroundConst.RespawnOneDay);
-                SetAllianceFlagPicker(player.GetGUID());
-                _flagState[TeamId.Alliance] = WSGFlagState.OnPlayer;
+                SetAllianceFlagPicker(player.GUID);
+                _flagState[TeamIds.Alliance] = WSGFlagState.OnPlayer;
                 //update world state to show correct flag carrier
-                UpdateFlagState(Team.Horde, WSGFlagState.OnPlayer);
+                UpdateFlagState(TeamFaction.Horde, WSGFlagState.OnPlayer);
                 player.CastSpell(player, WSGSpellId.SilverwingFlag, true);
                 player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, WSGSpellId.SilverwingFlagPicked);
                 if (_flagState[1] == WSGFlagState.OnPlayer)
@@ -450,16 +450,16 @@ namespace Game.BattleGrounds.Zones
             }
 
             //horde flag picked up from base
-            if (team == Team.Alliance && GetFlagState(Team.Horde) == WSGFlagState.OnBase
-                && BgObjects[WSGObjectTypes.HFlag] == target_obj.GetGUID())
+            if (team == TeamFaction.Alliance && GetFlagState(TeamFaction.Horde) == WSGFlagState.OnBase
+                && BgObjects[WSGObjectTypes.HFlag] == target_obj.GUID)
             {
                 SendBroadcastText(WSGBroadcastTexts.HordeFlagPickedUp, ChatMsg.BgSystemAlliance, player);
                 PlaySoundToAll(WSGSound.HordeFlagPickedUp);
                 SpawnBGObject(WSGObjectTypes.HFlag, BattlegroundConst.RespawnOneDay);
-                SetHordeFlagPicker(player.GetGUID());
-                _flagState[TeamId.Horde] = WSGFlagState.OnPlayer;
+                SetHordeFlagPicker(player.GUID);
+                _flagState[TeamIds.Horde] = WSGFlagState.OnPlayer;
                 //update world state to show correct flag carrier
-                UpdateFlagState(Team.Alliance, WSGFlagState.OnPlayer);
+                UpdateFlagState(TeamFaction.Alliance, WSGFlagState.OnPlayer);
                 player.CastSpell(player, WSGSpellId.WarsongFlag, true);
                 player.StartCriteriaTimer(CriteriaStartEvent.BeSpellTarget, WSGSpellId.WarsongFlagPicked);
                 if (_flagState[0] == WSGFlagState.OnPlayer)
@@ -472,30 +472,30 @@ namespace Game.BattleGrounds.Zones
             }
 
             //Alliance flag on ground(not in base) (returned or picked up again from ground!)
-            if (GetFlagState(Team.Alliance) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
+            if (GetFlagState(TeamFaction.Alliance) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
                 && target_obj.GetGoInfo().entry == WSGObjectEntry.AFlagGround)
             {
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                 {
                     SendBroadcastText(WSGBroadcastTexts.AllianceFlagReturned, ChatMsg.BgSystemAlliance, player);
-                    UpdateFlagState(Team.Horde, WSGFlagState.WaitRespawn);
-                    RespawnFlag(Team.Alliance, false);
+                    UpdateFlagState(TeamFaction.Horde, WSGFlagState.WaitRespawn);
+                    RespawnFlag(TeamFaction.Alliance, false);
                     SpawnBGObject(WSGObjectTypes.AFlag, BattlegroundConst.RespawnImmediately);
                     PlaySoundToAll(WSGSound.FlagReturned);
                     UpdatePlayerScore(player, ScoreType.FlagReturns, 1);
                     _bothFlagsKept = false;
 
-                    HandleFlagRoomCapturePoint(TeamId.Horde); // Check Horde flag if it is in capture zone; if so, capture it
+                    HandleFlagRoomCapturePoint(TeamIds.Horde); // Check Horde flag if it is in capture zone; if so, capture it
                 }
                 else
                 {
                     SendBroadcastText(WSGBroadcastTexts.AllianceFlagPickedUp, ChatMsg.BgSystemHorde, player);
                     PlaySoundToAll(WSGSound.AllianceFlagPickedUp);
                     SpawnBGObject(WSGObjectTypes.AFlag, BattlegroundConst.RespawnOneDay);
-                    SetAllianceFlagPicker(player.GetGUID());
+                    SetAllianceFlagPicker(player.GUID);
                     player.CastSpell(player, WSGSpellId.SilverwingFlag, true);
-                    _flagState[TeamId.Alliance] = WSGFlagState.OnPlayer;
-                    UpdateFlagState(Team.Horde, WSGFlagState.OnPlayer);
+                    _flagState[TeamIds.Alliance] = WSGFlagState.OnPlayer;
+                    UpdateFlagState(TeamFaction.Horde, WSGFlagState.OnPlayer);
                     if (_flagDebuffState == 1)
                         player.CastSpell(player, WSGSpellId.FocusedAssault, true);
                     else if (_flagDebuffState == 2)
@@ -506,30 +506,30 @@ namespace Game.BattleGrounds.Zones
             }
 
             //Horde flag on ground(not in base) (returned or picked up again)
-            if (GetFlagState(Team.Horde) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
+            if (GetFlagState(TeamFaction.Horde) == WSGFlagState.OnGround && player.IsWithinDistInMap(target_obj, 10)
                 && target_obj.GetGoInfo().entry == WSGObjectEntry.HFlagGround)
             {
-                if (team == Team.Horde)
+                if (team == TeamFaction.Horde)
                 {
                     SendBroadcastText(WSGBroadcastTexts.HordeFlagReturned, ChatMsg.BgSystemHorde, player);
-                    UpdateFlagState(Team.Alliance, WSGFlagState.WaitRespawn);
-                    RespawnFlag(Team.Horde, false);
+                    UpdateFlagState(TeamFaction.Alliance, WSGFlagState.WaitRespawn);
+                    RespawnFlag(TeamFaction.Horde, false);
                     SpawnBGObject(WSGObjectTypes.HFlag, BattlegroundConst.RespawnImmediately);
                     PlaySoundToAll(WSGSound.FlagReturned);
                     UpdatePlayerScore(player, ScoreType.FlagReturns, 1);
                     _bothFlagsKept = false;
 
-                    HandleFlagRoomCapturePoint(TeamId.Alliance); // Check Alliance flag if it is in capture zone; if so, capture it
+                    HandleFlagRoomCapturePoint(TeamIds.Alliance); // Check Alliance flag if it is in capture zone; if so, capture it
                 }
                 else
                 {
                     SendBroadcastText(WSGBroadcastTexts.HordeFlagPickedUp, ChatMsg.BgSystemAlliance, player);
                     PlaySoundToAll(WSGSound.HordeFlagPickedUp);
                     SpawnBGObject(WSGObjectTypes.HFlag, BattlegroundConst.RespawnOneDay);
-                    SetHordeFlagPicker(player.GetGUID());
+                    SetHordeFlagPicker(player.GUID);
                     player.CastSpell(player, WSGSpellId.WarsongFlag, true);
-                    _flagState[TeamId.Horde] = WSGFlagState.OnPlayer;
-                    UpdateFlagState(Team.Alliance, WSGFlagState.OnPlayer);
+                    _flagState[TeamIds.Horde] = WSGFlagState.OnPlayer;
+                    UpdateFlagState(TeamFaction.Alliance, WSGFlagState.OnPlayer);
                     if (_flagDebuffState == 1)
                         player.CastSpell(player, WSGSpellId.FocusedAssault, true);
                     else if (_flagDebuffState == 2)
@@ -542,34 +542,34 @@ namespace Game.BattleGrounds.Zones
             player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
         }
 
-        public override void RemovePlayer(Player player, ObjectGuid guid, Team team)
+        public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
         {
             // sometimes flag aura not removed :(
-            if (IsAllianceFlagPickedup() && m_FlagKeepers[TeamId.Alliance] == guid)
+            if (IsAllianceFlagPickedup() && m_FlagKeepers[TeamIds.Alliance] == guid)
             {
                 if (!player)
                 {
                     Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
                     SetAllianceFlagPicker(ObjectGuid.Empty);
-                    RespawnFlag(Team.Alliance, false);
+                    RespawnFlag(TeamFaction.Alliance, false);
                 }
                 else
                     EventPlayerDroppedFlag(player);
             }
-            if (IsHordeFlagPickedup() && m_FlagKeepers[TeamId.Horde] == guid)
+            if (IsHordeFlagPickedup() && m_FlagKeepers[TeamIds.Horde] == guid)
             {
                 if (!player)
                 {
                     Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
                     SetHordeFlagPicker(ObjectGuid.Empty);
-                    RespawnFlag(Team.Horde, false);
+                    RespawnFlag(TeamFaction.Horde, false);
                 }
                 else
                     EventPlayerDroppedFlag(player);
             }
         }
 
-        void UpdateFlagState(Team team, WSGFlagState value)
+        void UpdateFlagState(TeamFaction team, WSGFlagState value)
         {
             int transformValueToOtherTeamControlWorldState(WSGFlagState value)
             {
@@ -586,7 +586,7 @@ namespace Game.BattleGrounds.Zones
                 }
             };
 
-            if (team == Team.Horde)
+            if (team == TeamFaction.Horde)
             {
                 UpdateWorldState(WSGWorldStates.FlagStateAlliance, (int)value);
                 UpdateWorldState(WSGWorldStates.FlagControlHorde, transformValueToOtherTeamControlWorldState(value));
@@ -600,7 +600,7 @@ namespace Game.BattleGrounds.Zones
 
         void UpdateTeamScore(int team)
         {
-            if (team == TeamId.Alliance)
+            if (team == TeamIds.Alliance)
                 UpdateWorldState(WSGWorldStates.FlagCapturesAlliance, (int)GetTeamScore(team));
             else
                 UpdateWorldState(WSGWorldStates.FlagCapturesHorde, (int)GetTeamScore(team));
@@ -636,13 +636,13 @@ namespace Game.BattleGrounds.Zones
                     //buff_guid = BgObjects[BG_WS_OBJECT_BERSERKBUFF_2];
                     break;
                 case 3646:                                          // Alliance Flag spawn
-                    if (_flagState[TeamId.Horde] != 0 && _flagState[TeamId.Alliance] == 0)
-                        if (GetFlagPickerGUID(TeamId.Horde) == player.GetGUID())
+                    if (_flagState[TeamIds.Horde] != 0 && _flagState[TeamIds.Alliance] == 0)
+                        if (GetFlagPickerGUID(TeamIds.Horde) == player.GUID)
                             EventPlayerCapturedFlag(player);
                     break;
                 case 3647:                                          // Horde Flag spawn
-                    if (_flagState[TeamId.Alliance] != 0 && _flagState[TeamId.Horde] == 0)
-                        if (GetFlagPickerGUID(TeamId.Alliance) == player.GetGUID())
+                    if (_flagState[TeamIds.Alliance] != 0 && _flagState[TeamIds.Horde] == 0)
+                        if (GetFlagPickerGUID(TeamIds.Alliance) == player.GUID)
                             EventPlayerCapturedFlag(player);
                     break;
                 case 3649:                                          // unk1
@@ -702,14 +702,14 @@ namespace Game.BattleGrounds.Zones
             }
 
             WorldSafeLocsEntry sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
-            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamId.Alliance))
+            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
             {
                 Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Alliance spirit guide! Battleground not created!");
                 return false;
             }
 
             sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainHorde);
-            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamId.Horde))
+            if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
             {
                 Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Horde spirit guide! Battleground not created!");
                 return false;
@@ -723,14 +723,14 @@ namespace Game.BattleGrounds.Zones
             //call parent's class reset
             base.Reset();
 
-            m_FlagKeepers[TeamId.Alliance].Clear();
-            m_FlagKeepers[TeamId.Horde].Clear();
-            m_DroppedFlagGUID[TeamId.Alliance] = ObjectGuid.Empty;
-            m_DroppedFlagGUID[TeamId.Horde] = ObjectGuid.Empty;
-            _flagState[TeamId.Alliance] = WSGFlagState.OnBase;
-            _flagState[TeamId.Horde] = WSGFlagState.OnBase;
-            m_TeamScores[TeamId.Alliance] = 0;
-            m_TeamScores[TeamId.Horde] = 0;
+            m_FlagKeepers[TeamIds.Alliance].Clear();
+            m_FlagKeepers[TeamIds.Horde].Clear();
+            m_DroppedFlagGUID[TeamIds.Alliance] = ObjectGuid.Empty;
+            m_DroppedFlagGUID[TeamIds.Horde] = ObjectGuid.Empty;
+            _flagState[TeamIds.Alliance] = WSGFlagState.OnBase;
+            _flagState[TeamIds.Horde] = WSGFlagState.OnBase;
+            m_TeamScores[TeamIds.Alliance] = 0;
+            m_TeamScores[TeamIds.Horde] = 0;
 
             if (Global.BattlegroundMgr.IsBGWeekend(GetTypeID()))
             {
@@ -748,22 +748,22 @@ namespace Game.BattleGrounds.Zones
             _bothFlagsKept = false;
             _flagDebuffState = 0;
             _flagSpellForceTimer = 0;
-            _flagsDropTimer[TeamId.Alliance] = 0;
-            _flagsDropTimer[TeamId.Horde] = 0;
-            _flagsTimer[TeamId.Alliance] = 0;
-            _flagsTimer[TeamId.Horde] = 0;
+            _flagsDropTimer[TeamIds.Alliance] = 0;
+            _flagsDropTimer[TeamIds.Horde] = 0;
+            _flagsTimer[TeamIds.Alliance] = 0;
+            _flagsTimer[TeamIds.Horde] = 0;
         }
 
-        public override void EndBattleground(Team winner)
+        public override void EndBattleground(TeamFaction winner)
         {
             // Win reward
-            if (winner == Team.Alliance)
-                RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), Team.Alliance);
-            if (winner == Team.Horde)
-                RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), Team.Horde);
+            if (winner == TeamFaction.Alliance)
+                RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), TeamFaction.Alliance);
+            if (winner == TeamFaction.Horde)
+                RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), TeamFaction.Horde);
             // Complete map_end rewards (even if no team wins)
-            RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), Team.Alliance);
-            RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), Team.Horde);
+            RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), TeamFaction.Alliance);
+            RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), TeamFaction.Horde);
 
             base.EndBattleground(winner);
         }
@@ -804,7 +804,7 @@ namespace Game.BattleGrounds.Zones
             //if a player dies in preparation phase - then the player can't cheat
             //and teleport to the graveyard outside the flagroom
             //and start running around, while the doors are still closed
-            if (GetPlayerTeam(player.GetGUID()) == Team.Alliance)
+            if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
             {
                 if (GetStatus() == BattlegroundStatus.InProgress)
                     return Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
@@ -820,45 +820,45 @@ namespace Game.BattleGrounds.Zones
             }
         }
 
-        public override WorldSafeLocsEntry GetExploitTeleportLocation(Team team)
+        public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
         {
-            return Global.ObjectMgr.GetWorldSafeLoc(team == Team.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+            return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
         }
 
-        public override Team GetPrematureWinner()
+        public override TeamFaction GetPrematureWinner()
         {
-            if (GetTeamScore(TeamId.Alliance) > GetTeamScore(TeamId.Horde))
-                return Team.Alliance;
-            else if (GetTeamScore(TeamId.Horde) > GetTeamScore(TeamId.Alliance))
-                return Team.Horde;
+            if (GetTeamScore(TeamIds.Alliance) > GetTeamScore(TeamIds.Horde))
+                return TeamFaction.Alliance;
+            else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
+                return TeamFaction.Horde;
 
             return base.GetPrematureWinner();
         }
 
         public override ObjectGuid GetFlagPickerGUID(int team = -1)
         {
-            if (team == TeamId.Alliance || team == TeamId.Horde)
+            if (team == TeamIds.Alliance || team == TeamIds.Horde)
                 return m_FlagKeepers[team];
 
             return ObjectGuid.Empty;
         }
 
-        void SetAllianceFlagPicker(ObjectGuid guid) { m_FlagKeepers[TeamId.Alliance] = guid; }
-        void SetHordeFlagPicker(ObjectGuid guid) { m_FlagKeepers[TeamId.Horde] = guid; }
-        bool IsAllianceFlagPickedup() { return !m_FlagKeepers[TeamId.Alliance].IsEmpty(); }
-        bool IsHordeFlagPickedup() { return !m_FlagKeepers[TeamId.Horde].IsEmpty(); }
-        WSGFlagState GetFlagState(Team team) { return _flagState[GetTeamIndexByTeamId(team)]; }
+        void SetAllianceFlagPicker(ObjectGuid guid) { m_FlagKeepers[TeamIds.Alliance] = guid; }
+        void SetHordeFlagPicker(ObjectGuid guid) { m_FlagKeepers[TeamIds.Horde] = guid; }
+        bool IsAllianceFlagPickedup() { return !m_FlagKeepers[TeamIds.Alliance].IsEmpty; }
+        bool IsHordeFlagPickedup() { return !m_FlagKeepers[TeamIds.Horde].IsEmpty; }
+        WSGFlagState GetFlagState(TeamFaction team) { return _flagState[GetTeamIndexByTeamId(team)]; }
 
-        void SetLastFlagCapture(Team team) { _lastFlagCaptureTeam = (uint)team; }
+        void SetLastFlagCapture(TeamFaction team) { _lastFlagCaptureTeam = (uint)team; }
         public override void SetDroppedFlagGUID(ObjectGuid guid, int team = -1)
         {
-            if (team == TeamId.Alliance || team == TeamId.Horde)
+            if (team == TeamIds.Alliance || team == TeamIds.Horde)
                 m_DroppedFlagGUID[team] = guid;
 
         }
-        ObjectGuid GetDroppedFlagGUID(Team team) { return m_DroppedFlagGUID[GetTeamIndexByTeamId(team)]; }
+        ObjectGuid GetDroppedFlagGUID(TeamFaction team) { return m_DroppedFlagGUID[GetTeamIndexByTeamId(team)]; }
 
-        void AddPoint(Team team, uint Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
+        void AddPoint(TeamFaction team, uint Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
 
         readonly ObjectGuid[] m_FlagKeepers = new ObjectGuid[2];                            // 0 - alliance, 1 - horde
         readonly ObjectGuid[] m_DroppedFlagGUID = new ObjectGuid[2];
@@ -885,7 +885,7 @@ namespace Game.BattleGrounds.Zones
 
     class BattlegroundWGScore : BattlegroundScore
     {
-        public BattlegroundWGScore(ObjectGuid playerGuid, Team team) : base(playerGuid, team) { }
+        public BattlegroundWGScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
         public override void UpdateScore(ScoreType type, uint value)
         {

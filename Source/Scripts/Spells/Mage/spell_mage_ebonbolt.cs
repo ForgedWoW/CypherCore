@@ -40,7 +40,7 @@ public class spell_mage_ebonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
 			return;
 
 		if (Caster.HasAura(MageSpells.SPLITTING_ICE))
-			Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GetGUID());
+			Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GUID);
 
 		Caster.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
 	}

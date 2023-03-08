@@ -39,6 +39,6 @@ internal class spell_pri_rapture : SpellScript, ISpellAfterCast, IHasSpellEffect
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		_raptureTarget = HitUnit.GetGUID();
+		_raptureTarget = HitUnit.GUID;
 	}
 }

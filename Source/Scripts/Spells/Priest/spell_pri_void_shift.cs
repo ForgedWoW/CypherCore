@@ -26,7 +26,7 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 	public SpellCastResult CheckCast()
 	{
 		if (ExplTargetUnit)
-			if (ExplTargetUnit.GetTypeId() != TypeId.Player)
+			if (ExplTargetUnit.TypeId != TypeId.Player)
 				return SpellCastResult.BadTargets;
 
 		return SpellCastResult.SpellCastOk;

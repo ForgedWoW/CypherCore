@@ -16,7 +16,7 @@ public class npc_icycle_dm : NullCreatureAI
 	public npc_icycle_dm(Creature creature) : base(creature)
 	{
 		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable | UnitFlags.Pacified);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.SetDisplayId(28470);
 	}
 

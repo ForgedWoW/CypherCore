@@ -74,10 +74,10 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case GNOCreatureIds.BlastmasterEmiShortfuse:
-					uiBlastmasterEmiShortfuseGUID = creature.GetGUID();
+					uiBlastmasterEmiShortfuseGUID = creature.GUID;
 
 					break;
 			}
@@ -85,14 +85,14 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
 
 		public override void OnGameObjectCreate(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case DataTypes64.GoCaveInLeft:
-					uiCaveInLeftGUID = go.GetGUID();
+					uiCaveInLeftGUID = go.GUID;
 
 					break;
 				case DataTypes64.GoCaveInRight:
-					uiCaveInRightGUID = go.GetGUID();
+					uiCaveInRightGUID = go.GUID;
 
 					break;
 			}
@@ -103,7 +103,7 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
 			var creature = unit.ToCreature();
 
 			if (creature)
-				switch (creature.GetEntry())
+				switch (creature.Entry)
 				{
 					case GNOCreatureIds.ViciousFallout:
 						SetBossState(DataTypes.ViciousFallout, EncounterState.Done);

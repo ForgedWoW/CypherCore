@@ -41,7 +41,7 @@ internal class spell_warl_soul_swap_dot_marker : SpellScript, IHasSpellEffects
 
 		var appliedAuras = swapVictim.GetAppliedAurasQuery();
 
-		foreach (var itr in appliedAuras.HasCasterGuid(warlock.GetGUID()).HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
+		foreach (var itr in appliedAuras.HasCasterGuid(warlock.GUID).HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
 		{
 			var spellProto = itr.Base.SpellInfo;
 

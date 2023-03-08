@@ -61,7 +61,7 @@ namespace Game.Loots
                 if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
                     continue;
 
-                Loot loot = new(lootOwner.GetMap(), lootOwner.GetGUID(), type, null);
+                Loot loot = new(lootOwner.GetMap(), lootOwner.GUID, type, null);
                 loot.SetItemContext(context);
                 loot.SetDungeonEncounterId(dungeonEncounterId);
                 loot.GenerateMoneyLoot(minMoney, maxMoney);
@@ -81,7 +81,7 @@ namespace Game.Loots
                 if (loot.IsLooted())
                     continue;
 
-                personalLoot[looter.GetGUID()] = loot;
+                personalLoot[looter.GUID] = loot;
             }
 
             return personalLoot;

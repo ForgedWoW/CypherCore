@@ -22,7 +22,7 @@ public class spell_dru_maim : SpellScript, ISpellAfterCast, ISpellOnTakePower
 
 		Caster.CastSpell(target, MaimSpells.MAIM_STUN, true);
 
-		var maimStun = target.GetAura(MaimSpells.MAIM_STUN, Caster.GetGUID());
+		var maimStun = target.GetAura(MaimSpells.MAIM_STUN, Caster.GUID);
 
 		if (maimStun != null)
 			maimStun.SetDuration(_usedComboPoints * 1000);

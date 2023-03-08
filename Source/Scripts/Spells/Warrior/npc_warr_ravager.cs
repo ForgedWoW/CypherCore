@@ -20,11 +20,11 @@ public class npc_warr_ravager : ScriptedAI
 	{
 		me.SetDisplayId(RAVAGER_DISPLAYID);
 		me.CastSpell(me, RAVAGER_VISUAL, true);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.AddUnitState(UnitState.Root);
 		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.CanSwim | UnitFlags.PlayerControlled);
 
-		if (summoner == null || !summoner.IsPlayer())
+		if (summoner == null || !summoner.IsPlayer)
 			return;
 
 		var player = summoner.ToPlayer();

@@ -20,7 +20,7 @@ internal static class WGConst
 
 	public static BfWGCoordGY[] WGGraveYard =
 	{
-		new(5104.750f, 2300.940f, 368.579f, 0.733038f, 1329, WGGossipText.GYNE, TeamId.Neutral), new(5099.120f, 3466.036f, 368.484f, 5.317802f, 1330, WGGossipText.GYNW, TeamId.Neutral), new(4314.648f, 2408.522f, 392.642f, 6.268125f, 1333, WGGossipText.GYSE, TeamId.Neutral), new(4331.716f, 3235.695f, 390.251f, 0.008500f, 1334, WGGossipText.GYSW, TeamId.Neutral), new(5537.986f, 2897.493f, 517.057f, 4.819249f, 1285, WGGossipText.GYKeep, TeamId.Neutral), new(5032.454f, 3711.382f, 372.468f, 3.971623f, 1331, WGGossipText.GYHorde, TeamId.Horde), new(5140.790f, 2179.120f, 390.950f, 1.972220f, 1332, WGGossipText.GYAlliance, TeamId.Alliance)
+		new(5104.750f, 2300.940f, 368.579f, 0.733038f, 1329, WGGossipText.GYNE, TeamIds.Neutral), new(5099.120f, 3466.036f, 368.484f, 5.317802f, 1330, WGGossipText.GYNW, TeamIds.Neutral), new(4314.648f, 2408.522f, 392.642f, 6.268125f, 1333, WGGossipText.GYSE, TeamIds.Neutral), new(4331.716f, 3235.695f, 390.251f, 0.008500f, 1334, WGGossipText.GYSW, TeamIds.Neutral), new(5537.986f, 2897.493f, 517.057f, 4.819249f, 1285, WGGossipText.GYKeep, TeamIds.Neutral), new(5032.454f, 3711.382f, 372.468f, 3.971623f, 1331, WGGossipText.GYHorde, TeamIds.Horde), new(5140.790f, 2179.120f, 390.950f, 1.972220f, 1332, WGGossipText.GYAlliance, TeamIds.Alliance)
 	};
 
 	public static WorldStates[] ClockWorldState =

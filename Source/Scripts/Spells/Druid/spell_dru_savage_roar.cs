@@ -14,7 +14,7 @@ internal class spell_dru_savage_roar : SpellScript, ISpellCheckCast
 	{
 		var caster = Caster;
 
-		if (caster.GetShapeshiftForm() != ShapeShiftForm.CatForm)
+		if (caster.ShapeshiftForm != ShapeShiftForm.CatForm)
 			return SpellCastResult.OnlyShapeshift;
 
 		return SpellCastResult.SpellCastOk;

@@ -25,10 +25,10 @@ namespace Game
 
             if (response.Result)
             {
-                if (GetPlayer().IsMounted())
-                    GetPlayer().CastSpell(player, 62875);
+                if (Player.IsMounted)
+                    Player.CastSpell(player, 62875);
                 else
-                    GetPlayer().CastSpell(player, 7266);
+                    Player.CastSpell(player, 7266);
             }
         }
 
@@ -43,7 +43,7 @@ namespace Game
 
         void HandleDuelAccepted(ObjectGuid arbiterGuid)
         {
-            Player player = GetPlayer();
+            Player player = Player;
             if (player.Duel == null || player == player.Duel.Initiator || player.Duel.State != DuelState.Challenged)
                 return;
 
@@ -51,8 +51,8 @@ namespace Game
             if (target.PlayerData.DuelArbiter != arbiterGuid)
                 return;
 
-            Log.outDebug(LogFilter.Network, "Player 1 is: {0} ({1})", player.GetGUID().ToString(), player.GetName());
-            Log.outDebug(LogFilter.Network, "Player 2 is: {0} ({1})", target.GetGUID().ToString(), target.GetName());
+            Log.outDebug(LogFilter.Network, "Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
+            Log.outDebug(LogFilter.Network, "Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
 
             long now = GameTime.GetGameTime();
             player.Duel.StartTime = now + 3;
@@ -72,7 +72,7 @@ namespace Game
 
         void HandleDuelCancelled()
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             // no duel requested
             if (player.Duel == null || player.Duel.State == DuelState.Completed)
@@ -84,7 +84,7 @@ namespace Game
                 player.CombatStopWithPets(true);
                 player.Duel.Opponent.CombatStopWithPets(true);
 
-                player.CastSpell(GetPlayer(), 7267, true);    // beg
+                player.CastSpell(Player, 7267, true);    // beg
                 player.DuelComplete(DuelCompleteType.Won);
                 return;
             }

@@ -57,7 +57,7 @@ public class AuraCollection
 
 			var casterGuid = aura.CasterGuid;
 
-			if (!casterGuid.IsEmpty())
+			if (!casterGuid.IsEmpty)
 				_byCasterGuid.Add(casterGuid, aura.Guid);
 
 			_isSingleTarget.Add(aura.IsSingleTarget, aura.Guid);
@@ -67,7 +67,7 @@ public class AuraCollection
 
 			var castId = aura.CastId;
 
-			if (!castId.IsEmpty())
+			if (!castId.IsEmpty)
 				_byCastId.Add(castId, aura.Guid);
 
 			_canBeSaved.Add(aura.CanBeSaved(), aura.Guid);
@@ -88,7 +88,7 @@ public class AuraCollection
 
 			var casterGuid = aura.CasterGuid;
 
-			if (!casterGuid.IsEmpty())
+			if (!casterGuid.IsEmpty)
 				_byCasterGuid.Remove(casterGuid, aura.Guid);
 
 			_isSingleTarget.Remove(aura.IsSingleTarget, aura.Guid);
@@ -98,7 +98,7 @@ public class AuraCollection
 
 			var castId = aura.CastId;
 
-			if (!castId.IsEmpty())
+			if (!castId.IsEmpty)
 				_byCastId.Remove(castId, aura.Guid);
 
 			_canBeSaved.Remove(aura.CanBeSaved(), aura.Guid);
@@ -179,7 +179,7 @@ public class AuraCollection
 		{
 			lock (_collection._auras)
 			{
-				if (!caster.IsEmpty() && _collection._byCasterGuid.TryGetValue(caster, out var result))
+				if (!caster.IsEmpty && _collection._byCasterGuid.TryGetValue(caster, out var result))
 					Sync(result);
 			}
 
@@ -283,7 +283,7 @@ public class AuraCollection
 		{
 			lock (_collection._auras)
 			{
-				if (!id.IsEmpty() && _collection._byCastId.TryGetValue(id, out var result))
+				if (!id.IsEmpty && _collection._byCastId.TryGetValue(id, out var result))
 					Sync(result);
 			}
 

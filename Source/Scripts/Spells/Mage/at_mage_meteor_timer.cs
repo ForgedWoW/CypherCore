@@ -26,8 +26,8 @@ public class at_mage_meteor_timer : AreaTriggerAI
 
 		if (tempSumm != null)
 		{
-			tempSumm.SetFaction(caster.GetFaction());
-			tempSumm.SetSummonerGUID(caster.GetGUID());
+			tempSumm.Faction = caster.Faction;
+			tempSumm.SetSummonerGUID(caster.GUID);
 			PhasingHandler.InheritPhaseShift(tempSumm, caster);
 			caster.CastSpell(tempSumm, MageSpells.METEOR_VISUAL, true);
 		}
@@ -44,8 +44,8 @@ public class at_mage_meteor_timer : AreaTriggerAI
 
 		if (tempSumm != null)
 		{
-			tempSumm.SetFaction(caster.GetFaction());
-			tempSumm.SetSummonerGUID(caster.GetGUID());
+			tempSumm.Faction = caster.Faction;
+			tempSumm.SetSummonerGUID(caster.GUID);
 			PhasingHandler.InheritPhaseShift(tempSumm, caster);
 			caster.CastSpell(tempSumm, MageSpells.METEOR_DAMAGE, true);
 		}

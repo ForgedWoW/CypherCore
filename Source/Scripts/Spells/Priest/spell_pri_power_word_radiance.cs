@@ -76,7 +76,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 	{
 		var unit = obj.ToUnit();
 
-		return unit != null && !unit.HasAura(PriestSpells.ATONEMENT_TRIGGERED, Caster.GetGUID());
+		return unit != null && !unit.HasAura(PriestSpells.ATONEMENT_TRIGGERED, Caster.GUID);
 	}
 
 	// Returns true if obj is a unit and is injured

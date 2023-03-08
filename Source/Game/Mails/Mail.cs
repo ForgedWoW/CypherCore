@@ -68,7 +68,7 @@ namespace Game.Mails
         public MailReceiver(Player receiver)
         {
             m_receiver = receiver;
-            m_receiver_lowguid = receiver.GetGUID().GetCounter();            
+            m_receiver_lowguid = receiver.GUID.Counter;            
         }
 
         public MailReceiver(Player receiver, ulong receiver_lowguid)
@@ -76,15 +76,15 @@ namespace Game.Mails
             m_receiver = receiver;
             m_receiver_lowguid = receiver_lowguid;
 
-            Cypher.Assert(!receiver || receiver.GetGUID().GetCounter() == receiver_lowguid);
+            Cypher.Assert(!receiver || receiver.GUID.Counter == receiver_lowguid);
         }
 
         public MailReceiver(Player receiver, ObjectGuid receiverGuid)
         {
             m_receiver = receiver;
-            m_receiver_lowguid = receiverGuid.GetCounter();
+            m_receiver_lowguid = receiverGuid.Counter;
 
-            Cypher.Assert(!receiver || receiver.GetGUID() == receiverGuid);
+            Cypher.Assert(!receiver || receiver.GUID == receiverGuid);
         }
 
         public Player GetPlayer() { return m_receiver; }
@@ -106,24 +106,24 @@ namespace Game.Mails
         public MailSender(WorldObject sender, MailStationery stationery = MailStationery.Default)
         {
             m_stationery = stationery;
-            switch (sender.GetTypeId())
+            switch (sender.TypeId)
             {
                 case TypeId.Unit:
                     m_messageType = MailMessageType.Creature;
-                    m_senderId = sender.GetEntry();
+                    m_senderId = sender.Entry;
                     break;
                 case TypeId.GameObject:
                     m_messageType = MailMessageType.Gameobject;
-                    m_senderId = sender.GetEntry();
+                    m_senderId = sender.Entry;
                     break;
                 case TypeId.Player:
                     m_messageType = MailMessageType.Normal;
-                    m_senderId = sender.GetGUID().GetCounter();
+                    m_senderId = sender.GUID.Counter;
                     break;
                 default:
                     m_messageType = MailMessageType.Normal;
                     m_senderId = 0;                                 // will show mail from not existed player
-                    Log.outError(LogFilter.Server, "MailSender:MailSender - Mail have unexpected sender typeid ({0})", sender.GetTypeId());
+                    Log.outError(LogFilter.Server, "MailSender:MailSender - Mail have unexpected sender typeid ({0})", sender.TypeId);
                     break;
             }
         }
@@ -152,8 +152,8 @@ namespace Game.Mails
         public MailSender(Player sender)
         {
             m_messageType = MailMessageType.Normal;
-            m_stationery = sender.IsGameMaster() ? MailStationery.Gm : MailStationery.Default;
-            m_senderId = sender.GetGUID().GetCounter();
+            m_stationery = sender.IsGameMaster ? MailStationery.Gm : MailStationery.Default;
+            m_senderId = sender.GUID.Counter;
         }
 
         public MailSender(uint senderEntry)

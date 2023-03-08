@@ -21,16 +21,16 @@ namespace Game
                 return;
             }
 
-            if (!GetPlayer().IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+            if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
                 return;
 
-            if (GetPlayer().IsValidAttackTarget(player))
+            if (Player.IsValidAttackTarget(player))
                 return;
 
             InspectResult inspectResult = new();
             inspectResult.DisplayInfo.Initialize(player);
 
-            if (GetPlayer().CanBeGameMaster() || WorldConfig.GetIntValue(WorldCfg.TalentsInspecting) + (GetPlayer().GetEffectiveTeam() == player.GetEffectiveTeam() ? 1 : 0) > 1)
+            if (Player.CanBeGameMaster || WorldConfig.GetIntValue(WorldCfg.TalentsInspecting) + (Player.EffectiveTeam == player.EffectiveTeam ? 1 : 0) > 1)
             {
                 var talents = player.GetTalentMap(player.GetActiveTalentGroup());
                 foreach (var v in talents)
@@ -43,9 +43,9 @@ namespace Game
             inspectResult.TalentTraits = new TraitInspectInfo();
             inspectResult.TalentTraits.Config = new TraitConfigPacket(player.GetTraitConfig((int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID));
             inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID;
-            inspectResult.TalentTraits.Level = (int)player.GetLevel();
+            inspectResult.TalentTraits.Level = (int)player.Level;
 
-            Guild guild = Global.GuildMgr.GetGuildById(player.GetGuildId());
+            Guild guild = Global.GuildMgr.GetGuildById(player.GuildId);
             if (guild)
             {
                 InspectGuildData guildData;
@@ -80,17 +80,17 @@ namespace Game
             Player player = Global.ObjAccessor.GetPlayer(_player, inspect.Guid);
             if (!player)
             {
-                Log.outDebug(LogFilter.Network, "WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", GetPlayer().GetGUID().ToString(), inspect.Guid.ToString());
+                Log.outDebug(LogFilter.Network, "WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", Player.GUID.ToString(), inspect.Guid.ToString());
                 return;
             }
 
-            if (!GetPlayer().IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+            if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
                 return;
 
-            if (GetPlayer().IsValidAttackTarget(player))
+            if (Player.IsValidAttackTarget(player))
                 return;
 
-            player.SendRespondInspectAchievements(GetPlayer());
+            player.SendRespondInspectAchievements(Player);
         }
     }
 }

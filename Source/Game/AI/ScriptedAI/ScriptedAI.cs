@@ -57,7 +57,7 @@ namespace Game.AI
         public void DoStartMovement(Unit target, float distance = 0.0f, float angle = 0.0f)
         {
             if (target != null)
-                me.GetMotionMaster().MoveChase(target, distance, angle);
+                me.                MotionMaster.MoveChase(target, distance, angle);
         }
 
         //Start no movement on victim
@@ -66,7 +66,8 @@ namespace Game.AI
             if (target == null)
                 return;
 
-            me.GetMotionMaster().MoveIdle();
+            me.
+            MotionMaster.MoveIdle();
         }
 
         //Stop attack of current victim
@@ -94,7 +95,7 @@ namespace Game.AI
 
             if (!CliDB.SoundKitStorage.ContainsKey(soundId))
             {
-                Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
                 return;
             }
 
@@ -192,14 +193,14 @@ namespace Game.AI
 
             who.CombatStop(true);
             who.DoNotReacquireSpellFocusTarget();
-            who.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+            who.            MotionMaster.Clear(MovementGeneratorPriority.Normal);
 
             if (reset)
             {
                 who.LoadCreaturesAddon();
                 who.SetTappedBy(null);
                 who.ResetPlayerDamageReq();
-                who.SetLastDamagedTime(0);
+                who.                LastDamagedTime = 0;
                 who.SetCannotReachTarget(false);
             }
         }
@@ -213,7 +214,7 @@ namespace Game.AI
         /// <param name="reset"></param>
         void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
         {
-            Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {me.GetGUID()}. Debug info: {me.GetDebugInfo()}");
+            Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {me.GUID}. Debug info: {me.GetDebugInfo()}");
 
             List<Creature> creatures = new();
             AllCreaturesOfEntryInRange check = new(me, entry, maxSearchRange);
@@ -351,7 +352,7 @@ namespace Game.AI
             if (player != null)
                 player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
             else
-                Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoTeleportPlayer: Creature {me.GetGUID()} Tried to teleport non-player unit ({unit.GetGUID()}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
+                Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoTeleportPlayer: Creature {me.GUID} Tried to teleport non-player unit ({unit.GUID}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
         }
 
         public void DoTeleportAll(float x, float y, float z, float o)
@@ -362,7 +363,7 @@ namespace Game.AI
 
             var PlayerList = map.GetPlayers();
             foreach (var player in PlayerList)
-                if (player.IsAlive())
+                if (player.IsAlive)
                     player.TeleportTo(me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
 
         }
@@ -413,7 +414,7 @@ namespace Game.AI
         {
             if (loadDefault)
             {
-                me.LoadEquipment(me.GetOriginalEquipmentId(), true);
+                me.LoadEquipment(me.OriginalEquipmentId, true);
                 return;
             }
 
@@ -520,10 +521,11 @@ namespace Game.AI
 
         public void _Reset()
         {
-            if (!me.IsAlive())
+            if (!me.IsAlive)
                 return;
 
-            me.SetCombatPulseDelay(0);
+            me.
+            CombatPulseDelay = 0;
             me.ResetLootMode();
             _events.Reset();
             summons.DespawnAll();
@@ -554,7 +556,8 @@ namespace Game.AI
                 instance.SetBossState(_bossId, EncounterState.InProgress);
             }
 
-            me.SetCombatPulseDelay(5);
+            me.
+            CombatPulseDelay = 5;
             me.SetActive(true);
             DoZoneInCombat();
             ScheduleTasks();
@@ -565,28 +568,28 @@ namespace Game.AI
             foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
             {
                 Unit target = pair.Value.GetOther(me);
-                if (target.IsControlledByPlayer() && !IsInBoundary(target.Location))
+                if (target.IsControlledByPlayer && !IsInBoundary(target.Location))
                     target.NearTeleportTo(me.Location);
             }
         }
 
         void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
         {
-            Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {me.GetGUID()}. Debug info: {me.GetDebugInfo()}");
+            Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {me.GUID}. Debug info: {me.GetDebugInfo()}");
 
             List<Creature> creatures = me.GetCreatureListWithEntryInGrid(entry, maxSearchRange);
             foreach (Creature creature in creatures)
             {
                 creature.CombatStop(true);
                 creature.DoNotReacquireSpellFocusTarget();
-                creature.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+                creature.                MotionMaster.Clear(MovementGeneratorPriority.Normal);
 
                 if (reset)
                 {
                     creature.LoadCreaturesAddon();
                     creature.SetTappedBy(null);
                     creature.ResetPlayerDamageReq();
-                    creature.SetLastDamagedTime(0);
+                    creature.                    LastDamagedTime = 0;
                     creature.SetCannotReachTarget(false);
                 }
             }
@@ -595,7 +598,7 @@ namespace Game.AI
         public override void JustSummoned(Creature summon)
         {
             summons.Summon(summon);
-            if (me.IsEngaged())
+            if (me.IsEngaged)
                 DoZoneInCombat(summon);
         }
 
@@ -635,7 +638,7 @@ namespace Game.AI
         {
             if (delayToRespawn < TimeSpan.FromSeconds(2))
             {
-                Log.outError(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called with delay of {delayToRespawn} seconds, defaulting to 2 (me: {me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called with delay of {delayToRespawn} seconds, defaulting to 2 (me: {me.GUID})");
                 delayToRespawn = TimeSpan.FromSeconds(2);
             }
 
@@ -645,7 +648,7 @@ namespace Game.AI
             TempSummon whoSummon = who.ToTempSummon();
             if (whoSummon)
             {
-                Log.outWarn(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called on a temporary summon (who: {who.GetGUID()})");
+                Log.outWarn(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called on a temporary summon (who: {who.GUID})");
                 whoSummon.UnSummon();
                 return;
             }
@@ -683,7 +686,7 @@ namespace Game.AI
 
         void _Reset()
         {
-            if (!me.IsAlive())
+            if (!me.IsAlive)
                 return;
 
             _events.Reset();
@@ -759,14 +762,14 @@ namespace Game.AI
             _me = creature;
         }
 
-        public void Summon(Creature summon) { Add(summon.GetGUID()); }
+        public void Summon(Creature summon) { Add(summon.GUID); }
 
         public void DoZoneInCombat(uint entry = 0)
         {
             foreach (var id in this)
             {
                 Creature summon = ObjectAccessor.GetCreature(_me, id);
-                if (summon && summon.IsAIEnabled() && (entry == 0 || summon.GetEntry() == entry))
+                if (summon && summon.IsAIEnabled && (entry == 0 || summon.Entry == entry))
                 {
                     summon.GetAI().DoZoneInCombat(null);
                 }
@@ -780,7 +783,7 @@ namespace Game.AI
                 Creature summon = ObjectAccessor.GetCreature(_me, id);
                 if (!summon)
                     Remove(id);
-                else if (summon.GetEntry() == entry)
+                else if (summon.Entry == entry)
                 {
                     Remove(id);
                     summon.DespawnOrUnsummon();
@@ -799,7 +802,7 @@ namespace Game.AI
             }
         }
 
-        public void Despawn(Creature summon) { Remove(summon.GetGUID()); }
+        public void Despawn(Creature summon) { Remove(summon.GUID); }
 
         public void DespawnIf(ICheck<ObjectGuid> predicate)
         {
@@ -841,7 +844,7 @@ namespace Game.AI
             foreach (var id in this)
             {
                 Creature summon = ObjectAccessor.GetCreature(_me, id);
-                if (summon && summon.GetEntry() == entry)
+                if (summon && summon.Entry == entry)
                     return true;
             }
 
@@ -853,7 +856,7 @@ namespace Game.AI
             foreach (var guid in summons)
             {
                 Creature summon = ObjectAccessor.GetCreature(_me, guid);
-                if (summon && summon.IsAIEnabled())
+                if (summon && summon.IsAIEnabled)
                     summon.GetAI().DoAction(action);
             }
         }
@@ -868,6 +871,6 @@ namespace Game.AI
             _entry = entry;
         }
 
-        public bool Invoke(ObjectGuid guid) { return guid.GetEntry() == _entry; }
+        public bool Invoke(ObjectGuid guid) { return guid.Entry == _entry; }
     }
 }

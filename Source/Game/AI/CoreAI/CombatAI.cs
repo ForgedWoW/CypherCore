@@ -188,7 +188,7 @@ namespace Game.AI
         public ArcherAI(Creature creature) : base(creature)
         {
             if (creature.Spells[0] == 0)
-                Log.outError(LogFilter.ScriptsAi, $"ArcherAI set for creature with spell1=0. AI will do nothing ({me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"ArcherAI set for creature with spell1=0. AI will do nothing ({me.GUID})");
 
             var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.GetMap().GetDifficultyID());
             _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
@@ -208,16 +208,16 @@ namespace Game.AI
             if (me.IsWithinCombatRange(who, _minRange))
             {
                 if (me.Attack(who, true) && !who.IsFlying())
-                    me.GetMotionMaster().MoveChase(who);
+                    me.                    MotionMaster.MoveChase(who);
             }
             else
             {
                 if (me.Attack(who, false) && !who.IsFlying())
-                    me.GetMotionMaster().MoveChase(who, me.CombatDistance);
+                    me.                    MotionMaster.MoveChase(who, me.CombatDistance);
             }
 
             if (who.IsFlying())
-                me.GetMotionMaster().MoveIdle();
+                me.                MotionMaster.MoveIdle();
         }
 
         public override void UpdateAI(uint diff)
@@ -239,7 +239,7 @@ namespace Game.AI
         public TurretAI(Creature creature) : base(creature)
         {
             if (creature.Spells[0] == 0)
-                Log.outError(LogFilter.Server, $"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GetGUID()})");
+                Log.outError(LogFilter.Server, $"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
 
             var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.GetMap().GetDifficultyID());
             _minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;
@@ -310,7 +310,7 @@ namespace Game.AI
 
         public override void OnCharmed(bool isNew)
         {
-            bool charmed = me.IsCharmed();
+            bool charmed = me.IsCharmed;
             if (!me.GetVehicleKit().IsVehicleInUse() && !charmed && _hasConditions)//was used and has conditions
                 _doDismiss = true;//needs reset
             else if (charmed)
@@ -321,7 +321,7 @@ namespace Game.AI
 
         void LoadConditions()
         {
-            _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, me.GetEntry());
+            _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, me.Entry);
         }
 
         void CheckConditions(uint diff)
@@ -342,7 +342,7 @@ namespace Game.AI
                             Player player = passenger.ToPlayer();
                             if (player)
                             {
-                                if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.GetEntry(), player, me))
+                                if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.Entry, player, me))
                                 {
                                     player.ExitVehicle();
                                     return;//check other pessanger in next tick

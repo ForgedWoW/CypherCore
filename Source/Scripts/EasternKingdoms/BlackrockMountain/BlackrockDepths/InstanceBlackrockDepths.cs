@@ -152,56 +152,56 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreatureIds.Emperor:
-					EmperorGUID = creature.GetGUID();
+					EmperorGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Phalanx:
-					PhalanxGUID = creature.GetGUID();
+					PhalanxGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Moira:
-					MoiraGUID = creature.GetGUID();
+					MoiraGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Coren:
-					CorenGUID = creature.GetGUID();
+					CorenGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Doomrel:
-					TombBossGUIDs[0] = creature.GetGUID();
+					TombBossGUIDs[0] = creature.GUID;
 
 					break;
 				case CreatureIds.Doperel:
-					TombBossGUIDs[1] = creature.GetGUID();
+					TombBossGUIDs[1] = creature.GUID;
 
 					break;
 				case CreatureIds.Haterel:
-					TombBossGUIDs[2] = creature.GetGUID();
+					TombBossGUIDs[2] = creature.GUID;
 
 					break;
 				case CreatureIds.Vilerel:
-					TombBossGUIDs[3] = creature.GetGUID();
+					TombBossGUIDs[3] = creature.GUID;
 
 					break;
 				case CreatureIds.Seethrel:
-					TombBossGUIDs[4] = creature.GetGUID();
+					TombBossGUIDs[4] = creature.GUID;
 
 					break;
 				case CreatureIds.Gloomrel:
-					TombBossGUIDs[5] = creature.GetGUID();
+					TombBossGUIDs[5] = creature.GUID;
 
 					break;
 				case CreatureIds.Angerrel:
-					TombBossGUIDs[6] = creature.GetGUID();
+					TombBossGUIDs[6] = creature.GUID;
 
 					break;
 				case CreatureIds.Magmus:
-					MagmusGUID = creature.GetGUID();
+					MagmusGUID = creature.GUID;
 
-					if (!creature.IsAlive())
+					if (!creature.IsAlive)
 						HandleGameObject(GetGuidData(DataTypes.DataThroneDoor), true); // if Magmus is dead open door to last boss
 
 					break;
@@ -210,58 +210,58 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 
 		public override void OnGameObjectCreate(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectIds.Arena1:
-					GoArena1GUID = go.GetGUID();
+					GoArena1GUID = go.GUID;
 
 					break;
 				case GameObjectIds.Arena2:
-					GoArena2GUID = go.GetGUID();
+					GoArena2GUID = go.GUID;
 
 					break;
 				case GameObjectIds.Arena3:
-					GoArena3GUID = go.GetGUID();
+					GoArena3GUID = go.GUID;
 
 					break;
 				case GameObjectIds.Arena4:
-					GoArena4GUID = go.GetGUID();
+					GoArena4GUID = go.GUID;
 
 					break;
 				case GameObjectIds.ShadowLock:
-					GoShadowLockGUID = go.GetGUID();
+					GoShadowLockGUID = go.GUID;
 
 					break;
 				case GameObjectIds.ShadowMechanism:
-					GoShadowMechGUID = go.GetGUID();
+					GoShadowMechGUID = go.GUID;
 
 					break;
 				case GameObjectIds.ShadowGiantDoor:
-					GoShadowGiantGUID = go.GetGUID();
+					GoShadowGiantGUID = go.GUID;
 
 					break;
 				case GameObjectIds.ShadowDummy:
-					GoShadowDummyGUID = go.GetGUID();
+					GoShadowDummyGUID = go.GUID;
 
 					break;
 				case GameObjectIds.BarKegShot:
-					GoBarKegGUID = go.GetGUID();
+					GoBarKegGUID = go.GUID;
 
 					break;
 				case GameObjectIds.BarKegTrap:
-					GoBarKegTrapGUID = go.GetGUID();
+					GoBarKegTrapGUID = go.GUID;
 
 					break;
 				case GameObjectIds.BarDoor:
-					GoBarDoorGUID = go.GetGUID();
+					GoBarDoorGUID = go.GUID;
 
 					break;
 				case GameObjectIds.TombEnter:
-					GoTombEnterGUID = go.GetGUID();
+					GoTombEnterGUID = go.GUID;
 
 					break;
 				case GameObjectIds.TombExit:
-					GoTombExitGUID = go.GetGUID();
+					GoTombExitGUID = go.GUID;
 
 					if (GhostKillCount >= MiscConst.TombOfSevenBossNum)
 						HandleGameObject(ObjectGuid.Empty, true, go);
@@ -270,35 +270,35 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 
 					break;
 				case GameObjectIds.Lyceum:
-					GoLyceumGUID = go.GetGUID();
+					GoLyceumGUID = go.GUID;
 
 					break;
 				case GameObjectIds.SfS:
-					GoSFSGUID = go.GetGUID();
+					GoSFSGUID = go.GUID;
 
 					break;
 				case GameObjectIds.SfN:
-					GoSFNGUID = go.GetGUID();
+					GoSFNGUID = go.GUID;
 
 					break;
 				case GameObjectIds.GolemRoomN:
-					GoGolemNGUID = go.GetGUID();
+					GoGolemNGUID = go.GUID;
 
 					break;
 				case GameObjectIds.GolemRoomS:
-					GoGolemSGUID = go.GetGUID();
+					GoGolemSGUID = go.GUID;
 
 					break;
 				case GameObjectIds.ThroneRoom:
-					GoThroneGUID = go.GetGUID();
+					GoThroneGUID = go.GUID;
 
 					break;
 				case GameObjectIds.ChestSeven:
-					GoChestGUID = go.GetGUID();
+					GoChestGUID = go.GUID;
 
 					break;
 				case GameObjectIds.SpectralChalice:
-					GoSpectralChaliceGUID = go.GetGUID();
+					GoSpectralChaliceGUID = go.GUID;
 
 					break;
 			}
@@ -311,7 +311,7 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 				case DataTypes.DataEvenstarter:
 					TombEventStarterGUID = data;
 
-					if (TombEventStarterGUID.IsEmpty())
+					if (TombEventStarterGUID.IsEmpty)
 						TombOfSevenReset(); //reset
 					else
 						TombOfSevenStart(); //start
@@ -432,7 +432,7 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 
 		public override void Update(uint diff)
 		{
-			if (!TombEventStarterGUID.IsEmpty() &&
+			if (!TombEventStarterGUID.IsEmpty &&
 				GhostKillCount < MiscConst.TombOfSevenBossNum)
 			{
 				if (TombTimer <= diff)
@@ -451,7 +451,7 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 						var boss = Instance.GetCreature(TombBossGUIDs[i]);
 
 						if (boss)
-							if (!boss.IsAlive())
+							if (!boss.IsAlive)
 								GhostKillCount = i + 1u;
 					}
 				}
@@ -462,20 +462,20 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 			}
 
 			if (GhostKillCount >= MiscConst.TombOfSevenBossNum &&
-				!TombEventStarterGUID.IsEmpty())
+				!TombEventStarterGUID.IsEmpty)
 				TombOfSevenEnd();
 		}
 
 		private void TombOfSevenEvent()
 		{
 			if (GhostKillCount < MiscConst.TombOfSevenBossNum &&
-				!TombBossGUIDs[TombEventCounter].IsEmpty())
+				!TombBossGUIDs[TombEventCounter].IsEmpty)
 			{
 				var boss = Instance.GetCreature(TombBossGUIDs[TombEventCounter]);
 
 				if (boss)
 				{
-					boss.SetFaction((uint)FactionTemplates.DarkIronDwarves);
+					boss.Faction = (uint)FactionTemplates.DarkIronDwarves;
 					boss.SetImmuneToPC(false);
 					var target = boss.SelectNearestTarget(500);
 
@@ -496,10 +496,10 @@ internal class instance_blackrock_depths : InstanceMapScript, IInstanceMapGetIns
 
 				if (boss)
 				{
-					if (!boss.IsAlive())
+					if (!boss.IsAlive)
 						boss.Respawn();
 					else
-						boss.SetFaction((uint)FactionTemplates.Friendly);
+						boss.Faction = (uint)FactionTemplates.Friendly;
 				}
 			}
 

@@ -17,7 +17,7 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 
 		if (target != null)
 		{
-			var diseases = target.GetDiseasesByCaster(Caster.GetGUID());
+			var diseases = target.GetDiseasesByCaster(Caster.GUID);
 			var requiredDiseases = (byte)(Caster.HasAura(152281) ? 1 : 2);
 
 			if (diseases < requiredDiseases)
@@ -57,7 +57,7 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 						break;
 				}
 
-			HitUnit.GetDiseasesByCaster(Caster.GetGUID(), true);
+			HitUnit.GetDiseasesByCaster(Caster.GUID, true);
 		}
 	}
 }

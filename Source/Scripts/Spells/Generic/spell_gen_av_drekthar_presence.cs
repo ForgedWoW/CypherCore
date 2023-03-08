@@ -12,7 +12,7 @@ internal class spell_gen_av_drekthar_presence : AuraScript, IAuraCheckAreaTarget
 {
 	public bool CheckAreaTarget(Unit target)
 	{
-		return (target.GetEntry()) switch
+		return (target.Entry) switch
 		{
 			// alliance
 			// Dun Baldar North Marshal

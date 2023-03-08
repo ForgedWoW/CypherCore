@@ -54,6 +54,66 @@ public class AreaTrigger : WorldObject
 	uint _periodicProcTimer;
 	uint _basePeriodicProcTimer;
 
+	public override uint Faction
+	{
+		get
+		{
+			var caster = GetCaster();
+
+			if (caster)
+				return caster.Faction;
+
+			return 0;
+		}
+	}
+
+	public override ObjectGuid OwnerGUID => CasterGuid;
+
+	public bool IsServerSide => _areaTriggerTemplate.Id.IsServerSide;
+
+	public bool IsRemoved => _isRemoved;
+
+	public uint SpellId => _areaTriggerData.SpellID;
+
+	public AuraEffect AuraEff => _aurEff;
+
+	public uint TimeSinceCreated => _timeSinceCreated;
+
+	public uint TimeToTarget => _areaTriggerData.TimeToTarget;
+
+	public uint TimeToTargetScale => _areaTriggerData.TimeToTargetScale;
+
+	public int Duration => _duration;
+
+	public int TotalDuration => _totalDuration;
+
+	public HashSet<ObjectGuid> InsideUnits => _insideUnits;
+
+	public AreaTriggerCreateProperties CreateProperties => _areaTriggerCreateProperties;
+
+	public ObjectGuid CasterGuid => _areaTriggerData.Caster;
+
+	public AreaTriggerShapeInfo Shape => _shape;
+
+	public Vector3 RollPitchYaw => _rollPitchYaw;
+
+	public Vector3 TargetRollPitchYaw => _targetRollPitchYaw;
+
+	public bool HasSplines => !_spline.Empty();
+
+	public Spline<int> Spline => _spline;
+
+	public uint ElapsedTimeForMovement => TimeSinceCreated;
+	// @todo: research the right value, in sniffs both timers are nearly identical
+
+	public AreaTriggerOrbitInfo CircularMovementInfo => _orbitInfo;
+
+	private float Progress => TimeSinceCreated < TimeToTargetScale ? (float)TimeSinceCreated / TimeToTargetScale : 1.0f;
+
+	private Unit Target => Global.ObjAccessor.GetUnit(this, _targetGuid);
+
+	private float MaxSearchRadius => _maxSearchRadius;
+
 	public AreaTrigger() : base(false)
 	{
 		_previousCheckOrientation = float.PositiveInfinity;
@@ -75,7 +135,7 @@ public class AreaTrigger : WorldObject
 		// Register the AreaTrigger for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GetGUID(), this);
+			GetMap().GetObjectsStore().Add(GUID, this);
 
 			if (_spawnId != 0)
 				GetMap().GetAreaTriggerBySpawnIdStore().Add(_spawnId, this);
@@ -106,7 +166,7 @@ public class AreaTrigger : WorldObject
 			if (_spawnId != 0)
 				GetMap().GetAreaTriggerBySpawnIdStore().Remove(_spawnId, this);
 
-			GetMap().GetObjectsStore().Remove(GetGUID());
+			GetMap().GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -147,7 +207,7 @@ public class AreaTrigger : WorldObject
 		base.Update(diff);
 		_timeSinceCreated += diff;
 
-		if (!IsServerSide())
+		if (!IsServerSide)
 		{
 			// "If" order matter here, Orbit > Attached > Splines
 			if (HasOrbit())
@@ -156,7 +216,7 @@ public class AreaTrigger : WorldObject
 			}
 			else if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
 			{
-				var target = GetTarget();
+				var target = Target;
 
 				if (target)
 					GetMap().AreaTriggerRelocation(this, target.Location.X, target.Location.Y, target.Location.Z, target.Location.Orientation);
@@ -166,9 +226,9 @@ public class AreaTrigger : WorldObject
 				UpdateSplinePosition(diff);
 			}
 
-			if (GetDuration() != -1)
+			if (Duration != -1)
 			{
-				if (GetDuration() > diff)
+				if (Duration > diff)
 				{
 					_UpdateDuration((int)(_duration - diff));
 				}
@@ -224,25 +284,15 @@ public class AreaTrigger : WorldObject
 		if (_spawnId != 0)
 			return Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(_spawnId).ScriptId;
 
-		if (GetCreateProperties() != null)
-			return GetCreateProperties().ScriptId;
+		if (CreateProperties != null)
+			return CreateProperties.ScriptId;
 
 		return 0;
 	}
 
 	public Unit GetCaster()
 	{
-		return Global.ObjAccessor.GetUnit(this, GetCasterGuid());
-	}
-
-	public override uint GetFaction()
-	{
-		var caster = GetCaster();
-
-		if (caster)
-			return caster.GetFaction();
-
-		return 0;
+		return Global.ObjAccessor.GetUnit(this, CasterGuid);
 	}
 
 	public void UpdateShape()
@@ -273,14 +323,14 @@ public class AreaTrigger : WorldObject
 			if (_reachedDestination)
 			{
 				AreaTriggerRePath reshapeDest = new();
-				reshapeDest.TriggerGUID = GetGUID();
+				reshapeDest.TriggerGUID = GUID;
 				SendMessageToSet(reshapeDest, true);
 			}
 
 			AreaTriggerRePath reshape = new();
-			reshape.TriggerGUID = GetGUID();
+			reshape.TriggerGUID = GUID;
 			reshape.AreaTriggerSpline = new AreaTriggerSplineInfo();
-			reshape.AreaTriggerSpline.ElapsedTimeForMovement = GetElapsedTimeForMovement();
+			reshape.AreaTriggerSpline.ElapsedTimeForMovement = ElapsedTimeForMovement;
 			reshape.AreaTriggerSpline.TimeToTarget = timeToTarget;
 			reshape.AreaTriggerSpline.Points = splinePoints;
 			SendMessageToSet(reshape, true);
@@ -351,7 +401,7 @@ public class AreaTrigger : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 
@@ -369,14 +419,9 @@ public class AreaTrigger : WorldObject
 		return (T)_ai;
 	}
 
-	public bool IsServerSide()
-	{
-		return _areaTriggerTemplate.Id.IsServerSide;
-	}
-
 	public override bool IsNeverVisibleFor(WorldObject seer)
 	{
-		return base.IsNeverVisibleFor(seer) || IsServerSide();
+		return base.IsNeverVisibleFor(seer) || IsServerSide;
 	}
 
 	public bool SetDestination(Position pos, uint timeToTarget)
@@ -392,109 +437,14 @@ public class AreaTrigger : WorldObject
 		return true;
 	}
 
-	public bool IsRemoved()
-	{
-		return _isRemoved;
-	}
-
-	public uint GetSpellId()
-	{
-		return _areaTriggerData.SpellID;
-	}
-
-	public AuraEffect GetAuraEffect()
-	{
-		return _aurEff;
-	}
-
-	public uint GetTimeSinceCreated()
-	{
-		return _timeSinceCreated;
-	}
-
-	public uint GetTimeToTarget()
-	{
-		return _areaTriggerData.TimeToTarget;
-	}
-
-	public uint GetTimeToTargetScale()
-	{
-		return _areaTriggerData.TimeToTargetScale;
-	}
-
-	public int GetDuration()
-	{
-		return _duration;
-	}
-
-	public int GetTotalDuration()
-	{
-		return _totalDuration;
-	}
-
 	public void Delay(int delaytime)
 	{
-		SetDuration(GetDuration() - delaytime);
-	}
-
-	public HashSet<ObjectGuid> GetInsideUnits()
-	{
-		return _insideUnits;
-	}
-
-	public AreaTriggerCreateProperties GetCreateProperties()
-	{
-		return _areaTriggerCreateProperties;
-	}
-
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return GetCasterGuid();
-	}
-
-	public ObjectGuid GetCasterGuid()
-	{
-		return _areaTriggerData.Caster;
-	}
-
-	public AreaTriggerShapeInfo GetShape()
-	{
-		return _shape;
-	}
-
-	public Vector3 GetRollPitchYaw()
-	{
-		return _rollPitchYaw;
-	}
-
-	public Vector3 GetTargetRollPitchYaw()
-	{
-		return _targetRollPitchYaw;
-	}
-
-	public bool HasSplines()
-	{
-		return !_spline.Empty();
-	}
-
-	public Spline<int> GetSpline()
-	{
-		return _spline;
-	}
-
-	public uint GetElapsedTimeForMovement()
-	{
-		return GetTimeSinceCreated();
-	} // @todo: research the right value, in sniffs both timers are nearly identical
-
-	public AreaTriggerOrbitInfo GetCircularMovementInfo()
-	{
-		return _orbitInfo;
+		SetDuration(Duration - delaytime);
 	}
 
 	bool Create(uint areaTriggerCreatePropertiesId, Unit caster, Unit target, SpellInfo spell, Position pos, int duration, SpellCastVisualField spellVisual, ObjectGuid castId, AuraEffect aurEff)
 	{
-		_targetGuid = target ? target.GetGUID() : ObjectGuid.Empty;
+		_targetGuid = target ? target.GUID : ObjectGuid.Empty;
 		_aurEff = aurEff;
 
 		SetMap(caster.GetMap());
@@ -521,17 +471,17 @@ public class AreaTrigger : WorldObject
 		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
 
 		if (GetTemplate() != null)
-			SetEntry(GetTemplate().Id.Id);
+			Entry = GetTemplate().Id.Id;
 
 		SetDuration(duration);
 
-		SetObjectScale(1.0f);
+		ObjectScale = 1.0f;
 
-		_shape = GetCreateProperties().Shape;
-		_maxSearchRadius = GetCreateProperties().GetMaxSearchRadius();
+		_shape = CreateProperties.Shape;
+		_maxSearchRadius = CreateProperties.GetMaxSearchRadius();
 
 		var areaTriggerData = Values.ModifyValue(_areaTriggerData);
-		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.Caster), caster.GetGUID());
+		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.Caster), caster.GUID);
 		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.CreatingEffectGUID), castId);
 
 		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.SpellID), spell.Id);
@@ -541,39 +491,39 @@ public class AreaTrigger : WorldObject
 		SetUpdateFieldValue(ref spellCastVisual.SpellXSpellVisualID, spellVisual.SpellXSpellVisualID);
 		SetUpdateFieldValue(ref spellCastVisual.ScriptVisualID, spellVisual.ScriptVisualID);
 
-		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.TimeToTargetScale), GetCreateProperties().TimeToTargetScale != 0 ? GetCreateProperties().TimeToTargetScale : _areaTriggerData.Duration);
-		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.BoundsRadius2D), GetMaxSearchRadius());
-		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.DecalPropertiesID), GetCreateProperties().DecalPropertiesId);
+		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.TimeToTargetScale), CreateProperties.TimeToTargetScale != 0 ? CreateProperties.TimeToTargetScale : _areaTriggerData.Duration);
+		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.BoundsRadius2D), MaxSearchRadius);
+		SetUpdateFieldValue(areaTriggerData.ModifyValue(_areaTriggerData.DecalPropertiesID), CreateProperties.DecalPropertiesId);
 
 		ScaleCurve extraScaleCurve = areaTriggerData.ModifyValue(_areaTriggerData.ExtraScaleCurve);
 
-		if (GetCreateProperties().ExtraScale.Structured.StartTimeOffset != 0)
-			SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.StartTimeOffset), GetCreateProperties().ExtraScale.Structured.StartTimeOffset);
+		if (CreateProperties.ExtraScale.Structured.StartTimeOffset != 0)
+			SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.StartTimeOffset), CreateProperties.ExtraScale.Structured.StartTimeOffset);
 
-		if (GetCreateProperties().ExtraScale.Structured.X != 0 || GetCreateProperties().ExtraScale.Structured.Y != 0)
+		if (CreateProperties.ExtraScale.Structured.X != 0 || CreateProperties.ExtraScale.Structured.Y != 0)
 		{
-			Vector2 point = new(GetCreateProperties().ExtraScale.Structured.X, GetCreateProperties().ExtraScale.Structured.Y);
+			Vector2 point = new(CreateProperties.ExtraScale.Structured.X, CreateProperties.ExtraScale.Structured.Y);
 			SetUpdateFieldValue(ref extraScaleCurve.ModifyValue(extraScaleCurve.Points, 0), point);
 		}
 
-		if (GetCreateProperties().ExtraScale.Structured.Z != 0 || GetCreateProperties().ExtraScale.Structured.W != 0)
+		if (CreateProperties.ExtraScale.Structured.Z != 0 || CreateProperties.ExtraScale.Structured.W != 0)
 		{
-			Vector2 point = new(GetCreateProperties().ExtraScale.Structured.Z, GetCreateProperties().ExtraScale.Structured.W);
+			Vector2 point = new(CreateProperties.ExtraScale.Structured.Z, CreateProperties.ExtraScale.Structured.W);
 			SetUpdateFieldValue(ref extraScaleCurve.ModifyValue(extraScaleCurve.Points, 1), point);
 		}
 
 		unsafe
 		{
-			if (GetCreateProperties().ExtraScale.Raw.Data[5] != 0)
-				SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.ParameterCurve), GetCreateProperties().ExtraScale.Raw.Data[5]);
+			if (CreateProperties.ExtraScale.Raw.Data[5] != 0)
+				SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.ParameterCurve), CreateProperties.ExtraScale.Raw.Data[5]);
 
-			if (GetCreateProperties().ExtraScale.Structured.OverrideActive != 0)
-				SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.OverrideActive), GetCreateProperties().ExtraScale.Structured.OverrideActive != 0);
+			if (CreateProperties.ExtraScale.Structured.OverrideActive != 0)
+				SetUpdateFieldValue(extraScaleCurve.ModifyValue(extraScaleCurve.OverrideActive), CreateProperties.ExtraScale.Structured.OverrideActive != 0);
 		}
 
 		VisualAnim visualAnim = areaTriggerData.ModifyValue(_areaTriggerData.VisualAnim);
-		SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimationDataID), GetCreateProperties().AnimId);
-		SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimKitID), GetCreateProperties().AnimKitId);
+		SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimationDataID), CreateProperties.AnimId);
+		SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.AnimKitID), CreateProperties.AnimKitId);
 
 		if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.Unk3))
 			SetUpdateFieldValue(visualAnim.ModifyValue(visualAnim.Field_C), true);
@@ -581,33 +531,33 @@ public class AreaTrigger : WorldObject
 		PhasingHandler.InheritPhaseShift(this, caster);
 
 		if (target && GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
-			MovementInfo.Transport.Guid = target.GetGUID();
+			MovementInfo.Transport.Guid = target.GUID;
 
 		UpdatePositionData();
 		SetZoneScript();
 
 		UpdateShape();
 
-		var timeToTarget = GetCreateProperties().TimeToTarget != 0 ? GetCreateProperties().TimeToTarget : _areaTriggerData.Duration;
+		var timeToTarget = CreateProperties.TimeToTarget != 0 ? CreateProperties.TimeToTarget : _areaTriggerData.Duration;
 
-		if (GetCreateProperties().OrbitInfo != null)
+		if (CreateProperties.OrbitInfo != null)
 		{
-			var orbit = GetCreateProperties().OrbitInfo;
+			var orbit = CreateProperties.OrbitInfo;
 
 			if (target && GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasAttached))
-				orbit.PathTarget = target.GetGUID();
+				orbit.PathTarget = target.GUID;
 			else
 				orbit.Center = new Vector3(pos.X, pos.Y, pos.Z);
 
 			InitOrbit(orbit, timeToTarget);
 		}
-		else if (GetCreateProperties().HasSplines())
+		else if (CreateProperties.HasSplines())
 		{
-			InitSplineOffsets(GetCreateProperties().SplinePoints, timeToTarget);
+			InitSplineOffsets(CreateProperties.SplinePoints, timeToTarget);
 		}
 
 		// movement on transport of areatriggers on unit is handled by themself
-		var transport = MovementInfo.Transport.Guid.IsEmpty() ? caster.GetTransport() : null;
+		var transport = MovementInfo.Transport.Guid.IsEmpty ? caster.Transport : null;
 
 		if (transport != null)
 		{
@@ -657,15 +607,15 @@ public class AreaTrigger : WorldObject
 
 		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, areaTriggerTemplate.Id.Id, GetMap().GenerateLowGuid(HighGuid.AreaTrigger)));
 
-		SetEntry(areaTriggerTemplate.Id.Id);
+		Entry = areaTriggerTemplate.Id.Id;
 
-		SetObjectScale(1.0f);
+		ObjectScale = 1.0f;
 
 		_shape = position.Shape;
 		_maxSearchRadius = _shape.GetMaxSearchRadius();
 
 		if (position.PhaseUseFlags != 0 || position.PhaseId != 0 || position.PhaseGroup != 0)
-			PhasingHandler.InitDbPhaseShift(GetPhaseShift(), position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
+			PhasingHandler.InitDbPhaseShift(PhaseShift, position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
 
 		UpdateShape();
 
@@ -686,11 +636,6 @@ public class AreaTrigger : WorldObject
 			SetUpdateFieldValue(Values.ModifyValue(_areaTriggerData).ModifyValue(_areaTriggerData.Duration), (uint)_duration);
 			_areaTriggerData.ClearChanged(_areaTriggerData.Duration);
 		});
-	}
-
-	float GetProgress()
-	{
-		return GetTimeSinceCreated() < GetTimeToTargetScale() ? (float)GetTimeSinceCreated() / GetTimeToTargetScale() : 1.0f;
 	}
 
 	void UpdateTargetList()
@@ -740,15 +685,15 @@ public class AreaTrigger : WorldObject
 	{
 		var check = new AnyUnitInObjectRangeCheck(this, radius, check3D);
 
-		if (IsServerSide())
+		if (IsServerSide)
 		{
 			var searcher = new PlayerListSearcher(this, targetList, check);
-			Cell.VisitGrid(this, searcher, GetMaxSearchRadius());
+			Cell.VisitGrid(this, searcher, MaxSearchRadius);
 		}
 		else
 		{
 			var searcher = new UnitListSearcher(this, targetList, check, GridType.All);
-			Cell.VisitGrid(this, searcher, GetMaxSearchRadius());
+			Cell.VisitGrid(this, searcher, MaxSearchRadius);
 		}
 	}
 
@@ -757,15 +702,15 @@ public class AreaTrigger : WorldObject
 		var radius = _shape.SphereDatas.Radius;
 
 		if (GetTemplate() != null && GetTemplate().HasFlag(AreaTriggerFlags.HasDynamicShape))
-			if (GetCreateProperties().MorphCurveId != 0)
-				radius = MathFunctions.lerp(_shape.SphereDatas.Radius, _shape.SphereDatas.RadiusTarget, Global.DB2Mgr.GetCurveValueAt(GetCreateProperties().MorphCurveId, GetProgress()));
+			if (CreateProperties.MorphCurveId != 0)
+				radius = MathFunctions.lerp(_shape.SphereDatas.Radius, _shape.SphereDatas.RadiusTarget, Global.DB2Mgr.GetCurveValueAt(CreateProperties.MorphCurveId, Progress));
 
 		SearchUnits(targetList, radius, true);
 	}
 
 	void SearchUnitInBox(List<Unit> targetList)
 	{
-		SearchUnits(targetList, GetMaxSearchRadius(), false);
+		SearchUnits(targetList, MaxSearchRadius, false);
 
 		Position boxCenter = Location;
 		float extentsX, extentsY, extentsZ;
@@ -782,7 +727,7 @@ public class AreaTrigger : WorldObject
 
 	void SearchUnitInPolygon(List<Unit> targetList)
 	{
-		SearchUnits(targetList, GetMaxSearchRadius(), false);
+		SearchUnits(targetList, MaxSearchRadius, false);
 
 		var height = _shape.PolygonDatas.Height;
 		var minZ = Location.Z - height;
@@ -793,7 +738,7 @@ public class AreaTrigger : WorldObject
 
 	void SearchUnitInCylinder(List<Unit> targetList)
 	{
-		SearchUnits(targetList, GetMaxSearchRadius(), false);
+		SearchUnits(targetList, MaxSearchRadius, false);
 
 		var height = _shape.CylinderDatas.Height;
 		var minZ = Location.Z - height;
@@ -804,7 +749,7 @@ public class AreaTrigger : WorldObject
 
 	void SearchUnitInDisk(List<Unit> targetList)
 	{
-		SearchUnits(targetList, GetMaxSearchRadius(), false);
+		SearchUnits(targetList, MaxSearchRadius, false);
 
 		var innerRadius = _shape.DiskDatas.InnerRadius;
 		var height = _shape.DiskDatas.Height;
@@ -816,7 +761,7 @@ public class AreaTrigger : WorldObject
 
 	void SearchUnitInBoundedPlane(List<Unit> targetList)
 	{
-		SearchUnits(targetList, GetMaxSearchRadius(), false);
+		SearchUnits(targetList, MaxSearchRadius, false);
 
 		Position boxCenter = Location;
 		float extentsX, extentsY;
@@ -839,10 +784,10 @@ public class AreaTrigger : WorldObject
 
 		foreach (var unit in newTargetList)
 		{
-			if (!exitUnits.Remove(unit.GetGUID())) // erase(key_type) returns number of elements erased
+			if (!exitUnits.Remove(unit.GUID)) // erase(key_type) returns number of elements erased
 				enteringUnits.Add(unit);
 
-			_insideUnits.Add(unit.GetGUID()); // if the unit is in the new target list we need to add it. This broke rain of fire.
+			_insideUnits.Add(unit.GUID); // if the unit is in the new target list we need to add it. This broke rain of fire.
 		}
 
 		// Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
@@ -853,9 +798,9 @@ public class AreaTrigger : WorldObject
 			if (player)
 			{
 				if (player.IsDebugAreaTriggers)
-					player.SendSysMessage(CypherStrings.DebugAreatriggerEntered, GetEntry());
+					player.SendSysMessage(CypherStrings.DebugAreatriggerEntered, Entry);
 
-				player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerEnter, (int)GetEntry(), 1);
+				player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerEnter, (int)Entry, 1);
 			}
 
 			DoActions(unit);
@@ -873,9 +818,9 @@ public class AreaTrigger : WorldObject
 				if (player)
 				{
 					if (player.IsDebugAreaTriggers)
-						player.SendSysMessage(CypherStrings.DebugAreatriggerLeft, GetEntry());
+						player.SendSysMessage(CypherStrings.DebugAreatriggerLeft, Entry);
 
-					player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerExit, (int)GetEntry(), 1);
+					player.UpdateQuestObjectiveProgress(QuestObjectiveType.AreaTriggerExit, (int)Entry, 1);
 				}
 
 				UndoActions(leavingUnit);
@@ -883,11 +828,6 @@ public class AreaTrigger : WorldObject
 				_ai.OnUnitExit(leavingUnit);
 			}
 		}
-	}
-
-	Unit GetTarget()
-	{
-		return Global.ObjAccessor.GetUnit(this, _targetGuid);
 	}
 
 	void UpdatePolygonOrientation()
@@ -898,7 +838,7 @@ public class AreaTrigger : WorldObject
 		if (MathFunctions.fuzzyEq(_previousCheckOrientation, newOrientation))
 			return;
 
-		_polygonVertices = GetCreateProperties().PolygonVertices;
+		_polygonVertices = CreateProperties.PolygonVertices;
 
 		var angleSin = (float)Math.Sin(newOrientation);
 		var angleCos = (float)Math.Cos(newOrientation);
@@ -991,7 +931,7 @@ public class AreaTrigger : WorldObject
 			case AreaTriggerActionUserTypes.Party:
 				return caster.IsInPartyWith(unit);
 			case AreaTriggerActionUserTypes.Caster:
-				return unit.GetGUID() == caster.GetGUID();
+				return unit.GUID == caster.GUID;
 			case AreaTriggerActionUserTypes.Any:
 			default:
 				break;
@@ -1002,18 +942,18 @@ public class AreaTrigger : WorldObject
 
 	void DoActions(Unit unit)
 	{
-		var caster = IsServerSide() ? unit : GetCaster();
+		var caster = IsServerSide ? unit : GetCaster();
 
 		if (caster != null && GetTemplate() != null)
 			foreach (var action in GetTemplate().Actions)
-				if (IsServerSide() || UnitFitToActionRequirement(unit, caster, action))
+				if (IsServerSide || UnitFitToActionRequirement(unit, caster, action))
 					switch (action.ActionType)
 					{
 						case AreaTriggerActionTypes.Cast:
 							caster.CastSpell(unit,
 											action.Param,
 											new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-												.SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast() ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
+												.SetOriginalCastId(_areaTriggerData.CreatingEffectGUID.Value.IsCast ? _areaTriggerData.CreatingEffectGUID : ObjectGuid.Empty));
 
 							break;
 						case AreaTriggerActionTypes.AddAura:
@@ -1035,7 +975,7 @@ public class AreaTrigger : WorldObject
 		if (GetTemplate() != null)
 			foreach (var action in GetTemplate().Actions)
 				if (action.ActionType == AreaTriggerActionTypes.Cast || action.ActionType == AreaTriggerActionTypes.AddAura)
-					unit.RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+					unit.RemoveAurasDueToSpell(action.Param, CasterGuid);
 	}
 
 	void InitSplineOffsets(List<Vector3> offsets, uint timeToTarget)
@@ -1081,7 +1021,7 @@ public class AreaTrigger : WorldObject
 		if (IsInWorld)
 		{
 			AreaTriggerRePath reshape = new();
-			reshape.TriggerGUID = GetGUID();
+			reshape.TriggerGUID = GUID;
 			reshape.AreaTriggerOrbit = _orbitInfo;
 
 			SendMessageToSet(reshape, true);
@@ -1148,10 +1088,10 @@ public class AreaTrigger : WorldObject
 
 	void UpdateOrbitPosition()
 	{
-		if (_orbitInfo.StartDelay > GetElapsedTimeForMovement())
+		if (_orbitInfo.StartDelay > ElapsedTimeForMovement)
 			return;
 
-		_orbitInfo.ElapsedTimeForMovement = (int)(GetElapsedTimeForMovement() - _orbitInfo.StartDelay);
+		_orbitInfo.ElapsedTimeForMovement = (int)(ElapsedTimeForMovement - _orbitInfo.StartDelay);
 
 		var pos = CalculateOrbitPosition();
 
@@ -1165,12 +1105,12 @@ public class AreaTrigger : WorldObject
 		if (_reachedDestination)
 			return;
 
-		if (!HasSplines())
+		if (!HasSplines)
 			return;
 
 		_movementTime += diff;
 
-		if (_movementTime >= GetTimeToTarget())
+		if (_movementTime >= TimeToTarget)
 		{
 			_reachedDestination = true;
 			_lastSplineIndex = _spline.Last();
@@ -1186,17 +1126,17 @@ public class AreaTrigger : WorldObject
 			return;
 		}
 
-		var currentTimePercent = (float)_movementTime / GetTimeToTarget();
+		var currentTimePercent = (float)_movementTime / TimeToTarget;
 
 		if (currentTimePercent <= 0.0f)
 			return;
 
-		if (GetCreateProperties().MoveCurveId != 0)
+		if (CreateProperties.MoveCurveId != 0)
 		{
-			var progress = Global.DB2Mgr.GetCurveValueAt(GetCreateProperties().MoveCurveId, currentTimePercent);
+			var progress = Global.DB2Mgr.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
 
 			if (progress < 0.0f || progress > 1.0f)
-				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (Id: {GetEntry()}, AreaTriggerCreatePropertiesId: {GetCreateProperties().Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {GetCreateProperties().MorphCurveId})");
+				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (Id: {Entry}, AreaTriggerCreatePropertiesId: {CreateProperties.Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {CreateProperties.MorphCurveId})");
 			else
 				currentTimePercent = progress;
 		}
@@ -1254,13 +1194,8 @@ public class AreaTrigger : WorldObject
 
 			if (player)
 				if (player.IsDebugAreaTriggers)
-					player.SummonCreature(1, Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(GetTimeToTarget()));
+					player.SummonCreature(1, Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(TimeToTarget));
 		}
-	}
-
-	float GetMaxSearchRadius()
-	{
-		return _maxSearchRadius;
 	}
 
 	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>

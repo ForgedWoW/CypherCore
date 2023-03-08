@@ -27,6 +27,6 @@ public class spell_rog_nightblade_SpellScript : SpellScript, IHasSpellEffects
 		if (caster == null || target == null)
 			return;
 
-		target.RemoveAurasDueToSpell(RogueSpells.NIGHTBLADE, caster.GetGUID());
+		target.RemoveAurasDueToSpell(RogueSpells.NIGHTBLADE, caster.GUID);
 	}
 }

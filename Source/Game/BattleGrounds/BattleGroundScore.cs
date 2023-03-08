@@ -9,10 +9,10 @@ namespace Game.BattleGrounds
 {
     public class BattlegroundScore
     {
-        public BattlegroundScore(ObjectGuid playerGuid, Team team)
+        public BattlegroundScore(ObjectGuid playerGuid, TeamFaction team)
         {
             PlayerGuid = playerGuid;
-            TeamId = (int)(team == Team.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
+            TeamId = (int)(team == TeamFaction.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
         }
 
         public virtual void UpdateScore(ScoreType type, uint value)

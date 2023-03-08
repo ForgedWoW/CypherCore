@@ -105,14 +105,14 @@ internal class boss_alizabal : BossAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.SaySlay);
 	}
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
 		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
-		me.GetMotionMaster().MoveTargetedHome();
+		me.MotionMaster.MoveTargetedHome();
 		_DespawnAtEvade();
 	}
 
@@ -246,7 +246,7 @@ internal class boss_alizabal : BossAI
 					var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(me));
 
 					if (target)
-						me.GetMotionMaster().MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
+						me.MotionMaster.MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
 
 					_events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
 
@@ -257,7 +257,7 @@ internal class boss_alizabal : BossAI
 					me.RemoveAura(SpellIds.BladeDanceDummy);
 					me.SetSpeedRate(UnitMoveType.Walk, 1.0f);
 					me.SetSpeedRate(UnitMoveType.Run, 1.14f);
-					me.GetMotionMaster().MoveChase(me.GetVictim());
+					me.MotionMaster.MoveChase(me.GetVictim());
 					_hate = false;
 					_skewer = false;
 

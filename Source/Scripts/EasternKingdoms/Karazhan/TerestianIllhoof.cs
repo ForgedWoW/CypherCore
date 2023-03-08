@@ -115,7 +115,7 @@ internal class boss_terestian : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (victim.IsPlayer())
+		if (victim.IsPlayer)
 			Talk(TextIds.SaySlay);
 	}
 
@@ -172,7 +172,7 @@ internal class npc_demon_chain : PassiveAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		_sacrificeGUID = summoner.GetGUID();
+		_sacrificeGUID = summoner.GUID;
 		DoCastSelf(SpellIds.DemonChains, new CastSpellExtraArgs(true));
 	}
 

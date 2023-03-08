@@ -20,7 +20,7 @@ public class at_mage_meteor_burn : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
 		if (caster.IsValidAttackTarget(unit))
@@ -34,10 +34,10 @@ public class at_mage_meteor_burn : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
-		var meteor = unit.GetAura(MageSpells.METEOR_BURN, caster.GetGUID());
+		var meteor = unit.GetAura(MageSpells.METEOR_BURN, caster.GUID);
 
 		if (meteor != null)
 			meteor.SetDuration(0);

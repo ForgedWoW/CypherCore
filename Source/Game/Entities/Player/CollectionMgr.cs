@@ -89,14 +89,14 @@ public class CollectionMgr
 	public void LoadToys()
 	{
 		foreach (var pair in _toys)
-			_owner.GetPlayer().AddToy(pair.Key, (uint)pair.Value);
+			_owner.			Player.AddToy(pair.Key, (uint)pair.Value);
 	}
 
 	public bool AddToy(uint itemId, bool isFavourite, bool hasFanfare)
 	{
 		if (UpdateAccountToys(itemId, isFavourite, hasFanfare))
 		{
-			_owner.GetPlayer()?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
+			_owner.			Player?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
 
 			return true;
 		}
@@ -123,7 +123,7 @@ public class CollectionMgr
 		foreach (var pair in _toys)
 		{
 			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
-			stmt.AddValue(0, _owner.GetBattlenetAccountId());
+			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.HasAnyFlag(ToyFlags.Favorite));
 			stmt.AddValue(3, pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
@@ -152,8 +152,8 @@ public class CollectionMgr
 
 	public void OnItemAdded(Item item)
 	{
-		if (Global.DB2Mgr.GetHeirloomByItemId(item.GetEntry()) != null)
-			AddHeirloom(item.GetEntry(), 0);
+		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
+			AddHeirloom(item.Entry, 0);
 
 		AddItemAppearance(item);
 	}
@@ -194,7 +194,7 @@ public class CollectionMgr
 		foreach (var heirloom in _heirlooms)
 		{
 			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
-			stmt.AddValue(0, _owner.GetBattlenetAccountId());
+			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, heirloom.Key);
 			stmt.AddValue(2, (uint)heirloom.Value.Flags);
 			trans.Append(stmt);
@@ -214,18 +214,18 @@ public class CollectionMgr
 	public void LoadHeirlooms()
 	{
 		foreach (var item in _heirlooms)
-			_owner.GetPlayer().AddHeirloom(item.Key, (uint)item.Value.Flags);
+			_owner.			Player.AddHeirloom(item.Key, (uint)item.Value.Flags);
 	}
 
 	public void AddHeirloom(uint itemId, HeirloomPlayerFlags flags)
 	{
 		if (UpdateAccountHeirlooms(itemId, flags))
-			_owner.GetPlayer().AddHeirloom(itemId, (uint)flags);
+			_owner.			Player.AddHeirloom(itemId, (uint)flags);
 	}
 
 	public void UpgradeHeirloom(uint itemId, uint castItem)
 	{
-		var player = _owner.GetPlayer();
+		var player = _owner.Player;
 
 		if (!player)
 			return;
@@ -264,17 +264,17 @@ public class CollectionMgr
 
 	public void CheckHeirloomUpgrades(Item item)
 	{
-		var player = _owner.GetPlayer();
+		var player = _owner.Player;
 
 		if (!player)
 			return;
 
 		// Check already owned heirloom for upgrade kits
-		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(item.GetEntry());
+		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(item.Entry);
 
 		if (heirloom != null)
 		{
-			var data = _heirlooms.LookupByKey(item.GetEntry());
+			var data = _heirlooms.LookupByKey(item.Entry);
 
 			if (data == null)
 				return;
@@ -304,12 +304,12 @@ public class CollectionMgr
 			if (newItemId != 0)
 			{
 				List<uint> heirlooms = player.ActivePlayerData.Heirlooms;
-				var offset = heirlooms.IndexOf(item.GetEntry());
+				var offset = heirlooms.IndexOf(item.Entry);
 
 				player.SetHeirloom(offset, newItemId);
 				player.SetHeirloomFlags(offset, 0);
 
-				_heirlooms.Remove(item.GetEntry());
+				_heirlooms.Remove(item.Entry);
 				_heirlooms[newItemId] = null;
 
 				return;
@@ -358,7 +358,7 @@ public class CollectionMgr
 		foreach (var mount in _mounts)
 		{
 			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
-			stmt.AddValue(0, _owner.GetBattlenetAccountId());
+			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, mount.Key);
 			stmt.AddValue(2, (byte)mount.Value);
 			trans.Append(stmt);
@@ -367,7 +367,7 @@ public class CollectionMgr
 
 	public bool AddMount(uint spellId, MountStatusFlags flags, bool factionMount = false, bool learned = false)
 	{
-		var player = _owner.GetPlayer();
+		var player = _owner.Player;
 
 		if (!player)
 			return false;
@@ -420,7 +420,7 @@ public class CollectionMgr
 
 	public void LoadItemAppearances()
 	{
-		var owner = _owner.GetPlayer();
+		var owner = _owner.Player;
 
 		foreach (var blockValue in _appearances.ToBlockRange())
 			owner.AddTransmogBlock(blockValue);
@@ -491,7 +491,7 @@ public class CollectionMgr
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
 				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
-				stmt.AddValue(0, _owner.GetBattlenetAccountId());
+				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
 				trans.Append(stmt);
@@ -508,7 +508,7 @@ public class CollectionMgr
 			{
 				case FavoriteAppearanceState.New:
 					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue(0, _owner.GetBattlenetAccountId());
+					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances[key] = FavoriteAppearanceState.Unchanged;
@@ -516,7 +516,7 @@ public class CollectionMgr
 					break;
 				case FavoriteAppearanceState.Removed:
 					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue(0, _owner.GetBattlenetAccountId());
+					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances.Remove(key);
@@ -540,7 +540,7 @@ public class CollectionMgr
 
 		if (item.IsBOPTradeable() || item.IsRefundable())
 		{
-			AddTemporaryAppearance(item.GetGUID(), itemModifiedAppearance);
+			AddTemporaryAppearance(item.GUID, itemModifiedAppearance);
 
 			return;
 		}
@@ -570,11 +570,11 @@ public class CollectionMgr
 		if (guid.Empty())
 			return;
 
-		guid.Remove(item.GetGUID());
+		guid.Remove(item.GUID);
 
 		if (guid.Empty())
 		{
-			_owner.GetPlayer().RemoveConditionalTransmog(itemModifiedAppearance.Id);
+			_owner.			Player.RemoveConditionalTransmog(itemModifiedAppearance.Id);
 			_temporaryAppearances.Remove(itemModifiedAppearance.Id);
 		}
 	}
@@ -672,7 +672,7 @@ public class CollectionMgr
 
 	public void LoadTransmogIllusions()
 	{
-		var owner = _owner.GetPlayer();
+		var owner = _owner.Player;
 
 		foreach (var blockValue in _transmogIllusions.ToBlockRange())
 			owner.AddIllusionBlock(blockValue);
@@ -720,7 +720,7 @@ public class CollectionMgr
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
 				var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_TRANSMOG_ILLUSIONS);
-				stmt.AddValue(0, _owner.GetBattlenetAccountId());
+				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
 				trans.Append(stmt);
@@ -732,7 +732,7 @@ public class CollectionMgr
 
 	public void AddTransmogIllusion(uint transmogIllusionId)
 	{
-		var owner = _owner.GetPlayer();
+		var owner = _owner.Player;
 
 		if (_transmogIllusions.Count <= transmogIllusionId)
 		{
@@ -811,7 +811,7 @@ public class CollectionMgr
 
 	void SendSingleMountUpdate(uint spellId, MountStatusFlags mountStatusFlags)
 	{
-		var player = _owner.GetPlayer();
+		var player = _owner.Player;
 
 		if (!player)
 			return;
@@ -838,10 +838,10 @@ public class CollectionMgr
 		if (itemTemplate == null)
 			return false;
 
-		if (!_owner.GetPlayer())
+		if (!_owner.Player)
 			return false;
 
-		if (_owner.GetPlayer().CanUseItem(itemTemplate) != InventoryResult.Ok)
+		if (_owner.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
 			return false;
 
 		if (itemTemplate.HasFlag(ItemFlags2.NoSourceForItemVisual) || itemTemplate.GetQuality() == ItemQuality.Artifact)
@@ -851,7 +851,7 @@ public class CollectionMgr
 		{
 			case ItemClass.Weapon:
 			{
-				if (!Convert.ToBoolean(_owner.GetPlayer().GetWeaponProficiency() & (1 << (int)itemTemplate.GetSubClass())))
+				if (!Convert.ToBoolean(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.GetSubClass())))
 					return false;
 
 				if (itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic ||
@@ -892,7 +892,7 @@ public class CollectionMgr
 				}
 
 				if (itemTemplate.GetInventoryType() != InventoryType.Cloak)
-					if (!Convert.ToBoolean(_playerClassByArmorSubclass[itemTemplate.GetSubClass()] & _owner.GetPlayer().GetClassMask()))
+					if (!Convert.ToBoolean(_playerClassByArmorSubclass[itemTemplate.GetSubClass()] & _owner.Player.ClassMask))
 						return false;
 
 				break;
@@ -914,7 +914,7 @@ public class CollectionMgr
 	//todo  check this
 	void AddItemAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
-		var owner = _owner.GetPlayer();
+		var owner = _owner.Player;
 
 		if (_appearances.Count <= itemModifiedAppearance.Id)
 		{
@@ -945,14 +945,14 @@ public class CollectionMgr
 			var transmogSlot = Item.ItemTransmogrificationSlots[(int)item.inventoryType];
 
 			if (transmogSlot >= 0)
-				_owner.GetPlayer().UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
+				_owner.				Player.UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
 		}
 
 		var sets = Global.DB2Mgr.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
 
 		foreach (var set in sets)
 			if (IsSetCompleted(set.Id))
-				_owner.GetPlayer().UpdateCriteria(CriteriaType.CollectTransmogSetFromGroup, set.TransmogSetGroupID);
+				_owner.				Player.UpdateCriteria(CriteriaType.CollectTransmogSetFromGroup, set.TransmogSetGroupID);
 	}
 
 	void AddTemporaryAppearance(ObjectGuid itemGuid, ItemModifiedAppearanceRecord itemModifiedAppearance)
@@ -960,7 +960,7 @@ public class CollectionMgr
 		var itemsWithAppearance = _temporaryAppearances[itemModifiedAppearance.Id];
 
 		if (itemsWithAppearance.Empty())
-			_owner.GetPlayer().AddConditionalTransmog(itemModifiedAppearance.Id);
+			_owner.			Player.AddConditionalTransmog(itemModifiedAppearance.Id);
 
 		itemsWithAppearance.Add(itemGuid);
 	}

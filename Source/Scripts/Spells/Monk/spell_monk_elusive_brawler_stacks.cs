@@ -15,7 +15,7 @@ public class spell_monk_elusive_brawler_stacks : AuraScript
 		if (eventInfo.HitMask.HasFlag(ProcFlagsHit.Dodge))
 			return false;
 
-		var elusiveBrawler = Caster.GetAura(MonkSpells.ELUSIVE_BRAWLER, Caster.GetGUID());
+		var elusiveBrawler = Caster.GetAura(MonkSpells.ELUSIVE_BRAWLER, Caster.GUID);
 
 		if (elusiveBrawler != null)
 			elusiveBrawler.SetDuration(0);

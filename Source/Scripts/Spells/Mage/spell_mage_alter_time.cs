@@ -41,7 +41,7 @@ public class spell_mage_alter_time : SpellScript, IHasSpellEffects
 			}
 
 			// Check if the target has died
-			if (target.IsDead())
+			if (target.IsDead)
 			{
 				target.RemoveAura(MageSpells.ALTER_TIME);
 

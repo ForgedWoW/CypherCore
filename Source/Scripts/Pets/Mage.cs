@@ -88,7 +88,7 @@ namespace Scripts.Pets
 				var owner = me.GetOwner();
 
 				return owner &&
-						who.IsAlive() &&
+						who.IsAlive &&
 						me.IsValidAttackTarget(who) &&
 						!who.HasBreakableByDamageCrowdControlAura() &&
 						who.IsInCombatWith(owner) &&
@@ -98,18 +98,18 @@ namespace Scripts.Pets
 			// Do not reload Creature templates on evade mode enter - prevent visual lost
 			public override void EnterEvadeMode(EvadeReason why)
 			{
-				if (me.IsInEvadeMode() ||
-					!me.IsAlive())
+				if (me.IsInEvadeMode ||
+					!me.IsAlive)
 					return;
 
-				var owner = me.GetCharmerOrOwner();
+				var owner = me.CharmerOrOwner;
 
 				me.CombatStop(true);
 
 				if (owner && !me.HasUnitState(UnitState.Follow))
 				{
-					me.GetMotionMaster().Clear();
-					me.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, me.GetFollowAngle());
+					me.MotionMaster.Clear();
+					me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, me.FollowAngle);
 				}
 			}
 
@@ -152,7 +152,7 @@ namespace Scripts.Pets
 					{
 						var target = pair.Value.GetOther(owner);
 
-						if (!target.IsPlayer())
+						if (!target.IsPlayer)
 							continue;
 
 						if (!CanAIAttack(target))

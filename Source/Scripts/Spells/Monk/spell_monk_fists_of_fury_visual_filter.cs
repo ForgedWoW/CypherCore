@@ -23,6 +23,6 @@ public class spell_monk_fists_of_fury_visual_filter : SpellScript, IHasSpellEffe
 
 	private void RemoveInvalidTargets(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, Caster.GetGUID()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, Caster.GUID));
 	}
 }

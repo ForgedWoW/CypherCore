@@ -126,7 +126,7 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 		if (!_hasAura)
 		{
 			for (byte i = 0; i < _auraPairs.Length; ++i)
-				if (_auraPairs[i].npcEntry == me.GetEntry())
+				if (_auraPairs[i].npcEntry == me.Entry)
 					DoCast(me, _auraPairs[i].spellId);
 
 			_hasAura = true;

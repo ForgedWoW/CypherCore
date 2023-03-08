@@ -28,6 +28,6 @@ public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		caster.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GetOwnerGUID()));
+		caster.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.OwnerGUID));
 	}
 }

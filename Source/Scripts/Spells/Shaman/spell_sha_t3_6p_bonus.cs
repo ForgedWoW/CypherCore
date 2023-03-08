@@ -34,7 +34,7 @@ internal class spell_sha_t3_6p_bonus : AuraScript, IHasAuraEffects
 		var caster = eventInfo.Actor;
 		var target = eventInfo.ProcTarget;
 
-		switch (target.GetClass())
+		switch (target.Class)
 		{
 			case Class.Paladin:
 			case Class.Priest:

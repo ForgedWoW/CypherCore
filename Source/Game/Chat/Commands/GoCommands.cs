@@ -109,8 +109,8 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            Player player = handler.GetSession().GetPlayer();
-            if (player.IsInFlight())
+            Player player = handler.GetSession().Player;
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition();
@@ -156,9 +156,9 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -170,7 +170,7 @@ namespace Game.Chat.Commands
         [Command("grid", RBACPermissions.CommandGo)]
         static bool HandleGoGridCommand(CommandHandler handler, float gridX, float gridY, uint? mapIdArg)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             uint mapId = mapIdArg.GetValueOrDefault(player.Location.MapId);
 
             // center of grid
@@ -184,7 +184,7 @@ namespace Game.Chat.Commands
             }
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -242,8 +242,8 @@ namespace Game.Chat.Commands
             uint mapId = it.Value.Item1;
             string mapName = it.Value.Item2;
 
-            Player player = handler.GetSession().GetPlayer();
-            if (player.IsInFlight())
+            Player player = handler.GetSession().Player;
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition();
@@ -288,7 +288,7 @@ namespace Game.Chat.Commands
         [Command("offset", RBACPermissions.CommandGo)]
         static bool HandleGoOffsetCommand(CommandHandler handler, float dX, float? dY, float? dZ, float? dO)
         {
-            Position loc = handler.GetSession().GetPlayer().Location;
+            Position loc = handler.GetSession().Player.Location;
             loc.RelocateOffset(new Position(dX, dY.GetValueOrDefault(0f), dZ.GetValueOrDefault(0f), dO.GetValueOrDefault(0f)));
 
             return DoTeleport(handler, loc);
@@ -297,7 +297,7 @@ namespace Game.Chat.Commands
         [Command("quest", RBACPermissions.CommandGo)]
         static bool HandleGoQuestCommand(CommandHandler handler, uint questId)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             if (Global.ObjectMgr.GetQuestTemplate(questId) == null)
             {
@@ -331,7 +331,7 @@ namespace Game.Chat.Commands
             }
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -365,7 +365,7 @@ namespace Game.Chat.Commands
         [Command("xyz", RBACPermissions.CommandGo)]
         static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             uint mapId = id.GetValueOrDefault(player.Location.MapId);
             if (z.HasValue)
             {
@@ -393,7 +393,7 @@ namespace Game.Chat.Commands
         [Command("zonexy", RBACPermissions.CommandGo)]
         static bool HandleGoZoneXYCommand(CommandHandler handler, float x, float y, uint? areaIdArg)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             uint areaId = areaIdArg.HasValue ? areaIdArg.Value : player.GetZoneId();
 
@@ -425,7 +425,7 @@ namespace Game.Chat.Commands
             }
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -445,10 +445,10 @@ namespace Game.Chat.Commands
                 return true;
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -459,7 +459,7 @@ namespace Game.Chat.Commands
 
         static bool DoTeleport(CommandHandler handler, Position pos, uint mapId = 0xFFFFFFFF)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             if (mapId == 0xFFFFFFFF)
                 mapId = player.Location.MapId;
@@ -471,7 +471,7 @@ namespace Game.Chat.Commands
             }
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case

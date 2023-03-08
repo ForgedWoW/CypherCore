@@ -40,7 +40,7 @@ internal class spell_gen_bonked : SpellScript, IHasSpellEffects
 				var item = target.GetItemByGuid(aura.CastItemGuid);
 
 				if (item)
-					target.DestroyItemCount(item.GetEntry(), 1, true);
+					target.DestroyItemCount(item.Entry, 1, true);
 			}
 		}
 	}

@@ -4,24 +4,21 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class PurchaseListResponse : ServerPacket
 {
-    public class PurchaseListResponse : ServerPacket
-    {
-        public PurchaseListResponse() : base(ServerOpcodes.BattlePayGetPurchaseListResponse)
-        {
-        }
+	public uint Result { get; set; } = 0;
+	public List<BpayPurchase> Purchase { get; set; } = new();
 
-        public override void Write()
-        {
-            _worldPacket.Write(Result);
-            _worldPacket.WriteUInt32((uint)Purchase.Count);
+	public PurchaseListResponse() : base(ServerOpcodes.BattlePayGetPurchaseListResponse) { }
 
-            foreach (var purchaseData in Purchase)
-                purchaseData.Write(_worldPacket);
-        }
+	public override void Write()
+	{
+		_worldPacket.Write(Result);
+		_worldPacket.WriteUInt32((uint)Purchase.Count);
 
-        public uint Result { get; set; } = 0;
-        public List<BpayPurchase> Purchase { get; set; } = new List<BpayPurchase>();
-    }
+		foreach (var purchaseData in Purchase)
+			purchaseData.Write(_worldPacket);
+	}
 }

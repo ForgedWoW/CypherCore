@@ -175,7 +175,7 @@ public partial class Player
 	bool _customizationsChanged;
 
 	SpecializationInfo _specializationInfo;
-	Team _team;
+	TeamFaction _team;
 	ReputationMgr _reputationMgr;
 
 	PlayerExtraFlags _extraFlags;
@@ -238,15 +238,9 @@ public partial class Player
 
 	public bool IsDebugAreaTriggers { get; set; }
 
-	public WorldSession GetSession()
-	{
-		return _session;
-	}
+	public WorldSession Session => _session;
 
-	public PlayerSocial GetSocial()
-	{
-		return _social;
-	}
+	public PlayerSocial Social => _social;
 
 	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{

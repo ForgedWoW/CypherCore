@@ -107,14 +107,14 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case MCCreatureIds.GolemaggTheIncinerator:
-					_golemaggTheIncineratorGUID = creature.GetGUID();
+					_golemaggTheIncineratorGUID = creature.GUID;
 
 					break;
 				case MCCreatureIds.MajordomoExecutus:
-					_majordomoExecutusGUID = creature.GetGUID();
+					_majordomoExecutusGUID = creature.GUID;
 
 					break;
 				default:
@@ -124,10 +124,10 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
 
 		public override void OnGameObjectCreate(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case MCGameObjectIds.CacheOfTheFirelord:
-					_cacheOfTheFirelordGUID = go.GetGUID();
+					_cacheOfTheFirelordGUID = go.GUID;
 
 					break;
 				default:
@@ -197,7 +197,7 @@ internal class instance_molten_core : InstanceMapScript, IInstanceMapGetInstance
 		{
 			_executusSchedule = false;
 
-			if (!_majordomoExecutusGUID.IsEmpty())
+			if (!_majordomoExecutusGUID.IsEmpty)
 				return;
 
 			if (GetBossState(DataTypes.MajordomoExecutus) != EncounterState.Done)

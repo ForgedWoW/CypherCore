@@ -27,7 +27,7 @@ internal class spell_q12459_seeds_of_natures_wrath : SpellScript, IHasSpellEffec
 		{
 			uint uiNewEntry = 0;
 
-			switch (creatureTarget.GetEntry())
+			switch (creatureTarget.Entry)
 			{
 				case CreatureIds.ReanimatedFrostwyrm:
 					uiNewEntry = CreatureIds.WeakReanimatedFrostwyrm;

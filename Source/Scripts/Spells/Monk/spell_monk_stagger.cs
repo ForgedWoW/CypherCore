@@ -85,7 +85,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		var target = Target;
 		var agility = target.GetStat(Stats.Agility);
 		var baseAmount = MathFunctions.CalculatePct(agility, effect.Amount);
-		var K = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.GetLevel(), -2, 0, target.GetClass());
+		var K = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.Level, -2, 0, target.Class);
 
 		var newAmount = (baseAmount / (baseAmount + K));
 		newAmount *= multiplier;

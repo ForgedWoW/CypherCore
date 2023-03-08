@@ -22,7 +22,7 @@ namespace Game.BattleGrounds.Zones
             SignaledRoundTwo = false;
             SignaledRoundTwoHalfMin = false;
             InitSecondRound = false;
-            Attackers = TeamId.Alliance;
+            Attackers = TeamIds.Alliance;
             TotalTime = 0;
             EndRoundTimer = 0;
             ShipsStarted = false;
@@ -33,7 +33,7 @@ namespace Game.BattleGrounds.Zones
 
             for (byte i = 0; i < 2; i++)
             {
-                RoundScores[i].winner = TeamId.Alliance;
+                RoundScores[i].winner = TeamIds.Alliance;
                 RoundScores[i].time = 0;
             }
         }
@@ -41,7 +41,7 @@ namespace Game.BattleGrounds.Zones
         public override void Reset()
         {
             TotalTime = 0;
-            Attackers = (RandomHelper.URand(0, 1) != 0 ? TeamId.Alliance : TeamId.Horde);
+            Attackers = (RandomHelper.URand(0, 1) != 0 ? TeamIds.Alliance : TeamIds.Horde);
             for (byte i = 0; i <= 5; i++)
                 GateStatus[i] = SAGateState.HordeGateOk;
             ShipsStarted = false;
@@ -63,7 +63,7 @@ namespace Game.BattleGrounds.Zones
             }
 
             uint atF = SAMiscConst.Factions[Attackers];
-            uint defF = SAMiscConst.Factions[Attackers != 0 ? TeamId.Alliance : TeamId.Horde];
+            uint defF = SAMiscConst.Factions[Attackers != 0 ? TeamIds.Alliance : TeamIds.Horde];
 
             for (byte i = 0; i < SAObjectTypes.MaxObj; i++)
                 DelObject(i);
@@ -75,7 +75,7 @@ namespace Game.BattleGrounds.Zones
                 DelCreature(i);
 
             for (byte i = 0; i < GateStatus.Length; ++i)
-                GateStatus[i] = Attackers == TeamId.Horde ? SAGateState.AllianceGateOk : SAGateState.HordeGateOk;
+                GateStatus[i] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateOk : SAGateState.HordeGateOk;
 
             if (!AddCreature(SAMiscConst.NpcEntries[SACreatureTypes.Kanrethad], SACreatureTypes.Kanrethad, SAMiscConst.NpcSpawnlocs[SACreatureTypes.Kanrethad]))
             {
@@ -135,9 +135,9 @@ namespace Game.BattleGrounds.Zones
             //By capturing GYs.
             for (byte i = 0; i < SACreatureTypes.Demolisher5; i++)
             {
-                if (!AddCreature(SAMiscConst.NpcEntries[i], i, SAMiscConst.NpcSpawnlocs[i], Attackers == TeamId.Alliance ? TeamId.Horde : TeamId.Alliance, 600))
+                if (!AddCreature(SAMiscConst.NpcEntries[i], i, SAMiscConst.NpcSpawnlocs[i], Attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600))
                 {
-                    Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Cannon or demolisher, Entry: {SAMiscConst.NpcEntries[i]}, Attackers: {(Attackers == TeamId.Alliance ? "Horde(1)" : "Alliance(0)")}");
+                    Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Cannon or demolisher, Entry: {SAMiscConst.NpcEntries[i]}, Attackers: {(Attackers == TeamIds.Alliance ? "Horde(1)" : "Alliance(0)")}");
                     continue;
                 }
             }
@@ -148,10 +148,11 @@ namespace Game.BattleGrounds.Zones
             for (byte i = 0; i <= SAObjectTypes.PortalDeffenderRed; i++)
             {
                 SpawnBGObject(i, BattlegroundConst.RespawnImmediately);
-                GetBGObject(i).SetFaction(defF);
+                GetBGObject(i).                Faction = defF;
             }
 
-            GetBGObject(SAObjectTypes.TitanRelic).SetFaction(atF);
+            GetBGObject(SAObjectTypes.TitanRelic).
+            Faction = atF;
             GetBGObject(SAObjectTypes.TitanRelic).Refresh();
 
             TotalTime = 0;
@@ -174,8 +175,8 @@ namespace Game.BattleGrounds.Zones
                 }
                 else
                 {
-                    GraveyardStatus[i] = ((Attackers == TeamId.Horde) ? TeamId.Alliance : TeamId.Horde);
-                    if (!AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], Attackers == TeamId.Horde ? TeamId.Alliance : TeamId.Horde))
+                    GraveyardStatus[i] = ((Attackers == TeamIds.Horde) ? TeamIds.Alliance : TeamIds.Horde);
+                    if (!AddSpiritGuide(i + SACreatureTypes.Max, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, SAMiscConst.GYOrientation[i], Attackers == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde))
                         Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn GY: {i}");
                 }
             }
@@ -183,12 +184,12 @@ namespace Game.BattleGrounds.Zones
             //GY capture points
             for (byte i = SAObjectTypes.CentralFlag; i <= SAObjectTypes.LeftFlag; i++)
             {
-                if (!AddObject(i, (SAMiscConst.ObjEntries[i] - (Attackers == TeamId.Alliance ? 1u : 0)), SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
+                if (!AddObject(i, (SAMiscConst.ObjEntries[i] - (Attackers == TeamIds.Alliance ? 1u : 0)), SAMiscConst.ObjSpawnlocs[i], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay))
                 {
-                    Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Central Flag Entry: {SAMiscConst.ObjEntries[i] - (Attackers == TeamId.Alliance ? 1 : 0)}");
+                    Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn Central Flag Entry: {SAMiscConst.ObjEntries[i] - (Attackers == TeamIds.Alliance ? 1 : 0)}");
                     continue;
                 }
-                GetBGObject(i).SetFaction(atF);
+                GetBGObject(i).                Faction = atF;
             }
 
             UpdateObjectInteractionFlags();
@@ -200,19 +201,19 @@ namespace Game.BattleGrounds.Zones
                     Log.outError(LogFilter.Battleground, $"SOTA: couldn't spawn SA Bomb Entry: {SAMiscConst.ObjEntries[SAObjectTypes.Bomb] + i}");
                     continue;
                 }
-                GetBGObject(i).SetFaction(atF);
+                GetBGObject(i).                Faction = atF;
             }
 
             //Player may enter BEFORE we set up BG - lets update his worldstates anyway...
-            UpdateWorldState(SAWorldStateIds.RightGyHorde, GraveyardStatus[SAGraveyards.RightCapturableGy] == TeamId.Horde ? 1 : 0);
-            UpdateWorldState(SAWorldStateIds.LeftGyHorde, GraveyardStatus[SAGraveyards.LeftCapturableGy] == TeamId.Horde ? 1 : 0);
-            UpdateWorldState(SAWorldStateIds.CenterGyHorde, GraveyardStatus[SAGraveyards.CentralCapturableGy] == TeamId.Horde ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.RightGyHorde, GraveyardStatus[SAGraveyards.RightCapturableGy] == TeamIds.Horde ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.LeftGyHorde, GraveyardStatus[SAGraveyards.LeftCapturableGy] == TeamIds.Horde ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.CenterGyHorde, GraveyardStatus[SAGraveyards.CentralCapturableGy] == TeamIds.Horde ? 1 : 0);
 
-            UpdateWorldState(SAWorldStateIds.RightGyAlliance, GraveyardStatus[SAGraveyards.RightCapturableGy] == TeamId.Alliance ? 1 : 0);
-            UpdateWorldState(SAWorldStateIds.LeftGyAlliance, GraveyardStatus[SAGraveyards.LeftCapturableGy] == TeamId.Alliance ? 1 : 0);
-            UpdateWorldState(SAWorldStateIds.CenterGyAlliance, GraveyardStatus[SAGraveyards.CentralCapturableGy] == TeamId.Alliance ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.RightGyAlliance, GraveyardStatus[SAGraveyards.RightCapturableGy] == TeamIds.Alliance ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.LeftGyAlliance, GraveyardStatus[SAGraveyards.LeftCapturableGy] == TeamIds.Alliance ? 1 : 0);
+            UpdateWorldState(SAWorldStateIds.CenterGyAlliance, GraveyardStatus[SAGraveyards.CentralCapturableGy] == TeamIds.Alliance ? 1 : 0);
 
-            if (Attackers == TeamId.Alliance)
+            if (Attackers == TeamIds.Alliance)
             {
                 UpdateWorldState(SAWorldStateIds.AllyAttacks, 1);
                 UpdateWorldState(SAWorldStateIds.HordeAttacks, 0);
@@ -325,7 +326,7 @@ namespace Game.BattleGrounds.Zones
                     ToggleTimer();
                     DemolisherStartState(false);
                     Status = SAStatus.RoundOne;
-                    TriggerGameEvent(Attackers == TeamId.Alliance ? 23748 : 21702u);
+                    TriggerGameEvent(Attackers == TeamIds.Alliance ? 23748 : 21702u);
                 }
                 if (TotalTime >= SATimers.BoatStart)
                     StartShips();
@@ -349,7 +350,7 @@ namespace Game.BattleGrounds.Zones
                     ToggleTimer();
                     DemolisherStartState(false);
                     Status = SAStatus.RoundTwo;
-                    TriggerGameEvent(Attackers == TeamId.Alliance ? 23748 : 21702u);
+                    TriggerGameEvent(Attackers == TeamIds.Alliance ? 23748 : 21702u);
                     // status was set to STATUS_WAIT_JOIN manually for Preparation, set it back now
                     SetStatus(BattlegroundStatus.InProgress);
                     foreach (var pair in GetPlayers())
@@ -376,13 +377,13 @@ namespace Game.BattleGrounds.Zones
                 {
                     if (TotalTime >= SATimers.RoundLength)
                     {
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Alliance);
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Horde);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Alliance);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Horde);
                         RoundScores[0].winner = (uint)Attackers;
                         RoundScores[0].time = SATimers.RoundLength;
                         TotalTime = 0;
                         Status = SAStatus.SecondWarmup;
-                        Attackers = (Attackers == TeamId.Alliance) ? TeamId.Horde : TeamId.Alliance;
+                        Attackers = (Attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance;
                         UpdateWaitTimer = 5000;
                         SignaledRoundTwo = false;
                         SignaledRoundTwoHalfMin = false;
@@ -397,16 +398,16 @@ namespace Game.BattleGrounds.Zones
                 {
                     if (TotalTime >= EndRoundTimer)
                     {
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Alliance);
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Horde);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Alliance);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Horde);
                         RoundScores[1].time = SATimers.RoundLength;
-                        RoundScores[1].winner = (uint)((Attackers == TeamId.Alliance) ? TeamId.Horde : TeamId.Alliance);
+                        RoundScores[1].winner = (uint)((Attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance);
                         if (RoundScores[0].time == RoundScores[1].time)
                             EndBattleground(0);
                         else if (RoundScores[0].time < RoundScores[1].time)
-                            EndBattleground(RoundScores[0].winner == TeamId.Alliance ? Team.Alliance : Team.Horde);
+                            EndBattleground(RoundScores[0].winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
                         else
-                            EndBattleground(RoundScores[1].winner == TeamId.Alliance ? Team.Alliance : Team.Horde);
+                            EndBattleground(RoundScores[1].winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
                         return;
                     }
                 }
@@ -417,10 +418,10 @@ namespace Game.BattleGrounds.Zones
 
         public override void AddPlayer(Player player)
         {
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundSAScore(player.GetGUID(), player.GetBgTeam());
+                PlayerScores[player.GUID] = new BattlegroundSAScore(player.GUID, player.GetBgTeam());
 
             SendTransportInit(player);
 
@@ -428,7 +429,7 @@ namespace Game.BattleGrounds.Zones
                 TeleportToEntrancePosition(player);
         }
 
-        public override void RemovePlayer(Player player, ObjectGuid guid, Team team) { }
+        public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team) { }
 
         public override void HandleAreaTrigger(Player source, uint trigger, bool entered)
         {
@@ -448,7 +449,7 @@ namespace Game.BattleGrounds.Zones
                     if (player.HasAuraType(AuraType.SpiritOfRedemption))
                         player.RemoveAurasByType(AuraType.ModShapeshift);
 
-                    if (!player.IsAlive())
+                    if (!player.IsAlive)
                     {
                         player.ResurrectPlayer(1.0f);
                         player.SpawnCorpseBones();
@@ -466,7 +467,7 @@ namespace Game.BattleGrounds.Zones
 
         void TeleportToEntrancePosition(Player player)
         {
-            if (GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID())) == Attackers)
+            if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers)
             {
                 if (!ShipsStarted)
                 {
@@ -498,7 +499,7 @@ namespace Game.BattleGrounds.Zones
                         break;
                     case GameObjectTypes.DestructibleBuilding:
                     {
-                        SAGateInfo gate = GetGate(obj.GetEntry());
+                        SAGateInfo gate = GetGate(obj.Entry);
                         if (gate != null)
                         {
                             uint gateId = gate.GateId;
@@ -506,18 +507,18 @@ namespace Game.BattleGrounds.Zones
                             // damaged
                             if (eventId == go.GetGoInfo().DestructibleBuilding.DamagedEvent)
                             {
-                                GateStatus[gateId] = Attackers == TeamId.Horde ? SAGateState.AllianceGateDamaged : SAGateState.HordeGateDamaged;
+                                GateStatus[gateId] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateDamaged : SAGateState.HordeGateDamaged;
 
                                 Creature c = obj.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
                                 if (c)
                                     SendChatMessage(c, (byte)gate.DamagedText, invoker);
 
-                                PlaySoundToAll(Attackers == TeamId.Alliance ? SASoundIds.WallAttackedAlliance : SASoundIds.WallAttackedHorde);
+                                PlaySoundToAll(Attackers == TeamIds.Alliance ? SASoundIds.WallAttackedAlliance : SASoundIds.WallAttackedHorde);
                             }
                             // destroyed
                             else if (eventId == go.GetGoInfo().DestructibleBuilding.DestroyedEvent)
                             {
-                                GateStatus[gate.GateId] = Attackers == TeamId.Horde ? SAGateState.AllianceGateDestroyed : SAGateState.HordeGateDestroyed;
+                                GateStatus[gate.GateId] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateDestroyed : SAGateState.HordeGateDestroyed;
 
                                 if (gateId < 5)
                                     DelObject((int)gateId + 14);
@@ -526,7 +527,7 @@ namespace Game.BattleGrounds.Zones
                                 if (c)
                                     SendChatMessage(c, (byte)gate.DestroyedText, invoker);
 
-                                PlaySoundToAll(Attackers == TeamId.Alliance ? SASoundIds.WallDestroyedAlliance : SASoundIds.WallDestroyedHorde);
+                                PlaySoundToAll(Attackers == TeamIds.Alliance ? SASoundIds.WallDestroyedAlliance : SASoundIds.WallDestroyedHorde);
 
                                 bool rewardHonor = true;
                                 switch (gateId)
@@ -583,10 +584,10 @@ namespace Game.BattleGrounds.Zones
 
         public override void HandleKillUnit(Creature creature, Player killer)
         {
-            if (creature.GetEntry() == SACreatureIds.Demolisher)
+            if (creature.Entry == SACreatureIds.Demolisher)
             {
                 UpdatePlayerScore(killer, ScoreType.DestroyedDemolisher, 1);
-                uint worldStateId = Attackers == TeamId.Horde ? SAWorldStateIds.DestroyedHordeVehicles : SAWorldStateIds.DestroyedAllianceVehicles;
+                uint worldStateId = Attackers == TeamIds.Horde ? SAWorldStateIds.DestroyedHordeVehicles : SAWorldStateIds.DestroyedAllianceVehicles;
                 int currentDestroyedVehicles = Global.WorldStateMgr.GetValue((int)worldStateId, GetBgMap());
                 UpdateWorldState(worldStateId, currentDestroyedVehicles + 1);
             }
@@ -598,27 +599,27 @@ namespace Game.BattleGrounds.Zones
          */
         void OverrideGunFaction()
         {
-            if (BgCreatures[0].IsEmpty())
+            if (BgCreatures[0].IsEmpty)
                 return;
 
             for (byte i = SACreatureTypes.Gun1; i <= SACreatureTypes.Gun10; i++)
             {
                 Creature gun = GetBGCreature(i);
                 if (gun)
-                    gun.SetFaction(SAMiscConst.Factions[Attackers != 0 ? TeamId.Alliance : TeamId.Horde]);
+                    gun.                    Faction = SAMiscConst.Factions[Attackers != 0 ? TeamIds.Alliance : TeamIds.Horde];
             }
 
             for (byte i = SACreatureTypes.Demolisher1; i <= SACreatureTypes.Demolisher4; i++)
             {
                 Creature dem = GetBGCreature(i);
                 if (dem)
-                    dem.SetFaction(SAMiscConst.Factions[Attackers]);
+                    dem.                    Faction = SAMiscConst.Factions[Attackers];
             }
         }
 
         void DemolisherStartState(bool start)
         {
-            if (BgCreatures[0].IsEmpty())
+            if (BgCreatures[0].IsEmpty)
                 return;
 
             // set flags only for the demolishers on the beach, factory ones dont need it
@@ -643,7 +644,7 @@ namespace Game.BattleGrounds.Zones
         {
             uint safeloc;
 
-            int teamId = GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID()));
+            int teamId = GetTeamIndexByTeamId(GetPlayerTeam(player.GUID));
             if (teamId == Attackers)
                 safeloc = SAMiscConst.GYEntries[SAGraveyards.BeachGy];
             else
@@ -715,7 +716,7 @@ namespace Game.BattleGrounds.Zones
 
         public override void EventPlayerClickedOnFlag(Player source, GameObject go)
         {
-            switch (go.GetEntry())
+            switch (go.Entry)
             {
                 case 191307:
                 case 191308:
@@ -743,7 +744,7 @@ namespace Game.BattleGrounds.Zones
                 return;
 
             DelCreature(SACreatureTypes.Max + i);
-            int teamId = GetTeamIndexByTeamId(GetPlayerTeam(source.GetGUID()));
+            int teamId = GetTeamIndexByTeamId(GetPlayerTeam(source.GUID));
             GraveyardStatus[i] = teamId;
             WorldSafeLocsEntry sg = Global.ObjectMgr.GetWorldSafeLoc(SAMiscConst.GYEntries[i]);
             if (sg == null)
@@ -762,7 +763,7 @@ namespace Game.BattleGrounds.Zones
                 {
                     flag = SAObjectTypes.LeftFlag;
                     DelObject(flag);
-                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamId.Alliance ? 0 : 1u)),
+                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
                         SAMiscConst.ObjSpawnlocs[flag], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay);
 
                     npc = SACreatureTypes.Rigspark;
@@ -772,25 +773,25 @@ namespace Game.BattleGrounds.Zones
 
                     for (byte j = SACreatureTypes.Demolisher7; j <= SACreatureTypes.Demolisher8; j++)
                     {
-                        AddCreature(SAMiscConst.NpcEntries[j], j, SAMiscConst.NpcSpawnlocs[j], (Attackers == TeamId.Alliance ? TeamId.Horde : TeamId.Alliance), 600);
+                        AddCreature(SAMiscConst.NpcEntries[j], j, SAMiscConst.NpcSpawnlocs[j], (Attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance), 600);
                         Creature dem = GetBGCreature(j);
                         if (dem)
-                            dem.SetFaction(SAMiscConst.Factions[Attackers]);
+                            dem.                            Faction = SAMiscConst.Factions[Attackers];
                     }
 
-                    UpdateWorldState(SAWorldStateIds.LeftGyAlliance, GraveyardStatus[i] == TeamId.Alliance ? 1 : 0);
-                    UpdateWorldState(SAWorldStateIds.LeftGyHorde, GraveyardStatus[i] == TeamId.Horde ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.LeftGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.LeftGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
                     Creature c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
                     if (c)
-                        SendChatMessage(c, teamId == TeamId.Alliance ? SATextIds.WestGraveyardCapturedA : SATextIds.WestGraveyardCapturedH, source);
+                        SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.WestGraveyardCapturedA : SATextIds.WestGraveyardCapturedH, source);
                 }
                 break;
                 case SAGraveyards.RightCapturableGy:
                 {
                     flag = SAObjectTypes.RightFlag;
                     DelObject(flag);
-                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamId.Alliance ? 0 : 1u)),
+                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
                         SAMiscConst.ObjSpawnlocs[flag], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay);
 
                     npc = SACreatureTypes.Sparklight;
@@ -800,34 +801,34 @@ namespace Game.BattleGrounds.Zones
 
                     for (byte j = SACreatureTypes.Demolisher5; j <= SACreatureTypes.Demolisher6; j++)
                     {
-                        AddCreature(SAMiscConst.NpcEntries[j], j, SAMiscConst.NpcSpawnlocs[j], Attackers == TeamId.Alliance ? TeamId.Horde : TeamId.Alliance, 600);
+                        AddCreature(SAMiscConst.NpcEntries[j], j, SAMiscConst.NpcSpawnlocs[j], Attackers == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance, 600);
 
                         Creature dem = GetBGCreature(j);
                         if (dem)
-                            dem.SetFaction(SAMiscConst.Factions[Attackers]);
+                            dem.                            Faction = SAMiscConst.Factions[Attackers];
                     }
 
-                    UpdateWorldState(SAWorldStateIds.RightGyAlliance, GraveyardStatus[i] == TeamId.Alliance ? 1 : 0);
-                    UpdateWorldState(SAWorldStateIds.RightGyHorde, GraveyardStatus[i] == TeamId.Horde ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.RightGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.RightGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
                     Creature c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
                     if (c)
-                        SendChatMessage(c, teamId == TeamId.Alliance ? SATextIds.EastGraveyardCapturedA : SATextIds.EastGraveyardCapturedH, source);
+                        SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.EastGraveyardCapturedA : SATextIds.EastGraveyardCapturedH, source);
                 }
                 break;
                 case SAGraveyards.CentralCapturableGy:
                 {
                     flag = SAObjectTypes.CentralFlag;
                     DelObject(flag);
-                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamId.Alliance ? 0 : 1u)),
+                    AddObject(flag, (SAMiscConst.ObjEntries[flag] - (teamId == TeamIds.Alliance ? 0 : 1u)),
                       SAMiscConst.ObjSpawnlocs[flag], 0, 0, 0, 0, BattlegroundConst.RespawnOneDay);
 
-                    UpdateWorldState(SAWorldStateIds.CenterGyAlliance, GraveyardStatus[i] == TeamId.Alliance ? 1 : 0);
-                    UpdateWorldState(SAWorldStateIds.CenterGyHorde, GraveyardStatus[i] == TeamId.Horde ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.CenterGyAlliance, GraveyardStatus[i] == TeamIds.Alliance ? 1 : 0);
+                    UpdateWorldState(SAWorldStateIds.CenterGyHorde, GraveyardStatus[i] == TeamIds.Horde ? 1 : 0);
 
                     Creature c = source.FindNearestCreature(SharedConst.WorldTrigger, 500.0f);
                     if (c)
-                        SendChatMessage(c, teamId == TeamId.Alliance ? SATextIds.SouthGraveyardCapturedA : SATextIds.SouthGraveyardCapturedH, source);
+                        SendChatMessage(c, teamId == TeamIds.Alliance ? SATextIds.SouthGraveyardCapturedA : SATextIds.SouthGraveyardCapturedH, source);
                 }
                 break;
                 default:
@@ -843,10 +844,10 @@ namespace Game.BattleGrounds.Zones
 
             if (CanInteractWithObject(SAObjectTypes.TitanRelic))
             {
-                int clickerTeamId = GetTeamIndexByTeamId(GetPlayerTeam(clicker.GetGUID()));
+                int clickerTeamId = GetTeamIndexByTeamId(GetPlayerTeam(clicker.GUID));
                 if (clickerTeamId == Attackers)
                 {
-                    if (clickerTeamId == TeamId.Alliance)
+                    if (clickerTeamId == TeamIds.Alliance)
                         SendBroadcastText(SABroadcastTexts.AllianceCapturedTitanPortal, ChatMsg.BgSystemNeutral);
                     else
                         SendBroadcastText(SABroadcastTexts.HordeCapturedTitanPortal, ChatMsg.BgSystemNeutral);
@@ -860,11 +861,11 @@ namespace Game.BattleGrounds.Zones
                         {
                             Player player = Global.ObjAccessor.FindPlayer(pair.Key);
                             if (player)
-                                if (GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID())) == Attackers)
+                                if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers)
                                     player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
                         }
 
-                        Attackers = (Attackers == TeamId.Alliance) ? TeamId.Horde : TeamId.Alliance;
+                        Attackers = (Attackers == TeamIds.Alliance) ? TeamIds.Horde : TeamIds.Alliance;
                         Status = SAStatus.SecondWarmup;
                         TotalTime = 0;
                         ToggleTimer();
@@ -879,8 +880,8 @@ namespace Game.BattleGrounds.Zones
                         InitSecondRound = true;
                         ResetObjs();
                         GetBgMap().UpdateAreaDependentAuras();
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Alliance);
-                        CastSpellOnTeam(SASpellIds.EndOfRound, Team.Horde);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Alliance);
+                        CastSpellOnTeam(SASpellIds.EndOfRound, TeamFaction.Horde);
                     }
                     else if (Status == SAStatus.RoundTwo)
                     {
@@ -892,16 +893,16 @@ namespace Game.BattleGrounds.Zones
                         {
                             Player player = Global.ObjAccessor.FindPlayer(pair.Key);
                             if (player)
-                                if (GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID())) == Attackers && RoundScores[1].winner == Attackers)
+                                if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers && RoundScores[1].winner == Attackers)
                                     player.UpdateCriteria(CriteriaType.BeSpellTarget, 65246);
                         }
 
                         if (RoundScores[0].time == RoundScores[1].time)
                             EndBattleground(0);
                         else if (RoundScores[0].time < RoundScores[1].time)
-                            EndBattleground(RoundScores[0].winner == TeamId.Alliance ? Team.Alliance : Team.Horde);
+                            EndBattleground(RoundScores[0].winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
                         else
-                            EndBattleground(RoundScores[1].winner == TeamId.Alliance ? Team.Alliance : Team.Horde);
+                            EndBattleground(RoundScores[1].winner == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde);
                     }
                 }
             }
@@ -913,17 +914,17 @@ namespace Game.BattleGrounds.Zones
             UpdateWorldState(SAWorldStateIds.EnableTimer, TimerEnabled ? 1 : 0);
         }
 
-        public override void EndBattleground(Team winner)
+        public override void EndBattleground(TeamFaction winner)
         {
             // honor reward for winning
-            if (winner == Team.Alliance)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Alliance);
-            else if (winner == Team.Horde)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Horde);
+            if (winner == TeamFaction.Alliance)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Alliance);
+            else if (winner == TeamFaction.Horde)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Horde);
 
             // complete map_end rewards (even if no team wins)
-            RewardHonorToTeam(GetBonusHonorFromKill(2), Team.Alliance);
-            RewardHonorToTeam(GetBonusHonorFromKill(2), Team.Horde);
+            RewardHonorToTeam(GetBonusHonorFromKill(2), TeamFaction.Alliance);
+            RewardHonorToTeam(GetBonusHonorFromKill(2), TeamFaction.Horde);
 
             base.EndBattleground(winner);
         }
@@ -932,12 +933,12 @@ namespace Game.BattleGrounds.Zones
         {
             for (byte i = SACreatureTypes.Demolisher1; i <= SACreatureTypes.Demolisher8; i++)
             {
-                if (!BgCreatures[i].IsEmpty())
+                if (!BgCreatures[i].IsEmpty)
                 {
                     Creature Demolisher = GetBGCreature(i);
                     if (Demolisher)
                     {
-                        if (Demolisher.IsDead())
+                        if (Demolisher.IsDead)
                         {
                             // Demolisher is not in list
                             if (!DemoliserRespawnList.ContainsKey(i))
@@ -961,13 +962,13 @@ namespace Game.BattleGrounds.Zones
 
         void SendTransportInit(Player player)
         {
-            if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
+            if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
             {
                 UpdateData transData = new(player.Location.MapId);
-                if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
+                if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty)
                     GetBGObject(SAObjectTypes.BoatOne).BuildCreateUpdateBlockForPlayer(transData, player);
 
-                if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
+                if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
                     GetBGObject(SAObjectTypes.BoatTwo).BuildCreateUpdateBlockForPlayer(transData, player);
 
                 transData.BuildPacket(out UpdateObject packet);
@@ -977,12 +978,12 @@ namespace Game.BattleGrounds.Zones
 
         void SendTransportsRemove(Player player)
         {
-            if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
+            if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
             {
                 UpdateData transData = new(player.Location.MapId);
-                if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
+                if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty)
                     GetBGObject(SAObjectTypes.BoatOne).BuildOutOfRangeUpdateBlock(transData);
-                if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
+                if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
                     GetBGObject(SAObjectTypes.BoatTwo).BuildOutOfRangeUpdateBlock(transData);
 
                 transData.BuildPacket(out UpdateObject packet);
@@ -1001,9 +1002,9 @@ namespace Game.BattleGrounds.Zones
             switch (spellId)
             {
                 case SASpellIds.AllianceControlPhaseShift:
-                    return Attackers == TeamId.Horde;
+                    return Attackers == TeamIds.Horde;
                 case SASpellIds.HordeControlPhaseShift:
-                    return Attackers == TeamId.Alliance;
+                    return Attackers == TeamIds.Alliance;
                 case BattlegroundConst.SpellPreparation:
                     return Status == SAStatus.Warmup || Status == SAStatus.SecondWarmup;
                 default:
@@ -1076,7 +1077,7 @@ namespace Game.BattleGrounds.Zones
 
     class BattlegroundSAScore : BattlegroundScore
     {
-        public BattlegroundSAScore(ObjectGuid playerGuid, Team team) : base(playerGuid, team) { }
+        public BattlegroundSAScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
         public override void UpdateScore(ScoreType type, uint value)
         {

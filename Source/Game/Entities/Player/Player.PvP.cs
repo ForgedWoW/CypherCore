@@ -42,7 +42,7 @@ public partial class Player
 	public bool RewardHonor(Unit victim, uint groupsize, int honor = -1, bool pvptoken = false)
 	{
 		// do not reward honor in arenas, but enable onkill spellproc
-		if (InArena())
+		if (InArena)
 		{
 			if (!victim || victim == this || !victim.IsTypeId(TypeId.Player))
 				return false;
@@ -75,15 +75,15 @@ public partial class Player
 			if (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit))
 				return false;
 
-			victimGuid = victim.GetGUID();
+			victimGuid = victim.GUID;
 			var plrVictim = victim.ToPlayer();
 
 			if (plrVictim)
 			{
-				if (GetEffectiveTeam() == plrVictim.GetEffectiveTeam() && !Global.WorldMgr.IsFFAPvPRealm())
+				if (EffectiveTeam == plrVictim.EffectiveTeam && !Global.WorldMgr.IsFFAPvPRealm())
 					return false;
 
-				var kLevel = (byte)GetLevel();
+				var kLevel = (byte)Level;
 				var kGrey = (byte)Formulas.GetGrayLevel(kLevel);
 				var vLevel = (byte)victim.GetLevelForTarget(this);
 
@@ -120,15 +120,15 @@ public partial class Player
 				// and those in a lifetime
 				ApplyModUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.LifetimeHonorableKills), 1u, true);
 				UpdateCriteria(CriteriaType.HonorableKills);
-				UpdateCriteria(CriteriaType.DeliverKillingBlowToClass, (uint)victim.GetClass());
-				UpdateCriteria(CriteriaType.DeliverKillingBlowToRace, (uint)victim.GetRace());
+				UpdateCriteria(CriteriaType.DeliverKillingBlowToClass, (uint)victim.Class);
+				UpdateCriteria(CriteriaType.DeliverKillingBlowToRace, (uint)victim.Race);
 				UpdateCriteria(CriteriaType.PVPKillInArea, GetAreaId());
 				UpdateCriteria(CriteriaType.EarnHonorableKill, 1, 0, 0, victim);
 				UpdateCriteria(CriteriaType.KillPlayer, 1, 0, 0, victim);
 			}
 			else
 			{
-				if (!victim.ToCreature().IsRacialLeader())
+				if (!victim.ToCreature().IsRacialLeader)
 					return false;
 
 				honorF = 100.0f;  // ??? need more info
@@ -182,7 +182,7 @@ public partial class Player
 				// Check if allowed to receive it in current map
 				var mapType = WorldConfig.GetIntValue(WorldCfg.PvpTokenMapType);
 
-				if ((mapType == 1 && !InBattleground() && !IsFFAPvP()) || (mapType == 2 && !IsFFAPvP()) || (mapType == 3 && !InBattleground()))
+				if ((mapType == 1 && !InBattleground() && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground()))
 					return true;
 
 				var itemId = WorldConfig.GetUIntValue(WorldCfg.PvpTokenId);
@@ -210,7 +210,7 @@ public partial class Player
 		var newHonorXp = currentHonorXp + xp;
 		var honorLevel = GetHonorLevel();
 
-		if (xp < 1 || GetLevel() < PlayerConst.LevelMinHonor || IsMaxHonorLevel())
+		if (xp < 1 || Level < PlayerConst.LevelMinHonor || IsMaxHonorLevel())
 			return;
 
 		while (newHonorXp >= nextHonorLevelXp)
@@ -430,7 +430,7 @@ public partial class Player
 		if (gameobject)
 		{
 			var playerFaction = GetFactionTemplateEntry();
-			var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.GetFaction());
+			var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.Faction);
 
 			if (playerFaction != null && faction != null && !playerFaction.IsFriendlyTo(faction))
 				return false;
@@ -438,16 +438,16 @@ public partial class Player
 
 		// BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
 		// Note: Mount, stealth and invisibility will be removed when used
-		return (!IsTotalImmune() &&                                     // Damage immune
+		return (!IsTotalImmune &&                                       // Damage immune
 				!HasAura(BattlegroundConst.SpellRecentlyDroppedFlag) && // Still has recently held flag debuff
-				IsAlive());                                             // Alive
+				IsAlive);                                               // Alive
 	}
 
 	public bool CanCaptureTowerPoint()
 	{
 		return (!HasStealthAura() &&      // not stealthed
 				!HasInvisibilityAura() && // not invisible
-				IsAlive());               // live player
+				IsAlive);                 // live player
 	}
 
 	public void SetBattlegroundEntryPoint()
@@ -467,7 +467,7 @@ public partial class Player
 			_bgData.ClearTaxiPath();
 
 			// Mount spell id storing
-			if (IsMounted())
+			if (IsMounted)
 			{
 				var auras = GetAuraEffectsByType(AuraType.Mounted);
 
@@ -482,7 +482,7 @@ public partial class Player
 			// If map is dungeon find linked graveyard
 			if (GetMap().IsDungeon())
 			{
-				var entry = Global.ObjectMgr.GetClosestGraveYard(Location, GetTeam(), this);
+				var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
 
 				if (entry != null)
 					_bgData.JoinPos = entry.Loc;
@@ -497,18 +497,18 @@ public partial class Player
 		}
 
 		if (_bgData.JoinPos.MapId == 0xFFFFFFFF) // In error cases use homebind position
-			_bgData.JoinPos = new WorldLocation(GetHomebind());
+			_bgData.JoinPos = new WorldLocation(Homebind);
 	}
 
-	public void SetBgTeam(Team team)
+	public void SetBgTeam(TeamFaction team)
 	{
 		_bgData.BgTeam = (uint)team;
-		SetArenaFaction((byte)(team == Team.Alliance ? 1 : 0));
+		SetArenaFaction((byte)(team == TeamFaction.Alliance ? 1 : 0));
 	}
 
-	public Team GetBgTeam()
+	public TeamFaction GetBgTeam()
 	{
-		return _bgData.BgTeam != 0 ? (Team)_bgData.BgTeam : GetTeam();
+		return _bgData.BgTeam != 0 ? (TeamFaction)_bgData.BgTeam : Team;
 	}
 
 	public void LeaveBattleground(bool teleportToEntryPoint = true)
@@ -517,14 +517,14 @@ public partial class Player
 
 		if (bg)
 		{
-			bg.RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
+			bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
 
 			// call after remove to be sure that player resurrected for correct cast
-			if (bg.IsBattleground() && !IsGameMaster() && WorldConfig.GetBoolValue(WorldCfg.BattlegroundCastDeserter))
+			if (bg.IsBattleground() && !IsGameMaster && WorldConfig.GetBoolValue(WorldCfg.BattlegroundCastDeserter))
 				if (bg.GetStatus() == BattlegroundStatus.InProgress || bg.GetStatus() == BattlegroundStatus.WaitJoin)
 				{
 					//lets check if player was teleported from BG and schedule delayed Deserter spell cast
-					if (IsBeingTeleportedFar())
+					if (IsBeingTeleportedFar)
 					{
 						ScheduleDelayedOperation(PlayerDelayedOperations.SpellCastDeserter);
 
@@ -550,7 +550,7 @@ public partial class Player
 		else if (bg.IsRandom())
 			perm = RBACPermissions.JoinRandomBg;
 
-		return GetSession().HasPermission(perm);
+		return Session.HasPermission(perm);
 	}
 
 	public void ClearAfkReports()
@@ -565,11 +565,11 @@ public partial class Player
 	public void ReportedAfkBy(Player reporter)
 	{
 		ReportPvPPlayerAFKResult reportAfkResult = new();
-		reportAfkResult.Offender = GetGUID();
+		reportAfkResult.Offender = GUID;
 		var bg = GetBattleground();
 
 		// Battleground also must be in progress!
-		if (!bg || bg != reporter.GetBattleground() || GetEffectiveTeam() != reporter.GetEffectiveTeam() || bg.GetStatus() != BattlegroundStatus.InProgress)
+		if (!bg || bg != reporter.GetBattleground() || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)
 		{
 			reporter.SendPacket(reportAfkResult);
 
@@ -577,9 +577,9 @@ public partial class Player
 		}
 
 		// check if player has 'Idle' or 'Inactive' debuff
-		if (!_bgData.BgAfkReporter.Contains(reporter.GetGUID()) && !HasAura(43680) && !HasAura(43681) && reporter.CanReportAfkDueToLimit())
+		if (!_bgData.BgAfkReporter.Contains(reporter.GUID) && !HasAura(43680) && !HasAura(43681) && reporter.CanReportAfkDueToLimit())
 		{
-			_bgData.BgAfkReporter.Add(reporter.GetGUID());
+			_bgData.BgAfkReporter.Add(reporter.GUID);
 
 			// by default 3 players have to complain to apply debuff
 			if (_bgData.BgAfkReporter.Count >= WorldConfig.GetIntValue(WorldCfg.BattlegroundReportAfk))
@@ -608,7 +608,7 @@ public partial class Player
 		if (_isBgRandomWinner)
 		{
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_BATTLEGROUND_RANDOM);
-			stmt.AddValue(0, GetGUID().GetCounter());
+			stmt.AddValue(0, GUID.Counter);
 			DB.Characters.Execute(stmt);
 		}
 	}
@@ -622,7 +622,7 @@ public partial class Player
 			return false;
 
 		// limit check leel to dbc compatible level range
-		var level = GetLevel();
+		var level = Level;
 
 		if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 			level = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
@@ -712,7 +712,7 @@ public partial class Player
 	//OutdoorPVP
 	public bool IsOutdoorPvPActive()
 	{
-		return IsAlive() && !HasInvisibilityAura() && !HasStealthAura() && IsPvP() && !HasUnitMovementFlag(MovementFlag.Flying) && !IsInFlight();
+		return IsAlive && !HasInvisibilityAura() && !HasStealthAura() && IsPvP && !HasUnitMovementFlag(MovementFlag.Flying) && !IsInFlight;
 	}
 
 	public OutdoorPvP GetOutdoorPvP()

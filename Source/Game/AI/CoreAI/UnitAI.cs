@@ -30,16 +30,16 @@ namespace Game.AI
                 if (me.HasUnitState(UnitState.Distracted))
                 {
                     me.ClearUnitState(UnitState.Distracted);
-                    me.GetMotionMaster().Clear();
+                    me.                    MotionMaster.Clear();
                 }
-                me.GetMotionMaster().MoveChase(victim);
+                me.                MotionMaster.MoveChase(victim);
             }
         }
 
         public void AttackStartCaster(Unit victim, float dist)
         {
             if (victim != null && me.Attack(victim, false))
-                me.GetMotionMaster().MoveChase(victim, dist);
+                me.                MotionMaster.MoveChase(victim, dist);
         }
 
         ThreatManager GetThreatManager()
@@ -263,12 +263,12 @@ namespace Game.AI
                             DefaultTargetSelector targetSelectorInner = new(me, spellInfo.GetMaxRange(false), false, true, 0);
                             bool targetSelector(Unit candidate)
                             {
-                                if (!candidate.IsPlayer())
+                                if (!candidate.IsPlayer)
                                 {
                                     if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
                                         return false;
 
-                                    if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer())
+                                    if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
                                         return false;
                                 }
                                 else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
@@ -294,12 +294,12 @@ namespace Game.AI
                             DefaultTargetSelector targetSelectorInner = new(me, range, false, true, -(int)spellId);
                             bool targetSelector(Unit candidate)
                             {
-                                if (!candidate.IsPlayer())
+                                if (!candidate.IsPlayer)
                                 {
                                     if (spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
                                         return false;
 
-                                    if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer())
+                                    if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && candidate.IsControlledByPlayer)
                                         return false;
                                 }
                                 else if (spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
@@ -475,7 +475,7 @@ namespace Game.AI
 
         public virtual void InitializeAI()
         {
-            if (!me.IsDead())
+            if (!me.IsDead)
                 Reset();
         }
 

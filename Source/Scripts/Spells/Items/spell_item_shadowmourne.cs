@@ -25,7 +25,7 @@ internal class spell_item_shadowmourne : AuraScript, IAuraCheckProc, IHasAuraEff
 		if (Target.HasAura(ItemSpellIds.ShadowmourneChaosBaneBuff)) // cant collect shards while under effect of Chaos Bane buff
 			return false;
 
-		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive();
+		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive;
 	}
 
 	public override void Register()

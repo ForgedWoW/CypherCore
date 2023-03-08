@@ -31,9 +31,9 @@ public class npc_earth_grab_totem : ScriptedAI
 												if (target.HasAura(TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT))
 													continue;
 
-												if (!alreadyRooted.Contains(target.GetGUID()))
+												if (!alreadyRooted.Contains(target.GUID))
 												{
-													alreadyRooted.Add(target.GetGUID());
+													alreadyRooted.Add(target.GUID);
 													me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
 												}
 												else

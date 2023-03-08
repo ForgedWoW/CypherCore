@@ -21,7 +21,7 @@ public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGr
 	public WorldObjectWorker(WorldObject searcher, IDoWork<WorldObject> work, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
 	{
 		Mask = mapTypeMask;
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_doWork = work;
 		GridType = gridType;
 	}

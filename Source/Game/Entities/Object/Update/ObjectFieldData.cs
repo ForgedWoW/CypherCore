@@ -64,7 +64,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 			var summon = unit.ToTempSummon();
 
 			if (summon != null)
-				if (summon.GetSummonerGUID() == receiver.GetGUID() && summon.GetCreatureIdVisibleToSummoner().HasValue)
+				if (summon.GetSummonerGUID() == receiver.GUID && summon.GetCreatureIdVisibleToSummoner().HasValue)
 					entryId = summon.GetCreatureIdVisibleToSummoner().Value;
 		}
 
@@ -95,7 +95,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 
 			// unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
 			if (unitDynFlags.HasAnyFlag((uint)UnitDynFlags.TrackUnit))
-				if (!unit.HasAuraTypeWithCaster(AuraType.ModStalked, receiver.GetGUID()))
+				if (!unit.HasAuraTypeWithCaster(AuraType.ModStalked, receiver.GUID))
 					unitDynFlags &= ~(uint)UnitDynFlags.TrackUnit;
 		}
 		else
@@ -117,7 +117,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 					case GameObjectTypes.Chest:
 						if (gameObject.ActivateToQuest(receiver))
 							dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
-						else if (receiver.IsGameMaster())
+						else if (receiver.IsGameMaster)
 							dynFlags |= GameObjectDynamicLowFlags.Activate;
 
 						break;
@@ -126,10 +126,10 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 						{
 							dynFlags |= GameObjectDynamicLowFlags.Highlight;
 
-							if (gameObject.GetGoStateFor(receiver.GetGUID()) != GameObjectState.Active)
+							if (gameObject.GetGoStateFor(receiver.GUID) != GameObjectState.Active)
 								dynFlags |= GameObjectDynamicLowFlags.Activate;
 						}
-						else if (receiver.IsGameMaster())
+						else if (receiver.IsGameMaster)
 						{
 							dynFlags |= GameObjectDynamicLowFlags.Activate;
 						}
@@ -159,7 +159,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 						if (gameObject.ActivateToQuest(receiver))
 							dynFlags |= GameObjectDynamicLowFlags.Activate | GameObjectDynamicLowFlags.Sparkle | GameObjectDynamicLowFlags.Highlight;
 
-						if (gameObject.GetGoStateFor(receiver.GetGUID()) == GameObjectState.Active)
+						if (gameObject.GetGoStateFor(receiver.GUID) == GameObjectState.Active)
 							dynFlags |= GameObjectDynamicLowFlags.Depleted;
 
 						break;

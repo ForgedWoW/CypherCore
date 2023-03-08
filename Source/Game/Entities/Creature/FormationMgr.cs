@@ -21,11 +21,11 @@ public class FormationMgr
 		if (creatureGroup != null)
 		{
 			//Add member to an existing group
-			Log.outDebug(LogFilter.Unit, "Group found: {0}, inserting creature GUID: {1}, Group InstanceID {2}", leaderSpawnId, creature.GetGUID().ToString(), creature.GetInstanceId());
+			Log.outDebug(LogFilter.Unit, "Group found: {0}, inserting creature GUID: {1}, Group InstanceID {2}", leaderSpawnId, creature.GUID.ToString(), creature.InstanceId1);
 
 			// With dynamic spawn the creature may have just respawned
 			// we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
-			var bounds = map.GetCreatureBySpawnIdStore().LookupByKey(creature.GetSpawnId());
+			var bounds = map.GetCreatureBySpawnIdStore().LookupByKey(creature.SpawnId);
 
 			foreach (var other in bounds)
 			{
@@ -50,14 +50,14 @@ public class FormationMgr
 
 	public static void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
 	{
-		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.GetLeaderSpawnId(), member.GetSpawnId());
+		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.GetLeaderSpawnId(), member.SpawnId);
 		group.RemoveMember(member);
 
 		if (group.IsEmpty())
 		{
 			var map = member.GetMap();
 
-			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.GetInstanceId());
+			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId1);
 			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.GetLeaderSpawnId()), $"Not registered group {group.GetLeaderSpawnId()} in map {map.GetId()}");
 			map.CreatureGroupHolder.Remove(group.GetLeaderSpawnId());
 		}

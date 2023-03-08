@@ -279,7 +279,7 @@ internal class boss_netherspite : ScriptedAI
 
 			if (portal)
 			{
-				PortalGUID[i] = portal.GetGUID();
+				PortalGUID[i] = portal.GUID;
 				portal.AddAura(MiscConst.PortalVisual[i], portal);
 			}
 		}
@@ -322,7 +322,7 @@ internal class boss_netherspite : ScriptedAI
 				// get the best suitable Target
 				foreach (var player in players)
 					if (player &&
-						player.IsAlive() // alive
+						player.IsAlive // alive
 						&&
 						(!target || target.GetDistance2d(portal) > player.GetDistance2d(portal)) // closer than current best
 						&&
@@ -335,7 +335,7 @@ internal class boss_netherspite : ScriptedAI
 						target = player;
 
 				// buff the Target
-				if (target.IsPlayer())
+				if (target.IsPlayer)
 					target.AddAura(MiscConst.PlayerBuff[j], target);
 				else
 					target.AddAura(MiscConst.NetherBuff[j], target);
@@ -345,7 +345,7 @@ internal class boss_netherspite : ScriptedAI
 				if (!current ||
 					target != current)
 				{
-					BeamTarget[j] = target.GetGUID();
+					BeamTarget[j] = target.GUID;
 					// remove currently beaming portal
 					var beamer = ObjectAccessor.GetCreature(portal, BeamerGUID[j]);
 
@@ -362,14 +362,14 @@ internal class boss_netherspite : ScriptedAI
 					if (beamer1)
 					{
 						beamer1.CastSpell(target, MiscConst.PortalBeam[j], false);
-						BeamerGUID[j] = beamer1.GetGUID();
+						BeamerGUID[j] = beamer1.GUID;
 					}
 				}
 
 				// aggro Target if Red Beam
 				if (j == (int)Portals.Red &&
 					me.GetVictim() != target &&
-					target.IsPlayer())
+					target.IsPlayer)
 					AddThreat(target, 100000.0f);
 			}
 		}

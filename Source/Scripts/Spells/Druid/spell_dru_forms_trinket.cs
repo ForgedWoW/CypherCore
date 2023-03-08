@@ -24,7 +24,7 @@ internal class spell_dru_forms_trinket : AuraScript, IAuraCheckProc, IHasAuraEff
 	{
 		var target = eventInfo.Actor;
 
-		switch (target.GetShapeshiftForm())
+		switch (target.ShapeshiftForm)
 		{
 			case ShapeShiftForm.BearForm:
 			case ShapeShiftForm.DireBearForm:
@@ -51,7 +51,7 @@ internal class spell_dru_forms_trinket : AuraScript, IAuraCheckProc, IHasAuraEff
 		var target = eventInfo.Actor;
 		uint triggerspell;
 
-		switch (target.GetShapeshiftForm())
+		switch (target.ShapeshiftForm)
 		{
 			case ShapeShiftForm.BearForm:
 			case ShapeShiftForm.DireBearForm:

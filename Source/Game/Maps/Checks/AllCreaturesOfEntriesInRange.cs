@@ -26,7 +26,7 @@ public class AllCreaturesOfEntriesInRange : ICheck<Creature>
 			var match = false;
 
 			foreach (var entry in _uiEntry)
-				if (entry != 0 && creature.GetEntry() == entry)
+				if (entry != 0 && creature.Entry == entry)
 					match = true;
 
 			if (!match)

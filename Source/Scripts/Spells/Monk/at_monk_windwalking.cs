@@ -43,7 +43,7 @@ public class at_monk_windwalking : AreaTriggerAI
 		if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
 			return;
 
-		var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GetGUID());
+		var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
 
 		if (aur != null)
 		{
@@ -62,7 +62,7 @@ public class at_monk_windwalking : AreaTriggerAI
 		if (!caster.ToPlayer())
 			return;
 
-		foreach (var guid in at.GetInsideUnits())
+		foreach (var guid in at.InsideUnits)
 		{
 			var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 
@@ -71,7 +71,7 @@ public class at_monk_windwalking : AreaTriggerAI
 				if (unit.HasAura(MonkSpells.WINDWALKING) && unit != caster) // Don't remove from other WW monks.
 					continue;
 
-				var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GetGUID());
+				var aur = unit.GetAura(MonkSpells.WINDWALKER_AURA, caster.GUID);
 
 				if (aur != null)
 				{

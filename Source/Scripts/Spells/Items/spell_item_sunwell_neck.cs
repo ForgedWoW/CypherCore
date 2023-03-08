@@ -35,7 +35,7 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.Actor.GetTypeId() != TypeId.Player)
+		if (eventInfo.Actor.TypeId != TypeId.Player)
 			return false;
 
 		return true;

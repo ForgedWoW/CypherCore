@@ -61,10 +61,10 @@ namespace Game.Chat
         {
             Player player = handler.GetSelectedPlayer();
             if (player == null)
-                player = handler.GetSession().GetPlayer();
+                player = handler.GetSession().Player;
 
             DateTime now = GameTime.GetDateAndTime();
-            var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GetGUID());
+            var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
             foreach (InstanceLock instanceLock in instanceLocks)
             {
                 MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
@@ -145,7 +145,7 @@ namespace Game.Chat
         {
             Player player = handler.GetSelectedPlayer();
             if (player == null)
-                player = handler.GetSession().GetPlayer();
+                player = handler.GetSession().Player;
 
             uint? mapId = null;
             Difficulty? difficulty = null;
@@ -159,7 +159,7 @@ namespace Game.Chat
             List<InstanceLock> locksReset = new();
             List<InstanceLock> locksNotReset = new();
 
-            Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GetGUID(), mapId, difficulty, locksReset, locksNotReset);
+            Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
 
             DateTime now = GameTime.GetDateAndTime();
             foreach (InstanceLock instanceLock in locksReset)

@@ -22,13 +22,13 @@ namespace Game.Movement
             _source = owner;
             _navMesh = null;
             _navMeshQuery = null;
-            Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GetGUID().ToString());
+            Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-            uint mapId = PhasingHandler.GetTerrainMapId(_source.GetPhaseShift(), _source.Location.MapId, _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
+            uint mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
             if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
             {
                 _navMesh = Global.MMapMgr.GetNavMesh(mapId);
-                _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.GetInstanceId());
+                _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.InstanceId1);
             }
             CreateFilter();
         }
@@ -46,7 +46,7 @@ namespace Game.Movement
 
             _forceDestination = forceDest;
 
-            Log.outDebug(LogFilter.Maps, "PathGenerator.CalculatePath() for {0} \n", _source.GetGUID().ToString());
+            Log.outDebug(LogFilter.Maps, "PathGenerator.CalculatePath() for {0} \n", _source.GUID.ToString());
 
             // make sure navMesh works - we can run on map w/o mmap
             // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -150,15 +150,15 @@ namespace Game.Movement
             {
                 Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
                 BuildShortcut();
-                bool path = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanFly();
+                bool path = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanFly;
 
-                bool waterPath = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanSwim();
+                bool waterPath = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanSwim;
                 if (waterPath)
                 {
                     // Check both start and end points, if they're both in water, then we can *safely* let the creature move
                     for (uint i = 0; i < _pathPoints.Length; ++i)
                     {
-                        ZLiquidStatus status = _source.GetMap().GetLiquidStatus(_source.GetPhaseShift(), _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.GetCollisionHeight());
+                        ZLiquidStatus status = _source.GetMap().GetLiquidStatus(_source.PhaseShift, _pathPoints[i].X, _pathPoints[i].Y, _pathPoints[i].Z, LiquidHeaderTypeFlags.AllLiquids, _source.CollisionHeight);
                         // One of the points is not in the water, cancel movement.
                         if (status == ZLiquidStatus.NoWater)
                         {
@@ -191,12 +191,12 @@ namespace Game.Movement
 
                 bool buildShotrcut = false;
                 var p = (distToStartPoly > 7.0f) ? startPos : endPos;
-                if (_source.GetMap().IsUnderWater(_source.GetPhaseShift(), p.X, p.Y, p.Z))
+                if (_source.GetMap().IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
                 {
                     Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: underWater case");
                     Unit _sourceUnit = _source.ToUnit();
                     if (_sourceUnit != null)
-                        if (_sourceUnit.CanSwim())
+                        if (_sourceUnit.CanSwim)
                             buildShotrcut = true;
                 }
                 else
@@ -205,7 +205,7 @@ namespace Game.Movement
                     Unit _sourceUnit = _source.ToUnit();
                     if (_sourceUnit != null)
                     {
-                        if (_sourceUnit.CanFly())
+                        if (_sourceUnit.CanFly)
                             buildShotrcut = true;
                         // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
                         else if (_sourceUnit.IsFalling() && endPos.Z < startPos.Z)
@@ -354,7 +354,7 @@ namespace Game.Movement
                 uint dtResult;
                 if (_useRaycast)
                 {
-                    Log.outError(LogFilter.Maps, $"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GetGUID()}");
+                    Log.outError(LogFilter.Maps, $"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GUID}");
                     BuildShortcut();
                     pathType = PathType.NoPath;
                     return;
@@ -484,7 +484,7 @@ namespace Game.Movement
                 if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
                 {
                     // only happens if we passed bad data to findPath(), or navmesh is messed up
-                    Log.outError(LogFilter.Maps, "{0}'s Path Build failed: 0 length path", _source.GetGUID().ToString());
+                    Log.outError(LogFilter.Maps, "{0}'s Path Build failed: 0 length path", _source.GUID.ToString());
                     BuildShortcut();
                     pathType = PathType.NoPath;
                     return;
@@ -512,7 +512,7 @@ namespace Game.Movement
             if (_useRaycast)
             {
                 // _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-                Log.outError(LogFilter.Maps, $"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GetGUID()}");
+                Log.outError(LogFilter.Maps, $"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
                 BuildShortcut();
                 pathType = PathType.NoPath;
                 return;
@@ -850,11 +850,11 @@ namespace Game.Movement
             if (_source.IsTypeId(TypeId.Unit))
             {
                 Creature creature = _source.ToCreature();
-                if (creature.CanWalk())
+                if (creature.CanWalk)
                     includeFlags |= NavTerrainFlag.Ground;
 
                 // creatures don't take environmental damage
-                if (creature.CanEnterWater())
+                if (creature.CanEnterWater)
                     includeFlags |= (NavTerrainFlag.Water | NavTerrainFlag.MagmaSlime);
             }
             else
@@ -883,14 +883,14 @@ namespace Game.Movement
 
                 Creature _sourceCreature = _source.ToCreature();
                 if (_sourceCreature != null)
-                    if (_sourceCreature.IsInCombat() || _sourceCreature.IsInEvadeMode())
+                    if (_sourceCreature.IsInCombat() || _sourceCreature.IsInEvadeMode)
                         _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));
             }
         }
 
         NavTerrainFlag GetNavTerrain(float x, float y, float z)
         {
-            ZLiquidStatus liquidStatus = _source.GetMap().GetLiquidStatus(_source.GetPhaseShift(), x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData data, _source.GetCollisionHeight());
+            ZLiquidStatus liquidStatus = _source.GetMap().GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out LiquidData data, _source.CollisionHeight);
             if (liquidStatus == ZLiquidStatus.NoWater)
                 return NavTerrainFlag.Ground;
 
@@ -941,7 +941,7 @@ namespace Game.Movement
                 return;
 
             int i = _pathPoints.Length - 1;
-            float collisionHeight = _source.GetCollisionHeight();
+            float collisionHeight = _source.CollisionHeight;
             // find the first i s.t.:
             //  - _pathPoints[i] is still too close
             //  - _pathPoints[i-1] is too far away
@@ -957,7 +957,7 @@ namespace Game.Movement
                 // check if the shortened path is still in LoS with the target
                 var hitPos = new Position();
                 _source.GetHitSpherePointFor(new Position(point.X, point.Y, point.Z + collisionHeight), hitPos);
-                if (!_source.GetMap().IsInLineOfSight(_source.GetPhaseShift(), hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
+                if (!_source.GetMap().IsInLineOfSight(_source.PhaseShift, hitPos, point.X, point.Y, point.Z + collisionHeight, LineOfSightChecks.All, ModelIgnoreFlags.Nothing))
                 {
                     // whenver we find a point that is not in LoS anymore, simply use last valid path
                     Array.Resize(ref _pathPoints, i + 1);

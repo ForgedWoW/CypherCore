@@ -23,7 +23,7 @@ public class spell_monk_fortifying_brew : SpellScript, IHasSpellEffects
 	{
 		var caster = Caster;
 
-		if (caster != null && caster.GetTypeId() == TypeId.Player)
+		if (caster != null && caster.TypeId == TypeId.Player)
 			caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
 	}
 }

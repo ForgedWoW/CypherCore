@@ -64,7 +64,7 @@ namespace Game.AI
             _canAutoAttack = true;
             _canCombatMove = true;
 
-            _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.GetEntry());
+            _hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.Entry);
         }
 
         bool IsAIControlled()
@@ -96,13 +96,14 @@ namespace Game.AI
             // Do not use AddEscortState, removing everything from previous
             _escortState = SmartEscortState.Escorting;
 
-            if (invoker && invoker.IsPlayer())
+            if (invoker && invoker.IsPlayer)
             {
-                _escortNPCFlags = (uint)me.GetNpcFlags();
+                _escortNPCFlags = (uint)me.NpcFlags;
                 me.ReplaceAllNpcFlags(NPCFlags.None);
             }
 
-            me.GetMotionMaster().MovePath(_path, _repeatWaypointPath);
+            me.
+            MotionMaster.MovePath(_path, _repeatWaypointPath);
         }
 
         bool LoadPath(uint entry)
@@ -135,7 +136,7 @@ namespace Game.AI
             if (!HasEscortState(SmartEscortState.Escorting))
             {
                 me.PauseMovement(delay, MovementSlot.Default, forced);
-                if (me.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
+                if (me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
                 {
                     var (nodeId, pathId) = me.GetCurrentWaypointInfo();
                     GetScript().ProcessEventsFor(SmartEvents.WaypointPaused, null, nodeId, pathId);
@@ -145,7 +146,7 @@ namespace Game.AI
 
             if (HasEscortState(SmartEscortState.Paused))
             {
-                Log.outError(LogFilter.Server, $"SmartAI.PausePath: Creature entry {me.GetEntry()} wanted to pause waypoint movement while already paused, ignoring.");
+                Log.outError(LogFilter.Server, $"SmartAI.PausePath: Creature entry {me.Entry} wanted to pause waypoint movement while already paused, ignoring.");
                 return;
             }
 
@@ -181,13 +182,14 @@ namespace Game.AI
             if (!HasEscortState(SmartEscortState.Escorting))
             {
                 (uint nodeId, uint pathId) waypointInfo = new ();
-                if (me.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
+                if (me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
                     waypointInfo = me.GetCurrentWaypointInfo();
 
                 if (_despawnState != 2)
                     SetDespawnTime(despawnTime);
 
-                me.GetMotionMaster().MoveIdle();
+                me.
+                MotionMaster.MoveIdle();
 
                 if (waypointInfo.Item1 != 0)
                     GetScript().ProcessEventsFor(SmartEvents.WaypointStopped, null, waypointInfo.Item1, waypointInfo.Item2);
@@ -208,7 +210,8 @@ namespace Game.AI
             if (_despawnState != 2)
                 SetDespawnTime(despawnTime);
 
-            me.GetMotionMaster().MoveIdle();
+            me.
+            MotionMaster.MoveIdle();
 
             GetScript().ProcessEventsFor(SmartEvents.WaypointStopped, null, _currentWaypointNode, GetScript().GetPathId());
 
@@ -310,12 +313,12 @@ namespace Game.AI
                 return;
 
             me.SetWalk(false);
-            me.GetMotionMaster().MovePoint(EventId.SmartEscortLastOCCPoint, me.GetHomePosition());
+            me.            MotionMaster.MovePoint(EventId.SmartEscortLastOCCPoint, me.GetHomePosition());
         }
 
         public override void UpdateAI(uint diff)
         {
-            if (!me.IsAlive())
+            if (!me.IsAlive)
             {
                 if (IsEngaged())
                     EngagementOver();
@@ -403,7 +406,7 @@ namespace Game.AI
                 me.PauseMovement();
                 me.SetHomePosition(me.Location);
             }
-            else if (HasEscortState(SmartEscortState.Escorting) && me.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
+            else if (HasEscortState(SmartEscortState.Escorting) && me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
             {
                 if (_currentWaypointNode == _path.nodes.Count)
                     _waypointPathEnded = true;
@@ -478,10 +481,10 @@ namespace Game.AI
 
             SetRun(_run);
 
-            Unit owner = me.GetCharmerOrOwner();
+            Unit owner = me.CharmerOrOwner;
             if (owner != null)
             {
-                me.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                me.                MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
                 me.ClearUnitState(UnitState.Evade);
             }
             else if (HasEscortState(SmartEscortState.Escorting))
@@ -491,15 +494,15 @@ namespace Game.AI
             }
             else
             {
-                Unit target = !_followGuid.IsEmpty() ? Global.ObjAccessor.GetUnit(me, _followGuid) : null;
+                Unit target = !_followGuid.IsEmpty ? Global.ObjAccessor.GetUnit(me, _followGuid) : null;
                 if (target)
                 {
-                    me.GetMotionMaster().MoveFollow(target, _followDist, _followAngle);
+                    me.                    MotionMaster.MoveFollow(target, _followDist, _followAngle);
                     // evade is not cleared in MoveFollow, so we can't keep it
                     me.ClearUnitState(UnitState.Evade);
                 }
                 else
-                    me.GetMotionMaster().MoveTargetedHome();
+                    me.                    MotionMaster.MoveTargetedHome();
             }
 
             if (!me.HasUnitState(UnitState.Evade))
@@ -531,7 +534,7 @@ namespace Game.AI
                 return false;
 
             //experimental (unknown) flag not present
-            if (!me.GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+            if (!me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
                 return false;
 
             //not a player
@@ -545,11 +548,11 @@ namespace Game.AI
                 return false;
 
             // we cannot attack in evade mode
-            if (me.IsInEvadeMode())
+            if (me.IsInEvadeMode)
                 return false;
 
             // or if enemy is in evade mode
-            if (who.IsCreature() && who.ToCreature().IsInEvadeMode())
+            if (who.IsCreature && who.ToCreature().IsInEvadeMode)
                 return false;
 
             if (!me.IsValidAssistTarget(who.GetVictim()))
@@ -586,7 +589,7 @@ namespace Game.AI
         {
             base.JustAppeared();
 
-            if (me.IsDead())
+            if (me.IsDead)
                 return;
 
             GetScript().ProcessEventsFor(SmartEvents.Respawn);
@@ -601,14 +604,14 @@ namespace Game.AI
             CreatureGroup formation = me.GetFormation();
             if (formation == null || formation.GetLeader() == me || !formation.IsFormed())
             {
-                if (me.GetMotionMaster().GetCurrentMovementGeneratorType(MovementSlot.Default) != MovementGeneratorType.Waypoint)
+                if (me.MotionMaster.GetCurrentMovementGeneratorType(MovementSlot.Default) != MovementGeneratorType.Waypoint)
                     if (me.GetWaypointPath() != 0)
-                        me.GetMotionMaster().MovePath(me.GetWaypointPath(), true);
+                        me.                        MotionMaster.MovePath(me.GetWaypointPath(), true);
                 
                 me.ResumeMovement();
             }
             else if (formation.IsFormed())
-                me.GetMotionMaster().MoveIdle(); // wait the order of leader
+                me.                MotionMaster.MoveIdle(); // wait the order of leader
         }
 
         public override void JustEngagedWith(Unit victim)
@@ -654,13 +657,13 @@ namespace Game.AI
 
             if (who != null && me.Attack(who, _canAutoAttack))
             {
-                me.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+                me.                MotionMaster.Clear(MovementGeneratorPriority.Normal);
                 me.PauseMovement();
 
                 if (_canCombatMove)
                 {
                     SetRun(_run);
-                    me.GetMotionMaster().MoveChase(who);
+                    me.                    MotionMaster.MoveChase(who);
                 }
             }
         }
@@ -723,7 +726,7 @@ namespace Game.AI
 
         public override void SummonedCreatureDespawn(Creature summon)
         {
-            GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, summon, summon.GetEntry());
+            GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, summon, summon.Entry);
         }
 
         public override void CorpseRemoved(long respawnDelay)
@@ -743,7 +746,7 @@ namespace Game.AI
 
         public override void OnCharmed(bool isNew)
         {
-            bool charmed = me.IsCharmed();
+            bool charmed = me.IsCharmed;
             if (charmed) // do this before we change charmed state, as charmed state might prevent these things from processing
             {
                 if (HasEscortState(SmartEscortState.Escorting | SmartEscortState.Paused | SmartEscortState.Returning))
@@ -752,17 +755,17 @@ namespace Game.AI
 
             _isCharmed = charmed;
 
-            if (charmed && !me.IsPossessed() && !me.IsVehicle())
-                me.GetMotionMaster().MoveFollow(me.GetCharmer(), SharedConst.PetFollowDist, me.GetFollowAngle());
+            if (charmed && !me.IsPossessed && !me.IsVehicle)
+                me.                MotionMaster.MoveFollow(me.Charmer, SharedConst.PetFollowDist, me.FollowAngle);
 
-            if (!charmed && !me.IsInEvadeMode())
+            if (!charmed && !me.IsInEvadeMode)
             {
                 if (_repeatWaypointPath)
                     StartPath(_run, GetScript().GetPathId(), true);
                 else
                     me.SetWalk(!_run);
 
-                if (!me.LastCharmerGuid.IsEmpty())
+                if (!me.LastCharmerGuid.IsEmpty)
                 {
                     if (!me.HasReactState(ReactStates.Passive))
                     {
@@ -865,25 +868,25 @@ namespace Game.AI
             if (!IsAIControlled())
                 return;
 
-            if (me.IsEngaged())
+            if (me.IsEngaged)
             {
                 if (on)
                 {
-                    if (!me.HasReactState(ReactStates.Passive) && me.GetVictim() && !me.GetMotionMaster().HasMovementGenerator(movement =>
+                    if (!me.HasReactState(ReactStates.Passive) && me.GetVictim() && !me.MotionMaster.HasMovementGenerator(movement =>
                     {
                         return movement.GetMovementGeneratorType() == MovementGeneratorType.Chase && movement.Mode == MovementGeneratorMode.Default && movement.Priority == MovementGeneratorPriority.Normal;
                     }))
                     {
                         SetRun(_run);
-                        me.GetMotionMaster().MoveChase(me.GetVictim());
+                        me.                        MotionMaster.MoveChase(me.GetVictim());
                     }
                 }
                 else
                 {
-                    var movement = me.GetMotionMaster().GetMovementGenerator(a => a.GetMovementGeneratorType() == MovementGeneratorType.Chase && a.Mode == MovementGeneratorMode.Default && a.Priority == MovementGeneratorPriority.Normal);
+                    var movement = me.MotionMaster.GetMovementGenerator(a => a.GetMovementGeneratorType() == MovementGeneratorType.Chase && a.Mode == MovementGeneratorMode.Default && a.Priority == MovementGeneratorPriority.Normal);
                     if (movement != null)
                     {
-                        me.GetMotionMaster().Remove(movement);
+                        me.                        MotionMaster.Remove(movement);
                         if (stopMoving)
                             me.StopMoving();
                     }
@@ -899,7 +902,7 @@ namespace Game.AI
                 return;
             }
 
-            _followGuid = target.GetGUID();
+            _followGuid = target.GUID;
             _followDist = dist;
             _followAngle = angle;
             _followArrivedTimer = 1000;
@@ -907,7 +910,7 @@ namespace Game.AI
             _followArrivedEntry = end;
             _followCreditType = creditType;
             SetRun(_run);
-            me.GetMotionMaster().MoveFollow(target, _followDist, _followAngle);
+            me.            MotionMaster.MoveFollow(target, _followDist, _followAngle);
         }
 
         public void StopFollow(bool complete)
@@ -919,9 +922,9 @@ namespace Game.AI
             _followArrivedTimer = 1000;
             _followArrivedEntry = 0;
             _followCreditType = 0;
-            me.GetMotionMaster().Clear();
+            me.            MotionMaster.Clear();
             me.StopMoving();
-            me.GetMotionMaster().MoveIdle();
+            me.            MotionMaster.MoveIdle();
 
             if (!complete)
                 return;
@@ -976,7 +979,7 @@ namespace Game.AI
                             Player player = passenger.ToPlayer();
                             if (player != null)
                             {
-                                if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.GetEntry(), player, me))
+                                if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.Entry, player, me))
                                 {
                                     player.ExitVehicle();
                                     return; // check other pessanger in next tick
@@ -1046,7 +1049,7 @@ namespace Game.AI
 
         void UpdateFollow(uint diff)
         {
-            if (_followGuid.IsEmpty())
+            if (_followGuid.IsEmpty)
             {
                 if (_followArrivedTimer < diff)
                 {
@@ -1227,7 +1230,7 @@ namespace Game.AI
 
         public override void SummonedCreatureDespawn(Creature unit)
         {
-            GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, unit, unit.GetEntry());
+            GetScript().ProcessEventsFor(SmartEvents.SummonDespawned, unit, unit.Entry);
         }
 
         public void SetGossipReturn(bool val) { _gossipReturn = val; }

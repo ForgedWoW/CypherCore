@@ -48,7 +48,7 @@ internal class BattlefieldWG : BattleField
 
 		m_TimeForAcceptInvite = 20;
 		m_StartGroupingTimer = 15 * Time.Minute * Time.InMilliseconds;
-		_tenacityTeam = TeamId.Neutral;
+		_tenacityTeam = TeamIds.Neutral;
 
 		KickPosition = new WorldLocation(m_MapId, 5728.117f, 2714.346f, 697.733f, 0);
 
@@ -88,7 +88,7 @@ internal class BattlefieldWG : BattleField
 			BfGraveyardWG graveyard = new(this);
 
 			// When between games, the graveyard is controlled by the defending team
-			if (gy.StartControl == TeamId.Neutral)
+			if (gy.StartControl == TeamIds.Neutral)
 				graveyard.Initialize(m_DefenderTeam, gy.GraveyardID);
 			else
 				graveyard.Initialize(gy.StartControl, gy.GraveyardID);
@@ -120,7 +120,7 @@ internal class BattlefieldWG : BattleField
 
 			if (creature)
 			{
-				CanonList.Add(creature.GetGUID());
+				CanonList.Add(creature.GUID);
 				HideNpc(creature);
 			}
 		}
@@ -136,7 +136,7 @@ internal class BattlefieldWG : BattleField
 				b.Init(go);
 
 				if (!m_IsEnabled &&
-					go.GetEntry() == WGGameObjects.VaultGate)
+					go.Entry == WGGameObjects.VaultGate)
 					go.SetDestructibleState(GameObjectDestructibleState.Destroyed);
 
 				BuildingsInZone.Add(b);
@@ -150,16 +150,16 @@ internal class BattlefieldWG : BattleField
 
 			if (go)
 			{
-				DefenderPortalList[TeamId.Alliance].Add(go.GetGUID());
-				go.SetRespawnTime((int)(GetDefenderTeam() == TeamId.Alliance ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
+				DefenderPortalList[TeamIds.Alliance].Add(go.GUID);
+				go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Alliance ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
 			}
 
 			go = SpawnGameObject(teleporter.HordeEntry, teleporter.Pos, teleporter.Rot);
 
 			if (go)
 			{
-				DefenderPortalList[TeamId.Horde].Add(go.GetGUID());
-				go.SetRespawnTime((int)(GetDefenderTeam() == TeamId.Horde ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
+				DefenderPortalList[TeamIds.Horde].Add(go.GUID);
+				go.SetRespawnTime((int)(GetDefenderTeam() == TeamIds.Horde ? BattlegroundConst.RespawnImmediately : BattlegroundConst.RespawnOneDay));
 			}
 		}
 
@@ -176,10 +176,12 @@ internal class BattlefieldWG : BattleField
 		if (relic)
 		{
 			// Update faction of relic, only Attacker can click on
-			relic.SetFaction(WGConst.WintergraspFaction[GetAttackerTeam()]);
+			relic. // Update faction of relic, only Attacker can click on
+				Faction = WGConst.WintergraspFaction[GetAttackerTeam()];
+
 			// Set in use (not allow to click on before last door is broken)
 			relic.SetFlag(GameObjectFlags.InUse | GameObjectFlags.NotSelectable);
-			_titansRelicGUID = relic.GetGUID();
+			_titansRelicGUID = relic.GUID;
 		}
 		else
 		{
@@ -200,7 +202,7 @@ internal class BattlefieldWG : BattleField
 			if (creature)
 			{
 				ShowNpc(creature, true);
-				creature.SetFaction(WGConst.WintergraspFaction[GetDefenderTeam()]);
+				creature.Faction = WGConst.WintergraspFaction[GetDefenderTeam()];
 			}
 		}
 
@@ -254,9 +256,9 @@ internal class BattlefieldWG : BattleField
 		SetData(WGData.MaxVehicleA, 0);
 
 		foreach (var workshop in Workshops)
-			if (workshop.GetTeamControl() == TeamId.Alliance)
+			if (workshop.GetTeamControl() == TeamIds.Alliance)
 				UpdateData(WGData.MaxVehicleA, 4);
-			else if (workshop.GetTeamControl() == TeamId.Horde)
+			else if (workshop.GetTeamControl() == TeamIds.Horde)
 				UpdateData(WGData.MaxVehicleH, 4);
 
 		UpdateVehicleCountWG();
@@ -265,7 +267,7 @@ internal class BattlefieldWG : BattleField
 	public override void OnBattleEnd(bool endByTimer)
 	{
 		// Remove relic
-		if (!_titansRelicGUID.IsEmpty())
+		if (!_titansRelicGUID.IsEmpty)
 		{
 			var relic = GetGameObject(_titansRelicGUID);
 
@@ -285,10 +287,10 @@ internal class BattlefieldWG : BattleField
 
 			// successful defense
 			if (endByTimer)
-				worldStateId = GetDefenderTeam() == TeamId.Horde ? WorldStates.BattlefieldWgDefendedH : WorldStates.BattlefieldWgDefendedA;
+				worldStateId = GetDefenderTeam() == TeamIds.Horde ? WorldStates.BattlefieldWgDefendedH : WorldStates.BattlefieldWgDefendedA;
 			// successful attack (note that teams have already been swapped, so defender team is the one who won)
 			else
-				worldStateId = GetDefenderTeam() == TeamId.Horde ? WorldStates.BattlefieldWgAttackedH : WorldStates.BattlefieldWgAttackedA;
+				worldStateId = GetDefenderTeam() == TeamIds.Horde ? WorldStates.BattlefieldWgAttackedH : WorldStates.BattlefieldWgAttackedA;
 
 			Global.WorldStateMgr.SetValueAndSaveInDb(worldStateId, Global.WorldStateMgr.GetValue((int)worldStateId, m_Map) + 1, false, m_Map);
 		}
@@ -306,7 +308,7 @@ internal class BattlefieldWG : BattleField
 			if (creature)
 			{
 				if (!endByTimer)
-					creature.SetFaction(WGConst.WintergraspFaction[GetDefenderTeam()]);
+					creature.Faction = WGConst.WintergraspFaction[GetDefenderTeam()];
 
 				HideNpc(creature);
 			}
@@ -383,7 +385,7 @@ internal class BattlefieldWG : BattleField
 				var creature = GetCreature(guid);
 
 				if (creature)
-					if (creature.IsVehicle())
+					if (creature.IsVehicle)
 						creature.DespawnOrUnsummon();
 			}
 
@@ -398,15 +400,15 @@ internal class BattlefieldWG : BattleField
 
 					if (player)
 					{
-						player.RemoveAurasDueToSpell(m_DefenderTeam == TeamId.Alliance ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player.GetGUID());
-						player.AddAura(m_DefenderTeam == TeamId.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
+						player.RemoveAurasDueToSpell(m_DefenderTeam == TeamIds.Alliance ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player.GUID);
+						player.AddAura(m_DefenderTeam == TeamIds.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
 					}
 				}
 
 		if (!endByTimer) // win alli/horde
-			SendWarning((GetDefenderTeam() == TeamId.Alliance) ? WintergraspText.FortressCaptureAlliance : WintergraspText.FortressCaptureHorde);
+			SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FortressCaptureAlliance : WintergraspText.FortressCaptureHorde);
 		else // defend alli/horde
-			SendWarning((GetDefenderTeam() == TeamId.Alliance) ? WintergraspText.FortressDefendAlliance : WintergraspText.FortressDefendHorde);
+			SendWarning((GetDefenderTeam() == TeamIds.Alliance) ? WintergraspText.FortressDefendAlliance : WintergraspText.FortressDefendHorde);
 	}
 
 	public override void DoCompleteOrIncrementAchievement(uint achievement, Player player, byte incrementNumber = 1)
@@ -441,12 +443,12 @@ internal class BattlefieldWG : BattleField
 	public override void OnCreatureCreate(Creature creature)
 	{
 		// Accessing to db spawned creatures
-		switch (creature.GetEntry())
+		switch (creature.Entry)
 		{
 			case WGNpcs.DwarvenSpiritGuide:
 			case WGNpcs.TaunkaSpiritGuide:
 			{
-				var teamIndex = (creature.GetEntry() == WGNpcs.DwarvenSpiritGuide ? TeamId.Alliance : TeamId.Horde);
+				var teamIndex = (creature.Entry == WGNpcs.DwarvenSpiritGuide ? TeamIds.Alliance : TeamIds.Horde);
 				var graveyardId = (byte)GetSpiritGraveyardId(creature.GetAreaId());
 
 				m_GraveyardList[graveyardId]?.SetSpirit(creature, teamIndex);
@@ -457,7 +459,7 @@ internal class BattlefieldWG : BattleField
 
 		// untested code - not sure if it is valid.
 		if (IsWarTime())
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case WGNpcs.SiegeEngineAlliance:
 				case WGNpcs.SiegeEngineHorde:
@@ -465,7 +467,7 @@ internal class BattlefieldWG : BattleField
 				case WGNpcs.Demolisher:
 				{
 					if (!creature.ToTempSummon() ||
-						creature.ToTempSummon().GetSummonerGUID().IsEmpty() ||
+						creature.ToTempSummon().GetSummonerGUID().IsEmpty ||
 						!Global.ObjAccessor.FindPlayer(creature.ToTempSummon().GetSummonerGUID()))
 					{
 						creature.DespawnOrUnsummon();
@@ -474,15 +476,15 @@ internal class BattlefieldWG : BattleField
 					}
 
 					var creator = Global.ObjAccessor.FindPlayer(creature.ToTempSummon().GetSummonerGUID());
-					var teamIndex = creator.GetTeamId();
+					var teamIndex = creator.TeamId;
 
-					if (teamIndex == TeamId.Horde)
+					if (teamIndex == TeamIds.Horde)
 					{
 						if (GetData(WGData.VehicleH) < GetData(WGData.MaxVehicleH))
 						{
 							UpdateData(WGData.VehicleH, 1);
 							creature.AddAura(WGSpells.HordeFlag, creature);
-							_vehicles[teamIndex].Add(creature.GetGUID());
+							_vehicles[teamIndex].Add(creature.GUID);
 							UpdateVehicleCountWG();
 						}
 						else
@@ -498,7 +500,7 @@ internal class BattlefieldWG : BattleField
 						{
 							UpdateData(WGData.VehicleA, 1);
 							creature.AddAura(WGSpells.AllianceFlag, creature);
-							_vehicles[teamIndex].Add(creature.GetGUID());
+							_vehicles[teamIndex].Add(creature.GUID);
 							UpdateVehicleCountWG();
 						}
 						else
@@ -522,7 +524,7 @@ internal class BattlefieldWG : BattleField
 	{
 		uint workshopId;
 
-		switch (go.GetEntry())
+		switch (go.Entry)
 		{
 			case WGGameObjects.FactoryBannerNe:
 				workshopId = WGWorkshopIds.Ne;
@@ -575,14 +577,14 @@ internal class BattlefieldWG : BattleField
 	public override void OnUnitDeath(Unit unit)
 	{
 		if (IsWarTime())
-			if (unit.IsVehicle())
+			if (unit.IsVehicle)
 				if (FindAndRemoveVehicleFromList(unit))
 					UpdateVehicleCountWG();
 	}
 
 	public void HandlePromotion(Player playerKiller, Unit unitKilled)
 	{
-		var teamId = playerKiller.GetTeamId();
+		var teamId = playerKiller.TeamId;
 
 		foreach (var guid in m_PlayersInWar[teamId])
 		{
@@ -602,13 +604,13 @@ internal class BattlefieldWG : BattleField
 
 		if (player.GetZoneId() != m_ZoneId)
 		{
-			if (player.GetTeamId() == GetDefenderTeam())
+			if (player.TeamId == GetDefenderTeam())
 			{
 				player.TeleportTo(571, 5345, 2842, 410, 3.14f);
 			}
 			else
 			{
-				if (player.GetTeamId() == TeamId.Horde)
+				if (player.TeamId == TeamIds.Horde)
 					player.TeleportTo(571, 5025.857422f, 3674.628906f, 362.737122f, 4.135169f);
 				else
 					player.TeleportTo(571, 5101.284f, 2186.564f, 373.549f, 3.812f);
@@ -617,7 +619,7 @@ internal class BattlefieldWG : BattleField
 
 		UpdateTenacity();
 
-		if (player.GetTeamId() == GetAttackerTeam())
+		if (player.TeamId == GetAttackerTeam())
 		{
 			if (GetData(WGData.BrokenTowerAtt) < 3)
 				player.SetAuraStack(WGSpells.TowerControl, player, 3 - GetData(WGData.BrokenTowerAtt));
@@ -632,7 +634,7 @@ internal class BattlefieldWG : BattleField
 	public override void OnPlayerLeaveWar(Player player)
 	{
 		// Remove all aura from WG // @todo false we can go out of this zone on retail and keep Rank buff, remove on end of WG
-		if (!player.GetSession().PlayerLogout())
+		if (!player.Session.PlayerLogout)
 		{
 			var vehicle = player.GetVehicleCreatureBase();
 
@@ -665,7 +667,7 @@ internal class BattlefieldWG : BattleField
 		if (!m_isActive)
 			RemoveAurasFromPlayer(player);
 
-		player.AddAura(m_DefenderTeam == TeamId.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
+		player.AddAura(m_DefenderTeam == TeamIds.Horde ? WGSpells.HordeControlPhaseShift : WGSpells.AllianceControlPhaseShift, player);
 	}
 
 	public override uint GetData(uint data)
@@ -768,7 +770,7 @@ internal class BattlefieldWG : BattleField
 			return;
 
 		// On click on titan relic
-		if (go.GetEntry() == WGGameObjects.TitanSRelic)
+		if (go.Entry == WGGameObjects.TitanSRelic)
 		{
 			var relic = GetRelic();
 
@@ -780,7 +782,7 @@ internal class BattlefieldWG : BattleField
 
 		// if destroy or Damage event, search the wall/tower and update worldstate/send warning message
 		foreach (var building in BuildingsInZone)
-			if (go.GetGUID() == building.GetGUID())
+			if (go.GUID == building.GetGUID())
 			{
 				var buildingGo = GetGameObject(building.GetGUID());
 
@@ -847,11 +849,11 @@ internal class BattlefieldWG : BattleField
 	private bool FindAndRemoveVehicleFromList(Unit vehicle)
 	{
 		for (byte i = 0; i < SharedConst.PvpTeamsCount; ++i)
-			if (_vehicles[i].Contains(vehicle.GetGUID()))
+			if (_vehicles[i].Contains(vehicle.GUID))
 			{
-				_vehicles[i].Remove(vehicle.GetGUID());
+				_vehicles[i].Remove(vehicle.GUID);
 
-				if (i == TeamId.Horde)
+				if (i == TeamIds.Horde)
 					UpdateData(WGData.VehicleH, -1);
 				else
 					UpdateData(WGData.VehicleA, -1);
@@ -880,7 +882,7 @@ internal class BattlefieldWG : BattleField
 				var stalker = GetCreature(StalkerGuid);
 
 				if (stalker)
-					Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankCorporal, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, Team.Other, false, killer);
+					Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankCorporal, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
 			}
 			else
 			{
@@ -896,7 +898,7 @@ internal class BattlefieldWG : BattleField
 				var stalker = GetCreature(StalkerGuid);
 
 				if (stalker)
-					Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankFirstLieutenant, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, Team.Other, false, killer);
+					Global.CreatureTextMgr.SendChat(stalker, WintergraspText.RankFirstLieutenant, killer, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, killer);
 			}
 			else
 			{
@@ -928,8 +930,8 @@ internal class BattlefieldWG : BattleField
 
 	private void UpdateTenacity()
 	{
-		var alliancePlayers = m_PlayersInWar[TeamId.Alliance].Count;
-		var hordePlayers = m_PlayersInWar[TeamId.Horde].Count;
+		var alliancePlayers = m_PlayersInWar[TeamIds.Alliance].Count;
+		var hordePlayers = m_PlayersInWar[TeamIds.Horde].Count;
 		var newStack = 0;
 
 		if (alliancePlayers != 0 &&
@@ -947,14 +949,14 @@ internal class BattlefieldWG : BattleField
 		_tenacityStack = (uint)newStack;
 
 		// Remove old buff
-		if (_tenacityTeam != TeamId.Neutral)
+		if (_tenacityTeam != TeamIds.Neutral)
 		{
 			foreach (var guid in m_players[_tenacityTeam])
 			{
 				var player = Global.ObjAccessor.FindPlayer(guid);
 
 				if (player)
-					if (player.GetLevel() >= m_MinLevel)
+					if (player.Level >= m_MinLevel)
 						player.RemoveAura(WGSpells.Tenacity);
 			}
 
@@ -970,7 +972,7 @@ internal class BattlefieldWG : BattleField
 		// Apply new buff
 		if (newStack != 0)
 		{
-			_tenacityTeam = newStack > 0 ? TeamId.Alliance : TeamId.Horde;
+			_tenacityTeam = newStack > 0 ? TeamIds.Alliance : TeamIds.Horde;
 
 			if (newStack < 0)
 				newStack = -newStack;
@@ -1026,7 +1028,7 @@ internal class BattlefieldWG : BattleField
 		}
 		else
 		{
-			_tenacityTeam = TeamId.Neutral;
+			_tenacityTeam = TeamIds.Neutral;
 		}
 	}
 
@@ -1074,7 +1076,7 @@ internal class BfWGGameObjectBuilding
 	public BfWGGameObjectBuilding(BattlefieldWG WG, WGGameObjectBuildingType type, uint worldState)
 	{
 		_wg = WG;
-		_teamControl = TeamId.Neutral;
+		_teamControl = TeamIds.Neutral;
 		_type = type;
 		_worldState = worldState;
 		_state = WGGameObjectState.None;
@@ -1103,7 +1105,7 @@ internal class BfWGGameObjectBuilding
 
 				break;
 			default:
-				_teamControl = TeamId.Neutral;
+				_teamControl = TeamIds.Neutral;
 
 				break;
 		}
@@ -1117,7 +1119,7 @@ internal class BfWGGameObjectBuilding
 			{
 				build.SetDestructibleState(GameObjectDestructibleState.Rebuilding, null, true);
 
-				if (build.GetEntry() == WGGameObjects.VaultGate)
+				if (build.Entry == WGGameObjects.VaultGate)
 				{
 					var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);
 
@@ -1131,7 +1133,7 @@ internal class BfWGGameObjectBuilding
 			}
 
 			UpdateCreatureAndGo();
-			build.SetFaction(WGConst.WintergraspFaction[_teamControl]);
+			build.Faction = WGConst.WintergraspFaction[_teamControl];
 		}
 	}
 
@@ -1141,7 +1143,7 @@ internal class BfWGGameObjectBuilding
 
 		if (build != null)
 			if (build.IsDestructibleBuilding() &&
-				build.GetEntry() == WGGameObjects.VaultGate)
+				build.Entry == WGGameObjects.VaultGate)
 			{
 				var go = build.FindNearestGameObject(WGGameObjects.KeepCollisionWall, 50.0f);
 
@@ -1231,7 +1233,7 @@ internal class BfWGGameObjectBuilding
 			return;
 
 		// GameObject associated to object
-		_buildGUID = go.GetGUID();
+		_buildGUID = go.GUID;
 
 		switch (_type)
 		{
@@ -1247,7 +1249,7 @@ internal class BfWGGameObjectBuilding
 
 				break;
 			default:
-				_teamControl = TeamId.Neutral;
+				_teamControl = TeamIds.Neutral;
 
 				break;
 		}
@@ -1259,15 +1261,15 @@ internal class BfWGGameObjectBuilding
 			// set to default State based on Type
 			switch (_teamControl)
 			{
-				case TeamId.Alliance:
+				case TeamIds.Alliance:
 					_state = WGGameObjectState.AllianceIntact;
 
 					break;
-				case TeamId.Horde:
+				case TeamIds.Horde:
 					_state = WGGameObjectState.HordeIntact;
 
 					break;
-				case TeamId.Neutral:
+				case TeamIds.Neutral:
 					_state = WGGameObjectState.NeutralIntact;
 
 					break;
@@ -1302,7 +1304,7 @@ internal class BfWGGameObjectBuilding
 
 		var towerId = -1;
 
-		switch (go.GetEntry())
+		switch (go.Entry)
 		{
 			case WGGameObjects.FortressTower1:
 				towerId = 0;
@@ -1342,12 +1344,12 @@ internal class BfWGGameObjectBuilding
 				var goHorde = _wg.SpawnGameObject(gobData.HordeEntry, gobData.Pos, gobData.Rot);
 
 				if (goHorde)
-					_GameObjectList[TeamId.Horde].Add(goHorde.GetGUID());
+					_GameObjectList[TeamIds.Horde].Add(goHorde.GUID);
 
 				var goAlliance = _wg.SpawnGameObject(gobData.AllianceEntry, gobData.Pos, gobData.Rot);
 
 				if (goAlliance)
-					_GameObjectList[TeamId.Alliance].Add(goAlliance.GetGUID());
+					_GameObjectList[TeamIds.Alliance].Add(goAlliance.GUID);
 			}
 
 			// Spawn associate npc bottom
@@ -1356,12 +1358,12 @@ internal class BfWGGameObjectBuilding
 				var creature = _wg.SpawnCreature(creatureData.HordeEntry, creatureData.Pos);
 
 				if (creature)
-					_CreatureBottomList[TeamId.Horde].Add(creature.GetGUID());
+					_CreatureBottomList[TeamIds.Horde].Add(creature.GUID);
 
 				creature = _wg.SpawnCreature(creatureData.AllianceEntry, creatureData.Pos);
 
 				if (creature)
-					_CreatureBottomList[TeamId.Alliance].Add(creature.GetGUID());
+					_CreatureBottomList[TeamIds.Alliance].Add(creature.GUID);
 			}
 		}
 
@@ -1376,21 +1378,21 @@ internal class BfWGGameObjectBuilding
 
 				if (turret)
 				{
-					_TowerCannonBottomList.Add(turret.GetGUID());
+					_TowerCannonBottomList.Add(turret.GUID);
 
-					switch (go.GetEntry())
+					switch (go.Entry)
 					{
 						case WGGameObjects.FortressTower1:
 						case WGGameObjects.FortressTower2:
 						case WGGameObjects.FortressTower3:
 						case WGGameObjects.FortressTower4:
-							turret.SetFaction(WGConst.WintergraspFaction[_wg.GetDefenderTeam()]);
+							turret.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
 							break;
 						case WGGameObjects.ShadowsightTower:
 						case WGGameObjects.WinterSEdgeTower:
 						case WGGameObjects.FlamewatchTower:
-							turret.SetFaction(WGConst.WintergraspFaction[_wg.GetAttackerTeam()]);
+							turret.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
 							break;
 					}
@@ -1406,21 +1408,21 @@ internal class BfWGGameObjectBuilding
 
 				if (turret)
 				{
-					_TurretTopList.Add(turret.GetGUID());
+					_TurretTopList.Add(turret.GUID);
 
-					switch (go.GetEntry())
+					switch (go.Entry)
 					{
 						case WGGameObjects.FortressTower1:
 						case WGGameObjects.FortressTower2:
 						case WGGameObjects.FortressTower3:
 						case WGGameObjects.FortressTower4:
-							turret.SetFaction(WGConst.WintergraspFaction[_wg.GetDefenderTeam()]);
+							turret.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
 							break;
 						case WGGameObjects.ShadowsightTower:
 						case WGGameObjects.WinterSEdgeTower:
 						case WGGameObjects.FlamewatchTower:
-							turret.SetFaction(WGConst.WintergraspFaction[_wg.GetAttackerTeam()]);
+							turret.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
 							break;
 					}
@@ -1450,14 +1452,14 @@ internal class BfWGGameObjectBuilding
 					else
 						_wg.ShowNpc(creature, true);
 
-					switch (build.GetEntry())
+					switch (build.Entry)
 					{
 						case WGGameObjects.FortressTower1:
 						case WGGameObjects.FortressTower2:
 						case WGGameObjects.FortressTower3:
 						case WGGameObjects.FortressTower4:
 						{
-							creature.SetFaction(WGConst.WintergraspFaction[_wg.GetDefenderTeam()]);
+							creature.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
 							break;
 						}
@@ -1465,7 +1467,7 @@ internal class BfWGGameObjectBuilding
 						case WGGameObjects.WinterSEdgeTower:
 						case WGGameObjects.FlamewatchTower:
 						{
-							creature.SetFaction(WGConst.WintergraspFaction[_wg.GetAttackerTeam()]);
+							creature.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
 							break;
 						}
@@ -1489,14 +1491,14 @@ internal class BfWGGameObjectBuilding
 					else
 						_wg.ShowNpc(creature, true);
 
-					switch (build.GetEntry())
+					switch (build.Entry)
 					{
 						case WGGameObjects.FortressTower1:
 						case WGGameObjects.FortressTower2:
 						case WGGameObjects.FortressTower3:
 						case WGGameObjects.FortressTower4:
 						{
-							creature.SetFaction(WGConst.WintergraspFaction[_wg.GetDefenderTeam()]);
+							creature.Faction = WGConst.WintergraspFaction[_wg.GetDefenderTeam()];
 
 							break;
 						}
@@ -1504,7 +1506,7 @@ internal class BfWGGameObjectBuilding
 						case WGGameObjects.WinterSEdgeTower:
 						case WGGameObjects.FlamewatchTower:
 						{
-							creature.SetFaction(WGConst.WintergraspFaction[_wg.GetAttackerTeam()]);
+							creature.Faction = WGConst.WintergraspFaction[_wg.GetAttackerTeam()];
 
 							break;
 						}
@@ -1585,7 +1587,7 @@ internal class WGWorkshop
 	{
 		_wg = wg;
 		_state = WGGameObjectState.None;
-		_teamControl = TeamId.Neutral;
+		_teamControl = TeamIds.Neutral;
 		_staticInfo = WGConst.WorkshopData[type];
 	}
 
@@ -1598,7 +1600,7 @@ internal class WGWorkshop
 	{
 		switch (teamId)
 		{
-			case TeamId.Neutral:
+			case TeamIds.Neutral:
 			{
 				// Send warning message to all player to inform a faction attack to a workshop
 				// alliance / horde attacking a workshop
@@ -1606,7 +1608,7 @@ internal class WGWorkshop
 
 				break;
 			}
-			case TeamId.Alliance:
+			case TeamIds.Alliance:
 			{
 				// Updating worldstate
 				_state = WGGameObjectState.AllianceIntact;
@@ -1621,14 +1623,14 @@ internal class WGWorkshop
 				{
 					var gy = _wg.GetGraveyardById(_staticInfo.WorkshopId);
 
-					gy?.GiveControlTo(TeamId.Alliance);
+					gy?.GiveControlTo(TeamIds.Alliance);
 				}
 
 				_teamControl = teamId;
 
 				break;
 			}
-			case TeamId.Horde:
+			case TeamIds.Horde:
 			{
 				// Update worldstate
 				_state = WGGameObjectState.HordeIntact;
@@ -1643,7 +1645,7 @@ internal class WGWorkshop
 				{
 					var gy = _wg.GetGraveyardById(_staticInfo.WorkshopId);
 
-					gy?.GiveControlTo(TeamId.Horde);
+					gy?.GiveControlTo(TeamIds.Horde);
 				}
 
 				_teamControl = teamId;
@@ -1739,7 +1741,7 @@ internal class npc_wg_give_promotion_credit : ScriptedAI
 	public override void JustDied(Unit killer)
 	{
 		if (!killer ||
-			!killer.IsPlayer())
+			!killer.IsPlayer)
 			return;
 
 		var wintergrasp = (BattlefieldWG)Global.BattleFieldMgr.GetBattlefieldByBattleId(killer.GetMap(), BattlefieldIds.WG);

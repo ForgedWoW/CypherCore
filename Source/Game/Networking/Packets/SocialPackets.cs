@@ -6,231 +6,224 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+public class SendContactList : ClientPacket
 {
-    public class SendContactList : ClientPacket
-    {
-        public SendContactList(WorldPacket packet) : base(packet) { }
+	public SocialFlag Flags;
+	public SendContactList(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Flags = (SocialFlag)_worldPacket.ReadUInt32();
-        }
+	public override void Read()
+	{
+		Flags = (SocialFlag)_worldPacket.ReadUInt32();
+	}
+}
 
-        public SocialFlag Flags;
-    }
+public class ContactList : ServerPacket
+{
+	public List<ContactInfo> Contacts;
+	public SocialFlag Flags;
 
-    public class ContactList : ServerPacket
-    {
-        public ContactList() : base(ServerOpcodes.ContactList)
-        {
-            Contacts = new List<ContactInfo>();
-        }
+	public ContactList() : base(ServerOpcodes.ContactList)
+	{
+		Contacts = new List<ContactInfo>();
+	}
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32((uint)Flags);
-            _worldPacket.WriteBits(Contacts.Count, 8);
-            _worldPacket.FlushBits();
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32((uint)Flags);
+		_worldPacket.WriteBits(Contacts.Count, 8);
+		_worldPacket.FlushBits();
 
-            foreach (ContactInfo contact in Contacts)
-                contact.Write(_worldPacket);
-        }
+		foreach (var contact in Contacts)
+			contact.Write(_worldPacket);
+	}
+}
 
-        public List<ContactInfo> Contacts;
-        public SocialFlag Flags;
-    }
+public class FriendStatusPkt : ServerPacket
+{
+	public uint VirtualRealmAddress;
+	public string Notes;
+	public Class ClassID = Class.None;
+	public FriendStatus Status;
+	public ObjectGuid Guid;
+	public ObjectGuid WowAccountGuid;
+	public uint Level;
+	public uint AreaID;
+	public FriendsResult FriendResult;
+	public bool Mobile;
+	public FriendStatusPkt() : base(ServerOpcodes.FriendStatus) { }
 
-    public class FriendStatusPkt : ServerPacket
-    {
-        public FriendStatusPkt() : base(ServerOpcodes.FriendStatus) { }
+	public void Initialize(ObjectGuid guid, FriendsResult result, FriendInfo friendInfo)
+	{
+		VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		Notes = friendInfo.Note;
+		ClassID = friendInfo.Class;
+		Status = friendInfo.Status;
+		Guid = guid;
+		WowAccountGuid = friendInfo.WowAccountGuid;
+		Level = friendInfo.Level;
+		AreaID = friendInfo.Area;
+		FriendResult = result;
+	}
 
-        public void Initialize(ObjectGuid guid, FriendsResult result, FriendInfo friendInfo)
-        {
-            VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
-            Notes = friendInfo.Note;
-            ClassID = friendInfo.Class;
-            Status = friendInfo.Status;
-            Guid = guid;
-            WowAccountGuid = friendInfo.WowAccountGuid;
-            Level = friendInfo.Level;
-            AreaID = friendInfo.Area;
-            FriendResult = result;
-        }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt8((byte)FriendResult);
+		_worldPacket.WritePackedGuid(Guid);
+		_worldPacket.WritePackedGuid(WowAccountGuid);
+		_worldPacket.WriteUInt32(VirtualRealmAddress);
+		_worldPacket.WriteUInt8((byte)Status);
+		_worldPacket.WriteUInt32(AreaID);
+		_worldPacket.WriteUInt32(Level);
+		_worldPacket.WriteUInt32((uint)ClassID);
+		_worldPacket.WriteBits(Notes.GetByteCount(), 10);
+		_worldPacket.WriteBit(Mobile);
+		_worldPacket.FlushBits();
+		_worldPacket.WriteString(Notes);
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt8((byte)FriendResult);
-            _worldPacket.WritePackedGuid(Guid);
-            _worldPacket.WritePackedGuid(WowAccountGuid);
-            _worldPacket.WriteUInt32(VirtualRealmAddress);
-            _worldPacket.WriteUInt8((byte)Status);
-            _worldPacket.WriteUInt32(AreaID);
-            _worldPacket.WriteUInt32(Level);
-            _worldPacket.WriteUInt32((uint)ClassID);
-            _worldPacket.WriteBits(Notes.GetByteCount(), 10);
-            _worldPacket.WriteBit(Mobile);
-            _worldPacket.FlushBits();
-            _worldPacket.WriteString(Notes);
-        }
+public class AddFriend : ClientPacket
+{
+	public string Notes;
+	public string Name;
+	public AddFriend(WorldPacket packet) : base(packet) { }
 
-        public uint VirtualRealmAddress;
-        public string Notes;
-        public Class ClassID = Class.None;
-        public FriendStatus Status;
-        public ObjectGuid Guid;
-        public ObjectGuid WowAccountGuid;
-        public uint Level;
-        public uint AreaID;
-        public FriendsResult FriendResult;
-        public bool Mobile;
-    }
+	public override void Read()
+	{
+		var nameLength = _worldPacket.ReadBits<uint>(9);
+		var noteslength = _worldPacket.ReadBits<uint>(10);
+		Name = _worldPacket.ReadString(nameLength);
+		Notes = _worldPacket.ReadString(noteslength);
+	}
+}
 
-    public class AddFriend : ClientPacket
-    {
-        public AddFriend(WorldPacket packet) : base(packet) { }
+public class DelFriend : ClientPacket
+{
+	public QualifiedGUID Player;
+	public DelFriend(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            uint nameLength = _worldPacket.ReadBits<uint>(9);
-            uint noteslength = _worldPacket.ReadBits<uint>(10);
-            Name = _worldPacket.ReadString(nameLength);
-            Notes = _worldPacket.ReadString(noteslength);
-        }
+	public override void Read()
+	{
+		Player.Read(_worldPacket);
+	}
+}
 
-        public string Notes;
-        public string Name;
-    }
+public class SetContactNotes : ClientPacket
+{
+	public QualifiedGUID Player;
+	public string Notes;
+	public SetContactNotes(WorldPacket packet) : base(packet) { }
 
-    public class DelFriend : ClientPacket
-    {
-        public DelFriend(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		Player.Read(_worldPacket);
+		Notes = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(10));
+	}
+}
 
-        public override void Read()
-        {
-            Player.Read(_worldPacket);
-        }
+public class AddIgnore : ClientPacket
+{
+	public string Name;
+	public ObjectGuid AccountGUID;
+	public AddIgnore(WorldPacket packet) : base(packet) { }
 
-        public QualifiedGUID Player;
-    }
+	public override void Read()
+	{
+		var nameLength = _worldPacket.ReadBits<uint>(9);
+		AccountGUID = _worldPacket.ReadPackedGuid();
+		Name = _worldPacket.ReadString(nameLength);
+	}
+}
 
-    public class SetContactNotes : ClientPacket
-    {
-        public SetContactNotes(WorldPacket packet) : base(packet) { }
+public class DelIgnore : ClientPacket
+{
+	public QualifiedGUID Player;
+	public DelIgnore(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Player.Read(_worldPacket);
-            Notes = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(10));
-        }
+	public override void Read()
+	{
+		Player.Read(_worldPacket);
+	}
+}
 
-        public QualifiedGUID Player;
-        public string Notes;
-    }
+class SocialContractRequest : ClientPacket
+{
+	public SocialContractRequest(WorldPacket packet) : base(packet) { }
 
-    public class AddIgnore : ClientPacket
-    {
-        public AddIgnore(WorldPacket packet) : base(packet) { }
+	public override void Read() { }
+}
 
-        public override void Read()
-        {
-            uint nameLength = _worldPacket.ReadBits<uint>(9);
-            AccountGUID = _worldPacket.ReadPackedGuid();
-            Name = _worldPacket.ReadString(nameLength);
-        }
+class SocialContractRequestResponse : ServerPacket
+{
+	public bool ShowSocialContract;
 
-        public string Name;
-        public ObjectGuid AccountGUID;
-    }
+	public SocialContractRequestResponse() : base(ServerOpcodes.SocialContractRequestResponse) { }
 
-    public class DelIgnore : ClientPacket
-    {
-        public DelIgnore(WorldPacket packet) : base(packet) { }
+	public override void Write()
+	{
+		_worldPacket.WriteBit(ShowSocialContract);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public override void Read()
-        {
-            Player.Read(_worldPacket);
-        }
+//Structs
+public class ContactInfo
+{
+	readonly uint VirtualRealmAddr;
+	readonly uint NativeRealmAddr;
+	readonly SocialFlag TypeFlags;
+	readonly string Notes;
+	readonly FriendStatus Status;
+	readonly uint AreaID;
+	readonly uint Level;
+	readonly Class ClassID;
+	readonly bool Mobile;
 
-        public QualifiedGUID Player;
-    }
+	readonly ObjectGuid Guid;
+	readonly ObjectGuid WowAccountGuid;
 
-    class SocialContractRequest : ClientPacket
-    {
-        public SocialContractRequest(WorldPacket packet) : base(packet) { }
+	public ContactInfo(ObjectGuid guid, FriendInfo friendInfo)
+	{
+		Guid = guid;
+		WowAccountGuid = friendInfo.WowAccountGuid;
+		VirtualRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
+		NativeRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
+		TypeFlags = friendInfo.Flags;
+		Notes = friendInfo.Note;
+		Status = friendInfo.Status;
+		AreaID = friendInfo.Area;
+		Level = friendInfo.Level;
+		ClassID = friendInfo.Class;
+	}
 
-        public override void Read() { }
-    }
+	public void Write(WorldPacket data)
+	{
+		data.WritePackedGuid(Guid);
+		data.WritePackedGuid(WowAccountGuid);
+		data.WriteUInt32(VirtualRealmAddr);
+		data.WriteUInt32(NativeRealmAddr);
+		data.WriteUInt32((uint)TypeFlags);
+		data.WriteUInt8((byte)Status);
+		data.WriteUInt32(AreaID);
+		data.WriteUInt32(Level);
+		data.WriteUInt32((uint)ClassID);
+		data.WriteBits(Notes.GetByteCount(), 10);
+		data.WriteBit(Mobile);
+		data.FlushBits();
+		data.WriteString(Notes);
+	}
+}
 
-    class SocialContractRequestResponse : ServerPacket
-    {
-        public bool ShowSocialContract;
+public struct QualifiedGUID
+{
+	public void Read(WorldPacket data)
+	{
+		VirtualRealmAddress = data.ReadUInt32();
+		Guid = data.ReadPackedGuid();
+	}
 
-        public SocialContractRequestResponse() : base(ServerOpcodes.SocialContractRequestResponse) { }
-
-        public override void Write()
-        {
-            _worldPacket.WriteBit(ShowSocialContract);
-            _worldPacket.FlushBits();
-        }
-    }
-    
-    //Structs
-    public class ContactInfo
-    {
-        public ContactInfo(ObjectGuid guid, FriendInfo friendInfo)
-        {
-            Guid = guid;
-            WowAccountGuid = friendInfo.WowAccountGuid;
-            VirtualRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
-            NativeRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
-            TypeFlags = friendInfo.Flags;
-            Notes = friendInfo.Note;
-            Status = friendInfo.Status;
-            AreaID = friendInfo.Area;
-            Level = friendInfo.Level;
-            ClassID = friendInfo.Class;
-        }
-
-        public void Write(WorldPacket data)
-        {
-            data.WritePackedGuid(Guid);
-            data.WritePackedGuid(WowAccountGuid);
-            data.WriteUInt32(VirtualRealmAddr);
-            data.WriteUInt32(NativeRealmAddr);
-            data.WriteUInt32((uint)TypeFlags);
-            data.WriteUInt8((byte)Status);
-            data.WriteUInt32(AreaID);
-            data.WriteUInt32(Level);
-            data.WriteUInt32((uint)ClassID);
-            data.WriteBits(Notes.GetByteCount(), 10);
-            data.WriteBit(Mobile);
-            data.FlushBits();
-            data.WriteString(Notes);
-        }
-
-        ObjectGuid Guid;
-        ObjectGuid WowAccountGuid;
-        readonly uint VirtualRealmAddr;
-        readonly uint NativeRealmAddr;
-        readonly SocialFlag TypeFlags;
-        readonly string Notes;
-        readonly FriendStatus Status;
-        readonly uint AreaID;
-        readonly uint Level;
-        readonly Class ClassID;
-        readonly bool Mobile;
-    }
-
-    public struct QualifiedGUID
-    {
-        public void Read(WorldPacket data)
-        {
-            VirtualRealmAddress = data.ReadUInt32();
-            Guid = data.ReadPackedGuid();
-        }
-
-        public ObjectGuid Guid;
-        public uint VirtualRealmAddress;
-    }
+	public ObjectGuid Guid;
+	public uint VirtualRealmAddress;
 }

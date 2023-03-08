@@ -401,7 +401,7 @@ namespace Game.Chat
 
         public void Append(ChannelNotify data)
         {
-            data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty()) ? "Nobody" : _ownerName);
+            data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty) ? "Nobody" : _ownerName);
         }
 
         readonly Channel _channel;

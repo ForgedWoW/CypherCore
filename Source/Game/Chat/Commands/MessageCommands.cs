@@ -21,7 +21,7 @@ namespace Game.Chat
             string name = "Console";
             WorldSession session = handler.GetSession();
             if (session)
-                name = session.GetPlayer().GetName();
+                name = session.Player.GetName();
 
             Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
             return true;
@@ -36,7 +36,7 @@ namespace Game.Chat
             string name = "Console";
             WorldSession session = handler.GetSession();
             if (session)
-                name = session.GetPlayer().GetName();
+                name = session.Player.GetName();
 
             Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
             return true;
@@ -95,21 +95,22 @@ namespace Game.Chat
         {
             if (!operationArg.HasValue)
             {
-                handler.SendSysMessage(CypherStrings.CommandWhisperaccepting, handler.GetSession().GetPlayer().IsAcceptWhispers() ? handler.GetCypherString(CypherStrings.On) : handler.GetCypherString(CypherStrings.Off));
+                handler.SendSysMessage(CypherStrings.CommandWhisperaccepting, handler.GetSession().Player.IsAcceptWhispers ? handler.GetCypherString(CypherStrings.On) : handler.GetCypherString(CypherStrings.Off));
                 return true;
             }
 
             if (operationArg.HasValue)
             {
-                handler.GetSession().GetPlayer().SetAcceptWhispers(true);
+                handler.GetSession().                Player.SetAcceptWhispers(true);
                 handler.SendSysMessage(CypherStrings.CommandWhisperon);
                 return true;
             }
             else
             {
                 // Remove all players from the Gamemaster's whisper whitelist
-                handler.GetSession().GetPlayer().ClearWhisperWhiteList();
-                handler.GetSession().GetPlayer().SetAcceptWhispers(false);
+                handler.GetSession().                // Remove all players from the Gamemaster's whisper whitelist
+                Player.ClearWhisperWhiteList();
+                handler.GetSession().                Player.SetAcceptWhispers(false);
                 handler.SendSysMessage(CypherStrings.CommandWhisperoff);
                 return true;
             }
@@ -170,10 +171,10 @@ namespace Game.Chat
                     }
                 }
 
-                Player player = handler.GetSession().GetPlayer();
+                Player player = handler.GetSession().Player;
                 Channel channel = null;
 
-                ChannelManager cMgr = ChannelManager.ForTeam(player.GetTeam());
+                ChannelManager cMgr = ChannelManager.ForTeam(player.Team);
                 if (cMgr != null)
                     channel = cMgr.GetChannel(channelId, channelName, player, false, zoneEntry);
 

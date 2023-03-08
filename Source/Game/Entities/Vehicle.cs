@@ -91,9 +91,9 @@ public class Vehicle : ITransport, IDisposable
 		Log.outDebug(LogFilter.Vehicle,
 					"Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
 					unit.GetName(),
-					_me.GetEntry(),
+					_me.Entry,
 					_vehicleInfo.Id,
-					_me.GetGUID().ToString(),
+					_me.GUID.ToString(),
 					seat.Key);
 
 		if (seat.Value.SeatInfo.CanEnterOrExit() && ++UsableSeatNum != 0)
@@ -119,7 +119,7 @@ public class Vehicle : ITransport, IDisposable
 		if (unit.IsFlying())
 			_me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
-		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().IsAIEnabled())
+		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().IsAIEnabled)
 			_me.ToCreature().GetAI().PassengerBoarded(unit, seat.Key, false);
 
 		if (GetBase().IsTypeId(TypeId.Unit))
@@ -132,7 +132,7 @@ public class Vehicle : ITransport, IDisposable
 
 	public ObjectGuid GetTransportGUID()
 	{
-		return GetBase().GetGUID();
+		return GetBase().GUID;
 	}
 
 	public float GetTransportOrientation()
@@ -199,14 +199,14 @@ public class Vehicle : ITransport, IDisposable
 			Log.outError(LogFilter.Vehicle,
 						"Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
 						"Check Uninstall/PassengerBoarded script hooks for errors.",
-						_me.GetGUID().ToString(),
-						_me.GetEntry());
+						_me.GUID.ToString(),
+						_me.Entry);
 
 			return;
 		}
 
 		_status = Status.UnInstalling;
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.Uninstall Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GetGUID().ToString());
+		Log.outDebug(LogFilter.Vehicle, "Vehicle.Uninstall Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
 		RemoveAllPassengers();
 
 		if (GetBase().IsTypeId(TypeId.Unit))
@@ -218,11 +218,11 @@ public class Vehicle : ITransport, IDisposable
 		if (!GetBase().IsTypeId(TypeId.Unit))
 			return;
 
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GetGUID().ToString(), _me.ToCreature().GetSpawnId());
+		Log.outDebug(LogFilter.Vehicle, "Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GUID.ToString(), _me.ToCreature().SpawnId);
 
 		ApplyAllImmunities();
 
-		if (GetBase().IsAlive())
+		if (GetBase().IsAlive)
 			InstallAllAccessories(evading);
 
 		Global.ScriptMgr.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().ToCreature().GetScriptId());
@@ -230,7 +230,7 @@ public class Vehicle : ITransport, IDisposable
 
 	public void RemoveAllPassengers()
 	{
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.RemoveAllPassengers. Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GetGUID().ToString());
+		Log.outDebug(LogFilter.Vehicle, "Vehicle.RemoveAllPassengers. Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
 
 		// Setting to_Abort to true will cause @VehicleJoinEvent.Abort to be executed on next @Unit.UpdateEvents call
 		// This will properly "reset" the pending join process for the passenger.
@@ -315,7 +315,7 @@ public class Vehicle : ITransport, IDisposable
 	public VehicleSeatAddon GetSeatAddonForSeatOfPassenger(Unit passenger)
 	{
 		foreach (var pair in Seats)
-			if (!pair.Value.IsEmpty() && pair.Value.Passenger.Guid == passenger.GetGUID())
+			if (!pair.Value.IsEmpty() && pair.Value.Passenger.Guid == passenger.GUID)
 				return pair.Value.SeatAddon;
 
 		return null;
@@ -328,10 +328,10 @@ public class Vehicle : ITransport, IDisposable
 		{
 			Log.outError(LogFilter.Vehicle,
 						"Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
-						unit.GetGUID().ToString(),
-						unit.GetEntry(),
-						_me.GetGUID().ToString(),
-						_me.GetEntry(),
+						unit.GUID.ToString(),
+						unit.Entry,
+						_me.GUID.ToString(),
+						_me.Entry,
 						seatId);
 
 			return false;
@@ -340,10 +340,10 @@ public class Vehicle : ITransport, IDisposable
 		Log.outDebug(LogFilter.Vehicle,
 					"Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
 					unit.GetName(),
-					_me.GetEntry(),
+					_me.Entry,
 					_vehicleInfo.Id,
-					_me.GetGUID().ToString(),
-					(_me.IsTypeId(TypeId.Unit) ? _me.ToCreature().GetSpawnId() : 0),
+					_me.GUID.ToString(),
+					(_me.IsTypeId(TypeId.Unit) ? _me.ToCreature().SpawnId : 0),
 					seatId);
 
 		// The seat selection code may kick other passengers off the vehicle.
@@ -449,7 +449,7 @@ public class Vehicle : ITransport, IDisposable
 	public VehicleSeatRecord GetSeatForPassenger(Unit passenger)
 	{
 		foreach (var pair in Seats)
-			if (pair.Value.Passenger.Guid == passenger.GetGUID())
+			if (pair.Value.Passenger.Guid == passenger.GUID)
 				return pair.Value.SeatInfo;
 
 		return null;
@@ -533,7 +533,7 @@ public class Vehicle : ITransport, IDisposable
 			str.Append("\n");
 
 			foreach (var joinEvent in _pendingJoinEvents)
-				str.Append($"seat {joinEvent.Seat.Key}: {joinEvent.Passenger.GetGUID()}\n");
+				str.Append($"seat {joinEvent.Seat.Key}: {joinEvent.Passenger.GUID}\n");
 		}
 
 		return str.ToString();
@@ -568,7 +568,7 @@ public class Vehicle : ITransport, IDisposable
 		_me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBackDest, true);
 
 		// Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
-		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().GetCreatureTemplate().CreatureType == CreatureType.Mechanical && !_me.ToCreature().IsWorldBoss())
+		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().CreatureTemplate.CreatureType == CreatureType.Mechanical && !_me.ToCreature().IsWorldBoss)
 		{
 			// Heal & dispel ...
 			_me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.Heal, true);
@@ -626,7 +626,7 @@ public class Vehicle : ITransport, IDisposable
 			Log.outError(LogFilter.Vehicle,
 						"Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
 						"Check Uninstall/PassengerBoarded script hooks for errors.",
-						_me.GetGUID().ToString(),
+						_me.GUID.ToString(),
 						GetCreatureEntry(),
 						entry,
 						seatId);
@@ -634,7 +634,7 @@ public class Vehicle : ITransport, IDisposable
 			return;
 		}
 
-		Log.outDebug(LogFilter.Vehicle, "Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GetGUID().ToString(), GetCreatureEntry(), entry, seatId);
+		Log.outDebug(LogFilter.Vehicle, "Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GUID.ToString(), GetCreatureEntry(), entry, seatId);
 
 		var accessory = _me.SummonCreature(entry, _me.Location, (TempSummonType)type, TimeSpan.FromMilliseconds(summonTime));
 		Cypher.Assert(accessory);
@@ -671,7 +671,7 @@ public class Vehicle : ITransport, IDisposable
 	KeyValuePair<sbyte, VehicleSeat> GetSeatKeyValuePairForPassenger(Unit passenger)
 	{
 		foreach (var pair in Seats)
-			if (pair.Value.Passenger.Guid == passenger.GetGUID())
+			if (pair.Value.Passenger.Guid == passenger.GUID)
 				return pair;
 
 		return Seats.Last();

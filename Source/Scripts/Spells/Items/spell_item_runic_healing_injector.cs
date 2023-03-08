@@ -16,7 +16,7 @@ internal class spell_item_runic_healing_injector : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public override void Register()

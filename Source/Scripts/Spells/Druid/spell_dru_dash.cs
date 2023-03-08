@@ -23,7 +23,7 @@ public class spell_dru_dash : AuraScript, IHasAuraEffects
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		// do not set speed if not in cat form
-		if (UnitOwner.GetShapeshiftForm() != ShapeShiftForm.CatForm)
+		if (UnitOwner.ShapeshiftForm != ShapeShiftForm.CatForm)
 			amount.Value = 0;
 	}
 }

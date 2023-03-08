@@ -10,9 +10,9 @@ namespace Game.Arenas
 {
     class ArenaScore : BattlegroundScore
     {
-        public ArenaScore(ObjectGuid playerGuid, Team team) : base(playerGuid, team)
+        public ArenaScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
         {
-            TeamId = (int)(team == Team.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
+            TeamId = (int)(team == TeamFaction.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
         }
 
         public override void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)

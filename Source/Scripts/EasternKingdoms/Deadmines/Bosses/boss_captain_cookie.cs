@@ -49,7 +49,7 @@ public class boss_captain_cookie : BossAI
 	public override void Reset()
 	{
 		_Reset();
-		me.SetReactState(ReactStates.Aggressive);
+		me.ReactState = ReactStates.Aggressive;
 		DoCast(eSpell.WHO_IS_THAT);
 		me.SetUnitFlag(UnitFlags.Uninteractible);
 	}
@@ -70,7 +70,7 @@ public class boss_captain_cookie : BossAI
 		me.RemoveAura(eSpell.WHO_IS_THAT);
 		me.RemoveUnitFlag(UnitFlags.Uninteractible);
 		me.AttackStop();
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 
 		_events.ScheduleEvent(BossEvents.EVENT_MOVE, TimeSpan.FromMilliseconds(1000));
 
@@ -109,7 +109,7 @@ public class boss_captain_cookie : BossAI
 			switch (eventId)
 			{
 				case BossEvents.EVENT_MOVE:
-					me.GetMotionMaster().MovePoint(POINT_MOVE, MovePos);
+					me.MotionMaster.MovePoint(POINT_MOVE, MovePos);
 
 					break;
 				case BossEvents.EVENT_CAULDRON_1:
@@ -122,7 +122,7 @@ public class boss_captain_cookie : BossAI
 					var pCauldron = me.FindNearestCreature(Adds.NPC_CAULDRON, 20.0f);
 
 					if (pCauldron != null)
-						me.GetMotionMaster().MoveJump(pCauldron.Location, 5, 10);
+						me.MotionMaster.MoveJump(pCauldron.Location, 5, 10);
 
 					_events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(3000));
 

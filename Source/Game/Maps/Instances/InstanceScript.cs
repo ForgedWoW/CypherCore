@@ -142,7 +142,7 @@ public class InstanceScript : ZoneScript
 
 	public virtual void UpdateDoorState(GameObject door)
 	{
-		var range = _doors.LookupByKey(door.GetEntry());
+		var range = _doors.LookupByKey(door.Entry);
 
 		if (range.Empty())
 			return;
@@ -185,16 +185,16 @@ public class InstanceScript : ZoneScript
 
 	public virtual void AddDoor(GameObject door, bool add)
 	{
-		var range = _doors.LookupByKey(door.GetEntry());
+		var range = _doors.LookupByKey(door.Entry);
 
 		if (range.Empty())
 			return;
 
 		foreach (var data in range)
 			if (add)
-				data.BossInfo.Door[(int)data.Type].Add(door.GetGUID());
+				data.BossInfo.Door[(int)data.Type].Add(door.GUID);
 			else
-				data.BossInfo.Door[(int)data.Type].Remove(door.GetGUID());
+				data.BossInfo.Door[(int)data.Type].Remove(door.GUID);
 
 		if (add)
 			UpdateDoorState(door);
@@ -202,15 +202,15 @@ public class InstanceScript : ZoneScript
 
 	public void AddMinion(Creature minion, bool add)
 	{
-		var minionInfo = _minions.LookupByKey(minion.GetEntry());
+		var minionInfo = _minions.LookupByKey(minion.Entry);
 
 		if (minionInfo == null)
 			return;
 
 		if (add)
-			minionInfo.BossInfo.Minion.Add(minion.GetGUID());
+			minionInfo.BossInfo.Minion.Add(minion.GUID);
 		else
-			minionInfo.BossInfo.Minion.Remove(minion.GetGUID());
+			minionInfo.BossInfo.Minion.Remove(minion.GUID);
 	}
 
 	// Triggers a GameEvent
@@ -271,7 +271,7 @@ public class InstanceScript : ZoneScript
 						var minion = Instance.GetCreature(guid);
 
 						if (minion)
-							if (minion.IsWorldBoss() && minion.IsAlive())
+							if (minion.IsWorldBoss && minion.IsAlive)
 								return false;
 					}
 
@@ -287,7 +287,7 @@ public class InstanceScript : ZoneScript
 
 						Instance.DoOnPlayers(player =>
 						{
-							if (player.IsAlive())
+							if (player.IsAlive)
 								Unit.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
 						});
 
@@ -347,7 +347,7 @@ public class InstanceScript : ZoneScript
 
 	public bool _SkipCheckRequiredBosses(Player player = null)
 	{
-		return player && player.GetSession().HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
+		return player && player.Session.HasPermission(RBACPermissions.SkipCheckInstanceRequiredBosses);
 	}
 
 	public virtual void Create()
@@ -453,7 +453,7 @@ public class InstanceScript : ZoneScript
 
 	public void DoUseDoorOrButton(ObjectGuid uiGuid, uint withRestoreTime = 0, bool useAlternativeState = false)
 	{
-		if (uiGuid.IsEmpty())
+		if (uiGuid.IsEmpty)
 			return;
 
 		var go = Instance.GetGameObject(uiGuid);
@@ -469,7 +469,7 @@ public class InstanceScript : ZoneScript
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.GetEntry(), go.GetGoType());
+				Log.outError(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
 			}
 		}
 		else
@@ -491,7 +491,7 @@ public class InstanceScript : ZoneScript
 				case GameObjectTypes.Trap:
 				case GameObjectTypes.FishingNode:
 					// not expect any of these should ever be handled
-					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.GetEntry(), go.GetGoType());
+					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
 
 					return;
 				default:
@@ -540,7 +540,7 @@ public class InstanceScript : ZoneScript
 		{
 			var summonGUID = player.SummonSlot[i];
 
-			if (!summonGUID.IsEmpty())
+			if (!summonGUID.IsEmpty)
 			{
 				var summon = Instance.GetCreature(summonGUID);
 
@@ -557,7 +557,7 @@ public class InstanceScript : ZoneScript
 			var controlled = player.Controlled[i];
 
 			if (controlled != null)
-				if (controlled.IsInWorld && controlled.IsCreature())
+				if (controlled.IsInWorld && controlled.IsCreature)
 					controlled.RemoveAura(spell);
 		}
 	}
@@ -582,7 +582,7 @@ public class InstanceScript : ZoneScript
 		{
 			var summonGUID = player.SummonSlot[i];
 
-			if (!summonGUID.IsEmpty())
+			if (!summonGUID.IsEmpty)
 			{
 				var summon = Instance.GetCreature(summonGUID);
 
@@ -599,7 +599,7 @@ public class InstanceScript : ZoneScript
 			var controlled = player.Controlled[i];
 
 			if (controlled != null)
-				if (controlled.IsInWorld && controlled.IsCreature())
+				if (controlled.IsInWorld && controlled.IsCreature)
 					controlled.CastSpell(player, spell, true);
 		}
 	}
@@ -665,7 +665,7 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterEngageUnit encounterEngageMessage = new();
-				encounterEngageMessage.Unit = unit.GetGUID();
+				encounterEngageMessage.Unit = unit.GUID;
 				encounterEngageMessage.TargetFramePriority = priority;
 				Instance.SendToPlayers(encounterEngageMessage);
 
@@ -675,7 +675,7 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterDisengageUnit encounterDisengageMessage = new();
-				encounterDisengageMessage.Unit = unit.GetGUID();
+				encounterDisengageMessage.Unit = unit.GUID;
 				Instance.SendToPlayers(encounterDisengageMessage);
 
 				break;
@@ -684,7 +684,7 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterChangePriority encounterChangePriorityMessage = new();
-				encounterChangePriorityMessage.Unit = unit.GetGUID();
+				encounterChangePriorityMessage.Unit = unit.GUID;
 				encounterChangePriorityMessage.TargetFramePriority = priority;
 				Instance.SendToPlayers(encounterChangePriorityMessage);
 
@@ -929,14 +929,14 @@ public class InstanceScript : ZoneScript
 		switch (state)
 		{
 			case EncounterState.NotStarted:
-				if (!minion.IsAlive())
+				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.IsInCombat())
 					minion.GetAI().EnterEvadeMode();
 
 				break;
 			case EncounterState.InProgress:
-				if (!minion.IsAlive())
+				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.GetVictim() == null)
 					minion.GetAI().DoZoneInCombat();
@@ -965,7 +965,7 @@ public class InstanceScript : ZoneScript
 			if (((1 << (int)GetBossState(info.BossStateId)) & info.BossStates) == 0)
 				continue;
 
-			if (((Instance.GetTeamIdInInstance() == TeamId.Alliance) && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || ((Instance.GetTeamIdInInstance() == TeamId.Horde) && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
+			if (((Instance.GetTeamIdInInstance() == TeamIds.Alliance) && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || ((Instance.GetTeamIdInInstance() == TeamIds.Horde) && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
 				continue;
 
 			if (info.Flags.HasAnyFlag(InstanceSpawnGroupFlags.BlockSpawn))
@@ -993,34 +993,34 @@ public class InstanceScript : ZoneScript
 
 	void AddObject(Creature obj, bool add)
 	{
-		if (_creatureInfo.ContainsKey(obj.GetEntry()))
-			AddObject(obj, _creatureInfo[obj.GetEntry()], add);
+		if (_creatureInfo.ContainsKey(obj.Entry))
+			AddObject(obj, _creatureInfo[obj.Entry], add);
 	}
 
 	void AddObject(GameObject obj, bool add)
 	{
-		if (_gameObjectInfo.ContainsKey(obj.GetEntry()))
-			AddObject(obj, _gameObjectInfo[obj.GetEntry()], add);
+		if (_gameObjectInfo.ContainsKey(obj.Entry))
+			AddObject(obj, _gameObjectInfo[obj.Entry], add);
 	}
 
 	void AddObject(WorldObject obj, uint type, bool add)
 	{
 		if (add)
 		{
-			_objectGuids[type] = obj.GetGUID();
+			_objectGuids[type] = obj.GUID;
 		}
 		else
 		{
 			var guid = _objectGuids.LookupByKey(type);
 
-			if (!guid.IsEmpty() && guid == obj.GetGUID())
+			if (!guid.IsEmpty && guid == obj.GUID)
 				_objectGuids.Remove(type);
 		}
 	}
 
 	void DoCloseDoorOrButton(ObjectGuid guid)
 	{
-		if (guid.IsEmpty())
+		if (guid.IsEmpty)
 			return;
 
 		var go = Instance.GetGameObject(guid);
@@ -1034,7 +1034,7 @@ public class InstanceScript : ZoneScript
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.GetEntry(), go.GetGoType());
+				Log.outError(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GetGoType());
 			}
 		}
 		else
@@ -1046,7 +1046,7 @@ public class InstanceScript : ZoneScript
 	// Send Notify to all players in instance
 	void DoSendNotifyToInstance(string format, params object[] args)
 	{
-		Instance.DoOnPlayers(player => player.GetSession()?.SendNotification(format, args));
+		Instance.DoOnPlayers(player => player.Session?.SendNotification(format, args));
 	}
 
 	void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)

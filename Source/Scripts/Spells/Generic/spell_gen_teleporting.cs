@@ -23,7 +23,7 @@ internal class spell_gen_teleporting : SpellScript, IHasSpellEffects
 	{
 		var target = HitUnit;
 
-		if (!target.IsPlayer())
+		if (!target.IsPlayer)
 			return;
 
 		// return from top

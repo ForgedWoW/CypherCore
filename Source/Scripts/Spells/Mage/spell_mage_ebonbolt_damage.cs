@@ -38,7 +38,7 @@ public class spell_mage_ebonbolt_damage : SpellScript, IHasSpellEffects
 		var eff1 = Global.SpellMgr.GetSpellInfo(MageSpells.SPLITTING_ICE, Difficulty.None).GetEffect(1).CalcValue();
 
 		if (eff1 != 0)
-			if (hitUnit.GetGUID() != primaryTarget)
+			if (hitUnit.GUID != primaryTarget)
 				HitDamage = MathFunctions.CalculatePct(damage, eff1);
 	}
 }

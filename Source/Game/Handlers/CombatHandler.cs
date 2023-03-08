@@ -14,7 +14,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
         void HandleAttackSwing(AttackSwing packet)
         {
-            Unit enemy = Global.ObjAccessor.GetUnit(GetPlayer(), packet.Victim);
+            Unit enemy = Global.ObjAccessor.GetUnit(Player, packet.Victim);
             if (!enemy)
             {
                 // stop attack state at client
@@ -22,7 +22,7 @@ namespace Game
                 return;
             }
 
-            if (!GetPlayer().IsValidAttackTarget(enemy))
+            if (!Player.IsValidAttackTarget(enemy))
             {
                 // stop attack state at client
                 SendAttackStop(enemy);
@@ -32,10 +32,10 @@ namespace Game
             //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
             //! so we'll place the same check here. Note that it might be possible to reuse this snippet
             //! in other places as well.
-            Vehicle vehicle = GetPlayer().GetVehicle();
+            Vehicle vehicle = Player.GetVehicle();
             if (vehicle)
             {
-                VehicleSeatRecord seat = vehicle.GetSeatForPassenger(GetPlayer());
+                VehicleSeatRecord seat = vehicle.GetSeatForPassenger(Player);
                 Cypher.Assert(seat != null);
                 if (!seat.HasFlag(VehicleSeatFlags.CanAttack))
                 {
@@ -44,13 +44,13 @@ namespace Game
                 }
             }
 
-            GetPlayer().Attack(enemy, true);
+            Player.Attack(enemy, true);
         }
 
         [WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
         void HandleAttackStop(AttackStop packet)
         {
-            GetPlayer().AttackStop();
+            Player.AttackStop();
         }
 
         [WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
@@ -62,12 +62,13 @@ namespace Game
                 return;
             }
 
-            GetPlayer().SetSheath((SheathState)packet.CurrentSheathState);
+            Player.
+            Sheath = (SheathState)packet.CurrentSheathState;
         }
 
         void SendAttackStop(Unit enemy)
         {
-            SendPacket(new SAttackStop(GetPlayer(), enemy));
+            SendPacket(new SAttackStop(Player, enemy));
         }
     }
 }

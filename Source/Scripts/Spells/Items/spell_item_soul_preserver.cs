@@ -31,7 +31,7 @@ internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
 
 		var caster = eventInfo.Actor;
 
-		switch (caster.GetClass())
+		switch (caster.Class)
 		{
 			case Class.Druid:
 				caster.CastSpell(caster, ItemSpellIds.SoulPreserverDruid, new CastSpellExtraArgs(aurEff));

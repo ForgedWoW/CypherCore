@@ -114,7 +114,7 @@ internal class boss_coren_direbrew : BossAI
 	{
 		_Reset();
 		me.SetImmuneToPC(true);
-		me.SetFaction((uint)FactionTemplates.Friendly);
+		me.Faction = (uint)FactionTemplates.Friendly;
 		phase = DirebrewPhases.All;
 		_scheduler.CancelAll();
 
@@ -132,7 +132,7 @@ internal class boss_coren_direbrew : BossAI
 	public override void MoveInLineOfSight(Unit who)
 	{
 		if (phase != DirebrewPhases.All ||
-			!who.IsPlayer())
+			!who.IsPlayer)
 			return;
 
 		phase = DirebrewPhases.Intro;
@@ -168,7 +168,7 @@ internal class boss_coren_direbrew : BossAI
 			phase = DirebrewPhases.One;
 			//events.SetPhase(PhaseOne);
 			me.SetImmuneToPC(false);
-			me.SetFaction((uint)FactionTemplates.GoblinDarkIronBarPatron);
+			me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 			DoZoneInCombat();
 
 			EntryCheckPredicate pred = new(CreatureIds.Antagonist);
@@ -210,9 +210,9 @@ internal class boss_coren_direbrew : BossAI
 
 	public override void SummonedCreatureDies(Creature summon, Unit killer)
 	{
-		if (summon.GetEntry() == CreatureIds.IlsaDirebrew)
+		if (summon.Entry == CreatureIds.IlsaDirebrew)
 			_scheduler.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.IlsaDirebrew); });
-		else if (summon.GetEntry() == CreatureIds.UrsulaDirebrew)
+		else if (summon.Entry == CreatureIds.UrsulaDirebrew)
 			_scheduler.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.UrsulaDirebrew); });
 	}
 
@@ -274,7 +274,7 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
 	{
 		DoCastSelf(SpellIds.PortToCoren);
 
-		if (me.GetEntry() == CreatureIds.UrsulaDirebrew)
+		if (me.Entry == CreatureIds.UrsulaDirebrew)
 			DoCastSelf(SpellIds.BarreledControlAura);
 		else
 			DoCastSelf(SpellIds.SendMugControlAura);
@@ -310,7 +310,7 @@ internal class npc_direbrew_minion : ScriptedAI
 
 	public override void Reset()
 	{
-		me.SetFaction((uint)FactionTemplates.GoblinDarkIronBarPatron);
+		me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 		DoZoneInCombat();
 	}
 
@@ -341,7 +341,7 @@ internal class npc_direbrew_antagonist : ScriptedAI
 				break;
 			case ActionIds.AntagonistHostile:
 				me.SetImmuneToPC(false);
-				me.SetFaction((uint)FactionTemplates.GoblinDarkIronBarPatron);
+				me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 				DoZoneInCombat();
 
 				break;
@@ -432,7 +432,7 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
 		if (targets.Count > 1)
 			targets.RemoveAll(obj =>
 			{
-				if (obj.GetGUID() == caster.GetAI().GetGUID(MiscConst.DataTargetGuid))
+				if (obj.GUID == caster.GetAI().GetGUID(MiscConst.DataTargetGuid))
 					return true;
 
 				return false;
@@ -449,7 +449,7 @@ internal class spell_send_mug_target_picker : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		var caster = Caster;
-		caster.GetAI().SetGUID(HitUnit.GetGUID(), MiscConst.DataTargetGuid);
+		caster.GetAI().SetGUID(HitUnit.GUID, MiscConst.DataTargetGuid);
 		caster.CastSpell(HitUnit, SpellIds.SendFirstMug, true);
 	}
 }

@@ -26,7 +26,7 @@ namespace Game.Movement
             RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated | MovementGeneratorFlags.Paused);
             AddFlag(MovementGeneratorFlags.Initialized);
 
-            if (owner == null || !owner.IsAlive())
+            if (owner == null || !owner.IsAlive)
                 return;
 
             _reference = owner.Location;
@@ -50,7 +50,7 @@ namespace Game.Movement
 
         public override bool DoUpdate(Creature owner, uint diff)
         {
-            if (!owner || !owner.IsAlive())
+            if (!owner || !owner.IsAlive)
                 return true;
 
             if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused))
@@ -101,7 +101,7 @@ namespace Game.Movement
                 owner.SetWalk(false);
             }
 
-            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsAIEnabled() && owner.TryGetCreatureAI(out var ai))
+            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsAIEnabled && owner.TryGetCreatureAI(out var ai))
                 ai.MovementInform(MovementGeneratorType.Random, 0);
         }
 
@@ -173,7 +173,7 @@ namespace Game.Movement
             owner.AddUnitState(UnitState.RoamingMove);
 
             bool walk = true;
-            switch (owner.GetMovementTemplate().GetRandom())
+            switch (owner.MovementTemplate.GetRandom())
             {
                 case CreatureRandomMovementType.CanRun:
                     walk = owner.IsWalking();

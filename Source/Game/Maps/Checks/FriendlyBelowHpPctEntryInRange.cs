@@ -25,10 +25,10 @@ public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (_excludeSelf && _obj.GetGUID() == u.GetGUID())
+		if (_excludeSelf && _obj.GUID == u.GUID)
 			return false;
 
-		if (u.GetEntry() == _entry && u.IsAlive() && u.IsInCombat() && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
+		if (u.Entry == _entry && u.IsAlive && u.IsInCombat() && !_obj.IsHostileTo(u) && _obj.IsWithinDist(u, _range) && u.HealthBelowPct(_pct))
 			return true;
 
 		return false;

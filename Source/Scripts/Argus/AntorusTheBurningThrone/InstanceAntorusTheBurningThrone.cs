@@ -92,7 +92,7 @@ internal class instance_antorus_the_burning_throne : InstanceMapScript, IInstanc
 		{
 			base.OnCreatureCreate(creature);
 
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreatureIds.Annihilation:
 					var garothi = GetCreature(DataTypes.GarothiWorldbreaker);

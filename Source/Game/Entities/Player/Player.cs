@@ -30,6 +30,318 @@ namespace Game.Entities;
 
 public partial class Player : Unit
 {
+	public override bool IsLoading => Session.PlayerLoading;
+
+	public DeclinedName DeclinedNames => _declinedname;
+
+	public Garrison Garrison => _garrison;
+
+	public SceneMgr SceneMgr => _sceneMgr;
+
+	public RestMgr RestMgr => _restMgr;
+
+	public bool IsAdvancedCombatLoggingEnabled => _advancedCombatLoggingEnabled;
+
+	public PetStable PetStable
+	{
+		get
+		{
+			if (_petStable == null)
+				_petStable = new PetStable();
+
+			return _petStable;
+		}
+	}
+
+	public byte CUFProfilesCount => (byte)_cufProfiles.Count(p => p != null);
+
+	public bool HasSummonPending => _summonExpire >= GameTime.GetGameTime();
+
+	//GM
+	public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
+
+	public bool IsAcceptWhispers => _extraFlags.HasAnyFlag(PlayerExtraFlags.AcceptWhispers);
+
+	public bool IsGameMaster => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMOn);
+
+	public bool IsGameMasterAcceptingWhispers => IsGameMaster && IsAcceptWhispers;
+
+	public bool CanBeGameMaster => Session.HasPermission(RBACPermissions.CommandGm);
+
+	public bool IsGMChat => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
+
+	public bool IsTaxiCheater => _extraFlags.HasAnyFlag(PlayerExtraFlags.TaxiCheat);
+
+	public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
+
+	public List<Channel> JoinedChannels => _channels;
+
+	public List<Mail> Mails => _mail;
+
+	public uint MailSize => (uint)_mail.Count;
+
+	//Binds
+	public bool HasPendingBind => _pendingBindId > 0;
+
+	//Misc
+	public uint TotalPlayedTime => _playedTimeTotal;
+
+	public uint LevelPlayedTime => _playedTimeLevel;
+
+	public CinematicManager CinematicMgr => _cinematicMgr;
+
+	public bool HasCorpse => _corpseLocation != null && _corpseLocation.MapId != 0xFFFFFFFF;
+
+	public WorldLocation CorpseLocation => _corpseLocation;
+
+	public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
+
+	public override bool CanEnterWater => true;
+
+	public bool InArena
+	{
+		get
+		{
+			var bg = GetBattleground();
+
+			if (!bg || !bg.IsArena())
+				return false;
+
+			return true;
+		}
+	}
+
+	public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
+
+	public TeamFaction Team => _team;
+
+	public int TeamId => _team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
+
+	public TeamFaction EffectiveTeam => HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ? (Team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance) : Team;
+
+	public int EffectiveTeamId => EffectiveTeam == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
+
+	//Money
+	public ulong Money
+	{
+		get => ActivePlayerData.Coinage;
+		set
+		{
+			var loading = Session.PlayerLoading;
+
+			if (!loading)
+				MoneyChanged((uint)value);
+
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), value);
+
+			if (!loading)
+				UpdateCriteria(CriteriaType.MostMoneyOwned);
+		}
+	}
+
+	public uint GuildRank => PlayerData.GuildRankID;
+
+	public uint GuildLevel
+	{
+		get => PlayerData.GuildLevel;
+		set => SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.GuildLevel), value);
+	}
+
+	public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
+
+	public Guild Guild
+	{
+		get
+		{
+			var guildId = GuildId;
+
+			return guildId != 0 ? Global.GuildMgr.GetGuildById(guildId) : null;
+		}
+	}
+
+	public ulong GuildIdInvited
+	{
+		get => _guildIdInvited;
+		set => _guildIdInvited = value;
+	}
+
+	public string GuildName => GuildId != 0 ? Global.GuildMgr.GetGuildById(GuildId).GetName() : "";
+
+	public bool CanParry => _canParry;
+
+	public bool CanBlock => _canBlock;
+
+	public bool IsAFK => HasPlayerFlag(PlayerFlags.AFK);
+
+	public bool IsDND => HasPlayerFlag(PlayerFlags.DND);
+
+	public bool IsMaxLevel
+	{
+		get
+		{
+			if (ConfigMgr.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
+				return Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+
+			return Level >= ActivePlayerData.MaxLevel;
+		}
+	}
+
+	public ChatFlags ChatFlags
+	{
+		get
+		{
+			var tag = ChatFlags.None;
+
+			if (IsGMChat)
+				tag |= ChatFlags.GM;
+
+			if (IsDND)
+				tag |= ChatFlags.DND;
+
+			if (IsAFK)
+				tag |= ChatFlags.AFK;
+
+			if (IsDeveloper)
+				tag |= ChatFlags.Dev;
+
+			return tag;
+		}
+	}
+
+	public uint SaveTimer
+	{
+		get => _nextSave;
+		private set => _nextSave = value;
+	}
+
+	public ReputationMgr ReputationMgr => _reputationMgr;
+
+	public PlayerCreateMode CreateMode => _createMode;
+
+	public byte Cinematic
+	{
+		get => _cinematic;
+		set => _cinematic = value;
+	}
+
+	public uint Movie
+	{
+		get => _movie;
+		set => _movie = value;
+	}
+
+	public uint XP
+	{
+		get => ActivePlayerData.XP;
+		set
+		{
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), value);
+
+			var playerLevelDelta = 0;
+
+			// If XP < 50%, player should see scaling creature with -1 level except for level max
+			if (Level < SharedConst.MaxLevel && value < (ActivePlayerData.NextLevelXP / 2))
+				playerLevelDelta = -1;
+
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ScalingPlayerLevelDelta), playerLevelDelta);
+		}
+	}
+
+	public uint XPForNextLevel => ActivePlayerData.NextLevelXP;
+
+	public byte DrunkValue => PlayerData.Inebriation;
+
+	public uint DeathTimer => _deathTimer;
+
+	public TeleportToOptions TeleportOptions => _teleportOptions;
+
+	public bool IsBeingTeleported => _semaphoreTeleportNear || _semaphoreTeleportFar;
+
+	public bool IsBeingTeleportedNear => _semaphoreTeleportNear;
+
+	public bool IsBeingTeleportedFar => _semaphoreTeleportFar;
+
+	public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && _teleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
+
+	public bool IsReagentBankUnlocked => HasPlayerFlagEx(PlayerFlagsEx.ReagentBankUnlocked);
+
+	public uint FreePrimaryProfessionPoints => ActivePlayerData.CharacterPoints;
+
+	public WorldObject Viewpoint
+	{
+		get
+		{
+			ObjectGuid guid = ActivePlayerData.FarsightObject;
+
+			if (!guid.IsEmpty)
+				return Global.ObjAccessor.GetObjectByTypeMask(this, guid, TypeMask.Seer);
+
+			return null;
+		}
+	}
+
+	public WorldLocation TeleportDest => _teleportDest;
+
+	public uint? TeleportDestInstanceId => _teleportInstanceId;
+
+	public WorldLocation Homebind => _homebind;
+
+	public WorldLocation Recall1 => _recallLocation;
+
+	public override Gender NativeGender
+	{
+		get => (Gender)(byte)PlayerData.NativeSex;
+		set => SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.NativeSex), (byte)value);
+	}
+
+	public ObjectGuid SummonedBattlePetGUID => ActivePlayerData.SummonedBattlePetGUID;
+
+	public byte NumRespecs => ActivePlayerData.NumRespecs;
+
+	public bool CanTameExoticPets => IsGameMaster || HasAuraType(AuraType.AllowTamePetType);
+
+	//Movement
+	bool IsCanDelayTeleport => _canDelayTeleport;
+
+	bool IsHasDelayedTeleport => _hasDelayedTeleport;
+
+	bool IsTotalImmune
+	{
+		get
+		{
+			var immune = GetAuraEffectsByType(AuraType.SchoolImmunity);
+
+			var immuneMask = 0;
+
+			foreach (var eff in immune)
+			{
+				immuneMask |= eff.MiscValue;
+
+				if (Convert.ToBoolean(immuneMask & (int)SpellSchoolMask.All)) // total immunity
+					return true;
+			}
+
+			return false;
+		}
+	}
+
+	bool IsInFriendlyArea
+	{
+		get
+		{
+			var areaEntry = CliDB.AreaTableStorage.LookupByKey(GetAreaId());
+
+			if (areaEntry != null)
+				return IsFriendlyArea(areaEntry);
+
+			return false;
+		}
+	}
+
+	bool IsWarModeDesired => HasPlayerFlag(PlayerFlags.WarModeDesired);
+
+	bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
+
 	public Player(WorldSession session) : base(true)
 	{
 		ObjectTypeMask |= TypeMask.Player;
@@ -41,7 +353,7 @@ public partial class Player : Unit
 		_session = session;
 
 		// players always accept
-		if (!GetSession().HasPermission(RBACPermissions.CanFilterWhispers))
+		if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
 			SetAcceptWhispers(true);
 
 		_zoneUpdateId = 0xffffffff;
@@ -159,7 +471,7 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid race/class pair ({2}/{3}) - refusing to do so.",
-						GetSession().GetAccountId(),
+						Session.						AccountId,
 						GetName(),
 						createInfo.RaceId,
 						createInfo.ClassId);
@@ -173,18 +485,18 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid character class ({2}) - refusing to do so (wrong DBC-files?)",
-						GetSession().GetAccountId(),
+						Session.						AccountId,
 						GetName(),
 						createInfo.ClassId);
 
 			return false;
 		}
 
-		if (!GetSession().ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
+		if (!Session.ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
 		{
 			Log.outError(LogFilter.Player,
 						"Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
-						GetSession().GetAccountId(),
+						Session.						AccountId,
 						GetName());
 
 			return false;
@@ -218,7 +530,7 @@ public partial class Player : Unit
 
 		var powertype = cEntry.DisplayPower;
 
-		SetObjectScale(1.0f);
+		ObjectScale = 1.0f;
 
 		SetFactionForRace(createInfo.RaceId);
 
@@ -226,16 +538,16 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"Player:Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid gender ({2}) - refusing to do so",
-						GetSession().GetAccountId(),
+						Session.						AccountId,
 						GetName(),
 						createInfo.Sex);
 
 			return false;
 		}
 
-		SetRace(createInfo.RaceId);
-		SetClass(createInfo.ClassId);
-		SetGender(createInfo.Sex);
+		Race = createInfo.RaceId;
+		Class = createInfo.ClassId;
+		Gender = createInfo.Sex;
 		SetPowerType(powertype, false);
 		InitDisplayIds();
 
@@ -251,9 +563,9 @@ public partial class Player : Unit
 		SetWatchedFactionIndex(0xFFFFFFFF);
 
 		SetCustomizations(createInfo.Customizations);
-		SetRestState(RestTypes.XP, ((GetSession().IsARecruiter() || GetSession().GetRecruiterId() != 0) ? PlayerRestState.RAFLinked : PlayerRestState.Normal));
+		SetRestState(RestTypes.XP, ((Session.IsARecruiter || Session.RecruiterId != 0) ? PlayerRestState.RAFLinked : PlayerRestState.Normal));
 		SetRestState(RestTypes.Honor, PlayerRestState.Normal);
-		SetNativeGender(createInfo.Sex);
+		NativeGender = createInfo.Sex;
 		SetInventorySlotCount(InventorySlots.DefaultSize);
 
 		// set starting level
@@ -335,7 +647,7 @@ public partial class Player : Unit
 		}
 		// all item positions resolved
 
-		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(GetClass());
+		var defaultSpec = Global.DB2Mgr.GetDefaultChrSpecializationForClass(Class);
 
 		if (defaultSpec != null)
 		{
@@ -411,14 +723,14 @@ public partial class Player : Unit
 			UpdateSoulboundTradeItems();
 
 		// If mute expired, remove it from the DB
-		if (GetSession().m_muteTime != 0 && GetSession().m_muteTime < now)
+		if (Session.MuteTime != 0 && Session.MuteTime < now)
 		{
-			GetSession().m_muteTime = 0;
+			Session.MuteTime = 0;
 			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
 			stmt.AddValue(0, 0); // Set the mute time to 0
 			stmt.AddValue(1, "");
 			stmt.AddValue(2, "");
-			stmt.AddValue(3, GetSession().GetAccountId());
+			stmt.AddValue(3, Session.AccountId);
 			DB.Login.Execute(stmt);
 		}
 
@@ -487,7 +799,7 @@ public partial class Player : Unit
 					}
 				}
 
-				if (!IsInFeralForm() && HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
+				if (!IsInFeralForm && HaveOffhandWeapon() && IsAttackReady(WeaponAttackType.OffAttack))
 				{
 					if (!IsWithinMeleeRange(victim))
 					{
@@ -557,7 +869,7 @@ public partial class Player : Unit
 			}
 		}
 
-		if (IsAlive())
+		if (IsAlive)
 		{
 			RegenTimer += diff;
 			RegenerateAll();
@@ -573,7 +885,7 @@ public partial class Player : Unit
 				// m_nextSave reset in SaveToDB call
 				Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
 				SaveToDB();
-				Log.outDebug(LogFilter.Player, "Player '{0}' (GUID: {1}) saved", GetName(), GetGUID().ToString());
+				Log.outDebug(LogFilter.Player, "Player '{0}' (GUID: {1}) saved", GetName(), GUID.ToString());
 			}
 			else
 			{
@@ -593,7 +905,7 @@ public partial class Player : Unit
 			_lastTick = now;
 		}
 
-		if (GetDrunkValue() != 0)
+		if (DrunkValue != 0)
 		{
 			_drunkTimer += diff;
 
@@ -601,12 +913,12 @@ public partial class Player : Unit
 				HandleSobering();
 		}
 
-		if (HasPendingBind())
+		if (HasPendingBind)
 		{
 			if (_pendingBindTimer <= diff)
 			{
 				// Player left the instance
-				if (_pendingBindId == GetInstanceId())
+				if (_pendingBindId == InstanceId1)
 					ConfirmPendingBind();
 
 				SetPendingBind(0, 0);
@@ -651,10 +963,10 @@ public partial class Player : Unit
 
 		var pet = GetPet();
 
-		if (pet != null && !pet.IsWithinDistInMap(this, GetMap().GetVisibilityRange()) && !pet.IsPossessed())
+		if (pet != null && !pet.IsWithinDistInMap(this, GetMap().GetVisibilityRange()) && !pet.IsPossessed)
 			RemovePet(pet, PetSaveMode.NotInSlot, true);
 
-		if (IsAlive())
+		if (IsAlive)
 		{
 			if (_hostileReferenceCheckTimer <= diff)
 			{
@@ -671,19 +983,19 @@ public partial class Player : Unit
 
 		//we should execute delayed teleports only for alive(!) players
 		//because we don't want player's ghost teleported from graveyard
-		if (IsHasDelayedTeleport() && IsAlive())
+		if (IsHasDelayedTeleport && IsAlive)
 			TeleportTo(_teleportDest, _teleportOptions);
 	}
 
 	public override void SetDeathState(DeathState s)
 	{
-		var oldIsAlive = IsAlive();
+		var oldIsAlive = IsAlive;
 
 		if (s == DeathState.JustDied)
 		{
 			if (!oldIsAlive)
 			{
-				Log.outError(LogFilter.Player, "Player.setDeathState: Attempted to kill a dead player '{0}' ({1})", GetName(), GetGUID().ToString());
+				Log.outError(LogFilter.Player, "Player.setDeathState: Attempted to kill a dead player '{0}' ({1})", GetName(), GUID.ToString());
 
 				return;
 			}
@@ -710,7 +1022,7 @@ public partial class Player : Unit
 
 		base.SetDeathState(s);
 
-		if (IsAlive() && !oldIsAlive)
+		if (IsAlive && !oldIsAlive)
 			//clear aura case after resurrection by another way (spells will be applied before next death)
 			ClearSelfResSpell();
 	}
@@ -769,7 +1081,7 @@ public partial class Player : Unit
 			StopCastingBindSight();
 			UnsummonPetTemporaryIfAny();
 			ClearComboPoints();
-			GetSession().DoLootReleaseAll();
+			Session.DoLootReleaseAll();
 			_lootRolls.Clear();
 			Global.OutdoorPvPMgr.HandlePlayerLeaveZone(this, _zoneUpdateId);
 			Global.BattleFieldMgr.HandlePlayerLeaveZone(this, _zoneUpdateId);
@@ -785,15 +1097,15 @@ public partial class Player : Unit
 		// The player should only be removed when logging out
 		base.RemoveFromWorld();
 
-		var viewpoint = GetViewpoint();
+		var viewpoint = Viewpoint;
 
 		if (viewpoint != null)
 		{
 			Log.outError(LogFilter.Player,
 						"Player {0} has viewpoint {1} {2} when removed from world",
 						GetName(),
-						viewpoint.GetEntry(),
-						viewpoint.GetTypeId());
+						viewpoint.Entry,
+						viewpoint.TypeId);
 
 			SetViewpoint(viewpoint, false);
 		}
@@ -838,16 +1150,11 @@ public partial class Player : Unit
 			var g = GetGroup();
 
 			if (g != null)
-				g.SendUpdateToPlayer(GetGUID());
+				g.SendUpdateToPlayer(GUID);
 		}
 
 		//we have executed ALL delayed ops, so clear the flag
 		_delayedOperations = 0;
-	}
-
-	public override bool IsLoading()
-	{
-		return GetSession().PlayerLoading();
 	}
 
 	//Network
@@ -856,37 +1163,12 @@ public partial class Player : Unit
 		_session.SendPacket(data);
 	}
 
-	public DeclinedName GetDeclinedNames()
-	{
-		return _declinedname;
-	}
-
 	public void CreateGarrison(uint garrSiteId)
 	{
 		_garrison = new Garrison(this);
 
 		if (!_garrison.Create(garrSiteId))
 			_garrison = null;
-	}
-
-	public Garrison GetGarrison()
-	{
-		return _garrison;
-	}
-
-	public SceneMgr GetSceneMgr()
-	{
-		return _sceneMgr;
-	}
-
-	public RestMgr GetRestMgr()
-	{
-		return _restMgr;
-	}
-
-	public bool IsAdvancedCombatLoggingEnabled()
-	{
-		return _advancedCombatLoggingEnabled;
 	}
 
 	public void SetAdvancedCombatLogging(bool enabled)
@@ -902,7 +1184,7 @@ public partial class Player : Unit
 	//Taxi
 	public void InitTaxiNodesForLevel()
 	{
-		Taxi.InitTaxiNodesForLevel(GetRace(), GetClass(), GetLevel());
+		Taxi.InitTaxiNodesForLevel(Race, Class, Level);
 	}
 
 	//Cheat Commands
@@ -924,14 +1206,6 @@ public partial class Player : Unit
 	//Pet - Summons - Vehicles
 	public PetStable GetPetStable()
 	{
-		return _petStable;
-	}
-
-	public PetStable GetOrInitPetStable()
-	{
-		if (_petStable == null)
-			_petStable = new PetStable();
-
 		return _petStable;
 	}
 
@@ -981,7 +1255,7 @@ public partial class Player : Unit
 		if (IsPetNeedBeTemporaryUnsummoned())
 			return;
 
-		if (!GetPetGUID().IsEmpty())
+		if (!PetGUID.IsEmpty)
 			return;
 
 		Pet NewPet = new(this);
@@ -992,7 +1266,7 @@ public partial class Player : Unit
 
 	public bool IsPetNeedBeTemporaryUnsummoned()
 	{
-		return !IsInWorld || !IsAlive() || IsMounted();
+		return !IsInWorld || !IsAlive || IsMounted;
 	}
 
 	public void SendRemoveControlBar()
@@ -1002,10 +1276,10 @@ public partial class Player : Unit
 
 	public Creature GetSummonedBattlePet()
 	{
-		var summonedBattlePet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, GetCritterGUID());
+		var summonedBattlePet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, CritterGUID);
 
 		if (summonedBattlePet != null)
-			if (!GetSummonedBattlePetGUID().IsEmpty() && GetSummonedBattlePetGUID() == summonedBattlePet.GetBattlePetCompanionGUID())
+			if (!SummonedBattlePetGUID.IsEmpty && SummonedBattlePetGUID == summonedBattlePet.BattlePetCompanionGUID)
 				return summonedBattlePet;
 
 		return null;
@@ -1017,21 +1291,21 @@ public partial class Player : Unit
 		{
 			SetSummonedBattlePetGUID(pet.PacketInfo.Guid);
 			SetCurrentBattlePetBreedQuality(pet.PacketInfo.Quality);
-			SetBattlePetCompanionExperience(pet.PacketInfo.Exp);
-			SetWildBattlePetLevel(pet.PacketInfo.Level);
+			BattlePetCompanionExperience = pet.PacketInfo.Exp;
+			WildBattlePetLevel = pet.PacketInfo.Level;
 		}
 		else
 		{
 			SetSummonedBattlePetGUID(ObjectGuid.Empty);
 			SetCurrentBattlePetBreedQuality((byte)BattlePetBreedQuality.Poor);
-			SetBattlePetCompanionExperience(0);
-			SetWildBattlePetLevel(0);
+			BattlePetCompanionExperience = 0;
+			WildBattlePetLevel = 0;
 		}
 	}
 
 	public void StopCastingCharm()
 	{
-		var charm = GetCharmed();
+		var charm = Charmed;
 
 		if (!charm)
 			return;
@@ -1042,14 +1316,14 @@ public partial class Player : Unit
 			{
 				((Puppet)charm).UnSummon();
 			}
-			else if (charm.IsVehicle())
+			else if (charm.IsVehicle)
 			{
 				ExitVehicle();
 
 				// Temporary for issue https://github.com/TrinityCore/TrinityCore/issues/24876
-				if (!GetCharmedGUID().IsEmpty() && !charm.HasAuraTypeWithCaster(AuraType.ControlVehicle, GetGUID()))
+				if (!CharmedGUID.IsEmpty && !charm.HasAuraTypeWithCaster(AuraType.ControlVehicle, GUID))
 				{
-					Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm Player '{GetName()}' ({GetGUID()}) is not able to uncharm vehicle ({GetCharmedGUID()}) because of missing SPELL_AURA_CONTROL_VEHICLE");
+					Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
 
 					// attempt to recover from missing HandleAuraControlVehicle unapply handling
 					// THIS IS A HACK, NEED TO FIND HOW IS IT EVEN POSSBLE TO NOT HAVE THE AURA
@@ -1058,16 +1332,16 @@ public partial class Player : Unit
 			}
 		}
 
-		if (!GetCharmedGUID().IsEmpty())
+		if (!CharmedGUID.IsEmpty)
 			charm.RemoveCharmAuras();
 
-		if (!GetCharmedGUID().IsEmpty())
+		if (!CharmedGUID.IsEmpty)
 		{
-			Log.outFatal(LogFilter.Player, "Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GetGUID(), GetCharmedGUID(), charm.GetEntry(), charm.GetTypeId());
+			Log.outFatal(LogFilter.Player, "Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
 
-			if (!charm.GetCharmerGUID().IsEmpty())
+			if (!charm.CharmerGUID.IsEmpty)
 			{
-				Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm: Charmed unit has charmer {charm.GetCharmerGUID()}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
+				Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
 				Cypher.Assert(false);
 			}
 
@@ -1086,17 +1360,17 @@ public partial class Player : Unit
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Player, "Player:CharmSpellInitialize(): the player's charm ({0}) has no charminfo!", charm.GetGUID());
+			Log.outError(LogFilter.Player, "Player:CharmSpellInitialize(): the player's charm ({0}) has no charminfo!", charm.GUID);
 
 			return;
 		}
 
 		PetSpells petSpells = new();
-		petSpells.PetGUID = charm.GetGUID();
+		petSpells.PetGUID = charm.GUID;
 
 		if (charm.IsTypeId(TypeId.Unit))
 		{
-			petSpells.ReactState = charm.ToCreature().GetReactState();
+			petSpells.ReactState = charm.ToCreature().ReactState;
 			petSpells.CommandState = charmInfo.GetCommandState();
 		}
 
@@ -1120,7 +1394,7 @@ public partial class Player : Unit
 
 	public void PossessSpellInitialize()
 	{
-		var charm = GetCharmed();
+		var charm = Charmed;
 
 		if (!charm)
 			return;
@@ -1129,13 +1403,13 @@ public partial class Player : Unit
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Player, "Player:PossessSpellInitialize(): charm ({0}) has no charminfo!", charm.GetGUID());
+			Log.outError(LogFilter.Player, "Player:PossessSpellInitialize(): charm ({0}) has no charminfo!", charm.GUID);
 
 			return;
 		}
 
 		PetSpells petSpellsPacket = new();
-		petSpellsPacket.PetGUID = charm.GetGUID();
+		petSpellsPacket.PetGUID = charm.GUID;
 
 		for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
 			petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
@@ -1154,11 +1428,11 @@ public partial class Player : Unit
 			return;
 
 		PetSpells petSpells = new();
-		petSpells.PetGUID = vehicle.GetGUID();
+		petSpells.PetGUID = vehicle.GUID;
 		petSpells.CreatureFamily = 0; // Pet Family (0 for all vehicles)
 		petSpells.Specialization = 0;
-		petSpells.TimeLimit = vehicle.IsSummon() ? vehicle.ToTempSummon().GetTimer() : 0;
-		petSpells.ReactState = vehicle.GetReactState();
+		petSpells.TimeLimit = vehicle.IsSummon ? vehicle.ToTempSummon().GetTimer() : 0;
+		petSpells.ReactState = vehicle.ReactState;
 		petSpells.CommandState = CommandStates.Follow;
 		petSpells.Flag = 0x8;
 
@@ -1176,9 +1450,9 @@ public partial class Player : Unit
 			if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
 				continue;
 
-			if (!Global.ConditionMgr.IsObjectMeetingVehicleSpellConditions(vehicle.GetEntry(), spellId, this, vehicle))
+			if (!Global.ConditionMgr.IsObjectMeetingVehicleSpellConditions(vehicle.Entry, spellId, this, vehicle))
 			{
-				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.ToCreature().GetEntry(), spellId);
+				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.ToCreature().Entry, spellId);
 
 				continue;
 			}
@@ -1204,8 +1478,8 @@ public partial class Player : Unit
 		Cypher.Assert(currency != null);
 
 		// Check faction
-		if ((currency.IsAlliance() && GetTeam() != Team.Alliance) ||
-			(currency.IsHorde() && GetTeam() != Team.Horde))
+		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
+			(currency.IsHorde() && Team != TeamFaction.Horde))
 			return;
 
 		// Check award condition
@@ -1238,7 +1512,7 @@ public partial class Player : Unit
 		if (factionEntry != null)
 		{
 			amount /= scaler;
-			GetReputationMgr().ModifyReputation(factionEntry, amount, false, true);
+			ReputationMgr.ModifyReputation(factionEntry, amount, false, true);
 
 			return;
 		}
@@ -1352,8 +1626,8 @@ public partial class Player : Unit
 		Cypher.Assert(currency != null);
 
 		// Check faction
-		if ((currency.IsAlliance() && GetTeam() != Team.Alliance) ||
-			(currency.IsHorde() && GetTeam() != Team.Horde))
+		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
+			(currency.IsHorde() && Team != TeamFaction.Horde))
 			return;
 
 		// Check dynamic maximum flag
@@ -1469,11 +1743,6 @@ public partial class Player : Unit
 		return _cufProfiles[id];
 	}
 
-	public byte GetCUFProfilesCount()
-	{
-		return (byte)_cufProfiles.Count(p => p != null);
-	}
-
 	public void SetMultiActionBars(byte mask)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MultiActionBars), mask);
@@ -1493,7 +1762,7 @@ public partial class Player : Unit
 		// set data and update to CHANGED if not NEW
 		ab.SetActionAndType(action, (ActionButtonType)type);
 
-		Log.outDebug(LogFilter.Player, $"Player::AddActionButton: Player '{GetName()}' ({GetGUID()}) added action '{action}' (type {type}) to button '{button}'");
+		Log.outDebug(LogFilter.Player, $"Player::AddActionButton: Player '{GetName()}' ({GUID}) added action '{action}' (type {type}) to button '{button}'");
 
 		return ab;
 	}
@@ -1510,7 +1779,7 @@ public partial class Player : Unit
 		else
 			button.UState = ActionButtonUpdateState.Deleted; // saved, will deleted at next save
 
-		Log.outDebug(LogFilter.Player, "Action Button '{0}' Removed from Player '{1}'", button, GetGUID().ToString());
+		Log.outDebug(LogFilter.Player, "Action Button '{0}' Removed from Player '{1}'", button, GUID.ToString());
 	}
 
 	public ActionButton GetActionButton(byte _button)
@@ -1574,7 +1843,7 @@ public partial class Player : Unit
 				break;
 		}
 
-		if (rate != 1.0f && creatureOrQuestLevel < Formulas.GetGrayLevel(GetLevel()))
+		if (rate != 1.0f && creatureOrQuestLevel < Formulas.GetGrayLevel(Level))
 			percent *= rate;
 
 		if (percent <= 0.0f)
@@ -1590,31 +1859,31 @@ public partial class Player : Unit
 			switch (source)
 			{
 				case ReputationSource.Kill:
-					repRate = repData.creatureRate;
+					repRate = repData.CreatureRate;
 
 					break;
 				case ReputationSource.Quest:
-					repRate = repData.questRate;
+					repRate = repData.QuestRate;
 
 					break;
 				case ReputationSource.DailyQuest:
-					repRate = repData.questDailyRate;
+					repRate = repData.QuestDailyRate;
 
 					break;
 				case ReputationSource.WeeklyQuest:
-					repRate = repData.questWeeklyRate;
+					repRate = repData.QuestWeeklyRate;
 
 					break;
 				case ReputationSource.MonthlyQuest:
-					repRate = repData.questMonthlyRate;
+					repRate = repData.QuestMonthlyRate;
 
 					break;
 				case ReputationSource.RepeatableQuest:
-					repRate = repData.questRepeatableRate;
+					repRate = repData.QuestRepeatableRate;
 
 					break;
 				case ReputationSource.Spell:
-					repRate = repData.spellRate;
+					repRate = repData.SpellRate;
 
 					break;
 			}
@@ -1638,10 +1907,10 @@ public partial class Player : Unit
 		if (!victim || victim.IsTypeId(TypeId.Player))
 			return;
 
-		if (victim.ToCreature().IsReputationGainDisabled())
+		if (victim.ToCreature().IsReputationGainDisabled)
 			return;
 
-		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.ToCreature().GetCreatureTemplate().Entry);
+		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.ToCreature().CreatureTemplate.Entry);
 
 		if (Rep == null)
 			return;
@@ -1668,30 +1937,30 @@ public partial class Player : Unit
 			}
 		}
 
-		var team = GetTeam();
+		var team = Team;
 
-		if (Rep.RepFaction1 != 0 && (!Rep.TeamDependent || team == Team.Alliance))
+		if (Rep.RepFaction1 != 0 && (!Rep.TeamDependent || team == TeamFaction.Alliance))
 		{
 			var donerep1 = CalculateReputationGain(ReputationSource.Kill, victim.GetLevelForTarget(this), Rep.RepValue1, (int)(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction1));
 			donerep1 = (int)(donerep1 * rate);
 
 			var factionEntry1 = CliDB.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction1);
-			var current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
+			var current_reputation_rank1 = ReputationMgr.GetRank(factionEntry1);
 
 			if (factionEntry1 != null)
-				GetReputationMgr().ModifyReputation(factionEntry1, donerep1, (uint)current_reputation_rank1 > Rep.ReputationMaxCap1);
+				ReputationMgr.ModifyReputation(factionEntry1, donerep1, (uint)current_reputation_rank1 > Rep.ReputationMaxCap1);
 		}
 
-		if (Rep.RepFaction2 != 0 && (!Rep.TeamDependent || team == Team.Horde))
+		if (Rep.RepFaction2 != 0 && (!Rep.TeamDependent || team == TeamFaction.Horde))
 		{
 			var donerep2 = CalculateReputationGain(ReputationSource.Kill, victim.GetLevelForTarget(this), Rep.RepValue2, (int)(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction2));
 			donerep2 = (int)(donerep2 * rate);
 
 			var factionEntry2 = CliDB.FactionStorage.LookupByKey(ChampioningFaction != 0 ? ChampioningFaction : Rep.RepFaction2);
-			var current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
+			var current_reputation_rank2 = ReputationMgr.GetRank(factionEntry2);
 
 			if (factionEntry2 != null)
-				GetReputationMgr().ModifyReputation(factionEntry2, donerep2, (uint)current_reputation_rank2 > Rep.ReputationMaxCap2);
+				ReputationMgr.ModifyReputation(factionEntry2, donerep2, (uint)current_reputation_rank2 > Rep.ReputationMaxCap2);
 		}
 	}
 
@@ -1716,7 +1985,7 @@ public partial class Player : Unit
 						y,
 						z,
 						orientation,
-						GetGUID().ToString(),
+						GUID.ToString(),
 						GetName(),
 						Location.MapId,
 						Location.ToString());
@@ -1724,9 +1993,9 @@ public partial class Player : Unit
 			return false;
 		}
 
-		if (!GetSession().HasPermission(RBACPermissions.SkipCheckDisableMap) && Global.DisableMgr.IsDisabledFor(DisableType.Map, mapid, this))
+		if (!Session.HasPermission(RBACPermissions.SkipCheckDisableMap) && Global.DisableMgr.IsDisabledFor(DisableType.Map, mapid, this))
 		{
-			Log.outError(LogFilter.Maps, "Player (GUID: {0}, name: {1}) tried to enter a forbidden map {2}", GetGUID().ToString(), GetName(), mapid);
+			Log.outError(LogFilter.Maps, "Player (GUID: {0}, name: {1}) tried to enter a forbidden map {2}", GUID.ToString(), GetName(), mapid);
 			SendTransferAborted(mapid, TransferAbortReason.MapNotAllowed);
 
 			return false;
@@ -1743,11 +2012,11 @@ public partial class Player : Unit
 			return false;
 
 		// client without expansion support
-		if (GetSession().GetExpansion() < mEntry.Expansion())
+		if (Session.Expansion < mEntry.Expansion())
 		{
 			Log.outDebug(LogFilter.Maps, "Player {0} using client without required expansion tried teleport to non accessible map {1}", GetName(), mapid);
 
-			var _transport = GetTransport();
+			var _transport = Transport;
 
 			if (_transport != null)
 			{
@@ -1771,9 +2040,9 @@ public partial class Player : Unit
 		SetUnitMovementFlags(GetUnitMovementFlags() & MovementFlag.MaskHasPlayerStatusOpcode);
 		MovementInfo.ResetJump();
 		DisableSpline();
-		GetMotionMaster().Remove(MovementGeneratorType.Effect);
+		MotionMaster.Remove(MovementGeneratorType.Effect);
 
-		var transport = GetTransport();
+		var transport = Transport;
 
 		if (transport != null)
 			if (!options.HasAnyFlag(TeleportToOptions.NotLeaveTransport))
@@ -1785,16 +2054,16 @@ public partial class Player : Unit
 		if (Duel != null && Location.MapId != mapid && GetMap().GetGameObject(PlayerData.DuelArbiter))
 			DuelComplete(DuelCompleteType.Fled);
 
-		if (Location.MapId == mapid && (!instanceId.HasValue || GetInstanceId() == instanceId))
+		if (Location.MapId == mapid && (!instanceId.HasValue || InstanceId1 == instanceId))
 		{
 			//lets reset far teleport flag if it wasn't reset during chained teleports
 			SetSemaphoreTeleportFar(false);
 			//setup delayed teleport flag
-			SetDelayedTeleportFlag(IsCanDelayTeleport());
+			SetDelayedTeleportFlag(IsCanDelayTeleport);
 
 			//if teleport spell is casted in Unit.Update() func
 			//then we need to delay it until update process will be finished
-			if (IsHasDelayedTeleport())
+			if (IsHasDelayedTeleport)
 			{
 				SetSemaphoreTeleportNear(true);
 				//lets save teleport destination for player
@@ -1810,7 +2079,7 @@ public partial class Player : Unit
 				if (pet && !pet.IsWithinDist3d(x, y, z, GetMap().GetVisibilityRange()))
 					UnsummonPetTemporaryIfAny();
 
-			if (!IsAlive() && options.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
+			if (!IsAlive && options.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
 				ResurrectPlayer(0.5f);
 
 			if (!options.HasAnyFlag(TeleportToOptions.NotLeaveCombat))
@@ -1827,12 +2096,12 @@ public partial class Player : Unit
 			SetSemaphoreTeleportNear(true);
 
 			// near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
-			if (!GetSession().PlayerLogout())
+			if (!Session.PlayerLogout)
 				SendTeleportPacket(_teleportDest);
 		}
 		else
 		{
-			if (GetClass() == Class.Deathknight && Location.MapId == 609 && !IsGameMaster() && !HasSpell(50977))
+			if (Class == Class.Deathknight && Location.MapId == 609 && !IsGameMaster && !HasSpell(50977))
 			{
 				SendTransferAborted(mapid, TransferAbortReason.UniqueMessage, 1);
 
@@ -1864,11 +2133,11 @@ public partial class Player : Unit
 			//lets reset near teleport flag if it wasn't reset during chained teleports
 			SetSemaphoreTeleportNear(false);
 			//setup delayed teleport flag
-			SetDelayedTeleportFlag(IsCanDelayTeleport());
+			SetDelayedTeleportFlag(IsCanDelayTeleport);
 
 			//if teleport spell is cast in Unit::Update() func
 			//then we need to delay it until update process will be finished
-			if (IsHasDelayedTeleport())
+			if (IsHasDelayedTeleport)
 			{
 				SetSemaphoreTeleportFar(true);
 				//lets save teleport destination for player
@@ -1896,7 +2165,7 @@ public partial class Player : Unit
 					LeaveBattleground(false); // don't teleport to entry point
 
 			// remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
-			if (mEntry.IsBattleArena() && !IsGameMaster())
+			if (mEntry.IsBattleArena() && !IsGameMaster)
 			{
 				RemoveArenaSpellCooldowns(true);
 				RemoveArenaAuras();
@@ -1924,19 +2193,19 @@ public partial class Player : Unit
 			//remove auras before removing from map...
 			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Moving | SpellAuraInterruptFlags.Turning);
 
-			if (!GetSession().PlayerLogout() && !options.HasAnyFlag(TeleportToOptions.Seamless))
+			if (!Session.PlayerLogout && !options.HasAnyFlag(TeleportToOptions.Seamless))
 			{
 				// send transfer packets
 				TransferPending transferPending = new();
 				transferPending.MapID = (int)mapid;
 				transferPending.OldMapPosition = Location;
 
-				var transport1 = (Transport)GetTransport();
+				var transport1 = (Transport)Transport;
 
 				if (transport1 != null)
 				{
 					TransferPending.ShipTransferPending shipTransferPending = new();
-					shipTransferPending.Id = transport1.GetEntry();
+					shipTransferPending.Id = transport1.Entry;
 					shipTransferPending.OriginMapID = (int)Location.MapId;
 					transferPending.Ship = shipTransferPending;
 				}
@@ -1955,7 +2224,7 @@ public partial class Player : Unit
 			// if the player is saved before worldportack (at logout for example)
 			// this will be used instead of the current location in SaveToDB
 
-			if (!GetSession().PlayerLogout())
+			if (!Session.PlayerLogout)
 			{
 				SuspendToken suspendToken = new();
 				suspendToken.SequenceIndex = MovementCounter; // not incrementing
@@ -2008,7 +2277,7 @@ public partial class Player : Unit
 
 		if (characterTemplateId.HasValue)
 		{
-			if (GetSession().HasPermission(RBACPermissions.UseCharacterTemplates))
+			if (Session.HasPermission(RBACPermissions.UseCharacterTemplates))
 			{
 				var charTemplate = Global.CharacterTemplateDataStorage.GetCharacterTemplate(characterTemplateId.Value);
 
@@ -2017,11 +2286,11 @@ public partial class Player : Unit
 			}
 			else
 			{
-				Log.outWarn(LogFilter.Cheat, $"Account: {GetSession().GetAccountId()} (IP: {GetSession().GetRemoteAddress()}) tried to use a character template without given permission. Possible cheating attempt.");
+				Log.outWarn(LogFilter.Cheat, $"Account: {Session.AccountId} (IP: {Session.RemoteAddress}) tried to use a character template without given permission. Possible cheating attempt.");
 			}
 		}
 
-		if (GetSession().HasPermission(RBACPermissions.UseStartGmLevel))
+		if (Session.HasPermission(RBACPermissions.UseStartGmLevel))
 			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartGmLevel), startLevel);
 
 		return startLevel;
@@ -2036,9 +2305,9 @@ public partial class Player : Unit
 				Log.outDebug(LogFilter.Unit,
 							"Player.ValidateMovementInfo: Violation of MovementFlags found ({0}). MovementFlags: {1}, MovementFlags2: {2} for player {3}. Mask {4} will be removed.",
 							check,
-							mi.GetMovementFlags(),
+							mi.MovementFlags,
 							mi.GetMovementFlags2(),
-							GetGUID().ToString(),
+							GUID.ToString(),
 							maskToRemove);
 
 				mi.RemoveMovementFlag(maskToRemove);
@@ -2095,7 +2364,7 @@ public partial class Player : Unit
 		*/
 
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Flying | MovementFlag.CanFly) &&
-							GetSession().GetSecurity() == AccountTypes.Player &&
+							Session.							Security == AccountTypes.Player &&
 							!UnitMovedByMe.HasAuraType(AuraType.Fly) &&
 							!UnitMovedByMe.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed),
 							MovementFlag.Flying | MovementFlag.CanFly);
@@ -2119,8 +2388,8 @@ public partial class Player : Unit
 		//Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
 		// 14.57 can be calculated by resolving damageperc formula below to 0
 		if (z_diff >= 14.57f &&
-			!IsDead() &&
-			!IsGameMaster() &&
+			!IsDead &&
+			!IsGameMaster &&
 			!HasAuraType(AuraType.Hover) &&
 			!HasAuraType(AuraType.FeatherFall) &&
 			!HasAuraType(AuraType.Fly) &&
@@ -2154,7 +2423,7 @@ public partial class Player : Unit
 					var final_damage = EnvironmentalDamage(EnviromentalDamage.Fall, damage);
 
 					// recheck alive, might have died of EnvironmentalDamage, avoid cases when player die in fact like Spirit of Redemption case
-					if (IsAlive() && final_damage < original_health)
+					if (IsAlive && final_damage < original_health)
 						UpdateCriteria(CriteriaType.MaxDistFallenWithoutDying, (uint)z_diff * 100);
 				}
 
@@ -2170,18 +2439,13 @@ public partial class Player : Unit
 			SetFallInformation(MovementInfo.Jump.FallTime, MovementInfo.Pos.Z);
 	}
 
-	public bool HasSummonPending()
-	{
-		return _summonExpire >= GameTime.GetGameTime();
-	}
-
 	public void SendSummonRequestFrom(Unit summoner)
 	{
 		if (!summoner)
 			return;
 
 		// Player already has active summon request
-		if (HasSummonPending())
+		if (HasSummonPending)
 			return;
 
 		// Evil Twin (ignore player summon, but hide this for summoner)
@@ -2190,10 +2454,10 @@ public partial class Player : Unit
 
 		_summonExpire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
 		_summonLocation = new WorldLocation(summoner.Location);
-		_summonInstanceId = summoner.GetInstanceId();
+		_summonInstanceId = summoner.InstanceId1;
 
 		SummonRequest summonRequest = new();
-		summonRequest.SummonerGUID = summoner.GetGUID();
+		summonRequest.SummonerGUID = summoner.GUID;
 		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
 		summonRequest.AreaID = (int)summoner.GetZoneId();
 		SendPacket(summonRequest);
@@ -2203,7 +2467,7 @@ public partial class Player : Unit
 		if (group != null)
 		{
 			BroadcastSummonCast summonCast = new();
-			summonCast.Target = GetGUID();
+			summonCast.Target = GUID;
 			group.BroadcastPacket(summonCast, false);
 		}
 	}
@@ -2213,7 +2477,7 @@ public partial class Player : Unit
 		if (trigger == null)
 			return false;
 
-		if (Location.MapId != trigger.ContinentID && !GetPhaseShift().HasVisibleMapId(trigger.ContinentID))
+		if (Location.MapId != trigger.ContinentID && !PhaseShift.HasVisibleMapId(trigger.ContinentID))
 			return false;
 
 		if (trigger.PhaseID != 0 || trigger.PhaseGroupID != 0 || trigger.PhaseUseFlags != 0)
@@ -2248,7 +2512,7 @@ public partial class Player : Unit
 			if (group != null)
 			{
 				BroadcastSummonResponse summonResponse = new();
-				summonResponse.Target = GetGUID();
+				summonResponse.Target = GUID;
 				summonResponse.Accepted = accepted;
 				group.BroadcastPacket(summonResponse, false);
 			}
@@ -2297,23 +2561,12 @@ public partial class Player : Unit
 		GetMap().UpdatePersonalPhasesForPlayer(this);
 	}
 
-	//GM
-	public bool IsDeveloper()
-	{
-		return HasPlayerFlag(PlayerFlags.Developer);
-	}
-
 	public void SetDeveloper(bool on)
 	{
 		if (on)
 			SetPlayerFlag(PlayerFlags.Developer);
 		else
 			RemovePlayerFlag(PlayerFlags.Developer);
-	}
-
-	public bool IsAcceptWhispers()
-	{
-		return _extraFlags.HasAnyFlag(PlayerExtraFlags.AcceptWhispers);
 	}
 
 	public void SetAcceptWhispers(bool on)
@@ -2324,34 +2577,19 @@ public partial class Player : Unit
 			_extraFlags &= ~PlayerExtraFlags.AcceptWhispers;
 	}
 
-	public bool IsGameMaster()
-	{
-		return _extraFlags.HasAnyFlag(PlayerExtraFlags.GMOn);
-	}
-
-	public bool IsGameMasterAcceptingWhispers()
-	{
-		return IsGameMaster() && IsAcceptWhispers();
-	}
-
-	public bool CanBeGameMaster()
-	{
-		return GetSession().HasPermission(RBACPermissions.CommandGm);
-	}
-
 	public void SetGameMaster(bool on)
 	{
 		if (on)
 		{
 			_extraFlags |= PlayerExtraFlags.GMOn;
-			SetFaction(35);
+			Faction = 35;
 			SetPlayerFlag(PlayerFlags.GM);
 			SetUnitFlag2(UnitFlags2.AllowCheatSpells);
 
 			var pet = GetPet();
 
 			if (pet != null)
-				pet.SetFaction(35);
+				pet.Faction = 35;
 
 			RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
 			ResetContestedPvP();
@@ -2359,7 +2597,7 @@ public partial class Player : Unit
 			CombatStopWithPets();
 
 			PhasingHandler.SetAlwaysVisible(this, true, false);
-			ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, GetSession().GetSecurity());
+			ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, Session.Security);
 		}
 		else
 		{
@@ -2373,7 +2611,7 @@ public partial class Player : Unit
 			var pet = GetPet();
 
 			if (pet != null)
-				pet.SetFaction(GetFaction());
+				pet.Faction = Faction;
 
 			// restore FFA PvP Server state
 			if (Global.WorldMgr.IsFFAPvPRealm())
@@ -2388,11 +2626,6 @@ public partial class Player : Unit
 		UpdateObjectVisibility();
 	}
 
-	public bool IsGMChat()
-	{
-		return _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
-	}
-
 	public void SetGMChat(bool on)
 	{
 		if (on)
@@ -2401,22 +2634,12 @@ public partial class Player : Unit
 			_extraFlags &= ~PlayerExtraFlags.GMChat;
 	}
 
-	public bool IsTaxiCheater()
-	{
-		return _extraFlags.HasAnyFlag(PlayerExtraFlags.TaxiCheat);
-	}
-
 	public void SetTaxiCheater(bool on)
 	{
 		if (on)
 			_extraFlags |= PlayerExtraFlags.TaxiCheat;
 		else
 			_extraFlags &= ~PlayerExtraFlags.TaxiCheat;
-	}
-
-	public bool IsGMVisible()
-	{
-		return !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
 	}
 
 	public void SetGMVisible(bool on)
@@ -2433,7 +2656,7 @@ public partial class Player : Unit
 			SetAcceptWhispers(false);
 			SetGameMaster(true);
 
-			ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, GetSession().GetSecurity());
+			ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, Session.Security);
 		}
 
 		foreach (var channel in _channels)
@@ -2452,13 +2675,13 @@ public partial class Player : Unit
 
 		if (source.IsTypeId(TypeId.Unit))
 		{
-			if (showQuests && source.ToUnit().IsQuestGiver())
-				PrepareQuestMenu(source.GetGUID());
+			if (showQuests && source.ToUnit().IsQuestGiver)
+				PrepareQuestMenu(source.GUID);
 		}
 		else if (source.IsTypeId(TypeId.GameObject))
 		{
 			if (source.ToGameObject().GetGoType() == GameObjectTypes.QuestGiver)
-				PrepareQuestMenu(source.GetGUID());
+				PrepareQuestMenu(source.GUID);
 		}
 
 		foreach (var gossipMenuItem in menuItemBounds)
@@ -2474,12 +2697,12 @@ public partial class Player : Unit
 				switch (gossipMenuItem.OptionNpc)
 				{
 					case GossipOptionNpc.Taxinode:
-						if (GetSession().SendLearnNewTaxiNode(creature))
+						if (Session.SendLearnNewTaxiNode(creature))
 							return;
 
 						break;
 					case GossipOptionNpc.SpiritHealer:
-						if (!IsDead())
+						if (!IsDead)
 							canTalk = false;
 
 						break;
@@ -2497,17 +2720,17 @@ public partial class Player : Unit
 						break;
 					case GossipOptionNpc.Stablemaster:
 					case GossipOptionNpc.PetSpecializationMaster:
-						if (GetClass() != Class.Hunter)
+						if (Class != Class.Hunter)
 							canTalk = false;
 
 						break;
 					case GossipOptionNpc.DisableXPGain:
-						if (HasPlayerFlag(PlayerFlags.NoXPGain) || IsMaxLevel())
+						if (HasPlayerFlag(PlayerFlags.NoXPGain) || IsMaxLevel)
 							canTalk = false;
 
 						break;
 					case GossipOptionNpc.EnableXPGain:
-						if (!HasPlayerFlag(PlayerFlags.NoXPGain) || IsMaxLevel())
+						if (!HasPlayerFlag(PlayerFlags.NoXPGain) || IsMaxLevel)
 							canTalk = false;
 
 						break;
@@ -2553,7 +2776,7 @@ public partial class Player : Unit
 					case GossipOptionNpc.CovenantRenownNpc:
 						break; // NYI
 					default:
-						Log.outError(LogFilter.Sql, $"Creature entry {creature.GetEntry()} has an unknown gossip option icon {gossipMenuItem.OptionNpc} for menu {gossipMenuItem.MenuId}.");
+						Log.outError(LogFilter.Sql, $"Creature entry {creature.Entry} has an unknown gossip option icon {gossipMenuItem.OptionNpc} for menu {gossipMenuItem.MenuId}.");
 						canTalk = false;
 
 						break;
@@ -2599,7 +2822,7 @@ public partial class Player : Unit
 		if (menuId != 0)
 			textId = GetGossipTextId(menuId, source);
 
-		PlayerTalkClass.SendGossipMenu(textId, source.GetGUID());
+		PlayerTalkClass.SendGossipMenu(textId, source.GUID);
 	}
 
 	public void OnGossipSelect(WorldObject source, int gossipOptionId, uint menuId)
@@ -2616,12 +2839,12 @@ public partial class Player : Unit
 			return;
 
 		var gossipOptionNpc = item.OptionNpc;
-		var guid = source.GetGUID();
+		var guid = source.GUID;
 
 		if (source.IsTypeId(TypeId.GameObject))
 			if (gossipOptionNpc != GossipOptionNpc.None)
 			{
-				Log.outError(LogFilter.Player, "Player guid {0} request invalid gossip option for GameObject entry {1}", GetGUID().ToString(), source.GetEntry());
+				Log.outError(LogFilter.Player, "Player guid {0} request invalid gossip option for GameObject entry {1}", GUID.ToString(), source.Entry);
 
 				return;
 			}
@@ -2651,34 +2874,34 @@ public partial class Player : Unit
 		switch (gossipOptionNpc)
 		{
 			case GossipOptionNpc.Vendor:
-				GetSession().SendListInventory(guid);
+				Session.SendListInventory(guid);
 
 				break;
 			case GossipOptionNpc.Taxinode:
-				GetSession().SendTaxiMenu(source.ToCreature());
+				Session.SendTaxiMenu(source.ToCreature());
 
 				break;
 			case GossipOptionNpc.Trainer:
-				GetSession().SendTrainerList(source.ToCreature(), Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.GetEntry(), menuId, item.OrderIndex));
+				Session.SendTrainerList(source.ToCreature(), Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
 				break;
 			case GossipOptionNpc.SpiritHealer:
-				source.CastSpell(source.ToCreature(), 17251, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(GetGUID()));
+				source.CastSpell(source.ToCreature(), 17251, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(GUID));
 				handled = false;
 
 				break;
 			case GossipOptionNpc.PetitionVendor:
 				PlayerTalkClass.SendCloseGossip();
-				GetSession().SendPetitionShowList(guid);
+				Session.SendPetitionShowList(guid);
 
 				break;
 			case GossipOptionNpc.Battlemaster:
 			{
-				var bgTypeId = Global.BattlegroundMgr.GetBattleMasterBG(source.GetEntry());
+				var bgTypeId = Global.BattlegroundMgr.GetBattleMasterBG(source.Entry);
 
 				if (bgTypeId == BattlegroundTypeId.None)
 				{
-					Log.outError(LogFilter.Player, "a user (guid {0}) requested Battlegroundlist from a npc who is no battlemaster", GetGUID().ToString());
+					Log.outError(LogFilter.Player, "a user (guid {0}) requested Battlegroundlist from a npc who is no battlemaster", GUID.ToString());
 
 					return;
 				}
@@ -2688,7 +2911,7 @@ public partial class Player : Unit
 				break;
 			}
 			case GossipOptionNpc.Auctioneer:
-				GetSession().SendAuctionHello(guid, source.ToCreature());
+				Session.SendAuctionHello(guid, source.ToCreature());
 
 				break;
 			case GossipOptionNpc.TalentMaster:
@@ -2697,7 +2920,7 @@ public partial class Player : Unit
 
 				break;
 			case GossipOptionNpc.Stablemaster:
-				GetSession().SendStablePet(guid);
+				Session.SendStablePet(guid);
 
 				break;
 			case GossipOptionNpc.PetSpecializationMaster:
@@ -2706,12 +2929,12 @@ public partial class Player : Unit
 
 				break;
 			case GossipOptionNpc.GuildBanker:
-				var guild = GetGuild();
+				var guild = Guild;
 
 				if (guild != null)
-					guild.SendBankList(GetSession(), 0, true);
+					guild.SendBankList(Session, 0, true);
 				else
-					Guild.SendCommandResult(GetSession(), GuildCommandType.ViewTab, GuildCommandError.PlayerNotInGuild);
+					Guild.SendCommandResult(Session, GuildCommandType.ViewTab, GuildCommandError.PlayerNotInGuild);
 
 				break;
 			case GossipOptionNpc.Spellclick:
@@ -2771,7 +2994,7 @@ public partial class Player : Unit
 				var addon = Global.ObjectMgr.GetGossipMenuAddon(menuId);
 
 				GossipOptionNPCInteraction npcInteraction = new();
-				npcInteraction.GossipGUID = source.GetGUID();
+				npcInteraction.GossipGUID = source.GUID;
 				npcInteraction.GossipNpcOptionID = item.GossipNpcOptionId.Value;
 
 				if (addon != null && addon.FriendshipFactionId != 0)
@@ -2791,7 +3014,7 @@ public partial class Player : Unit
 				if (interactionType != PlayerInteractionType.None)
 				{
 					NPCInteractionOpenResult npcInteraction = new();
-					npcInteraction.Npc = source.GetGUID();
+					npcInteraction.Npc = source.GUID;
 					npcInteraction.InteractionType = interactionType;
 					npcInteraction.Success = true;
 					SendPacket(npcInteraction);
@@ -2828,10 +3051,10 @@ public partial class Player : Unit
 
 	public static uint GetDefaultGossipMenuForSource(WorldObject source)
 	{
-		switch (source.GetTypeId())
+		switch (source.TypeId)
 		{
 			case TypeId.Unit:
-				return source.ToCreature().GetCreatureTemplate().GossipMenuId;
+				return source.ToCreature().CreatureTemplate.GossipMenuId;
 			case TypeId.GameObject:
 				return source.ToGameObject().GetGoInfo().GetGossipMenuId();
 			default:
@@ -2849,7 +3072,7 @@ public partial class Player : Unit
 		if (channel.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly) && !zone.HasFlag(AreaFlags.Capital))
 			return false;
 
-		if (channel.Flags.HasAnyFlag(ChannelDBCFlags.GuildReq) && GetGuildId() != 0)
+		if (channel.Flags.HasAnyFlag(ChannelDBCFlags.GuildReq) && GuildId != 0)
 			return false;
 
 		if (channel.Flags.HasAnyFlag(ChannelDBCFlags.NoClientJoin))
@@ -2877,7 +3100,7 @@ public partial class Player : Unit
 			ch.LeaveChannel(this, false); // not send to client, not remove from player's channel list
 
 			// delete channel if empty
-			var cMgr = ChannelManager.ForTeam(GetTeam());
+			var cMgr = ChannelManager.ForTeam(Team);
 
 			if (cMgr != null)
 				if (ch.IsConstant())
@@ -2885,11 +3108,6 @@ public partial class Player : Unit
 		}
 
 		Log.outDebug(LogFilter.ChatSystem, "Player {0}: channels cleaned up!", GetName());
-	}
-
-	public List<Channel> GetJoinedChannels()
-	{
-		return _channels;
 	}
 
 	//Mail
@@ -2966,7 +3184,7 @@ public partial class Player : Unit
 
 	public void AddMItem(Item it)
 	{
-		_mailItems[it.GetGUID().GetCounter()] = it;
+		_mailItems[it.GUID.Counter] = it;
 	}
 
 	public bool RemoveMItem(ulong id)
@@ -2984,22 +3202,6 @@ public partial class Player : Unit
 		return _mail.Find(p => p.messageID == id);
 	}
 
-	public List<Mail> GetMails()
-	{
-		return _mail;
-	}
-
-	public uint GetMailSize()
-	{
-		return (uint)_mail.Count;
-	}
-
-	//Binds
-	public bool HasPendingBind()
-	{
-		return _pendingBindId > 0;
-	}
-
 	public void SetHomebind(WorldLocation loc, uint areaId)
 	{
 		_homebind.WorldRelocate(loc);
@@ -3013,7 +3215,7 @@ public partial class Player : Unit
 		stmt.AddValue(3, _homebind.Y);
 		stmt.AddValue(4, _homebind.Z);
 		stmt.AddValue(5, _homebind.Orientation);
-		stmt.AddValue(6, GetGUID().GetCounter());
+		stmt.AddValue(6, GUID.Counter);
 		DB.Characters.Execute(stmt);
 	}
 
@@ -3041,22 +3243,6 @@ public partial class Player : Unit
 		SendPacket(packet);
 	}
 
-	//Misc
-	public uint GetTotalPlayedTime()
-	{
-		return _playedTimeTotal;
-	}
-
-	public uint GetLevelPlayedTime()
-	{
-		return _playedTimeLevel;
-	}
-
-	public CinematicManager GetCinematicMgr()
-	{
-		return _cinematicMgr;
-	}
-
 	public void SendUpdateWorldState(WorldStates variable, uint value, bool hidden = false)
 	{
 		SendUpdateWorldState((uint)variable, value, hidden);
@@ -3076,7 +3262,7 @@ public partial class Player : Unit
 		if (HasAuraType(AuraType.RemoveBarberShopCost))
 			return 0;
 
-		var bsc = CliDB.BarberShopCostBaseGameTable.GetRow(GetLevel());
+		var bsc = CliDB.BarberShopCostBaseGameTable.GetRow(Level);
 
 		if (bsc == null) // shouldn't happen
 			return 0;
@@ -3124,14 +3310,14 @@ public partial class Player : Unit
 		_team = TeamForRace(race);
 
 		var rEntry = CliDB.ChrRacesStorage.LookupByKey(race);
-		SetFaction(rEntry != null ? (uint)rEntry.FactionID : 0);
+		Faction = rEntry != null ? (uint)rEntry.FactionID : 0;
 	}
 
 	public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
 	{
 		Cypher.Assert(!IsResurrectRequested());
 		_resurrectionData = new ResurrectionData();
-		_resurrectionData.Guid = caster.GetGUID();
+		_resurrectionData.Guid = caster.GUID;
 		_resurrectionData.Location.WorldRelocate(caster.Location);
 		_resurrectionData.Health = health;
 		_resurrectionData.Mana = mana;
@@ -3148,7 +3334,7 @@ public partial class Player : Unit
 		if (!IsResurrectRequested())
 			return false;
 
-		return !_resurrectionData.Guid.IsEmpty() && _resurrectionData.Guid == guid;
+		return !_resurrectionData.Guid.IsEmpty && _resurrectionData.Guid == guid;
 	}
 
 	public bool IsResurrectRequested()
@@ -3161,7 +3347,7 @@ public partial class Player : Unit
 		// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
 		TeleportTo(_resurrectionData.Location);
 
-		if (IsBeingTeleported())
+		if (IsBeingTeleported)
 		{
 			ScheduleDelayedOperation(PlayerDelayedOperations.ResurrectPlayer);
 
@@ -3182,12 +3368,12 @@ public partial class Player : Unit
 		UpdateData udata = new(Location.MapId);
 
 		foreach (var guid in ClientGuiDs)
-			if (guid.IsCreatureOrVehicle())
+			if (guid.IsCreatureOrVehicle)
 			{
 				var creature = GetMap().GetCreature(guid);
 
 				// Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
-				if (creature == null || (!creature.IsTrigger() && !creature.HasAuraType(AuraType.Transform) && !creature.HasUnitFlag(UnitFlags.Uninteractible)))
+				if (creature == null || (!creature.IsTrigger && !creature.HasAuraType(AuraType.Transform) && !creature.HasUnitFlag(UnitFlags.Uninteractible)))
 					continue;
 
 				creature.Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID);
@@ -3195,7 +3381,7 @@ public partial class Player : Unit
 				creature.ForceUpdateFieldChange();
 				creature.BuildValuesUpdateBlockForPlayer(udata, this);
 			}
-			else if (guid.IsAnyTypeGameObject())
+			else if (guid.IsAnyTypeGameObject)
 			{
 				var go = GetMap().GetGameObject(guid);
 
@@ -3216,10 +3402,10 @@ public partial class Player : Unit
 
 	public bool IsAllowedToLoot(Creature creature)
 	{
-		if (!creature.IsDead())
+		if (!creature.IsDead)
 			return false;
 
-		if (HasPendingBind())
+		if (HasPendingBind)
 			return false;
 
 		var loot = creature.GetLootForPlayer(this);
@@ -3227,7 +3413,7 @@ public partial class Player : Unit
 		if (loot == null || loot.IsLooted()) // nothing to loot or everything looted.
 			return false;
 
-		if (!loot.HasAllowedLooter(GetGUID()) || (!loot.HasItemForAll() && !loot.HasItemFor(this))) // no loot in creature for this player
+		if (!loot.HasAllowedLooter(GUID) || (!loot.HasItemForAll() && !loot.HasItemFor(this))) // no loot in creature for this player
 			return false;
 
 		switch (loot.GetLootMethod())
@@ -3238,7 +3424,7 @@ public partial class Player : Unit
 			case LootMethod.RoundRobin:
 				// may only loot if the player is the loot roundrobin player
 				// or if there are free/quest/conditional item for the player
-				if (loot.roundRobinPlayer.IsEmpty() || loot.roundRobinPlayer == GetGUID())
+				if (loot.roundRobinPlayer.IsEmpty || loot.roundRobinPlayer == GUID)
 					return true;
 
 				return loot.HasItemFor(this);
@@ -3248,7 +3434,7 @@ public partial class Player : Unit
 				// may only loot if the player is the loot roundrobin player
 				// or item over threshold (so roll(s) can be launched or to preview master looted items)
 				// or if there are free/quest/conditional item for the player
-				if (loot.roundRobinPlayer.IsEmpty() || loot.roundRobinPlayer == GetGUID())
+				if (loot.roundRobinPlayer.IsEmpty || loot.roundRobinPlayer == GUID)
 					return true;
 
 				if (loot.HasOverThresholdItem())
@@ -3307,7 +3493,7 @@ public partial class Player : Unit
 	{
 		var selectionGUID = GetTarget();
 
-		if (!selectionGUID.IsEmpty())
+		if (!selectionGUID.IsEmpty)
 			return Global.ObjAccessor.GetUnit(this, selectionGUID);
 
 		return null;
@@ -3317,7 +3503,7 @@ public partial class Player : Unit
 	{
 		var selectionGUID = GetTarget();
 
-		if (!selectionGUID.IsEmpty())
+		if (!selectionGUID.IsEmpty)
 			return Global.ObjAccessor.GetPlayer(this, selectionGUID);
 
 		return null;
@@ -3365,7 +3551,7 @@ public partial class Player : Unit
 
 		DealDamageMods(null, this, ref damage, ref absorb);
 		EnvironmentalDamageLog packet = new();
-		packet.Victim = GetGUID();
+		packet.Victim = GUID;
 		packet.Type = type != EnviromentalDamage.FallToVoid ? type : EnviromentalDamage.Fall;
 		packet.Amount = (int)damage;
 		packet.Absorbed = (int)absorb;
@@ -3376,11 +3562,11 @@ public partial class Player : Unit
 
 		SendCombatLogMessage(packet);
 
-		if (!IsAlive())
+		if (!IsAlive)
 		{
 			if (type == EnviromentalDamage.Fall) // DealDamage not apply item durability loss at self damage
 			{
-				Log.outDebug(LogFilter.Player, $"Player::EnvironmentalDamage: Player '{GetName()}' ({GetGUID()}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
+				Log.outDebug(LogFilter.Player, $"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
 				DurabilityLossAll(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath), false);
 				// durability lost message
 				SendDurabilityLoss(this, (uint)(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath) * 100.0f));
@@ -3407,8 +3593,8 @@ public partial class Player : Unit
 
 		ObjectGuid guid = ActivePlayerData.FarsightObject;
 
-		if (!guid.IsEmpty())
-			if (obj.GetGUID() == guid)
+		if (!guid.IsEmpty)
+			if (obj.GUID == guid)
 				return true;
 
 		return false;
@@ -3436,7 +3622,7 @@ public partial class Player : Unit
 		if (base.IsNeverVisibleFor(seer))
 			return true;
 
-		if (GetSession().PlayerLogout() || GetSession().PlayerLoading())
+		if (Session.PlayerLogout || Session.PlayerLoading)
 			return true;
 
 		return false;
@@ -3445,7 +3631,7 @@ public partial class Player : Unit
 	public void BuildPlayerRepop()
 	{
 		PreRessurect packet = new();
-		packet.PlayerGUID = GetGUID();
+		packet.PlayerGUID = GUID;
 		SendPacket(packet);
 
 		// If the player has the Wisp racial then cast the Wisp aura on them
@@ -3460,11 +3646,11 @@ public partial class Player : Unit
 		// there must be SMSG.STOP_MIRROR_TIMER
 
 		// the player cannot have a corpse already on current map, only bones which are not returned by GetCorpse
-		var corpseLocation = GetCorpseLocation();
+		var corpseLocation = CorpseLocation;
 
 		if (corpseLocation.MapId == Location.MapId)
 		{
-			Log.outError(LogFilter.Player, "BuildPlayerRepop: player {0} ({1}) already has a corpse", GetName(), GetGUID().ToString());
+			Log.outError(LogFilter.Player, "BuildPlayerRepop: player {0} ({1}) already has a corpse", GetName(), GUID.ToString());
 
 			return;
 		}
@@ -3474,7 +3660,7 @@ public partial class Player : Unit
 
 		if (corpse == null)
 		{
-			Log.outError(LogFilter.Player, "Error creating corpse for Player {0} ({1})", GetName(), GetGUID().ToString());
+			Log.outError(LogFilter.Player, "Error creating corpse for Player {0} ({1})", GetName(), GUID.ToString());
 
 			return;
 		}
@@ -3487,7 +3673,7 @@ public partial class Player : Unit
 
 		SetWaterWalking(true);
 
-		if (!GetSession().IsLogingOut() && !HasUnitState(UnitState.Stunned))
+		if (!Session.IsLogingOut && !HasUnitState(UnitState.Stunned))
 			SetRooted(false);
 
 		// BG - remove insignia related
@@ -3541,7 +3727,7 @@ public partial class Player : Unit
 		RemoveAura(20584); // speed bonuses
 		RemoveAura(8326);  // SPELL_AURA_GHOST
 
-		if (GetSession().IsARecruiter() || (GetSession().GetRecruiterId() != 0))
+		if (Session.IsARecruiter || (Session.RecruiterId != 0))
 			SetDynamicFlag(UnitDynFlags.ReferAFriend);
 
 		SetDeathState(DeathState.Alive);
@@ -3593,18 +3779,18 @@ public partial class Player : Unit
 		//for each level they are above 10.
 		//Characters level 20 and up suffer from ten minutes of sickness.
 		var startLevel = WorldConfig.GetIntValue(WorldCfg.DeathSicknessLevel);
-		var raceEntry = CliDB.ChrRacesStorage.LookupByKey(GetRace());
+		var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
 
-		if (GetLevel() >= startLevel)
+		if (Level >= startLevel)
 		{
 			// set resurrection sickness
 			CastSpell(this, raceEntry.ResSicknessSpellID, true);
 
 			// not full duration
-			if (GetLevel() < startLevel + 9)
+			if (Level < startLevel + 9)
 			{
-				var delta = (int)(GetLevel() - startLevel + 1) * Time.Minute;
-				var aur = GetAura(raceEntry.ResSicknessSpellID, GetGUID());
+				var delta = (int)(Level - startLevel + 1) * Time.Minute;
+				var aur = GetAura(raceEntry.ResSicknessSpellID, GUID);
 
 				if (aur != null)
 					aur.SetDuration(delta * Time.InMilliseconds);
@@ -3614,8 +3800,8 @@ public partial class Player : Unit
 
 	public void KillPlayer()
 	{
-		if (IsFlying() && GetTransport() == null)
-			GetMotionMaster().MoveFall();
+		if (IsFlying() && Transport == null)
+			MotionMaster.MoveFall();
 
 		SetRooted(true);
 
@@ -3640,7 +3826,7 @@ public partial class Player : Unit
 		if (corpseReclaimDelay >= 0)
 			SendCorpseReclaimDelay(corpseReclaimDelay);
 
-		ScriptManager.Instance.ForEach<IPlayerOnDeath>(GetClass(), a => a.OnDeath(this));
+		ScriptManager.Instance.ForEach<IPlayerOnDeath>(Class, a => a.OnDeath(this));
 		// don't create corpse at this moment, player might be falling
 
 		// update visibility
@@ -3652,7 +3838,7 @@ public partial class Player : Unit
 		Corpse.DeleteFromDB(guid, trans);
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 		stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
-		stmt.AddValue(1, guid.GetCounter());
+		stmt.AddValue(1, guid.Counter);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
 	}
 
@@ -3660,14 +3846,14 @@ public partial class Player : Unit
 	{
 		_corpseLocation = new WorldLocation();
 
-		if (GetMap().ConvertCorpseToBones(GetGUID()))
-			if (triggerSave && !GetSession().PlayerLogoutWithSave()) // at logout we will already store the player
-				SaveToDB();                                          // prevent loading as ghost without corpse
+		if (GetMap().ConvertCorpseToBones(GUID))
+			if (triggerSave && !Session.PlayerLogoutWithSave) // at logout we will already store the player
+				SaveToDB();                                     // prevent loading as ghost without corpse
 	}
 
 	public Corpse GetCorpse()
 	{
-		return GetMap().GetCorpseByPlayer(GetGUID());
+		return GetMap().GetCorpseByPlayer(GUID);
 	}
 
 	public void RepopAtGraveyard()
@@ -3680,7 +3866,7 @@ public partial class Player : Unit
 		var shouldResurrect = false;
 
 		// Such zones are considered unreachable as a ghost and the player must be automatically revived
-		if ((!IsAlive() && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || GetTransport() != null || Location.Z < GetMap().GetMinHeight(GetPhaseShift(), Location.X, Location.Y))
+		if ((!IsAlive && zone != null && zone.HasFlag(AreaFlags.NeedFly)) || Transport != null || Location.Z < GetMap().GetMinHeight(PhaseShift, Location.X, Location.Y))
 		{
 			shouldResurrect = true;
 			SpawnCorpseBones();
@@ -3702,7 +3888,7 @@ public partial class Player : Unit
 			if (bf != null)
 				ClosestGrave = bf.GetClosestGraveYard(this);
 			else
-				ClosestGrave = Global.ObjectMgr.GetClosestGraveYard(Location, GetTeam(), this);
+				ClosestGrave = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
 		}
 
 		// stop countdown until repop
@@ -3714,7 +3900,7 @@ public partial class Player : Unit
 		{
 			TeleportTo(ClosestGrave.Loc, shouldResurrect ? TeleportToOptions.ReviveAtTeleport : 0);
 
-			if (IsDead()) // not send if alive, because it used in TeleportTo()
+			if (IsDead) // not send if alive, because it used in TeleportTo()
 			{
 				DeathReleaseLoc packet = new();
 				packet.MapID = (int)ClosestGrave.Loc.MapId;
@@ -3722,22 +3908,12 @@ public partial class Player : Unit
 				SendPacket(packet);
 			}
 		}
-		else if (Location.Z < GetMap().GetMinHeight(GetPhaseShift(), Location.X, Location.Y))
+		else if (Location.Z < GetMap().GetMinHeight(PhaseShift, Location.X, Location.Y))
 		{
 			TeleportTo(_homebind);
 		}
 
 		RemovePlayerFlag(PlayerFlags.IsOutOfBounds);
-	}
-
-	public bool HasCorpse()
-	{
-		return _corpseLocation != null && _corpseLocation.MapId != 0xFFFFFFFF;
-	}
-
-	public WorldLocation GetCorpseLocation()
-	{
-		return _corpseLocation;
 	}
 
 	public uint GetCorpseReclaimDelay(bool pvp)
@@ -3760,23 +3936,13 @@ public partial class Player : Unit
 		return PlayerConst.copseReclaimDelay[count];
 	}
 
-	public override bool CanFly()
-	{
-		return MovementInfo.HasMovementFlag(MovementFlag.CanFly);
-	}
-
-	public override bool CanEnterWater()
-	{
-		return true;
-	}
-
 	public Pet GetPet()
 	{
-		var petGuid = GetPetGUID();
+		var petGuid = PetGUID;
 
-		if (!petGuid.IsEmpty())
+		if (!petGuid.IsEmpty)
 		{
-			if (!petGuid.IsPet())
+			if (!petGuid.IsPet)
 				return null;
 
 			var pet = ObjectAccessor.GetPet(this, petGuid);
@@ -3817,7 +3983,7 @@ public partial class Player : Unit
 	{
 		isNew = false;
 
-		var petStable = GetOrInitPetStable();
+		var petStable = PetStable;
 
 		Pet pet = new(this, PetType.Summon);
 
@@ -3841,8 +4007,8 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Server,
 						"Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
-						pet.GetGUID().ToString(),
-						pet.GetEntry(),
+						pet.GUID.ToString(),
+						pet.Entry,
 						pet.Location.X,
 						pet.Location.Y);
 
@@ -3864,17 +4030,17 @@ public partial class Player : Unit
 
 		PhasingHandler.InheritPhaseShift(pet, this);
 
-		pet.SetCreatorGUID(GetGUID());
-		pet.SetFaction(GetFaction());
+		pet.SetCreatorGUID(GUID);
+		pet.Faction = Faction;
 		pet.ReplaceAllNpcFlags(NPCFlags.None);
 		pet.ReplaceAllNpcFlags2(NPCFlags2.None);
-		pet.InitStatsForLevel(GetLevel());
+		pet.InitStatsForLevel(Level);
 
 		SetMinion(pet, true);
 
 		// this enables pet details window (Shift+P)
 		pet.GetCharmInfo().SetPetNumber(petNumber, true);
-		pet.SetClass(Class.Mage);
+		pet.Class = Class.Mage;
 		pet.SetPetExperience(0);
 		pet.SetPetNextLevelExperience(1000);
 		pet.SetFullHealth();
@@ -3910,7 +4076,7 @@ public partial class Player : Unit
 
 		if (pet)
 		{
-			Log.outDebug(LogFilter.Pet, "RemovePet {0}, {1}, {2}", pet.GetEntry(), mode, returnreagent);
+			Log.outDebug(LogFilter.Pet, "RemovePet {0}, {1}, {2}", pet.Entry, mode, returnreagent);
 
 			if (pet.Removed)
 				return;
@@ -4001,17 +4167,7 @@ public partial class Player : Unit
 		var pet = GetPet();
 
 		if (pet != null)
-			pet.RemoveAura(petSpell.GetAura(pet.GetEntry()));
-	}
-
-	public bool InArena()
-	{
-		var bg = GetBattleground();
-
-		if (!bg || !bg.IsArena())
-			return false;
-
-		return true;
+			pet.RemoveAura(petSpell.GetAura(pet.Entry));
 	}
 
 	public void SendOnCancelExpectedVehicleRideAura()
@@ -4022,11 +4178,11 @@ public partial class Player : Unit
 	public void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)
 	{
 		MoveSetCollisionHeight setCollisionHeight = new();
-		setCollisionHeight.MoverGUID = GetGUID();
+		setCollisionHeight.MoverGUID = GUID;
 		setCollisionHeight.SequenceIndex = MovementCounter++;
 		setCollisionHeight.Height = height;
-		setCollisionHeight.Scale = GetObjectScale();
-		setCollisionHeight.MountDisplayID = GetMountDisplayId();
+		setCollisionHeight.Scale = ObjectScale;
+		setCollisionHeight.MountDisplayID = MountDisplayId;
 		setCollisionHeight.ScaleDuration = UnitData.ScaleDuration;
 		setCollisionHeight.Reason = reason;
 		SendPacket(setCollisionHeight);
@@ -4034,7 +4190,7 @@ public partial class Player : Unit
 		MoveUpdateCollisionHeight updateCollisionHeight = new();
 		updateCollisionHeight.Status = MovementInfo;
 		updateCollisionHeight.Height = height;
-		updateCollisionHeight.Scale = GetObjectScale();
+		updateCollisionHeight.Scale = ObjectScale;
 		SendMessageToSet(updateCollisionHeight, false);
 	}
 
@@ -4045,7 +4201,7 @@ public partial class Player : Unit
 		if (playerChoice == null)
 			return;
 
-		var locale = GetSession().GetSessionDbLocaleIndex();
+		var locale = Session.SessionDbLocaleIndex;
 		var playerChoiceLocale = locale != Locale.enUS ? Global.ObjectMgr.GetPlayerChoiceLocale(choiceId) : null;
 
 		PlayerTalkClass.GetInteractionData().Reset();
@@ -4197,7 +4353,7 @@ public partial class Player : Unit
 	{
 		// Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
 		// Also disallow when in combat
-		if ((enabled == IsWarModeDesired()) || IsInCombat() || !HasPlayerFlag(PlayerFlags.Resting))
+		if ((enabled == IsWarModeDesired) || IsInCombat() || !HasPlayerFlag(PlayerFlags.Resting))
 			return;
 
 		if (enabled && !CanEnableWarModeInArea())
@@ -4244,16 +4400,11 @@ public partial class Player : Unit
 		return false;
 	}
 
-	public bool IsWarModeLocalActive()
-	{
-		return HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
-	}
-
 	// Used in triggers for check "Only to targets that grant experience or honor" req
 	public bool IsHonorOrXPTarget(Unit victim)
 	{
 		var v_level = victim.GetLevelForTarget(this);
-		var k_grey = Formulas.GetGrayLevel(GetLevel());
+		var k_grey = Formulas.GetGrayLevel(Level);
 
 		// Victim level less gray level
 		if (v_level < k_grey && WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) == 0)
@@ -4262,7 +4413,7 @@ public partial class Player : Unit
 		var creature = victim.ToCreature();
 
 		if (creature != null)
-			if (creature.IsCritter() || creature.IsTotem())
+			if (creature.IsCritter || creature.IsTotem)
 				return false;
 
 		return true;
@@ -4274,17 +4425,17 @@ public partial class Player : Unit
 	}
 
 	//Team
-	public static Team TeamForRace(Race race)
+	public static TeamFaction TeamForRace(Race race)
 	{
 		switch (TeamIdForRace(race))
 		{
 			case 0:
-				return Team.Alliance;
+				return TeamFaction.Alliance;
 			case 1:
-				return Team.Horde;
+				return TeamFaction.Horde;
 		}
 
-		return Team.Alliance;
+		return TeamFaction.Alliance;
 	}
 
 	public static uint TeamIdForRace(Race race)
@@ -4296,44 +4447,18 @@ public partial class Player : Unit
 
 		Log.outError(LogFilter.Player, "Race ({0}) not found in DBC: wrong DBC files?", race);
 
-		return TeamId.Neutral;
-	}
-
-	public Team GetTeam()
-	{
-		return _team;
-	}
-
-	public int GetTeamId()
-	{
-		return _team == Team.Alliance ? TeamId.Alliance : TeamId.Horde;
-	}
-
-	public Team GetEffectiveTeam()
-	{
-		return HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ? (GetTeam() == Team.Alliance ? Team.Horde : Team.Alliance) : GetTeam();
-	}
-
-	public int GetEffectiveTeamId()
-	{
-		return GetEffectiveTeam() == Team.Alliance ? TeamId.Alliance : TeamId.Horde;
-	}
-
-	//Money
-	public ulong GetMoney()
-	{
-		return ActivePlayerData.Coinage;
+		return TeamIds.Neutral;
 	}
 
 	public bool HasEnoughMoney(ulong amount)
 	{
-		return GetMoney() >= amount;
+		return Money >= amount;
 	}
 
 	public bool HasEnoughMoney(long amount)
 	{
 		if (amount > 0)
-			return (GetMoney() >= (ulong)amount);
+			return (Money >= (ulong)amount);
 
 		return true;
 	}
@@ -4347,13 +4472,13 @@ public partial class Player : Unit
 
 		if (amount < 0)
 		{
-			SetMoney((ulong)(GetMoney() > (ulong)-amount ? (long)GetMoney() + amount : 0));
+			Money = (ulong)(Money > (ulong)-amount ? (long)Money + amount : 0);
 		}
 		else
 		{
-			if (GetMoney() <= (PlayerConst.MaxMoneyAmount - (ulong)amount))
+			if (Money <= (PlayerConst.MaxMoneyAmount - (ulong)amount))
 			{
-				SetMoney((ulong)(GetMoney() + (ulong)amount));
+				Money = (ulong)(Money + (ulong)amount);
 			}
 			else
 			{
@@ -4365,19 +4490,6 @@ public partial class Player : Unit
 		}
 
 		return true;
-	}
-
-	public void SetMoney(ulong value)
-	{
-		var loading = GetSession().PlayerLoading();
-
-		if (!loading)
-			MoneyChanged((uint)value);
-
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), value);
-
-		if (!loading)
-			UpdateCriteria(CriteriaType.MostMoneyOwned);
 	}
 
 	//Target
@@ -4408,7 +4520,7 @@ public partial class Player : Unit
 		{
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)flags);
-			stmt.AddValue(1, GetGUID().GetCounter());
+			stmt.AddValue(1, GUID.Counter);
 
 			DB.Characters.Execute(stmt);
 		}
@@ -4420,7 +4532,7 @@ public partial class Player : Unit
 		if (guildId != 0)
 		{
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.GuildGUID), ObjectGuid.Create(HighGuid.Guild, guildId));
-			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.GuildClubMemberID), GetGUID().GetCounter());
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.GuildClubMemberID), GUID.Counter);
 			SetPlayerFlag(PlayerFlags.GuildLevelEnabled);
 		}
 		else
@@ -4429,54 +4541,12 @@ public partial class Player : Unit
 			RemovePlayerFlag(PlayerFlags.GuildLevelEnabled);
 		}
 
-		Global.CharacterCacheStorage.UpdateCharacterGuildId(GetGUID(), guildId);
+		Global.CharacterCacheStorage.UpdateCharacterGuildId(GUID, guildId);
 	}
 
 	public void SetGuildRank(byte rankId)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.GuildRankID), rankId);
-	}
-
-	public uint GetGuildRank()
-	{
-		return PlayerData.GuildRankID;
-	}
-
-	public void SetGuildLevel(uint level)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.GuildLevel), level);
-	}
-
-	public uint GetGuildLevel()
-	{
-		return PlayerData.GuildLevel;
-	}
-
-	public void SetGuildIdInvited(ulong GuildId)
-	{
-		_guildIdInvited = GuildId;
-	}
-
-	public ulong GetGuildId()
-	{
-		return ((ObjectGuid)UnitData.GuildGUID).GetCounter();
-	}
-
-	public Guild GetGuild()
-	{
-		var guildId = GetGuildId();
-
-		return guildId != 0 ? Global.GuildMgr.GetGuildById(guildId) : null;
-	}
-
-	public ulong GetGuildIdInvited()
-	{
-		return _guildIdInvited;
-	}
-
-	public string GetGuildName()
-	{
-		return GetGuildId() != 0 ? Global.GuildMgr.GetGuildById(GetGuildId()).GetName() : "";
 	}
 
 	public void SetFreePrimaryProfessions(uint profs)
@@ -4486,19 +4556,19 @@ public partial class Player : Unit
 
 	public void GiveLevel(uint level)
 	{
-		var oldLevel = GetLevel();
+		var oldLevel = Level;
 
 		if (level == oldLevel)
 			return;
 
-		var guild = GetGuild();
+		var guild = Guild;
 
 		if (guild != null)
 			guild.UpdateMemberData(this, GuildMemberData.Level, level);
 
-		var info = Global.ObjectMgr.GetPlayerLevelInfo(GetRace(), GetClass(), level);
+		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, level);
 
-		Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), level, out var basemana);
+		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
 		LevelUpInfo packet = new();
 		packet.Level = level;
@@ -4516,8 +4586,8 @@ public partial class Player : Unit
 		for (var i = Stats.Strength; i < Stats.Max; ++i)
 			packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
-		packet.NumNewTalents = (int)(Global.DB2Mgr.GetNumTalentsAtLevel(level, GetClass()) - Global.DB2Mgr.GetNumTalentsAtLevel(oldLevel, GetClass()));
-		packet.NumNewPvpTalentSlots = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, GetClass()) - Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(oldLevel, GetClass());
+		packet.NumNewTalents = (int)(Global.DB2Mgr.GetNumTalentsAtLevel(level, Class) - Global.DB2Mgr.GetNumTalentsAtLevel(oldLevel, Class));
+		packet.NumNewPvpTalentSlots = Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(level, Class) - Global.DB2Mgr.GetPvpTalentNumSlotsAtLevel(oldLevel, Class);
 
 		SendPacket(packet);
 
@@ -4568,7 +4638,7 @@ public partial class Player : Unit
 		if (pet)
 			pet.SynchronizeLevelWithOwner();
 
-		var mailReward = Global.ObjectMgr.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(GetRace()));
+		var mailReward = Global.ObjectMgr.GetMailLevelReward(level, (uint)SharedConst.GetMaskForRace(Race));
 
 		if (mailReward != null)
 		{
@@ -4583,83 +4653,36 @@ public partial class Player : Unit
 
 		PushQuests();
 
-		Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(GetClass(), p => p.OnLevelChanged(this, oldLevel));
-	}
-
-	public bool CanParry()
-	{
-		return _canParry;
-	}
-
-	public bool CanBlock()
-	{
-		return _canBlock;
+		Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(Class, p => p.OnLevelChanged(this, oldLevel));
 	}
 
 	public void ToggleAFK()
 	{
-		if (IsAFK())
+		if (IsAFK)
 			RemovePlayerFlag(PlayerFlags.AFK);
 		else
 			SetPlayerFlag(PlayerFlags.AFK);
 
 		// afk player not allowed in Battleground
-		if (!IsGameMaster() && IsAFK() && InBattleground() && !InArena())
+		if (!IsGameMaster && IsAFK && InBattleground() && !InArena)
 			LeaveBattleground();
 	}
 
 	public void ToggleDND()
 	{
-		if (IsDND())
+		if (IsDND)
 			RemovePlayerFlag(PlayerFlags.DND);
 		else
 			SetPlayerFlag(PlayerFlags.DND);
 	}
 
-	public bool IsAFK()
-	{
-		return HasPlayerFlag(PlayerFlags.AFK);
-	}
-
-	public bool IsDND()
-	{
-		return HasPlayerFlag(PlayerFlags.DND);
-	}
-
-	public bool IsMaxLevel()
-	{
-		if (ConfigMgr.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
-			return GetLevel() >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
-
-		return GetLevel() >= ActivePlayerData.MaxLevel;
-	}
-
-	public ChatFlags GetChatFlags()
-	{
-		var tag = ChatFlags.None;
-
-		if (IsGMChat())
-			tag |= ChatFlags.GM;
-
-		if (IsDND())
-			tag |= ChatFlags.DND;
-
-		if (IsAFK())
-			tag |= ChatFlags.AFK;
-
-		if (IsDeveloper())
-			tag |= ChatFlags.Dev;
-
-		return tag;
-	}
-
 	public void InitDisplayIds()
 	{
-		var model = Global.DB2Mgr.GetChrModel(GetRace(), GetNativeGender());
+		var model = Global.DB2Mgr.GetChrModel(Race, NativeGender);
 
 		if (model == null)
 		{
-			Log.outError(LogFilter.Player, $"Player {GetGUID()} has incorrect race/gender pair. Can't init display ids.");
+			Log.outError(LogFilter.Player, $"Player {GUID} has incorrect race/gender pair. Can't init display ids.");
 
 			return;
 		}
@@ -4673,13 +4696,13 @@ public partial class Player : Unit
 	public Creature GetNPCIfCanInteractWith(ObjectGuid guid, NPCFlags npcFlags, NPCFlags2 npcFlags2)
 	{
 		// unit checks
-		if (guid.IsEmpty())
+		if (guid.IsEmpty)
 			return null;
 
 		if (!IsInWorld)
 			return null;
 
-		if (IsInFlight())
+		if (IsInFlight)
 			return null;
 
 		// exist (we need look pets also for some interaction (quest/etc)
@@ -4689,11 +4712,11 @@ public partial class Player : Unit
 			return null;
 
 		// Deathstate checks
-		if (!IsAlive() && !Convert.ToBoolean(creature.GetCreatureTemplate().TypeFlags & CreatureTypeFlags.VisibleToGhosts))
+		if (!IsAlive && !Convert.ToBoolean(creature.CreatureTemplate.TypeFlags & CreatureTypeFlags.VisibleToGhosts))
 			return null;
 
 		// alive or spirit healer
-		if (!creature.IsAlive() && !Convert.ToBoolean(creature.GetCreatureTemplate().TypeFlags & CreatureTypeFlags.InteractWhileDead))
+		if (!creature.IsAlive && !Convert.ToBoolean(creature.CreatureTemplate.TypeFlags & CreatureTypeFlags.InteractWhileDead))
 			return null;
 
 		// appropriate npc type
@@ -4717,7 +4740,7 @@ public partial class Player : Unit
 			return null;
 
 		// not allow interaction under control, but allow with own pets
-		if (!creature.GetCharmerGUID().IsEmpty())
+		if (!creature.CharmerGUID.IsEmpty)
 			return null;
 
 		// not unfriendly/hostile
@@ -4725,7 +4748,7 @@ public partial class Player : Unit
 			return null;
 
 		// not too far, taken from CGGameUI::SetInteractTarget
-		if (!creature.IsWithinDistInMap(this, creature.GetCombatReach() + 4.0f))
+		if (!creature.IsWithinDistInMap(this, creature.CombatReach + 4.0f))
 			return null;
 
 		return creature;
@@ -4733,13 +4756,13 @@ public partial class Player : Unit
 
 	public GameObject GetGameObjectIfCanInteractWith(ObjectGuid guid)
 	{
-		if (guid.IsEmpty())
+		if (guid.IsEmpty)
 			return null;
 
 		if (!IsInWorld)
 			return null;
 
-		if (IsInFlight())
+		if (IsInFlight)
 			return null;
 
 		// exist
@@ -4776,12 +4799,12 @@ public partial class Player : Unit
 		if (!_teleportOptions.HasAnyFlag(TeleportToOptions.Seamless))
 		{
 			MovementCounter = 0;
-			GetSession().ResetTimeSync();
+			Session.ResetTimeSync();
 		}
 
-		GetSession().SendTimeSync();
+		Session.SendTimeSync();
 
-		GetSocial().SendSocialList(this, SocialFlag.All);
+		Social.SendSocialList(this, SocialFlag.All);
 
 		// SMSG_BINDPOINTUPDATE
 		SendBindPointUpdate();
@@ -4864,22 +4887,23 @@ public partial class Player : Unit
 		// SMSG_ACCOUNT_MOUNT_UPDATE
 		AccountMountUpdate mountUpdate = new();
 		mountUpdate.IsFullUpdate = true;
-		mountUpdate.Mounts = GetSession().GetCollectionMgr().GetAccountMounts();
+		mountUpdate.Mounts = Session.CollectionMgr.GetAccountMounts();
 		SendPacket(mountUpdate);
 
 		// SMSG_ACCOUNT_TOYS_UPDATE
 		AccountToyUpdate toyUpdate = new();
 		toyUpdate.IsFullUpdate = true;
-		toyUpdate.Toys = GetSession().GetCollectionMgr().GetAccountToys();
+		toyUpdate.Toys = Session.CollectionMgr.GetAccountToys();
 		SendPacket(toyUpdate);
 
 		// SMSG_ACCOUNT_HEIRLOOM_UPDATE
 		AccountHeirloomUpdate heirloomUpdate = new();
 		heirloomUpdate.IsFullUpdate = true;
-		heirloomUpdate.Heirlooms = GetSession().GetCollectionMgr().GetAccountHeirlooms();
+		heirloomUpdate.Heirlooms = Session.CollectionMgr.GetAccountHeirlooms();
 		SendPacket(heirloomUpdate);
 
-		GetSession().GetCollectionMgr().SendFavoriteAppearances();
+		Session.
+		CollectionMgr.SendFavoriteAppearances();
 
 		InitialSetup initialSetup = new();
 		initialSetup.ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion);
@@ -4896,7 +4920,7 @@ public partial class Player : Unit
 		GetZoneAndAreaId(out var newzone, out var newarea);
 		UpdateZone(newzone, newarea); // also call SendInitWorldStates();
 
-		GetSession().SendLoadCUFProfiles();
+		Session.SendLoadCUFProfiles();
 
 		CastSpell(this, 836, true); // LOGINEFFECT
 
@@ -4951,7 +4975,7 @@ public partial class Player : Unit
 
 		if (!setCompoundState.StateChanges.Empty())
 		{
-			setCompoundState.MoverGUID = GetGUID();
+			setCompoundState.MoverGUID = GUID;
 			SendPacket(setCompoundState);
 		}
 
@@ -4978,29 +5002,29 @@ public partial class Player : Unit
 
 		UpdateItemLevelAreaBasedScaling();
 
-		if (!GetPlayerSharingQuest().IsEmpty())
+		if (!GetPlayerSharingQuest().IsEmpty)
 		{
 			var quest = Global.ObjectMgr.GetQuestTemplate(GetSharedQuestID());
 
 			if (quest != null)
-				PlayerTalkClass.SendQuestGiverQuestDetails(quest, GetGUID(), true, false);
+				PlayerTalkClass.SendQuestGiverQuestDetails(quest, GUID, true, false);
 			else
 				ClearQuestSharingInfo();
 		}
 
-		GetSceneMgr().TriggerDelayedScenes();
+		SceneMgr.TriggerDelayedScenes();
 	}
 
 	public void RemoveSocial()
 	{
-		Global.SocialMgr.RemovePlayerSocial(GetGUID());
+		Global.SocialMgr.RemovePlayerSocial(GUID);
 		_social = null;
 	}
 
 	public void SaveRecallPosition()
 	{
 		_recallLocation = new WorldLocation(Location);
-		_recallInstanceId = GetInstanceId();
+		_recallInstanceId = InstanceId1;
 	}
 
 	public void Recall()
@@ -5008,21 +5032,16 @@ public partial class Player : Unit
 		TeleportTo(_recallLocation, 0, _recallInstanceId);
 	}
 
-	public uint GetSaveTimer()
-	{
-		return _nextSave;
-	}
-
 	public void InitStatsForLevel(bool reapplyMods = false)
 	{
 		if (reapplyMods) //reapply stats values only on .reset stats (level) command
 			_RemoveAllStatBonuses();
 
-		Global.ObjectMgr.GetPlayerClassLevelInfo(GetClass(), GetLevel(), out var basemana);
+		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 
-		var info = Global.ObjectMgr.GetPlayerLevelInfo(GetRace(), GetClass(), GetLevel());
+		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, Level);
 
-		var exp_max_lvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(GetSession().GetExpansion());
+		var exp_max_lvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
 		var conf_max_lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
 		if (exp_max_lvl == SharedConst.DefaultMaxLevel || exp_max_lvl >= conf_max_lvl)
@@ -5030,7 +5049,7 @@ public partial class Player : Unit
 		else
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), exp_max_lvl);
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(GetLevel()));
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(Level));
 
 		if (ActivePlayerData.XP >= ActivePlayerData.NextLevelXP)
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), ActivePlayerData.NextLevelXP - 1);
@@ -5049,7 +5068,7 @@ public partial class Player : Unit
 		SetModTimeRate(1.0f);
 
 		// reset size before reapply auras
-		SetObjectScale(1.0f);
+		ObjectScale = 1.0f;
 
 		// save base values (bonuses already included in stored stats
 		for (var i = Stats.Strength; i < Stats.Max; ++i)
@@ -5153,7 +5172,7 @@ public partial class Player : Unit
 		SetMaxHealth(0); // stamina bonus will applied later
 
 		// cleanup mounted state (it will set correctly at aura loading if player saved at mount.
-		SetMountDisplayId(0);
+		MountDisplayId = 0;
 
 		// cleanup unit flags (will be re-applied if need at aura load).
 		RemoveUnitFlag(UnitFlags.NonAttackable |
@@ -5211,7 +5230,7 @@ public partial class Player : Unit
 
 	public void InitDataForForm(bool reapplyMods = false)
 	{
-		var form = GetShapeshiftForm();
+		var form = ShapeshiftForm;
 
 		var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
 
@@ -5240,22 +5259,17 @@ public partial class Player : Unit
 	{
 		var factionEntry = CliDB.FactionStorage.LookupByKey(faction);
 
-		return GetReputationMgr().GetRank(factionEntry);
-	}
-
-	public ReputationMgr GetReputationMgr()
-	{
-		return _reputationMgr;
+		return ReputationMgr.GetRank(factionEntry);
 	}
 
 	public void SetReputation(uint factionentry, int value)
 	{
-		GetReputationMgr().SetReputation(CliDB.FactionStorage.LookupByKey(factionentry), value);
+		ReputationMgr.SetReputation(CliDB.FactionStorage.LookupByKey(factionentry), value);
 	}
 
 	public int GetReputation(uint factionentry)
 	{
-		return GetReputationMgr().GetReputation(CliDB.FactionStorage.LookupByKey(factionentry));
+		return ReputationMgr.GetReputation(CliDB.FactionStorage.LookupByKey(factionentry));
 	}
 
 	public void ClearWhisperWhiteList()
@@ -5284,31 +5298,6 @@ public partial class Player : Unit
 		_lastFallZ = z;
 	}
 
-	public PlayerCreateMode GetCreateMode()
-	{
-		return _createMode;
-	}
-
-	public byte GetCinematic()
-	{
-		return _cinematic;
-	}
-
-	public void SetCinematic(byte cine)
-	{
-		_cinematic = cine;
-	}
-
-	public uint GetMovie()
-	{
-		return _movie;
-	}
-
-	public void SetMovie(uint movie)
-	{
-		_movie = movie;
-	}
-
 	public void SendCinematicStart(uint CinematicSequenceId)
 	{
 		TriggerCinematic packet = new();
@@ -5323,20 +5312,10 @@ public partial class Player : Unit
 
 	public void SendMovieStart(uint movieId)
 	{
-		SetMovie(movieId);
+		Movie = movieId;
 		TriggerMovie packet = new();
 		packet.MovieID = movieId;
 		SendPacket(packet);
-	}
-
-	public override void SetObjectScale(float scale)
-	{
-		base.SetObjectScale(scale);
-		SetBoundingRadius(scale * SharedConst.DefaultPlayerBoundingRadius);
-		SetCombatReach(scale * SharedConst.DefaultPlayerCombatReach);
-
-		if (IsInWorld)
-			SendMovementSetCollisionHeight(GetCollisionHeight(), UpdateCollisionHeightReason.Scale);
 	}
 
 	public bool HasRaceChanged()
@@ -5369,49 +5348,26 @@ public partial class Player : Unit
 		_extraFlags |= PlayerExtraFlags.LevelBoosted;
 	}
 
-	public uint GetXP()
-	{
-		return ActivePlayerData.XP;
-	}
-
-	public uint GetXPForNextLevel()
-	{
-		return ActivePlayerData.NextLevelXP;
-	}
-
-	public void SetXP(uint xp)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.XP), xp);
-
-		var playerLevelDelta = 0;
-
-		// If XP < 50%, player should see scaling creature with -1 level except for level max
-		if (GetLevel() < SharedConst.MaxLevel && xp < (ActivePlayerData.NextLevelXP / 2))
-			playerLevelDelta = -1;
-
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ScalingPlayerLevelDelta), playerLevelDelta);
-	}
-
 	public void GiveXP(uint xp, Unit victim, float group_rate = 1.0f)
 	{
 		if (xp < 1)
 			return;
 
-		if (!IsAlive() && GetBattlegroundId() == 0)
+		if (!IsAlive && GetBattlegroundId() == 0)
 			return;
 
 		if (HasPlayerFlag(PlayerFlags.NoXPGain))
 			return;
 
-		if (victim != null && victim.IsTypeId(TypeId.Unit) && !victim.ToCreature().HasLootRecipient())
+		if (victim != null && victim.IsTypeId(TypeId.Unit) && !victim.ToCreature().HasLootRecipient)
 			return;
 
-		var level = GetLevel();
+		var level = Level;
 
 		Global.ScriptMgr.ForEach<IPlayerOnGiveXP>(p => p.OnGiveXP(this, ref xp, victim));
 
 		// XP to money conversion processed in Player.RewardQuest
-		if (IsMaxLevel())
+		if (IsMaxLevel)
 			return;
 
 		double bonus_xp;
@@ -5424,35 +5380,35 @@ public partial class Player : Unit
 			bonus_xp = victim != null ? _restMgr.GetRestBonusFor(RestTypes.XP, xp) : 0; // XP resting bonus
 
 		LogXPGain packet = new();
-		packet.Victim = victim ? victim.GetGUID() : ObjectGuid.Empty;
+		packet.Victim = victim ? victim.GUID : ObjectGuid.Empty;
 		packet.Original = (int)(xp + bonus_xp);
 		packet.Reason = victim ? PlayerLogXPReason.Kill : PlayerLogXPReason.NoKill;
 		packet.Amount = (int)xp;
 		packet.GroupBonus = group_rate;
 		SendPacket(packet);
 
-		var nextLvlXP = GetXPForNextLevel();
-		var newXP = GetXP() + xp + (uint)bonus_xp;
+		var nextLvlXP = XPForNextLevel;
+		var newXP = XP + xp + (uint)bonus_xp;
 
-		while (newXP >= nextLvlXP && !IsMaxLevel())
+		while (newXP >= nextLvlXP && !IsMaxLevel)
 		{
 			newXP -= nextLvlXP;
 
-			if (!IsMaxLevel())
+			if (!IsMaxLevel)
 				GiveLevel(level + 1);
 
-			level = GetLevel();
-			nextLvlXP = GetXPForNextLevel();
+			level = Level;
+			nextLvlXP = XPForNextLevel;
 		}
 
-		SetXP(newXP);
+		XP = newXP;
 	}
 
 	public void HandleBaseModFlatValue(BaseModGroup modGroup, double amount, bool apply)
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.HandleBaseModFlatValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GetGUID()})");
+			Log.outError(LogFilter.Spells, $"Player.HandleBaseModFlatValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
 
 			return;
 		}
@@ -5465,7 +5421,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.ApplyBaseModPctValue: Invalid BaseModGroup/BaseModType ({modGroup}/{BaseModType.FlatMod}) for player '{GetName()}' ({GetGUID()})");
+			Log.outError(LogFilter.Spells, $"Player.ApplyBaseModPctValue: Invalid BaseModGroup/BaseModType ({modGroup}/{BaseModType.FlatMod}) for player '{GetName()}' ({GUID})");
 
 			return;
 		}
@@ -5528,7 +5484,7 @@ public partial class Player : Unit
 
 						break;
 					case ItemEnchantmentType.Totem:
-						if (GetClass() == Class.Shaman)
+						if (Class == Class.Shaman)
 							amount += enchantmentEntry.EffectScalingPoints[i] * item.GetTemplate().GetDelay() / 1000.0f;
 
 						break;
@@ -5540,15 +5496,10 @@ public partial class Player : Unit
 		HandleStatFlatModifier(unitMod, UnitModifierFlatType.Total, amount, true);
 	}
 
-	public byte GetDrunkValue()
-	{
-		return PlayerData.Inebriation;
-	}
-
 	public void SetDrunkValue(byte newDrunkValue, uint itemId = 0)
 	{
-		var isSobering = newDrunkValue < GetDrunkValue();
-		var oldDrunkenState = GetDrunkenstateByValue(GetDrunkValue());
+		var isSobering = newDrunkValue < DrunkValue;
+		var oldDrunkenState = GetDrunkenstateByValue(DrunkValue);
 
 		if (newDrunkValue > 100)
 			newDrunkValue = 100;
@@ -5577,7 +5528,7 @@ public partial class Player : Unit
 			return;
 
 		CrossedInebriationThreshold data = new();
-		data.Guid = GetGUID();
+		data.Guid = GUID;
 		data.Threshold = (uint)newDrunkenState;
 		data.ItemID = itemId;
 
@@ -5598,24 +5549,19 @@ public partial class Player : Unit
 		return DrunkenState.Sober;
 	}
 
-	public uint GetDeathTimer()
-	{
-		return _deathTimer;
-	}
-
 	public bool ActivateTaxiPathTo(List<uint> nodes, Creature npc = null, uint spellid = 0, uint preferredMountDisplay = 0)
 	{
 		if (nodes.Count < 2)
 		{
-			GetSession().SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
+			Session.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
 
 			return false;
 		}
 
 		// not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
-		if (GetSession().IsLogingOut() || IsInCombat() || HasUnitState(UnitState.Stunned) || HasUnitState(UnitState.Root))
+		if (Session.IsLogingOut || IsInCombat() || HasUnitState(UnitState.Stunned) || HasUnitState(UnitState.Root))
 		{
-			GetSession().SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
+			Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
 
 			return false;
 		}
@@ -5629,12 +5575,12 @@ public partial class Player : Unit
 			// not let cheating with start flight mounted
 			RemoveAurasByType(AuraType.Mounted);
 
-			if (GetDisplayId() != GetNativeDisplayId())
+			if (DisplayId != NativeDisplayId)
 				RestoreDisplayId(true);
 
-			if (IsDisallowedMountForm(GetTransformSpell(), ShapeShiftForm.None, GetDisplayId()))
+			if (IsDisallowedMountForm(GetTransformSpell(), ShapeShiftForm.None, DisplayId))
 			{
-				GetSession().SendActivateTaxiReply(ActivateTaxiReply.PlayerShapeshifted);
+				Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerShapeshifted);
 
 				return false;
 			}
@@ -5642,7 +5588,7 @@ public partial class Player : Unit
 			// not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
 			if (IsNonMeleeSpellCast(false))
 			{
-				GetSession().SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
+				Session.SendActivateTaxiReply(ActivateTaxiReply.PlayerBusy);
 
 				return false;
 			}
@@ -5652,7 +5598,7 @@ public partial class Player : Unit
 		{
 			RemoveAurasByType(AuraType.Mounted);
 
-			if (GetDisplayId() != GetNativeDisplayId())
+			if (DisplayId != NativeDisplayId)
 				RestoreDisplayId(true);
 
 			var spell = GetCurrentSpell(CurrentSpellTypes.Generic);
@@ -5677,7 +5623,7 @@ public partial class Player : Unit
 
 		if (node == null)
 		{
-			GetSession().SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
+			Session.SendActivateTaxiReply(ActivateTaxiReply.NoSuchPath);
 
 			return false;
 		}
@@ -5744,25 +5690,25 @@ public partial class Player : Unit
 		if (node.Flags.HasAnyFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0)
 			mount_display_id = preferredMountDisplay;
 		else
-			mount_display_id = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == null || (sourcenode == 315 && GetClass() == Class.Deathknight));
+			mount_display_id = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == Class.Deathknight));
 
 		// in spell case allow 0 model
 		if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
 		{
-			GetSession().SendActivateTaxiReply(ActivateTaxiReply.UnspecifiedServerError);
+			Session.SendActivateTaxiReply(ActivateTaxiReply.UnspecifiedServerError);
 			Taxi.ClearTaxiDestinations();
 
 			return false;
 		}
 
-		var money = GetMoney();
+		var money = Money;
 
 		if (npc != null)
 		{
 			var discount = GetReputationPriceDiscount(npc);
 			totalcost = (uint)Math.Ceiling(totalcost * discount);
 			firstcost = (uint)Math.Ceiling(firstcost * discount);
-			Taxi.SetFlightMasterFactionTemplateId(npc.GetFaction());
+			Taxi.SetFlightMasterFactionTemplateId(npc.Faction);
 		}
 		else
 		{
@@ -5771,7 +5717,7 @@ public partial class Player : Unit
 
 		if (money < totalcost)
 		{
-			GetSession().SendActivateTaxiReply(ActivateTaxiReply.NotEnoughMoney);
+			Session.SendActivateTaxiReply(ActivateTaxiReply.NotEnoughMoney);
 			Taxi.ClearTaxiDestinations();
 
 			return false;
@@ -5794,8 +5740,8 @@ public partial class Player : Unit
 		{
 			ModifyMoney(-firstcost);
 			UpdateCriteria(CriteriaType.MoneySpentOnTaxis, firstcost);
-			GetSession().SendActivateTaxiReply();
-			GetSession().SendDoFlight(mount_display_id, sourcepath);
+			Session.SendActivateTaxiReply();
+			Session.SendDoFlight(mount_display_id, sourcepath);
 		}
 
 		return true;
@@ -5818,10 +5764,10 @@ public partial class Player : Unit
 
 	public void FinishTaxiFlight()
 	{
-		if (!IsInFlight())
+		if (!IsInFlight)
 			return;
 
-		GetMotionMaster().Remove(MovementGeneratorType.Flight);
+		MotionMaster.Remove(MovementGeneratorType.Flight);
 		Taxi.ClearTaxiDestinations(); // not destinations, clear source node
 	}
 
@@ -5839,9 +5785,9 @@ public partial class Player : Unit
 		if (sourceNode == 0)
 			return;
 
-		Log.outDebug(LogFilter.Unit, "WORLD: Restart character {0} taxi flight", GetGUID().ToString());
+		Log.outDebug(LogFilter.Unit, "WORLD: Restart character {0} taxi flight", GUID.ToString());
 
-		var mountDisplayId = Global.ObjectMgr.GetTaxiMountDisplayId(sourceNode, GetTeam(), true);
+		var mountDisplayId = Global.ObjectMgr.GetTaxiMountDisplayId(sourceNode, Team, true);
 
 		if (mountDisplayId == 0)
 			return;
@@ -5882,14 +5828,14 @@ public partial class Player : Unit
 			}
 		}
 
-		GetSession().SendDoFlight(mountDisplayId, path, startNode);
+		Session.SendDoFlight(mountDisplayId, path, startNode);
 	}
 
 	public bool GetsRecruitAFriendBonus(bool forXP)
 	{
 		var recruitAFriend = false;
 
-		if (GetLevel() <= WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
+		if (Level <= WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
 		{
 			var group = GetGroup();
 
@@ -5907,17 +5853,17 @@ public partial class Player : Unit
 					if (forXP)
 					{
 						// level must be allowed to get RaF bonus
-						if (player.GetLevel() > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel))
+						if (player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel))
 							continue;
 
 						// level difference must be small enough to get RaF bonus, UNLESS we are lower level
-						if (player.GetLevel() < GetLevel())
-							if (GetLevel() - player.GetLevel() > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevelDifference))
+						if (player.Level < Level)
+							if (Level - player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevelDifference))
 								continue;
 					}
 
-					var ARecruitedB = (player.GetSession().GetRecruiterId() == GetSession().GetAccountId());
-					var BRecruitedA = (GetSession().GetRecruiterId() == player.GetSession().GetAccountId());
+					var ARecruitedB = (player.Session.RecruiterId == Session.AccountId);
+					var BRecruitedA = (Session.RecruiterId == player.Session.AccountId);
 
 					if (ARecruitedB || BRecruitedA)
 					{
@@ -5931,31 +5877,6 @@ public partial class Player : Unit
 		return recruitAFriend;
 	}
 
-	public TeleportToOptions GetTeleportOptions()
-	{
-		return _teleportOptions;
-	}
-
-	public bool IsBeingTeleported()
-	{
-		return IsBeingTeleportedNear() || IsBeingTeleportedFar();
-	}
-
-	public bool IsBeingTeleportedNear()
-	{
-		return _semaphoreTeleportNear;
-	}
-
-	public bool IsBeingTeleportedFar()
-	{
-		return _semaphoreTeleportFar;
-	}
-
-	public bool IsBeingTeleportedSeamlessly()
-	{
-		return IsBeingTeleportedFar() && _teleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
-	}
-
 	public void SetSemaphoreTeleportNear(bool semphsetting)
 	{
 		_semaphoreTeleportNear = semphsetting;
@@ -5964,11 +5885,6 @@ public partial class Player : Unit
 	public void SetSemaphoreTeleportFar(bool semphsetting)
 	{
 		_semaphoreTeleportFar = semphsetting;
-	}
-
-	public bool IsReagentBankUnlocked()
-	{
-		return HasPlayerFlagEx(PlayerFlagsEx.ReagentBankUnlocked);
 	}
 
 	public void UnlockReagentBank()
@@ -5987,8 +5903,8 @@ public partial class Player : Unit
 		randomRoll.Min = (int)minimum;
 		randomRoll.Max = (int)maximum;
 		randomRoll.Result = (int)roll;
-		randomRoll.Roller = GetGUID();
-		randomRoll.RollerWowAccount = GetSession().GetAccountGUID();
+		randomRoll.Roller = GUID;
+		randomRoll.RollerWowAccount = Session.AccountGUID;
 
 		var group = GetGroup();
 
@@ -6006,7 +5922,7 @@ public partial class Player : Unit
 			return false;
 
 		// Always can see self
-		if (u.GetGUID() == GetGUID())
+		if (u.GUID == GUID)
 			return true;
 
 		// Visible units, always are visible for all players
@@ -6014,8 +5930,8 @@ public partial class Player : Unit
 			return true;
 
 		// GMs are visible for higher gms (or players are visible for gms)
-		if (!Global.AccountMgr.IsPlayerAccount(u.GetSession().GetSecurity()))
-			return GetSession().GetSecurity() <= u.GetSession().GetSecurity();
+		if (!Global.AccountMgr.IsPlayerAccount(u.Session.Security))
+			return Session.Security <= u.Session.Security;
 
 		// non faction visibility non-breakable for non-GMs
 		return false;
@@ -6041,8 +5957,8 @@ public partial class Player : Unit
 
 	public bool IsSpellFitByClassAndRace(uint spell_id)
 	{
-		var racemask = SharedConst.GetMaskForRace(GetRace());
-		var classmask = GetClassMask();
+		var racemask = SharedConst.GetMaskForRace(Race);
+		var classmask = ClassMask;
 
 		var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spell_id);
 
@@ -6060,7 +5976,7 @@ public partial class Player : Unit
 				continue;
 
 			// skip wrong class and race skill saved in SkillRaceClassInfo.dbc
-			if (Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, GetRace(), GetClass()) == null)
+			if (Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class) == null)
 				continue;
 
 			return true;
@@ -6069,15 +5985,10 @@ public partial class Player : Unit
 		return false;
 	}
 
-	public uint GetFreePrimaryProfessionPoints()
-	{
-		return ActivePlayerData.CharacterPoints;
-	}
-
 	public bool HaveAtClient(WorldObject u)
 	{
-		var one = u.GetGUID() == GetGUID();
-		var two = ClientGuiDs.Contains(u.GetGUID());
+		var one = u.GUID == GUID;
+		var two = ClientGuiDs.Contains(u.GUID);
 
 		return one || two;
 	}
@@ -6138,7 +6049,7 @@ public partial class Player : Unit
 	{
 		if (apply)
 		{
-			Log.outDebug(LogFilter.Maps, "Player.CreateViewpoint: Player {0} create seer {1} (TypeId: {2}).", GetName(), target.GetEntry(), target.GetTypeId());
+			Log.outDebug(LogFilter.Maps, "Player.CreateViewpoint: Player {0} create seer {1} (TypeId: {2}).", GetName(), target.Entry, target.TypeId);
 
 			if (ActivePlayerData.FarsightObject != ObjectGuid.Empty)
 			{
@@ -6147,7 +6058,7 @@ public partial class Player : Unit
 				return;
 			}
 
-			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.FarsightObject), target.GetGUID());
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.FarsightObject), target.GUID);
 
 			// farsight dynobj or puppet may be very far away
 			UpdateVisibilityOf(target);
@@ -6161,7 +6072,7 @@ public partial class Player : Unit
 		{
 			Log.outDebug(LogFilter.Maps, "Player.CreateViewpoint: Player {0} remove seer", GetName());
 
-			if (target.GetGUID() != ActivePlayerData.FarsightObject)
+			if (target.GUID != ActivePlayerData.FarsightObject)
 			{
 				Log.outFatal(LogFilter.Player, "Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
 
@@ -6178,26 +6089,16 @@ public partial class Player : Unit
 		}
 	}
 
-	public WorldObject GetViewpoint()
-	{
-		ObjectGuid guid = ActivePlayerData.FarsightObject;
-
-		if (!guid.IsEmpty())
-			return Global.ObjAccessor.GetObjectByTypeMask(this, guid, TypeMask.Seer);
-
-		return null;
-	}
-
 	public void SetClientControl(Unit target, bool allowMove)
 	{
 		// a player can never client control nothing
 		Cypher.Assert(target);
 
 		// don't allow possession to be overridden
-		if (target.HasUnitState(UnitState.Charmed) && (GetGUID() != target.GetCharmerGUID()))
+		if (target.HasUnitState(UnitState.Charmed) && (GUID != target.CharmerGUID))
 		{
 			// this should never happen, otherwise m_unitBeingMoved might be left dangling!
-			Log.outError(LogFilter.Player, $"Player '{GetName()}' attempt to client control '{target.GetName()}', which is charmed by GUID {target.GetCharmerGUID()}");
+			Log.outError(LogFilter.Player, $"Player '{GetName()}' attempt to client control '{target.GetName()}', which is charmed by GUID {target.CharmerGUID}");
 
 			return;
 		}
@@ -6207,11 +6108,11 @@ public partial class Player : Unit
 			allowMove = false;
 
 		ControlUpdate packet = new();
-		packet.Guid = target.GetGUID();
+		packet.Guid = target.GUID;
 		packet.On = allowMove;
 		SendPacket(packet);
 
-		var viewpoint = GetViewpoint();
+		var viewpoint = Viewpoint;
 
 		if (viewpoint == null)
 			viewpoint = this;
@@ -6292,7 +6193,7 @@ public partial class Player : Unit
 		var offtemplate = offItem.GetTemplate();
 
 		// unequip offhand weapon if player doesn't have dual wield anymore
-		if (!CanDualWield() && ((offItem.GetTemplate().GetInventoryType() == InventoryType.WeaponOffhand && !offItem.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield)) || offItem.GetTemplate().GetInventoryType() == InventoryType.Weapon))
+		if (!CanDualWield && ((offItem.GetTemplate().GetInventoryType() == InventoryType.WeaponOffhand && !offItem.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield)) || offItem.GetTemplate().GetInventoryType() == InventoryType.Weapon))
 			force = true;
 
 		// need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
@@ -6319,26 +6220,6 @@ public partial class Player : Unit
 
 			DB.Characters.CommitTransaction(trans);
 		}
-	}
-
-	public WorldLocation GetTeleportDest()
-	{
-		return _teleportDest;
-	}
-
-	public uint? GetTeleportDestInstanceId()
-	{
-		return _teleportInstanceId;
-	}
-
-	public WorldLocation GetHomebind()
-	{
-		return _homebind;
-	}
-
-	public WorldLocation GetRecall()
-	{
-		return _recallLocation;
 	}
 
 	public void SetRestState(RestTypes type, PlayerRestState state)
@@ -6427,16 +6308,6 @@ public partial class Player : Unit
 			newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
 			AddDynamicUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations), newChoice);
 		}
-	}
-
-	public override Gender GetNativeGender()
-	{
-		return (Gender)(byte)PlayerData.NativeSex;
-	}
-
-	public override void SetNativeGender(Gender sex)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.NativeSex), (byte)sex);
 	}
 
 	public void SetPvpTitle(byte pvpTitle)
@@ -6537,11 +6408,6 @@ public partial class Player : Unit
 		ClearDynamicUpdateFieldValues(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SelfResSpells));
 	}
 
-	public ObjectGuid GetSummonedBattlePetGUID()
-	{
-		return ActivePlayerData.SummonedBattlePetGUID;
-	}
-
 	public void SetSummonedBattlePetGUID(ObjectGuid guid)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.SummonedBattlePetGUID), guid);
@@ -6592,11 +6458,6 @@ public partial class Player : Unit
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.LocalFlags), (uint)flags);
 	}
 
-	public byte GetNumRespecs()
-	{
-		return ActivePlayerData.NumRespecs;
-	}
-
 	public void SetNumRespecs(byte numRespecs)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NumRespecs), numRespecs);
@@ -6622,11 +6483,6 @@ public partial class Player : Unit
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TransportServerTime), transportServerTime);
 	}
 
-	public bool CanTameExoticPets()
-	{
-		return IsGameMaster() || HasAuraType(AuraType.AllowTamePetType);
-	}
-
 	public void SendAttackSwingCancelAttack()
 	{
 		SendPacket(new CancelCombat());
@@ -6640,7 +6496,7 @@ public partial class Player : Unit
 	public void SendAutoRepeatCancel(Unit target)
 	{
 		CancelAutoRepeat cancelAutoRepeat = new();
-		cancelAutoRepeat.Guid = target.GetGUID(); // may be it's target guid
+		cancelAutoRepeat.Guid = target.GUID; // may be it's target guid
 		SendMessageToSet(cancelAutoRepeat, true);
 	}
 
@@ -6849,7 +6705,7 @@ public partial class Player : Unit
 			SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
 		if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
-			GetSession().GetCollectionMgr().AddToy(193588, true, true);
+			Session.			CollectionMgr.AddToy(193588, true, true);
 	}
 
 	void ScheduleDelayedOperation(PlayerDelayedOperations operation)
@@ -6919,14 +6775,14 @@ public partial class Player : Unit
 	{
 		if (button >= PlayerConst.MaxActionButtons)
 		{
-			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GetGUID()}): button must be < {PlayerConst.MaxActionButtons}");
+			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): button must be < {PlayerConst.MaxActionButtons}");
 
 			return false;
 		}
 
 		if (action >= PlayerConst.MaxActionButtonActionValue)
 		{
-			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GetGUID()}): action must be < {PlayerConst.MaxActionButtonActionValue}");
+			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): action must be < {PlayerConst.MaxActionButtonActionValue}");
 
 			return false;
 		}
@@ -6936,7 +6792,7 @@ public partial class Player : Unit
 			case ActionButtonType.Spell:
 				if (!Global.SpellMgr.HasSpellInfo((uint)action, Difficulty.None))
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GetGUID()}): spell not exist");
+					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GUID}): spell not exist");
 
 					return false;
 				}
@@ -6945,7 +6801,7 @@ public partial class Player : Unit
 			case ActionButtonType.Item:
 				if (Global.ObjectMgr.GetItemTemplate((uint)action) == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GetGUID()}): item not exist");
+					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 
 					return false;
 				}
@@ -6953,9 +6809,9 @@ public partial class Player : Unit
 				break;
 			case ActionButtonType.Companion:
 			{
-				if (GetSession().GetBattlePetMgr().GetPet(ObjectGuid.Create(HighGuid.BattlePet, action)) == null)
+				if (Session.BattlePetMgr.GetPet(ObjectGuid.Create(HighGuid.BattlePet, action)) == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Companion action {action} not added into button {button} for player {GetName()} ({GetGUID()}): companion does not exist");
+					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Companion action {action} not added into button {button} for player {GetName()} ({GUID}): companion does not exist");
 
 					return false;
 				}
@@ -6967,14 +6823,14 @@ public partial class Player : Unit
 
 				if (mount == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GetGUID()}): mount does not exist");
+					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): mount does not exist");
 
 					return false;
 				}
 
 				if (!HasSpell(mount.SourceSpellID))
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GetGUID()}): Player does not know this mount");
+					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): Player does not know this mount");
 
 					return false;
 				}
@@ -7047,39 +6903,28 @@ public partial class Player : Unit
 			if (rep == 0)
 				continue;
 
-			if (quest.RewardFactionCapIn[i] != 0 && rep > 0 && (int)GetReputationMgr().GetRank(factionEntry) >= quest.RewardFactionCapIn[i])
+			if (quest.RewardFactionCapIn[i] != 0 && rep > 0 && (int)ReputationMgr.GetRank(factionEntry) >= quest.RewardFactionCapIn[i])
 				continue;
 
-			if (quest.IsDaily())
+			if (quest.IsDaily)
 				rep = CalculateReputationGain(ReputationSource.DailyQuest, (uint)GetQuestLevel(quest), rep, (int)quest.RewardFactionId[i], noQuestBonus);
-			else if (quest.IsWeekly())
+			else if (quest.IsWeekly)
 				rep = CalculateReputationGain(ReputationSource.WeeklyQuest, (uint)GetQuestLevel(quest), rep, (int)quest.RewardFactionId[i], noQuestBonus);
-			else if (quest.IsMonthly())
+			else if (quest.IsMonthly)
 				rep = CalculateReputationGain(ReputationSource.MonthlyQuest, (uint)GetQuestLevel(quest), rep, (int)quest.RewardFactionId[i], noQuestBonus);
-			else if (quest.IsRepeatable())
+			else if (quest.IsRepeatable)
 				rep = CalculateReputationGain(ReputationSource.RepeatableQuest, (uint)GetQuestLevel(quest), rep, (int)quest.RewardFactionId[i], noQuestBonus);
 			else
 				rep = CalculateReputationGain(ReputationSource.Quest, (uint)GetQuestLevel(quest), rep, (int)quest.RewardFactionId[i], noQuestBonus);
 
 			var noSpillover = Convert.ToBoolean(quest.RewardReputationMask & (1 << i));
-			GetReputationMgr().ModifyReputation(factionEntry, rep, false, noSpillover);
+			ReputationMgr.ModifyReputation(factionEntry, rep, false, noSpillover);
 		}
-	}
-
-	//Movement
-	bool IsCanDelayTeleport()
-	{
-		return _canDelayTeleport;
 	}
 
 	void SetCanDelayTeleport(bool setting)
 	{
 		_canDelayTeleport = setting;
-	}
-
-	bool IsHasDelayedTeleport()
-	{
-		return _hasDelayedTeleport;
 	}
 
 	void SetDelayedTeleportFlag(bool setting)
@@ -7089,7 +6934,7 @@ public partial class Player : Unit
 
 	void UpdateLocalChannels(uint newZone)
 	{
-		if (GetSession().PlayerLoading() && !IsBeingTeleportedFar())
+		if (Session.PlayerLoading && !IsBeingTeleportedFar)
 			return; // The client handles it automatically after loading, but not after teleporting
 
 		var current_zone = CliDB.AreaTableStorage.LookupByKey(newZone);
@@ -7097,7 +6942,7 @@ public partial class Player : Unit
 		if (current_zone == null)
 			return;
 
-		var cMgr = ChannelManager.ForTeam(GetTeam());
+		var cMgr = ChannelManager.ForTeam(Team);
 
 		if (cMgr == null)
 			return;
@@ -7174,7 +7019,7 @@ public partial class Player : Unit
 	void UpdateHomebindTime(uint time)
 	{
 		// GMs never get homebind timer online
-		if (InstanceValid || IsGameMaster())
+		if (InstanceValid || IsGameMaster)
 		{
 			if (_homebindTimer != 0) // instance valid, but timer not reset
 				SendRaidGroupOnlyMessage(RaidGroupReason.None, 0);
@@ -7196,7 +7041,7 @@ public partial class Player : Unit
 			_homebindTimer = 60000;
 			// send message to player
 			SendRaidGroupOnlyMessage(RaidGroupReason.RequirementsUnmatch, (int)_homebindTimer);
-			Log.outDebug(LogFilter.Maps, "PLAYER: Player '{0}' (GUID: {1}) will be teleported to homebind in 60 seconds", GetName(), GetGUID().ToString());
+			Log.outDebug(LogFilter.Maps, "PLAYER: Player '{0}' (GUID: {1}) will be teleported to homebind in 60 seconds", GetName(), GUID.ToString());
 		}
 	}
 
@@ -7254,7 +7099,7 @@ public partial class Player : Unit
 				Regenerate(power);
 
 		// Runes act as cooldowns, and they don't need to send any data
-		if (GetClass() == Class.Deathknight)
+		if (Class == Class.Deathknight)
 		{
 			uint regeneratedRunes = 0;
 			var regenIndex = 0;
@@ -7477,8 +7322,8 @@ public partial class Player : Unit
 
 			if (!IsInCombat())
 			{
-				if (GetLevel() < 15)
-					addValue = (0.20f * (GetMaxHealth()) / GetLevel() * HealthIncreaseRate);
+				if (Level < 15)
+					addValue = (0.20f * (GetMaxHealth()) / Level * HealthIncreaseRate);
 				else
 					addValue = 0.015f * (GetMaxHealth()) * HealthIncreaseRate;
 
@@ -7490,7 +7335,7 @@ public partial class Player : Unit
 				MathFunctions.ApplyPct(ref addValue, GetTotalAuraModifier(AuraType.ModRegenDuringCombat));
 			}
 
-			if (!IsStandState())
+			if (!IsStandState)
 				addValue *= 1.5f;
 		}
 
@@ -7535,23 +7380,6 @@ public partial class Player : Unit
 		}
 	}
 
-	bool IsTotalImmune()
-	{
-		var immune = GetAuraEffectsByType(AuraType.SchoolImmunity);
-
-		var immuneMask = 0;
-
-		foreach (var eff in immune)
-		{
-			immuneMask |= eff.MiscValue;
-
-			if (Convert.ToBoolean(immuneMask & (int)SpellSchoolMask.All)) // total immunity
-				return true;
-		}
-
-		return false;
-	}
-
 	void HandleDrowning(uint time_diff)
 	{
 		if (_mirrorTimerFlags == 0)
@@ -7580,7 +7408,7 @@ public partial class Player : Unit
 					_mirrorTimer[breathTimer] += 1 * Time.InMilliseconds;
 					// Calculate and deal damage
 					// @todo Check this formula
-					var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, GetLevel() - 1));
+					var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, Level - 1));
 					EnvironmentalDamage(EnviromentalDamage.Drowning, damage);
 				}
 				else if (!_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InWater)) // Update time in client if need
@@ -7595,7 +7423,7 @@ public partial class Player : Unit
 			// Need breath regen
 			_mirrorTimer[breathTimer] += (int)(10 * time_diff);
 
-			if (_mirrorTimer[breathTimer] >= UnderWaterTime || !IsAlive())
+			if (_mirrorTimer[breathTimer] >= UnderWaterTime || !IsAlive)
 				StopMirrorTimer(MirrorTimerType.Breath);
 			else if (_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InWater))
 				SendMirrorTimer(MirrorTimerType.Breath, UnderWaterTime, _mirrorTimer[breathTimer], 10);
@@ -7619,9 +7447,9 @@ public partial class Player : Unit
 				{
 					_mirrorTimer[fatigueTimer] += 1 * Time.InMilliseconds;
 
-					if (IsAlive()) // Calculate and deal damage
+					if (IsAlive) // Calculate and deal damage
 					{
-						var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, GetLevel() - 1));
+						var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, Level - 1));
 						EnvironmentalDamage(EnviromentalDamage.Exhausted, damage);
 					}
 					else if (HasPlayerFlag(PlayerFlags.Ghost)) // Teleport ghost to graveyard
@@ -7640,7 +7468,7 @@ public partial class Player : Unit
 			var DarkWaterTime = GetMaxTimer(MirrorTimerType.Fatigue);
 			_mirrorTimer[fatigueTimer] += (int)(10 * time_diff);
 
-			if (_mirrorTimer[fatigueTimer] >= DarkWaterTime || !IsAlive())
+			if (_mirrorTimer[fatigueTimer] >= DarkWaterTime || !IsAlive)
 				StopMirrorTimer(MirrorTimerType.Fatigue);
 			else if (_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InDarkWater))
 				SendMirrorTimer(MirrorTimerType.Fatigue, DarkWaterTime, _mirrorTimer[fatigueTimer], 10);
@@ -7696,7 +7524,7 @@ public partial class Player : Unit
 	{
 		_drunkTimer = 0;
 
-		var currentDrunkValue = GetDrunkValue();
+		var currentDrunkValue = DrunkValue;
 		var drunk = (byte)(currentDrunkValue != 0 ? --currentDrunkValue : 0);
 		SetDrunkValue(drunk);
 	}
@@ -7728,7 +7556,7 @@ public partial class Player : Unit
 				return Time.Minute * Time.InMilliseconds;
 			case MirrorTimerType.Breath:
 			{
-				if (!IsAlive() || HasAuraType(AuraType.WaterBreathing) || GetSession().GetSecurity() >= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.DisableBreathing))
+				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.DisableBreathing))
 					return -1;
 
 				var UnderWaterTime = 3 * Time.Minute * Time.InMilliseconds;
@@ -7738,7 +7566,7 @@ public partial class Player : Unit
 			}
 			case MirrorTimerType.Fire:
 			{
-				if (!IsAlive())
+				if (!IsAlive)
 					return -1;
 
 				return 1 * Time.InMilliseconds;
@@ -7766,19 +7594,19 @@ public partial class Player : Unit
 		if (HasPvpFlag(UnitPVPStateFlags.PvP))
 			flags |= CorpseFlags.PvP;
 
-		if (InBattleground() && !InArena())
+		if (InBattleground() && !InArena)
 			flags |= CorpseFlags.Skinnable; // to be able to remove insignia
 
 		if (HasPvpFlag(UnitPVPStateFlags.FFAPvp))
 			flags |= CorpseFlags.FFAPvP;
 
-		corpse.SetRace((byte)GetRace());
-		corpse.SetSex((byte)GetNativeGender());
-		corpse.SetClass((byte)GetClass());
+		corpse.SetRace((byte)Race);
+		corpse.SetSex((byte)NativeGender);
+		corpse.SetClass((byte)Class);
 		corpse.SetCustomizations(PlayerData.Customizations);
 		corpse.ReplaceAllFlags(flags);
-		corpse.SetDisplayId(GetNativeDisplayId());
-		corpse.SetFactionTemplate(CliDB.ChrRacesStorage.LookupByKey(GetRace()).FactionID);
+		corpse.SetDisplayId(NativeDisplayId);
+		corpse.SetFactionTemplate(CliDB.ChrRacesStorage.LookupByKey(Race).FactionID);
 
 		for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; i++)
 			if (_items[i] != null)
@@ -7884,16 +7712,6 @@ public partial class Player : Unit
 		SendPacket(packet);
 	}
 
-	bool IsInFriendlyArea()
-	{
-		var areaEntry = CliDB.AreaTableStorage.LookupByKey(GetAreaId());
-
-		if (areaEntry != null)
-			return IsFriendlyArea(areaEntry);
-
-		return false;
-	}
-
 	bool IsFriendlyArea(AreaTableRecord areaEntry)
 	{
 		Cypher.Assert(areaEntry != null);
@@ -7922,7 +7740,7 @@ public partial class Player : Unit
 		uint auraInside = 282559;
 		var auraOutside = PlayerConst.WarmodeEnlistedSpellOutside;
 
-		if (IsWarModeDesired())
+		if (IsWarModeDesired)
 		{
 			if (CanEnableWarModeInArea())
 			{
@@ -7950,24 +7768,9 @@ public partial class Player : Unit
 		}
 	}
 
-	bool IsWarModeDesired()
-	{
-		return HasPlayerFlag(PlayerFlags.WarModeDesired);
-	}
-
-	bool IsWarModeActive()
-	{
-		return HasPlayerFlag(PlayerFlags.WarModeActive);
-	}
-
 	void SetWeaponChangeTimer(uint time)
 	{
 		_weaponChangeTimer = time;
-	}
-
-	void SetSaveTimer(uint timer)
-	{
-		_nextSave = timer;
 	}
 
 	void SendAurasForTarget(Unit target)
@@ -7979,7 +7782,7 @@ public partial class Player : Unit
 
 		AuraUpdate update = new();
 		update.UpdateAll = true;
-		update.UnitGUID = target.GetGUID();
+		update.UnitGUID = target.GUID;
 
 
 		foreach (var auraApp in visibleAuras.ToList())
@@ -8020,7 +7823,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End || modType >= BaseModType.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GetGUID()})");
+			Log.outError(LogFilter.Spells, $"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GUID})");
 
 			return 0.0f;
 		}
@@ -8032,7 +7835,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.GetTotalBaseModValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GetGUID()})");
+			Log.outError(LogFilter.Spells, $"Player.GetTotalBaseModValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
 
 			return 0.0f;
 		}
@@ -8047,7 +7850,7 @@ public partial class Player : Unit
 
 		WorldObject player = GetCorpse();
 
-		if (!player || IsAlive())
+		if (!player || IsAlive)
 			player = this;
 
 		return pOther.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.MaxRecruitAFriendDistance);
@@ -8122,7 +7925,7 @@ public partial class Player : Unit
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 
@@ -8136,7 +7939,7 @@ public partial class Player : Unit
 		if (!obj.IsTypeId(TypeId.Unit))
 			return;
 
-		if (p.GetPetGUID() == obj.GetGUID() && obj.ToCreature().IsPet())
+		if (p.PetGUID == obj.GUID && obj.ToCreature().IsPet)
 			((Pet)obj).Remove(PetSaveMode.NotInSlot, true);
 	}
 
@@ -8153,7 +7956,7 @@ public partial class Player : Unit
 			if (target == this)
 				continue;
 
-			switch (target.GetTypeId())
+			switch (target.TypeId)
 			{
 				case TypeId.Unit:
 					UpdateVisibilityOf(target.ToCreature(), udata, newVisibleUnits);
@@ -8211,12 +8014,12 @@ public partial class Player : Unit
 				if (target.IsTypeId(TypeId.Unit))
 					BeforeVisibilityDestroy(target.ToCreature(), this);
 
-				if (!target.IsDestroyedObject())
+				if (!target.IsDestroyedObject)
 					target.SendOutOfRangeForPlayer(this);
 				else
 					target.DestroyForPlayer(this);
 
-				ClientGuiDs.Remove(target.GetGUID());
+				ClientGuiDs.Remove(target.GUID);
 			}
 		}
 		else
@@ -8224,7 +8027,7 @@ public partial class Player : Unit
 			if (CanSeeOrDetect(target, false, true))
 			{
 				target.SendUpdateToPlayer(this);
-				ClientGuiDs.Add(target.GetGUID());
+				ClientGuiDs.Add(target.GUID);
 
 				// target aura duration for caster show only if target exist at caster client
 				// send data at target visibility change (adding to client)
@@ -8242,12 +8045,12 @@ public partial class Player : Unit
 			{
 				BeforeVisibilityDestroy(target, this);
 
-				if (!target.IsDestroyedObject())
+				if (!target.IsDestroyedObject)
 					target.BuildOutOfRangeUpdateBlock(data);
 				else
 					target.BuildDestroyUpdateBlock(data);
 
-				ClientGuiDs.Remove(target.GetGUID());
+				ClientGuiDs.Remove(target.GUID);
 			}
 		}
 		else
@@ -8262,9 +8065,9 @@ public partial class Player : Unit
 
 	void UpdateVisibilityOf_helper<T>(List<ObjectGuid> s64, T target, List<Unit> v) where T : WorldObject
 	{
-		s64.Add(target.GetGUID());
+		s64.Add(target.GUID);
 
-		switch (target.GetTypeId())
+		switch (target.TypeId)
 		{
 			case TypeId.Unit:
 				v.Add(target.ToCreature());
@@ -8281,7 +8084,7 @@ public partial class Player : Unit
 	{
 		SendAurasForTarget(target);
 
-		if (target.IsAlive())
+		if (target.IsAlive)
 			if (target.HasUnitState(UnitState.MeleeAttacking) && target.GetVictim() != null)
 				target.SendMeleeAttackStart(target.GetVictim());
 	}
@@ -8368,7 +8171,7 @@ public partial class Player : Unit
 			SetGroupUpdateFlag(GroupUpdateFlags.Position);
 
 		if (GetTrader() && !IsWithinDistInMap(GetTrader(), SharedConst.InteractionDistance))
-			GetSession().SendCancelTrade();
+			Session.SendCancelTrade();
 
 		CheckAreaExploreAndOutdoor();
 
@@ -8387,8 +8190,8 @@ public partial class Player : Unit
 				continue;
 
 			// Check faction
-			if ((currencyRecord.IsAlliance() && GetTeam() != Team.Alliance) ||
-				(currencyRecord.IsHorde() && GetTeam() != Team.Horde))
+			if ((currencyRecord.IsAlliance() && Team != TeamFaction.Alliance) ||
+				(currencyRecord.IsHorde() && Team != TeamFaction.Horde))
 				continue;
 
 			// Check award condition
@@ -8464,10 +8267,10 @@ public partial class Player : Unit
 
 	void CheckAreaExploreAndOutdoor()
 	{
-		if (!IsAlive())
+		if (!IsAlive)
 			return;
 
-		if (IsInFlight())
+		if (IsInFlight)
 			return;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.VmapIndoorCheck))
@@ -8485,7 +8288,7 @@ public partial class Player : Unit
 			Log.outError(LogFilter.Player,
 						"Player '{0}' ({1}) discovered unknown area (x: {2} y: {3} z: {4} map: {5})",
 						GetName(),
-						GetGUID().ToString(),
+						GUID.ToString(),
 						Location.X,
 						Location.Y,
 						Location.Z,
@@ -8523,19 +8326,19 @@ public partial class Player : Unit
 
 			if (areaLevels.HasValue)
 			{
-				if (IsMaxLevel())
+				if (IsMaxLevel)
 				{
 					SendExplorationExperience(areaId, 0);
 				}
 				else
 				{
-					var areaLevel = (ushort)Math.Min(Math.Max((ushort)GetLevel(), areaLevels.Value.MinLevel), areaLevels.Value.MaxLevel);
-					var diff = (int)GetLevel() - areaLevel;
+					var areaLevel = (ushort)Math.Min(Math.Max((ushort)Level, areaLevels.Value.MinLevel), areaLevels.Value.MaxLevel);
+					var diff = (int)Level - areaLevel;
 					uint XP;
 
 					if (diff < -5)
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(GetLevel() + 5) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 					else if (diff > 5)
 					{
@@ -8561,7 +8364,7 @@ public partial class Player : Unit
 					SendExplorationExperience(areaId, XP);
 				}
 
-				Log.outInfo(LogFilter.Player, "Player {0} discovered a new area: {1}", GetGUID().ToString(), areaId);
+				Log.outInfo(LogFilter.Player, "Player {0} discovered a new area: {1}", GUID.ToString(), areaId);
 			}
 		}
 	}
@@ -8595,7 +8398,7 @@ public partial class Player : Unit
 	public void SendBuyError(BuyResult msg, Creature creature, uint item)
 	{
 		BuyFailed packet = new();
-		packet.VendorGUID = creature ? creature.GetGUID() : ObjectGuid.Empty;
+		packet.VendorGUID = creature ? creature.GUID : ObjectGuid.Empty;
 		packet.Muid = item;
 		packet.Reason = msg;
 		SendPacket(packet);
@@ -8604,7 +8407,7 @@ public partial class Player : Unit
 	public void SendSellError(SellResult msg, Creature creature, ObjectGuid guid)
 	{
 		SellResponse sellResponse = new();
-		sellResponse.VendorGUID = (creature ? creature.GetGUID() : ObjectGuid.Empty);
+		sellResponse.VendorGUID = (creature ? creature.GUID : ObjectGuid.Empty);
 		sellResponse.ItemGUID = guid;
 		sellResponse.Reason = msg;
 		SendPacket(sellResponse);
@@ -8659,7 +8462,7 @@ public partial class Player : Unit
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Emote, Language.Universal, this, this, text);
-		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true, !GetSession().HasPermission(RBACPermissions.TwoSideInteractionChat), true);
+		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
 	}
 
 	public override void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
@@ -8671,7 +8474,7 @@ public partial class Player : Unit
 	{
 		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Whisper, isLogged ? Language.AddonLogged : Language.Addon, text, receiver);
 
-		if (!receiver.GetSession().IsAddonRegistered(prefix))
+		if (!receiver.Session.IsAddonRegistered(prefix))
 			return;
 
 		ChatPkt data = new();
@@ -8701,16 +8504,16 @@ public partial class Player : Unit
 		data.Initialize(ChatMsg.WhisperInform, language, target, target, text);
 		SendPacket(data);
 
-		if (!IsAcceptWhispers() && !IsGameMaster() && !target.IsGameMaster())
+		if (!IsAcceptWhispers && !IsGameMaster && !target.IsGameMaster)
 		{
 			SetAcceptWhispers(true);
 			SendSysMessage(CypherStrings.CommandWhisperon);
 		}
 
 		// announce afk or dnd message
-		if (target.IsAFK())
+		if (target.IsAFK)
 			SendSysMessage(CypherStrings.PlayerAfk, target.GetName(), target.AutoReplyMsg);
-		else if (target.IsDND())
+		else if (target.IsDND)
 			SendSysMessage(CypherStrings.PlayerDnd, target.GetName(), target.AutoReplyMsg);
 	}
 
@@ -8728,15 +8531,15 @@ public partial class Player : Unit
 			return;
 		}
 
-		var locale = target.GetSession().GetSessionDbLocaleIndex();
+		var locale = target.Session.SessionDbLocaleIndex;
 		ChatPkt packet = new();
-		packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, GetGender()));
+		packet.Initialize(ChatMsg.Whisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, Gender));
 		target.SendPacket(packet);
 	}
 
 	public bool CanUnderstandLanguage(Language language)
 	{
-		if (IsGameMaster())
+		if (IsGameMaster)
 			return true;
 
 		foreach (var languageDesc in Global.LanguageMgr.GetLanguageDescById(language))

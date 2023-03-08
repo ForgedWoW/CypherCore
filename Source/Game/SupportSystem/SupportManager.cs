@@ -226,7 +226,7 @@ namespace Game.SupportSystem
             if (ticket != null)
             {
                 ticket.SetClosedBy(closedBy);
-                if (!closedBy.IsEmpty())
+                if (!closedBy.IsEmpty)
                 {
                     switch (typeof(T).Name)
                     {

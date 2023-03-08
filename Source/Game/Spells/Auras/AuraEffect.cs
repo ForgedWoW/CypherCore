@@ -418,7 +418,7 @@ public class AuraEffect
 
 	public void HandleEffect(Unit target, AuraEffectHandleModes mode, bool apply, AuraEffect triggeredBy = null)
 	{
-		var aurApp = Base.GetApplicationOfTarget(target.GetGUID());
+		var aurApp = Base.GetApplicationOfTarget(target.GUID);
 		Cypher.Assert(aurApp != null);
 		HandleEffect(aurApp, mode, apply, triggeredBy);
 	}
@@ -518,7 +518,7 @@ public class AuraEffect
 			case AuraType.ModSchoolMaskDamageFromCaster:
 			case AuraType.ModSpellDamageFromCaster:
 				// Compare casters
-				if (CasterGuid != eventInfo.Actor.GetGUID())
+				if (CasterGuid != eventInfo.Actor.GUID)
 					return false;
 
 				break;
@@ -730,16 +730,16 @@ public class AuraEffect
 		else
 		{
 			if (spellId != 0)
-				target.RemoveOwnedAura(spellId, target.GetGUID());
+				target.RemoveOwnedAura(spellId, target.GUID);
 
 			if (spellId2 != 0)
-				target.RemoveOwnedAura(spellId2, target.GetGUID());
+				target.RemoveOwnedAura(spellId2, target.GUID);
 
 			if (spellId3 != 0)
-				target.RemoveOwnedAura(spellId3, target.GetGUID());
+				target.RemoveOwnedAura(spellId3, target.GUID);
 
 			if (spellId4 != 0)
-				target.RemoveOwnedAura(spellId4, target.GetGUID());
+				target.RemoveOwnedAura(spellId4, target.GUID);
 
 			var shapeshifts = target.GetAuraEffectsByType(AuraType.ModShapeshift);
 			AuraEffect newAura = null;
@@ -1031,7 +1031,7 @@ public class AuraEffect
 			if (triggeredBy == null)
 				triggeredBy = this;
 
-			var guid = target.GetGUID();
+			var guid = target.GUID;
 
 			// only passive and permament auras-active auras should have amount set on spellcast and not be affected
 			// if aura is cast by others, it will not be affected
@@ -1073,11 +1073,11 @@ public class AuraEffect
 
 		// Update serverside orientation of tracking channeled auras on periodic update ticks
 		// exclude players because can turn during channeling and shouldn't desync orientation client/server
-		if (caster != null && !caster.IsPlayer() && _spellInfo.IsChanneled && _spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.UnitData.ChannelObjects.Size() != 0)
+		if (caster != null && !caster.IsPlayer && _spellInfo.IsChanneled && _spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.UnitData.ChannelObjects.Size() != 0)
 		{
 			var channelGuid = caster.UnitData.ChannelObjects[0];
 
-			if (channelGuid != caster.GetGUID())
+			if (channelGuid != caster.GUID)
 			{
 				var objectTarget = Global.ObjAccessor.GetWorldObject(caster, channelGuid);
 
@@ -1395,11 +1395,11 @@ public class AuraEffect
 		{
 			if (target.IsTypeId(TypeId.Player))
 				// set stand state (expected in this form)
-				if (!target.IsStandState())
+				if (!target.IsStandState)
 					target.SetStandState(UnitStandStateType.Stand);
 		}
 		// die at aura end
-		else if (target.IsAlive())
+		else if (target.IsAlive)
 			// call functions which may have additional effects after changing state of unit
 		{
 			target.SetDeathState(DeathState.JustDied);
@@ -1476,7 +1476,7 @@ public class AuraEffect
 		}
 		else
 		{
-			if (target.HasAuraType(AuraType.PhaseAlwaysVisible) || (target.IsPlayer() && target.ToPlayer().IsGameMaster()))
+			if (target.HasAuraType(AuraType.PhaseAlwaysVisible) || (target.IsPlayer && target.ToPlayer().IsGameMaster))
 				return;
 
 			PhasingHandler.SetAlwaysVisible(target, false, true);
@@ -1533,8 +1533,8 @@ public class AuraEffect
 			if (aurApp.HasRemoveMode)
 				return;
 
-			var prevForm = target.GetShapeshiftForm();
-			target.SetShapeshiftForm(form);
+			var prevForm = target.ShapeshiftForm;
+			target.			ShapeshiftForm = form;
 
 			// add the shapeshift aura's boosts
 			if (prevForm != form)
@@ -1557,15 +1557,15 @@ public class AuraEffect
 			// may happen when aura is applied on linked event on aura removal
 			if (!target.HasAuraType(AuraType.ModShapeshift))
 			{
-				target.SetShapeshiftForm(ShapeShiftForm.None);
+				target.				ShapeshiftForm = ShapeShiftForm.None;
 
-				if (target.GetClass() == Class.Druid)
+				if (target.Class == Class.Druid)
 					// Remove movement impairing effects also when shifting out
 					target.RemoveAurasByShapeShift();
 			}
 
 			if (modelid > 0)
-				target.RestoreDisplayId(target.IsMounted());
+				target.RestoreDisplayId(target.IsMounted);
 
 			switch (form)
 			{
@@ -1598,7 +1598,7 @@ public class AuraEffect
 
 		if (playerTarget != null)
 		{
-			playerTarget.SendMovementSetCollisionHeight(playerTarget.GetCollisionHeight(), UpdateCollisionHeightReason.Force);
+			playerTarget.SendMovementSetCollisionHeight(playerTarget.CollisionHeight, UpdateCollisionHeightReason.Force);
 			playerTarget.InitDataForForm();
 		}
 		else
@@ -1606,7 +1606,7 @@ public class AuraEffect
 			target.UpdateDisplayPower();
 		}
 
-		if (target.GetClass() == Class.Druid)
+		if (target.Class == Class.Druid)
 		{
 			// Dash
 			var aurEff = target.GetAuraEffect(AuraType.ModIncreaseSpeed, SpellFamilyNames.Druid, new FlagArray128(0, 0, 0x8));
@@ -1664,7 +1664,7 @@ public class AuraEffect
 				// special case (spell specific functionality)
 				if (MiscValue == 0)
 				{
-					var isFemale = target.GetNativeGender() == Gender.Female;
+					var isFemale = target.NativeGender == Gender.Female;
 
 					switch (Id)
 					{
@@ -1674,7 +1674,7 @@ public class AuraEffect
 							if (!target.IsTypeId(TypeId.Player))
 								return;
 
-							switch (target.GetRace())
+							switch (target.Race)
 							{
 								// Blood Elf
 								case Race.BloodElf:
@@ -1745,7 +1745,7 @@ public class AuraEffect
 							if (!target.IsTypeId(TypeId.Player))
 								return;
 
-							switch (target.GetRace())
+							switch (target.Race)
 							{
 								// Blood Elf
 								case Race.BloodElf:
@@ -1848,8 +1848,8 @@ public class AuraEffect
 						target.SetDisplayId(model_id);
 
 						// Dragonmaw Illusion (set mount model also)
-						if (Id == 42016 && target.GetMountDisplayId() != 0 && !target.GetAuraEffectsByType(AuraType.ModIncreaseMountedFlightSpeed).Empty())
-							target.SetMountDisplayId(16314);
+						if (Id == 42016 && target.MountDisplayId != 0 && !target.GetAuraEffectsByType(AuraType.ModIncreaseMountedFlightSpeed).Empty())
+							target.							MountDisplayId = 16314;
 					}
 				}
 			}
@@ -1859,11 +1859,11 @@ public class AuraEffect
 			{
 				// for players, start regeneration after 1s (in polymorph fast regeneration case)
 				// only if caster is Player (after patch 2.4.2)
-				if (CasterGuid.IsPlayer())
+				if (CasterGuid.IsPlayer)
 					target.ToPlayer().SetRegenTimerCount(1 * Time.InMilliseconds);
 
 				//dismount polymorphed target (after patch 2.4.2)
-				if (target.IsMounted())
+				if (target.IsMounted)
 					target.RemoveAurasByType(AuraType.Mounted);
 			}
 		}
@@ -1872,10 +1872,10 @@ public class AuraEffect
 			if (target.GetTransformSpell() == Id)
 				target.SetTransformSpell(0);
 
-			target.RestoreDisplayId(target.IsMounted());
+			target.RestoreDisplayId(target.IsMounted);
 
 			// Dragonmaw Illusion (restore mount model)
-			if (Id == 42016 && target.GetMountDisplayId() == 16314)
+			if (Id == 42016 && target.MountDisplayId == 16314)
 				if (!target.GetAuraEffectsByType(AuraType.Mounted).Empty())
 				{
 					var cr_id = target.GetAuraEffectsByType(AuraType.Mounted)[0].MiscValue;
@@ -1886,7 +1886,8 @@ public class AuraEffect
 						var model = ObjectManager.ChooseDisplayId(ci);
 						Global.ObjectMgr.GetCreatureModelRandomGender(ref model, ci);
 
-						target.SetMountDisplayId(model.CreatureDisplayId);
+						target.
+						MountDisplayId = model.CreatureDisplayId;
 					}
 				}
 		}
@@ -1918,13 +1919,13 @@ public class AuraEffect
 				return;
 
 			// What must be cloned? at least display and scale
-			target.SetDisplayId(caster.GetDisplayId());
+			target.SetDisplayId(caster.DisplayId);
 			//target.SetObjectScale(caster.GetFloatValue(OBJECT_FIELD_SCALE_X)); // we need retail info about how scaling is handled (aura maybe?)
 			target.SetUnitFlag2(UnitFlags2.MirrorImage);
 		}
 		else
 		{
-			target.SetDisplayId(target.GetNativeDisplayId());
+			target.SetDisplayId(target.NativeDisplayId);
 			target.RemoveUnitFlag2(UnitFlags2.MirrorImage);
 		}
 	}
@@ -1950,7 +1951,7 @@ public class AuraEffect
 
 			foreach (var unit in targets)
 				for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
-					if (unit.GetCurrentSpell(i) != null && unit.GetCurrentSpell(i).Targets.UnitTargetGUID == target.GetGUID())
+					if (unit.GetCurrentSpell(i) != null && unit.GetCurrentSpell(i).Targets.UnitTargetGUID == target.GUID)
 						unit.InterruptSpell(i, false);
 
 			foreach (var pair in target.GetThreatManager().GetThreatenedByMeList())
@@ -1970,7 +1971,7 @@ public class AuraEffect
 			}
 
 			// prevent interrupt message
-			if (CasterGuid == target.GetGUID() && target.GetCurrentSpell(CurrentSpellTypes.Generic) != null)
+			if (CasterGuid == target.GUID && target.GetCurrentSpell(CurrentSpellTypes.Generic) != null)
 				target.FinishSpell(CurrentSpellTypes.Generic, SpellCastResult.Interrupted);
 
 			target.InterruptNonMeleeSpells(true);
@@ -1987,7 +1988,7 @@ public class AuraEffect
 			var creature = target.ToCreature();
 
 			if (creature != null)
-				creature.SetReactState(ReactStates.Passive);
+				creature.				ReactState = ReactStates.Passive;
 		}
 		else
 		{
@@ -2096,7 +2097,7 @@ public class AuraEffect
 		flagChangeFunc?.Invoke(target);
 
 		// Handle damage modification, shapeshifted druids are not affected
-		if (target.IsTypeId(TypeId.Player) && !target.IsInFeralForm())
+		if (target.IsTypeId(TypeId.Player) && !target.IsInFeralForm)
 		{
 			var player = target.ToPlayer();
 
@@ -2118,7 +2119,7 @@ public class AuraEffect
 			}
 		}
 
-		if (target.IsTypeId(TypeId.Unit) && target.ToCreature().GetCurrentEquipmentId() != 0)
+		if (target.IsTypeId(TypeId.Unit) && target.ToCreature().CurrentEquipmentId != 0)
 			target.UpdateDamagePhysical(attType);
 	}
 
@@ -2482,7 +2483,7 @@ public class AuraEffect
 				var mountCapability = CliDB.MountCapabilityStorage.LookupByKey(Amount);
 
 				if (mountCapability != null)
-					target.RemoveAurasDueToSpell(mountCapability.ModSpellAuraID, target.GetGUID());
+					target.RemoveAurasDueToSpell(mountCapability.ModSpellAuraID, target.GUID);
 			}
 		}
 	}
@@ -2504,7 +2505,7 @@ public class AuraEffect
 
 		if (target.SetCanFly(apply))
 			if (!apply && !target.IsGravityDisabled())
-				target.GetMotionMaster().MoveFall();
+				target.				MotionMaster.MoveFall();
 	}
 
 	[AuraEffectHandler(AuraType.WaterWalk)]
@@ -2662,12 +2663,12 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsAlive() || !target.IsTypeId(TypeId.Player))
+		if (!target.IsAlive || !target.IsTypeId(TypeId.Player))
 			return;
 
 		var caster = Caster;
 
-		if (caster != null && caster.IsAlive())
+		if (caster != null && caster.IsAlive)
 			caster.GetThreatManager().UpdateMyTempModifiers();
 	}
 
@@ -2679,7 +2680,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsAlive() || !target.CanHaveThreatList())
+		if (!target.IsAlive || !target.CanHaveThreatList())
 			return;
 
 		target.GetThreatManager().TauntUpdate();
@@ -2694,7 +2695,7 @@ public class AuraEffect
 		var caster = Caster;
 		var target = aurApp.Target;
 
-		if (!caster || !caster.IsAlive() || !target.IsAlive() || !caster.CanHaveThreatList())
+		if (!caster || !caster.IsAlive || !target.IsAlive || !caster.CanHaveThreatList())
 			return;
 
 		caster.GetThreatManager().TauntUpdate();
@@ -2782,12 +2783,12 @@ public class AuraEffect
 		target.SetControlled(apply, UnitState.Root);
 
 		// Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-		if (!apply && (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.ModStunDisableGravity) || (target.IsCreature() && target.ToCreature().GetMovementTemplate().Flight == CreatureFlightMovementType.DisableGravity)))
+		if (!apply && (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.ModStunDisableGravity) || (target.IsCreature && target.ToCreature().MovementTemplate.Flight == CreatureFlightMovementType.DisableGravity)))
 			return;
 
 		if (target.SetDisableGravity(apply))
 			if (!apply && !target.IsFlying())
-				target.GetMotionMaster().MoveFall();
+				target.				MotionMaster.MoveFall();
 	}
 
 	[AuraEffectHandler(AuraType.ModStunDisableGravity)]
@@ -2804,12 +2805,12 @@ public class AuraEffect
 			target.GetThreatManager().EvaluateSuppressed();
 
 		// Do not remove DisableGravity if there are more than this auraEffect of that kind on the unit or if it's a creature with DisableGravity on its movement template.
-		if (!apply && (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.ModStunDisableGravity) || (target.IsCreature() && target.ToCreature().GetMovementTemplate().Flight == CreatureFlightMovementType.DisableGravity)))
+		if (!apply && (target.HasAuraType(AuraType) || target.HasAuraType(AuraType.ModStunDisableGravity) || (target.IsCreature && target.ToCreature().MovementTemplate.Flight == CreatureFlightMovementType.DisableGravity)))
 			return;
 
 		if (target.SetDisableGravity(apply))
 			if (!apply && !target.IsFlying())
-				target.GetMotionMaster().MoveFall();
+				target.				MotionMaster.MoveFall();
 	}
 
 	/***************************/
@@ -2852,7 +2853,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsTypeId(TypeId.Unit) || !target.IsPet())
+		if (!target.IsTypeId(TypeId.Unit) || !target.IsPet)
 			return;
 
 		var pet = target.ToPet();
@@ -2879,7 +2880,7 @@ public class AuraEffect
 
 				// TODO: remove this
 				if (pet.GetVictim() == null && !pet.GetCharmInfo().HasCommandState(CommandStates.Stay))
-					pet.GetMotionMaster().MoveFollow(caster, SharedConst.PetFollowDist, pet.GetFollowAngle());
+					pet.					MotionMaster.MoveFollow(caster, SharedConst.PetFollowDist, pet.FollowAngle);
 			}
 		}
 	}
@@ -2928,7 +2929,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsVehicle())
+		if (!target.IsVehicle)
 			return;
 
 		var caster = Caster;
@@ -2960,7 +2961,7 @@ public class AuraEffect
 
 			var seatChange = mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmount) // Seat change on the same direct vehicle
 							||
-							target.HasAuraTypeWithCaster(AuraType.ControlVehicle, caster.GetGUID()); // Seat change to a proxy vehicle (for example turret mounted on a siege engine)
+							target.HasAuraTypeWithCaster(AuraType.ControlVehicle, caster.GUID); // Seat change to a proxy vehicle (for example turret mounted on a siege engine)
 
 			if (!seatChange)
 				caster._ExitVehicle();
@@ -3023,7 +3024,7 @@ public class AuraEffect
 
 				if (target.SetCanFly(apply))
 					if (!apply && !target.IsGravityDisabled())
-						target.GetMotionMaster().MoveFall();
+						target.						MotionMaster.MoveFall();
 			}
 
 			//! Someone should clean up these hacks and remove it from this function. It doesn't even belong here.
@@ -3034,8 +3035,8 @@ public class AuraEffect
 					target.ApplySpellImmune(Id, SpellImmunity.Mechanic, (uint)Mechanics.Polymorph, apply);
 
 				// Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
-				if (apply && target.HasAuraEffect(42016, 0) && target.GetMountDisplayId() != 0)
-					target.SetMountDisplayId(16314);
+				if (apply && target.HasAuraEffect(42016, 0) && target.MountDisplayId != 0)
+					target.					MountDisplayId = 16314;
 			}
 		}
 	}
@@ -3286,7 +3287,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 		{
 			//pets only have base armor
-			if (target.IsPet() && Convert.ToBoolean(MiscValue & (int)SpellSchoolMask.Normal))
+			if (target.IsPet && Convert.ToBoolean(MiscValue & (int)SpellSchoolMask.Normal))
 			{
 				if (apply)
 				{
@@ -3349,7 +3350,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 		{
 			//only pets have base stats
-			if (target.IsPet() && Convert.ToBoolean(MiscValue & (int)SpellSchoolMask.Normal))
+			if (target.IsPet && Convert.ToBoolean(MiscValue & (int)SpellSchoolMask.Normal))
 				target.HandleStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Total, Amount, apply);
 		}
 		else
@@ -3412,13 +3413,13 @@ public class AuraEffect
 				{
 					target.HandleStatFlatModifier((UnitMods.StatStart + (int)i), UnitModifierFlatType.Total, (double)spellGroupVal, !apply);
 
-					if (target.IsTypeId(TypeId.Player) || target.IsPet())
+					if (target.IsTypeId(TypeId.Player) || target.IsPet)
 						target.UpdateStatBuffMod(i);
 				}
 
 				target.HandleStatFlatModifier(UnitMods.StatStart + (int)i, UnitModifierFlatType.Total, Amount, apply);
 
-				if (target.IsTypeId(TypeId.Player) || target.IsPet())
+				if (target.IsTypeId(TypeId.Player) || target.IsPet)
 					target.UpdateStatBuffMod(i);
 			}
 	}
@@ -3535,12 +3536,12 @@ public class AuraEffect
 
 		// save current health state
 		double healthPct = target.GetHealthPct();
-		var zeroHealth = !target.IsAlive();
+		var zeroHealth = !target.IsAlive;
 
 		// players in corpse state may mean two different states:
 		/// 1. player just died but did not release (in this case health == 0)
 		/// 2. player is corpse running (ie ghost) (in this case health == 1)
-		if (target.GetDeathState() == DeathState.Corpse)
+		if (target.DeathState == DeathState.Corpse)
 			zeroHealth = target.GetHealth() == 0;
 
 		for (var i = (int)Stats.Strength; i < (int)Stats.Max; i++)
@@ -3560,7 +3561,7 @@ public class AuraEffect
 
 				target.SetStatPctModifier(UnitMods.StatStart + i, UnitModifierPctType.Total, amount);
 
-				if (target.IsTypeId(TypeId.Player) || target.IsPet())
+				if (target.IsTypeId(TypeId.Player) || target.IsPet)
 					target.UpdateStatBuffMod((Stats)i);
 			}
 
@@ -3743,7 +3744,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsPlayer())
+		if (!target.IsPlayer)
 			return;
 
 		target.ToPlayer().UpdateManaRegen();
@@ -3975,7 +3976,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsPlayer())
+		if (!target.IsPlayer)
 			return;
 
 		var powerType = (PowerType)MiscValue;
@@ -4101,7 +4102,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if (!target.IsPlayer())
+		if (!target.IsPlayer)
 			return;
 
 		target.ToPlayer().UpdateManaRegen();
@@ -4372,7 +4373,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if ((target.GetClassMask() & (uint)Class.ClassMaskWandUsers) != 0)
+		if ((target.ClassMask & (uint)Class.ClassMaskWandUsers) != 0)
 			return;
 
 		target.HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, Amount, apply);
@@ -4406,7 +4407,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if ((target.GetClassMask() & (uint)Class.ClassMaskWandUsers) != 0)
+		if ((target.ClassMask & (uint)Class.ClassMaskWandUsers) != 0)
 			return;
 
 		//UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
@@ -4609,7 +4610,7 @@ public class AuraEffect
 		var caster = Caster;
 
 		// pet auras
-		if (target.GetTypeId() == TypeId.Player && mode.HasAnyFlag(AuraEffectHandleModes.Real))
+		if (target.TypeId == TypeId.Player && mode.HasAnyFlag(AuraEffectHandleModes.Real))
 		{
 			var petSpell = Global.SpellMgr.GetPetAura(Id, (byte)EffIndex);
 
@@ -4670,7 +4671,7 @@ public class AuraEffect
 					{
 						if (caster != null)
 						{
-							if (caster.GetGender() == Gender.Female)
+							if (caster.Gender == Gender.Female)
 								caster.CastSpell(target, 37095, new CastSpellExtraArgs(this)); // Blood Elf Disguise
 							else
 								caster.CastSpell(target, 37093, new CastSpellExtraArgs(this));
@@ -4690,7 +4691,7 @@ public class AuraEffect
 					case 46354: // Blood Elf Illusion
 						if (caster != null)
 						{
-							if (caster.GetGender() == Gender.Female)
+							if (caster.Gender == Gender.Female)
 								caster.CastSpell(target, 46356, new CastSpellExtraArgs(this));
 							else
 								caster.CastSpell(target, 46355, new CastSpellExtraArgs(this));
@@ -4699,7 +4700,7 @@ public class AuraEffect
 						break;
 					case 46361: // Reinforced Net
 						if (caster != null)
-							target.GetMotionMaster().MoveFall();
+							target.							MotionMaster.MoveFall();
 
 						break;
 				}
@@ -4717,12 +4718,12 @@ public class AuraEffect
 									var bg = target.ToPlayer().GetBattleground();
 
 									if (bg)
-										bg.RemovePlayerFromResurrectQueue(target.GetGUID());
+										bg.RemovePlayerFromResurrectQueue(target.GUID);
 
 									var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(target.GetMap(), target.GetZoneId());
 
 									if (bf != null)
-										bf.RemovePlayerFromResurrectQueue(target.GetGUID());
+										bf.RemovePlayerFromResurrectQueue(target.GUID);
 								}
 
 								break;
@@ -4839,7 +4840,8 @@ public class AuraEffect
 					case 30877:
 					{
 						// Tag/untag Blacksilt Scout
-						target.SetEntry((uint)(apply ? 17654 : 17326));
+						target.						// Tag/untag Blacksilt Scout
+						Entry = (uint)(apply ? 17654 : 17326);
 
 						break;
 					}
@@ -5001,8 +5003,9 @@ public class AuraEffect
 		var factionId = (uint)MiscValue;
 		var factionRank = (ReputationRank)Amount;
 
-		player.GetReputationMgr().ApplyForceReaction(factionId, factionRank, apply);
-		player.GetReputationMgr().SendForceReactions();
+		player.
+		ReputationMgr.ApplyForceReaction(factionId, factionRank, apply);
+		player.		ReputationMgr.SendForceReactions();
 
 		// stop fighting at apply (if forced rank friendly) or at remove (if real rank friendly)
 		if ((apply && factionRank >= ReputationRank.Friendly) || (!apply && player.GetReputationRank(factionId) >= ReputationRank.Friendly))
@@ -5022,7 +5025,7 @@ public class AuraEffect
 			if (target.HasAuraType(AuraType))
 				return;
 
-		if (target.GetCreatureType() == CreatureType.Beast)
+		if (target.CreatureType == CreatureType.Beast)
 		{
 			if (apply)
 				target.SetDynamicFlag(UnitDynFlags.SpecialInfo);
@@ -5041,7 +5044,7 @@ public class AuraEffect
 
 		if (apply)
 		{
-			target.SetFaction((uint)MiscValue);
+			target.			Faction = (uint)MiscValue;
 
 			if (target.IsTypeId(TypeId.Player))
 				target.RemoveUnitFlag(UnitFlags.PlayerControlled);
@@ -5143,13 +5146,13 @@ public class AuraEffect
 			}
 			else
 			{
-				var casterGUID = triggeredSpellInfo.NeedsToBeTriggeredByCaster(_spellInfo) ? CasterGuid : target.GetGUID();
+				var casterGUID = triggeredSpellInfo.NeedsToBeTriggeredByCaster(_spellInfo) ? CasterGuid : target.GUID;
 				target.RemoveAura(triggeredSpellId, casterGUID);
 			}
 		}
 		else if (mode.HasAnyFlag(AuraEffectHandleModes.Reapply) && apply)
 		{
-			var casterGUID = triggeredSpellInfo.NeedsToBeTriggeredByCaster(_spellInfo) ? CasterGuid : target.GetGUID();
+			var casterGUID = triggeredSpellInfo.NeedsToBeTriggeredByCaster(_spellInfo) ? CasterGuid : target.GUID;
 			// change the stack amount to be equal to stack amount of our aura
 			var triggeredAura = target.GetAura(triggeredSpellId, casterGUID);
 
@@ -5241,7 +5244,7 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			target.ToPlayer().GetSession().SendStablePet(target.GetGUID());
+			target.ToPlayer().			Session.SendStablePet(target.GUID);
 
 		// client auto close stable dialog at !apply aura
 	}
@@ -5277,7 +5280,7 @@ public class AuraEffect
 				playerTarget.ApplyModFakeInebriation(AmountAsInt, false);
 
 				if (removeDetect)
-					removeDetect = playerTarget.GetDrunkValue() == 0;
+					removeDetect = playerTarget.DrunkValue == 0;
 			}
 
 			if (removeDetect)
@@ -5458,7 +5461,7 @@ public class AuraEffect
 
 	void HandlePeriodicDamageAurasTick(Unit target, Unit caster)
 	{
-		if (!target.IsAlive())
+		if (!target.IsAlive)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -5599,7 +5602,7 @@ public class AuraEffect
 
 	void HandlePeriodicHealthLeechAuraTick(Unit target, Unit caster)
 	{
-		if (!target.IsAlive())
+		if (!target.IsAlive)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -5682,7 +5685,7 @@ public class AuraEffect
 		Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, hitMask, null, damageInfo, null);
 
 		// process caster heal from now on (must be in world)
-		if (!caster || !caster.IsAlive())
+		if (!caster || !caster.IsAlive)
 			return;
 
 		var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
@@ -5701,7 +5704,7 @@ public class AuraEffect
 
 	void HandlePeriodicHealthFunnelAuraTick(Unit target, Unit caster)
 	{
-		if (caster == null || !caster.IsAlive() || !target.IsAlive())
+		if (caster == null || !caster.IsAlive || !target.IsAlive)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated))
@@ -5721,7 +5724,7 @@ public class AuraEffect
 			return;
 
 		caster.ModifyHealth(-damage);
-		Log.outDebug(LogFilter.Spells, "PeriodicTick: donator {0} target {1} damage {2}.", caster.GetEntry(), target.GetEntry(), damage);
+		Log.outDebug(LogFilter.Spells, "PeriodicTick: donator {0} target {1} damage {2}.", caster.Entry, target.Entry, damage);
 
 		var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
 
@@ -5734,7 +5737,7 @@ public class AuraEffect
 
 	void HandlePeriodicHealAurasTick(Unit target, Unit caster)
 	{
-		if (!target.IsAlive())
+		if (!target.IsAlive)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated))
@@ -5768,9 +5771,9 @@ public class AuraEffect
 		Log.outDebug(LogFilter.Spells,
 					"PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
 					CasterGuid.ToString(),
-					Caster.GetTypeId(),
-					target.GetGUID().ToString(),
-					target.GetTypeId(),
+					Caster.					TypeId,
+					target.					GUID.ToString(),
+					target.					TypeId,
 					damage,
 					Id);
 
@@ -5795,7 +5798,7 @@ public class AuraEffect
 		var hitMask = crit ? ProcFlagsHit.Critical : ProcFlagsHit.Normal;
 
 		// ignore item heals
-		if (Base.CastItemGuid.IsEmpty())
+		if (Base.CastItemGuid.IsEmpty)
 			Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
 	}
 
@@ -5803,7 +5806,7 @@ public class AuraEffect
 	{
 		var powerType = (PowerType)MiscValue;
 
-		if (caster == null || !caster.IsAlive() || !target.IsAlive() || target.GetPowerType() != powerType)
+		if (caster == null || !caster.IsAlive || !target.IsAlive || target.GetPowerType() != powerType)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -5868,7 +5871,7 @@ public class AuraEffect
 		else
 			powerType = (PowerType)MiscValue;
 
-		if (!target.IsAlive() || target.GetMaxPower(powerType) == 0)
+		if (!target.IsAlive || target.GetMaxPower(powerType) == 0)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated))
@@ -5899,7 +5902,7 @@ public class AuraEffect
 	{
 		var powerType = (PowerType)MiscValue;
 
-		if (!target.IsAlive() || target.GetMaxPower(powerType) == 0)
+		if (!target.IsAlive || target.GetMaxPower(powerType) == 0)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated))
@@ -5929,7 +5932,7 @@ public class AuraEffect
 	{
 		var powerType = (PowerType)MiscValue;
 
-		if (caster == null || !target.IsAlive() || target.GetPowerType() != powerType)
+		if (caster == null || !target.IsAlive || target.GetPowerType() != powerType)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -6162,7 +6165,7 @@ public class AuraEffect
 		if (!player)
 			return;
 
-		if (player.GetClass() != Class.Hunter)
+		if (player.Class != Class.Hunter)
 			return;
 
 		var pet = player.GetPet();
@@ -6207,9 +6210,9 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			player.GetSceneMgr().PlayScene((uint)MiscValue);
+			player.			SceneMgr.PlayScene((uint)MiscValue);
 		else
-			player.GetSceneMgr().CancelSceneBySceneId((uint)MiscValue);
+			player.			SceneMgr.CancelSceneBySceneId((uint)MiscValue);
 	}
 
 	[AuraEffectHandler(AuraType.AreaTrigger)]
@@ -6373,14 +6376,14 @@ public class AuraEffect
 		if (apply)
 		{
 			BattlegroundPlayerPosition playerPosition = new();
-			playerPosition.Guid = target.GetGUID();
+			playerPosition.Guid = target.GUID;
 			playerPosition.ArenaSlot = (sbyte)MiscValue;
 			playerPosition.Pos = target.Location;
 
 			if (AuraType == AuraType.BattleGroundPlayerPositionFactional)
-				playerPosition.IconID = target.GetEffectiveTeam() == Team.Alliance ? BattlegroundConst.PlayerPositionIconHordeFlag : BattlegroundConst.PlayerPositionIconAllianceFlag;
+				playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconHordeFlag : BattlegroundConst.PlayerPositionIconAllianceFlag;
 			else if (AuraType == AuraType.BattleGroundPlayerPosition)
-				playerPosition.IconID = target.GetEffectiveTeam() == Team.Alliance ? BattlegroundConst.PlayerPositionIconAllianceFlag : BattlegroundConst.PlayerPositionIconHordeFlag;
+				playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconAllianceFlag : BattlegroundConst.PlayerPositionIconHordeFlag;
 			else
 				Log.outWarn(LogFilter.Spells, $"Unknown aura effect {AuraType} handled by HandleBattlegroundPlayerPosition.");
 
@@ -6388,7 +6391,7 @@ public class AuraEffect
 		}
 		else
 		{
-			bg.RemovePlayerPosition(target.GetGUID());
+			bg.RemovePlayerPosition(target.GUID);
 		}
 	}
 
@@ -6405,7 +6408,7 @@ public class AuraEffect
 
 		if (apply)
 			playerTarget.AddStoredAuraTeleportLocation(SpellInfo.Id);
-		else if (!playerTarget.GetSession().IsLogingOut())
+		else if (!playerTarget.Session.IsLogingOut)
 			playerTarget.RemoveStoredAuraTeleportLocation(SpellInfo.Id);
 	}
 
@@ -6434,7 +6437,7 @@ public class AuraEffect
 		if (playerTarget == null)
 			return;
 
-		playerTarget.SendMovementSetCollisionHeight(playerTarget.GetCollisionHeight(), UpdateCollisionHeightReason.Force);
+		playerTarget.SendMovementSetCollisionHeight(playerTarget.CollisionHeight, UpdateCollisionHeightReason.Force);
 	}
 
 	[AuraEffectHandler(AuraType.SuppressItemPassiveEffectBySpellLabel)]

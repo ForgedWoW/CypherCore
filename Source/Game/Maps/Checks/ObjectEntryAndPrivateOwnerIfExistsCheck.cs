@@ -19,6 +19,6 @@ class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
 
 	public bool Invoke(WorldObject obj)
 	{
-		return obj.GetEntry() == _entry && (!obj.IsPrivateObject() || obj.GetPrivateObjectOwner() == _ownerGUID);
+		return obj.Entry == _entry && (!obj.IsPrivateObject || obj.PrivateObjectOwner == _ownerGUID);
 	}
 }

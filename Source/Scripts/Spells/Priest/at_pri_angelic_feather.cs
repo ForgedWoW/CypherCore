@@ -30,7 +30,7 @@ public class at_pri_angelic_feather : AreaTriggerAI
 		var caster = at.GetCaster();
 
 		if (caster != null)
-			if (caster.IsFriendlyTo(unit) && unit.IsPlayer())
+			if (caster.IsFriendlyTo(unit) && unit.IsPlayer)
 			{
 				// If target already has aura, increase duration to max 130% of initial duration
 				caster.CastSpell(unit, PriestSpells.ANGELIC_FEATHER_AURA, true);

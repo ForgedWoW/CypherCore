@@ -29,25 +29,25 @@ namespace Scripts.Pets
 				if (!me.TryGetOwner(out Player owner))
 					return;
 
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Aggressive);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Aggressive;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 
 				if (summon != null)
 				{
 					summon.SetCanFollowOwner(true);
-					summon.GetMotionMaster().Clear();
-					summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+					summon.MotionMaster.Clear();
+					summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
 					StartAttackOnOwnersInCombatWith();
 				}
 			}
 
 			public override void Reset()
 			{
-				me.SetClass(Class.Rogue);
+				me.Class = Class.Rogue;
 				me.SetPowerType(PowerType.Energy);
 				me.SetMaxPower(PowerType.Energy, 200);
 				me.SetPower(PowerType.Energy, 200);
@@ -90,7 +90,7 @@ namespace Scripts.Pets
 							}
 
 							me.SetControlled(true, UnitState.Root);
-							me.CastSpell(me.GetVictim(), WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(me.GetOwnerGUID()));
+							me.CastSpell(me.GetVictim(), WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(me.OwnerGUID));
 							events.ScheduleEvent(eventId, TimeSpan.FromSeconds(3));
 
 							break;

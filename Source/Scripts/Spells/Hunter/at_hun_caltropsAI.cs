@@ -31,7 +31,7 @@ public class at_hun_caltropsAI : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
 		// Check if we can handle actions
@@ -40,7 +40,7 @@ public class at_hun_caltropsAI : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		foreach (var guid in at.GetInsideUnits())
+		foreach (var guid in at.InsideUnits)
 		{
 			var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 

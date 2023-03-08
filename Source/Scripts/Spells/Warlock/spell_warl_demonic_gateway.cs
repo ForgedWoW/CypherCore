@@ -58,7 +58,7 @@ public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpel
 
 		foreach (var target in targets1)
 		{
-			if (target.GetOwnerGUID() != caster.GetGUID())
+			if (target.OwnerGUID != caster.GUID)
 				continue;
 
 			target.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100)); // despawn at next tick

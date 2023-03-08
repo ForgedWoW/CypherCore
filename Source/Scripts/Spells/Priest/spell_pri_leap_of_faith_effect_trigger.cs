@@ -31,7 +31,7 @@ internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEf
 
 		SpellCastTargets targets = new();
 		targets.SetDst(destPos);
-		targets.		UnitTarget = Caster;
+		targets.UnitTarget = Caster;
 		HitUnit.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
 	}
 }

@@ -28,7 +28,7 @@ public class spell_hun_barrage : SpellScript, IHasSpellEffects, ISpellOnHit
 
 		var dmg = (minDamage + maxDamage) / 2 * 0.8f;
 
-		if (!target.HasAura(HunterSpells.BARRAGE, player.GetGUID()))
+		if (!target.HasAura(HunterSpells.BARRAGE, player.GUID))
 			dmg /= 2;
 
 		dmg = player.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);

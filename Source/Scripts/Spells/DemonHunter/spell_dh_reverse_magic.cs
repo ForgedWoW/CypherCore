@@ -41,7 +41,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 
 				var caster = aura.GetCaster();
 
-				if (caster == null || caster.GetGUID() == unit.GetGUID())
+				if (caster == null || caster.GUID == unit.GUID)
 					continue;
 
 				if (!caster.IsWithinDist(unit, 40.0f))
@@ -54,10 +54,10 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 
 				if (creature != null)
 				{
-					if (creature.GetCreatureTemplate().Rank == CreatureEliteType.WorldBoss)
+					if (creature.CreatureTemplate.Rank == CreatureEliteType.WorldBoss)
 						continue;
 
-					if (creature.GetCreatureTemplate().Rank == CreatureEliteType.Elite && creature.GetMap().IsDungeon())
+					if (creature.CreatureTemplate.Rank == CreatureEliteType.Elite && creature.GetMap().IsDungeon())
 						continue;
 				}
 
@@ -91,7 +91,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 					targetAura.SetNeedClientUpdateForTargets();
 				}
 
-				auraListToRemove.Add(new auraData(aura.Id, caster.GetGUID()));
+				auraListToRemove.Add(new auraData(aura.Id, caster.GUID));
 			}
 
 			foreach (var aura in auraListToRemove)

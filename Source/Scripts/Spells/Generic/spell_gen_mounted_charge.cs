@@ -56,7 +56,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 				}
 
 				// If Target isn't a training dummy there's a chance of failing the charge
-				if (!target.IsCharmedOwnedByPlayerOrPlayer() &&
+				if (!target.IsCharmedOwnedByPlayerOrPlayer &&
 					RandomHelper.randChance(12.5f))
 					spellId = GenericSpellIds.MissEffect;
 
@@ -82,7 +82,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 					{
 						aura.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
 						// Remove dummys from rider (Necessary for updating visual shields)
-						var rider = target.GetCharmer();
+						var rider = target.Charmer;
 
 						if (rider)
 						{
@@ -124,7 +124,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 				return;
 		}
 
-		var rider = Caster.GetCharmer();
+		var rider = Caster.Charmer;
 
 		if (rider)
 			rider.CastSpell(HitUnit, spellId, false);

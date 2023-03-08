@@ -147,7 +147,7 @@ internal class npc_firework : ScriptedAI
 							break;
 					}
 
-			if (me.GetEntry() == CreatureIds.ClusterElune)
+			if (me.Entry == CreatureIds.ClusterElune)
 				DoCast(SpellIds.LunarFortune);
 
 			var displacement = 0.7f;
@@ -158,13 +158,13 @@ internal class npc_firework : ScriptedAI
 		else
 			//me.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
 		{
-			me.CastSpell(me.Location, GetFireworkSpell(me.GetEntry()), new CastSpellExtraArgs(true));
+			me.CastSpell(me.Location, GetFireworkSpell(me.Entry), new CastSpellExtraArgs(true));
 		}
 	}
 
 	private bool isCluster()
 	{
-		switch (me.GetEntry())
+		switch (me.Entry)
 		{
 			case CreatureIds.FireworkBlue:
 			case CreatureIds.FireworkGreen:
@@ -271,7 +271,7 @@ internal class npc_firework : ScriptedAI
 	{
 		uint spellId = 0;
 
-		switch (me.GetEntry())
+		switch (me.Entry)
 		{
 			case CreatureIds.ClusterBlue:
 				spellId = GetFireworkSpell(CreatureIds.FireworkBlue);
@@ -343,7 +343,7 @@ internal class npc_omen : ScriptedAI
 	public npc_omen(Creature creature) : base(creature)
 	{
 		me.SetImmuneToPC(true);
-		me.GetMotionMaster().MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
+		me.MotionMaster.MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint pointId)
@@ -471,7 +471,7 @@ internal class spell_lunar_festival_elune_candle : SpellScript, IHasSpellEffects
 	{
 		uint spellId = 0;
 
-		if (HitUnit.GetEntry() == CreatureIds.Omen)
+		if (HitUnit.Entry == CreatureIds.Omen)
 			switch (RandomHelper.URand(0, 3))
 			{
 				case 0:

@@ -21,7 +21,7 @@ public class mystic_touch : ScriptObjectAutoAdd, IPlayerOnDealDamage
 		var player = caster.ToPlayer();
 
 		if (player != null)
-			if (player.GetClass() != Class.Monk)
+			if (player.Class != Class.Monk)
 				return;
 
 		if (caster == null || target == null)

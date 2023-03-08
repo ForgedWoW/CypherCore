@@ -84,7 +84,7 @@ namespace Game.Services
             {
                 var response = (IMessage)Activator.CreateInstance(responseType);
                 status = (BattlenetRpcErrorCode)methodCaller.DynamicInvoke(session, request, response);
-                Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.GetRemoteAddress(), request, response, status);
+                Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
                 if (status == 0)
                     session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
                 else
@@ -93,7 +93,7 @@ namespace Game.Services
             else
             {
                 status = (BattlenetRpcErrorCode)methodCaller.DynamicInvoke(session, request);
-                Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Status: {2}.", session.GetRemoteAddress(), request, status);
+                Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
                 if (status != 0)
                     session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);
             }

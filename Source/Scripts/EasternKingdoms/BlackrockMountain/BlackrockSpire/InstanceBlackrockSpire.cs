@@ -198,83 +198,83 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreaturesIds.HighlordOmokk:
-					HighlordOmokk = creature.GetGUID();
+					HighlordOmokk = creature.GUID;
 
 					break;
 				case CreaturesIds.ShadowHunterVoshgajin:
-					ShadowHunterVoshgajin = creature.GetGUID();
+					ShadowHunterVoshgajin = creature.GUID;
 
 					break;
 				case CreaturesIds.WarmasterVoone:
-					WarMasterVoone = creature.GetGUID();
+					WarMasterVoone = creature.GUID;
 
 					break;
 				case CreaturesIds.MotherSmolderweb:
-					MotherSmolderweb = creature.GetGUID();
+					MotherSmolderweb = creature.GUID;
 
 					break;
 				case CreaturesIds.UrokDoomhowl:
-					UrokDoomhowl = creature.GetGUID();
+					UrokDoomhowl = creature.GUID;
 
 					break;
 				case CreaturesIds.QuartermasterZigris:
-					QuartermasterZigris = creature.GetGUID();
+					QuartermasterZigris = creature.GUID;
 
 					break;
 				case CreaturesIds.GizrulTheSlavener:
-					GizrultheSlavener = creature.GetGUID();
+					GizrultheSlavener = creature.GUID;
 
 					break;
 				case CreaturesIds.Halycon:
-					Halycon = creature.GetGUID();
+					Halycon = creature.GUID;
 
 					break;
 				case CreaturesIds.OverlordWyrmthalak:
-					OverlordWyrmthalak = creature.GetGUID();
+					OverlordWyrmthalak = creature.GUID;
 
 					break;
 				case CreaturesIds.PyrogaurdEmberseer:
-					PyroguardEmberseer = creature.GetGUID();
+					PyroguardEmberseer = creature.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
 					break;
 				case CreaturesIds.WarchiefRendBlackhand:
-					WarchiefRendBlackhand = creature.GetGUID();
+					WarchiefRendBlackhand = creature.GUID;
 
 					if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
 						creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
 					break;
 				case CreaturesIds.Gyth:
-					Gyth = creature.GetGUID();
+					Gyth = creature.GUID;
 
 					break;
 				case CreaturesIds.TheBeast:
-					TheBeast = creature.GetGUID();
+					TheBeast = creature.GUID;
 
 					break;
 				case CreaturesIds.GeneralDrakkisath:
-					GeneralDrakkisath = creature.GetGUID();
+					GeneralDrakkisath = creature.GUID;
 
 					break;
 				case CreaturesIds.LordVictorNefarius:
-					LordVictorNefarius = creature.GetGUID();
+					LordVictorNefarius = creature.GUID;
 
 					if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
 						creature.DespawnOrUnsummon(TimeSpan.FromSeconds(0), TimeSpan.FromDays(7));
 
 					break;
 				case CreaturesIds.ScarshieldInfiltrator:
-					ScarshieldInfiltrator = creature.GetGUID();
+					ScarshieldInfiltrator = creature.GUID;
 
 					break;
 				case CreaturesIds.BlackhandIncarcerator:
-					_incarceratorList.Add(creature.GetGUID());
+					_incarceratorList.Add(creature.GUID);
 
 					break;
 			}
@@ -284,140 +284,140 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 		{
 			base.OnGameObjectCreate(go);
 
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectsIds.WhelpSpawner:
 					go.CastSpell(BRSMiscConst.SpellSummonRookeryWhelp);
 
 					break;
 				case GameObjectsIds.EmberseerIn:
-					go_emberseerin = go.GetGUID();
+					go_emberseerin = go.GUID;
 
 					if (GetBossState(DataTypes.DragonspireRoom) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, true, go);
 
 					break;
 				case GameObjectsIds.Doors:
-					go_doors = go.GetGUID();
+					go_doors = go.GUID;
 
 					if (GetBossState(DataTypes.DragonspireRoom) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, true, go);
 
 					break;
 				case GameObjectsIds.EmberseerOut:
-					go_emberseerout = go.GetGUID();
+					go_emberseerout = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, true, go);
 
 					break;
 				case GameObjectsIds.HallRune1:
-					go_roomrunes[0] = go.GetGUID();
+					go_roomrunes[0] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune1) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune2:
-					go_roomrunes[1] = go.GetGUID();
+					go_roomrunes[1] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune2) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune3:
-					go_roomrunes[2] = go.GetGUID();
+					go_roomrunes[2] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune3) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune4:
-					go_roomrunes[3] = go.GetGUID();
+					go_roomrunes[3] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune4) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune5:
-					go_roomrunes[4] = go.GetGUID();
+					go_roomrunes[4] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune5) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune6:
-					go_roomrunes[5] = go.GetGUID();
+					go_roomrunes[5] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune6) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.HallRune7:
-					go_roomrunes[6] = go.GetGUID();
+					go_roomrunes[6] = go.GUID;
 
 					if (GetBossState(DataTypes.HallRune7) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune1:
-					go_emberseerrunes[0] = go.GetGUID();
+					go_emberseerrunes[0] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune2:
-					go_emberseerrunes[1] = go.GetGUID();
+					go_emberseerrunes[1] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune3:
-					go_emberseerrunes[2] = go.GetGUID();
+					go_emberseerrunes[2] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune4:
-					go_emberseerrunes[3] = go.GetGUID();
+					go_emberseerrunes[3] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune5:
-					go_emberseerrunes[4] = go.GetGUID();
+					go_emberseerrunes[4] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune6:
-					go_emberseerrunes[5] = go.GetGUID();
+					go_emberseerrunes[5] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.EmberseerRune7:
-					go_emberseerrunes[6] = go.GetGUID();
+					go_emberseerrunes[6] = go.GUID;
 
 					if (GetBossState(DataTypes.PyrogaurdEmberseer) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, false, go);
 
 					break;
 				case GameObjectsIds.PortcullisActive:
-					go_portcullis_active = go.GetGUID();
+					go_portcullis_active = go.GUID;
 
 					if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, true, go);
 
 					break;
 				case GameObjectsIds.PortcullisTobossrooms:
-					go_portcullis_tobossrooms = go.GetGUID();
+					go_portcullis_tobossrooms = go.GUID;
 
 					if (GetBossState(DataTypes.Gyth) == EncounterState.Done)
 						HandleGameObject(ObjectGuid.Empty, true, go);
@@ -627,7 +627,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 
 						foreach (var creature in creatureList)
 							if (creature)
-								runecreaturelist[i].Add(creature.GetGUID());
+								runecreaturelist[i].Add(creature.GUID);
 					}
 			}
 		}
@@ -650,7 +650,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 					{
 						mob = Instance.GetCreature(guid);
 
-						if (mob && mob.IsAlive())
+						if (mob && mob.IsAlive)
 							_mobAlive = true;
 					}
 
@@ -659,7 +659,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 				{
 					HandleGameObject(ObjectGuid.Empty, false, rune);
 
-					switch (rune.GetEntry())
+					switch (rune.Entry)
 					{
 						case GameObjectsIds.HallRune1:
 							SetBossState(DataTypes.HallRune1, EncounterState.Done);
@@ -725,7 +725,7 @@ internal class at_dragonspire_hall : ScriptObjectAutoAddDBBound, IAreaTriggerOnT
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (player && player.IsAlive())
+		if (player && player.IsAlive)
 		{
 			var instance = player.GetInstanceScript();
 
@@ -748,7 +748,7 @@ internal class at_blackrock_stadium : ScriptObjectAutoAddDBBound, IAreaTriggerOn
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (player && player.IsAlive())
+		if (player && player.IsAlive)
 		{
 			var instance = player.GetInstanceScript();
 
@@ -776,7 +776,7 @@ internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IA
 
 	public bool OnTrigger(Player player, AreaTriggerRecord at)
 	{
-		if (player.IsAlive())
+		if (player.IsAlive)
 		{
 			var instance = player.GetInstanceScript();
 
@@ -786,9 +786,9 @@ internal class at_nearby_scarshield_infiltrator : ScriptObjectAutoAddDBBound, IA
 
 				if (infiltrator)
 				{
-					if (player.GetLevel() >= 57)
+					if (player.Level >= 57)
 						infiltrator.GetAI().SetData(1, 1);
-					else if (infiltrator.GetEntry() == CreaturesIds.ScarshieldInfiltrator)
+					else if (infiltrator.Entry == CreaturesIds.ScarshieldInfiltrator)
 						infiltrator.GetAI().Talk(0, player);
 
 					return true;

@@ -24,7 +24,7 @@ public class spell_hun_camouflage : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		if (Caster && Caster.IsPlayer())
+		if (Caster && Caster.IsPlayer)
 		{
 			Unit pet = Caster.GetGuardianPet();
 
@@ -35,7 +35,7 @@ public class spell_hun_camouflage : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		if (Caster && Caster.IsPlayer())
+		if (Caster && Caster.IsPlayer)
 		{
 			Unit pet = Caster.GetGuardianPet();
 

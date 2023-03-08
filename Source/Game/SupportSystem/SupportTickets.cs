@@ -26,7 +26,7 @@ namespace Game.SupportSystem
         public Ticket(Player player)
         {
             _createTime = (ulong)GameTime.GetGameTime();
-            _playerGuid = player.GetGUID();
+            _playerGuid = player.GUID;
         }
 
         public void TeleportTo(Player player)
@@ -52,9 +52,9 @@ namespace Game.SupportSystem
             return ss.ToString();
         }
 
-        public bool IsClosed() { return !_closedBy.IsEmpty(); }
+        public bool IsClosed() { return !_closedBy.IsEmpty; }
         bool IsFromPlayer(ObjectGuid guid) { return guid == _playerGuid; }
-        public bool IsAssigned() { return !_assignedTo.IsEmpty(); }
+        public bool IsAssigned() { return !_assignedTo.IsEmpty; }
         public bool IsAssignedTo(ObjectGuid guid) { return guid == _assignedTo; }
         public bool IsAssignedNotTo(ObjectGuid guid) { return IsAssigned() && !IsAssignedTo(guid); }
 
@@ -64,7 +64,7 @@ namespace Game.SupportSystem
         public string GetPlayerName()
         {
             string name = "";
-            if (!_playerGuid.IsEmpty())
+            if (!_playerGuid.IsEmpty)
                 Global.CharacterCacheStorage.GetCharacterNameByGuid(_playerGuid, out name);
 
             return name;
@@ -73,7 +73,7 @@ namespace Game.SupportSystem
         public ObjectGuid GetAssignedToGUID() { return _assignedTo; }
         public string GetAssignedToName()
         {
-            if (!_assignedTo.IsEmpty())
+            if (!_assignedTo.IsEmpty)
                 if (Global.CharacterCacheStorage.GetCharacterNameByGuid(_assignedTo, out string name))
                     return name;
 
@@ -145,7 +145,7 @@ namespace Game.SupportSystem
             byte idx = 0;
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_GM_BUG);
             stmt.AddValue(idx, _id);
-            stmt.AddValue(++idx, _playerGuid.GetCounter());
+            stmt.AddValue(++idx, _playerGuid.Counter);
             stmt.AddValue(++idx, _note);
             stmt.AddValue(++idx, _createTime);
             stmt.AddValue(++idx, _mapId);
@@ -153,8 +153,8 @@ namespace Game.SupportSystem
             stmt.AddValue(++idx, _pos.Y);
             stmt.AddValue(++idx, _pos.Z);
             stmt.AddValue(++idx, _facing);
-            stmt.AddValue(++idx, _closedBy.GetCounter());
-            stmt.AddValue(++idx, _assignedTo.GetCounter());
+            stmt.AddValue(++idx, _closedBy.Counter);
+            stmt.AddValue(++idx, _assignedTo.Counter);
             stmt.AddValue(++idx, _comment);
 
             DB.Characters.Execute(stmt);
@@ -176,7 +176,7 @@ namespace Game.SupportSystem
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, GetPlayerName()));
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - _createTime, TimeFormat.ShortText, false)));
 
-            if (!_assignedTo.IsEmpty())
+            if (!_assignedTo.IsEmpty)
                 ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, GetAssignedToName()));
 
             if (detailed)
@@ -262,7 +262,7 @@ namespace Game.SupportSystem
             byte idx = 0;
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_GM_COMPLAINT);
             stmt.AddValue(idx, _id);
-            stmt.AddValue(++idx, _playerGuid.GetCounter());
+            stmt.AddValue(++idx, _playerGuid.Counter);
             stmt.AddValue(++idx, _note);
             stmt.AddValue(++idx, _createTime);
             stmt.AddValue(++idx, _mapId);
@@ -270,7 +270,7 @@ namespace Game.SupportSystem
             stmt.AddValue(++idx, _pos.Y);
             stmt.AddValue(++idx, _pos.Z);
             stmt.AddValue(++idx, _facing);
-            stmt.AddValue(++idx, _targetCharacterGuid.GetCounter());
+            stmt.AddValue(++idx, _targetCharacterGuid.Counter);
             stmt.AddValue(++idx, (int)_reportType);
             stmt.AddValue(++idx, (int)_majorCategory);
             stmt.AddValue(++idx, (int)_minorCategoryFlags);
@@ -278,8 +278,8 @@ namespace Game.SupportSystem
                 stmt.AddValue(++idx, _chatLog.ReportLineIndex.Value);
             else
                 stmt.AddValue(++idx, -1); // empty ReportLineIndex
-            stmt.AddValue(++idx, _closedBy.GetCounter());
-            stmt.AddValue(++idx, _assignedTo.GetCounter());
+            stmt.AddValue(++idx, _closedBy.Counter);
+            stmt.AddValue(++idx, _assignedTo.Counter);
             stmt.AddValue(++idx, _comment);
             trans.Append(stmt);
 
@@ -320,7 +320,7 @@ namespace Game.SupportSystem
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, GetPlayerName()));
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - _createTime, TimeFormat.ShortText, false)));
 
-            if (!_assignedTo.IsEmpty())
+            if (!_assignedTo.IsEmpty)
                 ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, GetAssignedToName()));
 
             if (detailed)
@@ -399,7 +399,7 @@ namespace Game.SupportSystem
             byte idx = 0;
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_GM_SUGGESTION);
             stmt.AddValue(idx, _id);
-            stmt.AddValue(++idx, _playerGuid.GetCounter());
+            stmt.AddValue(++idx, _playerGuid.Counter);
             stmt.AddValue(++idx, _note);
             stmt.AddValue(++idx, _createTime);
             stmt.AddValue(++idx, _mapId);
@@ -407,8 +407,8 @@ namespace Game.SupportSystem
             stmt.AddValue(++idx, _pos.Y);
             stmt.AddValue(++idx, _pos.Z);
             stmt.AddValue(++idx, _facing);
-            stmt.AddValue(++idx, _closedBy.GetCounter());
-            stmt.AddValue(++idx, _assignedTo.GetCounter());
+            stmt.AddValue(++idx, _closedBy.Counter);
+            stmt.AddValue(++idx, _assignedTo.Counter);
             stmt.AddValue(++idx, _comment);
 
             DB.Characters.Execute(stmt);
@@ -430,7 +430,7 @@ namespace Game.SupportSystem
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, GetPlayerName()));
             ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - _createTime, TimeFormat.ShortText, false)));
 
-            if (!_assignedTo.IsEmpty())
+            if (!_assignedTo.IsEmpty)
                 ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, GetAssignedToName()));
 
             if (detailed)

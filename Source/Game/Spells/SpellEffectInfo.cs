@@ -477,7 +477,7 @@ public class SpellEffectInfo
 		{
 			if (casterUnit != null && basePointsPerLevel != 0.0f)
 			{
-				var level = casterUnit.GetLevel();
+				var level = casterUnit.Level;
 
 				if (level > _spellInfo.MaxLevel && _spellInfo.MaxLevel > 0)
 					level = _spellInfo.MaxLevel;
@@ -518,9 +518,9 @@ public class SpellEffectInfo
 			var level = _spellInfo.SpellLevel;
 
 			if (target && _spellInfo.IsPositiveEffect(EffectIndex) && (Effect == SpellEffectName.ApplyAura))
-				level = target.GetLevel();
-			else if (caster != null && caster.IsUnit())
-				level = caster.ToUnit().GetLevel();
+				level = target.Level;
+			else if (caster != null && caster.IsUnit)
+				level = caster.ToUnit().Level;
 
 			if (_spellInfo.BaseLevel != 0 && !_spellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel) && _spellInfo.HasAttribute(SpellAttr10.UseSpellBaseLevelForScaling))
 				level = _spellInfo.BaseLevel;
@@ -616,7 +616,7 @@ public class SpellEffectInfo
 				if (contentTuning != null)
 					expansion = contentTuning.ExpansionID;
 
-				var level = caster != null && caster.IsUnit() ? caster.ToUnit().GetLevel() : 1;
+				var level = caster != null && caster.IsUnit ? caster.ToUnit().Level : 1;
 				tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, Class.None) * BasePoints / 100.0f;
 			}
 
@@ -689,7 +689,7 @@ public class SpellEffectInfo
 			var casterUnit = caster.ToUnit();
 
 			if (casterUnit != null)
-				radius += entry.RadiusPerLevel * casterUnit.GetLevel();
+				radius += entry.RadiusPerLevel * casterUnit.Level;
 
 			radius = Math.Min(radius, entry.RadiusMax);
 			var modOwner = caster.GetSpellModOwner();

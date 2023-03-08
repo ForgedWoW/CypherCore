@@ -17,7 +17,7 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spell)

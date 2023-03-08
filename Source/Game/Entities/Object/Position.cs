@@ -21,6 +21,8 @@ public class Position
 		set => _orientation = NormalizeOrientation(value);
 	}
 
+	public bool IsDefault => X == default && Y == default && Z == default && Orientation == default;
+
 	public Position(float x = 0f, float y = 0f, float z = 0f, float o = 0f)
 	{
 		X = x;
@@ -300,11 +302,6 @@ public class Position
 		var angle = GetRelativeAngle(pos);
 
 		return Math.Abs(Math.Sin(angle)) * GetExactDist2d(pos.X, pos.Y) < width;
-	}
-
-	public bool IsDefault()
-	{
-		return X == default && Y == default && Z == default && Orientation == default;
 	}
 
 	public override string ToString()

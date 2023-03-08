@@ -46,7 +46,7 @@ internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffec
 		{
 			uint spellId;
 
-			switch (target.GetEntry())
+			switch (target.Entry)
 			{
 				case CreatureIds.Scavengebot004a8:
 					spellId = QuestSpellIds.SummonScavengebot004a8;

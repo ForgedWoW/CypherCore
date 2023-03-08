@@ -40,7 +40,7 @@ namespace Game.AI
 
         public override void OnCharmed(bool isNew)
         {
-            if (isNew && !me.IsCharmed() && !me.LastCharmerGuid.IsEmpty())
+            if (isNew && !me.IsCharmed && !me.LastCharmerGuid.IsEmpty)
             {
                 if (!me.HasReactState(ReactStates.Passive))
                 {
@@ -63,7 +63,7 @@ namespace Game.AI
             Map map = creature.GetMap();
             if (!map.IsDungeon()) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
             {
-                Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.ToCreature().GetEntry() : 0);
+                Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.ToCreature().Entry : 0);
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace Game.AI
             {
                 if (player != null)
                 {
-                    if (!player.IsAlive() || !CombatManager.CanBeginCombat(creature, player))
+                    if (!player.IsAlive || !CombatManager.CanBeginCombat(creature, player))
                         continue;
 
                     creature.EngageWithTarget(player);
@@ -100,7 +100,7 @@ namespace Game.AI
 
         public virtual void MoveInLineOfSight(Unit who)
         {
-            if (me.IsEngaged())
+            if (me.IsEngaged)
                 return;
 
             if (me.HasReactState(ReactStates.Aggressive) && me.CanStartAttack(who, false))
@@ -109,7 +109,7 @@ namespace Game.AI
 
         void OnOwnerCombatInteraction(Unit target)
         {
-            if (target == null || !me.IsAlive())
+            if (target == null || !me.IsAlive)
                 return;
 
             if (!me.HasReactState(ReactStates.Passive) && me.CanStartAttack(target, true))
@@ -124,18 +124,20 @@ namespace Game.AI
                 return;
 
             // If this unit isn't an NPC, is already distracted, is fighting, is confused, stunned or fleeing, do nothing
-            if (!me.IsTypeId(TypeId.Unit) || me.IsEngaged() || me.HasUnitState(UnitState.Confused | UnitState.Stunned | UnitState.Fleeing | UnitState.Distracted))
+            if (!me.IsTypeId(TypeId.Unit) || me.IsEngaged || me.HasUnitState(UnitState.Confused | UnitState.Stunned | UnitState.Fleeing | UnitState.Distracted))
                 return;
 
             // Only alert for hostiles!
-            if (me.IsCivilian() || me.HasReactState(ReactStates.Passive) || !me.IsHostileTo(who) || !me._IsTargetAcceptable(who))
+            if (me.IsCivilian || me.HasReactState(ReactStates.Passive) || !me.IsHostileTo(who) || !me._IsTargetAcceptable(who))
                 return;
 
             // Send alert sound (if any) for this creature
             me.SendAIReaction(AiReaction.Alert);
 
             // Face the unit (stealthed player) and set distracted state for 5 seconds
-            me.GetMotionMaster().MoveDistract(5 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
+            me.
+            // Face the unit (stealthed player) and set distracted state for 5 seconds
+            MotionMaster.MoveDistract(5 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
         }
 
         // adapted from logic in Spell:EffectSummonType
@@ -181,11 +183,11 @@ namespace Game.AI
                     // Only apply this to specific types of summons
                     if (!summon.GetVehicle() && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
                     {
-                        Unit owner = summon.GetCharmerOrOwner();
+                        Unit owner = summon.CharmerOrOwner;
                         if (owner != null)
                         {
-                            summon.GetMotionMaster().Clear();
-                            summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+                            summon.                            MotionMaster.Clear();
+                            summon.                            MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
                         }
                     }
                 }
@@ -204,22 +206,22 @@ namespace Game.AI
             if (!_EnterEvadeMode(why))
                 return;
 
-            Log.outDebug(LogFilter.Unit, $"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({me.GetGUID()})");
+            Log.outDebug(LogFilter.Unit, $"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({me.GUID})");
 
             if (me.GetVehicle() == null) // otherwise me will be in evade mode forever
             {
-                Unit owner = me.GetCharmerOrOwner();
+                Unit owner = me.CharmerOrOwner;
                 if (owner != null)
                 {
-                    me.GetMotionMaster().Clear();
-                    me.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, me.GetFollowAngle());
+                    me.                    MotionMaster.Clear();
+                    me.                    MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, me.FollowAngle);
                 }
                 else
                 {
                     // Required to prevent attacking creatures that are evading and cause them to reenter combat
                     // Does not apply to MoveFollow
                     me.AddUnitState(UnitState.Evade);
-                    me.GetMotionMaster().MoveTargetedHome();
+                    me.                    MotionMaster.MoveTargetedHome();
                 }
             }
 
@@ -231,7 +233,7 @@ namespace Game.AI
             if (!IsEngaged())
                 return false;
 
-            if (!me.IsAlive())
+            if (!me.IsAlive)
             {
                 EngagementOver();
                 return false;
@@ -282,10 +284,10 @@ namespace Game.AI
 
         public bool _EnterEvadeMode(EvadeReason why = EvadeReason.Other)
         {
-            if (me.IsInEvadeMode())
+            if (me.IsInEvadeMode)
                 return false;
 
-            if (!me.IsAlive())
+            if (!me.IsAlive)
             {
                 EngagementOver();
                 return false;
@@ -297,7 +299,7 @@ namespace Game.AI
             me.CombatStop(true);
             me.SetTappedBy(null);
             me.ResetPlayerDamageReq();
-            me.SetLastDamagedTime(0);
+            me.            LastDamagedTime = 0;
             me.SetCannotReachTarget(false);
             me.DoNotReacquireSpellFocusTarget();
             me.SetTarget(ObjectGuid.Empty);
@@ -368,7 +370,7 @@ namespace Game.AI
                     TempSummon point = owner.SummonCreature(SharedConst.BoundaryVisualizeCreature, pos, TempSummonType.TimedDespawn, duration);
                     if (point)
                     {
-                        point.SetObjectScale(SharedConst.BoundaryVisualizeCreatureScale);
+                        point.                        ObjectScale = SharedConst.BoundaryVisualizeCreatureScale;
                         point.SetUnitFlag(UnitFlags.Stunned);
                         point.SetImmuneToAll(true);
                         if (!hasOutOfBoundsNeighbor)

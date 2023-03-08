@@ -24,10 +24,10 @@ namespace Game.AI
 
         public override void UpdateAI(uint diff)
         {
-            if (!me.IsAlive() || me.GetCharmInfo() == null)
+            if (!me.IsAlive || me.GetCharmInfo() == null)
                 return;
 
-            Unit owner = me.GetCharmerOrOwner();
+            Unit owner = me.CharmerOrOwner;
 
             if (_updateAlliesTimer <= diff)
                 // UpdateAllies self set update timer
@@ -35,7 +35,7 @@ namespace Game.AI
             else
                 _updateAlliesTimer -= diff;
 
-            if (me.GetVictim() && me.GetVictim().IsAlive())
+            if (me.GetVictim() && me.GetVictim().IsAlive)
             {
                 // is only necessary to stop casting, the pet must not exit combat
                 if (!me.GetCurrentSpell(CurrentSpellTypes.Channeled) && // ignore channeled spells (Pin, Seduction)
@@ -47,7 +47,7 @@ namespace Game.AI
 
                 if (NeedToStop())
                 {
-                    Log.outTrace(LogFilter.ScriptsAi, $"PetAI::UpdateAI: AI stopped attacking {me.GetGUID()}");
+                    Log.outTrace(LogFilter.ScriptsAi, $"PetAI::UpdateAI: AI stopped attacking {me.GUID}");
                     StopAttack();
                     return;
                 }
@@ -86,7 +86,7 @@ namespace Game.AI
             {
                 List<Tuple<Unit, Spell>> targetSpellStore = new();
 
-                for (byte i = 0; i < me.GetPetAutoSpellSize(); ++i)
+                for (byte i = 0; i < me.PetAutoSpellSize; ++i)
                 {
                     uint spellID = me.GetPetAutoSpellOnPos(i);
                     if (spellID == 0)
@@ -226,7 +226,7 @@ namespace Game.AI
             if (target == null || target == me)
                 return;
 
-            if (me.GetVictim() != null && me.GetVictim().IsAlive())
+            if (me.GetVictim() != null && me.GetVictim().IsAlive)
                 return;
 
             _AttackStart(target);
@@ -247,7 +247,7 @@ namespace Game.AI
             // Called when owner takes damage. This function helps keep pets from running off
             //  simply due to owner gaining aggro.
 
-            if (attacker == null || !me.IsAlive())
+            if (attacker == null || !me.IsAlive)
                 return;
 
             // Passive pets don't do anything
@@ -255,7 +255,7 @@ namespace Game.AI
                 return;
 
             // Prevent pet from disengaging from current target
-            if (me.GetVictim() && me.GetVictim().IsAlive())
+            if (me.GetVictim() && me.GetVictim().IsAlive)
                 return;
 
             // Continue to evaluate and attack if necessary
@@ -268,7 +268,7 @@ namespace Game.AI
             //  that they need to assist
 
             // Target might be null if called from spell with invalid cast targets
-            if (target == null || !me.IsAlive())
+            if (target == null || !me.IsAlive)
                 return;
 
             // Passive pets don't do anything
@@ -276,7 +276,7 @@ namespace Game.AI
                 return;
 
             // Prevent pet from disengaging from current target
-            if (me.GetVictim() && me.GetVictim().IsAlive())
+            if (me.GetVictim() && me.GetVictim().IsAlive)
                 return;
 
             // Continue to evaluate and attack if necessary
@@ -301,18 +301,18 @@ namespace Game.AI
                     return myAttacker;
 
             // Not sure why we wouldn't have an owner but just in case...
-            if (!me.GetCharmerOrOwner())
+            if (!me.CharmerOrOwner)
                 return null;
 
             // Check owner attackers
-            Unit ownerAttacker = me.GetCharmerOrOwner().GetAttackerForHelper();
+            Unit ownerAttacker = me.CharmerOrOwner.GetAttackerForHelper();
             if (ownerAttacker)
                 if (!ownerAttacker.HasBreakableByDamageCrowdControlAura())
                     return ownerAttacker;
 
             // Check owner victim
             // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
-            Unit ownerVictim = me.GetCharmerOrOwner().GetVictim();
+            Unit ownerVictim = me.CharmerOrOwner.GetVictim();
             if (ownerVictim)
                 return ownerVictim;
 
@@ -339,7 +339,7 @@ namespace Game.AI
 
             // Prevent activating movement when under control of spells
             // such as "Eyes of the Beast"
-            if (me.IsCharmed())
+            if (me.IsCharmed)
                 return;
 
             if (me.GetCharmInfo() == null)
@@ -359,9 +359,10 @@ namespace Game.AI
                     me.GetCharmInfo().SetIsReturning(true);
 
                     if (me.HasUnitState(UnitState.Chase))
-                        me.GetMotionMaster().Remove(MovementGeneratorType.Chase);
+                        me.                        MotionMaster.Remove(MovementGeneratorType.Chase);
 
-                    me.GetMotionMaster().MovePoint((uint)me.GetGUID().GetCounter(), x, y, z);
+                    me.
+                    MotionMaster.MovePoint((uint)me.GUID.Counter, x, y, z);
                 }
             }
             else // COMMAND_FOLLOW
@@ -372,9 +373,10 @@ namespace Game.AI
                     me.GetCharmInfo().SetIsReturning(true);
 
                     if (me.HasUnitState(UnitState.Chase))
-                        me.GetMotionMaster().Remove(MovementGeneratorType.Chase);
+                        me.                        MotionMaster.Remove(MovementGeneratorType.Chase);
 
-                    me.GetMotionMaster().MoveFollow(me.GetCharmerOrOwner(), SharedConst.PetFollowDist, me.GetFollowAngle());
+                    me.
+                    MotionMaster.MoveFollow(me.CharmerOrOwner, SharedConst.PetFollowDist, me.FollowAngle);
                 }
             }
 
@@ -392,7 +394,7 @@ namespace Game.AI
 
                 // Play sound to let the player know the pet is attacking something it picked on its own
                 if (me.HasReactState(ReactStates.Aggressive) && !me.GetCharmInfo().IsCommandAttack())
-                    me.SendPetAIReaction(me.GetGUID());
+                    me.SendPetAIReaction(me.GUID);
 
                 if (chase)
                 {
@@ -401,13 +403,13 @@ namespace Game.AI
                     me.GetCharmInfo().SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
 
                     if (me.HasUnitState(UnitState.Follow))
-                        me.GetMotionMaster().Remove(MovementGeneratorType.Follow);
+                        me.                        MotionMaster.Remove(MovementGeneratorType.Follow);
 
                     // Pets with ranged attacks should not care about the chase angle at all.
                     float chaseDistance = me.GetPetChaseDistance();
                     float angle = chaseDistance == 0.0f ? MathF.PI : 0.0f;
                     float tolerance = chaseDistance == 0.0f ? MathFunctions.PiOver4 : (MathF.PI * 2);
-                    me.GetMotionMaster().MoveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
+                    me.                    MotionMaster.MoveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
                 }
                 else
                 {
@@ -415,9 +417,10 @@ namespace Game.AI
                     me.GetCharmInfo().SetIsAtStay(true);
 
                     if (me.HasUnitState(UnitState.Follow))
-                        me.GetMotionMaster().Remove(MovementGeneratorType.Follow);
+                        me.                        MotionMaster.Remove(MovementGeneratorType.Follow);
 
-                    me.GetMotionMaster().MoveIdle();
+                    me.
+                    MotionMaster.MoveIdle();
                 }
             }
         }
@@ -431,11 +434,11 @@ namespace Game.AI
                 {
                     // Pet is returning to where stay was clicked. data should be
                     // pet's GUIDLow since we set that as the waypoint ID
-                    if (id == me.GetGUID().GetCounter() && me.GetCharmInfo().IsReturning())
+                    if (id == me.GUID.Counter && me.GetCharmInfo().IsReturning())
                     {
                         ClearCharmInfoFlags();
                         me.GetCharmInfo().SetIsAtStay(true);
-                        me.GetMotionMaster().MoveIdle();
+                        me.                        MotionMaster.MoveIdle();
                     }
                     break;
                 }
@@ -443,7 +446,7 @@ namespace Game.AI
                 {
                     // If data is owner's GUIDLow then we've reached follow point,
                     // otherwise we're probably chasing a creature
-                    if (me.GetCharmerOrOwner() && me.GetCharmInfo() != null && id == me.GetCharmerOrOwner().GetGUID().GetCounter() && me.GetCharmInfo().IsReturning())
+                    if (me.CharmerOrOwner && me.GetCharmInfo() != null && id == me.CharmerOrOwner.GUID.Counter && me.GetCharmInfo().IsReturning())
                     {
                         ClearCharmInfoFlags();
                         me.GetCharmInfo().SetIsFollowing(true);
@@ -484,7 +487,7 @@ namespace Game.AI
             if (!victim)
                 return false;
 
-            if (!victim.IsAlive())
+            if (!victim.IsAlive)
             {
                 // if target is invalid, pet should evade automaticly
                 // Clear target to prevent getting stuck on dead targets
@@ -520,14 +523,14 @@ namespace Game.AI
             {
                 // Check if our owner selected this target and clicked "attack"
                 Unit ownerTarget;
-                Player owner = me.GetCharmerOrOwner().ToPlayer();
+                Player owner = me.CharmerOrOwner.ToPlayer();
                 if (owner)
                     ownerTarget = owner.GetSelectedUnit();
                 else
-                    ownerTarget = me.GetCharmerOrOwner().GetVictim();
+                    ownerTarget = me.CharmerOrOwner.GetVictim();
 
                 if (ownerTarget && me.GetCharmInfo().IsCommandAttack())
-                    return (victim.GetGUID() == ownerTarget.GetGUID());
+                    return (victim.GUID == ownerTarget.GUID);
             }
 
             // Follow
@@ -540,25 +543,25 @@ namespace Game.AI
 
         public override void ReceiveEmote(Player player, TextEmotes emoteId)
         {
-            if (me.GetOwnerGUID() != player.GetGUID())
+            if (me.OwnerGUID != player.GUID)
                 return;
 
             switch (emoteId)
             {
                 case TextEmotes.Cower:
-                    if (me.IsPet() && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.ToPet().IsPetGhoul())
                         me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
                     break;
                 case TextEmotes.Angry:
-                    if (me.IsPet() && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.ToPet().IsPetGhoul())
                         me.HandleEmoteCommand(Emote.StateStun);
                     break;
                 case TextEmotes.Glare:
-                    if (me.IsPet() && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.ToPet().IsPetGhoul())
                         me.HandleEmoteCommand(Emote.StateStun);
                     break;
                 case TextEmotes.Soothe:
-                    if (me.IsPet() && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.ToPet().IsPetGhoul())
                         me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
                     break;
             }
@@ -567,11 +570,11 @@ namespace Game.AI
         bool NeedToStop()
         {
             // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-            if (me.IsCharmed() && me.GetVictim() == me.GetCharmer())
+            if (me.IsCharmed && me.GetVictim() == me.Charmer)
                 return true;
 
             // dont allow pets to follow targets far away from owner
-            Unit owner = me.GetCharmerOrOwner();
+            Unit owner = me.CharmerOrOwner;
             if (owner)
                 if (owner.Location.GetExactDist(me.Location) >= (owner.GetVisibilityRange() - 10.0f))
                     return true;
@@ -581,10 +584,10 @@ namespace Game.AI
 
         void StopAttack()
         {
-            if (!me.IsAlive())
+            if (!me.IsAlive)
             {
-                me.GetMotionMaster().Clear();
-                me.GetMotionMaster().MoveIdle();
+                me.                MotionMaster.Clear();
+                me.                MotionMaster.MoveIdle();
                 me.CombatStop();
                 return;
             }
@@ -600,7 +603,7 @@ namespace Game.AI
         {
             _updateAlliesTimer = 10 * Time.InMilliseconds;                 // update friendly targets every 10 seconds, lesser checks increase performance
 
-            Unit owner = me.GetCharmerOrOwner();
+            Unit owner = me.CharmerOrOwner;
             if (!owner)
                 return;
 
@@ -618,7 +621,7 @@ namespace Game.AI
                 return;
 
             _allySet.Clear();
-            _allySet.Add(me.GetGUID());
+            _allySet.Add(me.GUID);
             if (group) // add group
             {
                 for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
@@ -627,20 +630,20 @@ namespace Game.AI
                     if (!target || !target.IsInMap(owner) || !group.SameSubGroup(owner.ToPlayer(), target))
                         continue;
 
-                    if (target.GetGUID() == owner.GetGUID())
+                    if (target.GUID == owner.GUID)
                         continue;
 
-                    _allySet.Add(target.GetGUID());
+                    _allySet.Add(target.GUID);
                 }
             }
             else // remove group
-                _allySet.Add(owner.GetGUID());
+                _allySet.Add(owner.GUID);
         }
 
         public override void OnCharmed(bool isNew)
         {
-            if (!me.IsPossessedByPlayer() && me.IsCharmed())
-                me.GetMotionMaster().MoveFollow(me.GetCharmer(), SharedConst.PetFollowDist, me.GetFollowAngle());
+            if (!me.IsPossessedByPlayer && me.IsCharmed)
+                me.                MotionMaster.MoveFollow(me.Charmer, SharedConst.PetFollowDist, me.FollowAngle);
 
             base.OnCharmed(isNew);
         }

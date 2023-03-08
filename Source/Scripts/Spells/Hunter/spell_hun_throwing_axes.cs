@@ -19,7 +19,7 @@ public class spell_hun_throwing_axes : SpellScript, ISpellOnCast
 		if (caster == null || target == null)
 			return;
 
-		var targetGUID = target.GetGUID();
+		var targetGUID = target.GUID;
 		var throwCount = SpellInfo.GetEffect(0).BasePoints;
 
 		for (byte i = 0; i < throwCount; ++i)

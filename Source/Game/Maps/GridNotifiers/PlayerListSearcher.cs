@@ -18,7 +18,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
 
 	public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_objects = objects;
 		_check = check;
 		GridType = gridType;

@@ -18,7 +18,7 @@ public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOn
 
 	public void OnSpellCast(Player player, Spell spell, bool re)
 	{
-		if (player.GetClass() != Class.Monk)
+		if (player.Class != Class.Monk)
 			return;
 
 		var spellInfo = spell.SpellInfo;

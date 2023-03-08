@@ -18,7 +18,7 @@ namespace Game.Chat
         public PlayerIdentifier(Player player)
         {
             _name = player.GetName();
-            _guid = player.GetGUID();
+            _guid = player.GUID;
             _player = player;
         }
 
@@ -69,7 +69,7 @@ namespace Game.Chat
             if (tempVal is ulong)
             {
                 _guid = ObjectGuid.Create(HighGuid.Player, tempVal);
-                if ((_player = Global.ObjAccessor.FindPlayerByLowGUID(_guid.GetCounter())) != null)
+                if ((_player = Global.ObjAccessor.FindPlayerByLowGUID(_guid.Counter)) != null)
                     _name = _player.GetName();
                 else if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(_guid, out _name))
                     return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharGuidNoExist, _guid.ToString()));
@@ -83,8 +83,8 @@ namespace Game.Chat
                     return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
 
                 if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)
-                    _guid = _player.GetGUID();
-                else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty())
+                    _guid = _player.GUID;
+                else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty)
                     return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameNoExist, _name));
                 return next;
             }
@@ -100,8 +100,8 @@ namespace Game.Chat
         public AccountIdentifier() { }
         public AccountIdentifier(WorldSession session)
         {
-            _id = session.GetAccountId();
-            _name = session.GetAccountName();
+            _id = session.AccountId;
+            _name = session.AccountName;
             _session = session;
         }
 
@@ -143,7 +143,7 @@ namespace Game.Chat
                 Player target = player.GetSelectedPlayer();
                 if (target != null)
                 {
-                    WorldSession session = target.GetSession();
+                    WorldSession session = target.Session;
                     if (session != null)
                         return new AccountIdentifier(session);
                 }

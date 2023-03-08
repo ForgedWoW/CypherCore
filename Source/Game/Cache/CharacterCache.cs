@@ -173,7 +173,7 @@ namespace Game.Cache
             return true;
         }
 
-        public Team GetCharacterTeamByGuid(ObjectGuid guid)
+        public TeamFaction GetCharacterTeamByGuid(ObjectGuid guid)
         {
             var characterCacheEntry = _characterCacheStore.LookupByKey(guid);
             if (characterCacheEntry == null)

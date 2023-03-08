@@ -98,7 +98,7 @@ internal class boss_vexallus : BossAI
 		var temp = SelectTarget(SelectTargetMethod.Random, 0);
 
 		if (temp)
-			summoned.GetMotionMaster().MoveFollow(temp, 0, 0);
+			summoned.MotionMaster.MoveFollow(temp, 0, 0);
 
 		summons.Summon(summoned);
 	}

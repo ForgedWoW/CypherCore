@@ -31,8 +31,8 @@ internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
 		var caster = Caster;
 
 		// Shapeshifting into an animal form or mounting cancels the effect
-		if (caster.GetCreatureType() == CreatureType.Beast ||
-			caster.IsMounted())
+		if (caster.CreatureType == CreatureType.Beast ||
+			caster.IsMounted)
 		{
 			var spellInfo = TriggeringSpell;
 

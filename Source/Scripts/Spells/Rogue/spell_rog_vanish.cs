@@ -33,7 +33,7 @@ internal class spell_rog_vanish : SpellScript, IHasSpellEffects
 
 		target.RemoveAurasByType(AuraType.ModStalked);
 
-		if (!target.IsPlayer())
+		if (!target.IsPlayer)
 			return;
 
 		if (target.HasAura(RogueSpells.VanishAura))

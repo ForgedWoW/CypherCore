@@ -314,13 +314,13 @@ namespace Game.Chat
 
         static void LogCommandUsage(WorldSession session, uint permission, string cmdStr)
         {
-            if (Global.AccountMgr.IsPlayerAccount(session.GetSecurity()))
+            if (Global.AccountMgr.IsPlayerAccount(session.Security))
                 return;
 
             if (Global.AccountMgr.GetRBACPermission((uint)RBACPermissions.RolePlayer).GetLinkedPermissions().Contains(permission))
                 return;
 
-            Player player = session.GetPlayer();
+            Player player = session.Player;
             ObjectGuid targetGuid = player.GetTarget();
             uint areaId = player.GetAreaId();
             string areaName = "Unknown";
@@ -329,14 +329,14 @@ namespace Game.Chat
             var area = CliDB.AreaTableStorage.LookupByKey(areaId);
             if (area != null)
             {
-                Locale locale = session.GetSessionDbcLocale();
+                Locale locale = session.SessionDbcLocale;
                 areaName = area.AreaName[locale];
                 var zone = CliDB.AreaTableStorage.LookupByKey(area.ParentAreaID);
                 if (zone != null)
                     zoneName = zone.AreaName[locale];
             }
 
-            Log.outCommand(session.GetAccountId(), $"Command: {cmdStr} [Player: {player.GetName()} ({player.GetGUID()}) (Account: {session.GetAccountId()}) " +
+            Log.outCommand(session.AccountId, $"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
                 $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.GetMap() ? player.GetMap().GetMapName() : "Unknown")}) " +
                 $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.GetSelectedUnit() ? player.GetSelectedUnit().GetName() : "")} ({targetGuid})]");
         }

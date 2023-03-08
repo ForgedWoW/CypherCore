@@ -19,7 +19,7 @@ class AllAttackableUnitsInRange : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (!u.IsAlive())
+		if (!u.IsAlive)
 			return false;
 
 		if (!u.IsVisible())

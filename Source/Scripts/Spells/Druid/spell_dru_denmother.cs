@@ -31,7 +31,7 @@ public class spell_dru_denmother : SpellScript, ISpellOnHit
 					return;
 
 				foreach (var itr in groupList)
-					if ((itr.GetGUID() != _player.GetGUID()) && (itr.IsInRange(_player, 0, 50, true)))
+					if ((itr.GUID != _player.GUID) && (itr.IsInRange(_player, 0, 50, true)))
 						validTargets.Add(itr.ToUnit());
 
 				if (validTargets.Count == 0)

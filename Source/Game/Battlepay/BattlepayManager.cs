@@ -32,7 +32,7 @@ namespace Game.Battlepay
         {
             var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
 
-            stmt.AddValue(0, _session.GetBattlenetAccountId());
+            stmt.AddValue(0, _session.BattlenetAccountId);
 
             var result_don = DB.Login.Query(stmt);
 
@@ -54,7 +54,8 @@ namespace Game.Battlepay
                 return true;
             }
             
-            _session.GetPlayer().SendSysMessage(20000, count);
+            _session.            
+            Player.SendSysMessage(20000, count);
             return false;
         }
 
@@ -64,7 +65,7 @@ namespace Game.Battlepay
             ulong calcCredit = (GetBattlePayCredits() - price) / 10000;
             var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
             stmt.AddValue(0, calcCredit);
-            stmt.AddValue(1, _session.GetBattlenetAccountId());
+            stmt.AddValue(1, _session.BattlenetAccountId);
             DB.Login.Execute(stmt);
 
             return true;
@@ -75,7 +76,7 @@ namespace Game.Battlepay
         {
             var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
             stmt.AddValue(0, credits);
-            stmt.AddValue(1, _session.GetBattlenetAccountId());
+            stmt.AddValue(1, _session.BattlenetAccountId);
             DB.Login.Execute(stmt);
             SendBattlePayMessage(3, "", credits);
 
@@ -131,7 +132,7 @@ namespace Game.Battlepay
             response.DisplayID = creatureID;
             response.BattlePetGuid = petguid;
             _session.SendPacket(response);
-            Log.outError(LogFilter.BattlePay, "Send BattlePayBattlePetDelivered guid: {} && creatureID: {}", petguid.GetCounter(), creatureID);
+            Log.outError(LogFilter.BattlePay, "Send BattlePayBattlePetDelivered guid: {} && creatureID: {}", petguid.Counter, creatureID);
         }
 
         public uint GetShopCurrency()
@@ -141,7 +142,7 @@ namespace Game.Battlepay
 
         public bool IsAvailable()
         {
-            if (AccountManager.Instance.IsAdminAccount(_session.GetSecurity()))
+            if (AccountManager.Instance.IsAdminAccount(_session.Security))
                 return true;
 
             return WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
@@ -149,7 +150,7 @@ namespace Game.Battlepay
 
         public bool AlreadyOwnProduct(uint itemId)
         {
-            var player = _session.GetPlayer();
+            var player = _session.Player;
             if (player)
             {
                 var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
@@ -178,19 +179,19 @@ namespace Game.Battlepay
             var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
             var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(productInfo.Entry);
             var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
-            stmt.AddValue(0, _session.GetAccountId());
+            stmt.AddValue(0, _session.AccountId);
             stmt.AddValue(1, Global.WorldMgr.GetVirtualRealmAddress());
-            stmt.AddValue(2, _session.GetPlayer() ? _session.GetPlayer().GetGUID().GetCounter() : 0);
+            stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
             stmt.AddValue(3, purchase.ProductID);
             stmt.AddValue(4, displayInfo.Name1);
             stmt.AddValue(5, purchase.CurrentPrice);
-            stmt.AddValue(6, _session.GetRemoteAddress());
+            stmt.AddValue(6, _session.RemoteAddress);
             DB.Login.Execute(stmt);
         }
 
         public void ProcessDelivery(Purchase purchase)
         {
-            var player = _session.GetPlayer();
+            var player = _session.Player;
             if (!player)
             {
                 return;
@@ -278,7 +279,7 @@ namespace Game.Battlepay
                     case ProductType.Pet: // 2
                         if (player) // if logged in
                         {
-                            player.GetSession().GetBattlePayMgr().AddBattlePetFromBpayShop(product.ItemId);
+                            player.                            Session.BattlePayMgr.AddBattlePetFromBpayShop(product.ItemId);
                         }
                         else
                         {
@@ -287,7 +288,7 @@ namespace Game.Battlepay
                         break;
 
                     case ProductType.Mount: // 3
-                        _session.GetCollectionMgr().AddMount(product.DisplayId, MountStatusFlags.None);
+                        _session.                        CollectionMgr.AddMount(product.DisplayId, MountStatusFlags.None);
                         break;
 
                     case ProductType.WoWToken: // 4
@@ -348,7 +349,7 @@ namespace Game.Battlepay
 
                     case ProductType.Toy: // 14
                         if (bool.TryParse(product.Unk1.ToString(), out var fan))
-                            _session.GetCollectionMgr().AddToy(product.Flags, false, fan);
+                            _session.                            CollectionMgr.AddToy(product.Flags, false, fan);
                         break;
 
                     case ProductType.Expansion: // 18
@@ -386,7 +387,7 @@ namespace Game.Battlepay
                         break;
 
                     case ProductType.TransmogAppearance: // 26
-                        _session.GetCollectionMgr().AddTransmogSet(product.Unk7);
+                        _session.                        CollectionMgr.AddTransmogSet(product.Unk7);
                         break;
 
                     /// Customs:
@@ -798,7 +799,7 @@ namespace Game.Battlepay
                         player.LearnSpell(110406, true);
                         player.LearnSpell(104381, true);
 
-                        if (player.GetClass() == Class.Shaman)
+                        if (player.Class == Class.Shaman)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199444, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199448, ItemContext.None, true);
@@ -809,7 +810,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 199446, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199442, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Hunter)
+                        if (player.Class == Class.Hunter)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 198592, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 198596, ItemContext.None, true);
@@ -820,7 +821,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 198594, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 198590, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Mage)
+                        if (player.Class == Class.Mage)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 198568, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 198571, ItemContext.None, true);
@@ -831,7 +832,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 198572, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 198566, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Priest)
+                        if (player.Class == Class.Priest)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199420, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199423, ItemContext.None, true);
@@ -842,7 +843,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 19942, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199418, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Warlock)
+                        if (player.Class == Class.Warlock)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199420, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199423, ItemContext.None, true);
@@ -853,7 +854,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 19942, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199418, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.DemonHunter)
+                        if (player.Class == Class.DemonHunter)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 198575, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 198578, ItemContext.None, true);
@@ -864,7 +865,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 198580, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 198573, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Rogue)
+                        if (player.Class == Class.Rogue)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199427, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199430, ItemContext.None, true);
@@ -875,7 +876,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 199432, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199425, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Monk)
+                        if (player.Class == Class.Monk)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 198575, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 198578, ItemContext.None, true);
@@ -886,7 +887,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 198580, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 198573, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Druid)
+                        if (player.Class == Class.Druid)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199427, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199430, ItemContext.None, true);
@@ -897,7 +898,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 199432, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199425, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Warrior)
+                        if (player.Class == Class.Warrior)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199433, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199440, ItemContext.None, true);
@@ -908,7 +909,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 199438, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199435, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Paladin)
+                        if (player.Class == Class.Paladin)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199433, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199440, ItemContext.None, true);
@@ -919,7 +920,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Shoulders, 199438, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Feet, 199435, ItemContext.None, true);
                         }
-                        if (player.GetClass() == Class.Deathknight)
+                        if (player.Class == Class.Deathknight)
                         {
                             Quest quest = Global.ObjectMgr.GetQuestTemplate(12801);
                             if (Global.ObjectMgr.GetQuestTemplate(12801) != null)
@@ -928,7 +929,7 @@ namespace Game.Battlepay
                                 player.CompleteQuest(quest.Id);
                                 player.RewardQuest(quest, LootItemType.Item, 0, null, false);
                             }
-                            if (player.GetTeamId() == TeamId.Alliance)
+                            if (player.TeamId == TeamIds.Alliance)
                             {
                                 player.TeleportTo(0, -8829.8710f, 625.3872f, 94.1712f, 3.808243f);
                             }
@@ -954,7 +955,7 @@ namespace Game.Battlepay
                             player.EquipNewItem(EquipmentSlot.Feet, 198583, ItemContext.None, true);
                         }
                         // DRACTHYR DF
-                        if (player.GetClass() == Class.Evoker)
+                        if (player.Class == Class.Evoker)
                         {
                             player.EquipNewItem(EquipmentSlot.Head, 199444, ItemContext.None, true);
                             player.EquipNewItem(EquipmentSlot.Wrist, 199448, ItemContext.None, true);
@@ -1099,7 +1100,7 @@ namespace Game.Battlepay
         public void SendProductList()
         {
             ProductListResponse response = new ProductListResponse();
-            Player player = _session.GetPlayer(); // it's a false value if player is in character screen
+            Player player = _session.Player; // it's a false value if player is in character screen
 
             if (!IsAvailable())
             {
@@ -1322,7 +1323,7 @@ namespace Game.Battlepay
             distributionBattlePay.DistributionObject.ProductID = productId;
             distributionBattlePay.DistributionObject.Revoked = false; // not needed for us
 
-            if (!targetGuid.IsEmpty())
+            if (!targetGuid.IsEmpty)
             {
                 distributionBattlePay.DistributionObject.TargetPlayer = targetGuid;
                 distributionBattlePay.DistributionObject.TargetVirtualRealm = Global.WorldMgr.GetVirtualRealmAddress();
@@ -1472,7 +1473,7 @@ namespace Game.Battlepay
             var speciesEntry = BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID);
             if (BattlePets.BattlePetMgr.GetBattlePetSpeciesByCreature(battlePetCreatureID) != null)
             {
-                _session.GetBattlePetMgr().AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+                _session.                BattlePetMgr.AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 
                 //it gives back false information need to get the pet guid from the add pet method somehow
                 SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);

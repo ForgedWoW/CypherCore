@@ -32,12 +32,12 @@ internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
 			!owner.HasAchieved(GenericSpellIds.AchievementPonyup))
 			return;
 
-		if (owner.IsMounted())
+		if (owner.IsMounted)
 		{
 			caster.Mount(GenericSpellIds.MountPony);
 			caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));
 		}
-		else if (caster.IsMounted())
+		else if (caster.IsMounted)
 		{
 			caster.Dismount();
 			caster.SetSpeedRate(UnitMoveType.Run, owner.GetSpeedRate(UnitMoveType.Run));

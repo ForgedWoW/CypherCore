@@ -22,7 +22,7 @@ internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast,
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public SpellCastResult CheckCast()
@@ -35,7 +35,7 @@ internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast,
 		var creature = player.FindNearestCreature(CreatureIds.AbyssalFlamebringer, 10, false);
 
 		if (creature)
-			if (creature.IsDead())
+			if (creature.IsDead)
 				return SpellCastResult.SpellCastOk;
 
 		return SpellCastResult.NotHere;

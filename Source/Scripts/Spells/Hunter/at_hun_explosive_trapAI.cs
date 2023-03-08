@@ -35,7 +35,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 		if (!caster.ToPlayer())
 			return;
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
@@ -45,8 +45,8 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 				if (tempSumm != null)
 				{
-					tempSumm.SetFaction(caster.GetFaction());
-					tempSumm.SetSummonerGUID(caster.GetGUID());
+					tempSumm.Faction = caster.Faction;
+					tempSumm.SetSummonerGUID(caster.GUID);
 					PhasingHandler.InheritPhaseShift(tempSumm, caster);
 					caster.CastSpell(tempSumm, UsedSpells.EXPLOSIVE_TRAP_DAMAGE, true);
 					at.Remove();
@@ -71,8 +71,8 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 			if (tempSumm != null)
 			{
-				tempSumm.SetFaction(caster.GetFaction());
-				tempSumm.SetSummonerGUID(caster.GetGUID());
+				tempSumm.Faction = caster.Faction;
+				tempSumm.SetSummonerGUID(caster.GUID);
 				PhasingHandler.InheritPhaseShift(tempSumm, caster);
 				caster.CastSpell(tempSumm, UsedSpells.EXPLOSIVE_TRAP_DAMAGE, true);
 				at.Remove();

@@ -510,7 +510,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	public List<SplineChainLink> GetSplineChain(Creature who, ushort chainId)
 	{
-		return GetSplineChain(who.GetEntry(), chainId);
+		return GetSplineChain(who.Entry, chainId);
 	}
 
 	private List<SplineChainLink> GetSplineChain(uint entry, ushort chainId)

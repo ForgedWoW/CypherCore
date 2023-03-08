@@ -28,7 +28,7 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
 		foreach (var dreadstalker in dreadstalkers)
 			if (dreadstalker.GetOwner() == caster)
 			{
-				dreadstalker.SetLevel(caster.GetLevel());
+				dreadstalker.SetLevel(caster.Level);
 				dreadstalker.SetMaxHealth(caster.GetMaxHealth() / 3);
 				dreadstalker.SetHealth(caster.GetHealth() / 3);
 				dreadstalker.GetAI().AttackStart(target);

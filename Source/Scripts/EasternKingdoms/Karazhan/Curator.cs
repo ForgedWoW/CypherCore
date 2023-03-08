@@ -52,7 +52,7 @@ internal class boss_curator : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (victim.IsPlayer())
+		if (victim.IsPlayer)
 			Talk(TextIds.SayKill);
 	}
 
@@ -134,7 +134,7 @@ internal class npc_curator_astral_flare : ScriptedAI
 {
 	public npc_curator_astral_flare(Creature creature) : base(creature)
 	{
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 	}
 
 	public override void Reset()
@@ -142,7 +142,7 @@ internal class npc_curator_astral_flare : ScriptedAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								me.SetReactState(ReactStates.Aggressive);
+								me.ReactState = ReactStates.Aggressive;
 								me.RemoveUnitFlag(UnitFlags.Uninteractible);
 								DoZoneInCombat();
 							});

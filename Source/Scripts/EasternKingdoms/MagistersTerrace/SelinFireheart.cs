@@ -80,7 +80,7 @@ internal class boss_selin_fireheart : BossAI
 				_events.SetPhase(PhaseIds.Normal);
 				_events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
 				AttackStart(me.GetVictim());
-				me.GetMotionMaster().MoveChase(me.GetVictim());
+				me.MotionMaster.MoveChase(me.GetVictim());
 
 				break;
 			default:
@@ -99,7 +99,7 @@ internal class boss_selin_fireheart : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (victim.IsPlayer())
+		if (victim.IsPlayer)
 			Talk(TextIds.SayKill);
 	}
 
@@ -111,7 +111,7 @@ internal class boss_selin_fireheart : BossAI
 			var CrystalChosen = Global.ObjAccessor.GetUnit(me, CrystalGUID);
 
 			if (CrystalChosen != null &&
-				CrystalChosen.IsAlive())
+				CrystalChosen.IsAlive)
 			{
 				CrystalChosen.RemoveUnitFlag(UnitFlags.Uninteractible);
 				CrystalChosen.CastSpell(me, SpellIds.ManaRage, true);
@@ -180,13 +180,13 @@ internal class boss_selin_fireheart : BossAI
 
 					var CrystalChosen = ObjectAccessor.GetCreature(me, CrystalGUID);
 
-					if (CrystalChosen && CrystalChosen.IsAlive())
+					if (CrystalChosen && CrystalChosen.IsAlive)
 						CrystalChosen.KillSelf();
 
 					CrystalGUID.Clear();
 
-					me.GetMotionMaster().Clear();
-					me.GetMotionMaster().MoveChase(me.GetVictim());
+					me.MotionMaster.Clear();
+					me.MotionMaster.MoveChase(me.GetVictim());
 
 					break;
 				}
@@ -230,13 +230,13 @@ internal class boss_selin_fireheart : BossAI
 			Talk(TextIds.EmoteCrystal);
 
 			DoCast(crystal, SpellIds.FelCrystalDummy);
-			CrystalGUID = crystal.GetGUID();
+			CrystalGUID = crystal.GUID;
 			var pos = new Position();
-			crystal.GetClosePoint(pos, me.GetCombatReach(), SharedConst.ContactDistance);
+			crystal.GetClosePoint(pos, me.CombatReach, SharedConst.ContactDistance);
 
 			_events.SetPhase(PhaseIds.Drain);
 			me.SetWalk(false);
-			me.GetMotionMaster().MovePoint(1, pos);
+			me.MotionMaster.MovePoint(1, pos);
 		}
 	}
 
@@ -262,7 +262,7 @@ internal class npc_fel_crystal : ScriptedAI
 		{
 			var selin = instance.GetCreature(DataTypes.SelinFireheart);
 
-			if (selin && selin.IsAlive())
+			if (selin && selin.IsAlive)
 				selin.GetAI().DoAction(MiscConst.ActionSwitchPhase);
 		}
 	}

@@ -3,19 +3,16 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class DistributionUpdate : ServerPacket
 {
-    public class DistributionUpdate : ServerPacket
-    {
-        public DistributionUpdate() : base(ServerOpcodes.BattlePayDistributionUpdate)
-        {
-        }
+	public BpayDistributionObject DistributionObject { get; set; } = new();
 
-        public override void Write()
-        {
-            DistributionObject.Write(_worldPacket);
-        }
+	public DistributionUpdate() : base(ServerOpcodes.BattlePayDistributionUpdate) { }
 
-        public BpayDistributionObject DistributionObject { get; set; } = new BpayDistributionObject();
-    }
+	public override void Write()
+	{
+		DistributionObject.Write(_worldPacket);
+	}
 }

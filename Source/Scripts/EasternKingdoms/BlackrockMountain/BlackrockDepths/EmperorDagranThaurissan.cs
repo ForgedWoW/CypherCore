@@ -65,7 +65,7 @@ internal class boss_draganthaurissan : ScriptedAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.SaySlay);
 	}
 
@@ -76,7 +76,7 @@ internal class boss_draganthaurissan : ScriptedAI
 		if (moira)
 		{
 			moira.GetAI().EnterEvadeMode();
-			moira.SetFaction((uint)FactionTemplates.Friendly);
+			moira.Faction = (uint)FactionTemplates.Friendly;
 			moira.GetAI().Talk(TextIds.EmoteShaken);
 		}
 	}

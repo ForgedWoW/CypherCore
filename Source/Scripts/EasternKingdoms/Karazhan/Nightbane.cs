@@ -122,7 +122,7 @@ internal class boss_nightbane : BossAI
 			me.SetActive(true);
 			me.SetFarVisible(true);
 			me.RemoveUnitFlag(UnitFlags.Uninteractible);
-			me.GetMotionMaster().MoveAlongSplineChain(PointIds.IntroStart, SplineChainIds.IntroStart, false);
+			me.MotionMaster.MoveAlongSplineChain(PointIds.IntroStart, SplineChainIds.IntroStart, false);
 			HandleTerraceDoors(false);
 		}
 	}
@@ -161,11 +161,11 @@ internal class boss_nightbane : BossAI
 			{
 				case PointIds.IntroStart:
 					me.SetStandState(UnitStandStateType.Stand);
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.GetMotionMaster().MoveAlongSplineChain(PointIds.IntroEnd, SplineChainIds.IntroEnd, false); });
+					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.IntroEnd, SplineChainIds.IntroEnd, false); });
 
 					break;
 				case PointIds.IntroEnd:
-					_scheduler.Schedule(TimeSpan.FromSeconds(2), task => { me.GetMotionMaster().MoveAlongSplineChain(PointIds.IntroLanding, SplineChainIds.IntroLanding, false); });
+					_scheduler.Schedule(TimeSpan.FromSeconds(2), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.IntroLanding, SplineChainIds.IntroLanding, false); });
 
 					break;
 				case PointIds.IntroLanding:
@@ -189,12 +189,12 @@ internal class boss_nightbane : BossAI
 										task =>
 										{
 											SetupGroundPhase();
-											me.SetReactState(ReactStates.Aggressive);
+											me.ReactState = ReactStates.Aggressive;
 										});
 
 					break;
 				case PointIds.PhaseTwoEnd:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.GetMotionMaster().MoveAlongSplineChain(PointIds.PhaseTwoLanding, SplineChainIds.SecondLanding, false); });
+					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoLanding, SplineChainIds.SecondLanding, false); });
 
 					break;
 				default:
@@ -217,7 +217,7 @@ internal class boss_nightbane : BossAI
 															{
 																Talk(TextIds.YellLandPhase);
 																me.SetDisableGravity(true);
-																me.GetMotionMaster().MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
+																me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
 															});
 									});
 
@@ -268,7 +268,7 @@ internal class boss_nightbane : BossAI
 			}
 			else if (pointId == PointIds.PhaseTwoPreFly)
 			{
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.GetMotionMaster().MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true); });
+				_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true); });
 			}
 		}
 	}
@@ -358,15 +358,15 @@ internal class boss_nightbane : BossAI
 		me.InterruptNonMeleeSpells(false);
 		me.HandleEmoteCommand(Emote.OneshotLiftoff);
 		me.SetDisableGravity(true);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.AttackStop();
 
 		if (me.GetDistance(MiscConst.FlyPositionLeft) < me.GetDistance(MiscConst.FlyPosition))
-			me.GetMotionMaster().MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionLeft, true);
+			me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionLeft, true);
 		else if (me.GetDistance(MiscConst.FlyPositionRight) < me.GetDistance(MiscConst.FlyPosition))
-			me.GetMotionMaster().MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionRight, true);
+			me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionRight, true);
 		else
-			me.GetMotionMaster().MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true);
+			me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true);
 	}
 }
 

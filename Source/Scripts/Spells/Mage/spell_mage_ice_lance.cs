@@ -30,7 +30,7 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
 
 	private void IndexTarget(int effIndex)
 	{
-		_orderedTargets.Add(HitUnit.GetGUID());
+		_orderedTargets.Add(HitUnit.GUID);
 	}
 
 	private void HandleOnHit(int effIndex)
@@ -38,7 +38,7 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
 		var caster = Caster;
 		var target = HitUnit;
 
-		var index = _orderedTargets.IndexOf(target.GetGUID());
+		var index = _orderedTargets.IndexOf(target.GUID);
 
 		if (index == 0 // only primary Target triggers these benefits
 			&&

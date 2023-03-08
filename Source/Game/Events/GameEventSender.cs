@@ -16,8 +16,8 @@ namespace Game
 
             WorldObject refForMapAndZoneScript = source ?? target;
 
-            ZoneScript zoneScript = refForMapAndZoneScript.GetZoneScript();
-            if (zoneScript == null && refForMapAndZoneScript.IsPlayer())
+            ZoneScript zoneScript = refForMapAndZoneScript.ZoneScript1;
+            if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
                 zoneScript = refForMapAndZoneScript.FindZoneScript();
 
             if (zoneScript != null)

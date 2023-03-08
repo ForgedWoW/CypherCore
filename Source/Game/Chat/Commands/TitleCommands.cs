@@ -34,7 +34,7 @@ namespace Game.Chat.Commands
             }
 
             string tNameLink = handler.GetNameLink(target);
-            string titleNameStr = string.Format(target.GetNativeGender() == Gender.Male ? titleInfo.Name[handler.GetSessionDbcLocale()] : titleInfo.Name1[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
+            string titleNameStr = string.Format(target.NativeGender == Gender.Male ? titleInfo.Name[handler.GetSessionDbcLocale()] : titleInfo.Name1[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
 
             target.SetTitle(titleInfo);
             target.SetChosenTitle(titleInfo.MaskID);
@@ -66,7 +66,7 @@ namespace Game.Chat.Commands
 
             string tNameLink = handler.GetNameLink(target);
 
-            string titleNameStr = string.Format((target.GetNativeGender() == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
+            string titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
 
             target.SetTitle(titleInfo);
             handler.SendSysMessage(CypherStrings.TitleAddRes, titleId, titleNameStr, tNameLink);
@@ -98,7 +98,7 @@ namespace Game.Chat.Commands
             target.SetTitle(titleInfo, true);
 
             string tNameLink = handler.GetNameLink(target);
-            string titleNameStr = string.Format((target.GetNativeGender() == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
+            string titleNameStr = string.Format((target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[handler.GetSessionDbcLocale()].ConvertFormatSyntax(), target.GetName());
 
             handler.SendSysMessage(CypherStrings.TitleRemoveRes, titleId, titleNameStr, tNameLink);
 

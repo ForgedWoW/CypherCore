@@ -31,12 +31,12 @@ public class spell_pri_void_bolt : SpellScript, IHasSpellEffects
 			{
 				var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).BaseAmount;
 
-				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, Caster.GetGUID());
+				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, Caster.GUID);
 
 				if (pain != null)
 					pain.ModDuration(durationIncreaseMs);
 
-				var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, Caster.GetGUID());
+				var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, Caster.GUID);
 
 				if (vampiricTouch != null)
 					vampiricTouch.ModDuration(durationIncreaseMs);

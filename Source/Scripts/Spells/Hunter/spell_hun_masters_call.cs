@@ -24,7 +24,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public SpellCastResult CheckCast()
@@ -32,15 +32,15 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 		var pet = Caster.ToPlayer().GetGuardianPet();
 
 		if (pet == null ||
-			!pet.IsPet() ||
-			!pet.IsAlive())
+			!pet.IsPet ||
+			!pet.IsAlive)
 			return SpellCastResult.NoPet;
 
 		// Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
 		var result = SpellCastResult.SpellCastOk;
 		var unitflag = (UnitFlags)(uint)pet.UnitData.Flags;
 
-		if (!pet.GetCharmerGUID().IsEmpty())
+		if (!pet.CharmerGUID.IsEmpty)
 			result = SpellCastResult.Charmed;
 		else if (unitflag.HasAnyFlag(UnitFlags.Stunned))
 			result = SpellCastResult.Stunned;

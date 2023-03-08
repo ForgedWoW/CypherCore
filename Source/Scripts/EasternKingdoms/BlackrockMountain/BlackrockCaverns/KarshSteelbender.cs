@@ -50,7 +50,7 @@ internal class boss_karsh_steelbender : BossAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.YellKill);
 	}
 

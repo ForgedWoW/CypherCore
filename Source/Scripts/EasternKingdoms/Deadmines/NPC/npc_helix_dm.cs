@@ -42,7 +42,7 @@ public class npc_helix_dm : BossAI
 
 	public override void JustSummoned(Creature summoned)
 	{
-		switch (summoned.GetEntry())
+		switch (summoned.Entry)
 		{
 			case DMCreatures.NPC_NIGHTMARE_SPIDER:
 			case DMCreatures.NPC_MAIN_SPIDER:

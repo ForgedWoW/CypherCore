@@ -169,7 +169,7 @@ namespace Game.BlackMarket
             if (GetSecondsRemaining() < 30 * Time.Minute)
                 _secondsRemaining += 30 * Time.Minute;
 
-            _bidder = player.GetGUID().GetCounter();
+            _bidder = player.GUID.Counter;
 
             player.ModifyMoney(-(long)bid);
 

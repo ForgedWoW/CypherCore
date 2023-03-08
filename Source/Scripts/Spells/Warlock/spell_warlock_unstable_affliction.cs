@@ -44,7 +44,7 @@ public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
 
 		foreach (uint spellId in uaspells)
 		{
-			var ua = target.GetAura(spellId, caster.GetGUID());
+			var ua = target.GetAura(spellId, caster.GUID);
 
 			if (ua != null)
 			{

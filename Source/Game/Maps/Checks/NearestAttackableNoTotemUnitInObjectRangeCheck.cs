@@ -20,13 +20,13 @@ public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (!u.IsAlive())
+		if (!u.IsAlive)
 			return false;
 
-		if (u.GetCreatureType() == CreatureType.NonCombatPet)
+		if (u.CreatureType == CreatureType.NonCombatPet)
 			return false;
 
-		if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
+		if (u.IsTypeId(TypeId.Unit) && u.IsTotem)
 			return false;
 
 		if (!u.IsTargetableForAttack(false))

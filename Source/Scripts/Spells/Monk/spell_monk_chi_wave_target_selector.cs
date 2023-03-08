@@ -76,8 +76,8 @@ public class spell_monk_chi_wave_target_selector : SpellScript, IHasSpellEffects
 		var target = HitUnit;
 
 		if (m_shouldHeal)
-			ExplTargetUnit.CastSpell(target, 132464, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GetGUID()));
+			ExplTargetUnit.CastSpell(target, 132464, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
 		else
-			ExplTargetUnit.CastSpell(target, 132467, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GetGUID()));
+			ExplTargetUnit.CastSpell(target, 132467, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint1, EffectValue).SetOriginalCaster(OriginalCaster.GUID));
 	}
 }

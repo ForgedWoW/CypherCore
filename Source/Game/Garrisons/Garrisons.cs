@@ -125,10 +125,10 @@ namespace Game.Garrisons
 
         public void SaveToDB(SQLTransaction trans)
         {
-            DeleteFromDB(_owner.GetGUID().GetCounter(), trans);
+            DeleteFromDB(_owner.GUID.Counter, trans);
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON);
-            stmt.AddValue(0, _owner.GetGUID().GetCounter());
+            stmt.AddValue(0, _owner.GUID.Counter);
             stmt.AddValue(1, (int)_garrisonType);
             stmt.AddValue(2, _siteLevel.Id);
             stmt.AddValue(3, _followerActivationsRemainingToday);
@@ -137,7 +137,7 @@ namespace Game.Garrisons
             foreach (uint building in _knownBuildings)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BLUEPRINTS);
-                stmt.AddValue(0, _owner.GetGUID().GetCounter());
+                stmt.AddValue(0, _owner.GUID.Counter);
                 stmt.AddValue(1, (int)_garrisonType);
                 stmt.AddValue(2, building);
                 trans.Append(stmt);
@@ -148,7 +148,7 @@ namespace Game.Garrisons
                 if (plot.BuildingInfo.PacketInfo != null)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BUILDINGS);
-                    stmt.AddValue(0, _owner.GetGUID().GetCounter());
+                    stmt.AddValue(0, _owner.GUID.Counter);
                     stmt.AddValue(1, (int)_garrisonType);
                     stmt.AddValue(2, plot.BuildingInfo.PacketInfo.GarrPlotInstanceID);
                     stmt.AddValue(3, plot.BuildingInfo.PacketInfo.GarrBuildingID);
@@ -163,7 +163,7 @@ namespace Game.Garrisons
                 byte index = 0;
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWERS);
                 stmt.AddValue(index++, follower.PacketInfo.DbID);
-                stmt.AddValue(index++, _owner.GetGUID().GetCounter());
+                stmt.AddValue(index++, _owner.GUID.Counter);
                 stmt.AddValue(index++, (int)_garrisonType);
                 stmt.AddValue(index++, follower.PacketInfo.GarrFollowerID);
                 stmt.AddValue(index++, follower.PacketInfo.Quality);
@@ -228,7 +228,7 @@ namespace Game.Garrisons
         public void Delete()
         {
             SQLTransaction trans = new();
-            DeleteFromDB(_owner.GetGUID().GetCounter(), trans);
+            DeleteFromDB(_owner.GUID.Counter, trans);
             DB.Characters.CommitTransaction(trans);
 
             GarrisonDeleteResult garrisonDelete = new();
@@ -287,7 +287,7 @@ namespace Game.Garrisons
 
         public uint GetFaction()
         {
-            return _owner.GetTeam() == Team.Horde ? GarrisonFactionIndex.Horde : GarrisonFactionIndex.Alliance;
+            return _owner.Team == TeamFaction.Horde ? GarrisonFactionIndex.Horde : GarrisonFactionIndex.Alliance;
         }
 
         public GarrisonType GetGarrisonType() { return _garrisonType; }
@@ -590,7 +590,7 @@ namespace Game.Garrisons
 
         Map FindMap()
         {
-            return Global.MapMgr.FindMap(_siteLevel.MapID, (uint)_owner.GetGUID().GetCounter());
+            return Global.MapMgr.FindMap(_siteLevel.MapID, (uint)_owner.GUID.Counter);
         }
 
         GarrisonError CheckBuildingPlacement(uint garrPlotInstanceId, uint garrBuildingId)
@@ -747,31 +747,31 @@ namespace Game.Garrisons
                         {
                             Creature spawn = BuildingSpawnHelper<Creature>(go, spawnId, map);
                             if (spawn)
-                                BuildingInfo.Spawns.Add(spawn.GetGUID());
+                                BuildingInfo.Spawns.Add(spawn.GUID);
                         }
 
                         foreach (var spawnId in cellGuids.Value.gameobjects)
                         {
                             GameObject spawn = BuildingSpawnHelper<GameObject>(go, spawnId, map);
                             if (spawn)
-                                BuildingInfo.Spawns.Add(spawn.GetGUID());
+                                BuildingInfo.Spawns.Add(spawn.GUID);
                         }
                     }
                 }
 
-                BuildingInfo.Guid = go.GetGUID();
+                BuildingInfo.Guid = go.GUID;
                 return go;
             }
 
             public void DeleteGameObject(Map map)
             {
-                if (BuildingInfo.Guid.IsEmpty())
+                if (BuildingInfo.Guid.IsEmpty)
                     return;
 
                 foreach (var guid in BuildingInfo.Spawns)
                 {
                     WorldObject obj;
-                    switch (guid.GetHigh())
+                    switch (guid.High)
                     {
                         case HighGuid.Creature:
                             obj = map.GetCreature(guid);
@@ -828,7 +828,7 @@ namespace Game.Garrisons
                 ITransport.CalculatePassengerPosition(pos, building.Location.X, building.Location.Y, building.Location.Z, building.Location.Orientation);
 
                 spawn.Location.Relocate(pos);
-                switch (spawn.GetTypeId())
+                switch (spawn.TypeId)
                 {
                     case TypeId.Unit:
                         spawn.ToCreature().SetHomePosition(pos);

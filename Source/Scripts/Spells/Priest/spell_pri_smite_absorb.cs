@@ -28,13 +28,13 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 		if (caster == null || attacker == null)
 			return absorbAmount;
 
-		if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GetGUID()))
+		if (!attacker.HasAura(PriestSpells.SMITE_AURA, caster.GUID))
 		{
 			absorbAmount = 0;
 		}
 		else
 		{
-			var aur = attacker.GetAura(PriestSpells.SMITE_AURA, caster.GetGUID());
+			var aur = attacker.GetAura(PriestSpells.SMITE_AURA, caster.GUID);
 
 			if (aur != null)
 			{

@@ -30,8 +30,8 @@ namespace Game.Chat.Commands
                     if (handler.GetSession() != null)
                     {
                         Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] ({3}) created Battle.net account {4}{5}{6}",
-                            handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(),
-                            handler.GetSession().GetPlayer().GetGUID().ToString(), accountName, createGameAccount.Value ? " with game account " : "", createGameAccount.Value ? gameAccountName : "");
+                            handler.GetSession().                            AccountId, handler.GetSession().RemoteAddress, handler.GetSession().Player.GetName(),
+                            handler.GetSession().                            Player.                            GUID.ToString(), accountName, createGameAccount.Value ? " with game account " : "", createGameAccount.Value ? gameAccountName : "");
                     }
                     break;
                 case AccountOpResult.NameTooLong:
@@ -72,7 +72,7 @@ namespace Game.Chat.Commands
                     if (handler.GetSession() != null)
                     {
                         Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
-                            handler.GetSession().GetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString(),
+                            handler.GetSession().                            AccountId, handler.GetSession().RemoteAddress, handler.GetSession().Player.GetName(), handler.GetSession().Player.GUID.ToString(),
                             accountName, bnetAccountName);
                     }
                     break;
@@ -154,12 +154,12 @@ namespace Game.Chat.Commands
         static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string passwordConfirmation)
         {
             // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-            if (!Global.BNetAccountMgr.CheckPassword(handler.GetSession().GetBattlenetAccountId(), oldPassword))
+            if (!Global.BNetAccountMgr.CheckPassword(handler.GetSession().BattlenetAccountId, oldPassword))
             {
                 handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
                 Log.outInfo(LogFilter.Player, "Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Tried to change password, but the provided old password is wrong.",
-                    handler.GetSession().GetBattlenetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                    handler.GetSession().                    BattlenetAccountId, handler.GetSession().RemoteAddress, handler.GetSession().Player.GetName(), handler.GetSession().Player.GUID.ToString());
                 return false;
             }
 
@@ -171,13 +171,13 @@ namespace Game.Chat.Commands
             }
 
             // Changes password and prints result.
-            AccountOpResult result = Global.BNetAccountMgr.ChangePassword(handler.GetSession().GetBattlenetAccountId(), newPassword);
+            AccountOpResult result = Global.BNetAccountMgr.ChangePassword(handler.GetSession().BattlenetAccountId, newPassword);
             switch (result)
             {
                 case AccountOpResult.Ok:
                     handler.SendSysMessage(CypherStrings.CommandPassword);
                     Log.outInfo(LogFilter.Player, "Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Changed Password.",
-                        handler.GetSession().GetBattlenetAccountId(), handler.GetSession().GetRemoteAddress(), handler.GetSession().GetPlayer().GetName(), handler.GetSession().GetPlayer().GetGUID().ToString());
+                        handler.GetSession().                        BattlenetAccountId, handler.GetSession().RemoteAddress, handler.GetSession().Player.GetName(), handler.GetSession().Player.GUID.ToString());
                     break;
                 case AccountOpResult.PassTooLong:
                     handler.SendSysMessage(CypherStrings.PasswordTooLong);
@@ -261,7 +261,7 @@ namespace Game.Chat.Commands
                     handler.SendSysMessage(CypherStrings.CommandAcclockunlocked);
                 }
 
-                stmt.AddValue(1, handler.GetSession().GetBattlenetAccountId());
+                stmt.AddValue(1, handler.GetSession().BattlenetAccountId);
 
                 DB.Login.Execute(stmt);
                 return true;

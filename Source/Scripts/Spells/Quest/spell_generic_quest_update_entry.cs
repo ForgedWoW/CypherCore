@@ -45,8 +45,8 @@ internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
 		var creatureTarget = HitCreature;
 
 		if (creatureTarget)
-			if (!creatureTarget.IsPet() &&
-				creatureTarget.GetEntry() == _originalEntry)
+			if (!creatureTarget.IsPet &&
+				creatureTarget.Entry == _originalEntry)
 			{
 				creatureTarget.UpdateEntry(_newEntry);
 

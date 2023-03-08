@@ -31,14 +31,14 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
 		if (player.GetLastPetNumber() != 0)
 		{
-			var newPetType = (player.GetClass() == Class.Hunter) ? PetType.Hunter : PetType.Summon;
+			var newPetType = (player.Class == Class.Hunter) ? PetType.Hunter : PetType.Summon;
 			Pet newPet = new(player, newPetType);
 
 			if (newPet.LoadPetFromDB(player, 0, player.GetLastPetNumber(), true))
 			{
 				// revive the pet if it is dead
-				if (newPet.GetDeathState() != DeathState.Alive &&
-					newPet.GetDeathState() != DeathState.JustRespawned)
+				if (newPet.DeathState != DeathState.Alive &&
+					newPet.DeathState != DeathState.JustRespawned)
 					newPet.SetDeathState(DeathState.JustRespawned);
 
 				newPet.SetFullHealth();
@@ -49,11 +49,11 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 				foreach (ISpellOnSummon summon in summonScript)
 					summon.OnSummon(newPet);
 
-				switch (newPet.GetEntry())
+				switch (newPet.Entry)
 				{
 					case CreatureIds.Doomguard:
 					case CreatureIds.Infernal:
-						newPet.SetEntry(CreatureIds.Imp);
+						newPet.Entry = CreatureIds.Imp;
 
 						break;
 					default:

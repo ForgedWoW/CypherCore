@@ -25,14 +25,14 @@ public class TempSummon : Creature
 		SummonPropertiesRecord = propertiesRecord;
 		_summonType = TempSummonType.ManualDespawn;
 
-		_summonerGuid = owner != null ? owner.GetGUID() : ObjectGuid.Empty;
+		_summonerGuid = owner != null ? owner.GUID : ObjectGuid.Empty;
 		UnitTypeMask |= UnitTypeMask.Summon;
 		_canFollowOwner = true;
 	}
 
 	public WorldObject GetSummoner()
 	{
-		return !_summonerGuid.IsEmpty() ? Global.ObjAccessor.GetWorldObject(this, _summonerGuid) : null;
+		return !_summonerGuid.IsEmpty ? Global.ObjAccessor.GetWorldObject(this, _summonerGuid) : null;
 	}
 
 	public void SetSummonerGUID(ObjectGuid summonerGUID)
@@ -52,7 +52,7 @@ public class TempSummon : Creature
 
 	public Creature GetSummonerCreatureBase()
 	{
-		return !_summonerGuid.IsEmpty() ? ObjectAccessor.GetCreature(this, _summonerGuid) : null;
+		return !_summonerGuid.IsEmpty ? ObjectAccessor.GetCreature(this, _summonerGuid) : null;
 	}
 
 	public GameObject GetSummonerGameObject()
@@ -179,7 +179,7 @@ public class TempSummon : Creature
 			}
 			case TempSummonType.TimedOrDeadDespawn:
 			{
-				if (!IsInCombat() && IsAlive())
+				if (!IsInCombat() && IsAlive)
 				{
 					if (_timer <= diff)
 					{
@@ -201,7 +201,7 @@ public class TempSummon : Creature
 			}
 			default:
 				UnSummon();
-				Log.outError(LogFilter.Unit, "Temporary summoned creature (entry: {0}) have unknown type {1} of ", GetEntry(), _summonType);
+				Log.outError(LogFilter.Unit, "Temporary summoned creature (entry: {0}) have unknown type {1} of ", Entry, _summonType);
 
 				break;
 		}
@@ -209,7 +209,7 @@ public class TempSummon : Creature
 
 	public virtual void InitStats(uint duration)
 	{
-		Cypher.Assert(!IsPet());
+		Cypher.Assert(!IsPet);
 
 		_timer = duration;
 		_lifetime = duration;
@@ -219,13 +219,13 @@ public class TempSummon : Creature
 
 		var owner = GetSummonerUnit();
 
-		if (owner != null && IsTrigger() && Spells[0] != 0)
+		if (owner != null && IsTrigger && Spells[0] != 0)
 			if (owner.IsTypeId(TypeId.Player))
 				ControlledByPlayer = true;
 
-		if (owner != null && owner.IsPlayer())
+		if (owner != null && owner.IsPlayer)
 		{
-			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(GetEntry());
+			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(Entry);
 
 			if (summonedData != null)
 			{
@@ -248,28 +248,28 @@ public class TempSummon : Creature
 
 			if (slot > 0)
 			{
-				if (!owner.SummonSlot[slot].IsEmpty() && owner.SummonSlot[slot] != GetGUID())
+				if (!owner.SummonSlot[slot].IsEmpty && owner.SummonSlot[slot] != GUID)
 				{
 					var oldSummon = GetMap().GetCreature(owner.SummonSlot[slot]);
 
-					if (oldSummon != null && oldSummon.IsSummon())
+					if (oldSummon != null && oldSummon.IsSummon)
 						oldSummon.ToTempSummon().UnSummon();
 				}
 
-				owner.SummonSlot[slot] = GetGUID();
+				owner.SummonSlot[slot] = GUID;
 			}
 
 			if (!SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseCreatureLevel))
-				SetLevel(owner.GetLevel());
+				SetLevel(owner.Level);
 		}
 
 		var faction = SummonPropertiesRecord.Faction;
 
 		if (owner && SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.UseSummonerFaction)) // TODO: Determine priority between faction and flag
-			faction = owner.GetFaction();
+			faction = owner.Faction;
 
 		if (faction != 0)
-			SetFaction(faction);
+			Faction = faction;
 
 		if (SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.SummonFromBattlePetJournal))
 			RemoveNpcFlag(NPCFlags.WildBattlePet);
@@ -281,12 +281,12 @@ public class TempSummon : Creature
 
 		if (owner != null)
 		{
-			if (owner.IsCreature())
+			if (owner.IsCreature)
 				owner.ToCreature().GetAI()?.JustSummoned(this);
-			else if (owner.IsGameObject())
+			else if (owner.IsGameObject)
 				owner.ToGameObject().GetAI()?.JustSummoned(this);
 
-			if (IsAIEnabled())
+			if (IsAIEnabled)
 				GetAI().IsSummonedBy(owner);
 		}
 	}
@@ -300,7 +300,7 @@ public class TempSummon : Creature
 
 		if (smoothPhasing != null)
 		{
-			var infoForSeer = smoothPhasing.GetInfoForSeer(GetDemonCreatorGUID());
+			var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
 			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
 			{
@@ -325,7 +325,7 @@ public class TempSummon : Creature
 
 		if (smoothPhasing != null)
 		{
-			var infoForSeer = smoothPhasing.GetInfoForSeer(GetDemonCreatorGUID());
+			var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
 			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
 				original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
@@ -338,7 +338,7 @@ public class TempSummon : Creature
 				var originalSmoothPhasing = original.GetSmoothPhasing();
 
 				if (originalSmoothPhasing != null)
-					originalSmoothPhasing.DisableReplacementForSeer(GetDemonCreatorGUID());
+					originalSmoothPhasing.DisableReplacementForSeer(DemonCreatorGUID);
 			}
 		}
 
@@ -350,7 +350,7 @@ public class TempSummon : Creature
 			var originalSmoothPhasing = original.GetSmoothPhasing();
 
 			if (originalSmoothPhasing != null)
-				originalSmoothPhasing.ClearViewerDependentInfo(GetDemonCreatorGUID());
+				originalSmoothPhasing.ClearViewerDependentInfo(DemonCreatorGUID);
 		}
 	}
 
@@ -375,9 +375,9 @@ public class TempSummon : Creature
 			return;
 		}
 
-		Cypher.Assert(!IsPet());
+		Cypher.Assert(!IsPet);
 
-		if (IsPet())
+		if (IsPet)
 		{
 			ToPet().Remove(PetSaveMode.NotInSlot);
 			Cypher.Assert(!IsInWorld);
@@ -389,9 +389,9 @@ public class TempSummon : Creature
 
 		if (owner != null)
 		{
-			if (owner.IsCreature())
+			if (owner.IsCreature)
 				owner.ToCreature().GetAI()?.SummonedCreatureDespawn(this);
-			else if (owner.IsGameObject())
+			else if (owner.IsGameObject)
 				owner.ToGameObject().GetAI()?.SummonedCreatureDespawn(this);
 		}
 
@@ -412,13 +412,13 @@ public class TempSummon : Creature
 				var owner = GetSummonerUnit();
 
 				if (owner != null)
-					if (owner.SummonSlot[slot] == GetGUID())
+					if (owner.SummonSlot[slot] == GUID)
 						owner.SummonSlot[slot].Clear();
 			}
 		}
 
-		if (!GetOwnerGUID().IsEmpty())
-			Log.outError(LogFilter.Unit, "Unit {0} has owner guid when removed from world", GetEntry());
+		if (!OwnerGUID.IsEmpty)
+			Log.outError(LogFilter.Unit, "Unit {0} has owner guid when removed from world", Entry);
 
 		base.RemoveFromWorld();
 	}

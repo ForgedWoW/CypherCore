@@ -46,7 +46,7 @@ public class Transport : GameObject, ITransport
 			if (_passengers.Add(passenger))
 			{
 				passenger.SetTransport(this);
-				passenger.MovementInfo.Transport.Guid = GetGUID();
+				passenger.MovementInfo.Transport.Guid = GUID;
 
 				var player = passenger.ToPlayer();
 
@@ -96,7 +96,7 @@ public class Transport : GameObject, ITransport
 
 	public ObjectGuid GetTransportGUID()
 	{
-		return GetGUID();
+		return GUID;
 	}
 
 	public float GetTransportOrientation()
@@ -152,15 +152,15 @@ public class Transport : GameObject, ITransport
 
 		if (goOverride != null)
 		{
-			SetFaction(goOverride.Faction);
+			Faction = goOverride.Faction;
 			ReplaceAllFlags(goOverride.Flags);
 		}
 
 		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.GetMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
 		SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
-		SetObjectScale(goinfo.size);
+		ObjectScale = goinfo.size;
 		SetPeriod(tInfo.TotalPathTime);
-		SetEntry(goinfo.entry);
+		Entry = goinfo.entry;
 		SetDisplayId(goinfo.displayId);
 		SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
 		SetGoType(GameObjectTypes.MapObjTransport);
@@ -329,7 +329,7 @@ public class Transport : GameObject, ITransport
 		var spawn = data.SpawnPoint.Copy();
 
 		creature.SetTransport(this);
-		creature.MovementInfo.Transport.Guid = GetGUID();
+		creature.MovementInfo.Transport.Guid = GUID;
 		creature.MovementInfo.Transport.Pos.Relocate(spawn);
 		creature.MovementInfo.Transport.Seat = -1;
 		CalculatePassengerPosition(spawn);
@@ -343,13 +343,13 @@ public class Transport : GameObject, ITransport
 
 		if (!creature.Location.IsPositionValid())
 		{
-			Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GetGUID().ToString(), creature.GetEntry(), creature.Location.X, creature.Location.Y);
+			Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GUID.ToString(), creature.Entry, creature.Location.X, creature.Location.Y);
 
 			return null;
 		}
 
-		PhasingHandler.InitDbPhaseShift(creature.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-		PhasingHandler.InitDbVisibleMapId(creature.GetPhaseShift(), data.terrainSwapMap);
+		PhasingHandler.InitDbPhaseShift(creature.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+		PhasingHandler.InitDbVisibleMapId(creature.PhaseShift, data.terrainSwapMap);
 
 		if (!map.AddToMap(creature))
 			return null;
@@ -470,7 +470,7 @@ public class Transport : GameObject, ITransport
 		summon.SetCreatedBySpell(spellId);
 
 		summon.SetTransport(this);
-		summon.MovementInfo.Transport.Guid = GetGUID();
+		summon.MovementInfo.Transport.Guid = GUID;
 		summon.MovementInfo.Transport.Pos.Relocate(pos);
 		summon.Location.Relocate(newPos);
 		summon.SetHomePosition(newPos);
@@ -603,7 +603,7 @@ public class Transport : GameObject, ITransport
 		var spawn = data.SpawnPoint.Copy();
 
 		go.SetTransport(this);
-		go.MovementInfo.Transport.Guid = GetGUID();
+		go.MovementInfo.Transport.Guid = GUID;
 		go.MovementInfo.Transport.Pos.Relocate(spawn);
 		go.MovementInfo.Transport.Seat = -1;
 		CalculatePassengerPosition(spawn);
@@ -612,13 +612,13 @@ public class Transport : GameObject, ITransport
 
 		if (!go.Location.IsPositionValid())
 		{
-			Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GetGUID().ToString(), go.GetEntry(), go.Location.X, go.Location.Y);
+			Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
 
 			return null;
 		}
 
-		PhasingHandler.InitDbPhaseShift(go.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-		PhasingHandler.InitDbVisibleMapId(go.GetPhaseShift(), data.terrainSwapMap);
+		PhasingHandler.InitDbPhaseShift(go.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+		PhasingHandler.InitDbVisibleMapId(go.PhaseShift, data.terrainSwapMap);
 
 		if (!map.AddToMap(go))
 			return null;
@@ -684,7 +684,7 @@ public class Transport : GameObject, ITransport
 					var veh = obj.ToUnit().GetVehicleBase();
 
 					if (veh)
-						if (veh.GetTransport() == this)
+						if (veh.Transport == this)
 							continue;
 
 					var pos = obj.MovementInfo.Transport.Pos.Copy();
@@ -704,11 +704,11 @@ public class Transport : GameObject, ITransport
 			AddToWorld();
 
 			foreach (var player in GetMap().GetPlayers())
-				if (player.GetTransport() != this && player.InSamePhase(this))
+				if (player.Transport != this && player.InSamePhase(this))
 				{
 					UpdateData data = new(GetMap().GetId());
 					BuildCreateUpdateBlockForPlayer(data, player);
-					player.VisibleTransports.Add(GetGUID());
+					player.VisibleTransports.Add(GUID);
 					data.BuildPacket(out var packet);
 					player.SendPacket(packet);
 				}
@@ -721,10 +721,10 @@ public class Transport : GameObject, ITransport
 			data.BuildPacket(out var packet);
 
 			foreach (var player in GetMap().GetPlayers())
-				if (player.GetTransport() != this && player.VisibleTransports.Contains(GetGUID()))
+				if (player.Transport != this && player.VisibleTransports.Contains(GUID))
 				{
 					player.SendPacket(packet);
-					player.VisibleTransports.Remove(GetGUID());
+					player.VisibleTransports.Remove(GUID);
 				}
 
 			RemoveFromWorld();
@@ -737,7 +737,7 @@ public class Transport : GameObject, ITransport
 			var newPos = obj.MovementInfo.Transport.Pos.Copy();
 			ITransport.CalculatePassengerPosition(newPos, x, y, z, o);
 
-			switch (obj.GetTypeId())
+			switch (obj.TypeId)
 			{
 				case TypeId.Player:
 					if (!obj.ToPlayer().TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))

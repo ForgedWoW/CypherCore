@@ -83,7 +83,7 @@ namespace Game
             response.Attribute.Add(attribute);
 
             var realmCharacterCounts = new RealmCharacterCountList();
-            foreach (var characterCount in GetRealmCharacterCounts())
+            foreach (var characterCount in RealmCharacterCounts)
             {
                 RealmCharacterCountEntry countEntry = new();
                 countEntry.WowRealmAddress = (int)characterCount.Key;
@@ -104,8 +104,8 @@ namespace Game
         {
             var realmAddress = Params.LookupByKey("Param_RealmAddress");
             if (realmAddress != null)
-                return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue, Global.WorldMgr.GetRealm().Build, System.Net.IPAddress.Parse(GetRemoteAddress()), GetRealmListSecret(),
-                    GetSessionDbcLocale(), GetOS(), GetAccountName(), response);
+                return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue, Global.WorldMgr.GetRealm().Build, System.Net.IPAddress.Parse(RemoteAddress), RealmListSecret,
+                    SessionDbcLocale, OS, AccountName, response);
 
             return BattlenetRpcErrorCode.Ok;
         }

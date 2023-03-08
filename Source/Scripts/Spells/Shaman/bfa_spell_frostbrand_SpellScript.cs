@@ -12,7 +12,7 @@ public class bfa_spell_frostbrand_SpellScript : SpellScript, ISpellOnHit
 {
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public void OnHit()

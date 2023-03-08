@@ -94,7 +94,7 @@ namespace Game.Movement
             if (!target.MoveSpline.Finalized() && target.MoveSpline.GetId() != _lastLeaderSplineID)
             {
                 // Update formation angle
-                if (_point1 != 0 && target.IsCreature())
+                if (_point1 != 0 && target.IsCreature)
                 {
                     CreatureGroup formation = target.ToCreature().GetFormation();
                     if (formation != null)

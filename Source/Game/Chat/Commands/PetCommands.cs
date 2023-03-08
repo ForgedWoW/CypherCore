@@ -13,16 +13,16 @@ namespace Game.Chat
         [Command("create", RBACPermissions.CommandPetCreate)]
         static bool HandlePetCreateCommand(CommandHandler handler)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             Creature creatureTarget = handler.GetSelectedCreature();
 
-            if (!creatureTarget || creatureTarget.IsPet() || creatureTarget.IsTypeId(TypeId.Player))
+            if (!creatureTarget || creatureTarget.IsPet || creatureTarget.IsTypeId(TypeId.Player))
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
                 return false;
             }
 
-            CreatureTemplate creatureTemplate = creatureTarget.GetCreatureTemplate();
+            CreatureTemplate creatureTemplate = creatureTarget.CreatureTemplate;
             // Creatures with family CreatureFamily.None crashes the server
             if (creatureTemplate.Family == CreatureFamily.None)
             {
@@ -30,7 +30,7 @@ namespace Game.Chat
                 return false;
             }
 
-            if (!player.GetPetGUID().IsEmpty())
+            if (!player.PetGUID.IsEmpty)
             {
                 handler.SendSysMessage("You already have a pet");
                 return false;
@@ -43,13 +43,13 @@ namespace Game.Chat
             creatureTarget.DespawnOrUnsummon();
 
             // prepare visual effect for levelup
-            pet.SetLevel(player.GetLevel() - 1);
+            pet.SetLevel(player.Level - 1);
 
             // add to world
             pet.GetMap().AddToMap(pet.ToCreature());
 
             // visual effect for levelup
-            pet.SetLevel(player.GetLevel());
+            pet.SetLevel(player.Level);
 
             // caster have pet now
             player.SetMinion(pet, true);
@@ -124,18 +124,18 @@ namespace Game.Chat
             }
 
             if (level == 0)
-                level = (int)(owner.GetLevel() - pet.GetLevel());
+                level = (int)(owner.Level - pet.Level);
             if (level == 0 || level < -SharedConst.StrongMaxLevel || level > SharedConst.StrongMaxLevel)
             {
                 handler.SendSysMessage(CypherStrings.BadValue);
                 return false;
             }
 
-            int newLevel = (int)pet.GetLevel() + level;
+            int newLevel = (int)pet.Level + level;
             if (newLevel < 1)
                 newLevel = 1;
-            else if (newLevel > owner.GetLevel())
-                newLevel = (int)owner.GetLevel();
+            else if (newLevel > owner.Level)
+                newLevel = (int)owner.Level;
 
             pet.GivePetLevel(newLevel);
             return true;
@@ -148,12 +148,12 @@ namespace Game.Chat
             {
                 if (target.IsTypeId(TypeId.Player))
                     return target.ToPlayer().GetPet();
-                if (target.IsPet())
+                if (target.IsPet)
                     return target.ToPet();
                 return null;
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             return player ? player.GetPet() : null;
         }
     }

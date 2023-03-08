@@ -22,7 +22,7 @@ internal class spell_q28813_get_our_boys_back_dummy : SpellScript, ISpellOnCast
 
 		if (injuredStormwindInfantry)
 		{
-			injuredStormwindInfantry.SetCreatorGUID(caster.GetGUID());
+			injuredStormwindInfantry.SetCreatorGUID(caster.GUID);
 			injuredStormwindInfantry.CastSpell(injuredStormwindInfantry, QuestSpellIds.RenewedLife, true);
 		}
 	}

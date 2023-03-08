@@ -24,7 +24,7 @@ namespace Game.Chat
             if (string.IsNullOrEmpty(guildName))
                 return false;
 
-            if (target.GetGuildId() != 0)
+            if (target.GuildId != 0)
             {
                 handler.SendSysMessage(CypherStrings.PlayerInGuild);
                 return false;
@@ -96,7 +96,7 @@ namespace Game.Chat
             if (targetIdentifier == null)
                 return false;
 
-            ulong guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GetGuildId() : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
+            ulong guildId = targetIdentifier.IsConnected() ? targetIdentifier.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(targetIdentifier.GetGUID());
             if (guildId == 0)
                 return false;
 
@@ -116,7 +116,7 @@ namespace Game.Chat
             if (player == null)
                 return false;
 
-            ulong guildId = player.IsConnected() ? player.GetConnectedPlayer().GetGuildId() : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(player.GetGUID());
+            ulong guildId = player.IsConnected() ? player.GetConnectedPlayer().GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(player.GetGUID());
             if (guildId == 0)
                 return false;
 
@@ -179,7 +179,7 @@ namespace Game.Chat
                     guild = Global.GuildMgr.GetGuildByName(args.NextString());
             }
             else if (target)
-                guild = target.GetGuild();
+                guild = target.Guild;
 
             if (!guild)
                 return false;

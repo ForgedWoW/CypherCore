@@ -22,7 +22,7 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
 		for (var i = 0; i < objs.Count; ++i)
 		{
 			var creature = objs[i];
-			VisGuids.Remove(creature.GetGUID());
+			VisGuids.Remove(creature.GUID);
 
 			Player.UpdateVisibilityOf(creature, Data, VisibleNow);
 
@@ -38,7 +38,7 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
 		for (var i = 0; i < objs.Count; ++i)
 		{
 			var player = objs[i];
-			VisGuids.Remove(player.GetGUID());
+			VisGuids.Remove(player.GUID);
 
 			Player.UpdateVisibilityOf(player, Data, VisibleNow);
 

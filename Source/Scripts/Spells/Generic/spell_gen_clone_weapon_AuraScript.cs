@@ -56,7 +56,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 					var mainItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 					if (mainItem)
-						target.SetVirtualItem(0, mainItem.GetEntry());
+						target.SetVirtualItem(0, mainItem.Entry);
 				}
 				else
 				{
@@ -77,7 +77,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 					var offItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
 					if (offItem)
-						target.SetVirtualItem(1, offItem.GetEntry());
+						target.SetVirtualItem(1, offItem.Entry);
 				}
 				else
 				{
@@ -97,7 +97,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 					var rangedItem = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 					if (rangedItem)
-						target.SetVirtualItem(2, rangedItem.GetEntry());
+						target.SetVirtualItem(2, rangedItem.Entry);
 				}
 				else
 				{

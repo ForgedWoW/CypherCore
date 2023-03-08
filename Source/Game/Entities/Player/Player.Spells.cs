@@ -17,7 +17,7 @@ public partial class Player
 {
 	public void UpdateSkillsForLevel()
 	{
-		var race = GetRace();
+		var race = Race;
 		var maxSkill = GetMaxSkillValueForLevel();
 		SkillInfo skillInfoField = ActivePlayerData.Skill;
 
@@ -27,7 +27,7 @@ public partial class Player
 				continue;
 
 			var pskill = pair.Key;
-			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(pskill, GetRace(), GetClass());
+			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(pskill, Race, Class);
 
 			if (rcEntry == null)
 				continue;
@@ -172,11 +172,11 @@ public partial class Player
 		var charmInfo = pet.GetCharmInfo();
 
 		PetSpells petSpellsPacket = new();
-		petSpellsPacket.PetGUID = pet.GetGUID();
-		petSpellsPacket.CreatureFamily = (ushort)pet.GetCreatureTemplate().Family; // creature family (required for pet talents)
+		petSpellsPacket.PetGUID = pet.GUID;
+		petSpellsPacket.CreatureFamily = (ushort)pet.CreatureTemplate.Family; // creature family (required for pet talents)
 		petSpellsPacket.Specialization = pet.GetSpecialization();
 		petSpellsPacket.TimeLimit = (uint)pet.GetDuration();
-		petSpellsPacket.ReactState = pet.GetReactState();
+		petSpellsPacket.ReactState = pet.ReactState;
 		petSpellsPacket.CommandState = charmInfo.GetCommandState();
 
 		// action bar loop
@@ -204,7 +204,7 @@ public partial class Player
 		if (!creature.HasNpcFlag(NPCFlags.SpellClick))
 			return false;
 
-		var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.GetEntry());
+		var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.Entry);
 
 		if (clickBounds.Empty())
 			return true;
@@ -214,7 +214,7 @@ public partial class Player
 			if (!spellClickInfo.IsFitToRequirements(this, creature))
 				return false;
 
-			if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.GetEntry(), spellClickInfo.spellId, this, creature))
+			if (Global.ConditionMgr.IsObjectMeetingSpellClickConditions(creature.Entry, spellClickInfo.spellId, this, creature))
 				return true;
 		}
 
@@ -262,7 +262,7 @@ public partial class Player
 				var specSpell = specSpells[j];
 				var spellInfo = Global.SpellMgr.GetSpellInfo(specSpell.SpellID, Difficulty.None);
 
-				if (spellInfo == null || spellInfo.SpellLevel > GetLevel())
+				if (spellInfo == null || spellInfo.SpellLevel > Level)
 					continue;
 
 				LearnSpell(specSpell.SpellID, true);
@@ -352,7 +352,7 @@ public partial class Player
 		foreach (var bsl in bonusSkillLevels)
 			if (value < bsl && new_value >= bsl)
 			{
-				LearnSkillRewardedSpells(skillId, new_value, GetRace());
+				LearnSkillRewardedSpells(skillId, new_value, Race);
 
 				break;
 			}
@@ -385,7 +385,7 @@ public partial class Player
 		if (!ignore_condition && pEnchant.ConditionID != 0 && !EnchantmentFitsRequirements(pEnchant.ConditionID, -1))
 			return;
 
-		if (pEnchant.MinLevel > GetLevel())
+		if (pEnchant.MinLevel > Level)
 			return;
 
 		if (pEnchant.RequiredSkillID > 0 && pEnchant.RequiredSkillRank > GetSkillValue((SkillType)pEnchant.RequiredSkillID))
@@ -446,7 +446,7 @@ public partial class Player
 							if (apply)
 								CastSpell(this, enchant_spell_id, item);
 							else
-								RemoveAurasDueToItemSpell(enchant_spell_id, item.GetGUID());
+								RemoveAurasDueToItemSpell(enchant_spell_id, item.GUID);
 						}
 
 						break;
@@ -459,12 +459,12 @@ public partial class Player
 								scalingClass = pEnchant.ScalingClassRestricted;
 
 							var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
-							var scalingLevel = GetLevel();
+							var scalingLevel = Level;
 							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
 
-							if (minLevel > GetLevel())
+							if (minLevel > Level)
 								scalingLevel = minLevel;
-							else if (maxLevel < GetLevel())
+							else if (maxLevel < Level)
 								scalingLevel = maxLevel;
 
 							var spellScaling = CliDB.SpellScalingGameTable.GetRow(scalingLevel);
@@ -487,12 +487,12 @@ public partial class Player
 								scalingClass = pEnchant.ScalingClassRestricted;
 
 							var minLevel = pEnchant.GetFlags().HasFlag(SpellItemEnchantmentFlags.ScaleAsAGem) ? 1 : 60u;
-							var scalingLevel = GetLevel();
+							var scalingLevel = Level;
 							var maxLevel = (byte)(pEnchant.MaxLevel != 0 ? pEnchant.MaxLevel : CliDB.SpellScalingGameTable.GetTableRowCount() - 1);
 
-							if (minLevel > GetLevel())
+							if (minLevel > Level)
 								scalingLevel = minLevel;
-							else if (maxLevel < GetLevel())
+							else if (maxLevel < Level)
 								scalingLevel = maxLevel;
 
 							var spellScaling = CliDB.SpellScalingGameTable.GetRow(scalingLevel);
@@ -771,14 +771,14 @@ public partial class Player
 
 	public void StopCastingBindSight()
 	{
-		var target = GetViewpoint();
+		var target = Viewpoint;
 
 		if (target)
 			if (target.IsTypeMask(TypeMask.Unit))
 			{
-				((Unit)target).RemoveAurasByType(AuraType.BindSight, GetGUID());
-				((Unit)target).RemoveAurasByType(AuraType.ModPossess, GetGUID());
-				((Unit)target).RemoveAurasByType(AuraType.ModPossessPet, GetGUID());
+				((Unit)target).RemoveAurasByType(AuraType.BindSight, GUID);
+				((Unit)target).RemoveAurasByType(AuraType.ModPossess, GUID);
+				((Unit)target).RemoveAurasByType(AuraType.ModPossessPet, GUID);
 			}
 	}
 
@@ -909,7 +909,7 @@ public partial class Player
 
 		if (skillEntry == null)
 		{
-			Log.outError(LogFilter.Misc, $"Player.Spells.SetSkill: Skillid: {id} not found in SkillLineStorage for player {GetName()} ({GetGUID()})");
+			Log.outError(LogFilter.Misc, $"Player.Spells.SetSkill: Skillid: {id} not found in SkillLineStorage for player {GetName()} ({GUID})");
 
 			return;
 		}
@@ -953,7 +953,7 @@ public partial class Player
 				SetSkillRank(skillStatusData.Pos, (ushort)newVal);
 				SetSkillMaxRank(skillStatusData.Pos, (ushort)maxVal);
 
-				LearnSkillRewardedSpells(id, newVal, GetRace());
+				LearnSkillRewardedSpells(id, newVal, Race);
 
 				// if skill value is going up, update enchantments after setting the new value
 				if (newVal > currVal)
@@ -1068,7 +1068,7 @@ public partial class Player
 
 			if (skillSlot == 0)
 			{
-				Log.outError(LogFilter.Misc, $"Tried to add skill {id} but player {GetName()} ({GetGUID()}) cannot have additional skills");
+				Log.outError(LogFilter.Misc, $"Tried to add skill {id} but player {GetName()} ({GUID}) cannot have additional skills");
 
 				return;
 			}
@@ -1077,7 +1077,7 @@ public partial class Player
 			{
 				if (skillEntry.ParentTierIndex > 0)
 				{
-					var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, GetRace(), GetClass());
+					var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillEntry.ParentSkillLineID, Race, Class);
 
 					if (rcEntry != null)
 					{
@@ -1128,7 +1128,7 @@ public partial class Player
 				refreshSkillBonusAuras();
 
 				// Learn all spells for skill
-				LearnSkillRewardedSpells(id, newVal, GetRace());
+				LearnSkillRewardedSpells(id, newVal, Race);
 				UpdateCriteria(CriteriaType.SkillRaised, id);
 				UpdateCriteria(CriteriaType.AchieveSkillStep, id);
 			}
@@ -1288,7 +1288,7 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Player, "Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.GetEntry(), effectData.SpellID);
+					Log.outError(LogFilter.Player, "Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.Entry, effectData.SpellID);
 
 					continue;
 				}
@@ -1363,7 +1363,7 @@ public partial class Player
 	public void LearnSkillRewardedSpells(uint skillId, uint skillValue, Race race)
 	{
 		var raceMask = SharedConst.GetMaskForRace(race);
-		var classMask = GetClassMask();
+		var classMask = ClassMask;
 
 		var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(skillId);
 
@@ -1405,7 +1405,7 @@ public partial class Player
 				continue;
 
 			// check level, skip class spells if not high enough
-			if (GetLevel() < spellInfo.SpellLevel)
+			if (Level < spellInfo.SpellLevel)
 				continue;
 
 			// need unlearn spell
@@ -1673,11 +1673,11 @@ public partial class Player
 		//    return;
 
 		// learn default race/class spells
-		var info = Global.ObjectMgr.GetPlayerInfo(GetRace(), GetClass());
+		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
 
 		foreach (var tspell in info.CustomSpells)
 		{
-			Log.outDebug(LogFilter.Player, "PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", GetClass(), GetRace(), tspell);
+			Log.outDebug(LogFilter.Player, "PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
 
 			if (!IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
 				AddSpell(tspell, true, true, true, false);
@@ -1689,14 +1689,14 @@ public partial class Player
 	public void LearnDefaultSkills()
 	{
 		// learn default race/class skills
-		var info = Global.ObjectMgr.GetPlayerInfo(GetRace(), GetClass());
+		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
 
 		foreach (var rcInfo in info.Skills)
 		{
 			if (HasSkill((SkillType)rcInfo.SkillID))
 				continue;
 
-			if (rcInfo.MinLevel > GetLevel())
+			if (rcInfo.MinLevel > Level)
 				continue;
 
 			LearnDefaultSkill(rcInfo);
@@ -1720,8 +1720,8 @@ public partial class Player
 
 				if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
 					skillValue = maxValue;
-				else if (GetClass() == Class.Deathknight)
-					skillValue = (ushort)Math.Min(Math.Max(1, (GetLevel() - 1) * 5), maxValue);
+				else if (Class == Class.Deathknight)
+					skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
 
 				SetSkill(skillId, 0, skillValue, maxValue);
 
@@ -1739,8 +1739,8 @@ public partial class Player
 
 				if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
 					skillValue = maxValue;
-				else if (GetClass() == Class.Deathknight)
-					skillValue = (ushort)Math.Min(Math.Max(1, (GetLevel() - 1) * 5), maxValue);
+				else if (Class == Class.Deathknight)
+					skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
 
 				SetSkill(skillId, 1, skillValue, maxValue);
 
@@ -1864,7 +1864,7 @@ public partial class Player
 				pSpell.State = PlayerSpellState.Removed;
 		}
 
-		RemoveOwnedAura(spellId, GetGUID());
+		RemoveOwnedAura(spellId, GUID);
 
 		// remove pet auras
 		foreach (var petAur in Global.SpellMgr.GetPetAuras(spellId)?.Values)
@@ -1875,7 +1875,7 @@ public partial class Player
 
 		if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank)
 		{
-			var freeProfs = GetFreePrimaryProfessionPoints() + 1;
+			var freeProfs = FreePrimaryProfessionPoints + 1;
 
 			if (freeProfs <= WorldConfig.GetIntValue(WorldCfg.MaxPrimaryTradeSkill))
 				SetFreePrimaryProfessions(freeProfs);
@@ -1979,7 +1979,7 @@ public partial class Player
 				SetCanTitanGrip(false);
 			}
 
-		if (CanDualWield())
+		if (CanDualWield)
 			if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.DualWield))
 				SetCanDualWield(false);
 
@@ -2071,7 +2071,7 @@ public partial class Player
 		{
 			case SpellModType.Flat:
 			case SpellModType.Pct:
-				if (!IsLoading())
+				if (!IsLoading)
 				{
 					var opcode = (mod.Type == SpellModType.Flat ? ServerOpcodes.SetFlatSpellModifier : ServerOpcodes.SetPctSpellModifier);
 					SetSpellModifier packet = new(opcode);
@@ -2464,7 +2464,7 @@ public partial class Player
 
 	public void InitRunes()
 	{
-		if (GetClass() != Class.Deathknight)
+		if (Class != Class.Deathknight)
 			return;
 
 		var runeIndex = GetPowerIndex(PowerType.Runes);
@@ -2485,7 +2485,7 @@ public partial class Player
 
 	public void UpdateAllRunesRegen()
 	{
-		if (GetClass() != Class.Deathknight)
+		if (Class != Class.Deathknight)
 			return;
 
 		var runeIndex = GetPowerIndex(PowerType.Runes);
@@ -2535,7 +2535,7 @@ public partial class Player
 	{
 		var target = damageInfo.GetVictim();
 
-		if (target == null || !target.IsAlive() || target == this)
+		if (target == null || !target.IsAlive || target == this)
 			return;
 
 		for (var i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
@@ -2578,7 +2578,7 @@ public partial class Player
 
 							// Check if item is useable (forms or disarm)
 							if (damageInfo.GetAttackType() == WeaponAttackType.BaseAttack)
-								if (!IsUseEquipedWeapon(true) && !IsInFeralForm())
+								if (!IsUseEquipedWeapon(true) && !IsInFeralForm)
 									continue;
 						}
 
@@ -2666,7 +2666,7 @@ public partial class Player
 				{
 					Log.outError(LogFilter.Player,
 								"Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
-								GetGUID().ToString(),
+								GUID.ToString(),
 								GetName(),
 								enchant_id,
 								pEnchant.EffectArg[s]);
@@ -2738,7 +2738,7 @@ public partial class Player
 
 		if (myClassOnly)
 		{
-			var clsEntry = CliDB.ChrClassesStorage.LookupByKey(GetClass());
+			var clsEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
 
 			if (clsEntry == null)
 				return;
@@ -2875,7 +2875,7 @@ public partial class Player
 	{
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(GetClass(), i);
+			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
 
 			if (specialization != null)
 			{
@@ -2908,7 +2908,7 @@ public partial class Player
 
 		foreach (var skillLine in CliDB.SkillLineStorage.Values)
 		{
-			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillLine.Id, GetRace(), GetClass());
+			var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(skillLine.Id, Race, Class);
 
 			if (rcEntry != null)
 			{
@@ -3030,7 +3030,7 @@ public partial class Player
 
 		if (duration > 0)
 		{
-			GetSession().SendItemEnchantTimeUpdate(GetGUID(), item.GetGUID(), (uint)slot, duration / 1000);
+			Session.SendItemEnchantTimeUpdate(GUID, item.GUID, (uint)slot, duration / 1000);
 			_enchantDurations.Add(new EnchantDuration(item, slot, duration));
 		}
 	}
@@ -3240,7 +3240,7 @@ public partial class Player
 							// skip not self applied auras
 							var spellInfo = aura.SpellInfo;
 
-							if (aura.CasterGuid != GetGUID())
+							if (aura.CasterGuid != GUID)
 								return false;
 
 							// skip if not item dependent or have alternative item
@@ -3355,7 +3355,7 @@ public partial class Player
 	void SendKnownSpells()
 	{
 		SendKnownSpells knownSpells = new();
-		knownSpells.InitialLogin = IsLoading();
+		knownSpells.InitialLogin = IsLoading;
 
 		foreach (var spell in _spells.ToList())
 		{
@@ -3383,7 +3383,7 @@ public partial class Player
 	{
 		// note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
 		// talent dependent passives activated at form apply have proper stance data
-		var form = GetShapeshiftForm();
+		var form = ShapeshiftForm;
 
 		var need_cast = (spellInfo.Stances == 0 ||
 						(form != 0 && Convert.ToBoolean(spellInfo.Stances & (1ul << ((int)form - 1)))) ||
@@ -3719,7 +3719,7 @@ public partial class Player
 		}
 
 		// update free primary prof.points (if any, can be none in case GM .learn prof. learning)
-		var freeProfs = GetFreePrimaryProfessionPoints();
+		var freeProfs = FreePrimaryProfessionPoints;
 
 		if (freeProfs != 0)
 			if (spellInfo.IsPrimaryProfessionFirstRank)
@@ -3764,7 +3764,7 @@ public partial class Player
 				// Runeforging special case
 				if ((_spell_idx.AcquireMethod == AbilityLearnType.OnSkillLearn && !HasSkill((SkillType)_spell_idx.SkillLine)) || ((_spell_idx.SkillLine == (int)SkillType.Runeforging) && _spell_idx.TrivialSkillLineRankHigh == 0))
 				{
-					var rcInfo = Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, GetRace(), GetClass());
+					var rcInfo = Global.DB2Mgr.GetSkillRaceClassInfo(_spell_idx.SkillLine, Race, Class);
 
 					if (rcInfo != null)
 						LearnDefaultSkill(rcInfo);
@@ -3790,7 +3790,7 @@ public partial class Player
 				AddOverrideSpell(spellNode.OverridesSpell, spellNode.Spell);
 		}
 
-		if (!GetSession().PlayerLoading())
+		if (!Session.PlayerLoading)
 		{
 			// not ranked skills
 			foreach (var _spell_idx in skill_bounds)
@@ -3804,7 +3804,7 @@ public partial class Player
 
 		// needs to be when spell is already learned, to prevent infinite recursion crashes
 		if (Global.DB2Mgr.GetMount(spellId) != null)
-			GetSession().GetCollectionMgr().AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
+			Session.			CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
 
 		// return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
 		return active && !disabled && !superceded_old;

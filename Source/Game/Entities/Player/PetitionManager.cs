@@ -82,8 +82,8 @@ public class PetitionManager : Singleton<PetitionManager>
 			return;
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
-		stmt.AddValue(0, ownerGuid.GetCounter());
-		stmt.AddValue(1, petitionGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
+		stmt.AddValue(1, petitionGuid.Counter);
 		stmt.AddValue(2, name);
 		DB.Characters.Execute(stmt);
 	}
@@ -96,11 +96,11 @@ public class PetitionManager : Singleton<PetitionManager>
 		SQLTransaction trans = new();
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
-		stmt.AddValue(0, petitionGuid.GetCounter());
+		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
-		stmt.AddValue(0, petitionGuid.GetCounter());
+		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
 		DB.Characters.CommitTransaction(trans);
@@ -128,11 +128,11 @@ public class PetitionManager : Singleton<PetitionManager>
 
 		SQLTransaction trans = new();
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
-		stmt.AddValue(0, ownerGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
-		stmt.AddValue(0, ownerGuid.GetCounter());
+		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
 		DB.Characters.CommitTransaction(trans);
 	}
@@ -143,7 +143,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			petitionPair.Value.RemoveSignatureBySigner(signerGuid);
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
-		stmt.AddValue(0, signerGuid.GetCounter());
+		stmt.AddValue(0, signerGuid.Counter);
 		DB.Characters.Execute(stmt);
 	}
 }

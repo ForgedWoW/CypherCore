@@ -24,10 +24,10 @@ namespace Scripts.Pets
 					return;
 
 				_owner = owner;
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Assist);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Assist;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 

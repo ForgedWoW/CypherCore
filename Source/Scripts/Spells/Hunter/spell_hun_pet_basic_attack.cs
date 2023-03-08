@@ -47,14 +47,14 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 			{
 				caster.CastSpell(target, HunterSpells.BLINK_STRIKES_TELEPORT, true);
 
-				if (caster.ToCreature().IsAIEnabled() && caster.ToPet())
+				if (caster.ToCreature().IsAIEnabled && caster.ToPet())
 				{
 					caster.ToPet().ClearUnitState(UnitState.Follow);
 
 					if (caster.ToPet().GetVictim())
 						caster.ToPet().AttackStop();
 
-					caster.GetMotionMaster().Clear();
+					caster.MotionMaster.Clear();
 					caster.ToPet().GetCharmInfo().SetIsCommandAttack(true);
 					caster.ToPet().GetCharmInfo().SetIsAtStay(false);
 					caster.ToPet().GetCharmInfo().SetIsReturning(false);

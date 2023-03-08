@@ -17,7 +17,7 @@ public class spell_monk_zen_flight_check_AuraScript : AuraScript, IHasAuraEffect
 
 	public override bool Load()
 	{
-		return Caster && Caster.GetTypeId() == TypeId.Player;
+		return Caster && Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

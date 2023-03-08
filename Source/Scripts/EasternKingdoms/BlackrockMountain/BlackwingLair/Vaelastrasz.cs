@@ -44,7 +44,7 @@ internal class boss_vaelastrasz : BossAI
 	{
 		Initialize();
 		creature.SetNpcFlag(NPCFlags.Gossip);
-		creature.SetFaction((uint)FactionTemplates.Friendly);
+		creature.Faction = (uint)FactionTemplates.Friendly;
 		creature.RemoveUnitFlag(UnitFlags.Uninteractible);
 	}
 
@@ -101,7 +101,7 @@ internal class boss_vaelastrasz : BossAI
 							{
 								//selects a random Target that isn't the current victim and is a mana user (selects mana users) but not pets
 								//it also ignores targets who have the aura. We don't want to place the debuff on the same Target twice.
-								var target = SelectTarget(SelectTargetMethod.Random, 1, u => { return u && !u.IsPet() && u.GetPowerType() == PowerType.Mana && !u.HasAura(SpellIds.Burningadrenaline); });
+								var target = SelectTarget(SelectTargetMethod.Random, 1, u => { return u && !u.IsPet && u.GetPowerType() == PowerType.Mana && !u.HasAura(SpellIds.Burningadrenaline); });
 
 								if (target != null)
 									me.CastSpell(target, SpellIds.Burningadrenaline, true);
@@ -167,7 +167,7 @@ internal class boss_vaelastrasz : BossAI
 
 	private void BeginSpeech(Unit target)
 	{
-		PlayerGUID = target.GetGUID();
+		PlayerGUID = target.GUID;
 		me.RemoveNpcFlag(NPCFlags.Gossip);
 
 		_scheduler.Schedule(TimeSpan.FromSeconds(1),
@@ -192,7 +192,7 @@ internal class boss_vaelastrasz : BossAI
 																		speechTask3.Schedule(TimeSpan.FromSeconds(16),
 																							speechTask4 =>
 																							{
-																								me.SetFaction((uint)FactionTemplates.DragonflightBlack);
+																								me.Faction = (uint)FactionTemplates.DragonflightBlack;
 																								var player = Global.ObjAccessor.GetPlayer(me, PlayerGUID);
 
 																								if (player)

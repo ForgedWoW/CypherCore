@@ -32,7 +32,7 @@ public class at_mage_blizzard : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (!caster.IsPlayer())
+		if (!caster.IsPlayer)
 			return;
 
 		timeInterval += (int)diff;
@@ -43,8 +43,8 @@ public class at_mage_blizzard : AreaTriggerAI
 		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
 
 		{
-			tempSumm.SetFaction(caster.GetFaction());
-			tempSumm.SetSummonerGUID(caster.GetGUID());
+			tempSumm.Faction = caster.Faction;
+			tempSumm.SetSummonerGUID(caster.GUID);
 			PhasingHandler.InheritPhaseShift(tempSumm, caster);
 			caster.CastSpell(tempSumm, UsingSpells.BLIZZARD_DAMAGE, true);
 		}

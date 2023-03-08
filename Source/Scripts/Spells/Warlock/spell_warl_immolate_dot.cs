@@ -86,7 +86,7 @@ public class spell_warlock_immolate_dot : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var checker = new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID());
+		var checker = new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GUID);
 		var enemies = new List<Unit>();
 		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, 100.0f, checker.Invoke);
 		var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);

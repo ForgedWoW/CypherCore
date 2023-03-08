@@ -92,7 +92,7 @@ internal class netherspite_infernal : ScriptedAI
 	{
 		if (spellInfo.Id == SpellIds.InfernalRelay)
 		{
-			me.SetDisplayId(me.GetNativeDisplayId());
+			me.SetDisplayId(me.NativeDisplayId);
 			me.SetUnitFlag(UnitFlags.Uninteractible);
 
 			_scheduler.Schedule(TimeSpan.FromSeconds(4), task => DoCast(me, SpellIds.Hellfire));
@@ -102,7 +102,7 @@ internal class netherspite_infernal : ScriptedAI
 								{
 									var pMalchezaar = ObjectAccessor.GetCreature(me, Malchezaar);
 
-									if (pMalchezaar && pMalchezaar.IsAlive())
+									if (pMalchezaar && pMalchezaar.IsAlive)
 										pMalchezaar.GetAI<boss_malchezaar>().Cleanup(me, Point);
 								});
 		}
@@ -111,7 +111,7 @@ internal class netherspite_infernal : ScriptedAI
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		if (!done_by ||
-			done_by.GetGUID() != Malchezaar)
+			done_by.GUID != Malchezaar)
 			damage = 0;
 	}
 }
@@ -214,8 +214,8 @@ internal class boss_malchezaar : ScriptedAI
 			return;
 
 		if (me.GetVictim() &&
-			me.GetTarget() != me.GetVictim().GetGUID())
-			me.SetTarget(me.GetVictim().GetGUID());
+			me.GetTarget() != me.GetVictim().GUID)
+			me.SetTarget(me.GetVictim().GUID);
 
 		if (phase == 1)
 		{
@@ -265,8 +265,8 @@ internal class boss_malchezaar : ScriptedAI
 					if (axe)
 					{
 						axe.SetUnitFlag(UnitFlags.Uninteractible);
-						axe.SetFaction(me.GetFaction());
-						axes[i] = axe.GetGUID();
+						axe.Faction = me.Faction;
+						axes[i] = axe.GUID;
 
 						if (target)
 						{
@@ -411,7 +411,7 @@ internal class boss_malchezaar : ScriptedAI
 	public void Cleanup(Creature infernal, Vector2 point)
 	{
 		foreach (var guid in infernals)
-			if (guid == infernal.GetGUID())
+			if (guid == infernal.GUID)
 			{
 				infernals.Remove(guid);
 
@@ -448,7 +448,7 @@ internal class boss_malchezaar : ScriptedAI
 		{
 			var pInfernal = Global.ObjAccessor.GetUnit(me, guid);
 
-			if (pInfernal && pInfernal.IsAlive())
+			if (pInfernal && pInfernal.IsAlive)
 			{
 				pInfernal.SetVisible(false);
 				pInfernal.SetDeathState(DeathState.JustDied);
@@ -464,7 +464,7 @@ internal class boss_malchezaar : ScriptedAI
 		{
 			var axe = Global.ObjAccessor.GetUnit(me, axes[i]);
 
-			if (axe && axe.IsAlive())
+			if (axe && axe.IsAlive)
 				axe.KillSelf();
 
 			axes[i].Clear();
@@ -492,8 +492,8 @@ internal class boss_malchezaar : ScriptedAI
 			var target = refe.GetVictim();
 
 			if (target != tank &&
-				target.IsAlive() &&
-				target.IsPlayer())
+				target.IsAlive &&
+				target.IsPlayer)
 				targets.Add(target);
 		}
 
@@ -509,11 +509,11 @@ internal class boss_malchezaar : ScriptedAI
 		{
 			if (target)
 			{
-				enfeeble_targets[i] = target.GetGUID();
+				enfeeble_targets[i] = target.GUID;
 				enfeeble_health[i] = target.GetHealth();
 
 				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-				args.OriginalCaster = me.GetGUID();
+				args.OriginalCaster = me.GUID;
 				target.CastSpell(target, SpellIds.Enfeeble, args);
 				target.SetHealth(1);
 			}
@@ -528,7 +528,7 @@ internal class boss_malchezaar : ScriptedAI
 		{
 			var target = Global.ObjAccessor.GetUnit(me, enfeeble_targets[i]);
 
-			if (target && target.IsAlive())
+			if (target && target.IsAlive)
 				target.SetHealth(enfeeble_health[i]);
 
 			enfeeble_targets[i].Clear();
@@ -557,14 +557,14 @@ internal class boss_malchezaar : ScriptedAI
 		if (infernal)
 		{
 			infernal.SetDisplayId(MiscConst.InfernalModelInvisible);
-			infernal.SetFaction(me.GetFaction());
+			infernal.Faction = me.Faction;
 
 			if (point != Vector2.Zero)
 				infernal.GetAI<netherspite_infernal>().Point = point;
 
-			infernal.GetAI<netherspite_infernal>().Malchezaar = me.GetGUID();
+			infernal.GetAI<netherspite_infernal>().Malchezaar = me.GUID;
 
-			infernals.Add(infernal.GetGUID());
+			infernals.Add(infernal.GUID);
 			DoCast(infernal, SpellIds.InfernalRelay);
 		}
 

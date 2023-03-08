@@ -98,7 +98,7 @@ internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
 
 		PreventDefaultAction();
 		var caster = eventInfo.Actor;
-		var spellId = triggeredSpells[(int)caster.GetClass()].SelectRandom();
+		var spellId = triggeredSpells[(int)caster.Class].SelectRandom();
 		caster.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
 
 		if (RandomHelper.randChance(10))

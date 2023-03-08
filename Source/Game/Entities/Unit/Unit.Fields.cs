@@ -16,7 +16,7 @@ namespace Game.Entities;
 public partial class Unit
 {
 	public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
-	public bool m_canDualWield;
+	public bool CanDualWield;
 	protected float[] CreateStats = new float[(int)Stats.Max];
 	readonly List<AbstractFollower> _followingMe = new();
 
@@ -120,7 +120,7 @@ public partial class Unit
 	public ObjectGuid[] ObjectSlot { get; set; } = new ObjectGuid[4];
 	public UnitTypeMask UnitTypeMask { get; set; }
 	protected LiquidTypeRecord LastLiquid { get; set; }
-	protected DeathState DeathState { get; set; }
+	public DeathState DeathState { get; protected set; }
 	public Vehicle Vehicle { get; set; }
 	public Vehicle VehicleKit { get; set; }
 	public uint LastSanctuaryTime { get; set; }

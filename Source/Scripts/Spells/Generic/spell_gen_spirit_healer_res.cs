@@ -33,7 +33,7 @@ internal class spell_gen_spirit_healer_res : SpellScript, IHasSpellEffects
 		if (target)
 		{
 			NPCInteractionOpenResult spiritHealerConfirm = new();
-			spiritHealerConfirm.Npc = target.GetGUID();
+			spiritHealerConfirm.Npc = target.GUID;
 			spiritHealerConfirm.InteractionType = PlayerInteractionType.SpiritHealer;
 			spiritHealerConfirm.Success = true;
 			originalCaster.SendPacket(spiritHealerConfirm);

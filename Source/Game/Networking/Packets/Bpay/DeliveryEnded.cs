@@ -4,25 +4,22 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class DeliveryEnded : ServerPacket
 {
-    public class DeliveryEnded : ServerPacket
-    {
-        public DeliveryEnded() : base(ServerOpcodes.BattlePayDeliveryEnded)
-        {
-        }
+	public List<ItemInstance> Item { get; set; } = new();
+	public ulong DistributionID { get; set; } = 0;
 
-        public override void Write()
-        {
-            _worldPacket.Write(DistributionID);
+	public DeliveryEnded() : base(ServerOpcodes.BattlePayDeliveryEnded) { }
 
-            _worldPacket.Write(Item.Count);
+	public override void Write()
+	{
+		_worldPacket.Write(DistributionID);
 
-            foreach (var itemData in Item)
-                itemData.Write(_worldPacket);
-        }
+		_worldPacket.Write(Item.Count);
 
-        public List<ItemInstance> Item { get; set; } = new List<ItemInstance>();
-        public ulong DistributionID { get; set; } = 0;
-    }
+		foreach (var itemData in Item)
+			itemData.Write(_worldPacket);
+	}
 }

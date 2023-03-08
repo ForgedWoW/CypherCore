@@ -35,13 +35,13 @@ public class at_mage_frozen_orb : AreaTriggerAI
 	{
 		var caster = at.GetCaster();
 
-		if (caster == null || !caster.IsPlayer())
+		if (caster == null || !caster.IsPlayer)
 			return;
 
 		if (damageInterval <= diff)
 		{
 			if (!procDone)
-				foreach (var guid in at.GetInsideUnits())
+				foreach (var guid in at.InsideUnits)
 				{
 					var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 

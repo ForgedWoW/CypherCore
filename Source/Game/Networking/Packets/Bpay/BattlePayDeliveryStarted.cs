@@ -3,21 +3,16 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class BattlePayDeliveryStarted : ServerPacket
 {
-    public class BattlePayDeliveryStarted : ServerPacket
-    {
-        public BattlePayDeliveryStarted() : base(ServerOpcodes.BattlePayDeliveryStarted)
-        {
-        }
+	public ulong DistributionID { get; set; } = 0;
 
-        public override void Write()
-        {
-            _worldPacket.Write(DistributionID);
-        }
+	public BattlePayDeliveryStarted() : base(ServerOpcodes.BattlePayDeliveryStarted) { }
 
-        public ulong DistributionID { get; set; } = 0;
-    }
-
-
+	public override void Write()
+	{
+		_worldPacket.Write(DistributionID);
+	}
 }

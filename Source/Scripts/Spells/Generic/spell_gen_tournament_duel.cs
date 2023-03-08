@@ -27,7 +27,7 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var rider = Caster.GetCharmer();
+		var rider = Caster.Charmer;
 
 		if (rider)
 		{
@@ -45,10 +45,10 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 			var unitTarget = HitUnit;
 
 			if (unitTarget)
-				if (unitTarget.GetCharmer() &&
-					unitTarget.GetCharmer().IsTypeId(TypeId.Player) &&
-					unitTarget.GetCharmer().HasAura(GenericSpellIds.OnTournamentMount))
-					rider.CastSpell(unitTarget.GetCharmer(), GenericSpellIds.MountedDuel, true);
+				if (unitTarget.Charmer &&
+					unitTarget.Charmer.IsTypeId(TypeId.Player) &&
+					unitTarget.Charmer.HasAura(GenericSpellIds.OnTournamentMount))
+					rider.CastSpell(unitTarget.Charmer, GenericSpellIds.MountedDuel, true);
 		}
 	}
 }

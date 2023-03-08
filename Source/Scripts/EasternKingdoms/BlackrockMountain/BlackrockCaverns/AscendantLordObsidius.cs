@@ -52,7 +52,7 @@ internal class boss_ascendant_lord_obsidius : BossAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.YellKill);
 	}
 

@@ -27,12 +27,12 @@ namespace Game.Chat.Commands
                 return false;
 
             // from console show not existed sender
-            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().GetPlayer().GetGUID().GetCounter() : 0, MailStationery.Gm);
+            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().Player.GUID.Counter : 0, MailStationery.Gm);
 
             // @todo Fix poor design
             SQLTransaction trans = new();
             new MailDraft(subject, text)
-                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().GetCounter()), sender);
+                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
             DB.Characters.CommitTransaction(trans);
 
@@ -96,7 +96,7 @@ namespace Game.Chat.Commands
             }
 
             // from console show not existed sender
-            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().GetPlayer().GetGUID().GetCounter() : 0, MailStationery.Gm);
+            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().Player.GUID.Counter : 0, MailStationery.Gm);
 
             // fill mail
             MailDraft draft = new(subject, text);
@@ -105,7 +105,7 @@ namespace Game.Chat.Commands
 
             foreach (var pair in items)
             {
-                Item item = Item.CreateItem(pair.Key, pair.Value, ItemContext.None, handler.GetSession() ? handler.GetSession().GetPlayer() : null);
+                Item item = Item.CreateItem(pair.Key, pair.Value, ItemContext.None, handler.GetSession() ? handler.GetSession().Player : null);
                 if (item)
                 {
                     item.SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
@@ -113,7 +113,7 @@ namespace Game.Chat.Commands
                 }
             }
 
-            draft.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().GetCounter()), sender);
+            draft.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
             DB.Characters.CommitTransaction(trans);
 
             string nameLink = handler.PlayerLink(playerIdentifier.GetName());
@@ -137,13 +137,13 @@ namespace Game.Chat.Commands
                 return false;
 
             // from console show not existed sender
-            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().GetPlayer().GetGUID().GetCounter() : 0, MailStationery.Gm);
+            MailSender sender = new(MailMessageType.Normal, handler.GetSession() ? handler.GetSession().Player.GUID.Counter : 0, MailStationery.Gm);
 
             SQLTransaction trans = new();
 
             new MailDraft(subject, text)
                 .AddMoney((uint)money)
-                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().GetCounter()), sender);
+                .SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
             DB.Characters.CommitTransaction(trans);
 
@@ -165,15 +165,17 @@ namespace Game.Chat.Commands
                 return false;
 
             // Check that he is not logging out.
-            if (playerIdentifier.GetConnectedPlayer().GetSession().IsLogingOut())
+            if (playerIdentifier.GetConnectedPlayer().Session.IsLogingOut)
             {
                 handler.SendSysMessage(CypherStrings.PlayerNotFound);
                 return false;
             }
 
             // - Send the message
-            playerIdentifier.GetConnectedPlayer().GetSession().SendNotification("{0}", msgStr);
-            playerIdentifier.GetConnectedPlayer().GetSession().SendNotification("|cffff0000[Message from administrator]:|r");
+            playerIdentifier.GetConnectedPlayer().
+            // - Send the message
+            Session.SendNotification("{0}", msgStr);
+            playerIdentifier.GetConnectedPlayer().            Session.SendNotification("|cffff0000[Message from administrator]:|r");
 
             // Confirmation message
             string nameLink = handler.GetNameLink(playerIdentifier.GetConnectedPlayer());

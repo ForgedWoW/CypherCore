@@ -52,7 +52,7 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		foreach (var itr in targetList)
 			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
 			{
-				mainTargetGUID = itr.GetGUID();
+				mainTargetGUID = itr.GUID;
 
 				break;
 			}
@@ -85,7 +85,7 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		foreach (var itr in targetList)
 			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
 			{
-				mainTargetGUID = itr.GetGUID();
+				mainTargetGUID = itr.GUID;
 
 				break;
 			}

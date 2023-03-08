@@ -46,6 +46,6 @@ public class at_dh_darkness : AreaTriggerAI
 			return;
 
 		if (unit.HasAura(DemonHunterSpells.DARKNESS_ABSORB))
-			unit.RemoveAurasDueToSpell(DemonHunterSpells.DARKNESS_ABSORB, caster.GetGUID());
+			unit.RemoveAurasDueToSpell(DemonHunterSpells.DARKNESS_ABSORB, caster.GUID);
 	}
 }

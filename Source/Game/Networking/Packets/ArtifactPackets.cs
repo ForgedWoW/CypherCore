@@ -5,107 +5,101 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+class ArtifactAddPower : ClientPacket
 {
-    class ArtifactAddPower : ClientPacket
-    {
-        public ArtifactAddPower(WorldPacket packet) : base(packet) { }
+	public ObjectGuid ArtifactGUID;
+	public ObjectGuid ForgeGUID;
+	public Array<ArtifactPowerChoice> PowerChoices = new(1);
+	public ArtifactAddPower(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ArtifactGUID = _worldPacket.ReadPackedGuid();
-            ForgeGUID = _worldPacket.ReadPackedGuid();
+	public override void Read()
+	{
+		ArtifactGUID = _worldPacket.ReadPackedGuid();
+		ForgeGUID = _worldPacket.ReadPackedGuid();
 
-            var powerCount = _worldPacket.ReadUInt32();
-            for (var i = 0; i < powerCount; ++i)
-            {
-                ArtifactPowerChoice artifactPowerChoice;
-                artifactPowerChoice.ArtifactPowerID = _worldPacket.ReadUInt32();
-                artifactPowerChoice.Rank = _worldPacket.ReadUInt8();
-                PowerChoices[i] = artifactPowerChoice;
-            }
-        }
+		var powerCount = _worldPacket.ReadUInt32();
 
-        public ObjectGuid ArtifactGUID;
-        public ObjectGuid ForgeGUID;
-        public Array<ArtifactPowerChoice> PowerChoices = new(1);
+		for (var i = 0; i < powerCount; ++i)
+		{
+			ArtifactPowerChoice artifactPowerChoice;
+			artifactPowerChoice.ArtifactPowerID = _worldPacket.ReadUInt32();
+			artifactPowerChoice.Rank = _worldPacket.ReadUInt8();
+			PowerChoices[i] = artifactPowerChoice;
+		}
+	}
 
-        public struct ArtifactPowerChoice
-        {
-            public uint ArtifactPowerID;
-            public byte Rank;
-        }
-    }
+	public struct ArtifactPowerChoice
+	{
+		public uint ArtifactPowerID;
+		public byte Rank;
+	}
+}
 
-    class ArtifactSetAppearance : ClientPacket
-    {
-        public ArtifactSetAppearance(WorldPacket packet) : base(packet) { }
+class ArtifactSetAppearance : ClientPacket
+{
+	public ObjectGuid ArtifactGUID;
+	public ObjectGuid ForgeGUID;
+	public int ArtifactAppearanceID;
+	public ArtifactSetAppearance(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ArtifactGUID = _worldPacket.ReadPackedGuid();
-            ForgeGUID = _worldPacket.ReadPackedGuid();
-            ArtifactAppearanceID = _worldPacket.ReadInt32();
-        }
+	public override void Read()
+	{
+		ArtifactGUID = _worldPacket.ReadPackedGuid();
+		ForgeGUID = _worldPacket.ReadPackedGuid();
+		ArtifactAppearanceID = _worldPacket.ReadInt32();
+	}
+}
 
-        public ObjectGuid ArtifactGUID;
-        public ObjectGuid ForgeGUID;
-        public int ArtifactAppearanceID;
-    }
+class ConfirmArtifactRespec : ClientPacket
+{
+	public ObjectGuid ArtifactGUID;
+	public ObjectGuid NpcGUID;
+	public ConfirmArtifactRespec(WorldPacket packet) : base(packet) { }
 
-    class ConfirmArtifactRespec : ClientPacket
-    {
-        public ConfirmArtifactRespec(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		ArtifactGUID = _worldPacket.ReadPackedGuid();
+		NpcGUID = _worldPacket.ReadPackedGuid();
+	}
+}
 
-        public override void Read()
-        {
-            ArtifactGUID = _worldPacket.ReadPackedGuid();
-            NpcGUID = _worldPacket.ReadPackedGuid();
-        }
+class OpenArtifactForge : ServerPacket
+{
+	public ObjectGuid ArtifactGUID;
+	public ObjectGuid ForgeGUID;
+	public OpenArtifactForge() : base(ServerOpcodes.OpenArtifactForge) { }
 
-        public ObjectGuid ArtifactGUID;
-        public ObjectGuid NpcGUID;
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(ArtifactGUID);
+		_worldPacket.WritePackedGuid(ForgeGUID);
+	}
+}
 
-    class OpenArtifactForge : ServerPacket
-    {
-        public OpenArtifactForge() : base(ServerOpcodes.OpenArtifactForge) { }
+class ArtifactRespecPrompt : ServerPacket
+{
+	public ObjectGuid ArtifactGUID;
+	public ObjectGuid NpcGUID;
+	public ArtifactRespecPrompt() : base(ServerOpcodes.ArtifactRespecPrompt) { }
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(ArtifactGUID);
-            _worldPacket.WritePackedGuid(ForgeGUID);
-        }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(ArtifactGUID);
+		_worldPacket.WritePackedGuid(NpcGUID);
+	}
+}
 
-        public ObjectGuid ArtifactGUID;
-        public ObjectGuid ForgeGUID;
-    }
+class ArtifactXpGain : ServerPacket
+{
+	public ObjectGuid ArtifactGUID;
+	public ulong Amount;
+	public ArtifactXpGain() : base(ServerOpcodes.ArtifactXpGain) { }
 
-    class ArtifactRespecPrompt : ServerPacket
-    {
-        public ArtifactRespecPrompt() : base(ServerOpcodes.ArtifactRespecPrompt) { }
-
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(ArtifactGUID);
-            _worldPacket.WritePackedGuid(NpcGUID);
-        }
-
-        public ObjectGuid ArtifactGUID;
-        public ObjectGuid NpcGUID;
-    }
-
-    class ArtifactXpGain : ServerPacket
-    {
-        public ArtifactXpGain() : base(ServerOpcodes.ArtifactXpGain) { }
-
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(ArtifactGUID);
-            _worldPacket.WriteUInt64(Amount);
-        }
-
-        public ObjectGuid ArtifactGUID;
-        public ulong Amount;
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(ArtifactGUID);
+		_worldPacket.WriteUInt64(Amount);
+	}
 }

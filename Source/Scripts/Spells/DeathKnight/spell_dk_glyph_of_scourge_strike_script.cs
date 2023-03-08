@@ -34,7 +34,7 @@ internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellE
 			// search our Blood Plague and Frost Fever on Target
 			if (spellInfo.SpellFamilyName == SpellFamilyNames.Deathknight &&
 				spellInfo.SpellFamilyFlags[2].HasAnyFlag(0x2u) &&
-				aurEff.CasterGuid == caster.GetGUID())
+				aurEff.CasterGuid == caster.GUID)
 			{
 				var countMin = aurEff.Base.MaxDuration;
 				var countMax = spellInfo.MaxDuration;

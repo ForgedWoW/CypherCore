@@ -51,7 +51,7 @@ namespace Game.AI
 
         public override void DoFinalize(T owner, bool active, bool movementInform)
         {
-            if (!owner.IsCreature())
+            if (!owner.IsCreature)
                 return;
 
             AddFlag(MovementGeneratorFlags.Finalized);
@@ -60,12 +60,12 @@ namespace Game.AI
 
             if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
             {
-                if (!owner.HasCanSwimFlagOutOfCombat())
+                if (!owner.HasCanSwimFlagOutOfCombat)
                     owner.RemoveUnitFlag(UnitFlags.CanSwim);
 
                 owner.SetSpawnHealth();
                 owner.LoadCreaturesAddon();
-                if (owner.IsVehicle())
+                if (owner.IsVehicle)
                     owner.GetVehicleKit().Reset(true);
 
                 CreatureAI ai = owner.GetAI();

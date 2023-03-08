@@ -47,8 +47,8 @@ public class CharmInfo
 
 		if (creature != null)
 		{
-			_oldReactState = creature.GetReactState();
-			creature.SetReactState(ReactStates.Passive);
+			_oldReactState = creature.ReactState;
+			creature.ReactState = ReactStates.Passive;
 		}
 	}
 
@@ -59,7 +59,7 @@ public class CharmInfo
 			var creature = _unit.ToCreature();
 
 			if (creature)
-				creature.SetReactState(_oldReactState);
+				creature.ReactState = _oldReactState;
 		}
 	}
 
@@ -95,7 +95,7 @@ public class CharmInfo
 		{
 			// Adding switch until better way is found. Malcrom
 			// Adding entrys to this switch will prevent COMMAND_ATTACK being added to pet bar.
-			switch (_unit.GetEntry())
+			switch (_unit.Entry)
 			{
 				case 23575: // Mindless Abomination
 				case 24783: // Trained Rock Falcon

@@ -6,64 +6,66 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Networking;
 
-namespace Game.Networking
+namespace Game.Networking;
+
+public class WorldSocketManager : SocketManager<WorldSocket>
 {
-    public class WorldSocketManager : SocketManager<WorldSocket>
-    {
-        public override bool StartNetwork(string bindIp, int port, int threadCount)
-        {
-            _tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
+	AsyncAcceptor _instanceAcceptor;
+	int _socketSendBufferSize;
+	bool _tcpNoDelay;
 
-            Log.outDebug(LogFilter.Misc, "Max allowed socket connections {0}", ushort.MaxValue);
+	public override bool StartNetwork(string bindIp, int port, int threadCount)
+	{
+		_tcpNoDelay = ConfigMgr.GetDefaultValue("Network.TcpNodelay", true);
 
-            // -1 means use default
-            _socketSendBufferSize = ConfigMgr.GetDefaultValue("Network.OutKBuff", -1);
+		Log.outDebug(LogFilter.Misc, "Max allowed socket connections {0}", ushort.MaxValue);
 
-            if (!base.StartNetwork(bindIp, port, threadCount))
-                return false;
+		// -1 means use default
+		_socketSendBufferSize = ConfigMgr.GetDefaultValue("Network.OutKBuff", -1);
 
-            _instanceAcceptor = new AsyncAcceptor();
-            if (!_instanceAcceptor.Start(bindIp, WorldConfig.GetIntValue(WorldCfg.PortInstance)))
-            {
-                Log.outError(LogFilter.Network, "StartNetwork failed to start instance AsyncAcceptor");
-                return false;
-            }
+		if (!base.StartNetwork(bindIp, port, threadCount))
+			return false;
 
-            _instanceAcceptor.AsyncAcceptSocket(OnSocketOpen);
+		_instanceAcceptor = new AsyncAcceptor();
 
-            return true;
-        }
+		if (!_instanceAcceptor.Start(bindIp, WorldConfig.GetIntValue(WorldCfg.PortInstance)))
+		{
+			Log.outError(LogFilter.Network, "StartNetwork failed to start instance AsyncAcceptor");
 
-        public override void StopNetwork()
-        {
-            _instanceAcceptor.Close();
-            base.StopNetwork();
+			return false;
+		}
 
-            _instanceAcceptor = null;
-        }
+		_instanceAcceptor.AsyncAcceptSocket(OnSocketOpen);
 
-        public override void OnSocketOpen(Socket sock)
-        {
-            // set some options here
-            try
-            {
-                if (_socketSendBufferSize >= 0)
-                    sock.SendBufferSize = _socketSendBufferSize;
+		return true;
+	}
 
-                // Set TCP_NODELAY.
-                sock.NoDelay = _tcpNoDelay;
-            }
-            catch (SocketException ex)
-            {
-                Log.outException(ex);
-                return;
-            }
+	public override void StopNetwork()
+	{
+		_instanceAcceptor.Close();
+		base.StopNetwork();
 
-            base.OnSocketOpen(sock);
-        }
+		_instanceAcceptor = null;
+	}
 
-        AsyncAcceptor _instanceAcceptor;
-        int _socketSendBufferSize;
-        bool _tcpNoDelay;
-    }
+	public override void OnSocketOpen(Socket sock)
+	{
+		// set some options here
+		try
+		{
+			if (_socketSendBufferSize >= 0)
+				sock.SendBufferSize = _socketSendBufferSize;
+
+			// Set TCP_NODELAY.
+			sock.NoDelay = _tcpNoDelay;
+		}
+		catch (SocketException ex)
+		{
+			Log.outException(ex);
+
+			return;
+		}
+
+		base.OnSocketOpen(sock);
+	}
 }

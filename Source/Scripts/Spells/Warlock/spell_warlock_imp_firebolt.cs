@@ -31,7 +31,7 @@ public class spell_warlock_imp_firebolt : SpellScript, IHasSpellEffects
 		var owner = caster.GetOwner();
 		var damage = HitDamage;
 
-		if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GetGUID()))
+		if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GUID))
 			MathFunctions.AddPct(ref damage, owner.GetAuraEffectAmount(WarlockSpells.FIREBOLT_BONUS, 0));
 
 		HitDamage = damage;

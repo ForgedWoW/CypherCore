@@ -30,7 +30,7 @@ public class spell_warr_execute : SpellScript, ISpellAfterHit, ISpellOnTakePower
 		var target = HitUnit;
 
 		if (target != null)
-			if (target.IsAlive() && caster != null)
+			if (target.IsAlive && caster != null)
 				caster.SetPower(PowerType.Rage, m_powerTaken + 20);
 
 		caster.VariableStorage.Remove("spell_warr_execute_damages::multiplier");

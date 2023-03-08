@@ -24,11 +24,11 @@ public class SpellArea
 	public bool IsFitToRequirements(Player player, uint newZone, uint newArea)
 	{
 		if (Gender != Gender.None) // not in expected gender
-			if (player == null || Gender != player.GetNativeGender())
+			if (player == null || Gender != player.NativeGender)
 				return false;
 
 		if (RaceMask != 0) // not in expected race
-			if (player == null || !Convert.ToBoolean(RaceMask & (ulong)SharedConst.GetMaskForRace(player.GetRace())))
+			if (player == null || !Convert.ToBoolean(RaceMask & (ulong)SharedConst.GetMaskForRace(player.Race)))
 				return false;
 
 		if (AreaId != 0) // not in expected zone
@@ -84,9 +84,9 @@ public class SpellArea
 				// team that controls the workshop in the specified area
 				var team = bf.GetData(newArea);
 
-				if (team == TeamId.Horde)
+				if (team == TeamIds.Horde)
 					return SpellId == 56618;
-				else if (team == TeamId.Alliance)
+				else if (team == TeamIds.Alliance)
 					return SpellId == 56617;
 
 				break;
@@ -100,7 +100,7 @@ public class SpellArea
 				var battlefieldWG = Global.BattleFieldMgr.GetBattlefieldByBattleId(player.GetMap(), 1);
 
 				if (battlefieldWG != null)
-					return battlefieldWG.IsEnabled() && (player.GetTeamId() == battlefieldWG.GetDefenderTeam()) && !battlefieldWG.IsWarTime();
+					return battlefieldWG.IsEnabled() && (player.TeamId == battlefieldWG.GetDefenderTeam()) && !battlefieldWG.IsWarTime();
 
 				break;
 			}

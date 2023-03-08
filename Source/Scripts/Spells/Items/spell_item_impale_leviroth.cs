@@ -33,7 +33,7 @@ internal class spell_item_impale_leviroth : SpellScript, IHasSpellEffects
 		var target = HitCreature;
 
 		if (target)
-			if (target.GetEntry() == CreatureIds.Leviroth &&
+			if (target.Entry == CreatureIds.Leviroth &&
 				!target.HealthBelowPct(95))
 			{
 				target.CastSpell(target, ItemSpellIds.LevirothSelfImpale, true);

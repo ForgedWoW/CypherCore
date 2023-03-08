@@ -74,7 +74,7 @@ internal class boss_gloomrel : ScriptedAI
 		{
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
 				player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 11);
-				player.SendGossipMenu(2606, me.GetGUID());
+				player.SendGossipMenu(2606, me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 11:
@@ -84,7 +84,7 @@ internal class boss_gloomrel : ScriptedAI
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
 				player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 22);
-				player.SendGossipMenu(2604, me.GetGUID());
+				player.SendGossipMenu(2604, me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 22:
@@ -109,7 +109,7 @@ internal class boss_gloomrel : ScriptedAI
 			player.GetSkillValue(SkillType.Mining) >= MiscConst.DataSkillpointMin)
 			player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTribute, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GetGUID());
+		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
 
 		return true;
 	}
@@ -131,7 +131,7 @@ internal class boss_doomrel : ScriptedAI
 	{
 		Initialize();
 
-		me.SetFaction((uint)FactionTemplates.Friendly);
+		me.Faction = (uint)FactionTemplates.Friendly;
 
 		// was set before event start, so set again
 		me.SetImmuneToPC(true);
@@ -217,17 +217,20 @@ internal class boss_doomrel : ScriptedAI
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
 				player.InitGossipMenu(TextIds.GossipSelectDoomrel);
 				player.AddGossipItem(TextIds.GossipSelectDoomrel, TextIds.GossipMenuIdContinue, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
-				player.SendGossipMenu(2605, me.GetGUID());
+				player.SendGossipMenu(2605, me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
 				player.CloseGossipMenu();
+
 				//start event here
-				me.SetFaction((int)FactionTemplates.DarkIronDwarves);
+				me. //start event here
+					Faction = (int)FactionTemplates.DarkIronDwarves;
+
 				me.SetImmuneToPC(false);
 				me.GetAI().AttackStart(player);
 
-				_instance.SetGuidData(DataTypes.DataEvenstarter, player.GetGUID());
+				_instance.SetGuidData(DataTypes.DataEvenstarter, player.GUID);
 
 				break;
 		}
@@ -239,7 +242,7 @@ internal class boss_doomrel : ScriptedAI
 	{
 		player.InitGossipMenu(TextIds.GossipMenuChallenge);
 		player.AddGossipItem(TextIds.GossipMenuChallenge, TextIds.GossipMenuIdChallenge, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-		player.SendGossipMenu(2601, me.GetGUID());
+		player.SendGossipMenu(2601, me.GUID);
 
 		return true;
 	}

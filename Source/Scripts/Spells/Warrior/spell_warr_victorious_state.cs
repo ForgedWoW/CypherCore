@@ -27,7 +27,7 @@ internal class spell_warr_victorious_state : AuraScript, IHasAuraEffects
 
 	private void HandleOnProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
-		if (procInfo.Actor.GetTypeId() == TypeId.Player &&
+		if (procInfo.Actor.TypeId == TypeId.Player &&
 			procInfo.Actor.ToPlayer().GetPrimarySpecialization() == TalentSpecialization.WarriorFury)
 			PreventDefaultAction();
 

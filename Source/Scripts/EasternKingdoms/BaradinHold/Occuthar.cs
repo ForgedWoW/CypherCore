@@ -81,7 +81,7 @@ internal class boss_occuthar : BossAI
 	{
 		summons.Summon(summon);
 
-		if (summon.GetEntry() == CreatureIds.FocusFireDummy)
+		if (summon.Entry == CreatureIds.FocusFireDummy)
 		{
 			DoCast(summon, SpellIds.FocusedFire);
 
@@ -213,7 +213,7 @@ internal class spell_occuthar_eyes_of_occuthar_SpellScript : SpellScript, IHasSp
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public override void Register()
@@ -271,7 +271,7 @@ internal class spell_occuthar_occuthars_destruction_AuraScript : AuraScript, IHa
 
 	public override bool Load()
 	{
-		return Caster && Caster.GetTypeId() == TypeId.Unit;
+		return Caster && Caster.TypeId == TypeId.Unit;
 	}
 
 	public override void Register()

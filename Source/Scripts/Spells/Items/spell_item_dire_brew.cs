@@ -25,8 +25,8 @@ internal class spell_item_dire_brew : AuraScript, IHasAuraEffects
 		var target = Target;
 
 		uint model = 0;
-		var gender = target.GetGender();
-		var chrClass = CliDB.ChrClassesStorage.LookupByKey(target.GetClass());
+		var gender = target.Gender;
+		var chrClass = CliDB.ChrClassesStorage.LookupByKey(target.Class);
 
 		if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Plate)) != 0)
 			model = gender == Gender.Male ? ModelIds.ClassPlateMale : ModelIds.ClassPlateFemale;

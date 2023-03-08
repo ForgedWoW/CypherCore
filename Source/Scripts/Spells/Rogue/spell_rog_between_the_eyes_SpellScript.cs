@@ -19,7 +19,7 @@ public class spell_rog_between_the_eyes_SpellScript : SpellScript, ISpellAfterHi
 
 		if (target != null)
 		{
-			var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, Caster.GetGUID());
+			var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, Caster.GUID);
 
 			if (aura != null)
 				aura.SetDuration(_cp * Time.InMilliseconds);

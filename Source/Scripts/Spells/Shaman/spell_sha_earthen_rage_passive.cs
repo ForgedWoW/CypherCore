@@ -41,7 +41,7 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		_procTargetGuid = eventInfo.ProcTarget.GetGUID();
+		_procTargetGuid = eventInfo.ProcTarget.GUID;
 		eventInfo.Actor.CastSpell(eventInfo.Actor, ShamanSpells.EarthenRagePeriodic, true);
 	}
 }

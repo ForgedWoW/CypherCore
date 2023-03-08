@@ -11,12 +11,12 @@ namespace Game.AI
     {
         public PassiveAI(Creature creature) : base(creature)
         {
-            creature.SetReactState(ReactStates.Passive);
+            creature.            ReactState = ReactStates.Passive;
         }
 
         public override void UpdateAI(uint diff)
         {
-            if (me.IsEngaged() && !me.IsInCombat())
+            if (me.IsEngaged && !me.IsInCombat())
                 EnterEvadeMode(EvadeReason.NoHostiles);
         }
 
@@ -29,7 +29,7 @@ namespace Game.AI
     {
         public PossessedAI(Creature creature) : base(creature)
         {
-            creature.SetReactState(ReactStates.Passive);
+            creature.            ReactState = ReactStates.Passive;
         }
 
         public override void AttackStart(Unit target)
@@ -78,7 +78,7 @@ namespace Game.AI
     {
         public NullCreatureAI(Creature creature) : base(creature)
         {
-            creature.SetReactState(ReactStates.Passive);
+            creature.            ReactState = ReactStates.Passive;
         }
 
         public override void MoveInLineOfSight(Unit unit) { }
@@ -95,7 +95,7 @@ namespace Game.AI
     {
         public CritterAI(Creature c) : base(c)
         {
-            me.SetReactState(ReactStates.Passive);
+            me.            ReactState = ReactStates.Passive;
         }
 
         public override void JustEngagedWith(Unit who)
@@ -127,7 +127,7 @@ namespace Game.AI
             if (me.Spells[0] != 0)
             {
                 CastSpellExtraArgs extra = new();
-                extra.OriginalCaster = summoner.GetGUID();
+                extra.OriginalCaster = summoner.GUID;
                 me.CastSpell(me, me.Spells[0], extra);
             }
         }

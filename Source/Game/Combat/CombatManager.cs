@@ -31,7 +31,7 @@ namespace Game.Combat
             if (!a.IsInWorld || !b.IsInWorld)
                 return false;
             // ...the two units need to both be alive
-            if (!a.IsAlive() || !b.IsAlive())
+            if (!a.IsAlive || !b.IsAlive)
                 return false;
             // ...the two units need to be on the same map
             if (a.GetMap() != b.GetMap())
@@ -51,7 +51,7 @@ namespace Game.Combat
             Player playerA = a.GetCharmerOrOwnerPlayerOrPlayerItself();
             Player playerB = b.GetCharmerOrOwnerPlayerOrPlayerItself();
             // ...neither of the two units must be (owned by) a player with .gm on
-            if ((playerA && playerA.IsGameMaster()) || (playerB && playerB.IsGameMaster()))
+            if ((playerA && playerA.IsGameMaster) || (playerB && playerB.IsGameMaster))
                 return false;
             return true;
         }
@@ -80,7 +80,7 @@ namespace Game.Combat
         public bool HasPvECombatWithPlayers()
         {
             foreach (var reference in _pveRefs)
-                if (!reference.Value.IsSuppressedFor(_owner) && reference.Value.GetOther(_owner).IsPlayer())
+                if (!reference.Value.IsSuppressedFor(_owner) && reference.Value.GetOther(_owner).IsPlayer)
                     return true;
 
             return false;
@@ -111,7 +111,7 @@ namespace Game.Combat
         public bool SetInCombatWith(Unit who, bool addSecondUnitSuppressed = false)
         {
             // Are we already in combat? If yes, refresh pvp combat
-            var existingPvpRef = _pvpRefs.LookupByKey(who.GetGUID());
+            var existingPvpRef = _pvpRefs.LookupByKey(who.GUID);
             if (existingPvpRef != null)
             {
                 existingPvpRef.RefreshTimer();
@@ -119,7 +119,7 @@ namespace Game.Combat
                 return true;
             }
 
-            var existingPveRef = _pveRefs.LookupByKey(who.GetGUID());
+            var existingPveRef = _pveRefs.LookupByKey(who.GUID);
             if (existingPveRef != null)
             {
                 existingPveRef.Refresh();
@@ -132,7 +132,7 @@ namespace Game.Combat
 
             // ...then create new reference
             CombatReference refe;
-            if (_owner.IsControlledByPlayer() && who.IsControlledByPlayer())
+            if (_owner.IsControlledByPlayer && who.IsControlledByPlayer)
                 refe = new PvPCombatReference(_owner, who);
             else
                 refe = new CombatReference(_owner, who);
@@ -141,8 +141,8 @@ namespace Game.Combat
                 refe.Suppress(who);
 
             // ...and insert it into both managers
-            PutReference(who.GetGUID(), refe);
-            who.GetCombatManager().PutReference(_owner.GetGUID(), refe);
+            PutReference(who.GUID, refe);
+            who.GetCombatManager().PutReference(_owner.GUID, refe);
 
             // now, sequencing is important - first we update the combat state, which will set both units in combat and do non-AI combat start stuff
             bool needSelfAI = UpdateOwnerCombatState();
@@ -164,7 +164,7 @@ namespace Game.Combat
 
         public bool IsInCombatWith(Unit who)
         {
-            return IsInCombatWith(who.GetGUID());
+            return IsInCombatWith(who.GUID);
         }
 
         public void InheritCombatStatesFrom(Unit who)
@@ -305,18 +305,18 @@ namespace Game.Combat
             {
                 _owner.SetUnitFlag(UnitFlags.InCombat);
                 _owner.AtEnterCombat();
-                if (!_owner.IsCreature())
+                if (!_owner.IsCreature)
                     _owner.AtEngage(GetAnyTarget());
             }
             else
             {
                 _owner.RemoveUnitFlag(UnitFlags.InCombat);
                 _owner.AtExitCombat();
-                if (!_owner.IsCreature())
+                if (!_owner.IsCreature)
                     _owner.AtDisengage();
             }
 
-            Unit master = _owner.GetCharmerOrOwner();
+            Unit master = _owner.CharmerOrOwner;
             if (master != null)
                 master.UpdatePetCombatState();
 
@@ -363,8 +363,8 @@ namespace Game.Combat
             second.GetThreatManager().ClearThreat(first);
 
             // ...then, remove the references from both managers...
-            first.GetCombatManager().PurgeReference(second.GetGUID(), _isPvP);
-            second.GetCombatManager().PurgeReference(first.GetGUID(), _isPvP);
+            first.GetCombatManager().PurgeReference(second.GUID, _isPvP);
+            second.GetCombatManager().PurgeReference(first.GUID, _isPvP);
 
             // ...update the combat state, which will potentially remove IN_COMBAT...
             bool needFirstAI = first.GetCombatManager().UpdateOwnerCombatState();

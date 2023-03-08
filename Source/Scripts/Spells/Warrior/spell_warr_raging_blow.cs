@@ -23,7 +23,7 @@ public class spell_warr_raging_blow : SpellScript, ISpellOnHit
 		if (Caster.HasAura(WarriorSpells.BATTLE_TRANCE))
 		{
 			var target = Caster.ToPlayer().GetSelectedUnit();
-			var targetGUID = target.GetGUID();
+			var targetGUID = target.GUID;
 			_targetHit++;
 
 			if (_targetHit == 4)

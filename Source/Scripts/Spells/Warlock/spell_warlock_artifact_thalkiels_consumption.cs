@@ -43,7 +43,7 @@ public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpe
 			if (!target.ToUnit() || target.ToPlayer())
 				return true;
 
-			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+			if (target.ToCreature().CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;

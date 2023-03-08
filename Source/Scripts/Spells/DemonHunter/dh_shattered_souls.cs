@@ -16,19 +16,19 @@ public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 
 	public void OnCreatureKill(Player player, Creature victim)
 	{
-		if (player.GetClass() != Class.DemonHunter)
+		if (player.Class != Class.DemonHunter)
 			return;
 
 		var fragmentPos = victim.GetRandomNearPosition(5.0f);
 
-		if (victim.GetCreatureType() == CreatureType.Demon && RandomHelper.randChance(30))
+		if (victim.CreatureType == CreatureType.Demon && RandomHelper.randChance(30))
 		{
 			player.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
 			victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON, true);     //at
 			player.CastSpell(ShatteredSoulsSpells.SOUL_FRAGMENT_DEMON_BONUS, true); //buff
 		}
 
-		if (victim.GetCreatureType() != CreatureType.Demon && RandomHelper.randChance(30))
+		if (victim.CreatureType != CreatureType.Demon && RandomHelper.randChance(30))
 		{
 			victim.CastSpell(ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE, true);
 			player.CastSpell(fragmentPos, ShatteredSoulsSpells.SHATTERED_SOULS, true); //10665

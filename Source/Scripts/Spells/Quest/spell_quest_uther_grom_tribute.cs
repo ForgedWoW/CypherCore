@@ -41,7 +41,7 @@ internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 		if (!caster)
 			return;
 
-		uint spell = caster.GetRace() switch
+		uint spell = caster.Race switch
 		{
 			Race.Troll    => QuestSpellIds.GromsTrollTribute,
 			Race.Tauren   => QuestSpellIds.GromsTaurenTribute,

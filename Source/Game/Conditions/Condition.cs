@@ -143,7 +143,7 @@ namespace Game.Conditions
                     {
                         var faction = CliDB.FactionStorage.LookupByKey(ConditionValue1);
                         if (faction != null)
-                            condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.GetReputationMgr().GetRank(faction)));
+                            condMeets = Convert.ToBoolean(ConditionValue2 & (1 << (int)player.ReputationMgr.GetRank(faction)));
                     }
                     break;
                 case ConditionTypes.Achievement:
@@ -152,19 +152,19 @@ namespace Game.Conditions
                     break;
                 case ConditionTypes.Team:
                     if (player != null)
-                        condMeets = (uint)player.GetTeam() == ConditionValue1;
+                        condMeets = (uint)player.Team == ConditionValue1;
                     break;
                 case ConditionTypes.Class:
                     if (unit != null)
-                        condMeets = Convert.ToBoolean(unit.GetClassMask() & ConditionValue1);
+                        condMeets = Convert.ToBoolean(unit.ClassMask & ConditionValue1);
                     break;
                 case ConditionTypes.Race:
                     if (unit != null)
-                        condMeets = Convert.ToBoolean(SharedConst.GetMaskForRace(unit.GetRace()) & ConditionValue1);
+                        condMeets = Convert.ToBoolean(SharedConst.GetMaskForRace(unit.Race) & ConditionValue1);
                     break;
                 case ConditionTypes.Gender:
                     if (player != null)
-                        condMeets = player.GetNativeGender() == (Gender)ConditionValue1;
+                        condMeets = player.NativeGender == (Gender)ConditionValue1;
                     break;
                 case ConditionTypes.Skill:
                     if (player != null)
@@ -204,11 +204,11 @@ namespace Game.Conditions
                     break;
                 case ConditionTypes.Level:
                     if (unit != null)
-                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.GetLevel(), ConditionValue1);
+                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.Level, ConditionValue1);
                     break;
                 case ConditionTypes.DrunkenState:
                     if (player != null)
-                        condMeets = (uint)Player.GetDrunkenstateByValue(player.GetDrunkValue()) >= ConditionValue1;
+                        condMeets = (uint)Player.GetDrunkenstateByValue(player.DrunkValue) >= ConditionValue1;
                     break;
                 case ConditionTypes.NearCreature:
                     condMeets = obj.FindNearestCreature(ConditionValue1, ConditionValue2, ConditionValue3 == 0) != null;
@@ -217,16 +217,16 @@ namespace Game.Conditions
                     condMeets = obj.FindNearestGameObject(ConditionValue1, ConditionValue2) != null;
                     break;
                 case ConditionTypes.ObjectEntryGuid:
-                    if ((uint)obj.GetTypeId() == ConditionValue1)
+                    if ((uint)obj.TypeId == ConditionValue1)
                     {
-                        condMeets = ConditionValue2 == 0 || (obj.GetEntry() == ConditionValue2);
+                        condMeets = ConditionValue2 == 0 || (obj.Entry == ConditionValue2);
 
                         if (ConditionValue3 != 0)
                         {
-                            switch (obj.GetTypeId())
+                            switch (obj.TypeId)
                             {
                                 case TypeId.Unit:
-                                    condMeets &= obj.ToCreature().GetSpawnId() == ConditionValue3;
+                                    condMeets &= obj.ToCreature().SpawnId == ConditionValue3;
                                     break;
                                 case TypeId.GameObject:
                                     condMeets &= obj.ToGameObject().GetSpawnId() == ConditionValue3;
@@ -258,13 +258,13 @@ namespace Game.Conditions
                                     condMeets = unit.IsInRaidWith(toUnit);
                                     break;
                                 case RelationType.OwnedBy:
-                                    condMeets = unit.GetOwnerGUID() == toUnit.GetGUID();
+                                    condMeets = unit.OwnerGUID == toUnit.GUID;
                                     break;
                                 case RelationType.PassengerOf:
                                     condMeets = unit.IsOnVehicle(toUnit);
                                     break;
                                 case RelationType.CreatedBy:
-                                    condMeets = unit.GetCreatorGUID() == toUnit.GetGUID();
+                                    condMeets = unit.CreatorGUID == toUnit.GUID;
                                     break;
                             }
                         }
@@ -291,7 +291,7 @@ namespace Game.Conditions
                 }
                 case ConditionTypes.Alive:
                     if (unit != null)
-                        condMeets = unit.IsAlive();
+                        condMeets = unit.IsAlive;
                     break;
                 case ConditionTypes.HpVal:
                     if (unit != null)
@@ -302,7 +302,7 @@ namespace Game.Conditions
                         condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.GetHealthPct(), ConditionValue1);
                     break;
                 case ConditionTypes.PhaseId:
-                    condMeets = obj.GetPhaseShift().HasPhase(ConditionValue1);
+                    condMeets = obj.PhaseShift.HasPhase(ConditionValue1);
                     break;
                 case ConditionTypes.Title:
                     if (player != null)
@@ -316,7 +316,7 @@ namespace Game.Conditions
                 {
                     Creature creature = obj.ToCreature();
                     if (creature)
-                        condMeets = (uint)creature.GetCreatureTemplate().CreatureType == ConditionValue1;
+                        condMeets = (uint)creature.CreatureTemplate.CreatureType == ConditionValue1;
                     break;
                 }
                 case ConditionTypes.InWater:
@@ -324,18 +324,18 @@ namespace Game.Conditions
                         condMeets = unit.IsInWater();
                     break;
                 case ConditionTypes.TerrainSwap:
-                    condMeets = obj.GetPhaseShift().HasVisibleMapId(ConditionValue1);
+                    condMeets = obj.PhaseShift.HasVisibleMapId(ConditionValue1);
                     break;
                 case ConditionTypes.StandState:
                 {
                     if (unit)
                     {
                         if (ConditionValue1 == 0)
-                            condMeets = (unit.GetStandState() == (UnitStandStateType)ConditionValue2);
+                            condMeets = (unit.StandState == (UnitStandStateType)ConditionValue2);
                         else if (ConditionValue2 == 0)
-                            condMeets = unit.IsStandState();
+                            condMeets = unit.IsStandState;
                         else if (ConditionValue2 == 1)
-                            condMeets = unit.IsSitState();
+                            condMeets = unit.IsSitState;
                     }
                     break;
                 }
@@ -348,7 +348,7 @@ namespace Game.Conditions
                 case ConditionTypes.Charmed:
                 {
                     if (unit)
-                        condMeets = unit.IsCharmed();
+                        condMeets = unit.IsCharmed;
                     break;
                 }
                 case ConditionTypes.PetType:
@@ -364,7 +364,7 @@ namespace Game.Conditions
                 case ConditionTypes.Taxi:
                 {
                     if (player)
-                        condMeets = player.IsInFlight();
+                        condMeets = player.IsInFlight;
                     break;
                 }
                 case ConditionTypes.Queststate:
@@ -407,22 +407,22 @@ namespace Game.Conditions
                     if (player != null)
                     {
                         if (ConditionValue1 == 1)
-                            condMeets = player.CanBeGameMaster();
+                            condMeets = player.CanBeGameMaster;
                         else
-                            condMeets = player.IsGameMaster();
+                            condMeets = player.IsGameMaster;
                     }
                     break;
                 }
                 case ConditionTypes.BattlePetCount:
                 {
                     if (player != null)
-                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.GetSession().GetBattlePetMgr().GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GetGUID()), ConditionValue2);
+                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
                     break;
                 }
                 case ConditionTypes.SceneInProgress:
                 {
                     if (player != null)
-                        condMeets = player.GetSceneMgr().GetActiveSceneCount(ConditionValue1) > 0;
+                        condMeets = player.SceneMgr.GetActiveSceneCount(ConditionValue1) > 0;
                     break;
                 }
                 case ConditionTypes.PlayerCondition:

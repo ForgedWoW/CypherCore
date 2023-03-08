@@ -30,7 +30,7 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 
 	public void AddTarget(Unit target)
 	{
-		_targets.Add(target.GetGUID());
+		_targets.Add(target.GUID);
 	}
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)

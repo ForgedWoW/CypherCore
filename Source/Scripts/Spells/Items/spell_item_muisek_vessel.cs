@@ -24,7 +24,7 @@ internal class spell_item_muisek_vessel : SpellScript, IHasSpellEffects
 		var target = HitCreature;
 
 		if (target)
-			if (target.IsDead())
+			if (target.IsDead)
 				target.DespawnOrUnsummon();
 	}
 }

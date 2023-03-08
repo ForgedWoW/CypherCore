@@ -426,10 +426,10 @@ class TraitMgr
 
 						var amount = currencies[(int)currency.Id];
 
-						if (player.GetMoney() > (ulong)(int.MaxValue - amount))
+						if (player.Money > (ulong)(int.MaxValue - amount))
 							amount = int.MaxValue;
 						else
-							amount += (int)player.GetMoney();
+							amount += (int)player.Money;
 
 						break;
 					}
@@ -452,7 +452,7 @@ class TraitMgr
 								if (currencySource.AchievementID != 0 && !player.HasAchieved(currencySource.AchievementID))
 									continue;
 
-								if (currencySource.PlayerLevel != 0 && player.GetLevel() < currencySource.PlayerLevel)
+								if (currencySource.PlayerLevel != 0 && player.Level < currencySource.PlayerLevel)
 									continue;
 
 								if (currencySource.TraitNodeEntryID != 0 && !HasTraitNodeEntry(currencySource.TraitNodeEntryID))
@@ -556,7 +556,7 @@ class TraitMgr
 				return false;
 		}
 
-		if (condition.RequiredLevel != 0 && player.GetLevel() < condition.RequiredLevel)
+		if (condition.RequiredLevel != 0 && player.Level < condition.RequiredLevel)
 			return false;
 
 		return true;

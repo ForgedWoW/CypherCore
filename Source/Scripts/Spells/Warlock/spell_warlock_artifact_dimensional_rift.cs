@@ -62,10 +62,10 @@ internal class spell_warlock_artifact_dimensional_rift : SpellScript, IHasSpellE
 		if (rift != null)
 		{
 			rift.CastSpell(rift, spellVisualIds[(int)id], true);
-			rift.SetOwnerGUID(caster.GetGUID());
+			rift.SetOwnerGUID(caster.GUID);
 			// We cannot really use me->GetVictim() inside of the AI, since the target
 			// for portal is locked, it doesn't change no matter what. So we set it like this
-			rift.SetTarget(target.GetGUID());
+			rift.SetTarget(target.GUID);
 			// We use same ID and script for Chaos Portal and Chaos Tear as there are no more NPCs for this spell
 			rift.SetArmor((int)id, 0);
 		}

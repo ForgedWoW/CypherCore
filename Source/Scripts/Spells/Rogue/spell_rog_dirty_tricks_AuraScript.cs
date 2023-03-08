@@ -17,7 +17,7 @@ public class spell_rog_dirty_tricks_AuraScript : AuraScript
 		if (spellInfo == null)
 			return true;
 
-		if (eventInfo.Actor.GetGUID() != CasterGUID)
+		if (eventInfo.Actor.GUID != CasterGUID)
 			return true;
 
 		if (spellInfo.Mechanic == Mechanics.Bleed || (spellInfo.GetAllEffectsMechanicMask() & (ulong)Mechanics.Bleed) != 0 || spellInfo.Dispel == DispelType.Poison)

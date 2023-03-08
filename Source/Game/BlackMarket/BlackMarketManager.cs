@@ -176,7 +176,7 @@ namespace Game.BlackMarket
 
                 item.CurrentBid = pair.Value.GetCurrentBid();
                 item.SecondsRemaining = pair.Value.GetSecondsRemaining();
-                item.HighBid = (pair.Value.GetBidder() == player.GetGUID().GetCounter());
+                item.HighBid = (pair.Value.GetBidder() == player.GUID.Counter);
                 item.NumBids = pair.Value.GetNumBids();
 
                 packet.Items.Add(item);
@@ -208,9 +208,9 @@ namespace Game.BlackMarket
 
             if (bidder)
             {
-                bidderAccId = bidder.GetSession().GetAccountId();
+                bidderAccId = bidder.Session.AccountId;
                 bidderName = bidder.GetName();
-                logGmTrade = bidder.GetSession().HasPermission(RBACPermissions.LogGmTrade);
+                logGmTrade = bidder.Session.HasPermission(RBACPermissions.LogGmTrade);
             }
             else
             {
@@ -243,10 +243,10 @@ namespace Game.BlackMarket
             // Log trade
             if (logGmTrade)
                 Log.outCommand(bidderAccId, "GM {0} (Account: {1}) won item in blackmarket auction: {2} (Entry: {3} Count: {4}) and payed gold : {5}.",
-                    bidderName, bidderAccId, item.GetTemplate().GetName(), item.GetEntry(), item.GetCount(), entry.GetCurrentBid() / MoneyConstants.Gold);
+                    bidderName, bidderAccId, item.GetTemplate().GetName(), item.Entry, item.GetCount(), entry.GetCurrentBid() / MoneyConstants.Gold);
 
             if (bidder)
-                bidder.GetSession().SendBlackMarketWonNotification(entry, item);
+                bidder.                Session.SendBlackMarketWonNotification(entry, item);
 
             new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Won), entry.BuildAuctionMailBody())
                 .AddItem(item)
@@ -269,7 +269,7 @@ namespace Game.BlackMarket
                 return;
 
             if (oldBidder)
-                oldBidder.GetSession().SendBlackMarketOutbidNotification(entry.GetTemplate());
+                oldBidder.                Session.SendBlackMarketOutbidNotification(entry.GetTemplate());
 
             new MailDraft(entry.BuildAuctionMailSubject(BMAHMailAuctionAnswers.Outbid), entry.BuildAuctionMailBody())
                 .AddMoney(entry.GetCurrentBid())

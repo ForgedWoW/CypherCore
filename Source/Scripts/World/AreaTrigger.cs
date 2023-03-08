@@ -149,10 +149,10 @@ internal class AreaTrigger_at_legion_teleporter : ScriptObjectAutoAddDBBound, IA
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (player.IsAlive() &&
+		if (player.IsAlive &&
 			!player.IsInCombat())
 		{
-			if (player.GetTeam() == Team.Alliance &&
+			if (player.Team == TeamFaction.Alliance &&
 				player.GetQuestRewardStatus(QuestIds.GainingAccessA))
 			{
 				player.CastSpell(player, SpellIds.TeleATo, false);
@@ -160,7 +160,7 @@ internal class AreaTrigger_at_legion_teleporter : ScriptObjectAutoAddDBBound, IA
 				return true;
 			}
 
-			if (player.GetTeam() == Team.Horde &&
+			if (player.Team == TeamFaction.Horde &&
 				player.GetQuestRewardStatus(QuestIds.GainingAccessH))
 			{
 				player.CastSpell(player, SpellIds.TeleHTo, false);
@@ -182,7 +182,7 @@ internal class AreaTrigger_at_scent_larkorwi : ScriptObjectAutoAddDBBound, IArea
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (!player.IsDead() &&
+		if (!player.IsDead &&
 			player.GetQuestStatus(QuestIds.ScentOfLarkorwi) == QuestStatus.Incomplete)
 			if (!player.FindNearestCreature(CreatureIds.LarkorwiMate, 15))
 				player.SummonCreature(CreatureIds.LarkorwiMate, new Position(player.Location.X + 5, player.Location.Y, player.Location.Z, 3.3f), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(100));
@@ -198,7 +198,7 @@ internal class AreaTrigger_at_sholazar_waygate : ScriptObjectAutoAddDBBound, IAr
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (!player.IsDead() &&
+		if (!player.IsDead &&
 			(player.GetQuestStatus(QuestIds.MeetingAGreatOne) != QuestStatus.None ||
 			(player.GetQuestStatus(QuestIds.TheMakersOverlook) == QuestStatus.Rewarded && player.GetQuestStatus(QuestIds.TheMakersPerch) == QuestStatus.Rewarded)))
 			switch (areaTrigger.Id)
@@ -225,7 +225,7 @@ internal class AreaTrigger_at_nats_landing : ScriptObjectAutoAddDBBound, IAreaTr
 
 	public bool OnTrigger(Player player, AreaTriggerRecord areaTrigger)
 	{
-		if (!player.IsAlive() ||
+		if (!player.IsAlive ||
 			!player.HasAura(SpellIds.FishPaste))
 			return false;
 
@@ -325,7 +325,7 @@ internal class AreaTrigger_at_area_52_entrance : ScriptObjectAutoAddDBBound, IAr
 	{
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 
-		if (!player.IsAlive())
+		if (!player.IsAlive)
 			return false;
 
 		if (GameTime.GetGameTime() - _triggerTimes[areaTrigger.Id] < Misc.SummonCooldown)
@@ -398,19 +398,19 @@ internal class AreaTrigger_at_frostgrips_hollow : ScriptObjectAutoAddDBBound, IA
 
 		if (stormforgedMonitor)
 		{
-			stormforgedMonitorGUID = stormforgedMonitor.GetGUID();
+			stormforgedMonitorGUID = stormforgedMonitor.GUID;
 			stormforgedMonitor.SetWalk(false);
 			/// The npc would search an alternative way to get to the last waypoint without this unit State.
 			stormforgedMonitor.AddUnitState(UnitState.IgnorePathfinding);
-			stormforgedMonitor.GetMotionMaster().MovePath(CreatureIds.StormforgedMonitor * 100, false);
+			stormforgedMonitor.MotionMaster.MovePath(CreatureIds.StormforgedMonitor * 100, false);
 		}
 
 		stormforgedEradictor = player.SummonCreature(CreatureIds.StormforgedEradictor, Misc.StormforgedEradictorPosition, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(60));
 
 		if (stormforgedEradictor)
 		{
-			stormforgedEradictorGUID = stormforgedEradictor.GetGUID();
-			stormforgedEradictor.GetMotionMaster().MovePath(CreatureIds.StormforgedEradictor * 100, false);
+			stormforgedEradictorGUID = stormforgedEradictor.GUID;
+			stormforgedEradictor.MotionMaster.MovePath(CreatureIds.StormforgedEradictor * 100, false);
 		}
 
 		return true;

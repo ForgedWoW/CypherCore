@@ -41,7 +41,7 @@ namespace Game.AI
 
         public override void JustDied(Unit killer)
         {
-            if (!HasFollowState(FollowState.Inprogress) || _leaderGUID.IsEmpty() || _questForFollow == 0)
+            if (!HasFollowState(FollowState.Inprogress) || _leaderGUID.IsEmpty || _questForFollow == 0)
                 return;
 
             // @todo need a better check for quests with time limit.
@@ -74,7 +74,7 @@ namespace Game.AI
             {
                 if (HasFollowState(FollowState.Paused))
                     return;
-                me.GetMotionMaster().MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                me.                MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
             }
             else
                 me.DespawnOrUnsummon();
@@ -88,13 +88,13 @@ namespace Game.AI
 
         public override void UpdateAI(uint uiDiff)
         {
-            if (HasFollowState(FollowState.Inprogress) && !me.IsEngaged())
+            if (HasFollowState(FollowState.Inprogress) && !me.IsEngaged)
             {
                 if (_updateFollowTimer <= uiDiff)
                 {
                     if (HasFollowState(FollowState.Complete) && !HasFollowState(FollowState.PostEvent))
                     {
-                        Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: is set completed, despawns. ({me.GetGUID()})");
+                        Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: is set completed, despawns. ({me.GUID})");
                         me.DespawnOrUnsummon();
                         return;
                     }
@@ -141,7 +141,7 @@ namespace Game.AI
 
                     if (maxRangeExceeded || questAbandoned)
                     {
-                        Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: failed because player/group was to far away or not found ({me.GetGUID()})");
+                        Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: failed because player/group was to far away or not found ({me.GUID})");
                         me.DespawnOrUnsummon();
                         return;
                     }
@@ -165,34 +165,35 @@ namespace Game.AI
 
         public void StartFollow(Player player, uint factionForFollower = 0, Quest quest = null)
         {
-            CreatureData cdata = me.GetCreatureData();
+            CreatureData cdata = me.CreatureData;
             if (cdata != null)
             {
                 if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                     me.SaveRespawnTime(me.GetRespawnDelay());
             }
 
-            if (me.IsEngaged())
+            if (me.IsEngaged)
             {
-                Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({me.GetGUID()})");
+                Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({me.GUID})");
                 return;
             }
 
             if (HasFollowState(FollowState.Inprogress))
             {
-                Log.outError(LogFilter.Scenario, $"FollowerAI::StartFollow: attempt to StartFollow while already following. ({me.GetGUID()})");
+                Log.outError(LogFilter.Scenario, $"FollowerAI::StartFollow: attempt to StartFollow while already following. ({me.GUID})");
                 return;
             }
 
             //set variables
-            _leaderGUID = player.GetGUID();
+            _leaderGUID = player.GUID;
 
             if (factionForFollower != 0)
-                me.SetFaction(factionForFollower);
+                me.                Faction = factionForFollower;
 
             _questForFollow = quest.Id;
 
-            me.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+            me.
+            MotionMaster.Clear(MovementGeneratorPriority.Normal);
             me.PauseMovement();
 
             me.ReplaceAllNpcFlags(NPCFlags.None);
@@ -200,9 +201,10 @@ namespace Game.AI
 
             AddFollowState(FollowState.Inprogress);
 
-            me.GetMotionMaster().MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+            me.
+            MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 
-            Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({me.GetGUID()})");
+            Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({me.GUID})");
         }
 
         public void SetFollowPaused(bool paused)
@@ -215,7 +217,7 @@ namespace Game.AI
                 AddFollowState(FollowState.Paused);
 
                 if (me.HasUnitState(UnitState.Follow))
-                    me.GetMotionMaster().Remove(MovementGeneratorType.Follow);
+                    me.                    MotionMaster.Remove(MovementGeneratorType.Follow);
             }
             else
             {
@@ -223,14 +225,14 @@ namespace Game.AI
 
                 Player leader = GetLeaderForFollower();
                 if (leader != null)
-                    me.GetMotionMaster().MoveFollow(leader, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                    me.                    MotionMaster.MoveFollow(leader, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
             }
         }
 
         public void SetFollowComplete(bool withEndEvent = false)
         {
             if (me.HasUnitState(UnitState.Follow))
-                me.GetMotionMaster().Remove(MovementGeneratorType.Follow);
+                me.                MotionMaster.Remove(MovementGeneratorType.Follow);
 
             if (withEndEvent)
                 AddFollowState(FollowState.PostEvent);
@@ -248,7 +250,7 @@ namespace Game.AI
             Player player = Global.ObjAccessor.GetPlayer(me, _leaderGUID);
             if (player)
             {
-                if (player.IsAlive())
+                if (player.IsAlive)
                     return player;
                 else
                 {
@@ -258,10 +260,10 @@ namespace Game.AI
                         for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
                         {
                             Player member = groupRef.GetSource();
-                            if (member && me.IsWithinDistInMap(member, 100.0f) && member.IsAlive())
+                            if (member && me.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
                             {
-                                Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({me.GetGUID()})");
-                                _leaderGUID = member.GetGUID();
+                                Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({me.GUID})");
+                                _leaderGUID = member.GUID;
                                 return member;
                             }
                         }
@@ -269,7 +271,7 @@ namespace Game.AI
                 }
             }
 
-            Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({me.GetGUID()})");
+            Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({me.GUID})");
             return null;
         }
 
@@ -282,7 +284,7 @@ namespace Game.AI
                 return false;
 
             //experimental (unknown) flag not present
-            if (!me.GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+            if (!me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
                 return false;
 
             if (!who.IsInAccessiblePlaceFor(me))
@@ -292,11 +294,11 @@ namespace Game.AI
                 return false;
 
             // we cannot attack in evade mode
-            if (me.IsInEvadeMode())
+            if (me.IsInEvadeMode)
                 return false;
 
             // or if enemy is in evade mode
-            if (who.GetTypeId() == TypeId.Unit && who.ToCreature().IsInEvadeMode())
+            if (who.TypeId == TypeId.Unit && who.ToCreature().IsInEvadeMode)
                 return false;
 
             //never attack friendly

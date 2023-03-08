@@ -21,7 +21,7 @@ public class AnyPlayerInObjectRangeCheck : ICheck<Player>
 
 	public bool Invoke(Player pl)
 	{
-		if (_reqAlive && !pl.IsAlive())
+		if (_reqAlive && !pl.IsAlive)
 			return false;
 
 		if (!_obj.IsWithinDist(pl, _range))

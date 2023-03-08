@@ -58,8 +58,8 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 
 					if (tempSumm != null)
 					{
-						tempSumm.SetFaction(caster.GetFaction());
-						tempSumm.SetSummonerGUID(caster.GetGUID());
+						tempSumm.Faction = caster.Faction;
+						tempSumm.SetSummonerGUID(caster.GUID);
 						var bp = 0;
 
 						switch (at.GetTemplate().Id.Id)

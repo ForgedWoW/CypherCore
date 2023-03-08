@@ -53,7 +53,7 @@ public class go_defias_cannon : GameObjectAI
 		if (defias != null)
 		{
 			defias.SetWalk(false);
-			defias.GetMotionMaster().MovePoint(0, -102.7f, -655.9f, defias.Location.Z);
+			defias.MotionMaster.MovePoint(0, -102.7f, -655.9f, defias.Location.Z);
 		}
 	}
 }

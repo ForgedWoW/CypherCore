@@ -145,7 +145,7 @@ internal class boss_garothi_worldbreaker : BossAI
 	{
 		_lastCanonEntry = CreatureIds.Decimator;
 		SetCombatMovement(false);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 	}
 
 	public override void InitializeAI()
@@ -176,7 +176,7 @@ internal class boss_garothi_worldbreaker : BossAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		me.SetReactState(ReactStates.Aggressive);
+		me.ReactState = ReactStates.Aggressive;
 		base.JustEngagedWith(who);
 		Talk(TextIds.SayAggro);
 		DoCastSelf(SpellIds.Melee);
@@ -197,7 +197,7 @@ internal class boss_garothi_worldbreaker : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (victim.IsPlayer())
+		if (victim.IsPlayer)
 			Talk(TextIds.SaySlay, victim);
 	}
 
@@ -232,7 +232,7 @@ internal class boss_garothi_worldbreaker : BossAI
 		if (me.HealthBelowPctDamaged(_apocalypseDriveHealthLimit[_apocalypseDriveCount], damage))
 		{
 			me.AttackStop();
-			me.SetReactState(ReactStates.Passive);
+			me.ReactState = ReactStates.Passive;
 			me.InterruptNonMeleeSpells(true);
 			me.SetFacingTo(me.GetHomePosition().Orientation);
 			_events.Reset();
@@ -273,7 +273,7 @@ internal class boss_garothi_worldbreaker : BossAI
 	{
 		summons.Summon(summon);
 
-		switch (summon.GetEntry())
+		switch (summon.Entry)
 		{
 			case CreatureIds.Annihilation:
 				summon.CastSpell(summon, SpellIds.AnnihilationWarning);
@@ -282,11 +282,11 @@ internal class boss_garothi_worldbreaker : BossAI
 				break;
 			case CreatureIds.Annihilator:
 			case CreatureIds.Decimator:
-				summon.SetReactState(ReactStates.Passive);
+				summon.ReactState = ReactStates.Passive;
 
 				break;
 			case CreatureIds.GarothiWorldbreaker:
-				_surgingFelDummyGuids.Add(summon.GetGUID());
+				_surgingFelDummyGuids.Add(summon.GUID);
 
 				break;
 			default:
@@ -296,7 +296,7 @@ internal class boss_garothi_worldbreaker : BossAI
 
 	public override void SummonedCreatureDies(Creature summon, Unit killer)
 	{
-		switch (summon.GetEntry())
+		switch (summon.Entry)
 		{
 			case CreatureIds.Decimator:
 			case CreatureIds.Annihilator:
@@ -304,7 +304,7 @@ internal class boss_garothi_worldbreaker : BossAI
 				me.RemoveAura(SpellIds.ApocalypseDrive);
 				me.RemoveUnitFlag(UnitFlags.Uninteractible);
 
-				if (summon.GetEntry() == CreatureIds.Annihilator)
+				if (summon.Entry == CreatureIds.Annihilator)
 					_searingBarrageSpellId = SpellIds.SearingBarrageAnnihilator;
 				else
 					_searingBarrageSpellId = SpellIds.SearingBarrageDecimator;
@@ -316,7 +316,7 @@ internal class boss_garothi_worldbreaker : BossAI
 				_events.ScheduleEvent(EventIds.ReengagePlayers, TimeSpan.FromSeconds(3.5));
 				_castEradication = true;
 
-				if (summon.GetEntry() == CreatureIds.Decimator)
+				if (summon.Entry == CreatureIds.Decimator)
 					DoCastSelf(SpellIds.DecimatorCannonEject);
 				else
 					DoCastSelf(SpellIds.AnnihilatorCannonEject);
@@ -371,7 +371,7 @@ internal class boss_garothi_worldbreaker : BossAI
 						_castEradication = false;
 					}
 
-					me.SetReactState(ReactStates.Aggressive);
+					me.ReactState = ReactStates.Aggressive;
 					_events.ScheduleEvent(EventIds.FelBombardment, TimeSpan.FromSeconds(20));
 					_events.ScheduleEvent(EventIds.CannonChooser, TimeSpan.FromSeconds(18));
 
@@ -465,7 +465,7 @@ internal class at_garothi_annihilation : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		if (!unit.IsPlayer())
+		if (!unit.IsPlayer)
 			return;
 
 		_playerCount++;
@@ -478,13 +478,13 @@ internal class at_garothi_annihilation : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		if (!unit.IsPlayer())
+		if (!unit.IsPlayer)
 			return;
 
 		_playerCount--;
 
 		if (_playerCount == 0 &&
-			!at.IsRemoved())
+			!at.IsRemoved)
 		{
 			var annihilation = at.GetCaster();
 
@@ -551,7 +551,7 @@ internal class spell_garothi_fel_bombardment_selector : SpellScript, IHasSpellEf
 		var caster = Caster ? Caster.ToCreature() : null;
 
 		if (!caster ||
-			!caster.IsAIEnabled())
+			!caster.IsAIEnabled)
 			return;
 
 		var target = HitUnit;
@@ -695,7 +695,7 @@ internal class spell_garothi_decimation_selector : SpellScript, IHasSpellEffects
 			var decimator = caster.ToCreature();
 
 			if (decimator)
-				if (decimator.IsAIEnabled())
+				if (decimator.IsAIEnabled)
 					decimator.GetAI().Talk(TextIds.SayAnnounceDecimation, HitUnit);
 		}
 	}
@@ -854,7 +854,7 @@ internal class spell_garothi_cannon_chooser : SpellScript, IHasSpellEffects
 		var caster = HitCreature;
 
 		if (!caster ||
-			!caster.IsAIEnabled())
+			!caster.IsAIEnabled)
 			return;
 
 		var instance = caster.GetInstanceScript();
@@ -882,7 +882,7 @@ internal class spell_garothi_cannon_chooser : SpellScript, IHasSpellEffects
 			{
 				var x = MiscConst.AnnihilationCenterReferencePos.X + MathF.Cos(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
 				var y = MiscConst.AnnihilationCenterReferencePos.Y + MathF.Sin(RandomHelper.FRand(0.0f, MathF.PI * 2)) * RandomHelper.FRand(15.0f, 30.0f);
-				var z = caster.GetMap().GetHeight(caster.GetPhaseShift(), x, y, MiscConst.AnnihilationCenterReferencePos.Z);
+				var z = caster.GetMap().GetHeight(caster.PhaseShift, x, y, MiscConst.AnnihilationCenterReferencePos.Z);
 				annihilator.CastSpell(new Position(x, y, z), SpellIds.AnnihilationSummon, new CastSpellExtraArgs(true));
 			}
 

@@ -40,7 +40,7 @@ namespace Game.AI
                 return false;
 
             //experimental (unknown) flag not present
-            if (!me.GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+            if (!me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
                 return false;
 
             //not a player
@@ -74,7 +74,7 @@ namespace Game.AI
 
         public override void JustDied(Unit killer)
         {
-            if (!HasEscortState(EscortState.Escorting) || _playerGUID.IsEmpty() || _escortQuest == null)
+            if (!HasEscortState(EscortState.Escorting) || _playerGUID.IsEmpty || _escortQuest == null)
                 return;
 
             Player player = GetPlayerForEscort();
@@ -106,7 +106,7 @@ namespace Game.AI
             //add a small delay before going to first waypoint, normal in near all cases
             _pauseTimer = TimeSpan.FromSeconds(2);
 
-            if (me.GetFaction() != me.GetCreatureTemplate().Faction)
+            if (me.Faction != me.CreatureTemplate.Faction)
                 me.RestoreFaction();
 
             Reset();
@@ -114,7 +114,7 @@ namespace Game.AI
 
         void ReturnToLastPoint()
         {
-            me.GetMotionMaster().MovePoint(0xFFFFFF, me.GetHomePosition());
+            me.            MotionMaster.MovePoint(0xFFFFFF, me.GetHomePosition());
         }
 
         public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
@@ -129,11 +129,11 @@ namespace Game.AI
             {
                 AddEscortState(EscortState.Returning);
                 ReturnToLastPoint();
-                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI.EnterEvadeMode has left combat and is now returning to last point {me.GetGUID()}");
+                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI.EnterEvadeMode has left combat and is now returning to last point {me.GUID}");
             }
             else
             {
-                me.GetMotionMaster().MoveTargetedHome();
+                me.                MotionMaster.MoveTargetedHome();
                 if (_hasImmuneToNPCFlags)
                     me.SetImmuneToNPC(true);
                 Reset();
@@ -166,7 +166,7 @@ namespace Game.AI
         public override void UpdateAI(uint diff)
         {
             //Waypoint Updating
-            if (HasEscortState(EscortState.Escorting) && !me.IsEngaged() && !HasEscortState(EscortState.Returning))
+            if (HasEscortState(EscortState.Escorting) && !me.IsEngaged && !HasEscortState(EscortState.Returning))
             {
                 if (_pauseTimer.TotalMilliseconds <= diff)
                 {
@@ -177,16 +177,16 @@ namespace Game.AI
                         if (_ended)
                         {
                             _ended = false;
-                            me.GetMotionMaster().MoveIdle();
+                            me.                            MotionMaster.MoveIdle();
 
                             if (_despawnAtEnd)
                             {
-                                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: reached end of waypoints, despawning at end ({me.GetGUID()})");
+                                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: reached end of waypoints, despawning at end ({me.GUID})");
                                 if (_returnToStart)
                                 {
-                                    Position respawnPosition = me.GetRespawnPosition();
-                                    me.GetMotionMaster().MovePoint(EscortPointIds.Home, respawnPosition);
-                                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: returning to spawn location: {respawnPosition} ({me.GetGUID()})");
+                                    Position respawnPosition = me.RespawnPosition;
+                                    me.                                    MotionMaster.MovePoint(EscortPointIds.Home, respawnPosition);
+                                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: returning to spawn location: {respawnPosition} ({me.GUID})");
                                 }
                                 else if (_instantRespawn)
                                     me.Respawn();
@@ -194,7 +194,7 @@ namespace Game.AI
                                     me.DespawnOrUnsummon();
                             }
 
-                            Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: reached end of waypoints ({me.GetGUID()})");
+                            Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: reached end of waypoints ({me.GUID})");
                             RemoveEscortState(EscortState.Escorting);
                             return;
                         }
@@ -202,12 +202,12 @@ namespace Game.AI
                         if (!_started)
                         {
                             _started = true;
-                            me.GetMotionMaster().MovePath(_path, false);
+                            me.                            MotionMaster.MovePath(_path, false);
                         }
                         else if (_resume)
                         {
                             _resume = false;
-                            MovementGenerator movementGenerator = me.GetMotionMaster().GetCurrentMovementGenerator(MovementSlot.Default);
+                            MovementGenerator movementGenerator = me.MotionMaster.GetCurrentMovementGenerator(MovementSlot.Default);
                             if (movementGenerator != null)
                                 movementGenerator.Resume(0);
                         }
@@ -219,16 +219,16 @@ namespace Game.AI
 
 
             //Check if player or any member of his group is within range
-            if (_despawnAtFar && HasEscortState(EscortState.Escorting) && !_playerGUID.IsEmpty() && !me.IsEngaged() && !HasEscortState(EscortState.Returning))
+            if (_despawnAtFar && HasEscortState(EscortState.Escorting) && !_playerGUID.IsEmpty && !me.IsEngaged && !HasEscortState(EscortState.Returning))
             {
                 if (_playerCheckTimer <= diff)
                 {
                     if (!IsPlayerOrGroupInRange())
                     {
-                        Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: failed because player/group was to far away or not found ({me.GetGUID()})");
+                        Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::UpdateAI: failed because player/group was to far away or not found ({me.GUID})");
 
                         bool isEscort = false;
-                        CreatureData creatureData = me.GetCreatureData();
+                        CreatureData creatureData = me.CreatureData;
                         if (creatureData != null)
                             isEscort = (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
 
@@ -237,7 +237,7 @@ namespace Game.AI
                             if (!isEscort)
                                 me.DespawnOrUnsummon(TimeSpan.Zero, TimeSpan.FromSeconds(1));
                             else
-                                me.GetMap().Respawn(SpawnObjectType.Creature, me.GetSpawnId());
+                                me.GetMap().Respawn(SpawnObjectType.Creature, me.SpawnId);
                         }
                         else
                             me.DespawnOrUnsummon();
@@ -276,7 +276,7 @@ namespace Game.AI
 
                 if (Id == EscortPointIds.LastPoint)
                 {
-                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform has returned to original position before combat ({me.GetGUID()})");
+                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform has returned to original position before combat ({me.GUID})");
 
                     me.SetWalk(!_running);
                     RemoveEscortState(EscortState.Returning);
@@ -284,16 +284,16 @@ namespace Game.AI
                 }
                 else if (Id == EscortPointIds.Home)
                 {
-                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform: returned to home location and restarting waypoint path ({me.GetGUID()})");
+                    Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform: returned to home location and restarting waypoint path ({me.GUID})");
                     _started = false;
                 }
             }
             else if (moveType == MovementGeneratorType.Waypoint)
             {
-                Cypher.Assert(Id < _path.nodes.Count, $"EscortAI::MovementInform: referenced movement id ({Id}) points to non-existing node in loaded path ({me.GetGUID()})");
+                Cypher.Assert(Id < _path.nodes.Count, $"EscortAI::MovementInform: referenced movement id ({Id}) points to non-existing node in loaded path ({me.GUID})");
                 WaypointNode waypoint = _path.nodes[(int)Id];
 
-                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform: waypoint node {waypoint.id} reached ({me.GetGUID()})");
+                Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform: waypoint node {waypoint.id} reached ({me.GUID})");
 
                 // last point
                 if (Id == _path.nodes.Count - 1)
@@ -327,7 +327,7 @@ namespace Game.AI
 
         void FillPointMovementListForCreature()
         {
-            WaypointPath path = Global.WaypointMgr.GetPath(me.GetEntry());
+            WaypointPath path = Global.WaypointMgr.GetPath(me.Entry);
             if (path == null)
                 return;
 
@@ -359,22 +359,22 @@ namespace Game.AI
         public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
         {
             // Queue respawn from the point it starts
-            CreatureData cdata = me.GetCreatureData();
+            CreatureData cdata = me.CreatureData;
             if (cdata != null)
             {
                 if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
                     me.SaveRespawnTime(me.GetRespawnDelay());
             }
 
-            if (me.IsEngaged())
+            if (me.IsEngaged)
             {
-                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} attempts to Start while in combat ({me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} attempts to Start while in combat ({me.GUID})");
                 return;
             }
 
             if (HasEscortState(EscortState.Escorting))
             {
-                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} attempts to Start while already escorting ({me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} attempts to Start while already escorting ({me.GUID})");
                 return;
             }
 
@@ -385,7 +385,7 @@ namespace Game.AI
 
             if (_path.nodes.Empty())
             {
-                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {(quest != null ? quest.Id : 0)} ({me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {(quest != null ? quest.Id : 0)} ({me.GUID})");
                 return;
             }
 
@@ -397,10 +397,11 @@ namespace Game.AI
             _returnToStart = canLoopPath;
 
             if (_returnToStart && _instantRespawn)
-                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn ({me.GetGUID()})");
+                Log.outError(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()} is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn ({me.GUID})");
 
-            me.GetMotionMaster().MoveIdle();
-            me.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+            me.
+            MotionMaster.MoveIdle();
+            me.            MotionMaster.Clear(MovementGeneratorPriority.Normal);
 
             //disable npcflags
             me.ReplaceAllNpcFlags(NPCFlags.None);
@@ -411,7 +412,7 @@ namespace Game.AI
                 me.SetImmuneToNPC(false);
             }
 
-            Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()}, started with {_path.nodes.Count} waypoints. ActiveAttacker = {_activeAttacker}, Run = {_running}, Player = {_playerGUID} ({me.GetGUID()})");
+            Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::Start: (script: {me.GetScriptName()}, started with {_path.nodes.Count} waypoints. ActiveAttacker = {_activeAttacker}, Run = {_running}, Player = {_playerGUID} ({me.GUID})");
 
             // set initial speed
             me.SetWalk(!_running);
@@ -428,7 +429,7 @@ namespace Game.AI
             if (on)
             {
                 AddEscortState(EscortState.Paused);
-                MovementGenerator movementGenerator = me.GetMotionMaster().GetCurrentMovementGenerator(MovementSlot.Default);
+                MovementGenerator movementGenerator = me.MotionMaster.GetCurrentMovementGenerator(MovementSlot.Default);
                 if (movementGenerator != null)
                     movementGenerator.Pause(0);
             }
@@ -442,7 +443,7 @@ namespace Game.AI
         public void SetPauseTimer(TimeSpan timer) { _pauseTimer = timer; }
 
         public bool HasEscortState(EscortState escortState) { return (_escortState & escortState) != 0; }
-        public override bool IsEscorted() { return !_playerGUID.IsEmpty(); }
+        public override bool IsEscorted() { return !_playerGUID.IsEmpty; }
 
         void SetMaxPlayerDistance(float newMax) { _maxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() { return _maxPlayerDistance; }

@@ -26,12 +26,12 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
 			if (caster.IsFriendlyTo(target) || target == caster.GetOwner())
-				if (!target.IsTotem())
+				if (!target.IsTotem)
 					caster.CastSpell(target, SpellsUsed.EARTHEN_SHIELD_ABSORB, true);
 		}
 	}
@@ -43,7 +43,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (unit.IsTotem())
+		if (unit.IsTotem)
 			return;
 
 		if (caster.IsFriendlyTo(unit) || unit == caster.GetOwner())
@@ -57,7 +57,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (unit.IsTotem())
+		if (unit.IsTotem)
 			return;
 
 		if (unit.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && unit.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).GetCaster() == caster)
@@ -71,12 +71,12 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		foreach (var itr in at.GetInsideUnits())
+		foreach (var itr in at.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
 			if (target != null)
-				if (!target.IsTotem())
+				if (!target.IsTotem)
 					if (target.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && target.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).GetCaster() == caster)
 						target.RemoveAura(SpellsUsed.EARTHEN_SHIELD_ABSORB);
 		}

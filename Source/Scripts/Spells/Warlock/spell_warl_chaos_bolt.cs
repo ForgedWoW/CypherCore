@@ -20,7 +20,7 @@ internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalc
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public void CalcCritChance(Unit victim, ref double critChance)

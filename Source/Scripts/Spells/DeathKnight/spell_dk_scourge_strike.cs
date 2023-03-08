@@ -36,7 +36,7 @@ public class spell_dk_scourge_strike : SpellScript, IHasSpellEffects
 
 				if (tar != null)
 				{
-					var festeringWoundAura = tar.GetAura(DeathKnightSpells.FESTERING_WOUND, Caster.GetGUID());
+					var festeringWoundAura = tar.GetAura(DeathKnightSpells.FESTERING_WOUND, Caster.GUID);
 
 					if (festeringWoundAura != null)
 					{

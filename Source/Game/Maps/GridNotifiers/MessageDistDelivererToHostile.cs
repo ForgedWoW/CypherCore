@@ -21,7 +21,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 	{
 		_source = src;
 		_packetSender = packetSender;
-		_phaseShift = src.GetPhaseShift();
+		_phaseShift = src.PhaseShift;
 		_distSq = dist * dist;
 		GridType = gridType;
 	}
@@ -39,7 +39,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 				continue;
 
 			// Send packet to all who are sharing the creature's vision
-			if (creature.HasSharedVision())
+			if (creature.HasSharedVision)
 				foreach (var player in creature.GetSharedVisionList())
 					if (player.SeerView == creature)
 						SendPacket(player);
@@ -84,7 +84,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 				continue;
 
 			// Send packet to all who are sharing the player's vision
-			if (player.HasSharedVision())
+			if (player.HasSharedVision)
 				foreach (var visionPlayer in player.GetSharedVisionList())
 					if (visionPlayer.SeerView == player)
 						SendPacket(visionPlayer);

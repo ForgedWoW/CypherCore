@@ -186,22 +186,22 @@ namespace Game
         }
 
         public uint SendChat(Creature source, byte textGroup, WorldObject whisperTarget = null, ChatMsg msgType = ChatMsg.Addon, Language language = Language.Addon,
-            CreatureTextRange range = CreatureTextRange.Normal, uint sound = 0, SoundKitPlayType playType = SoundKitPlayType.Normal, Team team = Team.Other, bool gmOnly = false, Player srcPlr = null)
+            CreatureTextRange range = CreatureTextRange.Normal, uint sound = 0, SoundKitPlayType playType = SoundKitPlayType.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, Player srcPlr = null)
         {
             if (source == null)
                 return 0;
 
-            var sList = mTextMap.LookupByKey(source.GetEntry());
+            var sList = mTextMap.LookupByKey(source.Entry);
             if (sList == null)
             {
-                Log.outError(LogFilter.Sql, "GossipManager: Could not find Text for Creature({0}) Entry {1} in 'creature_text' table. Ignoring.", source.GetName(), source.GetEntry());
+                Log.outError(LogFilter.Sql, "GossipManager: Could not find Text for Creature({0}) Entry {1} in 'creature_text' table. Ignoring.", source.GetName(), source.Entry);
                 return 0;
             }
 
             var textGroupContainer = sList.LookupByKey(textGroup);
             if (textGroupContainer.Empty())
             {
-                Log.outError(LogFilter.ChatSystem, "GossipManager: Could not find TextGroup {0} for Creature({1}) GuidLow {2} Entry {3}. Ignoring.", textGroup, source.GetName(), source.GetGUID().ToString(), source.GetEntry());
+                Log.outError(LogFilter.ChatSystem, "GossipManager: Could not find TextGroup {0} for Creature({1}) GuidLow {2} Entry {3}. Ignoring.", textGroup, source.GetName(), source.GUID.ToString(), source.Entry);
                 return 0;
             }
 
@@ -234,7 +234,7 @@ namespace Game
                 BroadcastTextRecord bct = CliDB.BroadcastTextStorage.LookupByKey(textEntry.BroadcastTextId);
                 if (bct != null)
                 {
-                    uint broadcastTextSoundId = bct.SoundKitID[source.GetGender() == Gender.Female ? 1 : 0];
+                    uint broadcastTextSoundId = bct.SoundKitID[source.Gender == Gender.Female ? 1 : 0];
                     if (broadcastTextSoundId != 0)
                         finalSound = broadcastTextSoundId;
                 }
@@ -255,12 +255,12 @@ namespace Game
 
             if (srcPlr)
             {
-                PlayerTextBuilder builder = new(source, finalSource, finalSource.GetGender(), finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
+                PlayerTextBuilder builder = new(source, finalSource, finalSource.Gender, finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
                 SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
             }
             else
             {
-                CreatureTextBuilder builder = new(finalSource, finalSource.GetGender(), finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
+                CreatureTextBuilder builder = new(finalSource, finalSource.Gender, finalType, textEntry.groupId, textEntry.id, finalLang, whisperTarget);
                 SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
             }
 
@@ -287,7 +287,7 @@ namespace Game
             return dist;
         }
 
-        public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, Team team = Team.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)
+        public void SendSound(Creature source, uint sound, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false, uint keyBroadcastTextId = 0, SoundKitPlayType playType = SoundKitPlayType.Normal)
         {
             if (sound == 0 || !source)
                 return;
@@ -295,18 +295,18 @@ namespace Game
             if (playType == SoundKitPlayType.ObjectSound)
             {
                 PlayObjectSound pkt = new();
-                pkt.TargetObjectGUID = whisperTarget.GetGUID();
-                pkt.SourceObjectGUID = source.GetGUID();
+                pkt.TargetObjectGUID = whisperTarget.GUID;
+                pkt.SourceObjectGUID = source.GUID;
                 pkt.SoundKitID = sound;
                 pkt.Position = whisperTarget.Location;
                 pkt.BroadcastTextID = (int)keyBroadcastTextId;
                 SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
             }
             else if (playType == SoundKitPlayType.Normal)
-                SendNonChatPacket(source, new PlaySound(source.GetGUID(), sound, keyBroadcastTextId), msgType, whisperTarget, range, team, gmOnly);
+                SendNonChatPacket(source, new PlaySound(source.GUID, sound, keyBroadcastTextId), msgType, whisperTarget, range, team, gmOnly);
         }
 
-        void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, Team team, bool gmOnly)
+        void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
         {
             float dist = GetRangeForChatType(msgType);
 
@@ -348,7 +348,7 @@ namespace Game
                         uint areaId = source.GetAreaId();
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if (pl.GetAreaId() == areaId && (team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if (pl.GetAreaId() == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
                         return;
                     }
@@ -357,7 +357,7 @@ namespace Game
                         uint zoneId = source.GetZoneId();
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if (pl.GetZoneId() == zoneId && (team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if (pl.GetZoneId() == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
                         return;
                     }
@@ -365,7 +365,7 @@ namespace Game
                     {
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if ((team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
                         return;
                     }
@@ -374,15 +374,15 @@ namespace Game
                         var smap = Global.WorldMgr.GetAllSessions();
                         foreach (var session in smap)
                         {
-                            Player player = session.GetPlayer();
+                            Player player = session.Player;
                             if (player != null)
-                                if ((team == 0 || player.GetTeam() == team) && (!gmOnly || player.IsGameMaster()))
+                                if ((team == 0 || player.Team == team) && (!gmOnly || player.IsGameMaster))
                                     player.SendPacket(data);
                         }
                         return;
                     }
                 case CreatureTextRange.Personal:
-                    if (whisperTarget == null || !whisperTarget.IsPlayer())
+                    if (whisperTarget == null || !whisperTarget.IsPlayer)
                         return;
 
                     whisperTarget.ToPlayer().SendPacket(data);
@@ -467,7 +467,7 @@ namespace Game
             return baseText;
         }
 
-        public void SendChatPacket(WorldObject source, MessageBuilder builder, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, Team team = Team.Other, bool gmOnly = false)
+        public void SendChatPacket(WorldObject source, MessageBuilder builder, ChatMsg msgType, WorldObject whisperTarget = null, CreatureTextRange range = CreatureTextRange.Normal, TeamFaction team = TeamFaction.Other, bool gmOnly = false)
         {
             if (source == null)
                 return;
@@ -500,7 +500,7 @@ namespace Game
                         uint areaId = source.GetAreaId();
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if (pl.GetAreaId() == areaId && (team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if (pl.GetAreaId() == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);
                         return;
                     }
@@ -509,7 +509,7 @@ namespace Game
                         uint zoneId = source.GetZoneId();
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if (pl.GetZoneId() == zoneId && (team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if (pl.GetZoneId() == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);
                         return;
                     }
@@ -517,7 +517,7 @@ namespace Game
                     {
                         var players = source.GetMap().GetPlayers();
                         foreach (var pl in players)
-                            if ((team == 0 || pl.GetEffectiveTeam() == team) && (!gmOnly || pl.IsGameMaster()))
+                            if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);
                         return;
                     }
@@ -526,15 +526,15 @@ namespace Game
                         var smap = Global.WorldMgr.GetAllSessions();
                         foreach (var session in smap)
                         {
-                            Player player = session.GetPlayer();
+                            Player player = session.Player;
                             if (player != null)
-                                if ((team == 0 || player.GetTeam() == team) && (!gmOnly || player.IsGameMaster()))
+                                if ((team == 0 || player.Team == team) && (!gmOnly || player.IsGameMaster))
                                     localizer.Invoke(player);
                         }
                         return;
                     }
                 case CreatureTextRange.Personal:
-                    if (whisperTarget == null || !whisperTarget.IsPlayer())
+                    if (whisperTarget == null || !whisperTarget.IsPlayer)
                         return;
 
                     localizer.Invoke(whisperTarget.ToPlayer());
@@ -616,7 +616,7 @@ namespace Game
 
         public void Invoke(Player player)
         {
-            Locale loc_idx = player.GetSession().GetSessionDbLocaleIndex();
+            Locale loc_idx = player.Session.SessionDbLocaleIndex;
             ChatPacketSender sender;
 
             // create if not cached yet
@@ -663,7 +663,7 @@ namespace Game
 
         public override ChatPacketSender Invoke(Locale locale = Locale.enUS)
         {
-            string text = Global.CreatureTextMgr.GetLocalizedChatString(_source.GetEntry(), _gender, _textGroup, _textId, locale);
+            string text = Global.CreatureTextMgr.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, locale);
             return new ChatPacketSender(_msgType, _language, _source, _target, text, 0, locale);
         }
 
@@ -692,7 +692,7 @@ namespace Game
 
         public override PacketSenderOwning<ChatPkt> Invoke(Locale loc_idx = Locale.enUS)
         {
-            string text = Global.CreatureTextMgr.GetLocalizedChatString(_source.GetEntry(), _gender, _textGroup, _textId, loc_idx);
+            string text = Global.CreatureTextMgr.GetLocalizedChatString(_source.Entry, _gender, _textGroup, _textId, loc_idx);
             PacketSenderOwning<ChatPkt> chat = new();
             chat.Data.Initialize(_msgType, _language, _talker, _target, text, 0, "", loc_idx);
             return chat;

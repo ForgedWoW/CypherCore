@@ -48,9 +48,9 @@ public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
 
 		if (target != null)
 		{
-			caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_VISUAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GetGUID()));
-			var targetGuid = target.GetGUID();
-			var ownerGuid = owner.GetGUID();
+			caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_VISUAL, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
+			var targetGuid = target.GUID;
+			var ownerGuid = owner.GUID;
 
 			//C++ TO C# CONVERTER TASK: Only lambdas having all locals passed by reference can be converted to C#:
 			//ORIGINAL LINE: caster->GetScheduler().Schedule(750ms, [caster, targetGuid, damage, ownerGuid](TaskContext)
@@ -63,7 +63,7 @@ public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
 											return;
 
 										var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-										caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, 0).SetTriggerFlags(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GetGUID()));
+										caster.CastSpell(target, WarlockSpells.SOUL_EFFIGY_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, 0).SetTriggerFlags(TriggerCastFlags.FullMask).SetOriginalCaster(owner.GUID));
 									},
 									TimeSpan.FromMilliseconds(750));
 		}

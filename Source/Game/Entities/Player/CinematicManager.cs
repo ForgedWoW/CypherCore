@@ -96,7 +96,7 @@ public class CinematicManager : IDisposable
 
 		if (_cinematicObject)
 		{
-			var vpObject = _player.GetViewpoint();
+			var vpObject = _player.Viewpoint;
 
 			if (vpObject)
 				if (vpObject == _cinematicObject)

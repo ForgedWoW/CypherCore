@@ -3,21 +3,18 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class ConfirmPurchase : ServerPacket
 {
-    public class ConfirmPurchase : ServerPacket
-    {
-        public ConfirmPurchase() : base(ServerOpcodes.BattlePayConfirmPurchase)
-        {
-        }
+	public ulong PurchaseID { get; set; } = 0;
+	public uint ServerToken { get; set; } = 0;
 
-        public override void Write()
-        {
-            _worldPacket.Write(PurchaseID);
-            _worldPacket.Write(ServerToken);
-        }
+	public ConfirmPurchase() : base(ServerOpcodes.BattlePayConfirmPurchase) { }
 
-        public ulong PurchaseID { get; set; } = 0;
-        public uint ServerToken { get; set; } = 0;
-    }
+	public override void Write()
+	{
+		_worldPacket.Write(PurchaseID);
+		_worldPacket.Write(ServerToken);
+	}
 }

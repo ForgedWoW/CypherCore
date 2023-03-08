@@ -25,7 +25,7 @@ namespace Game.BattleFields
         public BattleField(Map map)
         {
             m_IsEnabled = true;
-            m_DefenderTeam = TeamId.Neutral;
+            m_DefenderTeam = TeamIds.Neutral;
 
             m_TimeForAcceptInvite = 20;
             m_uiKickDontAcceptTimer = 1000;
@@ -54,12 +54,12 @@ namespace Game.BattleFields
             // If full of players > announce to player that BF is full and kick him after a few second if he desn't leave
             if (IsWarTime())
             {
-                if (m_PlayersInWar[player.GetTeamId()].Count + m_InvitedPlayers[player.GetTeamId()].Count < m_MaxPlayer) // Vacant spaces
+                if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer) // Vacant spaces
                     InvitePlayerToWar(player);
                 else // No more vacant places
                 {
                     // todo Send a packet to announce it to player
-                    m_PlayersWillBeKick[player.GetTeamId()][player.GetGUID()] = GameTime.GetGameTime() + 10;
+                    m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.GetGameTime() + 10;
                     InvitePlayerToQueue(player);
                 }
             }
@@ -71,7 +71,7 @@ namespace Game.BattleFields
             }
 
             // Add player in the list of player in zone
-            m_players[player.GetTeamId()].Add(player.GetGUID());
+            m_players[player.TeamId].Add(player.GUID);
             OnPlayerEnterZone(player);
         }
 
@@ -81,12 +81,12 @@ namespace Game.BattleFields
             if (IsWarTime())
             {
                 // If the player is participating to the battle
-                if (m_PlayersInWar[player.GetTeamId()].Contains(player.GetGUID()))
+                if (m_PlayersInWar[player.TeamId].Contains(player.GUID))
                 {
-                    m_PlayersInWar[player.GetTeamId()].Remove(player.GetGUID());
+                    m_PlayersInWar[player.TeamId].Remove(player.GUID);
                     Group group = player.GetGroup();
                     if (group) // Remove the player from the raid group
-                        group.RemoveMember(player.GetGUID());
+                        group.RemoveMember(player.GUID);
 
                     OnPlayerLeaveWar(player);
                 }
@@ -95,11 +95,11 @@ namespace Game.BattleFields
             foreach (var capturePoint in m_capturePoints.Values)
                 capturePoint.HandlePlayerLeave(player);
 
-            m_InvitedPlayers[player.GetTeamId()].Remove(player.GetGUID());
-            m_PlayersWillBeKick[player.GetTeamId()].Remove(player.GetGUID());
-            m_players[player.GetTeamId()].Remove(player.GetGUID());
+            m_InvitedPlayers[player.TeamId].Remove(player.GUID);
+            m_PlayersWillBeKick[player.TeamId].Remove(player.GUID);
+            m_players[player.TeamId].Remove(player.GUID);
             SendRemoveWorldStates(player);
-            RemovePlayerFromResurrectQueue(player.GetGUID());
+            RemovePlayerFromResurrectQueue(player.GUID);
             OnPlayerLeaveZone(player);
         }
 
@@ -193,10 +193,10 @@ namespace Game.BattleFields
 
         void InvitePlayerToQueue(Player player)
         {
-            if (m_PlayersInQueue[player.GetTeamId()].Contains(player.GetGUID()))
+            if (m_PlayersInQueue[player.TeamId].Contains(player.GUID))
                 return;
 
-            if (m_PlayersInQueue[player.GetTeamId()].Count <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player.GetTeamId())].Count >= m_MinPlayer)
+            if (m_PlayersInQueue[player.TeamId].Count <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player.TeamId)].Count >= m_MinPlayer)
                 PlayerAcceptInviteToQueue(player);
         }
 
@@ -209,7 +209,7 @@ namespace Game.BattleFields
                     Player player = Global.ObjAccessor.FindPlayer(guid);
                     if (player)
                     {
-                        if (m_PlayersInWar[player.GetTeamId()].Count + m_InvitedPlayers[player.GetTeamId()].Count < m_MaxPlayer)
+                        if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer)
                             InvitePlayerToWar(player);
                         else
                         {
@@ -230,12 +230,12 @@ namespace Game.BattleFields
                     Player player = Global.ObjAccessor.FindPlayer(guid);
                     if (player)
                     {
-                        if (m_PlayersInWar[player.GetTeamId()].Contains(player.GetGUID()) || m_InvitedPlayers[player.GetTeamId()].ContainsKey(player.GetGUID()))
+                        if (m_PlayersInWar[player.TeamId].Contains(player.GUID) || m_InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
                             continue;
-                        if (m_PlayersInWar[player.GetTeamId()].Count + m_InvitedPlayers[player.GetTeamId()].Count < m_MaxPlayer)
+                        if (m_PlayersInWar[player.TeamId].Count + m_InvitedPlayers[player.TeamId].Count < m_MaxPlayer)
                             InvitePlayerToWar(player);
                         else // Battlefield is full of players
-                            m_PlayersWillBeKick[player.GetTeamId()][player.GetGUID()] = GameTime.GetGameTime() + 10;
+                            m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.GetGameTime() + 10;
                     }
                 }
             }
@@ -247,29 +247,29 @@ namespace Game.BattleFields
                 return;
 
             // todo needed ?
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 return;
 
-            if (player.InArena() || player.GetBattleground())
+            if (player.InArena || player.GetBattleground())
             {
-                m_PlayersInQueue[player.GetTeamId()].Remove(player.GetGUID());
+                m_PlayersInQueue[player.TeamId].Remove(player.GUID);
                 return;
             }
 
             // If the player does not match minimal level requirements for the battlefield, kick him
-            if (player.GetLevel() < m_MinLevel)
+            if (player.Level < m_MinLevel)
             {
-                if (!m_PlayersWillBeKick[player.GetTeamId()].ContainsKey(player.GetGUID()))
-                    m_PlayersWillBeKick[player.GetTeamId()][player.GetGUID()] = GameTime.GetGameTime() + 10;
+                if (!m_PlayersWillBeKick[player.TeamId].ContainsKey(player.GUID))
+                    m_PlayersWillBeKick[player.TeamId][player.GUID] = GameTime.GetGameTime() + 10;
                 return;
             }
 
             // Check if player is not already in war
-            if (m_PlayersInWar[player.GetTeamId()].Contains(player.GetGUID()) || m_InvitedPlayers[player.GetTeamId()].ContainsKey(player.GetGUID()))
+            if (m_PlayersInWar[player.TeamId].Contains(player.GUID) || m_InvitedPlayers[player.TeamId].ContainsKey(player.GUID))
                 return;
 
-            m_PlayersWillBeKick[player.GetTeamId()].Remove(player.GetGUID());
-            m_InvitedPlayers[player.GetTeamId()][player.GetGUID()] = GameTime.GetGameTime() + m_TimeForAcceptInvite;
+            m_PlayersWillBeKick[player.TeamId].Remove(player.GUID);
+            m_InvitedPlayers[player.TeamId][player.GUID] = GameTime.GetGameTime() + m_TimeForAcceptInvite;
             PlayerAcceptInviteToWar(player);
         }
 
@@ -277,7 +277,7 @@ namespace Game.BattleFields
         {
             Creature creature = SpawnCreature(entry, pos);
             if (creature)
-                StalkerGuid = creature.GetGUID();
+                StalkerGuid = creature.GUID;
             else
                 Log.outError(LogFilter.Battlefield, "Battlefield.InitStalker: could not spawn Stalker (Creature entry {0}), zone messeges will be un-available", entry);
         }
@@ -290,7 +290,7 @@ namespace Game.BattleFields
                 {
                     Player player = Global.ObjAccessor.FindPlayer(guid);
                     if (player)
-                        if (player.IsAFK())
+                        if (player.IsAFK)
                             KickPlayerFromBattlefield(guid);
                 }
             }
@@ -349,21 +349,21 @@ namespace Game.BattleFields
 
         public bool HasPlayer(Player player)
         {
-            return m_players[player.GetTeamId()].Contains(player.GetGUID());
+            return m_players[player.TeamId].Contains(player.GUID);
         }
 
         // Called in WorldSession:HandleBfQueueInviteResponse
         public void PlayerAcceptInviteToQueue(Player player)
         {
             // Add player in queue
-            m_PlayersInQueue[player.GetTeamId()].Add(player.GetGUID());
+            m_PlayersInQueue[player.TeamId].Add(player.GUID);
         }
 
         // Called in WorldSession:HandleBfExitRequest
         public void AskToLeaveQueue(Player player)
         {
             // Remove player from queue
-            m_PlayersInQueue[player.GetTeamId()].Remove(player.GetGUID());
+            m_PlayersInQueue[player.TeamId].Remove(player.GUID);
         }
 
         // Called in WorldSession::HandleHearthAndResurrect
@@ -382,10 +382,10 @@ namespace Game.BattleFields
 
             if (AddOrSetPlayerToCorrectBfGroup(player))
             {
-                m_PlayersInWar[player.GetTeamId()].Add(player.GetGUID());
-                m_InvitedPlayers[player.GetTeamId()].Remove(player.GetGUID());
+                m_PlayersInWar[player.TeamId].Add(player.GUID);
+                m_InvitedPlayers[player.TeamId].Remove(player.GUID);
 
-                if (player.IsAFK())
+                if (player.IsAFK)
                     player.ToggleAFK();
 
                 OnPlayerJoinWar(player);                               //for scripting
@@ -474,7 +474,7 @@ namespace Game.BattleFields
         public void HideNpc(Creature creature)
         {
             creature.CombatStop();
-            creature.SetReactState(ReactStates.Passive);
+            creature.            ReactState = ReactStates.Passive;
             creature.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
             creature.DisappearAndDie();
             creature.SetVisible(false);
@@ -484,14 +484,14 @@ namespace Game.BattleFields
         {
             creature.SetVisible(true);
             creature.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible);
-            if (!creature.IsAlive())
+            if (!creature.IsAlive)
                 creature.Respawn(true);
             if (aggressive)
-                creature.SetReactState(ReactStates.Aggressive);
+                creature.                ReactState = ReactStates.Aggressive;
             else
             {
                 creature.SetUnitFlag(UnitFlags.NonAttackable);
-                creature.SetReactState(ReactStates.Passive);
+                creature.                ReactState = ReactStates.Passive;
             }
         }
 
@@ -531,20 +531,20 @@ namespace Game.BattleFields
 
             Group oldgroup = player.GetGroup();
             if (oldgroup)
-                oldgroup.RemoveMember(player.GetGUID());
+                oldgroup.RemoveMember(player.GUID);
 
-            Group group = GetFreeBfRaid(player.GetTeamId());
+            Group group = GetFreeBfRaid(player.TeamId);
             if (!group)
             {
                 group = new Group();
                 group.SetBattlefieldGroup(this);
                 group.Create(player);
                 Global.GroupMgr.AddGroup(group);
-                m_Groups[player.GetTeamId()].Add(group.GetGUID());
+                m_Groups[player.TeamId].Add(group.GetGUID());
             }
-            else if (group.IsMember(player.GetGUID()))
+            else if (group.IsMember(player.GUID))
             {
-                byte subgroup = group.GetMemberGroup(player.GetGUID());
+                byte subgroup = group.GetMemberGroup(player.GUID);
                 player.SetBattlegroundOrBattlefieldRaid(group, subgroup);
             }
             else
@@ -579,7 +579,7 @@ namespace Game.BattleFields
             {
                 if (m_GraveyardList[i] != null)
                 {
-                    if (m_GraveyardList[i].GetControlTeamId() != player.GetTeamId())
+                    if (m_GraveyardList[i].GetControlTeamId() != player.TeamId)
                         continue;
 
                     float dist = m_GraveyardList[i].GetDistance(player);
@@ -741,7 +741,7 @@ namespace Game.BattleFields
         // Battlefield - generic methods
         public uint GetDefenderTeam() { return m_DefenderTeam; }
         public uint GetAttackerTeam() { return 1 - m_DefenderTeam; }
-        public int GetOtherTeam(int teamIndex) { return (teamIndex == TeamId.Horde ? TeamId.Alliance : TeamId.Horde); }
+        public int GetOtherTeam(int teamIndex) { return (teamIndex == TeamIds.Horde ? TeamIds.Alliance : TeamIds.Horde); }
         void SetDefenderTeam(uint team) { m_DefenderTeam = team; }
 
         // Called on start
@@ -827,7 +827,7 @@ namespace Game.BattleFields
         {
             m_Bf = battlefield;
             m_GraveyardId = 0;
-            m_ControlTeam = TeamId.Neutral;
+            m_ControlTeam = TeamIds.Neutral;
             m_SpiritGuide[0] = ObjectGuid.Empty;
             m_SpiritGuide[1] = ObjectGuid.Empty;
         }
@@ -846,8 +846,8 @@ namespace Game.BattleFields
                 return;
             }
 
-            m_SpiritGuide[teamIndex] = spirit.GetGUID();
-            spirit.SetReactState(ReactStates.Passive);
+            m_SpiritGuide[teamIndex] = spirit.GUID;
+            spirit.            ReactState = ReactStates.Passive;
         }
 
         public float GetDistance(Player player)
@@ -945,14 +945,14 @@ namespace Game.BattleFields
 
         public bool HasNpc(ObjectGuid guid)
         {
-            if (m_SpiritGuide[TeamId.Alliance].IsEmpty() || m_SpiritGuide[TeamId.Horde].IsEmpty())
+            if (m_SpiritGuide[TeamIds.Alliance].IsEmpty || m_SpiritGuide[TeamIds.Horde].IsEmpty)
                 return false;
 
-            if (!m_Bf.GetCreature(m_SpiritGuide[TeamId.Alliance]) ||
-                !m_Bf.GetCreature(m_SpiritGuide[TeamId.Horde]))
+            if (!m_Bf.GetCreature(m_SpiritGuide[TeamIds.Alliance]) ||
+                !m_Bf.GetCreature(m_SpiritGuide[TeamIds.Horde]))
                 return false;
 
-            return (m_SpiritGuide[TeamId.Alliance] == guid || m_SpiritGuide[TeamId.Horde] == guid);
+            return (m_SpiritGuide[TeamIds.Alliance] == guid || m_SpiritGuide[TeamIds.Horde] == guid);
         }
 
         // Check if a player is in this graveyard's ressurect queue
@@ -976,7 +976,7 @@ namespace Game.BattleFields
         {
             m_Bf = battlefield;
             m_capturePointGUID = ObjectGuid.Empty;
-            m_team = TeamId.Neutral;
+            m_team = TeamIds.Neutral;
             m_value = 0;
             m_minValue = 0.0f;
             m_maxValue = 0.0f;
@@ -992,7 +992,7 @@ namespace Game.BattleFields
 
         public virtual bool HandlePlayerEnter(Player player)
         {
-            if (!m_capturePointGUID.IsEmpty())
+            if (!m_capturePointGUID.IsEmpty)
             {
                 GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
                 if (capturePoint)
@@ -1003,24 +1003,24 @@ namespace Game.BattleFields
                 }
             }
 
-            return m_activePlayers[player.GetTeamId()].Add(player.GetGUID());
+            return m_activePlayers[player.TeamId].Add(player.GUID);
         }
 
         public virtual void HandlePlayerLeave(Player player)
         {
-            if (!m_capturePointGUID.IsEmpty())
+            if (!m_capturePointGUID.IsEmpty)
             {
                 GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
                 if (capturePoint)
                     player.SendUpdateWorldState(capturePoint.GetGoInfo().ControlZone.worldState1, 0);
             }
 
-            m_activePlayers[player.GetTeamId()].Remove(player.GetGUID());
+            m_activePlayers[player.TeamId].Remove(player.GUID);
         }
 
         public virtual void SendChangePhase()
         {
-            if (m_capturePointGUID.IsEmpty())
+            if (m_capturePointGUID.IsEmpty)
                 return;
 
             GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
@@ -1039,16 +1039,16 @@ namespace Game.BattleFields
         {
             Cypher.Assert(capturePoint);
 
-            Log.outError(LogFilter.Battlefield, "Creating capture point {0}", capturePoint.GetEntry());
+            Log.outError(LogFilter.Battlefield, "Creating capture point {0}", capturePoint.Entry);
 
-            m_capturePointGUID = capturePoint.GetGUID();
-            m_capturePointEntry = capturePoint.GetEntry();
+            m_capturePointGUID = capturePoint.GUID;
+            m_capturePointEntry = capturePoint.Entry;
 
             // check info existence
             GameObjectTemplate goinfo = capturePoint.GetGoInfo();
             if (goinfo.type != GameObjectTypes.ControlZone)
             {
-                Log.outError(LogFilter.Server, "OutdoorPvP: GO {0} is not capture point!", capturePoint.GetEntry());
+                Log.outError(LogFilter.Server, "OutdoorPvP: GO {0} is not capture point!", capturePoint.Entry);
                 return false;
             }
 
@@ -1058,7 +1058,7 @@ namespace Game.BattleFields
             m_neutralValuePct = goinfo.ControlZone.neutralPercent;
             m_minValue = m_maxValue * goinfo.ControlZone.neutralPercent / 100;
 
-            if (m_team == TeamId.Alliance)
+            if (m_team == TeamIds.Alliance)
             {
                 m_value = m_maxValue;
                 m_State = BattleFieldObjectiveStates.Alliance;
@@ -1079,7 +1079,7 @@ namespace Game.BattleFields
 
         bool DelCapturePoint()
         {
-            if (!m_capturePointGUID.IsEmpty())
+            if (!m_capturePointGUID.IsEmpty)
             {
                 GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
                 if (capturePoint)
@@ -1096,7 +1096,7 @@ namespace Game.BattleFields
 
         public virtual bool Update(uint diff)
         {
-            if (m_capturePointGUID.IsEmpty())
+            if (m_capturePointGUID.IsEmpty)
                 return false;
 
             GameObject capturePoint = m_Bf.GetGameObject(m_capturePointGUID);
@@ -1126,18 +1126,18 @@ namespace Game.BattleFields
                 {
                     if (player.IsOutdoorPvPActive())
                     {
-                        if (m_activePlayers[player.GetTeamId()].Add(player.GetGUID()))
+                        if (m_activePlayers[player.TeamId].Add(player.GUID))
                             HandlePlayerEnter(player);
                     }
                 }
             }
 
             // get the difference of numbers
-            float fact_diff = ((float)m_activePlayers[TeamId.Alliance].Count - m_activePlayers[TeamId.Horde].Count) * diff / 1000;
+            float fact_diff = ((float)m_activePlayers[TeamIds.Alliance].Count - m_activePlayers[TeamIds.Horde].Count) * diff / 1000;
             if (MathFunctions.fuzzyEq(fact_diff, 0.0f))
                 return false;
 
-            Team Challenger;
+            TeamFaction Challenger;
             float maxDiff = m_maxSpeed * diff;
 
             if (fact_diff < 0)
@@ -1149,7 +1149,7 @@ namespace Game.BattleFields
                 if (fact_diff < -maxDiff)
                     fact_diff = -maxDiff;
 
-                Challenger = Team.Horde;
+                Challenger = TeamFaction.Horde;
             }
             else
             {
@@ -1160,7 +1160,7 @@ namespace Game.BattleFields
                 if (fact_diff > maxDiff)
                     fact_diff = maxDiff;
 
-                Challenger = Team.Alliance;
+                Challenger = TeamFaction.Alliance;
             }
 
             float oldValue = m_value;
@@ -1175,33 +1175,33 @@ namespace Game.BattleFields
                 if (m_value < -m_maxValue)
                     m_value = -m_maxValue;
                 m_State = BattleFieldObjectiveStates.Horde;
-                m_team = TeamId.Horde;
+                m_team = TeamIds.Horde;
             }
             else if (m_value > m_minValue)                          // blue
             {
                 if (m_value > m_maxValue)
                     m_value = m_maxValue;
                 m_State = BattleFieldObjectiveStates.Alliance;
-                m_team = TeamId.Alliance;
+                m_team = TeamIds.Alliance;
             }
             else if (oldValue * m_value <= 0)                       // grey, go through mid point
             {
                 // if challenger is ally, then n.a challenge
-                if (Challenger == Team.Alliance)
+                if (Challenger == TeamFaction.Alliance)
                     m_State = BattleFieldObjectiveStates.NeutralAllianceChallenge;
                 // if challenger is horde, then n.h challenge
-                else if (Challenger == Team.Horde)
+                else if (Challenger == TeamFaction.Horde)
                     m_State = BattleFieldObjectiveStates.NeutralHordeChallenge;
-                m_team = TeamId.Neutral;
+                m_team = TeamIds.Neutral;
             }
             else                                                    // grey, did not go through mid point
             {
                 // old phase and current are on the same side, so one team challenges the other
-                if (Challenger == Team.Alliance && (m_OldState == BattleFieldObjectiveStates.Horde || m_OldState == BattleFieldObjectiveStates.NeutralHordeChallenge))
+                if (Challenger == TeamFaction.Alliance && (m_OldState == BattleFieldObjectiveStates.Horde || m_OldState == BattleFieldObjectiveStates.NeutralHordeChallenge))
                     m_State = BattleFieldObjectiveStates.HordeAllianceChallenge;
-                else if (Challenger == Team.Horde && (m_OldState == BattleFieldObjectiveStates.Alliance || m_OldState == BattleFieldObjectiveStates.NeutralAllianceChallenge))
+                else if (Challenger == TeamFaction.Horde && (m_OldState == BattleFieldObjectiveStates.Alliance || m_OldState == BattleFieldObjectiveStates.NeutralAllianceChallenge))
                     m_State = BattleFieldObjectiveStates.AllianceHordeChallenge;
-                m_team = TeamId.Neutral;
+                m_team = TeamIds.Neutral;
             }
 
             if (MathFunctions.fuzzyNe(m_value, oldValue))
@@ -1236,10 +1236,10 @@ namespace Game.BattleFields
             switch (m_State)
             {
                 case BattleFieldObjectiveStates.Alliance:
-                    team = TeamId.Alliance;
+                    team = TeamIds.Alliance;
                     break;
                 case BattleFieldObjectiveStates.Horde:
-                    team = TeamId.Horde;
+                    team = TeamIds.Horde;
                     break;
                 default:
                     return;
@@ -1256,7 +1256,7 @@ namespace Game.BattleFields
 
         bool IsInsideObjective(Player player)
         {
-            return m_activePlayers[player.GetTeamId()].Contains(player.GetGUID());
+            return m_activePlayers[player.TeamId].Contains(player.GUID);
         }
 
         public virtual void ChangeTeam(uint oldTeam) { }

@@ -23,7 +23,7 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 	{
 		var unit = UnitOwner;
 
-		if (!unit.IsAlive())
+		if (!unit.IsAlive)
 			return;
 
 		unit.SetHealth(Math.Min(_health, unit.GetMaxHealth()));

@@ -30,7 +30,7 @@ internal class npc_training_dummy : NullCreatureAI
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		_combatTimer[who.GetGUID()] = TimeSpan.FromSeconds(15);
+		_combatTimer[who.GUID] = TimeSpan.FromSeconds(15);
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
@@ -38,7 +38,7 @@ internal class npc_training_dummy : NullCreatureAI
 		if (!attacker)
 			return;
 
-		_combatTimer[attacker.GetGUID()] = TimeSpan.FromSeconds(15);
+		_combatTimer[attacker.GUID] = TimeSpan.FromSeconds(15);
 	}
 
 	public override void UpdateAI(uint diff)

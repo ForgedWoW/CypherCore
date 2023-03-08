@@ -20,7 +20,7 @@ public class spell_pal_absolution : ScriptObjectAutoAdd, IPlayerOnSpellCast
 
 	public void OnSpellCast(Player player, Spell spell, bool skipCheck)
 	{
-		if (player.GetClass() != Class.Paladin)
+		if (player.Class != Class.Paladin)
 			return;
 
 		uint absolution = 212056;
@@ -31,7 +31,7 @@ public class spell_pal_absolution : ScriptObjectAutoAdd, IPlayerOnSpellCast
 			player.GetFriendlyUnitListInRange(allies, 30.0f, false);
 
 			foreach (var targets in allies)
-				if (targets.IsDead())
+				if (targets.IsDead)
 				{
 					var playerTarget = targets.ToPlayer();
 

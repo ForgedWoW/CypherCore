@@ -150,22 +150,22 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreatureIds.Kilrek:
-					KilrekGUID = creature.GetGUID();
+					KilrekGUID = creature.GUID;
 
 					break;
 				case CreatureIds.TerestianIllhoof:
-					TerestianGUID = creature.GetGUID();
+					TerestianGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Moroes:
-					MoroesGUID = creature.GetGUID();
+					MoroesGUID = creature.GUID;
 
 					break;
 				case CreatureIds.Nightbane:
-					NightbaneGUID = creature.GetGUID();
+					NightbaneGUID = creature.GUID;
 
 					break;
 				default:
@@ -180,7 +180,7 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
 			if (!creature)
 				return;
 
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreatureIds.ColdmistWidow:
 				case CreatureIds.ColdmistStalker:
@@ -273,56 +273,56 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
 
 		public override void OnGameObjectCreate(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectIds.StageCurtain:
-					CurtainGUID = go.GetGUID();
+					CurtainGUID = go.GUID;
 
 					break;
 				case GameObjectIds.StageDoorLeft:
-					StageDoorLeftGUID = go.GetGUID();
+					StageDoorLeftGUID = go.GUID;
 
 					if (GetBossState(DataTypes.OperaPerformance) == EncounterState.Done)
 						go.SetGoState(GameObjectState.Active);
 
 					break;
 				case GameObjectIds.StageDoorRight:
-					StageDoorRightGUID = go.GetGUID();
+					StageDoorRightGUID = go.GUID;
 
 					if (GetBossState(DataTypes.OperaPerformance) == EncounterState.Done)
 						go.SetGoState(GameObjectState.Active);
 
 					break;
 				case GameObjectIds.PrivateLibraryDoor:
-					LibraryDoor = go.GetGUID();
+					LibraryDoor = go.GUID;
 
 					break;
 				case GameObjectIds.MassiveDoor:
-					MassiveDoor = go.GetGUID();
+					MassiveDoor = go.GUID;
 
 					break;
 				case GameObjectIds.GamesmanHallDoor:
-					GamesmansDoor = go.GetGUID();
+					GamesmansDoor = go.GUID;
 
 					break;
 				case GameObjectIds.GamesmanHallExitDoor:
-					GamesmansExitDoor = go.GetGUID();
+					GamesmansExitDoor = go.GUID;
 
 					break;
 				case GameObjectIds.NetherspaceDoor:
-					NetherspaceDoor = go.GetGUID();
+					NetherspaceDoor = go.GUID;
 
 					break;
 				case GameObjectIds.MastersTerraceDoor:
-					MastersTerraceDoor[0] = go.GetGUID();
+					MastersTerraceDoor[0] = go.GUID;
 
 					break;
 				case GameObjectIds.MastersTerraceDoor2:
-					MastersTerraceDoor[1] = go.GetGUID();
+					MastersTerraceDoor[1] = go.GUID;
 
 					break;
 				case GameObjectIds.SideEntranceDoor:
-					SideEntranceDoor = go.GetGUID();
+					SideEntranceDoor = go.GUID;
 
 					if (GetBossState(DataTypes.OperaPerformance) == EncounterState.Done)
 						go.SetFlag(GameObjectFlags.Locked);
@@ -331,11 +331,11 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
 
 					break;
 				case GameObjectIds.DustCoveredChest:
-					DustCoveredChest = go.GetGUID();
+					DustCoveredChest = go.GUID;
 
 					break;
 				case GameObjectIds.BlackenedUrn:
-					BlackenedUrnGUID = go.GetGUID();
+					BlackenedUrnGUID = go.GUID;
 
 					break;
 			}

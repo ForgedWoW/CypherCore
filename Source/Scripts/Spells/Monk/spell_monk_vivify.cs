@@ -44,6 +44,6 @@ public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
 	private void FilterRenewingMist(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, MonkSpells.RENEWING_MIST_HOT, Caster.GetGUID()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, MonkSpells.RENEWING_MIST_HOT, Caster.GUID));
 	}
 }

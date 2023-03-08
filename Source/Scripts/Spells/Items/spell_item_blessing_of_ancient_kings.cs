@@ -42,7 +42,7 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 			return;
 
 		var absorb = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), 15.0f);
-		var protEff = eventInfo.ProcTarget.GetAuraEffect(ItemSpellIds.ProtectionOfAncientKings, 0, eventInfo.Actor.GetGUID());
+		var protEff = eventInfo.ProcTarget.GetAuraEffect(ItemSpellIds.ProtectionOfAncientKings, 0, eventInfo.Actor.GUID);
 
 		if (protEff != null)
 		{

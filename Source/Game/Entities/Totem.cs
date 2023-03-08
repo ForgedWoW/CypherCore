@@ -22,7 +22,7 @@ public class Totem : Minion
 
 	public override void Update(uint diff)
 	{
-		if (!GetOwner().IsAlive() || !IsAlive())
+		if (!GetOwner().IsAlive || !IsAlive)
 		{
 			UnSummon(); // remove self
 
@@ -53,7 +53,7 @@ public class Totem : Minion
 			if (SummonPropertiesRecord.Slot >= (int)Framework.Constants.SummonSlot.Totem && SummonPropertiesRecord.Slot < SharedConst.MaxTotemSlot)
 			{
 				TotemCreated packet = new();
-				packet.Totem = GetGUID();
+				packet.Totem = GUID;
 				packet.Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem);
 				packet.Duration = duration;
 				packet.SpellID = UnitData.CreatedBySpell;
@@ -61,12 +61,12 @@ public class Totem : Minion
 			}
 
 			// set display id depending on caster's race
-			var totemDisplayId = Global.SpellMgr.GetModelForTotem(UnitData.CreatedBySpell, owner.GetRace());
+			var totemDisplayId = Global.SpellMgr.GetModelForTotem(UnitData.CreatedBySpell, owner.Race);
 
 			if (totemDisplayId != 0)
 				SetDisplayId(totemDisplayId);
 			else
-				Log.outDebug(LogFilter.Misc, $"Totem with entry {GetEntry()}, does not have a specialized model for spell {UnitData.CreatedBySpell} and race {owner.GetRace()}. Set to default.");
+				Log.outDebug(LogFilter.Misc, $"Totem with entry {Entry}, does not have a specialized model for spell {UnitData.CreatedBySpell} and race {owner.Race}. Set to default.");
 		}
 
 		base.InitStats(duration);
@@ -106,18 +106,18 @@ public class Totem : Minion
 		}
 
 		CombatStop();
-		RemoveAurasDueToSpell(GetSpell(), GetGUID());
+		RemoveAurasDueToSpell(GetSpell(), GUID);
 
 		// clear owner's totem slot
 		for (byte i = (int)Framework.Constants.SummonSlot.Totem; i < SharedConst.MaxTotemSlot; ++i)
-			if (GetOwner().SummonSlot[i] == GetGUID())
+			if (GetOwner().SummonSlot[i] == GUID)
 			{
 				GetOwner().SummonSlot[i].Clear();
 
 				break;
 			}
 
-		GetOwner().RemoveAurasDueToSpell(GetSpell(), GetGUID());
+		GetOwner().RemoveAurasDueToSpell(GetSpell(), GUID);
 
 		// remove aura all party members too
 		var owner = GetOwner().ToPlayer();
@@ -139,7 +139,7 @@ public class Totem : Minion
 					var target = refe.GetSource();
 
 					if (target && target.IsInMap(owner) && group.SameSubGroup(owner, target))
-						target.RemoveAurasDueToSpell(GetSpell(), GetGUID());
+						target.RemoveAurasDueToSpell(GetSpell(), GUID);
 				}
 		}
 

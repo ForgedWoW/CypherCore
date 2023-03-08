@@ -71,7 +71,7 @@ internal class boss_corla : BossAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.YellKill);
 	}
 

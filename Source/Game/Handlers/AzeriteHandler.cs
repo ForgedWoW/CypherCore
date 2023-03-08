@@ -97,7 +97,7 @@ namespace Game
                 return;
             }
 
-            if (_player.IsDead())
+            if (_player.IsDead)
             {
                 activateEssenceResult.Reason = AzeriteEssenceActivateResult.CantDoThatRightNow;
                 activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
@@ -190,7 +190,7 @@ namespace Game
                 return;
 
             // Validate tier
-            int actualTier = azeriteEmpoweredItem.GetTierForAzeritePower(_player.GetClass(), azeriteEmpoweredItemSelectPower.AzeritePowerID);
+            int actualTier = azeriteEmpoweredItem.GetTierForAzeritePower(_player.Class, azeriteEmpoweredItemSelectPower.AzeritePowerID);
             if (azeriteEmpoweredItemSelectPower.Tier > SharedConst.MaxAzeriteEmpoweredTier || azeriteEmpoweredItemSelectPower.Tier != actualTier)
                 return;
 

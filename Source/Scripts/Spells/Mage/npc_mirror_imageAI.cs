@@ -16,20 +16,20 @@ public class npc_mirror_imageAI : CasterAI
 
 	public override void IsSummonedBy(WorldObject owner)
 	{
-		if (owner == null || !owner.IsPlayer())
+		if (owner == null || !owner.IsPlayer)
 			return;
 
 		if (!me.HasUnitState(UnitState.Follow))
 		{
-			me.GetMotionMaster().Clear();
-			me.GetMotionMaster().MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.GetFollowAngle(), MovementSlot.Active);
+			me.MotionMaster.Clear();
+			me.MotionMaster.MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
 		}
 
 		// me->SetMaxPower(me->GetPowerType(), owner->GetMaxPower(me->GetPowerType()));
 		me.SetFullPower(me.GetPowerType());
 		me.SetMaxHealth(owner.ToUnit().GetMaxHealth());
 		me.SetHealth(owner.ToUnit().GetHealth());
-		me.SetReactState(ReactStates.Defensive);
+		me.ReactState = ReactStates.Defensive;
 
 		me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);
 
@@ -75,12 +75,14 @@ public class npc_mirror_imageAI : CasterAI
 		}
 
 		_events.ScheduleEvent(spellId, TimeSpan.Zero); ///< Schedule cast
-		me.GetMotionMaster().Clear();
+
+		me. ///< Schedule cast
+			MotionMaster.Clear();
 	}
 
 	public override void EnterEvadeMode(EvadeReason UnnamedParameter)
 	{
-		if (me.IsInEvadeMode() || !me.IsAlive())
+		if (me.IsInEvadeMode || !me.IsAlive)
 			return;
 
 		var owner = me.GetOwner();
@@ -89,8 +91,8 @@ public class npc_mirror_imageAI : CasterAI
 
 		if (owner != null && !me.HasUnitState(UnitState.Follow))
 		{
-			me.GetMotionMaster().Clear();
-			me.GetMotionMaster().MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.GetFollowAngle(), MovementSlot.Active);
+			me.MotionMaster.Clear();
+			me.MotionMaster.MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
 		}
 	}
 

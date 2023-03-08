@@ -39,7 +39,7 @@ public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
 
 		//If the target is a player, only cast for the time said in ABSOLUTE_CORRUPTION
 		if (caster.HasAura(WarlockSpells.ABSOLUTE_CORRUPTION))
-			Aura.SetDuration(target.GetTypeId() == TypeId.Player ? Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None).GetEffect(0).BasePoints * Time.InMilliseconds : 60 * 60 * Time.InMilliseconds); //If not player, 1 hour
+			Aura.SetDuration(target.TypeId == TypeId.Player ? Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None).GetEffect(0).BasePoints * Time.InMilliseconds : 60 * 60 * Time.InMilliseconds); //If not player, 1 hour
 	}
 
 	/*
@@ -60,7 +60,7 @@ public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
 			return;
 		}
 
-		if (caster.IsDead())
+		if (caster.IsDead)
 			target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
 
 		if (!caster.IsInRange(target, 0, 80))

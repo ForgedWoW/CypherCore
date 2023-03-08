@@ -29,7 +29,7 @@ public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
 			{
 				var owner = i.Current.GetOwner();
 
-				if (owner != null && owner.GetGUID() == caster.GetGUID() && i.Current.IsSummon())
+				if (owner != null && owner.GUID == caster.GUID && i.Current.IsSummon)
 					continue;
 
 				LightsHammerlist.Remove(i.Current);

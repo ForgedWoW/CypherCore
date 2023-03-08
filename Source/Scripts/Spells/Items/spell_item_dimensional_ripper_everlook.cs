@@ -22,7 +22,7 @@ internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEf
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public override void Register()

@@ -38,7 +38,7 @@ public class spell_mage_flurry : SpellScript, IHasSpellEffects
 				isImproved = true;
 		}
 
-		var targetGuid = target.GetGUID();
+		var targetGuid = target.GUID;
 
 		if (targetGuid != ObjectGuid.Empty)
 			for (byte i = 1; i < 3; ++i) // basepoint value is 3 all the time, so, set it 3 because sometimes it won't read

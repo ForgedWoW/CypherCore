@@ -199,52 +199,31 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 		_low = 0;
 	}
 
-	public ulong GetHighValue()
-	{
-		return _high;
-	}
+	public ulong HighValue => _high;
 
-	public ulong GetLowValue()
-	{
-		return _low;
-	}
+	public ulong LowValue => _low;
 
-	public HighGuid GetHigh()
-	{
-		return (HighGuid)(_high >> 58);
-	}
+	public HighGuid High => (HighGuid)(_high >> 58);
 
-	public byte GetSubType()
-	{
-		return (byte)(_high & 0x3F);
-	}
+	public byte SubType => (byte)(_high & 0x3F);
 
-	public uint GetRealmId()
-	{
-		return (uint)((_high >> 42) & 0x1FFF);
-	}
+	public uint RealmId => (uint)((_high >> 42) & 0x1FFF);
 
-	public uint GetServerId()
-	{
-		return (uint)((_low >> 40) & 0x1FFF);
-	}
+	public uint ServerId => (uint)((_low >> 40) & 0x1FFF);
 
-	public uint GetMapId()
-	{
-		return (uint)((_high >> 29) & 0x1FFF);
-	}
+	public uint MapId => (uint)((_high >> 29) & 0x1FFF);
 
-	public uint GetEntry()
-	{
-		return (uint)((_high >> 6) & 0x7FFFFF);
-	}
+	public uint Entry => (uint)((_high >> 6) & 0x7FFFFF);
 
-	public ulong GetCounter()
+	public ulong Counter
 	{
-		if (GetHigh() == HighGuid.Transport)
-			return (_high >> 38) & 0xFFFFF;
-		else
-			return _low & 0xFFFFFFFFFF;
+		get
+		{
+			if (High == HighGuid.Transport)
+				return (_high >> 38) & 0xFFFFF;
+			else
+				return _low & 0xFFFFFFFFFF;
+		}
 	}
 
 	public static ulong GetMaxCounter(HighGuid highGuid)
@@ -255,119 +234,53 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 			return 0xFFFFFFFFFF;
 	}
 
-	public bool IsEmpty()
-	{
-		return _low == 0 && _high == 0;
-	}
+	public bool IsEmpty => _low == 0 && _high == 0;
 
-	public bool IsCreature()
-	{
-		return GetHigh() == HighGuid.Creature;
-	}
+	public bool IsCreature => High == HighGuid.Creature;
 
-	public bool IsPet()
-	{
-		return GetHigh() == HighGuid.Pet;
-	}
+	public bool IsPet => High == HighGuid.Pet;
 
-	public bool IsVehicle()
-	{
-		return GetHigh() == HighGuid.Vehicle;
-	}
+	public bool IsVehicle => High == HighGuid.Vehicle;
 
-	public bool IsCreatureOrPet()
-	{
-		return IsCreature() || IsPet();
-	}
+	public bool IsCreatureOrPet => IsCreature || IsPet;
 
-	public bool IsCreatureOrVehicle()
-	{
-		return IsCreature() || IsVehicle();
-	}
+	public bool IsCreatureOrVehicle => IsCreature || IsVehicle;
 
-	public bool IsAnyTypeCreature()
-	{
-		return IsCreature() || IsPet() || IsVehicle();
-	}
+	public bool IsAnyTypeCreature => IsCreature || IsPet || IsVehicle;
 
-	public bool IsPlayer()
-	{
-		return !IsEmpty() && GetHigh() == HighGuid.Player;
-	}
+	public bool IsPlayer => !IsEmpty && High == HighGuid.Player;
 
-	public bool IsUnit()
-	{
-		return IsAnyTypeCreature() || IsPlayer();
-	}
+	public bool IsUnit => IsAnyTypeCreature || IsPlayer;
 
-	public bool IsItem()
-	{
-		return GetHigh() == HighGuid.Item;
-	}
+	public bool IsItem => High == HighGuid.Item;
 
-	public bool IsGameObject()
-	{
-		return GetHigh() == HighGuid.GameObject;
-	}
+	public bool IsGameObject => High == HighGuid.GameObject;
 
-	public bool IsDynamicObject()
-	{
-		return GetHigh() == HighGuid.DynamicObject;
-	}
+	public bool IsDynamicObject => High == HighGuid.DynamicObject;
 
-	public bool IsCorpse()
-	{
-		return GetHigh() == HighGuid.Corpse;
-	}
+	public bool IsCorpse => High == HighGuid.Corpse;
 
-	public bool IsAreaTrigger()
-	{
-		return GetHigh() == HighGuid.AreaTrigger;
-	}
+	public bool IsAreaTrigger => High == HighGuid.AreaTrigger;
 
-	public bool IsMOTransport()
-	{
-		return GetHigh() == HighGuid.Transport;
-	}
+	public bool IsMOTransport => High == HighGuid.Transport;
 
-	public bool IsAnyTypeGameObject()
-	{
-		return IsGameObject() || IsMOTransport();
-	}
+	public bool IsAnyTypeGameObject => IsGameObject || IsMOTransport;
 
-	public bool IsParty()
-	{
-		return GetHigh() == HighGuid.Party;
-	}
+	public bool IsParty => High == HighGuid.Party;
 
-	public bool IsGuild()
-	{
-		return GetHigh() == HighGuid.Guild;
-	}
+	public bool IsGuild => High == HighGuid.Guild;
 
-	public bool IsSceneObject()
-	{
-		return GetHigh() == HighGuid.SceneObject;
-	}
+	public bool IsSceneObject => High == HighGuid.SceneObject;
 
-	public bool IsConversation()
-	{
-		return GetHigh() == HighGuid.Conversation;
-	}
+	public bool IsConversation => High == HighGuid.Conversation;
 
-	public bool IsCast()
-	{
-		return GetHigh() == HighGuid.Cast;
-	}
+	public bool IsCast => High == HighGuid.Cast;
 
-	public TypeId GetTypeId()
-	{
-		return GetTypeId(GetHigh());
-	}
+	public TypeId TypeId => GetTypeId(High);
 
 	bool HasEntry()
 	{
-		return HasEntry(GetHigh());
+		return HasEntry(High);
 	}
 
 	public static bool operator <(ObjectGuid left, ObjectGuid right)
@@ -392,12 +305,12 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 	public override string ToString()
 	{
-		var str = $"GUID Full: 0x{_high + _low}, Type: {GetHigh()}";
+		var str = $"GUID Full: 0x{_high + _low}, Type: {High}";
 
 		if (HasEntry())
-			str += (IsPet() ? " Pet number: " : " Entry: ") + GetEntry() + " ";
+			str += (IsPet ? " Pet number: " : " Entry: ") + Entry + " ";
 
-		str += " Low: " + GetCounter();
+		str += " Low: " + Counter;
 
 		return str;
 	}

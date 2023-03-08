@@ -32,12 +32,12 @@ public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
 		}
 		else if (SpellInfo.HasAttribute(SpellCustomAttributes.ConeLine))
 		{
-			if (!_coneSrc.HasInLine(target.Location, target.GetCombatReach(), _lineWidth))
+			if (!_coneSrc.HasInLine(target.Location, target.CombatReach, _lineWidth))
 				return false;
 		}
 		else
 		{
-			if (!Caster.IsUnit() || !Caster.ToUnit().IsWithinBoundaryRadius(target.ToUnit()))
+			if (!Caster.IsUnit || !Caster.ToUnit().IsWithinBoundaryRadius(target.ToUnit()))
 				// ConeAngle > 0 . select targets in front
 				// ConeAngle < 0 . select targets in back
 				if (_coneSrc.HasInArc(_coneAngle, target.Location) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))

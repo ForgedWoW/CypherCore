@@ -20,7 +20,7 @@ internal class spell_warl_banish : SpellScript, ISpellBeforeHit
 		if (target)
 		{
 			// Casting Banish on a banished Target will Remove applied aura
-			var banishAura = target.GetAura(SpellInfo.Id, Caster.GetGUID());
+			var banishAura = target.GetAura(SpellInfo.Id, Caster.GUID);
 
 			banishAura?.Remove();
 		}

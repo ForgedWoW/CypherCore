@@ -38,7 +38,7 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 
 				foreach (var itr in tempList)
 				{
-					if (itr.GetGUID() == _player.GetGUID())
+					if (itr.GUID == _player.GUID)
 						continue;
 
 					if (!_player.IsValidAttackTarget(itr))

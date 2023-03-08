@@ -29,10 +29,10 @@ public class spell_dk_bloodworms : SpellScript, IHasSpellEffects
 		if (caster != null)
 			foreach (var itr in caster.Controlled)
 			{
-				var unit = ObjectAccessor.Instance.GetUnit(caster, itr.GetGUID());
+				var unit = ObjectAccessor.Instance.GetUnit(caster, itr.GUID);
 
 				if (unit != null)
-					if (unit.GetEntry() == 99773)
+					if (unit.Entry == 99773)
 						targets.Add(unit);
 			}
 	}

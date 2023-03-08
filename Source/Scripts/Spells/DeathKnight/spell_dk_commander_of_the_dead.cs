@@ -52,7 +52,7 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
 			if (target.ToCreature().GetOwner() != Caster)
 				return true;
 
-			if (target.ToCreature().GetEntry() != DeathKnightSpells.DKNPCS.GARGOYLE && target.ToCreature().GetEntry() != DeathKnightSpells.DKNPCS.AOTD_GHOUL)
+			if (target.ToCreature().Entry != DeathKnightSpells.DKNPCS.GARGOYLE && target.ToCreature().Entry != DeathKnightSpells.DKNPCS.AOTD_GHOUL)
 				return true;
 
 			saveTargets.Add(target);

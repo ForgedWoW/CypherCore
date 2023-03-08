@@ -13,7 +13,7 @@ internal class spell_q13280_13283_jump_jets : SpellScript, ISpellOnCast
 	{
 		var caster = Caster;
 
-		if (caster.IsVehicle())
+		if (caster.IsVehicle)
 		{
 			var rocketBunny = caster.GetVehicleKit().GetPassenger(1);
 

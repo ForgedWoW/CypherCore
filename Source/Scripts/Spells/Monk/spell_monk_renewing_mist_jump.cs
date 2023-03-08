@@ -40,7 +40,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 		{
 			var ally = a.ToUnit();
 
-			if (ally == null || ally.HasAura(MonkSpells.RENEWING_MIST_HOT, caster.GetGUID()) || ally == previousTarget)
+			if (ally == null || ally.HasAura(MonkSpells.RENEWING_MIST_HOT, caster.GUID) || ally == previousTarget)
 				return true;
 
 			return false;
@@ -62,7 +62,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 			targets.Resize(1);
 		}
 
-		_previousTargetGuid = previousTarget.GetGUID();
+		_previousTargetGuid = previousTarget.GUID;
 	}
 
 	private void HandleHit(int effIndex)
@@ -73,7 +73,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 
 		if (previousTarget != null)
 		{
-			var oldAura = previousTarget.GetAura(MonkSpells.RENEWING_MIST_HOT, Caster.GetGUID());
+			var oldAura = previousTarget.GetAura(MonkSpells.RENEWING_MIST_HOT, Caster.GUID);
 
 			if (oldAura != null)
 			{

@@ -14,7 +14,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 	readonly T _packetSender;
 	readonly PhaseShift _phaseShift;
 	readonly float _distSq;
-	readonly Team _team;
+	readonly TeamFaction _team;
 	readonly Player _skippedReceiver;
 	readonly bool _required3dDist;
 
@@ -24,11 +24,11 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 	{
 		_source = src;
 		_packetSender = packetSender;
-		_phaseShift = src.GetPhaseShift();
+		_phaseShift = src.PhaseShift;
 		_distSq = dist * dist;
 
-		if (own_team_only && src.IsPlayer())
-			_team = src.ToPlayer().GetEffectiveTeam();
+		if (own_team_only && src.IsPlayer)
+			_team = src.ToPlayer().EffectiveTeam;
 
 		_skippedReceiver = skipped;
 		_required3dDist = req3dDist;
@@ -47,7 +47,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 				continue;
 
 			// Send packet to all who are sharing the creature's vision
-			if (creature.HasSharedVision())
+			if (creature.HasSharedVision)
 				foreach (var visionPlayer in creature.GetSharedVisionList())
 					if (visionPlayer.SeerView == creature)
 						SendPacket(visionPlayer);
@@ -92,7 +92,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 				continue;
 
 			// Send packet to all who are sharing the player's vision
-			if (player.HasSharedVision())
+			if (player.HasSharedVision)
 				foreach (var visionPlayer in player.GetSharedVisionList())
 					if (visionPlayer.SeerView == player)
 						SendPacket(visionPlayer);
@@ -105,7 +105,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 	void SendPacket(Player player)
 	{
 		// never send packet to self
-		if (_source == player || (_team != 0 && player.GetEffectiveTeam() != _team) || _skippedReceiver == player)
+		if (_source == player || (_team != 0 && player.EffectiveTeam != _team) || _skippedReceiver == player)
 			return;
 
 		if (!player.HaveAtClient(_source))

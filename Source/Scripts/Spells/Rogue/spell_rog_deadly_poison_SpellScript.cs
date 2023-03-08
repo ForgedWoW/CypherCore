@@ -50,7 +50,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 
 					if (spellInfo == null)
 					{
-						Log.outError(LogFilter.Spells, $"Player::CastItemCombatSpell Enchant {enchant.Id}, player (Name: {player.GetName()}, {player.GetGUID()}) cast unknown spell {enchant.EffectArg[s]}");
+						Log.outError(LogFilter.Spells, $"Player::CastItemCombatSpell Enchant {enchant.Id}, player (Name: {player.GetName()}, {player.GUID}) cast unknown spell {enchant.EffectArg[s]}");
 
 						continue;
 					}
@@ -76,7 +76,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 	public override bool Load()
 	{
 		// at this point CastItem must already be initialized
-		return Caster.IsPlayer() && CastItem;
+		return Caster.IsPlayer && CastItem;
 	}
 
 	public void BeforeHit(SpellMissInfo missInfo)
@@ -89,7 +89,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 		if (target != null)
 		{
 			// Deadly Poison
-			var aurEff = target.GetAuraEffect(AuraType.PeriodicDummy, SpellFamilyNames.Rogue, new FlagArray128(0x10000, 0x80000, 0), Caster.GetGUID());
+			var aurEff = target.GetAuraEffect(AuraType.PeriodicDummy, SpellFamilyNames.Rogue, new FlagArray128(0x10000, 0x80000, 0), Caster.GUID);
 
 			if (aurEff != null)
 				_stackAmount = aurEff.Base.StackAmount;

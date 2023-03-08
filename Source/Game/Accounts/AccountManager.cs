@@ -81,7 +81,7 @@ namespace Game
                     Player p = Global.ObjAccessor.FindPlayer(guid);
                     if (p)
                     {
-                        WorldSession s = p.GetSession();
+                        WorldSession s = p.Session;
                         s.KickPlayer("AccountMgr::DeleteAccount Deleting the account");                            // mark session to remove at next session list update
                         s.LogoutPlayer(false);                     // logout player without waiting next session list update
                     }

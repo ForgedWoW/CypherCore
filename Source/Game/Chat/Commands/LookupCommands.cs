@@ -206,7 +206,7 @@ namespace Game.Chat
 
             foreach (var factionEntry in CliDB.FactionStorage.Values)
             {
-                FactionState factionState = target ? target.GetReputationMgr().GetState(factionEntry) : null;
+                FactionState factionState = target ? target.ReputationMgr.GetState(factionEntry) : null;
 
                 Locale locale = handler.GetSessionDbcLocale();
                 string name = factionEntry.Name[locale];
@@ -248,10 +248,10 @@ namespace Game.Chat
 
                     if (factionState != null) // and then target != NULL also
                     {
-                        uint index = target.GetReputationMgr().GetReputationRankStrIndex(factionEntry);
+                        uint index = target.ReputationMgr.GetReputationRankStrIndex(factionEntry);
                         string rankName = handler.GetCypherString((CypherStrings)index);
 
-                        ss.AppendFormat(" {0}|h|r ({1})", rankName, target.GetReputationMgr().GetReputation(factionEntry));
+                        ss.AppendFormat(" {0}|h|r ({1})", rankName, target.ReputationMgr.GetReputation(factionEntry));
 
                         if (factionState.Flags.HasFlag(ReputationFlags.Visible))
                             ss.Append(handler.GetCypherString(CypherStrings.FactionVisible));
@@ -571,7 +571,7 @@ namespace Game.Chat
             {
                 for (Gender gender = Gender.Male; gender <= Gender.Female; ++gender)
                 {
-                    if (target && target.GetGender() != gender)
+                    if (target && target.Gender != gender)
                         continue;
 
                     Locale locale = handler.GetSessionDbcLocale();
@@ -838,7 +838,7 @@ namespace Game.Chat
                 var mapInfo = CliDB.MapStorage.LookupByKey(id);
                 if (mapInfo != null)
                 {
-                    Locale locale = handler.GetSession() ? handler.GetSession().GetSessionDbcLocale() : Global.WorldMgr.GetDefaultDbcLocale();
+                    Locale locale = handler.GetSession() ? handler.GetSession().SessionDbcLocale : Global.WorldMgr.GetDefaultDbcLocale();
                     string name = mapInfo.MapName[locale];
                     if (name.IsEmpty())
                     {
@@ -890,10 +890,10 @@ namespace Game.Chat
                 if (ip.IsEmpty())
                 {
                     // NULL only if used from console
-                    if (!target || target == handler.GetSession().GetPlayer())
+                    if (!target || target == handler.GetSession().Player)
                         return false;
 
-                    ip = target.GetSession().GetRemoteAddress();
+                    ip = target.Session.RemoteAddress;
                 }
 
                 PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
@@ -1024,7 +1024,7 @@ namespace Game.Chat
                                 if (handler.GetSession() != null)
                                 {
                                     int maxLevel = 0;
-                                    var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                                    var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                                     if (questLevels.HasValue)
                                         maxLevel = questLevels.Value.MaxLevel;
 
@@ -1034,8 +1034,8 @@ namespace Game.Chat
                                         scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                                     handler.SendSysMessage(CypherStrings.QuestListChat, qInfo.Id, qInfo.Id,
-                                        handler.GetSession().GetPlayer().GetQuestLevel(qInfo),
-                                        handler.GetSession().GetPlayer().GetQuestMinLevel(qInfo),
+                                        handler.GetSession().                                        Player.GetQuestLevel(qInfo),
+                                        handler.GetSession().                                        Player.GetQuestMinLevel(qInfo),
                                         maxLevel, scalingFactionGroup,
                                         title, statusStr);
                                 }
@@ -1087,7 +1087,7 @@ namespace Game.Chat
                         if (handler.GetSession() != null)
                         {
                             int maxLevel = 0;
-                            var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                            var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                             if (questLevels.HasValue)
                                 maxLevel = questLevels.Value.MaxLevel;
 
@@ -1097,8 +1097,8 @@ namespace Game.Chat
                                 scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                             handler.SendSysMessage(CypherStrings.QuestListChat, qInfo.Id, qInfo.Id,
-                                handler.GetSession().GetPlayer().GetQuestLevel(qInfo),
-                                handler.GetSession().GetPlayer().GetQuestMinLevel(qInfo),
+                                handler.GetSession().                                Player.GetQuestLevel(qInfo),
+                                handler.GetSession().                                Player.GetQuestMinLevel(qInfo),
                                 maxLevel, scalingFactionGroup,
                                 _title, statusStr);
                         }
@@ -1155,7 +1155,7 @@ namespace Game.Chat
                     if (handler.GetSession())
                     {
                         int maxLevel = 0;
-                        var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                        var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.GetSession().Player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                         if (questLevels.HasValue)
                             maxLevel = questLevels.Value.MaxLevel;
 
@@ -1165,8 +1165,8 @@ namespace Game.Chat
                             scalingFactionGroup = contentTuning.GetScalingFactionGroup();
 
                         handler.SendSysMessage(CypherStrings.QuestListChat, id, id,
-                            handler.GetSession().GetPlayer().GetQuestLevel(quest),
-                            handler.GetSession().GetPlayer().GetQuestMinLevel(quest),
+                            handler.GetSession().                            Player.GetQuestLevel(quest),
+                            handler.GetSession().                            Player.GetQuestMinLevel(quest),
                             maxLevel, scalingFactionGroup,
                             title, statusStr);
                     }

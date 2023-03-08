@@ -27,7 +27,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
         void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
         {
-            SetRealmListSecret(changeRealmTicket.Secret);
+            RealmListSecret = changeRealmTicket.Secret;
 
             ChangeRealmTicketResponse realmListTicket = new();
             realmListTicket.Token = changeRealmTicket.Token;

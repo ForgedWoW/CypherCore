@@ -731,7 +731,8 @@ namespace Game
                             continue;
                         }
 
-                        questTemplate.SetEventIdForQuest(eventEntry);
+                        questTemplate.
+                        EventIdForQuest = eventEntry;
                         ++count;
                     }
                     while (result.NextRow());
@@ -883,7 +884,7 @@ namespace Game
         public ulong GetNPCFlag(Creature cr)
         {
             ulong mask = 0;
-            ulong guid = cr.GetSpawnId();
+            ulong guid = cr.SpawnId;
 
             foreach (var id in m_ActiveEvents)
             {
@@ -1117,7 +1118,7 @@ namespace Game
                         foreach (var creature in creatureBounds)
                         {
                             ulong npcflag = GetNPCFlag(creature);
-                            CreatureTemplate creatureTemplate = creature.GetCreatureTemplate();
+                            CreatureTemplate creatureTemplate = creature.CreatureTemplate;
                             if (creatureTemplate != null)
                                 npcflag |= (ulong)creatureTemplate.Npcflag;
 
@@ -1336,8 +1337,8 @@ namespace Game
                     {
                         if (activate)
                         {
-                            tuple.Item2.equipement_id_prev = creature.GetCurrentEquipmentId();
-                            tuple.Item2.modelid_prev = creature.GetDisplayId();
+                            tuple.Item2.equipement_id_prev = creature.CurrentEquipmentId;
+                            tuple.Item2.modelid_prev = creature.DisplayId;
                             creature.LoadEquipment(tuple.Item2.equipment_id, true);
                             if (tuple.Item2.modelid > 0 && tuple.Item2.modelid_prev != tuple.Item2.modelid &&
                                 Global.ObjectMgr.GetCreatureModelInfo(tuple.Item2.modelid) != null)
@@ -1782,7 +1783,7 @@ namespace Game
             for (var i = 0; i < objs.Count; ++i)
             {
                 Creature creature = objs[i];
-                if (creature.IsInWorld && creature.IsAIEnabled())
+                if (creature.IsInWorld && creature.IsAIEnabled)
                 {
                     var ai = creature.GetAI();
 

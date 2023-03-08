@@ -23,7 +23,7 @@ public class at_dru_starfall : AreaTriggerAI
 		var caster = at.GetCaster();
 
 		if (caster != null)
-			foreach (var objguid in at.GetInsideUnits())
+			foreach (var objguid in at.InsideUnits)
 			{
 				var unit = ObjectAccessor.Instance.GetUnit(caster, objguid);
 

@@ -23,7 +23,7 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            if (!Global.SpellMgr.IsSpellValid(spellId, handler.GetSession().GetPlayer()))
+            if (!Global.SpellMgr.IsSpellValid(spellId, handler.GetSession().Player))
             {
                 handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellId);
                 return false;
@@ -60,10 +60,11 @@ namespace Game.Chat.Commands
                 foreach (var skillSpell in Global.SpellMgr.GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
                 {
                     SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(skillSpell.Spell, Difficulty.None);
-                    if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().GetPlayer(), false))
+                    if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().Player, false))
                         continue;
 
-                    handler.GetSession().GetPlayer().LearnSpell(skillSpell.Spell, false);
+                    handler.GetSession().
+                    Player.LearnSpell(skillSpell.Spell, false);
                 }
 
                 handler.SendSysMessage(CypherStrings.LearningGmSkills);
@@ -124,7 +125,7 @@ namespace Game.Chat.Commands
                 Global.LanguageMgr.ForEachLanguage((_, languageDesc) =>
                 {
                     if (languageDesc.SpellId != 0)
-                        handler.GetSession().GetPlayer().LearnSpell(languageDesc.SpellId, false);
+                        handler.GetSession().                        Player.LearnSpell(languageDesc.SpellId, false);
 
                     return true;
                 });
@@ -198,8 +199,8 @@ namespace Game.Chat.Commands
             [Command("talents", CypherStrings.CommandLearnAllTalentsHelp, RBACPermissions.CommandLearnAllTalents)]
             static bool HandleLearnAllTalentsCommand(CommandHandler handler)
             {
-                Player player = handler.GetSession().GetPlayer();
-                uint playerClass = (uint)player.GetClass();
+                Player player = handler.GetSession().Player;
+                uint playerClass = (uint)player.Class;
 
                 foreach (var (_, talentInfo) in CliDB.TalentStorage)
                 {
@@ -210,7 +211,7 @@ namespace Game.Chat.Commands
                         continue;
 
                     SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(talentInfo.SpellID, Difficulty.None);
-                    if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().GetPlayer(), false))
+                    if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().Player, false))
                         continue;
 
                     // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
@@ -229,7 +230,7 @@ namespace Game.Chat.Commands
 
             static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
             {
-                uint classmask = player.GetClassMask();
+                uint classmask = player.ClassMask;
 
                 var skillLineAbilities = Global.DB2Mgr.GetSkillLineAbilitiesBySkill(skillId);
                 if (skillLineAbilities == null)
@@ -276,7 +277,7 @@ namespace Game.Chat.Commands
             [Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
             static bool HandleLearnMySpellsCommand(CommandHandler handler)
             {
-                ChrClassesRecord classEntry = CliDB.ChrClassesStorage.LookupByKey(handler.GetPlayer().GetClass());
+                ChrClassesRecord classEntry = CliDB.ChrClassesStorage.LookupByKey(handler.GetPlayer().Class);
                 if (classEntry == null)
                     return true;
 
@@ -293,7 +294,7 @@ namespace Game.Chat.Commands
                         continue;
 
                     // skip wrong class/race skills
-                    if (!handler.GetSession().GetPlayer().IsSpellFitByClassAndRace(spellInfo.Id))
+                    if (!handler.GetSession().Player.IsSpellFitByClassAndRace(spellInfo.Id))
                         continue;
 
                     // skip other spell families
@@ -301,10 +302,11 @@ namespace Game.Chat.Commands
                         continue;
 
                     // skip broken spells
-                    if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().GetPlayer(), false))
+                    if (!Global.SpellMgr.IsSpellValid(spellInfo, handler.GetSession().Player, false))
                         continue;
 
-                    handler.GetSession().GetPlayer().LearnSpell(spellInfo.Id, false);
+                    handler.GetSession().
+                    Player.LearnSpell(spellInfo.Id, false);
                 }
 
                 handler.SendSysMessage(CypherStrings.CommandLearnClassSpells);

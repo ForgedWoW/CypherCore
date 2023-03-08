@@ -32,14 +32,14 @@ namespace Game.Chat
             }
 
             var map = CliDB.MapStorage.LookupByKey(tele.mapId);
-            if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.mapId || !player.IsGameMaster())))
+            if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.mapId || !player.IsGameMaster)))
             {
                 handler.SendSysMessage(CypherStrings.CannotTeleToBg);
                 return false;
             }
 
             // stop flight if need
-            if (player.IsInFlight())
+            if (player.IsInFlight)
                 player.FinishTaxiFlight();
             else
                 player.SaveRecallPosition(); // save only in non-flight case
@@ -136,7 +136,7 @@ namespace Game.Chat
             for (GroupReference refe = grp.GetFirstMember(); refe != null; refe = refe.Next())
             {
                 Player player = refe.GetSource();
-                if (!player || !player.GetSession())
+                if (!player || !player.Session)
                     continue;
 
                 // check online security
@@ -145,7 +145,7 @@ namespace Game.Chat
 
                 string plNameLink = handler.GetNameLink(player);
 
-                if (player.IsBeingTeleported())
+                if (player.IsBeingTeleported)
                 {
                     handler.SendSysMessage(CypherStrings.IsTeleported, plNameLink);
                     continue;
@@ -156,7 +156,7 @@ namespace Game.Chat
                     player.SendSysMessage(CypherStrings.TeleportedToBy, nameLink);
 
                 // stop flight if need
-                if (player.IsInFlight())
+                if (player.IsInFlight)
                     player.FinishTaxiFlight();
                 else
                     player.SaveRecallPosition(); // save only in non-flight case
@@ -184,7 +184,7 @@ namespace Game.Chat
 
                 string chrNameLink = handler.PlayerLink(target.GetName());
 
-                if (target.IsBeingTeleported() == true)
+                if (target.IsBeingTeleported == true)
                 {
                     handler.SendSysMessage(CypherStrings.IsTeleported, chrNameLink);
                     return false;
@@ -195,7 +195,7 @@ namespace Game.Chat
                     target.SendSysMessage(CypherStrings.TeleportedToBy, handler.GetNameLink());
 
                 // stop flight if need
-                if (target.IsInFlight())
+                if (target.IsInFlight)
                     target.FinishTaxiFlight();
                 else
                     target.SaveRecallPosition(); // save only in non-flight case
@@ -234,11 +234,11 @@ namespace Game.Chat
                 if (where is string && where.Equals("$home"))    // References target's homebind
                 {
                     if (target)
-                        target.TeleportTo(target.GetHomebind());
+                        target.TeleportTo(target.Homebind);
                     else
                     {
                         PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
-                        stmt.AddValue(0, player.GetGUID().GetCounter());
+                        stmt.AddValue(0, player.GetGUID().Counter);
                         SQLResult result = DB.Characters.Query(stmt);
 
                         if (!result.IsEmpty())

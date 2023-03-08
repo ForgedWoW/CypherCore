@@ -108,7 +108,7 @@ namespace Game.BattleGrounds
         void BuildBattlegroundStatusHeader(BattlefieldStatusHeader header, Battleground bg, Player player, uint ticketId, uint joinTime, BattlegroundQueueTypeId queueId, ArenaTypes arenaType)
         {
             header.Ticket = new RideTicket();
-            header.Ticket.RequesterGuid = player.GetGUID();
+            header.Ticket.RequesterGuid = player.GUID;
             header.Ticket.Id = ticketId;
             header.Ticket.Type = RideType.Battlegrounds;
             header.Ticket.Time = (int)joinTime;
@@ -124,7 +124,7 @@ namespace Game.BattleGrounds
         public void BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, Player player, uint ticketId, uint joinTime)
         {
             battlefieldStatus = new BattlefieldStatusNone();
-            battlefieldStatus.Ticket.RequesterGuid = player.GetGUID();
+            battlefieldStatus.Ticket.RequesterGuid = player.GUID;
             battlefieldStatus.Ticket.Id = ticketId;
             battlefieldStatus.Ticket.Type = RideType.Battlegrounds;
             battlefieldStatus.Ticket.Time = (int)joinTime;
@@ -144,7 +144,7 @@ namespace Game.BattleGrounds
             battlefieldStatus = new BattlefieldStatusActive();
             BuildBattlegroundStatusHeader(battlefieldStatus.Hdr, bg, player, ticketId, joinTime, bg.GetQueueId(), arenaType);
             battlefieldStatus.ShutdownTimer = bg.GetRemainingTime();
-            battlefieldStatus.ArenaFaction = (byte)(player.GetBgTeam() == Team.Horde ? TeamId.Horde : TeamId.Alliance);
+            battlefieldStatus.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? TeamIds.Horde : TeamIds.Alliance);
             battlefieldStatus.LeftEarly = false;
             battlefieldStatus.StartTimer = bg.GetElapsedTime();
             battlefieldStatus.Mapid = bg.GetMapId();
@@ -164,13 +164,13 @@ namespace Game.BattleGrounds
         public void BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, BattlegroundQueueTypeId queueId, Player pPlayer, uint ticketId, GroupJoinBattlegroundResult result, ObjectGuid errorGuid = default)
         {
             battlefieldStatus = new BattlefieldStatusFailed();
-            battlefieldStatus.Ticket.RequesterGuid = pPlayer.GetGUID();
+            battlefieldStatus.Ticket.RequesterGuid = pPlayer.GUID;
             battlefieldStatus.Ticket.Id = ticketId;
             battlefieldStatus.Ticket.Type = RideType.Battlegrounds;
             battlefieldStatus.Ticket.Time = (int)pPlayer.GetBattlegroundQueueJoinTime(queueId);
             battlefieldStatus.QueueID = queueId.GetPacked();
             battlefieldStatus.Reason = (int)result;
-            if (!errorGuid.IsEmpty() && (result == GroupJoinBattlegroundResult.NotInBattleground || result == GroupJoinBattlegroundResult.JoinTimedOut))
+            if (!errorGuid.IsEmpty && (result == GroupJoinBattlegroundResult.NotInBattleground || result == GroupJoinBattlegroundResult.JoinTimedOut))
                 battlefieldStatus.ClientID = errorGuid;
         }
 
@@ -380,8 +380,8 @@ namespace Game.BattleGrounds
                     uint startId = result.Read<uint>(1);
                     WorldSafeLocsEntry start = Global.ObjectMgr.GetWorldSafeLoc(startId);
                     if (start != null)
-                        bgTemplate.StartLocation[TeamId.Alliance] = start;
-                    else if (bgTemplate.StartLocation[TeamId.Alliance] != null) // reload case
+                        bgTemplate.StartLocation[TeamIds.Alliance] = start;
+                    else if (bgTemplate.StartLocation[TeamIds.Alliance] != null) // reload case
                         Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. Ignoring.");
                     else
                     {
@@ -392,8 +392,8 @@ namespace Game.BattleGrounds
                     startId = result.Read<uint>(2);
                     start = Global.ObjectMgr.GetWorldSafeLoc(startId);
                     if (start != null)
-                        bgTemplate.StartLocation[TeamId.Horde] = start;
-                    else if (bgTemplate.StartLocation[TeamId.Horde] != null) // reload case
+                        bgTemplate.StartLocation[TeamIds.Horde] = start;
+                    else if (bgTemplate.StartLocation[TeamIds.Horde] != null) // reload case
                         Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. Ignoring.");
                     else
                     {
@@ -431,7 +431,7 @@ namespace Game.BattleGrounds
             battlefieldList.BattlemasterListID = (int)bgTypeId;
             battlefieldList.MinLevel = bgTemplate.GetMinLevel();
             battlefieldList.MaxLevel = bgTemplate.GetMaxLevel();
-            battlefieldList.PvpAnywhere = guid.IsEmpty();
+            battlefieldList.PvpAnywhere = guid.IsEmpty;
             battlefieldList.HasRandomWinToday = player.GetRandomWinner();
             player.SendPacket(battlefieldList);
         }
@@ -442,7 +442,7 @@ namespace Game.BattleGrounds
             if (bg)
             {
                 uint mapid = bg.GetMapId();
-                Team team = player.GetBgTeam();
+                TeamFaction team = player.GetBgTeam();
 
                 WorldSafeLocsEntry pos = bg.GetTeamStartPosition(Battleground.GetTeamIndexByTeamId(team));
                 Log.outDebug(LogFilter.Battleground, $"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Loc} (bgType {bgTypeId})");

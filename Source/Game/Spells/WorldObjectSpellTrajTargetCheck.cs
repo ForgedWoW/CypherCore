@@ -23,7 +23,7 @@ public class WorldObjectSpellTrajTargetCheck : WorldObjectSpellTargetCheck
 	public override bool Invoke(WorldObject target)
 	{
 		// return all targets on missile trajectory (0 - size of a missile)
-		if (!Caster.Location.HasInLine(target.Location, target.GetCombatReach(), SpellConst.TrajectoryMissileSize))
+		if (!Caster.Location.HasInLine(target.Location, target.CombatReach, SpellConst.TrajectoryMissileSize))
 			return false;
 
 		if (target.Location.GetExactDist2d(_position) > _range)

@@ -19,7 +19,7 @@ internal class spell_warl_rain_of_fire : AuraScript, IHasAuraEffects, IAuraOnRem
 	public void AuraRemoved()
 	{
 		foreach (var unit in _auraUnits)
-			if (unit != null && unit.IsAlive())
+			if (unit != null && unit.IsAlive)
 				unit.RemoveAura(WarlockSpells.PYROGENICS_AURA);
 	}
 
@@ -38,7 +38,7 @@ internal class spell_warl_rain_of_fire : AuraScript, IHasAuraEffects, IAuraOnRem
 
 		foreach (var rainOfFireAreaTrigger in rainOfFireAreaTriggers)
 		{
-			var insideTargets = rainOfFireAreaTrigger.GetInsideUnits();
+			var insideTargets = rainOfFireAreaTrigger.InsideUnits;
 			targetsInRainOfFire.AddRange(insideTargets);
 		}
 

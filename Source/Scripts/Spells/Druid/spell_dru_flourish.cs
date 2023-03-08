@@ -29,7 +29,7 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 		var auraEffects = HitUnit.GetAuraEffectsByType(AuraType.PeriodicHeal);
 
 		foreach (var auraEffect in auraEffects)
-			if (auraEffect.CasterGuid == Caster.GetGUID())
+			if (auraEffect.CasterGuid == Caster.GUID)
 			{
 				var healAura = auraEffect.Base;
 
@@ -43,8 +43,8 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 		var tempTargets = new List<WorldObject>();
 
 		foreach (var target in targets)
-			if (target.IsPlayer())
-				if (target.ToUnit().HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GetGUID()))
+			if (target.IsPlayer)
+				if (target.ToUnit().HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GUID))
 					tempTargets.Add(target);
 
 		if (tempTargets.Count > 0)

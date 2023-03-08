@@ -23,7 +23,7 @@ internal class spell_rog_tricks_of_the_trade : SpellScript, ISpellAfterHit
 				var explTarget = ExplTargetUnit;
 
 				if (explTarget != null)
-					script.SetRedirectTarget(explTarget.GetGUID());
+					script.SetRedirectTarget(explTarget.GUID);
 				else
 					script.SetRedirectTarget(ObjectGuid.Empty);
 			}

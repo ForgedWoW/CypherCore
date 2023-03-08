@@ -22,7 +22,7 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 
 	public void Visit(IList<Creature> objs)
 	{
-		if (!_creature.IsAlive())
+		if (!_creature.IsAlive)
 			return;
 
 		for (var i = 0; i < objs.Count; ++i)

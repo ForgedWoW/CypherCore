@@ -19,7 +19,7 @@ internal class spell_dru_stampeding_roar : SpellScript, ISpellBeforeCast
 	public void BeforeCast()
 	{
 		// Change into cat form
-		if (Caster.GetShapeshiftForm() != ShapeShiftForm.BearForm)
+		if (Caster.ShapeshiftForm != ShapeShiftForm.BearForm)
 			Caster.CastSpell(Caster, DruidSpellIds.BearForm, true);
 	}
 }

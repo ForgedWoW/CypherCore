@@ -41,7 +41,7 @@ namespace Game.Combat
                 return false;
 
             // pets, totems and triggers cannot have threat list
-            if (cWho.IsPet() || cWho.IsTotem() || cWho.IsTrigger())
+            if (cWho.IsPet || cWho.IsTotem || cWho.IsTrigger)
                 return false;
 
             // summons cannot have a threat list if they were summoned by a player
@@ -49,7 +49,7 @@ namespace Game.Combat
             {
                 TempSummon tWho = cWho.ToTempSummon();
                 if (tWho != null)
-                    if (tWho.GetSummonerGUID().IsPlayer())
+                    if (tWho.GetSummonerGUID().IsPlayer)
                         return false;
             }
 
@@ -131,11 +131,11 @@ namespace Game.Combat
             return (includeOffline || refe.IsAvailable());
         }
 
-        public bool IsThreatenedBy(Unit who, bool includeOffline = false) { return IsThreatenedBy(who.GetGUID(), includeOffline); }
+        public bool IsThreatenedBy(Unit who, bool includeOffline = false) { return IsThreatenedBy(who.GUID, includeOffline); }
 
         public double GetThreat(Unit who, bool includeOffline = false)
         {
-            var refe = _myThreatListEntries.LookupByKey(who.GetGUID());
+            var refe = _myThreatListEntries.LookupByKey(who.GUID);
             if (refe == null)
                 return 0.0f;
 
@@ -168,7 +168,7 @@ namespace Game.Combat
             return (includeOffline || refe.IsAvailable());
         }
 
-        public bool IsThreateningTo(Unit who, bool includeOffline = false) { return IsThreateningTo(who.GetGUID(), includeOffline); }
+        public bool IsThreateningTo(Unit who, bool includeOffline = false) { return IsThreateningTo(who.GUID, includeOffline); }
 
         public void EvaluateSuppressed(bool canExpire = false)
         {
@@ -195,7 +195,7 @@ namespace Game.Combat
             {
                 if (spell.HasAttribute(SpellAttr1.NoThreat))
                     return;
-                if (!_owner.IsEngaged() && spell.HasAttribute(SpellAttr2.NoInitialThreat))
+                if (!_owner.IsEngaged && spell.HasAttribute(SpellAttr2.NoInitialThreat))
                     return;
             }
 
@@ -210,9 +210,9 @@ namespace Game.Combat
             }
 
             // If victim is personal spawn, redirect all aggro to summoner
-            if (target.IsPrivateObject() && (!GetOwner().IsPrivateObject() || !GetOwner().CheckPrivateObjectOwnerVisibility(target)))
+            if (target.IsPrivateObject && (!GetOwner().IsPrivateObject || !GetOwner().CheckPrivateObjectOwnerVisibility(target)))
             {
-                Unit privateObjectOwner = Global.ObjAccessor.GetUnit(GetOwner(), target.GetPrivateObjectOwner());
+                Unit privateObjectOwner = Global.ObjAccessor.GetUnit(GetOwner(), target.PrivateObjectOwner);
                 if (privateObjectOwner != null)
                 {
                     AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
@@ -278,7 +278,7 @@ namespace Game.Combat
 
             // ok, now we actually apply threat
             // check if we already have an entry - if we do, just increase threat for that entry and we're done
-            var targetRefe = _myThreatListEntries.LookupByKey(target.GetGUID());
+            var targetRefe = _myThreatListEntries.LookupByKey(target.GUID);
             if (targetRefe != null)
             {
                 // SUPPRESSED threat states don't go back to ONLINE until threat is caused by them (retail behavior)
@@ -298,8 +298,8 @@ namespace Game.Combat
 
             // ok, we're now in combat - create the threat list reference and push it to the respective managers
             ThreatReference newRefe = new(this, target);
-            PutThreatListRef(target.GetGUID(), newRefe);
-            target.GetThreatManager().PutThreatenedByMeRef(_owner.GetGUID(), newRefe);
+            PutThreatListRef(target.GUID, newRefe);
+            target.GetThreatManager().PutThreatenedByMeRef(_owner.GUID, newRefe);
 
             // afterwards, we evaluate whether this is an online reference (it might not be an acceptable target, but we need to add it to our threat list before we check!)
             newRefe.UpdateOffline();
@@ -314,7 +314,7 @@ namespace Game.Combat
 
         void ScaleThreat(Unit target, double factor)
         {
-            var refe = _myThreatListEntries.LookupByKey(target.GetGUID());
+            var refe = _myThreatListEntries.LookupByKey(target.GUID);
             if (refe != null)
                 refe.ScaleThreat(Math.Max(factor, 0.0f));
         }
@@ -370,7 +370,7 @@ namespace Game.Combat
 
         public void ClearThreat(Unit target)
         {
-            var refe = _myThreatListEntries.LookupByKey(target.GetGUID());
+            var refe = _myThreatListEntries.LookupByKey(target.GUID);
             if (refe != null)
                 ClearThreat(refe);
         }
@@ -398,7 +398,7 @@ namespace Game.Combat
         {
             if (target)
             {
-                var it = _myThreatListEntries.LookupByKey(target.GetGUID());
+                var it = _myThreatListEntries.LookupByKey(target.GUID);
                 if (it != null)
                 {
                     _fixateRef = it;
@@ -663,15 +663,15 @@ namespace Game.Combat
         void SendClearAllThreatToClients()
         {
             ThreatClear threatClear = new();
-            threatClear.UnitGUID = _owner.GetGUID();
+            threatClear.UnitGUID = _owner.GUID;
             _owner.SendMessageToSet(threatClear, false);
         }
 
         public void SendRemoveToClients(Unit victim)
         {
             ThreatRemove threatRemove = new();
-            threatRemove.UnitGUID = _owner.GetGUID();
-            threatRemove.AboutGUID = victim.GetGUID();
+            threatRemove.UnitGUID = _owner.GUID;
+            threatRemove.AboutGUID = victim.GUID;
             _owner.SendMessageToSet(threatRemove, false);
         }
 
@@ -679,7 +679,7 @@ namespace Game.Combat
         {
             void fillSharedPacketDataAndSend(dynamic packet)
             {
-                packet.UnitGUID = _owner.GetGUID();
+                packet.UnitGUID = _owner.GUID;
 
                 foreach (ThreatReference refe in _sortedThreatList)
                 {
@@ -687,7 +687,7 @@ namespace Game.Combat
                         continue;
 
                     ThreatInfo threatInfo = new();
-                    threatInfo.UnitGUID = refe.GetVictim().GetGUID();
+                    threatInfo.UnitGUID = refe.GetVictim().GUID;
                     threatInfo.Threat = (long)(refe.GetThreat() * 100);
                     packet.ThreatList.Add(threatInfo);
                 }
@@ -697,7 +697,7 @@ namespace Game.Combat
             if (newHighest)
             {
                 HighestThreatUpdate highestThreatUpdate = new();
-                highestThreatUpdate.HighestThreatGUID = _currentVictimRef.GetVictim().GetGUID();
+                highestThreatUpdate.HighestThreatGUID = _currentVictimRef.GetVictim().GUID;
                 fillSharedPacketDataAndSend(highestThreatUpdate);
             }
             else
@@ -710,7 +710,7 @@ namespace Game.Combat
         void PutThreatListRef(ObjectGuid guid, ThreatReference refe)
         {
             NeedClientUpdate = true;
-            Cypher.Assert(!_myThreatListEntries.ContainsKey(guid), $"Duplicate threat reference being inserted on {_owner.GetGUID()} for {guid}!");
+            Cypher.Assert(!_myThreatListEntries.ContainsKey(guid), $"Duplicate threat reference being inserted on {_owner.GUID} for {guid}!");
             _myThreatListEntries[guid] = refe;
             _sortedThreatList.Add(refe);
             _sortedThreatList.Sort();
@@ -734,7 +734,7 @@ namespace Game.Combat
 
         void PutThreatenedByMeRef(ObjectGuid guid, ThreatReference refe)
         {
-            Cypher.Assert(!_threatenedByMe.ContainsKey(guid), $"Duplicate threatened-by-me reference being inserted on {_owner.GetGUID()} for {guid}!");
+            Cypher.Assert(!_threatenedByMe.ContainsKey(guid), $"Duplicate threatened-by-me reference being inserted on {_owner.GUID} for {guid}!");
             _threatenedByMe[guid] = refe;
         }
 
@@ -869,7 +869,7 @@ namespace Game.Combat
 
         public static bool FlagsAllowFighting(Unit a, Unit b)
         {
-            if (a.IsCreature() && a.ToCreature().IsTrigger())
+            if (a.IsCreature && a.ToCreature().IsTrigger)
                 return false;
 
             if (a.HasUnitFlag(UnitFlags.PlayerControlled))
@@ -919,7 +919,7 @@ namespace Game.Combat
         public void UpdateTauntState(TauntState state = TauntState.None)
         {
             // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
-            if (state < TauntState.Taunt && _victim.HasAuraTypeWithCaster(AuraType.ModDetaunt, _owner.GetGUID()))
+            if (state < TauntState.Taunt && _victim.HasAuraTypeWithCaster(AuraType.ModDetaunt, _owner.GUID))
                 state = TauntState.Detaunt;
 
             if (state == _taunted)
@@ -938,8 +938,8 @@ namespace Game.Combat
 
         public void UnregisterAndFree()
         {
-            _owner.GetThreatManager().PurgeThreatListRef(_victim.GetGUID());
-            _victim.GetThreatManager().PurgeThreatenedByMeRef(_owner.GetGUID());
+            _owner.GetThreatManager().PurgeThreatListRef(_victim.GUID);
+            _victim.GetThreatManager().PurgeThreatenedByMeRef(_owner.GUID);
         }
 
         public Creature GetOwner() { return _owner; }

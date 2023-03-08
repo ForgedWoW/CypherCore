@@ -28,7 +28,7 @@ internal class spell_pal_divine_steed : SpellScript, ISpellOnCast
 
 		var spellId = PaladinSpells.DivineSteedHuman;
 
-		switch (caster.GetRace())
+		switch (caster.Race)
 		{
 			case Race.Human:
 				spellId = PaladinSpells.DivineSteedHuman;

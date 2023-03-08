@@ -16,7 +16,7 @@ internal class spell_item_ashbringer : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

@@ -41,7 +41,7 @@ public class npc_rope_away : ScriptedAI
 
 	public override void PassengerBoarded(Unit who, sbyte UnnamedParameter, bool apply)
 	{
-		if (who.GetTypeId() == TypeId.Player)
+		if (who.TypeId == TypeId.Player)
 			if (apply)
 				RunAway = true;
 	}
@@ -54,13 +54,13 @@ public class npc_rope_away : ScriptedAI
 				switch (Phase)
 				{
 					case 0:
-						me.GetMotionMaster().MovePoint(0, -77.97f, -877.09f, 49.44f);
+						me.MotionMaster.MovePoint(0, -77.97f, -877.09f, 49.44f);
 						MoveTimer = 2500;
 						Phase++;
 
 						break;
 					case 1:
-						me.GetMotionMaster().MovePoint(1, -64.02f, -839.84f, 41.22f);
+						me.MotionMaster.MovePoint(1, -64.02f, -839.84f, 41.22f);
 						MoveTimer = 3000;
 						Phase++;
 

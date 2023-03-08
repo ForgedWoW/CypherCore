@@ -21,7 +21,7 @@ public class LocalizedDo : IDoWork<Player>
 
 	public void Invoke(Player player)
 	{
-		var loc_idx = player.GetSession().GetSessionDbLocaleIndex();
+		var loc_idx = player.Session.SessionDbLocaleIndex;
 		var cache_idx = (int)loc_idx + 1;
 		IDoWork<Player> action;
 

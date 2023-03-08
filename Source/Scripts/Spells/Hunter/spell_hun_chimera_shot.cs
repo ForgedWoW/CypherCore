@@ -12,7 +12,7 @@ public class spell_hun_chimera_shot : SpellScript, ISpellOnHit
 {
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public void OnHit()

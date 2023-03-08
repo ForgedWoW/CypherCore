@@ -17,7 +17,7 @@ public class at_dk_death_and_decay : AreaTriggerAI
 		var caster = at.GetCaster();
 
 		if (caster != null)
-			if (unit.GetGUID() == caster.GetGUID())
+			if (unit.GUID == caster.GUID)
 				if (!caster.HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
 					caster.CastSpell(unit, DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, true);
 	}

@@ -33,7 +33,7 @@ public class SocialManager : Singleton<SocialManager>
 		if (!target)
 			return;
 
-		var playerFriendInfo = player.GetSocial().PlayerSocialMap.LookupByKey(friendGuid);
+		var playerFriendInfo = player.Social.PlayerSocialMap.LookupByKey(friendGuid);
 
 		if (playerFriendInfo != null)
 			friendInfo.Note = playerFriendInfo.Note;
@@ -41,21 +41,21 @@ public class SocialManager : Singleton<SocialManager>
 		// PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
 		// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
-		if (!player.GetSession().HasPermission(RBACPermissions.WhoSeeAllSecLevels) &&
-			target.GetSession().GetSecurity() > (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
+		if (!player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) &&
+			target.Session.			Security > (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
 			return;
 
 		// player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-		if (target.GetTeam() != player.GetTeam() && !player.GetSession().HasPermission(RBACPermissions.TwoSideWhoList))
+		if (target.Team != player.Team && !player.Session.HasPermission(RBACPermissions.TwoSideWhoList))
 			return;
 
 		if (target.IsVisibleGloballyFor(player))
 		{
-			if (target.IsDND())
+			if (target.IsDND)
 			{
 				friendInfo.Status = FriendStatus.DND;
 			}
-			else if (target.IsAFK())
+			else if (target.IsAFK)
 			{
 				friendInfo.Status = FriendStatus.AFK;
 			}
@@ -63,13 +63,13 @@ public class SocialManager : Singleton<SocialManager>
 			{
 				friendInfo.Status = FriendStatus.Online;
 
-				if (target.GetSession().GetRecruiterId() == player.GetSession().GetAccountId() || target.GetSession().GetAccountId() == player.GetSession().GetRecruiterId())
+				if (target.Session.RecruiterId == player.Session.AccountId || target.Session.AccountId == player.Session.RecruiterId)
 					friendInfo.Status |= FriendStatus.RAF;
 			}
 
 			friendInfo.Area = target.GetZoneId();
-			friendInfo.Level = target.GetLevel();
-			friendInfo.Class = target.GetClass();
+			friendInfo.Level = target.Level;
+			friendInfo.Class = target.Class;
 		}
 	}
 
@@ -124,7 +124,7 @@ public class SocialManager : Singleton<SocialManager>
 
 		foreach (var pair in _socialMap)
 		{
-			var info = pair.Value.PlayerSocialMap.LookupByKey(player.GetGUID());
+			var info = pair.Value.PlayerSocialMap.LookupByKey(player.GUID);
 
 			if (info != null && info.Flags.HasAnyFlag(SocialFlag.Friend))
 			{
@@ -133,12 +133,12 @@ public class SocialManager : Singleton<SocialManager>
 				if (!target || !target.IsInWorld)
 					continue;
 
-				var session = target.GetSession();
+				var session = target.Session;
 
-				if (!session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) && player.GetSession().GetSecurity() > gmSecLevel)
+				if (!session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) && player.Session.Security > gmSecLevel)
 					continue;
 
-				if (target.GetTeam() != player.GetTeam() && !session.HasPermission(RBACPermissions.TwoSideWhoList))
+				if (target.Team != player.Team && !session.HasPermission(RBACPermissions.TwoSideWhoList))
 					continue;
 
 				if (player.IsVisibleGloballyFor(target))

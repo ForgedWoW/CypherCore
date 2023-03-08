@@ -34,10 +34,10 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 		if (summoner == null)
 			return;
 
-		if (summoner.IsMounted() &&
+		if (summoner.IsMounted &&
 			(!summoner.IsInCombat() || summoner.IsFlying()))
 		{
-			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.GetEntry());
+			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.Entry);
 
 			if (summonedData != null)
 			{
@@ -49,7 +49,7 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 			}
 		}
 
-		if (mountDisplayId != target.GetMountDisplayId())
-			target.SetMountDisplayId(mountDisplayId);
+		if (mountDisplayId != target.MountDisplayId)
+			target.MountDisplayId = mountDisplayId;
 	}
 }

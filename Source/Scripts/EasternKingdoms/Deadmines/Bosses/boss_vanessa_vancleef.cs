@@ -80,7 +80,7 @@ public class boss_vanessa_vancleef : BossAI
 		Killed = false;
 		_Reset();
 		RemoveAurasTimer = 0;
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 	}
 
 	public override void JustEnteredCombat(Unit who)
@@ -95,8 +95,8 @@ public class boss_vanessa_vancleef : BossAI
 		_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(9000));
 		_events.ScheduleEvent(BossEvents.EVENT_BACKSLASH, TimeSpan.FromMilliseconds(15000));
 
-		me.GetMotionMaster().MoveJump(new Position(-65.585f, -820.742f, 41.022f), 10.0f, 5.0f);
-		me.SetReactState(ReactStates.Aggressive);
+		me.MotionMaster.MoveJump(new Position(-65.585f, -820.742f, 41.022f), 10.0f, 5.0f);
+		me.ReactState = ReactStates.Aggressive;
 		me.Yell(COMBAT_START, Language.Universal);
 
 		DoZoneInCombat();
@@ -114,7 +114,7 @@ public class boss_vanessa_vancleef : BossAI
 
 	public override void JustSummoned(Creature summon)
 	{
-		switch (summon.GetEntry())
+		switch (summon.Entry)
 		{
 			case DMCreatures.NPC_ROPE:
 				summons.Summon(summon);
@@ -128,7 +128,7 @@ public class boss_vanessa_vancleef : BossAI
 
 	public override void SummonedCreatureDespawn(Creature summon)
 	{
-		switch (summon.GetEntry())
+		switch (summon.Entry)
 		{
 			case DMCreatures.NPC_ROPE:
 				summons.Despawn(summon);
@@ -242,7 +242,7 @@ public class boss_vanessa_vancleef : BossAI
 			var rope = ObjectAccessor.GetCreature(me, guid);
 
 			if (rope != null)
-				if (rope.IsAlive())
+				if (rope.IsAlive)
 				{
 					rope.AddAura(Spells.CLICK_ME, rope);
 					SummonThreatController();
@@ -316,7 +316,7 @@ public class boss_vanessa_vancleef : BossAI
 				case BossEvents.EVENT_DISSAPEAR:
 					me.Yell(FOOLS_BOMB);
 					me.RemoveAllAuras();
-					me.GetMotionMaster().MovePoint(0, -52.31f, -820.18f, 51.91f);
+					me.MotionMaster.MovePoint(0, -52.31f, -820.18f, 51.91f);
 					me.SetVisible(false);
 					summons.DespawnAll();
 					_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ROPE, TimeSpan.FromMilliseconds(2000));
@@ -341,7 +341,7 @@ public class boss_vanessa_vancleef : BossAI
 				case BossEvents.EVENT_CLEAR_SHIP:
 					RemoveFiresFromShip();
 					me.SetVisible(true);
-					me.GetMotionMaster().MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+					me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
 					me.RemoveAllAuras();
 					_events.ScheduleEvent(BossEvents.EVENT_SHADOWGUARD, TimeSpan.FromMilliseconds(27000));
 

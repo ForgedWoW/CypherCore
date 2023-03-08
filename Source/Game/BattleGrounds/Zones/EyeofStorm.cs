@@ -19,10 +19,10 @@ namespace Game.BattleGrounds.Zones
             m_Points_Trigger[EotSPoints.BloodElf] = EotSPointsTrigger.BloodElfBuff;
             m_Points_Trigger[EotSPoints.DraeneiRuins] = EotSPointsTrigger.DraeneiRuinsBuff;
             m_Points_Trigger[EotSPoints.MageTower] = EotSPointsTrigger.MageTowerBuff;
-            m_HonorScoreTics[TeamId.Alliance] = 0;
-            m_HonorScoreTics[TeamId.Horde] = 0;
-            m_TeamPointsCount[TeamId.Alliance] = 0;
-            m_TeamPointsCount[TeamId.Horde] = 0;
+            m_HonorScoreTics[TeamIds.Alliance] = 0;
+            m_HonorScoreTics[TeamIds.Horde] = 0;
+            m_TeamPointsCount[TeamIds.Alliance] = 0;
+            m_TeamPointsCount[TeamIds.Horde] = 0;
             m_FlagKeeper.Clear();
             m_DroppedFlagGUID.Clear();
             m_FlagCapturedBgObjectType = 0;
@@ -34,7 +34,7 @@ namespace Game.BattleGrounds.Zones
 
             for (byte i = 0; i < EotSPoints.PointsMax; ++i)
             {
-                m_PointOwnedByTeam[i] = Team.Other;
+                m_PointOwnedByTeam[i] = TeamFaction.Other;
                 m_PointState[i] = EotSPointState.Uncontrolled;
                 m_PointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
                 m_LastPointCaptureStatus[i] = BattlegroundPointCaptureStatus.Neutral;
@@ -55,10 +55,10 @@ namespace Game.BattleGrounds.Zones
                 if (m_PointAddingTimer <= 0)
                 {
                     m_PointAddingTimer = EotSMisc.FPointsTickTime;
-                    if (m_TeamPointsCount[TeamId.Alliance] > 0)
-                        AddPoints(Team.Alliance, EotSMisc.TickPoints[m_TeamPointsCount[TeamId.Alliance] - 1]);
-                    if (m_TeamPointsCount[TeamId.Horde] > 0)
-                        AddPoints(Team.Horde, EotSMisc.TickPoints[m_TeamPointsCount[TeamId.Horde] - 1]);
+                    if (m_TeamPointsCount[TeamIds.Alliance] > 0)
+                        AddPoints(TeamFaction.Alliance, EotSMisc.TickPoints[m_TeamPointsCount[TeamIds.Alliance] - 1]);
+                    if (m_TeamPointsCount[TeamIds.Horde] > 0)
+                        AddPoints(TeamFaction.Horde, EotSMisc.TickPoints[m_TeamPointsCount[TeamIds.Horde] - 1]);
                 }
 
                 if (m_FlagState == EotSFlagState.WaitRespawn || m_FlagState == EotSFlagState.OnGround)
@@ -119,7 +119,7 @@ namespace Game.BattleGrounds.Zones
             TriggerGameEvent(EotSMisc.EventStartBattle);
         }
 
-        void AddPoints(Team Team, uint Points)
+        void AddPoints(TeamFaction Team, uint Points)
         {
             int team_index = GetTeamIndexByTeamId(Team);
             m_TeamScores[team_index] += Points;
@@ -219,7 +219,7 @@ namespace Game.BattleGrounds.Zones
                         else
                         {
                             //player is neat flag, so update count:
-                            m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID()))]++;
+                            m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(GetPlayerTeam(player.GUID))]++;
                             ++j;
                         }
                     }
@@ -248,9 +248,9 @@ namespace Game.BattleGrounds.Zones
                     uint pointOwnerTeamId;
                     //find which team should own this point
                     if (m_PointBarStatus[point] <= EotSProgressBarConsts.ProgressBarNeutralLow)
-                        pointOwnerTeamId = (uint)Team.Horde;
+                        pointOwnerTeamId = (uint)TeamFaction.Horde;
                     else if (m_PointBarStatus[point] >= EotSProgressBarConsts.ProgressBarNeutralHigh)
-                        pointOwnerTeamId = (uint)Team.Alliance;
+                        pointOwnerTeamId = (uint)TeamFaction.Alliance;
                     else
                         pointOwnerTeamId = (uint)EotSPointState.NoOwner;
 
@@ -260,7 +260,7 @@ namespace Game.BattleGrounds.Zones
                         if (player)
                         {
                             player.SendUpdateWorldState(EotSWorldStateIds.ProgressBarStatus, (uint)m_PointBarStatus[point]);
-                            Team team = GetPlayerTeam(player.GetGUID());
+                            TeamFaction team = GetPlayerTeam(player.GUID);
                             //if point owner changed we must evoke event!
                             if (pointOwnerTeamId != (uint)m_PointOwnedByTeam[point])
                             {
@@ -275,7 +275,7 @@ namespace Game.BattleGrounds.Zones
 
                             // @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
                             if (point == EotSPoints.FelReaver && m_PointOwnedByTeam[point] == team)
-                                if (m_FlagState != 0 && GetFlagPickerGUID() == player.GetGUID())
+                                if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
                                     if (player.GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
                                         EventPlayerCapturedFlag(player, EotSObjectTypes.FlagFelReaver);
                         }
@@ -298,54 +298,54 @@ namespace Game.BattleGrounds.Zones
             if (score >= EotSScoreIds.MaxTeamScore)
             {
                 score = EotSScoreIds.MaxTeamScore;
-                if (team == TeamId.Alliance)
-                    EndBattleground(Team.Alliance);
+                if (team == TeamIds.Alliance)
+                    EndBattleground(TeamFaction.Alliance);
                 else
-                    EndBattleground(Team.Horde);
+                    EndBattleground(TeamFaction.Horde);
             }
 
-            if (team == TeamId.Alliance)
+            if (team == TeamIds.Alliance)
                 UpdateWorldState(EotSWorldStateIds.AllianceResources, (int)score);
             else
                 UpdateWorldState(EotSWorldStateIds.HordeResources, (int)score);
         }
 
-        public override void EndBattleground(Team winner)
+        public override void EndBattleground(TeamFaction winner)
         {
             // Win reward
-            if (winner == Team.Alliance)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Alliance);
-            if (winner == Team.Horde)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Horde);
+            if (winner == TeamFaction.Alliance)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Alliance);
+            if (winner == TeamFaction.Horde)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Horde);
             // Complete map reward
-            RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Alliance);
-            RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Horde);
+            RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Alliance);
+            RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Horde);
 
             base.EndBattleground(winner);
         }
 
-        void UpdatePointsCount(Team team)
+        void UpdatePointsCount(TeamFaction team)
         {
-            if (team == Team.Alliance)
-                UpdateWorldState(EotSWorldStateIds.AllianceBase, (int)m_TeamPointsCount[TeamId.Alliance]);
+            if (team == TeamFaction.Alliance)
+                UpdateWorldState(EotSWorldStateIds.AllianceBase, (int)m_TeamPointsCount[TeamIds.Alliance]);
             else
-                UpdateWorldState(EotSWorldStateIds.HordeBase, (int)m_TeamPointsCount[TeamId.Horde]);
+                UpdateWorldState(EotSWorldStateIds.HordeBase, (int)m_TeamPointsCount[TeamIds.Horde]);
         }
 
-        void UpdatePointsIcons(Team team, int Point)
+        void UpdatePointsIcons(TeamFaction team, int Point)
         {
             //we MUST firstly send 0, after that we can send 1!!!
             if (m_PointState[Point] == EotSPointState.UnderControl)
             {
                 UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateControlIndex, 0);
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                     UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateAllianceControlledIndex, 1);
                 else
                     UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateHordeControlledIndex, 1);
             }
             else
             {
-                if (team == Team.Alliance)
+                if (team == TeamFaction.Alliance)
                     UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateAllianceControlledIndex, 0);
                 else
                     UpdateWorldState(EotSMisc.m_PointsIconStruct[Point].WorldStateHordeControlledIndex, 0);
@@ -355,15 +355,15 @@ namespace Game.BattleGrounds.Zones
 
         public override void AddPlayer(Player player)
         {
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BgEyeOfStormScore(player.GetGUID(), player.GetBgTeam());
+                PlayerScores[player.GUID] = new BgEyeOfStormScore(player.GUID, player.GetBgTeam());
 
-            m_PlayersNearPoint[EotSPoints.PointsMax].Add(player.GetGUID());
+            m_PlayersNearPoint[EotSPoints.PointsMax].Add(player.GUID);
         }
 
-        public override void RemovePlayer(Player player, ObjectGuid guid, Team team)
+        public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
         {
             // sometimes flag aura not removed :(
             for (int j = EotSPoints.PointsMax; j >= 0; --j)
@@ -389,7 +389,7 @@ namespace Game.BattleGrounds.Zones
 
         public override void HandleAreaTrigger(Player player, uint trigger, bool entered)
         {
-            if (!player.IsAlive())                                  //hack code, must be removed later
+            if (!player.IsAlive)                                  //hack code, must be removed later
                 return;
 
             switch (trigger)
@@ -400,23 +400,23 @@ namespace Game.BattleGrounds.Zones
                         TeleportPlayerToExploitLocation(player);
                     break;
                 case EotSPointsTrigger.BloodElfPoint:
-                    if (m_PointState[EotSPoints.BloodElf] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.BloodElf] == GetPlayerTeam(player.GetGUID()))
-                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GetGUID())
+                    if (m_PointState[EotSPoints.BloodElf] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.BloodElf] == GetPlayerTeam(player.GUID))
+                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
                             EventPlayerCapturedFlag(player, EotSObjectTypes.FlagBloodElf);
                     break;
                 case EotSPointsTrigger.FelReaverPoint:
-                    if (m_PointState[EotSPoints.FelReaver] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.FelReaver] == GetPlayerTeam(player.GetGUID()))
-                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GetGUID())
+                    if (m_PointState[EotSPoints.FelReaver] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.FelReaver] == GetPlayerTeam(player.GUID))
+                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
                             EventPlayerCapturedFlag(player, EotSObjectTypes.FlagFelReaver);
                     break;
                 case EotSPointsTrigger.MageTowerPoint:
-                    if (m_PointState[EotSPoints.MageTower] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.MageTower] == GetPlayerTeam(player.GetGUID()))
-                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GetGUID())
+                    if (m_PointState[EotSPoints.MageTower] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.MageTower] == GetPlayerTeam(player.GUID))
+                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
                             EventPlayerCapturedFlag(player, EotSObjectTypes.FlagMageTower);
                     break;
                 case EotSPointsTrigger.DraeneiRuinsPoint:
-                    if (m_PointState[EotSPoints.DraeneiRuins] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.DraeneiRuins] == GetPlayerTeam(player.GetGUID()))
-                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GetGUID())
+                    if (m_PointState[EotSPoints.DraeneiRuins] == EotSPointState.UnderControl && m_PointOwnedByTeam[EotSPoints.DraeneiRuins] == GetPlayerTeam(player.GUID))
+                        if (m_FlagState != 0 && GetFlagPickerGUID() == player.GUID)
                             EventPlayerCapturedFlag(player, EotSObjectTypes.FlagDraeneiRuins);
                     break;
                 case 4512:
@@ -510,14 +510,14 @@ namespace Game.BattleGrounds.Zones
             }
 
             WorldSafeLocsEntry sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainAlliance);
-            if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamId.Alliance))
+            if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
             {
                 Log.outError(LogFilter.Sql, "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
                 return false;
             }
 
             sg = Global.ObjectMgr.GetWorldSafeLoc(EotSGaveyardIds.MainHorde);
-            if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamId.Horde))
+            if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
             {
                 Log.outError(LogFilter.Sql, "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
                 return false;
@@ -531,12 +531,12 @@ namespace Game.BattleGrounds.Zones
             //call parent's class reset
             base.Reset();
 
-            m_TeamScores[TeamId.Alliance] = 0;
-            m_TeamScores[TeamId.Horde] = 0;
-            m_TeamPointsCount[TeamId.Alliance] = 0;
-            m_TeamPointsCount[TeamId.Horde] = 0;
-            m_HonorScoreTics[TeamId.Alliance] = 0;
-            m_HonorScoreTics[TeamId.Horde] = 0;
+            m_TeamScores[TeamIds.Alliance] = 0;
+            m_TeamScores[TeamIds.Horde] = 0;
+            m_TeamPointsCount[TeamIds.Alliance] = 0;
+            m_TeamPointsCount[TeamIds.Horde] = 0;
+            m_HonorScoreTics[TeamIds.Alliance] = 0;
+            m_HonorScoreTics[TeamIds.Horde] = 0;
             m_FlagState = EotSFlagState.OnBase;
             m_FlagCapturedBgObjectType = 0;
             m_FlagKeeper.Clear();
@@ -548,7 +548,7 @@ namespace Game.BattleGrounds.Zones
 
             for (byte i = 0; i < EotSPoints.PointsMax; ++i)
             {
-                m_PointOwnedByTeam[i] = Team.Other;
+                m_PointOwnedByTeam[i] = TeamFaction.Other;
                 m_PointState[i] = EotSPointState.Uncontrolled;
                 m_PointBarStatus[i] = EotSProgressBarConsts.ProgressBarStateMiddle;
                 m_PlayersNearPoint[i].Clear();
@@ -602,7 +602,7 @@ namespace Game.BattleGrounds.Zones
             {
                 // if not running, do not cast things at the dropper player, neither send unnecessary messages
                 // just take off the aura
-                if (IsFlagPickedup() && GetFlagPickerGUID() == player.GetGUID())
+                if (IsFlagPickedup() && GetFlagPickerGUID() == player.GUID)
                 {
                     SetFlagPicker(ObjectGuid.Empty);
                     player.RemoveAura(EotSMisc.SpellNetherstormFlag);
@@ -613,7 +613,7 @@ namespace Game.BattleGrounds.Zones
             if (!IsFlagPickedup())
                 return;
 
-            if (GetFlagPickerGUID() != player.GetGUID())
+            if (GetFlagPickerGUID() != player.GUID)
                 return;
 
             SetFlagPicker(ObjectGuid.Empty);
@@ -626,7 +626,7 @@ namespace Game.BattleGrounds.Zones
             UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateHorde, (int)EotSFlagState.WaitRespawn);
             UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.WaitRespawn);
 
-            if (GetPlayerTeam(player.GetGUID()) == Team.Alliance)
+            if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
                 SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemAlliance, null);
             else
                 SendBroadcastText(EotSBroadcastTexts.FlagDropped, ChatMsg.BgSystemHorde, null);
@@ -637,7 +637,7 @@ namespace Game.BattleGrounds.Zones
             if (GetStatus() != BattlegroundStatus.InProgress || IsFlagPickedup() || !player.IsWithinDistInMap(target_obj, 10))
                 return;
 
-            if (GetPlayerTeam(player.GetGUID()) == Team.Alliance)
+            if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
             {
                 UpdateWorldState(EotSWorldStateIds.NetherstormFlagStateAlliance, (int)EotSFlagState.OnPlayer);
                 PlaySoundToAll(EotSSoundIds.FlagPickedUpAlliance);
@@ -653,12 +653,12 @@ namespace Game.BattleGrounds.Zones
             m_FlagState = EotSFlagState.OnPlayer;
 
             SpawnBGObject(EotSObjectTypes.FlagNetherstorm, BattlegroundConst.RespawnOneDay);
-            SetFlagPicker(player.GetGUID());
+            SetFlagPicker(player.GUID);
             //get flag aura on player
             player.CastSpell(player, EotSMisc.SpellNetherstormFlag, true);
             player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
-            if (GetPlayerTeam(player.GetGUID()) == Team.Alliance)
+            if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
                 SendBroadcastText(EotSBroadcastTexts.TakenFlag, ChatMsg.BgSystemAlliance, player);
             else
                 SendBroadcastText(EotSBroadcastTexts.TakenFlag, ChatMsg.BgSystemHorde, player);
@@ -670,21 +670,21 @@ namespace Game.BattleGrounds.Zones
                 return;
 
             //Natural point
-            Team Team = m_PointOwnedByTeam[Point];
+            TeamFaction Team = m_PointOwnedByTeam[Point];
 
             if (Team == 0)
                 return;
 
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
             {
-                m_TeamPointsCount[TeamId.Alliance]--;
+                m_TeamPointsCount[TeamIds.Alliance]--;
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance, BattlegroundConst.RespawnOneDay);
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance + 1, BattlegroundConst.RespawnOneDay);
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeAlliance + 2, BattlegroundConst.RespawnOneDay);
             }
             else
             {
-                m_TeamPointsCount[TeamId.Horde]--;
+                m_TeamPointsCount[TeamIds.Horde]--;
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde, BattlegroundConst.RespawnOneDay);
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde + 1, BattlegroundConst.RespawnOneDay);
                 SpawnBGObject(EotSMisc.m_LosingPointTypes[Point].DespawnObjectTypeHorde + 2, BattlegroundConst.RespawnOneDay);
@@ -696,10 +696,10 @@ namespace Game.BattleGrounds.Zones
 
             //buff isn't despawned
 
-            m_PointOwnedByTeam[Point] = Team.Other;
+            m_PointOwnedByTeam[Point] = TeamFaction.Other;
             m_PointState[Point] = EotSPointState.NoOwner;
 
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
                 SendBroadcastText(EotSMisc.m_LosingPointTypes[Point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
             else
                 SendBroadcastText(EotSMisc.m_LosingPointTypes[Point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
@@ -717,22 +717,22 @@ namespace Game.BattleGrounds.Zones
             if (GetStatus() != BattlegroundStatus.InProgress)
                 return;
 
-            Team Team = GetPlayerTeam(player.GetGUID());
+            TeamFaction Team = GetPlayerTeam(player.GUID);
 
             SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType, BattlegroundConst.RespawnOneDay);
             SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType + 1, BattlegroundConst.RespawnOneDay);
             SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].DespawnNeutralObjectType + 2, BattlegroundConst.RespawnOneDay);
 
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
             {
-                m_TeamPointsCount[TeamId.Alliance]++;
+                m_TeamPointsCount[TeamIds.Alliance]++;
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance, BattlegroundConst.RespawnImmediately);
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 1, BattlegroundConst.RespawnImmediately);
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeAlliance + 2, BattlegroundConst.RespawnImmediately);
             }
             else
             {
-                m_TeamPointsCount[TeamId.Horde]++;
+                m_TeamPointsCount[TeamIds.Horde]++;
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde, BattlegroundConst.RespawnImmediately);
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 1, BattlegroundConst.RespawnImmediately);
                 SpawnBGObject(EotSMisc.m_CapturingPointTypes[Point].SpawnObjectTypeHorde + 2, BattlegroundConst.RespawnImmediately);
@@ -743,12 +743,12 @@ namespace Game.BattleGrounds.Zones
             m_PointOwnedByTeam[Point] = Team;
             m_PointState[Point] = EotSPointState.UnderControl;
 
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
                 SendBroadcastText(EotSMisc.m_CapturingPointTypes[Point].MessageIdAlliance, ChatMsg.BgSystemAlliance, player);
             else
                 SendBroadcastText(EotSMisc.m_CapturingPointTypes[Point].MessageIdHorde, ChatMsg.BgSystemHorde, player);
 
-            if (!BgCreatures[Point].IsEmpty())
+            if (!BgCreatures[Point].IsEmpty)
                 DelCreature(Point);
 
             WorldSafeLocsEntry sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
@@ -773,14 +773,14 @@ namespace Game.BattleGrounds.Zones
             //aura should only apply to players who have accupied the node, set correct faction for trigger
             if (trigger)
             {
-                trigger.SetFaction(Team == Team.Alliance ? 84u : 83);
+                trigger.                Faction = Team == TeamFaction.Alliance ? 84u : 83;
                 trigger.CastSpell(trigger, BattlegroundConst.SpellHonorableDefender25y, false);
             }
         }
 
         void EventPlayerCapturedFlag(Player player, uint BgObjectType)
         {
-            if (GetStatus() != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GetGUID())
+            if (GetStatus() != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GUID)
                 return;
 
             SetFlagPicker(ObjectGuid.Empty);
@@ -789,8 +789,8 @@ namespace Game.BattleGrounds.Zones
 
             player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.PvPActive);
 
-            Team team = GetPlayerTeam(player.GetGUID());
-            if (team == Team.Alliance)
+            TeamFaction team = GetPlayerTeam(player.GUID);
+            if (team == TeamFaction.Alliance)
             {
                 SendBroadcastText(EotSBroadcastTexts.AllianceCapturedFlag, ChatMsg.BgSystemAlliance, player);
                 PlaySoundToAll(EotSSoundIds.FlagCapturedAlliance);
@@ -835,13 +835,13 @@ namespace Game.BattleGrounds.Zones
         public override WorldSafeLocsEntry GetClosestGraveYard(Player player)
         {
             uint g_id;
-            Team team = GetPlayerTeam(player.GetGUID());
+            TeamFaction team = GetPlayerTeam(player.GUID);
             switch (team)
             {
-                case Team.Alliance:
+                case TeamFaction.Alliance:
                     g_id = EotSGaveyardIds.MainAlliance;
                     break;
-                case Team.Horde:
+                case TeamFaction.Horde:
                     g_id = EotSGaveyardIds.MainHorde;
                     break;
                 default: return null;
@@ -884,24 +884,24 @@ namespace Game.BattleGrounds.Zones
             return nearestEntry;
         }
 
-        public override WorldSafeLocsEntry GetExploitTeleportLocation(Team team)
+        public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
         {
-            return Global.ObjectMgr.GetWorldSafeLoc(team == Team.Alliance ? EotSMisc.ExploitTeleportLocationAlliance : EotSMisc.ExploitTeleportLocationHorde);
+            return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? EotSMisc.ExploitTeleportLocationAlliance : EotSMisc.ExploitTeleportLocationHorde);
         }
 
-        public override Team GetPrematureWinner()
+        public override TeamFaction GetPrematureWinner()
         {
-            if (GetTeamScore(TeamId.Alliance) > GetTeamScore(TeamId.Horde))
-                return Team.Alliance;
-            else if (GetTeamScore(TeamId.Horde) > GetTeamScore(TeamId.Alliance))
-                return Team.Horde;
+            if (GetTeamScore(TeamIds.Alliance) > GetTeamScore(TeamIds.Horde))
+                return TeamFaction.Alliance;
+            else if (GetTeamScore(TeamIds.Horde) > GetTeamScore(TeamIds.Alliance))
+                return TeamFaction.Horde;
 
             return base.GetPrematureWinner();
         }
 
         public override ObjectGuid GetFlagPickerGUID(int team = -1) { return m_FlagKeeper; }
         void SetFlagPicker(ObjectGuid guid) { m_FlagKeeper = guid; }
-        bool IsFlagPickedup() { return !m_FlagKeeper.IsEmpty(); }
+        bool IsFlagPickedup() { return !m_FlagKeeper.IsEmpty; }
 
         public override void SetDroppedFlagGUID(ObjectGuid guid, int TeamID = -1) { m_DroppedFlagGUID = guid; }
         ObjectGuid GetDroppedFlagGUID() { return m_DroppedFlagGUID; }
@@ -916,7 +916,7 @@ namespace Game.BattleGrounds.Zones
         EotSFlagState m_FlagState;                                  // for checking flag state
         int m_FlagsTimer;
         int m_TowerCapCheckTimer;
-        readonly Team[] m_PointOwnedByTeam = new Team[EotSPoints.PointsMax];
+        readonly TeamFaction[] m_PointOwnedByTeam = new TeamFaction[EotSPoints.PointsMax];
         readonly EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
         readonly EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
         readonly BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
@@ -929,7 +929,7 @@ namespace Game.BattleGrounds.Zones
 
     class BgEyeOfStormScore : BattlegroundScore
     {
-        public BgEyeOfStormScore(ObjectGuid playerGuid, Team team) : base(playerGuid, team) { }
+        public BgEyeOfStormScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
         public override void UpdateScore(ScoreType type, uint value)
         {

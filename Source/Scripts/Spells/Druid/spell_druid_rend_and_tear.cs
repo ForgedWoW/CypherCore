@@ -43,9 +43,9 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		if (caster == null || attacker == null || !HasEffect(1))
 			return absorbAmount;
 
-		if (caster.GetShapeshiftForm() == ShapeShiftForm.BearForm)
+		if (caster.ShapeshiftForm == ShapeShiftForm.BearForm)
 		{
-			var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GetGUID());
+			var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GUID);
 
 			if (trashDOT != null)
 				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.StackAmount * SpellInfo.GetEffect(1).BasePoints);
@@ -59,7 +59,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		if (spellMod == null)
 			return;
 
-		((SpellModifierByClassMask)spellMod).Value = Caster.GetShapeshiftForm() == ShapeShiftForm.BearForm ? aurEff.Amount : 0;
+		((SpellModifierByClassMask)spellMod).Value = Caster.ShapeshiftForm == ShapeShiftForm.BearForm ? aurEff.Amount : 0;
 	}
 
 	private struct Spells

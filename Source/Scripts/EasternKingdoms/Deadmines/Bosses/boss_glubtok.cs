@@ -40,7 +40,7 @@ public class boss_glubtok : BossAI
 		_phase2 = false;
 		_dying = false;
 		_transitionDone = false;
-		me.SetReactState(ReactStates.Aggressive);
+		me.ReactState = ReactStates.Aggressive;
 		me.SetDisableGravity(false);
 		me.SetCanFly(false);
 
@@ -98,9 +98,9 @@ public class boss_glubtok : BossAI
 		{
 			_phase2 = true;
 			_events.Reset();
-			me.SetReactState(ReactStates.Passive);
+			me.ReactState = ReactStates.Passive;
 			me.AttackStop();
-			me.GetMotionMaster().Clear();
+			me.MotionMaster.Clear();
 			me.NearTeleportTo(Phase2Pos);
 			DoCast(Spells.TELEPORT_VISUAL);
 			ResetThreatList();
@@ -238,7 +238,7 @@ public class boss_glubtok : BossAI
 						Talk(Texts.SAY_FISTS_OF_FLAME);
 					}
 
-					me.SetReactState(ReactStates.Aggressive);
+					me.ReactState = ReactStates.Aggressive;
 					AttackStart(me.SelectVictim());
 					_lastElement = !_lastElement;
 					_events.ScheduleEvent(BossEvents.EVENT_BLINK, TimeSpan.FromMilliseconds(12000));
@@ -250,7 +250,7 @@ public class boss_glubtok : BossAI
 					if (random != null)
 					{
 						DoCast(random, Spells.BLINK);
-						me.SetReactState(ReactStates.Passive);
+						me.ReactState = ReactStates.Passive;
 						me.AttackStop();
 						me.SetFacingToObject(random);
 
@@ -340,7 +340,7 @@ public class boss_glubtok : BossAI
 					break;
 				case BossEvents.EVENT_FALL_GROUND:
 					me.ClearUnitState(UnitState.CannotTurn);
-					me.GetMotionMaster().MoveFall(Points.POINT_FALL_GROUND);
+					me.MotionMaster.MoveFall(Points.POINT_FALL_GROUND);
 
 					break;
 			}

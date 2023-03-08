@@ -24,11 +24,11 @@ namespace Scripts.Pets
 
 				if (me.GetOwner())
 				{
-					me.SetLevel(owner.GetLevel());
+					me.SetLevel(owner.Level);
 					me.SetMaxHealth(owner.GetMaxHealth() / 3);
 					me.SetHealth(owner.GetHealth() / 3);
 
-					if (owner.IsPlayer())
+					if (owner.IsPlayer)
 					{
 						var p = owner.ToPlayer();
 						p.AddAura(296553, p);
@@ -37,16 +37,16 @@ namespace Scripts.Pets
 
 
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Aggressive);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Aggressive;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 
 				if (summon != null)
 				{
 					summon.SetCanFollowOwner(true);
-					summon.GetMotionMaster().Clear();
-					summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+					summon.MotionMaster.Clear();
+					summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
 				}
 			}
 
@@ -60,7 +60,7 @@ namespace Scripts.Pets
 				var target = GetTarget();
 				var newtargetGUID = owner.GetTarget();
 
-				if (newtargetGUID.IsEmpty() ||
+				if (newtargetGUID.IsEmpty ||
 					newtargetGUID == _targetGUID)
 				{
 					CastSpellOnTarget(owner, target);
@@ -100,8 +100,8 @@ namespace Scripts.Pets
 					!me.HasUnitState(UnitState.Casting) &&
 					!me.VariableStorage.GetValue("controlled", false))
 				{
-					_targetGUID = target.GetGUID();
-					me.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GetGUID()));
+					_targetGUID = target.GUID;
+					me.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GUID));
 				}
 			}
 		}

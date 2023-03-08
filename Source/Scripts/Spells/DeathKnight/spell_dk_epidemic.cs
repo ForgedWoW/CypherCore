@@ -35,7 +35,7 @@ public class spell_dk_epidemic : SpellScript, IHasSpellEffects, ISpellCheckCast,
 		if (!savedTargets.Empty())
 			foreach (var tar in savedTargets)
 			{
-				var aura = tar.GetAura(DeathKnightSpells.VIRULENT_PLAGUE, caster.GetGUID());
+				var aura = tar.GetAura(DeathKnightSpells.VIRULENT_PLAGUE, caster.GUID);
 
 				if (aura != null)
 					Caster.CastSpell(tar, DeathKnightSpells.EPIDEMIC_DAMAGE, true);

@@ -20,7 +20,7 @@ public class spell_rog_serrated_blades_SpellScript : SpellScript, ISpellOnHit
 
 			if (RandomHelper.randChance(blade.Amount * combo))
 			{
-				var dot = HitUnit.GetAura(RogueSpells.RUPTURE, Caster.GetGUID());
+				var dot = HitUnit.GetAura(RogueSpells.RUPTURE, Caster.GUID);
 
 				if (dot != null)
 					dot.RefreshDuration();

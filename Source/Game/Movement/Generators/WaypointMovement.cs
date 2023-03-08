@@ -98,7 +98,7 @@ namespace Game.Movement
 
             if (_path == null)
             {
-                Log.outError(LogFilter.Sql, $"WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({owner.GetGUID()}) (_pathId: {_pathId})");
+                Log.outError(LogFilter.Sql, $"WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({owner.GUID}) (_pathId: {_pathId})");
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace Game.Movement
 
         public override bool DoUpdate(Creature owner, uint diff)
         {
-            if (!owner || !owner.IsAlive())
+            if (!owner || !owner.IsAlive)
                 return true;
 
             if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused) || _path == null || _path.nodes.Empty())
@@ -157,7 +157,7 @@ namespace Game.Movement
             if (!owner.MoveSpline.Finalized())
             {
                 // set home position at place (every MotionMaster::UpdateMotion)
-                if (owner.GetTransGUID().IsEmpty())
+                if (owner.GetTransGUID().IsEmpty)
                     owner.SetHomePosition(owner.Location);
 
                 // relaunch movement if its speed has changed
@@ -237,7 +237,7 @@ namespace Game.Movement
 
             if (waypoint.eventId != 0 && RandomHelper.URand(0, 99) < waypoint.eventChance)
             {
-                Log.outDebug(LogFilter.MapsScript, $"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GetGUID()}.");
+                Log.outDebug(LogFilter.MapsScript, $"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GUID}.");
                 owner.ClearUnitState(UnitState.RoamingMove);
                 owner.GetMap().ScriptsStart(ScriptsType.Waypoint, waypoint.eventId, owner, null);
             }
@@ -256,16 +256,16 @@ namespace Game.Movement
         void StartMove(Creature owner, bool relaunch = false)
         {
             // sanity checks
-            if (owner == null || !owner.IsAlive() || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
+            if (owner == null || !owner.IsAlive || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
                 return;
 
-            if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting() || (owner.IsFormationLeader() && !owner.IsFormationLeaderMoveAllowed())) // if cannot move OR cannot move because of formation
+            if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting() || (owner.IsFormationLeader && !owner.IsFormationLeaderMoveAllowed)) // if cannot move OR cannot move because of formation
             {
                 _nextMoveTime.Reset(1000); // delay 1s
                 return;
             }
 
-            bool transportPath = !owner.GetTransGUID().IsEmpty();
+            bool transportPath = !owner.GetTransGUID().IsEmpty;
 
             if (HasFlag(MovementGeneratorFlags.InformEnabled) && HasFlag(MovementGeneratorFlags.Initialized))
             {
@@ -286,7 +286,7 @@ namespace Game.Movement
                         owner.SetHomePosition(pos);
                     else
                     {
-                        ITransport trans = owner.GetTransport();
+                        ITransport trans = owner.Transport;
                         if (trans != null)
                         {
                             pos.Orientation -= trans.GetTransportOrientation();

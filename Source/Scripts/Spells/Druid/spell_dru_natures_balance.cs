@@ -30,7 +30,7 @@ public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || !caster.IsAlive() || caster.GetMaxPower(PowerType.LunarPower) == 0)
+		if (caster == null || !caster.IsAlive || caster.GetMaxPower(PowerType.LunarPower) == 0)
 			return;
 
 		if (caster.IsInCombat())

@@ -18,7 +18,7 @@ internal class spell_gen_summon_tournament_mount : SpellScript, ISpellCheckCast
 
 	public SpellCastResult CheckCast()
 	{
-		if (Caster.IsInDisallowedMountForm())
+		if (Caster.IsInDisallowedMountForm)
 			Caster.RemoveAurasByType(AuraType.ModShapeshift);
 
 		if (!Caster.HasAura(GenericSpellIds.LanceEquipped))

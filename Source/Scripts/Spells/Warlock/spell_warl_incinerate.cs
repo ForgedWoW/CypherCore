@@ -77,7 +77,7 @@ public class spell_warl_incinerate : SpellScript, IHasSpellEffects
 	{
 		if (caster.HasAura(WarlockSpells.ROARING_BLAZE) && ExplTargetUnit == target)
 		{
-			var aur = target.GetAura(WarlockSpells.IMMOLATE_DOT, caster.GetGUID());
+			var aur = target.GetAura(WarlockSpells.IMMOLATE_DOT, caster.GUID);
 			var dmgEff = Global.SpellMgr.GetSpellInfo(WarlockSpells.ROARING_BLASE_DMG_PCT, Difficulty.None)?.GetEffect(0);
 
 			if (aur != null && dmgEff != null)

@@ -33,7 +33,7 @@ internal class spell_pri_power_word_shield : SpellScript, ISpellCheckCast, ISpel
 
 		if (target != null)
 			if (!caster.HasAura(PriestSpells.RAPTURE))
-				if (target.HasAura(PriestSpells.WEAKENED_SOUL, caster.GetGUID()))
+				if (target.HasAura(PriestSpells.WEAKENED_SOUL, caster.GUID))
 					return SpellCastResult.BadTargets;
 
 		return SpellCastResult.SpellCastOk;

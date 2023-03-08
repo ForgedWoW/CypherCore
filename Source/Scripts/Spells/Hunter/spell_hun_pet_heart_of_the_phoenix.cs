@@ -17,7 +17,7 @@ internal class spell_hun_pet_heart_of_the_phoenix : SpellScript, IHasSpellEffect
 
 	public override bool Load()
 	{
-		if (!Caster.IsPet())
+		if (!Caster.IsPet)
 			return false;
 
 		return true;

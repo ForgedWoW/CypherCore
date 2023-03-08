@@ -13,7 +13,7 @@ public class GOTargetInfo : TargetInfoBase
 
 	public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
 	{
-		var go = spell.Caster.GetGUID() == TargetGUID ? spell.Caster.ToGameObject() : ObjectAccessor.GetGameObject(spell.Caster, TargetGUID);
+		var go = spell.Caster.GUID == TargetGUID ? spell.Caster.ToGameObject() : ObjectAccessor.GetGameObject(spell.Caster, TargetGUID);
 
 		if (go == null)
 			return;
@@ -26,9 +26,9 @@ public class GOTargetInfo : TargetInfoBase
 		if (go.GetAI() != null)
 			go.GetAI().SpellHit(spell.Caster, spell.SpellInfo);
 
-		if (spell.Caster.IsCreature() && spell.Caster.ToCreature().IsAIEnabled())
+		if (spell.Caster.IsCreature && spell.Caster.ToCreature().IsAIEnabled)
 			spell.Caster.ToCreature().GetAI().SpellHitTarget(go, spell.SpellInfo);
-		else if (spell.Caster.IsGameObject() && spell.Caster.ToGameObject().GetAI() != null)
+		else if (spell.Caster.IsGameObject && spell.Caster.ToGameObject().GetAI() != null)
 			spell.Caster.ToGameObject().GetAI().SpellHitTarget(go, spell.SpellInfo);
 
 		spell.CallScriptOnHitHandlers();

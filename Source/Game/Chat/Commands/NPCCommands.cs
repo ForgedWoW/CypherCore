@@ -35,7 +35,7 @@ namespace Game.Chat
                     deleteRespawnTimes = true;
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out int despawnedCount))
             {
                 handler.SendSysMessage(CypherStrings.SpawngroupBadgroup, groupId);
@@ -50,13 +50,13 @@ namespace Game.Chat
         static bool HandleNpcEvadeCommand(CommandHandler handler, EvadeReason? why, string force)
         {
             Creature creatureTarget = handler.GetSelectedCreature();
-            if (!creatureTarget || creatureTarget.IsPet())
+            if (!creatureTarget || creatureTarget.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
                 return false;
             }
 
-            if (!creatureTarget.IsAIEnabled())
+            if (!creatureTarget.IsAIEnabled)
             {
                 handler.SendSysMessage(CypherStrings.CreatureNotAiEnabled);
                 return false;
@@ -79,33 +79,33 @@ namespace Game.Chat
                 return false;
             }
 
-            CreatureTemplate cInfo = target.GetCreatureTemplate();
+            CreatureTemplate cInfo = target.CreatureTemplate;
 
-            uint faction = target.GetFaction();
+            uint faction = target.Faction;
             ulong npcflags = (ulong)target.UnitData.NpcFlags[1] << 32 | target.UnitData.NpcFlags[0];
             ulong mechanicImmuneMask = cInfo.MechanicImmuneMask;
-            uint displayid = target.GetDisplayId();
-            uint nativeid = target.GetNativeDisplayId();
-            uint entry = target.GetEntry();
+            uint displayid = target.DisplayId;
+            uint nativeid = target.NativeDisplayId;
+            uint entry = target.Entry;
 
-            long curRespawnDelay = target.GetRespawnCompatibilityMode() ? target.GetRespawnTimeEx() - GameTime.GetGameTime() : target.GetMap().GetCreatureRespawnTime(target.GetSpawnId()) - GameTime.GetGameTime();
+            long curRespawnDelay = target.GetRespawnCompatibilityMode() ? target.RespawnTimeEx - GameTime.GetGameTime() : target.GetMap().GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
             string curRespawnDelayStr = Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
             string defRespawnDelayStr = Time.secsToTimeString(target.GetRespawnDelay(), TimeFormat.ShortText);
 
-            handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.GetSpawnId(), target.GetGUID().ToString(), entry, faction, npcflags, displayid, nativeid);
-            if (target.GetCreatureData() != null && target.GetCreatureData().SpawnGroupData.GroupId != 0)
+            handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.SpawnId, target.GUID.ToString(), entry, faction, npcflags, displayid, nativeid);
+            if (target.CreatureData != null && target.CreatureData.SpawnGroupData.GroupId != 0)
             {
-                SpawnGroupTemplateData groupData = target.GetCreatureData().SpawnGroupData;
+                SpawnGroupTemplateData groupData = target.CreatureData.SpawnGroupData;
                 handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.GetMap().IsSpawnGroupActive(groupData.GroupId));
             }
             handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.GetRespawnCompatibilityMode());
-            handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.GetLevel());
-            handler.SendSysMessage(CypherStrings.NpcinfoEquipment, target.GetCurrentEquipmentId(), target.GetOriginalEquipmentId());
+            handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.Level);
+            handler.SendSysMessage(CypherStrings.NpcinfoEquipment, target.CurrentEquipmentId, target.OriginalEquipmentId);
             handler.SendSysMessage(CypherStrings.NpcinfoHealth, target.GetCreateHealth(), target.GetMaxHealth(), target.GetHealth());
-            handler.SendSysMessage(CypherStrings.NpcinfoMovementData, target.GetMovementTemplate().ToString());
+            handler.SendSysMessage(CypherStrings.NpcinfoMovementData, target.MovementTemplate.ToString());
 
             handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags, (uint)target.UnitData.Flags);
             foreach (UnitFlags value in Enum.GetValues(typeof(UnitFlags)))
@@ -122,12 +122,12 @@ namespace Game.Chat
                 if (target.HasUnitFlag3(value))
                     handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags3)value, value);
 
-            handler.SendSysMessage(CypherStrings.NpcinfoDynamicFlags, target.GetDynamicFlags());
+            handler.SendSysMessage(CypherStrings.NpcinfoDynamicFlags, target.DynamicFlags);
             handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
             handler.SendSysMessage(CypherStrings.NpcinfoLoot, cInfo.LootId, cInfo.PickPocketId, cInfo.SkinLootId);
-            handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.GetInstanceId());
+            handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId1);
 
-            CreatureData data = Global.ObjectMgr.GetCreatureData(target.GetSpawnId());
+            CreatureData data = Global.ObjectMgr.GetCreatureData(target.SpawnId);
             if (data != null)
                 handler.SendSysMessage(CypherStrings.NpcinfoPhases, data.PhaseId, data.PhaseGroup);
 
@@ -136,8 +136,8 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.NpcinfoArmor, target.GetArmor());
             handler.SendSysMessage(CypherStrings.NpcinfoPosition, target.Location.X, target.Location.Y, target.Location.Z);
             handler.SendSysMessage(CypherStrings.ObjectinfoAiInfo, target.GetAIName(), target.GetScriptName());
-            handler.SendSysMessage(CypherStrings.ObjectinfoStringIds, target.GetStringIds()[0], target.GetStringIds()[1], target.GetStringIds()[2]);
-            handler.SendSysMessage(CypherStrings.NpcinfoReactstate, target.GetReactState());
+            handler.SendSysMessage(CypherStrings.ObjectinfoStringIds, target.StringIds[0], target.StringIds[1], target.StringIds[2]);
+            handler.SendSysMessage(CypherStrings.NpcinfoReactstate, target.ReactState);
             var ai = target.GetAI();
             if (ai != null)
                 handler.SendSysMessage(CypherStrings.ObjectinfoAiType, nameof(ai));
@@ -163,14 +163,14 @@ namespace Game.Chat
         static bool HandleNpcMoveCommand(CommandHandler handler, ulong? spawnId)
         {
             Creature creature = handler.GetSelectedCreature();
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             if (player == null)
                 return false;
 
             if (!spawnId.HasValue && creature == null)
                 return false;
 
-            ulong lowguid = spawnId.HasValue ? spawnId.Value : creature.GetSpawnId();
+            ulong lowguid = spawnId.HasValue ? spawnId.Value : creature.SpawnId;
 
             // Attempting creature load from DB data
             CreatureData data = Global.ObjectMgr.GetCreatureData(lowguid);
@@ -264,7 +264,8 @@ namespace Game.Chat
                 return false;
             }
 
-            target.SetEmoteState((Emote)emote);
+            target.
+            EmoteState = (Emote)emote;
 
             return true;
         }
@@ -305,20 +306,20 @@ namespace Game.Chat
         static bool HandleNpcShowLootCommand(CommandHandler handler, string all)
         {
             Creature creatureTarget = handler.GetSelectedCreature();
-            if (creatureTarget == null || creatureTarget.IsPet())
+            if (creatureTarget == null || creatureTarget.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
                 return false;
             }
 
             Loot loot = creatureTarget.Loot;
-            if (!creatureTarget.IsDead() || loot == null || loot.IsLooted())
+            if (!creatureTarget.IsDead || loot == null || loot.IsLooted())
             {
                 handler.SendSysMessage(CypherStrings.CommandNotDeadOrNoLoot, creatureTarget.GetName());
                 return false;
             }
 
-            handler.SendSysMessage(CypherStrings.CommandNpcShowlootHeader, creatureTarget.GetName(), creatureTarget.GetEntry());
+            handler.SendSysMessage(CypherStrings.CommandNpcShowlootHeader, creatureTarget.GetName(), creatureTarget.Entry);
             handler.SendSysMessage(CypherStrings.CommandNpcShowlootMoney, loot.gold / MoneyConstants.Gold, (loot.gold % MoneyConstants.Gold) / MoneyConstants.Silver, loot.gold % MoneyConstants.Silver);
 
             if (all.Equals("all", StringComparison.OrdinalIgnoreCase)) // nonzero from strcmp <. not equal
@@ -372,7 +373,7 @@ namespace Game.Chat
                 }
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             List<WorldObject> creatureList = new();
             if (!player.GetMap().SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
@@ -390,23 +391,23 @@ namespace Game.Chat
         static bool HandleNpcTameCommand(CommandHandler handler)
         {
             Creature creatureTarget = handler.GetSelectedCreature();
-            if (!creatureTarget || creatureTarget.IsPet())
+            if (!creatureTarget || creatureTarget.IsPet)
             {
                 handler.SendSysMessage(CypherStrings.SelectCreature);
                 return false;
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
-            if (!player.GetPetGUID().IsEmpty())
+            if (!player.PetGUID.IsEmpty)
             {
                 handler.SendSysMessage(CypherStrings.YouAlreadyHavePet);
                 return false;
             }
 
-            CreatureTemplate cInfo = creatureTarget.GetCreatureTemplate();
+            CreatureTemplate cInfo = creatureTarget.CreatureTemplate;
 
-            if (!cInfo.IsTameable(player.CanTameExoticPets()))
+            if (!cInfo.IsTameable(player.CanTameExoticPets))
             {
                 handler.SendSysMessage(CypherStrings.CreatureNonTameable, cInfo.Entry);
                 return false;
@@ -422,15 +423,17 @@ namespace Game.Chat
 
             // place pet before player
             var pos = new Position();
-            player.GetClosePoint(pos, creatureTarget.GetCombatReach(), SharedConst.ContactDistance);
+            player.GetClosePoint(pos, creatureTarget.CombatReach, SharedConst.ContactDistance);
             pos.Orientation = MathFunctions.PI - player.Location.Orientation;
             pet.Location.Relocate(pos);
 
             // set pet to defensive mode by default (some classes can't control controlled pets in fact).
-            pet.SetReactState(ReactStates.Defensive);
+            pet.
+            // set pet to defensive mode by default (some classes can't control controlled pets in fact).
+            ReactState = ReactStates.Defensive;
 
             // calculate proper level
-            uint level = Math.Max(player.GetLevel() - 5, creatureTarget.GetLevel());
+            uint level = Math.Max(player.Level - 5, creatureTarget.Level);
 
             // prepare visual effect for levelup
             pet.SetLevel(level - 1);
@@ -552,7 +555,7 @@ namespace Game.Chat
                 if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
                     return false;
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 Map map = chr.GetMap();
 
                 Transport trans = chr.GetTransport<Transport>();
@@ -563,7 +566,7 @@ namespace Game.Chat
                     data.SpawnId = guid;
                     data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
                     data.Id = id;
-                    data.SpawnPoint.Relocate(chr.GetTransOffsetX(), chr.GetTransOffsetY(), chr.GetTransOffsetZ(), chr.GetTransOffsetO());
+                    data.SpawnPoint.Relocate(chr.TransOffsetX, chr.TransOffsetY, chr.TransOffsetZ, chr.TransOffsetO);
                     data.SpawnGroupData = new();
 
                     Creature creaturePassenger = trans.CreateNPCPassenger(guid, data);
@@ -582,7 +585,7 @@ namespace Game.Chat
                 PhasingHandler.InheritPhaseShift(creature, chr);
                 creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
 
-                ulong db_guid = creature.GetSpawnId();
+                ulong db_guid = creature.SpawnId;
 
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells()
                 // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
@@ -614,7 +617,7 @@ namespace Game.Chat
                 uint maxcount = mc.GetValueOrDefault(0);
                 uint incrtime = it.GetValueOrDefault(0);
                 uint extendedcost = ec.GetValueOrDefault(0);
-                uint vendor_entry = vendor.GetEntry();
+                uint vendor_entry = vendor.Entry;
 
                 VendorItem vItem = new();
                 vItem.Item = itemId;
@@ -636,7 +639,7 @@ namespace Game.Chat
                     }
                 }
 
-                if (!Global.ObjectMgr.IsVendorItemValid(vendor_entry, vItem, handler.GetSession().GetPlayer()))
+                if (!Global.ObjectMgr.IsVendorItemValid(vendor_entry, vItem, handler.GetSession().Player))
                     return false;
 
                 Global.ObjectMgr.AddVendorItem(vendor_entry, vItem);
@@ -673,13 +676,13 @@ namespace Game.Chat
             static bool HandleNpcAddFormationCommand(CommandHandler handler, ulong leaderGUID)
             {
                 Creature creature = handler.GetSelectedCreature();
-                if (!creature || creature.GetSpawnId() == 0)
+                if (!creature || creature.SpawnId == 0)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
                 }
 
-                ulong lowguid = creature.GetSpawnId();
+                ulong lowguid = creature.SpawnId;
                 if (creature.GetFormation() != null)
                 {
                     handler.SendSysMessage("Selected creature is already member of group {0}", creature.GetFormation().GetLeaderSpawnId());
@@ -689,7 +692,7 @@ namespace Game.Chat
                 if (lowguid == 0)
                     return false;
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 float followAngle = (creature.Location.GetAbsoluteAngle(chr.Location) - chr.Location.Orientation) * 180.0f / MathF.PI;
                 float followDist = MathF.Sqrt(MathF.Pow(chr.Location.X - creature.Location.X, 2f) + MathF.Pow(chr.Location.Y - creature.Location.Y, 2f));
                 uint groupAI = 0;
@@ -727,7 +730,7 @@ namespace Game.Chat
                 if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
                     return false;
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 chr.SummonCreature(id, chr.Location, loot ? TempSummonType.CorpseTimedDespawn : TempSummonType.CorpseDespawn, TimeSpan.FromSeconds(30));
 
                 return true;
@@ -746,7 +749,7 @@ namespace Game.Chat
                 else
                 {
                     Creature creature = handler.GetSelectedCreature();
-                    if (!creature || creature.IsPet() || creature.IsTotem())
+                    if (!creature || creature.IsPet || creature.IsTotem)
                     {
                         handler.SendSysMessage(CypherStrings.SelectCreature);
                         return false;
@@ -759,7 +762,7 @@ namespace Game.Chat
                         handler.SendSysMessage(CypherStrings.CommandDelcreatmessage);
                         return true;
                     }
-                    spawnId = creature.GetSpawnId();
+                    spawnId = creature.SpawnId;
                 }
 
                 if (Creature.DeleteFromDB(spawnId))
@@ -776,7 +779,7 @@ namespace Game.Chat
             static bool HandleNpcDeleteVendorItemCommand(CommandHandler handler, uint itemId)
             {
                 Creature vendor = handler.GetSelectedCreature();
-                if (!vendor || !vendor.IsVendor())
+                if (!vendor || !vendor.IsVendor)
                 {
                     handler.SendSysMessage(CypherStrings.CommandVendorselection);
                     return false;
@@ -785,7 +788,7 @@ namespace Game.Chat
                 if (itemId == 0)
                     return false;
 
-                if (!Global.ObjectMgr.RemoveVendorItem(vendor.GetEntry(), itemId, ItemVendorType.Item))
+                if (!Global.ObjectMgr.RemoveVendorItem(vendor.Entry, itemId, ItemVendorType.Item))
                 {
                     handler.SendSysMessage(CypherStrings.ItemNotInList, itemId);
                     return false;
@@ -803,7 +806,7 @@ namespace Game.Chat
             [Command("", RBACPermissions.CommandNpcFollow)]
             static bool HandleNpcFollowCommand(CommandHandler handler)
             {
-                Player player = handler.GetSession().GetPlayer();
+                Player player = handler.GetSession().Player;
                 Creature creature = handler.GetSelectedCreature();
 
                 if (!creature)
@@ -813,7 +816,9 @@ namespace Game.Chat
                 }
 
                 // Follow player - Using pet's default dist and angle
-                creature.GetMotionMaster().MoveFollow(player, SharedConst.PetFollowDist, creature.GetFollowAngle());
+                creature.
+                // Follow player - Using pet's default dist and angle
+                MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, creature.FollowAngle);
 
                 handler.SendSysMessage(CypherStrings.CreatureFollowYouNow, creature.GetName());
                 return true;
@@ -831,7 +836,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                MovementGenerator movement = creature.GetMotionMaster().GetMovementGenerator(a =>
+                MovementGenerator movement = creature.MotionMaster.GetMovementGenerator(a =>
                 {
                     if (a.GetMovementGeneratorType() == MovementGeneratorType.Follow)
                     {
@@ -847,7 +852,8 @@ namespace Game.Chat
                     return false;
                 }
 
-                creature.GetMotionMaster().Remove(movement);
+                creature.
+                MotionMaster.Remove(movement);
                 handler.SendSysMessage(CypherStrings.CreatureNotFollowYouNow, creature.GetName());
                 return true;
             }
@@ -886,7 +892,7 @@ namespace Game.Chat
 
                 creature.GetAI().SetData(data_1, data_2);
                 string AIorScript = creature.GetAIName() != "" ? "AI type: " + creature.GetAIName() : (creature.GetScriptName() != "" ? "Script Name: " + creature.GetScriptName() : "No AI or Script Name Set");
-                handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GetGUID(), creature.GetEntry(), creature.GetName(), data_1, data_2, AIorScript);
+                handler.SendSysMessage(CypherStrings.NpcSetdata, creature.GUID, creature.Entry, creature.GetName(), data_1, data_2, AIorScript);
                 return true;
             }
 
@@ -927,12 +933,13 @@ namespace Game.Chat
                     return false;
                 }
 
-                creature.SetFaction(factionId);
+                creature.
+                Faction = factionId;
 
                 // Faction is set in creature_template - not inside creature
 
                 // Update in memory..
-                CreatureTemplate cinfo = creature.GetCreatureTemplate();
+                CreatureTemplate cinfo = creature.CreatureTemplate;
                 if (cinfo != null)
                     cinfo.Faction = factionId;
 
@@ -941,7 +948,7 @@ namespace Game.Chat
 
                 stmt.AddValue(0, factionId);
                 stmt.AddValue(1, factionId);
-                stmt.AddValue(2, creature.GetEntry());
+                stmt.AddValue(2, creature.Entry);
 
                 DB.World.Execute(stmt);
 
@@ -963,7 +970,7 @@ namespace Game.Chat
 
                 PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_NPCFLAG);
                 stmt.AddValue(0, (ulong)npcFlags | ((ulong)npcFlags2 << 32));
-                stmt.AddValue(1, creature.GetEntry());
+                stmt.AddValue(1, creature.Entry);
                 DB.World.Execute(stmt);
 
                 handler.SendSysMessage(CypherStrings.ValueSavedRejoin);
@@ -981,7 +988,7 @@ namespace Game.Chat
                 }
 
                 Creature creature = handler.GetSelectedCreature();
-                if (!creature || creature.IsPet())
+                if (!creature || creature.IsPet)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
@@ -1005,19 +1012,19 @@ namespace Game.Chat
                     return false;
                 }
 
-                if (creature.GetSpawnId() == 0)
+                if (creature.SpawnId == 0)
                 {
-                    handler.SendSysMessage("Selected creature {0} isn't in creature table", creature.GetGUID().ToString());
+                    handler.SendSysMessage("Selected creature {0} isn't in creature table", creature.GUID.ToString());
                     return false;
                 }
 
-                if (!Global.ObjectMgr.SetCreatureLinkedRespawn(creature.GetSpawnId(), linkguid))
+                if (!Global.ObjectMgr.SetCreatureLinkedRespawn(creature.SpawnId, linkguid))
                 {
                     handler.SendSysMessage("Selected creature can't link with guid '{0}'", linkguid);
                     return false;
                 }
 
-                handler.SendSysMessage("LinkGUID '{0}' added to creature with DBTableGUID: '{1}'", linkguid, creature.GetSpawnId());
+                handler.SendSysMessage("LinkGUID '{0}' added to creature with DBTableGUID: '{1}'", linkguid, creature.SpawnId);
                 return true;
             }
 
@@ -1025,7 +1032,7 @@ namespace Game.Chat
             static bool HandleNpcSetModelCommand(CommandHandler handler, uint displayId)
             {
                 Creature creature = handler.GetSelectedCreature();
-                if (!creature || creature.IsPet())
+                if (!creature || creature.IsPet)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
@@ -1063,10 +1070,10 @@ namespace Game.Chat
                 if (!lowGuid.HasValue)                                           // case .setmovetype $move_type (with selected creature)
                 {
                     creature = handler.GetSelectedCreature();
-                    if (!creature || creature.IsPet())
+                    if (!creature || creature.IsPet)
                         return false;
 
-                    lowguid = creature.GetSpawnId();
+                    lowguid = creature.SpawnId;
                 }
                 else
                 {
@@ -1087,7 +1094,7 @@ namespace Game.Chat
                     }
                     else
                     {
-                        lowguid = creature.GetSpawnId();
+                        lowguid = creature.SpawnId;
                     }
                 }
 
@@ -1118,8 +1125,8 @@ namespace Game.Chat
                         creature.LoadPath(0);
 
                     creature.SetDefaultMovementType(move_type);
-                    creature.GetMotionMaster().Initialize();
-                    if (creature.IsAlive())                            // dead creature will reset movement generator at respawn
+                    creature.                    MotionMaster.Initialize();
+                    if (creature.IsAlive)                            // dead creature will reset movement generator at respawn
                     {
                         creature.SetDeathState(DeathState.JustDied);
                         creature.Respawn();
@@ -1149,7 +1156,7 @@ namespace Game.Chat
                 }
 
                 Creature creature = handler.GetSelectedCreature();
-                if (!creature || creature.IsPet())
+                if (!creature || creature.IsPet)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
@@ -1157,7 +1164,7 @@ namespace Game.Chat
 
                 PhasingHandler.ResetPhaseShift(creature);
                 PhasingHandler.AddPhase(creature, phaseId, true);
-                creature.SetDBPhase((int)phaseId);
+                creature.                DBPhase = (int)phaseId;
 
                 creature.SaveToDB();
                 return true;
@@ -1172,7 +1179,7 @@ namespace Game.Chat
                 int phaseGroupId = args.NextInt32();
 
                 Creature creature = handler.GetSelectedCreature();
-                if (!creature || creature.IsPet())
+                if (!creature || creature.IsPet)
                 {
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
@@ -1180,7 +1187,7 @@ namespace Game.Chat
 
                 PhasingHandler.ResetPhaseShift(creature);
                 PhasingHandler.AddPhaseGroup(creature, (uint)phaseGroupId, true);
-                creature.SetDBPhase(-phaseGroupId);
+                creature.                DBPhase = -phaseGroupId;
 
                 creature.SaveToDB();
 
@@ -1204,14 +1211,14 @@ namespace Game.Chat
                 ulong guidLow;
 
                 if (creature)
-                    guidLow = creature.GetSpawnId();
+                    guidLow = creature.SpawnId;
                 else
                     return false;
 
                 creature.SetWanderDistance(option);
                 creature.SetDefaultMovementType(mtype);
-                creature.GetMotionMaster().Initialize();
-                if (creature.IsAlive())                                // dead creature will reset movement generator at respawn
+                creature.                MotionMaster.Initialize();
+                if (creature.IsAlive)                                // dead creature will reset movement generator at respawn
                 {
                     creature.SetDeathState(DeathState.JustDied);
                     creature.Respawn();
@@ -1237,7 +1244,7 @@ namespace Game.Chat
 
                 PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
                 stmt.AddValue(0, spawnTime);
-                stmt.AddValue(1, creature.GetSpawnId());
+                stmt.AddValue(1, creature.SpawnId);
                 DB.World.Execute(stmt);
 
                 creature.SetRespawnDelay(spawnTime);

@@ -100,7 +100,7 @@ namespace Game
                     if (_clientResponseTimer > maxClientResponseDelay * Time.InMilliseconds)
                     {
                         Log.outWarn(LogFilter.Warden, "{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
-                                       _session.GetPlayerInfo(), _session.GetLatency(), _session.GetRemoteAddress(), Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
+                                       _session.GetPlayerInfo(), _session.Latency, _session.RemoteAddress, Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
                         _session.KickPlayer("Warden::Update Warden module response delay exceeded");
                     }
                     else
@@ -171,7 +171,7 @@ namespace Game
                     break;
                 case WardenActions.Ban:
                 {
-                    Global.AccountMgr.GetName(_session.GetAccountId(), out string accountName);
+                    Global.AccountMgr.GetName(_session.AccountId, out string accountName);
                     string banReason = "Warden Anticheat Violation";
                     // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
                     if (check != null)

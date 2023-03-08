@@ -188,12 +188,12 @@ internal class boss_rend_blackhand : BossAI
 				var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 5.0f, true);
 
 				if (victor != null)
-					victorGUID = victor.GetGUID();
+					victorGUID = victor.GUID;
 
 				var portcullis = me.FindNearestGameObject(GameObjectsIds.DrPortcullis, 50.0f);
 
 				if (portcullis != null)
-					portcullisGUID = portcullis.GetGUID();
+					portcullisGUID = portcullis.GUID;
 
 				_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
 				_events.ScheduleEvent(EventIds.Start1, TimeSpan.FromSeconds(1));
@@ -419,12 +419,12 @@ internal class boss_rend_blackhand : BossAI
 					{
 						var victor = ObjectAccessor.GetCreature(me, victorGUID);
 
-						victor?.GetMotionMaster().MovePath(MiscConst.NefariusPath1, true);
+						victor?.MotionMaster.MovePath(MiscConst.NefariusPath1, true);
 
 						break;
 					}
 					case EventIds.PathRend:
-						me.GetMotionMaster().MovePath(MiscConst.RendPath1, false);
+						me.MotionMaster.MovePath(MiscConst.RendPath1, false);
 
 						break;
 					case EventIds.Teleport1:

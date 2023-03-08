@@ -157,7 +157,7 @@ namespace Game.Movement
                         {
                             Unit target = followInformation.GetTarget();
                             if (target != null)
-                                list.Add(new MovementGeneratorInformation(type, target.GetGUID(), target.GetName()));
+                                list.Add(new MovementGeneratorInformation(type, target.GUID, target.GetName()));
                             else
                                 list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
                         }
@@ -298,7 +298,7 @@ namespace Game.Movement
             if (HasFlag(MotionMasterFlags.InitializationPending | MotionMasterFlags.Initializing))
                 return;
 
-            Cypher.Assert(!Empty(), $"MotionMaster:Update: update called without Initializing! ({_owner.GetGUID()})");
+            Cypher.Assert(!Empty(), $"MotionMaster:Update: update called without Initializing! ({_owner.GUID})");
 
             AddFlag(MotionMasterFlags.Update);
 
@@ -314,11 +314,11 @@ namespace Game.Movement
             if (top.HasFlag(MovementGeneratorFlags.Deactivated))
                 top.Reset(_owner);
 
-            Cypher.Assert(!top.HasFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated), $"MotionMaster:Update: update called on an uninitialized top! ({_owner.GetGUID()}) (type: {top.GetMovementGeneratorType()}, flags: {top.Flags})");
+            Cypher.Assert(!top.HasFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated), $"MotionMaster:Update: update called on an uninitialized top! ({_owner.GUID}) (type: {top.GetMovementGeneratorType()}, flags: {top.Flags})");
 
             if (!top.Update(_owner, diff))
             {
-                Cypher.Assert(top == GetCurrentMovementGenerator(), $"MotionMaster::Update: top was modified while updating! ({_owner.GetGUID()})");
+                Cypher.Assert(top == GetCurrentMovementGenerator(), $"MotionMaster::Update: top was modified while updating! ({_owner.GUID})");
 
                 // Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
                 Pop(true, true); // Natural, and only, call to MovementInform
@@ -536,13 +536,13 @@ namespace Game.Movement
             Creature owner = _owner.ToCreature();
             if (owner == null)
             {
-                Log.outError(LogFilter.Movement, $"MotionMaster::MoveTargetedHome: '{_owner.GetGUID()}', attempted to move towards target home.");
+                Log.outError(LogFilter.Movement, $"MotionMaster::MoveTargetedHome: '{_owner.GUID}', attempted to move towards target home.");
                 return;
             }
 
             Clear();
 
-            Unit target = owner.GetCharmerOrOwner();
+            Unit target = owner.CharmerOrOwner;
             if (target == null)
                 Add(new HomeMovementGenerator<Creature>());
             else
@@ -590,15 +590,15 @@ namespace Game.Movement
             if (!enemy)
                 return;
 
-            if (_owner.IsCreature())
+            if (_owner.IsCreature)
             {
                 if (time != 0)
-                    Add(new TimedFleeingMovementGenerator(enemy.GetGUID(), time));
+                    Add(new TimedFleeingMovementGenerator(enemy.GUID, time));
                 else
-                    Add(new FleeingMovementGenerator<Creature>(enemy.GetGUID()));
+                    Add(new FleeingMovementGenerator<Creature>(enemy.GUID));
             }
             else
-                Add(new FleeingMovementGenerator<Player>(enemy.GetGUID()));
+                Add(new FleeingMovementGenerator<Player>(enemy.GUID));
         }
 
         public void MovePoint(uint id, Position pos, bool generatePath = true, float? finalOrient = null, float speed = 0, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)
@@ -627,7 +627,7 @@ namespace Game.Movement
                 var initializer = (MoveSplineInit init) =>
                 {
                     init.MoveTo(_owner.Location.X, _owner.Location.Y, _owner.Location.Z);
-                    Unit refreshedTarget = Global.ObjAccessor.GetUnit(_owner, target.GetGUID());
+                    Unit refreshedTarget = Global.ObjAccessor.GetUnit(_owner, target.GUID);
                     if (refreshedTarget != null)
                         init.SetFacing(refreshedTarget);
                 };
@@ -749,7 +749,7 @@ namespace Game.Movement
 
         public void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
         {
-            Log.outDebug(LogFilter.Server, "Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", _owner.GetGUID().ToString(), x, y, z);
+            Log.outDebug(LogFilter.Server, "Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", _owner.GUID.ToString(), x, y, z);
             if (speedXY < 0.01f)
                 return;
 
@@ -783,7 +783,7 @@ namespace Game.Movement
 
         public void MoveJumpWithGravity(Position pos, float speedXY, float gravity, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
         {
-            Log.outDebug(LogFilter.Movement, $"MotionMaster.MoveJumpWithGravity: '{_owner.GetGUID()}', jumps to point Id: {id} ({pos})");
+            Log.outDebug(LogFilter.Movement, $"MotionMaster.MoveJumpWithGravity: '{_owner.GUID}', jumps to point Id: {id} ({pos})");
             if (speedXY < 0.01f)
                 return;
 
@@ -881,13 +881,13 @@ namespace Game.Movement
             Creature owner = _owner.ToCreature();
             if (!owner)
             {
-                Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GetGUID().ToString());
+                Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GUID.ToString());
                 return;
             }
             List<SplineChainLink> chain = Global.ScriptMgr.GetSplineChain(owner, (byte)dbChainId);
             if (chain.Empty())
             {
-                Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: creature with entry {0} tried to walk along non-existing spline chain with DB id {1}.", owner.GetEntry(), dbChainId);
+                Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: creature with entry {0} tried to walk along non-existing spline chain with DB id {1}.", owner.Entry, dbChainId);
                 return;
             }
             MoveAlongSplineChain(pointId, chain, walk);
@@ -902,7 +902,7 @@ namespace Game.Movement
         {
             if (info.Empty())
             {
-                Log.outError(LogFilter.Movement, "MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", _owner.GetEntry());
+                Log.outError(LogFilter.Movement, "MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", _owner.Entry);
                 return;
             }
 
@@ -949,23 +949,23 @@ namespace Game.Movement
             Creature creature = _owner.ToCreature();
             if (creature != null)
             {
-                Log.outDebug(LogFilter.Movement, $"MotionMaster::MoveSeekAssistance: '{creature.GetGUID()}', seeks assistance (X: {x}, Y: {y}, Z: {z})");
+                Log.outDebug(LogFilter.Movement, $"MotionMaster::MoveSeekAssistance: '{creature.GUID}', seeks assistance (X: {x}, Y: {y}, Z: {z})");
                 creature.AttackStop();
                 creature.CastStop();
                 creature.DoNotReacquireSpellFocusTarget();
-                creature.SetReactState(ReactStates.Passive);
+                creature.                ReactState = ReactStates.Passive;
                 Add(new AssistanceMovementGenerator(EventId.AssistMove, x, y, z));
             }
             else
-                Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistance: {_owner.GetGUID()}, attempted to seek assistance");
+                Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistance: {_owner.GUID}, attempted to seek assistance");
         }
 
         public void MoveSeekAssistanceDistract(uint time)
         {
-            if (_owner.IsCreature())
+            if (_owner.IsCreature)
                 Add(new AssistanceDistractMovementGenerator(time, _owner.Location.Orientation));
             else
-                Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistanceDistract: {_owner.GetGUID()} attempted to call distract after assistance");
+                Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistanceDistract: {_owner.GUID} attempted to call distract after assistance");
         }
 
         public void MoveTaxiFlight(uint path, uint pathnode)
@@ -974,7 +974,7 @@ namespace Game.Movement
             {
                 if (path < CliDB.TaxiPathNodesByPath.Count)
                 {
-                    Log.outDebug(LogFilter.Server, $"MotionMaster::MoveTaxiFlight: {_owner.GetGUID()} taxi to Path Id: {path} (node {pathnode})");
+                    Log.outDebug(LogFilter.Server, $"MotionMaster::MoveTaxiFlight: {_owner.GUID} taxi to Path Id: {path} (node {pathnode})");
 
                     // Only one FLIGHT_MOTION_TYPE is allowed
                     bool hasExisting = HasMovementGenerator(gen => gen.GetMovementGeneratorType() == MovementGeneratorType.Flight);
@@ -985,11 +985,11 @@ namespace Game.Movement
                     Add(movement);
                 }
                 else
-                    Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GetGUID()}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
+                    Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
 
             }
             else
-                Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GetGUID()}', attempted taxi to path Id: {path} (node: {pathnode})");
+                Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
         }
 
         public void MoveDistract(uint timer, float orientation)
@@ -1025,7 +1025,7 @@ namespace Game.Movement
 
         public void MoveFormation(Unit leader, float range, float angle, uint point1, uint point2)
         {
-            if (_owner.GetTypeId() == TypeId.Unit && leader != null)
+            if (_owner.TypeId == TypeId.Unit && leader != null)
                 Add(new FormationMovementGenerator(leader, range, angle, point1, point2), MovementSlot.Default);
         }
 
@@ -1033,7 +1033,7 @@ namespace Game.Movement
         {
             if (IsInvalidMovementGeneratorType(type))
             {
-                Log.outDebug(LogFilter.Movement, $"MotionMaster::LaunchMoveSpline: '{_owner.GetGUID()}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
+                Log.outDebug(LogFilter.Movement, $"MotionMaster::LaunchMoveSpline: '{_owner.GUID}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
                 return;
             }
 

@@ -28,7 +28,7 @@ namespace Game.PvP
 
         public virtual void HandlePlayerEnterZone(Player player, uint zone)
         {
-            m_players[player.GetTeamId()].Add(player.GetGUID());
+            m_players[player.TeamId].Add(player.GUID);
         }
 
         public virtual void HandlePlayerLeaveZone(Player player, uint zone)
@@ -37,9 +37,9 @@ namespace Game.PvP
             foreach (var pair in m_capturePoints)
                 pair.Value.HandlePlayerLeave(player);
             // remove the world state information from the player (we can't keep everyone up to date, so leave out those who are not in the concerning zones)
-            if (!player.GetSession().PlayerLogout())
+            if (!player.Session.PlayerLogout)
                 SendRemoveWorldStates(player);
-            m_players[player.GetTeamId()].Remove(player.GetGUID());
+            m_players[player.TeamId].Remove(player.GUID);
             Log.outDebug(LogFilter.Outdoorpvp, "Player {0} left an outdoorpvp zone", player.GetName());
         }
 
@@ -158,7 +158,7 @@ namespace Game.PvP
 
         public bool HasPlayer(Player player)
         {
-            return m_players[player.GetTeamId()].Contains(player.GetGUID());
+            return m_players[player.TeamId].Contains(player.GUID);
         }
 
         public void TeamCastSpell(uint teamIndex, int spellId)
@@ -179,7 +179,7 @@ namespace Game.PvP
         public void TeamApplyBuff(uint teamIndex, uint spellId, uint spellId2)
         {
             TeamCastSpell(teamIndex, (int)spellId);
-            TeamCastSpell((uint)(teamIndex == TeamId.Alliance ? TeamId.Horde : TeamId.Alliance), spellId2 != 0 ? -(int)spellId2 : -(int)spellId);
+            TeamCastSpell((uint)(teamIndex == TeamIds.Alliance ? TeamIds.Horde : TeamIds.Alliance), spellId2 != 0 ? -(int)spellId2 : -(int)spellId);
         }
 
         public override void OnGameObjectCreate(GameObject go)
@@ -261,7 +261,7 @@ namespace Game.PvP
     {
         public OPvPCapturePoint(OutdoorPvP pvp)
         {
-            m_team = TeamId.Neutral;
+            m_team = TeamIds.Neutral;
             OldState = ObjectiveStates.Neutral;
             State = ObjectiveStates.Neutral;
             PvP = pvp;
@@ -278,14 +278,14 @@ namespace Game.PvP
                 player.SendUpdateWorldState(m_capturePoint.GetGoInfo().ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
                 player.SendUpdateWorldState(m_capturePoint.GetGoInfo().ControlZone.worldstate3, m_neutralValuePct);
             }
-            return m_activePlayers[player.GetTeamId()].Add(player.GetGUID());
+            return m_activePlayers[player.TeamId].Add(player.GUID);
         }
 
         public virtual void HandlePlayerLeave(Player player)
         {
             if (m_capturePoint)
                 player.SendUpdateWorldState(m_capturePoint.GetGoInfo().ControlZone.worldState1, 0);
-            m_activePlayers[player.GetTeamId()].Remove(player.GetGUID());
+            m_activePlayers[player.TeamId].Remove(player.GUID);
         }
 
         public virtual void SendChangePhase()
@@ -348,7 +348,7 @@ namespace Game.PvP
             {
                 if (player.IsOutdoorPvPActive())
                 {
-                    if (m_activePlayers[player.GetTeamId()].Add(player.GetGUID()))
+                    if (m_activePlayers[player.TeamId].Add(player.GUID))
                         HandlePlayerEnter(player);
                 }
             }
@@ -358,7 +358,7 @@ namespace Game.PvP
             if (fact_diff == 0.0f)
                 return false;
 
-            Team Challenger;
+            TeamFaction Challenger;
             float maxDiff = m_maxSpeed * diff;
 
             if (fact_diff < 0)
@@ -370,7 +370,7 @@ namespace Game.PvP
                 if (fact_diff < -maxDiff)
                     fact_diff = -maxDiff;
 
-                Challenger = Team.Horde;
+                Challenger = TeamFaction.Horde;
             }
             else
             {
@@ -381,7 +381,7 @@ namespace Game.PvP
                 if (fact_diff > maxDiff)
                     fact_diff = maxDiff;
 
-                Challenger = Team.Alliance;
+                Challenger = TeamFaction.Alliance;
             }
 
             float oldValue = m_value;
@@ -396,33 +396,33 @@ namespace Game.PvP
                 if (m_value < -m_maxValue)
                     m_value = -m_maxValue;
                 State = ObjectiveStates.Horde;
-                m_team = TeamId.Horde;
+                m_team = TeamIds.Horde;
             }
             else if (m_value > m_minValue) // blue
             {
                 if (m_value > m_maxValue)
                     m_value = m_maxValue;
                 State = ObjectiveStates.Alliance;
-                m_team = TeamId.Alliance;
+                m_team = TeamIds.Alliance;
             }
             else if (oldValue * m_value <= 0) // grey, go through mid point
             {
                 // if challenger is ally, then n.a challenge
-                if (Challenger == Team.Alliance)
+                if (Challenger == TeamFaction.Alliance)
                     State = ObjectiveStates.NeutralAllianceChallenge;
                 // if challenger is horde, then n.h challenge
-                else if (Challenger == Team.Horde)
+                else if (Challenger == TeamFaction.Horde)
                     State = ObjectiveStates.NeutralHordeChallenge;
-                m_team = TeamId.Neutral;
+                m_team = TeamIds.Neutral;
             }
             else // grey, did not go through mid point
             {
                 // old phase and current are on the same side, so one team challenges the other
-                if (Challenger == Team.Alliance && (OldState == ObjectiveStates.Horde || OldState == ObjectiveStates.NeutralHordeChallenge))
+                if (Challenger == TeamFaction.Alliance && (OldState == ObjectiveStates.Horde || OldState == ObjectiveStates.NeutralHordeChallenge))
                     State = ObjectiveStates.HordeAllianceChallenge;
-                else if (Challenger == Team.Horde && (OldState == ObjectiveStates.Alliance || OldState == ObjectiveStates.NeutralAllianceChallenge))
+                else if (Challenger == TeamFaction.Horde && (OldState == ObjectiveStates.Alliance || OldState == ObjectiveStates.NeutralAllianceChallenge))
                     State = ObjectiveStates.AllianceHordeChallenge;
-                m_team = TeamId.Neutral;
+                m_team = TeamIds.Neutral;
             }
 
             if (m_value != oldValue)
@@ -479,8 +479,8 @@ namespace Game.PvP
 
         public bool IsInsideObjective(Player player)
         {
-            var plSet = m_activePlayers[player.GetTeamId()];
-            return plSet.Contains(player.GetGUID());
+            var plSet = m_activePlayers[player.TeamId];
+            return plSet.Contains(player.GUID);
         }
 
         public virtual bool HandleCustomSpell(Player player, uint spellId, GameObject go)

@@ -23,18 +23,19 @@ namespace Game.Chat
             if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
                 return false;
 
-            target.GetSceneMgr().CancelSceneByPackageId(sceneScriptPackageId);
+            target.
+            SceneMgr.CancelSceneByPackageId(sceneScriptPackageId);
             return true;
         }
 
         [Command("debug", RBACPermissions.CommandSceneDebug)]
         static bool HandleDebugSceneCommand(CommandHandler handler)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             if (player)
             {
-                player.GetSceneMgr().ToggleDebugSceneMode();
-                handler.SendSysMessage(player.GetSceneMgr().IsInDebugSceneMode() ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
+                player.                SceneMgr.ToggleDebugSceneMode();
+                handler.SendSysMessage(player.SceneMgr.IsInDebugSceneMode() ? CypherStrings.CommandSceneDebugOn : CypherStrings.CommandSceneDebugOff);
             }
 
             return true;
@@ -53,7 +54,8 @@ namespace Game.Chat
             if (Global.ObjectMgr.GetSceneTemplate(sceneId) == null)
                 return false;
 
-            target.GetSceneMgr().PlayScene(sceneId);
+            target.
+            SceneMgr.PlayScene(sceneId);
             return true;
         }
 
@@ -70,7 +72,8 @@ namespace Game.Chat
             if (!CliDB.SceneScriptPackageStorage.HasRecord(sceneScriptPackageId))
                 return false;
 
-            target.GetSceneMgr().PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));
+            target.
+            SceneMgr.PlaySceneByPackageId(sceneScriptPackageId, flags.GetValueOrDefault(0));
             return true;
         }
     }

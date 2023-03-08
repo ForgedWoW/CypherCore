@@ -11,7 +11,7 @@ public class RespawnDo : IDoWork<WorldObject>
 {
 	public void Invoke(WorldObject obj)
 	{
-		switch (obj.GetTypeId())
+		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
 				obj.ToCreature().Respawn();

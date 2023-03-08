@@ -10,7 +10,7 @@ namespace Game.DataStorage
 {
     public class WhoListPlayerInfo
     {
-        public WhoListPlayerInfo(ObjectGuid guid, Team team, AccountTypes security, uint level, Class clss, Race race, uint zoneid, byte gender, bool visible, bool gamemaster, string playerName, string guildName, ObjectGuid guildguid)
+        public WhoListPlayerInfo(ObjectGuid guid, TeamFaction team, AccountTypes security, uint level, Class clss, Race race, uint zoneid, byte gender, bool visible, bool gamemaster, string playerName, string guildName, ObjectGuid guildguid)
         {
             Guid = guid;
             Team = team;
@@ -28,7 +28,7 @@ namespace Game.DataStorage
         }
 
         public ObjectGuid Guid { get; }
-        public Team Team { get; }
+        public TeamFaction Team { get; }
         public AccountTypes Security { get; }
         public uint Level { get; }
         public byte Class { get; }
@@ -59,21 +59,21 @@ namespace Game.DataStorage
             var players = Global.ObjAccessor.GetPlayers();
             foreach (var player in players)
             {
-                if (player.GetMap() == null || player.GetSession().PlayerLoading())
+                if (player.GetMap() == null || player.Session.PlayerLoading)
                     continue;
 
                 string playerName = player.GetName();
-                string guildName = Global.GuildMgr.GetGuildNameById((uint)player.GetGuildId());
+                string guildName = Global.GuildMgr.GetGuildNameById((uint)player.GuildId);
 
-                Guild guild = player.GetGuild();
+                Guild guild = player.Guild;
                 ObjectGuid guildGuid = ObjectGuid.Empty;
 
                 if (guild)
                     guildGuid = guild.GetGUID();
 
-                _whoListStorage.Add(new WhoListPlayerInfo(player.GetGUID(), player.GetTeam(), player.GetSession().GetSecurity(), player.GetLevel(),
-                    player.GetClass(), player.GetRace(), player.GetZoneId(), (byte)player.GetNativeGender(), player.IsVisible(),
-                    player.IsGameMaster(), playerName, guildName, guildGuid));
+                _whoListStorage.Add(new WhoListPlayerInfo(player.GUID, player.Team, player.Session.Security, player.Level,
+                    player.                    Class, player.Race, player.GetZoneId(), (byte)player.NativeGender, player.IsVisible(),
+                    player.                    IsGameMaster, playerName, guildName, guildGuid));
             }
         }
 

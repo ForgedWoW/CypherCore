@@ -63,7 +63,7 @@ internal class boss_romogg_bonecrusher : BossAI
 
 	public override void KilledUnit(Unit who)
 	{
-		if (who.IsPlayer())
+		if (who.IsPlayer)
 			Talk(TextIds.YellKill);
 	}
 

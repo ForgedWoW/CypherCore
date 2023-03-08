@@ -76,7 +76,7 @@ namespace Game.BattleGrounds.Zones
                             // create new occupied banner
                             _CreateBanner(node, ABNodeStatus.Occupied, teamIndex, true);
                             _SendNodeUpdate(node);
-                            _NodeOccupied(node, (teamIndex == TeamId.Alliance) ? Team.Alliance : Team.Horde);
+                            _NodeOccupied(node, (teamIndex == TeamIds.Alliance) ? TeamFaction.Alliance : TeamFaction.Horde);
                             // Message to chatlog
 
                             if (teamIndex == 0)
@@ -115,23 +115,23 @@ namespace Game.BattleGrounds.Zones
 
                         if (m_ReputationScoreTics[team] >= m_ReputationTics)
                         {
-                            if (team == TeamId.Alliance)
-                                RewardReputationToTeam(509, 10, Team.Alliance);
+                            if (team == TeamIds.Alliance)
+                                RewardReputationToTeam(509, 10, TeamFaction.Alliance);
                             else
-                                RewardReputationToTeam(510, 10, Team.Horde);
+                                RewardReputationToTeam(510, 10, TeamFaction.Horde);
 
                             m_ReputationScoreTics[team] -= m_ReputationTics;
                         }
 
                         if (m_HonorScoreTics[team] >= m_HonorTics)
                         {
-                            RewardHonorToTeam(GetBonusHonorFromKill(1), (team == TeamId.Alliance) ? Team.Alliance : Team.Horde);
+                            RewardHonorToTeam(GetBonusHonorFromKill(1), (team == TeamIds.Alliance) ? TeamFaction.Alliance : TeamFaction.Horde);
                             m_HonorScoreTics[team] -= m_HonorTics;
                         }
 
                         if (!m_IsInformedNearVictory && m_TeamScores[team] > WarningNearVictoryScore)
                         {
-                            if (team == TeamId.Alliance)
+                            if (team == TeamIds.Alliance)
                             {
                                 SendBroadcastText(ABBattlegroundBroadcastTexts.AllianceNearVictory, ChatMsg.BgSystemNeutral);
                                 PlaySoundToAll(SoundNearVictoryAlliance);
@@ -147,7 +147,7 @@ namespace Game.BattleGrounds.Zones
                         if (m_TeamScores[team] > MaxTeamScore)
                             m_TeamScores[team] = MaxTeamScore;
 
-                        if (team == TeamId.Alliance)
+                        if (team == TeamIds.Alliance)
                             UpdateWorldState(ABWorldStates.ResourcesAlly, (int)m_TeamScores[team]);
                         else
                             UpdateWorldState(ABWorldStates.ResourcesHorde, (int)m_TeamScores[team]);
@@ -156,7 +156,7 @@ namespace Game.BattleGrounds.Zones
                         int otherTeam = (team + 1) % SharedConst.PvpTeamsCount;
                         if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                         {
-                            if (team == TeamId.Alliance)
+                            if (team == TeamIds.Alliance)
                                 UpdateWorldState(ABWorldStates.Had500DisadvantageHorde, 1);
                             else
                                 UpdateWorldState(ABWorldStates.Had500DisadvantageAlliance, 1);
@@ -165,10 +165,10 @@ namespace Game.BattleGrounds.Zones
                 }
 
                 // Test win condition
-                if (m_TeamScores[TeamId.Alliance] >= MaxTeamScore)
-                    EndBattleground(Team.Alliance);
-                else if (m_TeamScores[TeamId.Horde] >= MaxTeamScore)
-                    EndBattleground(Team.Horde);
+                if (m_TeamScores[TeamIds.Alliance] >= MaxTeamScore)
+                    EndBattleground(TeamFaction.Alliance);
+                else if (m_TeamScores[TeamIds.Horde] >= MaxTeamScore)
+                    EndBattleground(TeamFaction.Horde);
             }
         }
 
@@ -187,8 +187,8 @@ namespace Game.BattleGrounds.Zones
             SpawnBGObject(ABObjectTypes.GateH, BattlegroundConst.RespawnImmediately);
 
             // Starting base spirit guides
-            _NodeOccupied(ABBattlegroundNodes.SpiritAliance, Team.Alliance);
-            _NodeOccupied(ABBattlegroundNodes.SpiritHorde, Team.Horde);
+            _NodeOccupied(ABBattlegroundNodes.SpiritAliance, TeamFaction.Alliance);
+            _NodeOccupied(ABBattlegroundNodes.SpiritHorde, TeamFaction.Horde);
         }
 
         public override void StartingEventOpenDoors()
@@ -211,13 +211,13 @@ namespace Game.BattleGrounds.Zones
 
         public override void AddPlayer(Player player)
         {
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundABScore(player.GetGUID(), player.GetBgTeam());
+                PlayerScores[player.GUID] = new BattlegroundABScore(player.GUID, player.GetBgTeam());
         }
 
-        public override void RemovePlayer(Player Player, ObjectGuid guid, Team team)
+        public override void RemovePlayer(Player Player, ObjectGuid guid, TeamFaction team)
         {
         }
 
@@ -336,7 +336,7 @@ namespace Game.BattleGrounds.Zones
             UpdateWorldState(ABWorldStates.OccupiedBasesHorde, horde);
         }
 
-        void _NodeOccupied(byte node, Team team)
+        void _NodeOccupied(byte node, TeamFaction team)
         {
             if (!AddSpiritGuide(node, SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
                 Log.outError(LogFilter.Battleground, "Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
@@ -354,7 +354,7 @@ namespace Game.BattleGrounds.Zones
             if (capturedNodes >= 4)
                 CastSpellOnTeam(BattlegroundConst.AbQuestReward4Bases, team);
 
-            Creature trigger = !BgCreatures[node + 7].IsEmpty() ? GetBGCreature(node + 7) : null; // 0-6 spirit guides
+            Creature trigger = !BgCreatures[node + 7].IsEmpty ? GetBGCreature(node + 7) : null; // 0-6 spirit guides
             if (!trigger)
                 trigger = AddCreature(SharedConst.WorldTrigger, node + 7, NodePositions[node], GetTeamIndexByTeamId(team));
 
@@ -363,7 +363,7 @@ namespace Game.BattleGrounds.Zones
             //aura should only apply to players who have accupied the node, set correct faction for trigger
             if (trigger)
             {
-                trigger.SetFaction(team == Team.Alliance ? 84u : 83u);
+                trigger.                Faction = team == TeamFaction.Alliance ? 84u : 83u;
                 trigger.CastSpell(trigger, BattlegroundConst.SpellHonorableDefender25y, false);
             }
         }
@@ -404,7 +404,7 @@ namespace Game.BattleGrounds.Zones
                 return;
             }
 
-            int teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(source.GetGUID()));
+            int teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(source.GUID));
 
             // Check if player really could use this banner, not cheated
             if (!(m_Nodes[node] == 0 || teamIndex == (int)m_Nodes[node] % 2))
@@ -426,7 +426,7 @@ namespace Game.BattleGrounds.Zones
                 m_NodeTimers[node] = FlagCapturingTime;
 
                 // FIXME: team and node names not localized
-                if (teamIndex == TeamId.Alliance)
+                if (teamIndex == TeamIds.Alliance)
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextAllianceClaims, ChatMsg.BgSystemAlliance, source);
                 else
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextHordeClaims, ChatMsg.BgSystemHorde, source);
@@ -449,7 +449,7 @@ namespace Game.BattleGrounds.Zones
                     _SendNodeUpdate(node);
                     m_NodeTimers[node] = FlagCapturingTime;
 
-                    if (teamIndex == TeamId.Alliance)
+                    if (teamIndex == TeamIds.Alliance)
                         SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextAllianceAssaulted, ChatMsg.BgSystemAlliance, source);
                     else
                         SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextHordeAssaulted, ChatMsg.BgSystemHorde, source);
@@ -466,14 +466,14 @@ namespace Game.BattleGrounds.Zones
                     _CreateBanner(node, ABNodeStatus.Occupied, (byte)teamIndex, true);
                     _SendNodeUpdate(node);
                     m_NodeTimers[node] = 0;
-                    _NodeOccupied(node, (teamIndex == TeamId.Alliance) ? Team.Alliance : Team.Horde);
+                    _NodeOccupied(node, (teamIndex == TeamIds.Alliance) ? TeamFaction.Alliance : TeamFaction.Horde);
 
-                    if (teamIndex == TeamId.Alliance)
+                    if (teamIndex == TeamIds.Alliance)
                         SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextAllianceDefended, ChatMsg.BgSystemAlliance, source);
                     else
                         SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextHordeDefended, ChatMsg.BgSystemHorde, source);
                 }
-                sound = (teamIndex == TeamId.Alliance) ? SoundAssaultedAlliance : SoundAssaultedHorde;
+                sound = (teamIndex == TeamIds.Alliance) ? SoundAssaultedAlliance : SoundAssaultedHorde;
             }
             // If node is occupied, change to enemy-contested
             else
@@ -489,19 +489,19 @@ namespace Game.BattleGrounds.Zones
                 _NodeDeOccupied(node);
                 m_NodeTimers[node] = FlagCapturingTime;
 
-                if (teamIndex == TeamId.Alliance)
+                if (teamIndex == TeamIds.Alliance)
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextAllianceAssaulted, ChatMsg.BgSystemAlliance, source);
                 else
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextHordeAssaulted, ChatMsg.BgSystemHorde, source);
 
-                sound = (teamIndex == TeamId.Alliance) ? SoundAssaultedAlliance : SoundAssaultedHorde;
+                sound = (teamIndex == TeamIds.Alliance) ? SoundAssaultedAlliance : SoundAssaultedHorde;
             }
 
             // If node is occupied again, send "X has taken the Y" msg.
             if (m_Nodes[node] >= ABNodeStatus.Occupied)
             {
                 // FIXME: team and node names not localized
-                if (teamIndex == TeamId.Alliance)
+                if (teamIndex == TeamIds.Alliance)
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextAllianceTaken, ChatMsg.BgSystemAlliance);
                 else
                     SendBroadcastText(ABBattlegroundBroadcastTexts.ABNodes[node].TextHordeTaken, ChatMsg.BgSystemHorde);
@@ -509,7 +509,7 @@ namespace Game.BattleGrounds.Zones
             PlaySoundToAll(sound);
         }
 
-        public override Team GetPrematureWinner()
+        public override TeamFaction GetPrematureWinner()
         {
             // How many bases each team owns
             byte ally = 0, horde = 0;
@@ -520,9 +520,9 @@ namespace Game.BattleGrounds.Zones
                     ++horde;
 
             if (ally > horde)
-                return Team.Alliance;
+                return TeamFaction.Alliance;
             else if (horde > ally)
-                return Team.Horde;
+                return TeamFaction.Horde;
 
             // If the values are equal, fall back to the original result (based on number of players on each team)
             return base.GetPrematureWinner();
@@ -602,23 +602,23 @@ namespace Game.BattleGrounds.Zones
             }
         }
 
-        public override void EndBattleground(Team winner)
+        public override void EndBattleground(TeamFaction winner)
         {
             // Win reward
-            if (winner == Team.Alliance)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Alliance);
-            if (winner == Team.Horde)
-                RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Horde);
+            if (winner == TeamFaction.Alliance)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Alliance);
+            if (winner == TeamFaction.Horde)
+                RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Horde);
             // Complete map_end rewards (even if no team wins)
-            RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Horde);
-            RewardHonorToTeam(GetBonusHonorFromKill(1), Team.Alliance);
+            RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Horde);
+            RewardHonorToTeam(GetBonusHonorFromKill(1), TeamFaction.Alliance);
 
             base.EndBattleground(winner);
         }
 
         public override WorldSafeLocsEntry GetClosestGraveYard(Player player)
         {
-            int teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player.GetGUID()));
+            int teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player.GUID));
 
             // Is there any occupied node for this team?
             List<byte> nodes = new();
@@ -655,9 +655,9 @@ namespace Game.BattleGrounds.Zones
             return good_entry;
         }
 
-        public override WorldSafeLocsEntry GetExploitTeleportLocation(Team team)
+        public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
         {
-            return Global.ObjectMgr.GetWorldSafeLoc(team == Team.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+            return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
         }
 
         public override bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)
@@ -773,7 +773,7 @@ namespace Game.BattleGrounds.Zones
 
     class BattlegroundABScore : BattlegroundScore
     {
-        public BattlegroundABScore(ObjectGuid playerGuid, Team team) : base(playerGuid, team)
+        public BattlegroundABScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
         {
             BasesAssaulted = 0;
             BasesDefended = 0;

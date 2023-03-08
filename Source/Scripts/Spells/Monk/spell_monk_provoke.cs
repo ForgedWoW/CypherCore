@@ -28,7 +28,7 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 
 	public SpellCastResult CheckCast()
 	{
-		if (ExplTargetUnit.GetEntry() != BlackOxStatusEntry)
+		if (ExplTargetUnit.Entry != BlackOxStatusEntry)
 		{
 			var singleTarget = Global.SpellMgr.GetSpellInfo(MonkSpells.ProvokeSingleTarget, CastDifficulty);
 			var singleTargetExplicitResult = singleTarget.CheckExplicitTarget(Caster, ExplTargetUnit);
@@ -36,7 +36,7 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 			if (singleTargetExplicitResult != SpellCastResult.SpellCastOk)
 				return singleTargetExplicitResult;
 		}
-		else if (ExplTargetUnit.GetOwnerGUID() != Caster.GetGUID())
+		else if (ExplTargetUnit.OwnerGUID != Caster.GUID)
 		{
 			return SpellCastResult.BadTargets;
 		}
@@ -53,7 +53,7 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 	{
 		PreventHitDefaultEffect(effIndex);
 
-		if (HitUnit.GetEntry() != BlackOxStatusEntry)
+		if (HitUnit.Entry != BlackOxStatusEntry)
 			Caster.CastSpell(HitUnit, MonkSpells.ProvokeSingleTarget, true);
 		else
 			Caster.CastSpell(HitUnit, MonkSpells.ProvokeAoe, true);

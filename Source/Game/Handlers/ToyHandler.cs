@@ -14,7 +14,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.AddToy)]
         void HandleAddToy(AddToy packet)
         {
-            if (packet.Guid.IsEmpty())
+            if (packet.Guid.IsEmpty)
                 return;
 
             Item item = _player.GetItemByGuid(packet.Guid);
@@ -24,7 +24,7 @@ namespace Game
                 return;
             }
 
-            if (!Global.DB2Mgr.IsToyItem(item.GetEntry()))
+            if (!Global.DB2Mgr.IsToyItem(item.Entry))
                 return;
 
             InventoryResult msg = _player.CanUseItem(item);
@@ -34,7 +34,7 @@ namespace Game
                 return;
             }
 
-            if (_collectionMgr.AddToy(item.GetEntry(), false, false))
+            if (_collectionMgr.AddToy(item.Entry, false, false))
                 _player.DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
         }
 
@@ -60,7 +60,7 @@ namespace Game
                 return;
             }
 
-            if (_player.IsPossessing())
+            if (_player.IsPossessing)
                 return;
 
             SpellCastTargets targets = new(_player, packet.Cast);

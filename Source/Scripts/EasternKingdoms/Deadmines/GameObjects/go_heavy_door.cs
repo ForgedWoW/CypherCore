@@ -24,9 +24,9 @@ public class go_heavy_door : GameObjectAI
 		creature_list.Sort(new ObjectDistanceOrderPred(me));
 
 		foreach (var creature in creature_list)
-			if (creature && creature.IsAlive() && creature.GetTypeId() == TypeId.Unit && creature.HasAura(78087))
+			if (creature && creature.IsAlive && creature.TypeId == TypeId.Unit && creature.HasAura(78087))
 			{
-				creature.GetMotionMaster().MoveCharge(me.Location.X, me.Location.Y, me.Location.Z, 5.0f);
+				creature.MotionMaster.MoveCharge(me.Location.X, me.Location.Y, me.Location.Z, 5.0f);
 				creature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
 				creature.GetAI().Talk(0);
 			}

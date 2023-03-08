@@ -33,7 +33,7 @@ internal class spell_gen_create_lance : SpellScript, IHasSpellEffects
 
 		if (target)
 		{
-			if (target.GetTeam() == Team.Alliance)
+			if (target.Team == TeamFaction.Alliance)
 				Caster.CastSpell(target, GenericSpellIds.CreateLanceAlliance, true);
 			else
 				Caster.CastSpell(target, GenericSpellIds.CreateLanceHorde, true);

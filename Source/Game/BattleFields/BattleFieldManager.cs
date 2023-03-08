@@ -90,7 +90,7 @@ namespace Game.BattleFields
                 return;
 
             bf.HandlePlayerEnterZone(player, zoneId);
-            Log.outDebug(LogFilter.Battlefield, "Player {0} entered battlefield id {1}", player.GetGUID().ToString(), bf.GetTypeId());
+            Log.outDebug(LogFilter.Battlefield, "Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
         }
 
         public void HandlePlayerLeaveZone(Player player, uint zoneId)
@@ -104,7 +104,7 @@ namespace Game.BattleFields
                 return;
 
             bf.HandlePlayerLeaveZone(player, zoneId);
-            Log.outDebug(LogFilter.Battlefield, "Player {0} left battlefield id {1}", player.GetGUID().ToString(), bf.GetTypeId());
+            Log.outDebug(LogFilter.Battlefield, "Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
         }
 
         public bool IsWorldPvpArea(uint zoneId)

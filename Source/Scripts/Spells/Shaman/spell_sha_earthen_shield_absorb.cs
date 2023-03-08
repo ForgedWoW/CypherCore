@@ -35,7 +35,7 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || !caster.IsTotem())
+		if (caster == null || !caster.IsTotem)
 			return absorbAmount;
 
 		var owner = caster.GetOwner();

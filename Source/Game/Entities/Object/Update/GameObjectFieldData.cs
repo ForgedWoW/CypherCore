@@ -244,6 +244,6 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 
 	sbyte GetViewerGameObjectState(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
 	{
-		return (sbyte)gameObject.GetGoStateFor(receiver.GetGUID());
+		return (sbyte)gameObject.GetGoStateFor(receiver.GUID);
 	}
 }

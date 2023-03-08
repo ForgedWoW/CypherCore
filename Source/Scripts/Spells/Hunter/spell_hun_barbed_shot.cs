@@ -18,7 +18,7 @@ public class spell_hun_barbed_shot : SpellScript, ISpellOnCast
 		{
 			caster.CastSpell(caster, HunterSpells.BARBED_SHOT_PLAYERAURA, true);
 
-			if (caster.IsPlayer())
+			if (caster.IsPlayer)
 			{
 				Unit pet = caster.GetGuardianPet();
 

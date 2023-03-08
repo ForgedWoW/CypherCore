@@ -28,7 +28,7 @@ internal class spell_item_toy_train_set_pulse : SpellScript, IHasSpellEffects
 		if (target)
 		{
 			target.HandleEmoteCommand(Emote.OneshotTrain);
-			var soundEntry = Global.DB2Mgr.GetTextSoundEmoteFor((uint)TextEmotes.Train, target.GetRace(), target.GetNativeGender(), target.GetClass());
+			var soundEntry = Global.DB2Mgr.GetTextSoundEmoteFor((uint)TextEmotes.Train, target.Race, target.NativeGender, target.Class);
 
 			if (soundEntry != null)
 				target.PlayDistanceSound(soundEntry.SoundId);

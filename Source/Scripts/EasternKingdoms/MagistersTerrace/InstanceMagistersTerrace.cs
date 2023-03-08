@@ -157,7 +157,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 		{
 			base.OnCreatureCreate(creature);
 
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case CreatureIds.CoilskarWitch:
 				case CreatureIds.SunbladeWarlock:
@@ -166,7 +166,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 				case CreatureIds.EthereumSmuggler:
 				case CreatureIds.SunbladeBloodKnight:
 					if (creature.GetDistance(MiscConst.KaelthasTrashGroupDistanceComparisonPos) < 10.0f)
-						_kaelthasPreTrashGUIDs.Add(creature.GetGUID());
+						_kaelthasPreTrashGUIDs.Add(creature.GUID);
 
 					break;
 				default:
@@ -176,10 +176,10 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
 		public override void OnUnitDeath(Unit unit)
 		{
-			if (!unit.IsCreature())
+			if (!unit.IsCreature)
 				return;
 
-			switch (unit.GetEntry())
+			switch (unit.Entry)
 			{
 				case CreatureIds.CoilskarWitch:
 				case CreatureIds.SunbladeWarlock:
@@ -187,9 +187,9 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 				case CreatureIds.SisterOfTorment:
 				case CreatureIds.EthereumSmuggler:
 				case CreatureIds.SunbladeBloodKnight:
-					if (_kaelthasPreTrashGUIDs.Contains(unit.GetGUID()))
+					if (_kaelthasPreTrashGUIDs.Contains(unit.GUID))
 					{
-						_kaelthasPreTrashGUIDs.Remove(unit.GetGUID());
+						_kaelthasPreTrashGUIDs.Remove(unit.GUID);
 
 						if (_kaelthasPreTrashGUIDs.Count == 0)
 						{
@@ -210,7 +210,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 		{
 			base.OnGameObjectCreate(go);
 
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectIds.EscapeOrb:
 					if (GetBossState(DataTypes.KaelthasSunstrider) == EncounterState.Done)
@@ -240,7 +240,7 @@ internal class instance_magisters_terrace : InstanceMapScript, IInstanceMapGetIn
 
 				if (kalecgos)
 				{
-					kalecgos.GetMotionMaster().MovePath(MiscConst.PathKalecgosFlight, false);
+					kalecgos.MotionMaster.MovePath(MiscConst.PathKalecgosFlight, false);
 					kalecgos.GetAI().Talk(MiscConst.SayKalecgosSpawn);
 				}
 			}

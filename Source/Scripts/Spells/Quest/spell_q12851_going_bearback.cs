@@ -34,7 +34,7 @@ internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
 			var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
 
 			if (player)
-				switch (target.GetEntry())
+				switch (target.Entry)
 				{
 					case CreatureIds.Frostworg:
 						target.CastSpell(player, QuestSpellIds.FrostworgCredit, true);

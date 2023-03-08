@@ -35,7 +35,7 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 	{
 		var caster = Caster;
 
-		var enabler = caster.GetAuraEffect(DeathKnightSpells.DeathStrikeEnabler, 0, Caster.GetGUID());
+		var enabler = caster.GetAuraEffect(DeathKnightSpells.DeathStrikeEnabler, 0, Caster.GUID);
 
 		if (enabler != null)
 		{

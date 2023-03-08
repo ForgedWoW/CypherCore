@@ -26,7 +26,7 @@ public class spell_warr_shield_slam : SpellScript, IHasSpellEffects
 	private void HandleDispel(int effIndex)
 	{
 		// 6.0.3 HOTFIX: Shield Slam modified by Glyph of Shield Slam now only dispels 1 magical effect while the Warrior is in Defensive Stance.
-		if (Caster.GetShapeshiftForm() != ShapeShiftForm.DefensiveStance)
+		if (Caster.ShapeshiftForm != ShapeShiftForm.DefensiveStance)
 			PreventHitDefaultEffect(effIndex);
 	}
 

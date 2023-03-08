@@ -38,7 +38,7 @@ public class boss_foe_reaper_5000 : BossAI
 			return;
 
 		_Reset();
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.SetPower(PowerType.Energy, 100);
 		me.SetMaxPower(PowerType.Energy, 100);
 		me.SetPowerType(PowerType.Energy);
@@ -66,7 +66,7 @@ public class boss_foe_reaper_5000 : BossAI
 			if (prototype != null)
 			{
 				prototype.SetFullHealth();
-				_prototypeGUID = prototype.GetGUID();
+				_prototypeGUID = prototype.GUID;
 			}
 		}
 	}
@@ -143,7 +143,7 @@ public class boss_foe_reaper_5000 : BossAI
 		reapers.Sort(new ObjectDistanceOrderPred(me));
 
 		foreach (var reaper in reapers)
-			if (reaper && reaper.GetTypeId() == TypeId.Unit)
+			if (reaper && reaper.TypeId == TypeId.Unit)
 				reaper.DespawnOrUnsummon();
 	}
 
@@ -189,7 +189,7 @@ public class boss_foe_reaper_5000 : BossAI
 		if (HarvestTarget != null)
 		{
 			me.SetSpeed(UnitMoveType.Run, 3.0f);
-			me.GetMotionMaster().MoveCharge(HarvestTarget.Location.X, HarvestTarget.Location.Y, HarvestTarget.Location.Z, 5.0f, 0);
+			me.MotionMaster.MoveCharge(HarvestTarget.Location.X, HarvestTarget.Location.Y, HarvestTarget.Location.Z, 5.0f, 0);
 			HarvestTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(8500));
 		}
 	}
@@ -221,7 +221,7 @@ public class boss_foe_reaper_5000 : BossAI
 					me.TextEmote(MONSTER_SLAG, null, true);
 					me.SetHealth(me.GetMaxHealth());
 					DoZoneInCombat();
-					me.SetReactState(ReactStates.Aggressive);
+					me.ReactState = ReactStates.Aggressive;
 					me.RemoveUnitFlag(UnitFlags.NonAttackable);
 					me.RemoveUnitFlag(UnitFlags.ImmuneToPc);
 					me.RemoveUnitFlag(UnitFlags.Stunned);

@@ -18,8 +18,8 @@ public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckP
 		if (actor == null)
 			return false;
 
-		if (actor.IsPet() ||
-			actor.IsGuardian())
+		if (actor.IsPet ||
+			actor.IsGuardian)
 		{
 			var owner = actor.GetOwner();
 

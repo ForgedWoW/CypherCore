@@ -74,18 +74,18 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			switch (creature.GetEntry())
+			switch (creature.Entry)
 			{
 				case BossIds.Argaloth:
-					ArgalothGUID = creature.GetGUID();
+					ArgalothGUID = creature.GUID;
 
 					break;
 				case BossIds.Occuthar:
-					OccutharGUID = creature.GetGUID();
+					OccutharGUID = creature.GUID;
 
 					break;
 				case BossIds.Alizabal:
-					AlizabalGUID = creature.GetGUID();
+					AlizabalGUID = creature.GUID;
 
 					break;
 			}
@@ -93,7 +93,7 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
 
 		public override void OnGameObjectCreate(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectIds.ArgalothDoor:
 				case GameObjectIds.OccutharDoor:
@@ -123,7 +123,7 @@ internal class instance_baradin_hold : InstanceMapScript, IInstanceMapGetInstanc
 
 		public override void OnGameObjectRemove(GameObject go)
 		{
-			switch (go.GetEntry())
+			switch (go.Entry)
 			{
 				case GameObjectIds.ArgalothDoor:
 				case GameObjectIds.OccutharDoor:

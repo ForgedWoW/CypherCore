@@ -41,7 +41,7 @@ internal class spell_dk_dancing_rune_weapon : AuraScript, IHasAuraEffects
 		Unit drw = null;
 
 		foreach (var controlled in caster.Controlled)
-			if (controlled.GetEntry() == CreatureIds.DancingRuneWeapon)
+			if (controlled.Entry == CreatureIds.DancingRuneWeapon)
 			{
 				drw = controlled;
 

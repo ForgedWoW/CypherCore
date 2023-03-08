@@ -13,7 +13,7 @@ public class spell_dk_army_periodic_taunt : SpellScript, ISpellCheckCast
 {
 	public override bool Load()
 	{
-		return Caster.IsGuardian();
+		return Caster.IsGuardian;
 	}
 
 	public SpellCastResult CheckCast()

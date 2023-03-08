@@ -29,6 +29,6 @@ public class spell_dh_artifact_inner_demons : AuraScript, IHasAuraEffects
 		if (caster == null || target == null)
 			return;
 
-		caster.VariableStorage.Set("Spells.InnerDemonsTarget", target.GetGUID());
+		caster.VariableStorage.Set("Spells.InnerDemonsTarget", target.GUID);
 	}
 }

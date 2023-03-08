@@ -407,16 +407,16 @@ internal class spell_item_brewfest_mount_transformation : SpellScript, IHasSpell
 			{
 				case SpellIds.BrewfestMountTransform:
 					if (caster.GetSpeedRate(UnitMoveType.Run) >= 2.0f)
-						spell_id = caster.GetTeam() == Team.Alliance ? SpellIds.MountRam100 : SpellIds.MountKodo100;
+						spell_id = caster.Team == TeamFaction.Alliance ? SpellIds.MountRam100 : SpellIds.MountKodo100;
 					else
-						spell_id = caster.GetTeam() == Team.Alliance ? SpellIds.MountRam60 : SpellIds.MountKodo60;
+						spell_id = caster.Team == TeamFaction.Alliance ? SpellIds.MountRam60 : SpellIds.MountKodo60;
 
 					break;
 				case SpellIds.BrewfestMountTransformReverse:
 					if (caster.GetSpeedRate(UnitMoveType.Run) >= 2.0f)
-						spell_id = caster.GetTeam() == Team.Horde ? SpellIds.MountRam100 : SpellIds.MountKodo100;
+						spell_id = caster.Team == TeamFaction.Horde ? SpellIds.MountRam100 : SpellIds.MountKodo100;
 					else
-						spell_id = caster.GetTeam() == Team.Horde ? SpellIds.MountRam60 : SpellIds.MountKodo60;
+						spell_id = caster.Team == TeamFaction.Horde ? SpellIds.MountRam60 : SpellIds.MountKodo60;
 
 					break;
 				default:

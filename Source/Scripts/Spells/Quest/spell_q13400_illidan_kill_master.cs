@@ -29,7 +29,7 @@ internal class spell_q13400_illidan_kill_master : SpellScript, IHasSpellEffects
 	{
 		var caster = Caster;
 
-		if (caster.IsVehicle())
+		if (caster.IsVehicle)
 		{
 			var passenger = caster.GetVehicleKit().GetPassenger(0);
 

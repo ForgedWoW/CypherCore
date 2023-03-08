@@ -36,7 +36,7 @@ public class at_pri_power_word_barrier : AreaTriggerAI
 		if (!caster.ToPlayer())
 			return;
 
-		if (unit.HasAura(PriestSpells.POWER_WORD_BARRIER_BUFF, caster.GetGUID()))
-			unit.RemoveAurasDueToSpell(PriestSpells.POWER_WORD_BARRIER_BUFF, caster.GetGUID());
+		if (unit.HasAura(PriestSpells.POWER_WORD_BARRIER_BUFF, caster.GUID))
+			unit.RemoveAurasDueToSpell(PriestSpells.POWER_WORD_BARRIER_BUFF, caster.GUID);
 	}
 }

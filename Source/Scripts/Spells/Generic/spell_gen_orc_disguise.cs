@@ -32,7 +32,7 @@ internal class spell_gen_orc_disguise : SpellScript, IHasSpellEffects
 
 		if (target)
 		{
-			var gender = target.GetNativeGender();
+			var gender = target.NativeGender;
 
 			if (gender == Gender.Male)
 				caster.CastSpell(target, GenericSpellIds.OrcDisguiseMale, true);

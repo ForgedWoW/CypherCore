@@ -22,7 +22,7 @@ public class AllCreaturesOfEntryInRange : ICheck<Creature>
 	public bool Invoke(Creature creature)
 	{
 		if (_uiEntry != 0)
-			if (creature.GetEntry() != _uiEntry)
+			if (creature.Entry != _uiEntry)
 				return false;
 
 		if (_fRange != 0f)

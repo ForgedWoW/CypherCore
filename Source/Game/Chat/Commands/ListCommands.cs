@@ -37,7 +37,7 @@ namespace Game.Chat.Commands
 
             if (handler.GetSession() != null)
             {
-                Player player = handler.GetSession().GetPlayer();
+                Player player = handler.GetSession().Player;
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM creature WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
                                 player.Location.X, player.Location.Y, player.Location.Z, creatureId, count);
             }
@@ -59,14 +59,14 @@ namespace Game.Chat.Commands
                     // Get map (only support base map from console)
                     Map thisMap = null;
                     if (handler.GetSession() != null)
-                        thisMap = handler.GetSession().GetPlayer().GetMap();
+                        thisMap = handler.GetSession().Player.GetMap();
 
                     // If map found, try to find active version of this creature
                     if (thisMap)
                     {
                         var creBounds = thisMap.GetCreatureBySpawnIdStore().LookupByKey(guid);
                         foreach (var creature in creBounds)
-                            handler.SendSysMessage(CypherStrings.CreatureListChat, guid, guid, cInfo.Name, x, y, z, mapId, creature.GetGUID().ToString(), creature.IsAlive() ? "*" : " ");
+                            handler.SendSysMessage(CypherStrings.CreatureListChat, guid, guid, cInfo.Name, x, y, z, mapId, creature.GUID.ToString(), creature.IsAlive ? "*" : " ");
                         liveFound = !creBounds.Empty();
                     }
 
@@ -267,7 +267,7 @@ namespace Game.Chat.Commands
                 return false;
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_COUNT);
-            stmt.AddValue(0, player.GetGUID().GetCounter());
+            stmt.AddValue(0, player.GetGUID().Counter);
             SQLResult result = DB.Characters.Query(stmt);
             if (!result.IsEmpty())
             {
@@ -278,7 +278,7 @@ namespace Game.Chat.Commands
                 handler.SendSysMessage(CypherStrings.AccountListBar);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_INFO);
-                stmt.AddValue(0, player.GetGUID().GetCounter());
+                stmt.AddValue(0, player.GetGUID().Counter);
                 SQLResult result1 = DB.Characters.Query(stmt);
 
                 if (!result1.IsEmpty())
@@ -329,7 +329,7 @@ namespace Game.Chat.Commands
                                             if (handler.GetSession() != null)
                                             {
                                                 uint color = ItemConst.ItemQualityColors[(int)itemTemplate.GetQuality()];
-                                                string itemStr = $"|c{color}|Hitem:{item_entry}:0:0:0:0:0:0:0:{handler.GetSession().GetPlayer().GetLevel()}:0:0:0:0:0|h[{itemTemplate.GetName(handler.GetSessionDbcLocale())}]|h|r";
+                                                string itemStr = $"|c{color}|Hitem:{item_entry}:0:0:0:0:0:0:0:{handler.GetSession().Player.Level}:0:0:0:0:0|h[{itemTemplate.GetName(handler.GetSessionDbcLocale())}]|h|r";
                                                 handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemStr, item_entry, item_guid, item_count);
                                             }
                                             else
@@ -376,7 +376,7 @@ namespace Game.Chat.Commands
 
             if (handler.GetSession() != null)
             {
-                Player player = handler.GetSession().GetPlayer();
+                Player player = handler.GetSession().Player;
                 result = DB.World.Query("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE id = '{3}' ORDER BY order_ ASC LIMIT {4}",
                     player.Location.X, player.Location.Y, player.Location.Z, gameObjectId, count);
             }
@@ -399,14 +399,14 @@ namespace Game.Chat.Commands
                     // Get map (only support base map from console)
                     Map thisMap = null;
                     if (handler.GetSession() != null)
-                        thisMap = handler.GetSession().GetPlayer().GetMap();
+                        thisMap = handler.GetSession().Player.GetMap();
 
                     // If map found, try to find active version of this object
                     if (thisMap)
                     {
                         var goBounds = thisMap.GetGameObjectBySpawnIdStore().LookupByKey(guid);
                         foreach (var go in goBounds)
-                            handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, go.GetGUID().ToString(), go.IsSpawned() ? "*" : " ");
+                            handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, go.GUID.ToString(), go.IsSpawned() ? "*" : " ");
                         liveFound = !goBounds.Empty();
                     }
 
@@ -429,10 +429,10 @@ namespace Game.Chat.Commands
         [Command("respawns", RBACPermissions.CommandListRespawns)]
         static bool HandleListRespawnsCommand(CommandHandler handler, uint? range)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             Map map = player.GetMap();
 
-            Locale locale = handler.GetSession().GetSessionDbcLocale();
+            Locale locale = handler.GetSession().SessionDbcLocale;
             string stringOverdue = Global.ObjectMgr.GetCypherString(CypherStrings.ListRespawnsOverdue, locale);
 
             uint zoneId = player.GetZoneId();
@@ -485,7 +485,7 @@ namespace Game.Chat.Commands
         {
             Player target = handler.GetSelectedPlayer();
             if (!target)
-                target = handler.GetSession().GetPlayer();
+                target = handler.GetSession().Player;
 
             if (!target)
             {
@@ -493,9 +493,9 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            var instanceByPackageMap = target.GetSceneMgr().GetSceneTemplateByInstanceMap();
+            var instanceByPackageMap = target.SceneMgr.GetSceneTemplateByInstanceMap();
 
-            handler.SendSysMessage(CypherStrings.DebugSceneObjectList, target.GetSceneMgr().GetActiveSceneCount());
+            handler.SendSysMessage(CypherStrings.DebugSceneObjectList, target.SceneMgr.GetActiveSceneCount());
 
             foreach (var instanceByPackage in instanceByPackageMap)
                 handler.SendSysMessage(CypherStrings.DebugSceneObjectDetail, instanceByPackage.Value.ScenePackageId, instanceByPackage.Key);
@@ -506,7 +506,7 @@ namespace Game.Chat.Commands
         [Command("spawnpoints", RBACPermissions.CommandListSpawnpoints)]
         static bool HandleListSpawnPointsCommand(CommandHandler handler)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             Map map = player.GetMap();
             uint mapId = map.GetId();
             bool showAll = map.IsBattlegroundOrArena() || map.IsDungeon();
@@ -596,7 +596,7 @@ namespace Game.Chat.Commands
                     handler.SendSysMessage(CypherStrings.CommandTargetAuradetail, aura.Id, (handler.GetSession() != null ? ss_name : name),
                         aurApp.EffectMask, aura.Charges, aura.StackAmount, aurApp.Slot,
                         aura.Duration, aura.MaxDuration, (aura.IsPassive ? passiveStr : ""),
-                        (talent ? talentStr : ""), aura.CasterGuid.IsPlayer() ? "player" : "creature",
+                        (talent ? talentStr : ""), aura.CasterGuid.IsPlayer ? "player" : "creature",
                         aura.CasterGuid.ToString());
                 }
 

@@ -15,10 +15,10 @@ public class at_shattered_soul_fragment : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		if (unit != at.GetCaster() || !unit.IsPlayer() || unit.ToPlayer().GetClass() != Class.DemonHunter)
+		if (unit != at.GetCaster() || !unit.IsPlayer || unit.ToPlayer().Class != Class.DemonHunter)
 			return;
 
-		switch (at.GetEntry())
+		switch (at.Entry)
 		{
 			case 10665:
 				if (at.GetCaster().ToPlayer().GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)

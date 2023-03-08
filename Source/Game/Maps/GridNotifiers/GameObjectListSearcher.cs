@@ -18,7 +18,7 @@ public class GameObjectListSearcher : IGridNotifierGameObject
 
 	public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_objects = objects;
 		_check = check;
 		GridType = gridType;

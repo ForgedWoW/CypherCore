@@ -59,7 +59,7 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
 			if (targ == null)
 				return true;
 
-			return !(targ.HasAura(PriestSpells.SHADOW_WORD_PAIN, caster.GetGUID()) || targ.HasAura(PriestSpells.VAMPIRIC_TOUCH, caster.GetGUID()));
+			return !(targ.HasAura(PriestSpells.SHADOW_WORD_PAIN, caster.GUID) || targ.HasAura(PriestSpells.VAMPIRIC_TOUCH, caster.GUID));
 		});
 	}
 

@@ -39,11 +39,11 @@ internal class spell_defender_of_azeroth_death_gate_selector : SpellScript, IHas
 			player.GetQuestStatus(QuestIds.DefenderOfAzerothHorde) == QuestStatus.None)
 			return;
 
-		(WorldLocation Loc, uint AreaId) bindLoc = player.GetTeam() == Team.Alliance ? StormwindInnLoc : OrgrimmarInnLoc;
+		(WorldLocation Loc, uint AreaId) bindLoc = player.Team == TeamFaction.Alliance ? StormwindInnLoc : OrgrimmarInnLoc;
 		player.SetHomebind(bindLoc.Loc, bindLoc.AreaId);
 		player.SendBindPointUpdate();
-		player.SendPlayerBound(player.GetGUID(), bindLoc.AreaId);
+		player.SendPlayerBound(player.GUID, bindLoc.AreaId);
 
-		player.CastSpell(player, player.GetTeam() == Team.Alliance ? GenericSpellIds.DeathGateTeleportStormwind : GenericSpellIds.DeathGateTeleportOrgrimmar);
+		player.CastSpell(player, player.Team == TeamFaction.Alliance ? GenericSpellIds.DeathGateTeleportStormwind : GenericSpellIds.DeathGateTeleportOrgrimmar);
 	}
 }

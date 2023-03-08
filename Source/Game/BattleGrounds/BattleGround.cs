@@ -89,7 +89,7 @@ namespace Game.BattleGrounds
                 //      should be used instead of current
                 // ]]
                 // Battleground Template instance cannot be updated, because it would be deleted
-                if (GetInvitedCount(Team.Horde) == 0 && GetInvitedCount(Team.Alliance) == 0)
+                if (GetInvitedCount(TeamFaction.Horde) == 0 && GetInvitedCount(TeamFaction.Alliance) == 0)
                     m_SetDeleteThis = true;
                 return;
             }
@@ -118,7 +118,7 @@ namespace Game.BattleGrounds
                     else
                     {
                         _ProcessRessurect(diff);
-                        if (Global.BattlegroundMgr.GetPrematureFinishTime() != 0 && (GetPlayersCountByTeam(Team.Alliance) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(Team.Horde) < GetMinPlayersPerTeam()))
+                        if (Global.BattlegroundMgr.GetPrematureFinishTime() != 0 && (GetPlayersCountByTeam(TeamFaction.Alliance) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(TeamFaction.Horde) < GetMinPlayersPerTeam()))
                             _ProcessProgress(diff);
                         else if (m_PrematureCountDown)
                             m_PrematureCountDown = false;
@@ -158,7 +158,7 @@ namespace Game.BattleGrounds
                     Player player = Global.ObjAccessor.FindPlayer(guid);
                     if (player)
                     {
-                        if (player.IsGameMaster())
+                        if (player.IsGameMaster)
                             continue;
 
                         Position pos = player.Location;
@@ -269,13 +269,13 @@ namespace Game.BattleGrounds
             }
         }
 
-        public virtual Team GetPrematureWinner()
+        public virtual TeamFaction GetPrematureWinner()
         {
-            Team winner = 0;
-            if (GetPlayersCountByTeam(Team.Alliance) >= GetMinPlayersPerTeam())
-                winner = Team.Alliance;
-            else if (GetPlayersCountByTeam(Team.Horde) >= GetMinPlayersPerTeam())
-                winner = Team.Horde;
+            TeamFaction winner = 0;
+            if (GetPlayersCountByTeam(TeamFaction.Alliance) >= GetMinPlayersPerTeam())
+                winner = TeamFaction.Alliance;
+            else if (GetPlayersCountByTeam(TeamFaction.Horde) >= GetMinPlayersPerTeam())
+                winner = TeamFaction.Horde;
 
             return winner;
         }
@@ -421,7 +421,7 @@ namespace Game.BattleGrounds
 
                             player.RemoveAura(BattlegroundConst.SpellArenaPreparation);
                             player.ResetAllPowers();
-                            if (!player.IsGameMaster())
+                            if (!player.IsGameMaster)
                             {
                                 // remove auras with duration lower than 30s
                                 player.GetAppliedAurasQuery().IsPermanent(false).IsPositive().AlsoMatches(aurApp =>
@@ -495,14 +495,14 @@ namespace Game.BattleGrounds
             return _GetPlayer(pair.Key, pair.Value.OfflineRemoveTime != 0, context);
         }
 
-        Player _GetPlayerForTeam(Team teamId, KeyValuePair<ObjectGuid, BattlegroundPlayer> pair, string context)
+        Player _GetPlayerForTeam(TeamFaction teamId, KeyValuePair<ObjectGuid, BattlegroundPlayer> pair, string context)
         {
             Player player = _GetPlayer(pair, context);
             if (player)
             {
-                Team team = pair.Value.Team;
+                TeamFaction team = pair.Value.Team;
                 if (team == 0)
-                    team = player.GetEffectiveTeam();
+                    team = player.EffectiveTeam;
                 if (team != teamId)
                     player = null;
             }
@@ -517,7 +517,7 @@ namespace Game.BattleGrounds
 
         public WorldSafeLocsEntry GetTeamStartPosition(int teamId)
         {
-            Cypher.Assert(teamId < TeamId.Neutral);
+            Cypher.Assert(teamId < TeamIds.Neutral);
             return _battlegroundTemplate.StartLocation[teamId];
         }
 
@@ -536,7 +536,7 @@ namespace Game.BattleGrounds
             }
         }
 
-        void SendPacketToTeam(Team team, ServerPacket packet, Player except = null)
+        void SendPacketToTeam(TeamFaction team, ServerPacket packet, Player except = null)
         {
             foreach (var pair in m_Players)
             {
@@ -572,12 +572,12 @@ namespace Game.BattleGrounds
             SendPacketToAll(new PlaySound(ObjectGuid.Empty, soundID, 0));
         }
 
-        void PlaySoundToTeam(uint soundID, Team team)
+        void PlaySoundToTeam(uint soundID, TeamFaction team)
         {
             SendPacketToTeam(team, new PlaySound(ObjectGuid.Empty, soundID, 0));
         }
 
-        public void CastSpellOnTeam(uint SpellID, Team team)
+        public void CastSpellOnTeam(uint SpellID, TeamFaction team)
         {
             foreach (var pair in m_Players)
             {
@@ -587,7 +587,7 @@ namespace Game.BattleGrounds
             }
         }
 
-        void RemoveAuraOnTeam(uint SpellID, Team team)
+        void RemoveAuraOnTeam(uint SpellID, TeamFaction team)
         {
             foreach (var pair in m_Players)
             {
@@ -597,7 +597,7 @@ namespace Game.BattleGrounds
             }
         }
 
-        public void RewardHonorToTeam(uint Honor, Team team)
+        public void RewardHonorToTeam(uint Honor, TeamFaction team)
         {
             foreach (var pair in m_Players)
             {
@@ -607,7 +607,7 @@ namespace Game.BattleGrounds
             }
         }
 
-        public void RewardReputationToTeam(uint faction_id, uint Reputation, Team team)
+        public void RewardReputationToTeam(uint faction_id, uint Reputation, TeamFaction team)
         {
             FactionRecord factionEntry = CliDB.FactionStorage.LookupByKey(faction_id);
             if (factionEntry == null)
@@ -625,7 +625,7 @@ namespace Game.BattleGrounds
                 uint repGain = Reputation;
                 MathFunctions.AddPct(ref repGain, player.GetTotalAuraModifier(AuraType.ModReputationGain));
                 MathFunctions.AddPct(ref repGain, player.GetTotalAuraModifierByMiscValue(AuraType.ModFactionReputationGain, (int)faction_id));
-                player.GetReputationMgr().ModifyReputation(factionEntry, (int)repGain);
+                player.                ReputationMgr.ModifyReputation(factionEntry, (int)repGain);
             }
         }
 
@@ -639,13 +639,13 @@ namespace Game.BattleGrounds
             Global.WorldStateMgr.SetValue((int)worldStateId, value, hidden, GetBgMap());
         }
 
-        public virtual void EndBattleground(Team winner)
+        public virtual void EndBattleground(TeamFaction winner)
         {
             RemoveFromBGFreeSlotQueue();
 
             bool guildAwarded = false;
 
-            if (winner == Team.Alliance)
+            if (winner == TeamFaction.Alliance)
             {
                 if (IsBattleground())
                     SendBroadcastText(BattlegroundBroadcastTexts.AllianceWins, ChatMsg.BgSystemNeutral);
@@ -653,7 +653,7 @@ namespace Game.BattleGrounds
                 PlaySoundToAll((uint)BattlegroundSounds.AllianceWins);
                 SetWinner(PvPTeamId.Alliance);
             }
-            else if (winner == Team.Horde)
+            else if (winner == TeamFaction.Horde)
             {
                 if (IsBattleground())
                     SendBroadcastText(BattlegroundBroadcastTexts.HordeWins, ChatMsg.BgSystemNeutral);
@@ -696,7 +696,7 @@ namespace Game.BattleGrounds
 
             foreach (var pair in m_Players)
             {
-                Team team = pair.Value.Team;
+                TeamFaction team = pair.Value.Team;
 
                 Player player = _GetPlayer(pair, "EndBattleground");
                 if (!player)
@@ -706,7 +706,7 @@ namespace Game.BattleGrounds
                 if (player.HasAuraType(AuraType.SpiritOfRedemption))
                     player.RemoveAurasByType(AuraType.ModShapeshift);
 
-                if (!player.IsAlive())
+                if (!player.IsAlive)
                 {
                     player.ResurrectPlayer(1.0f);
                     player.SpawnCorpseBones();
@@ -727,10 +727,10 @@ namespace Game.BattleGrounds
                 if (IsBattleground() && WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
-                    var score = PlayerScores.LookupByKey(player.GetGUID());
+                    var score = PlayerScores.LookupByKey(player.GUID);
 
                     stmt.AddValue(0, battlegroundId);
-                    stmt.AddValue(1, player.GetGUID().GetCounter());
+                    stmt.AddValue(1, player.GUID.Counter);
                     stmt.AddValue(2, team == winner);
                     stmt.AddValue(3, score.KillingBlows);
                     stmt.AddValue(4, score.Deaths);
@@ -814,7 +814,7 @@ namespace Game.BattleGrounds
 
         public virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket)
         {
-            Team team = GetPlayerTeam(guid);
+            TeamFaction team = GetPlayerTeam(guid);
             bool participant = false;
             // Remove from lists/maps
             var bgPlayer = m_Players.LookupByKey(guid);
@@ -846,7 +846,7 @@ namespace Game.BattleGrounds
                 player.RemoveAura(BattlegroundConst.SpellMercenaryShapeshift);
                 player.RemovePlayerFlagEx(PlayerFlagsEx.MercenaryMode);
 
-                if (!player.IsAlive())                              // resurrect on exit
+                if (!player.IsAlive)                              // resurrect on exit
                 {
                     player.ResurrectPlayer(1.0f);
                     player.SpawnCorpseBones();
@@ -959,7 +959,7 @@ namespace Game.BattleGrounds
             Global.BattlegroundMgr.AddBattleground(this);
 
             if (m_IsRated)
-                Log.outDebug(LogFilter.Arena, "Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", m_ArenaType, m_ArenaTeamIds[TeamId.Alliance], m_ArenaTeamIds[TeamId.Horde]);
+                Log.outDebug(LogFilter.Arena, "Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", m_ArenaType, m_ArenaTeamIds[TeamIds.Alliance], m_ArenaTeamIds[TeamIds.Horde]);
         }
 
         public void TeleportPlayerToExploitLocation(Player player)
@@ -972,13 +972,13 @@ namespace Game.BattleGrounds
         public virtual void AddPlayer(Player player)
         {
             // remove afk from player
-            if (player.IsAFK())
+            if (player.IsAFK)
                 player.ToggleAFK();
 
             // score struct must be created in inherited class
 
-            ObjectGuid guid = player.GetGUID();
-            Team team = player.GetBgTeam();
+            ObjectGuid guid = player.GUID;
+            TeamFaction team = player.GetBgTeam();
 
             BattlegroundPlayer bp = new();
             bp.OfflineRemoveTime = 0;
@@ -986,7 +986,7 @@ namespace Game.BattleGrounds
             bp.ActiveSpec = (int)player.GetPrimarySpecialization();
             bp.Mercenary = player.IsMercenaryForBattlegroundQueueType(GetQueueId());
 
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             // Add to list/maps
             m_Players[guid] = bp;
 
@@ -994,7 +994,7 @@ namespace Game.BattleGrounds
                 UpdatePlayersCountByTeam(team, false);                  // +1 player
 
             BattlegroundPlayerJoined playerJoined = new();
-            playerJoined.Guid = player.GetGUID();
+            playerJoined.Guid = player.GUID;
             SendPacketToTeam(team, playerJoined, player);
 
             PVPMatchInitialize pvpMatchInitialize = new();
@@ -1021,7 +1021,7 @@ namespace Game.BattleGrounds
                 pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds;
                 pvpMatchInitialize.StartTime = GameTime.GetGameTime() - pvpMatchInitialize.Duration;
             }
-            pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == Team.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
+            pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
             pvpMatchInitialize.BattlemasterListID = (uint)GetTypeID();
             pvpMatchInitialize.Registered = false;
             pvpMatchInitialize.AffectsRating = IsRated();
@@ -1061,12 +1061,12 @@ namespace Game.BattleGrounds
 
                 if (bp.Mercenary)
                 {
-                    if (bp.Team == Team.Horde)
+                    if (bp.Team == TeamFaction.Horde)
                     {
                         player.CastSpell(player, BattlegroundConst.SpellMercenaryHorde1, true);
                         player.CastSpell(player, BattlegroundConst.SpellMercenaryHordeReactions, true);
                     }
-                    else if (bp.Team == Team.Alliance)
+                    else if (bp.Team == TeamFaction.Alliance)
                     {
                         player.CastSpell(player, BattlegroundConst.SpellMercenaryAlliance1, true);
                         player.CastSpell(player, BattlegroundConst.SpellMercenaryAllianceReactions, true);
@@ -1087,9 +1087,9 @@ namespace Game.BattleGrounds
         }
 
         // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
-        public void AddOrSetPlayerToCorrectBgGroup(Player player, Team team)
+        public void AddOrSetPlayerToCorrectBgGroup(Player player, TeamFaction team)
         {
-            ObjectGuid playerGuid = player.GetGUID();
+            ObjectGuid playerGuid = player.GUID;
             Group group = GetBgRaid(team);
             if (!group)                                      // first player joined
             {
@@ -1121,7 +1121,7 @@ namespace Game.BattleGrounds
         // This method should be called when player logs into running Battleground
         public void EventPlayerLoggedIn(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             // player is correct pointer
             foreach (var id in m_OfflineQueue)
             {
@@ -1140,12 +1140,12 @@ namespace Game.BattleGrounds
         // This method should be called when player logs out from running Battleground
         public void EventPlayerLoggedOut(Player player)
         {
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             if (!IsPlayerInBattleground(guid))  // Check if this player really is in Battleground (might be a GM who teleported inside)
                 return;
 
             // player is correct pointer, it is checked in WorldSession.LogoutPlayer()
-            m_OfflineQueue.Add(player.GetGUID());
+            m_OfflineQueue.Add(player.GUID);
             m_Players[guid].OfflineRemoveTime = GameTime.GetGameTime() + BattlegroundConst.MaxOfflineTime;
             if (GetStatus() == BattlegroundStatus.InProgress)
             {
@@ -1153,7 +1153,7 @@ namespace Game.BattleGrounds
                 RemovePlayer(player, guid, GetPlayerTeam(guid));
 
                 // 1 player is logging out, if it is the last alive, then end arena!
-                if (IsArena() && player.IsAlive())
+                if (IsArena() && player.IsAlive)
                     if (GetAlivePlayersCountByTeam(player.GetBgTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player.GetBgTeam())) != 0)
                         EndBattleground(GetOtherTeam(player.GetBgTeam()));
             }
@@ -1181,7 +1181,7 @@ namespace Game.BattleGrounds
 
         // get the number of free slots for team
         // returns the number how many players can join Battleground to MaxPlayersPerTeam
-        public uint GetFreeSlotsForTeam(Team Team)
+        public uint GetFreeSlotsForTeam(TeamFaction Team)
         {
             // if BG is starting and WorldCfg.BattlegroundInvitationType == BattlegroundQueueInvitationTypeB.NoBalance, invite anyone
             if (GetStatus() == BattlegroundStatus.WaitJoin && WorldConfig.GetIntValue(WorldCfg.BattlegroundInvitationType) == (int)BattlegroundQueueInvitationType.NoBalance)
@@ -1193,19 +1193,19 @@ namespace Game.BattleGrounds
             uint otherTeamPlayersCount;
             uint thisTeamPlayersCount;
 
-            if (Team == Team.Alliance)
+            if (Team == TeamFaction.Alliance)
             {
-                thisTeamInvitedCount = GetInvitedCount(Team.Alliance);
-                otherTeamInvitedCount = GetInvitedCount(Team.Horde);
-                thisTeamPlayersCount = GetPlayersCountByTeam(Team.Alliance);
-                otherTeamPlayersCount = GetPlayersCountByTeam(Team.Horde);
+                thisTeamInvitedCount = GetInvitedCount(TeamFaction.Alliance);
+                otherTeamInvitedCount = GetInvitedCount(TeamFaction.Horde);
+                thisTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Alliance);
+                otherTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Horde);
             }
             else
             {
-                thisTeamInvitedCount = GetInvitedCount(Team.Horde);
-                otherTeamInvitedCount = GetInvitedCount(Team.Alliance);
-                thisTeamPlayersCount = GetPlayersCountByTeam(Team.Horde);
-                otherTeamPlayersCount = GetPlayersCountByTeam(Team.Alliance);
+                thisTeamInvitedCount = GetInvitedCount(TeamFaction.Horde);
+                otherTeamInvitedCount = GetInvitedCount(TeamFaction.Alliance);
+                thisTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Horde);
+                otherTeamPlayersCount = GetPlayersCountByTeam(TeamFaction.Alliance);
             }
             if (GetStatus() == BattlegroundStatus.InProgress || GetStatus() == BattlegroundStatus.WaitJoin)
             {
@@ -1274,22 +1274,22 @@ namespace Game.BattleGrounds
                 {
                     playerData.IsInWorld = true;
                     playerData.PrimaryTalentTree = (int)player.GetPrimarySpecialization();
-                    playerData.Sex = (int)player.GetGender();
-                    playerData.PlayerRace = player.GetRace();
-                    playerData.PlayerClass = (int)player.GetClass();
+                    playerData.Sex = (int)player.Gender;
+                    playerData.PlayerRace = player.Race;
+                    playerData.PlayerClass = (int)player.Class;
                     playerData.HonorLevel = (int)player.GetHonorLevel();
                 }
 
                 pvpLogData.Statistics.Add(playerData);
             }
 
-            pvpLogData.PlayerCount[(int)PvPTeamId.Horde] = (sbyte)GetPlayersCountByTeam(Team.Horde);
-            pvpLogData.PlayerCount[(int)PvPTeamId.Alliance] = (sbyte)GetPlayersCountByTeam(Team.Alliance);
+            pvpLogData.PlayerCount[(int)PvPTeamId.Horde] = (sbyte)GetPlayersCountByTeam(TeamFaction.Horde);
+            pvpLogData.PlayerCount[(int)PvPTeamId.Alliance] = (sbyte)GetPlayersCountByTeam(TeamFaction.Alliance);
         }
 
         public virtual bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)
         {
-            var bgScore = PlayerScores.LookupByKey(player.GetGUID());
+            var bgScore = PlayerScores.LookupByKey(player.GUID);
             if (bgScore == null)  // player not found...
                 return false;
 
@@ -1383,7 +1383,7 @@ namespace Game.BattleGrounds
             if (!map.AddToMap(go))
                 return false;
 
-            BgObjects[type] = go.GetGUID();
+            BgObjects[type] = go.GUID;
             return true;
         }
 
@@ -1424,7 +1424,7 @@ namespace Game.BattleGrounds
 
         public GameObject GetBGObject(int type)
         {
-            if (BgObjects[type].IsEmpty())
+            if (BgObjects[type].IsEmpty)
                 return null;
 
             GameObject obj = GetBgMap().GetGameObject(BgObjects[type]);
@@ -1436,7 +1436,7 @@ namespace Game.BattleGrounds
 
         public Creature GetBGCreature(int type)
         {
-            if (BgCreatures[type].IsEmpty())
+            if (BgCreatures[type].IsEmpty)
                 return null;
 
             Creature creature = GetBgMap().GetCreature(BgCreatures[type]);
@@ -1484,7 +1484,7 @@ namespace Game.BattleGrounds
             }
         }
 
-        public virtual Creature AddCreature(uint entry, int type, float x, float y, float z, float o, int teamIndex = TeamId.Neutral, uint respawntime = 0, Transport transport = null)
+        public virtual Creature AddCreature(uint entry, int type, float x, float y, float z, float o, int teamIndex = TeamIds.Neutral, uint respawntime = 0, Transport transport = null)
         {
             Map map = FindBgMap();
             if (!map)
@@ -1502,7 +1502,7 @@ namespace Game.BattleGrounds
                 Creature transCreature = transport.SummonPassenger(entry, new Position(x, y, z, o), TempSummonType.ManualDespawn);
                 if (transCreature)
                 {
-                    BgCreatures[type] = transCreature.GetGUID();
+                    BgCreatures[type] = transCreature.GUID;
                     return transCreature;
                 }
 
@@ -1523,7 +1523,7 @@ namespace Game.BattleGrounds
             if (!map.AddToMap(creature))
                 return null;
 
-            BgCreatures[type] = creature.GetGUID();
+            BgCreatures[type] = creature.GUID;
 
             if (respawntime != 0)
                 creature.SetRespawnDelay(respawntime);
@@ -1531,14 +1531,14 @@ namespace Game.BattleGrounds
             return creature;
         }
 
-        public Creature AddCreature(uint entry, int type, Position pos, int teamIndex = TeamId.Neutral, uint respawntime = 0, Transport transport = null)
+        public Creature AddCreature(uint entry, int type, Position pos, int teamIndex = TeamIds.Neutral, uint respawntime = 0, Transport transport = null)
         {
             return AddCreature(entry, type, pos.X, pos.Y, pos.Z, pos.Orientation, teamIndex, respawntime, transport);
         }
 
         public bool DelCreature(int type)
         {
-            if (BgCreatures[type].IsEmpty())
+            if (BgCreatures[type].IsEmpty)
                 return true;
 
             Creature creature = GetBgMap().GetCreature(BgCreatures[type]);
@@ -1556,7 +1556,7 @@ namespace Game.BattleGrounds
 
         public bool DelObject(int type)
         {
-            if (BgObjects[type].IsEmpty())
+            if (BgObjects[type].IsEmpty)
                 return true;
 
             GameObject obj = GetBgMap().GetGameObject(BgObjects[type]);
@@ -1574,7 +1574,7 @@ namespace Game.BattleGrounds
 
         bool RemoveObjectFromWorld(uint type)
         {
-            if (BgObjects[type].IsEmpty())
+            if (BgObjects[type].IsEmpty)
                 return true;
 
             GameObject obj = GetBgMap().GetGameObject(BgObjects[type]);
@@ -1590,18 +1590,22 @@ namespace Game.BattleGrounds
 
         public bool AddSpiritGuide(int type, float x, float y, float z, float o, int teamIndex)
         {
-            uint entry = (uint)(teamIndex == TeamId.Alliance ? BattlegroundCreatures.A_SpiritGuide : BattlegroundCreatures.H_SpiritGuide);
+            uint entry = (uint)(teamIndex == TeamIds.Alliance ? BattlegroundCreatures.A_SpiritGuide : BattlegroundCreatures.H_SpiritGuide);
 
             Creature creature = AddCreature(entry, type, x, y, z, o);
             if (creature)
             {
                 creature.SetDeathState(DeathState.Dead);
-                creature.AddChannelObject(creature.GetGUID());
+                creature.AddChannelObject(creature.GUID);
                 // aura
                 //todo Fix display here
                 // creature.SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
                 // casting visual effect
-                creature.SetChannelSpellId(BattlegroundConst.SpellSpiritHealChannel);
+                creature.                // aura
+                //todo Fix display here
+                // creature.SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+                // casting visual effect
+                ChannelSpellId = BattlegroundConst.SpellSpiritHealChannel;
                 creature.SetChannelVisual(new SpellCastVisual(BattlegroundConst.SpellSpiritHealChannelVisual, 0));
                 //creature.CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
                 return true;
@@ -1611,7 +1615,7 @@ namespace Game.BattleGrounds
             return false;
         }
 
-        public bool AddSpiritGuide(int type, Position pos, int teamIndex = TeamId.Neutral)
+        public bool AddSpiritGuide(int type, Position pos, int teamIndex = TeamIds.Neutral)
         {
             return AddSpiritGuide(type, pos.X, pos.Y, pos.Z, pos.Orientation, teamIndex);
         }
@@ -1674,13 +1678,13 @@ namespace Game.BattleGrounds
                 index--;
             if (index < 0)
             {
-                Log.outError(LogFilter.Battleground, $"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.GetEntry()}, type: {obj.GetGoType()}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+                Log.outError(LogFilter.Battleground, $"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GetGoType()}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
                 return;
             }
 
             // Randomly select new buff
             int buff = RandomHelper.IRand(0, 2);
-            uint entry = obj.GetEntry();
+            uint entry = obj.Entry;
             if (m_BuffChange && entry != Buff_Entries[buff])
             {
                 // Despawn current buff
@@ -1712,7 +1716,7 @@ namespace Game.BattleGrounds
                 if (killer == victim)
                     return;
 
-                Team killerTeam = GetPlayerTeam(killer.GetGUID());
+                TeamFaction killerTeam = GetPlayerTeam(killer.GUID);
 
                 UpdatePlayerScore(killer, ScoreType.HonorableKills, 1);
                 UpdatePlayerScore(killer, ScoreType.KillingBlows, 1);
@@ -1739,7 +1743,7 @@ namespace Game.BattleGrounds
 
         // Return the player's team based on Battlegroundplayer info
         // Used in same faction arena matches mainly
-        public Team GetPlayerTeam(ObjectGuid guid)
+        public TeamFaction GetPlayerTeam(ObjectGuid guid)
         {
             var player = m_Players.LookupByKey(guid);
             if (player != null)
@@ -1747,16 +1751,16 @@ namespace Game.BattleGrounds
             return 0;
         }
 
-        public Team GetOtherTeam(Team teamId)
+        public TeamFaction GetOtherTeam(TeamFaction teamId)
         {
             switch (teamId)
             {
-                case Team.Alliance:
-                    return Team.Horde;
-                case Team.Horde:
-                    return Team.Alliance;
+                case TeamFaction.Alliance:
+                    return TeamFaction.Horde;
+                case TeamFaction.Horde:
+                    return TeamFaction.Alliance;
                 default:
-                    return Team.Other;
+                    return TeamFaction.Other;
             }
         }
 
@@ -1786,7 +1790,7 @@ namespace Game.BattleGrounds
             player.SendPacket(pvpMatchStatistics);
         }
 
-        public uint GetAlivePlayersCountByTeam(Team Team)
+        public uint GetAlivePlayersCountByTeam(TeamFaction Team)
         {
             uint count = 0;
             foreach (var pair in m_Players)
@@ -1794,7 +1798,7 @@ namespace Game.BattleGrounds
                 if (pair.Value.Team == Team)
                 {
                     Player player = Global.ObjAccessor.FindPlayer(pair.Key);
-                    if (player && player.IsAlive())
+                    if (player && player.IsAlive)
                         ++count;
                 }
             }
@@ -1815,7 +1819,7 @@ namespace Game.BattleGrounds
             return -1;
         }
 
-        void SetBgRaid(Team team, Group bg_raid)
+        void SetBgRaid(TeamFaction team, Group bg_raid)
         {
             Group old_raid = m_BgRaids[GetTeamIndexByTeamId(team)];
             if (old_raid)
@@ -1827,7 +1831,7 @@ namespace Game.BattleGrounds
 
         public virtual WorldSafeLocsEntry GetClosestGraveYard(Player player)
         {
-            return Global.ObjectMgr.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GetGUID()), player);
+            return Global.ObjectMgr.GetClosestGraveYard(player.Location, GetPlayerTeam(player.GUID), player);
         }
 
         public override void TriggerGameEvent(uint gameEventId, WorldObject source = null, WorldObject target = null)
@@ -1855,7 +1859,7 @@ namespace Game.BattleGrounds
 
         public uint GetTeamScore(int teamIndex)
         {
-            if (teamIndex == TeamId.Alliance || teamIndex == TeamId.Horde)
+            if (teamIndex == TeamIds.Alliance || teamIndex == TeamIds.Horde)
                 return m_TeamScores[teamIndex];
 
             Log.outError(LogFilter.Battleground, "GetTeamScore with wrong Team {0} for BG {1}", teamIndex, GetTypeID());
@@ -1978,23 +1982,23 @@ namespace Game.BattleGrounds
         void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
         void SetStartDelayTime(BattlegroundStartTimeIntervals Time) { m_StartDelayTime = (int)Time; }
 
-        public void DecreaseInvitedCount(Team team)
+        public void DecreaseInvitedCount(TeamFaction team)
         {
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
                 --m_InvitedAlliance;
             else
                 --m_InvitedHorde;
         }
-        public void IncreaseInvitedCount(Team team)
+        public void IncreaseInvitedCount(TeamFaction team)
         {
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
                 ++m_InvitedAlliance;
             else
                 ++m_InvitedHorde;
         }
 
         public void SetRandom(bool isRandom) { m_IsRandom = isRandom; }
-        uint GetInvitedCount(Team team) { return (team == Team.Alliance) ? m_InvitedAlliance : m_InvitedHorde; }
+        uint GetInvitedCount(TeamFaction team) { return (team == TeamFaction.Alliance) ? m_InvitedAlliance : m_InvitedHorde; }
 
         public bool IsRated() { return m_IsRated; }
 
@@ -2006,11 +2010,11 @@ namespace Game.BattleGrounds
         public void SetBgMap(BattlegroundMap map) { m_Map = map; }
         BattlegroundMap FindBgMap() { return m_Map; }
 
-        Group GetBgRaid(Team team) { return m_BgRaids[GetTeamIndexByTeamId(team)]; }
+        Group GetBgRaid(TeamFaction team) { return m_BgRaids[GetTeamIndexByTeamId(team)]; }
 
-        public static int GetTeamIndexByTeamId(Team team) { return team == Team.Alliance ? TeamId.Alliance : TeamId.Horde; }
-        public uint GetPlayersCountByTeam(Team team) { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
-        void UpdatePlayersCountByTeam(Team team, bool remove)
+        public static int GetTeamIndexByTeamId(TeamFaction team) { return team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde; }
+        public uint GetPlayersCountByTeam(TeamFaction team) { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
+        void UpdatePlayersCountByTeam(TeamFaction team, bool remove)
         {
             if (remove)
                 --m_PlayersCount[GetTeamIndexByTeamId(team)];
@@ -2020,11 +2024,11 @@ namespace Game.BattleGrounds
 
         public virtual void CheckWinConditions() { }
 
-        public void SetArenaTeamIdForTeam(Team team, uint ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(team)] = ArenaTeamId; }
-        public uint GetArenaTeamIdForTeam(Team team) { return m_ArenaTeamIds[GetTeamIndexByTeamId(team)]; }
+        public void SetArenaTeamIdForTeam(TeamFaction team, uint ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(team)] = ArenaTeamId; }
+        public uint GetArenaTeamIdForTeam(TeamFaction team) { return m_ArenaTeamIds[GetTeamIndexByTeamId(team)]; }
         public uint GetArenaTeamIdByIndex(uint index) { return m_ArenaTeamIds[index]; }
-        public void SetArenaMatchmakerRating(Team team, uint MMR) { m_ArenaTeamMMR[GetTeamIndexByTeamId(team)] = MMR; }
-        public uint GetArenaMatchmakerRating(Team team) { return m_ArenaTeamMMR[GetTeamIndexByTeamId(team)]; }
+        public void SetArenaMatchmakerRating(TeamFaction team, uint MMR) { m_ArenaTeamMMR[GetTeamIndexByTeamId(team)] = MMR; }
+        public uint GetArenaMatchmakerRating(TeamFaction team) { return m_ArenaTeamMMR[GetTeamIndexByTeamId(team)]; }
 
         // Battleground events
         public virtual void EventPlayerDroppedFlag(Player player) { }
@@ -2037,7 +2041,7 @@ namespace Game.BattleGrounds
 
         public virtual void HandlePlayerResurrect(Player player) { }
 
-        public virtual WorldSafeLocsEntry GetExploitTeleportLocation(Team team) { return null; }
+        public virtual WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team) { return null; }
 
         public virtual bool HandlePlayerUnderMap(Player player) { return false; }
 
@@ -2052,7 +2056,7 @@ namespace Game.BattleGrounds
         public virtual bool CanActivateGO(int entry, uint team) { return true; }
         public virtual bool IsSpellAllowed(uint spellId, Player player) { return true; }
 
-        public virtual void RemovePlayer(Player player, ObjectGuid guid, Team team) { }
+        public virtual void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team) { }
 
         public virtual bool PreUpdateImpl(uint diff) { return true; }
 
@@ -2152,7 +2156,7 @@ namespace Game.BattleGrounds
     public class BattlegroundPlayer
     {
         public long OfflineRemoveTime;  // for tracking and removing offline players from queue after 5 Time.Minutes
-        public Team Team;               // Player's team
+        public TeamFaction Team;               // Player's team
         public int ActiveSpec;          // Player's active spec
         public bool Mercenary;
     }

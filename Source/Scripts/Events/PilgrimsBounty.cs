@@ -197,7 +197,7 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 					caster.CastSpell(player,
 									_spellId,
 									new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-										.SetOriginalCaster(player.GetGUID()));
+										.SetOriginalCaster(player.GUID));
 				}
 			}
 		}
@@ -370,7 +370,7 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 
 	private Vehicle GetTable(Unit target)
 	{
-		if (target.IsPlayer())
+		if (target.IsPlayer)
 		{
 			var vehBase = target.GetVehicleBase();
 
@@ -438,17 +438,17 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 
 				casterPlr.CastSpell(casterPlr, _triggeredSpellId2, true); //Credit for Sharing is Caring(always)
 
-				var seat = target.GetTransSeat();
+				var seat = target.TransSeat;
 
-				if (target.IsPlayer() &&
+				if (target.IsPlayer &&
 					target.GetVehicleBase())
-					seat = target.GetVehicleBase().GetTransSeat();
+					seat = target.GetVehicleBase().TransSeat;
 
 				var plate = GetPlateInSeat(table, seat);
 
 				if (plate != null)
 				{
-					if (target.IsPlayer()) //Food Fight case
+					if (target.IsPlayer) //Food Fight case
 					{
 						casterPlr.CastSpell(target, _triggeredSpellId1, true);
 						caster.CastSpell(target.GetVehicleBase(), _triggeredSpellId4, true); //CanEat-chair(always)
@@ -519,7 +519,7 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
 
 				if (holder != null)
 				{
-					var plate = holder.GetPassenger(target.GetTransSeat());
+					var plate = holder.GetPassenger(target.TransSeat);
 
 					if (plate != null)
 					{

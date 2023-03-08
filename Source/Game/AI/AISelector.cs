@@ -13,7 +13,7 @@ namespace Game.AI
     {
         public static CreatureAI SelectAI(Creature creature)
         {
-            if (creature.IsPet())
+            if (creature.IsPet)
                 return new PetAI(creature);
 
             //scriptname in db
@@ -21,7 +21,7 @@ namespace Game.AI
             if (scriptedAI != null)
                 return scriptedAI;
 
-            switch (creature.GetCreatureTemplate().AIName)
+            switch (creature.CreatureTemplate.AIName)
             {
                 case "AggressorAI":
                     return new AggressorAI(creature);
@@ -54,32 +54,32 @@ namespace Game.AI
             }
 
             // select by NPC flags
-            if (creature.IsVehicle())
+            if (creature.IsVehicle)
                 return new VehicleAI(creature);
             else if (creature.HasUnitTypeMask(UnitTypeMask.ControlableGuardian) && ((Guardian)creature).GetOwner().IsTypeId(TypeId.Player))
                 return new PetAI(creature);
             else if (creature.HasNpcFlag(NPCFlags.SpellClick))
                 return new NullCreatureAI(creature);
-            else if (creature.IsGuard())
+            else if (creature.IsGuard)
                 return new GuardAI(creature);
             else if (creature.HasUnitTypeMask(UnitTypeMask.ControlableGuardian))
                 return new PetAI(creature);
-            else if (creature.IsTotem())
+            else if (creature.IsTotem)
                 return new TotemAI(creature);
-            else if (creature.IsTrigger())
+            else if (creature.IsTrigger)
             {
                 if (creature.Spells[0] != 0)
                     return new TriggerAI(creature);
                 else
                     return new NullCreatureAI(creature);
             }
-            else if (creature.IsCritter() && !creature.HasUnitTypeMask(UnitTypeMask.Guardian))
+            else if (creature.IsCritter && !creature.HasUnitTypeMask(UnitTypeMask.Guardian))
                 return new CritterAI(creature);
 
-            if (!creature.IsCivilian() && !creature.IsNeutralToAll())
+            if (!creature.IsCivilian && !creature.IsNeutralToAll())
                 return new AggressorAI(creature);
 
-            if (creature.IsCivilian() || creature.IsNeutralToAll())
+            if (creature.IsCivilian || creature.IsNeutralToAll())
                 return new ReactorAI(creature);
 
             return new NullCreatureAI(creature);

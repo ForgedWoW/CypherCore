@@ -22,7 +22,7 @@ internal class spell_item_power_circle : AuraScript, IAuraCheckAreaTarget, IHasA
 
 	public bool CheckAreaTarget(Unit target)
 	{
-		return target.GetGUID() == CasterGUID;
+		return target.GUID == CasterGUID;
 	}
 
 	public override void Register()

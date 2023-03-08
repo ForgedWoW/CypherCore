@@ -10,6 +10,14 @@ public class MovementForces
 	readonly List<MovementForce> _forces = new();
 	float _modMagnitude = 1.0f;
 
+	public float ModMagnitude
+	{
+		get => _modMagnitude;
+		set => _modMagnitude = value;
+	}
+
+	public bool IsEmpty => _forces.Empty() && _modMagnitude == 1.0f;
+
 	public List<MovementForce> GetForces()
 	{
 		return _forces;
@@ -41,21 +49,6 @@ public class MovementForces
 		}
 
 		return false;
-	}
-
-	public float GetModMagnitude()
-	{
-		return _modMagnitude;
-	}
-
-	public void SetModMagnitude(float modMagnitude)
-	{
-		_modMagnitude = modMagnitude;
-	}
-
-	public bool IsEmpty()
-	{
-		return _forces.Empty() && _modMagnitude == 1.0f;
 	}
 
 	MovementForce FindMovementForce(ObjectGuid id)

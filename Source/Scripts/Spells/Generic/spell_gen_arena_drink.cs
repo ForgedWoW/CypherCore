@@ -49,7 +49,7 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 			return;
 
 		// default case - not in arena
-		if (!Caster.ToPlayer().InArena())
+		if (!Caster.ToPlayer().InArena)
 			isPeriodic.Value = false;
 	}
 
@@ -61,7 +61,7 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 			return;
 
 		// default case - not in arena
-		if (!Caster.ToPlayer().InArena())
+		if (!Caster.ToPlayer().InArena)
 			regen.ChangeAmount(amount);
 	}
 

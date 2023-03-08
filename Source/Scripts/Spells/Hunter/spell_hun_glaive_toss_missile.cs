@@ -68,7 +68,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
 				if (target != null)
 					if (caster == OriginalCaster)
-						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GetGUID()));
+						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_LEFT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
 			}
 		}
 		else
@@ -81,7 +81,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 
 				if (target != null)
 					if (caster == OriginalCaster)
-						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GetGUID()));
+						target.CastSpell(caster, HunterSpells.GLAIVE_TOSS_RIGHT, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GUID));
 			}
 		}
 	}

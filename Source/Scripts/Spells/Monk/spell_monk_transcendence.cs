@@ -21,14 +21,14 @@ public class spell_monk_transcendence : SpellScript, ISpellOnSummon
 		creature.SetAIAnimKitId(2223); // Sniff Data
 		creature.SetDisableGravity(true);
 		creature.SetControlled(true, UnitState.Root);
-		Caster.VariableStorage.Set(MONK_TRANSCENDENCE_GUID, creature.GetGUID());
+		Caster.VariableStorage.Set(MONK_TRANSCENDENCE_GUID, creature.GUID);
 	}
 
 	public static Creature GetSpirit(Unit caster)
 	{
 		var spiritGuid = caster.VariableStorage.GetValue<ObjectGuid>(MONK_TRANSCENDENCE_GUID, default);
 
-		if (spiritGuid.IsEmpty())
+		if (spiritGuid.IsEmpty)
 			return null;
 
 		return ObjectAccessor.GetCreature(caster, spiritGuid);

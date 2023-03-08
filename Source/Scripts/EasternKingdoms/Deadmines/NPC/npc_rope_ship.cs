@@ -14,7 +14,7 @@ public class npc_rope_ship : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.IsSummon())
+		if (me.IsSummon)
 		{
 			var summoner = me.ToTempSummon().GetSummoner();
 

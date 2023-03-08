@@ -88,9 +88,9 @@ internal class spell_midsummer_braziers_hit : AuraScript, IHasAuraEffects
 		if ((player.HasAura(SpellIds.TorchTossingTraining) && StackAmount == 8) ||
 			(player.HasAura(SpellIds.TorchTossingPractice) && StackAmount == 20))
 		{
-			if (player.GetTeam() == Team.Alliance)
+			if (player.Team == TeamFaction.Alliance)
 				player.CastSpell(player, SpellIds.TorchTossingTrainingSuccessAlliance, true);
-			else if (player.GetTeam() == Team.Horde)
+			else if (player.Team == TeamFaction.Horde)
 				player.CastSpell(player, SpellIds.TorchTossingTrainingSuccessHorde, true);
 
 			Remove();
@@ -378,7 +378,7 @@ internal class spell_midsummer_fling_torch_catch : SpellScript, IHasSpellEffects
 			return;
 
 		// Only the caster can catch the torch
-		if (player.GetGUID() != Caster.GetGUID())
+		if (player.GUID != Caster.GUID)
 			return;
 
 		byte requiredCatches = 0;
@@ -397,7 +397,7 @@ internal class spell_midsummer_fling_torch_catch : SpellScript, IHasSpellEffects
 
 		if (player.GetAuraCount(SpellIds.TorchesCaught) >= requiredCatches)
 		{
-			player.CastSpell(player, (player.GetTeam() == Team.Alliance) ? SpellIds.TorchCatchingSuccessAlliance : SpellIds.TorchCatchingSuccessHorde);
+			player.CastSpell(player, (player.Team == TeamFaction.Alliance) ? SpellIds.TorchCatchingSuccessAlliance : SpellIds.TorchCatchingSuccessHorde);
 			player.CastSpell(player, SpellIds.TorchCatchingRemoveTorches);
 			player.RemoveAura(SpellIds.TorchesCaught);
 		}
@@ -425,6 +425,6 @@ internal class spell_midsummer_fling_torch_missed : SpellScript, IHasSpellEffect
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		// This spell only hits the caster
-		targets.RemoveAll(obj => obj.GetGUID() != Caster.GetGUID());
+		targets.RemoveAll(obj => obj.GUID != Caster.GUID);
 	}
 }

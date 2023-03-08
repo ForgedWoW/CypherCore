@@ -74,6 +74,24 @@ namespace Game.Entities
 
 		public GameObjectModel Model { get; set; }
 
+		public override ushort AIAnimKitId => _animKitId;
+
+		public override ObjectGuid OwnerGUID => GameObjectData.CreatedBy;
+
+		public override uint Faction
+		{
+			get => GameObjectData.FactionTemplate;
+			set => SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.FactionTemplate), value);
+		}
+
+		public override float StationaryX => StationaryPosition.X;
+
+		public override float StationaryY => StationaryPosition.Y;
+
+		public override float StationaryZ => StationaryPosition.Z;
+
+		public override float StationaryO => StationaryPosition.Orientation;
+
 		public GameObject() : base(false)
 		{
 			ObjectTypeMask |= TypeMask.GameObject;
@@ -115,7 +133,7 @@ namespace Game.Entities
 
 		public string GetAiName()
 		{
-			var got = Global.ObjectMgr.GetGameObjectTemplate(GetEntry());
+			var got = Global.ObjectMgr.GetGameObjectTemplate(Entry);
 
 			if (got != null)
 				return got.AIName;
@@ -138,7 +156,7 @@ namespace Game.Entities
 				if (ZoneScript != null)
 					ZoneScript.OnGameObjectCreate(this);
 
-				GetMap().GetObjectsStore().Add(GetGUID(), this);
+				GetMap().GetObjectsStore().Add(GUID, this);
 
 				if (_spawnId != 0)
 					GetMap().GetGameObjectBySpawnIdStore().Add(_spawnId, this);
@@ -186,7 +204,7 @@ namespace Game.Entities
 				if (_spawnId != 0)
 					GetMap().GetGameObjectBySpawnIdStore().Remove(_spawnId, this);
 
-				GetMap().GetObjectsStore().Remove(GetGUID());
+				GetMap().GetObjectsStore().Remove(GUID);
 			}
 		}
 
@@ -340,7 +358,7 @@ namespace Game.Entities
 
 							if (_respawnTime <= now) // timer expired
 							{
-								var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, GetEntry(), _spawnId);
+								var dbtableHighGuid = ObjectGuid.Create(HighGuid.GameObject, Location.MapId, Entry, _spawnId);
 								var linkedRespawntime = GetMap().GetLinkedRespawnTime(dbtableHighGuid);
 
 								if (linkedRespawntime != 0) // Can't respawn, the master is dead
@@ -526,7 +544,7 @@ namespace Game.Entities
 										}
 									}
 
-									GoValue.CapturePoint.LastTeamCapture = hordeCapturing ? TeamId.Horde : TeamId.Alliance;
+									GoValue.CapturePoint.LastTeamCapture = hordeCapturing ? TeamIds.Horde : TeamIds.Alliance;
 									UpdateCapturePoint();
 								}
 								else
@@ -598,7 +616,7 @@ namespace Game.Entities
 							{
 								// Some traps do not have a spell but should be triggered
 								CastSpellExtraArgs args = new();
-								args.SetOriginalCaster(GetOwnerGUID());
+								args.SetOriginalCaster(OwnerGUID);
 
 								if (goInfo.Trap.spell != 0)
 									CastSpell(target, goInfo.Trap.spell, args);
@@ -621,7 +639,7 @@ namespace Game.Entities
 										var bg = player.GetBattleground();
 
 										if (bg)
-											bg.HandleTriggerBuff(GetGUID());
+											bg.HandleTriggerBuff(GUID);
 									}
 								}
 							}
@@ -696,7 +714,7 @@ namespace Game.Entities
 
 						return;
 					}
-					else if (!GetOwnerGUID().IsEmpty() || GetSpellId() != 0)
+					else if (!OwnerGUID.IsEmpty || GetSpellId() != 0)
 					{
 						SetRespawnTime(0);
 						Delete();
@@ -780,7 +798,7 @@ namespace Game.Entities
 		public void AddUniqueUse(Player player)
 		{
 			AddUse();
-			_uniqueUsers.Add(player.GetGUID());
+			_uniqueUsers.Add(player.GUID);
 		}
 
 		public void DespawnOrUnsummon(TimeSpan delay = default, TimeSpan forceRespawnTime = default)
@@ -811,7 +829,7 @@ namespace Game.Entities
 			RemoveFromOwner();
 
 			if (GoInfo.type == GameObjectTypes.CapturePoint)
-				SendMessageToSet(new CapturePointRemoved(GetGUID()), true);
+				SendMessageToSet(new CapturePointRemoved(GUID), true);
 
 			SendGameObjectDespawn();
 
@@ -834,7 +852,7 @@ namespace Game.Entities
 		public void SendGameObjectDespawn()
 		{
 			GameObjectDespawn packet = new();
-			packet.ObjectGUID = GetGUID();
+			packet.ObjectGUID = GUID;
 			SendMessageToSet(packet, true);
 		}
 
@@ -842,7 +860,7 @@ namespace Game.Entities
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(GetMap(), GetGUID(), LootType.Fishing, null);
+			Loot fishLoot = new(GetMap(), GUID, LootType.Fishing, null);
 
 			var areaId = GetAreaId();
 			AreaTableRecord areaEntry;
@@ -867,7 +885,7 @@ namespace Game.Entities
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(GetMap(), GetGUID(), LootType.FishingJunk, null);
+			Loot fishLoot = new(GetMap(), GUID, LootType.FishingJunk, null);
 
 			var areaId = GetAreaId();
 			AreaTableRecord areaEntry;
@@ -902,7 +920,7 @@ namespace Game.Entities
 			}
 
 			var mapId = Location.MapId;
-			var transport = GetTransport();
+			var transport = Transport;
 
 			if (transport != null)
 				if (transport.GetMapIdForSpawning() >= 0)
@@ -929,7 +947,7 @@ namespace Game.Entities
 
 			Cypher.Assert(data.SpawnId == _spawnId);
 
-			data.Id = GetEntry();
+			data.Id = Entry;
 			data.MapId = Location.MapId;
 			data.SpawnPoint.Relocate(Location);
 			data.Rotation = _localRotation;
@@ -942,8 +960,8 @@ namespace Game.Entities
 			if (data.SpawnGroupData == null)
 				data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
 
-			data.PhaseId = GetDBPhase() > 0 ? (uint)GetDBPhase() : data.PhaseId;
-			data.PhaseGroup = GetDBPhase() < 0 ? (uint)-GetDBPhase() : data.PhaseGroup;
+			data.PhaseId = DBPhase > 0 ? (uint)DBPhase : data.PhaseId;
+			data.PhaseGroup = DBPhase < 0 ? (uint)-DBPhase : data.PhaseGroup;
 
 			// Update in DB
 			byte index = 0;
@@ -953,7 +971,7 @@ namespace Game.Entities
 
 			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_GAMEOBJECT);
 			stmt.AddValue(index++, _spawnId);
-			stmt.AddValue(index++, GetEntry());
+			stmt.AddValue(index++, Entry);
 			stmt.AddValue(index++, mapid);
 			stmt.AddValue(index++, data.SpawnDifficulties.Empty() ? "" : string.Join(",", data.SpawnDifficulties));
 			stmt.AddValue(index++, data.PhaseId);
@@ -995,8 +1013,8 @@ namespace Game.Entities
 			if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, go_state, artKit, !_respawnCompatibilityMode, spawnId))
 				return false;
 
-			PhasingHandler.InitDbPhaseShift(GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-			PhasingHandler.InitDbVisibleMapId(GetPhaseShift(), data.terrainSwapMap);
+			PhasingHandler.InitDbPhaseShift(PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+			PhasingHandler.InitDbVisibleMapId(PhaseShift, data.terrainSwapMap);
 
 			if (data.spawntimesecs >= 0)
 			{
@@ -1111,12 +1129,12 @@ namespace Game.Entities
 
 		public override bool HasQuest(uint questId)
 		{
-			return Global.ObjectMgr.GetGOQuestRelations(GetEntry()).HasQuest(questId);
+			return Global.ObjectMgr.GetGOQuestRelations(Entry).HasQuest(questId);
 		}
 
 		public override bool HasInvolvedQuest(uint questId)
 		{
-			return Global.ObjectMgr.GetGOQuestInvolvedRelations(GetEntry()).HasQuest(questId);
+			return Global.ObjectMgr.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
 		}
 
 		public bool IsTransport()
@@ -1173,7 +1191,7 @@ namespace Game.Entities
 				}
 
 				var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : _respawnTime;
-				GetMap().SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, GetEntry(), thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
+				GetMap().SaveRespawnTime(SpawnObjectType.GameObject, _spawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(Location.X, Location.Y).GetId());
 			}
 		}
 
@@ -1203,11 +1221,11 @@ namespace Game.Entities
 				return false;
 
 			// Always seen by owner and friendly units
-			var guid = GetOwnerGUID();
+			var guid = OwnerGUID;
 
-			if (!guid.IsEmpty())
+			if (!guid.IsEmpty)
 			{
-				if (seer.GetGUID() == guid)
+				if (seer.GUID == guid)
 					return true;
 
 				var owner = GetOwner();
@@ -1230,7 +1248,7 @@ namespace Game.Entities
 
 			if (_perPlayerState != null)
 			{
-				var state = _perPlayerState.LookupByKey(seer.GetGUID());
+				var state = _perPlayerState.LookupByKey(seer.GUID);
 
 				if (state != null && state.Despawned)
 					return true;
@@ -1250,10 +1268,10 @@ namespace Game.Entities
 
 		public bool ActivateToQuest(Player target)
 		{
-			if (target.HasQuestForGO((int)GetEntry()))
+			if (target.HasQuestForGO((int)Entry))
 				return true;
 
-			if (!Global.ObjectMgr.IsGameObjectForQuests(GetEntry()))
+			if (!Global.ObjectMgr.IsGameObjectForQuests(Entry))
 				return false;
 
 			switch (GetGoType())
@@ -1277,7 +1295,7 @@ namespace Game.Entities
 						var bg = target.GetBattleground();
 
 						if (bg)
-							return bg.CanActivateGO((int)GetEntry(), (uint)bg.GetPlayerTeam(target.GetGUID()));
+							return bg.CanActivateGO((int)Entry, (uint)bg.GetPlayerTeam(target.GUID));
 
 						return true;
 					}
@@ -1443,7 +1461,7 @@ namespace Game.Entities
 						artKitValue = templateAddon.ArtKits[artKitIndex];
 
 					if (artKitValue == 0)
-						Log.outError(LogFilter.Sql, $"GameObject {GetEntry()} hit by spell {spellId} needs `artkit{artKitIndex}` in `gameobject_template_addon`");
+						Log.outError(LogFilter.Sql, $"GameObject {Entry} hit by spell {spellId} needs `artkit{artKitIndex}` in `gameobject_template_addon`");
 					else
 						SetGoArtKit(artKitValue);
 
@@ -1502,7 +1520,7 @@ namespace Game.Entities
 
 					break;
 				case GameObjectActions.PlaySpellVisual:
-					SetSpellVisualId((uint)param, spellCaster.GetGUID());
+					SetSpellVisualId((uint)param, spellCaster.GUID);
 
 					break;
 				case GameObjectActions.StopSpellVisual:
@@ -1606,7 +1624,7 @@ namespace Game.Entities
 
 					var bg = player.GetBattleground();
 
-					if (bg != null && !bg.CanActivateGO((int)GetEntry(), (uint)bg.GetPlayerTeam(user.GetGUID())))
+					if (bg != null && !bg.CanActivateGO((int)Entry, (uint)bg.GetPlayerTeam(user.GUID)))
 						return;
 
 					var info = GetGoInfo();
@@ -1618,7 +1636,7 @@ namespace Game.Entities
 							var group = player.GetGroup();
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-							Loot = new Loot(GetMap(), GetGUID(), LootType.Chest, groupRules ? group : null);
+							Loot = new Loot(GetMap(), GUID, LootType.Chest, groupRules ? group : null);
 							Loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
 							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
 
@@ -1641,7 +1659,7 @@ namespace Game.Entities
 						if (trapEntry != 0)
 							TriggeringLinkedGameObject(trapEntry, player);
 					}
-					else if (!_personalLoot.ContainsKey(player.GetGUID()))
+					else if (!_personalLoot.ContainsKey(player.GUID))
 					{
 						if (info.Chest.chestPersonalLoot != 0)
 						{
@@ -1675,8 +1693,8 @@ namespace Game.Entities
 							}
 							else
 							{
-								Loot loot = new(GetMap(), GetGUID(), LootType.Chest, null);
-								_personalLoot[player.GetGUID()] = loot;
+								Loot loot = new(GetMap(), GUID, LootType.Chest, null);
+								_personalLoot[player.GUID] = loot;
 
 								loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
 								loot.FillLoot(info.Chest.chestPersonalLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
@@ -1687,11 +1705,11 @@ namespace Game.Entities
 						}
 					}
 
-					if (!_uniqueUsers.Contains(player.GetGUID()) && info.GetLootId() == 0)
+					if (!_uniqueUsers.Contains(player.GUID) && info.GetLootId() == 0)
 					{
 						if (info.Chest.chestPushLoot != 0)
 						{
-							Loot pushLoot = new(GetMap(), GetGUID(), LootType.Chest, null);
+							Loot pushLoot = new(GetMap(), GUID, LootType.Chest, null);
 							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
 							pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
 						}
@@ -1768,13 +1786,13 @@ namespace Game.Entities
 						var x_i = (float)(Location.X + relativeDistance * Math.Cos(orthogonalOrientation));
 						var y_i = (float)(Location.Y + relativeDistance * Math.Sin(orthogonalOrientation));
 
-						if (!sittingUnit.IsEmpty())
+						if (!sittingUnit.IsEmpty)
 						{
 							var chairUser = Global.ObjAccessor.GetUnit(this, sittingUnit);
 
 							if (chairUser != null)
 							{
-								if (chairUser.IsSitState() && chairUser.GetStandState() != UnitStandStateType.Sit && chairUser.Location.GetExactDist2d(x_i, y_i) < 0.1f)
+								if (chairUser.IsSitState && chairUser.StandState != UnitStandStateType.Sit && chairUser.Location.GetExactDist2d(x_i, y_i) < 0.1f)
 									continue; // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser.getStandState() != UNIT_STAND_STATE_SIT check is required.
 
 								_chairListSlots[slot].Clear(); // This seat is unoccupied.
@@ -1803,9 +1821,9 @@ namespace Game.Entities
 					{
 						var guid = _chairListSlots.LookupByKey(nearest_slot);
 
-						if (guid.IsEmpty())
+						if (guid.IsEmpty)
 						{
-							_chairListSlots[nearest_slot] = user.GetGUID(); //this slot in now used by player
+							_chairListSlots[nearest_slot] = user.GUID; //this slot in now used by player
 							user.NearTeleportTo(x_lowest, y_lowest, Location.Z, Location.Orientation);
 							user.SetStandState(UnitStandStateType.SitLowChair + (byte)info.Chair.chairheight);
 
@@ -1839,7 +1857,7 @@ namespace Game.Entities
 						if (info.Goober.pageID != 0) // show page...
 						{
 							PageTextPkt data = new();
-							data.GameObjectGUID = GetGUID();
+							data.GameObjectGUID = GUID;
 							player.SendPacket(data);
 						}
 						else if (info.Goober.gossipID != 0)
@@ -1850,7 +1868,7 @@ namespace Game.Entities
 
 						if (info.Goober.eventID != 0)
 						{
-							Log.outDebug(LogFilter.Scripts, "Goober ScriptStart id {0} for GO entry {1} (GUID {2}).", info.Goober.eventID, GetEntry(), GetSpawnId());
+							Log.outDebug(LogFilter.Scripts, "Goober ScriptStart id {0} for GO entry {1} (GUID {2}).", info.Goober.eventID, Entry, GetSpawnId());
 							GameEvents.Trigger(info.Goober.eventID, player, this);
 						}
 
@@ -1869,10 +1887,10 @@ namespace Game.Entities
 
 								if (member)
 									if (member.IsAtGroupRewardDistance(this))
-										member.KillCreditGO(info.entry, GetGUID());
+										member.KillCreditGO(info.entry, GUID);
 							}
 						else
-							player.KillCreditGO(info.entry, GetGUID());
+							player.KillCreditGO(info.entry, GUID);
 					}
 
 					var trapEntry = info.Goober.linkedTrap;
@@ -1937,7 +1955,7 @@ namespace Game.Entities
 					if (player == null)
 						return;
 
-					if (player.GetGUID() != GetOwnerGUID())
+					if (player.GUID != OwnerGUID)
 						return;
 
 					switch (GetLootState())
@@ -1994,7 +2012,7 @@ namespace Game.Entities
 								// @todo I do not understand this hack. Need some explanation.
 								// prevent removing GO at spell cancel
 								RemoveFromOwner();
-								SetOwnerGUID(player.GetGUID());
+								SetOwnerGUID(player.GUID);
 
 								if (fishingPool)
 								{
@@ -2178,13 +2196,13 @@ namespace Game.Entities
 					var userLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (userLevels.HasValue)
-						if (player.GetLevel() < userLevels.Value.MaxLevel)
+						if (player.Level < userLevels.Value.MaxLevel)
 							return;
 
 					var targetLevels = Global.DB2Mgr.GetContentTuningData(info.ContentTuningId, targetPlayer.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (targetLevels.HasValue)
-						if (targetPlayer.GetLevel() < targetLevels.Value.MaxLevel)
+						if (targetPlayer.Level < targetLevels.Value.MaxLevel)
 							return;
 
 					if (info.entry == 194097)
@@ -2237,9 +2255,9 @@ namespace Game.Entities
 
 					var player = user.ToPlayer();
 
-					var loot = new Loot(GetMap(), GetGUID(), LootType.Fishinghole, null);
+					var loot = new Loot(GetMap(), GUID, LootType.Fishinghole, null);
 					loot.FillLoot(GetGoInfo().GetLootId(), LootStorage.Gameobject, player, true);
-					_personalLoot[player.GetGUID()] = loot;
+					_personalLoot[player.GUID] = loot;
 
 					player.SendLoot(loot);
 					player.UpdateCriteria(CriteriaType.CatchFishInFishingHole, GetGoInfo().entry);
@@ -2330,7 +2348,7 @@ namespace Game.Entities
 					if (info == null)
 						return;
 
-					if (!user.IsPlayer())
+					if (!user.IsPlayer)
 						return;
 
 					spellId = info.NewFlag.pickupSpell;
@@ -2370,8 +2388,8 @@ namespace Game.Entities
 							}
 
 							OpenArtifactForge openArtifactForge = new();
-							openArtifactForge.ArtifactGUID = item.GetGUID();
-							openArtifactForge.ForgeGUID = GetGUID();
+							openArtifactForge.ArtifactGUID = item.GUID;
+							openArtifactForge.ForgeGUID = GUID;
 							player.SendPacket(openArtifactForge);
 
 							break;
@@ -2384,7 +2402,7 @@ namespace Game.Entities
 								return;
 
 							GameObjectInteraction openHeartForge = new();
-							openHeartForge.ObjectGUID = GetGUID();
+							openHeartForge.ObjectGUID = GUID;
 							openHeartForge.InteractionType = PlayerInteractionType.AzeriteForge;
 							player.SendPacket(openHeartForge);
 
@@ -2404,7 +2422,7 @@ namespace Game.Entities
 						return;
 
 					GameObjectInteraction gameObjectUILink = new();
-					gameObjectUILink.ObjectGUID = GetGUID();
+					gameObjectUILink.ObjectGUID = GUID;
 
 					switch (GetGoInfo().UILink.UILinkType)
 					{
@@ -2441,12 +2459,12 @@ namespace Game.Entities
 
 					var info = GetGoInfo();
 
-					if (!_personalLoot.ContainsKey(player.GetGUID()))
+					if (!_personalLoot.ContainsKey(player.GUID))
 					{
 						if (info.GatheringNode.chestLoot != 0)
 						{
-							Loot newLoot = new(GetMap(), GetGUID(), LootType.Chest, null);
-							_personalLoot[player.GetGUID()] = newLoot;
+							Loot newLoot = new(GetMap(), GUID, LootType.Chest, null);
+							_personalLoot[player.GUID] = newLoot;
 
 							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, GetLootMode(), GetMap().GetDifficultyLootItemContext());
 						}
@@ -2462,7 +2480,7 @@ namespace Game.Entities
 
 						if (info.GatheringNode.xpDifficulty != 0 && info.GatheringNode.xpDifficulty < 10)
 						{
-							var questXp = CliDB.QuestXPStorage.LookupByKey(player.GetLevel());
+							var questXp = CliDB.QuestXPStorage.LookupByKey(player.Level);
 
 							if (questXp != null)
 							{
@@ -2502,11 +2520,11 @@ namespace Game.Entities
 					if (GetGoType() >= GameObjectTypes.Max)
 						Log.outError(LogFilter.Server,
 									"GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
-									user.GetTypeId(),
-									user.GetGUID().ToString(),
+									user.TypeId,
+									user.GUID.ToString(),
 									user.GetName(),
-									GetGUID().ToString(),
-									GetEntry(),
+									GUID.ToString(),
+									Entry,
 									GetGoInfo().name,
 									GetGoType());
 
@@ -2519,7 +2537,7 @@ namespace Game.Entities
 			if (!Global.SpellMgr.HasSpellInfo(spellId, GetMap().GetDifficultyID()))
 			{
 				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.ToPlayer(), spellId, this))
-					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, GetEntry(), GetGoType());
+					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GetGoType());
 				else
 					Log.outDebug(LogFilter.Outdoorpvp, "WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
 
@@ -2540,7 +2558,7 @@ namespace Game.Entities
 		public void SendCustomAnim(uint anim)
 		{
 			GameObjectCustomAnim customAnim = new();
-			customAnim.ObjectGUID = GetGUID();
+			customAnim.ObjectGUID = GUID;
 			customAnim.CustomAnim = anim;
 			SendMessageToSet(customAnim, true);
 		}
@@ -2591,7 +2609,7 @@ namespace Game.Entities
 		{
 			if (locale != Locale.enUS)
 			{
-				var cl = Global.ObjectMgr.GetGameObjectLocale(GetEntry());
+				var cl = Global.ObjectMgr.GetGameObjectLocale(Entry);
 
 				if (cl != null)
 					if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
@@ -2762,10 +2780,10 @@ namespace Game.Entities
 			if (player != null)
 			{
 				DestructibleBuildingDamage packet = new();
-				packet.Caster = attackerOrHealer.GetGUID(); // todo: this can be a GameObject
-				packet.Target = GetGUID();
+				packet.Caster = attackerOrHealer.GUID; // todo: this can be a GameObject
+				packet.Target = GUID;
 				packet.Damage = -change;
-				packet.Owner = player.GetGUID();
+				packet.Owner = player.GUID;
 				packet.SpellID = spellId;
 				player.SendPacket(packet);
 			}
@@ -2913,7 +2931,7 @@ namespace Game.Entities
 		public void SetLootState(LootState state, Unit unit = null)
 		{
 			_lootState = state;
-			_lootStateUnitGuid = unit ? unit.GetGUID() : ObjectGuid.Empty;
+			_lootStateUnitGuid = unit ? unit.GUID : ObjectGuid.Empty;
 			GetAI().OnLootStateChanged((uint)state, unit);
 
 			// Start restock timer if the chest is partially looted or not looted at all
@@ -3073,12 +3091,12 @@ namespace Game.Entities
 				if (loot.IsLooted()) // nothing to loot or everything looted.
 					return false;
 
-				if (!loot.HasAllowedLooter(GetGUID()) || (!loot.HasItemForAll() && !loot.HasItemFor(player))) // no loot in chest for this player
+				if (!loot.HasAllowedLooter(GUID) || (!loot.HasItemForAll() && !loot.HasItemFor(player))) // no loot in chest for this player
 					return false;
 			}
 
 			if (HasLootRecipient())
-				return _tapList.Contains(player.GetGUID()); // if go doesnt have group bound it means it was solo killed by someone else
+				return _tapList.Contains(player.GUID); // if go doesnt have group bound it means it was solo killed by someone else
 
 			return true;
 		}
@@ -3088,12 +3106,12 @@ namespace Game.Entities
 			if (_personalLoot.Empty())
 				return Loot;
 
-			return _personalLoot.LookupByKey(player.GetGUID());
+			return _personalLoot.LookupByKey(player.GUID);
 		}
 
 		public void SetLinkedTrap(GameObject linkedTrap)
 		{
-			_linkedTrap = linkedTrap.GetGUID();
+			_linkedTrap = linkedTrap.GUID;
 		}
 
 		public GameObject GetLinkedTrap()
@@ -3152,7 +3170,7 @@ namespace Game.Entities
 
 			WorldPacket buffer1 = new();
 			buffer1.WriteUInt8((byte)UpdateType.Values);
-			buffer1.WritePackedGuid(GetGUID());
+			buffer1.WritePackedGuid(GUID);
 			buffer1.WriteUInt32(buffer.GetSize());
 			buffer1.WriteBytes(buffer.GetData());
 
@@ -3293,7 +3311,7 @@ namespace Game.Entities
 				_animKitId = 0;
 
 			GameObjectActivateAnimKit activateAnimKit = new();
-			activateAnimKit.ObjectGUID = GetGUID();
+			activateAnimKit.ObjectGUID = GUID;
 			activateAnimKit.AnimKitID = animKitId;
 			activateAnimKit.Maintain = !oneshot;
 			SendMessageToSet(activateAnimKit, true);
@@ -3304,7 +3322,7 @@ namespace Game.Entities
 			SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.SpellVisualID), spellVisualId);
 
 			GameObjectPlaySpellVisual packet = new();
-			packet.ObjectGUID = GetGUID();
+			packet.ObjectGUID = GUID;
 			packet.ActivatorGUID = activatorGuid;
 			packet.SpellVisualID = spellVisualId;
 			SendMessageToSet(packet, true);
@@ -3339,9 +3357,9 @@ namespace Game.Entities
 			// Cancel current timer
 			GoValue.CapturePoint.AssaultTimer = 0;
 
-			if (player.GetBgTeam() == Team.Horde)
+			if (player.GetBgTeam() == TeamFaction.Horde)
 			{
-				if (GoValue.CapturePoint.LastTeamCapture == TeamId.Horde)
+				if (GoValue.CapturePoint.LastTeamCapture == TeamIds.Horde)
 				{
 					// defended. capture instantly.
 					GoValue.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
@@ -3375,7 +3393,7 @@ namespace Game.Entities
 			}
 			else
 			{
-				if (GoValue.CapturePoint.LastTeamCapture == TeamId.Alliance)
+				if (GoValue.CapturePoint.LastTeamCapture == TeamIds.Alliance)
 				{
 					// defended. capture instantly.
 					GoValue.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
@@ -3417,7 +3435,7 @@ namespace Game.Entities
 			if (GoValue.CapturePoint.State == BattlegroundCapturePointState.Neutral)
 				return true;
 
-			if (target.GetBgTeam() == Team.Horde)
+			if (target.GetBgTeam() == TeamFaction.Horde)
 				return GoValue.CapturePoint.State == BattlegroundCapturePointState.ContestedAlliance || GoValue.CapturePoint.State == BattlegroundCapturePointState.AllianceCaptured;
 
 			// For Alliance players
@@ -3436,11 +3454,6 @@ namespace Game.Entities
 					return false;
 
 			return true;
-		}
-
-		public override ushort GetAIAnimKitId()
-		{
-			return _animKitId;
 		}
 
 		public uint GetWorldEffectID()
@@ -3491,16 +3504,11 @@ namespace Game.Entities
 		public void SetOwnerGUID(ObjectGuid owner)
 		{
 			// Owner already found and different than expected owner - remove object from old owner
-			if (!owner.IsEmpty() && !GetOwnerGUID().IsEmpty() && GetOwnerGUID() != owner)
+			if (!owner.IsEmpty && !OwnerGUID.IsEmpty && OwnerGUID != owner)
 				Cypher.Assert(false);
 
 			_spawnedByDefault = false; // all object with owner is despawned after delay
 			SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.CreatedBy), owner);
-		}
-
-		public override ObjectGuid GetOwnerGUID()
-		{
-			return GameObjectData.CreatedBy;
 		}
 
 		public void SetSpellId(uint id)
@@ -3680,13 +3688,13 @@ namespace Game.Entities
 					var userLevels = Global.DB2Mgr.GetContentTuningData(GetGoInfo().ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (userLevels.HasValue)
-						return (byte)Math.Clamp(player.GetLevel(), userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
+						return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
 				}
 
 				var targetUnit = target.ToUnit();
 
 				if (targetUnit != null)
-					return targetUnit.GetLevel();
+					return targetUnit.Level;
 			}
 
 			return 1;
@@ -3705,36 +3713,6 @@ namespace Game.Entities
 		public uint GetDisplayId()
 		{
 			return GameObjectData.DisplayID;
-		}
-
-		public override uint GetFaction()
-		{
-			return GameObjectData.FactionTemplate;
-		}
-
-		public override void SetFaction(uint faction)
-		{
-			SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.FactionTemplate), faction);
-		}
-
-		public override float GetStationaryX()
-		{
-			return StationaryPosition.X;
-		}
-
-		public override float GetStationaryY()
-		{
-			return StationaryPosition.Y;
-		}
-
-		public override float GetStationaryZ()
-		{
-			return StationaryPosition.Z;
-		}
-
-		public override float GetStationaryO()
-		{
-			return StationaryPosition.Orientation;
 		}
 
 		public Position GetStationaryPosition()
@@ -3769,9 +3747,9 @@ namespace Game.Entities
 
 		void RemoveFromOwner()
 		{
-			var ownerGUID = GetOwnerGUID();
+			var ownerGUID = OwnerGUID;
 
-			if (ownerGUID.IsEmpty())
+			if (ownerGUID.IsEmpty)
 				return;
 
 			var owner = Global.ObjAccessor.GetUnit(this, ownerGUID);
@@ -3779,7 +3757,7 @@ namespace Game.Entities
 			if (owner)
 			{
 				owner.RemoveGameObject(this, false);
-				Cypher.Assert(GetOwnerGUID().IsEmpty());
+				Cypher.Assert(OwnerGUID.IsEmpty);
 
 				return;
 			}
@@ -3787,7 +3765,7 @@ namespace Game.Entities
 			// This happens when a mage portal is despawned after the caster changes map (for example using the portal)
 			Log.outDebug(LogFilter.Server,
 						"Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
-						GetGUID().ToString(),
+						GUID.ToString(),
 						GetGoInfo().entry,
 						_spellId,
 						GetGoInfo().GetLinkedGameObjectEntry(),
@@ -3878,13 +3856,13 @@ namespace Game.Entities
 
 			SetParentRotation(parentRotation);
 
-			SetObjectScale(goInfo.size);
+			ObjectScale = goInfo.size;
 
 			var goOverride = GetGameObjectOverride();
 
 			if (goOverride != null)
 			{
-				SetFaction(goOverride.Faction);
+				Faction = goOverride.Faction;
 				ReplaceAllFlags(goOverride.Flags);
 			}
 
@@ -3900,7 +3878,7 @@ namespace Game.Entities
 					_animKitId = (ushort)GoTemplateAddon.AiAnimKitId;
 			}
 
-			SetEntry(goInfo.entry);
+			Entry = goInfo.entry;
 
 			// set name for logs usage, doesn't affect anything ingame
 			SetName(goInfo.name);
@@ -3971,7 +3949,7 @@ namespace Game.Entities
 				case GameObjectTypes.CapturePoint:
 					SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.SpellVisualID), GoInfo.CapturePoint.SpellVisual1);
 					GoValue.CapturePoint.AssaultTimer = 0;
-					GoValue.CapturePoint.LastTeamCapture = TeamId.Neutral;
+					GoValue.CapturePoint.LastTeamCapture = TeamIds.Neutral;
 					GoValue.CapturePoint.State = BattlegroundCapturePointState.Neutral;
 					UpdateCapturePoint();
 
@@ -4038,7 +4016,7 @@ namespace Game.Entities
 
 		void DespawnForPlayer(Player seer, TimeSpan respawnTime)
 		{
-			var perPlayerState = GetOrCreatePerPlayerStates(seer.GetGUID());
+			var perPlayerState = GetOrCreatePerPlayerStates(seer.GUID);
 			perPlayerState.ValidUntil = GameTime.GetSystemTime() + respawnTime;
 			perPlayerState.Despawned = true;
 			seer.UpdateVisibilityOf(this);
@@ -4073,7 +4051,7 @@ namespace Game.Entities
 
 			if (displayInfo != null)
 			{
-				var scale = GetObjectScale();
+				var scale = ObjectScale;
 
 				var minX = displayInfo.GeoBoxMin.X * scale - radius;
 				var minY = displayInfo.GeoBoxMin.Y * scale - radius;
@@ -4104,12 +4082,12 @@ namespace Game.Entities
 
 		void SetGoStateFor(GameObjectState state, Player viewer)
 		{
-			var perPlayerState = GetOrCreatePerPlayerStates(viewer.GetGUID());
+			var perPlayerState = GetOrCreatePerPlayerStates(viewer.GUID);
 			perPlayerState.ValidUntil = GameTime.GetSystemTime() + TimeSpan.FromSeconds(_respawnDelayTime);
 			perPlayerState.State = state;
 
 			GameObjectSetStateLocal setStateLocal = new();
-			setStateLocal.ObjectGUID = GetGUID();
+			setStateLocal.ObjectGUID = GUID;
 			setStateLocal.State = (byte)state;
 			viewer.SendPacket(setStateLocal);
 		}
@@ -4200,7 +4178,7 @@ namespace Game.Entities
 					UpdateCapturePoint packet = new();
 					packet.CapturePointInfo.State = GoValue.CapturePoint.State;
 					packet.CapturePointInfo.Pos = Location;
-					packet.CapturePointInfo.Guid = GetGUID();
+					packet.CapturePointInfo.Guid = GUID;
 					packet.CapturePointInfo.CaptureTotalDuration = TimeSpan.FromMilliseconds(GetGoInfo().CapturePoint.CaptureTime);
 					packet.CapturePointInfo.CaptureTime = GoValue.CapturePoint.AssaultTimer;
 					bg.SendPacketToAll(packet);

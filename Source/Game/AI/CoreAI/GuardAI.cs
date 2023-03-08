@@ -22,7 +22,7 @@ namespace Game.AI
         {
             Unit unit = obj.ToUnit();
             if (unit != null)
-                if (unit.IsControlledByPlayer() && me.IsEngagedBy(unit))
+                if (unit.IsControlledByPlayer && me.IsEngagedBy(unit))
                     return true;
 
             return false;
@@ -30,21 +30,22 @@ namespace Game.AI
 
         public override void EnterEvadeMode(EvadeReason why)
         {
-            if (!me.IsAlive())
+            if (!me.IsAlive)
             {
-                me.GetMotionMaster().MoveIdle();
+                me.                MotionMaster.MoveIdle();
                 me.CombatStop(true);
                 EngagementOver();
                 return;
             }
 
-            Log.outTrace(LogFilter.ScriptsAi, $"GuardAI::EnterEvadeMode: {me.GetGUID()} enters evade mode.");
+            Log.outTrace(LogFilter.ScriptsAi, $"GuardAI::EnterEvadeMode: {me.GUID} enters evade mode.");
 
             me.RemoveAllAuras();
             me.CombatStop(true);
             EngagementOver();
 
-            me.GetMotionMaster().MoveTargetedHome();
+            me.
+            MotionMaster.MoveTargetedHome();
         }
 
         public override void JustDied(Unit killer)

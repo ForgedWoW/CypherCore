@@ -42,8 +42,8 @@ public class spell_warr_jump_to_skyhold : SpellScript, IHasSpellEffects
 
 			var arrivalCast = new JumpArrivalCastArgs();
 			arrivalCast.SpellId = WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT;
-			arrivalCast.Target = caster.GetGUID();
-			caster.GetMotionMaster().MoveJump(pos_x, pos_y, pos_z, caster.Location.Orientation, 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
+			arrivalCast.Target = caster.GUID;
+			caster.MotionMaster.MoveJump(pos_x, pos_y, pos_z, caster.Location.Orientation, 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
 
 			caster.RemoveAura(WarriorSpells.JUMP_TO_SKYHOLD_AURA);
 		}

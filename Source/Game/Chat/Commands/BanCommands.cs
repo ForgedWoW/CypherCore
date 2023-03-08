@@ -36,7 +36,7 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            string author = handler.GetSession() != null ? handler.GetSession().GetPlayerName() : "Server";
+            string author = handler.GetSession() != null ? handler.GetSession().PlayerName : "Server";
 
             switch (Global.WorldMgr.BanCharacter(playerName, duration, reason, author))
             {
@@ -105,7 +105,7 @@ namespace Game.Chat.Commands
                     break;
             }
 
-            string author = handler.GetSession() ? handler.GetSession().GetPlayerName() : "Server";
+            string author = handler.GetSession() ? handler.GetSession().PlayerName : "Server";
             switch (Global.WorldMgr.BanAccount(mode, nameOrIP, duration, reason, author))
             {
                 case BanReturn.Success:
@@ -183,17 +183,17 @@ namespace Game.Chat.Commands
             if (!target)
             {
                 targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(name);
-                if (targetGuid.IsEmpty())
+                if (targetGuid.IsEmpty)
                 {
                     handler.SendSysMessage(CypherStrings.BaninfoNocharacter);
                     return false;
                 }
             }
             else
-                targetGuid = target.GetGUID();
+                targetGuid = target.GUID;
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_BANINFO);
-            stmt.AddValue(0, targetGuid.GetCounter());
+            stmt.AddValue(0, targetGuid.Counter);
             SQLResult result = DB.Characters.Query(stmt);
             if (result.IsEmpty())
             {

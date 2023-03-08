@@ -18,7 +18,7 @@ public class PlayerLastSearcher : IGridNotifierPlayer
 
 	public PlayerLastSearcher(WorldObject searcher, ICheck<Player> check, GridType gridType)
 	{
-		_phaseShift = searcher.GetPhaseShift();
+		_phaseShift = searcher.PhaseShift;
 		_check = check;
 		GridType = gridType;
 	}

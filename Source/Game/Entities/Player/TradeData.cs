@@ -34,7 +34,7 @@ public class TradeData
 
 	public Item GetItem(TradeSlots slot)
 	{
-		return !_items[(int)slot].IsEmpty() ? _player.GetItemByGuid(_items[(int)slot]) : null;
+		return !_items[(int)slot].IsEmpty ? _player.GetItemByGuid(_items[(int)slot]) : null;
 	}
 
 	public bool HasItem(ObjectGuid itemGuid)
@@ -57,12 +57,12 @@ public class TradeData
 
 	public Item GetSpellCastItem()
 	{
-		return !_spellCastItem.IsEmpty() ? _player.GetItemByGuid(_spellCastItem) : null;
+		return !_spellCastItem.IsEmpty ? _player.GetItemByGuid(_spellCastItem) : null;
 	}
 
 	public void SetItem(TradeSlots slot, Item item, bool update = false)
 	{
-		var itemGuid = item ? item.GetGUID() : ObjectGuid.Empty;
+		var itemGuid = item ? item.GUID : ObjectGuid.Empty;
 
 		if (_items[(int)slot] == itemGuid && !update)
 			return;
@@ -91,7 +91,7 @@ public class TradeData
 
 	public void SetSpell(uint spell_id, Item castItem = null)
 	{
-		var itemGuid = castItem ? castItem.GetGUID() : ObjectGuid.Empty;
+		var itemGuid = castItem ? castItem.GUID : ObjectGuid.Empty;
 
 		if (_spell == spell_id && _spellCastItem == itemGuid)
 			return;
@@ -118,7 +118,7 @@ public class TradeData
 			TradeStatusPkt info = new();
 			info.Status = TradeStatus.Failed;
 			info.BagResult = InventoryResult.NotEnoughMoney;
-			_player.GetSession().SendTradeStatus(info);
+			_player.Session.SendTradeStatus(info);
 
 			return;
 		}
@@ -143,9 +143,9 @@ public class TradeData
 			info.Status = TradeStatus.Unaccepted;
 
 			if (crosssend)
-				_trader.GetSession().SendTradeStatus(info);
+				_trader.Session.SendTradeStatus(info);
 			else
-				_player.GetSession().SendTradeStatus(info);
+				_player.Session.SendTradeStatus(info);
 		}
 	}
 
@@ -156,7 +156,7 @@ public class TradeData
 
 	public bool HasSpellCastItem()
 	{
-		return !_spellCastItem.IsEmpty();
+		return !_spellCastItem.IsEmpty;
 	}
 
 	public ulong GetMoney()
@@ -202,8 +202,8 @@ public class TradeData
 	void Update(bool forTarget = true)
 	{
 		if (forTarget)
-			_trader.GetSession().SendUpdateTrade(true); // player state for trader
+			_trader.Session.SendUpdateTrade(true); // player state for trader
 		else
-			_player.GetSession().SendUpdateTrade(false); // player state for player
+			_player.Session.SendUpdateTrade(false); // player state for player
 	}
 }

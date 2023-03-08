@@ -39,7 +39,7 @@ public class spell_druid_lunar_strike : SpellScript, IHasSpellEffects
 
 		if (Caster.HasAura(Spells.NATURES_BALANCE))
 		{
-			var moonfireDOT = currentTarget.GetAura(MoonfireSpells.MOONFIRE_DAMAGE, Caster.GetGUID());
+			var moonfireDOT = currentTarget.GetAura(MoonfireSpells.MOONFIRE_DAMAGE, Caster.GUID);
 
 			if (moonfireDOT != null)
 			{

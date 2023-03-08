@@ -30,9 +30,9 @@ namespace Scripts.Pets
 			public override void InitializeAI()
 			{
 				base.InitializeAI();
-				var ownerGuid = me.GetOwnerGUID();
+				var ownerGuid = me.OwnerGUID;
 
-				if (ownerGuid.IsEmpty())
+				if (ownerGuid.IsEmpty)
 					return;
 
 				// Find victim of Summon Gargoyle spell
@@ -62,7 +62,7 @@ namespace Scripts.Pets
 			public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 			{
 				if (spellInfo.Id != SpellIds.DismissGargoyle ||
-					!me.IsAlive())
+					!me.IsAlive)
 					return;
 
 				var owner = me.GetOwner();
@@ -76,7 +76,7 @@ namespace Scripts.Pets
 
 				// Sanctuary
 				me.CastSpell(me, SpellIds.Sanctuary, true);
-				me.SetReactState(ReactStates.Passive);
+				me.ReactState = ReactStates.Passive;
 
 				//! HACK: Creature's can't have MOVEMENTFLAG_FLYING
 				// Fly Away
@@ -86,8 +86,8 @@ namespace Scripts.Pets
 				var x = me.Location.X + 20 * (float)Math.Cos(me.Location.Orientation);
 				var y = me.Location.Y + 20 * (float)Math.Sin(me.Location.Orientation);
 				var z = me.Location.Z + 40;
-				me.GetMotionMaster().Clear();
-				me.GetMotionMaster().MovePoint(0, x, y, z);
+				me.MotionMaster.Clear();
+				me.MotionMaster.MovePoint(0, x, y, z);
 
 				// Despawn as soon as possible
 				me.DespawnOrUnsummon(TimeSpan.FromSeconds(4));

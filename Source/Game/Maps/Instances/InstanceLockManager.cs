@@ -306,13 +306,13 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		}
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_INSTANCE_LOCK);
-		stmt.AddValue(0, playerGuid.GetCounter());
+		stmt.AddValue(0, playerGuid.Counter);
 		stmt.AddValue(1, entries.MapDifficulty.MapID);
 		stmt.AddValue(2, entries.MapDifficulty.LockID);
 		trans.Append(stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_INSTANCE_LOCK);
-		stmt.AddValue(0, playerGuid.GetCounter());
+		stmt.AddValue(0, playerGuid.Counter);
 		stmt.AddValue(1, entries.MapDifficulty.MapID);
 		stmt.AddValue(2, entries.MapDifficulty.LockID);
 		stmt.AddValue(3, instanceLock.GetInstanceId());
@@ -378,7 +378,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			instanceLock.SetExtended(extended);
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
 			stmt.AddValue(0, extended ? 1 : 0);
-			stmt.AddValue(1, playerGuid.GetCounter());
+			stmt.AddValue(1, playerGuid.Counter);
 			stmt.AddValue(2, entries.MapDifficulty.MapID);
 			stmt.AddValue(3, entries.MapDifficulty.LockID);
 			DB.Characters.Execute(stmt);
@@ -440,7 +440,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 
 				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
 				stmt.AddValue(0, (ulong)Time.DateTimeToUnixTime(newExpiryTime));
-				stmt.AddValue(1, playerGuid.GetCounter());
+				stmt.AddValue(1, playerGuid.Counter);
 				stmt.AddValue(2, entries.MapDifficulty.MapID);
 				stmt.AddValue(3, entries.MapDifficulty.LockID);
 				trans.Append(stmt);

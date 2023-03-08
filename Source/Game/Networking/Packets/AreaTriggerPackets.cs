@@ -6,92 +6,88 @@ using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+class AreaTriggerPkt : ClientPacket
 {
-    class AreaTriggerPkt : ClientPacket
-    {
-        public AreaTriggerPkt(WorldPacket packet) : base(packet) { }
+	public uint AreaTriggerID;
+	public bool Entered;
+	public bool FromClient;
+	public AreaTriggerPkt(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            AreaTriggerID = _worldPacket.ReadUInt32();
-            Entered = _worldPacket.HasBit();
-            FromClient = _worldPacket.HasBit();
-        }
+	public override void Read()
+	{
+		AreaTriggerID = _worldPacket.ReadUInt32();
+		Entered = _worldPacket.HasBit();
+		FromClient = _worldPacket.HasBit();
+	}
+}
 
-        public uint AreaTriggerID;
-        public bool Entered;
-        public bool FromClient;
-    }
+class AreaTriggerDenied : ServerPacket
+{
+	public int AreaTriggerID;
+	public bool Entered;
+	public AreaTriggerDenied() : base(ServerOpcodes.AreaTriggerDenied) { }
 
-    class AreaTriggerDenied : ServerPacket
-    {
-        public AreaTriggerDenied() : base(ServerOpcodes.AreaTriggerDenied) { }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(AreaTriggerID);
+		_worldPacket.WriteBit(Entered);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(AreaTriggerID);
-            _worldPacket.WriteBit(Entered);
-            _worldPacket.FlushBits();
-        }
+class AreaTriggerNoCorpse : ServerPacket
+{
+	public AreaTriggerNoCorpse() : base(ServerOpcodes.AreaTriggerNoCorpse) { }
 
-        public int AreaTriggerID;
-        public bool Entered;
-    }
+	public override void Write() { }
+}
 
-    class AreaTriggerNoCorpse : ServerPacket
-    {
-        public AreaTriggerNoCorpse() : base(ServerOpcodes.AreaTriggerNoCorpse) { }
+class AreaTriggerRePath : ServerPacket
+{
+	public AreaTriggerSplineInfo AreaTriggerSpline;
+	public AreaTriggerOrbitInfo AreaTriggerOrbit;
+	public AreaTriggerMovementScriptInfo? AreaTriggerMovementScript;
+	public ObjectGuid TriggerGUID;
+	public AreaTriggerRePath() : base(ServerOpcodes.AreaTriggerRePath) { }
 
-        public override void Write() { }
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(TriggerGUID);
 
-    class AreaTriggerRePath : ServerPacket
-    {
-        public AreaTriggerRePath() : base(ServerOpcodes.AreaTriggerRePath) { }
+		_worldPacket.WriteBit(AreaTriggerSpline != null);
+		_worldPacket.WriteBit(AreaTriggerOrbit != null);
+		_worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
+		_worldPacket.FlushBits();
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(TriggerGUID);
+		if (AreaTriggerSpline != null)
+			AreaTriggerSpline.Write(_worldPacket);
 
-            _worldPacket.WriteBit(AreaTriggerSpline != null);
-            _worldPacket.WriteBit(AreaTriggerOrbit != null);
-            _worldPacket.WriteBit(AreaTriggerMovementScript.HasValue);
-            _worldPacket.FlushBits();
+		if (AreaTriggerMovementScript.HasValue)
+			AreaTriggerMovementScript.Value.Write(_worldPacket);
 
-            if (AreaTriggerSpline != null)
-                AreaTriggerSpline.Write(_worldPacket);
+		if (AreaTriggerOrbit != null)
+			AreaTriggerOrbit.Write(_worldPacket);
+	}
+}
 
-            if (AreaTriggerMovementScript.HasValue)
-                AreaTriggerMovementScript.Value.Write(_worldPacket);
+//Structs
+class AreaTriggerSplineInfo
+{
+	public uint TimeToTarget;
+	public uint ElapsedTimeForMovement;
+	public List<Vector3> Points = new();
 
-            if (AreaTriggerOrbit != null)
-                AreaTriggerOrbit.Write(_worldPacket);
-        }
+	public void Write(WorldPacket data)
+	{
+		data.WriteUInt32(TimeToTarget);
+		data.WriteUInt32(ElapsedTimeForMovement);
 
-        public AreaTriggerSplineInfo AreaTriggerSpline;
-        public AreaTriggerOrbitInfo AreaTriggerOrbit;
-        public AreaTriggerMovementScriptInfo? AreaTriggerMovementScript;
-        public ObjectGuid TriggerGUID;
-    }
+		data.WriteBits(Points.Count, 16);
+		data.FlushBits();
 
-    //Structs
-    class AreaTriggerSplineInfo
-    {
-        public void Write(WorldPacket data)
-        {
-            data.WriteUInt32(TimeToTarget);
-            data.WriteUInt32(ElapsedTimeForMovement);
-
-            data.WriteBits(Points.Count, 16);
-            data.FlushBits();
-
-            foreach (Vector3 point in Points)
-                data.WriteVector3(point);
-        }
-
-        public uint TimeToTarget;
-        public uint ElapsedTimeForMovement;
-        public List<Vector3> Points = new();
-    }
+		foreach (var point in Points)
+			data.WriteVector3(point);
+	}
 }

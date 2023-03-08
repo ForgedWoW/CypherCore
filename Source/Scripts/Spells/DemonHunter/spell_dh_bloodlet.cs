@@ -41,7 +41,7 @@ public class spell_dh_bloodlet : AuraScript, IHasAuraEffects
 		var dmgPerTick = (double)dmg / 5.0f;
 
 		// Any remaining damage must be added
-		var dot = target.GetAuraEffect(DemonHunterSpells.BLOODLET_DOT, 0, caster.GetGUID());
+		var dot = target.GetAuraEffect(DemonHunterSpells.BLOODLET_DOT, 0, caster.GUID);
 
 		if (dot != null)
 			dmgPerTick += (dot.Amount * (dot.GetTotalTicks() - dot.GetTickNumber())) / 5;

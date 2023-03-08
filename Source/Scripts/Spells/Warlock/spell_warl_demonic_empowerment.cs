@@ -50,7 +50,7 @@ public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISp
 			if (!caster.IsFriendlyTo(target.ToUnit()))
 				return true;
 
-			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+			if (target.ToCreature().CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;

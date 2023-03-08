@@ -22,7 +22,7 @@ public class npc_warr_banner : ScriptedAI
 	public override void IsSummonedBy(WorldObject summoner)
 	{
 		base.IsSummonedBy(summoner);
-		me.SetReactState(Framework.Constants.ReactStates.Passive);
+		me.ReactState = Framework.Constants.ReactStates.Passive;
 	}
 
 	public override void UpdateAI(uint diff)
@@ -33,13 +33,13 @@ public class npc_warr_banner : ScriptedAI
 
 			if (owner != null)
 			{
-				me.SetLevel(owner.GetLevel());
+				me.SetLevel(owner.Level);
 				var allies = new List<Unit>();
 
 				me.GetFriendlyUnitListInRange(allies, 30.0f, true);
 
 				foreach (var targets in allies)
-					if (targets.IsFriendlyTo(owner) && targets.IsPlayer())
+					if (targets.IsFriendlyTo(owner) && targets.IsPlayer)
 					{
 						if (!targets.HasAura(WarriorSpells.WAR_BANNER_BUFF))
 							targets.AddAura(WarriorSpells.WAR_BANNER_BUFF, targets);

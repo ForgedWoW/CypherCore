@@ -16,8 +16,8 @@ namespace Game
         public void SendTradeStatus(TradeStatusPkt info)
         {
             info.Clear();   // reuse packet
-            Player trader = GetPlayer().GetTrader();
-            info.PartnerIsSameBnetAccount = trader && trader.GetSession().GetBattlenetAccountId() == GetBattlenetAccountId();
+            Player trader = Player.GetTrader();
+            info.PartnerIsSameBnetAccount = trader && trader.Session.BattlenetAccountId == BattlenetAccountId;
             SendPacket(info);
         }
 
@@ -29,7 +29,7 @@ namespace Game
 
         public void SendUpdateTrade(bool trader_data = true)
         {
-            TradeData view_trade = trader_data ? GetPlayer().GetTradeData().GetTraderData() : GetPlayer().GetTradeData();
+            TradeData view_trade = trader_data ? Player.GetTradeData().GetTraderData() : Player.GetTradeData();
 
             TradeUpdated tradeUpdated = new();
             tradeUpdated.WhichPlayer = (byte)(trader_data ? 1 : 0);
@@ -83,7 +83,7 @@ namespace Game
 
         void MoveItems(Item[] myItems, Item[] hisItems)
         {
-            Player trader = GetPlayer().GetTrader();
+            Player trader = Player.GetTrader();
             if (!trader)
                 return;
 
@@ -92,7 +92,7 @@ namespace Game
                 List<ItemPosCount> traderDst = new();
                 List<ItemPosCount> playerDst = new();
                 bool traderCanTrade = (myItems[i] == null || trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, myItems[i], false) == InventoryResult.Ok);
-                bool playerCanTrade = (hisItems[i] == null || GetPlayer().CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i], false) == InventoryResult.Ok);
+                bool playerCanTrade = (hisItems[i] == null || Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, hisItems[i], false) == InventoryResult.Ok);
                 if (traderCanTrade && playerCanTrade)
                 {
                     // Ok, if trade item exists and can be stored
@@ -101,39 +101,39 @@ namespace Game
                     if (myItems[i])
                     {
                         // logging
-                        Log.outDebug(LogFilter.Network, "partner storing: {0}", myItems[i].GetGUID().ToString());
+                        Log.outDebug(LogFilter.Network, "partner storing: {0}", myItems[i].GUID.ToString());
 
                         if (HasPermission(RBACPermissions.LogGmTrade))
                         {
-                            Log.outCommand(_player.GetSession().GetAccountId(), "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
-                                GetPlayer().GetName(), GetPlayer().GetSession().GetAccountId(), myItems[i].GetTemplate().GetName(), myItems[i].GetEntry(), myItems[i].GetCount(),
-                                trader.GetName(), trader.GetSession().GetAccountId());
+                            Log.outCommand(_player.Session.AccountId, "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
+                                Player.GetName(), Player.Session.AccountId, myItems[i].GetTemplate().GetName(), myItems[i].Entry, myItems[i].GetCount(),
+                                trader.GetName(), trader.Session.AccountId);
                         }
 
                         // adjust time (depends on /played)
                         if (myItems[i].IsBOPTradeable())
-                            myItems[i].SetCreatePlayedTime(trader.GetTotalPlayedTime() - (GetPlayer().GetTotalPlayedTime() - myItems[i].ItemData.CreatePlayedTime));
+                            myItems[i].SetCreatePlayedTime(trader.TotalPlayedTime - (Player.TotalPlayedTime - myItems[i].ItemData.CreatePlayedTime));
                         // store
                         trader.MoveItemToInventory(traderDst, myItems[i], true, true);
                     }
                     if (hisItems[i])
                     {
                         // logging
-                        Log.outDebug(LogFilter.Network, "player storing: {0}", hisItems[i].GetGUID().ToString());
+                        Log.outDebug(LogFilter.Network, "player storing: {0}", hisItems[i].GUID.ToString());
 
                         if (HasPermission(RBACPermissions.LogGmTrade))
                         {
-                            Log.outCommand(trader.GetSession().GetAccountId(), "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
-                                trader.GetName(), trader.GetSession().GetAccountId(), hisItems[i].GetTemplate().GetName(), hisItems[i].GetEntry(), hisItems[i].GetCount(),
-                                GetPlayer().GetName(), GetPlayer().GetSession().GetAccountId());
+                            Log.outCommand(trader.Session.AccountId, "GM {0} (Account: {1}) trade: {2} (Entry: {3} Count: {4}) to player: {5} (Account: {6})",
+                                trader.GetName(), trader.Session.AccountId, hisItems[i].GetTemplate().GetName(), hisItems[i].Entry, hisItems[i].GetCount(),
+                                Player.GetName(), Player.Session.AccountId);
                         }
                         
 
                         // adjust time (depends on /played)
                         if (hisItems[i].IsBOPTradeable())
-                            hisItems[i].SetCreatePlayedTime(GetPlayer().GetTotalPlayedTime() - (trader.GetTotalPlayedTime() - hisItems[i].ItemData.CreatePlayedTime));
+                            hisItems[i].SetCreatePlayedTime(Player.TotalPlayedTime - (trader.TotalPlayedTime - hisItems[i].ItemData.CreatePlayedTime));
                         // store
-                        GetPlayer().MoveItemToInventory(playerDst, hisItems[i], true, true);
+                        Player.MoveItemToInventory(playerDst, hisItems[i], true, true);
                     }
                 }
                 else
@@ -143,21 +143,21 @@ namespace Game
                     if (myItems[i])
                     {
                         if (!traderCanTrade)
-                            Log.outError(LogFilter.Network, "trader can't store item: {0}", myItems[i].GetGUID().ToString());
-                        if (GetPlayer().CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i], false) == InventoryResult.Ok)
-                            GetPlayer().MoveItemToInventory(playerDst, myItems[i], true, true);
+                            Log.outError(LogFilter.Network, "trader can't store item: {0}", myItems[i].GUID.ToString());
+                        if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i], false) == InventoryResult.Ok)
+                            Player.MoveItemToInventory(playerDst, myItems[i], true, true);
                         else
-                            Log.outError(LogFilter.Network, "player can't take item back: {0}", myItems[i].GetGUID().ToString());
+                            Log.outError(LogFilter.Network, "player can't take item back: {0}", myItems[i].GUID.ToString());
                     }
                     // return the already removed items to the original owner
                     if (hisItems[i])
                     {
                         if (!playerCanTrade)
-                            Log.outError(LogFilter.Network, "player can't store item: {0}", hisItems[i].GetGUID().ToString());
+                            Log.outError(LogFilter.Network, "player can't store item: {0}", hisItems[i].GUID.ToString());
                         if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i], false) == InventoryResult.Ok)
                             trader.MoveItemToInventory(traderDst, hisItems[i], true, true);
                         else
-                            Log.outError(LogFilter.Network, "trader can't take item back: {0}", hisItems[i].GetGUID().ToString());
+                            Log.outError(LogFilter.Network, "trader can't take item back: {0}", hisItems[i].GUID.ToString());
                     }
                 }
             }
@@ -174,7 +174,7 @@ namespace Game
                 Item item = myTrade.GetItem((TradeSlots)i);
                 if (item)
                 {
-                    Log.outDebug(LogFilter.Network, "player trade item {0} bag: {1} slot: {2}", item.GetGUID().ToString(), item.GetBagSlot(), item.GetSlot());
+                    Log.outDebug(LogFilter.Network, "player trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.GetBagSlot(), item.GetSlot());
                     //Can return null
                     myItems[i] = item;
                     myItems[i].SetInTrade();
@@ -182,7 +182,7 @@ namespace Game
                 item = hisTrade.GetItem((TradeSlots)i);
                 if (item)
                 {
-                    Log.outDebug(LogFilter.Network, "partner trade item {0} bag: {1} slot: {2}", item.GetGUID().ToString(), item.GetBagSlot(), item.GetSlot());
+                    Log.outDebug(LogFilter.Network, "partner trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.GetBagSlot(), item.GetSlot());
                     hisItems[i] = item;
                     hisItems[i].SetInTrade();
                 }
@@ -210,7 +210,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.AcceptTrade)]
         void HandleAcceptTrade(AcceptTrade acceptTrade)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 
@@ -235,7 +235,7 @@ namespace Game
                 return;
             }
 
-            if (!GetPlayer().IsWithinDistInMap(trader, 11.11f, false))
+            if (!Player.IsWithinDistInMap(trader, 11.11f, false))
             {
                 info.Status = TradeStatus.TooFarAway;
                 SendTradeStatus(info);
@@ -244,7 +244,7 @@ namespace Game
             }
 
             // not accept case incorrect money amount
-            if (!GetPlayer().HasEnoughMoney(my_trade.GetMoney()))
+            if (!Player.HasEnoughMoney(my_trade.GetMoney()))
             {
                 info.Status = TradeStatus.Failed;
                 info.BagResult = InventoryResult.NotEnoughMoney;
@@ -258,12 +258,12 @@ namespace Game
             {
                 info.Status = TradeStatus.Failed;
                 info.BagResult = InventoryResult.NotEnoughMoney;
-                trader.GetSession().SendTradeStatus(info);
+                trader.                Session.SendTradeStatus(info);
                 his_trade.SetAccepted(false, true);
                 return;
             }
 
-            if (GetPlayer().GetMoney() >= PlayerConst.MaxMoneyAmount - his_trade.GetMoney())
+            if (Player.Money >= PlayerConst.MaxMoneyAmount - his_trade.GetMoney())
             {
                 info.Status = TradeStatus.Failed;
                 info.BagResult = InventoryResult.TooMuchGold;
@@ -272,11 +272,11 @@ namespace Game
                 return;
             }
 
-            if (trader.GetMoney() >= PlayerConst.MaxMoneyAmount - my_trade.GetMoney())
+            if (trader.Money >= PlayerConst.MaxMoneyAmount - my_trade.GetMoney())
             {
                 info.Status = TradeStatus.Failed;
                 info.BagResult = InventoryResult.TooMuchGold;
-                trader.GetSession().SendTradeStatus(info);
+                trader.                Session.SendTradeStatus(info);
                 his_trade.SetAccepted(false, true);
                 return;
             }
@@ -341,9 +341,9 @@ namespace Game
                         return;
                     }
 
-                    my_spell = new Spell(GetPlayer(), spellEntry, TriggerCastFlags.FullMask);
+                    my_spell = new Spell(Player, spellEntry, TriggerCastFlags.FullMask);
                     my_spell.CastItem = castItem;
-                    my_targets.SetTradeItemTarget(GetPlayer());
+                    my_targets.SetTradeItemTarget(Player);
                     my_spell.Targets = my_targets;
 
                     SpellCastResult res = my_spell.CheckCast(true);
@@ -399,13 +399,13 @@ namespace Game
 
                 // inform partner client
                 info.Status = TradeStatus.Accepted;
-                trader.GetSession().SendTradeStatus(info);
+                trader.                Session.SendTradeStatus(info);
 
                 // test if item will fit in each inventory
                 TradeStatusPkt myCanCompleteInfo = new();
                 TradeStatusPkt hisCanCompleteInfo = new();
                 hisCanCompleteInfo.BagResult = trader.CanStoreItems(myItems, (int)TradeSlots.TradedCount, ref hisCanCompleteInfo.ItemID);
-                myCanCompleteInfo.BagResult = GetPlayer().CanStoreItems(hisItems, (int)TradeSlots.TradedCount, ref myCanCompleteInfo.ItemID);
+                myCanCompleteInfo.BagResult = Player.CanStoreItems(hisItems, (int)TradeSlots.TradedCount, ref myCanCompleteInfo.ItemID);
 
                 ClearAcceptTradeMode(myItems, hisItems);
 
@@ -415,7 +415,7 @@ namespace Game
                     ClearAcceptTradeMode(my_trade, his_trade);
 
                     myCanCompleteInfo.Status = TradeStatus.Failed;
-                    trader.GetSession().SendTradeStatus(myCanCompleteInfo);
+                    trader.                    Session.SendTradeStatus(myCanCompleteInfo);
                     myCanCompleteInfo.FailureForYou = true;
                     SendTradeStatus(myCanCompleteInfo);
                     my_trade.SetAccepted(false);
@@ -429,7 +429,7 @@ namespace Game
                     hisCanCompleteInfo.Status = TradeStatus.Failed;
                     SendTradeStatus(hisCanCompleteInfo);
                     hisCanCompleteInfo.FailureForYou = true;
-                    trader.GetSession().SendTradeStatus(hisCanCompleteInfo);
+                    trader.                    Session.SendTradeStatus(hisCanCompleteInfo);
                     my_trade.SetAccepted(false);
                     his_trade.SetAccepted(false);
                     return;
@@ -440,12 +440,12 @@ namespace Game
                 {
                     if (myItems[i])
                     {
-                        myItems[i].SetGiftCreator(GetPlayer().GetGUID());
-                        GetPlayer().MoveItemFromInventory(myItems[i].GetBagSlot(), myItems[i].GetSlot(), true);
+                        myItems[i].SetGiftCreator(Player.GUID);
+                        Player.MoveItemFromInventory(myItems[i].GetBagSlot(), myItems[i].GetSlot(), true);
                     }
                     if (hisItems[i])
                     {
-                        hisItems[i].SetGiftCreator(trader.GetGUID());
+                        hisItems[i].SetGiftCreator(trader.GUID);
                         trader.MoveItemFromInventory(hisItems[i].GetBagSlot(), hisItems[i].GetSlot(), true);
                     }
                 }
@@ -458,21 +458,21 @@ namespace Game
                 {
                     if (my_trade.GetMoney() > 0)
                     {
-                        Log.outCommand(GetPlayer().GetSession().GetAccountId(), "GM {0} (Account: {1}) give money (Amount: {2}) to player: {3} (Account: {4})",
-                            GetPlayer().GetName(), GetPlayer().GetSession().GetAccountId(), my_trade.GetMoney(), trader.GetName(), trader.GetSession().GetAccountId());
+                        Log.outCommand(Player.Session.AccountId, "GM {0} (Account: {1}) give money (Amount: {2}) to player: {3} (Account: {4})",
+                            Player.GetName(), Player.Session.AccountId, my_trade.GetMoney(), trader.GetName(), trader.Session.AccountId);
                     }
 
                     if (his_trade.GetMoney() > 0)
                     {
-                        Log.outCommand(GetPlayer().GetSession().GetAccountId(), "GM {0} (Account: {1}) give money (Amount: {2}) to player: {3} (Account: {4})",
-                            trader.GetName(), trader.GetSession().GetAccountId(), his_trade.GetMoney(), GetPlayer().GetName(), GetPlayer().GetSession().GetAccountId());
+                        Log.outCommand(Player.Session.AccountId, "GM {0} (Account: {1}) give money (Amount: {2}) to player: {3} (Account: {4})",
+                            trader.GetName(), trader.Session.AccountId, his_trade.GetMoney(), Player.GetName(), Player.Session.AccountId);
                     }
                 }
                 
 
                 // update money
-                GetPlayer().ModifyMoney(-(long)my_trade.GetMoney());
-                GetPlayer().ModifyMoney((long)his_trade.GetMoney());
+                Player.ModifyMoney(-(long)my_trade.GetMoney());
+                Player.ModifyMoney((long)his_trade.GetMoney());
                 trader.ModifyMoney(-(long)his_trade.GetMoney());
                 trader.ModifyMoney((long)my_trade.GetMoney());
 
@@ -484,30 +484,30 @@ namespace Game
 
                 // cleanup
                 ClearAcceptTradeMode(my_trade, his_trade);
-                GetPlayer().SetTradeData(null);
+                Player.SetTradeData(null);
                 trader.SetTradeData(null);
 
                 // desynchronized with the other saves here (SaveInventoryAndGoldToDB() not have own transaction guards)
                 SQLTransaction trans = new();
-                GetPlayer().SaveInventoryAndGoldToDB(trans);
+                Player.SaveInventoryAndGoldToDB(trans);
                 trader.SaveInventoryAndGoldToDB(trans);
                 DB.Characters.CommitTransaction(trans);
 
                 info.Status = TradeStatus.Complete;
-                trader.GetSession().SendTradeStatus(info);
+                trader.                Session.SendTradeStatus(info);
                 SendTradeStatus(info);
             }
             else
             {
                 info.Status = TradeStatus.Accepted;
-                trader.GetSession().SendTradeStatus(info);
+                trader.                Session.SendTradeStatus(info);
             }
         }
 
         [WorldPacketHandler(ClientOpcodes.UnacceptTrade)]
         void HandleUnacceptTrade(UnacceptTrade packet)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 
@@ -517,18 +517,18 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.BeginTrade)]
         void HandleBeginTrade(BeginTrade packet)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 
             TradeStatusPkt info = new();
-            my_trade.GetTrader().GetSession().SendTradeStatus(info);
+            my_trade.GetTrader().            Session.SendTradeStatus(info);
             SendTradeStatus(info);
         }
 
         public void SendCancelTrade()
         {
-            if (PlayerRecentlyLoggedOut() || PlayerLogout())
+            if (PlayerRecentlyLoggedOut || PlayerLogout)
                 return;
 
             TradeStatusPkt info = new();
@@ -540,46 +540,46 @@ namespace Game
         void HandleCancelTrade(CancelTrade cancelTrade)
         {
             // sent also after LOGOUT COMPLETE
-            if (GetPlayer())                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
-                GetPlayer().TradeCancel(true);
+            if (Player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
+                Player.TradeCancel(true);
         }
 
         [WorldPacketHandler(ClientOpcodes.InitiateTrade)]
         void HandleInitiateTrade(InitiateTrade initiateTrade)
         {
-            if (GetPlayer().GetTradeData() != null)
+            if (Player.GetTradeData() != null)
                 return;
 
             TradeStatusPkt info = new();
-            if (!GetPlayer().IsAlive())
+            if (!Player.IsAlive)
             {
                 info.Status = TradeStatus.Dead;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (GetPlayer().HasUnitState(UnitState.Stunned))
+            if (Player.HasUnitState(UnitState.Stunned))
             {
                 info.Status = TradeStatus.Stunned;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (IsLogingOut())
+            if (IsLogingOut)
             {
                 info.Status = TradeStatus.LoggingOut;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (GetPlayer().IsInFlight())
+            if (Player.IsInFlight)
             {
                 info.Status = TradeStatus.TooFarAway;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (GetPlayer().GetLevel() < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
+            if (Player.Level < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
             {
                 SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeReq), WorldConfig.GetIntValue(WorldCfg.TradeLevelReq));
                 info.Status = TradeStatus.Failed;
@@ -596,21 +596,21 @@ namespace Game
                 return;
             }
 
-            if (pOther == GetPlayer() || pOther.GetTradeData() != null)
+            if (pOther == Player || pOther.GetTradeData() != null)
             {
                 info.Status = TradeStatus.PlayerBusy;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (!pOther.IsAlive())
+            if (!pOther.IsAlive)
             {
                 info.Status = TradeStatus.TargetDead;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (pOther.IsInFlight())
+            if (pOther.IsInFlight)
             {
                 info.Status = TradeStatus.TooFarAway;
                 SendTradeStatus(info);
@@ -624,23 +624,23 @@ namespace Game
                 return;
             }
 
-            if (pOther.GetSession().IsLogingOut())
+            if (pOther.Session.IsLogingOut)
             {
                 info.Status = TradeStatus.TargetLoggingOut;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (pOther.GetSocial().HasIgnore(GetPlayer().GetGUID(), GetPlayer().GetSession().GetAccountGUID()))
+            if (pOther.Social.HasIgnore(Player.GUID, Player.Session.AccountGUID))
             {
                 info.Status = TradeStatus.PlayerIgnored;
                 SendTradeStatus(info);
                 return;
             }
 
-            if ((pOther.GetTeam() != GetPlayer().GetTeam() || 
+            if ((pOther.Team != Player.Team || 
                 pOther.HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ||
-                GetPlayer().HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode)) &&
+                Player.HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode)) &&
                 (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideTrade) &&
                 !HasPermission(RBACPermissions.AllowTwoSideTrade)))
             {
@@ -649,14 +649,14 @@ namespace Game
                 return;
             }
 
-            if (!pOther.IsWithinDistInMap(GetPlayer(), 11.11f, false))
+            if (!pOther.IsWithinDistInMap(Player, 11.11f, false))
             {
                 info.Status = TradeStatus.TooFarAway;
                 SendTradeStatus(info);
                 return;
             }
 
-            if (pOther.GetLevel() < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
+            if (pOther.Level < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
             {
                 SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeOtherReq), WorldConfig.GetIntValue(WorldCfg.TradeLevelReq));
                 info.Status = TradeStatus.Failed;
@@ -665,18 +665,18 @@ namespace Game
             }
 
             // OK start trade
-            GetPlayer().SetTradeData(new TradeData(GetPlayer(), pOther));
-            pOther.SetTradeData(new TradeData(pOther, GetPlayer()));
+            Player.SetTradeData(new TradeData(Player, pOther));
+            pOther.SetTradeData(new TradeData(pOther, Player));
 
             info.Status = TradeStatus.Proposed;
-            info.Partner = GetPlayer().GetGUID();
-            pOther.GetSession().SendTradeStatus(info);
+            info.Partner = Player.GUID;
+            pOther.            Session.SendTradeStatus(info);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetTradeGold)]
         void HandleSetTradeGold(SetTradeGold setTradeGold)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 
@@ -687,7 +687,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetTradeItem)]
         void HandleSetTradeItem(SetTradeItem setTradeItem)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 
@@ -701,7 +701,7 @@ namespace Game
             }
 
             // check cheating, can't fail with correct client operations
-            Item item = GetPlayer().GetItemByPos(setTradeItem.PackSlot, setTradeItem.ItemSlotInPack);
+            Item item = Player.GetItemByPos(setTradeItem.PackSlot, setTradeItem.ItemSlotInPack);
             if (!item || (setTradeItem.TradeSlot != (byte)TradeSlots.NonTraded && !item.CanBeTraded(false, true)))
             {
                 info.Status = TradeStatus.Cancelled;
@@ -709,7 +709,7 @@ namespace Game
                 return;
             }
 
-            ObjectGuid iGUID = item.GetGUID();
+            ObjectGuid iGUID = item.GUID;
 
             // prevent place single item into many trade slots using cheating and client bugs
             if (my_trade.HasItem(iGUID))
@@ -735,7 +735,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ClearTradeItem)]
         void HandleClearTradeItem(ClearTradeItem clearTradeItem)
         {
-            TradeData my_trade = GetPlayer().GetTradeData();
+            TradeData my_trade = Player.GetTradeData();
             if (my_trade == null)
                 return;
 

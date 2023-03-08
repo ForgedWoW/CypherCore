@@ -26,7 +26,7 @@ internal class spell_item_worn_troll_dice : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

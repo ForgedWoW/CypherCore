@@ -35,7 +35,7 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 	{
 		var caster = Caster;
 
-		if (caster.IsMounted() ||
+		if (caster.IsMounted ||
 			caster.GetVehicleBase())
 			return SpellCastResult.DontReport;
 

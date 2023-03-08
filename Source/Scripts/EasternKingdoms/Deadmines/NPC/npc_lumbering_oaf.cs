@@ -135,7 +135,7 @@ public class npc_lumbering_oafAI : ScriptedAI
 
 				case HelOaf_Events.EVENT_MOVE_TO_POINT:
 					me.SetSpeed(UnitMoveType.Run, 5.0f);
-					me.GetMotionMaster().MovePoint(0, -289.809f, -527.215f, 49.8021f);
+					me.MotionMaster.MovePoint(0, -289.809f, -527.215f, 49.8021f);
 					_events.ScheduleEvent(HelOaf_Events.EVEMT_CHARGE, TimeSpan.FromMilliseconds(2000));
 
 					break;

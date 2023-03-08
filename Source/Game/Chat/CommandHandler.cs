@@ -173,17 +173,17 @@ namespace Game.Chat
                 player = Global.ObjAccessor.FindPlayerByName(name);
                 ObjectGuid guid = player == null ? Global.CharacterCacheStorage.GetCharacterGuidByName(name) : ObjectGuid.Empty;
 
-                playerGuid = player != null ? player.GetGUID() : guid;
-                playerName = player != null || !guid.IsEmpty() ? name : "";
+                playerGuid = player != null ? player.GUID : guid;
+                playerName = player != null || !guid.IsEmpty ? name : "";
             }
             else
             {
                 player = GetSelectedPlayer();
-                playerGuid = player != null ? player.GetGUID() : ObjectGuid.Empty;
+                playerGuid = player != null ? player.GUID : ObjectGuid.Empty;
                 playerName = player != null ? player.GetName() : "";
             }
 
-            if (player == null && playerGuid.IsEmpty() && string.IsNullOrEmpty(playerName))
+            if (player == null && playerGuid.IsEmpty && string.IsNullOrEmpty(playerName))
             {
                 SendSysMessage(CypherStrings.PlayerNotFound);
                 _sentErrorMessage = true;
@@ -218,13 +218,13 @@ namespace Game.Chat
 
                         Player player = Global.ObjAccessor.FindPlayerByName(idS);
                         if (player)
-                            return player.GetGUID().GetCounter();
+                            return player.GUID.Counter;
 
                         ObjectGuid guid = Global.CharacterCacheStorage.GetCharacterGuidByName(idS);
-                        if (guid.IsEmpty())
+                        if (guid.IsEmpty)
                             return 0;
 
-                        return guid.GetCounter();
+                        return guid.Counter;
                     }
                 case 1:
                     {
@@ -306,10 +306,10 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.GetPlayer().GetTarget();
+            ObjectGuid selected = _session.Player.GetTarget();
 
-            if (selected.IsEmpty())
-                return _session.GetPlayer();
+            if (selected.IsEmpty)
+                return _session.Player;
 
             return Global.ObjAccessor.FindConnectedPlayer(selected);
         }
@@ -318,45 +318,45 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            Unit selected = _session.GetPlayer().GetSelectedUnit();
+            Unit selected = _session.Player.GetSelectedUnit();
             if (selected)
                 return selected;
 
-            return _session.GetPlayer();
+            return _session.Player;
         }
         public WorldObject GetSelectedObject()
         {
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.GetPlayer().GetTarget();
+            ObjectGuid selected = _session.Player.GetTarget();
 
-            if (selected.IsEmpty())
+            if (selected.IsEmpty)
                 return GetNearbyGameObject();
 
-            return Global.ObjAccessor.GetUnit(_session.GetPlayer(), selected);
+            return Global.ObjAccessor.GetUnit(_session.Player, selected);
         }
         public Creature GetSelectedCreature()
         {
             if (_session == null)
                 return null;
 
-            return ObjectAccessor.GetCreatureOrPetOrVehicle(_session.GetPlayer(), _session.GetPlayer().GetTarget());
+            return ObjectAccessor.GetCreatureOrPetOrVehicle(_session.Player, _session.Player.GetTarget());
         }
         public Player GetSelectedPlayerOrSelf()
         {
             if (_session == null)
                 return null;
 
-            ObjectGuid selected = _session.GetPlayer().GetTarget();
-            if (selected.IsEmpty())
-                return _session.GetPlayer();
+            ObjectGuid selected = _session.Player.GetTarget();
+            if (selected.IsEmpty)
+                return _session.Player;
 
             // first try with selected target
             Player targetPlayer = Global.ObjAccessor.FindConnectedPlayer(selected);
             // if the target is not a player, then return self
             if (!targetPlayer)
-                targetPlayer = _session.GetPlayer();
+                targetPlayer = _session.Player;
 
             return targetPlayer;
         }
@@ -366,7 +366,7 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            var bounds = _session.GetPlayer().GetMap().GetGameObjectBySpawnIdStore().LookupByKey(lowguid);
+            var bounds = _session.Player.GetMap().GetGameObjectBySpawnIdStore().LookupByKey(lowguid);
             if (!bounds.Empty())
                 return bounds.First();
 
@@ -380,11 +380,11 @@ namespace Game.Chat
 
             // Select the first alive creature or a dead one if not found
             Creature creature = null;
-            var bounds = _session.GetPlayer().GetMap().GetCreatureBySpawnIdStore().LookupByKey(lowguid);
+            var bounds = _session.Player.GetMap().GetCreatureBySpawnIdStore().LookupByKey(lowguid);
             foreach (var it in bounds)
             {
                 creature = it;
-                if (it.IsAlive())
+                if (it.IsAlive)
                     break;
             }
 
@@ -395,7 +395,7 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            Player pl = _session.GetPlayer();
+            Player pl = _session.Player;
             NearestGameObjectCheck check = new(pl);
             GameObjectLastSearcher searcher = new(pl, check, GridType.Grid);
             Cell.VisitGrid(pl, searcher, MapConst.SizeofGrids);
@@ -408,7 +408,7 @@ namespace Game.Chat
         }
         public virtual string GetNameLink()
         {
-            return GetNameLink(_session.GetPlayer());
+            return GetNameLink(_session.Player);
         }
         public string GetNameLink(Player obj)
         {
@@ -416,7 +416,7 @@ namespace Game.Chat
         }
         public virtual bool NeedReportToTarget(Player chr)
         {
-            Player pl = _session.GetPlayer();
+            Player pl = _session.Player;
             return pl != chr && pl.IsVisibleGloballyFor(chr);
         }
         public bool HasLowerSecurity(Player target, ObjectGuid guid, bool strong = false)
@@ -425,8 +425,8 @@ namespace Game.Chat
             uint target_account = 0;
 
             if (target != null)
-                target_session = target.GetSession();
-            else if (!guid.IsEmpty())
+                target_session = target.Session;
+            else if (!guid.IsEmpty)
                 target_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
 
             if (target_session == null && target_account == 0)
@@ -447,17 +447,17 @@ namespace Game.Chat
                 return false;
 
             // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-            if (!Global.AccountMgr.IsPlayerAccount(_session.GetSecurity()) && !strong && !WorldConfig.GetBoolValue(WorldCfg.GmLowerSecurity))
+            if (!Global.AccountMgr.IsPlayerAccount(_session.Security) && !strong && !WorldConfig.GetBoolValue(WorldCfg.GmLowerSecurity))
                 return false;
 
             if (target != null)
-                target_ac_sec = target.GetSecurity();
+                target_ac_sec = target.Security;
             else if (target_account != 0)
                 target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)Global.WorldMgr.GetRealmId().Index);
             else
                 return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
-            if (_session.GetSecurity() < target_ac_sec || (strong && _session.GetSecurity() <= target_ac_sec))
+            if (_session.Security < target_ac_sec || (strong && _session.Security <= target_ac_sec))
             {
                 SendSysMessage(CypherStrings.YoursSecurityIsLow);
                 _sentErrorMessage = true;
@@ -499,7 +499,7 @@ namespace Game.Chat
         }
         public Player GetPlayer()
         {
-            return _session?.GetPlayer();
+            return _session?.Player;
         }
         public string GetCypherString(CypherStrings str)
         {
@@ -508,11 +508,11 @@ namespace Game.Chat
 
         public virtual Locale GetSessionDbcLocale()
         {
-            return _session.GetSessionDbcLocale();
+            return _session.SessionDbcLocale;
         }
         public virtual byte GetSessionDbLocaleIndex()
         {
-            return (byte)_session.GetSessionDbLocaleIndex();
+            return (byte)_session.SessionDbLocaleIndex;
         }
         public string GetParsedString(CypherStrings cypherString, params object[] args)
         {
@@ -588,18 +588,18 @@ namespace Game.Chat
             if (player)
             {
                 group = player.GetGroup();
-                if (guid.IsEmpty() || !offline)
-                    guid = player.GetGUID();
+                if (guid.IsEmpty || !offline)
+                    guid = player.GUID;
             }
             else
             {
                 if (GetSelectedPlayer())
                     player = GetSelectedPlayer();
                 else
-                    player = _session.GetPlayer();
+                    player = _session.Player;
 
-                if (guid.IsEmpty() || !offline)
-                    guid = player.GetGUID();
+                if (guid.IsEmpty || !offline)
+                    guid = player.GUID;
                 group = player.GetGroup();
             }
 
@@ -666,7 +666,7 @@ namespace Game.Chat
         void Send(string msg)
         {
             ChatPkt chat = new();
-            chat.Initialize(ChatMsg.Whisper, Language.Addon, GetSession().GetPlayer(), GetSession().GetPlayer(), msg, 0, "", Locale.enUS, PREFIX);
+            chat.Initialize(ChatMsg.Whisper, Language.Addon, GetSession().Player, GetSession().Player, msg, 0, "", Locale.enUS, PREFIX);
             GetSession().SendPacket(chat);
         }
 

@@ -19,7 +19,7 @@ public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 
 	public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
 	{
-		if (player.GetClass() != Class.Paladin)
+		if (player.Class != Class.Paladin)
 			return;
 
 		if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))

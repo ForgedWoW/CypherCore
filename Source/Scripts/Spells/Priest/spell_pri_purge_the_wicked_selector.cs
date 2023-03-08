@@ -30,7 +30,7 @@ public class spell_pri_purge_the_wicked_selector : SpellScript, IHasSpellEffects
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, PriestSpells.PURGE_THE_WICKED_DOT, Caster.GetGUID()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, PriestSpells.PURGE_THE_WICKED_DOT, Caster.GUID));
 		targets.Sort(new ObjectDistanceOrderPred(ExplTargetUnit));
 
 		if (targets.Count > 1)

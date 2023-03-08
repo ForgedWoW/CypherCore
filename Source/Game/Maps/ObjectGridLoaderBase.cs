@@ -63,7 +63,7 @@ class ObjectGridLoaderBase
 
 			if (phaseOwner.HasValue)
 			{
-				PhasingHandler.InitDbPersonalOwnership(obj.GetPhaseShift(), phaseOwner.Value);
+				PhasingHandler.InitDbPersonalOwnership(obj.PhaseShift, phaseOwner.Value);
 				map.GetMultiPersonalPhaseTracker().RegisterTrackedObject(phaseId, phaseOwner.Value, obj);
 			}
 
@@ -77,8 +77,8 @@ class ObjectGridLoaderBase
 		map.AddToGrid(obj, cell);
 		obj.AddToWorld();
 
-		if (obj.IsCreature())
-			if (obj.IsActiveObject())
+		if (obj.IsCreature)
+			if (obj.IsActiveObject)
 				map.AddToActive(obj);
 
 		++count;

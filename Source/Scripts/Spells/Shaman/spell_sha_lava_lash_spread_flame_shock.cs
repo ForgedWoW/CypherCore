@@ -19,7 +19,7 @@ public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffe
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()
@@ -30,7 +30,7 @@ public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffe
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, Caster.GetGUID()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, Caster.GUID));
 	}
 
 	private void HandleScript(int effIndex)
@@ -39,7 +39,7 @@ public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffe
 
 		if (mainTarget != null)
 		{
-			var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, Caster.GetGUID());
+			var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, Caster.GUID);
 
 			if (flameShock != null)
 			{

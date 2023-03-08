@@ -226,7 +226,7 @@ namespace Game.Chat.Commands
         static RBACCommandData GetRBACData(AccountIdentifier account)
         {
             if (account.IsConnected())
-                return new RBACCommandData() { rbac = account.GetConnectedSession().GetRBACData(), needDelete = false };
+                return new RBACCommandData() { rbac = account.GetConnectedSession().RBACData, needDelete = false };
 
             RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.GetRealmId().Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)Global.WorldMgr.GetRealmId().Index));
             rbac.LoadFromDB();

@@ -18,6 +18,13 @@ namespace Game.Entities;
 
 public partial class Unit
 {
+	// This value can be different from IsInCombat, for example:
+	// - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
+	// - when the creature has no targets left, but the AI has not yet ceased engaged logic
+	public virtual bool IsEngaged => IsInCombat();
+
+	public override float CombatReach => UnitData.CombatReach;
+
 	public virtual void AtEnterCombat()
 	{
 		foreach (var pair in GetAppliedAuras())
@@ -106,7 +113,7 @@ public partial class Unit
 
 		if (!map.IsDungeon())
 		{
-			Log.outError(LogFilter.Unit, $"Creature entry {GetEntry()} call SetInCombatWithZone for map (id: {map.GetEntry()}) that isn't an instance.");
+			Log.outError(LogFilter.Unit, $"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.GetEntry()}) that isn't an instance.");
 
 			return;
 		}
@@ -115,10 +122,10 @@ public partial class Unit
 
 		foreach (var player in players)
 		{
-			if (player.IsGameMaster())
+			if (player.IsGameMaster)
 				continue;
 
-			if (player.IsAlive())
+			if (player.IsAlive)
 			{
 				SetInCombatWith(player);
 				player.SetInCombatWith(this);
@@ -177,14 +184,6 @@ public partial class Unit
 		return _threatManager.CanHaveThreatList();
 	}
 
-	// This value can be different from IsInCombat, for example:
-	// - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
-	// - when the creature has no targets left, but the AI has not yet ceased engaged logic
-	public virtual bool IsEngaged()
-	{
-		return IsInCombat();
-	}
-
 	public bool IsEngagedBy(Unit who)
 	{
 		return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who);
@@ -229,13 +228,13 @@ public partial class Unit
 
 	public bool IsTargetableForAttack(bool checkFakeDeath = true)
 	{
-		if (!IsAlive())
+		if (!IsAlive)
 			return false;
 
 		if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible))
 			return false;
 
-		if (IsTypeId(TypeId.Player) && ToPlayer().IsGameMaster())
+		if (IsTypeId(TypeId.Player) && ToPlayer().IsGameMaster)
 			return false;
 
 		return !HasUnitState(UnitState.Unattackable) && (!checkFakeDeath || !HasUnitState(UnitState.Died));
@@ -321,11 +320,11 @@ public partial class Unit
 	{
 		var targetGUID = _lastDamagedTargetGuid;
 
-		if (!targetGUID.IsEmpty())
+		if (!targetGUID.IsEmpty)
 		{
 			var selection = GetTarget();
 
-			if (!selection.IsEmpty())
+			if (!selection.IsEmpty)
 				targetGUID = selection; // Spell was cast directly (not triggered by aura)
 			else
 				return;
@@ -339,32 +338,32 @@ public partial class Unit
 
 	public bool Attack(Unit victim, bool meleeAttack)
 	{
-		if (victim == null || victim.GetGUID() == GetGUID())
+		if (victim == null || victim.GUID == GUID)
 			return false;
 
 		// dead units can neither attack nor be attacked
-		if (!IsAlive() || !victim.IsInWorld || !victim.IsAlive())
+		if (!IsAlive || !victim.IsInWorld || !victim.IsAlive)
 			return false;
 
 		// player cannot attack in mount state
-		if (IsTypeId(TypeId.Player) && IsMounted())
+		if (IsTypeId(TypeId.Player) && IsMounted)
 			return false;
 
 		var creature = ToCreature();
 
 		// creatures cannot attack while evading
-		if (creature != null && creature.IsInEvadeMode())
+		if (creature != null && creature.IsInEvadeMode)
 			return false;
 
 		// nobody can attack GM in GM-mode
 		if (victim.IsTypeId(TypeId.Player))
 		{
-			if (victim.ToPlayer().IsGameMaster())
+			if (victim.ToPlayer().IsGameMaster)
 				return false;
 		}
 		else
 		{
-			if (victim.ToCreature().IsEvadingAttacks())
+			if (victim.ToCreature().IsEvadingAttacks)
 				return false;
 		}
 
@@ -412,12 +411,12 @@ public partial class Unit
 		Attacking._addAttacker(this);
 
 		// Set our target
-		SetTarget(victim.GetGUID());
+		SetTarget(victim.GUID);
 
 		if (meleeAttack)
 			AddUnitState(UnitState.MeleeAttacking);
 
-		if (creature != null && !IsControlledByPlayer())
+		if (creature != null && !IsControlledByPlayer)
 		{
 			EngageWithTarget(victim); // ensure that anything we're attacking has threat
 
@@ -425,11 +424,11 @@ public partial class Unit
 			creature.CallAssistance();
 
 			// Remove emote state - will be restored on creature reset
-			SetEmoteState(Emote.OneshotNone);
+			EmoteState = Emote.OneshotNone;
 		}
 
 		// delay offhand weapon attack by 50% of the base attack time
-		if (HaveOffhandWeapon() && GetTypeId() != TypeId.Player)
+		if (HaveOffhandWeapon() && TypeId != TypeId.Player)
 			SetAttackTimer(WeaponAttackType.OffAttack, Math.Max(GetAttackTimer(WeaponAttackType.OffAttack), GetAttackTimer(WeaponAttackType.BaseAttack) + MathFunctions.CalculatePct(GetBaseAttackTime(WeaponAttackType.BaseAttack), 50)));
 
 		if (meleeAttack)
@@ -457,8 +456,8 @@ public partial class Unit
 	public void SendMeleeAttackStart(Unit victim)
 	{
 		AttackStart packet = new();
-		packet.Attacker = GetGUID();
-		packet.Victim = victim.GetGUID();
+		packet.Attacker = GUID;
+		packet.Victim = victim.GUID;
 		SendMessageToSet(packet, true);
 	}
 
@@ -470,11 +469,11 @@ public partial class Unit
 			Log.outInfo(LogFilter.Unit,
 						"{0} {1} stopped attacking {2} {3}",
 						(IsTypeId(TypeId.Player) ? "Player" : "Creature"),
-						GetGUID().ToString(),
+						GUID.ToString(),
 						(victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
-						victim.GetGUID().ToString());
+						victim.GUID.ToString());
 		else
-			Log.outInfo(LogFilter.Unit, "{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GetGUID().ToString());
+			Log.outInfo(LogFilter.Unit, "{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
 	}
 
 	public ObjectGuid GetTarget()
@@ -534,18 +533,18 @@ public partial class Unit
 
 	public Unit GetAttackerForHelper()
 	{
-		if (!IsEngaged())
+		if (!IsEngaged)
 			return null;
 
 		var victim = GetVictim();
 
 		if (victim != null)
-			if ((!IsPet() && GetPlayerMovingMe() == null) || IsInCombatWith(victim))
+			if ((!IsPet && GetPlayerMovingMe() == null) || IsInCombatWith(victim))
 				return victim;
 
 		var mgr = GetCombatManager();
 		// pick arbitrary targets; our pvp combat > owner's pvp combat > our pve combat > owner's pve combat
-		var owner = GetCharmerOrOwner();
+		var owner = CharmerOrOwner;
 
 		if (mgr.HasPvPCombat())
 			return mgr.GetPvPCombatRefs().First().Value.GetOther(this);
@@ -565,11 +564,6 @@ public partial class Unit
 	public List<Unit> GetAttackers()
 	{
 		return AttackerList;
-	}
-
-	public override float GetCombatReach()
-	{
-		return UnitData.CombatReach;
 	}
 
 	public void SetCombatReach(float combatReach)
@@ -623,7 +617,7 @@ public partial class Unit
 		if (HasAuraType(AuraType.DisableAttackingExceptAbilities))
 			return;
 
-		if (!victim.IsAlive())
+		if (!victim.IsAlive)
 			return;
 
 		if ((attType == WeaponAttackType.BaseAttack || attType == WeaponAttackType.OffAttack) && !IsWithinLOSInMap(victim))
@@ -685,7 +679,7 @@ public partial class Unit
 
 				SendAttackStateUpdate(damageInfo);
 
-				_lastDamagedTargetGuid = victim.GetGUID();
+				_lastDamagedTargetGuid = victim.GUID;
 
 				DealMeleeDamage(damageInfo, true);
 
@@ -694,8 +688,8 @@ public partial class Unit
 
 				Log.outDebug(LogFilter.Unit,
 							"AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
-							GetGUID().ToString(),
-							victim.GetGUID().ToString(),
+							GUID.ToString(),
+							victim.GUID.ToString(),
 							damageInfo.Damage,
 							damageInfo.Absorb,
 							damageInfo.Blocked,
@@ -760,8 +754,8 @@ public partial class Unit
 	{
 		AttackerStateUpdate packet = new();
 		packet.hitInfo = damageInfo.HitInfo;
-		packet.AttackerGUID = damageInfo.Attacker.GetGUID();
-		packet.VictimGUID = damageInfo.Target.GetGUID();
+		packet.AttackerGUID = damageInfo.Attacker.GUID;
+		packet.VictimGUID = damageInfo.Target.GUID;
 		packet.Damage = (int)damageInfo.Damage;
 		packet.OriginalDamage = (int)damageInfo.OriginalDamage;
 		var overkill = (int)(damageInfo.Damage - damageInfo.Target.GetHealth());
@@ -789,12 +783,12 @@ public partial class Unit
 
 	public void AtTargetAttacked(Unit target, bool canInitialAggro = true)
 	{
-		if (!target.IsEngaged() && !canInitialAggro)
+		if (!target.IsEngaged && !canInitialAggro)
 			return;
 
 		target.EngageWithTarget(this);
 
-		var targetOwner = target.GetCharmerOrOwner();
+		var targetOwner = target.CharmerOrOwner;
 
 		if (targetOwner != null)
 			targetOwner.EngageWithTarget(this);
@@ -830,12 +824,12 @@ public partial class Unit
 		var isRewardAllowed = attacker != victim;
 
 		if (creature != null)
-			isRewardAllowed = isRewardAllowed && !creature.GetTapList().Empty();
+			isRewardAllowed = isRewardAllowed && !creature.TapList.Empty();
 
 		List<Player> tappers = new();
 
 		if (isRewardAllowed && creature)
-			foreach (var tapperGuid in creature.GetTapList())
+			foreach (var tapperGuid in creature.TapList)
 			{
 				var tapper = Global.ObjAccessor.GetPlayer(creature, tapperGuid);
 
@@ -844,7 +838,7 @@ public partial class Unit
 			}
 
 		// Exploit fix
-		if (creature && creature.IsPet() && creature.GetOwnerGUID().IsPlayer())
+		if (creature && creature.IsPet && creature.OwnerGUID.IsPlayer)
 			isRewardAllowed = false;
 
 		// Reward player, his pets, and group/raid members
@@ -862,11 +856,11 @@ public partial class Unit
 					if (groups.Add(tapperGroup))
 					{
 						PartyKillLog partyKillLog = new();
-						partyKillLog.Player = player && tapperGroup.IsMember(player.GetGUID()) ? player.GetGUID() : tapper.GetGUID();
-						partyKillLog.Victim = victim.GetGUID();
+						partyKillLog.Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID;
+						partyKillLog.Victim = victim.GUID;
 						partyKillLog.Write();
 
-						tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GetGUID()) != 0);
+						tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GUID) != 0);
 
 						if (creature)
 							tapperGroup.UpdateLooterGuid(creature, true);
@@ -875,8 +869,8 @@ public partial class Unit
 				else
 				{
 					PartyKillLog partyKillLog = new();
-					partyKillLog.Player = tapper.GetGUID();
-					partyKillLog.Victim = victim.GetGUID();
+					partyKillLog.Player = tapper.GUID;
+					partyKillLog.Victim = victim.GUID;
 					tapper.SendPacket(partyKillLog);
 				}
 			}
@@ -895,12 +889,12 @@ public partial class Unit
 					if (dungeonEncounter != null)
 					{
 						creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-																								creature.GetCreatureTemplate().LootId,
+																								creature.CreatureTemplate.LootId,
 																								LootStorage.Creature,
 																								LootType.Corpse,
 																								creature,
-																								creature.GetCreatureTemplate().MinGold,
-																								creature.GetCreatureTemplate().MaxGold,
+																								creature.CreatureTemplate.MinGold,
+																								creature.CreatureTemplate.MaxGold,
 																								(ushort)creature.GetLootMode(),
 																								creature.GetMap().GetDifficultyLootItemContext(),
 																								tappers);
@@ -910,20 +904,20 @@ public partial class Unit
 						var group = !groups.Empty() ? groups.First() : null;
 						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.GetLooterGuid()) : tappers[0];
 
-						Loot loot = new(creature.GetMap(), creature.GetGUID(), LootType.Corpse, dungeonEncounter != null ? group : null);
+						Loot loot = new(creature.GetMap(), creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
-						var lootid = creature.GetCreatureTemplate().LootId;
+						var lootid = creature.CreatureTemplate.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.GetMap().GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
-							loot.GenerateMoneyLoot(creature.GetCreatureTemplate().MinGold, creature.GetCreatureTemplate().MaxGold);
+							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
 
 						if (group)
 							loot.NotifyLootList(creature.GetMap());
 
-						creature.PersonalLoot[looter.GetGUID()] = loot; // trash mob loot is personal, generated with round robin rules
+						creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
 
 						// Update round robin looter only if the creature had loot
 						if (!loot.IsLooted())
@@ -935,20 +929,20 @@ public partial class Unit
 				{
 					foreach (var tapper in tappers)
 					{
-						Loot loot = new(creature.GetMap(), creature.GetGUID(), LootType.Corpse, null);
+						Loot loot = new(creature.GetMap(), creature.GUID, LootType.Corpse, null);
 
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
 
-						var lootid = creature.GetCreatureTemplate().LootId;
+						var lootid = creature.CreatureTemplate.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.GetMap().GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
-							loot.GenerateMoneyLoot(creature.GetCreatureTemplate().MinGold, creature.GetCreatureTemplate().MaxGold);
+							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
 
-						creature.PersonalLoot[tapper.GetGUID()] = loot;
+						creature.PersonalLoot[tapper.GUID] = loot;
 					}
 				}
 			}
@@ -957,7 +951,7 @@ public partial class Unit
 		}
 
 		// Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
-		if (attacker != null && (attacker.IsPet() || attacker.IsTotem()))
+		if (attacker != null && (attacker.IsPet || attacker.IsTotem))
 		{
 			// proc only once for victim
 			var owner = attacker.GetOwner();
@@ -966,7 +960,7 @@ public partial class Unit
 				ProcSkillsAndAuras(owner, victim, new ProcFlagsInit(ProcFlags.Kill), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
 		}
 
-		if (!victim.IsCritter())
+		if (!victim.IsCritter)
 		{
 			ProcSkillsAndAuras(attacker, victim, new ProcFlagsInit(ProcFlags.Kill), new ProcFlagsInit(ProcFlags.Heartbeat), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
 
@@ -1001,9 +995,9 @@ public partial class Unit
 		{
 			var pet = tapper.GetPet();
 
-			if (pet != null && pet.IsAlive() && pet.IsControlled())
+			if (pet != null && pet.IsAlive && pet.IsControlled())
 			{
-				if (pet.IsAIEnabled())
+				if (pet.IsAIEnabled)
 					pet.GetAI().KilledUnit(victim);
 				else
 					Log.outError(LogFilter.Unit, $"Pet doesn't have any AI in Unit.Kill() {pet.GetDebugInfo()}");
@@ -1032,7 +1026,7 @@ public partial class Unit
 			}
 
 			// Call KilledUnit for creatures
-			if (attacker != null && attacker.IsCreature() && attacker.IsAIEnabled())
+			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
 				attacker.ToCreature().GetAI().KilledUnit(victim);
 
 			// last damage from non duel opponent or opponent controlled creature
@@ -1047,15 +1041,15 @@ public partial class Unit
 		{
 			Log.outDebug(LogFilter.Unit, "DealDamageNotPlayer");
 
-			if (!creature.IsPet())
+			if (!creature.IsPet)
 			{
 				// must be after setDeathState which resets dynamic flags
-				if (!creature.IsFullyLooted())
+				if (!creature.IsFullyLooted)
 					creature.SetDynamicFlag(UnitDynFlags.Lootable);
 				else
 					creature.AllLootRemovedFromCorpse();
 
-				if (LootStorage.Skinning.HaveLootFor(creature.GetCreatureTemplate().SkinLootId))
+				if (LootStorage.Skinning.HaveLootFor(creature.CreatureTemplate.SkinLootId))
 				{
 					creature.SetDynamicFlag(UnitDynFlags.CanSkin);
 					creature.SetUnitFlag(UnitFlags.Skinnable);
@@ -1063,7 +1057,7 @@ public partial class Unit
 			}
 
 			// Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-			if (attacker != null && attacker.IsCreature() && attacker.IsAIEnabled())
+			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
 				attacker.ToCreature().GetAI().KilledUnit(victim);
 
 			// Call creature just died function
@@ -1080,9 +1074,9 @@ public partial class Unit
 
 				if (summoner != null)
 				{
-					if (summoner.IsCreature())
+					if (summoner.IsCreature)
 						summoner.ToCreature().GetAI()?.SummonedCreatureDies(creature, attacker);
-					else if (summoner.IsGameObject())
+					else if (summoner.IsGameObject)
 						summoner.ToGameObject().GetAI()?.SummonedCreatureDies(creature, attacker);
 				}
 			}
@@ -1120,12 +1114,12 @@ public partial class Unit
 		}
 
 		// achievement stuff
-		if (attacker != null && victim.IsPlayer())
+		if (attacker != null && victim.IsPlayer)
 		{
-			if (attacker.IsCreature())
-				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByCreature, attacker.GetEntry());
-			else if (attacker.IsPlayer() && victim != attacker)
-				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByPlayer, 1, (ulong)attacker.ToPlayer().GetEffectiveTeam());
+			if (attacker.IsCreature)
+				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByCreature, attacker.Entry);
+			else if (attacker.IsPlayer && victim != attacker)
+				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByPlayer, 1, (ulong)attacker.ToPlayer().EffectiveTeam);
 		}
 
 		// Hook for OnPVPKill Event
@@ -1193,7 +1187,7 @@ public partial class Unit
 		{
 			CalculateMinMaxDamage(attType, normalized, addTotalPct, out minDamage, out maxDamage);
 
-			if (IsInFeralForm() && attType == WeaponAttackType.BaseAttack)
+			if (IsInFeralForm && attType == WeaponAttackType.BaseAttack)
 			{
 				CalculateMinMaxDamage(WeaponAttackType.OffAttack, normalized, addTotalPct, out var minOffhandDamage, out var maxOffhandDamage);
 				minDamage += minOffhandDamage;
@@ -1213,7 +1207,7 @@ public partial class Unit
 					minDamage = UnitData.MinDamage;
 					maxDamage = UnitData.MaxDamage;
 
-					if (IsInFeralForm())
+					if (IsInFeralForm)
 					{
 						minDamage += UnitData.MinOffHandDamage;
 						maxDamage += UnitData.MaxOffHandDamage;
@@ -1253,7 +1247,7 @@ public partial class Unit
 
 	public double GetAPMultiplier(WeaponAttackType attType, bool normalized)
 	{
-		if (!IsTypeId(TypeId.Player) || (IsInFeralForm() && !normalized))
+		if (!IsTypeId(TypeId.Player) || (IsInFeralForm && !normalized))
 			return GetBaseAttackTime(attType) / 1000.0f;
 
 		var weapon = ToPlayer().GetWeaponForAttack(attType, true);
@@ -1350,7 +1344,7 @@ public partial class Unit
 
 	public float GetMeleeRange(Unit target)
 	{
-		var range = GetCombatReach() + target.GetCombatReach() + 4.0f / 3.0f;
+		var range = CombatReach + target.CombatReach + 4.0f / 3.0f;
 
 		return Math.Max(range, SharedConst.NominalMeleeRange);
 	}
@@ -1456,7 +1450,7 @@ public partial class Unit
 		if (victim == null)
 			return;
 
-		if (!IsAlive() || !victim.IsAlive())
+		if (!IsAlive || !victim.IsAlive)
 			return;
 
 		// Select HitInfo/procAttacker/procVictim flag based on attack type
@@ -1575,7 +1569,7 @@ public partial class Unit
 				damageInfo.TargetState = VictimState.Hit;
 				damageInfo.HitInfo |= HitInfo.Block;
 				// 30% damage blocked, double blocked amount if block is critical
-				damageInfo.Blocked = MathFunctions.CalculatePct(damageInfo.Damage, damageInfo.Target.GetBlockPercent(GetLevel()));
+				damageInfo.Blocked = MathFunctions.CalculatePct(damageInfo.Damage, damageInfo.Target.GetBlockPercent(Level));
 
 				if (damageInfo.Target.IsBlockCritical())
 					damageInfo.Blocked *= 2;
@@ -1588,7 +1582,7 @@ public partial class Unit
 			case MeleeHitOutcome.Glancing:
 				damageInfo.HitInfo |= HitInfo.Glancing;
 				damageInfo.TargetState = VictimState.Hit;
-				var leveldif = (int)victim.GetLevel() - (int)GetLevel();
+				var leveldif = (int)victim.Level - (int)Level;
 
 				if (leveldif > 3)
 					leveldif = 3;
@@ -1651,7 +1645,7 @@ public partial class Unit
 
 	MeleeHitOutcome RollMeleeOutcomeAgainst(Unit victim, WeaponAttackType attType)
 	{
-		if (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks())
+		if (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks)
 			return MeleeHitOutcome.Evade;
 
 		// Miss chance based on melee
@@ -1695,7 +1689,7 @@ public partial class Unit
 			return MeleeHitOutcome.Miss;
 
 		// always crit against a sitting target (except 0 crit chance)
-		if (victim.IsTypeId(TypeId.Player) && crit_chance > 0 && !victim.IsStandState())
+		if (victim.IsTypeId(TypeId.Player) && crit_chance > 0 && !victim.IsStandState)
 			return MeleeHitOutcome.Crit;
 
 		// 2. DODGE
@@ -1722,9 +1716,9 @@ public partial class Unit
 
 		// 4. GLANCING
 		// Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
-		if ((IsTypeId(TypeId.Player) || IsPet()) &&
+		if ((IsTypeId(TypeId.Player) || IsPet) &&
 			!victim.IsTypeId(TypeId.Player) &&
-			!victim.IsPet() &&
+			!victim.IsPet &&
 			attackerLevel + 3 < victimLevel)
 		{
 			// cap possible value (with bonuses > max skill)
@@ -1755,8 +1749,8 @@ public partial class Unit
 		// mobs can score crushing blows if they're 4 or more levels above victim
 		if (attackerLevel >= victimLevel + 4 &&
 			// can be from by creature (if can) or from controlled player that considered as creature
-			!IsControlledByPlayer() &&
-			!(GetTypeId() == TypeId.Unit && ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
+			!IsControlledByPlayer &&
+			!(TypeId == TypeId.Unit && ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
 		{
 			// add 2% chance per level, min. is 15%
 			tmp = (int)(attackerLevel - victimLevel * 1000 - 1500);

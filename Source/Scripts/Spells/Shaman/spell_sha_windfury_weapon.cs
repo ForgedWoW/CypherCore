@@ -29,7 +29,7 @@ internal class spell_sha_windfury_weapon : SpellScript, ISpellOnCast, ISpellChec
 
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public void OnCast()

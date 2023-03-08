@@ -30,11 +30,11 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 
 		if (target)
 		{
-			if (target.GetLevel() > caster.GetLevel())
+			if (target.Level > caster.Level)
 				return SpellCastResult.Highlevel;
 
 			// use SMSG_PET_TAME_FAILURE?
-			if (!target.GetCreatureTemplate().IsTameable(caster.CanTameExoticPets()))
+			if (!target.CreatureTemplate.IsTameable(caster.CanTameExoticPets))
 				return SpellCastResult.BadTargets;
 
 			var petStable = caster.GetPetStable();
@@ -62,10 +62,10 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 				}
 			}
 
-			if (!caster.GetCharmedGUID().IsEmpty())
+			if (!caster.CharmedGUID.IsEmpty)
 				return SpellCastResult.AlreadyHaveCharm;
 
-			if (!target.GetOwnerGUID().IsEmpty())
+			if (!target.OwnerGUID.IsEmpty)
 			{
 				caster.SendTameFailure(PetTameResult.CreatureAlreadyOwned);
 

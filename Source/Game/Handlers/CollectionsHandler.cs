@@ -15,15 +15,15 @@ namespace Game
             switch (collectionItemSetFavorite.Type)
             {
                 case CollectionType.Toybox:
-                    GetCollectionMgr().ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+                    CollectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
                     break;
                 case CollectionType.Appearance:
                     {
-                        var pair = GetCollectionMgr().HasItemAppearance(collectionItemSetFavorite.Id);
+                        var pair = CollectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
                         if (!pair.Item1 || pair.Item2)
                             return;
 
-                        GetCollectionMgr().SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+                        CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
                         break;
                     }
                 case CollectionType.TransmogSet:

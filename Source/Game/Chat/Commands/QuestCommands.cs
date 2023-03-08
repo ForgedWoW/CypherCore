@@ -201,23 +201,23 @@ namespace Game.Chat
                 }
                 case QuestObjectiveType.MinReputation:
                 {
-                    int curRep = player.GetReputationMgr().GetReputation((uint)obj.ObjectID);
+                    int curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
                     if (curRep < obj.Amount)
                     {
                         var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
                         if (factionEntry != null)
-                            player.GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                            player.                            ReputationMgr.SetReputation(factionEntry, obj.Amount);
                     }
                     break;
                 }
                 case QuestObjectiveType.MaxReputation:
                 {
-                    int curRep = player.GetReputationMgr().GetReputation((uint)obj.ObjectID);
+                    int curRep = player.ReputationMgr.GetReputation((uint)obj.ObjectID);
                     if (curRep > obj.Amount)
                     {
                         var factionEntry = CliDB.FactionStorage.LookupByKey(obj.ObjectID);
                         if (factionEntry != null)
-                            player.GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                            player.                            ReputationMgr.SetReputation(factionEntry, obj.Amount);
                     }
                     break;
                 }

@@ -39,7 +39,7 @@ public class boss_helix_gearbreaker : BossAI
 			return;
 
 		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
-		me.SetReactState(ReactStates.Aggressive);
+		me.ReactState = ReactStates.Aggressive;
 		me.SetUnitFlag(UnitFlags.Uninteractible);
 		summons.DespawnAll();
 		OafSupport();
@@ -71,7 +71,7 @@ public class boss_helix_gearbreaker : BossAI
 		{
 			_oaf = me.FindNearestCreature(DMCreatures.NPC_OAF, 30.0f);
 
-			if (_oaf != null && _oaf.IsAlive())
+			if (_oaf != null && _oaf.IsAlive)
 			{
 				me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
 			}
@@ -79,7 +79,7 @@ public class boss_helix_gearbreaker : BossAI
 			{
 				_oaf = me.SummonCreature(DMCreatures.NPC_OAF, me.GetHomePosition());
 
-				if (_oaf != null && _oaf.IsAlive())
+				if (_oaf != null && _oaf.IsAlive)
 					me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
 			}
 		}

@@ -522,6 +522,7 @@ namespace Framework.Constants
         Max
     }
 
+    [Flags]
     public enum UnitTypeMask
     {
         None = 0x0,

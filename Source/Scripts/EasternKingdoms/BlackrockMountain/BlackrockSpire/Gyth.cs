@@ -110,7 +110,7 @@ internal class boss_gyth : BossAI
 										if (victor)
 											victor.GetAI().SetData(1, 1);
 
-										task.Schedule(TimeSpan.FromSeconds(2), summonTask2 => { me.GetMotionMaster().MovePath(MiscConst.GythPath1, false); });
+										task.Schedule(TimeSpan.FromSeconds(2), summonTask2 => { me.MotionMaster.MovePath(MiscConst.GythPath1, false); });
 									});
 
 				break;

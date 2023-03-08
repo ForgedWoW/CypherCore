@@ -43,7 +43,7 @@ internal class spell_pri_prayer_of_mending_AuraScript : AuraScript, IHasAuraEffe
 			if (stackAmount > 1)
 			{
 				CastSpellExtraArgs args = new(aurEff);
-				args.OriginalCaster = caster.GetGUID();
+				args.OriginalCaster = caster.GUID;
 				args.AddSpellMod(SpellValueMod.BasePoint0, stackAmount - 1);
 				target.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_JUMP, args);
 			}

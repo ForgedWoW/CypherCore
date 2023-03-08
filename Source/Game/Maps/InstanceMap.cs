@@ -32,8 +32,8 @@ public class InstanceMap : Map
 		// this make sure it gets unloaded if for some reason no player joins
 		UnloadTimer = (uint)Math.Max(WorldConfig.GetIntValue(WorldCfg.InstanceUnloadDelay), 1);
 
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamId.Alliance ? 1 : 0, false, this);
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamId.Horde ? 1 : 0, false, this);
+		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
+		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
 
 		if (_instanceLock != null)
 		{
@@ -53,14 +53,14 @@ public class InstanceMap : Map
 	{
 		if (player.GetMap() == this)
 		{
-			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GetGUID().ToString(), GetId(), GetInstanceId(), GetDifficultyID());
+			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), GetId(), GetInstanceId(), GetDifficultyID());
 			Cypher.Assert(false);
 
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
 		// allow GM's to enter
-		if (player.IsGameMaster())
+		if (player.IsGameMaster)
 			return base.CannotEnter(player);
 
 		// cannot enter if the instance is full (player cap), GMs don't count
@@ -74,13 +74,13 @@ public class InstanceMap : Map
 		}
 
 		// cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
-		if (!player.IsLoading() && IsRaid() && GetInstanceScript() != null && GetInstanceScript().IsEncounterInProgress())
+		if (!player.IsLoading && IsRaid() && GetInstanceScript() != null && GetInstanceScript().IsEncounterInProgress())
 			return new TransferAbortParams(TransferAbortReason.ZoneInCombat);
 
 		if (_instanceLock != null)
 		{
 			// cannot enter if player is permanent saved to a different instance id
-			var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GetGUID(), new MapDb2Entries(GetEntry(), GetMapDifficulty()), _instanceLock);
+			var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(GetEntry(), GetMapDifficulty()), _instanceLock);
 
 			if (lockError != TransferAbortReason.None)
 				return new TransferAbortParams(lockError);
@@ -99,7 +99,7 @@ public class InstanceMap : Map
 		if (entries.MapDifficulty.HasResetSchedule() && _instanceLock != null && _instanceLock.GetData().CompletedEncountersMask != 0)
 			if (!entries.MapDifficulty.IsUsingEncounterLocks())
 			{
-				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GetGUID(), entries);
+				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 
 				if (playerLock == null ||
 					(playerLock.IsExpired() && playerLock.IsExtended()) ||
@@ -110,7 +110,7 @@ public class InstanceMap : Map
 					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
 					pendingRaidLock.Extending = playerLock != null && playerLock.IsExtended();
 					pendingRaidLock.WarningOnly = entries.Map.IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-					player.GetSession().SendPacket(pendingRaidLock);
+					player.					Session.SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
 						player.SetPendingBind(GetInstanceId(), 60000);
@@ -319,10 +319,10 @@ public class InstanceMap : Map
 			foreach (var player in GetPlayers())
 			{
 				// never instance bind GMs with GM mode enabled
-				if (player.IsGameMaster())
+				if (player.IsGameMaster)
 					continue;
 
-				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GetGUID(), entries);
+				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 				var oldData = "";
 				uint playerCompletedEncounters = 0;
 
@@ -335,7 +335,7 @@ public class InstanceMap : Map
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-																				player.GetGUID(),
+																				player.																				GUID,
 																				entries,
 																				new InstanceLockUpdateEvent(GetInstanceId(),
 																											_data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
@@ -346,10 +346,11 @@ public class InstanceMap : Map
 				if (isNewLock)
 				{
 					InstanceSaveCreated data = new();
-					data.Gm = player.IsGameMaster();
+					data.Gm = player.IsGameMaster;
 					player.SendPacket(data);
 
-					player.GetSession().SendCalendarRaidLockoutAdded(newLock);
+					player.
+					Session.SendCalendarRaidLockoutAdded(newLock);
 				}
 			}
 
@@ -373,10 +374,10 @@ public class InstanceMap : Map
 			foreach (var player in GetPlayers())
 			{
 				// never instance bind GMs with GM mode enabled
-				if (player.IsGameMaster())
+				if (player.IsGameMaster)
 					continue;
 
-				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GetGUID(), entries);
+				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 				var oldData = "";
 
 				if (playerLock != null)
@@ -385,7 +386,7 @@ public class InstanceMap : Map
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-																				player.GetGUID(),
+																				player.																				GUID,
 																				entries,
 																				new InstanceLockUpdateEvent(GetInstanceId(),
 																											_data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
@@ -396,10 +397,11 @@ public class InstanceMap : Map
 				if (isNewLock)
 				{
 					InstanceSaveCreated data = new();
-					data.Gm = player.IsGameMaster();
+					data.Gm = player.IsGameMaster;
 					player.SendPacket(data);
 
-					player.GetSession().SendCalendarRaidLockoutAdded(newLock);
+					player.
+					Session.SendCalendarRaidLockoutAdded(newLock);
 				}
 			}
 
@@ -410,23 +412,24 @@ public class InstanceMap : Map
 	public void CreateInstanceLockForPlayer(Player player)
 	{
 		MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
-		var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GetGUID(), entries);
+		var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 
 		var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 		SQLTransaction trans = new();
 
-		var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GetGUID(), entries, new InstanceLockUpdateEvent(GetInstanceId(), _data.GetSaveData(), _instanceLock.GetData().CompletedEncountersMask, null, null));
+		var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(GetInstanceId(), _data.GetSaveData(), _instanceLock.GetData().CompletedEncountersMask, null, null));
 
 		DB.Characters.CommitTransaction(trans);
 
 		if (isNewLock)
 		{
 			InstanceSaveCreated data = new();
-			data.Gm = player.IsGameMaster();
+			data.Gm = player.IsGameMaster;
 			player.SendPacket(data);
 
-			player.GetSession().SendCalendarRaidLockoutAdded(newLock);
+			player.
+			Session.SendCalendarRaidLockoutAdded(newLock);
 		}
 	}
 
@@ -443,17 +446,17 @@ public class InstanceMap : Map
 	public int GetTeamIdInInstance()
 	{
 		if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceAlliance, this) != 0)
-			return TeamId.Alliance;
+			return TeamIds.Alliance;
 
 		if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceHorde, this) != 0)
-			return TeamId.Horde;
+			return TeamIds.Horde;
 
-		return TeamId.Neutral;
+		return TeamIds.Neutral;
 	}
 
-	public Team GetTeamInInstance()
+	public TeamFaction GetTeamInInstance()
 	{
-		return GetTeamIdInInstance() == TeamId.Alliance ? Team.Alliance : Team.Horde;
+		return GetTeamIdInInstance() == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde;
 	}
 
 	public uint GetScriptId()

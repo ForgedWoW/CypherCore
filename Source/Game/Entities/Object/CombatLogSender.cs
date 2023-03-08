@@ -18,7 +18,7 @@ internal class CombatLogSender : IDoWork<Player>
 	public void Invoke(Player player)
 	{
 		_message.Clear();
-		_message.SetAdvancedCombatLogging(player.IsAdvancedCombatLoggingEnabled());
+		_message.SetAdvancedCombatLogging(player.IsAdvancedCombatLoggingEnabled);
 
 		player.SendPacket(_message);
 	}

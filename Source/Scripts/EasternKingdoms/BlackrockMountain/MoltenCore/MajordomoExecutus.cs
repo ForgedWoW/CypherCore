@@ -96,8 +96,8 @@ internal class boss_majordomo : BossAI
 			if (!me.FindNearestCreature(MCCreatureIds.FlamewakerHealer, 100.0f) &&
 				!me.FindNearestCreature(MCCreatureIds.FlamewakerElite, 100.0f))
 			{
-				instance.UpdateEncounterStateForKilledCreature(me.GetEntry(), me);
-				me.SetFaction((uint)FactionTemplates.Friendly);
+				instance.UpdateEncounterStateForKilledCreature(me.Entry, me);
+				me.Faction = (uint)FactionTemplates.Friendly;
 				EnterEvadeMode();
 				Talk(TextIds.SayDefeat);
 				_JustDied();
@@ -134,7 +134,7 @@ internal class boss_majordomo : BossAI
 		}
 		else if (action == ActionIds.StartRagnarosAlt)
 		{
-			me.SetFaction((uint)FactionTemplates.Friendly);
+			me.Faction = (uint)FactionTemplates.Friendly;
 			me.SetNpcFlag(NPCFlags.Gossip);
 		}
 	}

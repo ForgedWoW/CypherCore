@@ -241,7 +241,7 @@ public class TransportManager : Singleton<TransportManager>
 		if (!trans.Create(guidLow, entry, x, y, z, o))
 			return null;
 
-		PhasingHandler.InitDbPhaseShift(trans.GetPhaseShift(), phaseUseFlags, phaseId, phaseGroupId);
+		PhasingHandler.InitDbPhaseShift(trans.PhaseShift, phaseUseFlags, phaseId, phaseGroupId);
 
 		// use preset map for instances (need to know which instance)
 		trans.SetMap(map);

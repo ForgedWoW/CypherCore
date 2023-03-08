@@ -94,7 +94,7 @@ namespace Game.Movement
 
             MoveSplineInit init = new(owner);
             init.MoveTo(owner.Location, false);
-            if (!owner.GetTransGUID().IsEmpty())
+            if (!owner.GetTransGUID().IsEmpty)
                 init.DisableTransportPathTransformations();
 
             init.SetFacing(angle);
@@ -120,7 +120,7 @@ namespace Game.Movement
         {
             AddFlag(MovementGeneratorFlags.Finalized);
 
-            if (movementInform && owner.IsCreature())
+            if (movementInform && owner.IsCreature)
                 owner.ToCreature().GetAI().MovementInform(MovementGeneratorType.Rotate, _id);
         }
 
@@ -151,12 +151,12 @@ namespace Game.Movement
             AddFlag(MovementGeneratorFlags.Initialized);
 
             // Distracted creatures stand up if not standing
-            if (!owner.IsStandState())
+            if (!owner.IsStandState)
                 owner.SetStandState(UnitStandStateType.Stand);
 
             MoveSplineInit init = new(owner);
             init.MoveTo(owner.Location, false);
-            if (!owner.GetTransGUID().IsEmpty())
+            if (!owner.GetTransGUID().IsEmpty)
                 init.DisableTransportPathTransformations();
 
             init.SetFacing(_orientation);
@@ -195,7 +195,7 @@ namespace Game.Movement
 
             // TODO: This code should be handled somewhere else
             // If this is a creature, then return orientation to original position (for idle movement creatures)
-            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature())
+            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
             {
                 float angle = owner.ToCreature().GetHomePosition().Orientation;
                 owner.SetFacingTo(angle);
@@ -218,7 +218,7 @@ namespace Game.Movement
         public override void Finalize(Unit owner, bool active, bool movementInform)
         {
             owner.ClearUnitState(UnitState.Distracted);
-            owner.ToCreature().SetReactState(ReactStates.Aggressive);
+            owner.ToCreature().            ReactState = ReactStates.Aggressive;
         }
 
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.AssistanceDistract; }

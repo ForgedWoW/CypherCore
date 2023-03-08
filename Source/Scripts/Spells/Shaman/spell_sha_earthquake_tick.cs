@@ -29,14 +29,14 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 			if (RandomHelper.randChance(GetEffectInfo(1).CalcValue()))
 			{
 				var areaTriggers = Caster.GetAreaTriggers(ShamanSpells.Earthquake);
-				var foundAreaTrigger = areaTriggers.Find(at => at.GetGUID() == Spell.OriginalCasterGuid);
+				var foundAreaTrigger = areaTriggers.Find(at => at.GUID == Spell.OriginalCasterGuid);
 
 				if (foundAreaTrigger != null)
 				{
 					var eq = foundAreaTrigger.GetAi<areatrigger_sha_earthquake>();
 
 					if (eq != null)
-						if (eq.AddStunnedTarget(target.GetGUID()))
+						if (eq.AddStunnedTarget(target.GUID))
 							Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
 				}
 			}

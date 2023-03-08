@@ -28,7 +28,7 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerAI
 			var caster = at.GetCaster();
 
 			if (caster != null)
-				foreach (var guid in at.GetInsideUnits())
+				foreach (var guid in at.InsideUnits)
 				{
 					var unit = Global.ObjAccessor.GetUnit(caster, guid);
 

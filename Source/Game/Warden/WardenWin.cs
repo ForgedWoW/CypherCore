@@ -43,7 +43,7 @@ namespace Game
 
             _inputCrypto.PrepareKey(_inputKey);
             _outputCrypto.PrepareKey(_outputKey);
-            Log.outDebug(LogFilter.Warden, "Server side warden for client {0} initializing...", session.GetAccountId());
+            Log.outDebug(LogFilter.Warden, "Server side warden for client {0} initializing...", session.AccountId);
             Log.outDebug(LogFilter.Warden, "C->S Key: {0}", _inputKey.ToHexString());
             Log.outDebug(LogFilter.Warden, "S->C Key: {0}", _outputKey.ToHexString());
             Log.outDebug(LogFilter.Warden, "  Seed: {0}", _seed.ToHexString());
@@ -167,7 +167,7 @@ namespace Game
         
         public override void RequestChecks()
         {
-            Log.outDebug(LogFilter.Warden, $"Request data from {_session.GetPlayerName()} (account {_session.GetAccountId()}) - loaded: {_session.GetPlayer() && !_session.PlayerLoading()}");
+            Log.outDebug(LogFilter.Warden, $"Request data from {_session.PlayerName} (account {_session.AccountId}) - loaded: {_session.Player && !_session.PlayerLoading}");
 
             // If all checks for a category are done, fill its todo list again
             foreach (WardenCheckCategory category in Enum.GetValues<WardenCheckCategory>())
@@ -189,7 +189,7 @@ namespace Game
 
             foreach (var category in Enum.GetValues<WardenCheckCategory>())
             {
-                if (WardenCheckManager.IsWardenCategoryInWorldOnly(category) && !_session.GetPlayer())
+                if (WardenCheckManager.IsWardenCategoryInWorldOnly(category) && !_session.Player)
                     continue;
 
                 var checks = _checks[(int)category];
@@ -377,7 +377,7 @@ namespace Game
                         byte result = buff.ReadUInt8();
                         if (result != 0)
                         {
-                            Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {_session.GetAccountId()}");
+                            Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {_session.AccountId}");
                             checkFailed = id;
                             continue;
                         }
@@ -386,12 +386,12 @@ namespace Game
 
                         if (buff.ReadBytes((uint)expected.Length).Compare(expected))
                         {
-                            Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK fail CheckId {id} account Id {_session.GetAccountId()}");
+                            Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK fail CheckId {id} account Id {_session.AccountId}");
                             checkFailed = id;
                             continue;
                         }
 
-                        Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK passed CheckId {id} account Id {_session.GetAccountId()}");
+                        Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK passed CheckId {id} account Id {_session.AccountId}");
                         break;
                     }
                     case WardenCheckType.PageA:
@@ -401,12 +401,12 @@ namespace Game
                     {
                         if (buff.ReadUInt8() != 0xE9)
                         {
-                            Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} fail, CheckId {id} account Id {_session.GetAccountId()}");
+                            Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} fail, CheckId {id} account Id {_session.AccountId}");
                             checkFailed = id;
                             continue;
                         }
 
-                        Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} passed CheckId {id} account Id {_session.GetAccountId()}");
+                        Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} passed CheckId {id} account Id {_session.AccountId}");
                         break;
                     }
                     case WardenCheckType.LuaEval:
@@ -415,7 +415,7 @@ namespace Game
                         if (result == 0)
                             buff.Skip(buff.ReadUInt8()); // discard attached string
 
-                        Log.outDebug(LogFilter.Warden, $"LUA_EVAL_CHECK CheckId {id} account Id {_session.GetAccountId()} got in-warden dummy response ({result})");
+                        Log.outDebug(LogFilter.Warden, $"LUA_EVAL_CHECK CheckId {id} account Id {_session.AccountId} got in-warden dummy response ({result})");
                         break;
                     }
                     case WardenCheckType.Mpq:
@@ -423,19 +423,19 @@ namespace Game
                         byte result = buff.ReadUInt8();
                         if (result != 0)
                         {
-                            Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK not 0x00 account id {_session.GetAccountId()}", _session.GetAccountId());
+                            Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK not 0x00 account id {_session.AccountId}", _session.AccountId);
                             checkFailed = id;
                             continue;
                         }
 
                         if (!buff.ReadBytes(20).Compare(Global.WardenCheckMgr.GetCheckResult(id))) // SHA1
                         {
-                            Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK fail, CheckId {id} account Id {_session.GetAccountId()}");
+                            Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK fail, CheckId {id} account Id {_session.AccountId}");
                             checkFailed = id;
                             continue;
                         }
 
-                        Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK passed, CheckId {id} account Id {_session.GetAccountId()}");
+                        Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK passed, CheckId {id} account Id {_session.AccountId}");
                         break;
                     }
                     default:                                        // Should never happen

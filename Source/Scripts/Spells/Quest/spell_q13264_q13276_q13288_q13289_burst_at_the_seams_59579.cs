@@ -37,7 +37,7 @@ internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : Aura
 		var caster = Caster;
 
 		if (caster != null)
-			switch (target.GetEntry())
+			switch (target.Entry)
 			{
 				case CreatureIds.IcyGhoul:
 					target.CastSpell(caster, QuestSpellIds.AssignGhoulKillCreditToMaster, true);

@@ -14,7 +14,7 @@ public class spell_sha_lava_lash : SpellScript, ISpellOnHit
 {
 	public override bool Load()
 	{
-		return Caster.IsPlayer();
+		return Caster.IsPlayer;
 	}
 
 	public void OnHit()

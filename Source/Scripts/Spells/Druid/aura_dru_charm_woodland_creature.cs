@@ -31,7 +31,7 @@ public class aura_dru_charm_woodland_creature : AuraScript, IHasAuraEffects
 		var target = Target;
 
 		if (caster != null && target != null)
-			target.GetMotionMaster().MoveFollow(caster, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+			target.MotionMaster.MoveFollow(caster, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 	}
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
@@ -42,7 +42,7 @@ public class aura_dru_charm_woodland_creature : AuraScript, IHasAuraEffects
 		var target = Target;
 
 		if (target != null)
-			if (target.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Follow)
-				target.GetMotionMaster().Initialize();
+			if (target.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Follow)
+				target.MotionMaster.Initialize();
 	}
 }

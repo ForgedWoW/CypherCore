@@ -32,7 +32,7 @@ namespace Game.Chat
 
             // Activate
             obj.SetLootState(LootState.Ready);
-            obj.UseDoorOrButton(autoCloseTime, false, handler.GetSession().GetPlayer());
+            obj.UseDoorOrButton(autoCloseTime, false, handler.GetSession().Player);
 
             handler.SendSysMessage("Object activated!");
             return true;
@@ -44,14 +44,14 @@ namespace Game.Chat
             GameObject obj = handler.GetObjectFromPlayerMapByDbGuid(spawnId);
             if (obj != null)
             {
-                Player player = handler.GetSession().GetPlayer();
-                ObjectGuid ownerGuid = obj.GetOwnerGUID();
-                if (!ownerGuid.IsEmpty())
+                Player player = handler.GetSession().Player;
+                ObjectGuid ownerGuid = obj.OwnerGUID;
+                if (!ownerGuid.IsEmpty)
                 {
                     Unit owner = Global.ObjAccessor.GetUnit(player, ownerGuid);
-                    if (!owner || !ownerGuid.IsPlayer())
+                    if (!owner || !ownerGuid.IsPlayer)
                     {
-                        handler.SendSysMessage(CypherStrings.CommandDelobjrefercreature, ownerGuid.ToString(), obj.GetGUID().ToString());
+                        handler.SendSysMessage(CypherStrings.CommandDelobjrefercreature, ownerGuid.ToString(), obj.GUID.ToString());
                         return false;
                     }
 
@@ -65,7 +65,7 @@ namespace Game.Chat
                 return true;
             }
 
-            handler.SendSysMessage(CypherStrings.CommandObjnotfound, obj.GetGUID().ToString());
+            handler.SendSysMessage(CypherStrings.CommandObjnotfound, obj.GUID.ToString());
             return false;
         }
 
@@ -87,7 +87,7 @@ namespace Game.Chat
                     uint.TryParse(variant, out groupId);
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             if (!player.GetMap().SpawnGroupDespawn(groupId, deleteRespawnTimes, out int n))
             {
@@ -143,7 +143,7 @@ namespace Game.Chat
             // If we have a real object, send some info about it
             if (thisGO != null)
             {
-                handler.SendSysMessage(CypherStrings.SpawninfoGuidinfo, thisGO.GetGUID().ToString());
+                handler.SendSysMessage(CypherStrings.SpawninfoGuidinfo, thisGO.GUID.ToString());
                 handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, thisGO.GetRespawnCompatibilityMode());
 
                 if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().SpawnGroupData.GroupId != 0)
@@ -207,7 +207,7 @@ namespace Game.Chat
             }
             else
             {
-                pos = handler.GetSession().GetPlayer().Location;
+                pos = handler.GetSession().Player.Location;
             }
 
             Map map = obj.GetMap();
@@ -231,7 +231,7 @@ namespace Game.Chat
             if (!obj)
                 return false;
 
-            handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GetGUID().ToString());
+            handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GUID.ToString());
 
             return true;
         }
@@ -307,7 +307,7 @@ namespace Game.Chat
                 arg = args.NextString();
             }
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             List<WorldObject> creatureList = new();
             if (!player.GetMap().SpawnGroupSpawn(groupId, ignoreRespawn, force, creatureList))
@@ -318,7 +318,7 @@ namespace Game.Chat
 
             handler.SendSysMessage(CypherStrings.SpawngroupSpawncount, creatureList.Count);
             foreach (WorldObject obj in creatureList)
-                handler.SendSysMessage($"{obj.GetName()} ({obj.GetGUID()})");
+                handler.SendSysMessage($"{obj.GetName()} ({obj.GUID})");
 
             return true;
         }
@@ -326,7 +326,7 @@ namespace Game.Chat
         [Command("target", RBACPermissions.CommandGobjectTarget)]
         static bool HandleGameObjectTargetCommand(CommandHandler handler, string objectIdStr)
         {
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
             SQLResult result;
             var activeEventsList = Global.GameEventMgr.GetActiveEventList();
 
@@ -368,8 +368,8 @@ namespace Game.Chat
                 result = DB.World.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, " +
                     "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
                     "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
-                    handler.GetSession().GetPlayer().Location.X, handler.GetSession().GetPlayer().Location.Y, handler.GetSession().GetPlayer().Location.Z,
-                    handler.GetSession().GetPlayer().Location.                    MapId, eventFilter.ToString());
+                    handler.GetSession().                    Player.Location.X, handler.GetSession().Player.Location.Y, handler.GetSession().Player.Location.Z,
+                    handler.GetSession().                    Player.Location.                    MapId, eventFilter.ToString());
             }
 
             if (result.IsEmpty())
@@ -444,7 +444,7 @@ namespace Game.Chat
             }
 
             if (!oz.HasValue)
-                oz = handler.GetSession().GetPlayer().Location.Orientation;
+                oz = handler.GetSession().Player.Location.Orientation;
 
             Map map = obj.GetMap();
 
@@ -462,7 +462,7 @@ namespace Game.Chat
             if (!obj)
                 return false;
 
-            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GetGUID().ToString(), obj.Location.Orientation);
+            handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.GetSpawnId(), obj.GetGoInfo().name, obj.GUID.ToString(), obj.Location.Orientation);
 
             return true;
         }

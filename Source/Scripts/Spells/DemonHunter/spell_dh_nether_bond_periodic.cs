@@ -75,7 +75,7 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 		Cell.VisitGrid(caster, search, 100.0f);
 
 		foreach (var u in units)
-			if (u.HasAura(DemonHunterSpells.NETHER_BOND, caster.GetGUID()))
+			if (u.HasAura(DemonHunterSpells.NETHER_BOND, caster.GUID))
 				return u;
 
 		return null;

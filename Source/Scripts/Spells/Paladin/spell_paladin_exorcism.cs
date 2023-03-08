@@ -34,7 +34,7 @@ public class spell_paladin_exorcism : SpellScript, ISpellOnHit
 					HitUnit.CastSpell(i.Current, PaladinSpells.EXORCISM_DF, damage);
 			}
 
-			if (HitUnit.GetCreatureType() == CreatureType.Undead || HitUnit.GetCreatureType() == CreatureType.Demon)
+			if (HitUnit.CreatureType == CreatureType.Undead || HitUnit.CreatureType == CreatureType.Demon)
 				HitUnit.CastSpell(HitUnit, AuraType.ModStun, true);
 		}
 	}

@@ -53,14 +53,14 @@ namespace Game.Loots
                 return false;
 
             // not show loot for not own team
-            if (pProto.HasFlag(ItemFlags2.FactionHorde) && player.GetTeam() != Team.Horde)
+            if (pProto.HasFlag(ItemFlags2.FactionHorde) && player.Team != TeamFaction.Horde)
                 return false;
 
-            if (pProto.HasFlag(ItemFlags2.FactionAlliance) && player.GetTeam() != Team.Alliance)
+            if (pProto.HasFlag(ItemFlags2.FactionAlliance) && player.Team != TeamFaction.Alliance)
                 return false;
 
             // Master looter can see all items even if the character can't loot them
-            if (loot != null && loot.GetLootMethod() == LootMethod.MasterLoot && follow_loot_rules && loot.GetLootMasterGUID() == player.GetGUID())
+            if (loot != null && loot.GetLootMethod() == LootMethod.MasterLoot && follow_loot_rules && loot.GetLootMasterGUID() == player.GUID)
                 return true;
 
             // Don't allow loot for players without profession or those who already know the recipe
@@ -98,7 +98,7 @@ namespace Game.Loots
 
         public void AddAllowedLooter(Player player)
         {
-            allowedGUIDs.Add(player.GetGUID());
+            allowedGUIDs.Add(player.GUID);
         }
 
         public bool HasAllowedLooter(ObjectGuid looter)
@@ -111,12 +111,12 @@ namespace Game.Loots
             if (is_looted)
                 return null;
 
-            if (!allowedGUIDs.Contains(player.GetGUID()))
+            if (!allowedGUIDs.Contains(player.GUID))
                 return null;
 
             if (freeforall)
             {
-                var ffaItems = loot.GetPlayerFFAItems().LookupByKey(player.GetGUID());
+                var ffaItems = loot.GetPlayerFFAItems().LookupByKey(player.GUID);
                 if (ffaItems != null)
                 {
                     var ffaItemItr = ffaItems.Find(ffaItem => ffaItem.LootListId == LootListId);
@@ -134,33 +134,33 @@ namespace Game.Loots
                 case LootMethod.FreeForAll:
                     return LootSlotType.Owner;
                 case LootMethod.RoundRobin:
-                    if (!loot.roundRobinPlayer.IsEmpty() && loot.roundRobinPlayer != player.GetGUID())
+                    if (!loot.roundRobinPlayer.IsEmpty && loot.roundRobinPlayer != player.GUID)
                         return null;
 
                     return LootSlotType.AllowLoot;
                 case LootMethod.MasterLoot:
                     if (is_underthreshold)
                     {
-                        if (!loot.roundRobinPlayer.IsEmpty() && loot.roundRobinPlayer != player.GetGUID())
+                        if (!loot.roundRobinPlayer.IsEmpty && loot.roundRobinPlayer != player.GUID)
                             return null;
 
                         return LootSlotType.AllowLoot;
                     }
 
-                    return loot.GetLootMasterGUID() == player.GetGUID() ? LootSlotType.Master : LootSlotType.Locked;
+                    return loot.GetLootMasterGUID() == player.GUID ? LootSlotType.Master : LootSlotType.Locked;
                 case LootMethod.GroupLoot:
                 case LootMethod.NeedBeforeGreed:
                     if (is_underthreshold)
-                        if (!loot.roundRobinPlayer.IsEmpty() && loot.roundRobinPlayer != player.GetGUID())
+                        if (!loot.roundRobinPlayer.IsEmpty && loot.roundRobinPlayer != player.GUID)
                             return null;
 
                     if (is_blocked)
                         return LootSlotType.RollOngoing;
 
-                    if (rollWinnerGUID.IsEmpty()) // all passed
+                    if (rollWinnerGUID.IsEmpty) // all passed
                         return LootSlotType.AllowLoot;
 
-                    if (rollWinnerGUID == player.GetGUID())
+                    if (rollWinnerGUID == player.GUID)
                         return LootSlotType.Owner;
 
                     return null;
@@ -437,7 +437,7 @@ namespace Game.Loots
                 foreach (ObjectGuid allowedLooter in m_lootItem.GetAllowedLooters())
                 {
                     Player plr = Global.ObjAccessor.GetPlayer(m_map, allowedLooter);
-                    if (!plr || !m_lootItem.HasAllowedLooter(plr.GetGUID()))     // check if player meet the condition to be able to roll this item
+                    if (!plr || !m_lootItem.HasAllowedLooter(plr.GUID))     // check if player meet the condition to be able to roll this item
                     {
                         m_rollVoteMap[allowedLooter].Vote = RollVote.NotValid;
                         continue;
@@ -477,7 +477,7 @@ namespace Game.Loots
         // Add vote from playerGuid
         public bool PlayerVote(Player player, RollVote vote)
         {
-            ObjectGuid playerGuid = player.GetGUID();
+            ObjectGuid playerGuid = player.GUID;
             if (!m_rollVoteMap.TryGetValue(playerGuid, out PlayerRollVote voter))
                 return false;
 
@@ -696,7 +696,7 @@ namespace Game.Loots
                     continue;
 
                 // dont allow protected item to be looted by someone else
-                if (!lootItem.rollWinnerGUID.IsEmpty() && lootItem.rollWinnerGUID != GetGUID())
+                if (!lootItem.rollWinnerGUID.IsEmpty && lootItem.rollWinnerGUID != GetGUID())
                     continue;
 
                 List<ItemPosCount> dest = new();
@@ -760,7 +760,7 @@ namespace Game.Loots
             if (!personal && group != null)
             {
                 if (loot_type == LootType.Corpse)
-                    roundRobinPlayer = lootOwner.GetGUID();
+                    roundRobinPlayer = lootOwner.GUID;
 
                 for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
                 {
@@ -814,7 +814,7 @@ namespace Game.Loots
 
         public void FillNotNormalLootFor(Player player)
         {
-            ObjectGuid plguid = player.GetGUID();
+            ObjectGuid plguid = player.GUID;
             _allowedLooters.Add(plguid);
 
             List<NotNormalLootItem> ffaItems = new();
@@ -840,7 +840,7 @@ namespace Game.Loots
             }
 
             if (!ffaItems.Empty())
-                PlayerFFAItems[player.GetGUID()] = ffaItems;
+                PlayerFFAItems[player.GUID] = ffaItems;
         }
 
         public void NotifyItemRemoved(byte lootListId, Map map)
@@ -955,7 +955,7 @@ namespace Game.Loots
 
             if (item.freeforall)
             {
-                var itemList = PlayerFFAItems.LookupByKey(player.GetGUID());
+                var itemList = PlayerFFAItems.LookupByKey(player.GUID);
                 if (itemList != null)
                 {
                     foreach (NotNormalLootItem notNormalLootItem in itemList)
@@ -995,10 +995,10 @@ namespace Game.Loots
         {
             // quest items
             foreach (LootItem lootItem in items)
-                if (!lootItem.is_looted && !lootItem.follow_loot_rules && lootItem.GetAllowedLooters().Contains(player.GetGUID()))
+                if (!lootItem.is_looted && !lootItem.follow_loot_rules && lootItem.GetAllowedLooters().Contains(player.GUID))
                     return true;
 
-            var ffaItems = GetPlayerFFAItems().LookupByKey(player.GetGUID());
+            var ffaItems = GetPlayerFFAItems().LookupByKey(player.GUID);
             if (ffaItems != null)
             {
                 bool hasFfaItem = ffaItems.Any(ffaItem => !ffaItem.is_looted);
@@ -1050,7 +1050,7 @@ namespace Game.Loots
             if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
                 lootList.Master = GetLootMasterGUID();
 
-            if (!roundRobinPlayer.IsEmpty())
+            if (!roundRobinPlayer.IsEmpty)
                 lootList.RoundRobinWinner = roundRobinPlayer;
 
             lootList.Write();

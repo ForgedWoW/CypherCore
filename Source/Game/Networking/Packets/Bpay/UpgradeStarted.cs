@@ -4,19 +4,16 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets.Bpay
+namespace Game.Networking.Packets.Bpay;
+
+public class UpgradeStarted : ServerPacket
 {
-    public class UpgradeStarted : ServerPacket
-    {
-        public UpgradeStarted() : base(ServerOpcodes.CharacterUpgradeStarted)
-        {
-        }
+	public ObjectGuid CharacterGUID { get; set; } = new();
 
-        public override void Write()
-        {
-            _worldPacket.Write(CharacterGUID);
-        }
+	public UpgradeStarted() : base(ServerOpcodes.CharacterUpgradeStarted) { }
 
-        public ObjectGuid CharacterGUID { get; set; } = new ObjectGuid();
-    }
+	public override void Write()
+	{
+		_worldPacket.Write(CharacterGUID);
+	}
 }

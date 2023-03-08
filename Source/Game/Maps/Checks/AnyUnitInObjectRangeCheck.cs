@@ -21,7 +21,7 @@ public class AnyUnitInObjectRangeCheck : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (u.IsAlive() && _obj.IsWithinDist(u, _range, _check3D))
+		if (u.IsAlive && _obj.IsWithinDist(u, _range, _check3D))
 			return true;
 
 		return false;

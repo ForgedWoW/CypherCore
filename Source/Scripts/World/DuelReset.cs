@@ -46,12 +46,12 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 
 				// check if player1 class uses mana
 				if (winner.GetPowerType() == PowerType.Mana ||
-					winner.GetClass() == Class.Druid)
+					winner.Class == Class.Druid)
 					winner.RestoreManaAfterDuel();
 
 				// check if player2 class uses mana
 				if (loser.GetPowerType() == PowerType.Mana ||
-					loser.GetClass() == Class.Druid)
+					loser.Class == Class.Druid)
 					loser.RestoreManaAfterDuel();
 			}
 		}

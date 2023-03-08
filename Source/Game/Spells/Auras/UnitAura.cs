@@ -62,7 +62,7 @@ public class UnitAura : Aura
 		{
 			var target = Global.ObjAccessor.GetUnit(UnitOwner, targetPair.Key);
 
-			if (target == null && targetPair.Key == UnitOwner.GetGUID())
+			if (target == null && targetPair.Key == UnitOwner.GUID)
 				target = UnitOwner;
 
 			if (target)
@@ -121,7 +121,7 @@ public class UnitAura : Aura
 				/* fallthrough */
 				case SpellEffectName.ApplyAreaAuraOwner:
 				{
-					var owner = UnitOwner.GetCharmerOrOwner();
+					var owner = UnitOwner.CharmerOrOwner;
 
 					if (owner != null)
 						if (UnitOwner.IsWithinDistInMap(owner, radius))
@@ -132,7 +132,7 @@ public class UnitAura : Aura
 				}
 				case SpellEffectName.ApplyAuraOnPet:
 				{
-					var pet = Global.ObjAccessor.GetUnit(UnitOwner, UnitOwner.GetPetGUID());
+					var pet = Global.ObjAccessor.GetUnit(UnitOwner, UnitOwner.PetGUID);
 
 					if (pet != null)
 						if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(pet, refe, condList))
@@ -181,10 +181,10 @@ public class UnitAura : Aura
 		if (effMask == 0)
 			return;
 
-		if (!_staticApplications.ContainsKey(target.GetGUID()))
-			_staticApplications[target.GetGUID()] = 0;
+		if (!_staticApplications.ContainsKey(target.GUID))
+			_staticApplications[target.GUID] = 0;
 
-		_staticApplications[target.GetGUID()] |= effMask;
+		_staticApplications[target.GUID] |= effMask;
 	}
 
 	// Allow Apply Aura Handler to modify and access m_AuraDRGroup

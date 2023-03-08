@@ -61,7 +61,7 @@ public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
 		var searcher = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
 		Cell.VisitGrid(_primaryTarget, searcher, range);
 
-		chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.Riptide, caster.GetGUID()));
+		chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.Riptide, caster.GUID));
 
 		if (chainTargets.Count == 0)
 			return;

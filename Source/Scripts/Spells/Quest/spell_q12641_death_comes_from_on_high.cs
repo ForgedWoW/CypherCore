@@ -30,7 +30,7 @@ internal class spell_q12641_death_comes_from_on_high : SpellScript, IHasSpellEff
 	{
 		uint spellId;
 
-		switch (HitCreature.GetEntry())
+		switch (HitCreature.Entry)
 		{
 			case CreatureIds.NewAvalonForge:
 				spellId = QuestSpellIds.ForgeCredit;

@@ -37,7 +37,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 			{
 				var script = atonement.GetScript<spell_pri_atonement>();
 
-				script?.AddAtonementTarget(Target.GetGUID());
+				script?.AddAtonementTarget(Target.GUID);
 			}
 		}
 	}
@@ -54,7 +54,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 			{
 				var script = atonement.GetScript<spell_pri_atonement>();
 
-				script?.RemoveAtonementTarget(Target.GetGUID());
+				script?.RemoveAtonementTarget(Target.GUID);
 			}
 		}
 	}

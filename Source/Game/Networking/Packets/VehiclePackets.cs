@@ -4,143 +4,134 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+public class MoveSetVehicleRecID : ServerPacket
 {
-    public class MoveSetVehicleRecID : ServerPacket
-    {
-        public MoveSetVehicleRecID() : base(ServerOpcodes.MoveSetVehicleRecId) { }
+	public ObjectGuid MoverGUID;
+	public uint SequenceIndex;
+	public uint VehicleRecID;
+	public MoveSetVehicleRecID() : base(ServerOpcodes.MoveSetVehicleRecId) { }
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(MoverGUID);
-            _worldPacket.WriteUInt32(SequenceIndex);
-            _worldPacket.WriteUInt32(VehicleRecID);
-        }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(MoverGUID);
+		_worldPacket.WriteUInt32(SequenceIndex);
+		_worldPacket.WriteUInt32(VehicleRecID);
+	}
+}
 
-        public ObjectGuid MoverGUID;
-        public uint SequenceIndex;
-        public uint VehicleRecID;
-    }
+public class MoveSetVehicleRecIdAck : ClientPacket
+{
+	public MovementAck Data;
+	public int VehicleRecID;
+	public MoveSetVehicleRecIdAck(WorldPacket packet) : base(packet) { }
 
-    public class MoveSetVehicleRecIdAck : ClientPacket
-    {
-        public MoveSetVehicleRecIdAck(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		Data.Read(_worldPacket);
+		VehicleRecID = _worldPacket.ReadInt32();
+	}
+}
 
-        public override void Read()
-        {
-            Data.Read(_worldPacket);
-            VehicleRecID = _worldPacket.ReadInt32();
-        }
+public class SetVehicleRecID : ServerPacket
+{
+	public ObjectGuid VehicleGUID;
+	public uint VehicleRecID;
+	public SetVehicleRecID() : base(ServerOpcodes.SetVehicleRecId, ConnectionType.Instance) { }
 
-        public MovementAck Data;
-        public int VehicleRecID;
-    }
+	public override void Write()
+	{
+		_worldPacket.WritePackedGuid(VehicleGUID);
+		_worldPacket.WriteUInt32(VehicleRecID);
+	}
+}
 
-    public class SetVehicleRecID : ServerPacket
-    {
-        public SetVehicleRecID() : base(ServerOpcodes.SetVehicleRecId, ConnectionType.Instance) { }
+public class OnCancelExpectedRideVehicleAura : ServerPacket
+{
+	public OnCancelExpectedRideVehicleAura() : base(ServerOpcodes.OnCancelExpectedRideVehicleAura, ConnectionType.Instance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WritePackedGuid(VehicleGUID);
-            _worldPacket.WriteUInt32(VehicleRecID);
-        }
+	public override void Write() { }
+}
 
-        public ObjectGuid VehicleGUID;
-        public uint VehicleRecID;
-    }
+public class MoveDismissVehicle : ClientPacket
+{
+	public MovementInfo Status;
+	public MoveDismissVehicle(WorldPacket packet) : base(packet) { }
 
-    public class OnCancelExpectedRideVehicleAura : ServerPacket
-    {
-        public OnCancelExpectedRideVehicleAura() : base(ServerOpcodes.OnCancelExpectedRideVehicleAura, ConnectionType.Instance) { }
+	public override void Read()
+	{
+		Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+	}
+}
 
-        public override void Write() { }
-    }
+public class RequestVehiclePrevSeat : ClientPacket
+{
+	public RequestVehiclePrevSeat(WorldPacket packet) : base(packet) { }
 
-    public class MoveDismissVehicle : ClientPacket
-    {
-        public MoveDismissVehicle(WorldPacket packet) : base(packet) { }
+	public override void Read() { }
+}
 
-        public override void Read()
-        {
-            Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-        }
+public class RequestVehicleNextSeat : ClientPacket
+{
+	public RequestVehicleNextSeat(WorldPacket packet) : base(packet) { }
 
-        public MovementInfo Status;
-    }
+	public override void Read() { }
+}
 
-    public class RequestVehiclePrevSeat : ClientPacket
-    {
-        public RequestVehiclePrevSeat(WorldPacket packet) : base(packet) { }
+public class MoveChangeVehicleSeats : ClientPacket
+{
+	public ObjectGuid DstVehicle;
+	public MovementInfo Status;
+	public byte DstSeatIndex = 255;
+	public MoveChangeVehicleSeats(WorldPacket packet) : base(packet) { }
 
-        public override void Read() { }
-    }
+	public override void Read()
+	{
+		Status = MovementExtensions.ReadMovementInfo(_worldPacket);
+		DstVehicle = _worldPacket.ReadPackedGuid();
+		DstSeatIndex = _worldPacket.ReadUInt8();
+	}
+}
 
-    public class RequestVehicleNextSeat : ClientPacket
-    {
-        public RequestVehicleNextSeat(WorldPacket packet) : base(packet) { }
+public class RequestVehicleSwitchSeat : ClientPacket
+{
+	public ObjectGuid Vehicle;
+	public byte SeatIndex = 255;
+	public RequestVehicleSwitchSeat(WorldPacket packet) : base(packet) { }
 
-        public override void Read() { }
-    }
+	public override void Read()
+	{
+		Vehicle = _worldPacket.ReadPackedGuid();
+		SeatIndex = _worldPacket.ReadUInt8();
+	}
+}
 
-    public class MoveChangeVehicleSeats : ClientPacket
-    {
-        public MoveChangeVehicleSeats(WorldPacket packet) : base(packet) { }
+public class RideVehicleInteract : ClientPacket
+{
+	public ObjectGuid Vehicle;
+	public RideVehicleInteract(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Status = MovementExtensions.ReadMovementInfo(_worldPacket);
-            DstVehicle = _worldPacket.ReadPackedGuid();
-            DstSeatIndex = _worldPacket.ReadUInt8();
-        }
+	public override void Read()
+	{
+		Vehicle = _worldPacket.ReadPackedGuid();
+	}
+}
 
-        public ObjectGuid DstVehicle;
-        public MovementInfo Status;
-        public byte DstSeatIndex = 255;
-    }
+public class EjectPassenger : ClientPacket
+{
+	public ObjectGuid Passenger;
+	public EjectPassenger(WorldPacket packet) : base(packet) { }
 
-    public class RequestVehicleSwitchSeat : ClientPacket
-    {
-        public RequestVehicleSwitchSeat(WorldPacket packet) : base(packet) { }
+	public override void Read()
+	{
+		Passenger = _worldPacket.ReadPackedGuid();
+	}
+}
 
-        public override void Read()
-        {
-            Vehicle = _worldPacket.ReadPackedGuid();
-            SeatIndex = _worldPacket.ReadUInt8();
-        }
+public class RequestVehicleExit : ClientPacket
+{
+	public RequestVehicleExit(WorldPacket packet) : base(packet) { }
 
-        public ObjectGuid Vehicle;
-        public byte SeatIndex = 255;
-    }
-
-    public class RideVehicleInteract : ClientPacket
-    {
-        public RideVehicleInteract(WorldPacket packet) : base(packet) { }
-
-        public override void Read()
-        {
-            Vehicle = _worldPacket.ReadPackedGuid();
-        }
-
-        public ObjectGuid Vehicle;
-    }
-
-    public class EjectPassenger : ClientPacket
-    {
-        public EjectPassenger(WorldPacket packet) : base(packet) { }
-
-        public override void Read()
-        {
-            Passenger = _worldPacket.ReadPackedGuid();
-        }
-
-        public ObjectGuid Passenger;
-    }
-
-    public class RequestVehicleExit : ClientPacket
-    {
-        public RequestVehicleExit(WorldPacket packet) : base(packet) { }
-
-        public override void Read() { }
-    }
+	public override void Read() { }
 }

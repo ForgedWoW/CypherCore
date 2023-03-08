@@ -21,7 +21,7 @@ class AnyPlayerInPositionRangeCheck : ICheck<Player>
 
 	public bool Invoke(Player u)
 	{
-		if (_reqAlive && !u.IsAlive())
+		if (_reqAlive && !u.IsAlive)
 			return false;
 
 		if (!u.IsWithinDist3d(_pos, _range))

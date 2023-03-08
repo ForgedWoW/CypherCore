@@ -31,21 +31,21 @@ namespace Game.Arenas
 
         public override void AddPlayer(Player player)
         {
-            bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
+            bool isInBattleground = IsPlayerInBattleground(player.GUID);
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new ArenaScore(player.GetGUID(), player.GetBgTeam());
+                PlayerScores[player.GUID] = new ArenaScore(player.GUID, player.GetBgTeam());
 
-            if (player.GetBgTeam() == Team.Alliance)        // gold
+            if (player.GetBgTeam() == TeamFaction.Alliance)        // gold
             {
-                if (player.GetEffectiveTeam() == Team.Horde)
+                if (player.EffectiveTeam == TeamFaction.Horde)
                     player.CastSpell(player, ArenaSpellIds.HordeGoldFlag, true);
                 else
                     player.CastSpell(player, ArenaSpellIds.AllianceGoldFlag, true);
             }
             else                                        // green
             {
-                if (player.GetEffectiveTeam() == Team.Horde)
+                if (player.EffectiveTeam == TeamFaction.Horde)
                     player.CastSpell(player, ArenaSpellIds.HordeGreenFlag, true);
                 else
                     player.CastSpell(player, ArenaSpellIds.AllianceGreenFlag, true);
@@ -54,7 +54,7 @@ namespace Game.Arenas
             UpdateArenaWorldState();
         }
 
-        public override void RemovePlayer(Player player, ObjectGuid guid, Team team)
+        public override void RemovePlayer(Player player, ObjectGuid guid, TeamFaction team)
         {
             if (GetStatus() == BattlegroundStatus.WaitLeave)
                 return;
@@ -65,8 +65,8 @@ namespace Game.Arenas
 
         void UpdateArenaWorldState()
         {
-            UpdateWorldState(ArenaWorldStates.AlivePlayersGreen, (int)GetAlivePlayersCountByTeam(Team.Horde));
-            UpdateWorldState(ArenaWorldStates.AlivePlayersGold, (int)GetAlivePlayersCountByTeam(Team.Alliance));
+            UpdateWorldState(ArenaWorldStates.AlivePlayersGreen, (int)GetAlivePlayersCountByTeam(TeamFaction.Horde));
+            UpdateWorldState(ArenaWorldStates.AlivePlayersGold, (int)GetAlivePlayersCountByTeam(TeamFaction.Alliance));
         }
 
         public override void HandleKillPlayer(Player victim, Player killer)
@@ -126,13 +126,13 @@ namespace Game.Arenas
 
         public override void CheckWinConditions()
         {
-            if (GetAlivePlayersCountByTeam(Team.Alliance) == 0 && GetPlayersCountByTeam(Team.Horde) != 0)
-                EndBattleground(Team.Horde);
-            else if (GetPlayersCountByTeam(Team.Alliance) != 0 && GetAlivePlayersCountByTeam(Team.Horde) == 0)
-                EndBattleground(Team.Alliance);
+            if (GetAlivePlayersCountByTeam(TeamFaction.Alliance) == 0 && GetPlayersCountByTeam(TeamFaction.Horde) != 0)
+                EndBattleground(TeamFaction.Horde);
+            else if (GetPlayersCountByTeam(TeamFaction.Alliance) != 0 && GetAlivePlayersCountByTeam(TeamFaction.Horde) == 0)
+                EndBattleground(TeamFaction.Alliance);
         }
 
-        public override void EndBattleground(Team winner)
+        public override void EndBattleground(TeamFaction winner)
         {
             // arena rating calculation
             if (IsRated())
@@ -149,17 +149,17 @@ namespace Game.Arenas
 
                 // In case of arena draw, follow this logic:
                 // winnerArenaTeam => ALLIANCE, loserArenaTeam => HORDE
-                ArenaTeam winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? Team.Alliance : winner));
-                ArenaTeam loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? Team.Horde : GetOtherTeam(winner)));
+                ArenaTeam winnerArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Alliance : winner));
+                ArenaTeam loserArenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner == 0 ? TeamFaction.Horde : GetOtherTeam(winner)));
 
                 if (winnerArenaTeam != null && loserArenaTeam != null && winnerArenaTeam != loserArenaTeam)
                 {
                     // In case of arena draw, follow this logic:
                     // winnerMatchmakerRating => ALLIANCE, loserMatchmakerRating => HORDE
                     loserTeamRating = loserArenaTeam.GetRating();
-                    loserMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? Team.Horde : GetOtherTeam(winner));
+                    loserMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? TeamFaction.Horde : GetOtherTeam(winner));
                     winnerTeamRating = winnerArenaTeam.GetRating();
-                    winnerMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? Team.Alliance : winner);
+                    winnerMatchmakerRating = GetArenaMatchmakerRating(winner == 0 ? TeamFaction.Alliance : winner);
 
                     if (winner != 0)
                     {
@@ -175,14 +175,14 @@ namespace Game.Arenas
 
                         // bg team that the client expects is different to TeamId
                         // alliance 1, horde 0
-                        byte winnerTeam = (byte)(winner == Team.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
-                        byte loserTeam = (byte)(winner == Team.Alliance ? PvPTeamId.Horde : PvPTeamId.Alliance);
+                        byte winnerTeam = (byte)(winner == TeamFaction.Alliance ? PvPTeamId.Alliance : PvPTeamId.Horde);
+                        byte loserTeam = (byte)(winner == TeamFaction.Alliance ? PvPTeamId.Horde : PvPTeamId.Alliance);
 
                         _arenaTeamScores[winnerTeam].Assign(winnerTeamRating, (uint)(winnerTeamRating + winnerChange), winnerMatchmakerRating, GetArenaMatchmakerRating(winner));
                         _arenaTeamScores[loserTeam].Assign(loserTeamRating, (uint)(loserTeamRating + loserChange), loserMatchmakerRating, GetArenaMatchmakerRating(GetOtherTeam(winner)));
 
                         Log.outDebug(LogFilter.Arena, "Arena match Type: {0} for Team1Id: {1} - Team2Id: {2} ended. WinnerTeamId: {3}. Winner rating: +{4}, Loser rating: {5}",
-                            GetArenaType(), GetArenaTeamIdByIndex(TeamId.Alliance), GetArenaTeamIdByIndex(TeamId.Horde), winnerArenaTeam.GetId(), winnerChange, loserChange);
+                            GetArenaType(), GetArenaTeamIdByIndex(TeamIds.Alliance), GetArenaTeamIdByIndex(TeamIds.Horde), winnerArenaTeam.GetId(), winnerChange, loserChange);
 
                         if (WorldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
                         {
@@ -193,7 +193,7 @@ namespace Game.Arenas
                                 {
                                     Log.outDebug(LogFilter.Arena, "Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
                                         GetArenaType(), player.GetName(), score.Key, player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : (GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0))),
-                                        player.GetSession().GetRemoteAddress(), score.Value.ToString());
+                                        player.                                        Session.                                        RemoteAddress, score.Value.ToString());
                                 }
                             }
                         }
@@ -201,8 +201,8 @@ namespace Game.Arenas
                     // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
                     else
                     {
-                        _arenaTeamScores[(int)PvPTeamId.Alliance].Assign(winnerTeamRating, (uint)(winnerTeamRating + SharedConst.ArenaTimeLimitPointsLoss), winnerMatchmakerRating, GetArenaMatchmakerRating(Team.Alliance));
-                        _arenaTeamScores[(int)PvPTeamId.Horde].Assign(loserTeamRating, (uint)(loserTeamRating + SharedConst.ArenaTimeLimitPointsLoss), loserMatchmakerRating, GetArenaMatchmakerRating(Team.Horde));
+                        _arenaTeamScores[(int)PvPTeamId.Alliance].Assign(winnerTeamRating, (uint)(winnerTeamRating + SharedConst.ArenaTimeLimitPointsLoss), winnerMatchmakerRating, GetArenaMatchmakerRating(TeamFaction.Alliance));
+                        _arenaTeamScores[(int)PvPTeamId.Horde].Assign(loserTeamRating, (uint)(loserTeamRating + SharedConst.ArenaTimeLimitPointsLoss), loserMatchmakerRating, GetArenaMatchmakerRating(TeamFaction.Horde));
 
                         winnerArenaTeam.FinishGame(SharedConst.ArenaTimeLimitPointsLoss);
                         loserArenaTeam.FinishGame(SharedConst.ArenaTimeLimitPointsLoss);
@@ -211,7 +211,7 @@ namespace Game.Arenas
                     uint aliveWinners = GetAlivePlayersCountByTeam(winner);
                     foreach (var pair in GetPlayers())
                     {
-                        Team team = pair.Value.Team;
+                        TeamFaction team = pair.Value.Team;
 
                         if (pair.Value.OfflineRemoveTime != 0)
                         {
@@ -241,7 +241,7 @@ namespace Game.Arenas
                             player.UpdateCriteria(CriteriaType.WinArena, GetMapId());
 
                             // Last standing - Rated 5v5 arena & be solely alive player
-                            if (GetArenaType() == ArenaTypes.Team5v5 && aliveWinners == 1 && player.IsAlive())
+                            if (GetArenaType() == ArenaTypes.Team5v5 && aliveWinners == 1 && player.IsAlive)
                                 player.CastSpell(player, ArenaSpellIds.LastManStanding, true);
 
                             if (!guildAwarded)

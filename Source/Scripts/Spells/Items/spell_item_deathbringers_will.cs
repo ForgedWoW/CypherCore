@@ -96,7 +96,7 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
 
 		PreventDefaultAction();
 		var caster = eventInfo.Actor;
-		var randomSpells = triggeredSpells[(int)caster.GetClass()];
+		var randomSpells = triggeredSpells[(int)caster.Class];
 
 		if (randomSpells.Empty())
 			return;

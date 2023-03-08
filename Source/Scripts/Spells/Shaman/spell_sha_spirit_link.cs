@@ -31,12 +31,12 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
 		if (target != null)
 		{
-			if (!targets.ContainsKey(target.GetGUID()))
+			if (!targets.ContainsKey(target.GUID))
 				return;
 
 			var bp0 = 0.0f;
 			var bp1 = 0.0f;
-			var percentage = targets[target.GetGUID()];
+			var percentage = targets[target.GUID];
 			var currentHp = target.CountPctFromMaxHealth((int)percentage);
 			var desiredHp = target.CountPctFromMaxHealth((int)averagePercentage);
 
@@ -71,7 +71,7 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
 			if (target != null)
 			{
-				targets[target.GetGUID()] = target.GetHealthPct();
+				targets[target.GUID] = target.GetHealthPct();
 				averagePercentage += target.GetHealthPct();
 				++targetCount;
 			}

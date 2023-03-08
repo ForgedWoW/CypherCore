@@ -190,7 +190,7 @@ namespace Game.Movement
             if (active)
                 owner.ClearUnitState(UnitState.RoamingMove);
 
-            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature())
+            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
                 MovementInform(owner);
         }
 
@@ -229,8 +229,8 @@ namespace Game.Movement
                 Creature ownerCreature = owner.ToCreature();
                 ownerCreature.SetNoCallAssistance(false);
                 ownerCreature.CallAssistance();
-                if (ownerCreature.IsAlive())
-                    ownerCreature.GetMotionMaster().MoveSeekAssistanceDistract(WorldConfig.GetUIntValue(WorldCfg.CreatureFamilyAssistanceDelay));
+                if (ownerCreature.IsAlive)
+                    ownerCreature.                    MotionMaster.MoveSeekAssistanceDistract(WorldConfig.GetUIntValue(WorldCfg.CreatureFamilyAssistanceDelay));
             }
         }
 

@@ -46,10 +46,10 @@ namespace Game.Chat
 
         static bool HandleResetStatsOrLevelHelper(Player player)
         {
-            ChrClassesRecord classEntry = CliDB.ChrClassesStorage.LookupByKey(player.GetClass());
+            ChrClassesRecord classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
             if (classEntry == null)
             {
-                Log.outError(LogFilter.Server, "Class {0} not found in DBC (Wrong DBC files?)", player.GetClass());
+                Log.outError(LogFilter.Server, "Class {0} not found in DBC (Wrong DBC files?)", player.Class);
                 return false;
             }
 
@@ -57,13 +57,13 @@ namespace Game.Chat
 
             // reset m_form if no aura
             if (!player.HasAuraType(AuraType.ModShapeshift))
-                player.SetShapeshiftForm(ShapeShiftForm.None);
+                player.                ShapeshiftForm = ShapeShiftForm.None;
 
-            player.SetFactionForRace(player.GetRace());
+            player.SetFactionForRace(player.Race);
             player.SetPowerType(powerType);
 
             // reset only if player not in some form;
-            if (player.GetShapeshiftForm() == ShapeShiftForm.None)
+            if (player.ShapeshiftForm == ShapeShiftForm.None)
                 player.InitDisplayIds();
 
             player.ReplaceAllPvpFlags(UnitPVPStateFlags.PvP);
@@ -88,10 +88,10 @@ namespace Game.Chat
             if (!HandleResetStatsOrLevelHelper(target))
                 return false;
 
-            byte oldLevel = (byte)target.GetLevel();
+            byte oldLevel = (byte)target.Level;
 
             // set starting level
-            uint startLevel = target.GetStartLevel(target.GetRace(), target.GetClass());
+            uint startLevel = target.GetStartLevel(target.Race, target.Class);
 
             target._ApplyAllLevelScaleItemMods(false);
             target.SetLevel(startLevel);
@@ -99,7 +99,7 @@ namespace Game.Chat
             target.InitStatsForLevel(true);
             target.InitTaxiNodesForLevel();
             target.InitTalentForLevel();
-            target.SetXP(0);
+            target.            XP = 0;
 
             target._ApplyAllLevelScaleItemMods(true);
 
@@ -108,7 +108,7 @@ namespace Game.Chat
             if (pet)
                 pet.SynchronizeLevelWithOwner();
 
-            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(target.GetClass(), p => p.OnLevelChanged(target, oldLevel));
+            Global.ScriptMgr.ForEach<IPlayerOnLevelChanged>(target.Class, p => p.OnLevelChanged(target, oldLevel));
 
             return true;
         }
@@ -127,14 +127,14 @@ namespace Game.Chat
                 target.ResetSpells();
 
                 target.SendSysMessage(CypherStrings.ResetSpells);
-                if (handler.GetSession() == null || handler.GetSession().GetPlayer() != target)
+                if (handler.GetSession() == null || handler.GetSession().Player != target)
                     handler.SendSysMessage(CypherStrings.ResetSpellsOnline, handler.GetNameLink(target));
             }
             else
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
                 stmt.AddValue(0, (ushort)AtLoginFlags.ResetSpells);
-                stmt.AddValue(1, player.GetGUID().GetCounter());
+                stmt.AddValue(1, player.GetGUID().Counter);
                 DB.Characters.Execute(stmt);
 
                 handler.SendSysMessage(CypherStrings.ResetSpellsOffline, player.GetName());
@@ -179,7 +179,7 @@ namespace Game.Chat
                 target.ResetTalentSpecialization();
                 target.SendTalentsInfoData();
                 target.SendSysMessage(CypherStrings.ResetTalents);
-                if (handler.GetSession() == null || handler.GetSession().GetPlayer() != target)
+                if (handler.GetSession() == null || handler.GetSession().Player != target)
                     handler.SendSysMessage(CypherStrings.ResetTalentsOnline, handler.GetNameLink(target));
 
                 /* TODO: 6.x remove/update pet talents
@@ -190,11 +190,11 @@ namespace Game.Chat
                 */
                 return true;
             }
-            else if (!player.GetGUID().IsEmpty())
+            else if (!player.GetGUID().IsEmpty)
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
                 stmt.AddValue(0, (ushort)(AtLoginFlags.None | AtLoginFlags.ResetPetTalents));
-                stmt.AddValue(1, player.GetGUID().GetCounter());
+                stmt.AddValue(1, player.GetGUID().Counter);
                 DB.Characters.Execute(stmt);
 
                 string nameLink = handler.PlayerLink(player.GetName());

@@ -13,7 +13,7 @@ namespace Game.Chat
 {
     public class ChannelManager
     {
-        public ChannelManager(Team team)
+        public ChannelManager(TeamFaction team)
         {
             _team = team;
             _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
@@ -43,12 +43,12 @@ namespace Game.Chat
                 return;
             }
 
-            List<(string name, Team team)> toDelete = new();
+            List<(string name, TeamFaction team)> toDelete = new();
             uint count = 0;
             do
             {
                 string dbName = result.Read<string>(0); // may be different - channel names are case insensitive
-                Team team = (Team)result.Read<int>(1);
+                TeamFaction team = (TeamFaction)result.Read<int>(1);
                 bool dbAnnounce = result.Read<bool>(2);
                 bool dbOwnership = result.Read<bool>(3);
                 string dbPass = result.Read<string>(4);
@@ -82,15 +82,15 @@ namespace Game.Chat
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
         }
 
-        public static ChannelManager ForTeam(Team team)
+        public static ChannelManager ForTeam(TeamFaction team)
         {
             if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
                 return allianceChannelMgr;        // cross-faction
 
-            if (team == Team.Alliance)
+            if (team == TeamFaction.Alliance)
                 return allianceChannelMgr;
 
-            if (team == Team.Horde)
+            if (team == TeamFaction.Horde)
                 return hordeChannelMgr;
 
             return null;
@@ -98,9 +98,9 @@ namespace Game.Chat
 
         public static Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
         {
-            foreach (Channel channel in playerSearcher.GetJoinedChannels())
+            foreach (Channel channel in playerSearcher.JoinedChannels)
             {
-                string chanName = channel.GetName(playerSearcher.GetSession().GetSessionDbcLocale());
+                string chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
                 if (chanName.ToLower().Equals(namePart.ToLower()))
                     return channel;
             }
@@ -116,7 +116,7 @@ namespace Game.Chat
 
         public static Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
         {
-            foreach (Channel channel in playerSearcher.GetJoinedChannels())
+            foreach (Channel channel in playerSearcher.JoinedChannels)
                 if (channel.GetGUID() == channelGuid)
                     return channel;
 
@@ -171,7 +171,7 @@ namespace Game.Chat
             if (result == null && notify)
             {
                 string channelName = name;
-                Channel.GetChannelName(ref channelName, channelId, player.GetSession().GetSessionDbcLocale(), zoneEntry);
+                Channel.GetChannelName(ref channelName, channelId, player.Session.SessionDbcLocale, zoneEntry);
 
                 SendNotOnChannelNotify(player, channelName);
             }
@@ -203,7 +203,7 @@ namespace Game.Chat
             ulong high = 0;
             high |= (ulong)HighGuid.ChatChannel << 58;
             high |= (ulong)Global.WorldMgr.GetRealmId().Index << 42;
-            high |= (ulong)(_team == Team.Alliance ? 3 : 5) << 4;
+            high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
             ObjectGuid channelGuid = new();
             channelGuid.SetRawValue(high, _guidGenerator.Generate());
@@ -226,7 +226,7 @@ namespace Game.Chat
                 high |= 1ul << 24; // trade
 
             high |= (ulong)(zoneId) << 10;
-            high |= (ulong)(_team == Team.Alliance ? 3 : 5) << 4;
+            high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
             ObjectGuid channelGuid = new();
             channelGuid.SetRawValue(high, channelId);
@@ -235,10 +235,10 @@ namespace Game.Chat
 
         readonly Dictionary<string, Channel> _customChannels = new();
         readonly Dictionary<ObjectGuid, Channel> _channels = new();
-        readonly Team _team;
+        readonly TeamFaction _team;
         readonly ObjectGuidGenerator _guidGenerator;
 
-        static readonly ChannelManager allianceChannelMgr = new(Team.Alliance);
-        static readonly ChannelManager hordeChannelMgr = new(Team.Horde);
+        static readonly ChannelManager allianceChannelMgr = new(TeamFaction.Alliance);
+        static readonly ChannelManager hordeChannelMgr = new(TeamFaction.Horde);
     }
 }

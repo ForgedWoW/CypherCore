@@ -31,7 +31,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
 		{
 			var obj = objs[i];
 
-			VisGuids.Remove(obj.GetGUID());
+			VisGuids.Remove(obj.GUID);
 			Player.UpdateVisibilityOf(obj, Data, VisibleNow);
 		}
 	}
@@ -44,11 +44,11 @@ public class VisibleNotifier : IGridNotifierWorldObject
 
 		if (transport)
 			foreach (var obj in transport.GetPassengers())
-				if (VisGuids.Contains(obj.GetGUID()))
+				if (VisGuids.Contains(obj.GUID))
 				{
-					VisGuids.Remove(obj.GetGUID());
+					VisGuids.Remove(obj.GUID);
 
-					switch (obj.GetTypeId())
+					switch (obj.TypeId)
 					{
 						case TypeId.GameObject:
 							Player.UpdateVisibilityOf(obj.ToGameObject(), Data, VisibleNow);
@@ -83,7 +83,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
 			Player.ClientGuiDs.Remove(guid);
 			Data.AddOutOfRangeGUID(guid);
 
-			if (guid.IsPlayer())
+			if (guid.IsPlayer)
 			{
 				var pl = Global.ObjAccessor.FindPlayer(guid);
 

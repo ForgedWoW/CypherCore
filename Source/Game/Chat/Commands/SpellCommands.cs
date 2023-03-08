@@ -24,7 +24,7 @@ namespace Game.Chat
             Player owner = target.GetCharmerOrOwnerPlayerOrPlayerItself();
             if (!owner)
             {
-                owner = handler.GetSession().GetPlayer();
+                owner = handler.GetSession().Player;
                 target = owner;
             }
 
@@ -40,13 +40,13 @@ namespace Game.Chat
                 SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellIdArg.Value, target.GetMap().GetDifficultyID());
                 if (spellInfo == null)
                 {
-                    handler.SendSysMessage(CypherStrings.UnknownSpell, owner == handler.GetSession().GetPlayer() ? handler.GetCypherString(CypherStrings.You) : nameLink);
+                    handler.SendSysMessage(CypherStrings.UnknownSpell, owner == handler.GetSession().Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
                     return false;
                 }
 
                 target.GetSpellHistory().ResetCooldown(spellInfo.Id, true);
                 target.GetSpellHistory().ResetCharges(spellInfo.ChargeCategoryId);
-                handler.SendSysMessage(CypherStrings.RemoveallCooldown, spellInfo.Id, owner == handler.GetSession().GetPlayer() ? handler.GetCypherString(CypherStrings.You) : nameLink);
+                handler.SendSysMessage(CypherStrings.RemoveallCooldown, spellInfo.Id, owner == handler.GetSession().Player ? handler.GetCypherString(CypherStrings.You) : nameLink);
             }
             return true;
         }

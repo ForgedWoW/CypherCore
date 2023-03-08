@@ -150,8 +150,8 @@ internal struct MiscConst
 		creature.RemoveAllAuras();
 		creature.SetHealth(0);
 		creature.SetUnitFlag(UnitFlags.Uninteractible);
-		creature.GetMotionMaster().Clear();
-		creature.GetMotionMaster().MoveIdle();
+		creature.MotionMaster.Clear();
+		creature.MotionMaster.MoveIdle();
 		creature.SetStandState(UnitStandStateType.Dead);
 	}
 
@@ -164,12 +164,12 @@ internal struct MiscConst
 
 		if (target.GetVictim())
 		{
-			target.GetMotionMaster().MoveChase(target.GetVictim());
+			target.MotionMaster.MoveChase(target.GetVictim());
 			target.GetAI().AttackStart(target.GetVictim());
 		}
 		else
 		{
-			target.GetMotionMaster().Initialize();
+			target.MotionMaster.Initialize();
 		}
 	}
 }
@@ -304,7 +304,7 @@ internal class boss_dorothee : ScriptedAI
 		if (pTito)
 		{
 			Talk(TextIds.SayDorotheeSummon);
-			pTito.GetAI<npc_tito>().DorotheeGUID = me.GetGUID();
+			pTito.GetAI<npc_tito>().DorotheeGUID = me.GUID;
 			pTito.GetAI().AttackStart(me.GetVictim());
 			SummonedTito = true;
 			TitoDied = false;
@@ -332,11 +332,11 @@ internal class npc_tito : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		if (!DorotheeGUID.IsEmpty())
+		if (!DorotheeGUID.IsEmpty)
 		{
 			var Dorothee = ObjectAccessor.GetCreature(me, DorotheeGUID);
 
-			if (Dorothee && Dorothee.IsAlive())
+			if (Dorothee && Dorothee.IsAlive)
 			{
 				Dorothee.GetAI<boss_dorothee>().TitoDied = true;
 				Talk(TextIds.SayDorotheeTitoDeath, Dorothee);
@@ -833,7 +833,7 @@ internal class npc_cyclone : ScriptedAI
 		if (MoveTimer <= diff)
 		{
 			var pos = me.GetRandomNearPosition(10);
-			me.GetMotionMaster().MovePoint(0, pos);
+			me.MotionMaster.MovePoint(0, pos);
 			MoveTimer = RandomHelper.URand(5000, 8000);
 		}
 		else
@@ -939,7 +939,7 @@ internal class boss_bigbadwolf : ScriptedAI
 					if (TempThreat != 0f)
 						ModifyThreatByPercent(target, -100);
 
-					HoodGUID = target.GetGUID();
+					HoodGUID = target.GUID;
 					AddThreat(target, 1000000.0f);
 					ChaseTimer = 20000;
 					IsChasing = true;
@@ -1126,7 +1126,7 @@ internal class boss_julianne : ScriptedAI
 				if (Romulo)
 				{
 					Romulo.RemoveUnitFlag(UnitFlags.Uninteractible);
-					Romulo.GetMotionMaster().Clear();
+					Romulo.MotionMaster.Clear();
 					Romulo.SetDeathState(DeathState.JustDied);
 					Romulo.CombatStop(true);
 					Romulo.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
@@ -1185,7 +1185,7 @@ internal class boss_julianne : ScriptedAI
 			{
 				Talk(TextIds.SayJulianneAggro);
 				me.RemoveUnitFlag(UnitFlags.NonAttackable);
-				me.SetFaction((uint)FactionTemplates.Monster2);
+				me.Faction = (uint)FactionTemplates.Monster2;
 				AggroYellTimer = 0;
 			}
 			else
@@ -1219,12 +1219,12 @@ internal class boss_julianne : ScriptedAI
 
 				if (pRomulo)
 				{
-					RomuloGUID = pRomulo.GetGUID();
-					pRomulo.GetAI<boss_romulo>().JulianneGUID = me.GetGUID();
+					RomuloGUID = pRomulo.GUID;
+					pRomulo.GetAI<boss_romulo>().JulianneGUID = me.GUID;
 					pRomulo.GetAI<boss_romulo>().Phase = RAJPhase.Romulo;
 					DoZoneInCombat(pRomulo);
 
-					pRomulo.SetFaction((uint)FactionTemplates.Monster2);
+					pRomulo.Faction = (uint)FactionTemplates.Monster2;
 				}
 
 				SummonedRomulo = true;
@@ -1320,7 +1320,7 @@ internal class boss_julianne : ScriptedAI
 				var Romulo = (ObjectAccessor.GetCreature((me), RomuloGUID));
 
 				if (Romulo &&
-					Romulo.IsAlive() &&
+					Romulo.IsAlive &&
 					!RomuloDead)
 					DoCast(Romulo, SpellIds.EternalAffection);
 			}
@@ -1424,7 +1424,7 @@ internal class boss_romulo : ScriptedAI
 				if (Julianne)
 				{
 					Julianne.RemoveUnitFlag(UnitFlags.Uninteractible);
-					Julianne.GetMotionMaster().Clear();
+					Julianne.MotionMaster.Clear();
 					Julianne.SetDeathState(DeathState.JustDied);
 					Julianne.CombatStop(true);
 					Julianne.ReplaceAllDynamicFlags(UnitDynFlags.Lootable);
@@ -1454,7 +1454,7 @@ internal class boss_romulo : ScriptedAI
 	{
 		Talk(TextIds.SayRomuloAggro);
 
-		if (!JulianneGUID.IsEmpty())
+		if (!JulianneGUID.IsEmpty)
 		{
 			var Julianne = ObjectAccessor.GetCreature(me, JulianneGUID);
 

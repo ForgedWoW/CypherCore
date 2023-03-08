@@ -68,7 +68,7 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 
 	public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
 	{
-		var itemId = item.GetEntry();
+		var itemId = item.Entry;
 		var disabled = false;
 
 		//for special scripts
@@ -94,7 +94,7 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 		}
 
 		// allow use in flight only
-		if (player.IsInFlight() &&
+		if (player.IsInFlight &&
 			!disabled)
 			return false;
 
@@ -113,8 +113,8 @@ internal class item_gor_dreks_ointment : ScriptObjectAutoAddDBBound, IItemOnUse
 	public bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId)
 	{
 		if (targets.UnitTarget &&
-			targets.			UnitTarget.IsTypeId(TypeId.Unit) &&
-			targets.			UnitTarget.GetEntry() == 20748 &&
+			targets.UnitTarget.IsTypeId(TypeId.Unit) &&
+			targets.UnitTarget.Entry == 20748 &&
 			!targets.UnitTarget.HasAura(32578))
 			return false;
 
@@ -168,7 +168,7 @@ internal class item_petrov_cluster_bombs : ScriptObjectAutoAddDBBound, IItemOnUs
 		if (player.GetZoneId() != Misc.ZoneIdHowling)
 			return false;
 
-		if (player.GetTransport() == null ||
+		if (player.Transport == null ||
 			player.GetAreaId() != Misc.AreaIdShatteredStraits)
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.PetrovBomb, Difficulty.None);
@@ -215,7 +215,7 @@ internal class item_generic_limit_chance_above_60 : ScriptObjectAutoAddDBBound, 
 	public bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item)
 	{
 		// spell proc chance gets severely reduced on victims > 60 (formula unknown)
-		if (victim.GetLevel() > 60)
+		if (victim.Level > 60)
 		{
 			// gives ~0.1% proc chance at lvl 70
 			double lvlPenaltyFactor = 9.93f;

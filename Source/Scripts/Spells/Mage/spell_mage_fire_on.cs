@@ -30,7 +30,7 @@ public class spell_mage_fire_on : SpellScript, IHasSpellEffects
 		var caster = Caster;
 		var target = HitUnit;
 
-		if (caster == null || target == null || caster.GetTypeId() != TypeId.Player)
+		if (caster == null || target == null || caster.TypeId != TypeId.Player)
 			return;
 
 		caster.ToPlayer().GetSpellHistory().ResetCharges(Global.SpellMgr.GetSpellInfo(MageSpells.FireBlast, Difficulty.None).ChargeCategoryId);

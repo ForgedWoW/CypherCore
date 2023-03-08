@@ -101,8 +101,8 @@ namespace Game.AI
             {
                 if (_spellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Melee))
                 {
-                    rangeMod = _caster.GetCombatReach() + 4.0f / 3.0f;
-                    rangeMod += target.GetCombatReach();
+                    rangeMod = _caster.CombatReach + 4.0f / 3.0f;
+                    rangeMod += target.CombatReach;
 
                     rangeMod = Math.Max(rangeMod, SharedConst.NominalMeleeRange);
                 }
@@ -111,8 +111,8 @@ namespace Game.AI
                     float meleeRange = 0.0f;
                     if (_spellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
                     {
-                        meleeRange = _caster.GetCombatReach() + 4.0f / 3.0f;
-                        meleeRange += target.GetCombatReach();
+                        meleeRange = _caster.CombatReach + 4.0f / 3.0f;
+                        meleeRange += target.CombatReach;
 
                         meleeRange = Math.Max(meleeRange, SharedConst.NominalMeleeRange);
                     }
@@ -120,8 +120,8 @@ namespace Game.AI
                     minRange = _caster.GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
                     maxRange = _caster.GetSpellMaxRangeForTarget(target, _spellInfo);
 
-                    rangeMod = _caster.GetCombatReach();
-                    rangeMod += target.GetCombatReach();
+                    rangeMod = _caster.CombatReach;
+                    rangeMod += target.CombatReach;
 
                     if (minRange > 0.0f && !_spellInfo.RangeEntry.Flags.HasAnyFlag(SpellRangeFlag.Ranged))
                         minRange += rangeMod;
@@ -204,7 +204,7 @@ namespace Game.AI
             if (target.GetPowerType() != _power)
                 return false;
 
-            if (_playerOnly && target.GetTypeId() != TypeId.Player)
+            if (_playerOnly && target.TypeId != TypeId.Player)
                 return false;
 
             if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))
@@ -237,7 +237,7 @@ namespace Game.AI
             if (_me == null || target == null)
                 return false;
 
-            if (_playerOnly && target.GetTypeId() != TypeId.Player)
+            if (_playerOnly && target.TypeId != TypeId.Player)
                 return false;
 
             if (_dist > 0.0f && !_me.IsWithinCombatRange(target, _dist))

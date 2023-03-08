@@ -27,7 +27,7 @@ public class BattlegroundMap : Map
 	{
 		if (player.GetMap() == this)
 		{
-			Log.outError(LogFilter.Maps, "BGMap:CannotEnter - player {0} is already in map!", player.GetGUID().ToString());
+			Log.outError(LogFilter.Maps, "BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
 			Cypher.Assert(false);
 
 			return new TransferAbortParams(TransferAbortReason.Error);
@@ -66,7 +66,7 @@ public class BattlegroundMap : Map
 	{
 		if (HavePlayers())
 			foreach (var player in ActivePlayers)
-				if (!player.IsBeingTeleportedFar())
+				if (!player.IsBeingTeleportedFar)
 					player.TeleportTo(player.GetBattlegroundEntryPoint());
 	}
 

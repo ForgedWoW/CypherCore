@@ -70,7 +70,7 @@ namespace Game.Groups
 
         public Group GetGroupByGUID(ObjectGuid groupId)
         {
-            return GroupStore.LookupByKey(groupId.GetCounter());
+            return GroupStore.LookupByKey(groupId.Counter);
         }
 
         public void Update(uint diff)
@@ -81,12 +81,12 @@ namespace Game.Groups
 
         public void AddGroup(Group group)
         {
-            GroupStore[group.GetGUID().GetCounter()] = group;
+            GroupStore[group.GetGUID().Counter] = group;
         }
 
         public void RemoveGroup(Group group)
         {
-            GroupStore.Remove(group.GetGUID().GetCounter());
+            GroupStore.Remove(group.GetGUID().Counter);
         }
 
         public void LoadGroups()

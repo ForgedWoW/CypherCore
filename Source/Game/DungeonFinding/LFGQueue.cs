@@ -148,7 +148,7 @@ namespace Game.DungeonFinding
                     itDelete = key;
             }
 
-            if (!itDelete.IsEmpty())
+            if (!itDelete.IsEmpty)
                 QueueDataStore.Remove(itDelete);
         }
 
@@ -364,7 +364,7 @@ namespace Game.DungeonFinding
 
                 // Store group so we don't need to call Mgr to get it later (if it's player group will be 0 otherwise would have joined as group)
                 foreach (var it2 in itQueue.roles)
-                    proposalGroups[it2.Key] = guid.IsPlayer() ? guid : ObjectGuid.Empty;
+                    proposalGroups[it2.Key] = guid.IsPlayer ? guid : ObjectGuid.Empty;
 
                 numPlayers += (byte)itQueue.roles.Count;
 
@@ -519,18 +519,18 @@ namespace Game.DungeonFinding
                 // Assing new leader
                 if (rolePair.Value.HasAnyFlag(LfgRoles.Leader))
                 {
-                    if (!leader || proposal.leader.IsEmpty() || Convert.ToBoolean(RandomHelper.IRand(0, 1)))
+                    if (!leader || proposal.leader.IsEmpty || Convert.ToBoolean(RandomHelper.IRand(0, 1)))
                         proposal.leader = rolePair.Key;
                     leader = true;
                 }
-                else if (!leader && (proposal.leader.IsEmpty() || Convert.ToBoolean(RandomHelper.IRand(0, 1))))
+                else if (!leader && (proposal.leader.IsEmpty || Convert.ToBoolean(RandomHelper.IRand(0, 1))))
                     proposal.leader = rolePair.Key;
 
                 // Assing player data and roles
                 LfgProposalPlayer data = new();
                 data.role = rolePair.Value;
                 data.group = proposalGroups.LookupByKey(rolePair.Key);
-                if (!proposal.isNew && !data.group.IsEmpty() && data.group == proposal.group) // Player from existing group, autoaccept
+                if (!proposal.isNew && !data.group.IsEmpty && data.group == proposal.group) // Player from existing group, autoaccept
                     data.accept = LfgAnswer.Agree;
 
                 proposal.players[rolePair.Key] = data;
@@ -630,7 +630,7 @@ namespace Game.DungeonFinding
                 List<ObjectGuid> queue = i != 0 ? newToQueueStore : currentQueueStore;
                 foreach (var guid in queue)
                 {
-                    if (guid.IsParty())
+                    if (guid.IsParty)
                     {
                         groups++;
                         playersInGroup += Global.LFGMgr.GetPlayerCount(guid);

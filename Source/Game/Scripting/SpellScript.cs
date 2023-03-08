@@ -409,7 +409,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
 			if (hitUnit != null)
 			{
-				var targetInfo = _spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GetGUID());
+				var targetInfo = _spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
 				Cypher.Assert(targetInfo != null);
 
 				return targetInfo.IsCrit;
@@ -496,7 +496,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		{
 			Position pos = ExplTargetWorldObject.Location;
 
-			if (pos == null || pos.IsDefault() || !pos.IsPositionValid())
+			if (pos == null || pos.IsDefault || !pos.IsPositionValid())
 				pos = _spell.Targets.Dst.Position;
 
 			return pos;
@@ -719,13 +719,13 @@ public class SpellScript : BaseSpellScript, ISpellScript
 			return;
 
 		//List of all player targets.
-		var tempPlayers = targets.Where(p => p.IsPlayer()).ToList();
+		var tempPlayers = targets.Where(p => p.IsPlayer).ToList();
 
 		//List of all injured non player targets.
-		var tempInjuredUnits = targets.Where(target => target.IsUnit() && !target.ToUnit().IsFullHealth()).ToList();
+		var tempInjuredUnits = targets.Where(target => target.IsUnit && !target.ToUnit().IsFullHealth()).ToList();
 
 		//List of all none injured non player targets.
-		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit() && target.ToUnit().IsFullHealth()).ToList();
+		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit && target.ToUnit().IsFullHealth()).ToList();
 
 		targets.Clear();
 

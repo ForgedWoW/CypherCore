@@ -57,15 +57,15 @@ namespace Game
 
         void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
         {
-            Unit mover = GetPlayer().GetUnitBeingMoved();
+            Unit mover = Player.GetUnitBeingMoved();
             Player plrMover = mover.ToPlayer();
 
-            if (plrMover && plrMover.IsBeingTeleported())
+            if (plrMover && plrMover.IsBeingTeleported)
                 return;
 
-            GetPlayer().ValidateMovementInfo(movementInfo);
+            Player.ValidateMovementInfo(movementInfo);
 
-            if (movementInfo.Guid != mover.GetGUID())
+            if (movementInfo.Guid != mover.GUID)
             {
                 Log.outError(LogFilter.Network, "HandleMovementOpcodes: guid error");
                 return;
@@ -79,11 +79,11 @@ namespace Game
                 return;
 
             // stop some emotes at player move
-            if (plrMover && (plrMover.GetEmoteState() != 0))
-                plrMover.SetEmoteState(Emote.OneshotNone);
+            if (plrMover && (plrMover.EmoteState != 0))
+                plrMover.                EmoteState = Emote.OneshotNone;
 
             //handle special cases
-            if (!movementInfo.Transport.Guid.IsEmpty())
+            if (!movementInfo.Transport.Guid.IsEmpty)
             {
                 // We were teleported, skip packets that were broadcast before teleport
                 if (movementInfo.Pos.GetExactDist2d(mover.Location) > MapConst.SizeofGrids)
@@ -98,7 +98,7 @@ namespace Game
 
                 if (plrMover)
                 {
-                    if (plrMover.GetTransport() == null)
+                    if (plrMover.Transport == null)
                     {
                         GameObject go = plrMover.GetMap().GetGameObject(movementInfo.Transport.Guid);
                         if (go != null)
@@ -108,9 +108,9 @@ namespace Game
                                 transport.AddPassenger(plrMover);
                         }
                     }
-                    else if (plrMover.GetTransport().GetTransportGUID() != movementInfo.Transport.Guid)
+                    else if (plrMover.Transport.GetTransportGUID() != movementInfo.Transport.Guid)
                     {
-                        plrMover.GetTransport().RemovePassenger(plrMover);
+                        plrMover.                        Transport.RemovePassenger(plrMover);
                         GameObject go = plrMover.GetMap().GetGameObject(movementInfo.Transport.Guid);
                         if (go != null)
                         {
@@ -125,21 +125,21 @@ namespace Game
                     }
                 }
 
-                if (mover.GetTransport() == null && !mover.GetVehicle())
+                if (mover.Transport == null && !mover.GetVehicle())
                     movementInfo.Transport.Reset();
             }
-            else if (plrMover && plrMover.GetTransport() != null)                // if we were on a transport, leave
-                plrMover.GetTransport().RemovePassenger(plrMover);
+            else if (plrMover && plrMover.Transport != null)                // if we were on a transport, leave
+                plrMover.                Transport.RemovePassenger(plrMover);
 
             // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-            if (opcode == ClientOpcodes.MoveFallLand && plrMover && !plrMover.IsInFlight())
+            if (opcode == ClientOpcodes.MoveFallLand && plrMover && !plrMover.IsInFlight)
                 plrMover.HandleFall(movementInfo);
 
             // interrupt parachutes upon falling or landing in water
             if (opcode == ClientOpcodes.MoveFallLand || opcode == ClientOpcodes.MoveStartSwim || opcode == ClientOpcodes.MoveSetFly)
                 mover.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LandingOrFlight); // Parachutes
 
-            movementInfo.Guid = mover.GetGUID();
+            movementInfo.Guid = mover.GUID;
             movementInfo.Time = AdjustClientMovementTime(movementInfo.Time);
             mover.MovementInfo = movementInfo;
 
@@ -166,31 +166,31 @@ namespace Game
 
             MoveUpdate moveUpdate = new();
             moveUpdate.Status = mover.MovementInfo;
-            mover.SendMessageToSet(moveUpdate, GetPlayer());
+            mover.SendMessageToSet(moveUpdate, Player);
 
             if (plrMover)                                            // nothing is charmed, or player charmed
             {
-                if (plrMover.IsSitState() && movementInfo.HasMovementFlag(MovementFlag.MaskMoving | MovementFlag.MaskTurning))
+                if (plrMover.IsSitState && movementInfo.HasMovementFlag(MovementFlag.MaskMoving | MovementFlag.MaskTurning))
                     plrMover.SetStandState(UnitStandStateType.Stand);
 
                 plrMover.UpdateFallInformationIfNeed(movementInfo, opcode);
 
-                if (movementInfo.Pos.Z < plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.X, movementInfo.Pos.Y))
+                if (movementInfo.Pos.Z < plrMover.GetMap().GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y))
                 {
-                    if (!(plrMover.GetBattleground() && plrMover.GetBattleground().HandlePlayerUnderMap(GetPlayer())))
+                    if (!(plrMover.GetBattleground() && plrMover.GetBattleground().HandlePlayerUnderMap(Player)))
                     {
                         // NOTE: this is actually called many times while falling
                         // even after the player has been teleported away
                         // @todo discard movement packets after the player is rooted
-                        if (plrMover.IsAlive())
+                        if (plrMover.IsAlive)
                         {
-                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.GetMap().GetMinHeight(plrMover.GetPhaseShift(), movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
+                            Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.GetMap().GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
                             plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
-                            plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)GetPlayer().GetMaxHealth());
+                            plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.GetMaxHealth());
                             // player can be alive if GM/etc
                             // change the death state to CORPSE to prevent the death timer from
                             // starting in the next player update
-                            if (plrMover.IsAlive())
+                            if (plrMover.IsAlive)
                                 plrMover.KillPlayer();
                         }
                     }
@@ -214,17 +214,17 @@ namespace Game
 
         void HandleMoveWorldportAck()
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             // ignore unexpected far teleports
-            if (!player.IsBeingTeleportedFar())
+            if (!player.IsBeingTeleportedFar)
                 return;
 
-            bool seamlessTeleport = player.IsBeingTeleportedSeamlessly();
+            bool seamlessTeleport = player.IsBeingTeleportedSeamlessly;
             player.SetSemaphoreTeleportFar(false);
 
             // get the teleport destination
-            WorldLocation loc = player.GetTeleportDest();
+            WorldLocation loc = player.TeleportDest;
 
             // possible errors in the coordinate validity check
             if (!GridDefines.IsValidMapCoord(loc))
@@ -241,10 +241,10 @@ namespace Game
                 player.InstanceValid = true;
 
             Map oldMap = player.GetMap();
-            Map newMap = GetPlayer().GetTeleportDestInstanceId().HasValue ? Global.MapMgr.FindMap(loc.MapId, GetPlayer().GetTeleportDestInstanceId().Value) : Global.MapMgr.CreateMap(loc.MapId, GetPlayer());
+            Map newMap = Player.TeleportDestInstanceId.HasValue ? Global.MapMgr.FindMap(loc.MapId, Player.TeleportDestInstanceId.Value) : Global.MapMgr.CreateMap(loc.MapId, Player);
 
             MovementInfo.TransportInfo transportInfo = player.MovementInfo.Transport;
-            ITransport transport = player.GetTransport();
+            ITransport transport = player.Transport;
             if (transport != null)
                 transport.RemovePassenger(player);
 
@@ -259,8 +259,8 @@ namespace Game
             // while the player is in transit, for example the map may get full
             if (newMap == null || newMap.CannotEnter(player) != null)
             {
-                Log.outError(LogFilter.Network, $"Map {loc.MapId} could not be created for {(newMap ? newMap.GetMapName() : "Unknown")} ({player.GetGUID()}), porting player to homebind");
-                player.TeleportTo(player.GetHomebind());
+                Log.outError(LogFilter.Network, $"Map {loc.MapId} could not be created for {(newMap ? newMap.GetMapName() : "Unknown")} ({player.GUID}), porting player to homebind");
+                player.TeleportTo(player.Homebind);
                 return;
             }
 
@@ -289,10 +289,10 @@ namespace Game
 
             if (!player.GetMap().AddPlayerToMap(player, !seamlessTeleport))
             {
-                Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GetGUID()}) to map {loc.MapId} ({(newMap ? newMap.GetMapName() : "Unknown")}) because of unknown reason!");
+                Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.GetMapName() : "Unknown")}) because of unknown reason!");
                 player.ResetMap();
                 player.SetMap(oldMap);
-                player.TeleportTo(player.GetHomebind());
+                player.TeleportTo(player.Homebind);
                 return;
             }
 
@@ -325,20 +325,20 @@ namespace Game
             else
             {
                 player.UpdateVisibilityForPlayer();
-                Garrison garrison = player.GetGarrison();
+                Garrison garrison = player.Garrison;
                 if (garrison != null)
                     garrison.SendRemoteInfo();
             }
 
             // flight fast teleport case
-            if (player.IsInFlight())
+            if (player.IsInFlight)
             {
                 if (!player.InBattleground())
                 {
                     if (!seamlessTeleport)
                     {
                         // short preparations to continue flight
-                        MovementGenerator movementGenerator = player.GetMotionMaster().GetCurrentMovementGenerator();
+                        MovementGenerator movementGenerator = player.MotionMaster.GetCurrentMovementGenerator();
                         movementGenerator.Initialize(player);
                     }
                     return;
@@ -348,13 +348,13 @@ namespace Game
                 player.FinishTaxiFlight();
             }
 
-            if (!player.IsAlive() && player.GetTeleportOptions().HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
+            if (!player.IsAlive && player.TeleportOptions.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
                 player.ResurrectPlayer(0.5f);
 
             // resurrect character at enter into instance where his corpse exist after add to map
-            if (mapEntry.IsDungeon() && !player.IsAlive())
+            if (mapEntry.IsDungeon() && !player.IsAlive)
             {
-                if (player.GetCorpseLocation().MapId == mapEntry.Id)
+                if (player.CorpseLocation.MapId == mapEntry.Id)
                 {
                     player.ResurrectPlayer(0.5f, false);
                     player.SpawnCorpseBones();
@@ -372,7 +372,7 @@ namespace Game
                     raidInstanceMessage.MapID = mapEntry.Id;
                     raidInstanceMessage.DifficultyID = newMap.GetDifficultyID();
 
-                    InstanceLock playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(GetPlayer().GetGUID(), entries);
+                    InstanceLock playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(Player.GUID, entries);
                     if (playerLock != null)
                     {
                         raidInstanceMessage.Locked = !playerLock.IsExpired();
@@ -401,7 +401,7 @@ namespace Game
                 player.CastSpell(player, 2479, true);
 
             // in friendly area
-            else if (player.IsPvP() && !player.HasPlayerFlag(PlayerFlags.InPVP))
+            else if (player.IsPvP && !player.HasPlayerFlag(PlayerFlags.InPVP))
                 player.UpdatePvP(false, false);
 
             // resummon pet
@@ -414,10 +414,10 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SuspendTokenResponse, Status = SessionStatus.Transfer)]
         void HandleSuspendTokenResponse(SuspendTokenResponse suspendTokenResponse)
         {
-            if (!_player.IsBeingTeleportedFar())
+            if (!_player.IsBeingTeleportedFar)
                 return;
 
-            WorldLocation loc = GetPlayer().GetTeleportDest();
+            WorldLocation loc = Player.TeleportDest;
 
             if (CliDB.MapStorage.LookupByKey(loc.MapId).IsDungeon())
             {
@@ -429,32 +429,32 @@ namespace Game
             NewWorld packet = new();
             packet.MapID = loc.MapId;
             packet.Loc.Pos = loc;
-            packet.Reason = (uint)(!_player.IsBeingTeleportedSeamlessly() ? NewWorldReason.Normal : NewWorldReason.Seamless);
+            packet.Reason = (uint)(!_player.IsBeingTeleportedSeamlessly ? NewWorldReason.Normal : NewWorldReason.Seamless);
             SendPacket(packet);
 
-            if (_player.IsBeingTeleportedSeamlessly())
+            if (_player.IsBeingTeleportedSeamlessly)
                 HandleMoveWorldportAck();
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveTeleportAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleMoveTeleportAck(MoveTeleportAck packet)
         {
-            Player plMover = GetPlayer().GetUnitBeingMoved().ToPlayer();
+            Player plMover = Player.GetUnitBeingMoved().ToPlayer();
 
-            if (!plMover || !plMover.IsBeingTeleportedNear())
+            if (!plMover || !plMover.IsBeingTeleportedNear)
                 return;
 
-            if (packet.MoverGUID != plMover.GetGUID())
+            if (packet.MoverGUID != plMover.GUID)
                 return;
 
             plMover.SetSemaphoreTeleportNear(false);
 
             uint old_zone = plMover.GetZoneId();
 
-            WorldLocation dest = plMover.GetTeleportDest();
+            WorldLocation dest = plMover.TeleportDest;
 
             plMover.UpdatePosition(dest, true);
-            plMover.SetFallInformation(0, GetPlayer().Location.Z);
+            plMover.SetFallInformation(0, Player.Location.Z);
 
             plMover.GetZoneAndAreaId(out uint newzone, out uint newarea);
             plMover.UpdateZone(newzone, newarea);
@@ -467,15 +467,15 @@ namespace Game
                     plMover.CastSpell(plMover, 2479, true);
 
                 // in friendly area
-                else if (plMover.IsPvP() && !plMover.HasPlayerFlag(PlayerFlags.InPVP))
+                else if (plMover.IsPvP && !plMover.HasPlayerFlag(PlayerFlags.InPVP))
                     plMover.UpdatePvP(false, false);
             }
 
             // resummon pet
-            GetPlayer().ResummonPetTemporaryUnSummonedIfAny();
+            Player.ResummonPetTemporaryUnSummonedIfAny();
 
             //lets process all delayed operations on successful teleport
-            GetPlayer().ProcessDelayedOperations();
+            Player.ProcessDelayedOperations();
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveForceFlightBackSpeedChangeAck, Processing = PacketProcessing.ThreadSafe)]
@@ -489,10 +489,10 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.MoveForceWalkSpeedChangeAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleForceSpeedChangeAck(MovementSpeedAck packet)
         {
-            GetPlayer().ValidateMovementInfo(packet.Ack.Status);
+            Player.ValidateMovementInfo(packet.Ack.Status);
 
             // now can skip not our packet
-            if (GetPlayer().GetGUID() != packet.Ack.Status.Guid)
+            if (Player.GUID != packet.Ack.Status.Guid)
                 return;
 
             /*----------------*/
@@ -537,26 +537,26 @@ namespace Game
 
             // skip all forced speed changes except last and unexpected
             // in run/mounted case used one ACK and it must be skipped. m_forced_speed_changes[MOVE_RUN] store both.
-            if (GetPlayer().ForcedSpeedChanges[(int)move_type] > 0)
+            if (Player.ForcedSpeedChanges[(int)move_type] > 0)
             {
-                --GetPlayer().ForcedSpeedChanges[(int)move_type];
-                if (GetPlayer().ForcedSpeedChanges[(int)move_type] > 0)
+                --Player.ForcedSpeedChanges[(int)move_type];
+                if (Player.ForcedSpeedChanges[(int)move_type] > 0)
                     return;
             }
 
-            if (GetPlayer().GetTransport() == null && Math.Abs(GetPlayer().GetSpeed(move_type) - packet.Speed) > 0.01f)
+            if (Player.Transport == null && Math.Abs(Player.GetSpeed(move_type) - packet.Speed) > 0.01f)
             {
-                if (GetPlayer().GetSpeed(move_type) > packet.Speed)         // must be greater - just correct
+                if (Player.GetSpeed(move_type) > packet.Speed)         // must be greater - just correct
                 {
                     Log.outError(LogFilter.Network, "{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
-                        move_type, GetPlayer().GetName(), GetPlayer().GetSpeed(move_type), packet.Speed);
-                    GetPlayer().SetSpeedRate(move_type, GetPlayer().GetSpeedRate(move_type));
+                        move_type, Player.GetName(), Player.GetSpeed(move_type), packet.Speed);
+                    Player.SetSpeedRate(move_type, Player.GetSpeedRate(move_type));
                 }
                 else                                                // must be lesser - cheating
                 {
                     Log.outDebug(LogFilter.Server, "Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
-                        GetPlayer().GetName(), GetPlayer().GetSession().GetAccountId(), GetPlayer().GetSpeed(move_type), packet.Speed);
-                    GetPlayer().GetSession().KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
+                        Player.GetName(), Player.Session.AccountId, Player.GetSpeed(move_type), packet.Speed);
+                    Player.                    Session.KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
                 }
             }
         }
@@ -564,27 +564,27 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetActiveMover)]
         void HandleSetActiveMover(SetActiveMover packet)
         {
-            if (GetPlayer().IsInWorld)
+            if (Player.IsInWorld)
             {
-                if (_player.GetUnitBeingMoved().GetGUID() != packet.ActiveMover)
-                    Log.outError(LogFilter.Network, "HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.GetUnitBeingMoved().GetGUID().ToString());
+                if (_player.GetUnitBeingMoved().GUID != packet.ActiveMover)
+                    Log.outError(LogFilter.Network, "HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.GetUnitBeingMoved().GUID.ToString());
             }
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveKnockBackAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleMoveKnockBackAck(MoveKnockBackAck movementAck)
         {
-            GetPlayer().ValidateMovementInfo(movementAck.Ack.Status);
+            Player.ValidateMovementInfo(movementAck.Ack.Status);
 
-            if (GetPlayer().GetUnitBeingMoved().GetGUID() != movementAck.Ack.Status.Guid)
+            if (Player.GetUnitBeingMoved().GUID != movementAck.Ack.Status.Guid)
                 return;
 
             movementAck.Ack.Status.Time = AdjustClientMovementTime(movementAck.Ack.Status.Time);
-            GetPlayer().MovementInfo = movementAck.Ack.Status;
+            Player.MovementInfo = movementAck.Ack.Status;
 
             MoveUpdateKnockBack updateKnockBack = new();
-            updateKnockBack.Status = GetPlayer().MovementInfo;
-            GetPlayer().SendMessageToSet(updateKnockBack, false);
+            updateKnockBack.Status = Player.MovementInfo;
+            Player.SendMessageToSet(updateKnockBack, false);
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveEnableDoubleJumpAck, Processing = PacketProcessing.ThreadSafe)]
@@ -601,22 +601,22 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.MoveWaterWalkAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleMovementAckMessage(MovementAckMessage movementAck)
         {
-            GetPlayer().ValidateMovementInfo(movementAck.Ack.Status);
+            Player.ValidateMovementInfo(movementAck.Ack.Status);
         }
 
         [WorldPacketHandler(ClientOpcodes.SummonResponse)]
         void HandleSummonResponseOpcode(SummonResponse packet)
         {
-            if (!GetPlayer().IsAlive() || GetPlayer().IsInCombat())
+            if (!Player.IsAlive || Player.IsInCombat())
                 return;
 
-            GetPlayer().SummonIfPossible(packet.Accept);
+            Player.SummonIfPossible(packet.Accept);
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveSetCollisionHeightAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleSetCollisionHeightAck(MoveSetCollisionHeightAck packet)
         {
-            GetPlayer().ValidateMovementInfo(packet.Data.Status);
+            Player.ValidateMovementInfo(packet.Data.Status);
         }
 
         [WorldPacketHandler(ClientOpcodes.MoveApplyMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
@@ -627,9 +627,9 @@ namespace Game
             _player.ValidateMovementInfo(moveApplyMovementForceAck.Ack.Status);
 
             // prevent tampered movement data
-            if (moveApplyMovementForceAck.Ack.Status.Guid != mover.GetGUID())
+            if (moveApplyMovementForceAck.Ack.Status.Guid != mover.GUID)
             {
-                Log.outError(LogFilter.Network, $"HandleMoveApplyMovementForceAck: guid error, expected {mover.GetGUID()}, got {moveApplyMovementForceAck.Ack.Status.Guid}");
+                Log.outError(LogFilter.Network, $"HandleMoveApplyMovementForceAck: guid error, expected {mover.GUID}, got {moveApplyMovementForceAck.Ack.Status.Guid}");
                 return;
             }
 
@@ -649,9 +649,9 @@ namespace Game
             _player.ValidateMovementInfo(moveRemoveMovementForceAck.Ack.Status);
 
             // prevent tampered movement data
-            if (moveRemoveMovementForceAck.Ack.Status.Guid != mover.GetGUID())
+            if (moveRemoveMovementForceAck.Ack.Status.Guid != mover.GUID)
             {
-                Log.outError(LogFilter.Network, $"HandleMoveRemoveMovementForceAck: guid error, expected {mover.GetGUID()}, got {moveRemoveMovementForceAck.Ack.Status.Guid}");
+                Log.outError(LogFilter.Network, $"HandleMoveRemoveMovementForceAck: guid error, expected {mover.GUID}, got {moveRemoveMovementForceAck.Ack.Status.Guid}");
                 return;
             }
 
@@ -671,9 +671,9 @@ namespace Game
             _player.ValidateMovementInfo(setModMovementForceMagnitudeAck.Ack.Status);
 
             // prevent tampered movement data
-            if (setModMovementForceMagnitudeAck.Ack.Status.Guid != mover.GetGUID())
+            if (setModMovementForceMagnitudeAck.Ack.Status.Guid != mover.GUID)
             {
-                Log.outError(LogFilter.Network, $"HandleSetModMovementForceMagnitudeAck: guid error, expected {mover.GetGUID()}, got {setModMovementForceMagnitudeAck.Ack.Status.Guid}");
+                Log.outError(LogFilter.Network, $"HandleSetModMovementForceMagnitudeAck: guid error, expected {mover.GUID}, got {setModMovementForceMagnitudeAck.Ack.Status.Guid}");
                 return;
             }
 
@@ -686,12 +686,12 @@ namespace Game
                     float expectedModMagnitude = 1.0f;
                     MovementForces movementForces = mover.GetMovementForces();
                     if (movementForces != null)
-                        expectedModMagnitude = movementForces.GetModMagnitude();
+                        expectedModMagnitude = movementForces.ModMagnitude;
 
                     if (Math.Abs(expectedModMagnitude - setModMovementForceMagnitudeAck.Speed) > 0.01f)
                     {
-                        Log.outDebug(LogFilter.Misc, $"Player {_player.GetName()} from account id {_player.GetSession().GetAccountId()} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
-                        _player.GetSession().KickPlayer("WorldSession::HandleMoveSetModMovementForceMagnitudeAck Incorrect magnitude");
+                        Log.outDebug(LogFilter.Misc, $"Player {_player.GetName()} from account id {_player.Session.AccountId} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
+                        _player.                        Session.KickPlayer("WorldSession::HandleMoveSetModMovementForceMagnitudeAck Incorrect magnitude");
                         return;
                     }
                 }
@@ -708,17 +708,17 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.MoveTimeSkipped, Processing = PacketProcessing.Inplace)]
         void HandleMoveTimeSkipped(MoveTimeSkipped moveTimeSkipped)
         {
-            Unit mover = GetPlayer().GetUnitBeingMoved();
+            Unit mover = Player.GetUnitBeingMoved();
             if (mover == null)
             {
-                Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {GetPlayer().GetGUID()}");
+                Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {Player.GUID}");
                 return;
             }
 
             // prevent tampered movement data
-            if (moveTimeSkipped.MoverGUID != mover.GetGUID())
+            if (moveTimeSkipped.MoverGUID != mover.GUID)
             {
-                Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {GetPlayer().GetGUID()}");
+                Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {Player.GUID}");
                 return;
             }
 
@@ -741,15 +741,15 @@ namespace Game
             // 2) switch from one map to other in case multim-map taxi path
             // we need process only (1)
 
-            uint curDest = GetPlayer().Taxi.GetTaxiDestination();
+            uint curDest = Player.Taxi.GetTaxiDestination();
             if (curDest != 0)
             {
                 TaxiNodesRecord curDestNode = CliDB.TaxiNodesStorage.LookupByKey(curDest);
 
                 // far teleport case
-                if (curDestNode != null && curDestNode.ContinentID != GetPlayer().Location.MapId && GetPlayer().GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
+                if (curDestNode != null && curDestNode.ContinentID != Player.Location.MapId && Player.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Flight)
                 {
-                    FlightPathMovementGenerator flight = GetPlayer().GetMotionMaster().GetCurrentMovementGenerator() as FlightPathMovementGenerator;
+                    FlightPathMovementGenerator flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
                     if (flight != null)
                     {
                         // short preparations to continue flight
@@ -757,7 +757,7 @@ namespace Game
                         TaxiPathNodeRecord node = flight.GetPath()[(int)flight.GetCurrentNode()];
                         flight.SkipCurrentNode();
 
-                        GetPlayer().TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, GetPlayer().Location.Orientation);
+                        Player.TeleportTo(curDestNode.ContinentID, node.Loc.X, node.Loc.Y, node.Loc.Z, Player.Location.Orientation);
                     }
                 }
 
@@ -765,13 +765,13 @@ namespace Game
             }
 
             // at this point only 1 node is expected (final destination)
-            if (GetPlayer().Taxi.GetPath().Count != 1)
+            if (Player.Taxi.GetPath().Count != 1)
                 return;
 
-            GetPlayer().CleanupAfterTaxiFlight();
-            GetPlayer().SetFallInformation(0, GetPlayer().Location.Z);
-            if (GetPlayer().PvpInfo.IsHostile)
-                GetPlayer().CastSpell(GetPlayer(), 2479, true);
+            Player.CleanupAfterTaxiFlight();
+            Player.SetFallInformation(0, Player.Location.Z);
+            if (Player.PvpInfo.IsHostile)
+                Player.CastSpell(Player, 2479, true);
         }
 
         [WorldPacketHandler(ClientOpcodes.TimeSyncResponse, Processing = PacketProcessing.ThreadSafe)]

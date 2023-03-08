@@ -51,7 +51,7 @@ public partial class Player
 		}
 		else
 		{
-			if (!grp.IsLeader(GetGUID()) && !grp.IsAssistant(GetGUID()))
+			if (!grp.IsLeader(GUID) && !grp.IsAssistant(GUID))
 				return PartyResult.NotLeader;
 
 			if (InBattleground())
@@ -66,7 +66,7 @@ public partial class Player
 
 	public bool IsUsingLfg()
 	{
-		return Global.LFGMgr.GetState(GetGUID()) != LfgState.None;
+		return Global.LFGMgr.GetState(GUID) != LfgState.None;
 	}
 
 	public void SetBattlegroundOrBattlefieldRaid(Group group, byte subgroup)
@@ -174,7 +174,7 @@ public partial class Player
 
 		WorldObject player = GetCorpse();
 
-		if (!player || IsAlive())
+		if (!player || IsAlive)
 			player = this;
 
 		if (player.GetMap().IsDungeon())
@@ -257,7 +257,7 @@ public partial class Player
 			case 1:
 				return IsInSameRaidWith(p);
 			case 2:
-				return GetTeam() == p.GetTeam();
+				return Team == p.Team;
 			case 3:
 				return false;
 		}
@@ -299,7 +299,7 @@ public partial class Player
 
 	public void RemoveFromGroup(RemoveMethod method = RemoveMethod.Default)
 	{
-		RemoveFromGroup(GetGroup(), GetGUID(), method);
+		RemoveFromGroup(GetGroup(), GUID, method);
 	}
 
 	public static void RemoveFromGroup(Group group, ObjectGuid guid, RemoveMethod method = RemoveMethod.Default, ObjectGuid kicker = default, string reason = null)
@@ -342,11 +342,11 @@ public partial class Player
 
 	bool InRandomLfgDungeon()
 	{
-		if (Global.LFGMgr.SelectedRandomLfgDungeon(GetGUID()))
+		if (Global.LFGMgr.SelectedRandomLfgDungeon(GUID))
 		{
 			var map = GetMap();
 
-			return Global.LFGMgr.InLfgDungeonMap(GetGUID(), map.GetId(), map.GetDifficultyID());
+			return Global.LFGMgr.InLfgDungeonMap(GUID, map.GetId(), map.GetDifficultyID());
 		}
 
 		return false;

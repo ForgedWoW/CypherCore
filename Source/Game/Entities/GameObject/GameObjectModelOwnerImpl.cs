@@ -32,7 +32,7 @@ class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 
 	public override bool IsInPhase(PhaseShift phaseShift)
 	{
-		return _owner.GetPhaseShift().CanSee(phaseShift);
+		return _owner.PhaseShift.CanSee(phaseShift);
 	}
 
 	public override Vector3 GetPosition()
@@ -47,6 +47,6 @@ class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 
 	public override float GetScale()
 	{
-		return _owner.GetObjectScale();
+		return _owner.ObjectScale;
 	}
 }

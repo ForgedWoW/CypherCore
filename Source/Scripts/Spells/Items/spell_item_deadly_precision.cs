@@ -23,6 +23,6 @@ internal class spell_item_deadly_precision : AuraScript, IHasAuraEffects
 	private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		Target.RemoveAuraFromStack(Id, Target.GetGUID());
+		Target.RemoveAuraFromStack(Id, Target.GUID);
 	}
 }

@@ -69,13 +69,13 @@ class ObjectGuidInfo
 
 	public static string Format(ObjectGuid guid)
 	{
-		if (guid.GetHigh() >= HighGuid.Count)
+		if (guid.High >= HighGuid.Count)
 			return "Uniq-WOWGUID_TO_STRING_FAILED";
 
-		if (ClientFormatFunction[guid.GetHigh()] == null)
+		if (ClientFormatFunction[guid.High] == null)
 			return "Uniq-WOWGUID_TO_STRING_FAILED";
 
-		return ClientFormatFunction[guid.GetHigh()](guid.GetHigh(), guid);
+		return ClientFormatFunction[guid.High](guid.High, guid);
 	}
 
 	public static ObjectGuid Parse(string guidString)
@@ -118,7 +118,7 @@ class ObjectGuidInfo
 			null, "WOWGUID_UNIQUE_PROBED_DELETE", "WOWGUID_UNIQUE_JAM_TEMP", "WOWGUID_TO_STRING_FAILED", "WOWGUID_FROM_STRING_FAILED", "WOWGUID_UNIQUE_SERVER_SELF", "WOWGUID_UNIQUE_MAGIC_SELF", "WOWGUID_UNIQUE_MAGIC_PET", "WOWGUID_UNIQUE_INVALID_TRANSPORT", "WOWGUID_UNIQUE_AMMO_ID", "WOWGUID_SPELL_TARGET_TRADE_ITEM", "WOWGUID_SCRIPT_TARGET_INVALID", "WOWGUID_SCRIPT_TARGET_NONE", null, "WOWGUID_FAKE_MODERATOR", null, null, "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION"
 		};
 
-		var id = guid.GetCounter();
+		var id = guid.Counter;
 
 		if ((int)id >= uniqNames.Length)
 			id = 3;
@@ -147,7 +147,7 @@ class ObjectGuidInfo
 
 	static string FormatPlayer(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-0x{guid.GetLowValue():X16}";
+		return $"{typeName}-{guid.RealmId}-0x{guid.LowValue:X16}";
 	}
 
 	static ObjectGuid ParsePlayer(HighGuid type, string guidString)
@@ -165,7 +165,7 @@ class ObjectGuidInfo
 
 	static string FormatItem(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-{(uint)(guid.GetHighValue() >> 18) & 0xFFFFFF}-0x{guid.GetLowValue():X16}";
+		return $"{typeName}-{guid.RealmId}-{(uint)(guid.HighValue >> 18) & 0xFFFFFF}-0x{guid.LowValue:X16}";
 	}
 
 	static ObjectGuid ParseItem(HighGuid type, string guidString)
@@ -183,7 +183,7 @@ class ObjectGuidInfo
 
 	static string FormatWorldObject(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetSubType()}-{guid.GetRealmId()}-{guid.GetMapId()}-{(uint)(guid.GetLowValue() >> 40) & 0xFFFFFF}-{guid.GetEntry()}-0x{guid.GetCounter():X10}";
+		return $"{typeName}-{guid.SubType}-{guid.RealmId}-{guid.MapId}-{(uint)(guid.LowValue >> 40) & 0xFFFFFF}-{guid.Entry}-0x{guid.Counter:X10}";
 	}
 
 	static ObjectGuid ParseWorldObject(HighGuid type, string guidString)
@@ -206,7 +206,7 @@ class ObjectGuidInfo
 
 	static string FormatTransport(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{(guid.GetHighValue() >> 38) & 0xFFFFF}-0x{guid.GetLowValue():X16}";
+		return $"{typeName}-{(guid.HighValue >> 38) & 0xFFFFF}-0x{guid.LowValue:X16}";
 	}
 
 	static ObjectGuid ParseTransport(HighGuid type, string guidString)
@@ -224,7 +224,7 @@ class ObjectGuidInfo
 
 	static string FormatClientActor(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-{(guid.GetHighValue() >> 26) & 0xFFFFFF}-{guid.GetLowValue()}";
+		return $"{typeName}-{guid.RealmId}-{(guid.HighValue >> 26) & 0xFFFFFF}-{guid.LowValue}";
 	}
 
 	static ObjectGuid ParseClientActor(HighGuid type, string guidString)
@@ -242,12 +242,12 @@ class ObjectGuidInfo
 
 	static string FormatChatChannel(HighGuid typeName, ObjectGuid guid)
 	{
-		var builtIn = (uint)(guid.GetHighValue() >> 25) & 0x1;
-		var trade = (uint)(guid.GetHighValue() >> 24) & 0x1;
-		var zoneId = (uint)(guid.GetHighValue() >> 10) & 0x3FFF;
-		var factionGroupMask = (uint)(guid.GetHighValue() >> 4) & 0x3F;
+		var builtIn = (uint)(guid.HighValue >> 25) & 0x1;
+		var trade = (uint)(guid.HighValue >> 24) & 0x1;
+		var zoneId = (uint)(guid.HighValue >> 10) & 0x3FFF;
+		var factionGroupMask = (uint)(guid.HighValue >> 4) & 0x3F;
 
-		return $"{typeName}-{guid.GetRealmId()}-{builtIn}-{trade}-{zoneId}-{factionGroupMask}-0x{guid.GetLowValue():X8}";
+		return $"{typeName}-{guid.RealmId}-{builtIn}-{trade}-{zoneId}-{factionGroupMask}-0x{guid.LowValue:X8}";
 	}
 
 	static ObjectGuid ParseChatChannel(HighGuid type, string guidString)
@@ -270,7 +270,7 @@ class ObjectGuidInfo
 
 	static string FormatGlobal(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetHighValue() & 0x3FFFFFFFFFFFFFF}-0x{guid.GetLowValue():X12}";
+		return $"{typeName}-{guid.HighValue & 0x3FFFFFFFFFFFFFF}-0x{guid.LowValue:X12}";
 	}
 
 	static ObjectGuid ParseGlobal(HighGuid type, string guidString)
@@ -288,7 +288,7 @@ class ObjectGuidInfo
 
 	static string FormatGuild(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-0x{guid.GetLowValue():X12}";
+		return $"{typeName}-{guid.RealmId}-0x{guid.LowValue:X12}";
 	}
 
 	static ObjectGuid ParseGuild(HighGuid type, string guidString)
@@ -306,7 +306,7 @@ class ObjectGuidInfo
 
 	static string FormatMobileSession(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-{(guid.GetHighValue() >> 33) & 0x1FF}-0x{guid.GetLowValue():X8}";
+		return $"{typeName}-{guid.RealmId}-{(guid.HighValue >> 33) & 0x1FF}-0x{guid.LowValue:X8}";
 	}
 
 	static ObjectGuid ParseMobileSession(HighGuid type, string guidString)
@@ -324,7 +324,7 @@ class ObjectGuidInfo
 
 	static string FormatWebObj(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-{(guid.GetHighValue() >> 37) & 0x1F}-{(guid.GetHighValue() >> 35) & 0x3}-0x{guid.GetLowValue():X12}";
+		return $"{typeName}-{guid.RealmId}-{(guid.HighValue >> 37) & 0x1F}-{(guid.HighValue >> 35) & 0x3}-0x{guid.LowValue:X12}";
 	}
 
 	static ObjectGuid ParseWebObj(HighGuid type, string guidString)
@@ -342,8 +342,8 @@ class ObjectGuidInfo
 
 	static string FormatLFGObject(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{(guid.GetHighValue() >> 54) & 0xF}-{(guid.GetHighValue() >> 50) & 0xF}-{(guid.GetHighValue() >> 46) & 0xF}-" +
-				$"{(guid.GetHighValue() >> 38) & 0xFF}-{(guid.GetHighValue() >> 37) & 0x1}-{(guid.GetHighValue() >> 35) & 0x3}-0x{guid.GetLowValue():X6}";
+		return $"{typeName}-{(guid.HighValue >> 54) & 0xF}-{(guid.HighValue >> 50) & 0xF}-{(guid.HighValue >> 46) & 0xF}-" +
+				$"{(guid.HighValue >> 38) & 0xFF}-{(guid.HighValue >> 37) & 0x1}-{(guid.HighValue >> 35) & 0x3}-0x{guid.LowValue:X6}";
 	}
 
 	static ObjectGuid ParseLFGObject(HighGuid type, string guidString)
@@ -367,7 +367,7 @@ class ObjectGuidInfo
 
 	static string FormatLFGList(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{(guid.GetHighValue() >> 54) & 0xF}-0x{guid.GetLowValue():X6}";
+		return $"{typeName}-{(guid.HighValue >> 54) & 0xF}-0x{guid.LowValue:X6}";
 	}
 
 	static ObjectGuid ParseLFGList(HighGuid type, string guidString)
@@ -385,7 +385,7 @@ class ObjectGuidInfo
 
 	static string FormatClient(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetRealmId()}-{(guid.GetHighValue() >> 10) & 0xFFFFFFFF}-0x{guid.GetLowValue():X12}";
+		return $"{typeName}-{guid.RealmId}-{(guid.HighValue >> 10) & 0xFFFFFFFF}-0x{guid.LowValue:X12}";
 	}
 
 	static ObjectGuid ParseClient(HighGuid type, string guidString)
@@ -403,13 +403,13 @@ class ObjectGuidInfo
 
 	static string FormatClubFinder(HighGuid typeName, ObjectGuid guid)
 	{
-		var type = (uint)(guid.GetHighValue() >> 33) & 0xFF;
-		var clubFinderId = (uint)(guid.GetHighValue() & 0xFFFFFFFF);
+		var type = (uint)(guid.HighValue >> 33) & 0xFF;
+		var clubFinderId = (uint)(guid.HighValue & 0xFFFFFFFF);
 
 		if (type == 1) // guild
-			return $"{typeName}-{type}-{clubFinderId}-{guid.GetRealmId()}-{guid.GetLowValue()}";
+			return $"{typeName}-{type}-{clubFinderId}-{guid.RealmId}-{guid.LowValue}";
 
-		return $"{typeName}-{type}-{clubFinderId}-0x{guid.GetLowValue():X16}";
+		return $"{typeName}-{type}-{clubFinderId}-0x{guid.LowValue:X16}";
 	}
 
 	static ObjectGuid ParseClubFinder(HighGuid type, string guidString)
@@ -453,7 +453,7 @@ class ObjectGuidInfo
 
 	string FormatToolsClient(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{guid.GetMapId()}-{(uint)(guid.GetLowValue() >> 40) & 0xFFFFFF}-{guid.GetCounter():X10}";
+		return $"{typeName}-{guid.MapId}-{(uint)(guid.LowValue >> 40) & 0xFFFFFF}-{guid.Counter:X10}";
 	}
 
 	ObjectGuid ParseToolsClient(HighGuid type, string guidString)
@@ -471,7 +471,7 @@ class ObjectGuidInfo
 
 	string FormatWorldLayer(HighGuid typeName, ObjectGuid guid)
 	{
-		return $"{typeName}-{(uint)((guid.GetHighValue() >> 10) & 0xFFFFFFFF)}-{(uint)(guid.GetHighValue() & 0x1FF)}-{(uint)((guid.GetLowValue() >> 24) & 0xFF)}-{(uint)(guid.GetLowValue() & 0x7FFFFF)}";
+		return $"{typeName}-{(uint)((guid.HighValue >> 10) & 0xFFFFFFFF)}-{(uint)(guid.HighValue & 0x1FF)}-{(uint)((guid.LowValue >> 24) & 0xFF)}-{(uint)(guid.LowValue & 0x7FFFFF)}";
 	}
 
 	ObjectGuid ParseWorldLayer(HighGuid type, string guidString)

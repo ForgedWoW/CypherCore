@@ -19,7 +19,7 @@ internal class spell_gen_charmed_unit_spell_cooldown : SpellScript, ISpellOnCast
 		if (owner != null)
 		{
 			SpellCooldownPkt spellCooldown = new();
-			spellCooldown.Caster = owner.GetGUID();
+			spellCooldown.Caster = owner.GUID;
 			spellCooldown.Flags = SpellCooldownFlags.None;
 			spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(SpellInfo.Id, SpellInfo.RecoveryTime));
 			owner.SendPacket(spellCooldown);

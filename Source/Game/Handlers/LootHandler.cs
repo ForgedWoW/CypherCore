@@ -19,7 +19,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.LootItem)]
         void HandleAutostoreLootItem(LootItemPkt packet)
         {
-            Player player = GetPlayer();
+            Player player = Player;
             AELootResult aeResult = player.GetAELootView().Count > 1 ? new AELootResult() : null;
 
             // @todo Implement looting by LootObject guid
@@ -34,18 +34,18 @@ namespace Game
 
                 ObjectGuid lguid = loot.GetOwnerGUID();
 
-                if (lguid.IsGameObject())
+                if (lguid.IsGameObject)
                 {
                     GameObject go = player.GetMap().GetGameObject(lguid);
 
                     // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                    if (!go || ((go.GetOwnerGUID() != player.GetGUID() && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+                    if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                     {
                         player.SendLootRelease(lguid);
                         continue;
                     }
                 }
-                else if (lguid.IsCreatureOrVehicle())
+                else if (lguid.IsCreatureOrVehicle)
                 {
                     Creature creature = player.GetMap().GetCreature(lguid);
                     if (creature == null)
@@ -64,8 +64,8 @@ namespace Game
                 player.StoreLootItem(lguid, req.LootListID, loot, aeResult);
 
                 // If player is removing the last LootItem, delete the empty container.
-                if (loot.IsLooted() && lguid.IsItem())
-                    player.GetSession().DoLootRelease(loot);
+                if (loot.IsLooted() && lguid.IsItem)
+                    player.                    Session.DoLootRelease(loot);
             }
 
             if (aeResult != null)
@@ -73,9 +73,9 @@ namespace Game
                 foreach (var resultValue in aeResult.GetByOrder())
                 {
                     player.SendNewItem(resultValue.item, resultValue.count, false, false, true, resultValue.dungeonEncounterId);
-                    player.UpdateCriteria(CriteriaType.LootItem, resultValue.item.GetEntry(), resultValue.count);
-                    player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.GetEntry(), resultValue.count, (ulong)resultValue.lootType);
-                    player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.GetEntry(), resultValue.count);
+                    player.UpdateCriteria(CriteriaType.LootItem, resultValue.item.Entry, resultValue.count);
+                    player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.Entry, resultValue.count, (ulong)resultValue.lootType);
+                    player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.Entry, resultValue.count);
                 }
             }
 
@@ -85,7 +85,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.LootMoney)]
         void HandleLootMoney(LootMoney lootMoney)
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             foreach (var lootView in player.GetAELootView())
             {
@@ -105,7 +105,7 @@ namespace Game
                         if (!member)
                             continue;
 
-                        if (!loot.HasAllowedLooter(member.GetGUID()))
+                        if (!loot.HasAllowedLooter(member.GUID))
                             continue;
 
                         if (player.IsAtGroupRewardDistance(member))
@@ -146,11 +146,11 @@ namespace Game
 
                 // Delete the money loot record from the DB
                 if (loot.loot_type == LootType.Item)
-                    Global.LootItemStorage.RemoveStoredMoneyForContainer(guid.GetCounter());
+                    Global.LootItemStorage.RemoveStoredMoneyForContainer(guid.Counter);
 
                 // Delete container if empty
-                if (loot.IsLooted() && guid.IsItem())
-                    player.GetSession().DoLootRelease(loot);
+                if (loot.IsLooted() && guid.IsItem)
+                    player.                    Session.DoLootRelease(loot);
             }
         }
 
@@ -171,7 +171,7 @@ namespace Game
 
             public bool IsValidLootTarget(Creature creature)
             {
-                if (creature.IsAlive())
+                if (creature.IsAlive)
                     return false;
 
                 if (!_looter.IsWithinDist(creature, LootDistance))
@@ -182,7 +182,7 @@ namespace Game
 
             bool IsValidAELootTarget(Creature creature)
             {
-                if (creature.GetGUID() == _mainLootTarget)
+                if (creature.GUID == _mainLootTarget)
                     return false;
 
                 return IsValidLootTarget(creature);
@@ -196,10 +196,10 @@ namespace Game
         void HandleLoot(LootUnit packet)
         {
             // Check possible cheat
-            if (!GetPlayer().IsAlive() || !packet.Unit.IsCreatureOrVehicle())
+            if (!Player.IsAlive || !packet.Unit.IsCreatureOrVehicle)
                 return;
 
-            Creature lootTarget = ObjectAccessor.GetCreature(GetPlayer(), packet.Unit);
+            Creature lootTarget = ObjectAccessor.GetCreature(Player, packet.Unit);
             if (!lootTarget)
                 return;
 
@@ -208,10 +208,10 @@ namespace Game
                 return;
 
             // interrupt cast
-            if (GetPlayer().IsNonMeleeSpellCast(false))
-                GetPlayer().InterruptNonMeleeSpells(false);
+            if (Player.IsNonMeleeSpellCast(false))
+                Player.InterruptNonMeleeSpells(false);
 
-            GetPlayer().RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Looting);
+            Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Looting);
 
             List<Creature> corpses = new();
             CreatureListSearcher searcher = new(_player, corpses, check, GridType.Grid);
@@ -220,7 +220,7 @@ namespace Game
             if (!corpses.Empty())
                 SendPacket(new AELootTargets((uint)corpses.Count + 1));
 
-            GetPlayer().SendLoot(lootTarget.GetLootForPlayer(GetPlayer()));
+            Player.SendLoot(lootTarget.GetLootForPlayer(Player));
 
             if (!corpses.Empty())
             {
@@ -229,7 +229,7 @@ namespace Game
 
                 foreach (Creature creature in corpses)
                 {
-                    GetPlayer().SendLoot(creature.GetLootForPlayer(GetPlayer()), true);
+                    Player.SendLoot(creature.GetLootForPlayer(Player), true);
                     SendPacket(new AELootTargetsAck());
                 }
             }
@@ -240,7 +240,7 @@ namespace Game
         {
             // cheaters can modify lguid to prevent correct apply loot release code and re-loot
             // use internal stored guid
-            Loot loot = GetPlayer().GetLootByWorldObjectGUID(packet.Unit);
+            Loot loot = Player.GetLootByWorldObjectGUID(packet.Unit);
             if (loot != null)
                 DoLootRelease(loot);
         }
@@ -248,13 +248,13 @@ namespace Game
         public void DoLootRelease(Loot loot)
         {
             ObjectGuid lguid = loot.GetOwnerGUID();
-            Player player = GetPlayer();
+            Player player = Player;
 
             if (player.GetLootGUID() == lguid)
                 player.SetLootGUID(ObjectGuid.Empty);
 
             //Player is not looking at loot list, he doesn't need to see updates on the loot list
-            loot.RemoveLooter(player.GetGUID());
+            loot.RemoveLooter(player.GUID);
             player.SendLootRelease(lguid);
             player.GetAELootView().Remove(loot.GetGUID());
 
@@ -264,12 +264,12 @@ namespace Game
             if (!player.IsInWorld)
                 return;
 
-            if (lguid.IsGameObject())
+            if (lguid.IsGameObject)
             {
                 GameObject go = player.GetMap().GetGameObject(lguid);
 
                 // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-                if (!go || ((go.GetOwnerGUID() != player.GetGUID() && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
+                if (!go || ((go.OwnerGUID != player.GUID && go.GetGoType() != GameObjectTypes.FishingHole) && !go.IsWithinDistInMap(player)))
                     return;
 
                 if (loot.IsLooted() || go.GetGoType() == GameObjectTypes.FishingNode || go.GetGoType() == GameObjectTypes.FishingHole)
@@ -297,7 +297,7 @@ namespace Game
                     go.SetLootState(LootState.Activated, player);
                 }
             }
-            else if (lguid.IsCorpse())        // ONLY remove insignia at BG
+            else if (lguid.IsCorpse)        // ONLY remove insignia at BG
             {
                 Corpse corpse = ObjectAccessor.GetCorpse(player, lguid);
                 if (!corpse || !corpse.IsWithinDistInMap(player, SharedConst.InteractionDistance))
@@ -309,7 +309,7 @@ namespace Game
                     corpse.RemoveCorpseDynamicFlag(CorpseDynFlags.Lootable);
                 }
             }
-            else if (lguid.IsItem())
+            else if (lguid.IsItem)
             {
                 Item pItem = player.GetItemByGuid(lguid);
                 if (!pItem)
@@ -347,19 +347,19 @@ namespace Game
 
                 if (loot.IsLooted())
                 {
-                    if (creature.IsFullyLooted())
+                    if (creature.IsFullyLooted)
                     {
                         creature.RemoveDynamicFlag(UnitDynFlags.Lootable);
 
                         // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
-                        if (!creature.IsAlive())
+                        if (!creature.IsAlive)
                             creature.AllLootRemovedFromCorpse();
                     }
                 }
                 else
                 {
                     // if the round robin player release, reset it.
-                    if (player.GetGUID() == loot.roundRobinPlayer)
+                    if (player.GUID == loot.roundRobinPlayer)
                     {
                         loot.roundRobinPlayer.Clear();
                         loot.NotifyLootList(creature.GetMap());
@@ -384,9 +384,9 @@ namespace Game
         {
             AELootResult aeResult = new();
 
-            if (GetPlayer().GetGroup() == null || GetPlayer().GetGroup().GetLooterGuid() != GetPlayer().GetGUID())
+            if (Player.GetGroup() == null || Player.GetGroup().GetLooterGuid() != Player.GUID)
             {
-                GetPlayer().SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.DidntKill);
+                Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.DidntKill);
                 return;
             }
 
@@ -394,7 +394,7 @@ namespace Game
             Player target = Global.ObjAccessor.GetPlayer(_player, masterLootItem.Target);
             if (!target)
             {
-                GetPlayer().SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.PlayerNotFound);
+                Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.PlayerNotFound);
                 return;
             }
 
@@ -408,7 +408,7 @@ namespace Game
                 if (!_player.IsInRaidWith(target) || !_player.IsInMap(target))
                 {
                     _player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
-                    Log.outInfo(LogFilter.Cheat, $"MasterLootItem: Player {GetPlayer().GetName()} tried to give an item to ineligible player {target.GetName()} !");
+                    Log.outInfo(LogFilter.Cheat, $"MasterLootItem: Player {Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
                     return;
                 }
 
@@ -420,7 +420,7 @@ namespace Game
 
                 if (req.LootListID >= loot.items.Count)
                 {
-                    Log.outDebug(LogFilter.Loot, $"MasterLootItem: Player {GetPlayer().GetName()} might be using a hack! (slot {req.LootListID}, size {loot.items.Count})");
+                    Log.outDebug(LogFilter.Loot, $"MasterLootItem: Player {Player.GetName()} might be using a hack! (slot {req.LootListID}, size {loot.items.Count})");
                     return;
                 }
 
@@ -428,7 +428,7 @@ namespace Game
 
                 List<ItemPosCount> dest = new();
                 InventoryResult msg = target.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.itemid, item.count);
-                if (!item.HasAllowedLooter(target.GetGUID()))
+                if (!item.HasAllowedLooter(target.GUID))
                     msg = InventoryResult.CantEquipEver;
                 if (msg != InventoryResult.Ok)
                 {
@@ -450,27 +450,27 @@ namespace Game
                 item.count = 0;
                 item.is_looted = true;
 
-                loot.NotifyItemRemoved(req.LootListID, GetPlayer().GetMap());
+                loot.NotifyItemRemoved(req.LootListID, Player.GetMap());
                 --loot.unlootedCount;
             }
 
             foreach (var resultValue in aeResult.GetByOrder())
             {
                 target.SendNewItem(resultValue.item, resultValue.count, false, false, true);
-                target.UpdateCriteria(CriteriaType.LootItem, resultValue.item.GetEntry(), resultValue.count);
-                target.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.GetEntry(), resultValue.count, (ulong)resultValue.lootType);
-                target.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.GetEntry(), resultValue.count);
+                target.UpdateCriteria(CriteriaType.LootItem, resultValue.item.Entry, resultValue.count);
+                target.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.Entry, resultValue.count, (ulong)resultValue.lootType);
+                target.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.Entry, resultValue.count);
             }
         }
 
         [WorldPacketHandler(ClientOpcodes.LootRoll)]
         void HandleLootRoll(LootRollPacket packet)
         {
-            LootRoll lootRoll = GetPlayer().GetLootRoll(packet.LootObj, packet.LootListID);
+            LootRoll lootRoll = Player.GetLootRoll(packet.LootObj, packet.LootListID);
             if (lootRoll == null)
                 return;
 
-            lootRoll.PlayerVote(GetPlayer(), packet.RollType);
+            lootRoll.PlayerVote(Player, packet.RollType);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetLootSpecialization)]
@@ -481,12 +481,12 @@ namespace Game
                 ChrSpecializationRecord chrSpec = CliDB.ChrSpecializationStorage.LookupByKey(packet.SpecID);
                 if (chrSpec != null)
                 {
-                    if (chrSpec.ClassID == (uint)GetPlayer().GetClass())
-                        GetPlayer().SetLootSpecId(packet.SpecID);
+                    if (chrSpec.ClassID == (uint)Player.Class)
+                        Player.SetLootSpecId(packet.SpecID);
                 }
             }
             else
-                GetPlayer().SetLootSpecId(0);
+                Player.SetLootSpecId(0);
         }
     }
 }

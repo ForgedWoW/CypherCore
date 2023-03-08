@@ -44,7 +44,7 @@ public class spell_warlock_glyph_of_felguard : SpellScript, ISpellAfterHit
 			}
 
 
-			var pet = ObjectAccessor.GetPet(caster, caster.GetPetGUID());
+			var pet = ObjectAccessor.GetPet(caster, caster.PetGUID);
 
 			if (pet != null)
 			{

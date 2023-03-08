@@ -31,7 +31,7 @@ public interface ITransport
 
 		// Do not use Unit::UpdatePosition here, we don't want to remove auras
 		// as if regular movement occurred
-		switch (passenger.GetTypeId())
+		switch (passenger.TypeId)
 		{
 			case TypeId.Unit:
 			{
@@ -49,7 +49,7 @@ public interface ITransport
 			}
 			case TypeId.Player:
 				//relocate only passengers in world and skip any player that might be still logging in/teleporting
-				if (passenger.IsInWorld && !passenger.ToPlayer().IsBeingTeleported())
+				if (passenger.IsInWorld && !passenger.ToPlayer().IsBeingTeleported)
 				{
 					map.PlayerRelocation(passenger.ToPlayer(), pos);
 					passenger.ToPlayer().SetFallInformation(0, passenger.Location.Z);

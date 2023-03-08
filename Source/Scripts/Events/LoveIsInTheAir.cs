@@ -78,7 +78,7 @@ internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEf
 		var target = Target;
 
 		// If our player is no longer sit, Remove all Auras
-		if (target.GetStandState() != UnitStandStateType.Sit)
+		if (target.StandState != UnitStandStateType.Sit)
 		{
 			target.RemoveAura(SpellIds.RomanticPicnicAchiev);
 			target.RemoveAura(Aura);
@@ -244,9 +244,9 @@ internal class spell_love_is_in_the_air_service_uniform : AuraScript, IHasAuraEf
 	{
 		var target = Target;
 
-		if (target.IsPlayer())
+		if (target.IsPlayer)
 		{
-			if (target.GetNativeGender() == Gender.Male)
+			if (target.NativeGender == Gender.Male)
 				target.SetDisplayId(ModelIds.GoblinMale);
 			else
 				target.SetDisplayId(ModelIds.GoblinFemale);

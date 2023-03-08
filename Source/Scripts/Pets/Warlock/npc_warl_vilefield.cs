@@ -18,18 +18,18 @@ namespace Scripts.Pets
 				if (!me.TryGetOwner(out Player owner))
 					return;
 
-				creature.SetLevel(owner.GetLevel());
+				creature.SetLevel(owner.Level);
 				creature.UpdateLevelDependantStats();
-				creature.SetReactState(ReactStates.Aggressive);
-				creature.SetCreatorGUID(owner.GetGUID());
+				creature.ReactState = ReactStates.Aggressive;
+				creature.SetCreatorGUID(owner.GUID);
 
 				var summon = creature.ToTempSummon();
 
 				if (summon != null)
 				{
 					summon.SetCanFollowOwner(true);
-					summon.GetMotionMaster().Clear();
-					summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+					summon.MotionMaster.Clear();
+					summon.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, summon.FollowAngle);
 					StartAttackOnOwnersInCombatWith();
 				}
 			}

@@ -21,7 +21,7 @@ internal class spell_gen_pet_wait : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		Caster.GetMotionMaster().Clear();
-		Caster.GetMotionMaster().MoveIdle();
+		Caster.MotionMaster.Clear();
+		Caster.MotionMaster.MoveIdle();
 	}
 }

@@ -20,7 +20,7 @@ internal class StasisFieldSearcher : ICheck<Unit>
 	public bool Invoke(Unit u)
 	{
 		if (_unit.GetDistance2d(u) < _distance &&
-			(u.GetEntry() == CreatureIds.ApexisFlayer || u.GetEntry() == CreatureIds.ShardHideBoar || u.GetEntry() == CreatureIds.AetherRay || u.GetEntry() == CreatureIds.DaggertailLizard) &&
+			(u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay || u.Entry == CreatureIds.DaggertailLizard) &&
 			!u.HasAura(GenericSpellIds.StasisField))
 			return true;
 

@@ -43,7 +43,7 @@ public class aura_dru_astral_form : AuraScript, IHasAuraEffects
 
 		if (target.HasAura(DruidSpells.GLYPH_OF_STARS))
 		{
-			target.SetDisplayId(target.GetNativeDisplayId());
+			target.SetDisplayId(target.NativeDisplayId);
 			target.AddAura(DruidSpells.BLUE_COLOR, target);
 			target.AddAura(DruidSpells.SHADOWY_GHOST, target);
 			target.CastSpell(target, (uint)Global.SpellMgr.GetSpellInfo(DruidSpells.GLYPH_OF_STARS, Difficulty.None).GetEffect(0).BasePoints, true);

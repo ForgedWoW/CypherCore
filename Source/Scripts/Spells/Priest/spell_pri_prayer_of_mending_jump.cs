@@ -44,7 +44,7 @@ internal class spell_pri_prayer_of_mending_jump : SpellScript, IHasSpellEffects
 		var foundPlayer = false;
 
 		foreach (var worldObject in targets)
-			if (worldObject.IsPlayer())
+			if (worldObject.IsPlayer)
 			{
 				foundPlayer = true;
 

@@ -46,13 +46,13 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		if (unit.GetGUID() == at.GetCasterGuid())
+		if (unit.GUID == at.CasterGuid)
 			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
 	}
 
 	public override void OnUnitExit(Unit unit)
 	{
-		if (unit.GetGUID() == at.GetCasterGuid())
+		if (unit.GUID == at.CasterGuid)
 			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
 	}
 

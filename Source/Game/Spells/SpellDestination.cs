@@ -41,13 +41,13 @@ public class SpellDestination
 	public SpellDestination(WorldObject wObj) : this()
 	{
 		TransportGuid = wObj.GetTransGUID();
-		TransportOffset.Relocate(wObj.GetTransOffsetX(), wObj.GetTransOffsetY(), wObj.GetTransOffsetZ(), wObj.GetTransOffsetO());
+		TransportOffset.Relocate(wObj.TransOffsetX, wObj.TransOffsetY, wObj.TransOffsetZ, wObj.TransOffsetO);
 		Position.Relocate(wObj.Location);
 	}
 
 	public void Relocate(Position pos)
 	{
-		if (!TransportGuid.IsEmpty())
+		if (!TransportGuid.IsEmpty)
 		{
 			Position.GetPositionOffsetTo(pos, out var offset);
 			TransportOffset.RelocateOffset(offset);
@@ -58,7 +58,7 @@ public class SpellDestination
 
 	public void RelocateOffset(Position offset)
 	{
-		if (!TransportGuid.IsEmpty())
+		if (!TransportGuid.IsEmpty)
 			TransportOffset.RelocateOffset(offset);
 
 		Position.RelocateOffset(offset);

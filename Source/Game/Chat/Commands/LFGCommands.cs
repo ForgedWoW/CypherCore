@@ -46,7 +46,7 @@ namespace Game.Chat
             else
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
-                stmt.AddValue(0, player.GetGUID().GetCounter());
+                stmt.AddValue(0, player.GetGUID().Counter);
                 SQLResult resultGroup = DB.Characters.Query(stmt);
                 if (!resultGroup.IsEmpty())
                     groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));
@@ -105,7 +105,7 @@ namespace Game.Chat
             if (!player)
                 return;
 
-            ObjectGuid guid = player.GetGUID();
+            ObjectGuid guid = player.GUID;
             var dungeons = Global.LFGMgr.GetSelectedDungeons(guid);
 
             handler.SendSysMessage(CypherStrings.LfgPlayerInfo, player.GetName(), Global.LFGMgr.GetState(guid), dungeons.Count, LFGQueue.ConcatenateDungeons(dungeons),

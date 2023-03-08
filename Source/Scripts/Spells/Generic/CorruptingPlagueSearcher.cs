@@ -21,7 +21,7 @@ internal class CorruptingPlagueSearcher : ICheck<Unit>
 	public bool Invoke(Unit u)
 	{
 		if (_unit.GetDistance2d(u) < _distance &&
-			(u.GetEntry() == CreatureIds.ApexisFlayer || u.GetEntry() == CreatureIds.ShardHideBoar || u.GetEntry() == CreatureIds.AetherRay) &&
+			(u.Entry == CreatureIds.ApexisFlayer || u.Entry == CreatureIds.ShardHideBoar || u.Entry == CreatureIds.AetherRay) &&
 			!u.HasAura(GenericSpellIds.CorruptingPlague))
 			return true;
 

@@ -32,7 +32,7 @@ internal class boss_gizrul_the_slavener : BossAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		me.GetMotionMaster().MovePath(PathIds.Gizrul, false);
+		me.MotionMaster.MovePath(PathIds.Gizrul, false);
 	}
 
 	public override void JustEngagedWith(Unit who)

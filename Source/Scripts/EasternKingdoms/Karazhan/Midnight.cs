@@ -133,7 +133,7 @@ internal class boss_attumen : BossAI
 
 	public override void JustSummoned(Creature summon)
 	{
-		if (summon.GetEntry() == CreatureIds.AttumenMounted)
+		if (summon.Entry == CreatureIds.AttumenMounted)
 		{
 			var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
 
@@ -154,10 +154,10 @@ internal class boss_attumen : BossAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		if (summoner.GetEntry() == CreatureIds.Midnight)
+		if (summoner.Entry == CreatureIds.Midnight)
 			_phase = Phases.AttumenEngages;
 
-		if (summoner.GetEntry() == CreatureIds.AttumenUnmounted)
+		if (summoner.Entry == CreatureIds.AttumenUnmounted)
 		{
 			_phase = Phases.Mounted;
 			DoCastSelf(SpellIds.SpawnSmoke);
@@ -240,14 +240,14 @@ internal class boss_attumen : BossAI
 
 				midnight.AttackStop();
 				midnight.RemoveAllAttackers();
-				midnight.SetReactState(ReactStates.Passive);
-				midnight.GetMotionMaster().MoveFollow(me, 2.0f, 0.0f);
+				midnight.ReactState = ReactStates.Passive;
+				midnight.MotionMaster.MoveFollow(me, 2.0f, 0.0f);
 				midnight.GetAI().Talk(TextIds.EmoteMountUp);
 
 				me.AttackStop();
 				me.RemoveAllAttackers();
-				me.SetReactState(ReactStates.Passive);
-				me.GetMotionMaster().MoveFollow(midnight, 2.0f, 0.0f);
+				me.ReactState = ReactStates.Passive;
+				me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
 				Talk(TextIds.SayMount);
 
 				_scheduler.Schedule(TimeSpan.FromSeconds(1),
@@ -261,13 +261,13 @@ internal class boss_attumen : BossAI
 											{
 												DoCastAOE(SpellIds.SummonAttumenMounted);
 												me.SetVisible(false);
-												me.GetMotionMaster().Clear();
+												me.MotionMaster.Clear();
 												midnight.SetVisible(false);
 											}
 											else
 											{
-												midnight.GetMotionMaster().MoveFollow(me, 2.0f, 0.0f);
-												me.GetMotionMaster().MoveFollow(midnight, 2.0f, 0.0f);
+												midnight.MotionMaster.MoveFollow(me, 2.0f, 0.0f);
+												me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
 												task.Repeat();
 											}
 										}
@@ -299,7 +299,7 @@ internal class boss_midnight : BossAI
 		Initialize();
 		base.Reset();
 		me.SetVisible(true);
-		me.SetReactState(ReactStates.Defensive);
+		me.ReactState = ReactStates.Defensive;
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
@@ -325,10 +325,10 @@ internal class boss_midnight : BossAI
 
 	public override void JustSummoned(Creature summon)
 	{
-		if (summon.GetEntry() == CreatureIds.AttumenUnmounted)
+		if (summon.Entry == CreatureIds.AttumenUnmounted)
 		{
-			_attumenGUID = summon.GetGUID();
-			summon.GetAI().SetGUID(me.GetGUID(), (int)CreatureIds.Midnight);
+			_attumenGUID = summon.GUID;
+			summon.GetAI().SetGUID(me.GUID, (int)CreatureIds.Midnight);
 			summon.GetAI().AttackStart(me.GetVictim());
 			summon.GetAI().Talk(TextIds.SayAppear);
 		}

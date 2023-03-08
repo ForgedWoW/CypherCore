@@ -27,7 +27,7 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
 
 		caster.HandleEmoteCommand(Emote.OneshotRoar);
 
-		if (caster.IsVehicle())
+		if (caster.IsVehicle)
 		{
 			var player = caster.GetVehicleKit().GetPassenger(0);
 

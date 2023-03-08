@@ -40,7 +40,7 @@ public class spell_warl_demonwrath : SpellScript, IHasSpellEffects
 			if (!creature.HasAura(WarlockSpells.DEMONWRATH_AURA))
 				return true;
 
-			if (creature.GetCreatureType() != CreatureType.Demon)
+			if (creature.CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;

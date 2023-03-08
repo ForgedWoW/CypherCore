@@ -22,15 +22,15 @@ public class at_hun_flareAI : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (caster.GetTypeId() != TypeId.Player)
+		if (caster.TypeId != TypeId.Player)
 			return;
 
 		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 		if (tempSumm == null)
 		{
-			tempSumm.SetFaction(caster.GetFaction());
-			tempSumm.SetSummonerGUID(caster.GetGUID());
+			tempSumm.Faction = caster.Faction;
+			tempSumm.SetSummonerGUID(caster.GUID);
 			PhasingHandler.InheritPhaseShift(tempSumm, caster);
 			caster.CastSpell(tempSumm, HunterSpells.FLARE_EFFECT, true);
 		}

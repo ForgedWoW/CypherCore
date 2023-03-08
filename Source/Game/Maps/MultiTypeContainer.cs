@@ -35,7 +35,7 @@ public class MultiTypeContainer
 		{
 			_worldObjects.Add(obj);
 
-			switch (obj.GetTypeId())
+			switch (obj.TypeId)
 			{
 				case TypeId.Unit:
 					_creatures.Add((Creature)obj);
@@ -87,7 +87,7 @@ public class MultiTypeContainer
 		{
 			_worldObjects.Remove(obj);
 
-			switch (obj.GetTypeId())
+			switch (obj.TypeId)
 			{
 				case TypeId.Unit:
 					_creatures.Remove((Creature)obj);

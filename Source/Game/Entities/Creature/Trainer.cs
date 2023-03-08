@@ -30,7 +30,7 @@ public class Trainer
 		var reputationDiscount = player.GetReputationPriceDiscount(npc);
 
 		TrainerList trainerList = new();
-		trainerList.TrainerGUID = npc.GetGUID();
+		trainerList.TrainerGUID = npc.GUID;
 		trainerList.TrainerType = (int)_type;
 		trainerList.TrainerID = (int)_id;
 		trainerList.Greeting = GetGreeting(locale);
@@ -42,7 +42,7 @@ public class Trainer
 
 			if (!Global.ConditionMgr.IsObjectMeetingTrainerSpellConditions(_id, trainerSpell.SpellId, player))
 			{
-				Log.outDebug(LogFilter.Condition, $"SendSpells: conditions not met for trainer id {_id} spell {trainerSpell.SpellId} player '{player.GetName()}' ({player.GetGUID()})");
+				Log.outDebug(LogFilter.Condition, $"SendSpells: conditions not met for trainer id {_id} spell {trainerSpell.SpellId} player '{player.GetName()}' ({player.GUID})");
 
 				continue;
 			}
@@ -77,7 +77,7 @@ public class Trainer
 
 		if (speciesEntry != null)
 		{
-			if (player.GetSession().GetBattlePetMgr().HasMaxPetCount(speciesEntry, player.GetGUID()))
+			if (player.Session.BattlePetMgr.HasMaxPetCount(speciesEntry, player.GUID))
 				// Don't send any error to client (intended)
 				return;
 
@@ -113,7 +113,7 @@ public class Trainer
 
 			if (speciesEntry != null)
 			{
-				player.GetSession().GetBattlePetMgr().AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+				player.Session.				BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 				// If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
 				// marking as dependent prevents saving the spell to database (intended)
 				dependent = true;
@@ -142,7 +142,7 @@ public class Trainer
 
 		var trainerSpellInfo = Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None);
 
-		if (trainerSpellInfo.IsPrimaryProfessionFirstRank && player.GetFreePrimaryProfessionPoints() == 0)
+		if (trainerSpellInfo.IsPrimaryProfessionFirstRank && player.FreePrimaryProfessionPoints == 0)
 			return false;
 
 		foreach (var effect in trainerSpellInfo.Effects)
@@ -152,7 +152,7 @@ public class Trainer
 
 			var learnedSpellInfo = Global.SpellMgr.GetSpellInfo(effect.TriggerSpell, Difficulty.None);
 
-			if (learnedSpellInfo != null && learnedSpellInfo.IsPrimaryProfessionFirstRank && player.GetFreePrimaryProfessionPoints() == 0)
+			if (learnedSpellInfo != null && learnedSpellInfo.IsPrimaryProfessionFirstRank && player.FreePrimaryProfessionPoints == 0)
 				return false;
 		}
 
@@ -177,7 +177,7 @@ public class Trainer
 				return TrainerSpellState.Unavailable;
 
 		// check level requirement
-		if (player.GetLevel() < trainerSpell.ReqLevel)
+		if (player.Level < trainerSpell.ReqLevel)
 			return TrainerSpellState.Unavailable;
 
 		// check ranks
@@ -204,7 +204,7 @@ public class Trainer
 	void SendTeachFailure(Creature npc, Player player, uint spellId, TrainerFailReason reason)
 	{
 		TrainerBuyFailed trainerBuyFailed = new();
-		trainerBuyFailed.TrainerGUID = npc.GetGUID();
+		trainerBuyFailed.TrainerGUID = npc.GUID;
 		trainerBuyFailed.SpellID = spellId;
 		trainerBuyFailed.TrainerFailedReason = reason;
 		player.SendPacket(trainerBuyFailed);

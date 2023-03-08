@@ -393,7 +393,7 @@ namespace Game.AI
             if (!who)
                 return false;
 
-            return who.GetClass() switch
+            return who.Class switch
             {
                 Class.Paladin => who.GetPrimarySpecialization() == TalentSpecialization.PaladinHoly,
                 Class.Priest => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
@@ -409,7 +409,7 @@ namespace Game.AI
             if (!who)
                 return false;
 
-            switch (who.GetClass())
+            switch (who.Class)
             {
                 case Class.Warrior:
                 case Class.Paladin:
@@ -493,7 +493,7 @@ namespace Game.AI
                         return null;
                     break;
                 case SpellTarget.Charmer:
-                    pTarget = me.GetCharmer();
+                    pTarget = me.Charmer;
                     if (!pTarget)
                         return null;
                     break;
@@ -636,8 +636,8 @@ namespace Game.AI
 
         public Creature GetCharmer()
         {
-            if (me.GetCharmerGUID().IsCreature())
-                return ObjectAccessor.GetCreature(me, me.GetCharmerGUID());
+            if (me.CharmerGUID.IsCreature)
+                return ObjectAccessor.GetCreature(me, me.CharmerGUID);
             return null;
         }
 
@@ -650,7 +650,7 @@ namespace Game.AI
         public uint GetSpec(Player who = null) { return (!who || who == me) ? _selfSpec : who.GetPrimarySpecialization(); }
         public void SetIsRangedAttacker(bool state) { _isSelfRangedAttacker = state; } // this allows overriding of the default ranged attacker detection
 
-        public virtual Unit SelectAttackTarget() { return me.GetCharmer() ? me.GetCharmer().GetVictim() : null; }
+        public virtual Unit SelectAttackTarget() { return me.Charmer ? me.Charmer.GetVictim() : null; }
 
         public enum SpellTarget
         {
@@ -682,7 +682,7 @@ namespace Game.AI
             if (!me.IsValidAttackTarget(who) || who.HasBreakableByDamageCrowdControlAura())
                 return false;
 
-            Unit charmer = me.GetCharmer();
+            Unit charmer = me.Charmer;
             if (charmer != null)
                 if (!charmer.IsValidAttackTarget(who))
                     return false;
@@ -692,7 +692,7 @@ namespace Game.AI
 
         public override Unit SelectAttackTarget()
         {
-            Unit charmer = me.GetCharmer();
+            Unit charmer = me.Charmer;
             if (charmer)
             {
                 IUnitAI charmerAI = charmer.GetAI();
@@ -1238,12 +1238,12 @@ namespace Game.AI
                 return;
 
             //kill self if charm aura has infinite duration
-            if (charmer.IsInEvadeMode())
+            if (charmer.IsInEvadeMode)
             {
                 var auras = me.GetAuraEffectsByType(AuraType.ModCharm);
                 foreach (var effect in auras)
                 {
-                    if (effect.CasterGuid == charmer.GetGUID() && effect.Base.IsPermanent)
+                    if (effect.CasterGuid == charmer.GUID && effect.Base.IsPermanent)
                     {
                         me.KillSelf();
                         return;
@@ -1251,7 +1251,7 @@ namespace Game.AI
                 }
             }
 
-            if (charmer.IsEngaged())
+            if (charmer.IsEngaged)
             {
                 Unit target = me.GetVictim();
                 if (!target || !CanAIAttack(target))
@@ -1266,9 +1266,10 @@ namespace Game.AI
                             me.CastStop();
 
                             if (me.HasUnitState(UnitState.Chase))
-                                me.GetMotionMaster().Remove(MovementGeneratorType.Chase);
+                                me.                                MotionMaster.Remove(MovementGeneratorType.Chase);
 
-                            me.GetMotionMaster().MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                            me.
+                            MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
                         }
                         return;
                     }
@@ -1333,28 +1334,30 @@ namespace Game.AI
                 me.CastStop();
 
                 if (me.HasUnitState(UnitState.Chase))
-                    me.GetMotionMaster().Remove(MovementGeneratorType.Chase);
+                    me.                    MotionMaster.Remove(MovementGeneratorType.Chase);
 
-                me.GetMotionMaster().MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+                me.
+                MotionMaster.MoveFollow(charmer, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
             }
         }
 
         public override void OnCharmed(bool isNew)
         {
-            if (me.IsCharmed())
+            if (me.IsCharmed)
             {
                 me.CastStop();
                 me.AttackStop();
 
-                if (me.GetMotionMaster().Size() <= 1) // if there is no current movement (we dont want to erase/overwrite any existing stuff)
-                    me.GetMotionMaster().MovePoint(0, me.Location, false); // force re-sync of current position for all clients
+                if (me.MotionMaster.Size() <= 1) // if there is no current movement (we dont want to erase/overwrite any existing stuff)
+                    me.                    MotionMaster.MovePoint(0, me.Location, false); // force re-sync of current position for all clients
             }
             else
             {
                 me.CastStop();
                 me.AttackStop();
 
-                me.GetMotionMaster().Clear(MovementGeneratorPriority.Normal);
+                me.
+                MotionMaster.Clear(MovementGeneratorPriority.Normal);
             }
 
             base.OnCharmed(isNew);

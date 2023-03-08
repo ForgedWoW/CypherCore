@@ -30,7 +30,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 		{
 			var owner = creature.GetOwner();
 
-			return owner == null || owner != player || !creature.IsSummon();
+			return owner == null || owner != player || !creature.IsSummon;
 		});
 
 		if ((int)totemResoList.Count > 0)
@@ -43,7 +43,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 		{
 			var owner = creature.GetOwner();
 
-			return owner == null || owner != player || !creature.IsSummon();
+			return owner == null || owner != player || !creature.IsSummon;
 		});
 
 		if ((int)totemStormList.Count > 0)
@@ -56,7 +56,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 		{
 			var owner = creature.GetOwner();
 
-			return owner == null || owner != player || !creature.IsSummon();
+			return owner == null || owner != player || !creature.IsSummon;
 		});
 
 		if ((int)totemEmberList.Count > 0)
@@ -69,7 +69,7 @@ public class spell_sha_totem_mastery : SpellScript, ISpellOnCast
 		{
 			var owner = creature.GetOwner();
 
-			return owner == null || owner != player || !creature.IsSummon();
+			return owner == null || owner != player || !creature.IsSummon;
 		});
 
 		if ((int)totemTailwindList.Count > 0)

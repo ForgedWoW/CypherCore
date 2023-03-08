@@ -24,7 +24,7 @@ internal class spell_gen_vendor_bark_trigger : SpellScript, IHasSpellEffects
 		var vendor = Caster.ToCreature();
 
 		if (vendor)
-			if (vendor.GetEntry() == CreatureIds.AmphitheaterVendor)
+			if (vendor.Entry == CreatureIds.AmphitheaterVendor)
 				vendor.GetAI().Talk(TextIds.SayAmphitheaterVendor);
 	}
 }

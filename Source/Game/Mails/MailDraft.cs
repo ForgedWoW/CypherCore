@@ -31,7 +31,7 @@ namespace Game.Mails
 
         public MailDraft AddItem(Item item)
         {
-            m_items[item.GetGUID().GetCounter()] = item; 
+            m_items[item.GUID.Counter] = item; 
             return this;
         }
 
@@ -107,7 +107,7 @@ namespace Game.Mails
                     // owner in data will set at mail receive and item extracting
                     PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
                     stmt.AddValue(0, receiver_guid);
-                    stmt.AddValue(1, item.GetGUID().GetCounter());
+                    stmt.AddValue(1, item.GUID.Counter);
                     trans.Append(stmt);
                 }
             }
@@ -146,7 +146,7 @@ namespace Game.Mails
                 if (m_COD != 0)
                 expire_delay = 3 * Time.Day;
             else
-                expire_delay = (uint)(pSender != null && pSender.IsGameMaster() ? 90 * Time.Day : 30 * Time.Day);
+                expire_delay = (uint)(pSender != null && pSender.IsGameMaster ? 90 * Time.Day : 30 * Time.Day);
 
             long expire_time = deliver_time + expire_delay;
 
@@ -173,7 +173,7 @@ namespace Game.Mails
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_MAIL_ITEM);
                 stmt.AddValue(0, mailId);
-                stmt.AddValue(1, item.GetGUID().GetCounter());
+                stmt.AddValue(1, item.GUID.Counter);
                 stmt.AddValue(2, receiver.GetPlayerGUIDLow());
                 trans.Append(stmt);
             }
@@ -193,7 +193,7 @@ namespace Game.Mails
                 m.COD = GetCOD();
 
                 foreach (var item in m_items.Values)
-                    m.AddItem(item.GetGUID().GetCounter(), item.GetEntry());
+                    m.AddItem(item.GUID.Counter, item.Entry);
 
                 m.messageType = sender.GetMailMessageType();
                 m.stationery = sender.GetStationery();

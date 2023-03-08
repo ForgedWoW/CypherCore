@@ -43,13 +43,13 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 
 			var guid = dynamicObject.GetCasterGUID();
 
-			if (guid.IsPlayer())
+			if (guid.IsPlayer)
 			{
 				//Caster may be NULL if DynObj is in removelist
 				var caster = Global.ObjAccessor.FindPlayer(guid);
 
 				if (caster != null)
-					if (caster.ActivePlayerData.FarsightObject == dynamicObject.GetGUID())
+					if (caster.ActivePlayerData.FarsightObject == dynamicObject.GUID)
 						BuildPacket(caster);
 			}
 		}
@@ -71,10 +71,10 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 	void BuildPacket(Player player)
 	{
 		// Only send update once to a player
-		if (!_plrList.Contains(player.GetGUID()) && player.HaveAtClient(_worldObject))
+		if (!_plrList.Contains(player.GUID) && player.HaveAtClient(_worldObject))
 		{
 			_worldObject.BuildFieldsUpdate(player, _updateData);
-			_plrList.Add(player.GetGUID());
+			_plrList.Add(player.GUID);
 		}
 	}
 }

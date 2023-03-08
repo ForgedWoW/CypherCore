@@ -186,7 +186,7 @@ internal class boss_priestess_delrissa : BossAI
 		{
 			var pAdd = Global.ObjAccessor.GetUnit(me, lackeyGuid);
 
-			if (pAdd && !pAdd.IsEngaged())
+			if (pAdd && !pAdd.IsEngaged)
 				AddThreat(who, 0.0f, pAdd);
 		}
 
@@ -195,7 +195,7 @@ internal class boss_priestess_delrissa : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (!victim.IsPlayer())
+		if (!victim.IsPlayer)
 			return;
 
 		Talk(MiscConst.PlayerDeath[PlayersKilled]);
@@ -237,7 +237,7 @@ internal class boss_priestess_delrissa : BossAI
 									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[i]);
 
 									if (pAdd != null &&
-										pAdd.IsAlive() &&
+										pAdd.IsAlive &&
 										pAdd.GetHealth() < health)
 										target = pAdd;
 								}
@@ -256,7 +256,7 @@ internal class boss_priestess_delrissa : BossAI
 									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 									if (pAdd != null &&
-										pAdd.IsAlive())
+										pAdd.IsAlive)
 										target = pAdd;
 								}
 
@@ -274,7 +274,7 @@ internal class boss_priestess_delrissa : BossAI
 									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 									if (pAdd != null &&
-										pAdd.IsAlive() &&
+										pAdd.IsAlive &&
 										!pAdd.HasAura(SpellIds.Shield))
 										target = pAdd;
 								}
@@ -314,7 +314,7 @@ internal class boss_priestess_delrissa : BossAI
 										var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 										if (pAdd != null &&
-											pAdd.IsAlive())
+											pAdd.IsAlive)
 											target = pAdd;
 									}
 								}
@@ -344,7 +344,7 @@ internal class boss_priestess_delrissa : BossAI
 	private void InitializeLackeys()
 	{
 		//can be called if Creature are dead, so avoid
-		if (!me.IsAlive())
+		if (!me.IsAlive)
 			return;
 
 		byte j = 0;
@@ -365,7 +365,7 @@ internal class boss_priestess_delrissa : BossAI
 				Creature pAdd = me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
 
 				if (pAdd != null)
-					_auiLackeyGUID[j] = pAdd.GetGUID();
+					_auiLackeyGUID[j] = pAdd.GUID;
 
 				++j;
 			}
@@ -382,7 +382,7 @@ internal class boss_priestess_delrissa : BossAI
 					pAdd = me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
 
 					if (pAdd != null)
-						_auiLackeyGUID[j] = pAdd.GetGUID();
+						_auiLackeyGUID[j] = pAdd.GUID;
 				}
 
 				++j;
@@ -413,7 +413,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 		var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
 
 		if (delrissa)
-			if (!delrissa.IsAlive())
+			if (!delrissa.IsAlive)
 				delrissa.Respawn();
 	}
 
@@ -427,7 +427,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 			var pAdd = Global.ObjAccessor.GetUnit(me, guid);
 
 			if (pAdd != null &&
-				!pAdd.IsEngaged() &&
+				!pAdd.IsEngaged &&
 				pAdd != me)
 				AddThreat(who, 0.0f, pAdd);
 		}
@@ -435,8 +435,8 @@ internal class boss_priestess_lackey_common : ScriptedAI
 		var delrissa = instance.GetCreature(DataTypes.PriestessDelrissa);
 
 		if (delrissa)
-			if (delrissa.IsAlive() &&
-				!delrissa.IsEngaged())
+			if (delrissa.IsAlive &&
+				!delrissa.IsEngaged)
 				AddThreat(who, 0.0f, delrissa);
 	}
 
@@ -458,7 +458,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
 		if (uiLackeyDeathCount == MiscConst.MaxActiveLackey)
 			//Time to make her lootable and complete event if she died before lackeys
-			if (!delrissa.IsAlive())
+			if (!delrissa.IsAlive)
 			{
 				delrissa.SetDynamicFlag(UnitDynFlags.Lootable);
 
@@ -955,7 +955,7 @@ internal class boss_garaxxas : boss_priestess_lackey_common
 
 	public override void JustSummoned(Creature summoned)
 	{
-		_uiPetGUID = summoned.GetGUID();
+		_uiPetGUID = summoned.GUID;
 	}
 
 	public override void UpdateAI(uint diff)

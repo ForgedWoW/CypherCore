@@ -46,12 +46,12 @@ class ConversationActorFillVisitor
 			bestFit = creature;
 
 			// If creature is in a personal phase then we pick that one specifically
-			if (creature.GetPhaseShift().GetPersonalGuid() == _creator.GetGUID())
+			if (creature.PhaseShift.PersonalGuid == _creator.GUID)
 				break;
 		}
 
 		if (bestFit)
-			_conversation.AddActor(_actor.Id, _actor.Index, bestFit.GetGUID());
+			_conversation.AddActor(_actor.Id, _actor.Index, bestFit.GUID);
 	}
 
 	public void Invoke(ConversationActorNoObjectTemplate noObject)

@@ -25,14 +25,14 @@ public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || caster.GetTypeId() != TypeId.Player)
+		if (caster == null || caster.TypeId != TypeId.Player)
 			return;
 
 		var item = caster.ToPlayer().GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
 		if (item != null && item.GetTemplate().GetInventoryType() == InventoryType.Shield)
 			caster.CastSpell(caster, 146120, true);
-		else if (caster.GetFaction() == 1732) // Alliance
+		else if (caster.Faction == 1732) // Alliance
 			caster.CastSpell(caster, 147923, true);
 		else // Horde
 			caster.CastSpell(caster, 146122, true);
@@ -42,7 +42,7 @@ public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || caster.GetTypeId() != TypeId.Player)
+		if (caster == null || caster.TypeId != TypeId.Player)
 			return;
 
 		// Visuals

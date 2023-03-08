@@ -21,7 +21,7 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
 
 	public bool Invoke(Creature u)
 	{
-		if (u.IsAlive() &&
+		if (u.IsAlive &&
 			u.IsInCombat() &&
 			!_obj.IsHostileTo(u) &&
 			_obj.IsWithinDist(u, _range) &&

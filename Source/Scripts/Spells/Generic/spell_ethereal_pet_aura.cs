@@ -18,7 +18,7 @@ internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEff
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var levelDiff = (uint)Math.Abs(Target.GetLevel() - eventInfo.ProcTarget.GetLevel());
+		var levelDiff = (uint)Math.Abs(Target.Level - eventInfo.ProcTarget.Level);
 
 		return levelDiff <= 9;
 	}
@@ -36,7 +36,7 @@ internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEff
 		UnitOwner.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
 
 		foreach (Creature minion in minionList)
-			if (minion.IsAIEnabled())
+			if (minion.IsAIEnabled)
 			{
 				minion.GetAI().Talk(TextIds.SayStealEssence);
 				minion.CastSpell(eventInfo.ProcTarget, GenericSpellIds.StealEssenceVisual);

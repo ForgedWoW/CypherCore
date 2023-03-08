@@ -159,8 +159,8 @@ namespace Game
 
                 // guild events only? check invite status here?
                 // When an event is deleted, all invited (accepted/declined? - verify) guildies are notified via in-game mail. (wowwiki)
-                if (!remover.IsEmpty() && invite.InviteeGuid != remover)
-                    mail.SendMailTo(trans, new MailReceiver(invite.InviteeGuid.GetCounter()), new MailSender(calendarEvent), MailCheckMask.Copied);
+                if (!remover.IsEmpty && invite.InviteeGuid != remover)
+                    mail.SendMailTo(trans, new MailReceiver(invite.InviteeGuid.Counter), new MailSender(calendarEvent), MailCheckMask.Copied);
             }
 
             _invites.Remove(calendarEvent.EventId);
@@ -217,7 +217,7 @@ namespace Game
             SQLTransaction trans = new();
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
             stmt.AddValue(0, calendarEvent.EventId);
-            stmt.AddValue(1, calendarEvent.OwnerGuid.GetCounter());
+            stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
             stmt.AddValue(2, calendarEvent.Title);
             stmt.AddValue(3, calendarEvent.Description);
             stmt.AddValue(4, (byte)calendarEvent.EventType);
@@ -234,8 +234,8 @@ namespace Game
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
             stmt.AddValue(0, invite.InviteId);
             stmt.AddValue(1, invite.EventId);
-            stmt.AddValue(2, invite.InviteeGuid.GetCounter());
-            stmt.AddValue(3, invite.SenderGuid.GetCounter());
+            stmt.AddValue(2, invite.InviteeGuid.Counter);
+            stmt.AddValue(3, invite.SenderGuid.Counter);
             stmt.AddValue(4, (byte)invite.Status);
             stmt.AddValue(5, invite.ResponseTime);
             stmt.AddValue(6, (byte)invite.Rank);
@@ -377,10 +377,10 @@ namespace Game
             }
 
             Player player = Global.ObjAccessor.FindPlayer(guid);
-            if (player?.GetGuildId() != 0)
+            if (player?.GuildId != 0)
             {
                 foreach (var calendarEvent in _events)
-                    if (calendarEvent.GuildId == player.GetGuildId())
+                    if (calendarEvent.GuildId == player.GuildId)
                         events.Add(calendarEvent);
             }
 
@@ -434,7 +434,7 @@ namespace Game
             ObjectGuid invitee = invite.InviteeGuid;
             Player player = Global.ObjAccessor.FindPlayer(invitee);
 
-            uint level = player ? player.GetLevel() : Global.CharacterCacheStorage.GetCharacterLevelByGuid(invitee);
+            uint level = player ? player.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(invitee);
 
             CalendarInviteAdded packet = new();
             packet.EventID = calendarEvent != null ? calendarEvent.EventId : 0;
@@ -582,8 +582,8 @@ namespace Game
                 ObjectGuid inviteeGuid = calendarInvite.InviteeGuid;
                 Player invitee = Global.ObjAccessor.FindPlayer(inviteeGuid);
 
-                uint inviteeLevel = invitee ? invitee.GetLevel() : Global.CharacterCacheStorage.GetCharacterLevelByGuid(inviteeGuid);
-                ulong inviteeGuildId = invitee ? invitee.GetGuildId() : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(inviteeGuid);
+                uint inviteeLevel = invitee ? invitee.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(inviteeGuid);
+                ulong inviteeGuildId = invitee ? invitee.GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(inviteeGuid);
 
                 CalendarEventInviteInfo inviteInfo = new();
                 inviteInfo.Guid = inviteeGuid;
@@ -661,7 +661,7 @@ namespace Game
             {
                 Player player = Global.ObjAccessor.FindPlayer(playerCalendarEvent.InviteeGuid);
                 if (player)
-                    if (!calendarEvent.IsGuildEvent() || player.GetGuildId() != calendarEvent.GuildId)
+                    if (!calendarEvent.IsGuildEvent() || player.GuildId != calendarEvent.GuildId)
                         player.SendPacket(packet);
             }
         }

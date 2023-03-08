@@ -17,7 +17,7 @@ internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, 
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public SpellCastResult CheckCast()

@@ -15,7 +15,7 @@ public class at_dk_antimagic_zone : AreaTriggerAI
 	public override void OnUnitEnter(Unit unit)
 	{
 		//TODO: Improve unit targets
-		if (unit.IsPlayer() && !unit.IsHostileTo(at.GetCaster()))
+		if (unit.IsPlayer && !unit.IsHostileTo(at.GetCaster()))
 			if (!unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
 				unit.AddAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN, unit);
 	}

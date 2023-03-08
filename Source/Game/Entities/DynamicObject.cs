@@ -18,6 +18,18 @@ public class DynamicObject : WorldObject
 	int _duration; // for non-aura dynobjects
 	bool _isViewpoint;
 
+	public override uint Faction
+	{
+		get
+		{
+			Cypher.Assert(_caster != null);
+
+			return _caster.Faction;
+		}
+	}
+
+	public override ObjectGuid OwnerGUID => GetCasterGUID();
+
 	public DynamicObject(bool isWorldObject) : base(isWorldObject)
 	{
 		ObjectTypeMask |= TypeMask.DynamicObject;
@@ -44,7 +56,7 @@ public class DynamicObject : WorldObject
 		// Register the dynamicObject for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GetGUID(), this);
+			GetMap().GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 			BindToCaster();
 		}
@@ -67,7 +79,7 @@ public class DynamicObject : WorldObject
 
 			UnbindFromCaster();
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GetGUID());
+			GetMap().GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -89,10 +101,10 @@ public class DynamicObject : WorldObject
 		UpdatePositionData();
 		SetZoneScript();
 
-		SetEntry(spell.Id);
-		SetObjectScale(1f);
+		Entry = spell.Id;
+		ObjectScale = 1f;
 
-		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Caster), caster.GetGUID());
+		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Caster), caster.GUID);
 		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Type), (byte)type);
 
 		SpellCastVisualField spellCastVisual = Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellVisual);
@@ -106,7 +118,7 @@ public class DynamicObject : WorldObject
 		if (IsWorldObject())
 			SetActive(true); //must before add to map to be put in world container
 
-		var transport = caster.GetTransport();
+		var transport = caster.Transport;
 
 		if (transport != null)
 		{
@@ -197,13 +209,6 @@ public class DynamicObject : WorldObject
 		}
 	}
 
-	public override uint GetFaction()
-	{
-		Cypher.Assert(_caster != null);
-
-		return _caster.GetFaction();
-	}
-
 	public SpellInfo GetSpellInfo()
 	{
 		return Global.SpellMgr.GetSpellInfo(GetSpellId(), GetMap().GetDifficultyID());
@@ -258,11 +263,6 @@ public class DynamicObject : WorldObject
 	public ObjectGuid GetCasterGUID()
 	{
 		return _dynamicObjectData.Caster;
-	}
-
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return GetCasterGUID();
 	}
 
 	public float GetRadius()
@@ -336,7 +336,7 @@ public class DynamicObject : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

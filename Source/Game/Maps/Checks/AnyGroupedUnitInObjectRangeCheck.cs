@@ -29,7 +29,7 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
 
 	public bool Invoke(Unit u)
 	{
-		if (_playerOnly && !u.IsPlayer())
+		if (_playerOnly && !u.IsPlayer)
 			return false;
 
 		if (_raid)
@@ -45,16 +45,16 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
 		if (_refUnit.IsHostileTo(u))
 			return false;
 
-		if (!u.IsAlive())
+		if (!u.IsAlive)
 			return false;
 
 		var searchRadius = _range;
 
 		if (_incOwnRadius)
-			searchRadius += _source.GetCombatReach();
+			searchRadius += _source.CombatReach;
 
 		if (_incTargetRadius)
-			searchRadius += u.GetCombatReach();
+			searchRadius += u.CombatReach;
 
 		return u.IsInMap(_source) && u.InSamePhase(_source) && u.Location.IsWithinDoubleVerticalCylinder(_source.Location, searchRadius, searchRadius);
 	}

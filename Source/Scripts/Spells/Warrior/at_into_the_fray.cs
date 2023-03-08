@@ -27,7 +27,7 @@ public class at_into_the_fray : AreaTriggerAI
 		if (timer >= 250)
 		{
 			at.VariableStorage.Set<int>("_timer", 0);
-			var count = (uint)(at.GetInsideUnits().Count - 1);
+			var count = (uint)(at.InsideUnits.Count - 1);
 
 			if (count != 0)
 			{

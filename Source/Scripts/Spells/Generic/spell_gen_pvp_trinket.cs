@@ -15,13 +15,13 @@ internal class spell_gen_pvp_trinket : SpellScript, ISpellAfterCast
 	{
 		var caster = Caster.ToPlayer();
 
-		switch (caster.GetEffectiveTeam())
+		switch (caster.EffectiveTeam)
 		{
-			case Team.Alliance:
+			case TeamFaction.Alliance:
 				caster.CastSpell(caster, GenericSpellIds.PvpTrinketAlliance, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
 				break;
-			case Team.Horde:
+			case TeamFaction.Horde:
 				caster.CastSpell(caster, GenericSpellIds.PvpTrinketHorde, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
 				break;

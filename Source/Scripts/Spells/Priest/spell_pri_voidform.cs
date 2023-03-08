@@ -85,7 +85,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 		var mod = new CastSpellExtraArgs();
 		mod.AddSpellMod(SpellValueMod.BasePoint0, haste);
 
-		var aEff = caster.GetAuraEffectOfRankedSpell(PriestSpells.VOIDFORM_BUFFS, 3, caster.GetGUID());
+		var aEff = caster.GetAuraEffectOfRankedSpell(PriestSpells.VOIDFORM_BUFFS, 3, caster.GUID);
 
 		if (aEff != null)
 			mod.AddSpellMod(SpellValueMod.BasePoint1, aEff.Amount);

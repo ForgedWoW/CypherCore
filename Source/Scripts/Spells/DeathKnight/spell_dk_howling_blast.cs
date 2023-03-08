@@ -43,7 +43,7 @@ public class spell_dk_howling_blast : SpellScript, IHasSpellEffects
 			if (SpellInfo.Id == DeathKnightSpells.HOWLING_BLAST_AREA_DAMAGE)
 			{
 				if (Spell.CustomArg.has_value())
-					return target.GetGUID() == (ObjectGuid)Spell.CustomArg;
+					return target.GUID == (ObjectGuid)Spell.CustomArg;
 			}
 			else
 			{
@@ -64,7 +64,7 @@ public class spell_dk_howling_blast : SpellScript, IHasSpellEffects
 
 	private void HandleAreaDamage(int effIndex)
 	{
-		Caster.CastSpell(ExplTargetUnit, DeathKnightSpells.HOWLING_BLAST_AREA_DAMAGE, new CastSpellExtraArgs().SetCustomArg(ExplTargetUnit.GetGUID()));
+		Caster.CastSpell(ExplTargetUnit, DeathKnightSpells.HOWLING_BLAST_AREA_DAMAGE, new CastSpellExtraArgs().SetCustomArg(ExplTargetUnit.GUID));
 	}
 
 	private void HandleSpellVisual(int effIndex)

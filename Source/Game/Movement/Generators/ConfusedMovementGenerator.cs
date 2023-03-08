@@ -25,7 +25,7 @@ namespace Game.Movement
             RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
             AddFlag(MovementGeneratorFlags.Initialized);
 
-            if (!owner || !owner.IsAlive())
+            if (!owner || !owner.IsAlive)
                 return;
 
             // TODO: UNIT_FIELD_FLAGS should not be handled by generators
@@ -45,7 +45,7 @@ namespace Game.Movement
 
         public override bool DoUpdate(T owner, uint diff)
         {
-            if (!owner || !owner.IsAlive())
+            if (!owner || !owner.IsAlive)
                 return false;
 
             if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
@@ -114,7 +114,7 @@ namespace Game.Movement
 
             if (active)
             {
-                if (owner.IsPlayer())
+                if (owner.IsPlayer)
                 {
                     owner.RemoveUnitFlag(UnitFlags.Confused);
                     owner.StopMoving();
@@ -125,7 +125,7 @@ namespace Game.Movement
                     owner.RemoveUnitFlag(UnitFlags.Confused);
                     owner.ClearUnitState(UnitState.ConfusedMove);
                     if (owner.GetVictim())
-                        owner.SetTarget(owner.GetVictim().GetGUID());
+                        owner.SetTarget(owner.GetVictim().GUID);
                 }
             }
         }

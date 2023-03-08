@@ -55,7 +55,7 @@ namespace Game.Chat.Commands
             if (result.IsEmpty())
                 point = result.Read<uint>(0);
 
-            Player player = handler.GetSession().GetPlayer();
+            Player player = handler.GetSession().Player;
 
             stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
             stmt.AddValue(0, pathId);
@@ -326,7 +326,7 @@ namespace Game.Chat.Commands
                 return false;
             }
 
-            if (target.GetEntry() == 1)
+            if (target.Entry == 1)
             {
                 handler.SendSysMessage("|cffff33ffYou want to load path to a waypoint? Aren't you?|r");
                 return false;
@@ -338,7 +338,7 @@ namespace Game.Chat.Commands
                 return true;
             }
 
-            ulong guidLow = target.GetSpawnId();
+            ulong guidLow = target.SpawnId;
 
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_ADDON_BY_GUID);
             stmt.AddValue(0, guidLow);
@@ -367,7 +367,7 @@ namespace Game.Chat.Commands
 
             target.LoadPath(pathId);
             target.SetDefaultMovementType(MovementGeneratorType.Waypoint);
-            target.GetMotionMaster().Initialize();
+            target.            MotionMaster.Initialize();
             target.Say("Path loaded.", Language.Universal);
 
             return true;
@@ -396,7 +396,7 @@ namespace Game.Chat.Commands
             Creature target = handler.GetSelectedCreature();
 
             // User did select a visual waypoint?
-            if (!target || target.GetEntry() != 1)
+            if (!target || target.Entry != 1)
             {
                 handler.SendSysMessage("|cffff33ffERROR: You must select a waypoint.|r");
                 return false;
@@ -404,12 +404,12 @@ namespace Game.Chat.Commands
 
             // Check the creature
             PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_WPGUID);
-            stmt.AddValue(0, target.GetSpawnId());
+            stmt.AddValue(0, target.SpawnId);
             SQLResult result = DB.World.Query(stmt);
 
             if (result.IsEmpty())
             {
-                handler.SendSysMessage(CypherStrings.WaypointNotfoundsearch, target.GetGUID().ToString());
+                handler.SendSysMessage(CypherStrings.WaypointNotfoundsearch, target.GUID.ToString());
                 // Select waypoint number from database
                 // Since we compare float values, we have to deal with
                 // some difficulties.
@@ -428,7 +428,7 @@ namespace Game.Chat.Commands
 
                 if (result.IsEmpty())
                 {
-                    handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.GetGUID().ToString());
+                    handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.GUID.ToString());
                     return true;
                 }
             }
@@ -454,7 +454,7 @@ namespace Game.Chat.Commands
             {
                 handler.SendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff{0}|r", pathid);
 
-                if (Creature.DeleteFromDB(target.GetSpawnId()))
+                if (Creature.DeleteFromDB(target.SpawnId))
                 {
 
                     stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
@@ -481,12 +481,12 @@ namespace Game.Chat.Commands
             {
                 handler.SendSysMessage("|cff00ff00DEBUG: wp move, PathID: |r|cff00ffff{0}|r", pathid);
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 Map map = chr.GetMap();
                 // What to do:
                 // Move the visual spawnpoint
                 // Respawn the owner of the waypoints
-                if (!Creature.DeleteFromDB(target.GetSpawnId()))
+                if (!Creature.DeleteFromDB(target.SpawnId))
                 {
                     handler.SendSysMessage(CypherStrings.WaypointVpNotcreated, 1);
                     return false;
@@ -503,7 +503,7 @@ namespace Game.Chat.Commands
                 PhasingHandler.InheritPhaseShift(creature, chr);
                 creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
 
-                ulong dbGuid = creature.GetSpawnId();
+                ulong dbGuid = creature.SpawnId;
 
                 // current "wpCreature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
                 creature.CleanupsBeforeDelete();
@@ -597,19 +597,19 @@ namespace Game.Chat.Commands
             if (subCommand == "info")
             {
                 // Check if the user did specify a visual waypoint
-                if (!target || target.GetEntry() != 1)
+                if (!target || target.Entry != 1)
                 {
                     handler.SendSysMessage(CypherStrings.WaypointVpSelect);    
                     return false;
                 }
 
                 PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
-                stmt.AddValue(0, target.GetSpawnId());
+                stmt.AddValue(0, target.SpawnId);
                 SQLResult result = DB.World.Query(stmt);
 
                 if (result.IsEmpty())
                 {
-                    handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.GetSpawnId());
+                    handler.SendSysMessage(CypherStrings.WaypointNotfounddbproblem, target.SpawnId);
                     return true;
                 }
 
@@ -687,7 +687,7 @@ namespace Game.Chat.Commands
 
                     uint id = 1;
 
-                    Player chr = handler.GetSession().GetPlayer();
+                    Player chr = handler.GetSession().Player;
                     Map map = chr.GetMap();
 
                     Creature creature = Creature.CreateCreature(id, map, new Position(x, y, z, o));
@@ -700,7 +700,7 @@ namespace Game.Chat.Commands
                     PhasingHandler.InheritPhaseShift(creature, chr);
                     creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
 
-                    ulong dbGuid = creature.GetSpawnId();
+                    ulong dbGuid = creature.SpawnId;
 
                     // current "wpCreature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
                     creature.CleanupsBeforeDelete();
@@ -716,14 +716,14 @@ namespace Game.Chat.Commands
 
                     if (target)
                     {
-                        creature.SetDisplayId(target.GetDisplayId());
-                        creature.SetObjectScale(0.5f);
+                        creature.SetDisplayId(target.DisplayId);
+                        creature.                        ObjectScale = 0.5f;
                         creature.SetLevel(Math.Min(point, SharedConst.StrongMaxLevel));
                     }
 
                     // Set "wpguid" column to the visual waypoint
                     stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
-                    stmt.AddValue(0, creature.GetSpawnId());
+                    stmt.AddValue(0, creature.SpawnId);
                     stmt.AddValue(1, pathId);
                     stmt.AddValue(2, point);
                     DB.World.Execute(stmt);
@@ -753,7 +753,7 @@ namespace Game.Chat.Commands
                 float z = result.Read<float>(2);
                 float o = result.Read<float>(3);
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 Map map = chr.GetMap();
 
                 Creature creature = Creature.CreateCreature(1, map, new Position(x, y, z, 0));
@@ -766,7 +766,7 @@ namespace Game.Chat.Commands
                 PhasingHandler.InheritPhaseShift(creature, chr);
                 creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
 
-                ulong dbGuid = creature.GetSpawnId();
+                ulong dbGuid = creature.SpawnId;
 
                 // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
                 creature.CleanupsBeforeDelete();
@@ -781,8 +781,8 @@ namespace Game.Chat.Commands
 
                 if (target)
                 {
-                    creature.SetDisplayId(target.GetDisplayId());
-                    creature.SetObjectScale(0.5f);
+                    creature.SetDisplayId(target.DisplayId);
+                    creature.                    ObjectScale = 0.5f;
                 }
 
                 return true;
@@ -807,7 +807,7 @@ namespace Game.Chat.Commands
                 float z = result.Read<float>(2);
                 float o = result.Read<float>(3);
 
-                Player chr = handler.GetSession().GetPlayer();
+                Player chr = handler.GetSession().Player;
                 Map map = chr.GetMap();
                 Position pos = new(x, y, z, o);
 
@@ -821,7 +821,7 @@ namespace Game.Chat.Commands
                 PhasingHandler.InheritPhaseShift(creature, chr);
                 creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
 
-                ulong dbGuid = creature.GetSpawnId();
+                ulong dbGuid = creature.SpawnId;
 
                 // current "creature" variable is deleted and created fresh new, otherwise old values might trigger asserts or cause undefined behavior
                 creature.CleanupsBeforeDelete();
@@ -836,8 +836,8 @@ namespace Game.Chat.Commands
 
                 if (target)
                 {
-                    creature.SetDisplayId(target.GetDisplayId());
-                    creature.SetObjectScale(0.5f);
+                    creature.SetDisplayId(target.DisplayId);
+                    creature.                    ObjectScale = 0.5f;
                 }
 
                 return true;
@@ -897,7 +897,7 @@ namespace Game.Chat.Commands
                 return true;
             }
 
-            ulong guidLow = target.GetSpawnId();
+            ulong guidLow = target.SpawnId;
             if (guidLow == 0)
             {
                 handler.SendSysMessage("|cffff33ffTarget is not saved to DB.|r");
@@ -924,8 +924,8 @@ namespace Game.Chat.Commands
 
             target.LoadPath(0);
             target.SetDefaultMovementType(MovementGeneratorType.Idle);
-            target.GetMotionMaster().MoveTargetedHome();
-            target.GetMotionMaster().Initialize();
+            target.            MotionMaster.MoveTargetedHome();
+            target.            MotionMaster.Initialize();
             target.Say("Path unloaded.", Language.Universal);
             return true;
         }

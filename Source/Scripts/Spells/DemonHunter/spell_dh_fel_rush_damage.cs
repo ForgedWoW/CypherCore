@@ -57,7 +57,7 @@ public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnH
 		caster.GetAttackableUnitListInRange(units, 25.0f);
 
 
-		units.RemoveIf((Unit unit) => { return !caster.Location.HasInLine(unit.Location, 6.0f, caster.GetObjectScale()); });
+		units.RemoveIf((Unit unit) => { return !caster.Location.HasInLine(unit.Location, 6.0f, caster.ObjectScale); });
 
 		foreach (var unit in units)
 			targets.Add(unit);

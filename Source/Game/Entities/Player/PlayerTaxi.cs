@@ -24,7 +24,7 @@ public class PlayerTaxi
 		// class specific initial known nodes
 		if (chrClass == Class.Deathknight)
 		{
-			var factionMask = Player.TeamForRace(race) == Team.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
+			var factionMask = Player.TeamForRace(race) == TeamFaction.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
 			m_taximask = new byte[factionMask.Length];
 
 			for (var i = 0; i < factionMask.Length; ++i)
@@ -82,11 +82,11 @@ public class PlayerTaxi
 		// new continent starting masks (It will be accessible only at new map)
 		switch (Player.TeamForRace(race))
 		{
-			case Team.Alliance:
+			case TeamFaction.Alliance:
 				SetTaximaskNode(100);
 
 				break;
-			case Team.Horde:
+			case TeamFaction.Horde:
 				SetTaximaskNode(99);
 
 				break;
@@ -128,7 +128,7 @@ public class PlayerTaxi
 		}
 	}
 
-	public bool LoadTaxiDestinationsFromString(string values, Team team)
+	public bool LoadTaxiDestinationsFromString(string values, TeamFaction team)
 	{
 		ClearTaxiDestinations();
 

@@ -20,7 +20,7 @@ internal class spell_dk_advantage_t10_4p : AuraScript, IAuraCheckProc
 			var player = caster.ToPlayer();
 
 			if (!player ||
-				caster.GetClass() != Class.Deathknight)
+				caster.Class != Class.Deathknight)
 				return false;
 
 			for (byte i = 0; i < player.GetMaxPower(PowerType.Runes); ++i)

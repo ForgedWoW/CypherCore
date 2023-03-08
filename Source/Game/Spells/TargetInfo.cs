@@ -34,7 +34,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void PreprocessTarget(Spell spell)
 	{
-		var unit = spell.Caster.GetGUID() == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -53,12 +53,12 @@ public class TargetInfo : TargetInfoBase
 		else if (MissCondition == SpellMissInfo.Reflect && ReflectResult == SpellMissInfo.None)
 			_spellHitTarget = spell.Caster.ToUnit();
 
-		if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged()))
+		if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
 			unit.SetInCombatWith(spell.OriginalCaster);
 
 		// if target is flagged for pvp also flag caster if a player
 		// but respect current pvp rules (buffing/healing npcs flagged for pvp only flags you if they are in combat)
-		_enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP() && (unit.IsInCombat() || unit.IsCharmedOwnedByPlayerOrPlayer()) && spell.Caster.IsPlayer(); // need to check PvP state before spell effects, but act on it afterwards
+		_enablePVP = (MissCondition == SpellMissInfo.None || spell.SpellInfo.HasAttribute(SpellAttr3.PvpEnabling)) && unit.IsPvP && (unit.IsInCombat() || unit.IsCharmedOwnedByPlayerOrPlayer) && spell.Caster.IsPlayer; // need to check PvP state before spell effects, but act on it afterwards
 
 		if (_spellHitTarget)
 		{
@@ -82,7 +82,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
 	{
-		var unit = spell.Caster.GetGUID() == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -96,7 +96,7 @@ public class TargetInfo : TargetInfoBase
 		spell.DamageInEffects = Damage;
 		spell.HealingInEffects = Healing;
 
-		if (unit.IsAlive() != IsAlive)
+		if (unit.IsAlive != IsAlive)
 			return;
 
 		if (spell.State == SpellState.Delayed && !spell.IsPositive() && (GameTime.GetGameTimeMS() - TimeDelay) <= unit.LastSanctuaryTime)
@@ -112,7 +112,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void DoDamageAndTriggers(Spell spell)
 	{
-		var unit = spell.Caster.GetGUID() == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -260,7 +260,7 @@ public class TargetInfo : TargetInfoBase
 				}
 				else
 				{
-					caster.SetLastDamagedTargetGuid(spell.UnitTarget.GetGUID());
+					caster.SetLastDamagedTargetGuid(spell.UnitTarget.GUID);
 
 					// Add bonuses and fill damageInfo struct
 					caster.CalculateSpellDamageTaken(damageInfo, spell.DamageInEffects, spell.SpellInfo, spell.AttackType, IsCrit, MissCondition == SpellMissInfo.Block, spell);
@@ -268,7 +268,7 @@ public class TargetInfo : TargetInfoBase
 					var p = caster.ToPlayer();
 
 					if (p != null)
-						Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.GetClass(), d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
+						Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
 
 					Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
@@ -306,7 +306,7 @@ public class TargetInfo : TargetInfoBase
 				}
 
 				// Failed Pickpocket, reveal rogue
-				if (MissCondition == SpellMissInfo.Resist && spell.SpellInfo.HasAttribute(SpellCustomAttributes.PickPocket) && spell.UnitTarget.IsCreature())
+				if (MissCondition == SpellMissInfo.Resist && spell.SpellInfo.HasAttribute(SpellCustomAttributes.PickPocket) && spell.UnitTarget.IsCreature)
 				{
 					var unitCaster = spell.Caster.ToUnit();
 					unitCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
@@ -326,7 +326,7 @@ public class TargetInfo : TargetInfoBase
 				Unit.ProcSkillsAndAuras(caster, spell.UnitTarget, procAttacker, procVictim, procSpellType, ProcFlagsSpellPhase.Hit, hitMask, spell, spellDamageInfo, healInfo);
 
 				// item spells (spell hit of non-damage spell may also activate items, for example seal of corruption hidden hit)
-				if (caster.IsPlayer() && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
+				if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
 					if (spell.SpellInfo.DmgClass == SpellDmgClass.Melee || spell.SpellInfo.DmgClass == SpellDmgClass.Ranged)
 						if (!spell.SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat) && !spell.SpellInfo.HasAttribute(SpellAttr4.SuppressWeaponProcs))
 							caster.ToPlayer().CastItemCombatSpell(spellDamageInfo);
@@ -353,17 +353,17 @@ public class TargetInfo : TargetInfoBase
 						var targetCreature = unit.ToCreature();
 
 						if (targetCreature != null)
-							if (unitCaster.IsPlayer())
+							if (unitCaster.IsPlayer)
 								targetCreature.SetTappedBy(unitCaster);
 					}
 				}
 
-				if (!spell.SpellInfo.HasAttribute(SpellAttr3.DoNotTriggerTargetStand) && !unit.IsStandState())
+				if (!spell.SpellInfo.HasAttribute(SpellAttr3.DoNotTriggerTargetStand) && !unit.IsStandState)
 					unit.SetStandState(UnitStandStateType.Stand);
 			}
 
 			// Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
-			if (MissCondition == SpellMissInfo.None && spell.SpellInfo.HasAttribute(SpellAttr7.InterruptOnlyNonplayer) && !unit.IsPlayer())
+			if (MissCondition == SpellMissInfo.None && spell.SpellInfo.HasAttribute(SpellAttr7.InterruptOnlyNonplayer) && !unit.IsPlayer)
 				caster.CastSpell(unit, 32747, new CastSpellExtraArgs(spell));
 		}
 
@@ -380,14 +380,14 @@ public class TargetInfo : TargetInfoBase
 					hitTargetAI.SpellHit(spell.Caster, spell.SpellInfo);
 			}
 
-			if (spell.Caster.IsCreature() && spell.Caster.ToCreature().IsAIEnabled())
+			if (spell.Caster.IsCreature && spell.Caster.ToCreature().IsAIEnabled)
 				spell.Caster.ToCreature().GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
-			else if (spell.Caster.IsGameObject() && spell.Caster.ToGameObject().GetAI() != null)
+			else if (spell.Caster.IsGameObject && spell.Caster.ToGameObject().GetAI() != null)
 				spell.Caster.ToGameObject().GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 
 			if (HitAura != null)
 			{
-				var aurApp = HitAura.GetApplicationOfTarget(_spellHitTarget.GetGUID());
+				var aurApp = HitAura.GetApplicationOfTarget(_spellHitTarget.GUID);
 
 				if (aurApp != null)
 				{

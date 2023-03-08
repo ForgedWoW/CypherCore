@@ -21,7 +21,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.UseItem, Processing = PacketProcessing.Inplace)]
         void HandleUseItem(UseItem packet)
         {
-            Player user = GetPlayer();
+            Player user = Player;
 
             // ignore for remote control state
             if (user.GetUnitBeingMoved() != user)
@@ -34,7 +34,7 @@ namespace Game
                 return;
             }
 
-            if (item.GetGUID() != packet.CastItem)
+            if (item.GUID != packet.CastItem)
             {
                 user.SendEquipError(InventoryResult.ItemNotFound);
                 return;
@@ -62,14 +62,14 @@ namespace Game
             }
 
             // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-            if (proto.GetClass() == ItemClass.Consumable && !proto.HasFlag(ItemFlags.IgnoreDefaultArenaRestrictions) && user.InArena())
+            if (proto.GetClass() == ItemClass.Consumable && !proto.HasFlag(ItemFlags.IgnoreDefaultArenaRestrictions) && user.InArena)
             {
                 user.SendEquipError(InventoryResult.NotDuringArenaMatch, item);
                 return;
             }
 
             // don't allow items banned in arena
-            if (proto.HasFlag(ItemFlags.NotUseableInArena) && user.InArena())
+            if (proto.HasFlag(ItemFlags.NotUseableInArena) && user.InArena)
             {
                 user.SendEquipError(InventoryResult.NotDuringArenaMatch, item);
                 return;
@@ -98,7 +98,7 @@ namespace Game
                 {
                     item.SetState(ItemUpdateState.Changed, user);
                     item.SetBinding(true);
-                    GetCollectionMgr().AddItemAppearance(item);
+                    CollectionMgr.AddItemAppearance(item);
                 }
             }
 
@@ -117,14 +117,14 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.OpenItem, Processing = PacketProcessing.Inplace)]
         void HandleOpenItem(OpenItem packet)
         {
-            Player player = GetPlayer();
+            Player player = Player;
 
             // ignore for remote control state
             if (player.GetUnitBeingMoved() != player)
                 return;
 
             // additional check, client outputs message on its own
-            if (!player.IsAlive())
+            if (!player.IsAlive)
             {
                 player.SendEquipError(InventoryResult.PlayerDead);
                 return;
@@ -149,7 +149,7 @@ namespace Game
             {
                 player.SendEquipError(InventoryResult.ClientLockedOut, item);
                 Log.outError(LogFilter.Network, "Possible hacking attempt: Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
-                        player.GetName(), player.GetGUID().ToString(), item.GetGUID().ToString(), proto.GetId());
+                        player.GetName(), player.GUID.ToString(), item.GUID.ToString(), proto.GetId());
                 return;
             }
 
@@ -161,7 +161,7 @@ namespace Game
                 if (lockInfo == null)
                 {
                     player.SendEquipError(InventoryResult.ItemLocked, item);
-                    Log.outError(LogFilter.Network, "WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GetGUID().ToString(), lockId);
+                    Log.outError(LogFilter.Network, "WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GUID.ToString(), lockId);
                     return;
                 }
 
@@ -176,10 +176,10 @@ namespace Game
             if (item.IsWrapped())// wrapped?
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_GIFT_BY_ITEM);
-                stmt.AddValue(0, item.GetGUID().GetCounter());
+                stmt.AddValue(0, item.GUID.Counter);
 
                 var pos = item.GetPos();
-                var itemGuid = item.GetGUID();
+                var itemGuid = item.GUID;
                 _queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt)
                     .WithCallback(result => HandleOpenWrappedItemCallback(pos, itemGuid, result)));
             }
@@ -189,39 +189,39 @@ namespace Game
                 // fails then this is first time opening, generate loot
                 if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
                 {
-                    Loot loot = new(player.GetMap(), item.GetGUID(), LootType.Item, null);
+                    Loot loot = new(player.GetMap(), item.GUID, LootType.Item, null);
                     item.Loot = loot;
                     loot.GenerateMoneyLoot(item.GetTemplate().MinMoneyLoot, item.GetTemplate().MaxMoneyLoot);
-                    loot.FillLoot(item.GetEntry(), LootStorage.Items, player, true, loot.gold != 0);
+                    loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.gold != 0);
 
                     // Force save the loot and money items that were just rolled
                     //  Also saves the container item ID in Loot struct (not to DB)
                     if (loot.gold > 0 || loot.unlootedCount > 0)
-                        Global.LootItemStorage.AddNewStoredLoot(item.GetGUID().GetCounter(), loot, player);
+                        Global.LootItemStorage.AddNewStoredLoot(item.GUID.Counter, loot, player);
                 }
                 if (item.Loot != null)
                     player.SendLoot(item.Loot);
                 else
-                    player.SendLootError(ObjectGuid.Empty, item.GetGUID(), LootError.NoLoot);
+                    player.SendLootError(ObjectGuid.Empty, item.GUID, LootError.NoLoot);
             }
         }
 
         void HandleOpenWrappedItemCallback(ushort pos, ObjectGuid itemGuid, SQLResult result)
         {
-            if (!GetPlayer())
+            if (!Player)
                 return;
 
-            Item item = GetPlayer().GetItemByPos(pos);
+            Item item = Player.GetItemByPos(pos);
             if (!item)
                 return;
 
-            if (item.GetGUID() != itemGuid || !item.IsWrapped()) // during getting result, gift was swapped with another item
+            if (item.GUID != itemGuid || !item.IsWrapped()) // during getting result, gift was swapped with another item
                 return;
 
             if (result.IsEmpty())
             {
-                Log.outError(LogFilter.Network, $"Wrapped item {item.GetGUID()} don't have record in character_gifts table and will deleted");
-                GetPlayer().DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
+                Log.outError(LogFilter.Network, $"Wrapped item {item.GUID} don't have record in character_gifts table and will deleted");
+                Player.DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
                 return;
             }
 
@@ -231,15 +231,15 @@ namespace Game
             uint flags = result.Read<uint>(1);
 
             item.SetGiftCreator(ObjectGuid.Empty);
-            item.SetEntry(entry);
+            item.            Entry = entry;
             item.ReplaceAllItemFlags((ItemFieldFlags)flags);
             item.SetMaxDurability(item.GetTemplate().MaxDurability);
-            item.SetState(ItemUpdateState.Changed, GetPlayer());
+            item.SetState(ItemUpdateState.Changed, Player);
 
-            GetPlayer().SaveInventoryAndGoldToDB(trans);
+            Player.SaveInventoryAndGoldToDB(trans);
 
             PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
-            stmt.AddValue(0, itemGuid.GetCounter());
+            stmt.AddValue(0, itemGuid.Counter);
             trans.Append(stmt);
 
             DB.Characters.CommitTransaction(trans);
@@ -248,15 +248,15 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.GameObjUse, Processing = PacketProcessing.Inplace)]
         void HandleGameObjectUse(GameObjUse packet)
         {
-            GameObject obj = GetPlayer().GetGameObjectIfCanInteractWith(packet.Guid);
+            GameObject obj = Player.GetGameObjectIfCanInteractWith(packet.Guid);
             if (obj)
             {
                 // ignore for remote control state
-                if (GetPlayer().GetUnitBeingMoved() != GetPlayer())
-                    if (!(GetPlayer().IsOnVehicle(GetPlayer().GetUnitBeingMoved()) || GetPlayer().IsMounted()) && !obj.GetGoInfo().IsUsableMounted())
+                if (Player.GetUnitBeingMoved() != Player)
+                    if (!(Player.IsOnVehicle(Player.GetUnitBeingMoved()) || Player.IsMounted) && !obj.GetGoInfo().IsUsableMounted())
                         return;
 
-                obj.Use(GetPlayer());
+                obj.Use(Player);
             }
         }
 
@@ -264,16 +264,16 @@ namespace Game
         void HandleGameobjectReportUse(GameObjReportUse packet)
         {
             // ignore for remote control state
-            if (GetPlayer().GetUnitBeingMoved() != GetPlayer())
+            if (Player.GetUnitBeingMoved() != Player)
                 return;
 
-            GameObject go = GetPlayer().GetGameObjectIfCanInteractWith(packet.Guid);
+            GameObject go = Player.GetGameObjectIfCanInteractWith(packet.Guid);
             if (go)
             {
-                if (go.GetAI().OnGossipHello(GetPlayer()))
+                if (go.GetAI().OnGossipHello(Player))
                     return;
 
-                GetPlayer().UpdateCriteria(CriteriaType.UseGameobject, go.GetEntry());
+                Player.UpdateCriteria(CriteriaType.UseGameobject, go.Entry);
             }
         }
 
@@ -281,8 +281,8 @@ namespace Game
         void HandleCastSpell(CastSpell cast)
         {
             // ignore for remote control state (for player case)
-            Unit mover = GetPlayer().GetUnitBeingMoved();
-            if (mover != GetPlayer() && mover.IsTypeId(TypeId.Player))
+            Unit mover = Player.GetUnitBeingMoved();
+            if (mover != Player && mover.IsTypeId(TypeId.Player))
                 return;
 
             SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(cast.Cast.SpellID, mover.GetMap().GetDifficultyID());
@@ -300,10 +300,10 @@ namespace Game
             {
                 // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
                 // change caster to player and let him cast
-                if (!GetPlayer().IsOnVehicle(caster) || spellInfo.CheckVehicle(GetPlayer()) != SpellCastResult.SpellCastOk)
+                if (!Player.IsOnVehicle(caster) || spellInfo.CheckVehicle(Player) != SpellCastResult.SpellCastOk)
                     return;
 
-                caster = GetPlayer();
+                caster = Player;
             }
 
             TriggerCastFlags triggerFlag = TriggerCastFlags.None;
@@ -338,7 +338,7 @@ namespace Game
             spellInfo = caster.GetCastSpellInfo(spellInfo);
 
             // can't use our own spells when we're in possession of another unit,
-            if (GetPlayer().IsPossessing())
+            if (Player.IsPossessing)
                 return;
 
             // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
@@ -381,8 +381,8 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.CancelCast, Processing = PacketProcessing.ThreadSafe)]
         void HandleCancelCast(CancelCast packet)
         {
-            if (GetPlayer().IsNonMeleeSpellCast(false))
-                GetPlayer().InterruptNonMeleeSpells(false, packet.SpellID, false);
+            if (Player.IsNonMeleeSpellCast(false))
+                Player.InterruptNonMeleeSpells(false, packet.SpellID, false);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelAura, Processing = PacketProcessing.Inplace)]
@@ -399,10 +399,10 @@ namespace Game
             // channeled spell case (it currently casted then)
             if (spellInfo.IsChanneled)
             {
-                Spell curSpell = GetPlayer().GetCurrentSpell(CurrentSpellTypes.Channeled);
+                Spell curSpell = Player.GetCurrentSpell(CurrentSpellTypes.Channeled);
                 if (curSpell != null)
                     if (curSpell.SpellInfo.Id == cancelAura.SpellID)
-                        GetPlayer().InterruptSpell(CurrentSpellTypes.Channeled);
+                        Player.InterruptSpell(CurrentSpellTypes.Channeled);
                 return;
             }
 
@@ -412,13 +412,13 @@ namespace Game
             if (!spellInfo.IsPositive || spellInfo.IsPassive)
                 return;
 
-            GetPlayer().RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
+            Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelGrowthAura, Processing = PacketProcessing.Inplace)]
         void HandleCancelGrowthAura(CancelGrowthAura cancelGrowthAura)
         {
-            GetPlayer().RemoveAurasByType(AuraType.ModScale, aurApp =>
+            Player.RemoveAurasByType(AuraType.ModScale, aurApp =>
             {
                 SpellInfo spellInfo = aurApp.Base.SpellInfo;
                 return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive;
@@ -428,7 +428,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.CancelMountAura, Processing = PacketProcessing.Inplace)]
         void HandleCancelMountAura(CancelMountAura packet)
         {
-            GetPlayer().RemoveAurasByType(AuraType.Mounted, aurApp =>
+            Player.RemoveAurasByType(AuraType.Mounted, aurApp =>
             {
                 SpellInfo spellInfo = aurApp.Base.SpellInfo;
                 return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive;
@@ -447,17 +447,17 @@ namespace Game
             Creature pet = ObjectAccessor.GetCreatureOrPetOrVehicle(_player, packet.PetGUID);
             if (pet == null)
             {
-                Log.outError(LogFilter.Network, "HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), GetPlayer().GetName());
+                Log.outError(LogFilter.Network, "HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), Player.GetName());
                 return;
             }
 
-            if (pet != GetPlayer().GetGuardianPet() && pet != GetPlayer().GetCharmed())
+            if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
             {
-                Log.outError(LogFilter.Network, "HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), GetPlayer().GetName());
+                Log.outError(LogFilter.Network, "HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), Player.GetName());
                 return;
             }
 
-            if (!pet.IsAlive())
+            if (!pet.IsAlive)
             {
                 pet.SendPetActionFeedback(PetActionFeedback.Dead, 0);
                 return;
@@ -470,7 +470,7 @@ namespace Game
         void HandleCancelModSpeedNoControlAuras(CancelModSpeedNoControlAuras cancelModSpeedNoControlAuras)
         {
             Unit mover = _player.GetUnitBeingMoved();
-            if (mover == null || mover.GetGUID() != cancelModSpeedNoControlAuras.TargetGUID)
+            if (mover == null || mover.GUID != cancelModSpeedNoControlAuras.TargetGUID)
                 return;
 
             _player.RemoveAurasByType(AuraType.ModSpeedNoControl, aurApp =>
@@ -515,7 +515,7 @@ namespace Game
         void HandleTotemDestroyed(TotemDestroyed totemDestroyed)
         {
             // ignore for remote control state
-            if (GetPlayer().GetUnitBeingMoved() != GetPlayer())
+            if (Player.GetUnitBeingMoved() != Player)
                 return;
 
             byte slotId = totemDestroyed.Slot;
@@ -524,11 +524,11 @@ namespace Game
             if (slotId >= SharedConst.MaxTotemSlot)
                 return;
 
-            if (GetPlayer().SummonSlot[slotId].IsEmpty())
+            if (Player.SummonSlot[slotId].IsEmpty)
                 return;
 
-            Creature totem = ObjectAccessor.GetCreature(GetPlayer(), _player.SummonSlot[slotId]);
-            if (totem != null && totem.IsTotem())// && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
+            Creature totem = ObjectAccessor.GetCreature(Player, _player.SummonSlot[slotId]);
+            if (totem != null && totem.IsTotem)// && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
                 totem.ToTotem().UnSummon();
         }
 
@@ -554,7 +554,7 @@ namespace Game
         void HandleSpellClick(SpellClick packet)
         {
             // this will get something not in world. crash
-            Creature unit = ObjectAccessor.GetCreatureOrPetOrVehicle(GetPlayer(), packet.SpellClickUnitGuid);
+            Creature unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.SpellClickUnitGuid);
             if (unit == null)
                 return;
 
@@ -562,7 +562,7 @@ namespace Game
             if (!unit.IsInWorld)
                 return;
 
-            unit.HandleSpellClick(GetPlayer());
+            unit.HandleSpellClick(Player);
         }
 
         [WorldPacketHandler(ClientOpcodes.GetMirrorImageData)]
@@ -571,7 +571,7 @@ namespace Game
             ObjectGuid guid = packet.UnitGUID;
 
             // Get unit for which data is needed by client
-            Unit unit = Global.ObjAccessor.GetUnit(GetPlayer(), guid);
+            Unit unit = Global.ObjAccessor.GetUnit(Player, guid);
             if (!unit)
                 return;
 
@@ -588,10 +588,10 @@ namespace Game
             {
                 MirrorImageComponentedData mirrorImageComponentedData = new();
                 mirrorImageComponentedData.UnitGUID = guid;
-                mirrorImageComponentedData.DisplayID = (int)creator.GetDisplayId();
-                mirrorImageComponentedData.RaceID = (byte)creator.GetRace();
-                mirrorImageComponentedData.Gender = (byte)creator.GetGender();
-                mirrorImageComponentedData.ClassID = (byte)creator.GetClass();
+                mirrorImageComponentedData.DisplayID = (int)creator.DisplayId;
+                mirrorImageComponentedData.RaceID = (byte)creator.Race;
+                mirrorImageComponentedData.Gender = (byte)creator.Gender;
+                mirrorImageComponentedData.ClassID = (byte)creator.Class;
 
                 foreach (var customization in player.PlayerData.Customizations)
                 {
@@ -601,7 +601,7 @@ namespace Game
                     mirrorImageComponentedData.Customizations.Add(chrCustomizationChoice);
                 }
 
-                Guild guild = player.GetGuild();
+                Guild guild = player.Guild;
                 mirrorImageComponentedData.GuildGUID = (guild ? guild.GetGUID() : ObjectGuid.Empty);
 
                 byte[] itemSlots =
@@ -638,7 +638,7 @@ namespace Game
             {
                 MirrorImageCreatureData data = new();
                 data.UnitGUID = guid;
-                data.DisplayID = (int)creator.GetDisplayId();
+                data.DisplayID = (int)creator.DisplayId;
                 SendPacket(data);
             }
         }
@@ -671,7 +671,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.UpdateMissileTrajectory)]
         void HandleUpdateMissileTrajectory(UpdateMissileTrajectory packet)
         {
-            Unit caster = Global.ObjAccessor.GetUnit(GetPlayer(), packet.Guid);
+            Unit caster = Global.ObjAccessor.GetUnit(Player, packet.Guid);
             Spell spell = caster ? caster.GetCurrentSpell(CurrentSpellTypes.Generic) : null;
             if (!spell || spell.SpellInfo.Id != packet.SpellID || spell.CastId != packet.CastID || !spell.Targets.HasDst || !spell.Targets.HasSrc)
                 return;
@@ -690,7 +690,7 @@ namespace Game
 
             if (packet.Status != null)
             {
-                GetPlayer().ValidateMovementInfo(packet.Status);
+                Player.ValidateMovementInfo(packet.Status);
                 /*public uint opcode;
                 recvPacket >> opcode;
                 recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to CMSG_MOVE_STOP in client SetOpcode
@@ -701,13 +701,13 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.RequestCategoryCooldowns, Processing = PacketProcessing.Inplace)]
         void HandleRequestCategoryCooldowns(RequestCategoryCooldowns requestCategoryCooldowns)
         {
-            GetPlayer().SendSpellCategoryCooldowns();
+            Player.SendSpellCategoryCooldowns();
         }
 
         [WorldPacketHandler(ClientOpcodes.KeyboundOverride, Processing = PacketProcessing.ThreadSafe)]
         void HandleKeyboundOverride(KeyboundOverride keyboundOverride)
         {
-            Player player = GetPlayer();
+            Player player = Player;
             if (!player.HasAuraTypeWithMiscvalue(AuraType.KeyboundOverride, keyboundOverride.OverrideID))
                 return;
 
@@ -721,20 +721,20 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
         void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
         {
-            GetPlayer().CastStop(packet.SpellID);
+            Player.CastStop(packet.SpellID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
         void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
         {
-            GetPlayer().CastStop(packet.SpellID);
-            GetPlayer().CastSpell(packet.SpellID);
+            Player.CastStop(packet.SpellID);
+            Player.CastSpell(packet.SpellID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]
         void HandleSpellEmpowerMinHoldPct(SpellEmpowerMinHold packet)
         {
-            GetPlayer().EmpoweredSpellMinHoldPct = packet.HoldPct;
+            Player.EmpoweredSpellMinHoldPct = packet.HoldPct;
         }
     }
 }

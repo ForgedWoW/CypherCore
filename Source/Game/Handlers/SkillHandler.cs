@@ -35,7 +35,7 @@ namespace Game
                 SendPacket(learnTalentFailed);
 
             if (anythingLearned)
-                GetPlayer().SendTalentsInfoData();
+                Player.SendTalentsInfoData();
         }
 
         [WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
@@ -67,7 +67,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
         void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
         {
-            Creature unit = GetPlayer().GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
+            Creature unit = Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
             if (unit == null)
             {
                 Log.outDebug(LogFilter.Network, "WORLD: HandleTalentWipeConfirm - {0} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
@@ -84,24 +84,24 @@ namespace Game
                 return;
 
             // remove fake death
-            if (GetPlayer().HasUnitState(UnitState.Died))
-                GetPlayer().RemoveAurasByType(AuraType.FeignDeath);
+            if (Player.HasUnitState(UnitState.Died))
+                Player.RemoveAurasByType(AuraType.FeignDeath);
 
-            if (!GetPlayer().ResetTalents())
+            if (!Player.ResetTalents())
                 return;
 
-            GetPlayer().SendTalentsInfoData();
-            unit.CastSpell(GetPlayer(), 14867, true);                  //spell: "Untalent Visual Effect"
+            Player.SendTalentsInfoData();
+            unit.CastSpell(Player, 14867, true);                  //spell: "Untalent Visual Effect"
         }
 
         [WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
         void HandleUnlearnSkill(UnlearnSkill packet)
         {
-            SkillRaceClassInfoRecord rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, GetPlayer().GetRace(), GetPlayer().GetClass());
+            SkillRaceClassInfoRecord rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, Player.Race, Player.Class);
             if (rcEntry == null || !rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.Unlearnable))
                 return;
 
-            GetPlayer().SetSkill(packet.SkillLine, 0, 0, 0);
+            Player.SetSkill(packet.SkillLine, 0, 0, 0);
         }
 
         [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]

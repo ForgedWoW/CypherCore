@@ -15,6 +15,18 @@ public class SceneObject : WorldObject
 	readonly Position _stationaryPosition = new();
 	ObjectGuid _createdBySpellCast;
 
+	public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
+
+	public override uint Faction => 0;
+
+	public override float StationaryX => _stationaryPosition.X;
+
+	public override float StationaryY => _stationaryPosition.Y;
+
+	public override float StationaryZ => _stationaryPosition.Z;
+
+	public override float StationaryO => _stationaryPosition.Orientation;
+
 	public SceneObject() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.SceneObject;
@@ -31,7 +43,7 @@ public class SceneObject : WorldObject
 	{
 		if (!IsInWorld)
 		{
-			GetMap().GetObjectsStore().Add(GetGUID(), this);
+			GetMap().GetObjectsStore().Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -41,7 +53,7 @@ public class SceneObject : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			GetMap().GetObjectsStore().Remove(GetGUID());
+			GetMap().GetObjectsStore().Remove(GUID);
 		}
 	}
 
@@ -110,36 +122,6 @@ public class SceneObject : WorldObject
 		base.ClearUpdateMask(remove);
 	}
 
-	public override ObjectGuid GetOwnerGUID()
-	{
-		return _sceneObjectData.CreatedBy;
-	}
-
-	public override uint GetFaction()
-	{
-		return 0;
-	}
-
-	public override float GetStationaryX()
-	{
-		return _stationaryPosition.X;
-	}
-
-	public override float GetStationaryY()
-	{
-		return _stationaryPosition.Y;
-	}
-
-	public override float GetStationaryZ()
-	{
-		return _stationaryPosition.Z;
-	}
-
-	public override float GetStationaryO()
-	{
-		return _stationaryPosition.Orientation;
-	}
-
 	public void SetCreatedBySpellCast(ObjectGuid castId)
 	{
 		_createdBySpellCast = castId;
@@ -153,16 +135,16 @@ public class SceneObject : WorldObject
 
 	bool ShouldBeRemoved()
 	{
-		var creator = Global.ObjAccessor.GetUnit(this, GetOwnerGUID());
+		var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
 
 		if (creator == null)
 			return true;
 
-		if (!_createdBySpellCast.IsEmpty())
+		if (!_createdBySpellCast.IsEmpty)
 		{
 			// search for a dummy aura on creator
 
-			var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.GetEntry()).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
+			var linkedAura = creator.GetAuraQuery().HasSpellId(_createdBySpellCast.Entry).HasCastId(_createdBySpellCast).GetResults().FirstOrDefault();
 
 			if (linkedAura == null)
 				return true;
@@ -177,17 +159,17 @@ public class SceneObject : WorldObject
 		Location.Relocate(pos);
 		RelocateStationaryPosition(pos);
 
-		SetPrivateObjectOwner(privateObjectOwner);
+		PrivateObjectOwner = privateObjectOwner;
 
 		Create(ObjectGuid.Create(HighGuid.SceneObject, Location.MapId, sceneId, lowGuid));
 		PhasingHandler.InheritPhaseShift(this, creator);
 
-		SetEntry(scriptPackageId);
-		SetObjectScale(1.0f);
+		Entry = scriptPackageId;
+		ObjectScale = 1.0f;
 
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.ScriptPackageID), (int)scriptPackageId);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), GameTime.GetGameTimeMS());
-		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GetGUID());
+		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 
 		if (!GetMap().AddToMap(this))
@@ -217,7 +199,7 @@ public class SceneObject : WorldObject
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

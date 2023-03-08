@@ -23,7 +23,7 @@ public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || !caster.IsAlive())
+		if (caster == null || !caster.IsAlive)
 			return;
 
 		var amount = MathFunctions.CalculatePct(caster.GetMaxHealth(), aurEff.BaseAmount);

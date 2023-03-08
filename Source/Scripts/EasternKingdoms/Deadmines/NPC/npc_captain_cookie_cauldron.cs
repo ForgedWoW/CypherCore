@@ -14,7 +14,7 @@ public class npc_captain_cookie_cauldron : ScriptedAI
 {
 	public npc_captain_cookie_cauldron(Creature pCreature) : base(pCreature)
 	{
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 		me.SetUnitFlag(UnitFlags.Uninteractible);
 	}
 

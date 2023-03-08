@@ -26,7 +26,7 @@ public class at_demon_hunter_mana_rift : AreaTriggerAI
 		if (spellProto == null)
 			return;
 
-		if (at.IsRemoved())
+		if (at.IsRemoved)
 			if (caster.IsValidAttackTarget(unit))
 			{
 				var hpBp = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);

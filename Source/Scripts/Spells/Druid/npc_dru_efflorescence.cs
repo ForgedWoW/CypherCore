@@ -19,6 +19,6 @@ public class npc_dru_efflorescence : ScriptedAI
 		me.SetUnitFlag(UnitFlags.NonAttackable);
 		me.SetUnitFlag(UnitFlags.Uninteractible);
 		me.SetUnitFlag(UnitFlags.RemoveClientControl);
-		me.SetReactState(ReactStates.Passive);
+		me.ReactState = ReactStates.Passive;
 	}
 }

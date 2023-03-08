@@ -25,9 +25,9 @@ namespace Game
                 {
                     dbReply.Status = HotfixRecord.Status.Valid;
                     dbReply.Timestamp = (uint)GameTime.GetGameTime();
-                    store.WriteRecord(record.RecordID, GetSessionDbcLocale(), dbReply.Data);
+                    store.WriteRecord(record.RecordID, SessionDbcLocale, dbReply.Data);
 
-                    var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, GetSessionDbcLocale());
+                    var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, SessionDbcLocale);
                     foreach (HotfixOptionalData optionalData in optionalDataEntries)
                     {
                         dbReply.Data.WriteUInt32(optionalData.Key);
@@ -70,9 +70,9 @@ namespace Game
                             if (storage != null && storage.HasRecord((uint)hotfixRecord.RecordID))
                             {
                                 var pos = hotfixQueryResponse.HotfixContent.GetSize();
-                                storage.WriteRecord((uint)hotfixRecord.RecordID, GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
+                                storage.WriteRecord((uint)hotfixRecord.RecordID, SessionDbcLocale, hotfixQueryResponse.HotfixContent);
 
-                                var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(hotfixRecord.TableHash, (uint)hotfixRecord.RecordID, GetSessionDbcLocale());
+                                var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(hotfixRecord.TableHash, (uint)hotfixRecord.RecordID, SessionDbcLocale);
                                 if (optionalDataEntries != null)
                                 {
                                     foreach (var optionalData in optionalDataEntries)
@@ -86,7 +86,7 @@ namespace Game
                             }
                             else
                             {
-                                var blobData = Global.DB2Mgr.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale());
+                                var blobData = Global.DB2Mgr.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, SessionDbcLocale);
                                 if (blobData != null)
                                 {
                                     hotfixData.Size = (uint)blobData.Length;

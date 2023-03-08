@@ -92,7 +92,7 @@ internal class boss_moroes : BossAI
 	{
 		Initialize();
 
-		if (me.IsAlive())
+		if (me.IsAlive)
 			SpawnAdds();
 
 		instance.SetBossState(DataTypes.Moroes, EncounterState.NotStarted);
@@ -107,11 +107,11 @@ internal class boss_moroes : BossAI
 							task =>
 							{
 								for (byte i = 0; i < 4; ++i)
-									if (!AddGUID[i].IsEmpty())
+									if (!AddGUID[i].IsEmpty)
 									{
 										var temp = ObjectAccessor.GetCreature(me, AddGUID[i]);
 
-										if (temp && temp.IsAlive())
+										if (temp && temp.IsAlive)
 											if (!temp.GetVictim())
 												temp.GetAI().AttackStart(me.GetVictim());
 									}
@@ -225,7 +225,7 @@ internal class boss_moroes : BossAI
 
 				if (creature)
 				{
-					AddGUID[i] = creature.GetGUID();
+					AddGUID[i] = creature.GUID;
 					AddId[i] = AddList[i];
 				}
 			}
@@ -237,7 +237,7 @@ internal class boss_moroes : BossAI
 				Creature creature = me.SummonCreature(AddId[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
 
 				if (creature)
-					AddGUID[i] = creature.GetGUID();
+					AddGUID[i] = creature.GUID;
 			}
 		}
 	}
@@ -254,7 +254,7 @@ internal class boss_moroes : BossAI
 	private void DeSpawnAdds()
 	{
 		for (byte i = 0; i < 4; ++i)
-			if (!AddGUID[i].IsEmpty())
+			if (!AddGUID[i].IsEmpty)
 			{
 				var temp = ObjectAccessor.GetCreature(me, AddGUID[i]);
 
@@ -266,11 +266,11 @@ internal class boss_moroes : BossAI
 	private void AddsAttack()
 	{
 		for (byte i = 0; i < 4; ++i)
-			if (!AddGUID[i].IsEmpty())
+			if (!AddGUID[i].IsEmpty)
 			{
 				var temp = ObjectAccessor.GetCreature((me), AddGUID[i]);
 
-				if (temp && temp.IsAlive())
+				if (temp && temp.IsAlive)
 				{
 					temp.GetAI().AttackStart(me.GetVictim());
 					DoZoneInCombat(temp);
@@ -307,7 +307,7 @@ internal class boss_moroes_guest : ScriptedAI
 			{
 				var Guid = Moroes.GetAI<boss_moroes>().AddGUID[i];
 
-				if (!Guid.IsEmpty())
+				if (!Guid.IsEmpty)
 					GuestGUID[i] = Guid;
 			}
 	}
@@ -316,11 +316,11 @@ internal class boss_moroes_guest : ScriptedAI
 	{
 		var TempGUID = GuestGUID[RandomHelper.Rand32() % 4];
 
-		if (!TempGUID.IsEmpty())
+		if (!TempGUID.IsEmpty)
 		{
 			var unit = Global.ObjAccessor.GetUnit(me, TempGUID);
 
-			if (unit && unit.IsAlive())
+			if (unit && unit.IsAlive)
 				return unit;
 		}
 

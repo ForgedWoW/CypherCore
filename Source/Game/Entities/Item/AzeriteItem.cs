@@ -40,15 +40,15 @@ public class AzeriteItem : Item
 	public override void SaveToDB(SQLTransaction trans)
 	{
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
-		stmt.AddValue(0, GetGUID().GetCounter());
+		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
 		switch (GetState())
@@ -56,7 +56,7 @@ public class AzeriteItem : Item
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
 				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE);
-				stmt.AddValue(0, GetGUID().GetCounter());
+				stmt.AddValue(0, GUID.Counter);
 				stmt.AddValue(1, AzeriteItemData.Xp);
 				stmt.AddValue(2, AzeriteItemData.Level);
 				stmt.AddValue(3, AzeriteItemData.KnowledgeLevel);
@@ -84,7 +84,7 @@ public class AzeriteItem : Item
 				foreach (var azeriteItemMilestonePowerId in AzeriteItemData.UnlockedEssenceMilestones)
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, azeriteItemMilestonePowerId);
 					trans.Append(stmt);
 				}
@@ -92,7 +92,7 @@ public class AzeriteItem : Item
 				foreach (var azeriteEssence in AzeriteItemData.UnlockedEssences)
 				{
 					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
-					stmt.AddValue(0, GetGUID().GetCounter());
+					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, azeriteEssence.AzeriteEssenceID);
 					stmt.AddValue(2, azeriteEssence.Rank);
 					trans.Append(stmt);
@@ -181,14 +181,14 @@ public class AzeriteItem : Item
 			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
 			stmt.AddValue(0, azeriteData.Xp);
 			stmt.AddValue(1, azeriteData.KnowledgeLevel);
-			stmt.AddValue(2, GetGUID().GetCounter());
+			stmt.AddValue(2, GUID.Counter);
 			DB.Characters.Execute(stmt);
 		}
 	}
 
 	public override void DeleteFromDB(SQLTransaction trans)
 	{
-		DeleteFromDB(trans, GetGUID().GetCounter());
+		DeleteFromDB(trans, GUID.Counter);
 		base.DeleteFromDB(trans);
 	}
 
@@ -272,7 +272,7 @@ public class AzeriteItem : Item
 		}
 
 		PlayerAzeriteItemGains xpGain = new();
-		xpGain.ItemGUID = GetGUID();
+		xpGain.ItemGUID = GUID;
 		xpGain.XP = xp;
 		owner.SendPacket(xpGain);
 	}
@@ -518,7 +518,7 @@ public class AzeriteItem : Item
 
 		WorldPacket buffer1 = new();
 		buffer1.WriteUInt8((byte)UpdateType.Values);
-		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WritePackedGuid(GUID);
 		buffer1.WriteUInt32(buffer.GetSize());
 		buffer1.WriteBytes(buffer.GetData());
 

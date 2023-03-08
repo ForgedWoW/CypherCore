@@ -18,8 +18,8 @@ public class Puppet : Minion
 	{
 		base.InitStats(duration);
 
-		SetLevel(GetOwner().GetLevel());
-		SetReactState(ReactStates.Passive);
+		SetLevel(GetOwner().Level);
+		ReactState = ReactStates.Passive;
 	}
 
 	public override void InitSummon()
@@ -36,7 +36,7 @@ public class Puppet : Minion
 
 		//check if caster is channelling?
 		if (IsInWorld)
-			if (!IsAlive())
+			if (!IsAlive)
 				UnSummon();
 		// @todo why long distance .die does not remove it
 	}

@@ -3,21 +3,19 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+public class UpdateObject : ServerPacket
 {
-    public class UpdateObject : ServerPacket
-    {
-        public UpdateObject() : base(ServerOpcodes.UpdateObject, ConnectionType.Instance) { }
+	public uint NumObjUpdates;
+	public ushort MapID;
+	public byte[] Data;
+	public UpdateObject() : base(ServerOpcodes.UpdateObject, ConnectionType.Instance) { }
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt32(NumObjUpdates);
-            _worldPacket.WriteUInt16(MapID);
-            _worldPacket.WriteBytes(Data);
-        }
-
-        public uint NumObjUpdates;
-        public ushort MapID;
-        public byte[] Data;
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt32(NumObjUpdates);
+		_worldPacket.WriteUInt16(MapID);
+		_worldPacket.WriteBytes(Data);
+	}
 }

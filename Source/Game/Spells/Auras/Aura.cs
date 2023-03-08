@@ -134,7 +134,7 @@ public class Aura
 
 	public Dictionary<int, AuraEffect> AuraEffects => _effects;
 
-	public AuraObjectType AuraObjType => (_owner.GetTypeId() == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.Unit;
+	public AuraObjectType AuraObjType => (_owner.TypeId == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.Unit;
 
 	public bool IsPassive => _spellInfo.IsPassive;
 
@@ -154,7 +154,7 @@ public class Aura
 		_owner = createInfo.Owner;
 		_timeCla = 0;
 		_updateTargetMapInterval = 0;
-		_casterLevel = createInfo.Caster ? createInfo.Caster.GetLevel() : _spellInfo.SpellLevel;
+		_casterLevel = createInfo.Caster ? createInfo.Caster.Level : _spellInfo.SpellLevel;
 		_procCharges = 0;
 		_stackAmount = 1;
 		_isRemoved = false;
@@ -213,7 +213,7 @@ public class Aura
 
 	public Unit GetCaster()
 	{
-		if (_owner.GetGUID() == _casterGuid)
+		if (_owner.GUID == _casterGuid)
 			return UnitOwner;
 
 		return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
@@ -226,14 +226,14 @@ public class Aura
 		// aura mustn't be already applied on target
 		//Cypher.Assert(!IsAppliedOnTarget(target.GetGUID()) && "Aura._ApplyForTarget: aura musn't be already applied on target");
 
-		_auraApplications[target.GetGUID()] = auraApp;
+		_auraApplications[target.GUID] = auraApp;
 
 		// set infinity cooldown state for spells
 		if (caster != null && caster.IsTypeId(TypeId.Player))
 			if (_spellInfo.IsCooldownStartedOnEvent)
 			{
-				var castItem = !_castItemGuid.IsEmpty() ? caster.ToPlayer().GetItemByGuid(_castItemGuid) : null;
-				caster.GetSpellHistory().StartCooldown(_spellInfo, castItem != null ? castItem.GetEntry() : 0, null, true);
+				var castItem = !_castItemGuid.IsEmpty ? caster.ToPlayer().GetItemByGuid(_castItemGuid) : null;
+				caster.GetSpellHistory().StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
 	}
 
@@ -243,15 +243,15 @@ public class Aura
 		Cypher.Assert(auraApp.HasRemoveMode);
 		Cypher.Assert(auraApp != null);
 
-		var app = _auraApplications.LookupByKey(target.GetGUID());
+		var app = _auraApplications.LookupByKey(target.GUID);
 
 		// @todo Figure out why this happens
 		if (app == null)
 		{
 			Log.outError(LogFilter.Spells,
 						"Aura._UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
-						target.GetGUID().ToString(),
-						caster ? caster.GetGUID().ToString() : "",
+						target.						GUID.ToString(),
+						caster ? caster.GUID.ToString() : "",
 						auraApp.Base.SpellInfo.Id);
 
 			Cypher.Assert(false);
@@ -259,7 +259,7 @@ public class Aura
 
 		// aura has to be already applied
 		Cypher.Assert(app == auraApp);
-		_auraApplications.Remove(target.GetGUID());
+		_auraApplications.Remove(target.GUID);
 
 		_removedApplications.Add(auraApp);
 
@@ -344,7 +344,7 @@ public class Aura
 		{
 			var addUnit = true;
 			// check target immunities
-			var aurApp = GetApplicationOfTarget(unit.GetGUID());
+			var aurApp = GetApplicationOfTarget(unit.GUID);
 
 			if (aurApp == null)
 			{
@@ -361,7 +361,7 @@ public class Aura
 				addUnit = false;
 
 			// Dynobj auras don't hit flying targets
-			if (AuraObjType == AuraObjectType.DynObj && unit.IsInFlight())
+			if (AuraObjType == AuraObjectType.DynObj && unit.IsInFlight)
 				addUnit = false;
 
 			// Do not apply aura if it cannot stack with existing auras
@@ -414,7 +414,7 @@ public class Aura
 		// remove auras from units no longer needing them
 		foreach (var unit in targetsToRemove)
 		{
-			var aurApp = GetApplicationOfTarget(unit.GetGUID());
+			var aurApp = GetApplicationOfTarget(unit.GUID);
 
 			if (aurApp != null)
 				unit._UnapplyAura(aurApp, AuraRemoveMode.Default);
@@ -426,7 +426,7 @@ public class Aura
 		// apply aura effects for units
 		foreach (var pair in targets)
 		{
-			var aurApp = GetApplicationOfTarget(pair.Key.GetGUID());
+			var aurApp = GetApplicationOfTarget(pair.Key.GUID);
 
 			if (aurApp != null)
 			{
@@ -449,7 +449,7 @@ public class Aura
 
 		// apply effect to targets
 		foreach (var unit in targetList)
-			if (GetApplicationOfTarget(unit.GetGUID()) != null)
+			if (GetApplicationOfTarget(unit.GUID) != null)
 			{
 				// owner has to be in world, or effect has to be applied to self
 				Cypher.Assert((!Owner.IsInWorld && Owner == unit) || Owner.IsInMap(unit));
@@ -763,7 +763,7 @@ public class Aura
 
 	public bool IsRemovedOnShapeLost(Unit target)
 	{
-		return CasterGuid == target.GetGUID() && _spellInfo.Stances != 0 && !_spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm) && !_spellInfo.HasAttribute(SpellAttr0.NotShapeshifted);
+		return CasterGuid == target.GUID && _spellInfo.Stances != 0 && !_spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm) && !_spellInfo.HasAttribute(SpellAttr0.NotShapeshifted);
 	}
 
 	public bool CanBeSaved()
@@ -775,7 +775,7 @@ public class Aura
 			return false;
 
 		// Check if aura is single target, not only spell info
-		if (CasterGuid != Owner.GetGUID())
+		if (CasterGuid != Owner.GUID)
 		{
 			// owner == caster for area auras, check for possible bad data in DB
 			foreach (var spellEffectInfo in SpellInfo.Effects)
@@ -799,7 +799,7 @@ public class Aura
 			return false;
 
 		// don't save permanent auras triggered by items, they'll be recasted on login if necessary
-		if (!CastItemGuid.IsEmpty() && IsPermanent)
+		if (!CastItemGuid.IsEmpty && IsPermanent)
 			return false;
 
 		return true;
@@ -1143,7 +1143,7 @@ public class Aura
 				case SpellFamilyNames.Rogue:
 					// Remove Vanish on stealth remove
 					if (Id == 1784)
-						target.RemoveAurasWithFamily(SpellFamilyNames.Rogue, new FlagArray128(0x0000800, 0, 0), target.GetGUID());
+						target.RemoveAurasWithFamily(SpellFamilyNames.Rogue, new FlagArray128(0x0000800, 0, 0), target.GUID);
 
 					break;
 			}
@@ -1181,7 +1181,7 @@ public class Aura
 						// If remove Concentration Aura . trigger . remove Aura Mastery Immunity
 						// If remove Aura Mastery . trigger . remove Aura Mastery Immunity
 						// Do effects only on aura owner
-						if (CasterGuid != target.GetGUID())
+						if (CasterGuid != target.GUID)
 							break;
 
 						if (apply)
@@ -1253,7 +1253,7 @@ public class Aura
 		}
 
 		// passive auras don't stack with another rank of the spell cast by same caster
-		if (IsPassive && sameCaster && (_spellInfo.IsDifferentRankOf(existingSpellInfo) || (_spellInfo.Id == existingSpellInfo.Id && _castItemGuid.IsEmpty())))
+		if (IsPassive && sameCaster && (_spellInfo.IsDifferentRankOf(existingSpellInfo) || (_spellInfo.Id == existingSpellInfo.Id && _castItemGuid.IsEmpty)))
 			return false;
 
 		foreach (var spellEffectInfo in existingSpellInfo.Effects)
@@ -1362,7 +1362,7 @@ public class Aura
 			if (_spellInfo.IsMultiSlotAura && !IsArea())
 				return true;
 
-			if (!CastItemGuid.IsEmpty() && !existingAura.CastItemGuid.IsEmpty())
+			if (!CastItemGuid.IsEmpty && !existingAura.CastItemGuid.IsEmpty)
 				if (CastItemGuid != existingAura.CastItemGuid && _spellInfo.HasAttribute(SpellCustomAttributes.EnchantProc))
 					return true;
 
@@ -1536,14 +1536,14 @@ public class Aura
 		// @todo this needs to be unified for all kinds of auras
 		var target = aurApp.Target;
 
-		if (IsPassive && target.IsPlayer() && SpellInfo.EquippedItemClass != ItemClass.None)
+		if (IsPassive && target.IsPlayer && SpellInfo.EquippedItemClass != ItemClass.None)
 			if (!SpellInfo.HasAttribute(SpellAttr3.NoProcEquipRequirement))
 			{
 				Item item = null;
 
 				if (SpellInfo.EquippedItemClass == ItemClass.Weapon)
 				{
-					if (target.ToPlayer().IsInFeralForm())
+					if (target.ToPlayer().IsInFeralForm)
 						return 0;
 
 					var damageInfo = eventInfo.DamageInfo;
@@ -1571,11 +1571,11 @@ public class Aura
 				return 0;
 
 		if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOnCaster))
-			if (target.GetGUID() != CasterGuid)
+			if (target.GUID != CasterGuid)
 				return 0;
 
 		if (!_spellInfo.HasAttribute(SpellAttr4.AllowProcWhileSitting))
-			if (!target.IsStandState())
+			if (!target.IsStandState)
 				return 0;
 
 		var success = RandomHelper.randChance(CalcProcChance(procEntry, eventInfo));
@@ -1797,7 +1797,7 @@ public class Aura
 		Cypher.Assert(owner != null);
 		uint effMask = 0;
 
-		switch (owner.GetTypeId())
+		switch (owner.TypeId)
 		{
 			case TypeId.Unit:
 			case TypeId.Player:
@@ -1821,7 +1821,7 @@ public class Aura
 
 	public static Aura TryRefreshStackOrCreate(AuraCreateInfo createInfo, bool updateEffectMask = true)
 	{
-		Cypher.Assert(createInfo.Caster != null || !createInfo.CasterGuid.IsEmpty());
+		Cypher.Assert(createInfo.Caster != null || !createInfo.CasterGuid.IsEmpty);
 
 		createInfo.IsRefresh = false;
 
@@ -1853,7 +1853,7 @@ public class Aura
 			// check effmask on owner application (if existing)
 			if (updateEffectMask)
 			{
-				var aurApp = foundAura.GetApplicationOfTarget(unit.GetGUID());
+				var aurApp = foundAura.GetApplicationOfTarget(unit.GUID);
 
 				if (aurApp != null)
 					aurApp.UpdateApplyEffectMask(effMask, false);
@@ -1885,11 +1885,11 @@ public class Aura
 	public static Aura Create(AuraCreateInfo createInfo)
 	{
 		// try to get caster of aura
-		if (!createInfo.CasterGuid.IsEmpty())
+		if (!createInfo.CasterGuid.IsEmpty)
 		{
-			if (createInfo.CasterGuid.IsUnit())
+			if (createInfo.CasterGuid.IsUnit)
 			{
-				if (createInfo.Owner.GetGUID() == createInfo.CasterGuid)
+				if (createInfo.Owner.GUID == createInfo.CasterGuid)
 					createInfo.Caster = createInfo.Owner.ToUnit();
 				else
 					createInfo.Caster = Global.ObjAccessor.GetUnit(createInfo.Owner, createInfo.CasterGuid);
@@ -1897,19 +1897,19 @@ public class Aura
 		}
 		else if (createInfo.Caster != null)
 		{
-			createInfo.CasterGuid = createInfo.Caster.GetGUID();
+			createInfo.CasterGuid = createInfo.Caster.GUID;
 		}
 
 		// check if aura can be owned by owner
 		if (createInfo.GetOwner().IsTypeMask(TypeMask.Unit))
-			if (!createInfo.GetOwner().IsInWorld || createInfo.GetOwner().ToUnit().IsDuringRemoveFromWorld())
+			if (!createInfo.GetOwner().IsInWorld || createInfo.GetOwner().ToUnit().IsDuringRemoveFromWorld)
 				// owner not in world so don't allow to own not self casted single target auras
-				if (createInfo.CasterGuid != createInfo.GetOwner().GetGUID() && createInfo.GetSpellInfo().IsSingleTarget())
+				if (createInfo.CasterGuid != createInfo.GetOwner().GUID && createInfo.GetSpellInfo().IsSingleTarget())
 					return null;
 
 		Aura aura;
 
-		switch (createInfo.GetOwner().GetTypeId())
+		switch (createInfo.GetOwner().TypeId)
 		{
 			case TypeId.Unit:
 			case TypeId.Player:
@@ -1954,7 +1954,7 @@ public class Aura
 
 	WorldObject GetWorldObjectCaster()
 	{
-		if (CasterGuid.IsUnit())
+		if (CasterGuid.IsUnit)
 			return GetCaster();
 
 		return Global.ObjAccessor.GetWorldObject(Owner, CasterGuid);
@@ -2055,14 +2055,14 @@ public class Aura
 				return false;
 
 		// unit not in world or during remove from world
-		if (!target.IsInWorld || target.IsDuringRemoveFromWorld())
+		if (!target.IsInWorld || target.IsDuringRemoveFromWorld)
 		{
 			// area auras mustn't be applied
 			if (Owner != target)
 				return false;
 
 			// not selfcasted single target auras mustn't be applied
-			if (CasterGuid != Owner.GetGUID() && SpellInfo.IsSingleTarget())
+			if (CasterGuid != Owner.GUID && SpellInfo.IsSingleTarget())
 				return false;
 
 			return true;
@@ -2105,8 +2105,8 @@ public class Aura
 		}
 
 		// proc chance is reduced by an additional 3.333% per level past 60
-		if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReduceProc60) && eventInfo.Actor.GetLevel() > 60)
-			chance = Math.Max(0.0f, (1.0f - ((eventInfo.Actor.GetLevel() - 60) * 1.0f / 30.0f)) * chance);
+		if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReduceProc60) && eventInfo.Actor.Level > 60)
+			chance = Math.Max(0.0f, (1.0f - ((eventInfo.Actor.Level - 60) * 1.0f / 30.0f)) * chance);
 
 		return chance;
 	}

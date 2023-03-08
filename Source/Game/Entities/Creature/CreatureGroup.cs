@@ -22,17 +22,17 @@ public class CreatureGroup
 
 	public void AddMember(Creature member)
 	{
-		Log.outDebug(LogFilter.Unit, "CreatureGroup.AddMember: Adding {0}.", member.GetGUID().ToString());
+		Log.outDebug(LogFilter.Unit, "CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
 
 		//Check if it is a leader
-		if (member.GetSpawnId() == _leaderSpawnId)
+		if (member.SpawnId == _leaderSpawnId)
 		{
-			Log.outDebug(LogFilter.Unit, "{0} is formation leader. Adding group.", member.GetGUID().ToString());
+			Log.outDebug(LogFilter.Unit, "{0} is formation leader. Adding group.", member.GUID.ToString());
 			_leader = member;
 		}
 
 		// formation must be registered at this point
-		var formationInfo = FormationMgr.GetFormationInfo(member.GetSpawnId());
+		var formationInfo = FormationMgr.GetFormationInfo(member.SpawnId);
 		_members.Add(member, formationInfo);
 		member.SetFormation(this);
 	}
@@ -52,7 +52,7 @@ public class CreatureGroup
 		if (_engaging)
 			return;
 
-		var groupAI = (GroupAIFlags)FormationMgr.GetFormationInfo(member.GetSpawnId()).GroupAi;
+		var groupAI = (GroupAIFlags)FormationMgr.GetFormationInfo(member.SpawnId).GroupAi;
 
 		if (groupAI == 0)
 			return;
@@ -77,7 +77,7 @@ public class CreatureGroup
 			if (other == member)
 				continue;
 
-			if (!other.IsAlive())
+			if (!other.IsAlive)
 				continue;
 
 			if (((other != _leader && groupAI.HasFlag(GroupAIFlags.MembersAssistLeader)) || (other == _leader && groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))) && other.IsValidAttackTarget(target))
@@ -90,8 +90,8 @@ public class CreatureGroup
 	public void FormationReset(bool dismiss)
 	{
 		foreach (var creature in _members.Keys)
-			if (creature != _leader && creature.IsAlive())
-				creature.GetMotionMaster().MoveIdle();
+			if (creature != _leader && creature.IsAlive)
+				creature.MotionMaster.MoveIdle();
 
 		//_formed = !dismiss;
 	}
@@ -105,22 +105,22 @@ public class CreatureGroup
 		{
 			var member = pair.Key;
 
-			if (member == _leader || !member.IsAlive() || member.IsEngaged() || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
+			if (member == _leader || !member.IsAlive || member.IsEngaged || !pair.Value.GroupAi.HasAnyFlag((uint)GroupAIFlags.IdleInFormation))
 				continue;
 
 			var angle = pair.Value.FollowAngle + MathF.PI; // for some reason, someone thought it was a great idea to invert relativ angles...
 			var dist = pair.Value.FollowDist;
 
 			if (!member.HasUnitState(UnitState.FollowFormation))
-				member.GetMotionMaster().MoveFormation(_leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
+				member.MotionMaster.MoveFormation(_leader, dist, angle, pair.Value.LeaderWaypointIDs[0], pair.Value.LeaderWaypointIDs[1]);
 		}
 	}
 
 	public bool CanLeaderStartMoving()
 	{
 		foreach (var pair in _members)
-			if (pair.Key != _leader && pair.Key.IsAlive())
-				if (pair.Key.IsEngaged() || pair.Key.IsReturningHome())
+			if (pair.Key != _leader && pair.Key.IsAlive)
+				if (pair.Key.IsEngaged || pair.Key.IsReturningHome)
 					return false;
 
 		return true;

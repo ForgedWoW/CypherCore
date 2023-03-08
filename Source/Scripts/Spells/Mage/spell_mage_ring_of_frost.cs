@@ -50,7 +50,7 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 				if (summon.GetTimer() > ringOfFrost.GetTimer())
 				{
 					ringOfFrost.DespawnOrUnsummon();
-					_ringOfFrostGUID = summon.GetGUID();
+					_ringOfFrostGUID = summon.GUID;
 				}
 				else
 				{
@@ -59,7 +59,7 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 			}
 			else
 			{
-				_ringOfFrostGUID = summon.GetGUID();
+				_ringOfFrostGUID = summon.GUID;
 			}
 		}
 	}

@@ -26,7 +26,7 @@ internal class spell_gen_replenishment : SpellScript, IHasSpellEffects
 		var caster = Caster.ToPlayer();
 
 		if (caster)
-			if (caster.InArena())
+			if (caster.InArena)
 			{
 				targets.Clear();
 				targets.Add(caster);

@@ -4,58 +4,54 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+class TotemDestroyed : ClientPacket
 {
-    class TotemDestroyed : ClientPacket
-    {
-        public TotemDestroyed(WorldPacket packet) : base(packet) { }
+	public ObjectGuid TotemGUID;
+	public byte Slot;
+	public TotemDestroyed(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Slot = _worldPacket.ReadUInt8();
-            TotemGUID = _worldPacket.ReadPackedGuid();
-        }
+	public override void Read()
+	{
+		Slot = _worldPacket.ReadUInt8();
+		TotemGUID = _worldPacket.ReadPackedGuid();
+	}
+}
 
-        public ObjectGuid TotemGUID;
-        public byte Slot;
-    }
+class TotemCreated : ServerPacket
+{
+	public ObjectGuid Totem;
+	public uint SpellID;
+	public uint Duration;
+	public byte Slot;
+	public float TimeMod = 1.0f;
+	public bool CannotDismiss;
+	public TotemCreated() : base(ServerOpcodes.TotemCreated) { }
 
-    class TotemCreated : ServerPacket
-    {
-        public TotemCreated() : base(ServerOpcodes.TotemCreated) { }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt8(Slot);
+		_worldPacket.WritePackedGuid(Totem);
+		_worldPacket.WriteUInt32(Duration);
+		_worldPacket.WriteUInt32(SpellID);
+		_worldPacket.WriteFloat(TimeMod);
+		_worldPacket.WriteBit(CannotDismiss);
+		_worldPacket.FlushBits();
+	}
+}
 
-        public override void Write()
-        {
-            _worldPacket.WriteUInt8(Slot);
-            _worldPacket.WritePackedGuid(Totem);
-            _worldPacket.WriteUInt32(Duration);
-            _worldPacket.WriteUInt32(SpellID);
-            _worldPacket.WriteFloat(TimeMod);
-            _worldPacket.WriteBit(CannotDismiss);
-            _worldPacket.FlushBits();
-        }
+class TotemMoved : ServerPacket
+{
+	public ObjectGuid Totem;
+	public byte Slot;
+	public byte NewSlot;
+	public TotemMoved() : base(ServerOpcodes.TotemMoved) { }
 
-        public ObjectGuid Totem;
-        public uint SpellID;
-        public uint Duration;
-        public byte Slot;
-        public float TimeMod = 1.0f;
-        public bool CannotDismiss;
-    }
-
-    class TotemMoved : ServerPacket
-    {
-        public TotemMoved() : base(ServerOpcodes.TotemMoved) { }
-
-        public override void Write()
-        {
-            _worldPacket.WriteUInt8(Slot);
-            _worldPacket.WriteUInt8(NewSlot);
-            _worldPacket.WritePackedGuid(Totem);
-        }
-
-        public ObjectGuid Totem;
-        public byte Slot;
-        public byte NewSlot;
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteUInt8(Slot);
+		_worldPacket.WriteUInt8(NewSlot);
+		_worldPacket.WritePackedGuid(Totem);
+	}
 }

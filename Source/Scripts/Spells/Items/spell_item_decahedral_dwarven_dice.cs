@@ -26,7 +26,7 @@ internal class spell_item_decahedral_dwarven_dice : SpellScript, IHasSpellEffect
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Player;
+		return Caster.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

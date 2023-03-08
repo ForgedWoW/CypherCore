@@ -599,14 +599,14 @@ namespace Framework.Constants
         Max
     }
 
-    public struct TeamId
+    public struct TeamIds
     {
         public const int Alliance = 0;
         public const int Horde = 1;
         public const int Neutral = 2;
     }
 
-    public enum Team
+    public enum TeamFaction
     {
         Horde = 67,
         Alliance = 469,

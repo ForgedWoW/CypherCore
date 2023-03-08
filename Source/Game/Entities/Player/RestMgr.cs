@@ -27,7 +27,7 @@ public class RestMgr
 		{
 			case RestTypes.XP:
 				// Reset restBonus (XP only) for max level players
-				if (_player.GetLevel() >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+				if (_player.Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 					restBonus = 0;
 
 				nextLevelXp = _player.ActivePlayerData.NextLevelXP;
@@ -60,7 +60,7 @@ public class RestMgr
 		var oldRestState = (PlayerRestState)(int)_player.ActivePlayerData.RestInfo[(int)restType].StateID;
 		var newRestState = PlayerRestState.Normal;
 
-		if (affectedByRaF && _player.GetsRecruitAFriendBonus(true) && (_player.GetSession().IsARecruiter() || _player.GetSession().GetRecruiterId() != 0))
+		if (affectedByRaF && _player.GetsRecruitAFriendBonus(true) && (_player.Session.IsARecruiter || _player.Session.RecruiterId != 0))
 			newRestState = PlayerRestState.RAFLinked;
 		else if (_restBonus[(int)restType] >= 1)
 			newRestState = PlayerRestState.Rested;
@@ -76,7 +76,7 @@ public class RestMgr
 	public void AddRestBonus(RestTypes restType, double restBonus)
 	{
 		// Don't add extra rest bonus to max level players. Note: Might need different condition in next expansion for honor XP (PLAYER_LEVEL_MIN_HONOR perhaps).
-		if (_player.GetLevel() >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if (_player.Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 			restBonus = 0;
 
 		var totalRestBonus = GetRestBonus(restType) + restBonus;
@@ -126,7 +126,7 @@ public class RestMgr
 
 		Log.outDebug(LogFilter.Player,
 					"RestMgr.GetRestBonus: Player '{0}' ({1}) gain {2} xp (+{3} Rested Bonus). Rested points={4}",
-					_player.GetGUID().ToString(),
+					_player.GUID.ToString(),
 					_player.GetName(),
 					xp + rested_bonus,
 					rested_bonus,

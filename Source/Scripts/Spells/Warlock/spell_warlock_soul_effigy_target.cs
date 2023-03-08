@@ -66,6 +66,6 @@ public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
 		if (caster == null || target == null)
 			return;
 
-		caster.VariableStorage.Set("Spells.SoulEffigyTargetGuid", target.GetGUID());
+		caster.VariableStorage.Set("Spells.SoulEffigyTargetGuid", target.GUID);
 	}
 }

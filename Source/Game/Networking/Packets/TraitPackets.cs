@@ -6,251 +6,260 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Networking.Packets
+namespace Game.Networking.Packets;
+
+class TraitsCommitConfig : ClientPacket
 {
-    class TraitsCommitConfig : ClientPacket
-    {
-        public TraitConfigPacket Config = new();
-        public int SavedConfigID;
-        public int SavedLocalIdentifier;
+	public TraitConfigPacket Config = new();
+	public int SavedConfigID;
+	public int SavedLocalIdentifier;
 
-        public TraitsCommitConfig(WorldPacket packet) : base(packet) { }
+	public TraitsCommitConfig(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Config.Read(_worldPacket);
-            SavedConfigID = _worldPacket.ReadInt32();
-            SavedLocalIdentifier = _worldPacket.ReadInt32();
-        }
-    }
+	public override void Read()
+	{
+		Config.Read(_worldPacket);
+		SavedConfigID = _worldPacket.ReadInt32();
+		SavedLocalIdentifier = _worldPacket.ReadInt32();
+	}
+}
 
-    class TraitConfigCommitFailed : ServerPacket
-    {
-        public int ConfigID;
-        public uint SpellID;
-        public int Reason;
+class TraitConfigCommitFailed : ServerPacket
+{
+	public int ConfigID;
+	public uint SpellID;
+	public int Reason;
 
-        public TraitConfigCommitFailed(int configId = 0, uint spellId = 0, int reason = 0) : base(ServerOpcodes.TraitConfigCommitFailed)
-        {
-            ConfigID = configId;
-            SpellID = spellId;
-            Reason = reason;
-        }
+	public TraitConfigCommitFailed(int configId = 0, uint spellId = 0, int reason = 0) : base(ServerOpcodes.TraitConfigCommitFailed)
+	{
+		ConfigID = configId;
+		SpellID = spellId;
+		Reason = reason;
+	}
 
-        public override void Write()
-        {
-            _worldPacket.WriteInt32(ConfigID);
-            _worldPacket.WriteUInt32(SpellID);
-            _worldPacket.WriteBits(Reason, 4);
-            _worldPacket.FlushBits();
-        }
-    }
+	public override void Write()
+	{
+		_worldPacket.WriteInt32(ConfigID);
+		_worldPacket.WriteUInt32(SpellID);
+		_worldPacket.WriteBits(Reason, 4);
+		_worldPacket.FlushBits();
+	}
+}
 
-    class ClassTalentsRequestNewConfig : ClientPacket
-    {
-        public TraitConfigPacket Config = new();
+class ClassTalentsRequestNewConfig : ClientPacket
+{
+	public TraitConfigPacket Config = new();
 
-        public ClassTalentsRequestNewConfig(WorldPacket packet) : base(packet) { }
+	public ClassTalentsRequestNewConfig(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            Config.Read(_worldPacket);
-        }
-    }
+	public override void Read()
+	{
+		Config.Read(_worldPacket);
+	}
+}
 
-    class ClassTalentsRenameConfig : ClientPacket
-    {
-        public int ConfigID;
-        public string Name;
+class ClassTalentsRenameConfig : ClientPacket
+{
+	public int ConfigID;
+	public string Name;
 
-        public ClassTalentsRenameConfig(WorldPacket packet) : base(packet) { }
+	public ClassTalentsRenameConfig(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ConfigID = _worldPacket.ReadInt32();
-            uint nameLength = _worldPacket.ReadBits<uint>(9);
-            Name = _worldPacket.ReadString(nameLength);
-        }
-    }
+	public override void Read()
+	{
+		ConfigID = _worldPacket.ReadInt32();
+		var nameLength = _worldPacket.ReadBits<uint>(9);
+		Name = _worldPacket.ReadString(nameLength);
+	}
+}
 
-    class ClassTalentsDeleteConfig : ClientPacket
-    {
-        public int ConfigID;
+class ClassTalentsDeleteConfig : ClientPacket
+{
+	public int ConfigID;
 
-        public ClassTalentsDeleteConfig(WorldPacket packet) : base(packet) { }
+	public ClassTalentsDeleteConfig(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ConfigID = _worldPacket.ReadInt32();
-        }
-    }
+	public override void Read()
+	{
+		ConfigID = _worldPacket.ReadInt32();
+	}
+}
 
-    class ClassTalentsSetStarterBuildActive : ClientPacket
-    {
-        public int ConfigID;
-        public bool Active;
+class ClassTalentsSetStarterBuildActive : ClientPacket
+{
+	public int ConfigID;
+	public bool Active;
 
-        public ClassTalentsSetStarterBuildActive(WorldPacket packet) : base(packet) { }
+	public ClassTalentsSetStarterBuildActive(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ConfigID = _worldPacket.ReadInt32();
-            Active = _worldPacket.HasBit();
-        }
-    }
+	public override void Read()
+	{
+		ConfigID = _worldPacket.ReadInt32();
+		Active = _worldPacket.HasBit();
+	}
+}
 
-    class ClassTalentsSetUsesSharedActionBars : ClientPacket
-    {
-        public int ConfigID;
-        public bool UsesShared;
-        public bool IsLastSelectedSavedConfig;
+class ClassTalentsSetUsesSharedActionBars : ClientPacket
+{
+	public int ConfigID;
+	public bool UsesShared;
+	public bool IsLastSelectedSavedConfig;
 
-        public ClassTalentsSetUsesSharedActionBars(WorldPacket packet) : base(packet) { }
+	public ClassTalentsSetUsesSharedActionBars(WorldPacket packet) : base(packet) { }
 
-        public override void Read()
-        {
-            ConfigID = _worldPacket.ReadInt32();
-            UsesShared = _worldPacket.HasBit();
-            IsLastSelectedSavedConfig = _worldPacket.HasBit();
-        }
-    }
+	public override void Read()
+	{
+		ConfigID = _worldPacket.ReadInt32();
+		UsesShared = _worldPacket.HasBit();
+		IsLastSelectedSavedConfig = _worldPacket.HasBit();
+	}
+}
 
-    public class TraitEntryPacket
-    {
-        public int TraitNodeID;
-        public int TraitNodeEntryID;
-        public int Rank;
-        public int GrantedRanks;
+public class TraitEntryPacket
+{
+	public int TraitNodeID;
+	public int TraitNodeEntryID;
+	public int Rank;
+	public int GrantedRanks;
 
-        public TraitEntryPacket() { }
-        public TraitEntryPacket(TraitEntry ufEntry)
-        {
-            TraitNodeID = ufEntry.TraitNodeID;
-            TraitNodeEntryID = ufEntry.TraitNodeEntryID;
-            Rank = ufEntry.Rank;
-            GrantedRanks = ufEntry.GrantedRanks;
-        }
+	public TraitEntryPacket() { }
 
-        public void Read(WorldPacket data)
-        {
-            TraitNodeID = data.ReadInt32();
-            TraitNodeEntryID = data.ReadInt32();
-            Rank = data.ReadInt32();
-            GrantedRanks = data.ReadInt32();
-        }
+	public TraitEntryPacket(TraitEntry ufEntry)
+	{
+		TraitNodeID = ufEntry.TraitNodeID;
+		TraitNodeEntryID = ufEntry.TraitNodeEntryID;
+		Rank = ufEntry.Rank;
+		GrantedRanks = ufEntry.GrantedRanks;
+	}
 
-        public void Write(WorldPacket data)
-        {
-            data.WriteInt32(TraitNodeID);
-            data.WriteInt32(TraitNodeEntryID);
-            data.WriteInt32(Rank);
-            data.WriteInt32(GrantedRanks);
-        }
-    }
+	public void Read(WorldPacket data)
+	{
+		TraitNodeID = data.ReadInt32();
+		TraitNodeEntryID = data.ReadInt32();
+		Rank = data.ReadInt32();
+		GrantedRanks = data.ReadInt32();
+	}
 
-    public class TraitConfigPacket
-    {
-        public int ID;
-        public TraitConfigType Type;
-        public int ChrSpecializationID = 0;
-        public TraitCombatConfigFlags CombatConfigFlags;
-        public int LocalIdentifier;  // Local to specialization
-        public uint SkillLineID;
-        public int TraitSystemID;
-        public Dictionary<int, Dictionary<int, TraitEntryPacket>> Entries = new();
-        public string Name = "";
+	public void Write(WorldPacket data)
+	{
+		data.WriteInt32(TraitNodeID);
+		data.WriteInt32(TraitNodeEntryID);
+		data.WriteInt32(Rank);
+		data.WriteInt32(GrantedRanks);
+	}
+}
 
-        public TraitConfigPacket() { }
-        public TraitConfigPacket(TraitConfig ufConfig)
-        {
-            ID = ufConfig.ID;
-            Type = (TraitConfigType)(int)ufConfig.Type;
-            ChrSpecializationID = ufConfig.ChrSpecializationID;
-            CombatConfigFlags = (TraitCombatConfigFlags)(int)ufConfig.CombatConfigFlags;
-            LocalIdentifier = ufConfig.LocalIdentifier;
-            SkillLineID = (uint)(int)ufConfig.SkillLineID;
-            TraitSystemID = ufConfig.TraitSystemID;
+public class TraitConfigPacket
+{
+	public int ID;
+	public TraitConfigType Type;
+	public int ChrSpecializationID = 0;
+	public TraitCombatConfigFlags CombatConfigFlags;
+	public int LocalIdentifier; // Local to specialization
+	public uint SkillLineID;
+	public int TraitSystemID;
+	public Dictionary<int, Dictionary<int, TraitEntryPacket>> Entries = new();
+	public string Name = "";
 
-            foreach (TraitEntry ufEntry in ufConfig.Entries)
-                AddEntry(new TraitEntryPacket(ufEntry));
+	public TraitConfigPacket() { }
 
-            Name = ufConfig.Name;
-        }
+	public TraitConfigPacket(TraitConfig ufConfig)
+	{
+		ID = ufConfig.ID;
+		Type = (TraitConfigType)(int)ufConfig.Type;
+		ChrSpecializationID = ufConfig.ChrSpecializationID;
+		CombatConfigFlags = (TraitCombatConfigFlags)(int)ufConfig.CombatConfigFlags;
+		LocalIdentifier = ufConfig.LocalIdentifier;
+		SkillLineID = (uint)(int)ufConfig.SkillLineID;
+		TraitSystemID = ufConfig.TraitSystemID;
 
-        public void AddEntry(TraitEntryPacket packet)
-        {
-            if (!Entries.TryGetValue(packet.TraitNodeID, out var innerDict))
-            {
-                innerDict = new Dictionary<int, TraitEntryPacket>();
-                Entries[packet.TraitNodeID] = innerDict;
-            }
+		foreach (var ufEntry in ufConfig.Entries)
+			AddEntry(new TraitEntryPacket(ufEntry));
 
-            innerDict[packet.TraitNodeEntryID] = packet;
-        }
-        
-        public void Read(WorldPacket data)
-        {
-            ID = data.ReadInt32();
-            Type = (TraitConfigType)data.ReadInt32();
-            var entriesCount = data.ReadUInt32();
-            switch (Type)
-            {
-                case TraitConfigType.Combat:
-                    ChrSpecializationID = data.ReadInt32();
-                    CombatConfigFlags = (TraitCombatConfigFlags)data.ReadInt32();
-                    LocalIdentifier = data.ReadInt32();
-                    break;
-                case TraitConfigType.Profession:
-                    SkillLineID = data.ReadUInt32();
-                    break;
-                case TraitConfigType.Generic:
-                    TraitSystemID = data.ReadInt32();
-                    break;
-                default:
-                    break;
-            }
+		Name = ufConfig.Name;
+	}
 
-            for (var i = 0; i < entriesCount; ++i)
-            {
-                TraitEntryPacket traitEntry = new();
-                traitEntry.Read(data);
-                AddEntry(traitEntry);
-            }
+	public void AddEntry(TraitEntryPacket packet)
+	{
+		if (!Entries.TryGetValue(packet.TraitNodeID, out var innerDict))
+		{
+			innerDict = new Dictionary<int, TraitEntryPacket>();
+			Entries[packet.TraitNodeID] = innerDict;
+		}
 
-            uint nameLength = data.ReadBits<uint>(9);
-            Name = data.ReadString(nameLength);
-        }
+		innerDict[packet.TraitNodeEntryID] = packet;
+	}
 
-        public void Write(WorldPacket data)
-        {
-            data.WriteInt32(ID);
-            data.WriteInt32((int)Type);
-            data.WriteInt32(Entries.Count);
-            switch (Type)
-            {
-                case TraitConfigType.Combat:
-                    data.WriteInt32(ChrSpecializationID);
-                    data.WriteInt32((int)CombatConfigFlags);
-                    data.WriteInt32(LocalIdentifier);
-                    break;
-                case TraitConfigType.Profession:
-                    data.WriteUInt32(SkillLineID);
-                    break;
-                case TraitConfigType.Generic:
-                    data.WriteInt32(TraitSystemID);
-                    break;
-                default:
-                    break;
-            }
+	public void Read(WorldPacket data)
+	{
+		ID = data.ReadInt32();
+		Type = (TraitConfigType)data.ReadInt32();
+		var entriesCount = data.ReadUInt32();
 
-            foreach (var tkvp in Entries)
-                foreach (var traitEntry in tkvp.Value.Values)
-                    traitEntry.Write(data);
+		switch (Type)
+		{
+			case TraitConfigType.Combat:
+				ChrSpecializationID = data.ReadInt32();
+				CombatConfigFlags = (TraitCombatConfigFlags)data.ReadInt32();
+				LocalIdentifier = data.ReadInt32();
 
-            data.WriteBits(Name.GetByteCount(), 9);
-            data.FlushBits();
+				break;
+			case TraitConfigType.Profession:
+				SkillLineID = data.ReadUInt32();
 
-            data.WriteString(Name);
-        }
-    }
+				break;
+			case TraitConfigType.Generic:
+				TraitSystemID = data.ReadInt32();
+
+				break;
+			default:
+				break;
+		}
+
+		for (var i = 0; i < entriesCount; ++i)
+		{
+			TraitEntryPacket traitEntry = new();
+			traitEntry.Read(data);
+			AddEntry(traitEntry);
+		}
+
+		var nameLength = data.ReadBits<uint>(9);
+		Name = data.ReadString(nameLength);
+	}
+
+	public void Write(WorldPacket data)
+	{
+		data.WriteInt32(ID);
+		data.WriteInt32((int)Type);
+		data.WriteInt32(Entries.Count);
+
+		switch (Type)
+		{
+			case TraitConfigType.Combat:
+				data.WriteInt32(ChrSpecializationID);
+				data.WriteInt32((int)CombatConfigFlags);
+				data.WriteInt32(LocalIdentifier);
+
+				break;
+			case TraitConfigType.Profession:
+				data.WriteUInt32(SkillLineID);
+
+				break;
+			case TraitConfigType.Generic:
+				data.WriteInt32(TraitSystemID);
+
+				break;
+			default:
+				break;
+		}
+
+		foreach (var tkvp in Entries)
+			foreach (var traitEntry in tkvp.Value.Values)
+				traitEntry.Write(data);
+
+		data.WriteBits(Name.GetByteCount(), 9);
+		data.FlushBits();
+
+		data.WriteString(Name);
+	}
 }

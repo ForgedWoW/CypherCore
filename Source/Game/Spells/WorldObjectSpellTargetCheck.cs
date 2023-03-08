@@ -42,7 +42,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 		if (corpseTarget != null)
 		{
 			// use owner for party/assistance checks
-			var owner = Global.ObjAccessor.FindPlayer(corpseTarget.GetOwnerGUID());
+			var owner = Global.ObjAccessor.FindPlayer(corpseTarget.OwnerGUID);
 
 			if (owner != null)
 				unitTarget = owner;
@@ -58,20 +58,20 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 			switch (_targetSelectionType)
 			{
 				case SpellTargetCheckTypes.Enemy:
-					if (unitTarget.IsTotem())
+					if (unitTarget.IsTotem)
 						return false;
 
 					// TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-					if (!target.IsCorpse() && !Caster.IsValidAttackTarget(unitTarget, SpellInfo))
+					if (!target.IsCorpse && !Caster.IsValidAttackTarget(unitTarget, SpellInfo))
 						return false;
 
 					break;
 				case SpellTargetCheckTypes.Ally:
-					if (unitTarget.IsTotem())
+					if (unitTarget.IsTotem)
 						return false;
 
 					// TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-					if (!target.IsCorpse() && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+					if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
 						return false;
 
 					break;
@@ -79,11 +79,11 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 					if (refUnit == null)
 						return false;
 
-					if (unitTarget.IsTotem())
+					if (unitTarget.IsTotem)
 						return false;
 
 					// TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-					if (!target.IsCorpse() && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+					if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
 						return false;
 
 					if (!refUnit.IsInPartyWith(unitTarget))
@@ -94,7 +94,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 					if (!refUnit)
 						return false;
 
-					if (refUnit.GetClass() != unitTarget.GetClass())
+					if (refUnit.Class != unitTarget.Class)
 						return false;
 
 					goto case SpellTargetCheckTypes.Raid;
@@ -102,11 +102,11 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 					if (refUnit == null)
 						return false;
 
-					if (unitTarget.IsTotem())
+					if (unitTarget.IsTotem)
 						return false;
 
 					// TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-					if (!target.IsCorpse() && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+					if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
 						return false;
 
 					if (!refUnit.IsInRaidWith(unitTarget))
@@ -114,20 +114,20 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 
 					break;
 				case SpellTargetCheckTypes.Summoned:
-					if (!unitTarget.IsSummon())
+					if (!unitTarget.IsSummon)
 						return false;
 
-					if (unitTarget.ToTempSummon().GetSummonerGUID() != Caster.GetGUID())
+					if (unitTarget.ToTempSummon().GetSummonerGUID() != Caster.GUID)
 						return false;
 
 					break;
 				case SpellTargetCheckTypes.Threat:
-					if (!_referer.IsUnit() || _referer.ToUnit().GetThreatManager().GetThreat(unitTarget, true) <= 0.0f)
+					if (!_referer.IsUnit || _referer.ToUnit().GetThreatManager().GetThreat(unitTarget, true) <= 0.0f)
 						return false;
 
 					break;
 				case SpellTargetCheckTypes.Tap:
-					if (_referer.GetTypeId() != TypeId.Unit || unitTarget.GetTypeId() != TypeId.Player)
+					if (_referer.TypeId != TypeId.Unit || unitTarget.TypeId != TypeId.Player)
 						return false;
 
 					if (!_referer.ToCreature().IsTappedBy(unitTarget.ToPlayer()))
@@ -141,7 +141,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 				case SpellTargetObjectTypes.Corpse:
 				case SpellTargetObjectTypes.CorpseAlly:
 				case SpellTargetObjectTypes.CorpseEnemy:
-					if (unitTarget.IsAlive())
+					if (unitTarget.IsAlive)
 						return false;
 
 					break;

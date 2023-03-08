@@ -20,6 +20,6 @@ public class VehicleSeat
 
 	public bool IsEmpty()
 	{
-		return Passenger.Guid.IsEmpty();
+		return Passenger.Guid.IsEmpty;
 	}
 }

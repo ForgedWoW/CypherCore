@@ -52,7 +52,7 @@ public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 			if (wo.ToCreature().GetOwner() != caster)
 				continue;
 
-			if (wo.ToCreature().GetCreatureType() != CreatureType.Demon)
+			if (wo.ToCreature().CreatureType != CreatureType.Demon)
 				continue;
 
 			_summons++;

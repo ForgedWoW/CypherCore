@@ -30,17 +30,17 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 	public bool Invoke(Unit u)
 	{
 		// Check contains checks for: live, uninteractible, non-attackable flags, flight check and GM check, ignore totems
-		if (u.IsTypeId(TypeId.Unit) && u.IsTotem())
+		if (u.IsTypeId(TypeId.Unit) && u.IsTotem)
 			return false;
 
 		if (_spellInfo != null)
 		{
-			if (!u.IsPlayer())
+			if (!u.IsPlayer)
 			{
 				if (_spellInfo.HasAttribute(SpellAttr3.OnlyOnPlayer))
 					return false;
 
-				if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.IsControlledByPlayer())
+				if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayerControlledNpc) && u.IsControlledByPlayer)
 					return false;
 			}
 			else if (_spellInfo.HasAttribute(SpellAttr5.NotOnPlayer))
@@ -55,10 +55,10 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 		var searchRadius = _range;
 
 		if (_incOwnRadius)
-			searchRadius += _obj.GetCombatReach();
+			searchRadius += _obj.CombatReach;
 
 		if (_incTargetRadius)
-			searchRadius += u.GetCombatReach();
+			searchRadius += u.CombatReach;
 
 		return u.IsInMap(_obj) && u.InSamePhase(_obj) && u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius);
 	}

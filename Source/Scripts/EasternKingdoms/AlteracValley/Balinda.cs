@@ -117,8 +117,8 @@ internal class boss_balinda : ScriptedAI
 	public override void JustSummoned(Creature summoned)
 	{
 		summoned.GetAI().AttackStart(SelectTarget(SelectTargetMethod.Random, 0, 50, true));
-		summoned.SetFaction(me.GetFaction());
-		WaterElementalGUID = summoned.GetGUID();
+		summoned.Faction = me.Faction;
+		WaterElementalGUID = summoned.GUID;
 		summons.Summon(summoned);
 	}
 

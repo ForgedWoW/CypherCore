@@ -69,7 +69,7 @@ public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
 	{
 		if (caster.HasAura(WarlockSpells.ROARING_BLAZE))
 		{
-			var aur = target.GetAura(WarlockSpells.IMMOLATE_DOT, caster.GetGUID());
+			var aur = target.GetAura(WarlockSpells.IMMOLATE_DOT, caster.GUID);
 
 			if (aur != null)
 			{

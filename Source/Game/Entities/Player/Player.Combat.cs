@@ -18,7 +18,7 @@ public partial class Player
 		if (pRewardSource == null)
 			return;
 
-		var creature_guid = pRewardSource.IsTypeId(TypeId.Unit) ? pRewardSource.GetGUID() : ObjectGuid.Empty;
+		var creature_guid = pRewardSource.IsTypeId(TypeId.Unit) ? pRewardSource.GUID : ObjectGuid.Empty;
 
 		// prepare data for near group iteration
 		var group = GetGroup();
@@ -35,7 +35,7 @@ public partial class Player
 					continue; // member (alive or dead) or his corpse at req. distance
 
 				// quest objectives updated only for alive group member or dead but with not released body
-				if (player.IsAlive() || !player.GetCorpse())
+				if (player.IsAlive || !player.GetCorpse())
 					player.KilledMonsterCredit(creature_id, creature_guid);
 			}
 		else
@@ -100,7 +100,7 @@ public partial class Player
 	public bool IsUseEquipedWeapon(bool mainhand)
 	{
 		// disarm applied only to mainhand weapon
-		return !IsInFeralForm() && (!mainhand || !HasUnitFlag(UnitFlags.Disarmed));
+		return !IsInFeralForm && (!mainhand || !HasUnitFlag(UnitFlags.Disarmed));
 	}
 
 	public void SetCanTitanGrip(bool value, uint penaltySpellId = 0)
@@ -117,7 +117,7 @@ public partial class Player
 		var proto = item.GetTemplate();
 		var attType = GetAttackBySlot(slot, proto.GetInventoryType());
 
-		if (!IsInFeralForm() && apply && !CanUseAttackType(attType))
+		if (!IsInFeralForm && apply && !CanUseAttackType(attType))
 			return;
 
 		var damage = 0.0f;
@@ -136,7 +136,7 @@ public partial class Player
 			SetBaseWeaponDamage(attType, WeaponDamageRange.MaxDamage, damage);
 		}
 
-		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(GetShapeshiftForm());
+		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
 
 		if (proto.GetDelay() != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
 			SetBaseAttackTime(attType, apply ? proto.GetDelay() : SharedConst.BaseAttackTime);
@@ -248,7 +248,7 @@ public partial class Player
 		duelCompleted.Started = type != DuelCompleteType.Interrupted;
 		SendPacket(duelCompleted);
 
-		if (opponent.GetSession() != null)
+		if (opponent.Session != null)
 			opponent.SendPacket(duelCompleted);
 
 		if (type != DuelCompleteType.Interrupted)
@@ -275,17 +275,17 @@ public partial class Player
 			case DuelCompleteType.Fled:
 				// if initiator and opponent are on the same team
 				// or initiator and opponent are not PvP enabled, forcibly stop attacking
-				if (GetTeam() == opponent.GetTeam())
+				if (Team == opponent.Team)
 				{
 					AttackStop();
 					opponent.AttackStop();
 				}
 				else
 				{
-					if (!IsPvP())
+					if (!IsPvP)
 						AttackStop();
 
-					if (!opponent.IsPvP())
+					if (!opponent.IsPvP)
 						opponent.AttackStop();
 				}
 
@@ -295,7 +295,7 @@ public partial class Player
 				opponent.UpdateCriteria(CriteriaType.WinDuel, 1);
 
 				// Credit for quest Death's Challenge
-				if (GetClass() == Class.Deathknight && opponent.GetQuestStatus(12733) == QuestStatus.Incomplete)
+				if (Class == Class.Deathknight && opponent.GetQuestStatus(12733) == QuestStatus.Incomplete)
 					opponent.CastSpell(Duel.Opponent, 52994, true);
 
 				// Honor points after duel (the winner) - ImpConfig
@@ -318,8 +318,8 @@ public partial class Player
 			Duel.Initiator.RemoveGameObject(obj, true);
 
 		//remove auras
-		opponent.GetAppliedAurasQuery().HasCasterGuid(GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
-		GetAppliedAurasQuery().HasCasterGuid(opponent.GetGUID()).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
+		opponent.GetAppliedAurasQuery().HasCasterGuid(GUID).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
+		GetAppliedAurasQuery().HasCasterGuid(opponent.GUID).IsPositive(false).AlsoMatches(appAur => appAur.Base.ApplyTime >= Duel.StartTime).Execute(RemoveAura);
 
 		// cleanup combo points
 		ClearComboPoints();
@@ -399,7 +399,7 @@ public partial class Player
 
 	public void UpdatePvPFlag(long currTime)
 	{
-		if (!IsPvP())
+		if (!IsPvP)
 			return;
 
 		if (PvpInfo.EndTimer == 0 || (currTime < PvpInfo.EndTimer + 300) || PvpInfo.IsHostile)
@@ -432,9 +432,9 @@ public partial class Player
 	{
 		// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
 		// no, we shouldn't, those are checked for affecting player by client
-		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster() && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm() || HasAuraType(AuraType.SetFFAPvp)))
+		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm() || HasAuraType(AuraType.SetFFAPvp)))
 		{
-			if (!IsFFAPvP())
+			if (!IsFFAPvP)
 			{
 				SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
@@ -442,7 +442,7 @@ public partial class Player
 					unit.SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 			}
 		}
-		else if (IsFFAPvP())
+		else if (IsFFAPvP)
 		{
 			RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
 
@@ -455,12 +455,12 @@ public partial class Player
 
 		if (PvpInfo.IsHostile) // in hostile area
 		{
-			if (!IsPvP() || PvpInfo.EndTimer != 0)
+			if (!IsPvP || PvpInfo.EndTimer != 0)
 				UpdatePvP(true, true);
 		}
 		else // in friendly area
 		{
-			if (IsPvP() && !HasPlayerFlag(PlayerFlags.InPVP) && PvpInfo.EndTimer == 0)
+			if (IsPvP && !HasPlayerFlag(PlayerFlags.InPVP) && PvpInfo.EndTimer == 0)
 				PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
 		}
 	}
@@ -500,7 +500,7 @@ public partial class Player
 
 	float GetRatingMultiplier(CombatRating cr)
 	{
-		var rating = CliDB.CombatRatingsGameTable.GetRow(GetLevel());
+		var rating = CliDB.CombatRatingsGameTable.GetRow(Level);
 
 		if (rating == null)
 			return 1.0f;

@@ -20,7 +20,7 @@ public class judgment_of_light : ScriptObjectAutoAdd, IUnitOnDamage
 		var player = caster.ToPlayer();
 
 		if (player != null)
-			if (player.GetClass() != Class.Paladin)
+			if (player.Class != Class.Paladin)
 				return;
 
 		if (caster == null || target == null)

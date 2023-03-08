@@ -34,13 +34,13 @@ public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffec
 	{
 		targets.RemoveIf((WorldObject target) =>
 		{
-			if (!target.IsCreature())
+			if (!target.IsCreature)
 				return true;
 
-			if (!target.ToCreature().IsPet() || target.ToCreature().ToPet().GetOwner() != Caster)
+			if (!target.ToCreature().IsPet || target.ToCreature().ToPet().GetOwner() != Caster)
 				return true;
 
-			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+			if (target.ToCreature().CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;

@@ -29,7 +29,7 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 	public override bool Load()
 	{
-		return Caster.GetTypeId() == TypeId.Unit;
+		return Caster.TypeId == TypeId.Unit;
 	}
 
 	public override void Register()
@@ -44,7 +44,7 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 		if (creature != null)
 		{
-			var charmer = Caster.GetCharmerOrOwner();
+			var charmer = Caster.CharmerOrOwner;
 
 			if (charmer != null)
 			{

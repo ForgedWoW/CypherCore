@@ -48,7 +48,7 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 			var damage = aurEff.Amount;
 
 			// Damage reduced to Players, need to check reduction value
-			if (Target.GetTypeId() == TypeId.Player)
+			if (Target.TypeId == TypeId.Player)
 				damage /= 2;
 
 			caster.CastSpell(Target, MonkSpells.TOUCH_OF_DEATH_DAMAGE, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)damage));

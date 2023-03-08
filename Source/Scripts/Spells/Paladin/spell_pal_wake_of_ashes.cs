@@ -26,7 +26,7 @@ public class spell_pal_wake_of_ashes : SpellScript, IHasSpellEffects
 
 		if (target != null)
 		{
-			var creTemplate = target.GetCreatureTemplate();
+			var creTemplate = target.CreatureTemplate;
 
 			if (creTemplate != null)
 				if (creTemplate.CreatureType == CreatureType.Demon || creTemplate.CreatureType == CreatureType.Undead)

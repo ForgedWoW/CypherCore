@@ -18,7 +18,7 @@ public class spell_warlock_call_felhunter : SpellScript, ISpellCheckCast
 		if (caster == null || !caster.ToPlayer())
 			return SpellCastResult.BadTargets;
 
-		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().GetEntry() == 417)
+		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().Entry == 417)
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;

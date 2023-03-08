@@ -27,7 +27,7 @@ internal class spell_gen_gryphon_wyvern_mount_check : AuraScript, IHasAuraEffect
 		if (owner == null)
 			return;
 
-		if (owner.IsMounted())
+		if (owner.IsMounted)
 			target.SetDisableGravity(true);
 		else
 			target.SetDisableGravity(false);

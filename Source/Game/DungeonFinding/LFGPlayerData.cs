@@ -47,7 +47,7 @@ namespace Game.DungeonFinding
             m_State = m_OldState;
         }
 
-        public void SetTeam(Team team)
+        public void SetTeam(TeamFaction team)
         {
             m_Team = team;
         }
@@ -82,7 +82,7 @@ namespace Game.DungeonFinding
             return m_OldState;
         }
 
-        public Team GetTeam()
+        public TeamFaction GetTeam()
         {
             return m_Team;
         }
@@ -117,7 +117,7 @@ namespace Game.DungeonFinding
         LfgState m_State;
         LfgState m_OldState;
         // Player
-        Team m_Team;
+        TeamFaction m_Team;
         ObjectGuid m_Group;
 
         // Queue

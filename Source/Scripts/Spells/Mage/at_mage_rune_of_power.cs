@@ -22,7 +22,7 @@ public class at_mage_rune_of_power : AreaTriggerAI
 		var caster = at.GetCaster();
 
 		if (caster != null)
-			if (unit.GetGUID() == caster.GetGUID())
+			if (unit.GUID == caster.GUID)
 				caster.CastSpell(unit, UsingSpells.RUNE_OF_POWER_AURA, true);
 	}
 

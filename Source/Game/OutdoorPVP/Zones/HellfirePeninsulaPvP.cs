@@ -33,7 +33,7 @@ namespace Game.PvP
 
         public override void OnGameObjectCreate(GameObject go)
         {
-            switch (go.GetEntry())
+            switch (go.Entry)
             {
                 case 182175:
                     AddCapturePoint(new HellfirePeninsulaCapturePoint(this, OutdoorPvPHPTowerType.BrokenHill, go, m_towerFlagSpawnIds[(int)OutdoorPvPHPTowerType.BrokenHill]));
@@ -63,7 +63,7 @@ namespace Game.PvP
         public override void HandlePlayerEnterZone(Player player, uint zone)
         {
             // add buffs
-            if (player.GetTeam() == Team.Alliance)
+            if (player.Team == TeamFaction.Alliance)
             {
                 if (m_AllianceTowersControlled >= 3)
                     player.CastSpell(player, OutdoorPvPHPSpells.AllianceBuff, true);
@@ -79,7 +79,7 @@ namespace Game.PvP
         public override void HandlePlayerLeaveZone(Player player, uint zone)
         {
             // remove buffs
-            if (player.GetTeam() == Team.Alliance)
+            if (player.Team == TeamFaction.Alliance)
                 player.RemoveAura(OutdoorPvPHPSpells.AllianceBuff);
             else
                 player.RemoveAura(OutdoorPvPHPSpells.HordeBuff);
@@ -93,13 +93,13 @@ namespace Game.PvP
             if (changed)
             {
                 if (m_AllianceTowersControlled == 3)
-                    TeamApplyBuff(TeamId.Alliance, OutdoorPvPHPSpells.AllianceBuff, OutdoorPvPHPSpells.HordeBuff);
+                    TeamApplyBuff(TeamIds.Alliance, OutdoorPvPHPSpells.AllianceBuff, OutdoorPvPHPSpells.HordeBuff);
                 else if (m_HordeTowersControlled == 3)
-                    TeamApplyBuff(TeamId.Horde, OutdoorPvPHPSpells.HordeBuff, OutdoorPvPHPSpells.AllianceBuff);
+                    TeamApplyBuff(TeamIds.Horde, OutdoorPvPHPSpells.HordeBuff, OutdoorPvPHPSpells.AllianceBuff);
                 else
                 {
-                    TeamCastSpell(TeamId.Alliance, -(int)OutdoorPvPHPSpells.AllianceBuff);
-                    TeamCastSpell(TeamId.Horde, -(int)OutdoorPvPHPSpells.HordeBuff);
+                    TeamCastSpell(TeamIds.Alliance, -(int)OutdoorPvPHPSpells.AllianceBuff);
+                    TeamCastSpell(TeamIds.Horde, -(int)OutdoorPvPHPSpells.HordeBuff);
                 }
                 SetWorldState(OutdoorPvPHPWorldStates.Count_A, (int)m_AllianceTowersControlled);
                 SetWorldState(OutdoorPvPHPWorldStates.Count_H, (int)m_HordeTowersControlled);
@@ -133,9 +133,9 @@ namespace Game.PvP
             if (!killed.IsTypeId(TypeId.Player))
                 return;
 
-            if (killer.GetTeam() == Team.Alliance && killed.ToPlayer().GetTeam() != Team.Alliance)
+            if (killer.Team == TeamFaction.Alliance && killed.ToPlayer().Team != TeamFaction.Alliance)
                 killer.CastSpell(killer, OutdoorPvPHPSpells.AlliancePlayerKillReward, true);
-            else if (killer.GetTeam() == Team.Horde && killed.ToPlayer().GetTeam() != Team.Horde)
+            else if (killer.Team == TeamFaction.Horde && killed.ToPlayer().Team != TeamFaction.Horde)
                 killer.CastSpell(killer, OutdoorPvPHPSpells.HordePlayerKillReward, true);
         }
 
@@ -174,7 +174,7 @@ namespace Game.PvP
 
             m_capturePointSpawnId = go.GetSpawnId();
             m_capturePoint = go;
-            SetCapturePointData(go.GetEntry());
+            SetCapturePointData(go.Entry);
         }
 
         public override void ChangeState()
