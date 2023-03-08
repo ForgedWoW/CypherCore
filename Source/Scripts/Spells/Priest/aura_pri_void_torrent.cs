@@ -12,21 +12,21 @@ namespace Scripts.Spells.Priest;
 [SpellScript(205065)]
 public class aura_pri_void_torrent : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		GetTarget().CastSpell(GetTarget(), PriestSpells.VOID_TORRENT_PREVENT_REGEN, true);
-	}
-
-	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		GetTarget().RemoveAura(PriestSpells.VOID_TORRENT_PREVENT_REGEN);
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real));
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
+
+	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		Target.CastSpell(Target, PriestSpells.VOID_TORRENT_PREVENT_REGEN, true);
+	}
+
+	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		Target.RemoveAura(PriestSpells.VOID_TORRENT_PREVENT_REGEN);
 	}
 }

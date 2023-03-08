@@ -12,22 +12,22 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(118009)]
 public class spell_dk_desecrated_ground : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		if (GetCaster())
-		{
-			var dynObj = GetCaster().GetDynObject(DeathKnightSpells.DESECRATED_GROUND);
-
-			if (dynObj != null)
-				if (GetCaster().GetDistance(dynObj) <= 8.0f)
-					GetCaster().CastSpell(GetCaster(), DeathKnightSpells.DESECRATED_GROUND_IMMUNE, true);
-		}
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDummy));
+	}
+
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		if (Caster)
+		{
+			var dynObj = Caster.GetDynObject(DeathKnightSpells.DESECRATED_GROUND);
+
+			if (dynObj != null)
+				if (Caster.GetDistance(dynObj) <= 8.0f)
+					Caster.CastSpell(Caster, DeathKnightSpells.DESECRATED_GROUND_IMMUNE, true);
+		}
 	}
 }

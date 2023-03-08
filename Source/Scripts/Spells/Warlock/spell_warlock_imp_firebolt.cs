@@ -7,34 +7,33 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 3110 - Firebolt
+[SpellScript(3110)]
+public class spell_warlock_imp_firebolt : SpellScript, IHasSpellEffects
 {
-    // 3110 - Firebolt
-    [SpellScript(3110)]
-	public class spell_warlock_imp_firebolt : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-			if (caster == null || !caster.GetOwner() || target == null)
-				return;
+		if (caster == null || !caster.GetOwner() || target == null)
+			return;
 
-			var owner  = caster.GetOwner();
-			var damage = GetHitDamage();
+		var owner = caster.GetOwner();
+		var damage = HitDamage;
 
-			if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GetGUID()))
-				MathFunctions.AddPct(ref damage, owner.GetAuraEffectAmount(WarlockSpells.FIREBOLT_BONUS, 0));
+		if (target.HasAura(WarlockSpells.IMMOLATE_DOT, owner.GetGUID()))
+			MathFunctions.AddPct(ref damage, owner.GetAuraEffectAmount(WarlockSpells.FIREBOLT_BONUS, 0));
 
-			SetHitDamage(damage);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
+		HitDamage = damage;
 	}
 }

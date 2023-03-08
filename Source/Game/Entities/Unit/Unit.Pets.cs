@@ -187,7 +187,7 @@ public partial class Unit
 			// Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
 			var spellInfo = Global.SpellMgr.GetSpellInfo(minion.UnitData.CreatedBySpell, Difficulty.None);
 
-			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent())
+			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
 				GetSpellHistory().StartCooldown(spellInfo, 0, null, true);
 		}
 		else
@@ -228,7 +228,7 @@ public partial class Unit
 			var spellInfo = Global.SpellMgr.GetSpellInfo(minion.UnitData.CreatedBySpell, Difficulty.None);
 
 			// Remove infinity cooldown
-			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent())
+			if (spellInfo != null && spellInfo.IsCooldownStartedOnEvent)
 				GetSpellHistory().SendCooldownEvent(spellInfo);
 
 			if (GetMinionGUID() == minion.GetGUID())

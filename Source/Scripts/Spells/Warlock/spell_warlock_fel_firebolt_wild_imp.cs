@@ -7,43 +7,42 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 104318 - Fel Firebolt @ Wild Imp
+[SpellScript(104318)]
+public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
 {
-    // 104318 - Fel Firebolt @ Wild Imp
-    [SpellScript(104318)]
-	public class spell_warlock_fel_firebolt_wild_imp : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
+	private void HandleHit(int effIndex)
+	{
+		// "Increases damage dealt by your Wild Imps' Firebolt by 10%."
+		var owner = Caster.GetOwner();
+
+		if (owner != null)
 		{
-			// "Increases damage dealt by your Wild Imps' Firebolt by 10%."
-			var owner = GetCaster().GetOwner();
+			var pct = owner.GetAuraEffectAmount(WarlockSpells.INFERNAL_FURNACE, 0);
 
-			if (owner != null)
+			if (pct != 0)
+				HitDamage = HitDamage + MathFunctions.CalculatePct(HitDamage, pct);
+
+			if (owner.HasAura(WarlockSpells.STOLEN_POWER))
 			{
-				var pct = owner.GetAuraEffectAmount(WarlockSpells.INFERNAL_FURNACE, 0);
+				var aur = owner.AddAura(WarlockSpells.STOLEN_POWER_COUNTER, owner);
 
-				if (pct != 0)
-					SetHitDamage(GetHitDamage() + MathFunctions.CalculatePct(GetHitDamage(), pct));
-
-				if (owner.HasAura(WarlockSpells.STOLEN_POWER))
-				{
-					var aur = owner.AddAura(WarlockSpells.STOLEN_POWER_COUNTER, owner);
-
-					if (aur != null)
-						if (aur.StackAmount == 100)
-						{
-							owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
-							aur.Remove();
-						}
-				}
+				if (aur != null)
+					if (aur.StackAmount == 100)
+					{
+						owner.CastSpell(owner, WarlockSpells.STOLEN_POWER_BUFF, true);
+						aur.Remove();
+					}
 			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 		}
 	}
 }

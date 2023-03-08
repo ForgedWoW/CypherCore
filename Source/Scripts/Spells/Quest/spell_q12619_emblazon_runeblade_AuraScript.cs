@@ -22,7 +22,7 @@ internal class spell_q12619_emblazon_runeblade_AuraScript : AuraScript, IHasAura
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
 		PreventDefaultAction();
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			caster.CastSpell(caster, aurEff.GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(aurEff));

@@ -3,10 +3,9 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellCheckCast : ISpellScript
 {
-    public interface ISpellCheckCast : ISpellScript
-    {
-        SpellCastResult CheckCast();
-    }
+	SpellCastResult CheckCast();
 }

@@ -27,7 +27,7 @@ internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var        caster         = GetCaster();
+		var caster = Caster;
 		List<uint> possibleSpells = new();
 
 		switch (caster.GetClass())

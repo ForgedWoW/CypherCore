@@ -11,8 +11,8 @@ public class spell_dru_starsurge : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		if (GetCaster())
-			if (GetCaster().GetAuraCount(DruidSpells.STARLORD_BUFF) < 3)
-				GetCaster().CastSpell(null, DruidSpells.STARLORD_BUFF, true);
+		if (Caster)
+			if (Caster.GetAuraCount(DruidSpells.STARLORD_BUFF) < 3)
+				Caster.CastSpell(null, DruidSpells.STARLORD_BUFF, true);
 	}
 }

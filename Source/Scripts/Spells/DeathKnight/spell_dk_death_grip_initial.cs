@@ -13,6 +13,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 49576 - Death Grip Initial
 internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(DeathKnightSpells.DeathGripDummy, DeathKnightSpells.DeathGripJump, DeathKnightSpells.Blood, DeathKnightSpells.DeathGripTaunt);
@@ -20,11 +22,11 @@ internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasS
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		// Death Grip should not be castable while jumping/falling
 		if (caster.HasUnitState(UnitState.Jumping) ||
-		    caster.HasUnitMovementFlag(MovementFlag.Falling))
+			caster.HasUnitMovementFlag(MovementFlag.Falling))
 			return SpellCastResult.Moving;
 
 		return SpellCastResult.SpellCastOk;
@@ -35,14 +37,12 @@ internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasS
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.DeathGripDummy, true);
-		GetHitUnit().CastSpell(GetCaster(), DeathKnightSpells.DeathGripJump, true);
+		Caster.CastSpell(HitUnit, DeathKnightSpells.DeathGripDummy, true);
+		HitUnit.CastSpell(Caster, DeathKnightSpells.DeathGripJump, true);
 
-		if (GetCaster().HasAura(DeathKnightSpells.Blood))
-			GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.DeathGripTaunt, true);
+		if (Caster.HasAura(DeathKnightSpells.Blood))
+			Caster.CastSpell(HitUnit, DeathKnightSpells.DeathGripTaunt, true);
 	}
 }

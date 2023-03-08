@@ -14,25 +14,25 @@ namespace Scripts.Spells.Mage;
 [SpellScript(203283)]
 public class spell_mage_firestarter_pvp : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo().Id == MageSpells.FIREBALL;
-	}
-
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		var caster = GetCaster();
-
-		if (caster == null)
-			return;
-
-		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds((aurEff.Amount * -1) - 5000));
+		return eventInfo.SpellInfo.Id == MageSpells.FIREBALL;
 	}
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds((aurEff.Amount * -1) - 5000));
 	}
 }

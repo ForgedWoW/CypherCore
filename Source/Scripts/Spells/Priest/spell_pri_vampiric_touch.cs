@@ -13,6 +13,8 @@ namespace Scripts.Spells.Priest;
 [Script] // 34914 - Vampiric Touch
 internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.VAMPIRIC_TOUCH_DISPEL, PriestSpells.GEN_REPLENISHMENT);
@@ -20,11 +22,11 @@ internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraChe
 
 	public void HandleDispel(DispelInfo dispelInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 		{
-			var target = GetUnitOwner();
+			var target = UnitOwner;
 
 			if (target)
 			{
@@ -48,14 +50,12 @@ internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraChe
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetProcTarget() == GetCaster();
+		return eventInfo.ProcTarget == Caster;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetProcTarget().CastSpell((Unit)null, PriestSpells.GEN_REPLENISHMENT, new CastSpellExtraArgs(aurEff));
+		eventInfo.ProcTarget.CastSpell((Unit)null, PriestSpells.GEN_REPLENISHMENT, new CastSpellExtraArgs(aurEff));
 	}
 }

@@ -8,47 +8,46 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Spell Lock - 119910
+[SpellScript(119910)]
+public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-    // Spell Lock - 119910
-    [SpellScript(119910)]
-	public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public SpellCastResult CheckCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		var caster = Caster;
+		var pet = caster.GetGuardianPet();
 
-		public SpellCastResult CheckCast()
-		{
-			var caster = GetCaster();
-			var pet    = caster.GetGuardianPet();
+		if (caster == null || pet == null)
+			return SpellCastResult.DontReport;
 
-			if (caster == null || pet == null)
-				return SpellCastResult.DontReport;
+		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.FELHUNTER_LOCK))
+			return SpellCastResult.CantDoThatRightNow;
 
-			if (pet.GetSpellHistory().HasCooldown(WarlockSpells.FELHUNTER_LOCK))
-				return SpellCastResult.CantDoThatRightNow;
+		return SpellCastResult.SpellCastOk;
+	}
 
-			return SpellCastResult.SpellCastOk;
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
-			var pet    = caster.GetGuardianPet();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
+		var pet = caster.GetGuardianPet();
 
-			if (caster == null || pet == null || target == null)
-				return;
+		if (caster == null || pet == null || target == null)
+			return;
 
-			/*if (pet->GetEntry() != PET_ENTRY_FELHUNTER)
-				return;*/
+		/*if (pet->GetEntry() != PET_ENTRY_FELHUNTER)
+			return;*/
 
-			pet.CastSpell(target, WarlockSpells.FELHUNTER_LOCK, true);
-			caster.ToPlayer().GetSpellHistory().ModifyCooldown(GetSpellInfo().Id, TimeSpan.FromSeconds(24));
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
+		pet.CastSpell(target, WarlockSpells.FELHUNTER_LOCK, true);
+		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

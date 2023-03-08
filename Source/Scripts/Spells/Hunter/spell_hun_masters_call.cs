@@ -15,6 +15,8 @@ namespace Scripts.Spells.Hunter;
 [Script]
 internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return !spellInfo.Effects.Empty() && ValidateSpellInfo(HunterSpells.MastersCallTriggered, (uint)spellInfo.GetEffect(0).CalcValue());
@@ -22,20 +24,20 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 	public override bool Load()
 	{
-		return GetCaster().IsPlayer();
+		return Caster.IsPlayer();
 	}
 
 	public SpellCastResult CheckCast()
 	{
-		var pet = GetCaster().ToPlayer().GetGuardianPet();
+		var pet = Caster.ToPlayer().GetGuardianPet();
 
 		if (pet == null ||
-		    !pet.IsPet() ||
-		    !pet.IsAlive())
+			!pet.IsPet() ||
+			!pet.IsAlive())
 			return SpellCastResult.NoPet;
 
 		// Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
-		var result   = SpellCastResult.SpellCastOk;
+		var result = SpellCastResult.SpellCastOk;
 		var unitflag = (UnitFlags)(uint)pet.UnitData.Flags;
 
 		if (!pet.GetCharmerGUID().IsEmpty())
@@ -50,7 +52,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 		if (result != SpellCastResult.SpellCastOk)
 			return result;
 
-		var target = GetExplTargetUnit();
+		var target = ExplTargetUnit;
 
 		if (!target)
 			return SpellCastResult.BadTargets;
@@ -67,15 +69,13 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().ToPlayer().GetPet().CastSpell(GetHitUnit(), (uint)GetEffectValue(), true);
+		Caster.ToPlayer().GetPet().CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		GetHitUnit().CastSpell((Unit)null, HunterSpells.MastersCallTriggered, true);
+		HitUnit.CastSpell((Unit)null, HunterSpells.MastersCallTriggered, true);
 	}
 }

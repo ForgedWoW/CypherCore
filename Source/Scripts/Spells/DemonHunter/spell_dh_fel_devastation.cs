@@ -12,11 +12,16 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(212084)]
 public class spell_dh_fel_devastation : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
+	}
 
 	private void PeriodicTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -25,10 +30,5 @@ public class spell_dh_fel_devastation : AuraScript, IHasAuraEffects
 			return;
 
 		caster.CastSpell(caster, DemonHunterSpells.FEL_DEVASTATION_DAMAGE, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
 	}
 }

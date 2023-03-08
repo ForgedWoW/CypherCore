@@ -14,11 +14,16 @@ public class spell_rog_mutilate_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
-		var target = GetHitUnit();
+		var caster = Caster.ToPlayer();
+		var target = HitUnit;
 
 		if (target == null || caster == null)
 			return;
@@ -30,10 +35,5 @@ public class spell_rog_mutilate_SpellScript : SpellScript, IHasSpellEffects
 			caster.ToPlayer().ModifyPower(PowerType.ComboPoints, 2);
 
 		caster.ModifyPower(PowerType.ComboPoints, -3);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
 	}
 }

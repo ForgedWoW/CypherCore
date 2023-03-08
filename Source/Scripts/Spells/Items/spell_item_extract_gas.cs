@@ -25,13 +25,13 @@ internal class spell_item_extract_gas : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		// move loot to player inventory and despawn Target
-		if (GetCaster() != null &&
-		    GetCaster().IsTypeId(TypeId.Player) &&
-		    GetTarget().IsTypeId(TypeId.Unit) &&
-		    GetTarget().ToCreature().GetCreatureTemplate().CreatureType == CreatureType.GasCloud)
+		if (Caster != null &&
+			Caster.IsTypeId(TypeId.Player) &&
+			Target.IsTypeId(TypeId.Unit) &&
+			Target.ToCreature().GetCreatureTemplate().CreatureType == CreatureType.GasCloud)
 		{
-			var player   = GetCaster().ToPlayer();
-			var creature = GetTarget().ToCreature();
+			var player = Caster.ToPlayer();
+			var creature = Target.ToCreature();
 
 			// missing lootid has been reported on startup - just return
 			if (creature.GetCreatureTemplate().SkinLootId == 0)

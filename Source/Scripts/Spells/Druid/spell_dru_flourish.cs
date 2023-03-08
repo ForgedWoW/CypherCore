@@ -15,20 +15,26 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		if (!GetCaster() || !GetHitUnit())
+		if (!Caster || !HitUnit)
 			return;
 
-		var auraEffects = GetHitUnit().GetAuraEffectsByType(AuraType.PeriodicHeal);
+		var auraEffects = HitUnit.GetAuraEffectsByType(AuraType.PeriodicHeal);
 
 		foreach (var auraEffect in auraEffects)
-			if (auraEffect.CasterGuid == GetCaster().GetGUID())
+			if (auraEffect.CasterGuid == Caster.GetGUID())
 			{
 				var healAura = auraEffect.Base;
 
 				if (healAura != null)
-					healAura.SetDuration(healAura.Duration + GetEffectValue() * Time.InMilliseconds);
+					healAura.SetDuration(healAura.Duration + EffectValue * Time.InMilliseconds);
 			}
 	}
 
@@ -38,7 +44,7 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 
 		foreach (var target in targets)
 			if (target.IsPlayer())
-				if (target.ToUnit().HasAuraTypeWithCaster(AuraType.PeriodicHeal, GetCaster().GetGUID()))
+				if (target.ToUnit().HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GetGUID()))
 					tempTargets.Add(target);
 
 		if (tempTargets.Count > 0)
@@ -48,11 +54,5 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 			foreach (var target in tempTargets)
 				targets.Add(target);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
 	}
 }

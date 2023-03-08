@@ -6,28 +6,27 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 783 - Travel Form (dummy)
+internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 {
-    [Script] // 783 - Travel Form (dummy)
-	internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
+	public override bool Validate(SpellInfo spellEntry)
 	{
-		public override bool Validate(SpellInfo spellEntry)
-		{
-			return ValidateSpellInfo(DruidSpellIds.FormAquaticPassive, DruidSpellIds.FormAquatic, DruidSpellIds.FormStag);
-		}
+		return ValidateSpellInfo(DruidSpellIds.FormAquaticPassive, DruidSpellIds.FormAquatic, DruidSpellIds.FormStag);
+	}
 
-		public SpellCastResult CheckCast()
-		{
-			var player = GetCaster().ToPlayer();
+	public SpellCastResult CheckCast()
+	{
+		var player = Caster.ToPlayer();
 
-			if (!player)
-				return SpellCastResult.CustomError;
+		if (!player)
+			return SpellCastResult.CustomError;
 
-			var spellId = (player.HasSpell(DruidSpellIds.FormAquaticPassive) && player.IsInWater()) ? DruidSpellIds.FormAquatic : DruidSpellIds.FormStag;
+		var spellId = (player.HasSpell(DruidSpellIds.FormAquaticPassive) && player.IsInWater()) ? DruidSpellIds.FormAquatic : DruidSpellIds.FormStag;
 
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetCastDifficulty());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 
-			return spellInfo.CheckLocation(player.Location.MapId, player.GetZoneId(), player.GetAreaId(), player);
-		}
+		return spellInfo.CheckLocation(player.Location.MapId, player.GetZoneId(), player.GetAreaId(), player);
 	}
 }

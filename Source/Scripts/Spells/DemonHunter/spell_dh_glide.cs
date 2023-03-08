@@ -14,7 +14,7 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 {
 	public void BeforeCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (!caster)
 			return;
@@ -22,8 +22,8 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 		caster.CastSpell(caster, DemonHunterSpells.GlideKnockback, true);
 		caster.CastSpell(caster, DemonHunterSpells.GlideDuration, true);
 
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -33,10 +33,10 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.IsMounted() ||
-		    caster.GetVehicleBase())
+			caster.GetVehicleBase())
 			return SpellCastResult.DontReport;
 
 		if (!caster.IsFalling())

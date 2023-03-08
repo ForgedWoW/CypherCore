@@ -13,12 +13,12 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_explosive_trapAI : AreaTriggerAI
 {
-	public int timeInterval;
-
 	public enum UsedSpells
 	{
 		EXPLOSIVE_TRAP_DAMAGE = 13812
 	}
+
+	public int timeInterval;
 
 	public at_hun_explosive_trapAI(AreaTrigger areatrigger) : base(areatrigger)
 	{

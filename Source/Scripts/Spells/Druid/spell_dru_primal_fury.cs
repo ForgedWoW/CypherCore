@@ -13,9 +13,9 @@ public class spell_dru_primal_fury : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var _spellCanProc = (eventInfo.GetSpellInfo().Id == DruidSpells.SHRED || eventInfo.GetSpellInfo().Id == DruidSpells.RAKE || eventInfo.GetSpellInfo().Id == DruidSpells.SWIPE_CAT || eventInfo.GetSpellInfo().Id == DruidSpells.MOONFIRE_CAT);
+		var _spellCanProc = (eventInfo.SpellInfo.Id == DruidSpells.SHRED || eventInfo.SpellInfo.Id == DruidSpells.RAKE || eventInfo.SpellInfo.Id == DruidSpells.SWIPE_CAT || eventInfo.SpellInfo.Id == DruidSpells.MOONFIRE_CAT);
 
-		if ((eventInfo.GetHitMask() & ProcFlagsHit.Critical) != 0 && _spellCanProc)
+		if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0 && _spellCanProc)
 			return true;
 
 		return false;

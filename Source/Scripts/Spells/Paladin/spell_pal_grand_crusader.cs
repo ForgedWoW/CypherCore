@@ -8,31 +8,30 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(85043)] // -85043 - Grand Crusader
+internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-    [SpellScript(85043)] // -85043 - Grand Crusader
-    internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEffects
-    {
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.AvengersShield);
-        }
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public bool CheckProc(ProcEventInfo eventInfo)
-        {
-            return GetTarget().IsTypeId(TypeId.Player);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.AvengersShield);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
-        }
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		return Target.IsTypeId(TypeId.Player);
+	}
 
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
 
-        private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            GetTarget().GetSpellHistory().ResetCooldown(PaladinSpells.AvengersShield, true);
-        }
-    }
+	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		Target.GetSpellHistory().ResetCooldown(PaladinSpells.AvengersShield, true);
+	}
 }

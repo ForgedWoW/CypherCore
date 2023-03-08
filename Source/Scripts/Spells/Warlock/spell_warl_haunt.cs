@@ -4,21 +4,20 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[Script] // 48181 - Haunt
+internal class spell_warl_haunt : SpellScript, ISpellAfterHit
 {
-    [Script] // 48181 - Haunt
-	internal class spell_warl_haunt : SpellScript, ISpellAfterHit
+	public void AfterHit()
 	{
-		public void AfterHit()
+		var aura = GetHitAura();
+
+		if (aura != null)
 		{
-			var aura = GetHitAura();
+			var aurEff = aura.GetEffect(1);
 
-			if (aura != null)
-			{
-				var aurEff = aura.GetEffect(1);
-
-				aurEff?.SetAmount(MathFunctions.CalculatePct(GetHitDamage(), aurEff.Amount));
-			}
+			aurEff?.SetAmount(MathFunctions.CalculatePct(HitDamage, aurEff.Amount));
 		}
 	}
 }

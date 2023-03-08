@@ -12,11 +12,17 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(51271)]
 public class spell_dk_pillar_of_frost : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModTotalStatPercentage, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var _player = GetTarget().ToPlayer();
+		var _player = Target.ToPlayer();
 
 		if (_player != null)
 			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, false);
@@ -24,15 +30,9 @@ public class spell_dk_pillar_of_frost : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var _player = GetTarget().ToPlayer();
+		var _player = Target.ToPlayer();
 
 		if (_player != null)
 			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModTotalStatPercentage, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
 }

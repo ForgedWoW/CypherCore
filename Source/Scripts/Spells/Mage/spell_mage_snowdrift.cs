@@ -13,12 +13,17 @@ namespace Scripts.Spells.Mage;
 [SpellScript(389794)]
 public class spell_mage_snowdrift : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
+	}
 
 	private void OnTick(AuraEffect aurEff)
 	{
-		var target = GetTarget();
-		var caster = GetCaster();
+		var target = Target;
+		var caster = Caster;
 
 		if (target == null || caster == null)
 			return;
@@ -29,7 +34,7 @@ public class spell_mage_snowdrift : AuraScript, IHasAuraEffects
 		target.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModRoot, true);
 
 		// Deal (20% of Spell power) Frost damage every 1 sec
-		var damage = caster.SpellDamageBonusDone(target, aurEff.SpellInfo, 0, DamageEffectType.DOT, aurEff.GetSpellEffectInfo(), GetStackAmount()) * aurEff.Amount;
+		var damage = caster.SpellDamageBonusDone(target, aurEff.SpellInfo, 0, DamageEffectType.DOT, aurEff.GetSpellEffectInfo(), StackAmount) * aurEff.Amount;
 		damage = target.SpellDamageBonusTaken(caster, aurEff.SpellInfo, (uint)damage, DamageEffectType.DOT);
 		Unit.DealDamage(target, target, (uint)damage, null, DamageEffectType.DOT, SpellSchoolMask.Frost, aurEff.SpellInfo, false);
 
@@ -40,10 +45,5 @@ public class spell_mage_snowdrift : AuraScript, IHasAuraEffects
 			target.CastSpell(target, MageSpells.FROZEN_IN_ICE, true);
 			target.RemoveAura(MageSpells.SNOWDRIFT);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDamage));
 	}
 }

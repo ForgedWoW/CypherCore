@@ -28,13 +28,13 @@ internal class spell_sha_lightning_bolt_overload : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var energizeAmount = GetCaster().GetAuraEffect(ShamanSpells.MaelstromController, 1);
+		var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, 1);
 
 		if (energizeAmount != null)
-			GetCaster()
-				.CastSpell(GetCaster(),
-				           ShamanSpells.LightningBoltOverloadEnergize,
-				           new CastSpellExtraArgs(energizeAmount)
-					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
+			Caster
+				.CastSpell(Caster,
+							ShamanSpells.LightningBoltOverloadEnergize,
+							new CastSpellExtraArgs(energizeAmount)
+								.AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
 	}
 }

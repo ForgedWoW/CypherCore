@@ -18,8 +18,8 @@ internal class spell_gen_furious_rage : AuraScript, IHasAuraEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(GenericSpellIds.Exhaustion) &&
-		       CliDB.BroadcastTextStorage.HasRecord(EmoteIds.FuriousRage) &&
-		       CliDB.BroadcastTextStorage.HasRecord(EmoteIds.Exhausted);
+				CliDB.BroadcastTextStorage.HasRecord(EmoteIds.FuriousRage) &&
+				CliDB.BroadcastTextStorage.HasRecord(EmoteIds.Exhausted);
 	}
 
 	public override void Register()
@@ -30,16 +30,16 @@ internal class spell_gen_furious_rage : AuraScript, IHasAuraEffects
 
 	private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.TextEmote(EmoteIds.FuriousRage, target, false);
 	}
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		var target = GetTarget();
+		var target = Target;
 		target.TextEmote(EmoteIds.Exhausted, target, false);
 		target.CastSpell(target, GenericSpellIds.Exhaustion, true);
 	}

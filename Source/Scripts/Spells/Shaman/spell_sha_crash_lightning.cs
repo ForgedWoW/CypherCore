@@ -17,6 +17,8 @@ internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpe
 {
 	private int _targetsHit;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.CrashLightningCleave);
@@ -25,15 +27,15 @@ internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpe
 	public void AfterCast()
 	{
 		if (_targetsHit >= 2)
-			GetCaster().CastSpell(GetCaster(), ShamanSpells.CrashLightningCleave, true);
+			Caster.CastSpell(Caster, ShamanSpells.CrashLightningCleave, true);
 
-		var gatheringStorms = GetCaster().GetAuraEffect(ShamanSpells.GatheringStorms, 0);
+		var gatheringStorms = Caster.GetAuraEffect(ShamanSpells.GatheringStorms, 0);
 
 		if (gatheringStorms != null)
 		{
 			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)(gatheringStorms.Amount * _targetsHit));
-			GetCaster().CastSpell(GetCaster(), ShamanSpells.GatheringStormsBuff, args);
+			Caster.CastSpell(Caster, ShamanSpells.GatheringStormsBuff, args);
 		}
 	}
 
@@ -41,8 +43,6 @@ internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpe
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitConeCasterToDestEnemy));
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	private void CountTargets(List<WorldObject> targets)
 	{

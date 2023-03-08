@@ -24,13 +24,13 @@ internal class spell_gen_restoration : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var target = GetTarget();
+		var target = Target;
 
 		if (target == null)
 			return;
 
-		var      heal     = (uint)target.CountPctFromMaxHealth(10);
-		HealInfo healInfo = new(target, target, heal, GetSpellInfo(), GetSpellInfo().GetSchoolMask());
+		var heal = (uint)target.CountPctFromMaxHealth(10);
+		HealInfo healInfo = new(target, target, heal, SpellInfo, SpellInfo.GetSchoolMask());
 		target.HealBySpell(healInfo);
 
 		/// @todo: should proc other Auras?
@@ -39,7 +39,7 @@ internal class spell_gen_restoration : AuraScript, IHasAuraEffects
 		if (mana != 0)
 		{
 			mana /= 10;
-			target.EnergizeBySpell(target, GetSpellInfo(), mana, PowerType.Mana);
+			target.EnergizeBySpell(target, SpellInfo, mana, PowerType.Mana);
 		}
 	}
 }

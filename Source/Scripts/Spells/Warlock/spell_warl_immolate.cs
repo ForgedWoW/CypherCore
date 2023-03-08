@@ -8,26 +8,25 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(348)] // 348 - Immolate
+internal class spell_warl_immolate : SpellScript, IHasSpellEffects
 {
-    [SpellScript(348)] // 348 - Immolate
-	internal class spell_warl_immolate : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(WarlockSpells.IMMOLATE_DOT);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(WarlockSpells.IMMOLATE_DOT);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnEffectHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnEffectHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private void HandleOnEffectHit(int effIndex)
-		{
-			GetCaster().CastSpell(GetHitUnit(), WarlockSpells.IMMOLATE_DOT, GetSpell());
-		}
+	private void HandleOnEffectHit(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, WarlockSpells.IMMOLATE_DOT, Spell);
 	}
 }

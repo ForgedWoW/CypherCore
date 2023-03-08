@@ -10,9 +10,7 @@ namespace Scripts.Spells.Monk;
 [CreatureScript(63508)]
 public class npc_monk_xuen : ScriptedAI
 {
-	public npc_monk_xuen(Creature creature) : base(creature)
-	{
-	}
+	public npc_monk_xuen(Creature creature) : base(creature) { }
 
 	public override void IsSummonedBy(WorldObject UnnamedParameter)
 	{

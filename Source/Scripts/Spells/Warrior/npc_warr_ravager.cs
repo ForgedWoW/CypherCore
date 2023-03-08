@@ -6,61 +6,57 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+[CreatureScript(76168)] // Ravager - 76168
+public class npc_warr_ravager : ScriptedAI
 {
-    [CreatureScript(76168)] // Ravager - 76168
-	public class npc_warr_ravager : ScriptedAI
+	public const uint RAVAGER_DISPLAYID = 55644;
+	public const uint RAVAGER_VISUAL = 153709;
+
+	public npc_warr_ravager(Creature creature) : base(creature) { }
+
+	public override void IsSummonedBy(WorldObject summoner)
 	{
-		public npc_warr_ravager(Creature creature) : base(creature)
+		me.SetDisplayId(RAVAGER_DISPLAYID);
+		me.CastSpell(me, RAVAGER_VISUAL, true);
+		me.SetReactState(ReactStates.Passive);
+		me.AddUnitState(UnitState.Root);
+		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.CanSwim | UnitFlags.PlayerControlled);
+
+		if (summoner == null || !summoner.IsPlayer())
+			return;
+
+		var player = summoner.ToPlayer();
+
+		if (player != null)
 		{
-		}
+			var item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-
-		public const uint RAVAGER_DISPLAYID = 55644;
-		public const uint RAVAGER_VISUAL = 153709;
-
-		public override void IsSummonedBy(WorldObject summoner)
-		{
-			me.SetDisplayId(RAVAGER_DISPLAYID);
-			me.CastSpell(me, RAVAGER_VISUAL, true);
-			me.SetReactState(ReactStates.Passive);
-			me.AddUnitState(UnitState.Root);
-			me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.CanSwim | UnitFlags.PlayerControlled);
-
-			if (summoner == null || !summoner.IsPlayer())
-				return;
-
-			var player = summoner.ToPlayer();
-
-			if (player != null)
+			if (item != null)
 			{
-				var item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
-				if (item != null)
-				{
-					var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
+				if (l_Proto != null)
+					me.SetVirtualItem(0, l_Proto.GetId());
+			}
+			else
+			{
+				me.SetVirtualItem(0, item.GetTemplate().GetId());
+			}
 
-					if (l_Proto != null)
-						me.SetVirtualItem(0, l_Proto.GetId());
-				}
-				else
-				{
-					me.SetVirtualItem(0, item.GetTemplate().GetId());
-				}
+			item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-				item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+			if (item != null)
+			{
+				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
-				if (item != null)
-				{
-					var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
-
-					if (l_Proto != null)
-						me.SetVirtualItem(2, l_Proto.GetId());
-				}
-				else
-				{
-					me.SetVirtualItem(2, item.GetTemplate().GetId());
-				}
+				if (l_Proto != null)
+					me.SetVirtualItem(2, l_Proto.GetId());
+			}
+			else
+			{
+				me.SetVirtualItem(2, item.GetTemplate().GetId());
 			}
 		}
 	}

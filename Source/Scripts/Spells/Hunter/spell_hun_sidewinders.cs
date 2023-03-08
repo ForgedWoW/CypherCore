@@ -14,13 +14,19 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleDummy1, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				caster.CastSpell(target, 187131, true);
@@ -29,11 +35,11 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 
 	private void HandleDummy1(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 			{
@@ -41,11 +47,5 @@ public class spell_hun_sidewinders : SpellScript, IHasSpellEffects
 				caster.SendPlaySpellVisual(target.Location, target.Location.Orientation, 56931, 0, 0, 18.0f, false);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleDummy1, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

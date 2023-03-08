@@ -20,26 +20,13 @@ public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHi
 		return Global.SpellMgr.GetSpellInfo(PriestSpells.LEAP_OF_FAITH_GLYPH, Difficulty.None) != null && Global.SpellMgr.GetSpellInfo(PriestSpells.LEAP_OF_FAITH_EFFECT, Difficulty.None) != null;
 	}
 
-	private void HandleScript(int effIndex)
-	{
-		var caster = GetCaster();
-
-		if (caster == null)
-			return;
-
-		if (caster.HasAura(PriestSpells.LEAP_OF_FAITH_GLYPH))
-			GetHitUnit().RemoveMovementImpairingAuras(false);
-
-		GetHitUnit().CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
-	}
-
 	public void OnHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 			{
@@ -54,5 +41,18 @@ public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHi
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleScript(int effIndex)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		if (caster.HasAura(PriestSpells.LEAP_OF_FAITH_GLYPH))
+			HitUnit.RemoveMovementImpairingAuras(false);
+
+		HitUnit.CastSpell(caster, PriestSpells.LEAP_OF_FAITH_EFFECT, true);
 	}
 }

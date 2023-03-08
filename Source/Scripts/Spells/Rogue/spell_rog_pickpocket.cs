@@ -12,8 +12,8 @@ internal class spell_rog_pickpocket : SpellScript, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		if (!GetExplTargetUnit() ||
-		    !GetCaster().IsValidAttackTarget(GetExplTargetUnit(), GetSpellInfo()))
+		if (!ExplTargetUnit ||
+			!Caster.IsValidAttackTarget(ExplTargetUnit, SpellInfo))
 			return SpellCastResult.BadTargets;
 
 		return SpellCastResult.SpellCastOk;

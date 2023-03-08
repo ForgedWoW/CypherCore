@@ -14,9 +14,7 @@ public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOn
 {
 	public Class PlayerClass => Class.Monk;
 
-	public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm")
-	{
-	}
+	public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm") { }
 
 	public void OnSpellCast(Player player, Spell spell, bool re)
 	{

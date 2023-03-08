@@ -15,7 +15,7 @@ internal class spell_item_gift_of_the_harvester : SpellScript, ISpellCheckCast
 	public SpellCastResult CheckCast()
 	{
 		List<TempSummon> ghouls = new();
-		GetCaster().GetAllMinionsByEntry(ghouls, CreatureIds.Ghoul);
+		Caster.GetAllMinionsByEntry(ghouls, CreatureIds.Ghoul);
 
 		if (ghouls.Count >= CreatureIds.MaxGhouls)
 		{

@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnRemoveMember : IScriptObject
 {
-    public interface IGuildOnRemoveMember : IScriptObject
-    {
-        void OnRemoveMember(Guild guild, Player player, bool isDisbanding, bool isKicked);
-    }
+	void OnRemoveMember(Guild guild, Player player, bool isDisbanding, bool isKicked);
 }

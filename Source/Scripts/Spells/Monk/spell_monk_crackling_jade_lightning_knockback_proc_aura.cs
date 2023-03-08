@@ -13,6 +13,8 @@ namespace Scripts.Spells.Monk;
 [Script] // 117959 - Crackling Jade Lightning
 internal class spell_monk_crackling_jade_lightning_knockback_proc_aura : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(MonkSpells.CracklingJadeLightningKnockback, MonkSpells.CracklingJadeLightningKnockbackCd);
@@ -20,16 +22,16 @@ internal class spell_monk_crackling_jade_lightning_knockback_proc_aura : AuraScr
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (GetTarget().HasAura(MonkSpells.CracklingJadeLightningKnockbackCd))
+		if (Target.HasAura(MonkSpells.CracklingJadeLightningKnockbackCd))
 			return false;
 
-		if (eventInfo.GetActor().HasAura(MonkSpells.CracklingJadeLightningChannel, GetTarget().GetGUID()))
+		if (eventInfo.Actor.HasAura(MonkSpells.CracklingJadeLightningChannel, Target.GetGUID()))
 			return false;
 
-		var currentChanneledSpell = GetTarget().GetCurrentSpell(CurrentSpellTypes.Channeled);
+		var currentChanneledSpell = Target.GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 		if (!currentChanneledSpell ||
-		    currentChanneledSpell.SpellInfo.Id != MonkSpells.CracklingJadeLightningChannel)
+			currentChanneledSpell.SpellInfo.Id != MonkSpells.CracklingJadeLightningChannel)
 			return false;
 
 		return true;
@@ -40,11 +42,9 @@ internal class spell_monk_crackling_jade_lightning_knockback_proc_aura : AuraScr
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		GetTarget().CastSpell(eventInfo.GetActor(), MonkSpells.CracklingJadeLightningKnockback, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
-		GetTarget().CastSpell(GetTarget(), MonkSpells.CracklingJadeLightningKnockbackCd, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Target.CastSpell(eventInfo.Actor, MonkSpells.CracklingJadeLightningKnockback, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Target.CastSpell(Target, MonkSpells.CracklingJadeLightningKnockbackCd, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 	}
 }

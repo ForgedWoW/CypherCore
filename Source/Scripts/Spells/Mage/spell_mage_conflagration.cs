@@ -12,6 +12,6 @@ public class spell_mage_conflagration : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().Id == MageSpells.FIREBALL;
+		return eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == MageSpells.FIREBALL;
 	}
 }

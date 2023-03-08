@@ -12,7 +12,7 @@ public class spell_pri_binding_heal : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

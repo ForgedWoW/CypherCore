@@ -16,6 +16,8 @@ internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAu
 {
 	private readonly uint _spellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_zandalarian_charm(uint SpellId)
 	{
 		_spellId = SpellId;
@@ -28,7 +30,7 @@ internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAu
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		if (spellInfo != null)
 			if (spellInfo.Id != ScriptSpellId)
@@ -42,11 +44,9 @@ internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAu
 		AuraEffects.Add(new AuraEffectProcHandler(HandleStackDrop, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleStackDrop(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().RemoveAuraFromStack(_spellId);
+		Target.RemoveAuraFromStack(_spellId);
 	}
 }

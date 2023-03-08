@@ -13,6 +13,6 @@ internal class spell_gen_decay_over_time_tail_sting_SpellScript : SpellScript, I
 	{
 		var aur = GetHitAura();
 
-		aur?.SetStackAmount((byte)GetSpellInfo().StackAmount);
+		aur?.SetStackAmount((byte)SpellInfo.StackAmount);
 	}
 }

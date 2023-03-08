@@ -3,33 +3,30 @@
 
 using System;
 
-namespace Game.Scripting
+namespace Game.Scripting;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class CreatureScriptAttribute : ScriptAttribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class CreatureScriptAttribute : ScriptAttribute
-    {
-        public CreatureScriptAttribute(params uint[] creatureIds) 
-        {
-            CreatureIds = creatureIds;
-        }
+	public uint[] CreatureIds { get; private set; }
 
-        public CreatureScriptAttribute(string name = "", params object[] args) : base(name, args)
-        {
-        }
+	public CreatureScriptAttribute(params uint[] creatureIds)
+	{
+		CreatureIds = creatureIds;
+	}
 
-        public CreatureScriptAttribute(uint creatureId, string name = "", params object[] args) : base(name, args)
-        {
-            CreatureIds = new[]
-                       {
-                           creatureId
-                       };
-        }
+	public CreatureScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-        public CreatureScriptAttribute(uint[] creatureIds, string name = "", params object[] args) : base(name, args)
-        {
-            CreatureIds = creatureIds;
-        }
+	public CreatureScriptAttribute(uint creatureId, string name = "", params object[] args) : base(name, args)
+	{
+		CreatureIds = new[]
+		{
+			creatureId
+		};
+	}
 
-        public uint[] CreatureIds { get; private set; }
-    }
+	public CreatureScriptAttribute(uint[] creatureIds, string name = "", params object[] args) : base(name, args)
+	{
+		CreatureIds = creatureIds;
+	}
 }

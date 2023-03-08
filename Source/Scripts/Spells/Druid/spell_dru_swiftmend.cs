@@ -14,25 +14,25 @@ public class spell_dru_swiftmend : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private struct Spells
+	public override void Register()
 	{
-		public static readonly uint SOUL_OF_THE_FOREST = 158478;
-		public static readonly uint SOUL_OF_THE_FOREST_TRIGGERED = 114108;
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
 	}
 
 
 	private void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			if (caster.HasAura(Spells.SOUL_OF_THE_FOREST))
 				caster.AddAura(Spells.SOUL_OF_THE_FOREST_TRIGGERED, caster);
 	}
 
-	public override void Register()
+
+	private struct Spells
 	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+		public static readonly uint SOUL_OF_THE_FOREST = 158478;
+		public static readonly uint SOUL_OF_THE_FOREST_TRIGGERED = 114108;
 	}
 }

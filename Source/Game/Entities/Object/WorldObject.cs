@@ -1978,8 +1978,8 @@ public abstract class WorldObject : IDisposable
 			maxComboPoints = unit.GetMaxPower(PowerType.ComboPoints);
 		}
 
-		var minduration = spellInfo.GetDuration();
-		var maxduration = spellInfo.GetMaxDuration();
+		var minduration = spellInfo.Duration;
+		var maxduration = spellInfo.MaxDuration;
 
 		int duration;
 
@@ -2139,7 +2139,7 @@ public abstract class WorldObject : IDisposable
 
 		// Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
 		// returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-		if (spellInfo.HasOnlyDamageEffects() && victim.IsImmunedToDamage(spellInfo))
+		if (spellInfo.HasOnlyDamageEffects && victim.IsImmunedToDamage(spellInfo))
 			return SpellMissInfo.Immune;
 
 		// All positive spells can`t miss
@@ -2661,11 +2661,11 @@ public abstract class WorldObject : IDisposable
 		if (unit != null)
 			// can't attack invisible
 			if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift))
-				if (!unit.CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea()))
+				if (!unit.CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea))
 					return false;
 
 		// can't attack dead
-		if ((bySpell == null || !bySpell.IsAllowingDeadTarget()) && unitTarget != null && !unitTarget.IsAlive())
+		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget != null && !unitTarget.IsAlive())
 			return false;
 
 		// can't attack untargetable
@@ -2827,11 +2827,11 @@ public abstract class WorldObject : IDisposable
 		}
 
 		// can't assist invisible
-		if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea()))
+		if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea))
 			return false;
 
 		// can't assist dead
-		if ((bySpell == null || !bySpell.IsAllowingDeadTarget()) && unitTarget && !unitTarget.IsAlive())
+		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive())
 			return false;
 
 		// can't assist untargetable

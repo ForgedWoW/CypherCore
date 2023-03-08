@@ -3,10 +3,9 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces
+namespace Game.Scripting.Interfaces;
+
+public interface IClassRescriction
 {
-    public interface IClassRescriction
-    {
-        Class PlayerClass { get; }
-    }
+	Class PlayerClass { get; }
 }

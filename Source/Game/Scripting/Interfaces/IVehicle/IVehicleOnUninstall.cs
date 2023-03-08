@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IVehicle
+namespace Game.Scripting.Interfaces.IVehicle;
+
+public interface IVehicleOnUninstall : IScriptObject
 {
-    public interface IVehicleOnUninstall : IScriptObject
-    {
-        void OnUninstall(Vehicle veh);
-    }
+	void OnUninstall(Vehicle veh);
 }

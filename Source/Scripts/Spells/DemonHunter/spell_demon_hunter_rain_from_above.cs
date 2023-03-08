@@ -12,7 +12,7 @@ public class spell_demon_hunter_rain_from_above : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null || !caster.ToPlayer())
 			return;

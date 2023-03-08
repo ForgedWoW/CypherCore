@@ -15,10 +15,10 @@ public class spell_monk_expel_harm : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		if (!GetCaster())
+		if (!Caster)
 			return;
 
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
@@ -28,8 +28,8 @@ public class spell_monk_expel_harm : SpellScript, ISpellOnHit
 			foreach (var itr in targetList)
 				if (_player.IsValidAttackTarget(itr))
 				{
-					double bp   = MathFunctions.CalculatePct((-GetHitDamage()), 50);
-					var   args = new CastSpellExtraArgs();
+					var bp = MathFunctions.CalculatePct((-HitDamage), 50);
+					var args = new CastSpellExtraArgs();
 					args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
 					args.SetTriggerFlags(TriggerCastFlags.FullMask);
 					_player.CastSpell(itr, 115129, args);

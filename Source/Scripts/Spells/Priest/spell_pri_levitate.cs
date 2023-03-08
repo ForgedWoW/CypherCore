@@ -27,6 +27,6 @@ internal class spell_pri_levitate : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitUnit(), PriestSpells.LEVITATE_EFFECT, true);
+		Caster.CastSpell(HitUnit, PriestSpells.LEVITATE_EFFECT, true);
 	}
 }

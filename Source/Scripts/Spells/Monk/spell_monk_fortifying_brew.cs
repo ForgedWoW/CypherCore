@@ -14,16 +14,16 @@ public class spell_monk_fortifying_brew : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleDummy(int effIndex)
-	{
-		var caster = GetCaster();
-
-		if (caster != null && caster.GetTypeId() == TypeId.Player)
-			caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		var caster = Caster;
+
+		if (caster != null && caster.GetTypeId() == TypeId.Player)
+			caster.CastSpell(caster, MonkSpells.FORTIFYING_BREW, true);
 	}
 }

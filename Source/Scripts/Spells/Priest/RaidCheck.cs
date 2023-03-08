@@ -8,9 +8,11 @@ namespace Scripts.Spells.Priest;
 
 public class RaidCheck : ICheck<WorldObject>
 {
+	private readonly Unit _caster;
+
 	public RaidCheck(Unit caster)
 	{
-		this._caster = caster;
+		_caster = caster;
 	}
 
 	public bool Invoke(WorldObject obj)
@@ -22,6 +24,4 @@ public class RaidCheck : ICheck<WorldObject>
 
 		return true;
 	}
-
-	private readonly Unit _caster;
 }

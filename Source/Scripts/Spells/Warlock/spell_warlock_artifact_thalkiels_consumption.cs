@@ -9,50 +9,49 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Thal'kiel's Consumption - 211714
+[SpellScript(211714)]
+public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpellEffects
 {
-    // Thal'kiel's Consumption - 211714
-    [SpellScript(211714)]
-	public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpellEffects
+	private uint _damage = 0;
+
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		private uint _damage = 0;
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
+	}
 
-		public List<ISpellEffect> SpellEffects { get; } = new();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-		private void HandleHit(int effIndex)
+		if (target == null || caster == null)
+			return;
+
+		caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
+	}
+
+	private void SaveDamage(List<WorldObject> targets)
+	{
+		targets.RemoveIf((WorldObject target) =>
 		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+			if (!target.ToUnit() || target.ToPlayer())
+				return true;
 
-			if (target == null || caster == null)
-				return;
+			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+				return true;
 
-			caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)_damage));
-		}
+			return false;
+		});
 
-		private void SaveDamage(List<WorldObject> targets)
-		{
-			targets.RemoveIf((WorldObject target) =>
-			                 {
-				                 if (!target.ToUnit() || target.ToPlayer())
-					                 return true;
+		var basePoints = SpellInfo.GetEffect(1).BasePoints;
 
-				                 if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
-					                 return true;
-
-				                 return false;
-			                 });
-
-			var basePoints = GetSpellInfo().GetEffect(1).BasePoints;
-
-			foreach (var pet in targets)
-				_damage += (uint)pet.ToUnit().CountPctFromMaxHealth(basePoints);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
-		}
+		foreach (var pet in targets)
+			_damage += (uint)pet.ToUnit().CountPctFromMaxHealth(basePoints);
 	}
 }

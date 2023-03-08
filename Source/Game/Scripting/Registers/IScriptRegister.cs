@@ -4,11 +4,10 @@
 using System;
 using Game.Scripting.Interfaces;
 
-namespace Game.Scripting.Registers
+namespace Game.Scripting.Registers;
+
+public interface IScriptRegister
 {
-    public interface IScriptRegister
-    {
-        Type AttributeType { get; }
-        void Register(ScriptAttribute attribute, IScriptObject script, string scriptName);
-    }
+	Type AttributeType { get; }
+	void Register(ScriptAttribute attribute, IScriptObject script, string scriptName);
 }

@@ -15,6 +15,8 @@ namespace Scripts.Spells.Mage;
 [Script] // 80353 - Time Warp
 internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(MageSpells.TemporalDisplacement, MageSpells.HunterInsanity, MageSpells.ShamanExhaustion, MageSpells.ShamanSated, MageSpells.PetNetherwindsFatigued);
@@ -22,7 +24,7 @@ internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffe
 
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			target.CastSpell(target, MageSpells.TemporalDisplacement, true);
@@ -32,8 +34,6 @@ internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffe
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, SpellConst.EffectAll, Targets.UnitCasterAreaRaid));
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	private void RemoveInvalidTargets(List<WorldObject> targets)
 	{

@@ -21,7 +21,7 @@ internal class spell_gen_submerged : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int eff)
 	{
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		target?.SetStandState(UnitStandStateType.Submerged);
 	}

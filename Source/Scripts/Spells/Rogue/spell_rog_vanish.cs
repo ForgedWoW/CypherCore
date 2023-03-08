@@ -29,7 +29,7 @@ internal class spell_rog_vanish : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		target.RemoveAurasByType(AuraType.ModStalked);
 

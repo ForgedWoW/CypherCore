@@ -21,23 +21,23 @@ internal class spell_defender_of_azeroth_speak_with_mograine : SpellScript, IHas
 
 	private void HandleDummy(int effIndex)
 	{
-		if (!GetCaster())
+		if (!Caster)
 			return;
 
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player == null)
 			return;
 
-		var nazgrim = GetHitUnit().FindNearestCreature(CreatureIds.Nazgrim, 10.0f);
+		var nazgrim = HitUnit.FindNearestCreature(CreatureIds.Nazgrim, 10.0f);
 
 		nazgrim?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-		var trollbane = GetHitUnit().FindNearestCreature(CreatureIds.Trollbane, 10.0f);
+		var trollbane = HitUnit.FindNearestCreature(CreatureIds.Trollbane, 10.0f);
 
 		trollbane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 
-		var whitemane = GetHitUnit().FindNearestCreature(CreatureIds.Whitemane, 10.0f);
+		var whitemane = HitUnit.FindNearestCreature(CreatureIds.Whitemane, 10.0f);
 
 		whitemane?.HandleEmoteCommand(Emote.OneshotPoint, player);
 

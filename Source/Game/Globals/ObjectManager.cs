@@ -1782,7 +1782,7 @@ namespace Game
 
             if (allRanks)
             {
-                if (!spellInfo.IsRanked())
+                if (!spellInfo.IsRanked)
                     Log.outDebug(LogFilter.ServerLoading, "Scriptname: `{0}` spell (Id: {1}) has no ranks of spell.", scriptName, spellId);
 
                 while (spellInfo != null)
@@ -1793,7 +1793,7 @@ namespace Game
             }
             else
             {
-                if (spellInfo.IsRanked())
+                if (spellInfo.IsRanked)
                     Log.outDebug(LogFilter.ServerLoading, "Scriptname: `{0}` spell (Id: {1}) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
 
                 spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
@@ -2369,7 +2369,7 @@ namespace Game
                         continue;
                     }
 
-                    if (AdditionalSpellInfo.GetDuration() > 0)
+                    if (AdditionalSpellInfo.Duration > 0)
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
@@ -2520,7 +2520,7 @@ namespace Game
                         continue;
                     }
 
-                    if (AdditionalSpellInfo.GetDuration() > 0)
+                    if (AdditionalSpellInfo.Duration > 0)
                     {
                         Log.outDebug(LogFilter.Sql, $"Creature (GUID: {guid}) has temporary aura (spell {spellId}) in `auras` field in `creature_addon`.");
                         continue;

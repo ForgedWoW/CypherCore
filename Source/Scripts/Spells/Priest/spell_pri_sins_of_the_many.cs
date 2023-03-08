@@ -27,11 +27,11 @@ internal class spell_pri_sins_of_the_many : AuraScript, IHasAuraEffects
 
 	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().CastSpell(GetTarget(), PriestSpells.SINS_OF_THE_MANY, true);
+		Target.CastSpell(Target, PriestSpells.SINS_OF_THE_MANY, true);
 	}
 
 	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(PriestSpells.SINS_OF_THE_MANY);
+		Target.RemoveAura(PriestSpells.SINS_OF_THE_MANY);
 	}
 }

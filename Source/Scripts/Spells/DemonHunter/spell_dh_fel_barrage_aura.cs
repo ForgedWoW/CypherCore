@@ -13,34 +13,39 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(222703)]
 public class spell_dh_fel_barrage_aura : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
 	//Blade Dance    //Chaos Strike   //Fel Barrage
 	readonly List<uint> _removeSpellIds = new()
-	                                      {
-		                                      199552,
-		                                      210153,
-		                                      222031,
-		                                      227518,
-		                                      211052
-	                                      };
+	{
+		199552,
+		210153,
+		222031,
+		227518,
+		211052
+	};
+
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		// Blade Dance, Chaos Strike and Annihilation have many damagers,
 		// so we accept only 1 of those, and we remove the others
 		// Also we remove fel barrage itself too.
-		if (eventInfo.GetSpellInfo() != null)
+		if (eventInfo.SpellInfo != null)
 			return false;
 
-		return !_removeSpellIds.Contains(eventInfo.GetSpellInfo().Id);
+		return !_removeSpellIds.Contains(eventInfo.SpellInfo.Id);
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
 		PreventDefaultAction();
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -49,10 +54,5 @@ public class spell_dh_fel_barrage_aura : AuraScript, IHasAuraEffects, IAuraCheck
 
 		if (chargeCatId != 0)
 			caster.GetSpellHistory().RestoreCharge(chargeCatId);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

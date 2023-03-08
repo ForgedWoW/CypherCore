@@ -7,24 +7,23 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 51490 - Thunderstorm
+[SpellScript(51490)]
+public class spell_sha_thunderstorm : SpellScript, IHasSpellEffects
 {
-    // 51490 - Thunderstorm
-    [SpellScript(51490)]
-	public class spell_sha_thunderstorm : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleKnockBack, 1, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleKnockBack(int effIndex)
-		{
-			// Glyph of Thunderstorm
-			if (GetCaster().HasAura(ShamanSpells.GLYPH_OF_THUNDERSTORM))
-				PreventHitDefaultEffect(effIndex);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleKnockBack, 1, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
-		}
+	private void HandleKnockBack(int effIndex)
+	{
+		// Glyph of Thunderstorm
+		if (Caster.HasAura(ShamanSpells.GLYPH_OF_THUNDERSTORM))
+			PreventHitDefaultEffect(effIndex);
 	}
 }

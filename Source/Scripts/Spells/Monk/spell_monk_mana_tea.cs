@@ -13,9 +13,20 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
 {
 	private readonly SpellModifier mod = null;
 
+	public void AfterCast()
+	{
+		if (mod != null)
+		{
+			var _player = Caster.ToPlayer();
+
+			if (_player != null)
+				_player.AddSpellMod(mod, false);
+		}
+	}
+
 	public void BeforeCast()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
@@ -31,26 +42,15 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
 
 
 				var mod = new SpellModifierByClassMask(manaTeaStacks);
-				mod.Op                                = SpellModOp.Duration;
-				mod.Type                              = SpellModType.Flat;
-				mod.SpellId                           = MonkSpells.MANA_TEA_REGEN;
+				mod.Op = SpellModOp.Duration;
+				mod.Type = SpellModType.Flat;
+				mod.SpellId = MonkSpells.MANA_TEA_REGEN;
 				((SpellModifierByClassMask)mod).Value = newDuration;
-				mod.Mask[1]                           = 0x200000;
-				mod.Mask[2]                           = 0x1;
+				mod.Mask[1] = 0x200000;
+				mod.Mask[2] = 0x1;
 
 				_player.AddSpellMod(mod, true);
 			}
-		}
-	}
-
-	public void AfterCast()
-	{
-		if (mod != null)
-		{
-			var _player = GetCaster().ToPlayer();
-
-			if (_player != null)
-				_player.AddSpellMod(mod, false);
 		}
 	}
 }

@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IConversation
+namespace Game.Scripting.Interfaces.IConversation;
+
+public interface IConversationOnConversationLineStarted : IScriptObject
 {
-    public interface IConversationOnConversationLineStarted : IScriptObject
-    {
-        void OnConversationLineStarted(Conversation conversation, uint lineId, Player sender);
-    }
+	void OnConversationLineStarted(Conversation conversation, uint lineId, Player sender);
 }

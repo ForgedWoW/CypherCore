@@ -10,9 +10,7 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_decomposing_aura : AreaTriggerAI
 {
-	public at_dk_decomposing_aura(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_dk_decomposing_aura(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitExit(Unit unit)
 	{

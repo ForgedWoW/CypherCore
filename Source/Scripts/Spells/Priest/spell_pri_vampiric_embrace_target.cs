@@ -22,6 +22,6 @@ internal class spell_pri_vampiric_embrace_target : SpellScript, IHasSpellEffects
 
 	private void FilterTargets(List<WorldObject> unitList)
 	{
-		unitList.Remove(GetCaster());
+		unitList.Remove(Caster);
 	}
 }

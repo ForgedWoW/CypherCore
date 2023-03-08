@@ -8,35 +8,34 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//187880 - Maelstrom Weapon
+[SpellScript(187880)]
+public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-    //187880 - Maelstrom Weapon
-    [SpellScript(187880)]
-	public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraCheckProc
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(ShamanSpells.MAELSTROM_WEAPON_POWER);
+	}
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return ValidateSpellInfo(ShamanSpells.MAELSTROM_WEAPON_POWER);
-		}
+	public bool CheckProc(ProcEventInfo info)
+	{
+		return info.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack || info.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack || info.SpellInfo.Id == ShamanSpells.WINDFURY_ATTACK;
+	}
 
-		public bool CheckProc(ProcEventInfo info)
-		{
-			return info.GetDamageInfo().GetAttackType() == WeaponAttackType.BaseAttack || info.GetDamageInfo().GetAttackType() == WeaponAttackType.OffAttack || info.GetSpellInfo().Id == ShamanSpells.WINDFURY_ATTACK;
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		public void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-		{
-			var caster = GetCaster();
+	public void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		var caster = Caster;
 
-			if (caster != null)
-				caster.CastSpell(caster, ShamanSpells.MAELSTROM_WEAPON_POWER, true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		if (caster != null)
+			caster.CastSpell(caster, ShamanSpells.MAELSTROM_WEAPON_POWER, true);
 	}
 }

@@ -3,28 +3,35 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ITargetHookHandler : ISpellEffect
 {
-    public interface ITargetHookHandler : ISpellEffect
-    {
-        Targets TargetType { get; }
-        bool Area { get { return true; } }
-        bool Dest { get { return false; } }
-    }
+	Targets TargetType { get; }
 
-    public class TargetHookHandler : SpellEffect, ITargetHookHandler
-    {
-        public TargetHookHandler(int effectIndex, Targets targetType, bool area, SpellScriptHookType hookType, bool dest = false) : base(effectIndex, hookType)
-        {
-            TargetType = targetType;
-            Area = area;
-            Dest = dest;
-        }
+	bool Area
+	{
+		get { return true; }
+	}
 
-        public Targets TargetType { get; }
+	bool Dest
+	{
+		get { return false; }
+	}
+}
 
-        public bool Area { get; }
+public class TargetHookHandler : SpellEffect, ITargetHookHandler
+{
+	public Targets TargetType { get; }
 
-        public bool Dest { get; }
-    }
+	public bool Area { get; }
+
+	public bool Dest { get; }
+
+	public TargetHookHandler(int effectIndex, Targets targetType, bool area, SpellScriptHookType hookType, bool dest = false) : base(effectIndex, hookType)
+	{
+		TargetType = targetType;
+		Area = area;
+		Dest = dest;
+	}
 }

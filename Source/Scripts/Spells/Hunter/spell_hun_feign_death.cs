@@ -12,29 +12,28 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(5384)]
 public class spell_hun_feign_death : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
 	private long health;
 	private int focus;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.FeignDeath, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.FeignDeath, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
 	private void HandleEffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		health = GetTarget().GetHealth();
-		focus  = GetTarget().GetPower(PowerType.Focus);
+		health = Target.GetHealth();
+		focus = Target.GetPower(PowerType.Focus);
 	}
 
 	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
 		if (health != 0 && focus != 0)
 		{
-			GetTarget().SetHealth(health);
-			GetTarget().SetPower(PowerType.Focus, focus);
+			Target.SetHealth(health);
+			Target.SetPower(PowerType.Focus, focus);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectApply, 0, AuraType.FeignDeath, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.FeignDeath, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }

@@ -9,43 +9,42 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(204074)] // 204074 - Righteous Protector
+internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 {
-    [SpellScript(204074)] // 204074 - Righteous Protector
-    internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
-    {
-        private SpellPowerCost _baseHolyPowerCost;
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	private SpellPowerCost _baseHolyPowerCost;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.AvengingWrath, PaladinSpells.GuardianOfAcientKings);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.AvengingWrath, PaladinSpells.GuardianOfAcientKings);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.Dummy));
-            AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.Dummy));
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            SpellInfo procSpell = eventInfo.GetSpellInfo();
+	private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		var procSpell = eventInfo.SpellInfo;
 
-            if (procSpell != null)
-                _baseHolyPowerCost = procSpell.CalcPowerCost(PowerType.HolyPower, false, eventInfo.GetActor(), eventInfo.GetSchoolMask());
-            else
-                _baseHolyPowerCost = null;
+		if (procSpell != null)
+			_baseHolyPowerCost = procSpell.CalcPowerCost(PowerType.HolyPower, false, eventInfo.Actor, eventInfo.SchoolMask);
+		else
+			_baseHolyPowerCost = null;
 
-            return _baseHolyPowerCost != null;
-        }
+		return _baseHolyPowerCost != null;
+	}
 
-        private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            double value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
+	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
 
-            GetTarget().GetSpellHistory().ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
-            GetTarget().GetSpellHistory().ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
-        }
-    }
+		Target.GetSpellHistory().ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
+		Target.GetSpellHistory().ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
+	}
 }

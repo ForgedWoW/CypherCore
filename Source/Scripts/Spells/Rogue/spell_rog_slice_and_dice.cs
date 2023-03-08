@@ -13,7 +13,7 @@ public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
@@ -21,8 +21,8 @@ public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
 
 			if (sliceAndDice != null)
 			{
-				var costs = GetSpell().PowerCost;
-				var c     = costs.FirstOrDefault(p => p.Power == PowerType.ComboPoints);
+				var costs = Spell.PowerCost;
+				var c = costs.FirstOrDefault(p => p.Power == PowerType.ComboPoints);
 
 				if (c != null)
 				{

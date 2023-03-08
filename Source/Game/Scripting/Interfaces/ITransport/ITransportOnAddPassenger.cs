@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ITransport
+namespace Game.Scripting.Interfaces.ITransport;
+
+public interface ITransportOnAddPassenger : IScriptObject
 {
-    public interface ITransportOnAddPassenger : IScriptObject
-    {
-        void OnAddPassenger(Transport transport, Player player);
-    }
+	void OnAddPassenger(Transport transport, Player player);
 }

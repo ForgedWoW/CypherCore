@@ -28,6 +28,6 @@ internal class spell_gen_whisper_gulch_yogg_saron_whisper : AuraScript, IHasAura
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell((Unit)null, GenericSpellIds.YoggSaronWhisperDummy, true);
+		Target.CastSpell((Unit)null, GenericSpellIds.YoggSaronWhisperDummy, true);
 	}
 }

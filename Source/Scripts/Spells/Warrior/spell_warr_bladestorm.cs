@@ -7,32 +7,31 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Bladestorm - 227847, 46924
+public class spell_warr_bladestorm : SpellScript, ISpellOnCast, IHasSpellEffects
 {
-    // Bladestorm - 227847, 46924
-    public class spell_warr_bladestorm : SpellScript, ISpellOnCast, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public void OnCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		Caster.CastSpell(Caster, WarriorSpells.NEW_BLADESTORM, true);
+	}
 
-		private void HandleOnHit(int effIndex)
-		{
-			PreventHitAura();
-			PreventHitDamage();
-			PreventHitDefaultEffect(effIndex);
-			PreventHitEffect(effIndex);
-			PreventHitHeal();
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public void OnCast()
-		{
-			GetCaster().CastSpell(GetCaster(), WarriorSpells.NEW_BLADESTORM, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-		}
+	private void HandleOnHit(int effIndex)
+	{
+		PreventHitAura();
+		PreventHitDamage();
+		PreventHitDefaultEffect(effIndex);
+		PreventHitEffect(effIndex);
+		PreventHitHeal();
 	}
 }

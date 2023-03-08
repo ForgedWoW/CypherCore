@@ -30,18 +30,18 @@ internal class spell_sha_t9_elemental_4p_bonus : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-		    damageInfo.GetDamage() == 0)
+			damageInfo.GetDamage() == 0)
 			return;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurstBonusDamage, GetCastDifficulty());
-		var amount    = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
-		amount /= (int)spellInfo.GetMaxTicks();
+		var spellInfo = Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurstBonusDamage, CastDifficulty);
+		var amount = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
+		amount /= (int)spellInfo.MaxTicks;
 
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetProcTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ProcTarget;
 
 		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, amount);

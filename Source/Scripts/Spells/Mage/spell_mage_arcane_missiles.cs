@@ -12,11 +12,16 @@ namespace Scripts.Spells.Mage;
 [SpellScript(5143)]
 public class spell_mage_arcane_missiles : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
+	}
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -30,10 +35,5 @@ public class spell_mage_arcane_missiles : AuraScript, IHasAuraEffects
 			pvpClearcast.ModStackAmount(-1);
 
 		caster.RemoveAura(MageSpells.RULE_OF_THREES_BUFF);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 1, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
 	}
 }

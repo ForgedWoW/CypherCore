@@ -14,17 +14,17 @@ namespace Scripts.Spells.Druid;
 [SpellScript(203975)]
 public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private struct Spells
-	{
-		public static readonly uint EARTHWARDEN = 203974;
-		public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(Spells.EARTHWARDEN, Spells.EARTHWARDEN_TRIGGERED);
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
 	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -39,15 +39,15 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 			var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.EARTHWARDEN, Difficulty.None);
 
 			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), earthwarden.GetEffect(0).BasePoints);
-			GetCaster().RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
+			Caster.RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
 		}
 
 		return absorbAmount;
 	}
 
-	public override void Register()
+	private struct Spells
 	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+		public static readonly uint EARTHWARDEN = 203974;
+		public static readonly uint EARTHWARDEN_TRIGGERED = 203975;
 	}
 }

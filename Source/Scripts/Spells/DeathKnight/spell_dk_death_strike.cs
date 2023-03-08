@@ -14,6 +14,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 49998 - Death Strike
 internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(DeathKnightSpells.DeathStrikeEnabler, DeathKnightSpells.DeathStrikeHeal, DeathKnightSpells.BloodShieldMastery, DeathKnightSpells.BloodShieldAbsorb, DeathKnightSpells.RecentlyUsedDeathStrike, DeathKnightSpells.FROST, DeathKnightSpells.DeathStrikeOffhand) && spellInfo.Effects.Count > 2;
@@ -21,7 +23,7 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 
 	public void AfterCast()
 	{
-		GetCaster().CastSpell(GetCaster(), DeathKnightSpells.RecentlyUsedDeathStrike, true);
+		Caster.CastSpell(Caster, DeathKnightSpells.RecentlyUsedDeathStrike, true);
 	}
 
 	public override void Register()
@@ -29,20 +31,18 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		var enabler = caster.GetAuraEffect(DeathKnightSpells.DeathStrikeEnabler, 0, GetCaster().GetGUID());
+		var enabler = caster.GetAuraEffect(DeathKnightSpells.DeathStrikeEnabler, 0, Caster.GetGUID());
 
 		if (enabler != null)
 		{
 			// Heals you for 25% of all Damage taken in the last 5 sec,
-			var heal = MathFunctions.CalculatePct(enabler.CalculateAmount(GetCaster()), GetEffectInfo(1).CalcValue(GetCaster()));
+			var heal = MathFunctions.CalculatePct(enabler.CalculateAmount(Caster), GetEffectInfo(1).CalcValue(Caster));
 			// minimum 7.0% of maximum health.
-			var pctOfMaxHealth = MathFunctions.CalculatePct(GetEffectInfo(2).CalcValue(GetCaster()), caster.GetMaxHealth());
+			var pctOfMaxHealth = MathFunctions.CalculatePct(GetEffectInfo(2).CalcValue(Caster), caster.GetMaxHealth());
 			heal = Math.Max(heal, pctOfMaxHealth);
 
 			caster.CastSpell(caster, DeathKnightSpells.DeathStrikeHeal, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, heal));
@@ -53,7 +53,7 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 				caster.CastSpell(caster, DeathKnightSpells.BloodShieldAbsorb, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, MathFunctions.CalculatePct(heal, aurEff.Amount)));
 
 			if (caster.HasAura(DeathKnightSpells.FROST))
-				caster.CastSpell(GetHitUnit(), DeathKnightSpells.DeathStrikeOffhand, true);
+				caster.CastSpell(HitUnit, DeathKnightSpells.DeathStrikeOffhand, true);
 		}
 	}
 }

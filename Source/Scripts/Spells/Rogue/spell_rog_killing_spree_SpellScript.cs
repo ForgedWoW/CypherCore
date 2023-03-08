@@ -24,19 +24,19 @@ internal class spell_rog_killing_spree_SpellScript : SpellScript, IHasSpellEffec
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		if (targets.Empty() ||
-		    GetCaster().GetVehicleBase())
+			Caster.GetVehicleBase())
 			FinishCast(SpellCastResult.OutOfRange);
 	}
 
 	private void HandleDummy(int effIndex)
 	{
-		var aura = GetCaster().GetAura(RogueSpells.KillingSpree);
+		var aura = Caster.GetAura(RogueSpells.KillingSpree);
 
 		if (aura != null)
 		{
 			var script = aura.GetScript<spell_rog_killing_spree_AuraScript>();
 
-			script?.AddTarget(GetHitUnit());
+			script?.AddTarget(HitUnit);
 		}
 	}
 }

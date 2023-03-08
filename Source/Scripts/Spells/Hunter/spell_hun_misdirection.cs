@@ -28,17 +28,17 @@ internal class spell_hun_misdirection : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Default ||
-		    GetTargetApplication().RemoveMode == AuraRemoveMode.Interrupt)
+		if (TargetApplication.RemoveMode == AuraRemoveMode.Default ||
+			TargetApplication.RemoveMode == AuraRemoveMode.Interrupt)
 			return;
 
-		if (!GetTarget().HasAura(HunterSpells.MisdirectionProc))
-			GetTarget().GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
+		if (!Target.HasAura(HunterSpells.MisdirectionProc))
+			Target.GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), HunterSpells.MisdirectionProc, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, HunterSpells.MisdirectionProc, new CastSpellExtraArgs(aurEff));
 	}
 }

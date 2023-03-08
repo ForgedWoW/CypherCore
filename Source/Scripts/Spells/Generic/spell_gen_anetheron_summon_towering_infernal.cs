@@ -21,6 +21,6 @@ internal class spell_gen_anetheron_summon_towering_infernal : SpellScript, IHasS
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitUnit(), (uint)GetEffectValue(), true);
+		Caster.CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 }

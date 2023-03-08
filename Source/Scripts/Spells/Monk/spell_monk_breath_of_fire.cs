@@ -11,7 +11,7 @@ public class spell_monk_breath_of_fire : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -19,7 +19,7 @@ public class spell_monk_breath_of_fire : SpellScript, ISpellAfterHit
 
 			if (_player != null)
 			{
-				var target = GetHitUnit();
+				var target = HitUnit;
 
 				if (target != null)
 				{

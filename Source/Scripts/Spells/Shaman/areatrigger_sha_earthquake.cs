@@ -21,7 +21,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 	public areatrigger_sha_earthquake(AreaTrigger areatrigger) : base(areatrigger)
 	{
 		_refreshTimer = TimeSpan.Zero;
-		_period       = TimeSpan.FromSeconds(1);
+		_period = TimeSpan.FromSeconds(1);
 	}
 
 	public override void OnCreate()
@@ -46,9 +46,9 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 			var caster = at.GetCaster();
 
 			caster?.CastSpell(at.Location,
-			                  ShamanSpells.EarthquakeTick,
-			                  new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-				                  .SetOriginalCaster(at.GetGUID()));
+							ShamanSpells.EarthquakeTick,
+							new CastSpellExtraArgs(TriggerCastFlags.FullMask)
+								.SetOriginalCaster(at.GetGUID()));
 
 			_refreshTimer += _period;
 		}

@@ -23,9 +23,9 @@ internal class spell_mage_prismatic_barrier : AuraScript, IHasAuraEffects
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		canBeRecalculated.Value = false;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
-			amount.Value += (caster.SpellBaseHealingBonusDone(GetSpellInfo().GetSchoolMask()) * 7.0f);
+			amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 7.0f);
 	}
 }

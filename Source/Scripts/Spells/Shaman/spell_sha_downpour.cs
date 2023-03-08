@@ -18,6 +18,8 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 {
 	private int _healedTargets = 0;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return spellInfo.Effects.Count > 1;
@@ -25,8 +27,8 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 
 	public void AfterCast()
 	{
-		var cooldown = TimeSpan.FromMilliseconds(GetSpellInfo().RecoveryTime) + TimeSpan.FromSeconds(GetEffectInfo(1).CalcValue() * _healedTargets);
-		GetCaster().GetSpellHistory().StartCooldown(GetSpellInfo(), 0, GetSpell(), false, cooldown);
+		var cooldown = TimeSpan.FromMilliseconds(SpellInfo.RecoveryTime) + TimeSpan.FromSeconds(GetEffectInfo(1).CalcValue() * _healedTargets);
+		Caster.GetSpellHistory().StartCooldown(SpellInfo, 0, Spell, false, cooldown);
 	}
 
 	public override void Register()
@@ -37,11 +39,9 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 	public void AfterHit()
 	{
 		// Cooldown increased for each Target effectively healed
-		if (GetHitHeal() != 0)
+		if (HitHeal != 0)
 			++_healedTargets;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	private void FilterTargets(List<WorldObject> targets)
 	{

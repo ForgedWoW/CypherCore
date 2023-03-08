@@ -28,7 +28,7 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		switch (effIndex)
 		{
@@ -36,7 +36,7 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 			{
 				uint spellId;
 
-				switch (GetSpellInfo().Id)
+				switch (SpellInfo.Id)
 				{
 					case GenericSpellIds.BreakShieldTriggerUnk:
 					case GenericSpellIds.BreakShieldTriggerCampaingWarhorse:
@@ -51,12 +51,12 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 						return;
 				}
 
-				var rider = GetCaster().GetCharmer();
+				var rider = Caster.GetCharmer();
 
 				if (rider)
 					rider.CastSpell(target, spellId, false);
 				else
-					GetCaster().CastSpell(target, spellId, false);
+					Caster.CastSpell(target, spellId, false);
 
 				break;
 			}

@@ -12,9 +12,11 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 52751 - Death Gate
 internal class spell_dk_death_gate : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public SpellCastResult CheckCast()
 	{
-		if (GetCaster().GetClass() != Class.Deathknight)
+		if (Caster.GetClass() != Class.Deathknight)
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.MustBeDeathKnight);
 
@@ -29,14 +31,12 @@ internal class spell_dk_death_gate : SpellScript, ISpellCheckCast, IHasSpellEffe
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleScript(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
-			target.CastSpell(target, (uint)GetEffectValue(), false);
+			target.CastSpell(target, (uint)EffectValue, false);
 	}
 }

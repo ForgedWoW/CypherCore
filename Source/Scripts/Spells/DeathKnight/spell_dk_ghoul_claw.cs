@@ -10,34 +10,37 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(47468)]
 public class spell_dk_ghoul_claw : SpellScript, ISpellOnHit, ISpellAfterHit
 {
-	public void OnHit()
+	public void AfterHit()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (caster == null || target == null)
 			return;
 
 		Unit owner = caster.GetOwner().ToPlayer();
-		if (owner != null) {
+
+		if (owner != null)
+			caster.CastSpell(target, caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_CLAW : DeathKnightSpells.GHOUL_CLAW, true);
+	}
+
+	public void OnHit()
+	{
+		var caster = Caster;
+		var target = ExplTargetUnit;
+
+		if (caster == null || target == null)
+			return;
+
+		Unit owner = caster.GetOwner().ToPlayer();
+
+		if (owner != null)
+		{
 			var infectedClaws = owner.GetAura(DeathKnightSpells.INFECTED_CLAWS);
+
 			if (infectedClaws != null)
 				if (RandomHelper.randChance(infectedClaws.SpellInfo.GetEffect(0).BasePoints))
 					owner.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
 		}
 	}
-
-	public void AfterHit(){
-        var caster = GetCaster();
-        var target = GetExplTargetUnit();
-
-        if (caster == null || target == null)
-            return;
-
-        Unit owner = caster.GetOwner().ToPlayer();
-        if (owner != null)
-        {
-			caster.CastSpell(target, caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_CLAW : DeathKnightSpells.GHOUL_CLAW, true);
-        }
-    }
 }

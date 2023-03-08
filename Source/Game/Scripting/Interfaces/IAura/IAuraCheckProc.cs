@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraCheckProc : IAuraScript
 {
-    public interface IAuraCheckProc : IAuraScript
-    {
-        bool CheckProc(ProcEventInfo info);
-    }
+	bool CheckProc(ProcEventInfo info);
 }

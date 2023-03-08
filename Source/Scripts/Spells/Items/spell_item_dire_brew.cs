@@ -22,11 +22,11 @@ internal class spell_item_dire_brew : AuraScript, IHasAuraEffects
 
 	private void AfterApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
-		uint model    = 0;
-		var  gender   = target.GetGender();
-		var  chrClass = CliDB.ChrClassesStorage.LookupByKey(target.GetClass());
+		uint model = 0;
+		var gender = target.GetGender();
+		var chrClass = CliDB.ChrClassesStorage.LookupByKey(target.GetClass());
 
 		if ((chrClass.ArmorTypeMask & (1 << (int)ItemSubClassArmor.Plate)) != 0)
 			model = gender == Gender.Male ? ModelIds.ClassPlateMale : ModelIds.ClassPlateFemale;

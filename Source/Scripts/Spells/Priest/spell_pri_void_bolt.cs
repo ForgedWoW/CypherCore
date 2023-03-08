@@ -14,33 +14,33 @@ public class spell_pri_void_bolt : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleEffectScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleEffectScriptEffect(int effIndex)
 	{
-		var voidBoltDurationBuffAura = GetCaster().GetAura(PriestSpells.VOID_BOLT_DURATION);
+		var voidBoltDurationBuffAura = Caster.GetAura(PriestSpells.VOID_BOLT_DURATION);
 
 		if (voidBoltDurationBuffAura != null)
 		{
-			var unit = GetHitUnit();
+			var unit = HitUnit;
 
 			if (unit != null)
 			{
 				var durationIncreaseMs = voidBoltDurationBuffAura.GetEffect(0).BaseAmount;
 
-				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, GetCaster().GetGUID());
+				var pain = unit.GetAura(PriestSpells.SHADOW_WORD_PAIN, Caster.GetGUID());
 
 				if (pain != null)
 					pain.ModDuration(durationIncreaseMs);
 
-				var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, GetCaster().GetGUID());
+				var vampiricTouch = unit.GetAura(PriestSpells.VAMPIRIC_TOUCH, Caster.GetGUID());
 
 				if (vampiricTouch != null)
 					vampiricTouch.ModDuration(durationIncreaseMs);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 }

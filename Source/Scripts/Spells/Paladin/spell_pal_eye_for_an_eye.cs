@@ -8,26 +8,25 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(205191)] // 205191 - Eye for an Eye
+internal class spell_pal_eye_for_an_eye : AuraScript, IHasAuraEffects
 {
-    [SpellScript(205191)] // 205191 - Eye for an Eye
-    internal class spell_pal_eye_for_an_eye : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.EyeForAnEyeTriggered);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.EyeForAnEyeTriggered);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            GetTarget().CastSpell(eventInfo.GetActor(), PaladinSpells.EyeForAnEyeTriggered, true);
-        }
-    }
+	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		Target.CastSpell(eventInfo.Actor, PaladinSpells.EyeForAnEyeTriggered, true);
+	}
 }

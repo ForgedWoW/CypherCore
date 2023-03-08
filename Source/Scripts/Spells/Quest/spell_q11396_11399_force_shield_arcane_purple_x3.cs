@@ -22,13 +22,13 @@ internal class spell_q11396_11399_force_shield_arcane_purple_x3 : AuraScript, IH
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.SetImmuneToPC(true);
 		target.AddUnitState(UnitState.Root);
 	}
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().SetImmuneToPC(false);
+		Target.SetImmuneToPC(false);
 	}
 }

@@ -6,40 +6,37 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// Light's Hammer - 122773
+[SpellScript(122773)]
+public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
 {
-    // Light's Hammer - 122773
-    [SpellScript(122773)]
-    public class spell_pal_lights_hammer : SpellScript, ISpellAfterCast
-    {
-        public void AfterCast()
-        {
-            Unit caster = GetCaster();
-            if (caster != null)
-            {
-                List<Creature> tempList = new List<Creature>();
-                List<Creature> LightsHammerlist = new List<Creature>();
+	public void AfterCast()
+	{
+		var caster = Caster;
 
-                LightsHammerlist = caster.GetCreatureListWithEntryInGrid(PaladinNPCs.NPC_PALADIN_LIGHTS_HAMMER, 200.0f);
+		if (caster != null)
+		{
+			var tempList = new List<Creature>();
+			var LightsHammerlist = new List<Creature>();
 
-                tempList = new List<Creature>(LightsHammerlist);
+			LightsHammerlist = caster.GetCreatureListWithEntryInGrid(PaladinNPCs.NPC_PALADIN_LIGHTS_HAMMER, 200.0f);
 
-                for (List<Creature>.Enumerator i = tempList.GetEnumerator(); i.MoveNext();)
-                {
-                    Unit owner = i.Current.GetOwner();
-                    if (owner != null && owner.GetGUID() == caster.GetGUID() && i.Current.IsSummon())
-                    {
-                        continue;
-                    }
+			tempList = new List<Creature>(LightsHammerlist);
 
-                    LightsHammerlist.Remove(i.Current);
-                }
+			for (var i = tempList.GetEnumerator(); i.MoveNext();)
+			{
+				var owner = i.Current.GetOwner();
 
-                foreach (var item in LightsHammerlist)
-                {
-                    item.CastSpell(item, PaladinSpells.LightHammerPeriodic, true);
-                }
-            }
-        }
-    }
+				if (owner != null && owner.GetGUID() == caster.GetGUID() && i.Current.IsSummon())
+					continue;
+
+				LightsHammerlist.Remove(i.Current);
+			}
+
+			foreach (var item in LightsHammerlist)
+				item.CastSpell(item, PaladinSpells.LightHammerPeriodic, true);
+		}
+	}
 }

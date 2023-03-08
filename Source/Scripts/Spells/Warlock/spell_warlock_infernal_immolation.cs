@@ -7,28 +7,27 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 19483 - Immolation
+public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
 {
-    // 19483 - Immolation
-    public class spell_warlock_infernal_immolation : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
+	}
 
 
-		private void PeriodicTick(AuraEffect UnnamedParameter)
-		{
-			PreventDefaultAction();
-			var caster = GetCaster();
+	private void PeriodicTick(AuraEffect UnnamedParameter)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			caster.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GetOwnerGUID()));
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicTriggerSpell));
-		}
+		caster.CastSpell(caster, WarlockSpells.IMMOLATION_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(caster.GetOwnerGUID()));
 	}
 }

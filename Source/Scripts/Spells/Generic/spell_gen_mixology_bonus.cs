@@ -23,7 +23,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetCaster() && GetCaster().GetTypeId() == TypeId.Player;
+		return Caster && Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override void Register()
@@ -39,10 +39,10 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		if (GetCaster().HasAura((uint)RequiredMixologySpells.Mixology) &&
-		    GetCaster().HasSpell(GetEffectInfo(0).TriggerSpell))
+		if (Caster.HasAura((uint)RequiredMixologySpells.Mixology) &&
+			Caster.HasSpell(GetEffectInfo(0).TriggerSpell))
 		{
-			switch ((RequiredMixologySpells)GetId())
+			switch ((RequiredMixologySpells)Id)
 			{
 				case RequiredMixologySpells.WeakTrollsBloodElixir:
 				case RequiredMixologySpells.MagebloodElixir:
@@ -238,7 +238,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 					break;
 				default:
-					Log.outError(LogFilter.Spells, "SpellId {0} couldn't be processed in spell_gen_mixology_bonus", GetId());
+					Log.outError(LogFilter.Spells, "SpellId {0} couldn't be processed in spell_gen_mixology_bonus", Id);
 
 					break;
 			}

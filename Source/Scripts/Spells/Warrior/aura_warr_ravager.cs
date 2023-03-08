@@ -7,39 +7,38 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Ravager - 152277
+// Ravager - 228920
+[SpellScript(new uint[]
 {
-    // Ravager - 152277
-    // Ravager - 228920
-    [SpellScript(new uint[]
-	             {
-		             152277, 228920
-	             })]
-	public class aura_warr_ravager : AuraScript, IHasAuraEffects
+	152277, 228920
+})]
+public class aura_warr_ravager : AuraScript, IHasAuraEffects
+{
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 2, AuraType.PeriodicDummy));
+	}
 
-		private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var player = GetTarget().ToPlayer();
+	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var player = Target.ToPlayer();
 
-			if (player != null)
-				if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)
-					player.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
-		}
+		if (player != null)
+			if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)
+				player.CastSpell(player, WarriorSpells.RAVAGER_PARRY, true);
+	}
 
-		private void OnTick(AuraEffect UnnamedParameter)
-		{
-			var creature = GetTarget().GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		var creature = Target.GetSummonedCreatureByEntry(WarriorSpells.NPC_WARRIOR_RAVAGER);
 
-			if (creature != null)
-				GetTarget().CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(this.OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
-			AuraEffects.Add(new AuraEffectPeriodicHandler(this.OnTick, 2, AuraType.PeriodicDummy));
-		}
+		if (creature != null)
+			Target.CastSpell(creature.Location, WarriorSpells.RAVAGER_DAMAGE, true);
 	}
 }

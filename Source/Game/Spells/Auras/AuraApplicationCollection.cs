@@ -86,9 +86,9 @@ public class AuraApplicationCollection
 
 
 			_canBeSaved.Add(aura.CanBeSaved(), auraApp.Guid);
-			_isgroupBuff.Add(aura.SpellInfo.IsGroupBuff(), auraApp.Guid);
-			_isPassive.Add(aura.IsPassive(), auraApp.Guid);
-			_isDeathPersistant.Add(aura.IsDeathPersistent(), auraApp.Guid);
+			_isgroupBuff.Add(aura.SpellInfo.IsGroupBuff, auraApp.Guid);
+			_isPassive.Add(aura.IsPassive, auraApp.Guid);
+			_isDeathPersistant.Add(aura.IsDeathPersistent, auraApp.Guid);
 			_isRequiringDeadTarget.Add(aura.SpellInfo.IsRequiringDeadTarget, auraApp.Guid);
 			_isPositive.Add(auraApp.IsPositive, auraApp.Guid);
 
@@ -107,9 +107,9 @@ public class AuraApplicationCollection
 			if (caster != null)
 				_isPlayer.Add(caster.IsPlayer(), auraApp.Guid);
 
-			_deminishGroup.Add(si.GetDiminishingReturnsGroupForSpell(), auraApp.Guid);
+			_deminishGroup.Add(si.DiminishingReturnsGroupForSpell, auraApp.Guid);
 			_casterAuraState.Add(si.CasterAuraState, auraApp.Guid);
-			_typeMap.Add(aura.GetAuraType(), auraApp.Guid);
+			_typeMap.Add(aura.AuraObjType, auraApp.Guid);
 			_dispelType.Add(si.Dispel, auraApp.Guid);
 
 			var flags = auraApp.Flags;
@@ -144,14 +144,14 @@ public class AuraApplicationCollection
 			if (caster != null)
 				_isPlayer.Remove(aura.GetCaster().IsPlayer(), auraApp.Guid);
 
-			_deminishGroup.Remove(si.GetDiminishingReturnsGroupForSpell(), auraApp.Guid);
+			_deminishGroup.Remove(si.DiminishingReturnsGroupForSpell, auraApp.Guid);
 			_casterAuraState.Remove(si.CasterAuraState, auraApp.Guid);
-			_typeMap.Remove(aura.GetAuraType(), auraApp.Guid);
+			_typeMap.Remove(aura.AuraObjType, auraApp.Guid);
 			_dispelType.Remove(si.Dispel, auraApp.Guid);
 			_canBeSaved.Remove(aura.CanBeSaved(), auraApp.Guid);
-			_isgroupBuff.Remove(aura.SpellInfo.IsGroupBuff(), auraApp.Guid);
-			_isPassive.Remove(aura.IsPassive(), auraApp.Guid);
-			_isDeathPersistant.Remove(aura.IsDeathPersistent(), auraApp.Guid);
+			_isgroupBuff.Remove(aura.SpellInfo.IsGroupBuff, auraApp.Guid);
+			_isPassive.Remove(aura.IsPassive, auraApp.Guid);
+			_isDeathPersistant.Remove(aura.IsDeathPersistent, auraApp.Guid);
 			_isRequiringDeadTarget.Remove(aura.SpellInfo.IsRequiringDeadTarget, auraApp.Guid);
 			_onlyIndoors.Remove(si.HasAttribute(SpellAttr0.OnlyIndoors), auraApp.Guid);
 			_onlyOutdoors.Remove(si.HasAttribute(SpellAttr0.OnlyOutdoors), auraApp.Guid);

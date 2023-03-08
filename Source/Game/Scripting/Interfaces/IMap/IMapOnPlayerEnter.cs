@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Maps;
 
-namespace Game.Scripting.Interfaces.IMap
+namespace Game.Scripting.Interfaces.IMap;
+
+public interface IMapOnPlayerEnter<T> : IScriptObject where T : Map
 {
-    public interface IMapOnPlayerEnter<T> : IScriptObject where T : Map
-    {
-        void OnPlayerEnter(T map, Player player);
-    }
+	void OnPlayerEnter(T map, Player player);
 }

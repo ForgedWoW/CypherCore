@@ -16,12 +16,12 @@ internal class spell_gen_whisper_to_controller_random : SpellScript, IHasSpellEf
 {
 	private readonly uint _text;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_gen_whisper_to_controller_random(uint text)
 	{
 		_text = text;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override void Register()
 	{
@@ -34,7 +34,7 @@ internal class spell_gen_whisper_to_controller_random : SpellScript, IHasSpellEf
 		if (!RandomHelper.randChance(20))
 			return;
 
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target != null)
 		{

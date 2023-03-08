@@ -19,6 +19,8 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 		ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery
 	};
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 10;
@@ -26,10 +28,10 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 
 	public void AfterCast()
 	{
-		var caster  = GetCaster();
+		var caster = Caster;
 		var spellId = BuffSpells.SelectRandomElementByWeight(buffSpellId => { return !caster.HasAura(buffSpellId) ? 1.0f : 0.0f; });
 
-		GetCaster().CastSpell(GetCaster(), spellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Caster.CastSpell(Caster, spellId, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 	}
 
 	public override void Register()
@@ -37,17 +39,15 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 		SpellEffects.Add(new EffectHandler(HandleEnergize, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.Launch));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleEnergize(int effIndex)
 	{
-		var energizeAmount = GetCaster().GetAuraEffect(ShamanSpells.MaelstromController, GetSpellInfo().Id == ShamanSpells.ElementalBlast ? 9 : 10);
+		var energizeAmount = Caster.GetAuraEffect(ShamanSpells.MaelstromController, SpellInfo.Id == ShamanSpells.ElementalBlast ? 9 : 10);
 
 		if (energizeAmount != null)
-			GetCaster()
-				.CastSpell(GetCaster(),
-				           ShamanSpells.ElementalBlastEnergize,
-				           new CastSpellExtraArgs(energizeAmount)
-					           .AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
+			Caster
+				.CastSpell(Caster,
+							ShamanSpells.ElementalBlastEnergize,
+							new CastSpellExtraArgs(energizeAmount)
+								.AddSpellMod(SpellValueMod.BasePoint0, energizeAmount.Amount));
 	}
 }

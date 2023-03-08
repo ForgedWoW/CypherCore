@@ -29,12 +29,12 @@ internal class spell_pri_item_t6_trinket : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.GetActor();
+		var caster = eventInfo.Actor;
 
-		if (eventInfo.GetSpellTypeMask().HasAnyFlag(ProcFlagsSpellType.Heal))
+		if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Heal))
 			caster.CastSpell((Unit)null, PriestSpells.DIVINE_BLESSING, true);
 
-		if (eventInfo.GetSpellTypeMask().HasAnyFlag(ProcFlagsSpellType.Damage))
+		if (eventInfo.SpellTypeMask.HasAnyFlag(ProcFlagsSpellType.Damage))
 			caster.CastSpell((Unit)null, PriestSpells.DIVINE_WRATH, true);
 	}
 }

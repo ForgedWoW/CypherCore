@@ -27,11 +27,11 @@ internal class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy 
 
 	private void HandleDummy(int effIndex)
 	{
-		if (!GetHitCreature())
+		if (!HitCreature)
 			return;
 
 		// TO DO: Being triggered is hack, but in checkcast it doesn't pass aurastate requirements.
 		// Beside that the decoy won't keep it's freeze animation State when enter.
-		GetHitCreature().CastSpell(GetCaster(), QuestSpellIds.Ride, true);
+		HitCreature.CastSpell(Caster, QuestSpellIds.Ride, true);
 	}
 }

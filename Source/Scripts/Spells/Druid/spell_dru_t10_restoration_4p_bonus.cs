@@ -8,52 +8,51 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 70691 - Item T10 Restoration 4P Bonus
+internal class spell_dru_t10_restoration_4p_bonus : SpellScript, IHasSpellEffects
 {
-    [Script] // 70691 - Item T10 Restoration 4P Bonus
-	internal class spell_dru_t10_restoration_4p_bonus : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Load()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return Caster.IsTypeId(TypeId.Player);
+	}
 
-		public override bool Load()
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		if (!Caster.ToPlayer().GetGroup())
 		{
-			return GetCaster().IsTypeId(TypeId.Player);
+			targets.Clear();
+			targets.Add(Caster);
 		}
-
-		public override void Register()
+		else
 		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-		}
+			targets.Remove(ExplTargetUnit);
+			List<Unit> tempTargets = new();
 
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			if (!GetCaster().ToPlayer().GetGroup())
+			foreach (var obj in targets)
+				if (obj.IsTypeId(TypeId.Player) &&
+					Caster.IsInRaidWith(obj.ToUnit()))
+					tempTargets.Add(obj.ToUnit());
+
+			if (tempTargets.Empty())
 			{
 				targets.Clear();
-				targets.Add(GetCaster());
+				FinishCast(SpellCastResult.DontReport);
+
+				return;
 			}
-			else
-			{
-				targets.Remove(GetExplTargetUnit());
-				List<Unit> tempTargets = new();
 
-				foreach (var obj in targets)
-					if (obj.IsTypeId(TypeId.Player) &&
-					    GetCaster().IsInRaidWith(obj.ToUnit()))
-						tempTargets.Add(obj.ToUnit());
-
-				if (tempTargets.Empty())
-				{
-					targets.Clear();
-					FinishCast(SpellCastResult.DontReport);
-
-					return;
-				}
-
-				var target = tempTargets.SelectRandom();
-				targets.Clear();
-				targets.Add(target);
-			}
+			var target = tempTargets.SelectRandom();
+			targets.Clear();
+			targets.Add(target);
 		}
 	}
 }

@@ -69,7 +69,7 @@ public class SkillDiscovery
 				// mechanic discovery
 				if (reqSpellInfo.Mechanic != Mechanics.Discovery &&
 					// explicit discovery ability
-					!reqSpellInfo.IsExplicitDiscovery())
+					!reqSpellInfo.IsExplicitDiscovery)
 				{
 					if (!reportedReqSpells.Contains(absReqSkillOrSpell))
 					{
@@ -123,7 +123,7 @@ public class SkillDiscovery
 				continue;
 
 			// skip not explicit discovery spells
-			if (!spellEntry.IsExplicitDiscovery())
+			if (!spellEntry.IsExplicitDiscovery)
 				continue;
 
 			if (!SkillDiscoveryStorage.ContainsKey((int)spellEntry.Id))

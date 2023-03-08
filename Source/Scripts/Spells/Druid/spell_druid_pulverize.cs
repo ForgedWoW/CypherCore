@@ -15,31 +15,31 @@ public class spell_druid_pulverize : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private struct Spells
-	{
-		public static readonly uint PULVERIZE = 80313;
-		public static readonly uint TRASH_DOT_TWO_STACKS_MARKER = 158790;
-		public static readonly uint PULVERIZE_DAMAGE_REDUCTION_BUFF = 158792;
-	}
-
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(Spells.PULVERIZE, Spells.TRASH_DOT_TWO_STACKS_MARKER);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHitTarget, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHitTarget(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
 			target.RemoveAura(Spells.TRASH_DOT_TWO_STACKS_MARKER);
-			GetCaster().CastSpell(target, Spells.PULVERIZE_DAMAGE_REDUCTION_BUFF, true);
+			Caster.CastSpell(target, Spells.PULVERIZE_DAMAGE_REDUCTION_BUFF, true);
 		}
 	}
 
-	public override void Register()
+	private struct Spells
 	{
-		SpellEffects.Add(new EffectHandler(HandleHitTarget, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		public static readonly uint PULVERIZE = 80313;
+		public static readonly uint TRASH_DOT_TWO_STACKS_MARKER = 158790;
+		public static readonly uint PULVERIZE_DAMAGE_REDUCTION_BUFF = 158792;
 	}
 }

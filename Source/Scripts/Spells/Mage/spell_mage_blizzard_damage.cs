@@ -27,6 +27,6 @@ internal class spell_mage_blizzard_damage : SpellScript, IHasSpellEffects
 
 	private void HandleSlow(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitUnit(), MageSpells.BlizzardSlow, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+		Caster.CastSpell(HitUnit, MageSpells.BlizzardSlow, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 	}
 }

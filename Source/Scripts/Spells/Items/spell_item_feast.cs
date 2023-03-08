@@ -20,12 +20,12 @@ internal class spell_item_feast : SpellScript, IHasSpellEffects
 {
 	private readonly uint _text;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_item_feast(uint text)
 	{
 		_text = text;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -39,7 +39,7 @@ internal class spell_item_feast : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.TextEmote(_text, caster, false);
 	}
 }

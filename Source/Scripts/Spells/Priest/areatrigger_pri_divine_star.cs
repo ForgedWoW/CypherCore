@@ -22,9 +22,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 	private readonly TaskScheduler _scheduler = new();
 	private Position _casterCurrentPosition = new();
 
-	public areatrigger_pri_divine_star(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public areatrigger_pri_divine_star(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnInitialize()
 	{
@@ -110,25 +108,25 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 	private void ReturnToCaster()
 	{
 		_scheduler.Schedule(TimeSpan.FromMilliseconds(0),
-		                    task =>
-		                    {
-			                    var caster = at.GetCaster();
+							task =>
+							{
+								var caster = at.GetCaster();
 
-			                    if (caster != null)
-			                    {
-				                    _casterCurrentPosition = caster.Location;
+								if (caster != null)
+								{
+									_casterCurrentPosition = caster.Location;
 
-				                    List<Vector3> returnSplinePoints = new();
+									List<Vector3> returnSplinePoints = new();
 
-				                    returnSplinePoints.Add(at.Location);
-				                    returnSplinePoints.Add(at.Location);
-				                    returnSplinePoints.Add(caster.Location);
-				                    returnSplinePoints.Add(caster.Location);
+									returnSplinePoints.Add(at.Location);
+									returnSplinePoints.Add(at.Location);
+									returnSplinePoints.Add(caster.Location);
+									returnSplinePoints.Add(caster.Location);
 
-				                    at.InitSplines(returnSplinePoints, (uint)at.GetDistance(caster) / 24 * 1000);
+									at.InitSplines(returnSplinePoints, (uint)at.GetDistance(caster) / 24 * 1000);
 
-				                    task.Repeat(TimeSpan.FromMilliseconds(250));
-			                    }
-		                    });
+									task.Repeat(TimeSpan.FromMilliseconds(250));
+								}
+							});
 	}
 }

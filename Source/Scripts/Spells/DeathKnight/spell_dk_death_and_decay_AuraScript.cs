@@ -22,11 +22,12 @@ internal class spell_dk_death_and_decay_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleDummyTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 		{
 			var at = caster.GetAreaTrigger(DeathKnightSpells.DEATH_AND_DECAY);
+
 			if (at != null)
 				caster.CastSpell(at.Location, DeathKnightSpells.DEATH_AND_DECAY_DAMAGE);
 		}
@@ -36,16 +37,18 @@ internal class spell_dk_death_and_decay_AuraScript : AuraScript, IHasAuraEffects
 [SpellScript(52212)]
 internal class spell_dk_death_and_decay_damage_procs : SpellScript, ISpellAfterHit
 {
-    public void AfterHit() {
-        var caster = GetCaster();
-        var target = GetHitUnit();
+	public void AfterHit()
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-        if (caster == null || target == null)
-            return;
-        var pestilence = caster.GetAura(DeathKnightSpells.PESTILENCE);
-        if (pestilence != null) {
-			if(RandomHelper.randChance(pestilence.GetEffect(0).Amount))
-                caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, 1));
-        }
-    }
+		if (caster == null || target == null)
+			return;
+
+		var pestilence = caster.GetAura(DeathKnightSpells.PESTILENCE);
+
+		if (pestilence != null)
+			if (RandomHelper.randChance(pestilence.GetEffect(0).Amount))
+				caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, 1));
+	}
 }

@@ -6,26 +6,25 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Stormbringer - 201845
+[SpellScript(201845)]
+public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-    // Stormbringer - 201845
-    [SpellScript(201845)]
-	public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
+	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		public bool CheckProc(ProcEventInfo eventInfo)
-		{
-			return eventInfo.GetDamageInfo().GetAttackType() == WeaponAttackType.BaseAttack;
-		}
+		return eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack;
+	}
 
-		public void OnProc(ProcEventInfo info)
-		{
-			var caster = GetCaster();
+	public void OnProc(ProcEventInfo info)
+	{
+		var caster = Caster;
 
-			if (caster != null)
-			{
-				caster.CastSpell(caster, ShamanSpells.STORMBRINGER_PROC, true);
-				caster.GetSpellHistory().ResetCooldown(ShamanSpells.STORMSTRIKE, true);
-			}
+		if (caster != null)
+		{
+			caster.CastSpell(caster, ShamanSpells.STORMBRINGER_PROC, true);
+			caster.GetSpellHistory().ResetCooldown(ShamanSpells.STORMSTRIKE, true);
 		}
 	}
 }

@@ -8,26 +8,25 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] //  8921 - Moonfire
+internal class spell_dru_moonfire : SpellScript, IHasSpellEffects
 {
-    [Script] //  8921 - Moonfire
-	internal class spell_dru_moonfire : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.MoonfireDamage);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(DruidSpellIds.MoonfireDamage);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private void HandleOnHit(int effIndex)
-		{
-			GetCaster().CastSpell(GetHitUnit(), DruidSpellIds.MoonfireDamage, true);
-		}
+	private void HandleOnHit(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, DruidSpellIds.MoonfireDamage, true);
 	}
 }

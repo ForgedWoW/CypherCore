@@ -9,48 +9,47 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+//80240 - Havoc
+[SpellScript(WarlockSpells.HAVOC)]
+internal class spell_warl_havoc : AuraScript, IHasAuraEffects
 {
-    //80240 - Havoc
-    [SpellScript(WarlockSpells.HAVOC)]
-	internal class spell_warl_havoc : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		var victim = procInfo.ActionTarget;
+
+		if (victim != null)
 		{
-			var caster = GetCaster();
+			var target = procInfo.ProcTarget;
 
-			if (caster == null)
-				return;
+			if (target != null)
+				if (victim != target)
+				{
+					var spellInfo = aurEff.SpellInfo;
 
-			var victim = procInfo.GetActionTarget();
-
-			if (victim != null)
-			{
-				var target = procInfo.GetProcTarget();
-
-				if (target != null)
-					if (victim != target)
+					if (spellInfo != null)
 					{
-						var spellInfo = aurEff.SpellInfo;
-
-						if (spellInfo != null)
-						{
-							var dmg   = procInfo.GetDamageInfo().GetDamage();
-							var spell = new SpellNonMeleeDamage(caster, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellVisual(caster), 0), SpellSchoolMask.Shadow);
-							spell.Damage      = dmg;
-							spell.CleanDamage = spell.Damage;
-							caster.DealSpellDamage(spell, false);
-							caster.SendSpellNonMeleeDamageLog(spell);
-						}
+						var dmg = procInfo.DamageInfo.GetDamage();
+						var spell = new SpellNonMeleeDamage(caster, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellVisual(caster), 0), SpellSchoolMask.Shadow);
+						spell.Damage = dmg;
+						spell.CleanDamage = spell.Damage;
+						caster.DealSpellDamage(spell, false);
+						caster.SendSpellNonMeleeDamageLog(spell);
 					}
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+				}
 		}
 	}
 }

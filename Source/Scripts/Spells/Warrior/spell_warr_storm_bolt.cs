@@ -8,26 +8,25 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+[Script] // 107570 - Storm Bolt
+internal class spell_warr_storm_bolt : SpellScript, IHasSpellEffects
 {
-    [Script] // 107570 - Storm Bolt
-	internal class spell_warr_storm_bolt : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(WarriorSpells.STORM_BOLT_STUN);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(WarriorSpells.STORM_BOLT_STUN);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private void HandleOnHit(int effIndex)
-		{
-			GetCaster().CastSpell(GetHitUnit(), WarriorSpells.STORM_BOLT_STUN, true);
-		}
+	private void HandleOnHit(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, WarriorSpells.STORM_BOLT_STUN, true);
 	}
 }

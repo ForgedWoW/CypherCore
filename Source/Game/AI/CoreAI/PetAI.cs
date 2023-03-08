@@ -182,7 +182,7 @@ namespace Game.AI
                     targetSpellStore.RemoveAt(index);
 
                     SpellCastTargets targets = new();
-                    targets.SetUnitTarget(target);
+                    targets.                    UnitTarget = target;
 
                     spell.Prepare(targets);
                 }

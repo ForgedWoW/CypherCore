@@ -30,10 +30,10 @@ internal class spell_sha_liquid_magma_totem : SpellScript, IHasSpellEffects
 
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		var hitUnit = GetHitUnit();
+		var hitUnit = HitUnit;
 
 		if (hitUnit != null)
-			GetCaster().CastSpell(hitUnit, ShamanSpells.LiquidMagmaHit, true);
+			Caster.CastSpell(hitUnit, ShamanSpells.LiquidMagmaHit, true);
 	}
 
 	private void HandleTargetSelect(List<WorldObject> targets)

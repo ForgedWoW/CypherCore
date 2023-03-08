@@ -14,22 +14,27 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(201075)]
 public class spell_hun_mortal_wounds : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if ((eventInfo.GetHitMask() & ProcFlagsHit.None) != 0 && eventInfo.GetSpellInfo().Id == HunterSpells.LACERATE)
+		if ((eventInfo.HitMask & ProcFlagsHit.None) != 0 && eventInfo.SpellInfo.Id == HunterSpells.LACERATE)
 			return true;
 
 		return false;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
 		PreventDefaultAction();
 
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 		{
@@ -40,10 +45,5 @@ public class spell_hun_mortal_wounds : AuraScript, IHasAuraEffects, IAuraCheckPr
 			if (mongooseBite != null)
 				player.GetSpellHistory().RestoreCharge(chargeCatId);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 }

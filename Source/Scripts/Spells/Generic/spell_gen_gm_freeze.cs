@@ -28,7 +28,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Do what was done before to the Target in HandleFreezeCommand
-		var player = GetTarget().ToPlayer();
+		var player = Target.ToPlayer();
 
 		if (player)
 		{
@@ -43,7 +43,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 
 			// if player class = hunter || warlock Remove pet if alive
 			if ((player.GetClass() == Class.Hunter) ||
-			    (player.GetClass() == Class.Warlock))
+				(player.GetClass() == Class.Warlock))
 			{
 				var pet = player.GetPet();
 
@@ -62,7 +62,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Do what was done before to the Target in HandleUnfreezeCommand
-		var player = GetTarget().ToPlayer();
+		var player = Target.ToPlayer();
 
 		if (player)
 		{

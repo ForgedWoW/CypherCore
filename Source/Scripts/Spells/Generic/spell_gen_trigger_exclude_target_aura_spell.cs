@@ -17,10 +17,10 @@ internal class spell_gen_trigger_exclude_target_aura_spell : SpellScript, ISpell
 
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			// Blizz seems to just apply aura without bothering to cast
-			GetCaster().AddAura(GetSpellInfo().ExcludeTargetAuraSpell, target);
+			Caster.AddAura(SpellInfo.ExcludeTargetAuraSpell, target);
 	}
 }

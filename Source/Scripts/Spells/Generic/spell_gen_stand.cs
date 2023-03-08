@@ -21,7 +21,7 @@ internal class spell_gen_stand : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int eff)
 	{
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (!target)
 			return;

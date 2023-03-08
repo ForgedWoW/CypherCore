@@ -13,13 +13,13 @@ namespace Scripts.Spells.Mage;
 [SpellScript(44448)]
 public class spell_mage_pyroblast_clearcasting_driver : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		var _spellCanProc = (eventInfo.GetSpellInfo().Id == MageSpells.SCORCH || eventInfo.GetSpellInfo().Id == MageSpells.FIREBALL || eventInfo.GetSpellInfo().Id == MageSpells.FIRE_BLAST || eventInfo.GetSpellInfo().Id == MageSpells.FLAMESTRIKE || eventInfo.GetSpellInfo().Id == MageSpells.PYROBLAST || eventInfo.GetSpellInfo().Id == MageSpells.PHOENIX_FLAMES || (eventInfo.GetSpellInfo().Id == MageSpells.DRAGON_BREATH && caster.HasAura(MageSpells.ALEXSTRASZAS_FURY)));
+		var _spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.SCORCH || eventInfo.SpellInfo.Id == MageSpells.FIREBALL || eventInfo.SpellInfo.Id == MageSpells.FIRE_BLAST || eventInfo.SpellInfo.Id == MageSpells.FLAMESTRIKE || eventInfo.SpellInfo.Id == MageSpells.PYROBLAST || eventInfo.SpellInfo.Id == MageSpells.PHOENIX_FLAMES || (eventInfo.SpellInfo.Id == MageSpells.DRAGON_BREATH && caster.HasAura(MageSpells.ALEXSTRASZAS_FURY)));
 
 		if (_spellCanProc)
 			return true;
@@ -27,13 +27,18 @@ public class spell_mage_pyroblast_clearcasting_driver : AuraScript, IAuraCheckPr
 		return false;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
 		var procCheck = false;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if ((eventInfo.GetHitMask() & ProcFlagsHit.Normal) != 0)
+		if ((eventInfo.HitMask & ProcFlagsHit.Normal) != 0)
 		{
 			if (caster.HasAura(MageSpells.HEATING_UP))
 				caster.RemoveAura(MageSpells.HEATING_UP);
@@ -60,10 +65,5 @@ public class spell_mage_pyroblast_clearcasting_driver : AuraScript, IAuraCheckPr
 			caster.RemoveAura(MageSpells.HEATING_UP);
 			caster.CastSpell(caster, MageSpells.HOT_STREAK, true);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

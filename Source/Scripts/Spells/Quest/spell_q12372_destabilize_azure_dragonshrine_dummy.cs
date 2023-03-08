@@ -21,9 +21,9 @@ internal class spell_q12372_destabilize_azure_dragonshrine_dummy : SpellScript, 
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetHitCreature())
+		if (HitCreature)
 		{
-			var caster = GetOriginalCaster();
+			var caster = OriginalCaster;
 
 			if (caster)
 			{

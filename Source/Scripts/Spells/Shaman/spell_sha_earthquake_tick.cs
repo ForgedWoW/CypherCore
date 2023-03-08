@@ -23,13 +23,13 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 
 	public void OnHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 			if (RandomHelper.randChance(GetEffectInfo(1).CalcValue()))
 			{
-				var areaTriggers     = GetCaster().GetAreaTriggers(ShamanSpells.Earthquake);
-				var foundAreaTrigger = areaTriggers.Find(at => at.GetGUID() == GetSpell().OriginalCasterGuid);
+				var areaTriggers = Caster.GetAreaTriggers(ShamanSpells.Earthquake);
+				var foundAreaTrigger = areaTriggers.Find(at => at.GetGUID() == Spell.OriginalCasterGuid);
 
 				if (foundAreaTrigger != null)
 				{
@@ -37,7 +37,7 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 
 					if (eq != null)
 						if (eq.AddStunnedTarget(target.GetGUID()))
-							GetCaster().CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+							Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
 				}
 			}
 	}
@@ -49,6 +49,6 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 
 	private void HandleDamageCalc(int effIndex)
 	{
-		SetEffectValue((int)(GetCaster().SpellBaseDamageBonusDone(SpellSchoolMask.Nature) * 0.391f));
+		EffectValue = (int)(Caster.SpellBaseDamageBonusDone(SpellSchoolMask.Nature) * 0.391f);
 	}
 }

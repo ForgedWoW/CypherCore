@@ -27,14 +27,14 @@ internal class spell_gen_burning_depths_necrolyte_image : AuraScript, IHasAuraEf
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
-			caster.CastSpell(GetTarget(), (uint)GetEffectInfo(2).CalcValue());
+			caster.CastSpell(Target, (uint)GetEffectInfo(2).CalcValue());
 	}
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAurasDueToSpell((uint)GetEffectInfo(2).CalcValue(), GetCasterGUID());
+		Target.RemoveAurasDueToSpell((uint)GetEffectInfo(2).CalcValue(), CasterGUID);
 	}
 }

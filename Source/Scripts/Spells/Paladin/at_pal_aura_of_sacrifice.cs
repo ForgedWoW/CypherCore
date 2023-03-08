@@ -5,36 +5,30 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// Aura of Sacrifice - 183416
+// AreaTriggerID - 100102 (custom)
+[Script]
+public class at_pal_aura_of_sacrifice : AreaTriggerAI
 {
-    // Aura of Sacrifice - 183416
-    // AreaTriggerID - 100102 (custom)
-    [Script]
-    public class at_pal_aura_of_sacrifice : AreaTriggerAI
-    {
-        public at_pal_aura_of_sacrifice(AreaTrigger areatrigger) : base(areatrigger)
-        {
-            at.SetPeriodicProcTimer(1000);
-        }
+	public at_pal_aura_of_sacrifice(AreaTrigger areatrigger) : base(areatrigger)
+	{
+		at.SetPeriodicProcTimer(1000);
+	}
 
-        public override void OnUnitEnter(Unit unit)
-        {
-            Unit caster = at.GetCaster();
-            if (caster != null)
-            {
-                if (unit.IsPlayer() && caster.IsPlayer() && caster != unit)
-                {
-                    if (caster.ToPlayer().IsInSameRaidWith(unit.ToPlayer()))
-                    {
-                        caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
-                    }
-                }
-            }
-        }
+	public override void OnUnitEnter(Unit unit)
+	{
+		var caster = at.GetCaster();
 
-        public override void OnUnitExit(Unit unit)
-        {
-            unit.RemoveAura(PaladinSpells.AURA_OF_SACRIFICE_ALLY);
-        }
-    }
+		if (caster != null)
+			if (unit.IsPlayer() && caster.IsPlayer() && caster != unit)
+				if (caster.ToPlayer().IsInSameRaidWith(unit.ToPlayer()))
+					caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
+	}
+
+	public override void OnUnitExit(Unit unit)
+	{
+		unit.RemoveAura(PaladinSpells.AURA_OF_SACRIFICE_ALLY);
+	}
 }

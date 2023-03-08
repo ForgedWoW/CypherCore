@@ -6,27 +6,24 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//NPC ID : 59764
+[CreatureScript(59764)]
+public class npc_healing_tide_totem : ScriptedAI
 {
-    //NPC ID : 59764
-    [CreatureScript(59764)]
-	public class npc_healing_tide_totem : ScriptedAI
+	public npc_healing_tide_totem(Creature creature) : base(creature) { }
+
+	public override void Reset()
 	{
-		public npc_healing_tide_totem(Creature creature) : base(creature)
-		{
-		}
+		var time = TimeSpan.FromMilliseconds(1900);
 
-		public override void Reset()
-		{
-			var time = TimeSpan.FromMilliseconds(1900);
+		me.Events.AddRepeatEventAtOffset(() =>
+										{
+											me.CastSpell(me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
 
-			me.Events.AddRepeatEventAtOffset(() =>
-			                                   {
-				                                   me.CastSpell(me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
-
-				                                   return time;
-			                                   },
-			                                   time);
-		}
+											return time;
+										},
+										time);
 	}
 }

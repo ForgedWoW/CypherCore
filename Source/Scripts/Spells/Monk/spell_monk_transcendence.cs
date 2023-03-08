@@ -15,13 +15,13 @@ public class spell_monk_transcendence : SpellScript, ISpellOnSummon
 
 	public void OnSummon(Creature creature)
 	{
-		DespawnSpirit(GetCaster());
-		GetCaster().CastSpell(creature, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
+		DespawnSpirit(Caster);
+		Caster.CastSpell(creature, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
 		creature.CastSpell(creature, MonkSpells.TRANSCENDENCE_VISUAL, true);
 		creature.SetAIAnimKitId(2223); // Sniff Data
 		creature.SetDisableGravity(true);
 		creature.SetControlled(true, UnitState.Root);
-		GetCaster().VariableStorage.Set(MONK_TRANSCENDENCE_GUID, creature.GetGUID());
+		Caster.VariableStorage.Set(MONK_TRANSCENDENCE_GUID, creature.GetGUID());
 	}
 
 	public static Creature GetSpirit(Unit caster)

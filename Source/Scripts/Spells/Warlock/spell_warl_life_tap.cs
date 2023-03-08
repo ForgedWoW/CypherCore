@@ -7,38 +7,37 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Life Tap - 1454
+[SpellScript(1454)]
+public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
-    // Life Tap - 1454
-    [SpellScript(1454)]
-	public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCast
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public SpellCastResult CheckCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		if (Caster.GetHealthPct() > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
+			return SpellCastResult.SpellCastOk;
 
-		public struct lifeTap
-		{
-			public const uint LIFE_TAP = 1454;
-			public const uint LIFE_TAP_GLYPH = 63320;
-		}
+		return SpellCastResult.Fizzle;
+	}
 
-		public SpellCastResult CheckCast()
-		{
-			if (GetCaster().GetHealthPct() > 15.0f || GetCaster().HasAura(lifeTap.LIFE_TAP_GLYPH))
-				return SpellCastResult.SpellCastOk;
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+	}
 
-			return SpellCastResult.Fizzle;
-		}
+	private void HandleOnHitTarget(int effIndex)
+	{
+		PreventHitDefaultEffect(effIndex);
+		// if (!GetCaster()->HasAura(LIFE_TAP_GLYPH))
+		//   GetCaster()->EnergizeBySpell(GetCaster(), LIFE_TAP, int32(GetCaster()->GetMaxHealth() * GetSpellInfo()->GetEffect(uint::0).BasePoints / 100), PowerType.Mana); TODO REWRITE
+	}
 
-		private void HandleOnHitTarget(int effIndex)
-		{
-			PreventHitDefaultEffect(effIndex);
-			// if (!GetCaster()->HasAura(LIFE_TAP_GLYPH))
-			//   GetCaster()->EnergizeBySpell(GetCaster(), LIFE_TAP, int32(GetCaster()->GetMaxHealth() * GetSpellInfo()->GetEffect(uint::0).BasePoints / 100), PowerType.Mana); TODO REWRITE
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-		}
+	public struct lifeTap
+	{
+		public const uint LIFE_TAP = 1454;
+		public const uint LIFE_TAP_GLYPH = 63320;
 	}
 }

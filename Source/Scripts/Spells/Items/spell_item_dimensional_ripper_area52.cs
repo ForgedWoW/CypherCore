@@ -22,7 +22,7 @@ internal class spell_item_dimensional_ripper_area52 : SpellScript, IHasSpellEffe
 
 	public override bool Load()
 	{
-		return GetCaster().IsPlayer();
+		return Caster.IsPlayer();
 	}
 
 	public override void Register()
@@ -35,7 +35,7 @@ internal class spell_item_dimensional_ripper_area52 : SpellScript, IHasSpellEffe
 		if (!RandomHelper.randChance(50)) // 50% success
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		uint spellId = 0;
 

@@ -8,33 +8,32 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// -51556 - Ancestral Awakening
+[SpellScript(51556)]
+public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
 {
-    // -51556 - Ancestral Awakening
-    [SpellScript(51556)]
-	public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.TIDAL_WAVES, Difficulty.None) != null)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			if (Global.SpellMgr.GetSpellInfo(ShamanSpells.TIDAL_WAVES, Difficulty.None) != null)
-				return false;
+		return true;
+	}
 
-			return true;
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
+	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
 
-			var heal = MathFunctions.CalculatePct(eventInfo.GetHealInfo().GetHeal(), aurEff.Amount);
-			GetTarget().CastSpell(GetTarget(), ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		var heal = MathFunctions.CalculatePct(eventInfo.HealInfo.GetHeal(), aurEff.Amount);
+		Target.CastSpell(Target, ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
 	}
 }

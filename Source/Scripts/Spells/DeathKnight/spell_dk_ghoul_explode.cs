@@ -28,12 +28,12 @@ internal class spell_dk_ghoul_explode : SpellScript, IHasSpellEffects
 
 	private void HandleDamage(int effIndex)
 	{
-		SetHitDamage((int)GetCaster().CountPctFromMaxHealth(GetEffectInfo(2).CalcValue(GetCaster())));
+		HitDamage = (int)Caster.CountPctFromMaxHealth(GetEffectInfo(2).CalcValue(Caster));
 	}
 
 	private void Suicide(int effIndex)
 	{
-		var unitTarget = GetHitUnit();
+		var unitTarget = HitUnit;
 
 		if (unitTarget)
 			// Corpse Explosion (Suicide)

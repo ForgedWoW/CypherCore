@@ -9,10 +9,12 @@ namespace Scripts.Spells.Druid;
 [SpellScript(274837)]
 public class spell_feral_frenzy : SpellScript
 {
+	private byte _strikes;
+
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
@@ -22,27 +24,24 @@ public class spell_feral_frenzy : SpellScript
 		var strikeDamage = 100 / 20 + caster.UnitData.AttackPower;
 
 		caster.Events.AddRepeatEventAtOffset(() =>
-		                                       {
-			                                       if (caster.GetDistance2d(target) <= 5.0f)
-			                                       {
-				                                       _strikes++;
+											{
+												if (caster.GetDistance2d(target) <= 5.0f)
+												{
+													_strikes++;
 
-				                                       if (this._strikes < 5)
-				                                       {
-					                                       return TimeSpan.FromMilliseconds(200);
-				                                       }
-				                                       else if (this._strikes == 5)
-				                                       {
-					                                       caster.CastSpell(target, DruidSpells.FERAL_FRENZY_BLEED, true);
-					                                       var bleedDamage = 100 / 10 + caster.UnitData.AttackPower;
-				                                       }
-			                                       }
+													if (_strikes < 5)
+													{
+														return TimeSpan.FromMilliseconds(200);
+													}
+													else if (_strikes == 5)
+													{
+														caster.CastSpell(target, DruidSpells.FERAL_FRENZY_BLEED, true);
+														var bleedDamage = 100 / 10 + caster.UnitData.AttackPower;
+													}
+												}
 
-			                                       return default;
-		                                       },
-		                                       TimeSpan.FromMilliseconds(50));
+												return default;
+											},
+											TimeSpan.FromMilliseconds(50));
 	}
-
-
-	private byte _strikes;
 }

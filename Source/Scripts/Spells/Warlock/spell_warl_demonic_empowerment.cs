@@ -8,53 +8,52 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Demonic Empowerment - 193396
+[SpellScript(193396)]
+public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISpellOnCast
 {
-    // Demonic Empowerment - 193396
-    [SpellScript(193396)]
-	public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISpellOnCast
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public void OnCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		var caster = Caster;
 
-		private void HandleTargets(List<WorldObject> targets)
+		if (caster == null)
+			return;
+
+		if (caster.HasAura(WarlockSpells.SHADOWY_INSPIRATION))
+			caster.CastSpell(caster, WarlockSpells.SHADOWY_INSPIRATION_EFFECT, true);
+
+		if (caster.HasAura(WarlockSpells.POWER_TRIP) && caster.IsInCombat() && RandomHelper.randChance(50))
+			caster.CastSpell(caster, WarlockSpells.POWER_TRIP_ENERGIZE, true);
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargets, 255, Targets.UnitCasterAndSummons));
+	}
+
+	private void HandleTargets(List<WorldObject> targets)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		targets.RemoveIf((WorldObject target) =>
 		{
-			var caster = GetCaster();
+			if (!target.ToCreature())
+				return true;
 
-			if (caster == null)
-				return;
+			if (!caster.IsFriendlyTo(target.ToUnit()))
+				return true;
 
-			targets.RemoveIf((WorldObject target) =>
-			                 {
-				                 if (!target.ToCreature())
-					                 return true;
+			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+				return true;
 
-				                 if (!caster.IsFriendlyTo(target.ToUnit()))
-					                 return true;
-
-				                 if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
-					                 return true;
-
-				                 return false;
-			                 });
-		}
-
-		public void OnCast()
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
-				return;
-
-			if (caster.HasAura(WarlockSpells.SHADOWY_INSPIRATION))
-				caster.CastSpell(caster, WarlockSpells.SHADOWY_INSPIRATION_EFFECT, true);
-
-			if (caster.HasAura(WarlockSpells.POWER_TRIP) && caster.IsInCombat() && RandomHelper.randChance(50))
-				caster.CastSpell(caster, WarlockSpells.POWER_TRIP_ENERGIZE, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargets, 255, Targets.UnitCasterAndSummons));
-		}
+			return false;
+		});
 	}
 }

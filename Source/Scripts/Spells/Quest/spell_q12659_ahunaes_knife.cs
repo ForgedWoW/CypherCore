@@ -16,7 +16,7 @@ internal class spell_q12659_ahunaes_knife : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -26,9 +26,9 @@ internal class spell_q12659_ahunaes_knife : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target)
 		{

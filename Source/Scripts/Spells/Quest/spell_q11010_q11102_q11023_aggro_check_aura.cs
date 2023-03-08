@@ -21,7 +21,7 @@ internal class spell_q11010_q11102_q11023_aggro_check_aura : AuraScript, IHasAur
 
 	private void HandleTriggerSpell(AuraEffect aurEff)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target)
 			// On trigger proccing

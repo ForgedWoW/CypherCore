@@ -13,6 +13,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 127517 - Army Transform
 internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(DeathKnightSpells.GlyphOfFoulMenagerie);
@@ -20,12 +22,12 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 
 	public override bool Load()
 	{
-		return GetCaster().IsGuardian();
+		return Caster.IsGuardian();
 	}
 
 	public SpellCastResult CheckCast()
 	{
-		var owner = GetCaster().GetOwner();
+		var owner = Caster.GetOwner();
 
 		if (owner)
 			if (owner.HasAura(DeathKnightSpells.GlyphOfFoulMenagerie))
@@ -39,10 +41,8 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), DeathKnightSpells.ArmyTransforms.SelectRandom(), true);
+		Caster.CastSpell(Caster, DeathKnightSpells.ArmyTransforms.SelectRandom(), true);
 	}
 }

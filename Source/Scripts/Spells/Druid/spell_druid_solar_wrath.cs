@@ -15,31 +15,28 @@ public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private struct Spells
-	{
-		public static readonly uint SOLAR_WRATH = 190984;
-		public static readonly uint NATURES_BALANCE = 202430;
-		public static readonly uint SUNFIRE_DOT = 164815;
-	}
-
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(Spells.SUNFIRE_DOT, Spells.SOLAR_WRATH, Spells.NATURES_BALANCE);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHitTarget(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
-			if (GetCaster().HasAura(Spells.NATURES_BALANCE))
+			if (Caster.HasAura(Spells.NATURES_BALANCE))
 			{
-				var sunfireDOT = target.GetAura(Spells.SUNFIRE_DOT, GetCaster().GetGUID());
+				var sunfireDOT = target.GetAura(Spells.SUNFIRE_DOT, Caster.GetGUID());
 
 				if (sunfireDOT != null)
 				{
-					var duration    = sunfireDOT.Duration;
+					var duration = sunfireDOT.Duration;
 					var newDuration = duration + 4 * Time.InMilliseconds;
 
 					if (newDuration > sunfireDOT.MaxDuration)
@@ -49,12 +46,15 @@ public class spell_druid_solar_wrath : SpellScript, IHasSpellEffects
 				}
 			}
 
-		if (GetCaster() && RandomHelper.randChance(20) && GetCaster().HasAura(DruidSpells.ECLIPSE))
-			GetCaster().CastSpell(null, DruidSpells.LUNAR_EMPOWEREMENT, true);
+		if (Caster && RandomHelper.randChance(20) && Caster.HasAura(DruidSpells.ECLIPSE))
+			Caster.CastSpell(null, DruidSpells.LUNAR_EMPOWEREMENT, true);
 	}
 
-	public override void Register()
+
+	private struct Spells
 	{
-		SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		public static readonly uint SOLAR_WRATH = 190984;
+		public static readonly uint NATURES_BALANCE = 202430;
+		public static readonly uint SUNFIRE_DOT = 164815;
 	}
 }

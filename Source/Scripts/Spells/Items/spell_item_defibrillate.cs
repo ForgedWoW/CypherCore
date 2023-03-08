@@ -18,18 +18,18 @@ internal class spell_item_defibrillate : SpellScript, IHasSpellEffects
 	private readonly uint _chance;
 	private readonly uint _failSpell;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_item_defibrillate(uint chance, uint failSpell)
 	{
-		_chance    = chance;
+		_chance = chance;
 		_failSpell = failSpell;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		if (_failSpell != 0 &&
-		    !ValidateSpellInfo(_failSpell))
+			!ValidateSpellInfo(_failSpell))
 			return false;
 
 		return true;
@@ -47,7 +47,7 @@ internal class spell_item_defibrillate : SpellScript, IHasSpellEffects
 			PreventHitDefaultEffect(effIndex);
 
 			if (_failSpell != 0)
-				GetCaster().CastSpell(GetCaster(), _failSpell, new CastSpellExtraArgs(GetCastItem()));
+				Caster.CastSpell(Caster, _failSpell, new CastSpellExtraArgs(CastItem));
 		}
 	}
 }

@@ -30,24 +30,24 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 
 	private void OnTargetSelect(List<WorldObject> targets)
 	{
-		var maxTargets = (uint)(GetEffectInfo(2).CalcValue(GetCaster()) + 1); // adding 1 for explicit Target unit
+		var maxTargets = (uint)(GetEffectInfo(2).CalcValue(Caster) + 1); // adding 1 for explicit Target unit
 
 		if (targets.Count > maxTargets)
 		{
-			var explTarget = GetExplTargetUnit();
+			var explTarget = ExplTargetUnit;
 
 			// Sort targets so units with no atonement are first, then units who are injured, then oher units
 			// Make sure explicit Target unit is first
 			targets.Sort((lhs, rhs) =>
-			             {
-				             if (lhs == explTarget) // explTarget > anything: always true
-					             return 1;
+			{
+				if (lhs == explTarget) // explTarget > anything: always true
+					return 1;
 
-				             if (rhs == explTarget) // anything > explTarget: always false
-					             return -1;
+				if (rhs == explTarget) // anything > explTarget: always false
+					return -1;
 
-				             return MakeSortTuple(lhs).Equals(MakeSortTuple(rhs)) ? 1 : -1;
-			             });
+				return MakeSortTuple(lhs).Equals(MakeSortTuple(rhs)) ? 1 : -1;
+			});
 
 			targets.Resize(maxTargets);
 		}
@@ -55,7 +55,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAura(PriestSpells.TRINITY))
 			return;
@@ -63,7 +63,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 		var durationPct = GetEffectInfo(3).CalcValue(caster);
 
 		if (caster.HasAura(PriestSpells.ATONEMENT))
-			caster.CastSpell(GetHitUnit(), PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(SpellValueMod.DurationPct, durationPct).SetTriggerFlags(TriggerCastFlags.FullMask));
+			caster.CastSpell(HitUnit, PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(SpellValueMod.DurationPct, durationPct).SetTriggerFlags(TriggerCastFlags.FullMask));
 	}
 
 	private Tuple<bool, bool> MakeSortTuple(WorldObject obj)
@@ -76,7 +76,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 	{
 		var unit = obj.ToUnit();
 
-		return unit != null && !unit.HasAura(PriestSpells.ATONEMENT_TRIGGERED, GetCaster().GetGUID());
+		return unit != null && !unit.HasAura(PriestSpells.ATONEMENT_TRIGGERED, Caster.GetGUID());
 	}
 
 	// Returns true if obj is a unit and is injured

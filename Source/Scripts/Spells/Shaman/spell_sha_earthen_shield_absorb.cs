@@ -9,48 +9,48 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//201633 - Earthen Shield
+[SpellScript(201633)]
+public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 {
-    //201633 - Earthen Shield
-    [SpellScript(201633)]
-	public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAbsorb, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
+	}
 
-		private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			if (!GetCaster())
-				return;
+	private void CalcAbsorb(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		if (!Caster)
+			return;
 
-			amount.Value = GetCaster().GetHealth();
-		}
+		amount.Value = Caster.GetHealth();
+	}
 
-		private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
-		{
-			var caster = GetCaster();
+	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
+	{
+		var caster = Caster;
 
-			if (caster == null || !caster.IsTotem())
-				return absorbAmount;
-
-			var owner = caster.GetOwner();
-
-			if (owner == null)
-				return absorbAmount;
-
-			if (dmgInfo.GetDamage() - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
-				absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
-			else
-				absorbAmount = dmgInfo.GetDamage();
-
-			//201657 - The damager
-			caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+		if (caster == null || !caster.IsTotem())
 			return absorbAmount;
-		}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAbsorb, 0, AuraType.SchoolAbsorb));
-			AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
-		}
+		var owner = caster.GetOwner();
+
+		if (owner == null)
+			return absorbAmount;
+
+		if (dmgInfo.GetDamage() - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
+			absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
+		else
+			absorbAmount = dmgInfo.GetDamage();
+
+		//201657 - The damager
+		caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));
+
+		return absorbAmount;
 	}
 }

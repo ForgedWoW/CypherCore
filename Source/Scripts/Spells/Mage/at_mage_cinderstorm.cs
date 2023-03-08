@@ -10,9 +10,7 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_cinderstorm : AreaTriggerAI
 {
-	public at_mage_cinderstorm(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_mage_cinderstorm(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

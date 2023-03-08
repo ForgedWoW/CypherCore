@@ -27,9 +27,15 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDashGround, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleDashAir, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDashGround(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -38,20 +44,20 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 				caster.RemoveAura(DemonHunterSpells.GLIDE);
 				caster.CastSpell(caster, DemonHunterSpells.FEL_RUSH_DASH, true);
 
-				if (GetHitUnit())
-					caster.CastSpell(GetHitUnit(), DemonHunterSpells.FEL_RUSH_DAMAGE, true);
+				if (HitUnit)
+					caster.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
 
 				if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 			}
 
-			caster.GetSpellHistory().AddCooldown(GetSpellInfo().Id, 0, TimeSpan.FromMicroseconds(750));
+			caster.GetSpellHistory().AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 		}
 	}
 
 	private void HandleDashAir(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			if (caster.IsFalling())
@@ -60,19 +66,13 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 				caster.SetDisableGravity(true);
 				caster.CastSpell(caster, DemonHunterSpells.FEL_RUSH_AIR, true);
 
-				if (GetHitUnit())
-					caster.CastSpell(GetHitUnit(), DemonHunterSpells.FEL_RUSH_DAMAGE, true);
+				if (HitUnit)
+					caster.CastSpell(HitUnit, DemonHunterSpells.FEL_RUSH_DAMAGE, true);
 
 				if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 
-				caster.GetSpellHistory().AddCooldown(GetSpellInfo().Id, 0, TimeSpan.FromMicroseconds(750));
+				caster.GetSpellHistory().AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 			}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDashGround, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleDashAir, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

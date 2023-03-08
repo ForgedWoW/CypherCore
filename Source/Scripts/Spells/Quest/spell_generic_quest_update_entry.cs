@@ -23,17 +23,17 @@ internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
 
 	private readonly SpellEffectName _spellEffect;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_generic_quest_update_entry(SpellEffectName spellEffect, uint effIndex, uint originalEntry, uint newEntry, bool shouldAttack, uint despawnTime)
 	{
-		_spellEffect   = spellEffect;
-		_effIndex      = (byte)effIndex;
+		_spellEffect = spellEffect;
+		_effIndex = (byte)effIndex;
 		_originalEntry = originalEntry;
-		_newEntry      = newEntry;
-		_shouldAttack  = shouldAttack;
-		_despawnTime   = despawnTime;
+		_newEntry = newEntry;
+		_shouldAttack = shouldAttack;
+		_despawnTime = despawnTime;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override void Register()
 	{
@@ -42,16 +42,16 @@ internal class spell_generic_quest_update_entry : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var creatureTarget = GetHitCreature();
+		var creatureTarget = HitCreature;
 
 		if (creatureTarget)
 			if (!creatureTarget.IsPet() &&
-			    creatureTarget.GetEntry() == _originalEntry)
+				creatureTarget.GetEntry() == _originalEntry)
 			{
 				creatureTarget.UpdateEntry(_newEntry);
 
 				if (_shouldAttack)
-					creatureTarget.EngageWithTarget(GetCaster());
+					creatureTarget.EngageWithTarget(Caster);
 
 				if (_despawnTime != 0)
 					creatureTarget.DespawnOrUnsummon(TimeSpan.FromMilliseconds(_despawnTime));

@@ -16,6 +16,8 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(2825)]
 internal class spell_sha_bloodlust : SpellScript, ISpellAfterHit, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.Sated, ShamanSpells.HunterInsanity, ShamanSpells.MageTemporalDisplacement, ShamanSpells.PetNetherwindsFatigued);
@@ -23,7 +25,7 @@ internal class spell_sha_bloodlust : SpellScript, ISpellAfterHit, IHasSpellEffec
 
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			target.CastSpell(target, ShamanSpells.Sated, true);
@@ -34,8 +36,6 @@ internal class spell_sha_bloodlust : SpellScript, ISpellAfterHit, IHasSpellEffec
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 0, Targets.UnitCasterAreaRaid));
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 1, Targets.UnitCasterAreaRaid));
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	private void RemoveInvalidTargets(List<WorldObject> targets)
 	{

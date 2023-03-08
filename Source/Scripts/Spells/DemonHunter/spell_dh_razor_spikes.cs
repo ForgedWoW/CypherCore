@@ -20,7 +20,7 @@ public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null)
 			return false;

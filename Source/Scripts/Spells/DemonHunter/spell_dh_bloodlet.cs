@@ -13,26 +13,31 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206473)]
 public class spell_dh_bloodlet : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == DemonHunterSpells.THROW_GLAIVE)
+		if (eventInfo.SpellInfo.Id == DemonHunterSpells.THROW_GLAIVE)
 			return true;
 
 		return false;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
-		var target = eventInfo.GetActionTarget();
+		var caster = Caster;
+		var target = eventInfo.ActionTarget;
 
-		if (caster == null || target == null || eventInfo.GetDamageInfo() != null || !GetSpellInfo().GetEffect(0).IsEffect())
+		if (caster == null || target == null || eventInfo.DamageInfo != null || !SpellInfo.GetEffect(0).IsEffect())
 			return;
 
-		var basePoints = GetSpellInfo().GetEffect(0).BasePoints;
-		var dmg        = (eventInfo.GetDamageInfo().GetDamage() * (double)basePoints) / 100.0f;
+		var basePoints = SpellInfo.GetEffect(0).BasePoints;
+		var dmg = (eventInfo.DamageInfo.GetDamage() * (double)basePoints) / 100.0f;
 		var dmgPerTick = (double)dmg / 5.0f;
 
 		// Any remaining damage must be added
@@ -45,10 +50,5 @@ public class spell_dh_bloodlet : AuraScript, IHasAuraEffects
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)dmgPerTick);
 		args.SetTriggerFlags(TriggerCastFlags.FullMask);
 		caster.CastSpell(target, DemonHunterSpells.BLOODLET_DOT, args);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

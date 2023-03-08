@@ -26,7 +26,7 @@ internal class spell_pri_prayer_of_mending_jump : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		_spellInfoHeal   = Global.SpellMgr.GetSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, Difficulty.None);
+		_spellInfoHeal = Global.SpellMgr.GetSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, Difficulty.None);
 		_healEffectDummy = _spellInfoHeal.GetEffect(0);
 
 		return true;
@@ -65,14 +65,14 @@ internal class spell_pri_prayer_of_mending_jump : SpellScript, IHasSpellEffects
 
 	private void HandleJump(int effIndex)
 	{
-		var origCaster = GetOriginalCaster(); // the one that started the prayer of mending chain
-		var target     = GetHitUnit();        // the Target we decided the aura should Jump to
+		var origCaster = OriginalCaster; // the one that started the prayer of mending chain
+		var target = HitUnit;            // the Target we decided the aura should Jump to
 
 		if (origCaster)
 		{
-			var                basePoints = origCaster.SpellHealingBonusDone(target, _spellInfoHeal, (uint)_healEffectDummy.CalcValue(origCaster), DamageEffectType.Heal, _healEffectDummy, 1, GetSpell());
-			CastSpellExtraArgs args       = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.AuraStack, GetEffectValue());
+			var basePoints = origCaster.SpellHealingBonusDone(target, _spellInfoHeal, (uint)_healEffectDummy.CalcValue(origCaster), DamageEffectType.Heal, _healEffectDummy, 1, Spell);
+			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+			args.AddSpellMod(SpellValueMod.AuraStack, EffectValue);
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)basePoints);
 			origCaster.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_AURA, args);
 		}

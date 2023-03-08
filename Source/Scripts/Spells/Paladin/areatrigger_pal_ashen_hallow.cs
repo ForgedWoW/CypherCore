@@ -7,68 +7,65 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 19042 - Ashen Hallow
+[Script]
+internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
 {
-    // 19042 - Ashen Hallow
-    [Script]
-    internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
-    {
-        private TimeSpan _period;
-        private TimeSpan _refreshTimer;
+	private TimeSpan _period;
+	private TimeSpan _refreshTimer;
 
-        public areatrigger_pal_ashen_hallow(AreaTrigger areatrigger) : base(areatrigger)
-        {
-        }
+	public areatrigger_pal_ashen_hallow(AreaTrigger areatrigger) : base(areatrigger) { }
 
-        public override void OnCreate()
-        {
-            RefreshPeriod();
-            _refreshTimer = _period;
-        }
+	public override void OnCreate()
+	{
+		RefreshPeriod();
+		_refreshTimer = _period;
+	}
 
-        public override void OnUpdate(uint diff)
-        {
-            _refreshTimer -= TimeSpan.FromMilliseconds(diff);
+	public override void OnUpdate(uint diff)
+	{
+		_refreshTimer -= TimeSpan.FromMilliseconds(diff);
 
-            while (_refreshTimer <= TimeSpan.Zero)
-            {
-                Unit caster = at.GetCaster();
+		while (_refreshTimer <= TimeSpan.Zero)
+		{
+			var caster = at.GetCaster();
 
-                if (caster != null)
-                {
-                    caster.CastSpell(at.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
-                    caster.CastSpell(at.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
-                }
+			if (caster != null)
+			{
+				caster.CastSpell(at.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
+				caster.CastSpell(at.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
+			}
 
-                RefreshPeriod();
+			RefreshPeriod();
 
-                _refreshTimer += _period;
-            }
-        }
+			_refreshTimer += _period;
+		}
+	}
 
-        public override void OnUnitEnter(Unit unit)
-        {
-            if (unit.GetGUID() == at.GetCasterGuid())
-                unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
-        }
+	public override void OnUnitEnter(Unit unit)
+	{
+		if (unit.GetGUID() == at.GetCasterGuid())
+			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
+	}
 
-        public override void OnUnitExit(Unit unit)
-        {
-            if (unit.GetGUID() == at.GetCasterGuid())
-                unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
-        }
+	public override void OnUnitExit(Unit unit)
+	{
+		if (unit.GetGUID() == at.GetCasterGuid())
+			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
+	}
 
-        private void RefreshPeriod()
-        {
-            Unit caster = at.GetCaster();
+	private void RefreshPeriod()
+	{
+		var caster = at.GetCaster();
 
-            if (caster != null)
-            {
-                AuraEffect ashen = caster.GetAuraEffect(PaladinSpells.AshenHallow, 1);
+		if (caster != null)
+		{
+			var ashen = caster.GetAuraEffect(PaladinSpells.AshenHallow, 1);
 
-                if (ashen != null)
-                    _period = TimeSpan.FromMilliseconds(ashen.Period);
-            }
-        }
-    }
+			if (ashen != null)
+				_period = TimeSpan.FromMilliseconds(ashen.Period);
+		}
+	}
 }

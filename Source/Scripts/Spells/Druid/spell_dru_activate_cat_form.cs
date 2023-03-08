@@ -7,14 +7,14 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Druid;
 
 [SpellScript(new uint[]
-             {
-	             1850, 5215, 102280
-             })]
+{
+	1850, 5215, 102280
+})]
 public class spell_dru_activate_cat_form : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

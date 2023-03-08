@@ -2895,7 +2895,7 @@ public partial class Creature : Unit
 			var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, GetMap().GetDifficultyID());
 
 			if (spellInfo != null)
-				if (spellInfo.GetRecoveryTime() == 0 && spellInfo.RangeEntry.Id != 1 /*Self*/ && spellInfo.RangeEntry.Id != 2 /*Combat Range*/ && spellInfo.GetMaxRange() > range)
+				if (spellInfo.RecoveryTime1 == 0 && spellInfo.RangeEntry.Id != 1 /*Self*/ && spellInfo.RangeEntry.Id != 2 /*Combat Range*/ && spellInfo.GetMaxRange() > range)
 					range = spellInfo.GetMaxRange();
 		}
 

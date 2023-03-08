@@ -7,37 +7,35 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 188070 Healing Surge
+[SpellScript(188070)]
+public class spell_sha_healing_surge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
 {
-    // 188070 Healing Surge
-    [SpellScript(188070)]
-	public class spell_sha_healing_surge : SpellScript, IHasSpellEffects, ISpellCalculateCastTime
+	private int _takenPower = 0;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public int CalcCastTime(int castTime)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		var requiredMaelstrom = (int)GetEffectInfo(2).BasePoints;
 
-		public int CalcCastTime(int castTime)
+		if (Caster.GetPower(PowerType.Maelstrom) >= requiredMaelstrom)
 		{
-			var requiredMaelstrom = (int)GetEffectInfo(2).BasePoints;
-
-			if (GetCaster().GetPower(PowerType.Maelstrom) >= requiredMaelstrom)
-			{
-				castTime    = 0;
-				_takenPower = requiredMaelstrom;
-			}
-
-			return castTime;
+			castTime = 0;
+			_takenPower = requiredMaelstrom;
 		}
 
-		private void HandleEnergize(int effIndex)
-		{
-			SetEffectValue(-_takenPower);
-		}
+		return castTime;
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private int _takenPower = 0;
+	private void HandleEnergize(int effIndex)
+	{
+		EffectValue = -_takenPower;
 	}
 }

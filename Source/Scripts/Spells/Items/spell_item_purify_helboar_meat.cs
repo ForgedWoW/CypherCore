@@ -17,7 +17,7 @@ internal class spell_item_purify_helboar_meat : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spell)
@@ -32,7 +32,7 @@ internal class spell_item_purify_helboar_meat : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.CastSpell(caster, RandomHelper.randChance(50) ? ItemSpellIds.SummonPurifiedHelboarMeat : ItemSpellIds.SummonToxicHelboarMeat, true);
 	}
 }

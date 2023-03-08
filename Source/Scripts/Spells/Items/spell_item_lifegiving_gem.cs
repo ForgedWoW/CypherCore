@@ -27,7 +27,7 @@ internal class spell_item_lifegiving_gem : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.CastSpell(caster, ItemSpellIds.GiftOfLife1, true);
 		caster.CastSpell(caster, ItemSpellIds.GiftOfLife2, true);
 	}

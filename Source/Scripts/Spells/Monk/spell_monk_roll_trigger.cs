@@ -13,11 +13,18 @@ namespace Scripts.Spells.Monk;
 [SpellScript(107427)]
 public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcSpeed, 0, AuraType.ModSpeedNoControl));
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcSpeed2, 2, AuraType.ModMinimumSpeed));
+		AuraEffects.Add(new AuraEffectApplyHandler(SendAmount, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real));
+	}
 
 	private void CalcSpeed(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -28,7 +35,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 
 	private void CalcSpeed2(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -41,7 +48,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 
 	private void SendAmount(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -49,7 +56,7 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 		if (!caster.HasAura(MonkSpells.ENHANCED_ROLL))
 			return;
 
-		var aur = GetAura();
+		var aur = Aura;
 
 		if (aur == null)
 			return;
@@ -57,16 +64,9 @@ public class spell_monk_roll_trigger : AuraScript, IHasAuraEffects
 		aur.SetMaxDuration(600);
 		aur.SetDuration(600);
 
-		var aurApp = GetAura().GetApplicationOfTarget(caster.GetGUID());
+		var aurApp = Aura.GetApplicationOfTarget(caster.GetGUID());
 
 		if (aurApp != null)
 			aurApp.ClientUpdate();
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcSpeed, 0, AuraType.ModSpeedNoControl));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcSpeed2, 2, AuraType.ModMinimumSpeed));
-		AuraEffects.Add(new AuraEffectApplyHandler(SendAmount, 4, AuraType.UseNormalMovementSpeed, AuraEffectHandleModes.Real));
 	}
 }

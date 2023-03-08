@@ -14,9 +14,8 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(198813)]
 public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, ISpellOnCast
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private bool _targetHit;
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -26,14 +25,9 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
 		return true;
 	}
 
-	private void CountTargets(List<WorldObject> targets)
-	{
-		_targetHit = targets.Count > 0;
-	}
-
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -66,5 +60,10 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitSrcAreaEnemy)); // 33
+	}
+
+	private void CountTargets(List<WorldObject> targets)
+	{
+		_targetHit = targets.Count > 0;
 	}
 }

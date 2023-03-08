@@ -11,7 +11,7 @@ public class spell_pri_fade : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAura(159628)) // Glyph of Mass dispel
 			caster.CastSpell(caster, 159630, true);

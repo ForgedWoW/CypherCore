@@ -129,9 +129,9 @@ public class SpellInfo
 	public SpellCastTargetFlags ExplicitTargetMask { get; set; }
 	public SpellChainNode ChainEntry { get; set; }
 
-	public bool IsPassiveStackableWithRanks => IsPassive() && !HasEffect(SpellEffectName.ApplyAura);
+	public bool IsPassiveStackableWithRanks => IsPassive && !HasEffect(SpellEffectName.ApplyAura);
 
-	public bool IsMultiSlotAura => IsPassive() || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
+	public bool IsMultiSlotAura => IsPassive || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
 
 	public bool IsStackableOnOneSlotWithDifferentCasters =>
 		// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
@@ -170,6 +170,303 @@ public class SpellInfo
 	public bool HasHitDelay => Speed > 0.0f || LaunchDelay > 0.0f;
 
 	private bool IsAffectedBySpellMods => !HasAttribute(SpellAttr3.IgnoreCasterModifiers);
+
+	public bool HasAreaAuraEffect
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				if (effectInfo.IsAreaAuraEffect())
+					return true;
+
+			return false;
+		}
+	}
+
+	public bool HasOnlyDamageEffects
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				switch (effectInfo.Effect)
+				{
+					case SpellEffectName.WeaponDamage:
+					case SpellEffectName.WeaponDamageNoSchool:
+					case SpellEffectName.NormalizedWeaponDmg:
+					case SpellEffectName.WeaponPercentDamage:
+					case SpellEffectName.SchoolDamage:
+					case SpellEffectName.EnvironmentalDamage:
+					case SpellEffectName.HealthLeech:
+					case SpellEffectName.DamageFromMaxHealthPCT:
+						continue;
+					default:
+						return false;
+				}
+
+			return true;
+		}
+	}
+
+	public bool IsExplicitDiscovery
+	{
+		get
+		{
+			if (Effects.Count < 2)
+				return false;
+
+			return ((GetEffect(0).Effect == SpellEffectName.CreateRandomItem || GetEffect(0).Effect == SpellEffectName.CreateLoot) && GetEffect(1).Effect == SpellEffectName.ScriptEffect) || Id == 64323;
+		}
+	}
+
+	public bool IsLootCrafting => HasEffect(SpellEffectName.CreateRandomItem) || HasEffect(SpellEffectName.CreateLoot);
+
+	public bool IsProfession
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				if (effectInfo.IsEffect(SpellEffectName.Skill))
+				{
+					var skill = (uint)effectInfo.MiscValue;
+
+					if (Global.SpellMgr.IsProfessionSkill(skill))
+						return true;
+				}
+
+			return false;
+		}
+	}
+
+	public bool IsPrimaryProfession
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				if (effectInfo.IsEffect(SpellEffectName.Skill) && Global.SpellMgr.IsPrimaryProfessionSkill((uint)effectInfo.MiscValue))
+					return true;
+
+			return false;
+		}
+	}
+
+	public bool IsPrimaryProfessionFirstRank => IsPrimaryProfession && Rank == 1;
+
+	public bool IsAffectingArea
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				if (effectInfo.IsEffect() && (effectInfo.IsTargetingArea() || effectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || effectInfo.IsAreaAuraEffect()))
+					return true;
+
+			return false;
+		}
+	}
+
+	// checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
+	public bool IsTargetingArea
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				if (effectInfo.IsEffect() && effectInfo.IsTargetingArea())
+					return true;
+
+			return false;
+		}
+	}
+
+	public bool NeedsExplicitUnitTarget => Convert.ToBoolean(GetExplicitTargetMask() & SpellCastTargetFlags.UnitMask);
+
+	public bool IsPassive => HasAttribute(SpellAttr0.Passive);
+
+	public bool IsAutocastable
+	{
+		get
+		{
+			if (IsPassive)
+				return false;
+
+			if (HasAttribute(SpellAttr1.NoAutocastAi))
+				return false;
+
+			return true;
+		}
+	}
+
+	public bool IsStackableWithRanks
+	{
+		get
+		{
+			if (IsPassive)
+				return false;
+
+			// All stance spells. if any better way, change it.
+			foreach (var effectInfo in _effects)
+				switch (SpellFamilyName)
+				{
+					case SpellFamilyNames.Paladin:
+						// Paladin aura Spell
+						if (effectInfo.Effect == SpellEffectName.ApplyAreaAuraRaid)
+							return false;
+
+						break;
+					case SpellFamilyNames.Druid:
+						// Druid form Spell
+						if (effectInfo.Effect == SpellEffectName.ApplyAura &&
+							effectInfo.ApplyAuraName == AuraType.ModShapeshift)
+							return false;
+
+						break;
+				}
+
+			return true;
+		}
+	}
+
+	public bool IsCooldownStartedOnEvent
+	{
+		get
+		{
+			if (HasAttribute(SpellAttr0.CooldownOnEvent))
+				return true;
+
+			var category = CliDB.SpellCategoryStorage.LookupByKey(CategoryId);
+
+			return category != null && category.Flags.HasAnyFlag(SpellCategoryFlags.CooldownStartsOnEvent);
+		}
+	}
+
+	public bool IsAllowingDeadTarget
+	{
+		get
+		{
+			if (HasAttribute(SpellAttr2.AllowDeadTarget) || Targets.HasAnyFlag(SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.CorpseEnemy | SpellCastTargetFlags.UnitDead))
+				return true;
+
+			foreach (var effectInfo in _effects)
+				if (effectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Corpse || effectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Corpse)
+					return true;
+
+			return false;
+		}
+	}
+
+	public bool IsGroupBuff
+	{
+		get
+		{
+			foreach (var effectInfo in _effects)
+				switch (effectInfo.TargetA.CheckType)
+				{
+					case SpellTargetCheckTypes.Party:
+					case SpellTargetCheckTypes.Raid:
+					case SpellTargetCheckTypes.RaidClass:
+						return true;
+				}
+
+			return false;
+		}
+	}
+
+	public bool IsRangedWeaponSpell => (SpellFamilyName == SpellFamilyNames.Hunter && !SpellFamilyFlags[1].HasAnyFlag(0x10000000u)) // for 53352, cannot find better way
+										||
+										Convert.ToBoolean(EquippedItemSubClassMask & (int)ItemSubClassWeapon.MaskRanged) ||
+										Attributes.HasAnyFlag(SpellAttr0.UsesRangedSlot);
+
+	public DiminishingGroup DiminishingReturnsGroupForSpell => _diminishInfo.DiminishGroup;
+
+	public DiminishingReturnsType DiminishingReturnsGroupType => _diminishInfo.DiminishReturnType;
+
+	public DiminishingLevels DiminishingReturnsMaxLevel => _diminishInfo.DiminishMaxLevel;
+
+	public int DiminishingReturnsLimitDuration => _diminishInfo.DiminishDurationLimit;
+
+	public ulong AllowedMechanicMask => _allowedMechanicMask;
+
+	public int Duration
+	{
+		get
+		{
+			if (DurationEntry == null)
+				return IsPassive ? -1 : 0;
+
+			return (DurationEntry.Duration == -1) ? -1 : Math.Abs(DurationEntry.Duration);
+		}
+	}
+
+	public int MaxDuration
+	{
+		get
+		{
+			if (DurationEntry == null)
+				return IsPassive ? -1 : 0;
+
+			return (DurationEntry.MaxDuration == -1) ? -1 : Math.Abs(DurationEntry.MaxDuration);
+		}
+	}
+
+	public uint MaxTicks
+	{
+		get
+		{
+			uint totalTicks = 0;
+			var DotDuration = Duration;
+
+			foreach (var effectInfo in Effects)
+			{
+				if (!effectInfo.IsEffect(SpellEffectName.ApplyAura))
+					continue;
+
+				switch (effectInfo.ApplyAuraName)
+				{
+					case AuraType.PeriodicDamage:
+					case AuraType.PeriodicDamagePercent:
+					case AuraType.PeriodicHeal:
+					case AuraType.ObsModHealth:
+					case AuraType.ObsModPower:
+					case AuraType.PeriodicTriggerSpellFromClient:
+					case AuraType.PowerBurn:
+					case AuraType.PeriodicLeech:
+					case AuraType.PeriodicManaLeech:
+					case AuraType.PeriodicEnergize:
+					case AuraType.PeriodicDummy:
+					case AuraType.PeriodicTriggerSpell:
+					case AuraType.PeriodicTriggerSpellWithValue:
+					case AuraType.PeriodicHealthFunnel:
+						// skip infinite periodics
+						if (effectInfo.ApplyAuraPeriod > 0 && DotDuration > 0)
+						{
+							totalTicks = (uint)DotDuration / effectInfo.ApplyAuraPeriod;
+
+							if (HasAttribute(SpellAttr5.ExtraInitialPeriod))
+								++totalTicks;
+						}
+
+						break;
+				}
+			}
+
+			return totalTicks;
+		}
+	}
+
+	public uint RecoveryTime1 => RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
+
+	public bool IsRanked => ChainEntry != null;
+
+	public byte Rank
+	{
+		get
+		{
+			if (ChainEntry == null)
+				return 1;
+
+			return ChainEntry.Rank;
+		}
+	}
+
+	public bool HasAnyAuraInterruptFlag => AuraInterruptFlags != SpellAuraInterruptFlags.None || AuraInterruptFlags2 != SpellAuraInterruptFlags2.None;
 
 	public SpellInfo(SpellNameRecord spellName, Difficulty difficulty, SpellInfoLoadHelper data)
 	{
@@ -446,77 +743,6 @@ public class SpellInfo
 		return false;
 	}
 
-	public bool HasAreaAuraEffect()
-	{
-		foreach (var effectInfo in _effects)
-			if (effectInfo.IsAreaAuraEffect())
-				return true;
-
-		return false;
-	}
-
-	public bool HasOnlyDamageEffects()
-	{
-		foreach (var effectInfo in _effects)
-			switch (effectInfo.Effect)
-			{
-				case SpellEffectName.WeaponDamage:
-				case SpellEffectName.WeaponDamageNoSchool:
-				case SpellEffectName.NormalizedWeaponDmg:
-				case SpellEffectName.WeaponPercentDamage:
-				case SpellEffectName.SchoolDamage:
-				case SpellEffectName.EnvironmentalDamage:
-				case SpellEffectName.HealthLeech:
-				case SpellEffectName.DamageFromMaxHealthPCT:
-					continue;
-				default:
-					return false;
-			}
-
-		return true;
-	}
-
-	public bool IsExplicitDiscovery()
-	{
-		if (Effects.Count < 2)
-			return false;
-
-		return ((GetEffect(0).Effect == SpellEffectName.CreateRandomItem || GetEffect(0).Effect == SpellEffectName.CreateLoot) && GetEffect(1).Effect == SpellEffectName.ScriptEffect) || Id == 64323;
-	}
-
-	public bool IsLootCrafting()
-	{
-		return HasEffect(SpellEffectName.CreateRandomItem) || HasEffect(SpellEffectName.CreateLoot);
-	}
-
-	public bool IsProfession()
-	{
-		foreach (var effectInfo in _effects)
-			if (effectInfo.IsEffect(SpellEffectName.Skill))
-			{
-				var skill = (uint)effectInfo.MiscValue;
-
-				if (Global.SpellMgr.IsProfessionSkill(skill))
-					return true;
-			}
-
-		return false;
-	}
-
-	public bool IsPrimaryProfession()
-	{
-		foreach (var effectInfo in _effects)
-			if (effectInfo.IsEffect(SpellEffectName.Skill) && Global.SpellMgr.IsPrimaryProfessionSkill((uint)effectInfo.MiscValue))
-				return true;
-
-		return false;
-	}
-
-	public bool IsPrimaryProfessionFirstRank()
-	{
-		return IsPrimaryProfession() && GetRank() == 1;
-	}
-
 	public bool IsAbilityOfSkillType(SkillType skillType)
 	{
 		var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(Id);
@@ -528,33 +754,9 @@ public class SpellInfo
 		return false;
 	}
 
-	public bool IsAffectingArea()
-	{
-		foreach (var effectInfo in _effects)
-			if (effectInfo.IsEffect() && (effectInfo.IsTargetingArea() || effectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || effectInfo.IsAreaAuraEffect()))
-				return true;
-
-		return false;
-	}
-
-	// checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
-	public bool IsTargetingArea()
-	{
-		foreach (var effectInfo in _effects)
-			if (effectInfo.IsEffect() && effectInfo.IsTargetingArea())
-				return true;
-
-		return false;
-	}
-
-	public bool NeedsExplicitUnitTarget()
-	{
-		return Convert.ToBoolean(GetExplicitTargetMask() & SpellCastTargetFlags.UnitMask);
-	}
-
 	public bool NeedsToBeTriggeredByCaster(SpellInfo triggeringSpell)
 	{
-		if (NeedsExplicitUnitTarget())
+		if (NeedsExplicitUnitTarget)
 			return true;
 
 		if (triggeringSpell.IsChanneled)
@@ -572,96 +774,9 @@ public class SpellInfo
 		return false;
 	}
 
-	public bool IsPassive()
-	{
-		return HasAttribute(SpellAttr0.Passive);
-	}
-
-	public bool IsAutocastable()
-	{
-		if (IsPassive())
-			return false;
-
-		if (HasAttribute(SpellAttr1.NoAutocastAi))
-			return false;
-
-		return true;
-	}
-
-	public bool IsStackableWithRanks()
-	{
-		if (IsPassive())
-			return false;
-
-		// All stance spells. if any better way, change it.
-		foreach (var effectInfo in _effects)
-			switch (SpellFamilyName)
-			{
-				case SpellFamilyNames.Paladin:
-					// Paladin aura Spell
-					if (effectInfo.Effect == SpellEffectName.ApplyAreaAuraRaid)
-						return false;
-
-					break;
-				case SpellFamilyNames.Druid:
-					// Druid form Spell
-					if (effectInfo.Effect == SpellEffectName.ApplyAura &&
-						effectInfo.ApplyAuraName == AuraType.ModShapeshift)
-						return false;
-
-					break;
-			}
-
-		return true;
-	}
-
-	public bool IsCooldownStartedOnEvent()
-	{
-		if (HasAttribute(SpellAttr0.CooldownOnEvent))
-			return true;
-
-		var category = CliDB.SpellCategoryStorage.LookupByKey(CategoryId);
-
-		return category != null && category.Flags.HasAnyFlag(SpellCategoryFlags.CooldownStartsOnEvent);
-	}
-
-	public bool IsAllowingDeadTarget()
-	{
-		if (HasAttribute(SpellAttr2.AllowDeadTarget) || Targets.HasAnyFlag(SpellCastTargetFlags.CorpseAlly | SpellCastTargetFlags.CorpseEnemy | SpellCastTargetFlags.UnitDead))
-			return true;
-
-		foreach (var effectInfo in _effects)
-			if (effectInfo.TargetA.ObjectType == SpellTargetObjectTypes.Corpse || effectInfo.TargetB.ObjectType == SpellTargetObjectTypes.Corpse)
-				return true;
-
-		return false;
-	}
-
-	public bool IsGroupBuff()
-	{
-		foreach (var effectInfo in _effects)
-			switch (effectInfo.TargetA.CheckType)
-			{
-				case SpellTargetCheckTypes.Party:
-				case SpellTargetCheckTypes.Raid:
-				case SpellTargetCheckTypes.RaidClass:
-					return true;
-			}
-
-		return false;
-	}
-
 	public bool IsPositiveEffect(int effIndex)
 	{
 		return !NegativeEffects.Get(effIndex);
-	}
-
-	public bool IsRangedWeaponSpell()
-	{
-		return (SpellFamilyName == SpellFamilyNames.Hunter && !SpellFamilyFlags[1].HasAnyFlag(0x10000000u)) // for 53352, cannot find better way
-				||
-				Convert.ToBoolean(EquippedItemSubClassMask & (int)ItemSubClassWeapon.MaskRanged) ||
-				Attributes.HasAnyFlag(SpellAttr0.UsesRangedSlot);
 	}
 
 	public WeaponAttackType GetAttackType()
@@ -678,7 +793,7 @@ public class SpellInfo
 
 				break;
 			case SpellDmgClass.Ranged:
-				result = IsRangedWeaponSpell() ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
+				result = IsRangedWeaponSpell ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
 
 				break;
 			default:
@@ -1187,7 +1302,7 @@ public class SpellInfo
 			return SpellCastResult.TargetIsPlayer;
 		}
 
-		if (!IsAllowingDeadTarget() && !unitTarget.IsAlive())
+		if (!IsAllowingDeadTarget && !unitTarget.IsAlive())
 			return SpellCastResult.TargetsDead;
 
 		// check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
@@ -1757,26 +1872,6 @@ public class SpellInfo
 		_diminishInfo = diminishInfo;
 	}
 
-	public DiminishingGroup GetDiminishingReturnsGroupForSpell()
-	{
-		return _diminishInfo.DiminishGroup;
-	}
-
-	public DiminishingReturnsType GetDiminishingReturnsGroupType()
-	{
-		return _diminishInfo.DiminishReturnType;
-	}
-
-	public DiminishingLevels GetDiminishingReturnsMaxLevel()
-	{
-		return _diminishInfo.DiminishMaxLevel;
-	}
-
-	public int GetDiminishingReturnsLimitDuration()
-	{
-		return _diminishInfo.DiminishDurationLimit;
-	}
-
 	public void _LoadImmunityInfo()
 	{
 		foreach (var effect in _effects)
@@ -2117,7 +2212,7 @@ public class SpellInfo
 					return (((uint)auraSpellInfo.GetSchoolMask() & schoolImmunity) != 0 && // Check for school mask
 							CanDispelAura(auraSpellInfo) &&
 							(IsPositive != aurApp.IsPositive) && // Check spell vs aura possitivity
-							!auraSpellInfo.IsPassive() &&        // Don't remove passive auras
+							!auraSpellInfo.IsPassive &&          // Don't remove passive auras
 							auraSpellInfo.Id != Id);             // Don't remove self
 				});
 
@@ -2255,11 +2350,6 @@ public class SpellInfo
 		return false;
 	}
 
-	public ulong GetAllowedMechanicMask()
-	{
-		return _allowedMechanicMask;
-	}
-
 	public ulong GetMechanicImmunityMask(Unit caster)
 	{
 		var casterMechanicImmunityMask = caster.GetMechanicImmunityMask();
@@ -2305,7 +2395,7 @@ public class SpellInfo
 
 	public int CalcDuration(WorldObject caster = null)
 	{
-		var duration = GetDuration();
+		var duration = Duration;
 
 		if (caster)
 		{
@@ -2316,22 +2406,6 @@ public class SpellInfo
 		}
 
 		return duration;
-	}
-
-	public int GetDuration()
-	{
-		if (DurationEntry == null)
-			return IsPassive() ? -1 : 0;
-
-		return (DurationEntry.Duration == -1) ? -1 : Math.Abs(DurationEntry.Duration);
-	}
-
-	public int GetMaxDuration()
-	{
-		if (DurationEntry == null)
-			return IsPassive() ? -1 : 0;
-
-		return (DurationEntry.MaxDuration == -1) ? -1 : Math.Abs(DurationEntry.MaxDuration);
 	}
 
 	public int CalcCastTime(Spell spell = null)
@@ -2351,53 +2425,6 @@ public class SpellInfo
 			castTime += 500;
 
 		return (castTime > 0) ? castTime : 0;
-	}
-
-	public uint GetMaxTicks()
-	{
-		uint totalTicks = 0;
-		var DotDuration = GetDuration();
-
-		foreach (var effectInfo in Effects)
-		{
-			if (!effectInfo.IsEffect(SpellEffectName.ApplyAura))
-				continue;
-
-			switch (effectInfo.ApplyAuraName)
-			{
-				case AuraType.PeriodicDamage:
-				case AuraType.PeriodicDamagePercent:
-				case AuraType.PeriodicHeal:
-				case AuraType.ObsModHealth:
-				case AuraType.ObsModPower:
-				case AuraType.PeriodicTriggerSpellFromClient:
-				case AuraType.PowerBurn:
-				case AuraType.PeriodicLeech:
-				case AuraType.PeriodicManaLeech:
-				case AuraType.PeriodicEnergize:
-				case AuraType.PeriodicDummy:
-				case AuraType.PeriodicTriggerSpell:
-				case AuraType.PeriodicTriggerSpellWithValue:
-				case AuraType.PeriodicHealthFunnel:
-					// skip infinite periodics
-					if (effectInfo.ApplyAuraPeriod > 0 && DotDuration > 0)
-					{
-						totalTicks = (uint)DotDuration / effectInfo.ApplyAuraPeriod;
-
-						if (HasAttribute(SpellAttr5.ExtraInitialPeriod))
-							++totalTicks;
-					}
-
-					break;
-			}
-		}
-
-		return totalTicks;
-	}
-
-	public uint GetRecoveryTime()
-	{
-		return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 	}
 
 	public SpellPowerCost CalcPowerCost(PowerType powerType, bool optionalCost, WorldObject caster, SpellSchoolMask schoolMask, Spell spell = null)
@@ -2770,19 +2797,6 @@ public class SpellInfo
 		return ppm;
 	}
 
-	public bool IsRanked()
-	{
-		return ChainEntry != null;
-	}
-
-	public byte GetRank()
-	{
-		if (ChainEntry == null)
-			return 1;
-
-		return ChainEntry.Rank;
-	}
-
 	public SpellInfo GetFirstRankSpell()
 	{
 		if (ChainEntry == null)
@@ -2802,7 +2816,7 @@ public class SpellInfo
 	public SpellInfo GetAuraRankForLevel(uint level)
 	{
 		// ignore passive spells
-		if (IsPassive())
+		if (IsPassive)
 			return this;
 
 		// Client ignores spell with these attributes (sub_53D9D0)
@@ -2894,7 +2908,7 @@ public class SpellInfo
 		return 0;
 	}
 
-	public void _InitializeExplicitTargetMask()
+	public void InitializeExplicitTargetMask()
 	{
 		var srcSet = false;
 		var dstSet = false;
@@ -2926,7 +2940,7 @@ public class SpellInfo
 		ExplicitTargetMask = targetMask;
 	}
 
-	public bool _isPositiveTarget(SpellEffectInfo effect)
+	public bool IsPositiveTarget(SpellEffectInfo effect)
 	{
 		if (!effect.IsEffect())
 			return true;
@@ -2940,7 +2954,7 @@ public class SpellInfo
 		List<Tuple<SpellInfo, int>> visited = new();
 
 		foreach (var effect in Effects)
-			if (!_isPositiveEffectImpl(this, effect, visited))
+			if (!IsPositiveEffectImpl(this, effect, visited))
 				NegativeEffects[effect.EffectIndex] = true;
 
 
@@ -2974,7 +2988,7 @@ public class SpellInfo
 		}
 	}
 
-	public void _UnloadImplicitTargetConditionLists()
+	public void UnloadImplicitTargetConditionLists()
 	{
 		// find the same instances of ConditionList and delete them.
 		foreach (var effectInfo in _effects)
@@ -3147,11 +3161,6 @@ public class SpellInfo
 	public bool CanBeInterrupted(WorldObject interruptCaster, Unit interruptTarget, bool ignoreImmunity = false)
 	{
 		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit() && interruptCaster.ToUnit().HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.GetMechanicImmunityMask() & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
-	}
-
-	public bool HasAnyAuraInterruptFlag()
-	{
-		return AuraInterruptFlags != SpellAuraInterruptFlags.None || AuraInterruptFlags2 != SpellAuraInterruptFlags2.None;
 	}
 
 	public bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag)
@@ -3844,7 +3853,7 @@ public class SpellInfo
 		return ChainEntry.Prev;
 	}
 
-	bool _isPositiveEffectImpl(SpellInfo spellInfo, SpellEffectInfo effect, List<Tuple<SpellInfo, int>> visited)
+	bool IsPositiveEffectImpl(SpellInfo spellInfo, SpellEffectInfo effect, List<Tuple<SpellInfo, int>> visited)
 	{
 		if (!effect.IsEffect())
 			return true;
@@ -3854,7 +3863,7 @@ public class SpellInfo
 			return false;
 
 		// passive auras like talents are all positive
-		if (spellInfo.IsPassive())
+		if (spellInfo.IsPassive)
 			return true;
 
 		// not found a single positive spell with this attribute
@@ -3932,7 +3941,7 @@ public class SpellInfo
 		if (spellInfo.HasAttribute(SpellAttr1.AuraUnique))
 			// check for targets, there seems to be an assortment of dummy triggering spells that should be negative
 			foreach (var otherEffect in spellInfo.Effects)
-				if (!_isPositiveTarget(otherEffect))
+				if (!IsPositiveTarget(otherEffect))
 					return false;
 
 		foreach (var otherEffect in spellInfo.Effects)
@@ -4004,7 +4013,7 @@ public class SpellInfo
 			case SpellEffectName.AttackMe:
 			case SpellEffectName.PowerBurn:
 				// check targets
-				if (!_isPositiveTarget(effect))
+				if (!IsPositiveTarget(effect))
 					return false;
 
 				break;
@@ -4021,12 +4030,12 @@ public class SpellInfo
 				}
 
 				// also check targets
-				if (!_isPositiveTarget(effect))
+				if (!IsPositiveTarget(effect))
 					return false;
 
 				break;
 			case SpellEffectName.DispelMechanic:
-				if (!_isPositiveTarget(effect))
+				if (!IsPositiveTarget(effect))
 					// non-positive mechanic dispel on negative target
 					switch ((Mechanics)effect.MiscValue)
 					{
@@ -4043,7 +4052,7 @@ public class SpellInfo
 			case SpellEffectName.Threat:
 			case SpellEffectName.ModifyThreatPercent:
 				// check targets AND basepoints
-				if (!_isPositiveTarget(effect) && bp > 0)
+				if (!IsPositiveTarget(effect) && bp > 0)
 					return false;
 
 				break;
@@ -4097,7 +4106,7 @@ public class SpellInfo
 				case AuraType.ModAttackPowerPct:
 				case AuraType.ModHealingDonePercent:
 				case AuraType.ModHealingPct:
-					if (!_isPositiveTarget(effect) || bp < 0)
+					if (!IsPositiveTarget(effect) || bp < 0)
 						return false;
 
 					break;
@@ -4112,12 +4121,12 @@ public class SpellInfo
 
 					break;
 				case AuraType.ModDamagePercentTaken: // check targets and basepoints (ex Recklessness)
-					if (!_isPositiveTarget(effect) && bp > 0)
+					if (!IsPositiveTarget(effect) && bp > 0)
 						return false;
 
 					break;
 				case AuraType.ModHealthRegenPercent: // check targets and basepoints (target enemy and negative bp -> negative)
-					if (!_isPositiveTarget(effect) && bp < 0)
+					if (!IsPositiveTarget(effect) && bp < 0)
 						return false;
 
 					break;
@@ -4140,7 +4149,7 @@ public class SpellInfo
 
 							// if non-positive trigger cast targeted to positive target this main cast is non-positive
 							// this will place this spell auras as debuffs
-							if (_isPositiveTarget(spellTriggeredEffect) && !_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
+							if (IsPositiveTarget(spellTriggeredEffect) && !IsPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
 								return false;
 						}
 
@@ -4187,7 +4196,7 @@ public class SpellInfo
 				case AuraType.ModThreat:
 				case AuraType.ProcTriggerSpellWithValue:
 					// check target for positive and negative spells
-					if (!_isPositiveTarget(effect))
+					if (!IsPositiveTarget(effect))
 						return false;
 
 					break;
@@ -4295,7 +4304,7 @@ public class SpellInfo
 					if (!spellTriggeredEffect.IsEffect())
 						continue;
 
-					if (!_isPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
+					if (!IsPositiveEffectImpl(spellTriggeredProto, spellTriggeredEffect, visited))
 						return false;
 				}
 		}

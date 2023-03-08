@@ -13,6 +13,8 @@ namespace Scripts.Spells.Generic;
 [Script] // 27539 - Obsidian Armor
 internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(GenericSpellIds.Holy, GenericSpellIds.Fire, GenericSpellIds.Nature, GenericSpellIds.Frost, GenericSpellIds.Shadow, GenericSpellIds.Arcane);
@@ -20,10 +22,10 @@ internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEf
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo() == null)
+		if (eventInfo.SpellInfo == null)
 			return false;
 
-		if (SharedConst.GetFirstSchoolInMask(eventInfo.GetSchoolMask()) == SpellSchools.Normal)
+		if (SharedConst.GetFirstSchoolInMask(eventInfo.SchoolMask) == SpellSchools.Normal)
 			return false;
 
 		return true;
@@ -34,15 +36,13 @@ internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEf
 		AuraEffects.Add(new AuraEffectProcHandler(OnProcEffect, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void OnProcEffect(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
 		uint spellId;
 
-		switch (SharedConst.GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+		switch (SharedConst.GetFirstSchoolInMask(eventInfo.SchoolMask))
 		{
 			case SpellSchools.Holy:
 				spellId = GenericSpellIds.Holy;
@@ -72,6 +72,6 @@ internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEf
 				return;
 		}
 
-		GetTarget().CastSpell(GetTarget(), spellId, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, spellId, new CastSpellExtraArgs(aurEff));
 	}
 }

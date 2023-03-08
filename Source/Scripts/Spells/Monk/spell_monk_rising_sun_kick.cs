@@ -15,10 +15,15 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
-		var target = GetHitUnit();
+		var caster = Caster.ToPlayer();
+		var target = HitUnit;
 
 		if (target == null || caster == null)
 			return;
@@ -65,10 +70,5 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
 			if (relatedAuras != null)
 				relatedAuras.RefreshDuration(true);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHitTarget));
 	}
 }

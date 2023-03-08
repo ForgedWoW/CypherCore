@@ -22,7 +22,7 @@ internal class spell_gen_feign_death_no_prevent_emotes : AuraScript, IHasAuraEff
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.SetUnitFlag3(UnitFlags3.FakeDead);
 		target.SetUnitFlag2(UnitFlags2.FeignDeath);
 
@@ -33,7 +33,7 @@ internal class spell_gen_feign_death_no_prevent_emotes : AuraScript, IHasAuraEff
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.RemoveUnitFlag3(UnitFlags3.FakeDead);
 		target.RemoveUnitFlag2(UnitFlags2.FeignDeath);
 

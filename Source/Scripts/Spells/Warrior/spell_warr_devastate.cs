@@ -7,34 +7,33 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+//20243 - Devastate
+[SpellScript(20243)]
+public class spell_warr_devastate : SpellScript, IHasSpellEffects
 {
-    //20243 - Devastate
-    [SpellScript(20243)]
-	public class spell_warr_devastate : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleOnHit(int effIndex)
+	private void HandleOnHit(int effIndex)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		// https://www.wowhead.com/spell=23922/shield-slam
+		if (RandomHelper.randChance(Global.SpellMgr.GetSpellInfo(WarriorSpells.DEVASTATE, Difficulty.None).GetEffect(effIndex).BasePoints))
 		{
-			var caster = GetCaster();
+			var player = caster.ToPlayer();
 
-			if (caster == null)
-				return;
-
-			// https://www.wowhead.com/spell=23922/shield-slam
-			if (RandomHelper.randChance(Global.SpellMgr.GetSpellInfo(WarriorSpells.DEVASTATE, Difficulty.None).GetEffect(effIndex).BasePoints))
-			{
-				var player = caster.ToPlayer();
-
-				if (player != null)
-					player.GetSpellHistory().ResetCooldown(WarriorSpells.SHIELD_SLAM, true);
-			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+			if (player != null)
+				player.GetSpellHistory().ResetCooldown(WarriorSpells.SHIELD_SLAM, true);
 		}
 	}
 }

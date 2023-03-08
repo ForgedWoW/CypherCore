@@ -16,15 +16,9 @@ public class spell_pri_holy_word_sanctify : SpellScript, IHasSpellEffects, ISpel
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new RaidCheck(GetCaster()));
-		targets.Sort(new HealthPctOrderPred());
-	}
-
 	public void OnCast()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 			player.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
@@ -33,5 +27,11 @@ public class spell_pri_holy_word_sanctify : SpellScript, IHasSpellEffects, ISpel
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.RemoveIf(new RaidCheck(Caster));
+		targets.Sort(new HealthPctOrderPred());
 	}
 }

@@ -2,45 +2,46 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 1022 - Blessing of Protection
+// 204018 - Blessing of Spellwarding
+[SpellScript(new uint[]
 {
-    // 1022 - Blessing of Protection
-    // 204018 - Blessing of Spellwarding
-    [SpellScript(new uint[] { 1022, 204018 })]
-    internal class spell_pal_blessing_of_protection : SpellScript, ISpellCheckCast, ISpellAfterHit
-    {
-        public void AfterHit()
-        {
-            Unit target = GetHitUnit();
+	1022, 204018
+})]
+internal class spell_pal_blessing_of_protection : SpellScript, ISpellCheckCast, ISpellAfterHit
+{
+	public void AfterHit()
+	{
+		var target = HitUnit;
 
-            if (target)
-            {
-                GetCaster().CastSpell(target, PaladinSpells.Forbearance, true);
-                GetCaster().CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
-            }
-        }
+		if (target)
+		{
+			Caster.CastSpell(target, PaladinSpells.Forbearance, true);
+			Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
+		}
+	}
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER) // uncomment when we have serverside only spells
-                   &&
-                   spellInfo.ExcludeTargetAuraSpell == PaladinSpells.ImmuneShieldMarker;
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER) // uncomment when we have serverside only spells
+				&&
+				spellInfo.ExcludeTargetAuraSpell == PaladinSpells.ImmuneShieldMarker;
+	}
 
-        public SpellCastResult CheckCast()
-        {
-            Unit target = GetExplTargetUnit();
+	public SpellCastResult CheckCast()
+	{
+		var target = ExplTargetUnit;
 
-            if (!target ||
-                target.HasAura(PaladinSpells.Forbearance))
-                return SpellCastResult.TargetAurastate;
+		if (!target ||
+			target.HasAura(PaladinSpells.Forbearance))
+			return SpellCastResult.TargetAurastate;
 
-            return SpellCastResult.SpellCastOk;
-        }
-    }
+		return SpellCastResult.SpellCastOk;
+	}
 }

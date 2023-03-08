@@ -14,6 +14,8 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(51505)]
 internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.PathOfFlamesTalent, ShamanSpells.PathOfFlamesSpread, ShamanSpells.LavaSurge);
@@ -21,14 +23,14 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		var lavaSurge = caster.GetAura(ShamanSpells.LavaSurge);
 
 		if (lavaSurge != null)
-			if (!GetSpell().AppliedMods.Contains(lavaSurge))
+			if (!Spell.AppliedMods.Contains(lavaSurge))
 			{
-				var chargeCategoryId = GetSpellInfo().ChargeCategoryId;
+				var chargeCategoryId = SpellInfo.ChargeCategoryId;
 
 				// Ensure we have at least 1 usable charge after cast to allow next cast immediately
 				if (!caster.GetSpellHistory().HasCharge(chargeCategoryId))
@@ -41,14 +43,12 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			if (caster.HasAura(ShamanSpells.PathOfFlamesTalent))
-				caster.CastSpell(GetHitUnit(), ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(GetSpell()));
+				caster.CastSpell(HitUnit, ShamanSpells.PathOfFlamesSpread, new CastSpellExtraArgs(Spell));
 	}
 }

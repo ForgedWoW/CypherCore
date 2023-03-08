@@ -11,69 +11,67 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 1064 - Chain Heal
+[SpellScript(1064)]
+public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
 {
-    // 1064 - Chain Heal
-    [SpellScript(1064)]
-	public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
+	private WorldObject _primaryTarget = null;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.HIGH_TIDE, Difficulty.None) != null)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			if (Global.SpellMgr.GetSpellInfo(ShamanSpells.HIGH_TIDE, Difficulty.None) != null)
-				return false;
+		return true;
+	}
 
-			return true;
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectTargetSelectHandler(CatchInitialTarget, 0, Targets.UnitChainhealAlly));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SelectAdditionalTargets, 0, Targets.UnitChainhealAlly));
+	}
 
-		private void CatchInitialTarget(WorldObject target)
-		{
-			_primaryTarget = target;
-		}
+	private void CatchInitialTarget(WorldObject target)
+	{
+		_primaryTarget = target;
+	}
 
-		private void SelectAdditionalTargets(List<WorldObject> targets)
-		{
-			var caster   = GetCaster();
-			var highTide = caster.GetAuraEffect(ShamanSpells.HIGH_TIDE, 1);
+	private void SelectAdditionalTargets(List<WorldObject> targets)
+	{
+		var caster = Caster;
+		var highTide = caster.GetAuraEffect(ShamanSpells.HIGH_TIDE, 1);
 
-			if (highTide == null)
-				return;
+		if (highTide == null)
+			return;
 
-			var range      = 25.0f;
-			var targetInfo = new SpellImplicitTargetInfo(Targets.UnitChainhealAlly);
-			var conditions = GetSpellInfo().GetEffect(0).ImplicitTargetConditions;
+		var range = 25.0f;
+		var targetInfo = new SpellImplicitTargetInfo(Targets.UnitChainhealAlly);
+		var conditions = SpellInfo.GetEffect(0).ImplicitTargetConditions;
 
-			var containerTypeMask = GetSpell().GetSearcherTypeMask(targetInfo.ObjectType, conditions);
+		var containerTypeMask = Spell.GetSearcherTypeMask(targetInfo.ObjectType, conditions);
 
-			if (containerTypeMask == 0)
-				return;
+		if (containerTypeMask == 0)
+			return;
 
-			var chainTargets = new List<WorldObject>();
-			var check        = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget.Location, caster, caster, GetSpellInfo(), targetInfo.CheckType, conditions, SpellTargetObjectTypes.Unit);
-			var searcher     = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
-			Cell.VisitGrid(_primaryTarget, searcher, range);
+		var chainTargets = new List<WorldObject>();
+		var check = new WorldObjectSpellAreaTargetCheck(range, _primaryTarget.Location, caster, caster, SpellInfo, targetInfo.CheckType, conditions, SpellTargetObjectTypes.Unit);
+		var searcher = new WorldObjectListSearcher(caster, chainTargets, check, containerTypeMask);
+		Cell.VisitGrid(_primaryTarget, searcher, range);
 
-			chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.Riptide, caster.GetGUID()));
+		chainTargets.RemoveIf(new UnitAuraCheck<WorldObject>(false, ShamanSpells.Riptide, caster.GetGUID()));
 
-			if (chainTargets.Count == 0)
-				return;
+		if (chainTargets.Count == 0)
+			return;
 
-			chainTargets.Sort();
-			targets.Sort();
+		chainTargets.Sort();
+		targets.Sort();
 
-			var extraTargets = new List<WorldObject>();
-			extraTargets = chainTargets.Except(targets).ToList();
-			extraTargets.RandomResize((uint)highTide.Amount);
-			targets.AddRange(extraTargets);
-		}
-
-		private WorldObject _primaryTarget = null;
-
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectTargetSelectHandler(CatchInitialTarget, 0, Targets.UnitChainhealAlly));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(SelectAdditionalTargets, 0, Targets.UnitChainhealAlly));
-		}
+		var extraTargets = new List<WorldObject>();
+		extraTargets = chainTargets.Except(targets).ToList();
+		extraTargets.RandomResize((uint)highTide.Amount);
+		targets.AddRange(extraTargets);
 	}
 }

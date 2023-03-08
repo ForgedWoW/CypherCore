@@ -4,10 +4,9 @@
 using Game.AI;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAreaTriggerEntity
+namespace Game.Scripting.Interfaces.IAreaTriggerEntity;
+
+public interface IAreaTriggerEntityGetAI : IScriptObject
 {
-    public interface IAreaTriggerEntityGetAI : IScriptObject
-    {
-        AreaTriggerAI GetAI(AreaTrigger at);
-    }
+	AreaTriggerAI GetAI(AreaTrigger at);
 }

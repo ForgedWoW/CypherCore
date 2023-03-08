@@ -13,15 +13,15 @@ internal class spell_gen_charmed_unit_spell_cooldown : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
-		var owner  = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var caster = Caster;
+		var owner = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
 
 		if (owner != null)
 		{
 			SpellCooldownPkt spellCooldown = new();
 			spellCooldown.Caster = owner.GetGUID();
-			spellCooldown.Flags  = SpellCooldownFlags.None;
-			spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(GetSpellInfo().Id, GetSpellInfo().RecoveryTime));
+			spellCooldown.Flags = SpellCooldownFlags.None;
+			spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(SpellInfo.Id, SpellInfo.RecoveryTime));
 			owner.SendPacket(spellCooldown);
 		}
 	}

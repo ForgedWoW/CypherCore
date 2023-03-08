@@ -8,33 +8,32 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+[Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
+internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
 {
-    [Script] // Heroic Leap (triggered by Heroic Leap (6544)) - 178368
-	internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(WarriorSpells.GLYPH_OF_HEROIC_LEAP,
+								WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF,
+								WarriorSpells.IMPROVED_HEROIC_LEAP,
+								WarriorSpells.TAUNT);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(WarriorSpells.GLYPH_OF_HEROIC_LEAP,
-			                         WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF,
-			                         WarriorSpells.IMPROVED_HEROIC_LEAP,
-			                         WarriorSpells.TAUNT);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(AfterJump, 1, SpellEffectName.JumpDest, SpellScriptHookType.EffectHit));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(AfterJump, 1, SpellEffectName.JumpDest, SpellScriptHookType.EffectHit));
-		}
+	private void AfterJump(int effIndex)
+	{
+		if (Caster.HasAura(WarriorSpells.GLYPH_OF_HEROIC_LEAP))
+			Caster.CastSpell(Caster, WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
 
-		private void AfterJump(int effIndex)
-		{
-			if (GetCaster().HasAura(WarriorSpells.GLYPH_OF_HEROIC_LEAP))
-				GetCaster().CastSpell(GetCaster(), WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF, true);
-
-			if (GetCaster().HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
-				GetCaster().GetSpellHistory().ResetCooldown(WarriorSpells.TAUNT, true);
-		}
+		if (Caster.HasAura(WarriorSpells.IMPROVED_HEROIC_LEAP))
+			Caster.GetSpellHistory().ResetCooldown(WarriorSpells.TAUNT, true);
 	}
 }

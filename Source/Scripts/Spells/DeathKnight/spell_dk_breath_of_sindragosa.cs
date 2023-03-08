@@ -12,11 +12,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(152279)]
 public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
+	}
 
 	private void OnTick(AuraEffect UnnamedParameter)
 	{
-		var l_Caster = GetCaster();
+		var l_Caster = Caster;
 
 		if (l_Caster == null)
 			return;
@@ -32,10 +37,5 @@ public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
 
 		if (l_Caster.GetPower(PowerType.RunicPower) <= 130)
 			l_Caster.RemoveAura(DeathKnightSpells.BREATH_OF_SINDRAGOSA);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
 	}
 }

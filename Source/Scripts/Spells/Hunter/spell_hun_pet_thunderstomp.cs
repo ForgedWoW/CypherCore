@@ -14,26 +14,26 @@ public class spell_hun_pet_thunderstomp : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void HandleDamage(int effIndex)
 	{
-		var caster = GetCaster();
-		var owner  = GetCaster().GetOwner();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var owner = Caster.GetOwner();
+		var target = HitUnit;
 
 		if (owner == null || target == null)
 			return;
 
 		double dmg = 1.5f * (owner.UnitData.RangedAttackPower * 0.250f);
 
-		dmg = caster.SpellDamageBonusDone(target, GetSpellInfo(), dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, GetSpell());
-		dmg = target.SpellDamageBonusTaken(caster, GetSpellInfo(), dmg, DamageEffectType.Direct);
+		dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
+		dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
 
-		SetHitDamage(dmg);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		HitDamage = dmg;
 	}
 }

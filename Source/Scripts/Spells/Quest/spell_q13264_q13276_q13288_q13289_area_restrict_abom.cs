@@ -21,14 +21,14 @@ internal class spell_q13264_q13276_q13288_q13289_area_restrict_abom : SpellScrip
 
 	private void HandleScript(int effIndex)
 	{
-		var creature = GetHitCreature();
+		var creature = HitCreature;
 
 		if (creature != null)
 		{
 			var area = creature.GetAreaId();
 
 			if (area != Misc.AreaTheBrokenFront &&
-			    area != Misc.AreaMordRetharTheDeathGate)
+				area != Misc.AreaMordRetharTheDeathGate)
 				creature.DespawnOrUnsummon();
 		}
 	}

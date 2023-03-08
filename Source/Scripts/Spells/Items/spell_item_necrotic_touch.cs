@@ -13,6 +13,8 @@ namespace Scripts.Spells.Items;
 [Script] // 71875, 71877 - Item - Black Bruise: Necrotic Touch Proc
 internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ItemSpellIds.ItemNecroticTouchProc);
@@ -20,7 +22,7 @@ internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraE
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetProcTarget() && eventInfo.GetProcTarget().IsAlive();
+		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive();
 	}
 
 	public override void Register()
@@ -28,19 +30,17 @@ internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraE
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-		    damageInfo.GetDamage() == 0)
+			damageInfo.GetDamage() == 0)
 			return;
 
 		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
-		GetTarget().CastSpell((Unit)null, ItemSpellIds.ItemNecroticTouchProc, args);
+		Target.CastSpell((Unit)null, ItemSpellIds.ItemNecroticTouchProc, args);
 	}
 }

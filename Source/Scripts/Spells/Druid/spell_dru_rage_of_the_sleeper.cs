@@ -13,7 +13,13 @@ namespace Scripts.Spells.Druid;
 [SpellScript(200851)]
 public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -23,7 +29,7 @@ public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -32,11 +38,5 @@ public class spell_dru_rage_of_the_sleeper : AuraScript, IHasAuraEffects
 			if (target != null)
 				caster.CastSpell(target, 219432, true);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }

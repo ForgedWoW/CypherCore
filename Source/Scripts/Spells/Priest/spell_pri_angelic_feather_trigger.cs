@@ -27,19 +27,19 @@ internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var destPos = GetHitDest();
-		var radius  = GetEffectInfo().CalcRadius();
+		var destPos = HitDest;
+		var radius = EffectInfo.CalcRadius();
 
 		// Caster is prioritary
-		if (GetCaster().IsWithinDist2d(destPos, radius))
+		if (Caster.IsWithinDist2d(destPos, radius))
 		{
-			GetCaster().CastSpell(GetCaster(), PriestSpells.ANGELIC_FEATHER_AURA, true);
+			Caster.CastSpell(Caster, PriestSpells.ANGELIC_FEATHER_AURA, true);
 		}
 		else
 		{
 			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-			args.CastDifficulty = GetCastDifficulty();
-			GetCaster().CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
+			args.CastDifficulty = CastDifficulty;
+			Caster.CastSpell(destPos, PriestSpells.ANGELIC_FEATHER_AREATRIGGER, args);
 		}
 	}
 }

@@ -3,28 +3,27 @@
 
 using Game.Scripting;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(17962)]
+public class spell_warl_conflagrate_aura : SpellScript
 {
-    [SpellScript(17962)]
-	public class spell_warl_conflagrate_aura : SpellScript
+	public void OnHit()
 	{
-		public void OnHit()
+		var _player = Caster.ToPlayer();
+
+		if (_player != null)
 		{
-			var _player = GetCaster().ToPlayer();
+			var target = HitUnit;
 
-			if (_player != null)
+			if (target != null)
 			{
-				var target = GetHitUnit();
+				if (!target.HasAura(WarlockSpells.IMMOLATE) && !_player.HasAura(WarlockSpells.GLYPH_OF_CONFLAGRATE))
+					if (target.GetAura(WarlockSpells.CONFLAGRATE) != null)
+						target.RemoveAura(WarlockSpells.CONFLAGRATE);
 
-				if (target != null)
-				{
-					if (!target.HasAura(WarlockSpells.IMMOLATE) && !_player.HasAura(WarlockSpells.GLYPH_OF_CONFLAGRATE))
-						if (target.GetAura(WarlockSpells.CONFLAGRATE) != null)
-							target.RemoveAura(WarlockSpells.CONFLAGRATE);
-
-					if (!target.HasAura(WarlockSpells.IMMOLATE_FIRE_AND_BRIMSTONE))
-						target.RemoveAura(WarlockSpells.CONFLAGRATE_FIRE_AND_BRIMSTONE);
-				}
+				if (!target.HasAura(WarlockSpells.IMMOLATE_FIRE_AND_BRIMSTONE))
+					target.RemoveAura(WarlockSpells.CONFLAGRATE_FIRE_AND_BRIMSTONE);
 			}
 		}
 	}

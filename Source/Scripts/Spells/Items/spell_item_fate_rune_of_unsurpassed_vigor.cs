@@ -28,6 +28,6 @@ internal class spell_item_fate_rune_of_unsurpassed_vigor : AuraScript, IHasAuraE
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), ItemSpellIds.UnsurpassedVigor, true);
+		Target.CastSpell(Target, ItemSpellIds.UnsurpassedVigor, true);
 	}
 }

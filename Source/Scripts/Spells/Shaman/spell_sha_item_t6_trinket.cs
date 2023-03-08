@@ -30,31 +30,31 @@ internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		if (spellInfo == null)
 			return;
 
 		uint spellId;
-		int  chance;
+		int chance;
 
 		// Lesser Healing Wave
 		if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000080u))
 		{
 			spellId = ShamanSpells.EnergySurge;
-			chance  = 10;
+			chance = 10;
 		}
 		// Lightning Bolt
 		else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00000001u))
 		{
 			spellId = ShamanSpells.EnergySurge;
-			chance  = 15;
+			chance = 15;
 		}
 		// Stormstrike
 		else if (spellInfo.SpellFamilyFlags[1].HasAnyFlag(0x00000010u))
 		{
 			spellId = ShamanSpells.PowerSurge;
-			chance  = 50;
+			chance = 50;
 		}
 		else
 		{
@@ -62,6 +62,6 @@ internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
 		}
 
 		if (RandomHelper.randChance(chance))
-			eventInfo.GetActor().CastSpell((Unit)null, spellId, true);
+			eventInfo.Actor.CastSpell((Unit)null, spellId, true);
 	}
 }

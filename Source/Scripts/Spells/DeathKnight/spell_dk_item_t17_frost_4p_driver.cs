@@ -13,28 +13,28 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(167655)]
 public class spell_dk_item_t17_frost_4p_driver : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	private struct eSpells
+	public override void Register()
 	{
-		public const uint FrozenRuneblade = 170202;
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo p_EventInfo)
 	{
 		PreventDefaultAction();
 
-		var l_Caster = GetCaster();
+		var l_Caster = Caster;
 
 		if (l_Caster == null)
 			return;
 
-		var l_ProcSpell = p_EventInfo.GetDamageInfo().GetSpellInfo();
+		var l_ProcSpell = p_EventInfo.DamageInfo.GetSpellInfo();
 
 		if (l_ProcSpell == null)
 			return;
 
-		var l_Target = p_EventInfo.GetActionTarget();
+		var l_Target = p_EventInfo.ActionTarget;
 
 		if (l_Target == null || l_Target == l_Caster)
 			return;
@@ -43,8 +43,8 @@ public class spell_dk_item_t17_frost_4p_driver : AuraScript, IHasAuraEffects
 		l_Caster.CastSpell(l_Target, eSpells.FrozenRuneblade, true);
 	}
 
-	public override void Register()
+	private struct eSpells
 	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+		public const uint FrozenRuneblade = 170202;
 	}
 }

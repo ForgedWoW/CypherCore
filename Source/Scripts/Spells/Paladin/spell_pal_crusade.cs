@@ -9,36 +9,31 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 231895
+[SpellScript(231895)]
+public class spell_pal_crusade : AuraScript, IHasAuraEffects
 {
-    // 231895
-    [SpellScript(231895)]
-    public class spell_pal_crusade : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-        {
-            amount.Value /= 10;
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
+	}
 
-        private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-        {
-            var powerCosts = eventInfo.GetSpellInfo().CalcPowerCost(eventInfo.GetActor(), SpellSchoolMask.Holy);
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		amount.Value /= 10;
+	}
 
-            foreach (var powerCost in powerCosts)
-            {
-                if (powerCost.Power == PowerType.HolyPower)
-                {
-                    GetAura().ModStackAmount(powerCost.Amount, AuraRemoveMode.Default, false);
-                }
-            }
-        }
+	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+	{
+		var powerCosts = eventInfo.SpellInfo.CalcPowerCost(eventInfo.Actor, SpellSchoolMask.Holy);
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
-            AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
-        }
-    }
+		foreach (var powerCost in powerCosts)
+			if (powerCost.Power == PowerType.HolyPower)
+				Aura.ModStackAmount(powerCost.Amount, AuraRemoveMode.Default, false);
+	}
 }

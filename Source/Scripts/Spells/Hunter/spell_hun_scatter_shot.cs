@@ -16,7 +16,7 @@ internal class spell_hun_scatter_shot : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -26,7 +26,7 @@ internal class spell_hun_scatter_shot : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 		// break auto Shot and varhit
 		caster.InterruptSpell(CurrentSpellTypes.AutoRepeat);
 		caster.AttackStop();

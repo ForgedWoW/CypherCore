@@ -13,7 +13,7 @@ public class spell_monk_jade_serpent_statue : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

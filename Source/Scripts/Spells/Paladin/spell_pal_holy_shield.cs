@@ -9,27 +9,26 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// Holy Shield - 152261
+[SpellScript(152261)]
+public class spell_pal_holy_shield : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-    // Holy Shield - 152261
-    [SpellScript(152261)]
-    public class spell_pal_holy_shield : AuraScript, IAuraCheckProc, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public bool CheckProc(ProcEventInfo eventInfo)
-        {
-            return (eventInfo.GetHitMask() & ProcFlagsHit.Block) != 0;
-        }
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		return (eventInfo.HitMask & ProcFlagsHit.Block) != 0;
+	}
 
-        private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-        {
-            amount.Value = 0;
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 2, AuraType.SchoolAbsorb));
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectCalcAmountHandler(HandleCalcAmount, 2, AuraType.SchoolAbsorb));
-        }
-    }
+	private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		amount.Value = 0;
+	}
 }

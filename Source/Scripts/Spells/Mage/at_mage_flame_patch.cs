@@ -11,17 +11,15 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_flame_patch : AreaTriggerAI
 {
-	public at_mage_flame_patch(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public int timeInterval;
+
+	public at_mage_flame_patch(AreaTrigger areatrigger) : base(areatrigger) { }
 
 
 	public override void OnCreate()
 	{
 		timeInterval = 1000;
 	}
-
-	public int timeInterval;
 
 	public override void OnUpdate(uint diff)
 	{

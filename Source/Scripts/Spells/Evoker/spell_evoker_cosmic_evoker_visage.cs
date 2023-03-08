@@ -11,7 +11,7 @@ public class spell_evoker_cosmic_evoker_visage : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAura(EvokerSpells.VISAGE_AURA))
 		{

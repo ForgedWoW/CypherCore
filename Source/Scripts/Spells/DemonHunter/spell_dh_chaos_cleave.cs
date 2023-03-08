@@ -13,22 +13,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206475)]
 public class spell_dh_chaos_cleave : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-	{
-		PreventDefaultAction();
-		var caster = GetCaster();
-
-		if (caster == null || eventInfo.GetDamageInfo() != null)
-			return;
-
-		var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
-		caster.CastSpell(caster, DemonHunterSpells.CHAOS_CLEAVE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
+
+	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
+
+		if (caster == null || eventInfo.DamageInfo != null)
+			return;
+
+		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		caster.CastSpell(caster, DemonHunterSpells.CHAOS_CLEAVE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
 	}
 }

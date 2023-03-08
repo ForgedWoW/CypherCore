@@ -19,7 +19,7 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (!caster.IsFalling())
 			return SpellCastResult.NotOnGround;
@@ -32,14 +32,14 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster == null)
 			return;
 
 		caster.CastSpell(caster, EvokerSpells.GLIDE_KNOCKBACK, true);
 
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
-		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, GetCastDifficulty()), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.GetSpellHistory().StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 }

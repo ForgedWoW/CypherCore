@@ -16,8 +16,8 @@ public class spell_pri_purify : SpellScript, IHasSpellEffects
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (caster != target && target.IsFriendlyTo(caster))
 			return SpellCastResult.BadTargets;
@@ -25,17 +25,17 @@ public class spell_pri_purify : SpellScript, IHasSpellEffects
 		return SpellCastResult.SpellCastOk;
 	}
 
-	private void AfterEffectHit(int effIndex)
-	{
-		if (GetHitUnit().IsFriendlyTo(GetCaster()))
-		{
-			GetCaster().CastSpell(GetHitUnit(), PriestSpells.DISPEL_MAGIC_HOSTILE, true);
-			GetCaster().CastSpell(GetHitUnit(), PriestSpells.CURE_DISEASE, true);
-		}
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(AfterEffectHit, 0, SpellEffectName.Dispel, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void AfterEffectHit(int effIndex)
+	{
+		if (HitUnit.IsFriendlyTo(Caster))
+		{
+			Caster.CastSpell(HitUnit, PriestSpells.DISPEL_MAGIC_HOSTILE, true);
+			Caster.CastSpell(HitUnit, PriestSpells.CURE_DISEASE, true);
+		}
 	}
 }

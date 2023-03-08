@@ -27,17 +27,17 @@ internal class spell_pri_power_of_the_dark_side_damage_bonus : SpellScript, IHas
 
 	private void HandleLaunchTarget(int effIndex)
 	{
-		var powerOfTheDarkSide = GetCaster().GetAuraEffect(PriestSpells.POWER_OF_THE_DARK_SIDE, 0);
+		var powerOfTheDarkSide = Caster.GetAuraEffect(PriestSpells.POWER_OF_THE_DARK_SIDE, 0);
 
 		if (powerOfTheDarkSide != null)
 		{
 			PreventHitDefaultEffect(effIndex);
 
-			double damageBonus = GetCaster().SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), (uint)GetEffectValue(), DamageEffectType.SpellDirect, GetEffectInfo(), 1, GetSpell());
-			var   value       = damageBonus + damageBonus * GetEffectVariance();
+			var damageBonus = Caster.SpellDamageBonusDone(HitUnit, SpellInfo, (uint)EffectValue, DamageEffectType.SpellDirect, EffectInfo, 1, Spell);
+			var value = damageBonus + damageBonus * EffectVariance;
 			value *= 1.0f + (powerOfTheDarkSide.Amount / 100.0f);
-			value =  GetHitUnit().SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), (uint)value, DamageEffectType.SpellDirect);
-			SetHitDamage((int)value);
+			value = HitUnit.SpellDamageBonusTaken(Caster, SpellInfo, (uint)value, DamageEffectType.SpellDirect);
+			HitDamage = (int)value;
 		}
 	}
 }

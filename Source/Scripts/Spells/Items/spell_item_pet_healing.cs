@@ -28,14 +28,14 @@ internal class spell_item_pet_healing : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-		    damageInfo.GetDamage() == 0)
+			damageInfo.GetDamage() == 0)
 			return;
 
 		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
-		eventInfo.GetActor().CastSpell((Unit)null, ItemSpellIds.HealthLink, args);
+		eventInfo.Actor.CastSpell((Unit)null, ItemSpellIds.HealthLink, args);
 	}
 }

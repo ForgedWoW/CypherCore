@@ -14,10 +14,15 @@ public class spell_rog_roll_the_bones_visual_SpellScript : SpellScript, IHasSpel
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(Prevent, (byte)255, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void Prevent(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -29,10 +34,5 @@ public class spell_rog_roll_the_bones_visual_SpellScript : SpellScript, IHasSpel
 			PreventHitDefaultEffect(effIndex);
 			PreventHitEffect(effIndex);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(Prevent, (byte)255, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
 	}
 }

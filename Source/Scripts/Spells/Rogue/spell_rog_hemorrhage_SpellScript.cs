@@ -12,12 +12,29 @@ public class spell_rog_hemorrhage_SpellScript : SpellScript, ISpellOnHit, ISpell
 {
 	private bool _bleeding;
 
+	public void AfterHit()
+	{
+		var caster = Caster;
+		var cp = caster.GetPower(PowerType.ComboPoints);
+
+		if (cp > 0)
+			caster.SetPower(PowerType.ComboPoints, cp - 1);
+	}
+
+	public void BeforeHit(SpellMissInfo UnnamedParameter)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+			_bleeding = target.HasAuraState(AuraStateType.Bleed);
+	}
+
 	public void OnHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
-			if (GetHitUnit())
+			if (HitUnit)
 				if (_player.HasAura(RogueSpells.GLYPH_OF_HEMORRHAGE))
 					if (!_bleeding)
 					{
@@ -25,22 +42,5 @@ public class spell_rog_hemorrhage_SpellScript : SpellScript, ISpellOnHit, ISpell
 
 						return;
 					}
-	}
-
-	public void BeforeHit(SpellMissInfo UnnamedParameter)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-			_bleeding = target.HasAuraState(AuraStateType.Bleed);
-	}
-
-	public void AfterHit()
-	{
-		var caster = GetCaster();
-		var cp     = caster.GetPower(PowerType.ComboPoints);
-
-		if (cp > 0)
-			caster.SetPower(PowerType.ComboPoints, cp - 1);
 	}
 }

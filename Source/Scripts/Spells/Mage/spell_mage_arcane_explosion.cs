@@ -35,7 +35,7 @@ internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 	private void CheckRequiredAuraForBaselineEnergize(int effIndex)
 	{
 		if (GetUnitTargetCountForEffect(1) == 0 ||
-		    !GetCaster().HasAura(MageSpells.ArcaneMage))
+			!Caster.HasAura(MageSpells.ArcaneMage))
 			PreventHitDefaultEffect(effIndex);
 	}
 
@@ -43,7 +43,7 @@ internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 	{
 		var procTriggered = false;
 
-		var caster        = GetCaster();
+		var caster = Caster;
 		var triggerChance = caster.GetAuraEffect(MageSpells.Reverberate, 0);
 
 		if (triggerChance != null)

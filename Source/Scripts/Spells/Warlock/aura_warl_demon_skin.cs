@@ -1,4 +1,4 @@
-﻿// Copyright(c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
@@ -8,30 +8,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(WarlockSpells.DEMON_SKIN)]
+internal class aura_warl_demon_skin : AuraScript, IHasAuraEffects
 {
-    [SpellScript(WarlockSpells.DEMON_SKIN)]
-    internal class aura_warl_demon_skin : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        void Periodic(AuraEffect eff)
-        {
-            if (!TryGetCaster(out var caster)) return;
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(Periodic, 0, AuraType.PeriodicDummy));
+	}
 
-            double absorb = (caster.GetMaxHealth() * (GetEffect(0).BaseAmount / 10)) / 100.0f;
+	void Periodic(AuraEffect eff)
+	{
+		if (!TryGetCaster(out var caster)) return;
 
-            if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
-                absorb += auraEffect.Amount;
+		var absorb = (caster.GetMaxHealth() * (GetEffect(0).BaseAmount / 10)) / 100.0f;
 
-            var threshold = (caster.GetMaxHealth() * GetEffect(1).BaseAmount) / 100.0f;
-            absorb = Math.Min(absorb, threshold);
-            caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
-        }
+		if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))
+			absorb += auraEffect.Amount;
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectPeriodicHandler(Periodic, 0, AuraType.PeriodicDummy));
-        }
-    }
+		var threshold = (caster.GetMaxHealth() * GetEffect(1).BaseAmount) / 100.0f;
+		absorb = Math.Min(absorb, threshold);
+		caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);
+	}
 }

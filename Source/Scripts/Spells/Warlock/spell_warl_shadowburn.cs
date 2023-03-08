@@ -7,28 +7,28 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(WarlockSpells.SHADOWBURN)]
+public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
 {
-    [SpellScript(WarlockSpells.SHADOWBURN)]
-	public class spell_warl_shadowburn : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
+	}
 
-		private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
+
+		if (caster)
 		{
-			var caster = GetCaster();
-			if (caster)
-			{
-				var removeMode = GetTargetApplication().RemoveMode;
+			var removeMode = TargetApplication.RemoveMode;
 
-				if (removeMode == AuraRemoveMode.Death)
-					caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real));
+			if (removeMode == AuraRemoveMode.Death)
+				caster.CastSpell(WarlockSpells.SHADOWBURN_ENERGIZE, true);
 		}
 	}
 }

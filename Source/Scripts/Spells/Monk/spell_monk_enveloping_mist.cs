@@ -10,24 +10,24 @@ namespace Scripts.Spells.Monk;
 [SpellScript(124682)]
 public class spell_monk_enveloping_mist : SpellScript, ISpellAfterCast, ISpellBeforeCast
 {
-	public void BeforeCast()
-	{
-		if (GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled) && GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).SpellInfo.Id == MonkSpells.SOOTHING_MIST)
-		{
-			GetSpell().CastFlagsEx = SpellCastFlagsEx.None;
-			var targets = GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).Targets;
-			GetSpell().InitExplicitTargets(targets);
-		}
-	}
-
 	public void AfterCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster == null)
 			return;
 
 		if (caster.HasAura(MonkSpells.LIFECYCLES))
 			caster.CastSpell(caster, MonkSpells.LIFECYCLES_VIVIFY, true);
+	}
+
+	public void BeforeCast()
+	{
+		if (Caster.GetCurrentSpell(CurrentSpellTypes.Channeled) && Caster.GetCurrentSpell(CurrentSpellTypes.Channeled).SpellInfo.Id == MonkSpells.SOOTHING_MIST)
+		{
+			Spell.CastFlagsEx = SpellCastFlagsEx.None;
+			var targets = Caster.GetCurrentSpell(CurrentSpellTypes.Channeled).Targets;
+			Spell.InitExplicitTargets(targets);
+		}
 	}
 }

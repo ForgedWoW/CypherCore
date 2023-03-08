@@ -11,7 +11,7 @@ public class spell_rog_nightstalker_SpellScript : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{

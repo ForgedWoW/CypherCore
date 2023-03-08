@@ -71,11 +71,11 @@ public class AuraCollection
 				_byCastId.Add(castId, aura.Guid);
 
 			_canBeSaved.Add(aura.CanBeSaved(), aura.Guid);
-			_isgroupBuff.Add(aura.SpellInfo.IsGroupBuff(), aura.Guid);
-			_isPassive.Add(aura.IsPassive(), aura.Guid);
-			_isDeathPersistant.Add(aura.IsDeathPersistent(), aura.Guid);
+			_isgroupBuff.Add(aura.SpellInfo.IsGroupBuff, aura.Guid);
+			_isPassive.Add(aura.IsPassive, aura.Guid);
+			_isDeathPersistant.Add(aura.IsDeathPersistent, aura.Guid);
 			_isRequiringDeadTarget.Add(aura.SpellInfo.IsRequiringDeadTarget, aura.Guid);
-			_typeMap.Add(aura.GetAuraType(), aura.Guid);
+			_typeMap.Add(aura.AuraObjType, aura.Guid);
 		}
 	}
 
@@ -102,11 +102,11 @@ public class AuraCollection
 				_byCastId.Remove(castId, aura.Guid);
 
 			_canBeSaved.Remove(aura.CanBeSaved(), aura.Guid);
-			_isgroupBuff.Remove(aura.SpellInfo.IsGroupBuff(), aura.Guid);
-			_isPassive.Remove(aura.IsPassive(), aura.Guid);
-			_isDeathPersistant.Remove(aura.IsDeathPersistent(), aura.Guid);
+			_isgroupBuff.Remove(aura.SpellInfo.IsGroupBuff, aura.Guid);
+			_isPassive.Remove(aura.IsPassive, aura.Guid);
+			_isDeathPersistant.Remove(aura.IsDeathPersistent, aura.Guid);
 			_isRequiringDeadTarget.Remove(aura.SpellInfo.IsRequiringDeadTarget, aura.Guid);
-			_typeMap.Remove(aura.GetAuraType(), aura.Guid);
+			_typeMap.Remove(aura.AuraObjType, aura.Guid);
 		}
 	}
 

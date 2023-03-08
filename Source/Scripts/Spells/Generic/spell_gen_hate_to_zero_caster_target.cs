@@ -21,10 +21,10 @@ internal class spell_gen_hate_to_zero_caster_target : SpellScript, IHasSpellEffe
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 			if (target.CanHaveThreatList())
-				target.GetThreatManager().ModifyThreatByPercent(GetCaster(), -100);
+				target.GetThreatManager().ModifyThreatByPercent(Caster, -100);
 	}
 }

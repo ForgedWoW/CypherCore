@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraOnDispel : IAuraScript
 {
-    public interface IAuraOnDispel : IAuraScript
-    {
-        void OnDispel(DispelInfo dispelInfo);
-    }
+	void OnDispel(DispelInfo dispelInfo);
 }

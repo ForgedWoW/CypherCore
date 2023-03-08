@@ -8,37 +8,36 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//207498 ancestral protection
+[SpellScript(207498)]
+public class spell_sha_ancestral_protection_totem_aura : AuraScript, IHasAuraEffects
 {
-    //207498 ancestral protection
-    [SpellScript(207498)]
-	public class spell_sha_ancestral_protection_totem_aura : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
-		private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			amount.Value = -1;
-		}
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		amount.Value = -1;
+	}
 
-		private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
-				return;
+	private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
+			return;
 
-			var totem = GetCaster();
+		var totem = Caster;
 
-			if (totem == null)
-				return;
+		if (totem == null)
+			return;
 
-			totem.CastSpell(GetTargetApplication().Target, TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
-			totem.KillSelf();
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		}
+		totem.CastSpell(TargetApplication.Target, TotemSpells.TOTEM_TOTEMIC_REVIVAL, true);
+		totem.KillSelf();
 	}
 }

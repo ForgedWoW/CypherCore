@@ -13,21 +13,26 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(199523)]
 public class spell_hun_farstrider : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if ((eventInfo.GetHitMask() & ProcFlagsHit.Critical) != 0)
+		if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
 			return true;
 
 		return false;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
 		PreventDefaultAction();
 
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 		{
@@ -37,10 +42,5 @@ public class spell_hun_farstrider : AuraScript, IHasAuraEffects, IAuraCheckProc
 			if (player.HasSpell(HunterSpells.HARPOON))
 				player.GetSpellHistory().ResetCooldown(HunterSpells.DISENGAGE, true);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 }

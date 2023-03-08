@@ -13,6 +13,8 @@ namespace Scripts.Spells.Priest;
 [Script] // 37594 - Greater Heal Refund
 internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.ITEM_EFFICIENCY);
@@ -20,7 +22,7 @@ internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAura
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo != null)
 		{
@@ -40,11 +42,9 @@ internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAura
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), PriestSpells.ITEM_EFFICIENCY, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, PriestSpells.ITEM_EFFICIENCY, new CastSpellExtraArgs(aurEff));
 	}
 }

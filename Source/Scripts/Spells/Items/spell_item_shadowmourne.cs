@@ -13,6 +13,8 @@ namespace Scripts.Spells.Items;
 [Script] // 71903 - Item - Shadowmourne Legendary
 internal class spell_item_shadowmourne : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ItemSpellIds.ShadowmourneChaosBaneDamage, ItemSpellIds.ShadowmourneSoulFragment, ItemSpellIds.ShadowmourneChaosBaneBuff);
@@ -20,10 +22,10 @@ internal class spell_item_shadowmourne : AuraScript, IAuraCheckProc, IHasAuraEff
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (GetTarget().HasAura(ItemSpellIds.ShadowmourneChaosBaneBuff)) // cant collect shards while under effect of Chaos Bane buff
+		if (Target.HasAura(ItemSpellIds.ShadowmourneChaosBaneBuff)) // cant collect shards while under effect of Chaos Bane buff
 			return false;
 
-		return eventInfo.GetProcTarget() && eventInfo.GetProcTarget().IsAlive();
+		return eventInfo.ProcTarget && eventInfo.ProcTarget.IsAlive();
 	}
 
 	public override void Register()
@@ -32,26 +34,24 @@ internal class spell_item_shadowmourne : AuraScript, IAuraCheckProc, IHasAuraEff
 		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), ItemSpellIds.ShadowmourneSoulFragment, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, ItemSpellIds.ShadowmourneSoulFragment, new CastSpellExtraArgs(aurEff));
 
 		// this can't be handled in AuraScript of SoulFragments because we need to know victim
-		var soulFragments = GetTarget().GetAura(ItemSpellIds.ShadowmourneSoulFragment);
+		var soulFragments = Target.GetAura(ItemSpellIds.ShadowmourneSoulFragment);
 
 		if (soulFragments != null)
 			if (soulFragments.StackAmount >= 10)
 			{
-				GetTarget().CastSpell(eventInfo.GetProcTarget(), ItemSpellIds.ShadowmourneChaosBaneDamage, new CastSpellExtraArgs(aurEff));
+				Target.CastSpell(eventInfo.ProcTarget, ItemSpellIds.ShadowmourneChaosBaneDamage, new CastSpellExtraArgs(aurEff));
 				soulFragments.Remove();
 			}
 	}
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(ItemSpellIds.ShadowmourneSoulFragment);
+		Target.RemoveAura(ItemSpellIds.ShadowmourneSoulFragment);
 	}
 }

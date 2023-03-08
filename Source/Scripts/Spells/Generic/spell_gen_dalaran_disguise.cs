@@ -19,11 +19,11 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return spellInfo.Id switch
-		       {
-			       GenericSpellIds.SunreaverTrigger      => ValidateSpellInfo(GenericSpellIds.SunreaverFemale, GenericSpellIds.SunreaverMale),
-			       GenericSpellIds.SilverCovenantTrigger => ValidateSpellInfo(GenericSpellIds.SilverCovenantFemale, GenericSpellIds.SilverCovenantMale),
-			       _                                     => false
-		       };
+		{
+			GenericSpellIds.SunreaverTrigger      => ValidateSpellInfo(GenericSpellIds.SunreaverFemale, GenericSpellIds.SunreaverMale),
+			GenericSpellIds.SilverCovenantTrigger => ValidateSpellInfo(GenericSpellIds.SilverCovenantFemale, GenericSpellIds.SilverCovenantMale),
+			_                                     => false
+		};
 	}
 
 	public override void Register()
@@ -33,13 +33,13 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var player = GetHitPlayer();
+		var player = HitPlayer;
 
 		if (player)
 		{
 			var gender = player.GetNativeGender();
 
-			var spellId = GetSpellInfo().Id;
+			var spellId = SpellInfo.Id;
 
 			switch (spellId)
 			{
@@ -55,7 +55,7 @@ internal class spell_gen_dalaran_disguise : SpellScript, IHasSpellEffects
 					break;
 			}
 
-			GetCaster().CastSpell(player, spellId, true);
+			Caster.CastSpell(player, spellId, true);
 		}
 	}
 }

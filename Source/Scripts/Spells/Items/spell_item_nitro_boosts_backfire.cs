@@ -28,20 +28,20 @@ internal class spell_item_nitro_boosts_backfire : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect effect, AuraEffectHandleModes mode)
 	{
-		lastZ = GetTarget().Location.Z;
+		lastZ = Target.Location.Z;
 	}
 
 	private void HandlePeriodicDummy(AuraEffect effect)
 	{
 		PreventDefaultAction();
-		var curZ = GetTarget().Location.Z;
+		var curZ = Target.Location.Z;
 
 		if (curZ < lastZ)
 		{
 			if (RandomHelper.randChance(80)) // we don't have enough sniffs to verify this, guesstimate
-				GetTarget().CastSpell(GetTarget(), ItemSpellIds.NitroBoostsParachute, new CastSpellExtraArgs(effect));
+				Target.CastSpell(Target, ItemSpellIds.NitroBoostsParachute, new CastSpellExtraArgs(effect));
 
-			GetAura().Remove();
+			Aura.Remove();
 		}
 		else
 		{

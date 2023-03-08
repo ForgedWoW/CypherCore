@@ -14,10 +14,15 @@ public class spell_mage_cinderstorm : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDamage(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
@@ -25,14 +30,9 @@ public class spell_mage_cinderstorm : SpellScript, IHasSpellEffects
 		if (target.HasAura(MageSpells.IGNITE_DOT))
 		{
 			//    int32 pct = Global.SpellMgr->GetSpellInfo(CINDERSTORM, Difficulty.None)->GetEffect(0).CalcValue(caster);
-			var dmg = GetHitDamage();
+			var dmg = HitDamage;
 			// MathFunctions.AddPct(ref dmg, pct);
-			SetHitDamage(dmg);
+			HitDamage = dmg;
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

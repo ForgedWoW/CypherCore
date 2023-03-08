@@ -12,10 +12,8 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(211053)]
 public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private int _charges = 1;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -27,12 +25,12 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || GetSpellInfo() == null)
+		if (caster == null || SpellInfo == null)
 			return false;
 
-		var chargeCategoryId = GetSpellInfo().ChargeCategoryId;
+		var chargeCategoryId = SpellInfo.ChargeCategoryId;
 
 		while (caster.GetSpellHistory().HasCharge(chargeCategoryId))
 		{
@@ -43,10 +41,15 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleTrigger, 0, AuraType.PeriodicDummy));
+	}
+
 	private void HandleTrigger(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
-		var target = GetTarget();
+		var caster = Caster;
+		var target = Target;
 
 		if (caster == null || target == null)
 			return;
@@ -55,10 +58,5 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)_charges);
 		args.SetTriggerFlags(TriggerCastFlags.FullMask);
 		caster.CastSpell(target, DemonHunterSpells.FEL_BARRAGE_TRIGGER, args);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleTrigger, 0, AuraType.PeriodicDummy));
 	}
 }

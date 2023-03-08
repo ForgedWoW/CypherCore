@@ -27,12 +27,12 @@ internal class spell_q12919_gymers_grab : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		if (!GetHitCreature())
+		if (!HitCreature)
 			return;
 
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, 2);
-		GetHitCreature().CastSpell(GetCaster(), QuestSpellIds.RideGymer, args);
-		GetHitCreature().CastSpell(GetHitCreature(), QuestSpellIds.Grabbed, true);
+		HitCreature.CastSpell(Caster, QuestSpellIds.RideGymer, args);
+		HitCreature.CastSpell(HitCreature, QuestSpellIds.Grabbed, true);
 	}
 }

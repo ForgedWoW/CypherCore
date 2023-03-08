@@ -18,21 +18,21 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.BODY_AND_SOUL,
-		                         PriestSpells.BODY_AND_SOUL_SPEED,
-		                         PriestSpells.STRENGTH_OF_SOUL,
-		                         PriestSpells.STRENGTH_OF_SOUL_EFFECT,
-		                         PriestSpells.RENEWED_HOPE,
-		                         PriestSpells.RENEWED_HOPE_EFFECT,
-		                         PriestSpells.VOID_SHIELD,
-		                         PriestSpells.VOID_SHIELD_EFFECT,
-		                         PriestSpells.ATONEMENT,
-		                         PriestSpells.TRINITY,
-		                         PriestSpells.ATONEMENT_TRIGGERED,
-		                         PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY,
-		                         PriestSpells.SHIELD_DISCIPLINE_PASSIVE,
-		                         PriestSpells.SHIELD_DISCIPLINE_ENERGIZE,
-		                         PriestSpells.RAPTURE,
-		                         PriestSpells.MASTERY_GRACE);
+								PriestSpells.BODY_AND_SOUL_SPEED,
+								PriestSpells.STRENGTH_OF_SOUL,
+								PriestSpells.STRENGTH_OF_SOUL_EFFECT,
+								PriestSpells.RENEWED_HOPE,
+								PriestSpells.RENEWED_HOPE_EFFECT,
+								PriestSpells.VOID_SHIELD,
+								PriestSpells.VOID_SHIELD_EFFECT,
+								PriestSpells.ATONEMENT,
+								PriestSpells.TRINITY,
+								PriestSpells.ATONEMENT_TRIGGERED,
+								PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY,
+								PriestSpells.SHIELD_DISCIPLINE_PASSIVE,
+								PriestSpells.SHIELD_DISCIPLINE_ENERGIZE,
+								PriestSpells.RAPTURE,
+								PriestSpells.MASTERY_GRACE);
 	}
 
 	public override void Register()
@@ -46,11 +46,11 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 	{
 		canBeRecalculated.Value = false;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var amountF = caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * 1.65f;
+			var amountF = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 1.65f;
 
 			var player = caster.ToPlayer();
 
@@ -61,8 +61,8 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 				var mastery = caster.GetAuraEffect(PriestSpells.MASTERY_GRACE, 0);
 
 				if (mastery != null)
-					if (GetUnitOwner().HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
-					    GetUnitOwner().HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
+					if (UnitOwner.HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
+						UnitOwner.HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
 						MathFunctions.AddPct(ref amountF, mastery.Amount);
 			}
 
@@ -77,8 +77,8 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 
 	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
-		var target = GetTarget();
+		var caster = Caster;
+		var target = Target;
 
 		if (!caster)
 			return;
@@ -93,7 +93,7 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 			caster.CastSpell(target, PriestSpells.RENEWED_HOPE_EFFECT, true);
 
 		if (caster.HasAura(PriestSpells.VOID_SHIELD) &&
-		    caster == target)
+			caster == target)
 			caster.CastSpell(target, PriestSpells.VOID_SHIELD_EFFECT, true);
 
 		if (caster.HasAura(PriestSpells.ATONEMENT))
@@ -102,12 +102,12 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 
 	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(PriestSpells.STRENGTH_OF_SOUL_EFFECT);
-		var caster = GetCaster();
+		Target.RemoveAura(PriestSpells.STRENGTH_OF_SOUL_EFFECT);
+		var caster = Caster;
 
 		if (caster)
-			if (GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell &&
-			    caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
+			if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell &&
+				caster.HasAura(PriestSpells.SHIELD_DISCIPLINE_PASSIVE))
 				caster.CastSpell(caster, PriestSpells.SHIELD_DISCIPLINE_ENERGIZE, true);
 	}
 }

@@ -12,7 +12,7 @@ namespace Scripts.Spells.Priest;
 [SpellScript(107906)]
 public class spell_pri_glyph_of_shadow : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -22,9 +22,15 @@ public class spell_pri_glyph_of_shadow : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
+
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -35,18 +41,12 @@ public class spell_pri_glyph_of_shadow : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
 		caster.RemoveAura(PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH);
 		caster.CastSpell(caster, PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
 }

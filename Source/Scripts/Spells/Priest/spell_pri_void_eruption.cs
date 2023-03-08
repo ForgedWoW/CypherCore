@@ -21,44 +21,9 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
 		return ValidateSpellInfo(PriestSpells.VOID_ERUPTION, PriestSpells.VOID_ERUPTION_DAMAGE);
 	}
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		var caster = GetCaster();
-
-		if (caster == null)
-			return;
-
-		targets.RemoveIf((WorldObject target) =>
-		                 {
-			                 var targ = target.ToUnit();
-
-			                 if (targ == null)
-				                 return true;
-
-			                 return !(targ.HasAura(PriestSpells.SHADOW_WORD_PAIN, caster.GetGUID()) || targ.HasAura(PriestSpells.VAMPIRIC_TOUCH, caster.GetGUID()));
-		                 });
-	}
-
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		powerCost.Amount = 0;
-	}
-
-	private void HandleDummy(int effIndex)
-	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
-
-		if (caster == null || target == null)
-			return;
-
-		var spellid = RandomHelper.RandShort() % 2; //there are two animations which should be random
-		caster.CastSpell(target, PriestSpells.VOID_ERUPTION_DAMAGE + spellid, true);
-	}
-
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -73,5 +38,40 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	public void TakePower(SpellPowerCost powerCost)
+	{
+		powerCost.Amount = 0;
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		targets.RemoveIf((WorldObject target) =>
+		{
+			var targ = target.ToUnit();
+
+			if (targ == null)
+				return true;
+
+			return !(targ.HasAura(PriestSpells.SHADOW_WORD_PAIN, caster.GetGUID()) || targ.HasAura(PriestSpells.VAMPIRIC_TOUCH, caster.GetGUID()));
+		});
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
+
+		if (caster == null || target == null)
+			return;
+
+		var spellid = RandomHelper.RandShort() % 2; //there are two animations which should be random
+		caster.CastSpell(target, PriestSpells.VOID_ERUPTION_DAMAGE + spellid, true);
 	}
 }

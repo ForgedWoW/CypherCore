@@ -881,7 +881,7 @@ namespace Game.BattlePets
 
         readonly WorldSession _owner;
         bool _hasJournalLock;
-        new readonly ushort _trapLevel;
+        readonly ushort _trapLevel;
         readonly Dictionary<ulong, BattlePet> _pets = new();
         readonly List<BattlePetSlot> _slots = new();
 

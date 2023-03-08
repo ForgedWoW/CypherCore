@@ -7,25 +7,24 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 234153 - Drain Life
+[SpellScript(234153)]
+public class spell_warlock_drain_life : AuraScript, IHasAuraEffects
 {
-    // 234153 - Drain Life
-    [SpellScript(234153)]
-	public class spell_warlock_drain_life : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicLeech));
+	}
 
-		private void PeriodicTick(AuraEffect UnnamedParameter)
-		{
-			var caster = GetCaster();
+	private void PeriodicTick(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicLeech));
-		}
+		if (caster == null)
+			return;
 	}
 }

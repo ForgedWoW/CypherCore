@@ -134,6 +134,12 @@ public class Aura
 
 	public Dictionary<int, AuraEffect> AuraEffects => _effects;
 
+	public AuraObjectType AuraObjType => (_owner.GetTypeId() == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.Unit;
+
+	public bool IsPassive => _spellInfo.IsPassive;
+
+	public bool IsDeathPersistent => SpellInfo.IsDeathPersistent;
+
 	public Aura(AuraCreateInfo createInfo)
 	{
 		_spellInfo = createInfo.SpellInfo;
@@ -213,11 +219,6 @@ public class Aura
 		return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
 	}
 
-	public AuraObjectType GetAuraType()
-	{
-		return (_owner.GetTypeId() == TypeId.DynamicObject) ? AuraObjectType.DynObj : AuraObjectType.Unit;
-	}
-
 	public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
 		Cypher.Assert(target != null);
@@ -229,7 +230,7 @@ public class Aura
 
 		// set infinity cooldown state for spells
 		if (caster != null && caster.IsTypeId(TypeId.Player))
-			if (_spellInfo.IsCooldownStartedOnEvent())
+			if (_spellInfo.IsCooldownStartedOnEvent)
 			{
 				var castItem = !_castItemGuid.IsEmpty() ? caster.ToPlayer().GetItemByGuid(_castItemGuid) : null;
 				caster.GetSpellHistory().StartCooldown(_spellInfo, castItem != null ? castItem.GetEntry() : 0, null, true);
@@ -263,7 +264,7 @@ public class Aura
 		_removedApplications.Add(auraApp);
 
 		// reset cooldown state for spells
-		if (caster != null && SpellInfo.IsCooldownStartedOnEvent())
+		if (caster != null && SpellInfo.IsCooldownStartedOnEvent)
 			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
 			caster.GetSpellHistory().SendCooldownEvent(SpellInfo);
 	}
@@ -360,7 +361,7 @@ public class Aura
 				addUnit = false;
 
 			// Dynobj auras don't hit flying targets
-			if (GetAuraType() == AuraObjectType.DynObj && unit.IsInFlight())
+			if (AuraObjType == AuraObjectType.DynObj && unit.IsInFlight())
 				addUnit = false;
 
 			// Do not apply aura if it cannot stack with existing auras
@@ -514,10 +515,10 @@ public class Aura
 		}
 		else
 		{
-			maxDuration = spellInfo.GetDuration();
+			maxDuration = spellInfo.Duration;
 		}
 
-		if (spellInfo.IsPassive() && spellInfo.DurationEntry == null)
+		if (spellInfo.IsPassive && spellInfo.DurationEntry == null)
 			maxDuration = -1;
 
 		// IsPermanent() checks max duration (which we are supposed to calculate here)
@@ -573,7 +574,7 @@ public class Aura
 
 		if (withMods && caster)
 		{
-			var duration = _spellInfo.GetMaxDuration();
+			var duration = _spellInfo.MaxDuration;
 
 			// Calculate duration of periodics affected by haste.
 			if (_spellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
@@ -760,16 +761,6 @@ public class Aura
 		return false;
 	}
 
-	public bool IsPassive()
-	{
-		return _spellInfo.IsPassive();
-	}
-
-	public bool IsDeathPersistent()
-	{
-		return SpellInfo.IsDeathPersistent;
-	}
-
 	public bool IsRemovedOnShapeLost(Unit target)
 	{
 		return CasterGuid == target.GetGUID() && _spellInfo.Stances != 0 && !_spellInfo.HasAttribute(SpellAttr2.AllowWhileNotShapeshiftedCasterForm) && !_spellInfo.HasAttribute(SpellAttr0.NotShapeshifted);
@@ -777,7 +768,7 @@ public class Aura
 
 	public bool CanBeSaved()
 	{
-		if (IsPassive())
+		if (IsPassive)
 			return false;
 
 		if (SpellInfo.IsChanneled)
@@ -1253,7 +1244,7 @@ public class Aura
 		var existingSpellInfo = existingAura.SpellInfo;
 
 		// Dynobj auras do not stack when they come from the same spell cast by the same caster
-		if (GetAuraType() == AuraObjectType.DynObj || existingAura.GetAuraType() == AuraObjectType.DynObj)
+		if (AuraObjType == AuraObjectType.DynObj || existingAura.AuraObjType == AuraObjectType.DynObj)
 		{
 			if (sameCaster && _spellInfo.Id == existingSpellInfo.Id)
 				return false;
@@ -1262,7 +1253,7 @@ public class Aura
 		}
 
 		// passive auras don't stack with another rank of the spell cast by same caster
-		if (IsPassive() && sameCaster && (_spellInfo.IsDifferentRankOf(existingSpellInfo) || (_spellInfo.Id == existingSpellInfo.Id && _castItemGuid.IsEmpty())))
+		if (IsPassive && sameCaster && (_spellInfo.IsDifferentRankOf(existingSpellInfo) || (_spellInfo.Id == existingSpellInfo.Id && _castItemGuid.IsEmpty())))
 			return false;
 
 		foreach (var spellEffectInfo in existingSpellInfo.Effects)
@@ -1430,7 +1421,7 @@ public class Aura
 	public void PrepareProcChargeDrop(SpellProcEntry procEntry, ProcEventInfo eventInfo)
 	{
 		// take one charge, aura expiration will be handled in Aura.TriggerProcOnEvent (if needed)
-		if (!procEntry.AttributesMask.HasAnyFlag(ProcAttributes.UseStacksForCharges) && IsUsingCharges && (eventInfo.GetSpellInfo() == null || !eventInfo.GetSpellInfo().HasAttribute(SpellAttr6.DoNotConsumeResources)))
+		if (!procEntry.AttributesMask.HasAnyFlag(ProcAttributes.UseStacksForCharges) && IsUsingCharges && (eventInfo.SpellInfo == null || !eventInfo.SpellInfo.HasAttribute(SpellAttr6.DoNotConsumeResources)))
 		{
 			--_procCharges;
 			SetNeedClientUpdateForTargets();
@@ -1456,7 +1447,7 @@ public class Aura
 			return 0;
 
 		// check spell triggering us
-		var spell = eventInfo.GetProcSpell();
+		var spell = eventInfo.ProcSpell;
 
 		if (spell)
 		{
@@ -1465,7 +1456,7 @@ public class Aura
 				return 0;
 
 			// check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
-			if (!SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.GetTypeMask().HasFlag(ProcFlags.AutoAttackMask))
+			if (!SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.TypeMask.HasFlag(ProcFlags.AutoAttackMask))
 				if (spell.IsTriggered() && !spell.SpellInfo.HasAttribute(SpellAttr3.NotAProc))
 					return 0;
 
@@ -1482,7 +1473,7 @@ public class Aura
 		// check don't break stealth attr present
 		if (_spellInfo.HasAura(AuraType.ModStealth))
 		{
-			var eventSpellInfo = eventInfo.GetSpellInfo();
+			var eventSpellInfo = eventInfo.SpellInfo;
 
 			if (eventSpellInfo != null)
 				if (eventSpellInfo.HasAttribute(SpellCustomAttributes.DontBreakStealth))
@@ -1497,7 +1488,7 @@ public class Aura
 
 			if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReqSpellmod))
 			{
-				var eventSpell = eventInfo.GetProcSpell();
+				var eventSpell = eventInfo.ProcSpell;
 
 				if (eventSpell != null)
 					if (!eventSpell.AppliedMods.Contains(this))
@@ -1515,7 +1506,7 @@ public class Aura
 			return 0;
 
 		// do checks using conditions table
-		if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.SpellProc, Id, eventInfo.GetActor(), eventInfo.GetActionTarget()))
+		if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.SpellProc, Id, eventInfo.Actor, eventInfo.ActionTarget))
 			return 0;
 
 		// AuraScript Hook
@@ -1545,7 +1536,7 @@ public class Aura
 		// @todo this needs to be unified for all kinds of auras
 		var target = aurApp.Target;
 
-		if (IsPassive() && target.IsPlayer() && SpellInfo.EquippedItemClass != ItemClass.None)
+		if (IsPassive && target.IsPlayer() && SpellInfo.EquippedItemClass != ItemClass.None)
 			if (!SpellInfo.HasAttribute(SpellAttr3.NoProcEquipRequirement))
 			{
 				Item item = null;
@@ -1555,7 +1546,7 @@ public class Aura
 					if (target.ToPlayer().IsInFeralForm())
 						return 0;
 
-					var damageInfo = eventInfo.GetDamageInfo();
+					var damageInfo = eventInfo.DamageInfo;
 
 					if (damageInfo != null)
 					{
@@ -1787,14 +1778,14 @@ public class Aura
 
 	public UnitAura ToUnitAura()
 	{
-		if (GetAuraType() == AuraObjectType.Unit) return (UnitAura)this;
+		if (AuraObjType == AuraObjectType.Unit) return (UnitAura)this;
 
 		return null;
 	}
 
 	public DynObjAura ToDynObjAura()
 	{
-		if (GetAuraType() == AuraObjectType.DynObj) return (DynObjAura)this;
+		if (AuraObjType == AuraObjectType.DynObj) return (DynObjAura)this;
 
 		return null;
 	}
@@ -2097,9 +2088,9 @@ public class Aura
 		if (caster != null)
 		{
 			// calculate ppm chance if present and we're using weapon
-			if (eventInfo.GetDamageInfo() != null && procEntry.ProcsPerMinute != 0)
+			if (eventInfo.DamageInfo != null && procEntry.ProcsPerMinute != 0)
 			{
-				var WeaponSpeed = caster.GetBaseAttackTime(eventInfo.GetDamageInfo().GetAttackType());
+				var WeaponSpeed = caster.GetBaseAttackTime(eventInfo.DamageInfo.GetAttackType());
 				chance = caster.GetPPMProcChance(WeaponSpeed, procEntry.ProcsPerMinute, SpellInfo);
 			}
 
@@ -2114,8 +2105,8 @@ public class Aura
 		}
 
 		// proc chance is reduced by an additional 3.333% per level past 60
-		if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReduceProc60) && eventInfo.GetActor().GetLevel() > 60)
-			chance = Math.Max(0.0f, (1.0f - ((eventInfo.GetActor().GetLevel() - 60) * 1.0f / 30.0f)) * chance);
+		if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReduceProc60) && eventInfo.Actor.GetLevel() > 60)
+			chance = Math.Max(0.0f, (1.0f - ((eventInfo.Actor.GetLevel() - 60) * 1.0f / 30.0f)) * chance);
 
 		return chance;
 	}

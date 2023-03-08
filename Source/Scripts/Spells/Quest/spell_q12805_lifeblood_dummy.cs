@@ -17,7 +17,7 @@ internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -27,14 +27,14 @@ internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target)
 		{
 			caster.KilledMonsterCredit(CreatureIds.ShardKillCredit);
-			target.CastSpell(target, (uint)GetEffectValue(), true);
+			target.CastSpell(target, (uint)EffectValue, true);
 			target.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 		}
 	}

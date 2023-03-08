@@ -12,11 +12,11 @@ internal class spell_item_map_of_the_geyser_fields : SpellScript, ISpellCheckCas
 {
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.FindNearestCreature(CreatureIds.SouthSinkhole, 30.0f, true) ||
-		    caster.FindNearestCreature(CreatureIds.NortheastSinkhole, 30.0f, true) ||
-		    caster.FindNearestCreature(CreatureIds.NorthwestSinkhole, 30.0f, true))
+			caster.FindNearestCreature(CreatureIds.NortheastSinkhole, 30.0f, true) ||
+			caster.FindNearestCreature(CreatureIds.NorthwestSinkhole, 30.0f, true))
 			return SpellCastResult.SpellCastOk;
 
 		SetCustomCastResultMessage(SpellCustomErrors.MustBeCloseToSinkhole);

@@ -27,8 +27,8 @@ internal class spell_item_poultryizer : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetCastItem() &&
-		    GetHitUnit())
-			GetCaster().CastSpell(GetHitUnit(), RandomHelper.randChance(80) ? ItemSpellIds.PoultryizerSuccess : ItemSpellIds.PoultryizerBackfire, new CastSpellExtraArgs(GetCastItem()));
+		if (CastItem &&
+			HitUnit)
+			Caster.CastSpell(HitUnit, RandomHelper.randChance(80) ? ItemSpellIds.PoultryizerSuccess : ItemSpellIds.PoultryizerBackfire, new CastSpellExtraArgs(CastItem));
 	}
 }

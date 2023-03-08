@@ -17,21 +17,21 @@ public class spell_demon_hunter_mana_break : SpellScript, IHasSpellEffects
 
 	public void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
-		var damage   = (double)GetSpellInfo().GetEffect(1).BasePoints;
+		var damage = (double)SpellInfo.GetEffect(1).BasePoints;
 		var powerPct = target.GetPowerPct(PowerType.Mana);
 
 		if (powerPct >= 1.0f)
-			damage += (100.0f - powerPct) / 10.0f * GetSpellInfo().GetEffect(2).BasePoints;
+			damage += (100.0f - powerPct) / 10.0f * SpellInfo.GetEffect(2).BasePoints;
 
-		damage = Math.Max((double)GetHitUnit().CountPctFromMaxHealth(GetSpellInfo().GetEffect(1).BasePoints), (double)damage);
+		damage = Math.Max((double)HitUnit.CountPctFromMaxHealth(SpellInfo.GetEffect(1).BasePoints), (double)damage);
 
-		SetHitDamage(damage);
+		HitDamage = damage;
 	}
 
 	public override void Register()

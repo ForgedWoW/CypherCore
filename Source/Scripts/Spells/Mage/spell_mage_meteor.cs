@@ -18,8 +18,8 @@ public class spell_mage_meteor : SpellScript, ISpellAfterCast
 
 	public void AfterCast()
 	{
-		var caster = GetCaster();
-		var dest   = GetExplTargetDest();
+		var caster = Caster;
+		var dest = ExplTargetDest;
 
 		if (caster == null || dest == null)
 			return;

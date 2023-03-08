@@ -14,15 +14,15 @@ internal class CorruptingPlagueSearcher : ICheck<Unit>
 
 	public CorruptingPlagueSearcher(Unit obj, double distance)
 	{
-		_unit     = obj;
+		_unit = obj;
 		_distance = distance;
 	}
 
 	public bool Invoke(Unit u)
 	{
 		if (_unit.GetDistance2d(u) < _distance &&
-		    (u.GetEntry() == CreatureIds.ApexisFlayer || u.GetEntry() == CreatureIds.ShardHideBoar || u.GetEntry() == CreatureIds.AetherRay) &&
-		    !u.HasAura(GenericSpellIds.CorruptingPlague))
+			(u.GetEntry() == CreatureIds.ApexisFlayer || u.GetEntry() == CreatureIds.ShardHideBoar || u.GetEntry() == CreatureIds.AetherRay) &&
+			!u.HasAura(GenericSpellIds.CorruptingPlague))
 			return true;
 
 		return false;

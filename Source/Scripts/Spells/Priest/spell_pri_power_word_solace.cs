@@ -27,10 +27,10 @@ internal class spell_pri_power_word_solace : SpellScript, IHasSpellEffects
 
 	private void RestoreMana(int effIndex)
 	{
-		GetCaster()
-			.CastSpell(GetCaster(),
-			           PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
-			           new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(GetSpell())
-			                                                                        .AddSpellMod(SpellValueMod.BasePoint0, GetEffectValue() / 100));
+		Caster
+			.CastSpell(Caster,
+						PriestSpells.POWER_WORD_SOLACE_ENERGIZE,
+						new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell)
+																					.AddSpellMod(SpellValueMod.BasePoint0, EffectValue / 100));
 	}
 }

@@ -27,9 +27,9 @@ internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffec
 
 	private void OnStackChange(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
-		switch (GetStackAmount())
+		switch (StackAmount)
 		{
 			case 1:
 				target.CastSpell(target, ItemSpellIds.ShadowmourneVisualLow, true);
@@ -52,7 +52,7 @@ internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffec
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.RemoveAura(ItemSpellIds.ShadowmourneVisualLow);
 		target.RemoveAura(ItemSpellIds.ShadowmourneVisualHigh);
 	}

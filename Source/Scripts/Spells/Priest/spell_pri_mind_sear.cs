@@ -23,13 +23,13 @@ public class spell_pri_mind_sear : SpellScript, IHasSpellEffects
 		return true;
 	}
 
-	private void HandleInsanity(int effIndex)
-	{
-		GetCaster().CastSpell(GetCaster(), PriestSpells.MIND_SEAR_INSANITY, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleInsanity, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleInsanity(int effIndex)
+	{
+		Caster.CastSpell(Caster, PriestSpells.MIND_SEAR_INSANITY, true);
 	}
 }

@@ -17,11 +17,19 @@ public class spell_dh_infernal_strike : SpellScript, ISpellOnCast, ISpellOnHit
 		return ValidateSpellInfo(DemonHunterSpells.INFERNAL_STRIKE_JUMP, DemonHunterSpells.INFERNAL_STRIKE_DAMAGE);
 	}
 
+	public void OnCast()
+	{
+		var caster = Caster;
+
+		if (caster != null)
+			caster.Events.AddEventAtOffset(new event_dh_infernal_strike(caster), TimeSpan.FromMilliseconds(750));
+	}
+
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var dest   = GetHitDest();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var dest = HitDest;
+		var target = HitUnit;
 
 		if (caster == null || dest == null || target == null)
 			return;
@@ -31,13 +39,5 @@ public class spell_dh_infernal_strike : SpellScript, ISpellOnCast, ISpellOnHit
 			caster.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.INFERNAL_STRIKE_JUMP, true);
 			caster.CastSpell(caster, DemonHunterSpells.INFERNAL_STRIKE_VISUAL, true);
 		}
-	}
-
-	public void OnCast()
-	{
-		var caster = GetCaster();
-
-		if (caster != null)
-			caster.Events.AddEventAtOffset(new event_dh_infernal_strike(caster), TimeSpan.FromMilliseconds(750));
 	}
 }

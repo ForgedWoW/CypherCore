@@ -34,16 +34,16 @@ internal class spell_rog_tricks_of_the_trade_aura : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Default ||
-		    !GetTarget().HasAura(RogueSpells.TricksOfTheTradeProc))
-			GetTarget().GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Default ||
+			!Target.HasAura(RogueSpells.TricksOfTheTradeProc))
+			Target.GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
-		var rogue = GetTarget();
+		var rogue = Target;
 
 		if (Global.ObjAccessor.GetUnit(rogue, _redirectTarget))
 			rogue.CastSpell(rogue, RogueSpells.TricksOfTheTradeProc, new CastSpellExtraArgs(aurEff));

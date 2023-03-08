@@ -7,39 +7,27 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+//234299
+[Script]
+public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-    //234299
-    [Script]
-    public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
-    {
-        public Class PlayerClass { get; } = Class.Paladin;
-        public fist_of_justice() : base("fist_of_justice")
-        {
-        }
+	public Class PlayerClass { get; } = Class.Paladin;
 
-        public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
-        {
-            if (player.GetClass() != Class.Paladin)
-            {
-                return;
-            }
+	public fist_of_justice() : base("fist_of_justice") { }
 
-            if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
-            {
-                return;
-            }
+	public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
+	{
+		if (player.GetClass() != Class.Paladin)
+			return;
 
-            if (player.GetPowerType() == PowerType.HolyPower)
-            {
-                if (newValue < oldValue)
-                {
-                    if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
-                    {
-                        player.GetSpellHistory().ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));
-                    }
-                }
-            }
-        }
-    }
+		if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
+			return;
+
+		if (player.GetPowerType() == PowerType.HolyPower)
+			if (newValue < oldValue)
+				if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
+					player.GetSpellHistory().ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));
+	}
 }

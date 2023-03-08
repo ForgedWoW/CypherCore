@@ -8,62 +8,61 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(53651)] // 53651 - Beacon of Light
+internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-    [SpellScript(53651)] // 53651 - Beacon of Light
-    internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEffects
-    {
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.BeaconOfLight, PaladinSpells.BeaconOfLightHeal);
-        }
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public bool CheckProc(ProcEventInfo eventInfo)
-        {
-            if (!eventInfo.GetActionTarget())
-                return false;
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.BeaconOfLight, PaladinSpells.BeaconOfLightHeal);
+	}
 
-            if (eventInfo.GetActionTarget().HasAura(PaladinSpells.BeaconOfLight, eventInfo.GetActor().GetGUID()))
-                return false;
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		if (!eventInfo.ActionTarget)
+			return false;
 
-            return true;
-        }
+		if (eventInfo.ActionTarget.HasAura(PaladinSpells.BeaconOfLight, eventInfo.Actor.GetGUID()))
+			return false;
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+		return true;
+	}
 
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            PreventDefaultAction();
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
 
-            HealInfo healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
-            if (healInfo == null ||
-                healInfo.GetHeal() == 0)
-                return;
+		if (healInfo == null ||
+			healInfo.GetHeal() == 0)
+			return;
 
-            double heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
+		var heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
 
-            var auras = GetCaster().GetSingleCastAuras();
+		var auras = Caster.GetSingleCastAuras();
 
-            foreach (var eff in auras)
-                if (eff.Id == PaladinSpells.BeaconOfLight)
-                {
-                    List<AuraApplication> applications = eff.GetApplicationList();
+		foreach (var eff in auras)
+			if (eff.Id == PaladinSpells.BeaconOfLight)
+			{
+				var applications = eff.GetApplicationList();
 
-                    if (!applications.Empty())
-                    {
-                        CastSpellExtraArgs args = new(aurEff);
-                        args.AddSpellMod(SpellValueMod.BasePoint0, (int)heal);
-                        eventInfo.GetActor().CastSpell(applications[0].Target, PaladinSpells.BeaconOfLightHeal, args);
-                    }
+				if (!applications.Empty())
+				{
+					CastSpellExtraArgs args = new(aurEff);
+					args.AddSpellMod(SpellValueMod.BasePoint0, (int)heal);
+					eventInfo.Actor.CastSpell(applications[0].Target, PaladinSpells.BeaconOfLightHeal, args);
+				}
 
-                    return;
-                }
-        }
-    }
+				return;
+			}
+	}
 }

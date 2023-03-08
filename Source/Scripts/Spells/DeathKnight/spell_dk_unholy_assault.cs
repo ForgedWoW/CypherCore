@@ -15,16 +15,18 @@ public class spell_dk_unholy_assault : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-    public override bool Validate(SpellInfo spell)
-    {
-        return ValidateSpellInfo(DeathKnightSpells.FESTERING_WOUND);
-    }
+	public override bool Validate(SpellInfo spell)
+	{
+		return ValidateSpellInfo(DeathKnightSpells.FESTERING_WOUND);
+	}
 
-    public override void Register() {
-        SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.Launch));
-    }
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+	}
 
-	private void HandleScriptEffect(int effIndex) {
-		GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, GetEffectValue()));
+	private void HandleScriptEffect(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, EffectValue));
 	}
 }

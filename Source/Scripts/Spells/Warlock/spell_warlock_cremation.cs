@@ -8,40 +8,39 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 212282 -
+[SpellScript(212282)]
+public class spell_warlock_cremation : AuraScript, IHasAuraEffects
 {
-    // 212282 -
-    [SpellScript(212282)]
-	public class spell_warlock_cremation : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
 
-		private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
+		var target = eventInfo.ActionTarget;
+
+		if (caster == null || target == null)
+			return;
+
+		switch (eventInfo.DamageInfo.GetSpellInfo().Id)
 		{
-			PreventDefaultAction();
-			var caster = GetCaster();
-			var target = eventInfo.GetActionTarget();
+			case WarlockSpells.SHADOWBURN:
+			case WarlockSpells.CONFLAGRATE:
+				caster.CastSpell(target, SpellInfo.GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 
-			if (caster == null || target == null)
-				return;
+				break;
+			case WarlockSpells.INCINERATE:
+				caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
 
-			switch (eventInfo.GetDamageInfo().GetSpellInfo().Id)
-			{
-				case WarlockSpells.SHADOWBURN:
-				case WarlockSpells.CONFLAGRATE:
-					caster.CastSpell(target, GetSpellInfo().GetEffect(0).TriggerSpell, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
-
-					break;
-				case WarlockSpells.INCINERATE:
-					caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
-
-					break;
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+				break;
 		}
 	}
 }

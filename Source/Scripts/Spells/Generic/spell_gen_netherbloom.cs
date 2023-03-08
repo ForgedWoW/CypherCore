@@ -32,7 +32,7 @@ internal class spell_gen_netherbloom : SpellScript, IHasSpellEffects
 	private void HandleScript(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 		{

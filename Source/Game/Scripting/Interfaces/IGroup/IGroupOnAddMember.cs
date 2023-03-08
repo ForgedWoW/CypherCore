@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Groups;
 
-namespace Game.Scripting.Interfaces.IGroup
+namespace Game.Scripting.Interfaces.IGroup;
+
+public interface IGroupOnAddMember : IScriptObject
 {
-    public interface IGroupOnAddMember : IScriptObject
-    {
-        void OnAddMember(Group group, ObjectGuid guid);
-    }
+	void OnAddMember(Group group, ObjectGuid guid);
 }

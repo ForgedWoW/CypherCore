@@ -22,22 +22,22 @@ public class spell_pri_archangel : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(PriestSpells.ATONEMENT_AURA);
 	}
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, GetCaster().GetGUID()));
-	}
-
-	private void HandleScriptEffect(int effIndex)
-	{
-		var aura = GetHitUnit().GetAura(PriestSpells.ATONEMENT_AURA, GetCaster().GetGUID());
-
-		if (aura != null)
-			aura.RefreshDuration();
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 2, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitCasterAreaParty));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GetGUID()));
+	}
+
+	private void HandleScriptEffect(int effIndex)
+	{
+		var aura = HitUnit.GetAura(PriestSpells.ATONEMENT_AURA, Caster.GetGUID());
+
+		if (aura != null)
+			aura.RefreshDuration();
 	}
 }

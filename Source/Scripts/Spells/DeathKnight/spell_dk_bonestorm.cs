@@ -13,14 +13,12 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(194844)]
 public class spell_dk_bonestorm : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private int m_ExtraSpellCost;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Load()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return false;
@@ -33,12 +31,18 @@ public class spell_dk_bonestorm : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 2, AuraType.PeriodicTriggerSpell));
+	}
+
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var m_newDuration = GetDuration() + (m_ExtraSpellCost / 10);
+		var m_newDuration = Duration + (m_ExtraSpellCost / 10);
 		SetDuration(m_newDuration);
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -53,17 +57,11 @@ public class spell_dk_bonestorm : AuraScript, IHasAuraEffects
 
 	private void HandlePeriodic(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
 		caster.CastSpell(caster, DeathKnightSpells.BONESTORM_HEAL, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.PeriodicTriggerSpell, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 2, AuraType.PeriodicTriggerSpell));
 	}
 }

@@ -9,53 +9,52 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(40470)] // 40470 - Paladin Tier 6 Trinket
+internal class spell_pal_item_t6_trinket : AuraScript, IHasAuraEffects
 {
-    [SpellScript(40470)] // 40470 - Paladin Tier 6 Trinket
-    internal class spell_pal_item_t6_trinket : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.EnduringLight, PaladinSpells.EnduringJudgement);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.EnduringLight, PaladinSpells.EnduringJudgement);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            PreventDefaultAction();
-            SpellInfo spellInfo = eventInfo.GetSpellInfo();
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var spellInfo = eventInfo.SpellInfo;
 
-            if (spellInfo == null)
-                return;
+		if (spellInfo == null)
+			return;
 
-            uint spellId;
-            int chance;
+		uint spellId;
+		int chance;
 
-            // Holy Light & Flash of Light
-            if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0xC0000000))
-            {
-                spellId = PaladinSpells.EnduringLight;
-                chance = 15;
-            }
-            // Judgements
-            else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00800000u))
-            {
-                spellId = PaladinSpells.EnduringJudgement;
-                chance = 50;
-            }
-            else
-            {
-                return;
-            }
+		// Holy Light & Flash of Light
+		if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0xC0000000))
+		{
+			spellId = PaladinSpells.EnduringLight;
+			chance = 15;
+		}
+		// Judgements
+		else if (spellInfo.SpellFamilyFlags[0].HasAnyFlag(0x00800000u))
+		{
+			spellId = PaladinSpells.EnduringJudgement;
+			chance = 50;
+		}
+		else
+		{
+			return;
+		}
 
-            if (RandomHelper.randChance(chance))
-                eventInfo.GetActor().CastSpell(eventInfo.GetProcTarget(), spellId, new CastSpellExtraArgs(aurEff));
-        }
-    }
+		if (RandomHelper.randChance(chance))
+			eventInfo.Actor.CastSpell(eventInfo.ProcTarget, spellId, new CastSpellExtraArgs(aurEff));
+	}
 }

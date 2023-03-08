@@ -11,8 +11,8 @@ public class spell_dk_chains_of_ice : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target != null)
 		{

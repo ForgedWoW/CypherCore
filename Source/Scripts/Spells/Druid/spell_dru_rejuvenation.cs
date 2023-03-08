@@ -11,32 +11,16 @@ namespace Scripts.Spells.Druid;
 [SpellScript(774)]
 public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterHit
 {
-	public struct Spells
-	{
-		public static uint CULTIVATION = 200390;
-		public static uint CULTIVATION_HOT = 200389;
-		public static uint GERMINATION = 155675;
-		public static uint GERMINATION_HOT = 155777;
-		public static uint ABUNDANCE = 207383;
-		public static uint ABUNDANCE_BUFF = 207640;
-	}
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.GERMINATION, Spells.GERMINATION_HOT, Spells.ABUNDANCE, Spells.ABUNDANCE_BUFF);
-	}
-
 	private int m_RejuvenationAura = 0;
-	private readonly int m_RejuvenationAuraAmount = 0;
 
 	public void AfterHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target == null)
 			return;
@@ -59,21 +43,26 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 			caster.CastSpell(caster, Spells.ABUNDANCE, true);
 	}
 
+	public override bool Validate(SpellInfo UnnamedParameter)
+	{
+		return ValidateSpellInfo(Spells.GERMINATION, Spells.GERMINATION_HOT, Spells.ABUNDANCE, Spells.ABUNDANCE_BUFF);
+	}
+
 	public void BeforeHit(SpellMissInfo missInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target == null)
 			return;
 
 		if (caster.HasAura(SoulOfTheForestSpells.SOUL_OF_THE_FOREST_RESTO))
 			//      NewRejuvenationAuraEffect->SetAmount(NewRejuvenationAuraEffect->GetAmount() * 2);
-			SetHitHeal(GetHitHeal() * 2);
+			HitHeal = HitHeal * 2;
 
 		//      caster->RemoveAura(SOUL_OF_THE_FOREST_RESTO);
 		///Germination
@@ -96,7 +85,7 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 
 				if (GerminationAura != null && RejuvenationAura != null)
 				{
-					var GerminationDuration  = GerminationAura.Duration;
+					var GerminationDuration = GerminationAura.Duration;
 					var RejuvenationDuration = RejuvenationAura.Duration;
 
 					if (GerminationDuration > RejuvenationDuration)
@@ -111,5 +100,15 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 				}
 			}
 		}
+	}
+
+	public struct Spells
+	{
+		public static uint CULTIVATION = 200390;
+		public static uint CULTIVATION_HOT = 200389;
+		public static uint GERMINATION = 155675;
+		public static uint GERMINATION_HOT = 155777;
+		public static uint ABUNDANCE = 207383;
+		public static uint ABUNDANCE_BUFF = 207640;
 	}
 }

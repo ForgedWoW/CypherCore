@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Game.Scripting.Interfaces.IWeather
+namespace Game.Scripting.Interfaces.IWeather;
+
+public interface IWeatherOnUpdate : IScriptObject
 {
-    public interface IWeatherOnUpdate : IScriptObject
-    {
-        void OnUpdate(Weather obj, uint diff);
-    }
+	void OnUpdate(Weather obj, uint diff);
 }

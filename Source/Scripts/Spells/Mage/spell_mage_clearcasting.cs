@@ -14,20 +14,20 @@ namespace Scripts.Spells.Mage;
 [SpellScript(79684)]
 public class spell_mage_clearcasting : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var eff0 = GetSpellInfo().GetEffect(0).CalcValue();
+		var eff0 = SpellInfo.GetEffect(0).CalcValue();
 
 		if (eff0 != 0)
 		{
 			double reqManaToSpent = 0;
-			var manaUsed       = 0;
+			var manaUsed = 0;
 
 			// For each ${$c*100/$s1} mana you spend, you have a 1% chance
 			// Means: I cast a spell which costs 1000 Mana, for every 500 mana used I have 1% chance =  2% chance to proc
-			foreach (var powerCost in GetSpellInfo().CalcPowerCost(GetCaster(), GetSpellInfo().GetSchoolMask()))
+			foreach (var powerCost in SpellInfo.CalcPowerCost(Caster, SpellInfo.GetSchoolMask()))
 				if (powerCost.Power == PowerType.Mana)
 					reqManaToSpent = powerCost.Amount * 100 / eff0;
 
@@ -35,7 +35,7 @@ public class spell_mage_clearcasting : AuraScript, IAuraCheckProc, IHasAuraEffec
 			if (reqManaToSpent == 0)
 				return false;
 
-			foreach (var powerCost in eventInfo.GetSpellInfo().CalcPowerCost(GetCaster(), eventInfo.GetSpellInfo().GetSchoolMask()))
+			foreach (var powerCost in eventInfo.SpellInfo.CalcPowerCost(Caster, eventInfo.SpellInfo.GetSchoolMask()))
 				if (powerCost.Power == PowerType.Mana)
 					manaUsed = powerCost.Amount;
 
@@ -47,19 +47,19 @@ public class spell_mage_clearcasting : AuraScript, IAuraCheckProc, IHasAuraEffec
 		return false;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var actor = eventInfo.GetActor();
+		var actor = eventInfo.Actor;
 		actor.CastSpell(actor, MageSpells.CLEARCASTING_BUFF, true);
 
 		if (actor.HasAura(MageSpells.ARCANE_EMPOWERMENT))
 			actor.CastSpell(actor, MageSpells.CLEARCASTING_PVP_STACK_EFFECT, true);
 		else
 			actor.CastSpell(actor, MageSpells.CLEARCASTING_EFFECT, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

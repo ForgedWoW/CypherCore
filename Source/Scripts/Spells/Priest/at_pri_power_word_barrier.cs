@@ -10,9 +10,7 @@ namespace Scripts.Spells.Priest;
 [Script]
 public class at_pri_power_word_barrier : AreaTriggerAI
 {
-	public at_pri_power_word_barrier(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_pri_power_word_barrier(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

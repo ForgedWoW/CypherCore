@@ -3,28 +3,25 @@
 
 using System;
 
-namespace Game.Scripting
+namespace Game.Scripting;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class GameObjectScriptAttribute : ScriptAttribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class GameObjectScriptAttribute : ScriptAttribute
-    {
-        public GameObjectScriptAttribute(string name = "", params object[] args) : base(name, args)
-        {
-        }
+	public uint[] GameObjectIds { get; private set; }
 
-        public GameObjectScriptAttribute(uint gameObjectId, string name = "", params object[] args) : base(name, args)
-        {
-            GameObjectIds = new[]
-                       {
-                           gameObjectId
-                       };
-        }
+	public GameObjectScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-        public GameObjectScriptAttribute(uint[] gameObjectIds, string name = "", params object[] args) : base(name, args)
-        {
-            GameObjectIds = gameObjectIds;
-        }
+	public GameObjectScriptAttribute(uint gameObjectId, string name = "", params object[] args) : base(name, args)
+	{
+		GameObjectIds = new[]
+		{
+			gameObjectId
+		};
+	}
 
-        public uint[] GameObjectIds { get; private set; }
-    }
+	public GameObjectScriptAttribute(uint[] gameObjectIds, string name = "", params object[] args) : base(name, args)
+	{
+		GameObjectIds = gameObjectIds;
+	}
 }

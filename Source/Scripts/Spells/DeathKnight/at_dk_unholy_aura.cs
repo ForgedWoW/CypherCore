@@ -10,13 +10,14 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_unholy_aura : AreaTriggerAI
 {
-	public at_dk_unholy_aura(AreaTrigger areatrigger) : base(areatrigger) {}
+	public at_dk_unholy_aura(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{
 		var caster = at.GetCaster();
+
 		if (caster != null)
-			if(!unit.IsFriendlyTo(caster))
+			if (!unit.IsFriendlyTo(caster))
 				caster.CastSpell(unit, DeathKnightSpells.UNHOLY_AURA, true);
 	}
 

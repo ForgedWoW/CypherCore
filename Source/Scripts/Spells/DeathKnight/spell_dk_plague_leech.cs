@@ -13,12 +13,12 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		var target = GetExplTargetUnit();
+		var target = ExplTargetUnit;
 
 		if (target != null)
 		{
-			var diseases         = target.GetDiseasesByCaster(GetCaster().GetGUID());
-			var requiredDiseases = (byte)(GetCaster().HasAura(152281) ? 1 : 2);
+			var diseases = target.GetDiseasesByCaster(Caster.GetGUID());
+			var requiredDiseases = (byte)(Caster.HasAura(152281) ? 1 : 2);
 
 			if (diseases < requiredDiseases)
 				//SetCustomCastResultMessage(159);
@@ -30,7 +30,7 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 
 	public void OnHit()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player == null)
 			return;
@@ -57,7 +57,7 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 						break;
 				}
 
-			GetHitUnit().GetDiseasesByCaster(GetCaster().GetGUID(), true);
+			HitUnit.GetDiseasesByCaster(Caster.GetGUID(), true);
 		}
 	}
 }

@@ -11,7 +11,7 @@ public class spell_dh_demon_spikes : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.CastSpell(203819, true);
 	}
 }

@@ -292,7 +292,7 @@ namespace Game
                 return;
             }
 
-            if (spellInfo.IsPassive())
+            if (spellInfo.IsPassive)
                 return;
 
             Unit caster = mover;
@@ -318,7 +318,7 @@ namespace Game
 
 
                 // allow casting of unknown spells for special lock cases
-                GameObject go = targets.GetGOTarget();
+                GameObject go = targets.GOTarget;
                 if (go != null)
                     if (go.GetSpellForLock(caster.ToPlayer()) == spellInfo)
                         allow = true;
@@ -348,14 +348,14 @@ namespace Game
             {
                 Spell autoRepeatSpell = caster.GetCurrentSpell(CurrentSpellTypes.AutoRepeat);
                 if (autoRepeatSpell != null)
-                    if (autoRepeatSpell.SpellInfo == spellInfo && autoRepeatSpell.Targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
+                    if (autoRepeatSpell.SpellInfo == spellInfo && autoRepeatSpell.Targets.UnitTargetGUID == targets.UnitTargetGUID)
                         return;
             }
 
             // auto-selection buff level base at target level (in spellInfo)
-            if (targets.GetUnitTarget() != null)
+            if (targets.UnitTarget != null)
             {
-                SpellInfo actualSpellInfo = spellInfo.GetAuraRankForLevel(targets.GetUnitTarget().GetLevelForTarget(caster));
+                SpellInfo actualSpellInfo = spellInfo.GetAuraRankForLevel(targets.UnitTarget.GetLevelForTarget(caster));
 
                 // if rank not found then function return NULL but in explicit cast case original spell can be casted and later failed with appropriate error message
                 if (actualSpellInfo != null)
@@ -409,7 +409,7 @@ namespace Game
             // non channeled case:
             // don't allow remove non positive spells
             // don't allow cancelling passive auras (some of them are visible)
-            if (!spellInfo.IsPositive || spellInfo.IsPassive())
+            if (!spellInfo.IsPositive || spellInfo.IsPassive)
                 return;
 
             GetPlayer().RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
@@ -421,7 +421,7 @@ namespace Game
             GetPlayer().RemoveAurasByType(AuraType.ModScale, aurApp =>
             {
                 SpellInfo spellInfo = aurApp.Base.SpellInfo;
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive;
             });
         }
 
@@ -431,7 +431,7 @@ namespace Game
             GetPlayer().RemoveAurasByType(AuraType.Mounted, aurApp =>
             {
                 SpellInfo spellInfo = aurApp.Base.SpellInfo;
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive;
             });
         }
 
@@ -476,7 +476,7 @@ namespace Game
             _player.RemoveAurasByType(AuraType.ModSpeedNoControl, aurApp =>
             {
                 SpellInfo spellInfo = aurApp.Base.SpellInfo;
-                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive();
+                return !spellInfo.HasAttribute(SpellAttr0.NoAuraCancel) && spellInfo.IsPositive && !spellInfo.IsPassive;
             });
         }
 
@@ -654,7 +654,7 @@ namespace Game
             if (spell == null || !spell.Targets.HasDst)
                 return;
 
-            Position pos = spell.Targets.GetDstPos();
+            Position pos = spell.Targets.DstPos;
             pos.Relocate(packet.CollisionPos);
             spell.Targets.ModDst(pos);
 
@@ -676,11 +676,11 @@ namespace Game
             if (!spell || spell.SpellInfo.Id != packet.SpellID || spell.CastId != packet.CastID || !spell.Targets.HasDst || !spell.Targets.HasSrc)
                 return;
 
-            Position pos = spell.Targets.GetSrcPos();
+            Position pos = spell.Targets.SrcPos;
             pos.Relocate(packet.FirePos);
             spell.Targets.ModSrc(pos);
 
-            pos = spell.Targets.GetDstPos();
+            pos = spell.Targets.DstPos;
             pos.Relocate(packet.ImpactPos);
             spell.Targets.ModDst(pos);
 

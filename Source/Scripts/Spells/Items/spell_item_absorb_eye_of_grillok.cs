@@ -28,11 +28,11 @@ internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		if (!GetCaster() ||
-		    !GetTarget().IsTypeId(TypeId.Unit))
+		if (!Caster ||
+			!Target.IsTypeId(TypeId.Unit))
 			return;
 
-		GetCaster().CastSpell(GetCaster(), ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
-		GetTarget().ToCreature().DespawnOrUnsummon();
+		Caster.CastSpell(Caster, ItemSpellIds.EyeOfGrillok, new CastSpellExtraArgs(aurEff));
+		Target.ToCreature().DespawnOrUnsummon();
 	}
 }

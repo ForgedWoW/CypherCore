@@ -30,11 +30,11 @@ internal class spell_item_impale_leviroth : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target)
 			if (target.GetEntry() == CreatureIds.Leviroth &&
-			    !target.HealthBelowPct(95))
+				!target.HealthBelowPct(95))
 			{
 				target.CastSpell(target, ItemSpellIds.LevirothSelfImpale, true);
 				target.ResetPlayerDamageReq();

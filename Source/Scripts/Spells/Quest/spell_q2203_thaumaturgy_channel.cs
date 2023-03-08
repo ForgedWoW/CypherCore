@@ -27,7 +27,7 @@ internal class spell_q2203_thaumaturgy_channel : AuraScript, IHasAuraEffects
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
 		PreventDefaultAction();
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			caster.CastSpell(caster, QuestSpellIds.ThaumaturgyChannel, false);

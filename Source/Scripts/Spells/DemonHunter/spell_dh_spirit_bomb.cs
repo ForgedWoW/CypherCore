@@ -12,9 +12,36 @@ namespace Scripts.Spells.DemonHunter;
 public class spell_dh_spirit_bomb : SpellScript, ISpellOnHit, ISpellCheckCast
 {
 	readonly uint[] _ids = new uint[]
-	                       {
-		                       ShatteredSoulsSpells.LESSER_SOUL_SHARD, ShatteredSoulsSpells.SHATTERED_SOULS, ShatteredSoulsSpells.SHATTERED_SOULS_DEMON
-	                       };
+	{
+		ShatteredSoulsSpells.LESSER_SOUL_SHARD, ShatteredSoulsSpells.SHATTERED_SOULS, ShatteredSoulsSpells.SHATTERED_SOULS_DEMON
+	};
+
+	public SpellCastResult CheckCast()
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return SpellCastResult.CantDoThatRightNow;
+
+		if (!caster.GetAreaTrigger(ShatteredSoulsSpells.LESSER_SOUL_SHARD) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON))
+			return SpellCastResult.CantDoThatRightNow;
+
+		return SpellCastResult.SpellCastOk;
+	}
+
+	public void OnHit()
+	{
+		var caster = Caster;
+		var target = HitUnit;
+
+		if (caster == null || target == null)
+			return;
+
+		foreach (var spellId in _ids)
+
+			if (TryCastDamage(caster, target, spellId))
+				break;
+	}
 
 	private bool TryCastDamage(Unit caster, Unit target, uint spellId)
 	{
@@ -29,32 +56,5 @@ public class spell_dh_spirit_bomb : SpellScript, ISpellOnHit, ISpellCheckCast
 		}
 
 		return false;
-	}
-
-	public void OnHit()
-	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
-
-		if (caster == null || target == null)
-			return;
-
-		foreach (var spellId in _ids)
-
-			if (TryCastDamage(caster, target, spellId))
-				break;
-	}
-
-	public SpellCastResult CheckCast()
-	{
-		var caster = GetCaster();
-
-		if (caster == null)
-			return SpellCastResult.CantDoThatRightNow;
-
-		if (!caster.GetAreaTrigger(ShatteredSoulsSpells.LESSER_SOUL_SHARD) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS) && !caster.GetAreaTrigger(ShatteredSoulsSpells.SHATTERED_SOULS_DEMON))
-			return SpellCastResult.CantDoThatRightNow;
-
-		return SpellCastResult.SpellCastOk;
 	}
 }

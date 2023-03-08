@@ -12,11 +12,18 @@ namespace Scripts.Spells.Priest;
 [SpellScript(194249)]
 public class spell_pri_voidform : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.AddPctModifier));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
+	}
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			caster.RemoveAura(PriestSpells.LINGERING_INSANITY);
@@ -24,7 +31,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 
 	private void HandlePeriodic(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -37,7 +44,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 			return;
 		}
 
-		var tick = GetAura().StackAmount - 1;
+		var tick = Aura.StackAmount - 1;
 
 		switch (tick)
 		{
@@ -66,7 +73,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -75,7 +82,7 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 			caster.RemoveAura(PriestSpells.VOIDFORM_TENTACLES + i);
 
 		var haste = aurEff.Amount;
-		var mod   = new CastSpellExtraArgs();
+		var mod = new CastSpellExtraArgs();
 		mod.AddSpellMod(SpellValueMod.BasePoint0, haste);
 
 		var aEff = caster.GetAuraEffectOfRankedSpell(PriestSpells.VOIDFORM_BUFFS, 3, caster.GetGUID());
@@ -85,12 +92,5 @@ public class spell_pri_voidform : AuraScript, IHasAuraEffects
 
 		mod.TriggerFlags = TriggerCastFlags.FullMask;
 		caster.CastSpell(caster, PriestSpells.LINGERING_INSANITY, mod);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.AddPctModifier));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
 	}
 }

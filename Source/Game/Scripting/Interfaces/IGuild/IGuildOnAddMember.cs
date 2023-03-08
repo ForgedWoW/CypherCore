@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnAddMember : IScriptObject
 {
-    public interface IGuildOnAddMember : IScriptObject
-    {
-        void OnAddMember(Guild guild, Player player, byte plRank);
-    }
+	void OnAddMember(Guild guild, Player player, byte plRank);
 }

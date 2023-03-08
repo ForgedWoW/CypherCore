@@ -27,9 +27,9 @@ internal class spell_gen_cannon_blast : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var                bp     = GetEffectValue();
-		var                target = GetHitUnit();
-		CastSpellExtraArgs args   = new(TriggerCastFlags.FullMask);
+		var bp = EffectValue;
+		var target = HitUnit;
+		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, bp);
 		target.CastSpell(target, GenericSpellIds.CannonBlastDamage, args);
 	}

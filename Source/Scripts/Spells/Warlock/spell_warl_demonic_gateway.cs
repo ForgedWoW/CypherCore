@@ -9,79 +9,78 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Demonic Gateway - 111771
+[SpellScript(111771)]
+public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-    // Demonic Gateway - 111771
-    [SpellScript(111771)]
-	public class spell_warl_demonic_gateway : SpellScript, ISpellCheckCast, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public SpellCastResult CheckCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		// don't allow during Arena Preparation
+		if (Caster.HasAura(BattlegroundConst.SpellArenaPreparation))
+			return SpellCastResult.CantDoThatRightNow;
 
-		private void HandleLaunch(int effIndex)
+		// check if player can reach the location
+		var spell = Spell;
+
+		if (spell.Targets.HasDst)
 		{
-			var caster = GetCaster();
+			var pos = spell.Targets.Dst.Position;
+			var caster = Caster;
 
-			// despawn all other gateways
-			var targets1 = new List<Creature>();
-			var targets2 = new List<Creature>();
-			targets1 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN, 200.0f);
-			targets2 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE, 200.0f);
-
-			targets1.AddRange(targets2);
-
-			foreach (var target in targets1)
-			{
-				if (target.GetOwnerGUID() != caster.GetGUID())
-					continue;
-
-				target.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100)); // despawn at next tick
-			}
-
-			var dest = GetExplTargetDest();
-
-			if (dest != null)
-			{
-				caster.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
-				caster.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
-			}
+			if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)
+				return SpellCastResult.NoPath;
 		}
 
-		public SpellCastResult CheckCast()
+		return SpellCastResult.SpellCastOk;
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleVisual, 0, SpellEffectName.Summon, SpellScriptHookType.Launch));
+		SpellEffects.Add(new EffectHandler(HandleLaunch, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+	}
+
+	private void HandleLaunch(int effIndex)
+	{
+		var caster = Caster;
+
+		// despawn all other gateways
+		var targets1 = new List<Creature>();
+		var targets2 = new List<Creature>();
+		targets1 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN, 200.0f);
+		targets2 = caster.GetCreatureListWithEntryInGrid(WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE, 200.0f);
+
+		targets1.AddRange(targets2);
+
+		foreach (var target in targets1)
 		{
-			// don't allow during Arena Preparation
-			if (GetCaster().HasAura(BattlegroundConst.SpellArenaPreparation))
-				return SpellCastResult.CantDoThatRightNow;
+			if (target.GetOwnerGUID() != caster.GetGUID())
+				continue;
 
-			// check if player can reach the location
-			var spell = GetSpell();
-
-			if (spell.Targets.HasDst)
-			{
-				var pos = spell.Targets.GetDst().Position;
-				var caster = GetCaster();
-
-				if (caster.Location.Z + 6.0f < pos.Z || caster.Location.Z - 6.0f > pos.Z)
-					return SpellCastResult.NoPath;
-			}
-
-			return SpellCastResult.SpellCastOk;
+			target.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100)); // despawn at next tick
 		}
 
-		private void HandleVisual(int effIndex)
+		var dest = ExplTargetDest;
+
+		if (dest != null)
 		{
-			var caster = GetCaster();
-			var pos   = GetExplTargetDest();
-
-			if (caster == null || pos == null)
-				return;
-
-			caster.SendPlaySpellVisual(pos, 20.0f, 63644, 0, 0, 2.0f);
+			caster.CastSpell(caster, WarlockSpells.DEMONIC_GATEWAY_SUMMON_PURPLE, true);
+			caster.CastSpell(dest, WarlockSpells.DEMONIC_GATEWAY_SUMMON_GREEN, true);
 		}
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleVisual, 0, SpellEffectName.Summon, SpellScriptHookType.Launch));
-			SpellEffects.Add(new EffectHandler(HandleLaunch, 1, SpellEffectName.Dummy, SpellScriptHookType.Launch));
-		}
+	private void HandleVisual(int effIndex)
+	{
+		var caster = Caster;
+		var pos = ExplTargetDest;
+
+		if (caster == null || pos == null)
+			return;
+
+		caster.SendPlaySpellVisual(pos, 20.0f, 63644, 0, 0, 2.0f);
 	}
 }

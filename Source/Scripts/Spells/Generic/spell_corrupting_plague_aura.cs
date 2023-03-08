@@ -28,11 +28,11 @@ internal class spell_corrupting_plague_aura : AuraScript, IHasAuraEffects
 
 	private void OnPeriodic(AuraEffect aurEff)
 	{
-		var owner = GetTarget();
+		var owner = Target;
 
-		List<Creature>           targets           = new();
-		CorruptingPlagueSearcher creature_check    = new(owner, 15.0f);
-		CreatureListSearcher     creature_searcher = new(owner, targets, creature_check, GridType.Grid);
+		List<Creature> targets = new();
+		CorruptingPlagueSearcher creature_check = new(owner, 15.0f);
+		CreatureListSearcher creature_searcher = new(owner, targets, creature_check, GridType.Grid);
 		Cell.VisitGrid(owner, creature_searcher, 15.0f);
 
 		if (!targets.Empty())

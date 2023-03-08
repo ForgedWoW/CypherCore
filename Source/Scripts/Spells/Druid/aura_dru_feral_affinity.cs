@@ -12,22 +12,27 @@ namespace Scripts.Spells.Druid;
 [SpellScript(202157)]
 public class aura_dru_feral_affinity : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private readonly List<uint> LearnedSpells = new()
-	                                            {
-		                                            (uint)DruidSpells.FELINE_SWIFTNESS,
-		                                            (uint)DruidSpells.SHRED,
-		                                            (uint)DruidSpells.RAKE,
-		                                            (uint)DruidSpells.RIP,
-		                                            (uint)DruidSpells.FEROCIOUS_BITE,
-		                                            (uint)DruidSpells.SWIPE_CAT
-	                                            };
+	{
+		(uint)DruidSpells.FELINE_SWIFTNESS,
+		(uint)DruidSpells.SHRED,
+		(uint)DruidSpells.RAKE,
+		(uint)DruidSpells.RIP,
+		(uint)DruidSpells.FEROCIOUS_BITE,
+		(uint)DruidSpells.SWIPE_CAT
+	};
+
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
 	private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget().ToPlayer();
+		var target = Target.ToPlayer();
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)
@@ -36,16 +41,10 @@ public class aura_dru_feral_affinity : AuraScript, IHasAuraEffects
 
 	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget().ToPlayer();
+		var target = Target.ToPlayer();
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)
 				target.RemoveSpell(spellId);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }

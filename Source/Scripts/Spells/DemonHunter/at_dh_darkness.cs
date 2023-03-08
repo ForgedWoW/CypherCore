@@ -10,11 +10,9 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_dh_darkness : AreaTriggerAI
 {
-	public at_dh_darkness(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
-
 	private bool entered;
+
+	public at_dh_darkness(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnInitialize()
 	{

@@ -198,7 +198,7 @@ public class SpellHistory
 			var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
 
 			if (itemTemplate != null)
-				if (itemTemplate.IsPotion() || spellInfo.IsCooldownStartedOnEvent())
+				if (itemTemplate.IsPotion() || spellInfo.IsCooldownStartedOnEvent)
 				{
 					player.SetLastPotionId(itemId);
 
@@ -206,7 +206,7 @@ public class SpellHistory
 				}
 		}
 
-		if (spellInfo.IsCooldownStartedOnEvent() || spellInfo.IsPassive())
+		if (spellInfo.IsCooldownStartedOnEvent || spellInfo.IsPassive)
 			return;
 
 		StartCooldown(spellInfo, itemId, spell);
@@ -755,7 +755,7 @@ public class SpellHistory
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _owner.GetMap().GetDifficultyID());
 
-			if (spellInfo.IsCooldownStartedOnEvent())
+			if (spellInfo.IsCooldownStartedOnEvent)
 				continue;
 
 			if (!spellInfo.PreventionType.HasAnyFlag(SpellPreventionType.Silence))

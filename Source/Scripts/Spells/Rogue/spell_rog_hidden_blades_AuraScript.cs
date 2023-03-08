@@ -12,14 +12,17 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(270061)]
 public class spell_rog_hidden_blades_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private byte _stacks;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+	}
 
 	private void HandleEffectPeriodic(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -32,10 +35,5 @@ public class spell_rog_hidden_blades_AuraScript : AuraScript, IHasAuraEffects
 			if (_stacks >= 20)
 				return;
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
 	}
 }

@@ -4,15 +4,14 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// Flash of Light - 19750
+[SpellScript(19750)]
+public class spell_pal_flash_of_light : SpellScript, ISpellOnHit
 {
-    // Flash of Light - 19750
-    [SpellScript(19750)]
-    public class spell_pal_flash_of_light : SpellScript, ISpellOnHit
-    {
-        public void OnHit()
-        {
-            GetCaster().RemoveAura(PaladinSpells.InfusionOfLightAura);
-        }
-    }
+	public void OnHit()
+	{
+		Caster.RemoveAura(PaladinSpells.InfusionOfLightAura);
+	}
 }

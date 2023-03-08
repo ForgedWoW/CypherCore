@@ -31,7 +31,7 @@ internal class spell_sha_undulation_passive : AuraScript, IHasAuraEffects
 	{
 		if (++_castCounter == 3)
 		{
-			GetTarget().CastSpell(GetTarget(), ShamanSpells.UndulationProc, true);
+			Target.CastSpell(Target, ShamanSpells.UndulationProc, true);
 			_castCounter = 0;
 		}
 	}

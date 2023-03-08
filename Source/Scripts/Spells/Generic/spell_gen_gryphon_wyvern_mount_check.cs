@@ -21,8 +21,8 @@ internal class spell_gen_gryphon_wyvern_mount_check : AuraScript, IHasAuraEffect
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		var target = GetTarget();
-		var owner  = target.GetOwner();
+		var target = Target;
+		var owner = target.GetOwner();
 
 		if (owner == null)
 			return;

@@ -16,9 +16,7 @@ public class feral_spells : ScriptObjectAutoAdd, IPlayerOnLogin
 		get { return Class.Druid; }
 	}
 
-	public feral_spells() : base("feral_spells")
-	{
-	}
+	public feral_spells() : base("feral_spells") { }
 
 	public void OnLogin(Player player)
 	{

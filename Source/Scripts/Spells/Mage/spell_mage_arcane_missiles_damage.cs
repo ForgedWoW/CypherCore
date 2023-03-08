@@ -15,14 +15,14 @@ public class spell_mage_arcane_missiles_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void CheckTarget(WorldObject target)
-	{
-		if (target == GetCaster())
-			target = null;
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectTargetSelectHandler(CheckTarget, 0, Targets.UnitChannelTarget));
+	}
+
+	private void CheckTarget(WorldObject target)
+	{
+		if (target == Caster)
+			target = null;
 	}
 }

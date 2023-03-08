@@ -12,12 +12,18 @@ namespace Scripts.Spells.Druid;
 [SpellScript(106830)]
 public class spell_dru_thrash_cat : SpellScript, IHasSpellEffects
 {
+	private bool m_awardComboPoint = true;
 	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(EffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
 	private void EffectHitTarget(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
@@ -29,11 +35,4 @@ public class spell_dru_thrash_cat : SpellScript, IHasSpellEffects
 
 		m_awardComboPoint = false;
 	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(EffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-	}
-
-	private bool m_awardComboPoint = true;
 }

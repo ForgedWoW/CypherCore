@@ -498,7 +498,8 @@ public partial class Spell
 			if (!spellInfo.NeedsToBeTriggeredByCaster(SpellInfo))
 				return;
 
-			targets.SetUnitTarget(UnitTarget);
+			targets.
+			UnitTarget = UnitTarget;
 		}
 		else //if (effectHandleMode == SpellEffectHandleMode.Launch)
 		{
@@ -508,11 +509,11 @@ public partial class Spell
 			if (spellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.DestLocation))
 				targets.SetDst(Targets);
 
-			var target = Targets.GetUnitTarget();
+			var target = Targets.UnitTarget;
 
 			if (target != null)
 			{
-				targets.SetUnitTarget(target);
+				targets.				UnitTarget = target;
 			}
 			else
 			{
@@ -520,14 +521,14 @@ public partial class Spell
 
 				if (unit != null)
 				{
-					targets.SetUnitTarget(unit);
+					targets.					UnitTarget = unit;
 				}
 				else
 				{
 					var go = _caster.ToGameObject();
 
 					if (go != null)
-						targets.SetGOTarget(go);
+						targets.						GOTarget = go;
 				}
 			}
 		}
@@ -609,7 +610,8 @@ public partial class Spell
 			if (!spellInfo.NeedsToBeTriggeredByCaster(SpellInfo))
 				return;
 
-			targets.SetUnitTarget(UnitTarget);
+			targets.
+			UnitTarget = UnitTarget;
 		}
 		else //if (effectHandleMode == SpellEffectHandleMode.Hit)
 		{
@@ -623,14 +625,14 @@ public partial class Spell
 
 			if (unit != null)
 			{
-				targets.SetUnitTarget(unit);
+				targets.				UnitTarget = unit;
 			}
 			else
 			{
 				var go = _caster.ToGameObject();
 
 				if (go != null)
-					targets.SetGOTarget(go);
+					targets.					GOTarget = go;
 			}
 		}
 
@@ -826,7 +828,7 @@ public partial class Spell
 		CalculateJumpSpeeds(EffectInfo, unitCaster.Location.GetExactDist2d(DestTarget), out var speedXY, out var speedZ);
 		JumpArrivalCastArgs arrivalCast = new();
 		arrivalCast.SpellId = EffectInfo.TriggerSpell;
-		unitCaster.GetMotionMaster().MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.GetObjectTargetGUID().IsEmpty(), arrivalCast);
+		unitCaster.GetMotionMaster().MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.ObjectTargetGUID.IsEmpty(), arrivalCast);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnits)]
@@ -852,8 +854,8 @@ public partial class Spell
 		if (targetDest.MapId == 0xFFFFFFFF)
 			targetDest.MapId = UnitTarget.Location.MapId;
 
-		if (targetDest.Orientation == 0 && Targets.GetUnitTarget())
-			targetDest.Orientation = Targets.GetUnitTarget().Location.Orientation;
+		if (targetDest.Orientation == 0 && Targets.UnitTarget)
+			targetDest.Orientation = Targets.UnitTarget.Location.Orientation;
 
 		var player = UnitTarget.ToPlayer();
 
@@ -905,8 +907,8 @@ public partial class Spell
 		if (targetDest.MapId == 0xFFFFFFFF)
 			targetDest.MapId = UnitTarget.Location.MapId;
 
-		if (targetDest.Orientation == 0 && Targets.GetUnitTarget())
-			targetDest.Orientation = Targets.GetUnitTarget().Location.Orientation;
+		if (targetDest.Orientation == 0 && Targets.UnitTarget)
+			targetDest.Orientation = Targets.UnitTarget.Location.Orientation;
 
 		if (EffectInfo.MiscValueB != 0)
 		{
@@ -1228,7 +1230,7 @@ public partial class Spell
 		var context = SpellInfo.HasAttribute(SpellAttr0.IsTradeskill) ? ItemContext.TradeSkill : ItemContext.None;
 
 		// Pick a random item from spell_loot_template
-		if (SpellInfo.IsLootCrafting())
+		if (SpellInfo.IsLootCrafting)
 		{
 			player.AutoStoreLoot(SpellInfo.Id, LootStorage.Spell, context, false, true);
 			player.UpdateCraftSkill(SpellInfo);
@@ -2870,7 +2872,7 @@ public partial class Spell
 				// check if we can interrupt spell
 				if ((spell.State == SpellState.Casting || (spell.State == SpellState.Preparing && spell.CastTime > 0.0f)) && curSpellInfo.CanBeInterrupted(_caster, UnitTarget))
 				{
-					var duration = SpellInfo.GetDuration();
+					var duration = SpellInfo.Duration;
 					duration = UnitTarget.ModSpellDuration(SpellInfo, UnitTarget, duration, false, 1u << EffectInfo.EffectIndex);
 					UnitTarget.GetSpellHistory().LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
 					HitMask |= ProcFlagsHit.Interrupt;
@@ -3417,7 +3419,7 @@ public partial class Spell
 		if (EffectInfo.MiscValue != 0)
 		{
 			var enchant_id = (uint)EffectInfo.MiscValue;
-			var duration = SpellInfo.GetDuration(); //Try duration index first ..
+			var duration = SpellInfo.Duration; //Try duration index first ..
 
 			if (duration == 0)
 				duration = (int)Damage; //+1;            //Base points after ..
@@ -4172,7 +4174,7 @@ public partial class Spell
 			return;
 		}
 
-		Position pos = Targets.GetDstPos();
+		Position pos = Targets.DstPos;
 		// This is a blizzlike mistake: this should be 2D distance according to projectile motion formulas, but Blizzard erroneously used 3D distance
 		var distXY = UnitTarget.Location.GetExactDist(pos);
 
@@ -4720,7 +4722,7 @@ public partial class Spell
 			if (Convert.ToBoolean(aura.SpellInfo.GetDispelMask() & dispelMask))
 			{
 				// Need check for passive? this
-				if (!aurApp.IsPositive || aura.IsPassive() || aura.SpellInfo.HasAttribute(SpellAttr4.CannotBeStolen))
+				if (!aurApp.IsPositive || aura.IsPassive || aura.SpellInfo.HasAttribute(SpellAttr4.CannotBeStolen))
 					continue;
 
 				// 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."

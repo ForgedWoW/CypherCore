@@ -27,27 +27,27 @@ internal class spell_gen_tournament_duel : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var rider = GetCaster().GetCharmer();
+		var rider = Caster.GetCharmer();
 
 		if (rider)
 		{
-			var playerTarget = GetHitPlayer();
+			var playerTarget = HitPlayer;
 
 			if (playerTarget)
 			{
 				if (playerTarget.HasAura(GenericSpellIds.OnTournamentMount) &&
-				    playerTarget.GetVehicleBase())
+					playerTarget.GetVehicleBase())
 					rider.CastSpell(playerTarget, GenericSpellIds.MountedDuel, true);
 
 				return;
 			}
 
-			var unitTarget = GetHitUnit();
+			var unitTarget = HitUnit;
 
 			if (unitTarget)
 				if (unitTarget.GetCharmer() &&
-				    unitTarget.GetCharmer().IsTypeId(TypeId.Player) &&
-				    unitTarget.GetCharmer().HasAura(GenericSpellIds.OnTournamentMount))
+					unitTarget.GetCharmer().IsTypeId(TypeId.Player) &&
+					unitTarget.GetCharmer().HasAura(GenericSpellIds.OnTournamentMount))
 					rider.CastSpell(unitTarget.GetCharmer(), GenericSpellIds.MountedDuel, true);
 		}
 	}

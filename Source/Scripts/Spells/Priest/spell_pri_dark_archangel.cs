@@ -22,20 +22,20 @@ public class spell_pri_dark_archangel : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(PriestSpells.DARK_ARCHANGEL_BUFF);
 	}
 
-	private void FilterTargets(List<WorldObject> targets)
-	{
-		targets.Remove(GetCaster());
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, GetCaster().GetGUID()));
-	}
-
-	private void HandleScriptEffect(int effIndex)
-	{
-		GetCaster().CastSpell(GetHitUnit(), PriestSpells.DARK_ARCHANGEL_BUFF, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaAlly));
 		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.Remove(Caster);
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, PriestSpells.ATONEMENT_AURA, Caster.GetGUID()));
+	}
+
+	private void HandleScriptEffect(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, PriestSpells.DARK_ARCHANGEL_BUFF, true);
 	}
 }

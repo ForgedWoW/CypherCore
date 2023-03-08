@@ -48,11 +48,11 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 		148017, 148018, 148019, 148020, 148021
 	};
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var _spellCanProc = (eventInfo.GetSpellInfo().Id == MageSpells.FROSTBOLT || eventInfo.GetSpellInfo().Id == MageSpells.FROSTBOLT_TRIGGER);
+		var _spellCanProc = (eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT || eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT_TRIGGER);
 
 		if (_spellCanProc)
 			return true;
@@ -60,10 +60,15 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 		return false;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var target = eventInfo.GetDamageInfo().GetVictim();
-		var caster = eventInfo.GetDamageInfo().GetAttacker();
+		var target = eventInfo.DamageInfo.GetVictim();
+		var caster = eventInfo.DamageInfo.GetAttacker();
 
 		if (target == null || caster == null)
 			return;
@@ -74,7 +79,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 			return;
 
 		// Calculate damage
-		var hitDamage = eventInfo.GetDamageInfo().GetDamage() + eventInfo.GetDamageInfo().GetAbsorb();
+		var hitDamage = eventInfo.DamageInfo.GetDamage() + eventInfo.DamageInfo.GetAbsorb();
 
 		// if hitDamage == 0 we have a miss, so we need to except this variant
 		if (hitDamage != 0)
@@ -92,7 +97,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 				hitDamage = (uint)Math.Min((int)hitDamage, (int)target.GetMaxHealth());
 
 			// We need to get the first free icicle slot
-			sbyte icicleFreeSlot       = -1; // -1 means no free slot
+			sbyte icicleFreeSlot = -1;       // -1 means no free slot
 			sbyte icicleSecondFreeSlot = -1; // -1 means no free slot
 
 			for (sbyte l_I = 0; l_I < 5; ++l_I)
@@ -110,7 +115,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 			{
 				// We need to find the icicle with the smallest duration.
 				sbyte smallestIcicle = 0;
-				var   minDuration    = 0xFFFFFF;
+				var minDuration = 0xFFFFFF;
 
 				for (sbyte i = 0; i < 5; i++)
 				{
@@ -119,7 +124,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 					if (tmpCurrentAura != null)
 						if (minDuration > tmpCurrentAura.Duration)
 						{
-							minDuration    = tmpCurrentAura.Duration;
+							minDuration = tmpCurrentAura.Duration;
 							smallestIcicle = i;
 						}
 				}
@@ -181,7 +186,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 			{
 				// We need to find the icicle with the smallest duration.
 				sbyte smallestIcicle = 0;
-				var   minDuration    = 0xFFFFFF;
+				var minDuration = 0xFFFFFF;
 
 				for (sbyte i = 0; i < 5; i++)
 				{
@@ -190,7 +195,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 					if (tmpCurrentAura != null)
 						if (minDuration > tmpCurrentAura.Duration)
 						{
-							minDuration    = tmpCurrentAura.Duration;
+							minDuration = tmpCurrentAura.Duration;
 							smallestIcicle = i;
 						}
 				}
@@ -248,10 +253,5 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 				}
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

@@ -6,28 +6,27 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Defensive Stance - 71
+[SpellScript(71)]
+public class spell_warr_defensive_stance : AuraScript, IAuraOnProc
 {
-    // Defensive Stance - 71
-    [SpellScript(71)]
-	public class spell_warr_defensive_stance : AuraScript, IAuraOnProc
+	private double _damageTaken = 0;
+
+	public void OnProc(ProcEventInfo eventInfo)
 	{
-		private double _damageTaken = 0;
+		var caster = Caster;
 
-		public void OnProc(ProcEventInfo eventInfo)
-		{
-			var caster = GetCaster();
+		if (caster == null)
+			return;
 
-			if (caster == null)
-				return;
+		_damageTaken = eventInfo.DamageInfo != null ? eventInfo.DamageInfo.GetDamage() : 0;
 
-			_damageTaken = eventInfo.GetDamageInfo() != null ? eventInfo.GetDamageInfo().GetDamage() : 0;
+		if (_damageTaken <= 0)
+			return;
 
-			if (_damageTaken <= 0)
-				return;
-
-			var rageAmount = (int)((50.0f * _damageTaken) / caster.GetMaxHealth());
-			caster.ModifyPower(PowerType.Rage, 10 * rageAmount);
-		}
+		var rageAmount = (int)((50.0f * _damageTaken) / caster.GetMaxHealth());
+		caster.ModifyPower(PowerType.Rage, 10 * rageAmount);
 	}
 }

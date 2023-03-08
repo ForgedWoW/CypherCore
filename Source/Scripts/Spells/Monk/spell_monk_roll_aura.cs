@@ -40,11 +40,11 @@ internal class spell_monk_roll_aura : AuraScript, IHasAuraEffects
 
 	private void ChangeRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().SetSpeed(UnitMoveType.RunBack, GetTarget().GetSpeed(UnitMoveType.Run));
+		Target.SetSpeed(UnitMoveType.RunBack, Target.GetSpeed(UnitMoveType.Run));
 	}
 
 	private void RestoreRunBackSpeed(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().UpdateSpeed(UnitMoveType.RunBack);
+		Target.UpdateSpeed(UnitMoveType.RunBack);
 	}
 }

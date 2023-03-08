@@ -547,7 +547,7 @@ namespace Game.AI
         public void DoCastAtTarget(Tuple<Spell, Unit> spell)
         {
             SpellCastTargets targets = new();
-            targets.SetUnitTarget(spell.Item2);
+            targets.            UnitTarget = spell.Item2;
             spell.Item1.Prepare(targets);
         }
 
@@ -597,7 +597,7 @@ namespace Game.AI
                 return;
 
             SpellCastTargets targets = new();
-            targets.SetUnitTarget(victim);
+            targets.            UnitTarget = victim;
             spell.Prepare(targets);
 
             me.ResetAttackTimer(WeaponAttackType.RangedAttack);
@@ -625,7 +625,7 @@ namespace Game.AI
                     continue;
                 if (auraInfo.HasAttribute(SpellAttr0.NoAuraCancel))
                     continue;
-                if (!auraInfo.IsPositive || auraInfo.IsPassive())
+                if (!auraInfo.IsPositive || auraInfo.IsPassive)
                     continue;
                 removableShapeshifts.Add(aura);
             }

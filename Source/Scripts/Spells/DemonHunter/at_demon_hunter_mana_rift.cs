@@ -12,9 +12,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_demon_hunter_mana_rift : AreaTriggerAI
 {
-	public at_demon_hunter_mana_rift(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_demon_hunter_mana_rift(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitExit(Unit unit)
 	{
@@ -31,9 +29,9 @@ public class at_demon_hunter_mana_rift : AreaTriggerAI
 		if (at.IsRemoved())
 			if (caster.IsValidAttackTarget(unit))
 			{
-				var hpBp   = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);
+				var hpBp = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);
 				var manaBp = unit.CountPctFromMaxPower(PowerType.Mana, spellProto.GetEffect(2).BasePoints);
-				var args   = new CastSpellExtraArgs();
+				var args = new CastSpellExtraArgs();
 				args.AddSpellMod(SpellValueMod.BasePoint0, hpBp);
 				args.AddSpellMod(SpellValueMod.BasePoint0, manaBp);
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);

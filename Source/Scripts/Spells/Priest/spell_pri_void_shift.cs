@@ -25,20 +25,25 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 
 	public SpellCastResult CheckCast()
 	{
-		if (GetExplTargetUnit())
-			if (GetExplTargetUnit().GetTypeId() != TypeId.Player)
+		if (ExplTargetUnit)
+			if (ExplTargetUnit.GetTypeId() != TypeId.Player)
 				return SpellCastResult.BadTargets;
 
 		return SpellCastResult.SpellCastOk;
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 			{
@@ -58,10 +63,5 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 				target.SetHealth(target.GetMaxHealth() * playerPct);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

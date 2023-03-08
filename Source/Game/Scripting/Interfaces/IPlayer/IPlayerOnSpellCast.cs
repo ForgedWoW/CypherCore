@@ -4,13 +4,12 @@
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+/// <summary>
+///  Called when the player casts a spell
+/// </summary>
+public interface IPlayerOnSpellCast : IScriptObject, IClassRescriction
 {
-    /// <summary>
-    ///     Called when the player casts a spell
-    /// </summary>
-    public interface IPlayerOnSpellCast : IScriptObject, IClassRescriction
-    {
-        void OnSpellCast(Player player, Spell spell, bool skipCheck);
-    }
+	void OnSpellCast(Player player, Spell spell, bool skipCheck);
 }

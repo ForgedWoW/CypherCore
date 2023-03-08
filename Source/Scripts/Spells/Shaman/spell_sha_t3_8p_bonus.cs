@@ -26,7 +26,7 @@ internal class spell_sha_t3_8p_bonus : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		// Need remove self if Lightning Shield not active
-		if (GetTarget().GetAuraEffect(AuraType.ProcTriggerSpell, SpellFamilyNames.Shaman, new FlagArray128(0x400), GetCaster().GetGUID()) == null)
+		if (Target.GetAuraEffect(AuraType.ProcTriggerSpell, SpellFamilyNames.Shaman, new FlagArray128(0x400), Caster.GetGUID()) == null)
 			Remove();
 	}
 }

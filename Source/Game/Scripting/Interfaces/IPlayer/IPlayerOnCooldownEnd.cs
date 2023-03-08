@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+public interface IPlayerOnCooldownEnd : IScriptObject, IClassRescriction
 {
-    public interface IPlayerOnCooldownEnd : IScriptObject, IClassRescriction
-    {
-        void OnCooldownEnd(Player player, SpellInfo spellInfo, uint itemId, uint categoryId);
-    }
+	void OnCooldownEnd(Player player, SpellInfo spellInfo, uint itemId, uint categoryId);
 }

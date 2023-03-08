@@ -16,13 +16,13 @@ public class spell_monk_fists_of_fury_visual_filter : SpellScript, IHasSpellEffe
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void RemoveInvalidTargets(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, GetCaster().GetGUID()));
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, 1, Targets.UnitConeEnemy24));
+	}
+
+	private void RemoveInvalidTargets(List<WorldObject> targets)
+	{
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, 123154, Caster.GetGUID()));
 	}
 }

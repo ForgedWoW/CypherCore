@@ -13,7 +13,7 @@ namespace Scripts.Spells.Priest;
 [SpellScript(78203)]
 public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -22,24 +22,24 @@ public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraC
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == PriestSpells.SHADOW_WORD_PAIN)
-			if ((eventInfo.GetHitMask() & ProcFlagsHit.Critical) != 0)
+		if (eventInfo.SpellInfo.Id == PriestSpells.SHADOW_WORD_PAIN)
+			if ((eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
 				return true;
 
 		return false;
 	}
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
-	{
-		if (GetTarget() && eventInfo.GetActionTarget())
-		{
-			GetTarget().CastSpell(eventInfo.GetActionTarget(), PriestSpells.SHADOWY_APPARITION_MISSILE, true);
-			GetTarget().SendPlaySpellVisual(eventInfo.GetActionTarget().Location, GetCaster().Location.Orientation, MiscSpells.VISUAL_SHADOWY_APPARITION, 0, 0, MiscSpells.SHADOWY_APPARITION_TRAVEL_SPEED, false);
-		}
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
+	{
+		if (Target && eventInfo.ActionTarget)
+		{
+			Target.CastSpell(eventInfo.ActionTarget, PriestSpells.SHADOWY_APPARITION_MISSILE, true);
+			Target.SendPlaySpellVisual(eventInfo.ActionTarget.Location, Caster.Location.Orientation, MiscSpells.VISUAL_SHADOWY_APPARITION, 0, 0, MiscSpells.SHADOWY_APPARITION_TRAVEL_SPEED, false);
+		}
 	}
 }

@@ -11,12 +11,12 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_caltropsAI : AreaTriggerAI
 {
-	public int timeInterval;
-
 	public enum UsedSpells
 	{
 		CALTROPS_AURA = 194279
 	}
+
+	public int timeInterval;
 
 	public at_hun_caltropsAI(AreaTrigger areatrigger) : base(areatrigger)
 	{

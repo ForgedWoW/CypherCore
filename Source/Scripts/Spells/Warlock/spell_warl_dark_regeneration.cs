@@ -7,27 +7,26 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(108359)]
+public class spell_warl_dark_regeneration : AuraScript, IHasAuraEffects
 {
-    [SpellScript(108359)]
-	public class spell_warl_dark_regeneration : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real));
+	}
 
-		private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		if (Target)
 		{
-			if (GetTarget())
-			{
-				var pet = GetTarget().GetGuardianPet();
+			var pet = Target.GetGuardianPet();
 
-				if (pet != null)
-					pet.CastSpell(pet, WarlockSpells.DARK_REGENERATION, true);
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real));
+			if (pet != null)
+				pet.CastSpell(pet, WarlockSpells.DARK_REGENERATION, true);
 		}
 	}
 }

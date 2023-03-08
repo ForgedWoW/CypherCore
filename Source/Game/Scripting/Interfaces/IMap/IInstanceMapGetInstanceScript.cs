@@ -3,10 +3,9 @@
 
 using Game.Maps;
 
-namespace Game.Scripting.Interfaces.IMap
+namespace Game.Scripting.Interfaces.IMap;
+
+public interface IInstanceMapGetInstanceScript : IScriptObject
 {
-    public interface IInstanceMapGetInstanceScript : IScriptObject
-    {
-        InstanceScript GetInstanceScript(InstanceMap map);
-    }
+	InstanceScript GetInstanceScript(InstanceMap map);
 }

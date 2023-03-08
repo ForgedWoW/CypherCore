@@ -29,18 +29,18 @@ internal class spell_pri_t10_heal_2p_bonus : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo == null ||
-		    healInfo.GetHeal() == 0)
+			healInfo.GetHeal() == 0)
 			return;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(PriestSpells.BLESSED_HEALING, GetCastDifficulty());
-		var amount    = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
-		amount /= (int)spellInfo.GetMaxTicks();
+		var spellInfo = Global.SpellMgr.GetSpellInfo(PriestSpells.BLESSED_HEALING, CastDifficulty);
+		var amount = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
+		amount /= (int)spellInfo.MaxTicks;
 
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetProcTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ProcTarget;
 
 		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, amount);

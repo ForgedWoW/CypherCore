@@ -10,13 +10,13 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_frozen_orb : AreaTriggerAI
 {
+	public uint damageInterval;
+	public bool procDone = false;
+
 	public at_mage_frozen_orb(AreaTrigger areatrigger) : base(areatrigger)
 	{
 		damageInterval = 500;
 	}
-
-	public uint damageInterval;
-	public bool procDone = false;
 
 	public override void OnInitialize()
 	{

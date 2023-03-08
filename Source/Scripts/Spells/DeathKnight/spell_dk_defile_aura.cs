@@ -13,13 +13,18 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(156004)]
 public class spell_dk_defile_aura : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+	}
 
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget();
-		var caster = GetCaster();
+		var target = Target;
+		var caster = Caster;
 
 		if (target == null || caster == null)
 			return;
@@ -27,22 +32,17 @@ public class spell_dk_defile_aura : AuraScript, IHasAuraEffects
 		var oneSec = TimeSpan.FromSeconds(1);
 
 		caster.Events.AddRepeatEventAtOffset(() =>
-		                                       {
-			                                       if (target == null || caster == null)
-				                                       return default;
+											{
+												if (target == null || caster == null)
+													return default;
 
-			                                       caster.CastSpell(target, DeathKnightSpells.DEFILE_DAMAGE, true);
+												caster.CastSpell(target, DeathKnightSpells.DEFILE_DAMAGE, true);
 
-			                                       if (target.HasAura(156004) && caster != null)
-				                                       return oneSec;
+												if (target.HasAura(156004) && caster != null)
+													return oneSec;
 
-			                                       return default;
-		                                       },
-		                                       oneSec);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+												return default;
+											},
+											oneSec);
 	}
 }

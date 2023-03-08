@@ -8,9 +8,11 @@ namespace Scripts.Spells.DemonHunter;
 
 public class event_dh_infernal_strike : BasicEvent
 {
+	private readonly Unit _caster;
+
 	public event_dh_infernal_strike(Unit caster)
 	{
-		this._caster = caster;
+		_caster = caster;
 	}
 
 	public override bool Execute(ulong etime, uint pTime)
@@ -28,6 +30,4 @@ public class event_dh_infernal_strike : BasicEvent
 
 		return true;
 	}
-
-	private readonly Unit _caster;
 }

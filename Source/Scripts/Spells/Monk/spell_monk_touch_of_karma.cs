@@ -14,17 +14,26 @@ namespace Scripts.Spells.Monk;
 [SpellScript(122470)]
 public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 1));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var effInfo = GetAura().SpellInfo.GetEffect(2).CalcValue();
+			var effInfo = Aura.SpellInfo.GetEffect(2).CalcValue();
 
-			if (GetAura().SpellInfo.GetEffect(2).CalcValue() != 0)
+			if (Aura.SpellInfo.GetEffect(2).CalcValue() != 0)
 			{
 				amount.Value = caster.CountPctFromMaxHealth(effInfo);
 
@@ -35,7 +44,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 
 	private double OnAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return UnnamedParameter;
@@ -43,7 +52,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
 			if (aurApp.Target != caster)
 			{
-				var periodicDamage = dmgInfo.GetDamage() / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).GetMaxTicks();
+				var periodicDamage = dmgInfo.GetDamage() / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).MaxTicks;
 				//  periodicDamage += int32(aurApp->GetTarget()->GetRemainingPeriodicAmount(GetCasterGUID(), TOUCH_OF_KARMA_DAMAGE, AuraType.PeriodicDamage));
 				caster.CastSpell(aurApp.Target, MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
 
@@ -56,12 +65,12 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		GetCaster().CastSpell(GetCaster(), MonkSpells.TOUCH_OF_KARMA_BUFF, true);
+		Caster.CastSpell(Caster, MonkSpells.TOUCH_OF_KARMA_BUFF, true);
 	}
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -75,14 +84,5 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 			if (targetAura != null)
 				targetAura.Remove();
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 1));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 1, AuraType.SchoolAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
 }

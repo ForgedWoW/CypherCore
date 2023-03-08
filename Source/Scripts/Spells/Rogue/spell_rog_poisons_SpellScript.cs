@@ -8,14 +8,25 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(new uint[]
-             {
-	             3409, 8679, 108211
-             })]
+{
+	3409, 8679, 108211
+})]
 public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
 {
+	public void BeforeHit(SpellMissInfo missInfo)
+	{
+		if (missInfo != SpellMissInfo.None)
+			return;
+
+		var _player = Caster.ToPlayer();
+
+		if (_player != null)
+			RemovePreviousPoisons();
+	}
+
 	private void RemovePreviousPoisons()
 	{
-		var plr = GetCaster().ToPlayer();
+		var plr = Caster.ToPlayer();
 
 		if (plr != null)
 		{
@@ -40,16 +51,5 @@ public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
 			if (plr.HasAura(ePoisons.InstantPoison))
 				plr.RemoveAura(ePoisons.InstantPoison);
 		}
-	}
-
-	public void BeforeHit(SpellMissInfo missInfo)
-	{
-		if (missInfo != SpellMissInfo.None)
-			return;
-
-		var _player = GetCaster().ToPlayer();
-
-		if (_player != null)
-			RemovePreviousPoisons();
 	}
 }

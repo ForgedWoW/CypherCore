@@ -18,6 +18,6 @@ internal class spell_gen_trigger_exclude_caster_aura_spell : SpellScript, ISpell
 	public void AfterCast()
 	{
 		// Blizz seems to just apply aura without bothering to cast
-		GetCaster().AddAura(GetSpellInfo().ExcludeCasterAuraSpell, GetCaster());
+		Caster.AddAura(SpellInfo.ExcludeCasterAuraSpell, Caster);
 	}
 }

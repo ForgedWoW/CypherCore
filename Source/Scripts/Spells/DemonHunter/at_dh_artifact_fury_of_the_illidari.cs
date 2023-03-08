@@ -12,9 +12,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 {
-	public at_dh_artifact_fury_of_the_illidari(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_dh_artifact_fury_of_the_illidari(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	//   void OnInitialize() override
 	//  {

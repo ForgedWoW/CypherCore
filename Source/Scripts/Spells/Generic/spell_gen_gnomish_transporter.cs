@@ -27,6 +27,6 @@ internal class spell_gen_gnomish_transporter : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), RandomHelper.randChance(50) ? GenericSpellIds.TransporterSuccess : GenericSpellIds.TransporterFailure, true);
+		Caster.CastSpell(Caster, RandomHelper.randChance(50) ? GenericSpellIds.TransporterSuccess : GenericSpellIds.TransporterFailure, true);
 	}
 }

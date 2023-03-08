@@ -8,28 +8,27 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 32216 - Victorious
+// 82368 - Victorious
+[SpellScript(new uint[]
 {
-    // 32216 - Victorious
-    // 82368 - Victorious
-    [SpellScript(new uint[]
-	             {
-		             32216, 82368
-	             })]
-	public class spell_warr_victorious : AuraScript, IHasAuraEffects
+	32216, 82368
+})]
+public class spell_warr_victorious : AuraScript, IHasAuraEffects
+{
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
+	}
 
-		private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-		{
-			PreventDefaultAction();
-			GetTarget().RemoveAura(GetId());
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.AddPctModifier, AuraScriptHookType.EffectProc));
-			AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.AddFlatModifier, AuraScriptHookType.EffectProc));
-		}
+	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		PreventDefaultAction();
+		Target.RemoveAura(Id);
 	}
 }

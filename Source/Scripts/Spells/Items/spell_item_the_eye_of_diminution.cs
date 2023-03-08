@@ -22,7 +22,7 @@ internal class spell_item_the_eye_of_diminution : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var diff = (int)GetUnitOwner().GetLevel() - 60;
+		var diff = (int)UnitOwner.GetLevel() - 60;
 
 		if (diff > 0)
 			amount.Value += diff;

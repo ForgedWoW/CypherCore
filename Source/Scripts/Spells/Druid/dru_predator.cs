@@ -11,11 +11,9 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreatureKill
 {
-	public dru_predator() : base("dru_predator")
-	{
-	}
+	public dru_predator() : base("dru_predator") { }
 
-	public void OnPVPKill(Player killer, Player killed)
+	public void OnCreatureKill(Player killer, Creature killed)
 	{
 		if (killer.GetClass() == Class.Druid)
 			return;
@@ -27,7 +25,7 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
 			killer.GetSpellHistory().ResetCooldown(DruidSpells.TIGER_FURY);
 	}
 
-	public void OnCreatureKill(Player killer, Creature killed)
+	public void OnPVPKill(Player killer, Player killed)
 	{
 		if (killer.GetClass() == Class.Druid)
 			return;

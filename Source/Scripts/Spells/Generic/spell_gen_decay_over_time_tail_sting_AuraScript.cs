@@ -12,7 +12,7 @@ internal class spell_gen_decay_over_time_tail_sting_AuraScript : AuraScript, IAu
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo() == GetSpellInfo();
+		return eventInfo.SpellInfo == SpellInfo;
 	}
 
 	public void OnProc(ProcEventInfo eventInfo)

@@ -13,9 +13,7 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_flareAI : AreaTriggerAI
 {
-	public at_hun_flareAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_hun_flareAI(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnCreate()
 	{

@@ -14,14 +14,35 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(195452)]
 public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private int _cp;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		if (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack)
+		{
+			var caster = eventInfo.Actor;
+			var target = eventInfo.ActionTarget;
+
+			if (caster == null || target == null)
+				return false;
+
+			caster.CastSpell(target, RogueSpells.NIGHTBLADE_SLOW, true);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask));
+	}
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -29,7 +50,7 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 		var maxcp = caster.HasAura(RogueSpells.DEEPER_STRATAGEM) ? 6 : 5;
 		_cp = Math.Min(caster.GetPower(PowerType.ComboPoints) + 1, maxcp);
 
-		var aur = GetAura();
+		var aur = Aura;
 
 		if (aur != null)
 		{
@@ -51,28 +72,5 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 
 		if (caster.HasAura(RogueSpells.ALACRITY) && RandomHelper.randChance(20 * _cp))
 			caster.CastSpell(caster, RogueSpells.ALACRITY_BUFF, true);
-	}
-
-	public bool CheckProc(ProcEventInfo eventInfo)
-	{
-		if (eventInfo.GetDamageInfo().GetAttackType() == WeaponAttackType.BaseAttack || eventInfo.GetDamageInfo().GetAttackType() == WeaponAttackType.OffAttack)
-		{
-			var caster = eventInfo.GetActor();
-			var target = eventInfo.GetActionTarget();
-
-			if (caster == null || target == null)
-				return false;
-
-			caster.CastSpell(target, RogueSpells.NIGHTBLADE_SLOW, true);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask));
 	}
 }

@@ -12,9 +12,7 @@ namespace Scripts.Spells.Priest;
 [Script] // 120517 - Halo
 internal class areatrigger_pri_halo : AreaTriggerAI
 {
-	public areatrigger_pri_halo(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public areatrigger_pri_halo(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

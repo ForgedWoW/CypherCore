@@ -13,12 +13,12 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_tar_trap_not_activatedAI : AreaTriggerAI
 {
-	public int timeInterval;
-
 	public enum UsedSpells
 	{
 		ACTIVATE_TAR_TRAP = 187700
 	}
+
+	public int timeInterval;
 
 	public at_hun_tar_trap_not_activatedAI(AreaTrigger areatrigger) : base(areatrigger)
 	{

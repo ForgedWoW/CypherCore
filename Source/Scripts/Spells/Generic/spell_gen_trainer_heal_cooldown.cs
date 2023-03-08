@@ -22,7 +22,7 @@ internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetUnitOwner().IsPlayer();
+		return UnitOwner.IsPlayer();
 	}
 
 	public override void Register()
@@ -32,12 +32,12 @@ internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
 
 	private void UpdateReviveBattlePetCooldown(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target                   = GetUnitOwner().ToPlayer();
+		var target = UnitOwner.ToPlayer();
 		var reviveBattlePetSpellInfo = Global.SpellMgr.GetSpellInfo(SharedConst.SpellReviveBattlePets, Difficulty.None);
 
 		if (target.GetSession().GetBattlePetMgr().IsBattlePetSystemEnabled())
 		{
-			var expectedCooldown  = TimeSpan.FromMilliseconds(GetAura().MaxDuration);
+			var expectedCooldown = TimeSpan.FromMilliseconds(Aura.MaxDuration);
 			var remainingCooldown = target.GetSpellHistory().GetRemainingCategoryCooldown(reviveBattlePetSpellInfo);
 
 			if (remainingCooldown > TimeSpan.Zero)

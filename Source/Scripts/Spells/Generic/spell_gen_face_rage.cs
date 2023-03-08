@@ -26,6 +26,6 @@ internal class spell_gen_face_rage : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect effect, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(GetEffectInfo(2).TriggerSpell);
+		Target.RemoveAura(GetEffectInfo(2).TriggerSpell);
 	}
 }

@@ -9,43 +9,40 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 152262 - Seraphim
+[SpellScript(152262)]
+public class spell_pal_seraphim : SpellScript, IHasSpellEffects
 {
-    // 152262 - Seraphim
-    [SpellScript(152262)]
-    public class spell_pal_seraphim : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        public override bool Validate(SpellInfo UnnamedParameter)
-        {
-            return ValidateSpellInfo(PaladinSpells.SERAPHIM, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS);
-        }
+	public override bool Validate(SpellInfo UnnamedParameter)
+	{
+		return ValidateSpellInfo(PaladinSpells.SERAPHIM, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS);
+	}
 
-        public SpellCastResult CheckCast()
-        {
-            uint ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
-            
-            if (!GetCaster().GetSpellHistory().HasCharge(ChargeCategoryId))
-            {
-                return SpellCastResult.NoPower;
-            }
+	public SpellCastResult CheckCast()
+	{
+		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
 
-            return SpellCastResult.Success;
-        }
+		if (!Caster.GetSpellHistory().HasCharge(ChargeCategoryId))
+			return SpellCastResult.NoPower;
 
-        private void HandleDummy(int effIndex)
-        {
-            uint ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
-            SpellHistory spellHistory = GetCaster().GetSpellHistory();
+		return SpellCastResult.Success;
+	}
 
-            spellHistory.ConsumeCharge(ChargeCategoryId);
-            spellHistory.ForceSendSpellCharge(CliDB.SpellCategoryStorage.LookupByKey(ChargeCategoryId));
-        }
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-        }
-    }
+	private void HandleDummy(int effIndex)
+	{
+		var ChargeCategoryId = Global.SpellMgr.GetSpellInfo(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS, Difficulty.None).ChargeCategoryId;
+		var spellHistory = Caster.GetSpellHistory();
+
+		spellHistory.ConsumeCharge(ChargeCategoryId);
+		spellHistory.ForceSendSpellCharge(CliDB.SpellCategoryStorage.LookupByKey(ChargeCategoryId));
+	}
 }

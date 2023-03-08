@@ -7,26 +7,25 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 768 - CatForm - CAT_FORM
+internal class spell_dru_cat_form : AuraScript, IHasAuraEffects
 {
-    [Script] // 768 - CatForm - CAT_FORM
-	internal class spell_dru_cat_form : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.Prowl);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(DruidSpellIds.Prowl);
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 0, AuraType.ModShapeshift, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-		}
-
-		private void HandleAfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-		{
-			GetTarget().RemoveOwnedAura(DruidSpellIds.Prowl);
-		}
+	private void HandleAfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+	{
+		Target.RemoveOwnedAura(DruidSpellIds.Prowl);
 	}
 }

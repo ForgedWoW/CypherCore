@@ -26,7 +26,7 @@ internal class spell_monk_crackling_jade_lightning : AuraScript, IHasAuraEffects
 
 	private void OnTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			if (caster.HasAura(MonkSpells.StanceOfTheSpiritedCrane))

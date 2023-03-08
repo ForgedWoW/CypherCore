@@ -14,7 +14,7 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(206967)]
 public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -22,6 +22,12 @@ public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 			return false;
 
 		return true;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
 	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -33,15 +39,9 @@ public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 	{
 		absorbAmount = 0;
 
-		if (GetTarget().GetHealthPct() < GetEffect(2).BaseAmount)
+		if (Target.GetHealthPct() < GetEffect(2).BaseAmount)
 			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), GetEffect(1).BaseAmount);
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
 	}
 }

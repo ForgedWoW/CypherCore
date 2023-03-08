@@ -5,7 +5,6 @@ namespace Scripts.Spells.Druid;
 
 public struct DruidSpells
 {
-
 	public static uint ABUNDANCE = 207383;
 	public static uint ABUNDANCE_BUFF = 207640;
 	public static uint BLESSING_OF_ANSHE = 202739;

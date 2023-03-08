@@ -7,44 +7,43 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 233494 - Contagion
+[SpellScript(233494)]
+public class spell_warlock_contagion : AuraScript, IHasAuraEffects
 {
-    // 233494 - Contagion
-    [SpellScript(233494)]
-	public class spell_warlock_contagion : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.ModSchoolMaskDamageFromCaster));
+	}
 
-		private void PeriodicTick(AuraEffect UnnamedParameter)
+	private void PeriodicTick(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
+		var target = Target;
+
+		if (caster == null || target == null)
+			return;
+
+		var uaspells = new List<uint>()
 		{
-			var caster = GetCaster();
-			var target = GetTarget();
+			WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
+			WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
+			WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
+			WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
+			WarlockSpells.UNSTABLE_AFFLICTION_DOT1
+		};
 
-			if (caster == null || target == null)
-				return;
+		var hasUa = false;
 
-			var uaspells = new List<uint>()
-			               {
-				               WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
-				               WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
-				               WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
-				               WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
-				               WarlockSpells.UNSTABLE_AFFLICTION_DOT1
-			               };
+		foreach (var ua in uaspells)
+			if (target.HasAura(ua, caster.GetGUID()))
+				hasUa = true;
 
-			var hasUa = false;
-
-			foreach (var ua in uaspells)
-				if (target.HasAura(ua, caster.GetGUID()))
-					hasUa = true;
-
-			if (!hasUa)
-				Remove();
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.ModSchoolMaskDamageFromCaster));
-		}
+		if (!hasUa)
+			Remove();
 	}
 }

@@ -17,7 +17,7 @@ internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellE
 
 	public override bool Load()
 	{
-		if (!GetCastItem())
+		if (!CastItem)
 			return false;
 
 		return true;
@@ -35,13 +35,13 @@ internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellE
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target)
 		{
 			if (RandomHelper.randChance(95))
-				caster.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.Dullard : ItemSpellIds.GnomishMindControlCap, new CastSpellExtraArgs(GetCastItem()));
+				caster.CastSpell(target, RandomHelper.randChance(32) ? ItemSpellIds.Dullard : ItemSpellIds.GnomishMindControlCap, new CastSpellExtraArgs(CastItem));
 			else
 				target.CastSpell(caster, ItemSpellIds.GnomishMindControlCap, true); // backfire - 5% chance
 		}

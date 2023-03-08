@@ -17,7 +17,7 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return (GetCaster().GetAreaId() == 3900 || GetCaster().GetAreaId() == 3742);
+		return (Caster.GetAreaId() == 3900 || Caster.GetAreaId() == 3742);
 	}
 
 	public override bool Validate(SpellInfo spell)
@@ -32,7 +32,7 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		switch (caster.GetAreaId())
 		{

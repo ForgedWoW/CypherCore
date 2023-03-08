@@ -27,7 +27,7 @@ internal class spell_q14100_q14111_make_player_destroy_totems : SpellScript, IHa
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var player = GetHitPlayer();
+		var player = HitPlayer;
 
 		if (player)
 			player.CastSpell(player, QuestSpellIds.TotemOfTheEarthenRing, new CastSpellExtraArgs(TriggerCastFlags.FullMask)); // ignore reagent cost, consumed by quest

@@ -12,11 +12,16 @@ namespace Scripts.Spells.Druid;
 [SpellScript(145108)]
 public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
 
 	private void HandlePeriodic(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null || !caster.IsAlive())
 			return;
@@ -30,10 +35,5 @@ public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_RAID_HEAL, values);
 		else
 			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_CASTER_HEAL, values);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
 	}
 }

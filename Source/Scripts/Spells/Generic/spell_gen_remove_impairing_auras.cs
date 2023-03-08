@@ -21,6 +21,6 @@ internal class spell_gen_remove_impairing_auras : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		GetHitUnit().RemoveMovementImpairingAuras(true);
+		HitUnit.RemoveMovementImpairingAuras(true);
 	}
 }

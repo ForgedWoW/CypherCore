@@ -16,24 +16,9 @@ public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast,
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void FilterRenewingMist(List<WorldObject> targets)
-	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, MonkSpells.RENEWING_MIST_HOT, GetCaster().GetGUID()));
-	}
-
-	public void BeforeCast()
-	{
-		if (GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled) && GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).SpellInfo.Id == MonkSpells.SOOTHING_MIST)
-		{
-			GetSpell().CastFlagsEx = SpellCastFlagsEx.None;
-			var targets = GetCaster().GetCurrentSpell(CurrentSpellTypes.Channeled).Targets;
-			GetSpell().InitExplicitTargets(targets);
-		}
-	}
-
 	public void AfterCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster == null)
 			return;
@@ -45,5 +30,20 @@ public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast,
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterRenewingMist, 1, Targets.UnitDestAreaAlly));
+	}
+
+	public void BeforeCast()
+	{
+		if (Caster.GetCurrentSpell(CurrentSpellTypes.Channeled) && Caster.GetCurrentSpell(CurrentSpellTypes.Channeled).SpellInfo.Id == MonkSpells.SOOTHING_MIST)
+		{
+			Spell.CastFlagsEx = SpellCastFlagsEx.None;
+			var targets = Caster.GetCurrentSpell(CurrentSpellTypes.Channeled).Targets;
+			Spell.InitExplicitTargets(targets);
+		}
+	}
+
+	private void FilterRenewingMist(List<WorldObject> targets)
+	{
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(false, MonkSpells.RENEWING_MIST_HOT, Caster.GetGUID()));
 	}
 }

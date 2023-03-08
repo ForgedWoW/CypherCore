@@ -13,35 +13,35 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(118455)]
 public class spell_hun_beast_cleave_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
-		if (!GetCaster())
+		if (!Caster)
 			return;
 
-		if (eventInfo.GetActor().GetGUID() != GetTarget().GetGUID())
+		if (eventInfo.Actor.GetGUID() != Target.GetGUID())
 			return;
 
-		if (eventInfo.GetDamageInfo().GetSpellInfo() != null && eventInfo.GetDamageInfo().GetSpellInfo().Id == HunterSpells.BEAST_CLEAVE_DAMAGE)
+		if (eventInfo.DamageInfo.GetSpellInfo() != null && eventInfo.DamageInfo.GetSpellInfo().Id == HunterSpells.BEAST_CLEAVE_DAMAGE)
 			return;
 
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
-			if (GetTarget().HasAura(aurEff.SpellInfo.Id, player.GetGUID()))
+			if (Target.HasAura(aurEff.SpellInfo.Id, player.GetGUID()))
 			{
 				var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-				args.AddSpellMod(SpellValueMod.BasePoint0, eventInfo.GetDamageInfo().GetDamage() * 0.75f);
+				args.AddSpellMod(SpellValueMod.BasePoint0, eventInfo.DamageInfo.GetDamage() * 0.75f);
 
-				GetTarget().CastSpell(GetTarget(), HunterSpells.BEAST_CLEAVE_DAMAGE, args);
+				Target.CastSpell(Target, HunterSpells.BEAST_CLEAVE_DAMAGE, args);
 			}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

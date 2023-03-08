@@ -12,6 +12,6 @@ public class spell_mage_frenetic_speed : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo().Id == MageSpells.SCORCH;
+		return eventInfo.SpellInfo.Id == MageSpells.SCORCH;
 	}
 }

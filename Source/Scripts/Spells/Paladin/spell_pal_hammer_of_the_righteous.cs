@@ -8,27 +8,26 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(53595)] // 53595 - Hammer of the Righteous
+internal class spell_pal_hammer_of_the_righteous : SpellScript, IHasSpellEffects
 {
-    [SpellScript(53595)] // 53595 - Hammer of the Righteous
-    internal class spell_pal_hammer_of_the_righteous : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.ConsecrationProtectionAura, PaladinSpells.HammerOfTheRighteousAoe);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.ConsecrationProtectionAura, PaladinSpells.HammerOfTheRighteousAoe);
+	}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleAoEHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-        }
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleAoEHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-        private void HandleAoEHit(int effIndex)
-        {
-            if (GetCaster().HasAura(PaladinSpells.ConsecrationProtectionAura))
-                GetCaster().CastSpell(GetHitUnit(), PaladinSpells.HammerOfTheRighteousAoe);
-        }
-    }
+	private void HandleAoEHit(int effIndex)
+	{
+		if (Caster.HasAura(PaladinSpells.ConsecrationProtectionAura))
+			Caster.CastSpell(HitUnit, PaladinSpells.HammerOfTheRighteousAoe);
+	}
 }

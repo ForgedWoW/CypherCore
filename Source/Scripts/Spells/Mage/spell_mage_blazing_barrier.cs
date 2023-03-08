@@ -30,17 +30,17 @@ internal class spell_mage_blazing_barrier : AuraScript, IHasAuraEffects
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		canBeRecalculated.Value = false;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
-			amount.Value = (caster.SpellBaseHealingBonusDone(GetSpellInfo().GetSchoolMask()) * 7.0f);
+			amount.Value = (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 7.0f);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.GetDamageInfo().GetVictim();
-		var target = eventInfo.GetDamageInfo().GetAttacker();
+		var caster = eventInfo.DamageInfo.GetVictim();
+		var target = eventInfo.DamageInfo.GetAttacker();
 
 		if (caster && target)
 			caster.CastSpell(target, MageSpells.BlazingBarrierTrigger, true);

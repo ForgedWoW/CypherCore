@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IItem
+namespace Game.Scripting.Interfaces.IItem;
+
+public interface IItemOnUse : IScriptObject
 {
-    public interface IItemOnUse : IScriptObject
-    {
-        bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId);
-    }
+	bool OnUse(Player player, Item item, SpellCastTargets targets, ObjectGuid castId);
 }

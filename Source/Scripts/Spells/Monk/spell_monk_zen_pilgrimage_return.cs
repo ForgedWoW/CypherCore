@@ -14,9 +14,14 @@ public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -26,10 +31,5 @@ public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
 				// _player->TeleportTo(_player->m_recallLoc); After change now iw work
 				_player.RemoveAura(126896);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 }

@@ -4521,7 +4521,7 @@ public partial class Player
 		if (spellInfo == null)
 			return;
 
-		if (spellInfo.IsPassive())
+		if (spellInfo.IsPassive)
 		{
 			var powerAura = GetAuraApplication(artifactPowerRank.SpellID, ObjectGuid.Empty, artifact.GetGUID());
 
@@ -7366,7 +7366,7 @@ public partial class Player
 
 			if (powerSpell != null)
 			{
-				if (powerSpell.IsPassive())
+				if (powerSpell.IsPassive)
 				{
 					if (apply)
 						CastSpell(this, powerSpell.Id, item);

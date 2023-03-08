@@ -20,18 +20,18 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.LightningBolt,
-		                         ShamanSpells.LightningBoltOverload,
-		                         ShamanSpells.ElementalBlast,
-		                         ShamanSpells.ElementalBlastOverload,
-		                         ShamanSpells.Icefury,
-		                         ShamanSpells.IcefuryOverload,
-		                         ShamanSpells.LavaBurst,
-		                         ShamanSpells.LavaBurstOverload,
-		                         ShamanSpells.ChainLightning,
-		                         ShamanSpells.ChainLightningOverload,
-		                         ShamanSpells.LavaBeam,
-		                         ShamanSpells.LavaBeamOverload,
-		                         ShamanSpells.Stormkeeper);
+								ShamanSpells.LightningBoltOverload,
+								ShamanSpells.ElementalBlast,
+								ShamanSpells.ElementalBlastOverload,
+								ShamanSpells.Icefury,
+								ShamanSpells.IcefuryOverload,
+								ShamanSpells.LavaBurst,
+								ShamanSpells.LavaBurstOverload,
+								ShamanSpells.ChainLightning,
+								ShamanSpells.ChainLightningOverload,
+								ShamanSpells.LavaBeam,
+								ShamanSpells.LavaBeamOverload,
+								ShamanSpells.Stormkeeper);
 	}
 
 	public override void Register()
@@ -42,24 +42,24 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 
 	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		if (spellInfo == null ||
-		    !eventInfo.GetProcSpell())
+			!eventInfo.ProcSpell)
 			return false;
 
 		if (GetTriggeredSpellId(spellInfo.Id) == 0)
 			return false;
 
-		double chance = aurEff.Amount; // Mastery % amount
+		var chance = aurEff.Amount; // Mastery % amount
 
 		if (spellInfo.Id == ShamanSpells.ChainLightning)
 			chance /= 3.0f;
 
-		var stormkeeper = eventInfo.GetActor().GetAura(ShamanSpells.Stormkeeper);
+		var stormkeeper = eventInfo.Actor.GetAura(ShamanSpells.Stormkeeper);
 
 		if (stormkeeper != null)
-			if (eventInfo.GetProcSpell().AppliedMods.Contains(stormkeeper))
+			if (eventInfo.ProcSpell.AppliedMods.Contains(stormkeeper))
 				chance = 100.0f;
 
 		return RandomHelper.randChance(chance);
@@ -69,24 +69,24 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 	{
 		PreventDefaultAction();
 
-		var caster = procInfo.GetActor();
+		var caster = procInfo.Actor;
 
-		var targets         = new CastSpellTargetArg(procInfo.GetProcTarget());
-		var overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo().Id);
-		var originalCastId  = procInfo.GetProcSpell().CastId;
+		var targets = new CastSpellTargetArg(procInfo.ProcTarget);
+		var overloadSpellId = GetTriggeredSpellId(procInfo.SpellInfo.Id);
+		var originalCastId = procInfo.ProcSpell.CastId;
 
 		caster.Events.AddEventAtOffset(() =>
-		                                 {
-			                                 if (targets.Targets == null)
-				                                 return;
+										{
+											if (targets.Targets == null)
+												return;
 
-			                                 targets.Targets.Update(caster);
+											targets.Targets.Update(caster);
 
-			                                 CastSpellExtraArgs args = new();
-			                                 args.OriginalCastId = originalCastId;
-			                                 caster.CastSpell(targets, overloadSpellId, args);
-		                                 },
-		                                 TimeSpan.FromMilliseconds(400));
+											CastSpellExtraArgs args = new();
+											args.OriginalCastId = originalCastId;
+											caster.CastSpell(targets, overloadSpellId, args);
+										},
+										TimeSpan.FromMilliseconds(400));
 	}
 
 	private uint GetTriggeredSpellId(uint triggeringSpellId)

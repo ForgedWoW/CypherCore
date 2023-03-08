@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraPrepareProc : IAuraScript
 {
-    public interface IAuraPrepareProc : IAuraScript
-    {
-        bool DoPrepareProc(ProcEventInfo info);
-    }
+	bool DoPrepareProc(ProcEventInfo info);
 }

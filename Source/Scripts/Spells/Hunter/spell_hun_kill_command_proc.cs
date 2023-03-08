@@ -15,14 +15,19 @@ public class spell_hun_kill_command_proc : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDamage(int effIndex)
 	{
-		var caster = GetCaster();
-		var owner  = caster.GetOwner();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var owner = caster.GetOwner();
+		var target = ExplTargetUnit;
 
 		// (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))
-		double dmg     = 4.5f * owner.UnitData.RangedAttackPower;
+		double dmg = 4.5f * owner.UnitData.RangedAttackPower;
 		var lowNerf = Math.Min((int)owner.GetLevel(), 20) * 0.05f;
 
 		var ownerPlayer = owner.ToPlayer();
@@ -32,14 +37,9 @@ public class spell_hun_kill_command_proc : SpellScript, IHasSpellEffects
 
 		dmg *= lowNerf;
 
-		dmg = caster.SpellDamageBonusDone(target, GetSpellInfo(), dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, GetSpell());
-		dmg = target.SpellDamageBonusTaken(caster, GetSpellInfo(), dmg, DamageEffectType.Direct);
+		dmg = caster.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
+		dmg = target.SpellDamageBonusTaken(caster, SpellInfo, dmg, DamageEffectType.Direct);
 
-		SetHitDamage(dmg);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		HitDamage = dmg;
 	}
 }

@@ -17,7 +17,7 @@ internal class spell_item_noggenfogger_elixir : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -32,7 +32,7 @@ internal class spell_item_noggenfogger_elixir : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster  = GetCaster();
+		var caster = Caster;
 		var spellId = ItemSpellIds.NoggenfoggerElixirTriggered3;
 
 		switch (RandomHelper.URand(1, 3))

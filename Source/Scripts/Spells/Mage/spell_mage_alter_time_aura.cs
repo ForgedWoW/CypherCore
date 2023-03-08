@@ -30,17 +30,17 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var unit = GetTarget();
+		var unit = Target;
 		_health = unit.GetHealth();
-		_pos    = new Position(unit.Location);
+		_pos = new Position(unit.Location);
 	}
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var unit = GetTarget();
+		var unit = Target;
 
 		if (unit.GetDistance(_pos) <= 100.0f &&
-		    GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
+			TargetApplication.RemoveMode == AuraRemoveMode.Expire)
 		{
 			unit.SetHealth(_health);
 			unit.NearTeleportTo(_pos);

@@ -45,7 +45,7 @@ internal class spell_item_mirrens_drinking_hat : SpellScript, IHasSpellEffects
 				return;
 		}
 
-		var caster = GetCaster();
-		caster.CastSpell(caster, spellId, new CastSpellExtraArgs(GetSpell()));
+		var caster = Caster;
+		caster.CastSpell(caster, spellId, new CastSpellExtraArgs(Spell));
 	}
 }

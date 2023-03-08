@@ -21,7 +21,7 @@ internal class spell_item_greatmothers_soulcatcher : SpellScript, IHasSpellEffec
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetHitUnit())
-			GetCaster().CastSpell(GetCaster(), ItemSpellIds.ForceCastSummonGnomeSoul);
+		if (HitUnit)
+			Caster.CastSpell(Caster, ItemSpellIds.ForceCastSummonGnomeSoul);
 	}
 }

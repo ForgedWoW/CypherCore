@@ -29,8 +29,8 @@ internal class spell_item_mana_drain : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetActionTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ActionTarget;
 
 		if (caster.IsAlive())
 			caster.CastSpell(caster, ItemSpellIds.ManaDrainEnergize, new CastSpellExtraArgs(aurEff));

@@ -7,29 +7,28 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Ravager - 152277
+// Ravager - 228920
+[SpellScript(new uint[]
 {
-    // Ravager - 152277
-    // Ravager - 228920
-    [SpellScript(new uint[]
-	             {
-		             152277, 228920
-	             })]
-	public class spell_warr_ravager : SpellScript, IHasSpellEffects
+	152277, 228920
+})]
+public class spell_warr_ravager : SpellScript, IHasSpellEffects
+{
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
 
-		private void HandleOnHit(int effIndex)
-		{
-			var dest = GetExplTargetDest();
+	private void HandleOnHit(int effIndex)
+	{
+		var dest = ExplTargetDest;
 
-			if (dest != null)
-				GetCaster().CastSpell(dest, WarriorSpells.RAVAGER_SUMMON, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-		}
+		if (dest != null)
+			Caster.CastSpell(dest, WarriorSpells.RAVAGER_SUMMON, true);
 	}
 }

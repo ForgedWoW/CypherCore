@@ -23,18 +23,18 @@ internal class spell_summon_battle_pet : SpellScript, IHasSpellEffects
 
 	private void HandleSummon(int effIndex)
 	{
-		var creatureId = (uint)GetSpellValue().EffectBasePoints[effIndex];
+		var creatureId = (uint)SpellValue.EffectBasePoints[effIndex];
 
 		if (Global.ObjectMgr.GetCreatureTemplate(creatureId) != null)
 		{
 			PreventHitDefaultEffect(effIndex);
 
-			var caster     = GetCaster();
-			var properties = CliDB.SummonPropertiesStorage.LookupByKey((uint)GetEffectInfo().MiscValueB);
-			var duration   = (uint)GetSpellInfo().CalcDuration(caster);
-			var pos        = GetHitDest();
+			var caster = Caster;
+			var properties = CliDB.SummonPropertiesStorage.LookupByKey((uint)EffectInfo.MiscValueB);
+			var duration = (uint)SpellInfo.CalcDuration(caster);
+			var pos = HitDest;
 
-			Creature summon = caster.GetMap().SummonCreature(creatureId, pos, properties, duration, caster, GetSpellInfo().Id);
+			Creature summon = caster.GetMap().SummonCreature(creatureId, pos, properties, duration, caster, SpellInfo.Id);
 
 			summon?.SetImmuneToAll(true);
 		}

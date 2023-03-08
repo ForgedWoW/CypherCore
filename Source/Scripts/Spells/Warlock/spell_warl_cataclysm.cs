@@ -7,32 +7,31 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Cataclysm - 152108
+[SpellScript(152108)]
+internal class spell_warl_cataclysm : SpellScript, IHasSpellEffects
 {
-    // Cataclysm - 152108
-    [SpellScript(152108)]
-	internal class spell_warl_cataclysm : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-			if (caster == null || target == null)
-				return;
+		if (caster == null || target == null)
+			return;
 
-			if (!caster.ToPlayer())
-				return;
+		if (!caster.ToPlayer())
+			return;
 
-			if (GetCaster().ToPlayer().GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
-				caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
+		if (Caster.ToPlayer().GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
+			caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
 	}
 }

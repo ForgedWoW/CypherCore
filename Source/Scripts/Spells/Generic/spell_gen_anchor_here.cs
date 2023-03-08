@@ -21,7 +21,7 @@ internal class spell_gen_anchor_here : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var creature = GetHitCreature();
+		var creature = HitCreature;
 
 		creature?.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
 	}

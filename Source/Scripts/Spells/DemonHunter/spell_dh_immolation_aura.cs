@@ -17,7 +17,7 @@ public class spell_dh_immolation_aura : SpellScript, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAura(DemonHunterSpells.CLEANSED_BY_FLAME))
 			caster.CastSpell(caster, DemonHunterSpells.CLEANSED_BY_FLAME_DISPEL, true);

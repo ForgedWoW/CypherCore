@@ -13,12 +13,12 @@ public class spell_monk_essence_font : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
 			caster.AddAura(MonkSpells.ESSENCE_FONT_PERIODIC_HEAL, null);
-			var  u_li        = new List<Unit>();
+			var u_li = new List<Unit>();
 			byte targetLimit = 6;
 			u_li.RandomResize(targetLimit);
 			caster.GetFriendlyUnitListInRange(u_li, 30.0f, false);

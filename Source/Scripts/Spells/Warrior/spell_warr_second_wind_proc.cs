@@ -8,40 +8,39 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+//Second wind - 29838
+[SpellScript(29838)]
+public class spell_warr_second_wind_proc : AuraScript, IHasAuraEffects
 {
-    //Second wind - 29838
-    [SpellScript(29838)]
-	public class spell_warr_second_wind_proc : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
-		private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-		{
-			var caster = GetCaster();
+	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			if (caster.IsInCombat())
-				caster.CastSpell(caster, WarriorSpells.SECOND_WIND_DAMAGED, true);
-		}
+		if (caster.IsInCombat())
+			caster.CastSpell(caster, WarriorSpells.SECOND_WIND_DAMAGED, true);
+	}
 
-		private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			if (!caster.IsInCombat())
-				caster.RemoveAura(WarriorSpells.SECOND_WIND_DAMAGED);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-			AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		}
+		if (!caster.IsInCombat())
+			caster.RemoveAura(WarriorSpells.SECOND_WIND_DAMAGED);
 	}
 }

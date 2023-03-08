@@ -24,7 +24,7 @@ internal class spell_pri_prayer_of_mending : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		_spellInfoHeal   = Global.SpellMgr.GetSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, Difficulty.None);
+		_spellInfoHeal = Global.SpellMgr.GetSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, Difficulty.None);
 		_healEffectDummy = _spellInfoHeal.GetEffect(0);
 
 		return true;
@@ -37,10 +37,10 @@ internal class spell_pri_prayer_of_mending : SpellScript, IHasSpellEffects
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var                basePoints = GetCaster().SpellHealingBonusDone(GetHitUnit(), _spellInfoHeal, (uint)_healEffectDummy.CalcValue(GetCaster()), DamageEffectType.Heal, _healEffectDummy, 1, GetSpell());
-		CastSpellExtraArgs args       = new(TriggerCastFlags.FullMask);
-		args.AddSpellMod(SpellValueMod.AuraStack, GetEffectValue());
+		var basePoints = Caster.SpellHealingBonusDone(HitUnit, _spellInfoHeal, (uint)_healEffectDummy.CalcValue(Caster), DamageEffectType.Heal, _healEffectDummy, 1, Spell);
+		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+		args.AddSpellMod(SpellValueMod.AuraStack, EffectValue);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)basePoints);
-		GetCaster().CastSpell(GetHitUnit(), PriestSpells.PRAYER_OF_MENDING_AURA, args);
+		Caster.CastSpell(HitUnit, PriestSpells.PRAYER_OF_MENDING_AURA, args);
 	}
 }

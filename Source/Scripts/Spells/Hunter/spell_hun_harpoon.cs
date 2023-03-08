@@ -23,37 +23,9 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 		return true;
 	}
 
-	public void OnCast()
-	{
-		var player = GetCaster().ToPlayer();
-		var target = GetExplTargetUnit();
-
-		if (player == null || target == null)
-			return;
-
-		player.CastSpell(target, HunterSpells.HARPOON_ROOT, true);
-	}
-
-	private void HandleDummy(int effIndex)
-	{
-		var player = GetCaster().ToPlayer();
-		var target = GetExplTargetUnit();
-
-		if (player == null || target == null)
-			return;
-
-		var pTarget = target.Location;
-
-		float speedXY;
-        float speedZ;
-		speedZ  = 1.8f;
-		speedXY = player.Location.GetExactDist2d(pTarget) * 10.0f / speedZ;
-		player.GetMotionMaster().MoveJump(pTarget, speedXY, speedZ, EventId.Jump);
-	}
-
 	public void AfterCast()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 			if (player.HasSpell(HunterSpells.POSTHAST))
@@ -63,5 +35,33 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHitTarget));
+	}
+
+	public void OnCast()
+	{
+		var player = Caster.ToPlayer();
+		var target = ExplTargetUnit;
+
+		if (player == null || target == null)
+			return;
+
+		player.CastSpell(target, HunterSpells.HARPOON_ROOT, true);
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		var player = Caster.ToPlayer();
+		var target = ExplTargetUnit;
+
+		if (player == null || target == null)
+			return;
+
+		var pTarget = target.Location;
+
+		float speedXY;
+		float speedZ;
+		speedZ = 1.8f;
+		speedXY = player.Location.GetExactDist2d(pTarget) * 10.0f / speedZ;
+		player.GetMotionMaster().MoveJump(pTarget, speedXY, speedZ, EventId.Jump);
 	}
 }

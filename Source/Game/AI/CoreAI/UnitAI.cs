@@ -352,7 +352,7 @@ namespace Game.AI
                 AISpellInfoType AIInfo = new();
                 if (spellInfo.HasAttribute(SpellAttr0.AllowCastWhileDead))
                     AIInfo.condition = AICondition.Die;
-                else if (spellInfo.IsPassive() || spellInfo.GetDuration() == -1)
+                else if (spellInfo.IsPassive || spellInfo.Duration == -1)
                     AIInfo.condition = AICondition.Aggro;
                 else
                     AIInfo.condition = AICondition.Combat;

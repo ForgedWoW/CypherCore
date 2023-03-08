@@ -12,6 +12,6 @@ public class spell_mage_jouster : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo().Id == MageSpells.ICE_LANCE;
+		return eventInfo.SpellInfo.Id == MageSpells.ICE_LANCE;
 	}
 }

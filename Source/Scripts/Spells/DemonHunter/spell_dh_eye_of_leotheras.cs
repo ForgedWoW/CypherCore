@@ -23,23 +23,23 @@ public class spell_dh_eye_of_leotheras : AuraScript, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
-		var target = GetAura().Owner;
+		var caster = Caster;
+		var target = Aura.Owner;
 
-		if (caster == null || target == null || eventInfo.GetSpellInfo() != null || !caster.ToPlayer())
+		if (caster == null || target == null || eventInfo.SpellInfo != null || !caster.ToPlayer())
 			return false;
 
 		var unitTarget = target.ToUnit();
 
-		if (unitTarget == null || eventInfo.GetSpellInfo().IsPositive)
+		if (unitTarget == null || eventInfo.SpellInfo.IsPositive)
 			return false;
 
-		var aurEff = GetAura().GetEffect(0);
+		var aurEff = Aura.GetEffect(0);
 
 		if (aurEff != null)
 		{
 			var bp = aurEff.Amount;
-			GetAura().RefreshDuration();
+			Aura.RefreshDuration();
 
 
 			caster.Events.AddEventAtOffset(() => { caster.CastSpell(unitTarget, DemonHunterSpells.EYE_OF_LEOTHERAS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp)); }, TimeSpan.FromMilliseconds(100));

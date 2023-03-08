@@ -27,13 +27,13 @@ internal class spell_q11396_11399_scourging_crystal_controller : SpellScript, IH
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			if (target.IsTypeId(TypeId.Unit) &&
-			    target.HasAura(QuestSpellIds.ForceShieldArcanePurpleX3))
+				target.HasAura(QuestSpellIds.ForceShieldArcanePurpleX3))
 				// Make sure nobody else is channeling the same Target
 				if (!target.HasAura(QuestSpellIds.ScourgingCrystalController))
-					GetCaster().CastSpell(target, QuestSpellIds.ScourgingCrystalController, new CastSpellExtraArgs(GetCastItem()));
+					Caster.CastSpell(target, QuestSpellIds.ScourgingCrystalController, new CastSpellExtraArgs(CastItem));
 	}
 }

@@ -21,7 +21,7 @@ public class spell_monk_flying_serpent_kick : SpellScript, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

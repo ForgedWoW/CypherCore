@@ -21,7 +21,7 @@ internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 	public void SetVisualDummy(TempSummon summon)
 	{
 		_visualDummy = summon.GetGUID();
-        _pos = summon.Location;
+		_pos = summon.Location;
 	}
 
 	public override void Register()
@@ -32,12 +32,12 @@ internal class spell_sha_healing_rain_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		GetTarget().CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(_pos, ShamanSpells.HealingRainHeal, new CastSpellExtraArgs(aurEff));
 	}
 
 	private void HandleEffecRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var summon = ObjectAccessor.GetCreature(GetTarget(), _visualDummy);
+		var summon = ObjectAccessor.GetCreature(Target, _visualDummy);
 
 		summon?.DespawnOrUnsummon();
 	}

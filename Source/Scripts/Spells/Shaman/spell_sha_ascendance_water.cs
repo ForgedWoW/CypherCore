@@ -8,47 +8,46 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Ascendance (Water) - 114052
+[SpellScript(114052)]
+public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
 {
-    // Ascendance (Water) - 114052
-    [SpellScript(114052)]
-	public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(eSpells.RestorativeMists);
+	}
 
-		private struct eSpells
-		{
-			public const uint RestorativeMists = 114083;
-		}
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		if (eventInfo.HealInfo != null && eventInfo.SpellInfo != null && eventInfo.SpellInfo.Id == eSpells.RestorativeMists)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return ValidateSpellInfo(eSpells.RestorativeMists);
-		}
+		if (eventInfo.HealInfo == null)
+			return false;
 
-		public bool CheckProc(ProcEventInfo eventInfo)
-		{
-			if (eventInfo.GetHealInfo() != null && eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().Id == eSpells.RestorativeMists)
-				return false;
+		return true;
+	}
 
-			if (eventInfo.GetHealInfo() == null)
-				return false;
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
+	}
 
-			return true;
-		}
+	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var bp0 = eventInfo.HealInfo.GetHeal();
 
-		private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-			var bp0 = eventInfo.GetHealInfo().GetHeal();
+		if (bp0 != 0)
+			eventInfo.ActionTarget.CastSpell(eventInfo.Actor, eSpells.RestorativeMists, new CastSpellExtraArgs(aurEff).AddSpellMod(SpellValueMod.BasePoint0, (int)bp0));
+	}
 
-			if (bp0 != 0)
-				eventInfo.GetActionTarget().CastSpell(eventInfo.GetActor(), eSpells.RestorativeMists, new CastSpellExtraArgs(aurEff).AddSpellMod(SpellValueMod.BasePoint0, (int)bp0));
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 1, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
-		}
+	private struct eSpells
+	{
+		public const uint RestorativeMists = 114083;
 	}
 }

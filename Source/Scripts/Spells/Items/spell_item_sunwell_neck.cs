@@ -20,9 +20,11 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 	private readonly uint _aldorSpellId;
 	private readonly uint _scryersSpellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_sunwell_neck(uint aldorSpellId, uint scryersSpellId)
 	{
-		_aldorSpellId   = aldorSpellId;
+		_aldorSpellId = aldorSpellId;
 		_scryersSpellId = scryersSpellId;
 	}
 
@@ -33,7 +35,7 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetActor().GetTypeId() != TypeId.Player)
+		if (eventInfo.Actor.GetTypeId() != TypeId.Player)
 			return false;
 
 		return true;
@@ -44,13 +46,11 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var player = eventInfo.GetActor().ToPlayer();
-		var target = eventInfo.GetProcTarget();
+		var player = eventInfo.Actor.ToPlayer();
+		var target = eventInfo.ProcTarget;
 
 		// Aggression checks are in the spell system... just cast and forget
 		if (player.GetReputationRank(FactionIds.Aldor) == ReputationRank.Exalted)

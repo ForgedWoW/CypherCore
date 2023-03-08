@@ -21,7 +21,7 @@ internal class spell_gen_bonked : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		if (target)
 		{

@@ -14,18 +14,18 @@ public class spell_dru_maul_bear : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void OnHit(int effIndex)
-	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
-
-		if (caster == null || target == null)
-			return;
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(OnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 		SpellEffects.Add(new EffectHandler(OnHit, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void OnHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
+
+		if (caster == null || target == null)
+			return;
 	}
 }

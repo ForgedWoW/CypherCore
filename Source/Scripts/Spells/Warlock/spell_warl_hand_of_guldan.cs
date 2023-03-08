@@ -6,43 +6,42 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Hand of Gul'Dan - 105174
+[SpellScript(105174)]
+public class spell_warl_hand_of_guldan : SpellScript, ISpellOnHit
 {
-    // Hand of Gul'Dan - 105174
-    [SpellScript(105174)]
-	public class spell_warl_hand_of_guldan : SpellScript, ISpellOnHit
+	public void OnHit()
 	{
-		public void OnHit()
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			var caster = GetCaster();
+			var target = HitUnit;
 
-			if (caster != null)
+			if (target != null)
 			{
-				var target = GetHitUnit();
+				var nrofsummons = 1;
+				nrofsummons += caster.GetPower(PowerType.SoulShards);
 
-				if (target != null)
+				if (nrofsummons > 4)
+					nrofsummons = 4;
+
+				sbyte[] offsetX =
 				{
-					var nrofsummons = 1;
-					nrofsummons += caster.GetPower(PowerType.SoulShards);
+					0, 0, 1, 1
+				};
 
-					if (nrofsummons > 4)
-						nrofsummons = 4;
+				sbyte[] offsetY =
+				{
+					0, 1, 0, 1
+				};
 
-					sbyte[] offsetX =
-					{
-						0, 0, 1, 1
-					};
+				for (var i = 0; i < nrofsummons; i++)
+					caster.CastSpell(new Position(target.Location.X + offsetX[i], target.Location.Y + offsetY[i], target.Location.Z), 104317, true);
 
-					sbyte[] offsetY =
-					{
-						0, 1, 0, 1
-					};
-
-					for (var i = 0; i < nrofsummons; i++)
-						caster.CastSpell(new Position(target.Location.X + offsetX[i], target.Location.Y + offsetY[i], target.Location.Z), 104317, true);
-
-					caster.CastSpell(target, WarlockSpells.HAND_OF_GULDAN_DAMAGE, true);
-				}
+				caster.CastSpell(target, WarlockSpells.HAND_OF_GULDAN_DAMAGE, true);
 			}
 		}
 	}

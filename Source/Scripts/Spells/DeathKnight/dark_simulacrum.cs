@@ -12,9 +12,9 @@ public class dark_simulacrum : AuraScript, IAuraOnProc
 {
 	public void OnProc(ProcEventInfo info)
 	{
-		var spellInfo = info.GetSpellInfo();
-		var player    = GetCaster().ToPlayer();
-		var target    = GetTarget();
+		var spellInfo = info.SpellInfo;
+		var player = Caster.ToPlayer();
+		var target = Target;
 
 		if (spellInfo != null && player != null && target != null && target.IsValidAttackTarget(player, spellInfo))
 			player.CastSpell(target, spellInfo.Id, true);

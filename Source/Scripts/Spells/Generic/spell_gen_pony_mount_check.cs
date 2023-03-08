@@ -21,7 +21,7 @@ internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (!caster)
 			return;
@@ -29,7 +29,7 @@ internal class spell_gen_pony_mount_check : AuraScript, IHasAuraEffects
 		var owner = caster.GetOwner().ToPlayer();
 
 		if (!owner ||
-		    !owner.HasAchieved(GenericSpellIds.AchievementPonyup))
+			!owner.HasAchieved(GenericSpellIds.AchievementPonyup))
 			return;
 
 		if (owner.IsMounted())

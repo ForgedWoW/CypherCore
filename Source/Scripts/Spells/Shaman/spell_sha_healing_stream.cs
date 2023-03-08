@@ -6,35 +6,34 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+[SpellScript(52042)]
+public class spell_sha_healing_stream : SpellScript, ISpellOnHit
 {
-    [SpellScript(52042)]
-	public class spell_sha_healing_stream : SpellScript, ISpellOnHit
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public override bool Validate(SpellInfo UnnamedParameter)
+		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.HEALING_STREAM, Difficulty.None) != null)
+			return false;
+
+		return true;
+	}
+
+	public void OnHit()
+	{
+		if (!Caster.GetOwner())
+			return;
+
+		var _player = Caster.GetOwner().ToPlayer();
+
+		if (_player != null)
 		{
-			if (Global.SpellMgr.GetSpellInfo(ShamanSpells.HEALING_STREAM, Difficulty.None) != null)
-				return false;
+			var target = HitUnit;
 
-			return true;
-		}
-
-		public void OnHit()
-		{
-			if (!GetCaster().GetOwner())
-				return;
-
-			var _player = GetCaster().GetOwner().ToPlayer();
-
-			if (_player != null)
-			{
-				var target = GetHitUnit();
-
-				if (target != null)
-					// Glyph of Healing Stream Totem
-					if (target.GetGUID() != _player.GetGUID() && _player.HasAura(ShamanSpells.GLYPH_OF_HEALING_STREAM_TOTEM))
-						_player.CastSpell(target, ShamanSpells.GLYPH_OF_HEALING_STREAM, true);
-			}
+			if (target != null)
+				// Glyph of Healing Stream Totem
+				if (target.GetGUID() != _player.GetGUID() && _player.HasAura(ShamanSpells.GLYPH_OF_HEALING_STREAM_TOTEM))
+					_player.CastSpell(target, ShamanSpells.GLYPH_OF_HEALING_STREAM, true);
 		}
 	}
 }

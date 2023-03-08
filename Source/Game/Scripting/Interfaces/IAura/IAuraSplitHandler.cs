@@ -6,25 +6,24 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraSplitHandler : IAuraEffectHandler
 {
-    public interface IAuraSplitHandler : IAuraEffectHandler
-    {
-        double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount);
-    }
+	double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount);
+}
 
-    public class AuraEffectSplitHandler : AuraEffectHandler, IAuraSplitHandler
-    {
-        private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
+public class AuraEffectSplitHandler : AuraEffectHandler, IAuraSplitHandler
+{
+	private readonly Func<AuraEffect, DamageInfo, double, double> _fn;
 
-        public AuraEffectSplitHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex) : base(effectIndex, AuraType.SplitDamagePct, AuraScriptHookType.EffectSplit)
-        {
-            _fn = fn;
-        }
+	public AuraEffectSplitHandler(Func<AuraEffect, DamageInfo, double, double> fn, int effectIndex) : base(effectIndex, AuraType.SplitDamagePct, AuraScriptHookType.EffectSplit)
+	{
+		_fn = fn;
+	}
 
-        public double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount)
-        {
-            return _fn(aura, damageInfo, splitAmount);
-        }
-    }
+	public double Split(AuraEffect aura, DamageInfo damageInfo, double splitAmount)
+	{
+		return _fn(aura, damageInfo, splitAmount);
+	}
 }

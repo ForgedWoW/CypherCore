@@ -33,6 +33,6 @@ internal class spell_sha_tidal_waves : AuraScript, IHasAuraEffects
 		args.AddSpellMod(SpellValueMod.BasePoint0, -aurEff.Amount);
 		args.AddSpellMod(SpellValueMod.BasePoint1, aurEff.Amount);
 
-		GetTarget().CastSpell(GetTarget(), ShamanSpells.TidalWaves, args);
+		Target.CastSpell(Target, ShamanSpells.TidalWaves, args);
 	}
 }

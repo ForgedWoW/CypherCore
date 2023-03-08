@@ -27,18 +27,18 @@ internal class spell_rog_backstab_SpellScript : SpellScript, IHasSpellEffects
 
 	private void HandleHitDamage(int effIndex)
 	{
-		var hitUnit = GetHitUnit();
+		var hitUnit = HitUnit;
 
 		if (!hitUnit)
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (hitUnit.IsInBack(caster))
 		{
-			var currDamage = (double)GetHitDamage();
+			var currDamage = (double)HitDamage;
 			MathFunctions.AddPct(ref currDamage, (double)GetEffectInfo(3).CalcValue(caster));
-			SetHitDamage((int)currDamage);
+			HitDamage = (int)currDamage;
 		}
 	}
 }

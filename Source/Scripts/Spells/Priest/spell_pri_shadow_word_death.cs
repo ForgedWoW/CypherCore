@@ -14,21 +14,21 @@ public class spell_pri_shadow_word_death : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleDamage(int effIndex)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-		{
-			if (target.GetHealth() < GetHitDamage())
-				GetCaster().CastSpell(GetCaster(), PriestSpells.SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
-			else
-				GetCaster().ModifyPower(PowerType.Insanity, GetSpellInfo().GetEffect(2).BasePoints);
-		}
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleDamage(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+		{
+			if (target.GetHealth() < HitDamage)
+				Caster.CastSpell(Caster, PriestSpells.SHADOW_WORD_DEATH_ENERGIZE_KILL, true);
+			else
+				Caster.ModifyPower(PowerType.Insanity, SpellInfo.GetEffect(2).BasePoints);
+		}
 	}
 }

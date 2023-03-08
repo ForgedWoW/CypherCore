@@ -37,12 +37,12 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
 
 		foreach (var spellId in Spells)
 		{
-			var aura = GetCaster().GetAura(spellId);
+			var aura = Caster.GetAura(spellId);
 
 			if (aura != null)
 			{
 				currentDuration = aura.Duration;
-				GetCaster().RemoveAura(aura);
+				Caster.RemoveAura(aura);
 			}
 		}
 
@@ -52,7 +52,7 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
 		// 1 Roll the Bones buff  : 100.0 % chance;
 		// 2 Roll the Bones buffs : 19 % chance;
 		// 5 Roll the Bones buffs : 1 % chance.
-		var chance   = RandomHelper.IRand(1, 100);
+		var chance = RandomHelper.IRand(1, 100);
 		var numBuffs = 1;
 
 		if (chance <= 1)
@@ -62,10 +62,10 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
 
 		for (var i = 0; i < numBuffs; ++i)
 		{
-			var                spellId = possibleBuffs[i];
-			CastSpellExtraArgs args    = new(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.Duration, GetSpellInfo().GetDuration() + currentDuration);
-			GetCaster().CastSpell(GetCaster(), spellId, args);
+			var spellId = possibleBuffs[i];
+			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+			args.AddSpellMod(SpellValueMod.Duration, SpellInfo.Duration + currentDuration);
+			Caster.CastSpell(Caster, spellId, args);
 		}
 	}
 }

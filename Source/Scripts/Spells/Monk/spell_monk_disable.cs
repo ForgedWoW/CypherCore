@@ -20,17 +20,17 @@ public class spell_monk_disable : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(MonkSpells.DISABLE, MonkSpells.DISABLE_ROOT);
 	}
 
-	private void OnHitTarget(int effIndex)
-	{
-		var target = GetExplTargetUnit();
-
-		if (target != null)
-			if (target.HasAuraType(AuraType.ModDecreaseSpeed))
-				GetCaster().CastSpell(target, MonkSpells.DISABLE_ROOT, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(OnHitTarget, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void OnHitTarget(int effIndex)
+	{
+		var target = ExplTargetUnit;
+
+		if (target != null)
+			if (target.HasAuraType(AuraType.ModDecreaseSpeed))
+				Caster.CastSpell(target, MonkSpells.DISABLE_ROOT, true);
 	}
 }

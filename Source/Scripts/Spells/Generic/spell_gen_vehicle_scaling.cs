@@ -17,7 +17,7 @@ internal class spell_gen_vehicle_scaling : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetCaster() && GetCaster().IsTypeId(TypeId.Player);
+		return Caster && Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -29,20 +29,20 @@ internal class spell_gen_vehicle_scaling : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var    caster = GetCaster();
-		double  factor;
+		var caster = Caster;
+		double factor;
 		ushort baseItemLevel;
 
 		// @todo Reserach coeffs for different vehicles
-		switch (GetId())
+		switch (Id)
 		{
 			case GenericSpellIds.GearScaling:
-				factor        = 1.0f;
+				factor = 1.0f;
 				baseItemLevel = 205;
 
 				break;
 			default:
-				factor        = 1.0f;
+				factor = 1.0f;
 				baseItemLevel = 170;
 
 				break;

@@ -14,7 +14,7 @@ internal class spell_mage_burning_determination : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		if (spellInfo != null)
 			if (spellInfo.GetAllEffectsMechanicMask().HasAnyFlag(((1u << (int)Mechanics.Interrupt) | (1 << (int)Mechanics.Silence))))

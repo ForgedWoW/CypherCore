@@ -15,14 +15,19 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void HandleScript(int effIndex)
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 			{
@@ -39,7 +44,7 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 					if (!_player.IsValidAttackTarget(itr))
 						continue;
 
-					if (itr.IsImmunedToSpell(GetSpellInfo(), GetCaster()))
+					if (itr.IsImmunedToSpell(SpellInfo, Caster))
 						continue;
 
 					if (!itr.IsWithinLOSInMap(_player))
@@ -55,10 +60,5 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 				}
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 }

@@ -19,8 +19,8 @@ internal class spell_item_crystal_spire_of_karabor : AuraScript, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var pct      = GetSpellInfo().GetEffect(0).CalcValue();
-		var healInfo = eventInfo.GetHealInfo();
+		var pct = SpellInfo.GetEffect(0).CalcValue();
+		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo != null)
 		{

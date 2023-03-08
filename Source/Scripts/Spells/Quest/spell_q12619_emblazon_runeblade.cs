@@ -21,6 +21,6 @@ internal class spell_q12619_emblazon_runeblade : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), (uint)GetEffectValue(), false);
+		Caster.CastSpell(Caster, (uint)EffectValue, false);
 	}
 }

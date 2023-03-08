@@ -14,14 +14,14 @@ public class spell_pri_mind_blast : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleOnHit(int effIndex)
-	{
-		if (GetCaster().HasAura(PriestSpells.SHADOWY_INSIGHTS))
-			GetCaster().RemoveAura(PriestSpells.SHADOWY_INSIGHTS);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleOnHit(int effIndex)
+	{
+		if (Caster.HasAura(PriestSpells.SHADOWY_INSIGHTS))
+			Caster.RemoveAura(PriestSpells.SHADOWY_INSIGHTS);
 	}
 }

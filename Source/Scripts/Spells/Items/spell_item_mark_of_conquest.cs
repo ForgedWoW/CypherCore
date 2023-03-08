@@ -27,12 +27,14 @@ internal class spell_item_mark_of_conquest : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.DealRangedAttack | ProcFlags.DealRangedAbility))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealRangedAttack | ProcFlags.DealRangedAbility))
 		{
 			// in that case, do not cast heal spell
 			PreventDefaultAction();
+
 			// but mana instead
-			eventInfo.GetActor().CastSpell((Unit)null, ItemSpellIds.MarkOfConquestEnergize, new CastSpellExtraArgs(aurEff));
+			eventInfo. // but mana instead
+				Actor.CastSpell((Unit)null, ItemSpellIds.MarkOfConquestEnergize, new CastSpellExtraArgs(aurEff));
 		}
 	}
 }

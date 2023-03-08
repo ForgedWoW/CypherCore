@@ -171,7 +171,7 @@ public class Pet : Guardian
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.GetMap().GetDifficultyID());
 
-		var isTemporarySummon = spellInfo != null && spellInfo.GetDuration() > 0;
+		var isTemporarySummon = spellInfo != null && spellInfo.Duration > 0;
 
 		if (current && isTemporarySummon)
 			return false;
@@ -909,7 +909,7 @@ public class Pet : Guardian
 
 	public void ToggleAutocast(SpellInfo spellInfo, bool apply)
 	{
-		if (!spellInfo.IsAutocastable())
+		if (!spellInfo.IsAutocastable)
 			return;
 
 		var petSpell = Spells.LookupByKey(spellInfo.Id);
@@ -1493,7 +1493,7 @@ public class Pet : Guardian
 
 		if (active == ActiveStates.Decide) // active was not used before, so we save it's autocast/passive state here
 		{
-			if (spellInfo.IsAutocastable())
+			if (spellInfo.IsAutocastable)
 				newspell.Active = ActiveStates.Disabled;
 			else
 				newspell.Active = ActiveStates.Passive;
@@ -1504,7 +1504,7 @@ public class Pet : Guardian
 		}
 
 		// talent: unlearn all other talent ranks (high and low)
-		if (spellInfo.IsRanked())
+		if (spellInfo.IsRanked)
 			foreach (var pair in Spells)
 			{
 				if (pair.Value.State == PetSpellState.Removed)
@@ -1539,7 +1539,7 @@ public class Pet : Guardian
 
 		Spells[spellId] = newspell;
 
-		if (spellInfo.IsPassive() && (spellInfo.CasterAuraState == 0 || HasAuraState(spellInfo.CasterAuraState)))
+		if (spellInfo.IsPassive && (spellInfo.CasterAuraState == 0 || HasAuraState(spellInfo.CasterAuraState)))
 			CastSpell(this, spellId, true);
 		else
 			GetCharmInfo().AddSpellToActionBar(spellInfo);

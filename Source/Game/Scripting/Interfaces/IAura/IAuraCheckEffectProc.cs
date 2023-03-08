@@ -6,25 +6,24 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraCheckEffectProc : IAuraEffectHandler
 {
-    public interface IAuraCheckEffectProc : IAuraEffectHandler
-    {
-        bool CheckProc(AuraEffect aura, ProcEventInfo info);
-    }
+	bool CheckProc(AuraEffect aura, ProcEventInfo info);
+}
 
-    public class AuraCheckEffectProcHandler : AuraEffectHandler, IAuraCheckEffectProc
-    {
-        private readonly Func<AuraEffect, ProcEventInfo, bool> _fn;
+public class AuraCheckEffectProcHandler : AuraEffectHandler, IAuraCheckEffectProc
+{
+	private readonly Func<AuraEffect, ProcEventInfo, bool> _fn;
 
-        public AuraCheckEffectProcHandler(Func<AuraEffect, ProcEventInfo, bool> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.CheckEffectProc)
-        {
-            _fn = fn;
-        }
+	public AuraCheckEffectProcHandler(Func<AuraEffect, ProcEventInfo, bool> fn, int effectIndex, AuraType auraType) : base(effectIndex, auraType, AuraScriptHookType.CheckEffectProc)
+	{
+		_fn = fn;
+	}
 
-        public bool CheckProc(AuraEffect aura, ProcEventInfo info)
-        {
-            return _fn(aura, info);
-        }
-    }
+	public bool CheckProc(AuraEffect aura, ProcEventInfo info)
+	{
+		return _fn(aura, info);
+	}
 }

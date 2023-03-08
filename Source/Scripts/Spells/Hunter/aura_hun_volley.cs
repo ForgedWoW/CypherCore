@@ -13,20 +13,20 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(194386)]
 public class aura_hun_volley : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
-		return GetTarget().GetPower(PowerType.Focus) >= GetSpellInfo().GetEffect(0).BasePoints;
-	}
-
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		GetTarget().ModifyPower(PowerType.Focus, -GetSpellInfo().GetEffect(0).BasePoints);
+		return Target.GetPower(PowerType.Focus) >= SpellInfo.GetEffect(0).BasePoints;
 	}
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		Target.ModifyPower(PowerType.Focus, -SpellInfo.GetEffect(0).BasePoints);
 	}
 }

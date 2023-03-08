@@ -5,26 +5,25 @@ using System;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellObjectTargetSelectHandler : ITargetHookHandler
 {
-    public interface ISpellObjectTargetSelectHandler : ITargetHookHandler
-    {
-        void TargetSelect(WorldObject targets);
-    }
+	void TargetSelect(WorldObject targets);
+}
 
-    public class ObjectTargetSelectHandler : TargetHookHandler, ISpellObjectTargetSelectHandler
-    {
-        private readonly Action<WorldObject> _func;
+public class ObjectTargetSelectHandler : TargetHookHandler, ISpellObjectTargetSelectHandler
+{
+	private readonly Action<WorldObject> _func;
 
 
-        public ObjectTargetSelectHandler(Action<WorldObject> func, int effectIndex, Targets targetType, SpellScriptHookType hookType = SpellScriptHookType.ObjectTargetSelect) : base(effectIndex, targetType, false, hookType)
-        {
-            _func = func;
-        }
+	public ObjectTargetSelectHandler(Action<WorldObject> func, int effectIndex, Targets targetType, SpellScriptHookType hookType = SpellScriptHookType.ObjectTargetSelect) : base(effectIndex, targetType, false, hookType)
+	{
+		_func = func;
+	}
 
-        public void TargetSelect(WorldObject targets)
-        {
-            _func(targets);
-        }
-    }
+	public void TargetSelect(WorldObject targets)
+	{
+		_func(targets);
+	}
 }

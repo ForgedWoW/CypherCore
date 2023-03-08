@@ -21,27 +21,9 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 		return ValidateSpellInfo(PriestSpells.SMITE_ABSORB);
 	}
 
-	private void HandleHit(int effIndex)
-	{
-		var caster = GetCaster().ToPlayer();
-		var target = GetHitUnit();
-
-		if (caster == null || target == null)
-			return;
-
-		if (!caster.ToPlayer())
-			return;
-
-		var dmg = GetHitDamage();
-
-		if (caster.HasAura(PriestSpells.HOLY_WORDS) || caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
-			if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
-				caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
-	}
-
 	public void AfterCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster == null)
 			return;
@@ -54,5 +36,23 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster.ToPlayer();
+		var target = HitUnit;
+
+		if (caster == null || target == null)
+			return;
+
+		if (!caster.ToPlayer())
+			return;
+
+		var dmg = HitDamage;
+
+		if (caster.HasAura(PriestSpells.HOLY_WORDS) || caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)
+			if (caster.GetSpellHistory().HasCooldown(PriestSpells.HOLY_WORD_CHASTISE))
+				caster.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORD_CHASTISE, TimeSpan.FromSeconds(-4 * Time.InMilliseconds));
 	}
 }

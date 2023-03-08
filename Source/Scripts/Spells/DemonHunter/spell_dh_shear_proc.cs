@@ -13,21 +13,26 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(203783)]
 public class spell_dh_shear_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || eventInfo.GetSpellInfo() != null)
+		if (caster == null || eventInfo.SpellInfo != null)
 			return;
 
 		double procChance = 100f;
 
-		if (eventInfo.GetSpellInfo().Id == DemonHunterSpells.SHEAR)
+		if (eventInfo.SpellInfo.Id == DemonHunterSpells.SHEAR)
 		{
-			procChance =  15;
+			procChance = 15;
 			procChance += caster.GetAuraEffectAmount(ShatteredSoulsSpells.SHATTER_THE_SOULS, 0);
 		}
 
@@ -39,10 +44,5 @@ public class spell_dh_shear_proc : AuraScript, IHasAuraEffects
 		if (caster.GetSpellHistory().HasCooldown(DemonHunterSpells.FELBLADE))
 			if (RandomHelper.randChance(caster.GetAuraEffectAmount(DemonHunterSpells.SHEAR_PROC, 3)))
 				caster.GetSpellHistory().ResetCooldown(DemonHunterSpells.FELBLADE);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 }

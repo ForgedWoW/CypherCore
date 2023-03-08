@@ -8,27 +8,26 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 106839 - Skull Bash
+internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
 {
-    [Script] // 106839 - Skull Bash
-	internal class spell_dru_skull_bash : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.SkullBashCharge, DruidSpellIds.SkullBashInterrupt);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(DruidSpellIds.SkullBashCharge, DruidSpellIds.SkullBashInterrupt);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private void HandleDummy(int effIndex)
-		{
-			GetCaster().CastSpell(GetHitUnit(), DruidSpellIds.SkullBashCharge, true);
-			GetCaster().CastSpell(GetHitUnit(), DruidSpellIds.SkullBashInterrupt, true);
-		}
+	private void HandleDummy(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashCharge, true);
+		Caster.CastSpell(HitUnit, DruidSpellIds.SkullBashInterrupt, true);
 	}
 }

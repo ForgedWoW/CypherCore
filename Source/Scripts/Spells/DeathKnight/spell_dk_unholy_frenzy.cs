@@ -13,35 +13,35 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(207289)]
 public class spell_dk_unholy_frenzy : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.MeleeSlow, AuraEffectHandleModes.Real));
+	}
 
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget();
-		var caster = GetCaster();
+		var target = Target;
+		var caster = Caster;
 
 		if (target == null || caster == null)
 			return;
 
 		caster.Events.AddRepeatEventAtOffset(() =>
-		                                       {
-			                                       if (target == null || caster == null)
-				                                       return default;
+											{
+												if (target == null || caster == null)
+													return default;
 
-			                                       if (target.HasAura(156004))
-				                                       caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND_DAMAGE, true);
+												if (target.HasAura(156004))
+													caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND_DAMAGE, true);
 
-			                                       if (caster.HasAura(156004))
-				                                       return TimeSpan.FromSeconds(2);
+												if (caster.HasAura(156004))
+													return TimeSpan.FromSeconds(2);
 
-			                                       return default;
-		                                       },
-		                                       TimeSpan.FromMilliseconds(100));
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.MeleeSlow, AuraEffectHandleModes.Real));
+												return default;
+											},
+											TimeSpan.FromMilliseconds(100));
 	}
 }

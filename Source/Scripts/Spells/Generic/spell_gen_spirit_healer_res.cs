@@ -17,7 +17,7 @@ internal class spell_gen_spirit_healer_res : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetOriginalCaster() && GetOriginalCaster().IsTypeId(TypeId.Player);
+		return OriginalCaster && OriginalCaster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -27,15 +27,15 @@ internal class spell_gen_spirit_healer_res : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var originalCaster = GetOriginalCaster().ToPlayer();
-		var target         = GetHitUnit();
+		var originalCaster = OriginalCaster.ToPlayer();
+		var target = HitUnit;
 
 		if (target)
 		{
 			NPCInteractionOpenResult spiritHealerConfirm = new();
-			spiritHealerConfirm.Npc             = target.GetGUID();
+			spiritHealerConfirm.Npc = target.GetGUID();
 			spiritHealerConfirm.InteractionType = PlayerInteractionType.SpiritHealer;
-			spiritHealerConfirm.Success         = true;
+			spiritHealerConfirm.Success = true;
 			originalCaster.SendPacket(spiritHealerConfirm);
 		}
 	}

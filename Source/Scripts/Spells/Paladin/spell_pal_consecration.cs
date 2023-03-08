@@ -3,35 +3,35 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(26573)] // 26573 - Consecration
+internal class spell_pal_consecration : AuraScript, IHasAuraEffects
 {
-    [SpellScript(26573)] // 26573 - Consecration
-    internal class spell_pal_consecration : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.CONSECRATION_DAMAGE, PaladinSpells.ConsecrationProtectionAura,
-                PaladinSpells.ConsecratedGroundPassive, PaladinSpells.ConsecratedGroundSlow);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.CONSECRATION_DAMAGE,
+								PaladinSpells.ConsecrationProtectionAura,
+								PaladinSpells.ConsecratedGroundPassive,
+								PaladinSpells.ConsecratedGroundSlow);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+	}
 
-        private void HandleEffectPeriodic(AuraEffect aurEff)
-        {
-            AreaTrigger at = GetTarget().GetAreaTrigger(PaladinSpells.CONSECRATION);
+	private void HandleEffectPeriodic(AuraEffect aurEff)
+	{
+		var at = Target.GetAreaTrigger(PaladinSpells.CONSECRATION);
 
-            if (at != null)
-                GetTarget().CastSpell(at.Location, PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
-        }
-    }
+		if (at != null)
+			Target.CastSpell(at.Location, PaladinSpells.CONSECRATION_DAMAGE, new CastSpellExtraArgs());
+	}
 }

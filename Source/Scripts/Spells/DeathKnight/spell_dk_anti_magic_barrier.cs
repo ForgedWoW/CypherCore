@@ -13,7 +13,7 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(205725)]
 public class spell_dk_anti_magic_barrier : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -23,16 +23,16 @@ public class spell_dk_anti_magic_barrier : AuraScript, IHasAuraEffects
 		return true;
 	}
 
-	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter)
-	{
-		var caster = GetCaster();
-
-		if (caster != null)
-			amount.Value = ((caster.GetMaxHealth() * 25.0f) / 100.0f);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.ModIncreaseHealth2));
+	}
+
+	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter)
+	{
+		var caster = Caster;
+
+		if (caster != null)
+			amount.Value = ((caster.GetMaxHealth() * 25.0f) / 100.0f);
 	}
 }

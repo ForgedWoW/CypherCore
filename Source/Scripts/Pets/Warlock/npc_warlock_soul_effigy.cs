@@ -9,31 +9,29 @@ using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
 {
-    namespace Warlock
-    {
-        // 103679 - Soul Effigy
-        [CreatureScript(103679)]
-        public class npc_warlock_soul_effigy : CreatureAI
-        {
-            public npc_warlock_soul_effigy(Creature creature) : base(creature)
-            {
-                if (!me.TryGetOwner(out Player owner))
-                    return;
+	namespace Warlock
+	{
+		// 103679 - Soul Effigy
+		[CreatureScript(103679)]
+		public class npc_warlock_soul_effigy : CreatureAI
+		{
+			public npc_warlock_soul_effigy(Creature creature) : base(creature)
+			{
+				if (!me.TryGetOwner(out Player owner))
+					return;
 
-                creature.SetLevel(owner.GetLevel());
-                creature.UpdateLevelDependantStats();
-                creature.SetReactState(ReactStates.Aggressive);
-            }
+				creature.SetLevel(owner.GetLevel());
+				creature.UpdateLevelDependantStats();
+				creature.SetReactState(ReactStates.Aggressive);
+			}
 
-            public override void Reset()
-            {
-                me.SetControlled(true, UnitState.Root);
-                me.CastSpell(me, WarlockSpells.SOUL_EFFIGY_AURA, true);
-            }
+			public override void Reset()
+			{
+				me.SetControlled(true, UnitState.Root);
+				me.CastSpell(me, WarlockSpells.SOUL_EFFIGY_AURA, true);
+			}
 
-            public override void UpdateAI(uint UnnamedParameter)
-            {
-            }
-        }
-    }
+			public override void UpdateAI(uint UnnamedParameter) { }
+		}
+	}
 }

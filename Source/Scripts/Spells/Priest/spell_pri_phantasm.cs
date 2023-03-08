@@ -13,21 +13,21 @@ namespace Scripts.Spells.Priest;
 [SpellScript(47569)]
 public class spell_pri_phantasm : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
 		return RandomHelper.randChance(GetEffect(0).Amount);
 	}
 
-	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		PreventDefaultAction();
-		GetTarget().RemoveMovementImpairingAuras(false);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleEffectProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		PreventDefaultAction();
+		Target.RemoveMovementImpairingAuras(false);
 	}
 }

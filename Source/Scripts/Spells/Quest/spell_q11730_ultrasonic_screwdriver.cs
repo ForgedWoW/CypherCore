@@ -17,17 +17,17 @@ internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffec
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player) && GetCastItem();
+		return Caster.IsTypeId(TypeId.Player) && CastItem;
 	}
 
 	public override bool Validate(SpellInfo spellEntry)
 	{
 		return ValidateSpellInfo(QuestSpellIds.SummonScavengebot004a8,
-		                         QuestSpellIds.SummonSentrybot57k,
-		                         QuestSpellIds.SummonDefendotank66d,
-		                         QuestSpellIds.SummonScavengebot005b6,
-		                         QuestSpellIds.Summon55dCollectatron,
-		                         QuestSpellIds.RobotKillCredit);
+								QuestSpellIds.SummonSentrybot57k,
+								QuestSpellIds.SummonDefendotank66d,
+								QuestSpellIds.SummonScavengebot005b6,
+								QuestSpellIds.Summon55dCollectatron,
+								QuestSpellIds.RobotKillCredit);
 	}
 
 	public override void Register()
@@ -37,10 +37,10 @@ internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffec
 
 	private void HandleDummy(int effIndex)
 	{
-		var castItem = GetCastItem();
-		var caster   = GetCaster();
+		var castItem = CastItem;
+		var caster = Caster;
 
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target)
 		{

@@ -18,7 +18,7 @@ internal class spell_mage_living_bomb_explosion : SpellScript, IHasSpellEffects
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
-		return spellInfo.NeedsExplicitUnitTarget() && ValidateSpellInfo(MageSpells.LivingBombPeriodic);
+		return spellInfo.NeedsExplicitUnitTarget && ValidateSpellInfo(MageSpells.LivingBombPeriodic);
 	}
 
 	public override void Register()
@@ -29,12 +29,12 @@ internal class spell_mage_living_bomb_explosion : SpellScript, IHasSpellEffects
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.Remove(GetExplTargetWorldObject());
+		targets.Remove(ExplTargetWorldObject);
 	}
 
 	private void HandleSpread(int effIndex)
 	{
-		if (GetSpellValue().EffectBasePoints[0] > 0)
-			GetCaster().CastSpell(GetHitUnit(), MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 0));
+		if (SpellValue.EffectBasePoints[0] > 0)
+			Caster.CastSpell(HitUnit, MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 0));
 	}
 }

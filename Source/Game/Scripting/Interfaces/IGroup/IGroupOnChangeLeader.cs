@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Groups;
 
-namespace Game.Scripting.Interfaces.IGroup
+namespace Game.Scripting.Interfaces.IGroup;
+
+public interface IGroupOnChangeLeader : IScriptObject
 {
-    public interface IGroupOnChangeLeader : IScriptObject
-    {
-        void OnChangeLeader(Group group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
-    }
+	void OnChangeLeader(Group group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
 }

@@ -27,8 +27,8 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 
 	private void HandleDummyTick(AuraEffect aurEff)
 	{
-		var target = GetTarget();
-		var caster = GetCaster();
+		var target = Target;
+		var caster = Caster;
 
 		caster?.CastSpell(target, HunterSpells.AMurderOfCrowsDamage, true);
 
@@ -40,11 +40,11 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 
 	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Death)
+		if (TargetApplication.RemoveMode == AuraRemoveMode.Death)
 		{
-			var caster = GetCaster();
+			var caster = Caster;
 
-			caster?.GetSpellHistory().ResetCooldown(GetId(), true);
+			caster?.GetSpellHistory().ResetCooldown(Id, true);
 		}
 	}
 }

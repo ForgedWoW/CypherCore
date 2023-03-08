@@ -20,14 +20,14 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 		if (_stackAmount < 5)
 			return;
 
-		var player = GetCaster().ToPlayer();
-		var target = GetHitUnit();
+		var player = Caster.ToPlayer();
+		var target = HitUnit;
 
 		if (target != null)
 		{
 			var item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-			if (item == GetCastItem())
+			if (item == CastItem)
 				item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
 			if (!item)
@@ -57,7 +57,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 
 					// Proc only rogue poisons
 					if (spellInfo.SpellFamilyName != SpellFamilyNames.Rogue ||
-					    spellInfo.Dispel != DispelType.Poison)
+						spellInfo.Dispel != DispelType.Poison)
 						continue;
 
 					// Do not reproc deadly
@@ -76,7 +76,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 	public override bool Load()
 	{
 		// at this point CastItem must already be initialized
-		return GetCaster().IsPlayer() && GetCastItem();
+		return Caster.IsPlayer() && CastItem;
 	}
 
 	public void BeforeHit(SpellMissInfo missInfo)
@@ -84,12 +84,12 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 		if (missInfo != SpellMissInfo.None)
 			return;
 
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
 			// Deadly Poison
-			var aurEff = target.GetAuraEffect(AuraType.PeriodicDummy, SpellFamilyNames.Rogue, new FlagArray128(0x10000, 0x80000, 0), GetCaster().GetGUID());
+			var aurEff = target.GetAuraEffect(AuraType.PeriodicDummy, SpellFamilyNames.Rogue, new FlagArray128(0x10000, 0x80000, 0), Caster.GetGUID());
 
 			if (aurEff != null)
 				_stackAmount = aurEff.Base.StackAmount;

@@ -16,18 +16,6 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private struct sspell
-	{
-		public const uint AnimalInstinctsReduction = 232646;
-		public const uint AspectoftheBeast = 191384;
-		public const uint BestialFerocity = 191413;
-		public const uint BestialTenacity = 191414;
-		public const uint BestialCunning = 191397;
-		public const uint SpikedCollar = 53184;
-		public const uint GreatStamina = 61688;
-		public const uint Cornered = 53497;
-	}
-
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		if (Global.SpellMgr.GetSpellInfo(HunterSpells.KILL_COMMAND, Difficulty.None) != null)
@@ -38,8 +26,8 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 
 	public SpellCastResult CheckCast()
 	{
-		Unit pet       = GetCaster().GetGuardianPet();
-		var  petTarget = GetExplTargetUnit();
+		Unit pet = Caster.GetGuardianPet();
+		var petTarget = ExplTargetUnit;
 
 		if (pet == null || pet.IsDead())
 			return SpellCastResult.NoPet;
@@ -54,54 +42,66 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 		return SpellCastResult.SpellCastOk;
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		if (GetCaster().IsPlayer())
+		if (Caster.IsPlayer())
 		{
-			Unit pet = GetCaster().GetGuardianPet();
+			Unit pet = Caster.GetGuardianPet();
 
 			if (pet != null)
 			{
 				if (!pet)
 					return;
 
-				if (!GetExplTargetUnit())
+				if (!ExplTargetUnit)
 					return;
 
-				var target = GetExplTargetUnit();
-				var player = GetCaster().ToPlayer();
+				var target = ExplTargetUnit;
+				var player = Caster.ToPlayer();
 
-				pet.CastSpell(GetExplTargetUnit(), HunterSpells.KILL_COMMAND_TRIGGER, true);
+				pet.CastSpell(ExplTargetUnit, HunterSpells.KILL_COMMAND_TRIGGER, true);
 
 				if (pet.GetVictim())
 				{
 					pet.AttackStop();
-					pet.ToCreature().GetAI().AttackStart(GetExplTargetUnit());
+					pet.ToCreature().GetAI().AttackStart(ExplTargetUnit);
 				}
 				else
 				{
-					pet.ToCreature().GetAI().AttackStart(GetExplTargetUnit());
+					pet.ToCreature().GetAI().AttackStart(ExplTargetUnit);
 				}
 				//pet->CastSpell(GetExplTargetUnit(), KILL_COMMAND_CHARGE, true);
 
 				//191384 Aspect of the Beast
-				if (GetCaster().HasAura(sspell.AspectoftheBeast))
+				if (Caster.HasAura(Sspell.AspectoftheBeast))
 				{
-					if (pet.HasAura(sspell.SpikedCollar))
-						player.CastSpell(target, sspell.BestialFerocity, true);
+					if (pet.HasAura(Sspell.SpikedCollar))
+						player.CastSpell(target, Sspell.BestialFerocity, true);
 
-					if (pet.HasAura(sspell.GreatStamina))
-						pet.CastSpell(pet, sspell.BestialTenacity, true);
+					if (pet.HasAura(Sspell.GreatStamina))
+						pet.CastSpell(pet, Sspell.BestialTenacity, true);
 
-					if (pet.HasAura(sspell.Cornered))
-						player.CastSpell(target, sspell.BestialCunning, true);
+					if (pet.HasAura(Sspell.Cornered))
+						player.CastSpell(target, Sspell.BestialCunning, true);
 				}
 			}
 		}
 	}
 
-	public override void Register()
+	private struct Sspell
 	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+		public const uint AnimalInstinctsReduction = 232646;
+		public const uint AspectoftheBeast = 191384;
+		public const uint BestialFerocity = 191413;
+		public const uint BestialTenacity = 191414;
+		public const uint BestialCunning = 191397;
+		public const uint SpikedCollar = 53184;
+		public const uint GreatStamina = 61688;
+		public const uint Cornered = 53497;
 	}
 }

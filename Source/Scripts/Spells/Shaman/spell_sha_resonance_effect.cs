@@ -7,28 +7,27 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//202192 - Resonance totem
+[SpellScript(202192)]
+public class spell_sha_resonance_effect : AuraScript, IHasAuraEffects
 {
-    //202192 - Resonance totem
-    [SpellScript(202192)]
-	public class spell_sha_resonance_effect : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
+	}
 
-		private void HandlePeriodic(AuraEffect UnnamedParameter)
-		{
-			var caster = GetCaster();
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			if (caster.GetOwner())
-				caster.GetOwner().ModifyPower(PowerType.Maelstrom, +1);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
-		}
+		if (caster.GetOwner())
+			caster.GetOwner().ModifyPower(PowerType.Maelstrom, +1);
 	}
 }

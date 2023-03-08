@@ -3,39 +3,34 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 205290 - Wake of Ashes
+[SpellScript(205290)]
+public class spell_pal_wake_of_ashes : SpellScript, IHasSpellEffects
 {
-    // 205290 - Wake of Ashes
-    [SpellScript(205290)]
-    public class spell_pal_wake_of_ashes : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        private void HandleDamages(int effIndex)
-        {
-            Creature target = GetHitCreature();
-            if (target != null)
-            {
-                CreatureTemplate creTemplate = target.GetCreatureTemplate();
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamages, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
 
-                if (creTemplate != null)
-			    {
-                    if (creTemplate.CreatureType == CreatureType.Demon || creTemplate.CreatureType == CreatureType.Undead)
-                    {
-                        GetCaster().CastSpell(target, PaladinSpells.WAKE_OF_ASHES_STUN, true);
-                    }
-                }
-            }
-        }
+	private void HandleDamages(int effIndex)
+	{
+		var target = HitCreature;
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleDamages, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-        }
-    }
+		if (target != null)
+		{
+			var creTemplate = target.GetCreatureTemplate();
+
+			if (creTemplate != null)
+				if (creTemplate.CreatureType == CreatureType.Demon || creTemplate.CreatureType == CreatureType.Undead)
+					Caster.CastSpell(target, PaladinSpells.WAKE_OF_ASHES_STUN, true);
+		}
+	}
 }

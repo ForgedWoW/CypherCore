@@ -13,16 +13,11 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_blizzard : AreaTriggerAI
 {
+	public int timeInterval;
+
 	public at_mage_blizzard(AreaTrigger areatrigger) : base(areatrigger)
 	{
 		timeInterval = 1000;
-	}
-
-	public int timeInterval;
-
-	public struct UsingSpells
-	{
-		public const uint BLIZZARD_DAMAGE = 190357;
 	}
 
 	public override void OnCreate()
@@ -55,5 +50,10 @@ public class at_mage_blizzard : AreaTriggerAI
 		}
 
 		timeInterval -= 1000;
+	}
+
+	public struct UsingSpells
+	{
+		public const uint BLIZZARD_DAMAGE = 190357;
 	}
 }

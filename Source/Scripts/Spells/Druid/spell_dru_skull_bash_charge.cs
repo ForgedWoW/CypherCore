@@ -14,19 +14,19 @@ public class spell_dru_skull_bash_charge : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleCharge(int effIndex)
-	{
-		if (!GetCaster())
-			return;
-
-		if (!GetHitUnit())
-			return;
-
-		GetCaster().CastSpell(GetHitUnit(), 93985, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleCharge, 0, SpellEffectName.Charge, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleCharge(int effIndex)
+	{
+		if (!Caster)
+			return;
+
+		if (!HitUnit)
+			return;
+
+		Caster.CastSpell(HitUnit, 93985, true);
 	}
 }

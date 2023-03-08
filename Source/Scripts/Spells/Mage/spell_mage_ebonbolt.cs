@@ -23,25 +23,25 @@ public class spell_mage_ebonbolt : SpellScript, IHasSpellEffects, ISpellOnCast
 
 	public void OnCast()
 	{
-		GetCaster().CastSpell(GetCaster(), MageSpells.BRAIN_FREEZE_AURA, true);
-	}
-
-	private void DoEffectHitTarget(int effIndex)
-	{
-		var explTarget = GetExplTargetUnit();
-		var hitUnit    = GetHitUnit();
-
-		if (hitUnit == null || explTarget == null)
-			return;
-
-		if (GetCaster().HasAura(MageSpells.SPLITTING_ICE))
-			GetCaster().VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GetGUID());
-
-		GetCaster().CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
+		Caster.CastSpell(Caster, MageSpells.BRAIN_FREEZE_AURA, true);
 	}
 
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void DoEffectHitTarget(int effIndex)
+	{
+		var explTarget = ExplTargetUnit;
+		var hitUnit = HitUnit;
+
+		if (hitUnit == null || explTarget == null)
+			return;
+
+		if (Caster.HasAura(MageSpells.SPLITTING_ICE))
+			Caster.VariableStorage.Set<ObjectGuid>("explTarget", explTarget.GetGUID());
+
+		Caster.CastSpell(hitUnit, MageSpells.EBONBOLT_DAMAGE, true);
 	}
 }

@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Maps;
 
-namespace Game.Scripting.Interfaces.IMap
+namespace Game.Scripting.Interfaces.IMap;
+
+public interface IMapOnPlayerLeave<T> : IScriptObject where T : Map
 {
-    public interface IMapOnPlayerLeave<T> : IScriptObject where T : Map
-    {
-        void OnPlayerLeave(T map, Player player);
-    }
+	void OnPlayerLeave(T map, Player player);
 }

@@ -13,22 +13,22 @@ public class spell_rog_kidney_shot_SpellScript : SpellScript, ISpellAfterHit, IS
 {
 	private int _cp = 0;
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		if (powerCost.Power == PowerType.ComboPoints)
-			_cp = powerCost.Amount + 1;
-	}
-
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
-			var aura = target.GetAura(RogueSpells.KIDNEY_SHOT, GetCaster().GetGUID());
+			var aura = target.GetAura(RogueSpells.KIDNEY_SHOT, Caster.GetGUID());
 
 			if (aura != null)
 				aura.SetDuration(_cp * Time.InMilliseconds);
 		}
+	}
+
+	public void TakePower(SpellPowerCost powerCost)
+	{
+		if (powerCost.Power == PowerType.ComboPoints)
+			_cp = powerCost.Amount + 1;
 	}
 }

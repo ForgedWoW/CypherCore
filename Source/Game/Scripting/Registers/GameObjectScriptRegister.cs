@@ -4,29 +4,28 @@
 using System;
 using Game.Scripting.Interfaces;
 
-namespace Game.Scripting.Registers
+namespace Game.Scripting.Registers;
+
+public class GameObjectScriptRegister : IScriptRegister
 {
-    public class GameObjectScriptRegister : IScriptRegister
-    {
-        public Type AttributeType => typeof(GameObjectScriptAttribute);
+	public Type AttributeType => typeof(GameObjectScriptAttribute);
 
-        public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-        {
-            if (attribute is GameObjectScriptAttribute gameObjectScript && gameObjectScript.GameObjectIds != null)
-                foreach (var id in gameObjectScript.GameObjectIds)
-                {
-                    var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);
+	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+	{
+		if (attribute is GameObjectScriptAttribute gameObjectScript && gameObjectScript.GameObjectIds != null)
+			foreach (var id in gameObjectScript.GameObjectIds)
+			{
+				var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);
 
-                    if (gameObject == null)
-                    {
-                        Log.outError(LogFilter.Scripts, $"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
-                        continue;
-                    }
+				if (gameObject == null)
+				{
+					Log.outError(LogFilter.Scripts, $"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
 
-                    if (gameObject.ScriptId == 0) // dont override database
-                        gameObject.ScriptId = Global.ObjectMgr.GetScriptId(scriptName);
-                }
-        }
+					continue;
+				}
 
-    }
+				if (gameObject.ScriptId == 0) // dont override database
+					gameObject.ScriptId = Global.ObjectMgr.GetScriptId(scriptName);
+			}
+	}
 }

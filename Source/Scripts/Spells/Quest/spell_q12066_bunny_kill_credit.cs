@@ -21,9 +21,9 @@ internal class spell_q12066_bunny_kill_credit : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitCreature();
+		var target = HitCreature;
 
 		if (target)
-			target.CastSpell(GetCaster(), QuestSpellIds.BunnyCreditBeam, false);
+			target.CastSpell(Caster, QuestSpellIds.BunnyCreditBeam, false);
 	}
 }

@@ -7,29 +7,28 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 33763 - Lifebloom
+internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
 {
-    [Script] // 33763 - Lifebloom
-	internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spell)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.LifebloomFinalHeal);
+	}
 
-		public override bool Validate(SpellInfo spell)
-		{
-			return ValidateSpellInfo(DruidSpellIds.LifebloomFinalHeal);
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-		}
-
-		private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
-		{
-			// Final heal only on duration end
-			if (GetTargetApplication().RemoveMode == AuraRemoveMode.Expire ||
-			    GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell)
-				GetCaster().CastSpell(GetUnitOwner(), DruidSpellIds.LifebloomFinalHeal, true);
-		}
+	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
+	{
+		// Final heal only on duration end
+		if (TargetApplication.RemoveMode == AuraRemoveMode.Expire ||
+			TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell)
+			Caster.CastSpell(UnitOwner, DruidSpellIds.LifebloomFinalHeal, true);
 	}
 }

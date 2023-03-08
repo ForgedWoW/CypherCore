@@ -8,13 +8,13 @@ using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
-[SpellScript(17)]  // 17 - Power Word: Shield
+[SpellScript(17)] // 17 - Power Word: Shield
 internal class spell_pri_power_word_shield : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target != null)
 			if (!caster.HasAura(PriestSpells.RAPTURE))
@@ -28,8 +28,8 @@ internal class spell_pri_power_word_shield : SpellScript, ISpellCheckCast, ISpel
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (target != null)
 			if (!caster.HasAura(PriestSpells.RAPTURE))

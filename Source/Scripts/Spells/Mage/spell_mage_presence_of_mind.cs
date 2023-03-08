@@ -12,7 +12,7 @@ public class spell_mage_presence_of_mind : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == MageSpells.ARCANE_BLAST)
+		if (eventInfo.SpellInfo.Id == MageSpells.ARCANE_BLAST)
 			return true;
 
 		return false;

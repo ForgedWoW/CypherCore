@@ -12,13 +12,13 @@ public class spell_pri_psychic_scream : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var target = eventInfo.GetActionTarget();
+		var target = eventInfo.ActionTarget;
 
 		if (target == null)
 			return false;
 
-		var dmg  = eventInfo.GetDamageInfo();
-		var fear = GetAura();
+		var dmg = eventInfo.DamageInfo;
+		var fear = Aura;
 
 		if (fear != null && dmg != null && dmg.GetDamage() > 0)
 			fear.SetDuration(0);

@@ -8,15 +8,15 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(new uint[]
-             {
-	             162794, 201427
-             })]
+{
+	162794, 201427
+})]
 public class spell_demon_hunter_chaos_strike : SpellScript, ISpellBeforeCast
 {
 	public void BeforeCast()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (caster == null || target == null)
 			return;

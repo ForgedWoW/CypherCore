@@ -18,11 +18,11 @@ internal class spell_hun_steady_shot : SpellScript, ISpellOnHit
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public void OnHit()
 	{
-		GetCaster().CastSpell(GetCaster(), HunterSpells.SteadyShotFocus, true);
+		Caster.CastSpell(Caster, HunterSpells.SteadyShotFocus, true);
 	}
 }

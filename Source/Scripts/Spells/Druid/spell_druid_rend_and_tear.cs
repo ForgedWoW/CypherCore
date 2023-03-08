@@ -14,17 +14,19 @@ namespace Scripts.Spells.Druid;
 [SpellScript(204053)]
 public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private struct Spells
-	{
-		public static readonly uint REND_AND_TEAR = 204053;
-		public static readonly uint TRASH_DOT = 192090;
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(Spells.REND_AND_TEAR, Spells.TRASH_DOT);
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+		AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 1, AuraType.AddFlatModifier));
+		AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 2, AuraType.AddFlatModifier));
 	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -34,7 +36,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var caster   = GetCaster();
+		var caster = Caster;
 		var attacker = dmgInfo.GetAttacker();
 		absorbAmount = 0;
 
@@ -46,7 +48,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 			var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GetGUID());
 
 			if (trashDOT != null)
-				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.StackAmount * GetSpellInfo().GetEffect(1).BasePoints);
+				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.StackAmount * SpellInfo.GetEffect(1).BasePoints);
 		}
 
 		return absorbAmount;
@@ -57,14 +59,12 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 		if (spellMod == null)
 			return;
 
-		((SpellModifierByClassMask)spellMod).Value = GetCaster().GetShapeshiftForm() == ShapeShiftForm.BearForm ? aurEff.Amount : 0;
+		((SpellModifierByClassMask)spellMod).Value = Caster.GetShapeshiftForm() == ShapeShiftForm.BearForm ? aurEff.Amount : 0;
 	}
 
-	public override void Register()
+	private struct Spells
 	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-		AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 1, AuraType.AddFlatModifier));
-		AuraEffects.Add(new AuraEffectCalcSpellModHandler(HandleEffectCalcSpellMod, 2, AuraType.AddFlatModifier));
+		public static readonly uint REND_AND_TEAR = 204053;
+		public static readonly uint TRASH_DOT = 192090;
 	}
 }

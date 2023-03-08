@@ -119,7 +119,7 @@ public class CharmInfo
 					if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
 						continue;
 
-					if (spellInfo.IsPassive())
+					if (spellInfo.IsPassive)
 						_unit.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
 					else
 						AddSpellToActionBar(spellInfo, ActiveStates.Passive, i % SharedConst.ActionBarIndexMax);
@@ -158,7 +158,7 @@ public class CharmInfo
 			if (spellInfo.HasAttribute(SpellAttr5.NotAvailableWhileCharmed))
 				continue;
 
-			if (spellInfo.IsPassive())
+			if (spellInfo.IsPassive)
 			{
 				_unit.CastSpell(_unit, spellInfo.Id, new CastSpellExtraArgs(true));
 				_charmspells[x].SetActionAndType(spellId, ActiveStates.Passive);
@@ -169,13 +169,13 @@ public class CharmInfo
 
 				ActiveStates newstate;
 
-				if (!spellInfo.IsAutocastable())
+				if (!spellInfo.IsAutocastable)
 				{
 					newstate = ActiveStates.Passive;
 				}
 				else
 				{
-					if (spellInfo.NeedsExplicitUnitTarget())
+					if (spellInfo.NeedsExplicitUnitTarget)
 					{
 						newstate = ActiveStates.Enabled;
 						ToggleCreatureAutocast(spellInfo, true);
@@ -217,7 +217,7 @@ public class CharmInfo
 
 			if (PetActionBar[j].GetAction() == 0 && PetActionBar[j].IsActionBarForSpell())
 			{
-				SetActionBar(j, spell_id, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable() ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
+				SetActionBar(j, spell_id, newstate == ActiveStates.Decide ? spellInfo.IsAutocastable ? ActiveStates.Disabled : ActiveStates.Passive : newstate);
 
 				return true;
 			}
@@ -248,7 +248,7 @@ public class CharmInfo
 
 	public void ToggleCreatureAutocast(SpellInfo spellInfo, bool apply)
 	{
-		if (spellInfo.IsPassive())
+		if (spellInfo.IsPassive)
 			return;
 
 		for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
@@ -291,7 +291,7 @@ public class CharmInfo
 
 				if (spelInfo == null)
 					SetActionBar(index, 0, ActiveStates.Passive);
-				else if (!spelInfo.IsAutocastable())
+				else if (!spelInfo.IsAutocastable)
 					SetActionBar(index, PetActionBar[index].GetAction(), ActiveStates.Passive);
 			}
 		}

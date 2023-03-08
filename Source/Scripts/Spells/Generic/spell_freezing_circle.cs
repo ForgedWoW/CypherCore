@@ -27,19 +27,19 @@ internal class spell_freezing_circle : SpellScript, IHasSpellEffects
 
 	private void HandleDamage(int effIndex)
 	{
-		var  caster  = GetCaster();
+		var caster = Caster;
 		uint spellId = 0;
-		var  map     = caster.GetMap();
+		var map = caster.GetMap();
 
 		if (map.IsDungeon())
 			spellId = map.IsHeroic() ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
 		else
 			spellId = map.GetId() == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetCastDifficulty());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 
 		if (spellInfo != null)
 			if (!spellInfo.Effects.Empty())
-				SetHitDamage(spellInfo.GetEffect(0).CalcValue());
+				HitDamage = spellInfo.GetEffect(0).CalcValue();
 	}
 }

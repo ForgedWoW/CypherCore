@@ -20,7 +20,7 @@ public class spell_rog_garrote_SpellScript : SpellScript, ISpellOnHit
 
 	public override bool Load()
 	{
-		if (GetCaster().HasAuraType(AuraType.ModStealth))
+		if (Caster.HasAuraType(AuraType.ModStealth))
 			_stealthed = true;
 
 		return true;
@@ -28,8 +28,8 @@ public class spell_rog_garrote_SpellScript : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (_stealthed)
 			caster.CastSpell(target, RogueSpells.GARROTE_SILENCE, true);

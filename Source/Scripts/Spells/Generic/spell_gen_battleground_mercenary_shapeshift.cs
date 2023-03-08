@@ -16,312 +16,312 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 	//using OtherFactionRacePriorityList = std::array<Races, 3>;
 
 	private static readonly Dictionary<Race, Race[]> RaceInfo = new()
-	                                                            {
-		                                                            {
-			                                                            Race.Human, new[]
-			                                                                        {
-				                                                                        Race.Undead, Race.BloodElf
-			                                                                        }
-		                                                            },
-		                                                            {
-			                                                            Race.Orc, new[]
-			                                                                      {
-				                                                                      Race.Dwarf
-			                                                                      }
-		                                                            },
-		                                                            {
-			                                                            Race.Dwarf, new[]
-			                                                                        {
-				                                                                        Race.Orc, Race.Undead, Race.Tauren
-			                                                                        }
-		                                                            },
-		                                                            {
-			                                                            Race.NightElf, new[]
-			                                                                           {
-				                                                                           Race.Troll, Race.BloodElf
-			                                                                           }
-		                                                            },
-		                                                            {
-			                                                            Race.Undead, new[]
-			                                                                         {
-				                                                                         Race.Human
-			                                                                         }
-		                                                            },
-		                                                            {
-			                                                            Race.Tauren, new[]
-			                                                                         {
-				                                                                         Race.Draenei, Race.NightElf
-			                                                                         }
-		                                                            },
-		                                                            {
-			                                                            Race.Gnome, new[]
-			                                                                        {
-				                                                                        Race.Goblin, Race.BloodElf
-			                                                                        }
-		                                                            },
-		                                                            {
-			                                                            Race.Troll, new[]
-			                                                                        {
-				                                                                        Race.NightElf, Race.Human, Race.Draenei
-			                                                                        }
-		                                                            },
-		                                                            {
-			                                                            Race.Goblin, new[]
-			                                                                         {
-				                                                                         Race.Gnome, Race.Dwarf
-			                                                                         }
-		                                                            },
-		                                                            {
-			                                                            Race.BloodElf, new[]
-			                                                                           {
-				                                                                           Race.Human, Race.NightElf
-			                                                                           }
-		                                                            },
-		                                                            {
-			                                                            Race.Draenei, new[]
-			                                                                          {
-				                                                                          Race.Tauren, Race.Orc
-			                                                                          }
-		                                                            },
-		                                                            {
-			                                                            Race.Worgen, new[]
-			                                                                         {
-				                                                                         Race.Troll
-			                                                                         }
-		                                                            },
-		                                                            {
-			                                                            Race.PandarenNeutral, new[]
-			                                                                                  {
-				                                                                                  Race.PandarenNeutral
-			                                                                                  }
-		                                                            },
-		                                                            {
-			                                                            Race.PandarenAlliance, new[]
-			                                                                                   {
-				                                                                                   Race.PandarenHorde, Race.PandarenNeutral
-			                                                                                   }
-		                                                            },
-		                                                            {
-			                                                            Race.PandarenHorde, new[]
-			                                                                                {
-				                                                                                Race.PandarenAlliance, Race.PandarenNeutral
-			                                                                                }
-		                                                            },
-		                                                            {
-			                                                            Race.Nightborne, new[]
-			                                                                             {
-				                                                                             Race.NightElf, Race.Human
-			                                                                             }
-		                                                            },
-		                                                            {
-			                                                            Race.HighmountainTauren, new[]
-			                                                                                     {
-				                                                                                     Race.Draenei, Race.NightElf
-			                                                                                     }
-		                                                            },
-		                                                            {
-			                                                            Race.VoidElf, new[]
-			                                                                          {
-				                                                                          Race.Troll, Race.BloodElf
-			                                                                          }
-		                                                            },
-		                                                            {
-			                                                            Race.LightforgedDraenei, new[]
-			                                                                                     {
-				                                                                                     Race.Tauren, Race.Orc
-			                                                                                     }
-		                                                            },
-		                                                            {
-			                                                            Race.ZandalariTroll, new[]
-			                                                                                 {
-				                                                                                 Race.KulTiran, Race.Human
-			                                                                                 }
-		                                                            },
-		                                                            {
-			                                                            Race.KulTiran, new[]
-			                                                                           {
-				                                                                           Race.ZandalariTroll
-			                                                                           }
-		                                                            },
-		                                                            {
-			                                                            Race.DarkIronDwarf, new[]
-			                                                                                {
-				                                                                                Race.MagharOrc, Race.Orc
-			                                                                                }
-		                                                            },
-		                                                            {
-			                                                            Race.Vulpera, new[]
-			                                                                          {
-				                                                                          Race.MechaGnome, Race.DarkIronDwarf /*Guessed, For Shamans*/
-			                                                                          }
-		                                                            },
-		                                                            {
-			                                                            Race.MagharOrc, new[]
-			                                                                            {
-				                                                                            Race.DarkIronDwarf
-			                                                                            }
-		                                                            },
-		                                                            {
-			                                                            Race.MechaGnome, new[]
-			                                                                             {
-				                                                                             Race.Vulpera
-			                                                                             }
-		                                                            }
-	                                                            };
+	{
+		{
+			Race.Human, new[]
+			{
+				Race.Undead, Race.BloodElf
+			}
+		},
+		{
+			Race.Orc, new[]
+			{
+				Race.Dwarf
+			}
+		},
+		{
+			Race.Dwarf, new[]
+			{
+				Race.Orc, Race.Undead, Race.Tauren
+			}
+		},
+		{
+			Race.NightElf, new[]
+			{
+				Race.Troll, Race.BloodElf
+			}
+		},
+		{
+			Race.Undead, new[]
+			{
+				Race.Human
+			}
+		},
+		{
+			Race.Tauren, new[]
+			{
+				Race.Draenei, Race.NightElf
+			}
+		},
+		{
+			Race.Gnome, new[]
+			{
+				Race.Goblin, Race.BloodElf
+			}
+		},
+		{
+			Race.Troll, new[]
+			{
+				Race.NightElf, Race.Human, Race.Draenei
+			}
+		},
+		{
+			Race.Goblin, new[]
+			{
+				Race.Gnome, Race.Dwarf
+			}
+		},
+		{
+			Race.BloodElf, new[]
+			{
+				Race.Human, Race.NightElf
+			}
+		},
+		{
+			Race.Draenei, new[]
+			{
+				Race.Tauren, Race.Orc
+			}
+		},
+		{
+			Race.Worgen, new[]
+			{
+				Race.Troll
+			}
+		},
+		{
+			Race.PandarenNeutral, new[]
+			{
+				Race.PandarenNeutral
+			}
+		},
+		{
+			Race.PandarenAlliance, new[]
+			{
+				Race.PandarenHorde, Race.PandarenNeutral
+			}
+		},
+		{
+			Race.PandarenHorde, new[]
+			{
+				Race.PandarenAlliance, Race.PandarenNeutral
+			}
+		},
+		{
+			Race.Nightborne, new[]
+			{
+				Race.NightElf, Race.Human
+			}
+		},
+		{
+			Race.HighmountainTauren, new[]
+			{
+				Race.Draenei, Race.NightElf
+			}
+		},
+		{
+			Race.VoidElf, new[]
+			{
+				Race.Troll, Race.BloodElf
+			}
+		},
+		{
+			Race.LightforgedDraenei, new[]
+			{
+				Race.Tauren, Race.Orc
+			}
+		},
+		{
+			Race.ZandalariTroll, new[]
+			{
+				Race.KulTiran, Race.Human
+			}
+		},
+		{
+			Race.KulTiran, new[]
+			{
+				Race.ZandalariTroll
+			}
+		},
+		{
+			Race.DarkIronDwarf, new[]
+			{
+				Race.MagharOrc, Race.Orc
+			}
+		},
+		{
+			Race.Vulpera, new[]
+			{
+				Race.MechaGnome, Race.DarkIronDwarf /*Guessed, For Shamans*/
+			}
+		},
+		{
+			Race.MagharOrc, new[]
+			{
+				Race.DarkIronDwarf
+			}
+		},
+		{
+			Race.MechaGnome, new[]
+			{
+				Race.Vulpera
+			}
+		}
+	};
 
 	private static readonly Dictionary<Race, uint[]> RaceDisplayIds = new()
-	                                                                  {
-		                                                                  {
-			                                                                  Race.Human, new uint[]
-			                                                                              {
-				                                                                              55239, 55238
-			                                                                              }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Orc, new uint[]
-			                                                                            {
-				                                                                            55257, 55256
-			                                                                            }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Dwarf, new uint[]
-			                                                                              {
-				                                                                              55241, 55240
-			                                                                              }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.NightElf, new uint[]
-			                                                                                 {
-				                                                                                 55243, 55242
-			                                                                                 }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Undead, new uint[]
-			                                                                               {
-				                                                                               55259, 55258
-			                                                                               }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Tauren, new uint[]
-			                                                                               {
-				                                                                               55261, 55260
-			                                                                               }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Gnome, new uint[]
-			                                                                              {
-				                                                                              55245, 55244
-			                                                                              }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Troll, new uint[]
-			                                                                              {
-				                                                                              55263, 55262
-			                                                                              }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Goblin, new uint[]
-			                                                                               {
-				                                                                               55267, 57244
-			                                                                               }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.BloodElf, new uint[]
-			                                                                                 {
-				                                                                                 55265, 55264
-			                                                                                 }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Draenei, new uint[]
-			                                                                                {
-				                                                                                55247, 55246
-			                                                                                }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Worgen, new uint[]
-			                                                                               {
-				                                                                               55255, 55254
-			                                                                               }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.PandarenNeutral, new uint[]
-			                                                                                        {
-				                                                                                        55253, 55252
-			                                                                                        }
-		                                                                  }, // Not Verified, Might Be Swapped With Race.PandarenHorde
-		                                                                  {
-			                                                                  Race.PandarenAlliance, new uint[]
-			                                                                                         {
-				                                                                                         55249, 55248
-			                                                                                         }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.PandarenHorde, new uint[]
-			                                                                                      {
-				                                                                                      55251, 55250
-			                                                                                      }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Nightborne, new uint[]
-			                                                                                   {
-				                                                                                   82375, 82376
-			                                                                                   }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.HighmountainTauren, new uint[]
-			                                                                                           {
-				                                                                                           82377, 82378
-			                                                                                           }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.VoidElf, new uint[]
-			                                                                                {
-				                                                                                82371, 82372
-			                                                                                }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.LightforgedDraenei, new uint[]
-			                                                                                           {
-				                                                                                           82373, 82374
-			                                                                                           }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.ZandalariTroll, new uint[]
-			                                                                                       {
-				                                                                                       88417, 88416
-			                                                                                       }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.KulTiran, new uint[]
-			                                                                                 {
-				                                                                                 88414, 88413
-			                                                                                 }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.DarkIronDwarf, new uint[]
-			                                                                                      {
-				                                                                                      88409, 88408
-			                                                                                      }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.Vulpera, new uint[]
-			                                                                                {
-				                                                                                94999, 95001
-			                                                                                }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.MagharOrc, new uint[]
-			                                                                                  {
-				                                                                                  88420, 88410
-			                                                                                  }
-		                                                                  },
-		                                                                  {
-			                                                                  Race.MechaGnome, new uint[]
-			                                                                                   {
-				                                                                                   94998, 95000
-			                                                                                   }
-		                                                                  }
-	                                                                  };
+	{
+		{
+			Race.Human, new uint[]
+			{
+				55239, 55238
+			}
+		},
+		{
+			Race.Orc, new uint[]
+			{
+				55257, 55256
+			}
+		},
+		{
+			Race.Dwarf, new uint[]
+			{
+				55241, 55240
+			}
+		},
+		{
+			Race.NightElf, new uint[]
+			{
+				55243, 55242
+			}
+		},
+		{
+			Race.Undead, new uint[]
+			{
+				55259, 55258
+			}
+		},
+		{
+			Race.Tauren, new uint[]
+			{
+				55261, 55260
+			}
+		},
+		{
+			Race.Gnome, new uint[]
+			{
+				55245, 55244
+			}
+		},
+		{
+			Race.Troll, new uint[]
+			{
+				55263, 55262
+			}
+		},
+		{
+			Race.Goblin, new uint[]
+			{
+				55267, 57244
+			}
+		},
+		{
+			Race.BloodElf, new uint[]
+			{
+				55265, 55264
+			}
+		},
+		{
+			Race.Draenei, new uint[]
+			{
+				55247, 55246
+			}
+		},
+		{
+			Race.Worgen, new uint[]
+			{
+				55255, 55254
+			}
+		},
+		{
+			Race.PandarenNeutral, new uint[]
+			{
+				55253, 55252
+			}
+		}, // Not Verified, Might Be Swapped With Race.PandarenHorde
+		{
+			Race.PandarenAlliance, new uint[]
+			{
+				55249, 55248
+			}
+		},
+		{
+			Race.PandarenHorde, new uint[]
+			{
+				55251, 55250
+			}
+		},
+		{
+			Race.Nightborne, new uint[]
+			{
+				82375, 82376
+			}
+		},
+		{
+			Race.HighmountainTauren, new uint[]
+			{
+				82377, 82378
+			}
+		},
+		{
+			Race.VoidElf, new uint[]
+			{
+				82371, 82372
+			}
+		},
+		{
+			Race.LightforgedDraenei, new uint[]
+			{
+				82373, 82374
+			}
+		},
+		{
+			Race.ZandalariTroll, new uint[]
+			{
+				88417, 88416
+			}
+		},
+		{
+			Race.KulTiran, new uint[]
+			{
+				88414, 88413
+			}
+		},
+		{
+			Race.DarkIronDwarf, new uint[]
+			{
+				88409, 88408
+			}
+		},
+		{
+			Race.Vulpera, new uint[]
+			{
+				94999, 95001
+			}
+		},
+		{
+			Race.MagharOrc, new uint[]
+			{
+				88420, 88410
+			}
+		},
+		{
+			Race.MechaGnome, new uint[]
+			{
+				94998, 95000
+			}
+		}
+	};
 
 	private static readonly List<uint> RacialSkills = new();
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
@@ -387,7 +387,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var owner            = GetUnitOwner();
+		var owner = UnitOwner;
 		var otherFactionRace = GetReplacementRace(owner.GetRace(), owner.GetClass());
 
 		if (otherFactionRace == Race.None)
@@ -404,7 +404,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var owner            = GetUnitOwner();
+		var owner = UnitOwner;
 		var otherFactionRace = GetReplacementRace(owner.GetRace(), owner.GetClass());
 
 		if (otherFactionRace == Race.None)
@@ -415,7 +415,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void UpdateRacials(Race oldRace, Race newRace)
 	{
-		var player = GetUnitOwner().ToPlayer();
+		var player = UnitOwner.ToPlayer();
 
 		if (player == null)
 			return;

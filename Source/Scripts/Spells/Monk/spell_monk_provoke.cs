@@ -16,6 +16,8 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 {
 	private const uint BlackOxStatusEntry = 61146;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		if (!spellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitMask)) // ensure GetExplTargetUnit() will return something meaningful during CheckCast
@@ -26,15 +28,15 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 
 	public SpellCastResult CheckCast()
 	{
-		if (GetExplTargetUnit().GetEntry() != BlackOxStatusEntry)
+		if (ExplTargetUnit.GetEntry() != BlackOxStatusEntry)
 		{
-			var singleTarget               = Global.SpellMgr.GetSpellInfo(MonkSpells.ProvokeSingleTarget, GetCastDifficulty());
-			var singleTargetExplicitResult = singleTarget.CheckExplicitTarget(GetCaster(), GetExplTargetUnit());
+			var singleTarget = Global.SpellMgr.GetSpellInfo(MonkSpells.ProvokeSingleTarget, CastDifficulty);
+			var singleTargetExplicitResult = singleTarget.CheckExplicitTarget(Caster, ExplTargetUnit);
 
 			if (singleTargetExplicitResult != SpellCastResult.SpellCastOk)
 				return singleTargetExplicitResult;
 		}
-		else if (GetExplTargetUnit().GetOwnerGUID() != GetCaster().GetGUID())
+		else if (ExplTargetUnit.GetOwnerGUID() != Caster.GetGUID())
 		{
 			return SpellCastResult.BadTargets;
 		}
@@ -47,15 +49,13 @@ internal class spell_monk_provoke : SpellScript, ISpellCheckCast, IHasSpellEffec
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
 
-		if (GetHitUnit().GetEntry() != BlackOxStatusEntry)
-			GetCaster().CastSpell(GetHitUnit(), MonkSpells.ProvokeSingleTarget, true);
+		if (HitUnit.GetEntry() != BlackOxStatusEntry)
+			Caster.CastSpell(HitUnit, MonkSpells.ProvokeSingleTarget, true);
 		else
-			GetCaster().CastSpell(GetHitUnit(), MonkSpells.ProvokeAoe, true);
+			Caster.CastSpell(HitUnit, MonkSpells.ProvokeAoe, true);
 	}
 }

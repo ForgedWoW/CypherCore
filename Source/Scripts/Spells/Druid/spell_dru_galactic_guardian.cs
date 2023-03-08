@@ -8,37 +8,36 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 203964 - Galactic Guardian
+internal class spell_dru_galactic_guardian : AuraScript, IHasAuraEffects
 {
-    [Script] // 203964 - Galactic Guardian
-	internal class spell_dru_galactic_guardian : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.GalacticGuardianAura);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		var damageInfo = eventInfo.DamageInfo;
+
+		if (damageInfo != null)
 		{
-			return ValidateSpellInfo(DruidSpellIds.GalacticGuardianAura);
-		}
+			var target = Target;
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+			// free automatic moonfire on Target
+			target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.MoonfireDamage, true);
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			var damageInfo = eventInfo.GetDamageInfo();
-
-			if (damageInfo != null)
-			{
-				var target = GetTarget();
-
-				// free automatic moonfire on Target
-				target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.MoonfireDamage, true);
-
-				// Cast aura
-				target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.GalacticGuardianAura, true);
-			}
+			// Cast aura
+			target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.GalacticGuardianAura, true);
 		}
 	}
 }

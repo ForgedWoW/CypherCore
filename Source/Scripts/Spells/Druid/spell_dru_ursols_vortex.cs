@@ -14,23 +14,23 @@ public class spell_dru_ursols_vortex : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private struct Spells
+	public override void Register()
 	{
-		public static readonly uint URSOLS_VORTEX_SLOW = 127797;
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
 
 	private void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
-			caster.AddAura(Spells.URSOLS_VORTEX_SLOW, GetHitUnit());
+			caster.AddAura(Spells.URSOLS_VORTEX_SLOW, HitUnit);
 	}
 
-	public override void Register()
+
+	private struct Spells
 	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		public static readonly uint URSOLS_VORTEX_SLOW = 127797;
 	}
 }

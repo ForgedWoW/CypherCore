@@ -8,28 +8,27 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 196305 - Eternal Struggle
+[SpellScript(196305)]
+public class spell_warlock_artifact_eternal_struggle : AuraScript, IHasAuraEffects
 {
-    // 196305 - Eternal Struggle
-    [SpellScript(196305)]
-	public class spell_warlock_artifact_eternal_struggle : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpellWithValue, AuraScriptHookType.EffectProc));
+	}
 
-		private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-		{
-			PreventDefaultAction();
-			var caster = GetCaster();
+	private void OnProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ProcTriggerSpellWithValue, AuraScriptHookType.EffectProc));
-		}
+		caster.CastSpell(caster, WarlockSpells.ETERNAL_STRUGGLE_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)aurEff.Amount));
 	}
 }

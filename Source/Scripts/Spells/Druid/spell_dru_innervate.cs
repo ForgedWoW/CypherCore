@@ -8,42 +8,41 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 29166 - Innervate
+internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
 {
-    [Script] // 29166 - Innervate
-	internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
+	public SpellCastResult CheckCast()
 	{
-		public SpellCastResult CheckCast()
+		var target = ExplTargetUnit?.ToPlayer();
+
+		if (target == null)
+			return SpellCastResult.BadTargets;
+
+		var spec = CliDB.ChrSpecializationStorage.LookupByKey(target.GetPrimarySpecialization());
+
+		if (spec == null ||
+			spec.Role != 1)
+			return SpellCastResult.BadTargets;
+
+		return SpellCastResult.SpellCastOk;
+	}
+
+	public void OnHit()
+	{
+		var caster = Caster;
+
+		if (caster != HitUnit)
 		{
-			var target = GetExplTargetUnit()?.ToPlayer();
+			var innervateR2 = caster.GetAuraEffect(DruidSpellIds.InnervateRank2, 0);
 
-			if (target == null)
-				return SpellCastResult.BadTargets;
-
-			var spec = CliDB.ChrSpecializationStorage.LookupByKey(target.GetPrimarySpecialization());
-
-			if (spec == null ||
-			    spec.Role != 1)
-				return SpellCastResult.BadTargets;
-
-			return SpellCastResult.SpellCastOk;
-		}
-
-		public void OnHit()
-		{
-			var caster = GetCaster();
-
-			if (caster != GetHitUnit())
-			{
-				var innervateR2 = caster.GetAuraEffect(DruidSpellIds.InnervateRank2, 0);
-
-				if (innervateR2 != null)
-					caster.CastSpell(caster,
-					                 DruidSpellIds.Innervate,
-					                 new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
-						                 .SetTriggeringSpell(GetSpell())
-						                 .AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
-			}
+			if (innervateR2 != null)
+				caster.CastSpell(caster,
+								DruidSpellIds.Innervate,
+								new CastSpellExtraArgs(TriggerCastFlags.IgnoreSpellAndCategoryCD | TriggerCastFlags.IgnoreCastInProgress)
+									.SetTriggeringSpell(Spell)
+									.AddSpellMod(SpellValueMod.BasePoint0, -innervateR2.Amount));
 		}
 	}
 }

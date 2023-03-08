@@ -12,15 +12,9 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-    public Class PlayerClass { get; } = Class.Deathknight;
-    public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment")
-	{
-	}
+	public Class PlayerClass { get; } = Class.Deathknight;
 
-	public struct eSpells
-	{
-		public const uint RunicEmpowerment = 81229;
-	}
+	public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment") { }
 
 	public void OnModifyPower(Player p_Player, PowerType p_Power, int p_OldValue, ref int p_NewValue, bool p_Regen)
 	{
@@ -51,5 +45,10 @@ public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPo
 				p_Player.ResyncRunes();
 			}
 		}
+	}
+
+	public struct eSpells
+	{
+		public const uint RunicEmpowerment = 81229;
 	}
 }

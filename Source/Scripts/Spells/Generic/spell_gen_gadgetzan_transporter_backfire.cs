@@ -27,8 +27,8 @@ internal class spell_gen_gadgetzan_transporter_backfire : SpellScript, IHasSpell
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var r      = RandomHelper.IRand(0, 119);
+		var caster = Caster;
+		var r = RandomHelper.IRand(0, 119);
 
 		if (r < 20) // Transporter Malfunction - 1/6 polymorph
 			caster.CastSpell(caster, GenericSpellIds.TransporterMalfunctionPolymorph, true);

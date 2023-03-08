@@ -14,9 +14,7 @@ public class DH_DisableDoubleJump_OnMount : ScriptObjectAutoAdd, IPlayerOnSpellC
 {
 	public Class PlayerClass => Class.DemonHunter;
 
-	public DH_DisableDoubleJump_OnMount() : base("DH_DisableDoubleJump_OnMount")
-	{
-	}
+	public DH_DisableDoubleJump_OnMount() : base("DH_DisableDoubleJump_OnMount") { }
 
 	public void OnSpellCast(Player player, Spell spell, bool skipCheck)
 	{

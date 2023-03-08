@@ -8,34 +8,33 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 234877 - Curse of Shadows
+[SpellScript(234877)]
+public class spell_warlock_curse_of_shadows : AuraScript, IHasAuraEffects
 {
-    // 234877 - Curse of Shadows
-    [SpellScript(234877)]
-	public class spell_warlock_curse_of_shadows : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-			var caster = GetCaster();
+	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			var spellInfo = eventInfo.GetDamageInfo().GetSpellInfo();
+		var spellInfo = eventInfo.DamageInfo.GetSpellInfo();
 
-			if (spellInfo == null || (spellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
-				return;
+		if (spellInfo == null || (spellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
+			return;
 
-			var damage = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
-			caster.CastSpell(eventInfo.GetActionTarget(), WarlockSpells.CURSE_OF_SHADOWS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.CURSE_OF_SHADOWS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
 	}
 }

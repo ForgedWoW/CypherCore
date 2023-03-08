@@ -8,26 +8,25 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Unshackled Fury - 76856
+[SpellScript(76856)]
+public class spell_warr_unshackled_fury : AuraScript, IHasAuraEffects
 {
-    // Unshackled Fury - 76856
-    [SpellScript(76856)]
-	public class spell_warr_unshackled_fury : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
+	}
 
-		private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			var caster = GetCaster();
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		var caster = Caster;
 
-			if (caster != null)
-				if (!caster.HasAuraState(AuraStateType.Enraged))
-					amount.Value = 0;
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.AddPctModifier));
-		}
+		if (caster != null)
+			if (!caster.HasAuraState(AuraStateType.Enraged))
+				amount.Value = 0;
 	}
 }

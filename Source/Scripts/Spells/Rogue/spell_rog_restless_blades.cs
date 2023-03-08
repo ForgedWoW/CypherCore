@@ -33,13 +33,13 @@ internal class spell_rog_restless_blades : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
-		var spentCP = procInfo.GetProcSpell()?.GetPowerTypeCostAmount(PowerType.ComboPoints);
+		var spentCP = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
 
 		if (spentCP.HasValue)
 		{
 			var cdExtra = (int)-((double)(aurEff.Amount * spentCP.Value) * 0.1f);
 
-			var history = GetTarget().GetSpellHistory();
+			var history = Target.GetSpellHistory();
 
 			foreach (var spellId in Spells)
 				history.ModifyCooldown(spellId, TimeSpan.FromSeconds(cdExtra), true);

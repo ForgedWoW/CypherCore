@@ -8,53 +8,52 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
+internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
-    [Script] // 70664 - Druid T10 Restoration 4P Bonus (Rejuvenation)
-	internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheckProc, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(DruidSpellIds.RejuvenationT10Proc);
-		}
+		return ValidateSpellInfo(DruidSpellIds.RejuvenationT10Proc);
+	}
 
-		public bool CheckProc(ProcEventInfo eventInfo)
-		{
-			var spellInfo = eventInfo.GetSpellInfo();
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		var spellInfo = eventInfo.SpellInfo;
 
-			if (spellInfo == null ||
-			    spellInfo.Id == DruidSpellIds.RejuvenationT10Proc)
-				return false;
+		if (spellInfo == null ||
+			spellInfo.Id == DruidSpellIds.RejuvenationT10Proc)
+			return false;
 
-			var healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
-			if (healInfo == null ||
-			    healInfo.GetHeal() == 0)
-				return false;
+		if (healInfo == null ||
+			healInfo.GetHeal() == 0)
+			return false;
 
-			var caster = eventInfo.GetActor().ToPlayer();
+		var caster = eventInfo.Actor.ToPlayer();
 
-			if (!caster)
-				return false;
+		if (!caster)
+			return false;
 
-			return caster.GetGroup() || caster != eventInfo.GetProcTarget();
-		}
+		return caster.GetGroup() || caster != eventInfo.ProcTarget;
+	}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-
-			var                amount = (int)eventInfo.GetHealInfo().GetHeal();
-			CastSpellExtraArgs args   = new(aurEff);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)eventInfo.GetHealInfo().GetHeal());
-			eventInfo.GetActor().CastSpell((Unit)null, DruidSpellIds.RejuvenationT10Proc, args);
-		}
+		var amount = (int)eventInfo.HealInfo.GetHeal();
+		CastSpellExtraArgs args = new(aurEff);
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)eventInfo.HealInfo.GetHeal());
+		eventInfo.Actor.CastSpell((Unit)null, DruidSpellIds.RejuvenationT10Proc, args);
 	}
 }

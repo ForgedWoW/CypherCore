@@ -16,6 +16,8 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
 {
 	private ObjectGuid _procTargetGuid;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.EarthenRagePeriodic, ShamanSpells.EarthenRageDamage);
@@ -23,15 +25,13 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
 
 	public bool CheckProc(ProcEventInfo procInfo)
 	{
-		return procInfo.GetSpellInfo() != null && procInfo.GetSpellInfo().Id != ShamanSpells.EarthenRageDamage;
+		return procInfo.SpellInfo != null && procInfo.SpellInfo.Id != ShamanSpells.EarthenRageDamage;
 	}
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public ObjectGuid GetProcTargetGuid()
 	{
@@ -41,7 +41,7 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		_procTargetGuid = eventInfo.GetProcTarget().GetGUID();
-		eventInfo.GetActor().CastSpell(eventInfo.GetActor(), ShamanSpells.EarthenRagePeriodic, true);
+		_procTargetGuid = eventInfo.ProcTarget.GetGUID();
+		eventInfo.Actor.CastSpell(eventInfo.Actor, ShamanSpells.EarthenRagePeriodic, true);
 	}
 }

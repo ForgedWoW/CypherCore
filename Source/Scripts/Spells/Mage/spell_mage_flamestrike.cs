@@ -14,9 +14,26 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public void AfterCast()
+	{
+		var caster = Caster;
+		var dest = ExplTargetDest;
+
+		if (caster == null || dest == null)
+			return;
+
+		if (caster.HasAura(MageSpells.FLAME_PATCH))
+			caster.CastSpell(dest, MageSpells.FLAME_PATCH_TRIGGER, true);
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+	}
+
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -39,22 +56,5 @@ public class spell_mage_flamestrike : SpellScript, ISpellAfterCast, IHasSpellEff
 					}
 			}
 		}
-	}
-
-	public void AfterCast()
-	{
-		var caster = GetCaster();
-		var dest   = GetExplTargetDest();
-
-		if (caster == null || dest == null)
-			return;
-
-		if (caster.HasAura(MageSpells.FLAME_PATCH))
-			caster.CastSpell(dest, MageSpells.FLAME_PATCH_TRIGGER, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
 	}
 }

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Models;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
+using Framework.Models;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -18,9 +18,11 @@ internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasA
 	// Amount of seconds we calculate Damage over
 	private double[] _damagePerSecond = new double[5];
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetDamageInfo() != null;
+		return eventInfo.DamageInfo != null;
 	}
 
 	public override void Register()
@@ -30,12 +32,10 @@ internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasA
 		AuraEffects.Add(new AuraEffectUpdatePeriodicHandler(Update, 0, AuraType.PeriodicDummy));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void Update(AuraEffect aurEff)
 	{
 		// Move backwards all datas by one from [23][0][0][0][0] -> [0][23][0][0][0]
-		_damagePerSecond    = Enumerable.Range(1, _damagePerSecond.Length).Select(i => _damagePerSecond[i % _damagePerSecond.Length]).ToArray();
+		_damagePerSecond = Enumerable.Range(1, _damagePerSecond.Length).Select(i => _damagePerSecond[i % _damagePerSecond.Length]).ToArray();
 		_damagePerSecond[0] = 0;
 	}
 
@@ -47,6 +47,6 @@ internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasA
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		_damagePerSecond[0] += eventInfo.GetDamageInfo().GetDamage();
+		_damagePerSecond[0] += eventInfo.DamageInfo.GetDamage();
 	}
 }

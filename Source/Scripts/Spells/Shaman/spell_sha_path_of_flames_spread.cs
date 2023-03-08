@@ -30,21 +30,21 @@ internal class spell_sha_path_of_flames_spread : SpellScript, IHasSpellEffects
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.Remove(GetExplTargetUnit());
-		targets.RandomResize(target => target.IsTypeId(TypeId.Unit) && !target.ToUnit().HasAura(ShamanSpells.FlameShock, GetCaster().GetGUID()), 1);
+		targets.Remove(ExplTargetUnit);
+		targets.RandomResize(target => target.IsTypeId(TypeId.Unit) && !target.ToUnit().HasAura(ShamanSpells.FlameShock, Caster.GetGUID()), 1);
 	}
 
 	private void HandleScript(int effIndex)
 	{
-		var mainTarget = GetExplTargetUnit();
+		var mainTarget = ExplTargetUnit;
 
 		if (mainTarget)
 		{
-			var flameShock = mainTarget.GetAura(ShamanSpells.FlameShock, GetCaster().GetGUID());
+			var flameShock = mainTarget.GetAura(ShamanSpells.FlameShock, Caster.GetGUID());
 
 			if (flameShock != null)
 			{
-				var newAura = GetCaster().AddAura(ShamanSpells.FlameShock, GetHitUnit());
+				var newAura = Caster.AddAura(ShamanSpells.FlameShock, HitUnit);
 
 				if (newAura != null)
 				{

@@ -8,52 +8,51 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 264106 - Deathbolt
+[SpellScript(264106)]
+public class spell_warl_deathbolt : SpellScript, IHasSpellEffects
 {
-    // 264106 - Deathbolt
-    [SpellScript(264106)]
-	public class spell_warl_deathbolt : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
+	private void HandleHit(int effIndex)
+	{
+		PreventHitDefaultEffect(effIndex);
+		HitDamage = CalculateDamage();
+	}
+
+	private double CalculateDamage()
+	{
+		double damage = 0;
+		var auras = HitUnit.GetAppliedAurasQuery();
+
+		foreach (var aura in auras.HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
 		{
-			PreventHitDefaultEffect(effIndex);
-			SetHitDamage(CalculateDamage());
-		}
+			var spell = aura.Base.SpellInfo;
 
-		private double CalculateDamage()
-		{
-			double damage = 0;
-			var auras  = GetHitUnit().GetAppliedAurasQuery();
-
-			foreach (var aura in auras.HasSpellFamily(SpellFamilyNames.Warlock).GetResults())
+			if (spell.SpellFamilyName == SpellFamilyNames.Warlock && (spell.SpellFamilyFlags & new FlagArray128(502, 8110, 300000, 0))) // out of Mastery : Potent Afflictions
 			{
-				var spell = aura.Base.SpellInfo;
+				var effects = aura.Base.AuraEffects;
 
-				if (spell.SpellFamilyName == SpellFamilyNames.Warlock && (spell.SpellFamilyFlags & new FlagArray128(502, 8110, 300000, 0))) // out of Mastery : Potent Afflictions
-				{
-					var effects = aura.Base.AuraEffects;
+				foreach (var iter in effects)
+					if (iter.Value.AuraType == AuraType.PeriodicDamage)
+					{
+						double valToUse = 0f;
 
-					foreach (var iter in effects)
-						if (iter.Value.AuraType == AuraType.PeriodicDamage)
-						{
-							double valToUse = 0f;
+						if (spell.Id == WarlockSpells.CORRUPTION_DOT)
+							valToUse = iter.Value.GetRemainingAmount(SpellInfo.GetEffect(2).BasePoints * 1000);
 
-							if (spell.Id == WarlockSpells.CORRUPTION_DOT)
-								valToUse = iter.Value.GetRemainingAmount(GetSpellInfo().GetEffect(2).BasePoints * 1000);
-
-							damage += valToUse * GetSpellInfo().GetEffect(1).BasePoints / 100;
-						}
-				}
+						damage += valToUse * SpellInfo.GetEffect(1).BasePoints / 100;
+					}
 			}
-
-			return damage;
 		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
+		return damage;
 	}
 }

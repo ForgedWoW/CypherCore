@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IDynamicObject
+namespace Game.Scripting.Interfaces.IDynamicObject;
+
+public interface IDynamicObjectOnUpdate : IScriptObject
 {
-    public interface IDynamicObjectOnUpdate : IScriptObject
-    {
-        void OnUpdate(DynamicObject obj, uint diff);
-    }
+	void OnUpdate(DynamicObject obj, uint diff);
 }

@@ -15,24 +15,24 @@ public class spell_dk_obliterate : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private void HandleHit(int effIndex)
-	{
-		GetCaster().RemoveAura(DeathKnightSpells.KILLING_MACHINE);
-
-		if (GetCaster().HasAura(DeathKnightSpells.ICECAP))
-			if (GetCaster().GetSpellHistory().HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
-				GetCaster().GetSpellHistory().ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
-
-		if (GetCaster().HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
-			GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
-
-		if (GetCaster().HasAura(DeathKnightSpells.RIME) && RandomHelper.randChance(45))
-			GetCaster().CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
+
+
+	private void HandleHit(int effIndex)
+	{
+		Caster.RemoveAura(DeathKnightSpells.KILLING_MACHINE);
+
+		if (Caster.HasAura(DeathKnightSpells.ICECAP))
+			if (Caster.GetSpellHistory().HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
+				Caster.GetSpellHistory().ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
+
+		if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
+			Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
+
+		if (Caster.HasAura(DeathKnightSpells.RIME) && RandomHelper.randChance(45))
+			Caster.CastSpell(null, DeathKnightSpells.RIME_BUFF, true);
 	}
 }

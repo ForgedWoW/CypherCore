@@ -6,35 +6,26 @@ using Game.Entities;
 using Game.Maps;
 using Game.Scripting;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(48439)]
+public class npc_goblin_engineer : ScriptedAI
 {
-    [CreatureScript(48439)]
-    public class npc_goblin_engineer : ScriptedAI
-    {
-        public npc_goblin_engineer(Creature creature) : base(creature)
-        {
-            Instance = creature.GetInstanceScript();
-        }
+	public InstanceScript Instance;
 
-        public InstanceScript Instance;
+	public npc_goblin_engineer(Creature creature) : base(creature)
+	{
+		Instance = creature.GetInstanceScript();
+	}
 
-        public override void Reset()
-        {
-            if (!me)
-            {
-                return;
-            }
+	public override void Reset()
+	{
+		if (!me)
+			return;
 
-            if (me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
-            {
-                me.AddAura(78087, me);
-            }
-            else
-            {
-                me.AddAura(57626, me);
-            }
-        }
-
-    }
-
+		if (me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
+			me.AddAura(78087, me);
+		else
+			me.AddAura(57626, me);
+	}
 }

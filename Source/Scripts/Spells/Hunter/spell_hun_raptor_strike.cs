@@ -11,8 +11,8 @@ public class spell_hun_raptor_strike : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;

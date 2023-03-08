@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnMemberWithDrawMoney : IScriptObject
 {
-    public interface IGuildOnMemberWithDrawMoney : IScriptObject
-    {
-        void OnMemberWitdrawMoney(Guild guild, Player player, ulong amount, bool isRepair);
-    }
+	void OnMemberWitdrawMoney(Guild guild, Player player, ulong amount, bool isRepair);
 }

@@ -7,48 +7,45 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//168534
+[Script]
+public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-    //168534
-    [Script]
-	public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCast
+	public Class PlayerClass { get; } = Class.Shaman;
+
+	public mastery_elemental_overload() : base("mastery_elemental_overload") { }
+
+	public void OnSpellCast(Player player, Spell spell, bool UnnamedParameter)
 	{
-        public Class PlayerClass { get; } = Class.Shaman;
+		if (player.GetPrimarySpecialization() != TalentSpecialization.ShamanElemental)
+			return;
 
-        public mastery_elemental_overload() : base("mastery_elemental_overload")
+		if (player.HasAura(ShamanSpells.MASTERY_ELEMENTAL_OVERLOAD) && RandomHelper.randChance(15))
 		{
-		}
+			var spellInfo = spell.SpellInfo;
 
-		public void OnSpellCast(Player player, Spell spell, bool UnnamedParameter)
-		{
-			if (player.GetPrimarySpecialization() != TalentSpecialization.ShamanElemental)
-				return;
+			if (spellInfo != null)
+				switch (spell.SpellInfo.Id)
+				{
+					case ShamanSpells.LIGHTNING_BOLT_ELEM:
+						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LIGHTNING_BOLT_ELEM, true);
 
-			if (player.HasAura(ShamanSpells.MASTERY_ELEMENTAL_OVERLOAD) && RandomHelper.randChance(15))
-			{
-				var spellInfo = spell.SpellInfo;
+						break;
+					case ShamanSpells.ELEMENTAL_BLAST:
+						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.ELEMENTAL_BLAST, true);
 
-				if (spellInfo != null)
-					switch (spell.SpellInfo.Id)
-					{
-						case ShamanSpells.LIGHTNING_BOLT_ELEM:
-							player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LIGHTNING_BOLT_ELEM, true);
+						break;
+					case ShamanSpells.LAVA_BURST:
+						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
 
-							break;
-						case ShamanSpells.ELEMENTAL_BLAST:
-							player.CastSpell(player.GetSelectedUnit(), ShamanSpells.ELEMENTAL_BLAST, true);
+						break;
+					case ShamanSpells.CHAIN_LIGHTNING:
+						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
 
-							break;
-						case ShamanSpells.LAVA_BURST:
-							player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
-
-							break;
-						case ShamanSpells.CHAIN_LIGHTNING:
-							player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
-
-							break;
-					}
-			}
+						break;
+				}
 		}
 	}
 }

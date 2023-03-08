@@ -15,6 +15,8 @@ internal class spell_rog_blade_flurry_AuraScript : AuraScript, IAuraCheckProc, I
 {
 	private Unit _procTarget = null;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(RogueSpells.BladeFlurryExtraAttack);
@@ -22,9 +24,9 @@ internal class spell_rog_blade_flurry_AuraScript : AuraScript, IAuraCheckProc, I
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		_procTarget = GetTarget().SelectNearbyTarget(eventInfo.GetProcTarget());
+		_procTarget = Target.SelectNearbyTarget(eventInfo.ProcTarget);
 
-		return _procTarget != null && eventInfo.GetDamageInfo() != null;
+		return _procTarget != null && eventInfo.DamageInfo != null;
 	}
 
 	public override void Register()
@@ -35,19 +37,17 @@ internal class spell_rog_blade_flurry_AuraScript : AuraScript, IAuraCheckProc, I
 			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ModMeleeHaste, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo != null)
 		{
 			CastSpellExtraArgs args = new(aurEff);
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.GetDamage());
-			GetTarget().CastSpell(_procTarget, RogueSpells.BladeFlurryExtraAttack, args);
+			Target.CastSpell(_procTarget, RogueSpells.BladeFlurryExtraAttack, args);
 		}
 	}
 }

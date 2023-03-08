@@ -8,43 +8,43 @@ using Game.Scripting;
 
 namespace Scripts.Pets
 {
-    namespace Warlock
-    {
-        [CreatureScript(135816)]
-        public class npc_warl_vilefield : SmartAI
-        {
-            public npc_warl_vilefield(Creature creature) : base(creature)
-            {
-                if (!me.TryGetOwner(out Player owner))
-                    return;
+	namespace Warlock
+	{
+		[CreatureScript(135816)]
+		public class npc_warl_vilefield : SmartAI
+		{
+			public npc_warl_vilefield(Creature creature) : base(creature)
+			{
+				if (!me.TryGetOwner(out Player owner))
+					return;
 
-                creature.SetLevel(owner.GetLevel());
-                creature.UpdateLevelDependantStats();
-                creature.SetReactState(ReactStates.Aggressive);
-                creature.SetCreatorGUID(owner.GetGUID());
+				creature.SetLevel(owner.GetLevel());
+				creature.UpdateLevelDependantStats();
+				creature.SetReactState(ReactStates.Aggressive);
+				creature.SetCreatorGUID(owner.GetGUID());
 
-                var summon = creature.ToTempSummon();
+				var summon = creature.ToTempSummon();
 
-                if (summon != null)
-                {
-                    summon.SetCanFollowOwner(true);
-                    summon.GetMotionMaster().Clear();
-                    summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
-                    StartAttackOnOwnersInCombatWith();
-                }
-            }
+				if (summon != null)
+				{
+					summon.SetCanFollowOwner(true);
+					summon.GetMotionMaster().Clear();
+					summon.GetMotionMaster().MoveFollow(owner, SharedConst.PetFollowDist, summon.GetFollowAngle());
+					StartAttackOnOwnersInCombatWith();
+				}
+			}
 
-            public override void Reset()
-            {
-                Unit owner = me.GetOwner();
+			public override void Reset()
+			{
+				var owner = me.GetOwner();
 
-                if (owner == null)
-                    return;
+				if (owner == null)
+					return;
 
-                me.SetMaxHealth(owner.GetMaxHealth());
-                me.SetHealth(me.GetMaxHealth());
-                me.SetControlled(true, UnitState.Root);
-            }
-        }
-    }
+				me.SetMaxHealth(owner.GetMaxHealth());
+				me.SetHealth(me.GetMaxHealth());
+				me.SetControlled(true, UnitState.Root);
+			}
+		}
+	}
 }

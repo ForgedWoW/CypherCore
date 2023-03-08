@@ -13,18 +13,41 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(223107)]
 public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnHit, ISpellOnCast
 {
+	private bool _targetHit;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private bool _targetHit;
+	public void OnCast()
+	{
+		var caster = Caster;
+
+		if (caster != null)
+			if (caster.HasAura(DemonHunterSpells.FEL_MASTERY) && _targetHit)
+				caster.CastSpell(caster, DemonHunterSpells.FEL_MASTERY_FURY, true);
+	}
+
+	public void OnHit()
+	{
+		if (Caster && HitUnit)
+		{
+			var attackPower = Caster.UnitData.AttackPower / 100 * 25.3f;
+			HitDamage = attackPower;
+		}
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitRectCasterEnemy));
+	}
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.Remove(GetCaster());
+		targets.Remove(Caster);
 	}
 
 	private void CountTargets(List<WorldObject> targets)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -40,29 +63,5 @@ public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnH
 			targets.Add(unit);
 
 		_targetHit = targets.Count > 0;
-	}
-
-	public void OnCast()
-	{
-		var caster = GetCaster();
-
-		if (caster != null)
-			if (caster.HasAura(DemonHunterSpells.FEL_MASTERY) && _targetHit)
-				caster.CastSpell(caster, DemonHunterSpells.FEL_MASTERY_FURY, true);
-	}
-
-	public void OnHit()
-	{
-		if (GetCaster() && GetHitUnit())
-		{
-			var attackPower = GetCaster().UnitData.AttackPower / 100 * 25.3f;
-			SetHitDamage(attackPower);
-		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitRectCasterEnemy));
 	}
 }

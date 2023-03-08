@@ -30,9 +30,9 @@ internal class spell_dk_raise_dead : SpellScript, IHasSpellEffects
 	{
 		var spellId = DeathKnightSpells.RaiseDeadSummon;
 
-		if (GetCaster().HasAura(DeathKnightSpells.SludgeBelcher))
+		if (Caster.HasAura(DeathKnightSpells.SludgeBelcher))
 			spellId = DeathKnightSpells.SludgeBelcherSummon;
 
-		GetCaster().CastSpell((Unit)null, spellId, true);
+		Caster.CastSpell((Unit)null, spellId, true);
 	}
 }

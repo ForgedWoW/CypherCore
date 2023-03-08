@@ -9,53 +9,52 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Thal'kiel's Consumption - 211714
+[SpellScript(211714)]
+public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffects
 {
-    // Thal'kiel's Consumption - 211714
-    [SpellScript(211714)]
-	public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffects
+	private int _damage = 0;
+
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public void HandleHit(int effIndex)
 	{
-		private int _damage = 0;
+		var caster = Caster;
+		var target = HitUnit;
 
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		if (target == null || caster == null)
+			return;
 
-		public void HandleHit(int effIndex)
+		caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, _damage));
+	}
+
+	public void SaveDamage(List<WorldObject> targets)
+	{
+		targets.RemoveIf((WorldObject target) =>
 		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+			if (!target.IsCreature())
+				return true;
 
-			if (target == null || caster == null)
-				return;
+			if (!target.ToCreature().IsPet() || target.ToCreature().ToPet().GetOwner() != Caster)
+				return true;
 
-			caster.CastSpell(target, WarlockSpells.THALKIELS_CONSUMPTION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, _damage));
-		}
+			if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
+				return true;
 
-		public void SaveDamage(List<WorldObject> targets)
-		{
-			targets.RemoveIf((WorldObject target) =>
-			                 {
-				                 if (!target.IsCreature())
-					                 return true;
+			return false;
+		});
 
-				                 if (!target.ToCreature().IsPet() || target.ToCreature().ToPet().GetOwner() != GetCaster())
-					                 return true;
+		var basePoints = SpellInfo.GetEffect(1).BasePoints;
 
-				                 if (target.ToCreature().GetCreatureType() != CreatureType.Demon)
-					                 return true;
+		foreach (var pet in targets)
+			_damage += (int)pet.ToUnit().CountPctFromMaxHealth(basePoints);
+	}
 
-				                 return false;
-			                 });
-
-			var basePoints = GetSpellInfo().GetEffect(1).BasePoints;
-
-			foreach (var pet in targets)
-				_damage += (int)pet.ToUnit().CountPctFromMaxHealth(basePoints);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SaveDamage, 1, Targets.UnitCasterAndSummons));
 	}
 }

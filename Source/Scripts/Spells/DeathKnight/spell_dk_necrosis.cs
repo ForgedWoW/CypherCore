@@ -28,6 +28,6 @@ internal class spell_dk_necrosis : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(eventInfo.GetProcTarget(), DeathKnightSpells.NecrosisEffect, true);
+		Target.CastSpell(eventInfo.ProcTarget, DeathKnightSpells.NecrosisEffect, true);
 	}
 }

@@ -21,7 +21,7 @@ internal class spell_steal_essence_visual : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

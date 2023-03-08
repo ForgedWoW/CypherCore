@@ -27,11 +27,11 @@ internal class spell_item_complete_raptor_capture : SpellScript, IHasSpellEffect
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (GetHitCreature())
+		if (HitCreature)
 		{
-			GetHitCreature().DespawnOrUnsummon();
+			HitCreature.DespawnOrUnsummon();
 
 			//cast spell Raptor Capture Credit
 			caster.CastSpell(caster, ItemSpellIds.RaptorCaptureCredit, true);

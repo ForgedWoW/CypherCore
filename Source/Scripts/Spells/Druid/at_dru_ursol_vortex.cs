@@ -10,9 +10,9 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class at_dru_ursol_vortex : AreaTriggerAI
 {
-	public at_dru_ursol_vortex(AreaTrigger at) : base(at)
-	{
-	}
+	private bool _hasPull = false;
+
+	public at_dru_ursol_vortex(AreaTrigger at) : base(at) { }
 
 	public override void OnUnitEnter(Unit target)
 	{
@@ -32,6 +32,4 @@ public class at_dru_ursol_vortex : AreaTriggerAI
 			target.CastSpell(at.Location, DruidSpells.URSOL_VORTEX_PULL, true);
 		}
 	}
-
-	private bool _hasPull = false;
 }

@@ -19,9 +19,7 @@ public class at_hun_binding_shotAI : AreaTriggerAI
 		HUNDER_BINDING_SHOT_VISUAL_2 = 117614
 	}
 
-	public at_hun_binding_shotAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_hun_binding_shotAI(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

@@ -15,6 +15,8 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 {
 	private bool _hasPremeditationAura = false;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(RogueSpells.PremeditationAura, RogueSpells.SliceAndDice, RogueSpells.PremeditationPassive) && Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).Effects.Count > 0;
@@ -24,7 +26,7 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 	{
 		// Because the premeditation aura is removed when we're out of stealth,
 		// when we reach HandleEnergize the aura won't be there, even if it was when player launched the spell
-		_hasPremeditationAura = GetCaster().HasAura(RogueSpells.PremeditationAura);
+		_hasPremeditationAura = Caster.HasAura(RogueSpells.PremeditationAura);
 
 		return SpellCastResult.Success;
 	}
@@ -34,11 +36,9 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 		SpellEffects.Add(new EffectHandler(HandleEnergize, 1, SpellEffectName.Energize, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleEnergize(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (_hasPremeditationAura)
 		{
@@ -51,12 +51,12 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 					var auraEff = premeditationPassive.GetEffect(1);
 
 					if (auraEff != null)
-						SetHitDamage(GetHitDamage() + auraEff.Amount);
+						HitDamage = HitDamage + auraEff.Amount;
 				}
 			}
 
 			// Grant 10 seconds of slice and dice
-			var duration = Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffect(0).CalcValue(GetCaster());
+			var duration = Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).GetEffect(0).CalcValue(Caster);
 
 			CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 			args.AddSpellMod(SpellValueMod.Duration, duration * Time.InMilliseconds);

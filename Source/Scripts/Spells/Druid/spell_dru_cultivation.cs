@@ -13,18 +13,18 @@ namespace Scripts.Spells.Druid;
 [SpellScript(200389)]
 public class spell_dru_cultivation : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-	{
-		if (!GetCaster())
-			return;
-
-		amount.Value = MathFunctions.CalculatePct(GetCaster().SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 60);
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicHeal));
+	}
+
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		if (!Caster)
+			return;
+
+		amount.Value = MathFunctions.CalculatePct(Caster.SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 60);
 	}
 }

@@ -10,9 +10,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_demon_hunter_demonic_trample : AreaTriggerAI
 {
-	public at_demon_hunter_demonic_trample(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_demon_hunter_demonic_trample(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

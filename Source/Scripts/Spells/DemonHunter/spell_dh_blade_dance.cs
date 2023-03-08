@@ -31,17 +31,17 @@ internal class spell_dh_blade_dance : SpellScript, IHasSpellEffects
 		if (targetList.Empty())
 			return;
 
-		var aura = GetCaster().GetAura(DemonHunterSpells.FirstBlood);
+		var aura = Caster.GetAura(DemonHunterSpells.FirstBlood);
 
 		if (aura == null)
 			return;
 
 		var firstTargetGUID = ObjectGuid.Empty;
-		var selectedTarget  = GetCaster().GetTarget();
+		var selectedTarget = Caster.GetTarget();
 
 		// Prefer the selected Target if he is one of the enemies
 		if (targetList.Count > 1 &&
-		    !selectedTarget.IsEmpty())
+			!selectedTarget.IsEmpty())
 		{
 			var foundObj = targetList.Find(obj => obj.GetGUID() == selectedTarget);
 

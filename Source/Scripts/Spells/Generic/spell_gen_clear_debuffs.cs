@@ -21,14 +21,14 @@ internal class spell_gen_clear_debuffs : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			target.RemoveOwnedAuras(aura =>
-			                        {
-				                        var spellInfo = aura.SpellInfo;
+			{
+				var spellInfo = aura.SpellInfo;
 
-				                        return !spellInfo.IsPositive && !spellInfo.IsPassive();
-			                        });
+				return !spellInfo.IsPositive && !spellInfo.IsPassive;
+			});
 	}
 }

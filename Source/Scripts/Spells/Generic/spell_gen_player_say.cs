@@ -29,8 +29,8 @@ internal class spell_gen_player_say : SpellScript, IHasSpellEffects
 	private void HandleScript(int effIndex)
 	{
 		// Note: Target here is always player; caster here is gameobject, creature or player (self cast)
-		var target = GetHitUnit();
+		var target = HitUnit;
 
-		target?.Say((uint)GetEffectValue(), target);
+		target?.Say((uint)EffectValue, target);
 	}
 }

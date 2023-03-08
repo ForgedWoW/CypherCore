@@ -13,22 +13,22 @@ public class spell_rog_between_the_eyes_SpellScript : SpellScript, ISpellAfterHi
 {
 	private int _cp = 0;
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		if (powerCost.Power == PowerType.ComboPoints)
-			_cp = powerCost.Amount;
-	}
-
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
-			var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, GetCaster().GetGUID());
+			var aura = target.GetAura(TrueBearingIDs.BETWEEN_THE_EYES, Caster.GetGUID());
 
 			if (aura != null)
 				aura.SetDuration(_cp * Time.InMilliseconds);
 		}
+	}
+
+	public void TakePower(SpellPowerCost powerCost)
+	{
+		if (powerCost.Power == PowerType.ComboPoints)
+			_cp = powerCost.Amount;
 	}
 }

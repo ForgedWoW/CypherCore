@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ITransport
+namespace Game.Scripting.Interfaces.ITransport;
+
+public interface ITransportOnUpdate : IScriptObject
 {
-    public interface ITransportOnUpdate : IScriptObject
-    {
-        void OnUpdate(Transport obj, uint diff);
-    }
+	void OnUpdate(Transport obj, uint diff);
 }

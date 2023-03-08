@@ -18,7 +18,7 @@ internal class spell_dk_pet_skeleton_transform : SpellScript, ISpellCheckCast
 
 	public SpellCastResult CheckCast()
 	{
-		var owner = GetCaster().GetOwner();
+		var owner = Caster.GetOwner();
 
 		if (owner)
 			if (owner.HasAura(DeathKnightSpells.GlyphOfTheSkeleton))

@@ -21,18 +21,18 @@ internal class spell_gen_consumption : SpellScript, IHasSpellEffects
 
 	private void HandleDamageCalc(int effIndex)
 	{
-		var caster = GetCaster().ToCreature();
+		var caster = Caster.ToCreature();
 
 		if (caster == null)
 			return;
 
 		double damage = 0f;
-		var createdBySpell = Global.SpellMgr.GetSpellInfo(caster.UnitData.CreatedBySpell, GetCastDifficulty());
+		var createdBySpell = Global.SpellMgr.GetSpellInfo(caster.UnitData.CreatedBySpell, CastDifficulty);
 
 		if (createdBySpell != null)
 			damage = createdBySpell.GetEffect(2).CalcValue();
 
 		if (damage != 0)
-			SetEffectValue(damage);
+			EffectValue = damage;
 	}
 }

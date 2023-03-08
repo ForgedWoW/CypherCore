@@ -13,18 +13,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(170205)]
 public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	private struct eSpells
+	public override void Register()
 	{
-		public const uint FrozenRunebladeMainHand = 165569;
-		public const uint FrozenRunebladeOffHand = 178808;
-		public const uint FrozenRunebladeStacks = 170202;
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
 	}
 
 	private void OnTick(AuraEffect UnnamedParameter)
 	{
-		var l_Caster = GetCaster();
+		var l_Caster = Caster;
 
 		if (l_Caster == null)
 			return;
@@ -57,8 +55,10 @@ public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEf
 		}
 	}
 
-	public override void Register()
+	private struct eSpells
 	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicTriggerSpell));
+		public const uint FrozenRunebladeMainHand = 165569;
+		public const uint FrozenRunebladeOffHand = 178808;
+		public const uint FrozenRunebladeStacks = 170202;
 	}
 }

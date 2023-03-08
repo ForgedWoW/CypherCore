@@ -12,17 +12,17 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(200108)]
 public class spell_hun_rangers_net : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var caster = GetCaster();
-
-		caster.CastSpell(GetTarget(), HunterSpells.RANGERS_NET_INCREASE_SPEED, true);
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.ModRoot2, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
+
+	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
+
+		caster.CastSpell(Target, HunterSpells.RANGERS_NET_INCREASE_SPEED, true);
 	}
 }

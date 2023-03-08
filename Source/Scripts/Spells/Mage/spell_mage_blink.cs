@@ -11,12 +11,12 @@ public class spell_mage_blink : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (GetCaster().HasAura(MageSpells.BLAZING_SOUL))
-			GetCaster().AddAura(MageSpells.BLAZING_BARRIER, caster);
+		if (Caster.HasAura(MageSpells.BLAZING_SOUL))
+			Caster.AddAura(MageSpells.BLAZING_BARRIER, caster);
 
-		if (GetCaster().HasAura(MageSpells.PRISMATIC_CLOAK))
-			GetCaster().AddAura(MageSpells.PRISMATIC_CLOAK_BUFF, caster);
+		if (Caster.HasAura(MageSpells.PRISMATIC_CLOAK))
+			Caster.AddAura(MageSpells.PRISMATIC_CLOAK_BUFF, caster);
 	}
 }

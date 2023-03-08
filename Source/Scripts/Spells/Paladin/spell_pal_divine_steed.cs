@@ -2,65 +2,67 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(190784)] // 190784 - Divine Steed
+internal class spell_pal_divine_steed : SpellScript, ISpellOnCast
 {
-    [SpellScript(190784)] // 190784 - Divine Steed
-    internal class spell_pal_divine_steed : SpellScript, ISpellOnCast
-    {
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.DivineSteedHuman, PaladinSpells.DivineSteedDwarf, PaladinSpells.DivineSteedDraenei,
-                PaladinSpells.DivineSteedDarkIronDwarf, PaladinSpells.DivineSteedBloodelf, PaladinSpells.DivineSteedTauren,
-                PaladinSpells.DivineSteedZandalariTroll);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.DivineSteedHuman,
+								PaladinSpells.DivineSteedDwarf,
+								PaladinSpells.DivineSteedDraenei,
+								PaladinSpells.DivineSteedDarkIronDwarf,
+								PaladinSpells.DivineSteedBloodelf,
+								PaladinSpells.DivineSteedTauren,
+								PaladinSpells.DivineSteedZandalariTroll);
+	}
 
-        public void OnCast()
-        {
-            Unit caster = GetCaster();
+	public void OnCast()
+	{
+		var caster = Caster;
 
-            uint spellId = PaladinSpells.DivineSteedHuman;
+		var spellId = PaladinSpells.DivineSteedHuman;
 
-            switch (caster.GetRace())
-            {
-                case Race.Human:
-                    spellId = PaladinSpells.DivineSteedHuman;
+		switch (caster.GetRace())
+		{
+			case Race.Human:
+				spellId = PaladinSpells.DivineSteedHuman;
 
-                    break;
-                case Race.Dwarf:
-                    spellId = PaladinSpells.DivineSteedDwarf;
+				break;
+			case Race.Dwarf:
+				spellId = PaladinSpells.DivineSteedDwarf;
 
-                    break;
-                case Race.Draenei:
-                case Race.LightforgedDraenei:
-                    spellId = PaladinSpells.DivineSteedDraenei;
+				break;
+			case Race.Draenei:
+			case Race.LightforgedDraenei:
+				spellId = PaladinSpells.DivineSteedDraenei;
 
-                    break;
-                case Race.DarkIronDwarf:
-                    spellId = PaladinSpells.DivineSteedDarkIronDwarf;
+				break;
+			case Race.DarkIronDwarf:
+				spellId = PaladinSpells.DivineSteedDarkIronDwarf;
 
-                    break;
-                case Race.BloodElf:
-                    spellId = PaladinSpells.DivineSteedBloodelf;
+				break;
+			case Race.BloodElf:
+				spellId = PaladinSpells.DivineSteedBloodelf;
 
-                    break;
-                case Race.Tauren:
-                    spellId = PaladinSpells.DivineSteedTauren;
+				break;
+			case Race.Tauren:
+				spellId = PaladinSpells.DivineSteedTauren;
 
-                    break;
-                case Race.ZandalariTroll:
-                    spellId = PaladinSpells.DivineSteedZandalariTroll;
+				break;
+			case Race.ZandalariTroll:
+				spellId = PaladinSpells.DivineSteedZandalariTroll;
 
-                    break;
-                default:
-                    break;
-            }
+				break;
+			default:
+				break;
+		}
 
-            caster.CastSpell(caster, spellId, true);
-        }
-    }
+		caster.CastSpell(caster, spellId, true);
+	}
 }

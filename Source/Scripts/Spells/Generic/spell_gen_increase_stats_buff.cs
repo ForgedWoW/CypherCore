@@ -25,9 +25,9 @@ internal class spell_gen_increase_stats_buff : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetHitUnit().IsInRaidWith(GetCaster()))
-			GetCaster().CastSpell(GetCaster(), (uint)GetEffectValue() + 1, true); // raid buff
+		if (HitUnit.IsInRaidWith(Caster))
+			Caster.CastSpell(Caster, (uint)EffectValue + 1, true); // raid buff
 		else
-			GetCaster().CastSpell(GetHitUnit(), (uint)GetEffectValue(), true); // single-Target buff
+			Caster.CastSpell(HitUnit, (uint)EffectValue, true); // single-Target buff
 	}
 }

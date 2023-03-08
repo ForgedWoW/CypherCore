@@ -7,35 +7,34 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 95738 - Bladestorm Offhand
+[SpellScript(95738)]
+public class spell_warr_bladestorm_offhand : SpellScript, IHasSpellEffects
 {
-    // 95738 - Bladestorm Offhand
-    [SpellScript(95738)]
-	public class spell_warr_bladestorm_offhand : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleOnHit(int effIndex)
+	private void HandleOnHit(int effIndex)
+	{
+		var caster = Caster.ToPlayer();
+
+		if (caster == null)
+			return;
+
+		var _spec = caster.GetPrimarySpecialization();
+
+		if (_spec != TalentSpecialization.WarriorFury) //only fury warriors should deal damage with offhand
 		{
-			var caster = GetCaster().ToPlayer();
-
-			if (caster == null)
-				return;
-
-			var _spec = caster.GetPrimarySpecialization();
-
-			if (_spec != TalentSpecialization.WarriorFury) //only fury warriors should deal damage with offhand
-			{
-				PreventHitDamage();
-				PreventHitDefaultEffect(effIndex);
-				PreventHitEffect(effIndex);
-			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
+			PreventHitDamage();
+			PreventHitDefaultEffect(effIndex);
+			PreventHitEffect(effIndex);
 		}
 	}
 }

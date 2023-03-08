@@ -16,7 +16,7 @@ internal class spell_gen_despawn_self : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Unit);
+		return Caster.IsTypeId(TypeId.Unit);
 	}
 
 	public override void Register()
@@ -26,8 +26,8 @@ internal class spell_gen_despawn_self : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetEffectInfo().IsEffect(SpellEffectName.Dummy) ||
-		    GetEffectInfo().IsEffect(SpellEffectName.ScriptEffect))
-			GetCaster().ToCreature().DespawnOrUnsummon();
+		if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
+			EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
+			Caster.ToCreature().DespawnOrUnsummon();
 	}
 }

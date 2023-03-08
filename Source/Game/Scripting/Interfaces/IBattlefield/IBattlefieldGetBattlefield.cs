@@ -4,10 +4,9 @@
 using Game.BattleFields;
 using Game.Maps;
 
-namespace Game.Scripting.Interfaces.IBattlefield
+namespace Game.Scripting.Interfaces.IBattlefield;
+
+public interface IBattlefieldGetBattlefield : IScriptObject
 {
-    public interface IBattlefieldGetBattlefield : IScriptObject
-    {
-        BattleField GetBattlefield(Map map);
-    }
+	BattleField GetBattlefield(Map map);
 }

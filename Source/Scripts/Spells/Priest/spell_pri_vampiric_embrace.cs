@@ -14,6 +14,8 @@ namespace Scripts.Spells.Priest;
 [Script] // 15286 - Vampiric Embrace
 internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.VAMPIRIC_EMBRACE_HEAL);
@@ -22,7 +24,7 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		// Not proc from Mind Sear
-		return !eventInfo.GetDamageInfo().GetSpellInfo().SpellFamilyFlags[1].HasAnyFlag(0x80000u);
+		return !eventInfo.DamageInfo.GetSpellInfo().SpellFamilyFlags[1].HasAnyFlag(0x80000u);
 	}
 
 	public override void Register()
@@ -30,15 +32,13 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-		    damageInfo.GetDamage() == 0)
+			damageInfo.GetDamage() == 0)
 			return;
 
 		var selfHeal = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
@@ -47,6 +47,6 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, teamHeal);
 		args.AddSpellMod(SpellValueMod.BasePoint1, selfHeal);
-		GetTarget().CastSpell((Unit)null, PriestSpells.VAMPIRIC_EMBRACE_HEAL, args);
+		Target.CastSpell((Unit)null, PriestSpells.VAMPIRIC_EMBRACE_HEAL, args);
 	}
 }

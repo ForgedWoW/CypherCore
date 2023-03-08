@@ -21,6 +21,6 @@ internal class spell_q12372_cast_from_gossip_trigger : SpellScript, IHasSpellEff
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), QuestSpellIds.SummonWyrmrestDefender, true);
+		Caster.CastSpell(Caster, QuestSpellIds.SummonWyrmrestDefender, true);
 	}
 }

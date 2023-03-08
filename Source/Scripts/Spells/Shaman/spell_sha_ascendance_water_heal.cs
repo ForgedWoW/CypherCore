@@ -8,30 +8,28 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Ascendance (Water)(heal) - 114083
+[SpellScript(114083)]
+public class spell_sha_ascendance_water_heal : SpellScript, IHasSpellEffects
 {
-    // Ascendance (Water)(heal) - 114083
-    [SpellScript(114083)]
-	public class spell_sha_ascendance_water_heal : SpellScript, IHasSpellEffects
+	private uint m_TargetSize = 0;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(OnEffectHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaAlly));
+	}
 
-		private uint m_TargetSize = 0;
+	private void OnEffectHeal(int effIndex)
+	{
+		HitHeal = (int)(HitHeal / m_TargetSize);
+	}
 
-		private void OnEffectHeal(int effIndex)
-		{
-			SetHitHeal((int)(GetHitHeal() / m_TargetSize));
-		}
-
-		private void FilterTargets(List<WorldObject> p_Targets)
-		{
-			m_TargetSize = (uint)p_Targets.Count;
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(OnEffectHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaAlly));
-		}
+	private void FilterTargets(List<WorldObject> p_Targets)
+	{
+		m_TargetSize = (uint)p_Targets.Count;
 	}
 }

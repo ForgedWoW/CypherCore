@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnCreate : IScriptObject
 {
-    public interface IGuildOnCreate : IScriptObject
-    {
-        void OnCreate(Guild guild, Player leader, string name);
-    }
+	void OnCreate(Guild guild, Player leader, string name);
 }

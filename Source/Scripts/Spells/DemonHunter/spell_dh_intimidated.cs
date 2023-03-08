@@ -13,20 +13,23 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206891)]
 public class spell_dh_intimidated : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private readonly List<ObjectGuid> _uniqueTargets = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModDamagePercentTaken, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var attacker  = eventInfo.GetActor();
-		var auraOwner = GetAura().Owner;
+		var attacker = eventInfo.Actor;
+		var auraOwner = Aura.Owner;
 
 		if (attacker == null || auraOwner == null)
 			return;
 
-		if (attacker == GetCaster())
+		if (attacker == Caster)
 		{
 			RefreshDuration();
 
@@ -38,13 +41,8 @@ public class spell_dh_intimidated : AuraScript, IHasAuraEffects
 
 		if (_uniqueTargets.Contains(attacker.GetGUID()))
 		{
-			attacker.CastSpell(auraOwner.ToUnit(), GetSpellInfo().Id, true);
+			attacker.CastSpell(auraOwner.ToUnit(), SpellInfo.Id, true);
 			_uniqueTargets.Add(attacker.GetGUID());
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModDamagePercentTaken, AuraScriptHookType.EffectProc));
 	}
 }

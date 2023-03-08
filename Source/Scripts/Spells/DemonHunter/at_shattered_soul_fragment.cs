@@ -11,9 +11,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_shattered_soul_fragment : AreaTriggerAI
 {
-	public at_shattered_soul_fragment(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_shattered_soul_fragment(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

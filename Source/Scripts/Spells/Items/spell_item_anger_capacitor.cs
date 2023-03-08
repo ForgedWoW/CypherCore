@@ -16,12 +16,12 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 {
 	private readonly int _stackAmount;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_anger_capacitor(int stackAmount)
 	{
 		_stackAmount = stackAmount;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -37,23 +37,23 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetProcTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ProcTarget;
 
 		caster.CastSpell((Unit)null, ItemSpellIds.MoteOfAnger, true);
 		var motes = caster.GetAura(ItemSpellIds.MoteOfAnger);
 
 		if (motes == null ||
-		    motes.StackAmount < _stackAmount)
+			motes.StackAmount < _stackAmount)
 			return;
 
 		caster.RemoveAura(ItemSpellIds.MoteOfAnger);
 		var spellId = ItemSpellIds.ManifestAngerMainHand;
-		var player  = caster.ToPlayer();
+		var player = caster.ToPlayer();
 
 		if (player)
 			if (player.GetWeaponForAttack(WeaponAttackType.OffAttack, true) &&
-			    RandomHelper.URand(0, 1) != 0)
+				RandomHelper.URand(0, 1) != 0)
 				spellId = ItemSpellIds.ManifestAngerOffHand;
 
 		caster.CastSpell(target, spellId, new CastSpellExtraArgs(aurEff));
@@ -61,6 +61,6 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(ItemSpellIds.MoteOfAnger);
+		Target.RemoveAura(ItemSpellIds.MoteOfAnger);
 	}
 }

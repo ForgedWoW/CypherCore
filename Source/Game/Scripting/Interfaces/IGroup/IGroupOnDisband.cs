@@ -3,10 +3,9 @@
 
 using Game.Groups;
 
-namespace Game.Scripting.Interfaces.IGroup
+namespace Game.Scripting.Interfaces.IGroup;
+
+public interface IGroupOnDisband : IScriptObject
 {
-    public interface IGroupOnDisband : IScriptObject
-    {
-        void OnDisband(Group group);
-    }
+	void OnDisband(Group group);
 }

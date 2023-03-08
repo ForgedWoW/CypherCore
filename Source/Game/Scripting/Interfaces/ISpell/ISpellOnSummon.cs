@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellOnSummon : ISpellScript
 {
-    public interface ISpellOnSummon : ISpellScript
-    {
-        void OnSummon(Creature creature);
-    }
+	void OnSummon(Creature creature);
 }

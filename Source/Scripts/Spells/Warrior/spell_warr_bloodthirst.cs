@@ -8,50 +8,49 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+[SpellScript(23881)] // 23881 - Bloodthirst
+internal class spell_warr_bloodthirst : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnHit
 {
-    [SpellScript(23881)] // 23881 - Bloodthirst
-	internal class spell_warr_bloodthirst : SpellScript, IHasSpellEffects, ISpellOnCast, ISpellOnHit
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(WarriorSpells.BLOODTHIRST_HEAL);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(WarriorSpells.BLOODTHIRST_HEAL);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 3, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleDummy, 3, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-		}
+	public void OnCast()
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-		private void HandleDummy(int effIndex)
-		{
-			GetCaster().CastSpell(GetCaster(), WarriorSpells.BLOODTHIRST_HEAL, true);
-		}
+		if (caster == null || target == null)
+			return;
 
-		public void OnCast()
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.GetTarget()))
+			HitDamage = HitDamage / 2;
 
-			if (caster == null || target == null)
-				return;
+		if (caster.HasAura(WarriorSpells.FRESH_MEAT))
+			if (RandomHelper.FRand(0, 15) != 0)
+				caster.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
 
-			if (target != ObjectAccessor.Instance.GetUnit(caster, caster.GetTarget()))
-				SetHitDamage(GetHitDamage() / 2);
+		if (caster.HasAura(WarriorSpells.THIRST_FOR_BATTLE))
+			caster.AddAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF, caster);
+	}
 
-			if (caster.HasAura(WarriorSpells.FRESH_MEAT))
-				if (RandomHelper.FRand(0, 15) != 0)
-					caster.CastSpell(null, WarriorSpells.ENRAGE_AURA, true);
+	public void OnHit()
+	{
+		Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
+	}
 
-			if (caster.HasAura(WarriorSpells.THIRST_FOR_BATTLE))
-				caster.AddAura(WarriorSpells.THIRST_FOR_BATTLE_BUFF, caster);
-		}
-
-		public void OnHit()
-		{
-			GetCaster().CastSpell(GetCaster(), WarriorSpells.BLOODTHIRST_HEAL, true);
-		}
+	private void HandleDummy(int effIndex)
+	{
+		Caster.CastSpell(Caster, WarriorSpells.BLOODTHIRST_HEAL, true);
 	}
 }

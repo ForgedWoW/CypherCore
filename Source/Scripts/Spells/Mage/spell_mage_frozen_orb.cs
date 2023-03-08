@@ -14,10 +14,15 @@ public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
@@ -46,10 +51,5 @@ public class spell_mage_frozen_orb : SpellScript, IHasSpellEffects
 				caster.CastSpell(caster, MageSpells.FINGERS_OF_FROST_AURA, true);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

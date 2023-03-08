@@ -15,9 +15,14 @@ public class spell_demon_hunter_eye_beam_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
+	}
+
 	private void FilterTargets(List<WorldObject> unitList)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -31,10 +36,5 @@ public class spell_demon_hunter_eye_beam_damage : SpellScript, IHasSpellEffects
 
 		foreach (var unit in units)
 			unitList.Add(unit);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitRectCasterEnemy));
 	}
 }

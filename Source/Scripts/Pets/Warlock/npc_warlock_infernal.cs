@@ -11,93 +11,90 @@ using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
 {
-    namespace Warlock
-    {
+	namespace Warlock
+	{
+		[CreatureScript(89)]
+		public class npc_warlock_infernal : SmartAI
+		{
+			public Position spawnPos = new();
 
-        [CreatureScript(89)]
-        public class npc_warlock_infernal : SmartAI
-        {
-            public Position spawnPos = new();
+			public npc_warlock_infernal(Creature creature) : base(creature)
+			{
+				if (!me.TryGetOwner(out Player owner))
+					return;
 
-            public npc_warlock_infernal(Creature creature) : base(creature)
-            {
-                if (!me.TryGetOwner(out Player owner))
-                    return;
+				if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
+					me.AddAura(WarlockSpells.INFERNAL_BRAND_INFERNAL_AURA, me);
 
-                if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
-                    me.AddAura(WarlockSpells.INFERNAL_BRAND_INFERNAL_AURA, me);
+				creature.SetLevel(owner.GetLevel());
+				creature.UpdateLevelDependantStats();
+				creature.SetReactState(ReactStates.Assist);
+				creature.SetCreatorGUID(owner.GetGUID());
 
-                creature.SetLevel(owner.GetLevel());
-                creature.UpdateLevelDependantStats();
-                creature.SetReactState(ReactStates.Assist);
-                creature.SetCreatorGUID(owner.GetGUID());
+				var summon = creature.ToTempSummon();
 
-                var summon = creature.ToTempSummon();
+				if (summon != null)
+					StartAttackOnOwnersInCombatWith();
+			}
 
-                if (summon != null)
-                {
-                    StartAttackOnOwnersInCombatWith();
-                }
-            }
+			public override void Reset()
+			{
+				spawnPos = me.Location;
 
-            public override void Reset()
-            {
-                spawnPos = me.Location;
+				// if we leave default State (ASSIST) it will passively be controlled by warlock
+				me.SetReactState(ReactStates.Passive);
 
-                // if we leave default State (ASSIST) it will passively be controlled by warlock
-                me.SetReactState(ReactStates.Passive);
+				// melee Damage
+				if (me.TryGetOwner(out Player owner) && owner.TryGetAsPlayer(out var player))
+				{
+					var isLordSummon = me.GetEntry() == 108452;
 
-                // melee Damage
-                if (me.TryGetOwner(out Player owner) && owner.TryGetAsPlayer(out var player))
-                {
-                    bool isLordSummon = me.GetEntry() == 108452;
+					var spellPower = player.SpellBaseDamageBonusDone(SpellSchoolMask.Fire);
+					var dmg = MathFunctions.CalculatePct(spellPower, isLordSummon ? 30 : 50);
+					var diff = MathFunctions.CalculatePct(dmg, 10);
 
-                    double spellPower = player.SpellBaseDamageBonusDone(SpellSchoolMask.Fire);
-                    double dmg = MathFunctions.CalculatePct(spellPower, isLordSummon ? 30 : 50);
-                    double diff = MathFunctions.CalculatePct(dmg, 10);
-
-                    me.SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, dmg - diff);
-                    me.SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, dmg + diff);
+					me.SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, dmg - diff);
+					me.SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MaxDamage, dmg + diff);
 
 
-                    if (isLordSummon)
-                        return;
+					if (isLordSummon)
+						return;
 
-                    if (player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES) &&
-                        !player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES_CD))
-                    {
-                        List<double> angleOffsets = new()
-                                                           {
-                                                               (double)Math.PI / 2.0f,
-                                                               (double)Math.PI,
-                                                               3.0f * (double)Math.PI / 2.0f
-                                                           };
+					if (player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES) &&
+						!player.HasAura(WarlockSpells.LORD_OF_THE_FLAMES_CD))
+					{
+						List<double> angleOffsets = new()
+						{
+							(double)Math.PI / 2.0f,
+							(double)Math.PI,
+							3.0f * (double)Math.PI / 2.0f
+						};
 
-                        for (uint i = 0; i < 3; ++i)
-                            player.CastSpell(me, WarlockSpells.LORD_OF_THE_FLAMES_SUMMON, true);
+						for (uint i = 0; i < 3; ++i)
+							player.CastSpell(me, WarlockSpells.LORD_OF_THE_FLAMES_SUMMON, true);
 
-                        player.CastSpell(player, WarlockSpells.LORD_OF_THE_FLAMES_CD, true);
-                    }
-                }
-            }
+						player.CastSpell(player, WarlockSpells.LORD_OF_THE_FLAMES_CD, true);
+					}
+				}
+			}
 
-            public override void UpdateAI(uint UnnamedParameter)
-            {
-                if (!me.HasAura(WarlockSpells.IMMOLATION))
-                    DoCast(WarlockSpells.IMMOLATION);
+			public override void UpdateAI(uint UnnamedParameter)
+			{
+				if (!me.HasAura(WarlockSpells.IMMOLATION))
+					DoCast(WarlockSpells.IMMOLATION);
 
-                //DoMeleeAttackIfReady();
-                base.UpdateAI(UnnamedParameter);
-            }
+				//DoMeleeAttackIfReady();
+				base.UpdateAI(UnnamedParameter);
+			}
 
-            public override void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra)
-            {
-                if (me != damageInfo.Attacker || !me.TryGetOwner(out Player owner))
-                    return;
+			public override void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra)
+			{
+				if (me != damageInfo.Attacker || !me.TryGetOwner(out Player owner))
+					return;
 
-                if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
-                    me.AddAura(WarlockSpells.INFERNAL_BRAND_ENEMY_AURA, damageInfo.Target);
-            }
-        }
-    }
+				if (owner.TryGetAsPlayer(out var player) && player.HasAura(WarlockSpells.INFERNAL_BRAND))
+					me.AddAura(WarlockSpells.INFERNAL_BRAND_ENEMY_AURA, damageInfo.Target);
+			}
+		}
+	}
 }

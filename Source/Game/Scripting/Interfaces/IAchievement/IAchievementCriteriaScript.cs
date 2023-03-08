@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAchievement
+namespace Game.Scripting.Interfaces.IAchievement;
+
+public interface IAchievementCriteriaOnCheck : IScriptObject
 {
-    public interface IAchievementCriteriaOnCheck : IScriptObject
-    {
-        bool OnCheck(Player source, Unit target);
-    }
+	bool OnCheck(Player source, Unit target);
 }

@@ -6,27 +6,24 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//NPC ID : 102392
+[CreatureScript(102392)]
+public class npc_resonance_totem : ScriptedAI
 {
-    //NPC ID : 102392
-    [CreatureScript(102392)]
-	public class npc_resonance_totem : ScriptedAI
+	public npc_resonance_totem(Creature creature) : base(creature) { }
+
+	public override void Reset()
 	{
-		public npc_resonance_totem(Creature creature) : base(creature)
-		{
-		}
+		var time = TimeSpan.FromSeconds(1);
 
-		public override void Reset()
-		{
-			var time = TimeSpan.FromSeconds(1);
+		me.Events.AddRepeatEventAtOffset(() =>
+										{
+											me.CastSpell(me, TotemSpells.TOTEM_RESONANCE_EFFECT, true);
 
-			me.Events.AddRepeatEventAtOffset(() =>
-			                                   {
-				                                   me.CastSpell(me, TotemSpells.TOTEM_RESONANCE_EFFECT, true);
-
-				                                   return time;
-			                                   },
-			                                   time);
-		}
+											return time;
+										},
+										time);
 	}
 }

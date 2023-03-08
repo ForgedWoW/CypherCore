@@ -13,7 +13,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetDamageInfo() != null && (eventInfo.GetDamageInfo().GetSchoolMask() & SpellSchoolMask.Shadow) != 0;
+		return eventInfo.DamageInfo != null && (eventInfo.DamageInfo.GetSchoolMask() & SpellSchoolMask.Shadow) != 0;
 	}
 
 	public void OnProc(ProcEventInfo eventInfo)
@@ -23,17 +23,17 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 		if (caster == null)
 			return;
 
-		var pointsGained = GetPointsGained(caster, eventInfo.GetDamageInfo().GetDamage());
+		var pointsGained = GetPointsGained(caster, eventInfo.DamageInfo.GetDamage());
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
-			caster.EnergizeBySpell(caster, GetSpellInfo(), pointsGained, PowerType.Fury);
+			caster.EnergizeBySpell(caster, SpellInfo, pointsGained, PowerType.Fury);
 		else if (caster.GetPrimarySpecialization() == TalentSpecialization.DemonHunterVengeance)
-			caster.EnergizeBySpell(caster, GetSpellInfo(), pointsGained, PowerType.Pain);
+			caster.EnergizeBySpell(caster, SpellInfo, pointsGained, PowerType.Pain);
 	}
 
 	public Player GetPlayerCaster()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return null;
@@ -44,7 +44,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 	public double GetPointsGained(Player caster, double damage)
 	{
 		var damagePct = damage / caster.GetMaxHealth() * 100.0f / 2;
-		var max       = GetSpellInfo().GetEffect(0).BasePoints;
+		var max = SpellInfo.GetEffect(0).BasePoints;
 
 		if (damagePct > max)
 			return max;

@@ -20,16 +20,16 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(QuestSpellIds.BurstAtTheSeams52510,
-		                         QuestSpellIds.BurstAtTheSeams52508,
-		                         QuestSpellIds.BurstAtTheSeams59580,
-		                         QuestSpellIds.BurstAtTheSeamsBone,
-		                         QuestSpellIds.ExplodeAbominationMeat,
-		                         QuestSpellIds.ExplodeAbominationBloodyMeat);
+								QuestSpellIds.BurstAtTheSeams52508,
+								QuestSpellIds.BurstAtTheSeams59580,
+								QuestSpellIds.BurstAtTheSeamsBone,
+								QuestSpellIds.ExplodeAbominationMeat,
+								QuestSpellIds.ExplodeAbominationBloodyMeat);
 	}
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Unit;
+		return Caster.GetTypeId() == TypeId.Unit;
 	}
 
 	public override void Register()
@@ -40,11 +40,11 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 	private void HandleKnockBack(int effIndex)
 	{
-		Unit creature = GetHitCreature();
+		Unit creature = HitCreature;
 
 		if (creature != null)
 		{
-			var charmer = GetCaster().GetCharmerOrOwner();
+			var charmer = Caster.GetCharmerOrOwner();
 
 			if (charmer != null)
 			{
@@ -71,6 +71,6 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().ToCreature().DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+		Caster.ToCreature().DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 	}
 }

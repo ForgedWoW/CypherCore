@@ -7,80 +7,82 @@ using Game.Maps;
 using Game.Scripting;
 using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_helix_gearbreaker;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(47314)]
+public class npc_sticky_bomb : NullCreatureAI
 {
-    [CreatureScript(47314)]
-    public class npc_sticky_bomb : NullCreatureAI
-    {
-        public npc_sticky_bomb(Creature pCreature) : base(pCreature)
-        {
-            _instance = pCreature.GetInstanceScript();
-        }
+	private readonly InstanceScript _instance;
 
-        private readonly InstanceScript _instance;
+	private uint _phase;
+	private uint _uiTimer;
 
-        private uint _phase;
-        private uint _uiTimer;
+	public npc_sticky_bomb(Creature pCreature) : base(pCreature)
+	{
+		_instance = pCreature.GetInstanceScript();
+	}
 
-        public override void Reset()
-        {
-            _phase = 1;
-            _uiTimer = 500;
+	public override void Reset()
+	{
+		_phase = 1;
+		_uiTimer = 500;
 
-            if (!me)
-            {
-                return;
-            }
+		if (!me)
+			return;
 
-            DoCast(me, eSpels.CHEST_BOMB);
-        }
+		DoCast(me, eSpels.CHEST_BOMB);
+	}
 
-        public override void UpdateAI(uint uiDiff)
-        {
-            if (!me)
-            {
-                return;
-            }
+	public override void UpdateAI(uint uiDiff)
+	{
+		if (!me)
+			return;
 
-            if (_uiTimer < uiDiff)
-            {
-                switch (_phase)
-                {
-                    case 1:
-                        DoCast(me, eSpels.ARMING_VISUAL_YELLOW);
-                        _uiTimer = 700;
-                        break;
+		if (_uiTimer < uiDiff)
+		{
+			switch (_phase)
+			{
+				case 1:
+					DoCast(me, eSpels.ARMING_VISUAL_YELLOW);
+					_uiTimer = 700;
 
-                    case 2:
-                        DoCast(me, eSpels.ARMING_VISUAL_ORANGE);
-                        _uiTimer = 600;
-                        break;
+					break;
 
-                    case 3:
-                        DoCast(me, eSpels.ARMING_VISUAL_RED);
-                        _uiTimer = 500;
-                        break;
+				case 2:
+					DoCast(me, eSpels.ARMING_VISUAL_ORANGE);
+					_uiTimer = 600;
 
-                    case 4:
-                        DoCast(me, eSpels.BOMB_ARMED_STATE);
-                        _uiTimer = 400;
-                        break;
+					break;
 
-                    case 5:
-                        DoCast(me, me.GetMap().IsHeroic() ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
-                        _uiTimer = 300;
-                        break;
+				case 3:
+					DoCast(me, eSpels.ARMING_VISUAL_RED);
+					_uiTimer = 500;
 
-                    case 6:
-                        me.DespawnOrUnsummon();
-                        break;
-                }
-                _phase++;
-            }
-            else
-            {
-                _uiTimer -= uiDiff;
-            }
-        }
-    }
+					break;
+
+				case 4:
+					DoCast(me, eSpels.BOMB_ARMED_STATE);
+					_uiTimer = 400;
+
+					break;
+
+				case 5:
+					DoCast(me, me.GetMap().IsHeroic() ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
+					_uiTimer = 300;
+
+					break;
+
+				case 6:
+					me.DespawnOrUnsummon();
+
+					break;
+			}
+
+			_phase++;
+		}
+		else
+		{
+			_uiTimer -= uiDiff;
+		}
+	}
 }

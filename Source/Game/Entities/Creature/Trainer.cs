@@ -142,7 +142,7 @@ public class Trainer
 
 		var trainerSpellInfo = Global.SpellMgr.GetSpellInfo(trainerSpell.SpellId, Difficulty.None);
 
-		if (trainerSpellInfo.IsPrimaryProfessionFirstRank() && player.GetFreePrimaryProfessionPoints() == 0)
+		if (trainerSpellInfo.IsPrimaryProfessionFirstRank && player.GetFreePrimaryProfessionPoints() == 0)
 			return false;
 
 		foreach (var effect in trainerSpellInfo.Effects)
@@ -152,7 +152,7 @@ public class Trainer
 
 			var learnedSpellInfo = Global.SpellMgr.GetSpellInfo(effect.TriggerSpell, Difficulty.None);
 
-			if (learnedSpellInfo != null && learnedSpellInfo.IsPrimaryProfessionFirstRank() && player.GetFreePrimaryProfessionPoints() == 0)
+			if (learnedSpellInfo != null && learnedSpellInfo.IsPrimaryProfessionFirstRank && player.GetFreePrimaryProfessionPoints() == 0)
 				return false;
 		}
 

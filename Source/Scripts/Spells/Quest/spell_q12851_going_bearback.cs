@@ -21,11 +21,11 @@ internal class spell_q12851_going_bearback : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 		{
-			var target = GetTarget();
+			var target = Target;
 
 			// Already in fire
 			if (target.HasAura(QuestSpellIds.Ablaze))

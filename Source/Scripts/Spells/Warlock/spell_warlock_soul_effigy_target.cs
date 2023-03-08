@@ -8,65 +8,64 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 205178 - Soul Effigy target
+[SpellScript(205178)]
+public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
 {
-    // 205178 - Soul Effigy target
-    [SpellScript(205178)]
-	public class spell_warlock_soul_effigy_target : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.Dummy));
+	}
 
-		private void PeriodicTick(AuraEffect UnnamedParameter)
+	private void PeriodicTick(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		if (!caster.VariableStorage.Exist("Spells.SoulEffigyGuid"))
 		{
-			var caster = GetCaster();
+			Remove();
 
-			if (caster == null)
-				return;
-
-			if (!caster.VariableStorage.Exist("Spells.SoulEffigyGuid"))
-			{
-				Remove();
-
-				return;
-			}
-
-			var guid = caster.VariableStorage.GetValue<ObjectGuid>("Spells.SoulEffigyGuid", ObjectGuid.Empty);
-
-			if (!ObjectAccessor.Instance.GetUnit(caster, guid))
-				Remove();
+			return;
 		}
 
-		private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
+		var guid = caster.VariableStorage.GetValue<ObjectGuid>("Spells.SoulEffigyGuid", ObjectGuid.Empty);
 
-			if (caster == null)
-				return;
+		if (!ObjectAccessor.Instance.GetUnit(caster, guid))
+			Remove();
+	}
 
-			var guid = caster.VariableStorage.GetValue<ObjectGuid>("Spells.SoulEffigyGuid", ObjectGuid.Empty);
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
 
-			var effigy = ObjectAccessor.Instance.GetUnit(caster, guid);
+		if (caster == null)
+			return;
 
-			if (effigy != null)
-				effigy.ToTempSummon().DespawnOrUnsummon();
-		}
+		var guid = caster.VariableStorage.GetValue<ObjectGuid>("Spells.SoulEffigyGuid", ObjectGuid.Empty);
 
-		private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
-			var target = GetTarget();
+		var effigy = ObjectAccessor.Instance.GetUnit(caster, guid);
 
-			if (caster == null || target == null)
-				return;
+		if (effigy != null)
+			effigy.ToTempSummon().DespawnOrUnsummon();
+	}
 
-			caster.VariableStorage.Set("Spells.SoulEffigyTargetGuid", target.GetGUID());
-		}
+	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
+		var target = Target;
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Dummy, AuraEffectHandleModes.RealOrReapplyMask));
-			AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-			AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.Dummy));
-		}
+		if (caster == null || target == null)
+			return;
+
+		caster.VariableStorage.Set("Spells.SoulEffigyTargetGuid", target.GetGUID());
 	}
 }

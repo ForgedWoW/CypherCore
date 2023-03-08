@@ -13,27 +13,27 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(185789)]
 public class spell_hun_wild_call : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == HunterSpells.AUTO_SHOT && (eventInfo.GetHitMask() & ProcFlagsHit.Critical) != 0)
+		if (eventInfo.SpellInfo.Id == HunterSpells.AUTO_SHOT && (eventInfo.HitMask & ProcFlagsHit.Critical) != 0)
 			return true;
 
 		return false;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
+	}
+
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 			if (player.GetSpellHistory().HasCooldown(HunterSpells.BARBED_SHOT))
 				player.GetSpellHistory().ResetCooldown(HunterSpells.BARBED_SHOT, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));
 	}
 }

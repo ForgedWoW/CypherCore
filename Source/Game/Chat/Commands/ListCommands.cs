@@ -595,7 +595,7 @@ namespace Game.Chat.Commands
 
                     handler.SendSysMessage(CypherStrings.CommandTargetAuradetail, aura.Id, (handler.GetSession() != null ? ss_name : name),
                         aurApp.EffectMask, aura.Charges, aura.StackAmount, aurApp.Slot,
-                        aura.Duration, aura.MaxDuration, (aura.IsPassive() ? passiveStr : ""),
+                        aura.Duration, aura.MaxDuration, (aura.IsPassive ? passiveStr : ""),
                         (talent ? talentStr : ""), aura.CasterGuid.IsPlayer() ? "player" : "creature",
                         aura.CasterGuid.ToString());
                 }

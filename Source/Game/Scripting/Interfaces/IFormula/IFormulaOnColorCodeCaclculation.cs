@@ -3,10 +3,9 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.IFormula
+namespace Game.Scripting.Interfaces.IFormula;
+
+public interface IFormulaOnColorCodeCaclculation : IScriptObject
 {
-    public interface IFormulaOnColorCodeCaclculation : IScriptObject
-    {
-        void OnColorCodeCalculation(XPColorChar color, uint playerLevel, uint mobLevel);
-    }
+	void OnColorCodeCalculation(XPColorChar color, uint playerLevel, uint mobLevel);
 }

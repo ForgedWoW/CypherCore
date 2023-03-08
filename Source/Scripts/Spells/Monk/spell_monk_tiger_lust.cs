@@ -20,16 +20,16 @@ public class spell_monk_tiger_lust : SpellScript, IHasSpellEffects
 		return Global.SpellMgr.GetSpellInfo(TigerLust.TIGER_LUST, Difficulty.None) != null;
 	}
 
-	private void HandleDummy(int effIndex)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-			target.RemoveMovementImpairingAuras(false);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+			target.RemoveMovementImpairingAuras(false);
 	}
 }

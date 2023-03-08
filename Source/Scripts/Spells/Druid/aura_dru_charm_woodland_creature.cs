@@ -12,7 +12,13 @@ namespace Scripts.Spells.Druid;
 [SpellScript(127757)]
 public class aura_dru_charm_woodland_creature : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AoeCharm, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.AoeCharm, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
@@ -21,8 +27,8 @@ public class aura_dru_charm_woodland_creature : AuraScript, IHasAuraEffects
 		//if (Unit* target = GetTarget())
 		//target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-		var caster = GetCaster();
-		var target = GetTarget();
+		var caster = Caster;
+		var target = Target;
 
 		if (caster != null && target != null)
 			target.GetMotionMaster().MoveFollow(caster, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
@@ -33,16 +39,10 @@ public class aura_dru_charm_woodland_creature : AuraScript, IHasAuraEffects
 		//if (Unit* target = GetTarget())
 		//if (target->GetMotionMaster()->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE)
 		//target->GetMotionMaster()->MovementExpired(true); // reset movement
-		var target = GetTarget();
+		var target = Target;
 
 		if (target != null)
 			if (target.GetMotionMaster().GetCurrentMovementGeneratorType() == MovementGeneratorType.Follow)
 				target.GetMotionMaster().Initialize();
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AoeCharm, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.AoeCharm, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
 }

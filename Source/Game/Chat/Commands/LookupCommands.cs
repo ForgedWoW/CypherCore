@@ -1234,12 +1234,12 @@ namespace Game.Chat
                             SpellInfo learnSpellInfo = spellEffectInfo != null ? Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo.Difficulty) : null;
 
                             bool talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
-                            bool passive = spellInfo.IsPassive();
+                            bool passive = spellInfo.IsPassive;
                             bool active = target && target.HasAura(spellInfo.Id);
 
                             // unit32 used to prevent interpreting public byte as char at output
                             // find rank of learned spell for learning spell, or talent rank
-                            uint rank = learnSpellInfo != null ? learnSpellInfo.GetRank() : spellInfo.GetRank();
+                            uint rank = learnSpellInfo != null ? learnSpellInfo.Rank : spellInfo.Rank;
 
                             // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                             StringBuilder ss = new();
@@ -1302,12 +1302,12 @@ namespace Game.Chat
                     SpellInfo learnSpellInfo = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
 
                     bool talent = spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
-                    bool passive = spellInfo.IsPassive();
+                    bool passive = spellInfo.IsPassive;
                     bool active = target && target.HasAura(id);
 
                     // unit32 used to prevent interpreting public byte as char at output
                     // find rank of learned spell for learning spell, or talent rank
-                    uint rank = learnSpellInfo != null ? learnSpellInfo.GetRank() : spellInfo.GetRank();
+                    uint rank = learnSpellInfo != null ? learnSpellInfo.Rank : spellInfo.Rank;
 
                     // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                     StringBuilder ss = new();

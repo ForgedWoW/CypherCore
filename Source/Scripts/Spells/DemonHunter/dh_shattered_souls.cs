@@ -12,9 +12,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 {
-	public dh_shattered_souls() : base("dh_shattered_souls")
-	{
-	}
+	public dh_shattered_souls() : base("dh_shattered_souls") { }
 
 	public void OnCreatureKill(Player player, Creature victim)
 	{

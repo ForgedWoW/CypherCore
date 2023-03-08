@@ -6,33 +6,32 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 60103 - Lava Lash
+[SpellScript(60103)]
+public class spell_sha_lava_lash : SpellScript, ISpellOnHit
 {
-    // 60103 - Lava Lash
-    [SpellScript(60103)]
-	public class spell_sha_lava_lash : SpellScript, ISpellOnHit
+	public override bool Load()
 	{
-		public override bool Load()
-		{
-			return GetCaster().IsPlayer();
-		}
+		return Caster.IsPlayer();
+	}
 
-		public void OnHit()
-		{
-			GetCaster().CastSpell(GetHitUnit(), ShamanSpells.LAVA_LASH_SPREAD_FLAME_SHOCK, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.MaxTargets, GetEffectValue()));
+	public void OnHit()
+	{
+		Caster.CastSpell(HitUnit, ShamanSpells.LAVA_LASH_SPREAD_FLAME_SHOCK, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.MaxTargets, EffectValue));
 
-			GetCaster().RemoveAura(ShamanSpells.HOT_HAND);
+		Caster.RemoveAura(ShamanSpells.HOT_HAND);
 
-			var target = GetHitUnit();
+		var target = HitUnit;
 
-			if (target == null)
-				return;
+		if (target == null)
+			return;
 
-			if (GetCaster().HasAura(ShamanSpells.CRASHING_STORM_DUMMY) && GetCaster().HasAura(ShamanSpells.CRASH_LIGTHNING_AURA))
-				GetCaster().CastSpell(target, ShamanSpells.CRASHING_LIGHTNING_DAMAGE, true);
+		if (Caster.HasAura(ShamanSpells.CRASHING_STORM_DUMMY) && Caster.HasAura(ShamanSpells.CRASH_LIGTHNING_AURA))
+			Caster.CastSpell(target, ShamanSpells.CRASHING_LIGHTNING_DAMAGE, true);
 
-			if (GetCaster() && GetCaster().HasAura(ShamanSpells.CRASH_LIGTHNING_AURA))
-				GetCaster().CastSpell(null, ShamanSpells.CRASH_LIGHTNING_PROC, true);
-		}
+		if (Caster && Caster.HasAura(ShamanSpells.CRASH_LIGTHNING_AURA))
+			Caster.CastSpell(null, ShamanSpells.CRASH_LIGHTNING_PROC, true);
 	}
 }

@@ -27,6 +27,6 @@ internal class spell_item_brittle_armor : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		GetHitUnit().RemoveAuraFromStack(ItemSpellIds.BrittleArmor);
+		HitUnit.RemoveAuraFromStack(ItemSpellIds.BrittleArmor);
 	}
 }

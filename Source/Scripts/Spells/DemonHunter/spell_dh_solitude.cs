@@ -17,7 +17,7 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(211509)]
 public class spell_dh_solitude : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
 	public override bool Validate(SpellInfo UnnamedParameter)
@@ -28,18 +28,23 @@ public class spell_dh_solitude : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
+
 	private void HandlePeriodic(AuraEffect UnnamedParameter)
 	{
 		PreventDefaultAction();
 
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || !GetSpellInfo().GetEffect(1).IsEffect())
+		if (caster == null || !SpellInfo.GetEffect(1).IsEffect())
 			return;
 
-		var range    = (float)GetSpellInfo().GetEffect(1).BasePoints;
-		var allies   = new List<Unit>();
-		var check    = new AnyFriendlyUnitInObjectRangeCheck(caster, caster, range, true);
+		var range = (float)SpellInfo.GetEffect(1).BasePoints;
+		var allies = new List<Unit>();
+		var check = new AnyFriendlyUnitInObjectRangeCheck(caster, caster, range, true);
 		var searcher = new UnitListSearcher(caster, allies, check, GridType.All);
 		Cell.VisitGrid(caster, searcher, range);
 		allies.Remove(caster);
@@ -48,10 +53,5 @@ public class spell_dh_solitude : AuraScript, IHasAuraEffects
 			caster.CastSpell(caster, DemonHunterSpells.SOLITUDE_BUFF, true);
 		else if (allies.Count > 0)
 			caster.RemoveAura(DemonHunterSpells.SOLITUDE_BUFF);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
 	}
 }

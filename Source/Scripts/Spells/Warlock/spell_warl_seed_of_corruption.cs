@@ -8,22 +8,21 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[Script] // 27285 - Seed of Corruption
+internal class spell_warl_seed_of_corruption : SpellScript, IHasSpellEffects
 {
-    [Script] // 27285 - Seed of Corruption
-	internal class spell_warl_seed_of_corruption : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-		}
-
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			if (GetExplTargetUnit())
-				targets.Remove(GetExplTargetUnit());
-		}
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		if (ExplTargetUnit)
+			targets.Remove(ExplTargetUnit);
 	}
 }

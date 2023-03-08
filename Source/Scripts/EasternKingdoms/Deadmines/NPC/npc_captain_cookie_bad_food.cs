@@ -8,52 +8,49 @@ using Game.Maps;
 using Game.Scripting;
 using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(new uint[]
 {
-    [CreatureScript(new uint[] { 48276, 48293, 48295, 48298, 48299, 48302 })]
-    public class npc_captain_cookie_bad_food : ScriptedAI
-    {
-        public npc_captain_cookie_bad_food(Creature pCreature) : base(pCreature)
-        {
-            _pInstance = pCreature.GetInstanceScript();
-        }
+	48276, 48293, 48295, 48298, 48299, 48302
+})]
+public class npc_captain_cookie_bad_food : ScriptedAI
+{
+	private readonly InstanceScript _pInstance;
 
-        public override void JustDied(Unit killer)
-        {
-            me.DespawnOrUnsummon();
-        }
+	public npc_captain_cookie_bad_food(Creature pCreature) : base(pCreature)
+	{
+		_pInstance = pCreature.GetInstanceScript();
+	}
 
-        public override void UpdateAI(uint UnnamedParameter)
-        {
-            if (_pInstance == null)
-            {
-                return;
-            }
+	public override void JustDied(Unit killer)
+	{
+		me.DespawnOrUnsummon();
+	}
 
-            if (_pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
-            {
-                me.DespawnOrUnsummon();
-            }
-        }
+	public override void UpdateAI(uint UnnamedParameter)
+	{
+		if (_pInstance == null)
+			return;
 
-        public override bool OnGossipHello(Player pPlayer)
-        {
-            InstanceScript pInstance = me.GetInstanceScript();
-            if (pInstance == null)
-            {
-                return true;
-            }
-            if (pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
-            {
-                return true;
-            }
+		if (_pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
+			me.DespawnOrUnsummon();
+	}
 
-            pPlayer.CastSpell(pPlayer, (pPlayer.GetMap().IsHeroic() ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
+	public override bool OnGossipHello(Player pPlayer)
+	{
+		var pInstance = me.GetInstanceScript();
 
-            me.DespawnOrUnsummon();
-            return true;
-        }
+		if (pInstance == null)
+			return true;
 
-        private readonly InstanceScript _pInstance;
-    }
+		if (pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
+			return true;
+
+		pPlayer.CastSpell(pPlayer, (pPlayer.GetMap().IsHeroic() ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
+
+		me.DespawnOrUnsummon();
+
+		return true;
+	}
 }

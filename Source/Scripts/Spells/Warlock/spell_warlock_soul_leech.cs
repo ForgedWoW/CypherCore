@@ -9,94 +9,93 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 108370 - Soul Leech
+[SpellScript(108370)]
+public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 {
-    // 108370 - Soul Leech
-    [SpellScript(108370)]
-	public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		Unit secondaryTarget = null;
+		//  if (Player* player = caster->ToPlayer())
+		// secondaryTarget = player->GetPet();
+		var pet = caster.ToPet();
+
+		if (pet != null)
 		{
-			PreventDefaultAction();
-			var caster = GetCaster();
+			secondaryTarget = pet.GetOwner();
 
-			if (caster == null)
+			if (secondaryTarget == null)
 				return;
+		}
 
-			Unit secondaryTarget = null;
-			//  if (Player* player = caster->ToPlayer())
-			// secondaryTarget = player->GetPet();
-			var pet = caster.ToPet();
+		Unit[] targets =
+		{
+			caster, secondaryTarget
+		};
 
-			if (pet != null)
+		foreach (var target in targets)
+		{
+			if (target == null) continue;
+
+			var finalAmount = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+
+			if (finalAmount > 0)
 			{
-				secondaryTarget = pet.GetOwner();
+				var maxHealthPct = GetEffect(1).Amount;
 
-				if (secondaryTarget == null)
-					return;
-			}
-
-			Unit[] targets =
-			{
-				caster, secondaryTarget
-			};
-
-			foreach (var target in targets)
-			{
-				if (target == null) continue;
-
-				var finalAmount = MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
-
-				if (finalAmount > 0)
+				if (GetEffect(1).Amount != 0)
 				{
-					var maxHealthPct = GetEffect(1).Amount;
+					var soulLinkHeal = finalAmount; // save value for soul link
 
-					if (GetEffect(1).Amount != 0)
+					// add old amount
+					var aura = target.GetAura(WarlockSpells.SOUL_LEECH_SHIELD);
+
+					if (aura != null)
+						finalAmount += (uint)aura.GetEffect(0).Amount;
+
+					MathFunctions.AddPct(ref finalAmount, caster.GetAuraEffectAmount(WarlockSpells.ARENA_DAMPENING, 0));
+
+					var demonskinBonus = caster.GetAuraEffectAmount(WarlockSpells.DEMON_SKIN, 1);
+
+					if (demonskinBonus != 0)
+						maxHealthPct = demonskinBonus;
+
+					var args = new CastSpellExtraArgs(true);
+					finalAmount = Math.Min(finalAmount, (uint)MathFunctions.CalculatePct(target.GetMaxHealth(), maxHealthPct));
+
+					args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)finalAmount);
+					args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)finalAmount);
+					args.SpellValueOverrides.Add(SpellValueMod.BasePoint2, (int)finalAmount);
+					args.SpellValueOverrides.Add(SpellValueMod.BasePoint3, (int)finalAmount);
+					target.CastSpell(target, WarlockSpells.SOUL_LEECH_SHIELD, args);
+
+					if (target.ToPlayer() && target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
 					{
-						var soulLinkHeal = finalAmount; // save value for soul link
+						var playerHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(1).Amount);
+						var petHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(2).Amount);
+						args = new CastSpellExtraArgs(true);
+						args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)playerHeal);
+						args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)petHeal);
 
-						// add old amount
-						var aura = target.GetAura(WarlockSpells.SOUL_LEECH_SHIELD);
-
-						if (aura != null)
-							finalAmount += (uint)aura.GetEffect(0).Amount;
-
-						MathFunctions.AddPct(ref finalAmount, caster.GetAuraEffectAmount(WarlockSpells.ARENA_DAMPENING, 0));
-
-						var demonskinBonus = caster.GetAuraEffectAmount(WarlockSpells.DEMON_SKIN, 1);
-
-						if (demonskinBonus != 0)
-							maxHealthPct = demonskinBonus;
-
-						var args = new CastSpellExtraArgs(true);
-						finalAmount = Math.Min(finalAmount, (uint)MathFunctions.CalculatePct(target.GetMaxHealth(), maxHealthPct));
-
-						args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)finalAmount);
-						args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)finalAmount);
-						args.SpellValueOverrides.Add(SpellValueMod.BasePoint2, (int)finalAmount);
-						args.SpellValueOverrides.Add(SpellValueMod.BasePoint3, (int)finalAmount);
-						target.CastSpell(target, WarlockSpells.SOUL_LEECH_SHIELD, args);
-
-						if (target.ToPlayer() && target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
-						{
-							var playerHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(1).Amount);
-							var petHeal    = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(2).Amount);
-							args = new CastSpellExtraArgs(true);
-							args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)playerHeal);
-							args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)petHeal);
-
-							target.CastSpell(target, WarlockSpells.SOUL_LINK_HEAL, args);
-						}
+						target.CastSpell(target, WarlockSpells.SOUL_LINK_HEAL, args);
 					}
 				}
 			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 		}
 	}
 }

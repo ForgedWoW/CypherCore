@@ -4,10 +4,9 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IUnit
+namespace Game.Scripting.Interfaces.IUnit;
+
+public interface IUnitOnMeleeAttack : IScriptObject
 {
-    public interface IUnitOnMeleeAttack : IScriptObject
-    {
-        void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra);
-    }
+	void OnMeleeAttack(CalcDamageInfo damageInfo, WeaponAttackType attType, bool extra);
 }

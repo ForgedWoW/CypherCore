@@ -4,18 +4,17 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
-{
-    // 215864 Rainfall
-    [SpellScript(215864)]
-	public class spell_sha_rainfall_SpellScript : SpellScript, ISpellOnHit
-	{
-		public void OnHit()
-		{
-			var pos = GetHitDest();
+namespace Scripts.Spells.Shaman;
 
-			if (pos != null)
-				GetCaster().SummonCreature(ShamanNpcs.NPC_RAINFALL, pos);
-		}
+// 215864 Rainfall
+[SpellScript(215864)]
+public class spell_sha_rainfall_SpellScript : SpellScript, ISpellOnHit
+{
+	public void OnHit()
+	{
+		var pos = HitDest;
+
+		if (pos != null)
+			Caster.SummonCreature(ShamanNpcs.NPC_RAINFALL, pos);
 	}
 }

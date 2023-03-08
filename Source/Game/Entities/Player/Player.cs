@@ -397,7 +397,7 @@ public partial class Player : Unit
 
 			if (aura != null)
 				if (!aura.IsPermanent)
-					aura.SetDuration(aura.SpellInfo.GetMaxDuration());
+					aura.SetDuration(aura.SpellInfo.MaxDuration);
 		}
 
 		AIUpdateTick(diff);
@@ -1183,7 +1183,7 @@ public partial class Player : Unit
 				continue;
 			}
 
-			if (spellInfo.IsPassive())
+			if (spellInfo.IsPassive)
 				vehicle.CastSpell(vehicle, spellInfo.Id, true);
 
 			petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);

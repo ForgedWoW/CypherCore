@@ -20,16 +20,16 @@ public class spell_dh_fiery_brand : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(DemonHunterSpells.FIERY_BRAND_DOT, DemonHunterSpells.FIERY_BRAND_MARKER);
 	}
 
-	private void HandleDamage(int effIndex)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-			GetCaster().CastSpell(target, DemonHunterSpells.FIERY_BRAND_DOT, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleDamage(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+			Caster.CastSpell(target, DemonHunterSpells.FIERY_BRAND_DOT, true);
 	}
 }

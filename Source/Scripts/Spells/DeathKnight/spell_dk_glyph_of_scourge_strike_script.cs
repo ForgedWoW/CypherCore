@@ -22,8 +22,8 @@ internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellE
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		var mPeriodic = target.GetAuraEffectsByType(AuraType.PeriodicDamage);
 
@@ -33,11 +33,11 @@ internal class spell_dk_glyph_of_scourge_strike_script : SpellScript, IHasSpellE
 
 			// search our Blood Plague and Frost Fever on Target
 			if (spellInfo.SpellFamilyName == SpellFamilyNames.Deathknight &&
-			    spellInfo.SpellFamilyFlags[2].HasAnyFlag(0x2u) &&
-			    aurEff.CasterGuid == caster.GetGUID())
+				spellInfo.SpellFamilyFlags[2].HasAnyFlag(0x2u) &&
+				aurEff.CasterGuid == caster.GetGUID())
 			{
 				var countMin = aurEff.Base.MaxDuration;
-				var countMax = spellInfo.GetMaxDuration();
+				var countMax = spellInfo.MaxDuration;
 
 				// this Glyph
 				countMax += 9000;

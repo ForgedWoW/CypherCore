@@ -22,14 +22,14 @@ public class spell_hun_mongoose_bite : SpellScript, ISpellAfterHit
 	public void AfterHit()
 	{
 		var dur = 0;
-		var aur = GetCaster().GetAura(HunterSpells.MONGOOSE_FURY);
+		var aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
 
 		if (aur != null)
 			dur = aur.Duration;
 
-		GetCaster().CastSpell(GetCaster(), HunterSpells.MONGOOSE_FURY, true);
+		Caster.CastSpell(Caster, HunterSpells.MONGOOSE_FURY, true);
 
-		aur = GetCaster().GetAura(HunterSpells.MONGOOSE_FURY);
+		aur = Caster.GetAura(HunterSpells.MONGOOSE_FURY);
 
 		if (aur != null)
 			if (dur != 0)

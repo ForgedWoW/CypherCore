@@ -12,7 +12,7 @@ internal class spell_gen_wg_water : SpellScript, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		if (!GetSpellInfo().CheckTargetCreatureType(GetCaster()))
+		if (!SpellInfo.CheckTargetCreatureType(Caster))
 			return SpellCastResult.DontReport;
 
 		return SpellCastResult.SpellCastOk;

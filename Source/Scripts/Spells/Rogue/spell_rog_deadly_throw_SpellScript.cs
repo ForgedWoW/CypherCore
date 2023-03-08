@@ -12,11 +12,11 @@ public class spell_rog_deadly_throw_SpellScript : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
-			var caster = GetCaster().ToPlayer();
+			var caster = Caster.ToPlayer();
 
 			if (caster != null)
 				if (caster.GetPower(PowerType.ComboPoints) >= 5)

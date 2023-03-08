@@ -7,36 +7,35 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 231489 - Compounding Horror
+[SpellScript(231489)]
+internal class spell_warlock_compounding_horror : SpellScript, IHasSpellEffects
 {
-    // 231489 - Compounding Horror
-    [SpellScript(231489)]
-	internal class spell_warlock_compounding_horror : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			var damage = GetHitDamage();
-			var stacks = 0;
-			var aur    = caster.GetAura(WarlockSpells.COMPOUNDING_HORROR);
+		var damage = HitDamage;
+		var stacks = 0;
+		var aur = caster.GetAura(WarlockSpells.COMPOUNDING_HORROR);
 
-			if (aur != null)
-				stacks = aur.StackAmount;
+		if (aur != null)
+			stacks = aur.StackAmount;
 
-			SetHitDamage(damage * stacks);
+		HitDamage = damage * stacks;
 
-			caster.RemoveAura(WarlockSpells.COMPOUNDING_HORROR);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
+		caster.RemoveAura(WarlockSpells.COMPOUNDING_HORROR);
 	}
 }

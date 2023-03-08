@@ -13,6 +13,8 @@ namespace Scripts.Spells.DeathKnight;
 [Script] // 61257 - Runic Power Back on Snare/Root
 internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(DeathKnightSpells.RunicReturn);
@@ -20,7 +22,7 @@ internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		if (spellInfo == null)
 			return false;
@@ -33,11 +35,9 @@ internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetActionTarget().CastSpell((Unit)null, DeathKnightSpells.RunicReturn, true);
+		eventInfo.ActionTarget.CastSpell((Unit)null, DeathKnightSpells.RunicReturn, true);
 	}
 }

@@ -9,37 +9,36 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Channel Demonfire - 196447
+[SpellScript(196447)]
+public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
 {
-    // Channel Demonfire - 196447
-    [SpellScript(196447)]
-	public class spell_warl_channel_demonfire : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
 
-		private void HandlePeriodic(AuraEffect UnnamedParameter)
-		{
-			var caster = GetCaster();
-			var rangeInfoSpell = Global.SpellMgr.GetSpellInfo(WarlockSpells.CHANNEL_DEMONFIRE_RANGE);
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
+		var rangeInfoSpell = Global.SpellMgr.GetSpellInfo(WarlockSpells.CHANNEL_DEMONFIRE_RANGE);
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			var enemies  = new List<Unit>();
-			var check    = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID()).Invoke);
-			var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
-			Cell.VisitGrid(caster, searcher, rangeInfoSpell.GetMaxRange());
+		var enemies = new List<Unit>();
+		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, rangeInfoSpell.GetMaxRange(), new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID()).Invoke);
+		var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
+		Cell.VisitGrid(caster, searcher, rangeInfoSpell.GetMaxRange());
 
-			if (enemies.Count == 0)
-				return;
+		if (enemies.Count == 0)
+			return;
 
-			var target = enemies.SelectRandom();
-			caster.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
-		}
+		var target = enemies.SelectRandom();
+		caster.CastSpell(target, WarlockSpells.CHANNEL_DEMONFIRE_DAMAGE, true);
 	}
 }

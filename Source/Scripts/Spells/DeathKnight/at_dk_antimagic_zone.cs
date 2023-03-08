@@ -10,9 +10,7 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_antimagic_zone : AreaTriggerAI
 {
-	public at_dk_antimagic_zone(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_dk_antimagic_zone(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

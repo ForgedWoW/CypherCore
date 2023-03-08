@@ -22,9 +22,9 @@ internal class spell_rog_ruthlessness : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
-		var target = GetTarget();
+		var target = Target;
 
-		var cost = procInfo.GetProcSpell()?.GetPowerTypeCostAmount(PowerType.ComboPoints);
+		var cost = procInfo.ProcSpell?.GetPowerTypeCostAmount(PowerType.ComboPoints);
 
 		if (cost.HasValue)
 			if (RandomHelper.randChance(aurEff.GetSpellEffectInfo().PointsPerResource * (cost.Value)))

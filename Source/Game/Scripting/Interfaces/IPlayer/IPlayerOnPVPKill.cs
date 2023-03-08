@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+public interface IPlayerOnPVPKill : IScriptObject
 {
-    public interface IPlayerOnPVPKill : IScriptObject
-    {
-        void OnPVPKill(Player killer, Player killed);
-    }
+	void OnPVPKill(Player killer, Player killed);
 }

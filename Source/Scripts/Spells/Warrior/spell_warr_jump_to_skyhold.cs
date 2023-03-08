@@ -9,44 +9,43 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Jump to Skyhold Jump - 192085
+[SpellScript(192085)]
+public class spell_warr_jump_to_skyhold : SpellScript, IHasSpellEffects
 {
-    // Jump to Skyhold Jump - 192085
-    [SpellScript(192085)]
-	public class spell_warr_jump_to_skyhold : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return Global.SpellMgr.GetSpellInfo(WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT, Difficulty.None) != null;
+	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleJump, 0, SpellEffectName.JumpDest, SpellScriptHookType.Launch));
+	}
 
-		public override bool Validate(SpellInfo UnnamedParameter)
+	private void HandleJump(int effIndex)
+	{
+		PreventHitDefaultEffect(effIndex);
+
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			return Global.SpellMgr.GetSpellInfo(WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT, Difficulty.None) != null;
-		}
+			var pos_x = caster.Location.X;
+			var pos_y = caster.Location.Y;
+			var pos_z = caster.Location.Z + 30.0f;
 
-		private void HandleJump(int effIndex)
-		{
-			PreventHitDefaultEffect(effIndex);
+			var arrivalCast = new JumpArrivalCastArgs();
+			arrivalCast.SpellId = WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT;
+			arrivalCast.Target = caster.GetGUID();
+			caster.GetMotionMaster().MoveJump(pos_x, pos_y, pos_z, caster.Location.Orientation, 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
 
-			var caster = GetCaster();
-
-			if (caster != null)
-			{
-				var pos_x = caster.Location.X;
-				var pos_y = caster.Location.Y;
-				var pos_z = caster.Location.Z + 30.0f;
-
-				var arrivalCast = new JumpArrivalCastArgs();
-				arrivalCast.SpellId = WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT;
-				arrivalCast.Target  = caster.GetGUID();
-				caster.GetMotionMaster().MoveJump(pos_x, pos_y, pos_z, caster.Location.Orientation, 20.0f, 20.0f, EventId.Jump, false, arrivalCast);
-
-				caster.RemoveAura(WarriorSpells.JUMP_TO_SKYHOLD_AURA);
-			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleJump, 0, SpellEffectName.JumpDest, SpellScriptHookType.Launch));
+			caster.RemoveAura(WarriorSpells.JUMP_TO_SKYHOLD_AURA);
 		}
 	}
 }

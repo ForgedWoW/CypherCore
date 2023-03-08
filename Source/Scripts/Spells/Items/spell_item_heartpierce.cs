@@ -19,15 +19,15 @@ internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
 	private readonly uint _rageSpellId;
 	private readonly uint _rpSpellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_heartpierce(uint energySpellId, uint manaSpellId, uint rageSpellId, uint rpSpellId)
 	{
 		_energySpellId = energySpellId;
-		_manaSpellId   = manaSpellId;
-		_rageSpellId   = rageSpellId;
-		_rpSpellId     = rpSpellId;
+		_manaSpellId = manaSpellId;
+		_rageSpellId = rageSpellId;
+		_rpSpellId = rpSpellId;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -42,7 +42,7 @@ internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.GetActor();
+		var caster = eventInfo.Actor;
 
 		uint spellId;
 

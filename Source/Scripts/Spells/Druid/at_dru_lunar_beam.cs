@@ -10,9 +10,7 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class at_dru_lunar_beam : AreaTriggerAI
 {
-	public at_dru_lunar_beam(AreaTrigger at) : base(at)
-	{
-	}
+	public at_dru_lunar_beam(AreaTrigger at) : base(at) { }
 
 	public override void OnCreate()
 	{

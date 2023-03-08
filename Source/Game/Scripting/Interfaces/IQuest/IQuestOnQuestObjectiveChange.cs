@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IQuest
+namespace Game.Scripting.Interfaces.IQuest;
+
+public interface IQuestOnQuestObjectiveChange : IScriptObject
 {
-    public interface IQuestOnQuestObjectiveChange : IScriptObject
-    {
-        void OnQuestObjectiveChange(Player player, Quest quest, QuestObjective objective, int oldAmount, int newAmount);
-    }
+	void OnQuestObjectiveChange(Player player, Quest quest, QuestObjective objective, int oldAmount, int newAmount);
 }

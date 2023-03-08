@@ -21,7 +21,7 @@ internal class spell_clear_all : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.RemoveAllAurasOnDeath();
 	}
 }

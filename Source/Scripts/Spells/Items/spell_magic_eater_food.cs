@@ -22,7 +22,7 @@ internal class spell_magic_eater_food : AuraScript, IHasAuraEffects
 	private void HandleTriggerSpell(AuraEffect aurEff)
 	{
 		PreventDefaultAction();
-		var target = GetTarget();
+		var target = Target;
 
 		switch (RandomHelper.URand(0, 5))
 		{

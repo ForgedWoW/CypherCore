@@ -12,7 +12,7 @@ public class spell_monk_keg_smash : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -20,7 +20,7 @@ public class spell_monk_keg_smash : SpellScript, ISpellOnHit
 
 			if (_player != null)
 			{
-				var target = GetHitUnit();
+				var target = HitUnit;
 
 				if (target != null)
 				{

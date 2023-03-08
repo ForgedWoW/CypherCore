@@ -13,6 +13,6 @@ internal class spell_gen_darkflight : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		GetCaster().CastSpell(GetCaster(), GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 	}
 }

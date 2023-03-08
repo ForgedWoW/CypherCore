@@ -18,13 +18,13 @@ internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
 
 	private readonly uint _healProcSpellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_shard_of_the_scale(uint healProcSpellId, uint damageProcSpellId)
 	{
-		_healProcSpellId   = healProcSpellId;
+		_healProcSpellId = healProcSpellId;
 		_damageProcSpellId = damageProcSpellId;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -39,13 +39,13 @@ internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetProcTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ProcTarget;
 
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.DealHelpfulSpell))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHelpfulSpell))
 			caster.CastSpell(target, _healProcSpellId, new CastSpellExtraArgs(aurEff));
 
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.DealHarmfulSpell))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.DealHarmfulSpell))
 			caster.CastSpell(target, _damageProcSpellId, new CastSpellExtraArgs(aurEff));
 	}
 }

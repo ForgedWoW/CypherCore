@@ -10,9 +10,7 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_windwalking : AreaTriggerAI
 {
-	public at_monk_windwalking(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_monk_windwalking(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

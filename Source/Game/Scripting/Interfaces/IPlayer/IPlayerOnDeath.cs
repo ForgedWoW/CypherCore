@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+public interface IPlayerOnDeath : IScriptObject, IClassRescriction
 {
-    public interface IPlayerOnDeath : IScriptObject, IClassRescriction
-    {
-        void OnDeath(Player player);
-    }
+	void OnDeath(Player player);
 }

@@ -27,8 +27,8 @@ internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var aura   = caster.GetAura(ItemSpellIds.PygmyOilPygmyAura);
+		var caster = Caster;
+		var aura = caster.GetAura(ItemSpellIds.PygmyOilPygmyAura);
 
 		if (aura != null)
 		{
@@ -39,8 +39,8 @@ internal class spell_item_pygmy_oil : SpellScript, IHasSpellEffects
 			aura = caster.GetAura(ItemSpellIds.PygmyOilSmallerAura);
 
 			if (aura == null ||
-			    aura.StackAmount < 5 ||
-			    !RandomHelper.randChance(50))
+				aura.StackAmount < 5 ||
+				!RandomHelper.randChance(50))
 			{
 				caster.CastSpell(caster, ItemSpellIds.PygmyOilSmallerAura, true);
 			}

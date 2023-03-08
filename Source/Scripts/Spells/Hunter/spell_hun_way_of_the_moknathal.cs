@@ -22,7 +22,7 @@ public class spell_hun_way_of_the_moknathal : AuraScript, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == HunterSpells.RAPTOR_STRIKE)
+		if (eventInfo.SpellInfo.Id == HunterSpells.RAPTOR_STRIKE)
 			return true;
 
 		return false;

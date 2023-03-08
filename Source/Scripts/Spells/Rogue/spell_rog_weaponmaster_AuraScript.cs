@@ -13,13 +13,13 @@ public class spell_rog_weaponmaster_AuraScript : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var caster = eventInfo.GetActor();
-		var target = eventInfo.GetActionTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ActionTarget;
 
 		if (target == null || caster == null)
 			return false;
 
-		var triggerSpell = eventInfo.GetSpellInfo();
+		var triggerSpell = eventInfo.SpellInfo;
 
 		if (triggerSpell == null)
 			return false;
@@ -27,11 +27,11 @@ public class spell_rog_weaponmaster_AuraScript : AuraScript, IAuraCheckProc
 		if (!RandomHelper.randChance(6))
 			return false;
 
-		if (eventInfo.GetDamageInfo() != null)
+		if (eventInfo.DamageInfo != null)
 			return false;
 
 		var damageLog = new SpellNonMeleeDamage(caster, target, triggerSpell, new SpellCastVisual(triggerSpell.GetSpellXSpellVisualId(), 0), triggerSpell.SchoolMask);
-		damageLog.Damage      = eventInfo.GetDamageInfo().GetDamage();
+		damageLog.Damage = eventInfo.DamageInfo.GetDamage();
 		damageLog.CleanDamage = damageLog.Damage;
 		caster.DealSpellDamage(damageLog, true);
 		caster.SendSpellNonMeleeDamageLog(damageLog);

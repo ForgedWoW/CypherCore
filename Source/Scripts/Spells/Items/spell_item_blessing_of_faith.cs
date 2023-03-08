@@ -26,7 +26,7 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var unitTarget = GetHitUnit();
+		var unitTarget = HitUnit;
 
 		if (unitTarget != null)
 		{
@@ -54,7 +54,7 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
 					return; // ignore for non-healing classes
 			}
 
-			var caster = GetCaster();
+			var caster = Caster;
 			caster.CastSpell(caster, spellId, true);
 		}
 	}

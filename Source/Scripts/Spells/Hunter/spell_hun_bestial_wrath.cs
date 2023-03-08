@@ -11,7 +11,7 @@ public class spell_hun_bestial_wrath : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

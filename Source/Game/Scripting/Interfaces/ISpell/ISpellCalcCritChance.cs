@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellCalcCritChance : ISpellScript
 {
-    public interface ISpellCalcCritChance : ISpellScript
-    {
-        void CalcCritChance(Unit victim, ref double chance);
-    }
+	void CalcCritChance(Unit victim, ref double chance);
 }

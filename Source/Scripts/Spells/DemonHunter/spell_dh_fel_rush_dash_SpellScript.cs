@@ -14,14 +14,14 @@ public class spell_dh_fel_rush_dash_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void PreventTrigger(int effIndex)
-	{
-		PreventHitEffect(effIndex);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
 		SpellEffects.Add(new EffectHandler(PreventTrigger, 6, SpellEffectName.TriggerSpell, SpellScriptHookType.EffectHit));
+	}
+
+	private void PreventTrigger(int effIndex)
+	{
+		PreventHitEffect(effIndex);
 	}
 }

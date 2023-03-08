@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Framework.Models;
 using Framework.Constants;
+using Framework.Models;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
@@ -28,12 +28,12 @@ internal class spell_gen_gift_of_naaru : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		if (!GetCaster() ||
-		    aurEff.GetTotalTicks() == 0)
+		if (!Caster ||
+			aurEff.GetTotalTicks() == 0)
 			return;
 
-		var healPct  = GetEffectInfo(1).CalcValue() / 100.0f;
-		var heal     = healPct * GetCaster().GetMaxHealth();
+		var healPct = GetEffectInfo(1).CalcValue() / 100.0f;
+		var heal = healPct * Caster.GetMaxHealth();
 		var healTick = Math.Floor(heal / aurEff.GetTotalTicks());
 		amount.Value += healTick;
 	}

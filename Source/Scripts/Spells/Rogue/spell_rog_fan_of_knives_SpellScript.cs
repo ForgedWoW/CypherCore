@@ -13,6 +13,17 @@ public class spell_rog_fan_of_knives_SpellScript : SpellScript, ISpellOnHit, ISp
 {
 	private bool _hit;
 
+	public void AfterHit()
+	{
+		var target = HitUnit;
+
+		if (target.HasAura(51690)) //Killing spree debuff #1
+			target.RemoveAura(51690);
+
+		if (target.HasAura(61851)) //Killing spree debuff #2
+			target.RemoveAura(61851);
+	}
+
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(RogueSpells.FAN_OF_KNIVES);
@@ -27,23 +38,12 @@ public class spell_rog_fan_of_knives_SpellScript : SpellScript, ISpellOnHit, ISp
 	{
 		if (!_hit)
 		{
-			var cp = GetCaster().GetPower(PowerType.ComboPoints);
+			var cp = Caster.GetPower(PowerType.ComboPoints);
 
-			if (cp < GetCaster().GetMaxPower(PowerType.ComboPoints))
-				GetCaster().SetPower(PowerType.ComboPoints, cp + 1);
+			if (cp < Caster.GetMaxPower(PowerType.ComboPoints))
+				Caster.SetPower(PowerType.ComboPoints, cp + 1);
 
 			_hit = true;
 		}
-	}
-
-	public void AfterHit()
-	{
-		var target = GetHitUnit();
-
-		if (target.HasAura(51690)) //Killing spree debuff #1
-			target.RemoveAura(51690);
-
-		if (target.HasAura(61851)) //Killing spree debuff #2
-			target.RemoveAura(61851);
 	}
 }

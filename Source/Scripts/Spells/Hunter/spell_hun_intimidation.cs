@@ -14,19 +14,19 @@ public class spell_hun_intimidation : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		var target = caster.ToPlayer().GetSelectedUnit();
 
 		if (caster == null || target == null)
 			return;
 
 		caster.CastSpell(target, HunterSpells.INTIMIDATION_STUN, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

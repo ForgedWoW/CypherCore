@@ -12,42 +12,41 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(228478)]
 public class spell_dh_soul_cleave_damage : SpellScript, IHasSpellEffects, ISpellOnHit
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private readonly int m_ExtraSpellCost = 0;
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		double dmg = GetHitDamage() * 2;
+		var dmg = HitDamage * 2;
 		dmg *= caster.VariableStorage.GetValue<double>("lastSoulCleaveMod", 0);
-		SetHitDamage(dmg);
+		HitDamage = dmg;
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
 	}
 
 	private void HandleDamage(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var dmg = GetHitDamage() * 2;
+		var dmg = HitDamage * 2;
 		dmg = (int)((double)dmg * (((double)m_ExtraSpellCost + 300.0f) / 600.0f));
-		SetHitDamage(dmg);
+		HitDamage = dmg;
 
 		caster.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
 		caster.ToPlayer().SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
 
 		if (caster.HasAura(DemonHunterSpells.GLUTTONY_BUFF))
 			caster.RemoveAura(DemonHunterSpells.GLUTTONY_BUFF);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 1, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

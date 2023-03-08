@@ -3,11 +3,10 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+// Called when a player's level changes (after the level is applied);
+public interface IPlayerOnLevelChanged : IScriptObject, IClassRescriction
 {
-    // Called when a player's level changes (after the level is applied);
-    public interface IPlayerOnLevelChanged : IScriptObject, IClassRescriction
-    {
-        void OnLevelChanged(Player player, uint oldLevel);
-    }
+	void OnLevelChanged(Player player, uint oldLevel);
 }

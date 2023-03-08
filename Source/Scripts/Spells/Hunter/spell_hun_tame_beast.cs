@@ -18,15 +18,15 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster == null)
 			return SpellCastResult.DontReport;
 
-		if (!GetExplTargetUnit())
+		if (!ExplTargetUnit)
 			return SpellCastResult.BadImplicitTargets;
 
-		var target = GetExplTargetUnit().ToCreature();
+		var target = ExplTargetUnit.ToCreature();
 
 		if (target)
 		{

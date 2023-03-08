@@ -10,9 +10,7 @@ namespace Scripts.Spells.Priest;
 [Script]
 public class at_pri_angelic_feather : AreaTriggerAI
 {
-	public at_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnInitialize()
 	{

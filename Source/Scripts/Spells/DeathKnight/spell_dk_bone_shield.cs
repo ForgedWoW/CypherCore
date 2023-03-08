@@ -15,7 +15,14 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(195181)]
 public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnStackChange, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.RealOrReapplyMask));
+	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter2)
 	{
@@ -25,12 +32,12 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 	private double Absorb(AuraEffect aurEffd, DamageInfo dmgInfo, double absorbAmount)
 	{
 		absorbAmount = 0;
-		var target = GetTarget();
+		var target = Target;
 
 		if (target == null)
 			return absorbAmount;
 
-		var absorbPerc  = GetSpellInfo().GetEffect(4).CalcValue(target);
+		var absorbPerc = SpellInfo.GetEffect(4).CalcValue(target);
 		var absorbStack = 1;
 
 		var aurEff = target.GetAuraEffect(211078, 0);
@@ -38,7 +45,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 		if (aurEff != null) // Spectral Deflection
 			if (target.CountPctFromMaxHealth(aurEff.Amount) < dmgInfo.GetDamage())
 			{
-				absorbPerc  *= 2;
+				absorbPerc *= 2;
 				absorbStack *= 2;
 				ModStackAmount(-1);
 			}
@@ -79,7 +86,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 	private void OnStackChange(AuraEffect aurEffd, AuraEffectHandleModes UnnamedParameter)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target == null)
 			return;
@@ -88,7 +95,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 		if (aurEff != null) // Ossuary
 		{
-			if (GetStackAmount() >= aurEff.Amount)
+			if (StackAmount >= aurEff.Amount)
 			{
 				if (!target.HasAura(219788))
 					target.CastSpell(target, 219788, true);
@@ -98,12 +105,5 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 				target.RemoveAura(219788);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnStackChange, 0, AuraType.SchoolAbsorb, AuraEffectHandleModes.RealOrReapplyMask));
 	}
 }

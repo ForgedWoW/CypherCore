@@ -28,6 +28,6 @@ internal class spell_mage_living_bomb : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		GetCaster().CastSpell(GetHitUnit(), MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 1));
+		Caster.CastSpell(HitUnit, MageSpells.LivingBombPeriodic, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint2, 1));
 	}
 }

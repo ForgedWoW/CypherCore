@@ -7,38 +7,37 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 329910 - Eclipse out of combat - ECLIPSE_OOC
+internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
 {
-    [Script] // 329910 - Eclipse out of combat - ECLIPSE_OOC
-	internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.EclipseDummy, DruidSpellIds.EclipseSolarSpellCnt, DruidSpellIds.EclipseLunarSpellCnt);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(Tick, 0, AuraType.PeriodicDummy));
+	}
+
+	private void Tick(AuraEffect aurEff)
+	{
+		var owner = Target;
+		var auraEffDummy = owner.GetAuraEffect(DruidSpellIds.EclipseDummy, 0);
+
+		if (auraEffDummy == null)
+			return;
+
+		if (!owner.IsInCombat() &&
+			(!owner.HasAura(DruidSpellIds.EclipseSolarSpellCnt) || !owner.HasAura(DruidSpellIds.EclipseLunarSpellCnt)))
 		{
-			return ValidateSpellInfo(DruidSpellIds.EclipseDummy, DruidSpellIds.EclipseSolarSpellCnt, DruidSpellIds.EclipseLunarSpellCnt);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(Tick, 0, AuraType.PeriodicDummy));
-		}
-
-		private void Tick(AuraEffect aurEff)
-		{
-			var owner        = GetTarget();
-			var auraEffDummy = owner.GetAuraEffect(DruidSpellIds.EclipseDummy, 0);
-
-			if (auraEffDummy == null)
-				return;
-
-			if (!owner.IsInCombat() &&
-			    (!owner.HasAura(DruidSpellIds.EclipseSolarSpellCnt) || !owner.HasAura(DruidSpellIds.EclipseLunarSpellCnt)))
-			{
-				// Restore 2 stacks to each spell when out of combat
-				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.Amount);
-				spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.Amount);
-			}
+			// Restore 2 stacks to each spell when out of combat
+			spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseSolarSpellCnt, (uint)auraEffDummy.Amount);
+			spell_dru_eclipse_common.SetSpellCount(owner, DruidSpellIds.EclipseLunarSpellCnt, (uint)auraEffDummy.Amount);
 		}
 	}
 }

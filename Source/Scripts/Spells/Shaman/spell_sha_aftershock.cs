@@ -29,7 +29,7 @@ internal class spell_sha_aftershock : AuraScript, IHasAuraEffects
 
 	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var procSpell = eventInfo.GetProcSpell();
+		var procSpell = eventInfo.ProcSpell;
 
 		if (procSpell != null)
 		{
@@ -44,13 +44,13 @@ internal class spell_sha_aftershock : AuraScript, IHasAuraEffects
 
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var procSpell = eventInfo.GetProcSpell();
-		var energize  = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
+		var procSpell = eventInfo.ProcSpell;
+		var energize = procSpell.GetPowerTypeCostAmount(PowerType.Maelstrom);
 
-		eventInfo.GetActor()
-		         .CastSpell(eventInfo.GetActor(),
-		                    ShamanSpells.AftershockEnergize,
-		                    new CastSpellExtraArgs(energize != 0)
-			                    .AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
+		eventInfo.Actor
+				.CastSpell(eventInfo.Actor,
+							ShamanSpells.AftershockEnergize,
+							new CastSpellExtraArgs(energize != 0)
+								.AddSpellMod(SpellValueMod.BasePoint0, energize.Value));
 	}
 }

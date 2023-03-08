@@ -27,6 +27,6 @@ internal class spell_item_dementia : AuraScript, IHasAuraEffects
 	private void HandlePeriodicDummy(AuraEffect aurEff)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), RandomHelper.RAND(ItemSpellIds.DementiaPos, ItemSpellIds.DementiaNeg), new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, RandomHelper.RAND(ItemSpellIds.DementiaPos, ItemSpellIds.DementiaNeg), new CastSpellExtraArgs(aurEff));
 	}
 }

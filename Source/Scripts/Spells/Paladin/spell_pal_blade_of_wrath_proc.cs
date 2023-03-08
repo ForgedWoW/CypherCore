@@ -8,26 +8,26 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+//231832 - Blade of Wrath! (proc)
+[SpellScript(231832)]
+public class spell_pal_blade_of_wrath_proc : AuraScript, IHasAuraEffects
 {
-    //231832 - Blade of Wrath! (proc)
-    [SpellScript(231832)]
-    public class spell_pal_blade_of_wrath_proc : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-        {
-            Unit caster = GetCaster();
-            if (caster == null)
-                return;
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-            caster.GetSpellHistory().ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
-        }
+	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		var caster = Caster;
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
-    }
+		if (caster == null)
+			return;
+
+		caster.GetSpellHistory().ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
+	}
 }

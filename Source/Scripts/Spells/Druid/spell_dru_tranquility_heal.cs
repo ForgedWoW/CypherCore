@@ -13,23 +13,23 @@ public class spell_dru_tranquility_heal : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHit));
+	}
+
 
 	private void HandleHeal(int effIndex)
 	{
-		if (!GetCaster())
+		if (!Caster)
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
 			var heal = MathFunctions.CalculatePct(caster.SpellBaseHealingBonusDone(SpellSchoolMask.Nature), 180);
-			SetHitHeal((int)heal);
+			HitHeal = (int)heal;
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHit));
 	}
 }

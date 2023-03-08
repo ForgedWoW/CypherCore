@@ -14,20 +14,20 @@ public class spell_dk_frostscythe : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleHit(int effIndex)
-	{
-		if (GetCaster().HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
-			GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
-
-		if (GetCaster().HasAura(DeathKnightSpells.KILLING_MACHINE))
-		{
-			GetCaster().RemoveAura(DeathKnightSpells.KILLING_MACHINE);
-			SetHitDamage(GetHitDamage() * 4);
-		}
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
+
+	private void HandleHit(int effIndex)
+	{
+		if (Caster.HasAura(DeathKnightSpells.INEXORABLE_ASSAULT_STACK))
+			Caster.CastSpell(HitUnit, DeathKnightSpells.INEXORABLE_ASSAULT_DAMAGE, true);
+
+		if (Caster.HasAura(DeathKnightSpells.KILLING_MACHINE))
+		{
+			Caster.RemoveAura(DeathKnightSpells.KILLING_MACHINE);
+			HitDamage = HitDamage * 4;
+		}
 	}
 }

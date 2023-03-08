@@ -31,6 +31,6 @@ internal class spell_gen_clone : SpellScript, IHasSpellEffects
 	private void HandleScriptEffect(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		GetHitUnit().CastSpell(GetCaster(), (uint)GetEffectValue(), true);
+		HitUnit.CastSpell(Caster, (uint)EffectValue, true);
 	}
 }

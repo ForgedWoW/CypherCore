@@ -12,10 +12,8 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(198013)]
 public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private bool _firstTick = true;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -25,9 +23,16 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.Dummy, AuraEffectHandleModes.Real));
+	}
+
 	private void HandlePeriodic(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			if (!_firstTick)
@@ -44,7 +49,7 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			caster.RemoveAura(DemonHunterSpells.EYE_BEAM_VISUAL);
@@ -52,7 +57,7 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -72,12 +77,5 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 					aur.SetDuration(10 * Time.InMilliseconds);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 2, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 2, AuraType.Dummy, AuraEffectHandleModes.Real));
 	}
 }

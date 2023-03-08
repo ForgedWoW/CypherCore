@@ -35,13 +35,13 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
-		var target = GetTarget();
+		var caster = Caster;
+		var target = Target;
 
 		if (!caster)
 			return;
 
-		switch (GetSpellInfo().Id)
+		switch (SpellInfo.Id)
 		{
 			case GenericSpellIds.WeaponAura:
 			case GenericSpellIds.Weapon2Aura:
@@ -113,9 +113,9 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
-		switch (GetSpellInfo().Id)
+		switch (SpellInfo.Id)
 		{
 			case GenericSpellIds.WeaponAura:
 			case GenericSpellIds.Weapon2Aura:

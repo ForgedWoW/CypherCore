@@ -28,16 +28,16 @@ internal class spell_sha_spirit_wolf : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target.HasAura(ShamanSpells.SpiritWolfTalent) &&
-		    target.HasAura(ShamanSpells.GhostWolf))
+			target.HasAura(ShamanSpells.GhostWolf))
 			target.CastSpell(target, ShamanSpells.SpiritWolfPeriodic, new CastSpellExtraArgs(aurEff));
 	}
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(ShamanSpells.SpiritWolfPeriodic);
-		GetTarget().RemoveAura(ShamanSpells.SpiritWolfAura);
+		Target.RemoveAura(ShamanSpells.SpiritWolfPeriodic);
+		Target.RemoveAura(ShamanSpells.SpiritWolfAura);
 	}
 }

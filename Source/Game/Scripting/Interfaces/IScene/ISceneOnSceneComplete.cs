@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IScene
+namespace Game.Scripting.Interfaces.IScene;
+
+public interface ISceneOnSceneComplete : IScriptObject
 {
-    public interface ISceneOnSceneComplete : IScriptObject
-    {
-        void OnSceneComplete(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate);
-    }
+	void OnSceneComplete(Player player, uint sceneInstanceID, SceneTemplate sceneTemplate);
 }

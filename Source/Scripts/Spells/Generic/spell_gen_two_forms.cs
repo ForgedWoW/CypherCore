@@ -13,9 +13,11 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public SpellCastResult CheckCast()
 	{
-		if (GetCaster().IsInCombat())
+		if (Caster.IsInCombat())
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
 
@@ -23,7 +25,7 @@ internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffe
 		}
 
 		// Player cannot transform to human form if he is forced to be worgen for some reason (Darkflight)
-		if (GetCaster().GetAuraEffectsByType(AuraType.WorgenAlteredForm).Count > 1)
+		if (Caster.GetAuraEffectsByType(AuraType.WorgenAlteredForm).Count > 1)
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.CantTransform);
 
@@ -38,11 +40,9 @@ internal class spell_gen_two_forms : SpellScript, ISpellCheckCast, IHasSpellEffe
 		SpellEffects.Add(new EffectHandler(HandleTransform, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleTransform(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 		PreventHitDefaultEffect(effIndex);
 
 		if (target.HasAuraType(AuraType.WorgenAlteredForm))

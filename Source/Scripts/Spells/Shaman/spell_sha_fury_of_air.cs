@@ -7,30 +7,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+//197211 - Fury of Air
+[SpellScript(197211)]
+public class spell_sha_fury_of_air : AuraScript, IHasAuraEffects
 {
-    //197211 - Fury of Air
-    [SpellScript(197211)]
-	public class spell_sha_fury_of_air : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
+	}
 
-		private void HandlePeriodic(AuraEffect UnnamedParameter)
-		{
-			var caster = GetCaster();
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			if (caster.GetPower(PowerType.Maelstrom) >= 5)
-				caster.SetPower(PowerType.Maelstrom, caster.GetPower(PowerType.Maelstrom) - 5);
-			else
-				caster.RemoveAura(ShamanSpells.FURY_OF_AIR);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));
-		}
+		if (caster.GetPower(PowerType.Maelstrom) >= 5)
+			caster.SetPower(PowerType.Maelstrom, caster.GetPower(PowerType.Maelstrom) - 5);
+		else
+			caster.RemoveAura(ShamanSpells.FURY_OF_AIR);
 	}
 }

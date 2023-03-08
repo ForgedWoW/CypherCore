@@ -18,14 +18,14 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 	private double absorbPct;
 	private long maxHealth;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_dk_anti_magic_shell()
 	{
-		absorbPct      = 0;
-		maxHealth      = 0;
+		absorbPct = 0;
+		maxHealth = 0;
 		absorbedAmount = 0;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -34,8 +34,8 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		absorbPct      = GetEffectInfo(1).CalcValue(GetCaster());
-		maxHealth      = GetCaster().GetMaxHealth();
+		absorbPct = GetEffectInfo(1).CalcValue(Caster);
+		maxHealth = Caster.GetMaxHealth();
 		absorbedAmount = 0;
 
 		return true;
@@ -57,25 +57,25 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 	{
 		absorbedAmount += absorbAmount;
 
-		if (!GetTarget().HasAura(DeathKnightSpells.VolatileShielding))
+		if (!Target.HasAura(DeathKnightSpells.VolatileShielding))
 		{
 			CastSpellExtraArgs args = new(aurEff);
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(absorbAmount, 2 * absorbAmount * 100 / maxHealth));
-			GetTarget().CastSpell(GetTarget(), DeathKnightSpells.RunicPowerEnergize, args);
+			Target.CastSpell(Target, DeathKnightSpells.RunicPowerEnergize, args);
 		}
 
 		return absorbAmount;
-    }
+	}
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var volatileShielding = GetTarget().GetAuraEffect(DeathKnightSpells.VolatileShielding, 1);
+		var volatileShielding = Target.GetAuraEffect(DeathKnightSpells.VolatileShielding, 1);
 
 		if (volatileShielding != null)
 		{
 			CastSpellExtraArgs args = new(volatileShielding);
 			args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(absorbedAmount, volatileShielding.Amount));
-			GetTarget().CastSpell((Unit)null, DeathKnightSpells.VolatileShieldingDamage, args);
+			Target.CastSpell((Unit)null, DeathKnightSpells.VolatileShieldingDamage, args);
 		}
 	}
 }

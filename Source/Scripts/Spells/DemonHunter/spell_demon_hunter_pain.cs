@@ -13,29 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(185244)]
 public class spell_demon_hunter_pain : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModPowerDisplay, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || eventInfo.GetDamageInfo() != null)
+		if (caster == null || eventInfo.DamageInfo != null)
 			return;
 
-		if (eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsPositive)
+		if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsPositive)
 			return;
 
-		var damageTaken = eventInfo.GetDamageInfo().GetDamage();
+		var damageTaken = eventInfo.DamageInfo.GetDamage();
 
 		if (damageTaken <= 0)
 			return;
 
 		var painAmount = (50.0f * (double)damageTaken) / (double)caster.GetMaxHealth();
 		caster.CastSpell(caster, DemonHunterSpells.REWARD_PAIN, (int)painAmount);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.ModPowerDisplay, AuraScriptHookType.EffectProc));
 	}
 }

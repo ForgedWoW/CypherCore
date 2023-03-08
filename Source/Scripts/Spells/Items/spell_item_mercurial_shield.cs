@@ -27,6 +27,6 @@ internal class spell_item_mercurial_shield : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		GetHitUnit().RemoveAuraFromStack(ItemSpellIds.MercurialShield);
+		HitUnit.RemoveAuraFromStack(ItemSpellIds.MercurialShield);
 	}
 }

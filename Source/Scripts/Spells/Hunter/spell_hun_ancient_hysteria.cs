@@ -15,21 +15,26 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(90355)]
 public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
 	readonly UnitAuraCheck<WorldObject> _ins = new(true, AncientHysteriaSpells.INSANITY);
 	readonly UnitAuraCheck<WorldObject> _dis = new(true, AncientHysteriaSpells.TEMPORAL_DISPLACEMENT);
 	readonly UnitAuraCheck<WorldObject> _ex = new(true, AncientHysteriaSpells.EXHAUSTION);
 	readonly UnitAuraCheck<WorldObject> _sa = new(true, AncientHysteriaSpells.SATED);
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		if (!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.INSANITY, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.TEMPORAL_DISPLACEMENT, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.EXHAUSTION, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.SATED, Difficulty.None))
+			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.TEMPORAL_DISPLACEMENT, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.EXHAUSTION, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.SATED, Difficulty.None))
 			return false;
 
 		return true;
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, (byte)255, Targets.UnitCasterAreaRaid));
 	}
 
 	private void RemoveInvalidTargets(List<WorldObject> targets)
@@ -42,14 +47,9 @@ public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
 
 	private void ApplyDebuff()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 			target.CastSpell(target, AncientHysteriaSpells.INSANITY, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(RemoveInvalidTargets, (byte)255, Targets.UnitCasterAreaRaid));
 	}
 }

@@ -12,10 +12,10 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 {
 	public SpellCastResult CheckCast()
 	{
-		if (GetSpellInfo().Id == 194011)
+		if (SpellInfo.Id == 194011)
 			return SpellCastResult.SpellCastOk;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -35,7 +35,7 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

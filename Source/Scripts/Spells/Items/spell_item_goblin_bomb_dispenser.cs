@@ -27,9 +27,9 @@ internal class spell_item_goblin_bomb_dispenser : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var item = GetCastItem();
+		var item = CastItem;
 
 		if (item != null)
-			GetCaster().CastSpell(GetCaster(), RandomHelper.randChance(95) ? ItemSpellIds.SummonGoblinBomb : ItemSpellIds.MalfunctionExplosion, item);
+			Caster.CastSpell(Caster, RandomHelper.randChance(95) ? ItemSpellIds.SummonGoblinBomb : ItemSpellIds.MalfunctionExplosion, item);
 	}
 }

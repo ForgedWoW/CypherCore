@@ -20,9 +20,14 @@ public class spell_evoker_soar : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(EvokerSpells.SOAR_RACIAL, EvokerSpells.SKYWARD_ASCENT, EvokerSpells.SURGE_FORWARD);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -30,14 +35,9 @@ public class spell_evoker_soar : SpellScript, IHasSpellEffects
 		// Increase flight speed by 830540%
 		caster.SetSpeedRate(UnitMoveType.Flight, 83054.0f);
 
-		var player = GetHitPlayer();
+		var player = HitPlayer;
 		// Add "Skyward Ascent" and "Surge Forward" to the caster's spellbook
 		player.LearnSpell(EvokerSpells.SKYWARD_ASCENT, false);
 		player.LearnSpell(EvokerSpells.SURGE_FORWARD, false);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

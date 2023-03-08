@@ -16,7 +16,7 @@ internal class spell_item_runic_healing_injector : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsPlayer();
+		return Caster.IsPlayer();
 	}
 
 	public override void Register()
@@ -26,10 +26,10 @@ internal class spell_item_runic_healing_injector : SpellScript, IHasSpellEffects
 
 	private void HandleHeal(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster != null)
 			if (caster.HasSkill(SkillType.Engineering))
-				SetHitHeal((int)(GetHitHeal() * 1.25f));
+				HitHeal = (int)(HitHeal * 1.25f);
 	}
 }

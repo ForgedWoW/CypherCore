@@ -11,7 +11,7 @@ internal class spell_q13280_13283_jump_jets : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.IsVehicle())
 		{

@@ -7,29 +7,26 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 
-namespace Scripts.World
+namespace Scripts.World;
+
+internal class xp_boost_PlayerScript : ScriptObjectAutoAdd, IPlayerOnGiveXP
 {
-    internal class xp_boost_PlayerScript : ScriptObjectAutoAdd, IPlayerOnGiveXP
-    {
-        public xp_boost_PlayerScript() : base("xp_boost_PlayerScript")
-        {
-        }
+	public xp_boost_PlayerScript() : base("xp_boost_PlayerScript") { }
 
-        public void OnGiveXP(Player player, ref uint amount, Unit victim)
-        {
-            if (IsXPBoostActive())
-                amount *= (uint)WorldConfig.GetFloatValue(WorldCfg.RateXpBoost);
-        }
+	public void OnGiveXP(Player player, ref uint amount, Unit victim)
+	{
+		if (IsXPBoostActive())
+			amount *= (uint)WorldConfig.GetFloatValue(WorldCfg.RateXpBoost);
+	}
 
-        private bool IsXPBoostActive()
-        {
-            long time = GameTime.GetGameTime();
-            var localTm = Time.UnixTimeToDateTime(time);
-            uint weekdayMaskBoosted = WorldConfig.GetUIntValue(WorldCfg.XpBoostDaymask);
-            uint weekdayMask = 1u << localTm.Day;
-            bool currentDayBoosted = (weekdayMask & weekdayMaskBoosted) != 0;
+	private bool IsXPBoostActive()
+	{
+		var time = GameTime.GetGameTime();
+		var localTm = Time.UnixTimeToDateTime(time);
+		var weekdayMaskBoosted = WorldConfig.GetUIntValue(WorldCfg.XpBoostDaymask);
+		var weekdayMask = 1u << localTm.Day;
+		var currentDayBoosted = (weekdayMask & weekdayMaskBoosted) != 0;
 
-            return currentDayBoosted;
-        }
-    }
+		return currentDayBoosted;
+	}
 }

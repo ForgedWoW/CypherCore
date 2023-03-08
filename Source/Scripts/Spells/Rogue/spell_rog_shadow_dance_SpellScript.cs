@@ -14,9 +14,14 @@ public class spell_rog_shadow_dance_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHit));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -25,10 +30,5 @@ public class spell_rog_shadow_dance_SpellScript : SpellScript, IHasSpellEffects
 			caster.ModifyPower(PowerType.Energy, +30);
 
 		caster.CastSpell(caster, RogueSpells.SHADOW_DANCE_AURA, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHit));
 	}
 }

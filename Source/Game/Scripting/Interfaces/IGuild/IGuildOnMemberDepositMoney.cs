@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnMemberDepositMoney : IScriptObject
 {
-    public interface IGuildOnMemberDepositMoney : IScriptObject
-    {
-        void OnMemberDepositMoney(Guild guild, Player player, ulong amount);
-    }
+	void OnMemberDepositMoney(Guild guild, Player player, ulong amount);
 }

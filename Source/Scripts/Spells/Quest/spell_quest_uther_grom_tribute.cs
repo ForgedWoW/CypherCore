@@ -18,15 +18,15 @@ internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(QuestSpellIds.GromsTrollTribute,
-		                         QuestSpellIds.GromsTaurenTribute,
-		                         QuestSpellIds.GromsUndeadTribute,
-		                         QuestSpellIds.GromsOrcTribute,
-		                         QuestSpellIds.GromsBloodelfTribute,
-		                         QuestSpellIds.UthersHumanTribute,
-		                         QuestSpellIds.UthersGnomeTribute,
-		                         QuestSpellIds.UthersDwarfTribute,
-		                         QuestSpellIds.UthersNightelfTribute,
-		                         QuestSpellIds.UthersDraeneiTribute);
+								QuestSpellIds.GromsTaurenTribute,
+								QuestSpellIds.GromsUndeadTribute,
+								QuestSpellIds.GromsOrcTribute,
+								QuestSpellIds.GromsBloodelfTribute,
+								QuestSpellIds.UthersHumanTribute,
+								QuestSpellIds.UthersGnomeTribute,
+								QuestSpellIds.UthersDwarfTribute,
+								QuestSpellIds.UthersNightelfTribute,
+								QuestSpellIds.UthersDraeneiTribute);
 	}
 
 	public override void Register()
@@ -36,25 +36,25 @@ internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (!caster)
 			return;
 
 		uint spell = caster.GetRace() switch
-		             {
-			             Race.Troll    => QuestSpellIds.GromsTrollTribute,
-			             Race.Tauren   => QuestSpellIds.GromsTaurenTribute,
-			             Race.Undead   => QuestSpellIds.GromsUndeadTribute,
-			             Race.Orc      => QuestSpellIds.GromsOrcTribute,
-			             Race.BloodElf => QuestSpellIds.GromsBloodelfTribute,
-			             Race.Human    => QuestSpellIds.UthersHumanTribute,
-			             Race.Gnome    => QuestSpellIds.UthersGnomeTribute,
-			             Race.Dwarf    => QuestSpellIds.UthersDwarfTribute,
-			             Race.NightElf => QuestSpellIds.UthersNightelfTribute,
-			             Race.Draenei  => QuestSpellIds.UthersDraeneiTribute,
-			             _             => 0
-		             };
+		{
+			Race.Troll    => QuestSpellIds.GromsTrollTribute,
+			Race.Tauren   => QuestSpellIds.GromsTaurenTribute,
+			Race.Undead   => QuestSpellIds.GromsUndeadTribute,
+			Race.Orc      => QuestSpellIds.GromsOrcTribute,
+			Race.BloodElf => QuestSpellIds.GromsBloodelfTribute,
+			Race.Human    => QuestSpellIds.UthersHumanTribute,
+			Race.Gnome    => QuestSpellIds.UthersGnomeTribute,
+			Race.Dwarf    => QuestSpellIds.UthersDwarfTribute,
+			Race.NightElf => QuestSpellIds.UthersNightelfTribute,
+			Race.Draenei  => QuestSpellIds.UthersDraeneiTribute,
+			_             => 0
+		};
 
 		if (spell != 0)
 			caster.CastSpell(caster, spell);

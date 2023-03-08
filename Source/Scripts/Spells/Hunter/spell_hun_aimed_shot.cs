@@ -16,20 +16,25 @@ public class spell_hun_aimed_shot : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDamage(int effIndex)
 	{
-		var distance       = 30.0f;
-		var damagePct      = 50;
-		var targetList     = new List<Unit>();
-		var victimList     = new List<Unit>();
+		var distance = 30.0f;
+		var damagePct = 50;
+		var targetList = new List<Unit>();
+		var victimList = new List<Unit>();
 		var canApplyDamage = true;
 
-		var modOwner = GetCaster().GetSpellModOwner();
+		var modOwner = Caster.GetSpellModOwner();
 
 		if (modOwner != null)
 			if (modOwner.HasAura(199522))
 			{
-				var mainTarget = GetHitUnit();
+				var mainTarget = HitUnit;
 
 				if (mainTarget != null)
 				{
@@ -54,9 +59,9 @@ public class spell_hun_aimed_shot : SpellScript, IHasSpellEffects
 
 						foreach (var victim in victimList)
 						{
-							var args     = new CastSpellExtraArgs();
+							var args = new CastSpellExtraArgs();
 							var castTime = 0;
-							mainTarget.ModSpellCastTime(GetSpellInfo(), ref castTime);
+							mainTarget.ModSpellCastTime(SpellInfo, ref castTime);
 							args.AddSpellMod(SpellValueMod.BasePoint0, (int)damagePct);
 							args.SetOriginalCaster(modOwner.GetGUID());
 							args.SetTriggerFlags(TriggerCastFlags.FullMask);
@@ -66,10 +71,5 @@ public class spell_hun_aimed_shot : SpellScript, IHasSpellEffects
 					}
 				}
 			}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

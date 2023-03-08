@@ -1481,7 +1481,7 @@ public partial class Player
 								return true;
 
 						// special check to filter things like Shield Wall, the aura is not permanent and must stay even without required item
-						if (!spellInfo.IsPassive())
+						if (!spellInfo.IsPassive)
 							foreach (var spellEffectInfo in spellInfo.Effects)
 								if (spellEffectInfo.IsAura())
 									return true;
@@ -1566,7 +1566,7 @@ public partial class Player
 
 				var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
 
-				if (spellInfo == null || !spellInfo.IsPassive() || spellInfo.EquippedItemClass < 0)
+				if (spellInfo == null || !spellInfo.IsPassive || spellInfo.EquippedItemClass < 0)
 					continue;
 
 				if (!HasAura(pair.Key) && HasItemFitToSpellRequirements(spellInfo))
@@ -1873,7 +1873,7 @@ public partial class Player
 		// update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
-		if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank())
+		if (spellInfo != null && spellInfo.IsPrimaryProfessionFirstRank)
 		{
 			var freeProfs = GetFreePrimaryProfessionPoints() + 1;
 
@@ -1944,7 +1944,7 @@ public partial class Player
 		if (prev_id != 0)
 			// if ranked non-stackable spell: need activate lesser rank and update dendence state
 			// No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
-			if (cur_active && spellInfo.IsRanked())
+			if (cur_active && spellInfo.IsRanked)
 			{
 				// need manually update dependence state (learn spell ignore like attempts)
 				var prevSpell = _spells.LookupByKey(prev_id);
@@ -1973,14 +1973,14 @@ public partial class Player
 		_overrideSpells.Remove(spellId);
 
 		if (_canTitanGrip)
-			if (spellInfo != null && spellInfo.IsPassive() && spellInfo.HasEffect(SpellEffectName.TitanGrip))
+			if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.TitanGrip))
 			{
 				RemoveAura(_titanGripPenaltySpellId);
 				SetCanTitanGrip(false);
 			}
 
 		if (CanDualWield())
-			if (spellInfo != null && spellInfo.IsPassive() && spellInfo.HasEffect(SpellEffectName.DualWield))
+			if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.DualWield))
 				SetCanDualWield(false);
 
 		if (WorldConfig.GetBoolValue(WorldCfg.OffhandCheckAtSpellUnlearn))
@@ -3459,7 +3459,7 @@ public partial class Player
 			uint next_active_spell_id = 0;
 
 			// fix activate state for non-stackable low rank (and find next spell for !active case)
-			if (spellInfo.IsRanked())
+			if (spellInfo.IsRanked)
 			{
 				var next = Global.SpellMgr.GetNextSpellInChain(spellId);
 
@@ -3522,7 +3522,7 @@ public partial class Player
 
 				if (active)
 				{
-					if (spellInfo.IsPassive() && HandlePassiveSpellLearn(spellInfo))
+					if (spellInfo.IsPassive && HandlePassiveSpellLearn(spellInfo))
 						CastSpell(this, spellId, true);
 				}
 				else if (IsInWorld)
@@ -3603,7 +3603,7 @@ public partial class Player
 				newspell.TraitDefinitionId = traitDefinitionId.Value;
 
 			// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-			if (newspell.Active && !newspell.Disabled && spellInfo.IsRanked())
+			if (newspell.Active && !newspell.Disabled && spellInfo.IsRanked)
 				foreach (var _spell in _spells)
 				{
 					if (_spell.Value.State == PlayerSpellState.Removed)
@@ -3659,7 +3659,7 @@ public partial class Player
 			// ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
 			castSpell = true;
 		// also cast passive spells (including all talents without SPELL_EFFECT_LEARN_SPELL) with additional checks
-		else if (spellInfo.IsPassive())
+		else if (spellInfo.IsPassive)
 			castSpell = HandlePassiveSpellLearn(spellInfo);
 		else if (spellInfo.HasEffect(SpellEffectName.SkillStep))
 			castSpell = true;
@@ -3722,7 +3722,7 @@ public partial class Player
 		var freeProfs = GetFreePrimaryProfessionPoints();
 
 		if (freeProfs != 0)
-			if (spellInfo.IsPrimaryProfessionFirstRank())
+			if (spellInfo.IsPrimaryProfessionFirstRank)
 				SetFreePrimaryProfessions(freeProfs - 1);
 
 		var skill_bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellId);
@@ -3822,7 +3822,7 @@ public partial class Player
 		switch (mod.Op)
 		{
 			case SpellModOp.Duration: // +duration to infinite duration spells making them limited
-				if (spellInfo.GetDuration() == -1)
+				if (spellInfo.Duration == -1)
 					return false;
 
 				break;

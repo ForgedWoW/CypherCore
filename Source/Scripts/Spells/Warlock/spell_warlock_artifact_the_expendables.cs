@@ -7,36 +7,35 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 211219 - The Expendables
+[SpellScript(211219)]
+public class spell_warlock_artifact_the_expendables : AuraScript, IHasAuraEffects
 {
-    // 211219 - The Expendables
-    [SpellScript(211219)]
-	public class spell_warlock_artifact_the_expendables : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
-		private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			if (caster.ToPlayer())
-				return;
+		if (caster.ToPlayer())
+			return;
 
-			var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
+		var player = caster.GetCharmerOrOwnerPlayerOrPlayerItself();
 
-			if (player == null)
-				return;
+		if (player == null)
+			return;
 
-			foreach (var unit in player.Controlled)
-				player.CastSpell(unit, WarlockSpells.THE_EXPANDABLES_BUFF, true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		}
+		foreach (var unit in player.Controlled)
+			player.CastSpell(unit, WarlockSpells.THE_EXPANDABLES_BUFF, true);
 	}
 }

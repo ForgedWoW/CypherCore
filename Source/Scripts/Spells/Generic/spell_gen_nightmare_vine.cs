@@ -28,7 +28,7 @@ internal class spell_gen_nightmare_vine : SpellScript, IHasSpellEffects
 	private void HandleScript(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 			// 25% chance of casting Nightmare Pollen

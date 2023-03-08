@@ -11,7 +11,7 @@ public class spell_dh_fel_rush_specless : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster.CastSpell(DemonHunterSpells.FEL_RUSH, true);
 	}

@@ -8,53 +8,52 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+// 202430 - Nature's Balance
+[SpellScript(202430)]
+public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 {
-    // 202430 - Nature's Balance
-    [SpellScript(202430)]
-	public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		return ValidateSpellInfo(Spells.NATURES_BALANCE);
+	}
 
-		private struct Spells
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
+	}
+
+	private void HandlePeriodic(AuraEffect aurEff)
+	{
+		var caster = Caster;
+
+		if (caster == null || !caster.IsAlive() || caster.GetMaxPower(PowerType.LunarPower) == 0)
+			return;
+
+		if (caster.IsInCombat())
 		{
-			public const uint NATURES_BALANCE = 202430;
-		}
+			var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return ValidateSpellInfo(Spells.NATURES_BALANCE);
-		}
-
-		private void HandlePeriodic(AuraEffect aurEff)
-		{
-			var caster = GetCaster();
-
-			if (caster == null || !caster.IsAlive() || caster.GetMaxPower(PowerType.LunarPower) == 0)
+			// don't regen when permanent aura target has full power
+			if (caster.GetPower(PowerType.LunarPower) == caster.GetMaxPower(PowerType.LunarPower))
 				return;
 
-			if (caster.IsInCombat())
-			{
-				var amount = Math.Max(caster.GetAuraEffect(Spells.NATURES_BALANCE, 0).Amount, 0);
-
-				// don't regen when permanent aura target has full power
-				if (caster.GetPower(PowerType.LunarPower) == caster.GetMaxPower(PowerType.LunarPower))
-					return;
-
-				caster.ModifyPower(PowerType.LunarPower, amount);
-			}
-			else
-			{
-				if (caster.GetPower(PowerType.LunarPower) > 500)
-					return;
-
-				caster.SetPower(PowerType.LunarPower, 500);
-			}
+			caster.ModifyPower(PowerType.LunarPower, amount);
 		}
-
-		public override void Register()
+		else
 		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicEnergize));
+			if (caster.GetPower(PowerType.LunarPower) > 500)
+				return;
+
+			caster.SetPower(PowerType.LunarPower, 500);
 		}
+	}
+
+	private struct Spells
+	{
+		public const uint NATURES_BALANCE = 202430;
 	}
 }

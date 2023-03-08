@@ -21,7 +21,7 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 
 	private void OnPeriodic(AuraEffect aurEff)
 	{
-		var  target         = GetTarget();
+		var target = Target;
 		uint mountDisplayId = 0;
 
 		var tempSummon = target.ToTempSummon();
@@ -35,14 +35,14 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 			return;
 
 		if (summoner.IsMounted() &&
-		    (!summoner.IsInCombat() || summoner.IsFlying()))
+			(!summoner.IsInCombat() || summoner.IsFlying()))
 		{
 			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(tempSummon.GetEntry());
 
 			if (summonedData != null)
 			{
 				if (summoner.IsFlying() &&
-				    summonedData.FlyingMountDisplayId.HasValue)
+					summonedData.FlyingMountDisplayId.HasValue)
 					mountDisplayId = summonedData.FlyingMountDisplayId.Value;
 				else if (summonedData.GroundMountDisplayId.HasValue)
 					mountDisplayId = summonedData.GroundMountDisplayId.Value;

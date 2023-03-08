@@ -13,14 +13,14 @@ internal class CometStormEvent : BasicEvent
 {
 	private readonly Unit _caster;
 	private readonly Position _dest;
-	private byte _count;
 	private readonly ObjectGuid _originalCastId;
+	private byte _count;
 
 	public CometStormEvent(Unit caster, ObjectGuid originalCastId, Position dest)
 	{
-		_caster         = caster;
+		_caster = caster;
 		_originalCastId = originalCastId;
-		_dest           = dest;
+		_dest = dest;
 	}
 
 	public override bool Execute(ulong etime, uint pTime)

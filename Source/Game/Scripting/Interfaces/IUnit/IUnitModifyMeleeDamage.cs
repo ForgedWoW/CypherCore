@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IUnit
+namespace Game.Scripting.Interfaces.IUnit;
+
+public interface IUnitModifyMeleeDamage : IScriptObject
 {
-    public interface IUnitModifyMeleeDamage : IScriptObject
-    {
-        void ModifyMeleeDamage(Unit target, Unit attacker, ref double damage);
-    }
+	void ModifyMeleeDamage(Unit target, Unit attacker, ref double damage);
 }

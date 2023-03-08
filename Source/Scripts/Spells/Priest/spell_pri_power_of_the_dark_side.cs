@@ -27,14 +27,14 @@ internal class spell_pri_power_of_the_dark_side : AuraScript, IHasAuraEffects
 
 	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster?.CastSpell(caster, PriestSpells.POWER_OF_THE_DARK_SIDE_TINT, true);
 	}
 
 	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster?.RemoveAura(PriestSpells.POWER_OF_THE_DARK_SIDE_TINT);
 	}

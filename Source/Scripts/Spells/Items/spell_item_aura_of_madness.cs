@@ -20,15 +20,15 @@ internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return CliDB.BroadcastTextStorage.ContainsKey(TextIds.SayMadness) &&
-		       ValidateSpellInfo(ItemSpellIds.Sociopath,
-		                         ItemSpellIds.Delusional,
-		                         ItemSpellIds.Kleptomania,
-		                         ItemSpellIds.Megalomania,
-		                         ItemSpellIds.Paranoia,
-		                         ItemSpellIds.Manic,
-		                         ItemSpellIds.Narcissism,
-		                         ItemSpellIds.MartyrComplex,
-		                         ItemSpellIds.Dementia);
+				ValidateSpellInfo(ItemSpellIds.Sociopath,
+								ItemSpellIds.Delusional,
+								ItemSpellIds.Kleptomania,
+								ItemSpellIds.Megalomania,
+								ItemSpellIds.Paranoia,
+								ItemSpellIds.Manic,
+								ItemSpellIds.Narcissism,
+								ItemSpellIds.MartyrComplex,
+								ItemSpellIds.Dementia);
 	}
 
 	public override void Register()
@@ -97,7 +97,7 @@ internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
 		};
 
 		PreventDefaultAction();
-		var caster  = eventInfo.GetActor();
+		var caster = eventInfo.Actor;
 		var spellId = triggeredSpells[(int)caster.GetClass()].SelectRandom();
 		caster.CastSpell(caster, spellId, new CastSpellExtraArgs(aurEff));
 

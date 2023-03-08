@@ -23,9 +23,9 @@ internal class spell_gen_nitrous_boost : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		if (GetCaster() != null &&
-		    GetTarget().GetPower(PowerType.Mana) >= 10)
-			GetTarget().ModifyPower(PowerType.Mana, -10);
+		if (Caster != null &&
+			Target.GetPower(PowerType.Mana) >= 10)
+			Target.ModifyPower(PowerType.Mana, -10);
 		else
 			Remove();
 	}

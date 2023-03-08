@@ -27,19 +27,19 @@ internal class spell_item_net_o_matic : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 		{
 			var spellId = ItemSpellIds.NetOMaticTriggered3;
-			var roll    = RandomHelper.URand(0, 99);
+			var roll = RandomHelper.URand(0, 99);
 
 			if (roll < 2) // 2% for 30 sec self root (off-like chance unknown)
 				spellId = ItemSpellIds.NetOMaticTriggered1;
 			else if (roll < 4) // 2% for 20 sec root, charge to Target (off-like chance unknown)
 				spellId = ItemSpellIds.NetOMaticTriggered2;
 
-			GetCaster().CastSpell(target, spellId, true);
+			Caster.CastSpell(target, spellId, true);
 		}
 	}
 }

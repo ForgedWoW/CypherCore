@@ -412,7 +412,7 @@ namespace Game.Loots
                     continue;
 
                 // possible cases
-                if (!spellInfo.IsLootCrafting())
+                if (!spellInfo.IsLootCrafting)
                     continue;
 
                 if (!lootIdSet.Contains(spellInfo.Id))

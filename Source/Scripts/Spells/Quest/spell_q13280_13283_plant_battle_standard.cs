@@ -21,8 +21,8 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster           = GetCaster();
-		var target           = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 		var triggeredSpellID = QuestSpellIds.AllianceBattleStandardState;
 
 		caster.HandleEmoteCommand(Emote.OneshotRoar);
@@ -35,7 +35,7 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
 				player.ToPlayer().KilledMonsterCredit(CreatureIds.KingOfTheMountaintKc);
 		}
 
-		if (GetSpellInfo().Id == QuestSpellIds.PlantHordeBattleStandard)
+		if (SpellInfo.Id == QuestSpellIds.PlantHordeBattleStandard)
 			triggeredSpellID = QuestSpellIds.HordeBattleStandardState;
 
 		target.RemoveAllAuras();

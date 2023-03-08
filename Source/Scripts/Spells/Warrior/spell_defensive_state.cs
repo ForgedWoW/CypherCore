@@ -7,30 +7,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+//197690
+[SpellScript(197690)]
+public class spell_defensive_state : AuraScript, IHasAuraEffects
 {
-    //197690
-    [SpellScript(197690)]
-	public class spell_defensive_state : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModDamagePercentTaken, AuraEffectHandleModes.Real));
+	}
 
-		private void OnApply(AuraEffect aura, AuraEffectHandleModes auraMode)
+	private void OnApply(AuraEffect aura, AuraEffectHandleModes auraMode)
+	{
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			var caster = GetCaster();
+			var defensiveState = caster?.GetAura(197690)?.GetEffect(0);
 
-			if (caster != null)
-			{
-				var defensiveState = caster?.GetAura(197690)?.GetEffect(0);
-
-				//if (defensiveState != null)
-				//	defensiveState.Amount;
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.ModDamagePercentTaken, AuraEffectHandleModes.Real));
+			//if (defensiveState != null)
+			//	defensiveState.Amount;
 		}
 	}
 }

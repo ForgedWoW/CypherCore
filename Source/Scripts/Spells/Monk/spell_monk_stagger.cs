@@ -49,6 +49,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 	private double AbsorbNormal(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		Absorb(dmgInfo, 1.0f);
+
 		return absorbAmount;
 	}
 
@@ -60,7 +61,8 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 			return absorbAmount;
 
 		Absorb(dmgInfo, effect.Amount / 100.0f);
-		return absorbAmount; 
+
+		return absorbAmount;
 	}
 
 	private void Absorb(DamageInfo dmgInfo, double multiplier)
@@ -80,10 +82,10 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		if (effect == null)
 			return;
 
-		var target     = GetTarget();
-		var agility    = target.GetStat(Stats.Agility);
+		var target = Target;
+		var agility = target.GetStat(Stats.Agility);
 		var baseAmount = MathFunctions.CalculatePct(agility, effect.Amount);
-		var K          = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.GetLevel(), -2, 0, target.GetClass());
+		var K = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, target.GetLevel(), -2, 0, target.GetClass());
 
 		var newAmount = (baseAmount / (baseAmount + K));
 		newAmount *= multiplier;
@@ -102,7 +104,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
 	private void AddAndRefreshStagger(double amount)
 	{
-		var target      = GetTarget();
+		var target = Target;
 		var auraStagger = FindExistingStaggerEffect(target);
 
 		if (auraStagger != null)
@@ -113,7 +115,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 				return;
 
 			var newAmount = effStaggerRemaining.Amount + amount;
-			var spellId   = GetStaggerSpellId(target, newAmount);
+			var spellId = GetStaggerSpellId(target, newAmount);
 
 			if (spellId == effStaggerRemaining.SpellInfo.Id)
 			{
@@ -123,7 +125,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 			else
 			{
 				// amount changed the stagger Type so we need to change the stagger amount (e.g. from medium to light)
-				GetTarget().RemoveAura(auraStagger);
+				Target.RemoveAura(auraStagger);
 				AddNewStagger(target, spellId, newAmount);
 			}
 		}
@@ -135,14 +137,14 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 
 	private uint GetStaggerSpellId(Unit unit, double amount)
 	{
-		const double StaggerHeavy    = 0.6f;
+		const double StaggerHeavy = 0.6f;
 		const double StaggerModerate = 0.3f;
 
 		var staggerPct = amount / unit.GetMaxHealth();
 
-		return (staggerPct >= StaggerHeavy)    ? MonkSpells.StaggerHeavy :
-		       (staggerPct >= StaggerModerate) ? MonkSpells.StaggerModerate :
-		                                         MonkSpells.StaggerLight;
+		return (staggerPct >= StaggerHeavy)     ? MonkSpells.StaggerHeavy :
+				(staggerPct >= StaggerModerate) ? MonkSpells.StaggerModerate :
+												MonkSpells.StaggerLight;
 	}
 
 	private void AddNewStagger(Unit unit, uint staggerSpellId, double staggerAmount)

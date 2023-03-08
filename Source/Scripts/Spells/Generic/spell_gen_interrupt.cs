@@ -28,6 +28,6 @@ internal class spell_gen_interrupt : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(eventInfo.GetProcTarget(), GenericSpellIds.GenThrowInterrupt, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(eventInfo.ProcTarget, GenericSpellIds.GenThrowInterrupt, new CastSpellExtraArgs(aurEff));
 	}
 }

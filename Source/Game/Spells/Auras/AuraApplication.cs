@@ -15,7 +15,6 @@ public class AuraApplication
 	readonly Unit _target;
 	readonly Aura _base;
 	readonly byte _slot;        // Aura slot on unit
-	AuraRemoveMode _removeMode; // Store info for know remove aura reason
 	AuraFlags _flags;           // Aura info flag
 	uint _effectsToApply;       // Used only at spell hit to determine which effect should be applied
 	bool _needClientUpdate;
@@ -38,13 +37,9 @@ public class AuraApplication
 
 	public uint EffectsToApply => _effectsToApply;
 
-	public AuraRemoveMode RemoveMode
-	{
-		get => _removeMode;
-		set => _removeMode = value;
-	}
+	public AuraRemoveMode RemoveMode { get; set; }  // Store info for know remove aura reason
 
-	public bool HasRemoveMode => _removeMode != 0;
+    public bool HasRemoveMode => RemoveMode != 0;
 
 	public bool IsNeedClientUpdate => _needClientUpdate;
 
@@ -54,7 +49,7 @@ public class AuraApplication
 	{
 		_target = target;
 		_base = aura;
-		_removeMode = AuraRemoveMode.None;
+		RemoveMode = AuraRemoveMode.None;
 		_slot = SpellConst.MaxAuras;
 		_flags = AuraFlags.None;
 		_effectsToApply = effMask;
@@ -194,7 +189,7 @@ public class AuraApplication
 		auraData.Visual = aura.SpellVisual;
 		auraData.Flags = Flags;
 
-		if (aura.GetAuraType() != AuraObjectType.DynObj && aura.MaxDuration > 0 && !aura.SpellInfo.HasAttribute(SpellAttr5.DoNotDisplayDuration))
+		if (aura.AuraObjType != AuraObjectType.DynObj && aura.MaxDuration > 0 && !aura.SpellInfo.HasAttribute(SpellAttr5.DoNotDisplayDuration))
 			auraData.Flags |= AuraFlags.Duration;
 
 		auraData.ActiveFlags = EffectMask;

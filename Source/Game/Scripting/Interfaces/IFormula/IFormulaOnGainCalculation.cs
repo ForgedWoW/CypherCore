@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IFormula
+namespace Game.Scripting.Interfaces.IFormula;
+
+public interface IFormulaOnGainCalculation : IScriptObject
 {
-    public interface IFormulaOnGainCalculation : IScriptObject
-    {
-        void OnGainCalculation(uint gain, Player player, Unit unit);
-    }
+	void OnGainCalculation(uint gain, Player player, Unit unit);
 }

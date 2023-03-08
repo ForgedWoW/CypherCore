@@ -10,17 +10,17 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 {
+	public enum SpellsUsed
+	{
+		GIFT_OF_THE_OX_HEAL = 178173,
+		HEALING_SPHERE_COOLDOWN = 224863
+	}
+
 	public uint pickupDelay;
 
 	public at_monk_gift_of_the_ox_sphere(AreaTrigger areatrigger) : base(areatrigger)
 	{
 		pickupDelay = 1000;
-	}
-
-	public enum SpellsUsed
-	{
-		GIFT_OF_THE_OX_HEAL = 178173,
-		HEALING_SPHERE_COOLDOWN = 224863
 	}
 
 	public override void OnUpdate(uint diff)

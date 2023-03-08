@@ -6,71 +6,69 @@ using Game.Entities;
 using Game.Maps;
 using Game.Scripting;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(new uint[]
 {
-    [CreatureScript(new uint[] { 48447, 48450 })]
-    public class npc_deadmines_bird : ScriptedAI
-    {
-        public npc_deadmines_bird(Creature creature) : base(creature)
-        {
-            Instance = creature.GetInstanceScript();
-        }
+	48447, 48450
+})]
+public class npc_deadmines_bird : ScriptedAI
+{
+	public InstanceScript Instance;
+	public uint IiTimerEyePeck;
+	public uint UiTimerEyeGouge;
 
-        public InstanceScript Instance;
-        public uint IiTimerEyePeck;
-        public uint UiTimerEyeGouge;
+	public npc_deadmines_bird(Creature creature) : base(creature)
+	{
+		Instance = creature.GetInstanceScript();
+	}
 
-        public override void Reset()
-        {
-            IiTimerEyePeck = RandomHelper.URand(4000, 4900);
-            UiTimerEyeGouge = RandomHelper.URand(7000, 9000);
-        }
+	public override void Reset()
+	{
+		IiTimerEyePeck = RandomHelper.URand(4000, 4900);
+		UiTimerEyeGouge = RandomHelper.URand(7000, 9000);
+	}
 
-        public override void UpdateAI(uint uiDiff)
-        {
-            if (!me)
-            {
-                return;
-            }
+	public override void UpdateAI(uint uiDiff)
+	{
+		if (!me)
+			return;
 
-            if (!UpdateVictim())
-            {
-                return;
-            }
+		if (!UpdateVictim())
+			return;
 
-            if (UiTimerEyeGouge <= uiDiff)
-            {
-                Unit victim = me.GetVictim();
+		if (UiTimerEyeGouge <= uiDiff)
+		{
+			var victim = me.GetVictim();
 
-                if (victim != null)
-                {
-                    me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
-                }
-                UiTimerEyeGouge = RandomHelper.URand(9000, 12000);
-                return;
-            }
-            else
-            {
-                UiTimerEyeGouge -= uiDiff;
-            }
+			if (victim != null)
+				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
 
-            if (IiTimerEyePeck <= uiDiff)
-            {
-                Unit victim = me.GetVictim();
+			UiTimerEyeGouge = RandomHelper.URand(9000, 12000);
 
-                if (victim != null)
-                {
-                    me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);
-                }
-                IiTimerEyePeck = RandomHelper.URand(16000, 19000);
-                return;
-            }
-            else
-            {
-                IiTimerEyePeck -= uiDiff;
-            }
+			return;
+		}
+		else
+		{
+			UiTimerEyeGouge -= uiDiff;
+		}
 
-            DoMeleeAttackIfReady();
-        }
-    }
+		if (IiTimerEyePeck <= uiDiff)
+		{
+			var victim = me.GetVictim();
+
+			if (victim != null)
+				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);
+
+			IiTimerEyePeck = RandomHelper.URand(16000, 19000);
+
+			return;
+		}
+		else
+		{
+			IiTimerEyePeck -= uiDiff;
+		}
+
+		DoMeleeAttackIfReady();
+	}
 }

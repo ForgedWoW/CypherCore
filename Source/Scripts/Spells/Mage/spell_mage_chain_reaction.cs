@@ -12,6 +12,6 @@ public class spell_mage_chain_reaction : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo().Id == MageSpells.FROSTBOLT || eventInfo.GetSpellInfo().Id == MageSpells.FROSTBOLT_TRIGGER;
+		return eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT || eventInfo.SpellInfo.Id == MageSpells.FROSTBOLT_TRIGGER;
 	}
 }

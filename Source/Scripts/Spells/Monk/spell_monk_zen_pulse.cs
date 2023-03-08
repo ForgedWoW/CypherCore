@@ -23,13 +23,13 @@ public class spell_monk_zen_pulse : SpellScript, IHasSpellEffects
 		return true;
 	}
 
-	private void OnHit(int effIndex)
-	{
-		GetCaster().CastSpell(GetCaster(), MonkSpells.ZEN_PULSE_HEAL, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(OnHit, 1, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void OnHit(int effIndex)
+	{
+		Caster.CastSpell(Caster, MonkSpells.ZEN_PULSE_HEAL, true);
 	}
 }

@@ -17,7 +17,7 @@ internal class spell_q28813_get_our_boys_back_dummy : SpellScript, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster                   = GetCaster();
+		var caster = Caster;
 		var injuredStormwindInfantry = caster.FindNearestCreature(CreatureIds.InjuredStormwindInfantry, 5.0f, true);
 
 		if (injuredStormwindInfantry)

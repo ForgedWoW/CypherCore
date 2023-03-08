@@ -27,12 +27,12 @@ internal class spell_quest_portal_with_condition : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		if (target == null)
 			return;
 
-		var spellId = (uint)GetEffectInfo().CalcValue();
+		var spellId = (uint)EffectInfo.CalcValue();
 		var questId = (uint)GetEffectInfo(1).CalcValue();
 
 		// This probably should be a way to throw error in SpellCastResult

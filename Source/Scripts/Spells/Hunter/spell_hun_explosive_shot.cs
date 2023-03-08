@@ -19,13 +19,13 @@ class spell_hun_explosive_shot : AuraScript, IHasAuraEffects
 		return ValidateSpellInfo(HunterSpells.ExplosiveShotDamage);
 	}
 
-	void HandlePeriodic(AuraEffect aurEff)
-	{
-		GetCaster()?.CastSpell(GetTarget(), HunterSpells.ExplosiveShotDamage, true);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
+
+	void HandlePeriodic(AuraEffect aurEff)
+	{
+		Caster?.CastSpell(Target, HunterSpells.ExplosiveShotDamage, true);
 	}
 }

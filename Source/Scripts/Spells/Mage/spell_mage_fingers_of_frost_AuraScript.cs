@@ -31,16 +31,16 @@ internal class spell_mage_fingers_of_frost_AuraScript : AuraScript, IHasAuraEffe
 
 	private bool CheckFrostboltProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsAffected(SpellFamilyNames.Mage, new FlagArray128(0, 0x2000000, 0, 0)) && RandomHelper.randChance(aurEff.Amount);
+		return eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsAffected(SpellFamilyNames.Mage, new FlagArray128(0, 0x2000000, 0, 0)) && RandomHelper.randChance(aurEff.Amount);
 	}
 
 	private bool CheckFrozenOrbProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsAffected(SpellFamilyNames.Mage, new FlagArray128(0, 0, 0x80, 0)) && RandomHelper.randChance(aurEff.Amount);
+		return eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsAffected(SpellFamilyNames.Mage, new FlagArray128(0, 0, 0x80, 0)) && RandomHelper.randChance(aurEff.Amount);
 	}
 
 	private void Trigger(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		eventInfo.GetActor().CastSpell(GetTarget(), MageSpells.FingersOfFrost, new CastSpellExtraArgs(aurEff));
+		eventInfo.Actor.CastSpell(Target, MageSpells.FingersOfFrost, new CastSpellExtraArgs(aurEff));
 	}
 }

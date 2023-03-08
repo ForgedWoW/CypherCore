@@ -27,7 +27,7 @@ internal class spell_monk_stagger_damage_aura : AuraScript, IHasAuraEffects
 	private void OnPeriodicDamage(AuraEffect aurEff)
 	{
 		// Update our light/medium/heavy stagger with the correct stagger amount left
-		var auraStagger = spell_monk_stagger.FindExistingStaggerEffect(GetTarget());
+		var auraStagger = spell_monk_stagger.FindExistingStaggerEffect(Target);
 
 		if (auraStagger != null)
 		{
@@ -35,8 +35,8 @@ internal class spell_monk_stagger_damage_aura : AuraScript, IHasAuraEffects
 
 			if (auraEff != null)
 			{
-				double total      = auraEff.Amount;
-				double tickDamage = aurEff.Amount;
+				var total = auraEff.Amount;
+				var tickDamage = aurEff.Amount;
 				auraEff.ChangeAmount((int)(total - tickDamage));
 			}
 		}

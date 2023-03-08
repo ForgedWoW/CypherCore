@@ -9,54 +9,53 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 22568 - Ferocious Bite
+internal class spell_dru_ferocious_bite : SpellScript, IHasSpellEffects
 {
-    [Script] // 22568 - Ferocious Bite
-	internal class spell_dru_ferocious_bite : SpellScript, IHasSpellEffects
+	private double _damageMultiplier = 0.0f;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		private double _damageMultiplier = 0.0f;
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle) && Global.SpellMgr.GetSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle, Difficulty.None).Effects.Count > 1;
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleLaunchTarget, 1, SpellEffectName.PowerBurn, SpellScriptHookType.LaunchTarget));
+		SpellEffects.Add(new EffectHandler(HandleHitTargetBurn, 1, SpellEffectName.PowerBurn, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleHitTargetDmg, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleHitTargetBurn(int effIndex)
+	{
+		var newValue = (int)((double)EffectValue * _damageMultiplier);
+		EffectValue = newValue;
+	}
+
+	private void HandleHitTargetDmg(int effIndex)
+	{
+		var newValue = (int)((double)HitDamage * (1.0f + _damageMultiplier));
+		HitDamage = newValue;
+	}
+
+	private void HandleLaunchTarget(int effIndex)
+	{
+		var caster = Caster;
+
+		var maxExtraConsumedPower = EffectValue;
+
+		var auraEffect = caster.GetAuraEffect(DruidSpellIds.IncarnationKingOfTheJungle, 1);
+
+		if (auraEffect != null)
 		{
-			return ValidateSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle) && Global.SpellMgr.GetSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle, Difficulty.None).Effects.Count > 1;
+			var multiplier = 1.0f + (double)auraEffect.Amount / 100.0f;
+			maxExtraConsumedPower = (int)((double)maxExtraConsumedPower * multiplier);
+			EffectValue = maxExtraConsumedPower;
 		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleLaunchTarget, 1, SpellEffectName.PowerBurn, SpellScriptHookType.LaunchTarget));
-			SpellEffects.Add(new EffectHandler(HandleHitTargetBurn, 1, SpellEffectName.PowerBurn, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new EffectHandler(HandleHitTargetDmg, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private void HandleHitTargetBurn(int effIndex)
-		{
-			var newValue = (int)((double)GetEffectValue() * _damageMultiplier);
-			SetEffectValue(newValue);
-		}
-
-		private void HandleHitTargetDmg(int effIndex)
-		{
-			var newValue = (int)((double)GetHitDamage() * (1.0f + _damageMultiplier));
-			SetHitDamage(newValue);
-		}
-
-		private void HandleLaunchTarget(int effIndex)
-		{
-			var caster = GetCaster();
-
-			var maxExtraConsumedPower = GetEffectValue();
-
-			var auraEffect = caster.GetAuraEffect(DruidSpellIds.IncarnationKingOfTheJungle, 1);
-
-			if (auraEffect != null)
-			{
-				var multiplier = 1.0f + (double)auraEffect.Amount / 100.0f;
-				maxExtraConsumedPower = (int)((double)maxExtraConsumedPower * multiplier);
-				SetEffectValue(maxExtraConsumedPower);
-			}
-
-			_damageMultiplier = Math.Min(caster.GetPower(PowerType.Energy), maxExtraConsumedPower) / maxExtraConsumedPower;
-		}
+		_damageMultiplier = Math.Min(caster.GetPower(PowerType.Energy), maxExtraConsumedPower) / maxExtraConsumedPower;
 	}
 }

@@ -7,30 +7,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Demonic Calling - 205145
+public class spell_warl_demonic_calling : AuraScript, IAuraCheckProc
 {
-    // Demonic Calling - 205145
-    public class spell_warl_demonic_calling : AuraScript, IAuraCheckProc
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			if (Global.SpellMgr.GetSpellInfo(WarlockSpells.DEMONIC_CALLING_TRIGGER, Difficulty.None) != null)
-				return false;
-
-			return true;
-		}
-
-		public bool CheckProc(ProcEventInfo eventInfo)
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
-				return false;
-
-			if (eventInfo.GetSpellInfo() != null && (eventInfo.GetSpellInfo().Id == WarlockSpells.DEMONBOLT || eventInfo.GetSpellInfo().Id == WarlockSpells.SHADOW_BOLT) && RandomHelper.randChance(20))
-				caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
-
+		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.DEMONIC_CALLING_TRIGGER, Difficulty.None) != null)
 			return false;
-		}
+
+		return true;
+	}
+
+	public bool CheckProc(ProcEventInfo eventInfo)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return false;
+
+		if (eventInfo.SpellInfo != null && (eventInfo.SpellInfo.Id == WarlockSpells.DEMONBOLT || eventInfo.SpellInfo.Id == WarlockSpells.SHADOW_BOLT) && RandomHelper.randChance(20))
+			caster.CastSpell(caster, WarlockSpells.DEMONIC_CALLING_TRIGGER, true);
+
+		return false;
 	}
 }

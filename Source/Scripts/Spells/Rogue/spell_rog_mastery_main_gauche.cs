@@ -13,6 +13,8 @@ namespace Scripts.Spells.Rogue;
 [Script] // 76806 - Mastery: Main Gauche
 internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(RogueSpells.MainGauche);
@@ -20,7 +22,7 @@ internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasA
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetDamageInfo() != null && eventInfo.GetDamageInfo().GetVictim() != null;
+		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.GetVictim() != null;
 	}
 
 	public override void Register()
@@ -28,12 +30,10 @@ internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasA
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
-		var target = GetTarget();
+		var target = Target;
 
-		target?.CastSpell(procInfo.GetDamageInfo().GetVictim(), RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
+		target?.CastSpell(procInfo.DamageInfo.GetVictim(), RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
 	}
 }

@@ -14,25 +14,25 @@ namespace Scripts.Spells.Mage;
 [SpellScript(155148)]
 public class spell_mage_kindling : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo().Id == MageSpells.FIREBALL || eventInfo.GetSpellInfo().Id == MageSpells.FIRE_BLAST || eventInfo.GetSpellInfo().Id == MageSpells.PHOENIX_FLAMES;
-	}
-
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		var caster = GetCaster();
-
-		if (caster == null)
-			return;
-
-		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds(aurEff.Amount * -1));
+		return eventInfo.SpellInfo.Id == MageSpells.FIREBALL || eventInfo.SpellInfo.Id == MageSpells.FIRE_BLAST || eventInfo.SpellInfo.Id == MageSpells.PHOENIX_FLAMES;
 	}
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		caster.GetSpellHistory().ModifyCooldown(MageSpells.COMBUSTION, TimeSpan.FromSeconds(aurEff.Amount * -1));
 	}
 }

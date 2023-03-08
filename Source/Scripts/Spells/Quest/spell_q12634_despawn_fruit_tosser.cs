@@ -45,6 +45,6 @@ internal class spell_q12634_despawn_fruit_tosser : SpellScript, IHasSpellEffects
 		if (RandomHelper.randChance(5))
 			spellId = QuestSpellIds.SummonAdventurousDwarf;
 
-		GetCaster().CastSpell(GetCaster(), spellId, true);
+		Caster.CastSpell(Caster, spellId, true);
 	}
 }

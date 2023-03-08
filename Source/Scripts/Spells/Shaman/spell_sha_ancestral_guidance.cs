@@ -14,6 +14,8 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(108281)]
 internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.AncestralGuidanceHeal);
@@ -21,7 +23,7 @@ internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAu
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetHealInfo().GetSpellInfo().Id == ShamanSpells.AncestralGuidanceHeal)
+		if (eventInfo.HealInfo.GetSpellInfo().Id == ShamanSpells.AncestralGuidanceHeal)
 			return false;
 
 		return true;
@@ -32,18 +34,16 @@ internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAu
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var bp0 = MathFunctions.CalculatePct((int)eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
+		var bp0 = MathFunctions.CalculatePct((int)eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
 
 		if (bp0 != 0)
 		{
 			CastSpellExtraArgs args = new(aurEff);
 			args.AddSpellMod(SpellValueMod.BasePoint0, bp0);
-			eventInfo.GetActor().CastSpell(eventInfo.GetActor(), ShamanSpells.AncestralGuidanceHeal, args);
+			eventInfo.Actor.CastSpell(eventInfo.Actor, ShamanSpells.AncestralGuidanceHeal, args);
 		}
 	}
 }

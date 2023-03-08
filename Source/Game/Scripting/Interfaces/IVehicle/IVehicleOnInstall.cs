@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IVehicle
+namespace Game.Scripting.Interfaces.IVehicle;
+
+public interface IVehicleOnInstall : IScriptObject
 {
-    public interface IVehicleOnInstall : IScriptObject
-    {
-        void OnInstall(Vehicle veh);
-    }
+	void OnInstall(Vehicle veh);
 }

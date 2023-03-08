@@ -27,7 +27,7 @@ internal class spell_q13400_illidan_kill_master : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.IsVehicle())
 		{

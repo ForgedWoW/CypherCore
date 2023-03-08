@@ -8,27 +8,24 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
 
-namespace Scripts.EasternKingdoms.Deadmines.Spells
+namespace Scripts.EasternKingdoms.Deadmines.Spells;
+
+[SpellScript(89732)]
+public class spell_captain_cookie_nauseated : SpellScript, IHasSpellEffects
 {
-    [SpellScript(89732)]
-    public class spell_captain_cookie_nauseated : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new List<ISpellEffect>();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        public void HandleScript(int effIndex)
-        {
-            if (!GetCaster() || !GetHitUnit())
-            {
-                return;
-            }
+	public void HandleScript(int effIndex)
+	{
+		if (!Caster || !HitUnit)
+			return;
 
-            GetHitUnit().RemoveAuraFromStack(eSpell.SETIATED);
-            GetHitUnit().RemoveAuraFromStack(eSpell.SETIATED_H);
-        }
+		HitUnit.RemoveAuraFromStack(eSpell.SETIATED);
+		HitUnit.RemoveAuraFromStack(eSpell.SETIATED_H);
+	}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-        }
-    }
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
 }

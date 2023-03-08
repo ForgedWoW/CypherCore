@@ -27,8 +27,8 @@ internal class spell_hun_last_stand_pet : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var                caster = GetCaster();
-		CastSpellExtraArgs args   = new(TriggerCastFlags.FullMask);
+		var caster = Caster;
+		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(30));
 		caster.CastSpell(caster, HunterSpells.PetLastStandTriggered, args);
 	}

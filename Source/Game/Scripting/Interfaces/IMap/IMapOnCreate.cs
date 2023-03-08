@@ -3,10 +3,9 @@
 
 using Game.Maps;
 
-namespace Game.Scripting.Interfaces.IMap
+namespace Game.Scripting.Interfaces.IMap;
+
+public interface IMapOnCreate<T> : IScriptObject where T : Map
 {
-    public interface IMapOnCreate<T> : IScriptObject where T : Map
-    {
-        void OnCreate(T map);
-    }
+	void OnCreate(T map);
 }

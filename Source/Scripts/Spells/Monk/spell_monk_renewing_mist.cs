@@ -20,17 +20,17 @@ public class spell_monk_renewing_mist : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(MonkSpells.RENEWING_MIST_HOT);
 	}
 
-	private void HandleDummy(int effIndex)
-	{
-		PreventHitDefaultEffect(effIndex);
-		var target = GetExplTargetUnit();
-
-		if (target != null)
-			GetCaster().CastSpell(target, MonkSpells.RENEWING_MIST_HOT, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.Launch));
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		PreventHitDefaultEffect(effIndex);
+		var target = ExplTargetUnit;
+
+		if (target != null)
+			Caster.CastSpell(target, MonkSpells.RENEWING_MIST_HOT, true);
 	}
 }

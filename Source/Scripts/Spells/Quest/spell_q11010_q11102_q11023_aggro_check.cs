@@ -22,12 +22,12 @@ internal class spell_q11010_q11102_q11023_aggro_check : SpellScript, IHasSpellEf
 
 	private void HandleDummy(int effIndex)
 	{
-		var playerTarget = GetHitPlayer();
+		var playerTarget = HitPlayer;
 
 		if (playerTarget)
 			// Check if found player Target is on fly Mount or using flying form
 			if (playerTarget.HasAuraType(AuraType.Fly) ||
-			    playerTarget.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
+				playerTarget.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed))
 				playerTarget.CastSpell(playerTarget, QuestSpellIds.FlakCannonTrigger, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle));
 	}
 }

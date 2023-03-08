@@ -14,6 +14,8 @@ namespace Scripts.Spells.Generic;
 [Script] // 28764 - Adaptive Warding (Frostfire Regalia Set)
 internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(GenericSpellIds.GenAdaptiveWardingFire, GenericSpellIds.GenAdaptiveWardingNature, GenericSpellIds.GenAdaptiveWardingFrost, GenericSpellIds.GenAdaptiveWardingShadow, GenericSpellIds.GenAdaptiveWardingArcane);
@@ -21,14 +23,14 @@ internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAura
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo() == null)
+		if (eventInfo.SpellInfo == null)
 			return false;
 
 		// find Mage Armor
-		if (GetTarget().GetAuraEffect(AuraType.ModManaRegenInterrupt, SpellFamilyNames.Mage, new FlagArray128(0x10000000, 0x0, 0x0)) == null)
+		if (Target.GetAuraEffect(AuraType.ModManaRegenInterrupt, SpellFamilyNames.Mage, new FlagArray128(0x10000000, 0x0, 0x0)) == null)
 			return false;
 
-		switch (SharedConst.GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+		switch (SharedConst.GetFirstSchoolInMask(eventInfo.SchoolMask))
 		{
 			case SpellSchools.Normal:
 			case SpellSchools.Holy:
@@ -45,15 +47,13 @@ internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAura
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
 		uint spellId;
 
-		switch (SharedConst.GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+		switch (SharedConst.GetFirstSchoolInMask(eventInfo.SchoolMask))
 		{
 			case SpellSchools.Fire:
 				spellId = GenericSpellIds.GenAdaptiveWardingFire;
@@ -79,6 +79,6 @@ internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAura
 				return;
 		}
 
-		GetTarget().CastSpell(GetTarget(), spellId, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, spellId, new CastSpellExtraArgs(aurEff));
 	}
 }

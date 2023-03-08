@@ -22,7 +22,7 @@ internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEf
 
 	public override bool Load()
 	{
-		return GetCaster().IsPlayer();
+		return Caster.IsPlayer();
 	}
 
 	public override void Register()
@@ -37,7 +37,7 @@ internal class spell_item_dimensional_ripper_everlook : SpellScript, IHasSpellEf
 		if (r <= 70) // 7/12 success
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (r < 100) // 4/12 evil twin
 			caster.CastSpell(caster, ItemSpellIds.EvilTwin, true);

@@ -7,40 +7,39 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Whiplash - 119909
+[SpellScript(119909)]
+public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
 {
-    // Whiplash - 119909
-    [SpellScript(119909)]
-	public class spell_warl_whiplash : SpellScript, ISpellAfterHit, ISpellCheckCast
+	public void AfterHit()
 	{
-		public void AfterHit()
-		{
-			var caster = GetCaster();
-			var dest   = GetExplTargetDest();
-			var pet    = caster.GetGuardianPet();
+		var caster = Caster;
+		var dest = ExplTargetDest;
+		var pet = caster.GetGuardianPet();
 
-			if (caster == null || pet == null || dest == null)
-				return;
+		if (caster == null || pet == null || dest == null)
+			return;
 
-			/*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
-				return;*/
+		/*if (pet->GetEntry() != PET_ENTRY_SUCCUBUS)
+			return;*/
 
-			pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
-			caster.ToPlayer().GetSpellHistory().ModifyCooldown(GetSpellInfo().Id, TimeSpan.FromSeconds(25));
-		}
+		pet.CastSpell(new Position(dest.X, dest.Y, dest.Z), WarlockSpells.SUCCUBUS_WHIPLASH, true);
+		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(25));
+	}
 
-		public SpellCastResult CheckCast()
-		{
-			var caster = GetCaster();
-			var pet    = caster.GetGuardianPet();
+	public SpellCastResult CheckCast()
+	{
+		var caster = Caster;
+		var pet = caster.GetGuardianPet();
 
-			if (caster == null || pet == null)
-				return SpellCastResult.DontReport;
+		if (caster == null || pet == null)
+			return SpellCastResult.DontReport;
 
-			if (pet.GetSpellHistory().HasCooldown(WarlockSpells.SUCCUBUS_WHIPLASH))
-				return SpellCastResult.CantDoThatRightNow;
+		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.SUCCUBUS_WHIPLASH))
+			return SpellCastResult.CantDoThatRightNow;
 
-			return SpellCastResult.SpellCastOk;
-		}
+		return SpellCastResult.SpellCastOk;
 	}
 }

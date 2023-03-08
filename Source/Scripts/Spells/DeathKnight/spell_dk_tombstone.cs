@@ -13,13 +13,18 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(219809)]
 public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
+	}
 
 
 	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		amount.Value = 0;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -27,13 +32,13 @@ public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 
 			if (aura != null)
 			{
-				int stack    = aura.StackAmount;
-				var maxStack = (int)GetSpellInfo().GetEffect(4).CalcValue(caster);
+				int stack = aura.StackAmount;
+				var maxStack = (int)SpellInfo.GetEffect(4).CalcValue(caster);
 
 				if (stack > maxStack)
 					stack = maxStack;
 
-				amount.Value = caster.CountPctFromMaxHealth(GetSpellInfo().GetEffect(3).CalcValue(caster)) * stack;
+				amount.Value = caster.CountPctFromMaxHealth(SpellInfo.GetEffect(3).CalcValue(caster)) * stack;
 				var _player = caster.ToPlayer();
 
 				if (_player != null)
@@ -55,10 +60,5 @@ public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 				}
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
 	}
 }

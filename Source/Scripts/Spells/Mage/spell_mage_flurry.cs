@@ -16,10 +16,15 @@ public class spell_mage_flurry : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var caster     = GetCaster();
-		var target     = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 		var isImproved = false;
 
 		if (caster == null || target == null)
@@ -38,25 +43,20 @@ public class spell_mage_flurry : SpellScript, IHasSpellEffects
 		if (targetGuid != ObjectGuid.Empty)
 			for (byte i = 1; i < 3; ++i) // basepoint value is 3 all the time, so, set it 3 because sometimes it won't read
 				caster.Events.AddEventAtOffset(() =>
-				                                 {
-					                                 if (caster != null)
-					                                 {
-						                                 var target = ObjectAccessor.Instance.GetUnit(caster, targetGuid);
+												{
+													if (caster != null)
+													{
+														var target = ObjectAccessor.Instance.GetUnit(caster, targetGuid);
 
-						                                 if (target != null)
-						                                 {
-							                                 caster.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
+														if (target != null)
+														{
+															caster.CastSpell(target, MageSpells.FLURRY_VISUAL, false);
 
-							                                 if (isImproved)
-								                                 caster.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
-						                                 }
-					                                 }
-				                                 },
-				                                 TimeSpan.FromMilliseconds(i * 250));
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+															if (isImproved)
+																caster.CastSpell(target, MageSpells.FLURRY_CHILL_PROC, false);
+														}
+													}
+												},
+												TimeSpan.FromMilliseconds(i * 250));
 	}
 }

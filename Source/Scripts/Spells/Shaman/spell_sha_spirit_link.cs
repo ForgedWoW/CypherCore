@@ -8,77 +8,75 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Spirit link
+[SpellScript(98021)]
+public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 {
-    // Spirit link
-    [SpellScript(98021)]
-	public class spell_sha_spirit_link : SpellScript, ISpellOnHit
+	private readonly SortedDictionary<ObjectGuid, double> targets = new();
+	private double averagePercentage;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Load()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		averagePercentage = 0.0f;
 
-		public override bool Load()
+		return true;
+	}
+
+	public void OnHit()
+	{
+		var target = HitUnit;
+
+		if (target != null)
 		{
-			averagePercentage = 0.0f;
+			if (!targets.ContainsKey(target.GetGUID()))
+				return;
 
-			return true;
+			var bp0 = 0.0f;
+			var bp1 = 0.0f;
+			var percentage = targets[target.GetGUID()];
+			var currentHp = target.CountPctFromMaxHealth((int)percentage);
+			var desiredHp = target.CountPctFromMaxHealth((int)averagePercentage);
+
+			if (desiredHp > currentHp)
+				bp1 = desiredHp - currentHp;
+			else
+				bp0 = currentHp - desiredHp;
+
+			var args = new CastSpellExtraArgs();
+
+			Caster
+				.CastSpell(target,
+							98021,
+							new CastSpellExtraArgs(TriggerCastFlags.None)
+								.AddSpellMod(SpellValueMod.BasePoint0, (int)bp0)
+								.AddSpellMod(SpellValueMod.BasePoint1, (int)bp1));
 		}
+	}
 
-		private void FilterTargets(List<WorldObject> unitList)
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitCasterAreaRaid));
+	}
+
+	private void FilterTargets(List<WorldObject> unitList)
+	{
+		uint targetCount = 0;
+
+		for (var itr = unitList.GetEnumerator(); itr.MoveNext();)
 		{
-			uint targetCount = 0;
-
-			for (var itr = unitList.GetEnumerator(); itr.MoveNext();)
-			{
-				var target = itr.Current.ToUnit();
-
-				if (target != null)
-				{
-					targets[target.GetGUID()] =  target.GetHealthPct();
-					averagePercentage         += target.GetHealthPct();
-					++targetCount;
-				}
-			}
-
-			averagePercentage /= targetCount;
-		}
-
-		public void OnHit()
-		{
-			var target = GetHitUnit();
+			var target = itr.Current.ToUnit();
 
 			if (target != null)
 			{
-				if (!targets.ContainsKey(target.GetGUID()))
-					return;
-
-				var bp0        = 0.0f;
-				var bp1        = 0.0f;
-				var percentage = targets[target.GetGUID()];
-				var currentHp  = target.CountPctFromMaxHealth((int)percentage);
-				var desiredHp  = target.CountPctFromMaxHealth((int)averagePercentage);
-
-				if (desiredHp > currentHp)
-					bp1 = desiredHp - currentHp;
-				else
-					bp0 = currentHp - desiredHp;
-
-				var args = new CastSpellExtraArgs();
-
-				GetCaster()
-					.CastSpell(target,
-					           98021,
-					           new CastSpellExtraArgs(TriggerCastFlags.None)
-						           .AddSpellMod(SpellValueMod.BasePoint0, (int)bp0)
-						           .AddSpellMod(SpellValueMod.BasePoint1, (int)bp1));
+				targets[target.GetGUID()] = target.GetHealthPct();
+				averagePercentage += target.GetHealthPct();
+				++targetCount;
 			}
 		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitCasterAreaRaid));
-		}
-
-		private readonly SortedDictionary<ObjectGuid, double> targets = new();
-		private double averagePercentage;
+		averagePercentage /= targetCount;
 	}
 }

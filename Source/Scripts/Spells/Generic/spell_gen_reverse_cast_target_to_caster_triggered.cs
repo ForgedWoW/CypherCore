@@ -21,6 +21,6 @@ internal class spell_gen_reverse_cast_target_to_caster_triggered : SpellScript, 
 
 	private void HandleScript(int effIndex)
 	{
-		GetHitUnit().CastSpell(GetCaster(), (uint)GetSpellInfo().GetEffect(effIndex).CalcValue(), true);
+		HitUnit.CastSpell(Caster, (uint)SpellInfo.GetEffect(effIndex).CalcValue(), true);
 	}
 }

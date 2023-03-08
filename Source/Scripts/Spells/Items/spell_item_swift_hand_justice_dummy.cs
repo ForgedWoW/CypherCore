@@ -29,8 +29,8 @@ internal class spell_item_swift_hand_justice_dummy : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var                caster = eventInfo.GetActor();
-		CastSpellExtraArgs args   = new(aurEff);
+		var caster = eventInfo.Actor;
+		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(aurEff.Amount));
 		caster.CastSpell((Unit)null, ItemSpellIds.SwiftHandOfJusticeHeal, args);
 	}

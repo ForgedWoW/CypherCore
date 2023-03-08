@@ -9,42 +9,41 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 28719 - Healing Touch
+internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
 {
-    [Script] // 28719 - Healing Touch
-	internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.Exhilarate);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
-		{
-			return ValidateSpellInfo(DruidSpellIds.Exhilarate);
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var spell = eventInfo.ProcSpell;
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-			var spell = eventInfo.GetProcSpell();
+		if (spell == null)
+			return;
 
-			if (spell == null)
-				return;
+		var caster = eventInfo.Actor;
+		var spellPowerCostList = spell.PowerCost;
+		var spellPowerCost = spellPowerCostList.First(cost => cost.Power == PowerType.Mana);
 
-			var caster             = eventInfo.GetActor();
-			var spellPowerCostList = spell.PowerCost;
-			var spellPowerCost     = spellPowerCostList.First(cost => cost.Power == PowerType.Mana);
+		if (spellPowerCost == null)
+			return;
 
-			if (spellPowerCost == null)
-				return;
-
-			var                amount = MathFunctions.CalculatePct(spellPowerCost.Amount, aurEff.Amount);
-			CastSpellExtraArgs args   = new(aurEff);
-			args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-			caster.CastSpell((Unit)null, DruidSpellIds.Exhilarate, args);
-		}
+		var amount = MathFunctions.CalculatePct(spellPowerCost.Amount, aurEff.Amount);
+		CastSpellExtraArgs args = new(aurEff);
+		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+		caster.CastSpell((Unit)null, DruidSpellIds.Exhilarate, args);
 	}
 }

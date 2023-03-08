@@ -16,6 +16,8 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 {
 	private ObjectGuid _primaryTarget;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(MageSpells.ArcaneBarrageR3, MageSpells.ArcaneBarrageEnergize) && spellInfo.Effects.Count > 1;
@@ -23,7 +25,7 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		// Consume all arcane charges
 		var arcaneCharges = -caster.ModifyPower(PowerType.ArcaneCharges, -caster.GetMaxPower(PowerType.ArcaneCharges), false);
@@ -43,16 +45,14 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 		SpellEffects.Add(new EffectHandler(MarkPrimaryTarget, 1, SpellEffectName.Dummy, SpellScriptHookType.LaunchTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		if (GetHitUnit().GetGUID() != _primaryTarget)
-			SetHitDamage(MathFunctions.CalculatePct(GetHitDamage(), GetEffectInfo(1).CalcValue(GetCaster())));
+		if (HitUnit.GetGUID() != _primaryTarget)
+			HitDamage = MathFunctions.CalculatePct(HitDamage, GetEffectInfo(1).CalcValue(Caster));
 	}
 
 	private void MarkPrimaryTarget(int effIndex)
 	{
-		_primaryTarget = GetHitUnit().GetGUID();
+		_primaryTarget = HitUnit.GetGUID();
 	}
 }

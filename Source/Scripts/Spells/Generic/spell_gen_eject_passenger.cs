@@ -33,11 +33,11 @@ internal class spell_gen_eject_passenger : SpellScript, IHasSpellEffects
 
 	private void EjectPassenger(int effIndex)
 	{
-		var vehicle = GetHitUnit().GetVehicleKit();
+		var vehicle = HitUnit.GetVehicleKit();
 
 		if (vehicle != null)
 		{
-			var passenger = vehicle.GetPassenger((sbyte)(GetEffectValue() - 1));
+			var passenger = vehicle.GetPassenger((sbyte)(EffectValue - 1));
 
 			if (passenger)
 				passenger.ExitVehicle();

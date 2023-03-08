@@ -14,14 +14,18 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(207811)]
 public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private Unit m_BondUnit;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
 
 	private void HandlePeriodic(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -34,24 +38,24 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 		if (m_BondUnit == null)
 			return;
 
-		long casterHealBp   = 0;
+		long casterHealBp = 0;
 		long casterDamageBp = 0;
-		long targetHealBp   = 0;
+		long targetHealBp = 0;
 		long targetDamageBp = 0;
 
-		var casterHp  = caster.GetHealthPct();
-		var targetHp  = m_BondUnit.GetHealthPct();
+		var casterHp = caster.GetHealthPct();
+		var targetHp = m_BondUnit.GetHealthPct();
 		var healthPct = (casterHp + targetHp) / 2.0f;
 
 		if (casterHp < targetHp)
 		{
-			casterHealBp   = caster.CountPctFromMaxHealth(healthPct) - caster.GetHealth();
+			casterHealBp = caster.CountPctFromMaxHealth(healthPct) - caster.GetHealth();
 			targetDamageBp = m_BondUnit.GetHealth() - m_BondUnit.CountPctFromMaxHealth(healthPct);
 		}
 		else
 		{
 			casterDamageBp = caster.GetHealth() - caster.CountPctFromMaxHealth(healthPct);
-			targetHealBp   = m_BondUnit.CountPctFromMaxHealth(healthPct) - m_BondUnit.GetHealth();
+			targetHealBp = m_BondUnit.CountPctFromMaxHealth(healthPct) - m_BondUnit.GetHealth();
 		}
 
 		caster.CastSpell(caster, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, casterDamageBp).AddSpellMod(SpellValueMod.BasePoint1, casterHealBp));
@@ -60,13 +64,13 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 
 	private Unit GetBondUnit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return null;
 
-		var units  = new List<Unit>();
-		var check  = new AnyUnitInObjectRangeCheck(caster, 100.0f);
+		var units = new List<Unit>();
+		var check = new AnyUnitInObjectRangeCheck(caster, 100.0f);
 		var search = new UnitListSearcher(caster, units, check, GridType.All);
 		Cell.VisitGrid(caster, search, 100.0f);
 
@@ -79,17 +83,11 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
 		m_BondUnit = GetBondUnit();
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
 	}
 }

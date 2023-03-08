@@ -21,10 +21,10 @@ internal class spell_gen_despawn_target : SpellScript, IHasSpellEffects
 
 	private void HandleDespawn(int effIndex)
 	{
-		if (GetEffectInfo().IsEffect(SpellEffectName.Dummy) ||
-		    GetEffectInfo().IsEffect(SpellEffectName.ScriptEffect))
+		if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
+			EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
 		{
-			var target = GetHitCreature();
+			var target = HitCreature;
 
 			target?.DespawnOrUnsummon();
 		}

@@ -20,8 +20,8 @@ internal class spell_gen_count_pct_from_max_hp : SpellScript, ISpellOnHit
 	public void OnHit()
 	{
 		if (_damagePct == 0)
-			_damagePct = GetHitDamage();
+			_damagePct = HitDamage;
 
-		SetHitDamage(GetHitUnit().CountPctFromMaxHealth(_damagePct));
+		HitDamage = HitUnit.CountPctFromMaxHealth(_damagePct);
 	}
 }

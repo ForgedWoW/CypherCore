@@ -3,24 +3,23 @@
 
 using Game.Scripting.Interfaces.IAura;
 
-namespace Game.Scripting.BaseScripts
+namespace Game.Scripting.BaseScripts;
+
+public class AuraScriptLoader : ScriptObject, IAuraScriptLoaderGetAuraScript
 {
-    public class AuraScriptLoader : ScriptObject, IAuraScriptLoaderGetAuraScript
-    {
-        public AuraScriptLoader(string name) : base(name)
-        {
-            Global.ScriptMgr.AddScript(this);
-        }
+	public AuraScriptLoader(string name) : base(name)
+	{
+		Global.ScriptMgr.AddScript(this);
+	}
 
-        public override bool IsDatabaseBound()
-        {
-            return true;
-        }
+	public override bool IsDatabaseBound()
+	{
+		return true;
+	}
 
-        // Should return a fully valid AuraScript.
-        public virtual AuraScript GetAuraScript()
-        {
-            return null;
-        }
-    }
+	// Should return a fully valid AuraScript.
+	public virtual AuraScript GetAuraScript()
+	{
+		return null;
+	}
 }

@@ -7,39 +7,38 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 7384 - Overpower
+[SpellScript(7384)]
+public class spell_warr_overpower : SpellScript, IHasSpellEffects
 {
-    // 7384 - Overpower
-    [SpellScript(7384)]
-	public class spell_warr_overpower : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleEffect, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleEffect(int effIndex)
-		{
-			if (!GetCaster())
-				return;
+	private void HandleEffect(int effIndex)
+	{
+		if (!Caster)
+			return;
 
-			uint spellId = 0;
+		uint spellId = 0;
 
-			if (GetCaster().HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_1))
-				spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_1;
-			else if (GetCaster().HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_2))
-				spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_2;
+		if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_1))
+			spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_1;
+		else if (Caster.HasAura(WarriorSpells.UNRELENTING_ASSAULT_RANK_2))
+			spellId = WarriorSpells.UNRELENTING_ASSAULT_TRIGGER_2;
 
-			if (spellId == 0)
-				return;
+		if (spellId == 0)
+			return;
 
-			var target = GetHitPlayer();
+		var target = HitPlayer;
 
-			if (target != null)
-				if (target.IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
-					target.CastSpell(target, spellId, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleEffect, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-		}
+		if (target != null)
+			if (target.IsNonMeleeSpellCast(false, false, true)) // UNIT_STATE_CASTING should not be used here, it's present during a tick for instant casts
+				target.CastSpell(target, spellId, true);
 	}
 }

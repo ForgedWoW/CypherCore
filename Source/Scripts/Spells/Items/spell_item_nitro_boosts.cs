@@ -18,7 +18,7 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		if (!GetCastItem())
+		if (!CastItem)
 			return false;
 
 		return true;
@@ -36,15 +36,15 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster    = GetCaster();
+		var caster = Caster;
 		var areaEntry = CliDB.AreaTableStorage.LookupByKey(caster.GetAreaId());
-		var success   = true;
+		var success = true;
 
 		if (areaEntry != null &&
-		    areaEntry.IsFlyable() &&
-		    !caster.GetMap().IsDungeon())
+			areaEntry.IsFlyable() &&
+			!caster.GetMap().IsDungeon())
 			success = RandomHelper.randChance(95);
 
-		caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(GetCastItem()));
+		caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));
 	}
 }

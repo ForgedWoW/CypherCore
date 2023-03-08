@@ -8,15 +8,14 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+[SpellScript(24571)]
+internal class spell_warr_blood_fury : SpellScript, ISpellEnergizedBySpell
 {
-    [SpellScript(24571)]
-	internal class spell_warr_blood_fury : SpellScript, ISpellEnergizedBySpell
+	public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
 	{
-        public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
-        {
-            // Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
-            amount -= 10 * Math.Max(0, Math.Min(30, target.GetLevel() - 60));
-        }
-    }
+		// Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
+		amount -= 10 * Math.Max(0, Math.Min(30, target.GetLevel() - 60));
+	}
 }

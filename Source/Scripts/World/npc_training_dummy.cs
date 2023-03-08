@@ -10,204 +10,64 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Spells;
 
-namespace Scripts.World.NpcSpecial
+namespace Scripts.World.NpcSpecial;
+
+[CreatureScript(new uint[]
 {
-    [CreatureScript(new uint[] {
-        17578,
-        24792,
-        30527,
-        31143,
-        31144,
-        31146,
-        32541,
-        32542,
-        32543,
-        32545,
-        32546,
-        32666,
-        32667,
-        44171,
-        44389,
-        44548,
-        44614,
-        44703,
-        44794,
-        44820,
-        44848,
-        44937,
-        46647,
-        48304,
-        60197,
-        64446,
-        67127,
-        70245,
-        79414,
-        79987,
-        80017,
-        87317,
-        87318,
-        87320,
-        87321,
-        87322,
-        87329,
-        87760,
-        87761,
-        87762,
-        88288,
-        88289,
-        88314,
-        88316,
-        88835,
-        88836,
-        88837,
-        88967,
-        89078,
-        89321,
-        92164,
-        92165,
-        92166,
-        92167,
-        92168,
-        92169,
-        93828,
-        96442,
-        97668,
-        98581,
-        107557,
-        108420,
-        109595,
-        111824,
-        113858,
-        113859,
-        113860,
-        113862,
-        113863,
-        113864,
-        113871,
-        113963,
-        113964,
-        113966,
-        113967,
-        114832,
-        114840,
-        117881,
-        126340,
-        126712,
-        126781,
-        127019,
-        129485,
-        131975,
-        131983,
-        131985,
-        131989,
-        131990,
-        131992,
-        131994,
-        131997,
-        131998,
-        132036,
-        132976,
-        134324,
-        138048,
-        143509,
-        143947,
-        144074,
-        144075,
-        144076,
-        144077,
-        144078,
-        144079,
-        144080,
-        144081,
-        144082,
-        144083,
-        144085,
-        144086,
-        149860,
-        151022,
-        153285,
-        153292,
-        163534,
-        173072,
-        173942,
-        174435,
-        174567,
-        174568,
-        174569,
-        174570,
-        174571,
-        175449,
-        175450,
-        175455,
-        175456,
-        188352,
-        189082,
-        190621,
-        190623,
-        190624,
-        193563,
-        194643,
-        194644,
-        194645,
-        194646,
-        194648,
-        196394,
-        197833,
-        197834,
-        198594})]
-    internal class npc_training_dummy : NullCreatureAI
-    {
-        private readonly Dictionary<ObjectGuid, TimeSpan> _combatTimer = new();
+	17578, 24792, 30527, 31143, 31144, 31146, 32541, 32542, 32543, 32545, 32546, 32666, 32667, 44171, 44389, 44548, 44614, 44703, 44794, 44820, 44848, 44937, 46647, 48304, 60197, 64446, 67127, 70245, 79414, 79987, 80017, 87317, 87318, 87320, 87321, 87322, 87329, 87760, 87761, 87762, 88288, 88289, 88314, 88316, 88835, 88836, 88837, 88967, 89078, 89321, 92164, 92165, 92166, 92167, 92168, 92169, 93828, 96442, 97668, 98581, 107557, 108420, 109595, 111824, 113858, 113859, 113860, 113862, 113863, 113864, 113871, 113963, 113964, 113966, 113967, 114832, 114840, 117881, 126340, 126712, 126781, 127019, 129485, 131975, 131983, 131985, 131989, 131990, 131992, 131994, 131997, 131998, 132036, 132976, 134324, 138048, 143509, 143947, 144074, 144075, 144076, 144077, 144078, 144079, 144080, 144081, 144082, 144083, 144085, 144086, 149860, 151022, 153285, 153292, 163534, 173072, 173942, 174435, 174567, 174568, 174569, 174570, 174571, 175449, 175450, 175455, 175456, 188352, 189082, 190621, 190623, 190624, 193563, 194643, 194644, 194645, 194646, 194648, 196394, 197833, 197834, 198594
+})]
+internal class npc_training_dummy : NullCreatureAI
+{
+	private readonly Dictionary<ObjectGuid, TimeSpan> _combatTimer = new();
 
-        public npc_training_dummy(Creature creature) : base(creature)
-        {
-            creature.SetControlled(true, UnitState.Stunned);
-            creature.SetControlled(true, UnitState.Root);
-            creature.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
-            creature.SetUnitFlag3(UnitFlags3.UnconsciousOnDeath);
-        }
+	public npc_training_dummy(Creature creature) : base(creature)
+	{
+		creature.SetControlled(true, UnitState.Stunned);
+		creature.SetControlled(true, UnitState.Root);
+		creature.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
+		creature.SetUnitFlag3(UnitFlags3.UnconsciousOnDeath);
+	}
 
-        public override void JustEnteredCombat(Unit who)
-        {
-            _combatTimer[who.GetGUID()] = TimeSpan.FromSeconds(15);
-        }
+	public override void JustEnteredCombat(Unit who)
+	{
+		_combatTimer[who.GetGUID()] = TimeSpan.FromSeconds(15);
+	}
 
-        public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
-        {
-            if (!attacker)
-                return;
+	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+	{
+		if (!attacker)
+			return;
 
-            _combatTimer[attacker.GetGUID()] = TimeSpan.FromSeconds(15);
-        }
+		_combatTimer[attacker.GetGUID()] = TimeSpan.FromSeconds(15);
+	}
 
-        public override void UpdateAI(uint diff)
-        {
-            foreach (var key in _combatTimer.Keys.ToList())
-            {
-                _combatTimer[key] -= TimeSpan.FromMilliseconds(diff);
+	public override void UpdateAI(uint diff)
+	{
+		foreach (var key in _combatTimer.Keys.ToList())
+		{
+			_combatTimer[key] -= TimeSpan.FromMilliseconds(diff);
 
-                if (_combatTimer[key] <= TimeSpan.Zero)
-                {
-                    // The Attacker has not dealt any Damage to the dummy for over 5 seconds. End combat.
-                    var pveRefs = me.GetCombatManager().GetPvECombatRefs();
-                    var it = pveRefs.LookupByKey(key);
+			if (_combatTimer[key] <= TimeSpan.Zero)
+			{
+				// The Attacker has not dealt any Damage to the dummy for over 5 seconds. End combat.
+				var pveRefs = me.GetCombatManager().GetPvECombatRefs();
+				var it = pveRefs.LookupByKey(key);
 
-                    it?.EndCombat();
+				it?.EndCombat();
 
-                    _combatTimer.Remove(key);
-                }
-            }
+				_combatTimer.Remove(key);
+			}
+		}
+	}
 
-        }
-
-        public override void Reset()
-        {
-            me.SetControlled(true, UnitState.Stunned);
-            me.SetControlled(true, UnitState.Root);
-            me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
-            base.Reset();
-        }
-    }
+	public override void Reset()
+	{
+		me.SetControlled(true, UnitState.Stunned);
+		me.SetControlled(true, UnitState.Root);
+		me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
+		base.Reset();
+	}
+}
 
 //    class npc_training_dummy_start_zones : public CreatureScript
 //{
@@ -299,4 +159,3 @@ namespace Scripts.World.NpcSpecial
 //        return new npc_training_dummy_start_zonesAI(creature);
 //    }
 //};
-}

@@ -21,11 +21,16 @@ public class spell_mage_ebonbolt_damage : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(MageSpells.SPLITTING_ICE);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void DoEffectHitTarget(int effIndex)
 	{
-		var hitUnit       = GetHitUnit();
-		var primaryTarget = GetCaster().VariableStorage.GetValue<ObjectGuid>("explTarget", default);
-		var damage        = GetHitDamage();
+		var hitUnit = HitUnit;
+		var primaryTarget = Caster.VariableStorage.GetValue<ObjectGuid>("explTarget", default);
+		var damage = HitDamage;
 
 		if (hitUnit == null || primaryTarget == default)
 			return;
@@ -34,11 +39,6 @@ public class spell_mage_ebonbolt_damage : SpellScript, IHasSpellEffects
 
 		if (eff1 != 0)
 			if (hitUnit.GetGUID() != primaryTarget)
-				SetHitDamage(MathFunctions.CalculatePct(damage, eff1));
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(DoEffectHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+				HitDamage = MathFunctions.CalculatePct(damage, eff1);
 	}
 }

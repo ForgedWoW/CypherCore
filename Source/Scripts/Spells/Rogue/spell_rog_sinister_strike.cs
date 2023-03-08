@@ -27,19 +27,19 @@ internal class spell_rog_sinister_strike : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var damagePerCombo = GetHitDamage();
-		var t5             = GetCaster().GetAuraEffect(RogueSpells.T52pSetBonus, 0);
+		var damagePerCombo = HitDamage;
+		var t5 = Caster.GetAuraEffect(RogueSpells.T52pSetBonus, 0);
 
 		if (t5 != null)
 			damagePerCombo += t5.Amount;
 
 		var finalDamage = damagePerCombo;
-		var costs       = GetSpell().PowerCost;
-		var c           = costs.Find(cost => cost.Power == PowerType.ComboPoints);
+		var costs = Spell.PowerCost;
+		var c = costs.Find(cost => cost.Power == PowerType.ComboPoints);
 
 		if (c != null)
 			finalDamage *= c.Amount;
 
-		SetHitDamage(finalDamage);
+		HitDamage = finalDamage;
 	}
 }

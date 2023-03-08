@@ -9,44 +9,43 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(54149)] // 54149 - Infusion of Light
+internal class spell_pal_infusion_of_light : AuraScript, IHasAuraEffects
 {
-    [SpellScript(54149)] // 54149 - Infusion of Light
-    internal class spell_pal_infusion_of_light : AuraScript, IHasAuraEffects
-    {
-        private static readonly FlagArray128 HolyLightSpellClassMask = new(0, 0, 0x400);
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	private static readonly FlagArray128 HolyLightSpellClassMask = new(0, 0, 0x400);
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.InfusionOfLightEnergize);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.InfusionOfLightEnergize);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckFlashOfLightProc, 0, AuraType.AddPctModifier));
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckFlashOfLightProc, 2, AuraType.AddFlatModifier));
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckFlashOfLightProc, 0, AuraType.AddPctModifier));
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckFlashOfLightProc, 2, AuraType.AddFlatModifier));
 
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckHolyLightProc, 1, AuraType.Dummy));
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckHolyLightProc, 1, AuraType.Dummy));
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private bool CheckFlashOfLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            return eventInfo.GetProcSpell() && eventInfo.GetProcSpell().AppliedMods.Contains(GetAura());
-        }
+	private bool CheckFlashOfLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		return eventInfo.ProcSpell && eventInfo.ProcSpell.AppliedMods.Contains(Aura);
+	}
 
-        private bool CheckHolyLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            return eventInfo.GetSpellInfo() != null && eventInfo.GetSpellInfo().IsAffected(SpellFamilyNames.Paladin, HolyLightSpellClassMask);
-        }
+	private bool CheckHolyLightProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		return eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsAffected(SpellFamilyNames.Paladin, HolyLightSpellClassMask);
+	}
 
-        private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            eventInfo.GetActor()
-                     .CastSpell(eventInfo.GetActor(),
-                                PaladinSpells.InfusionOfLightEnergize,
-                                new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetTriggeringSpell(eventInfo.GetProcSpell()));
-        }
-    }
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		eventInfo.Actor
+				.CastSpell(eventInfo.Actor,
+							PaladinSpells.InfusionOfLightEnergize,
+							new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetTriggeringSpell(eventInfo.ProcSpell));
+	}
 }

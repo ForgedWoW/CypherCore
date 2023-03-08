@@ -14,7 +14,13 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(114556)]
 public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
@@ -23,33 +29,26 @@ public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (dmgInfo.GetDamage() < target.GetHealth())
 			return absorbAmount;
 
 		// No damage received under Shroud of Purgatory
 		if (target.ToPlayer().HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
-		{
 			return dmgInfo.GetDamage();
-		}
 
 		if (target.ToPlayer().HasAura(DeathKnightSpells.PERDITION))
 			return absorbAmount;
 
-		double bp   = dmgInfo.GetDamage();
-		var   args = new CastSpellExtraArgs();
+		var bp = dmgInfo.GetDamage();
+		var args = new CastSpellExtraArgs();
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
 		args.SetTriggerFlags(TriggerCastFlags.FullMask);
 		target.CastSpell(target, DeathKnightSpells.SHROUD_OF_PURGATORY, args);
 		target.CastSpell(target, DeathKnightSpells.PERDITION, TriggerCastFlags.FullMask);
 		target.SetHealth(1);
-		return dmgInfo.GetDamage();
-	}
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+		return dmgInfo.GetDamage();
 	}
 }

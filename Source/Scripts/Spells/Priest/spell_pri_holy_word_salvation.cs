@@ -11,12 +11,12 @@ public class spell_pri_holy_word_salvation : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var eff          = GetEffectInfo(1);
+		var eff = GetEffectInfo(1);
 		var friendlyList = caster.GetPlayerListInGrid(40);
 
 		foreach (var friendPlayers in friendlyList)

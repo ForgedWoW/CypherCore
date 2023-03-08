@@ -33,7 +33,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		switch (effIndex)
 		{
@@ -41,7 +41,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 			{
 				uint spellId;
 
-				switch (GetSpellInfo().Id)
+				switch (SpellInfo.Id)
 				{
 					case GenericSpellIds.TriggerTrialChampion:
 						spellId = GenericSpellIds.Charging20k1;
@@ -57,15 +57,15 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 
 				// If Target isn't a training dummy there's a chance of failing the charge
 				if (!target.IsCharmedOwnedByPlayerOrPlayer() &&
-				    RandomHelper.randChance(12.5f))
+					RandomHelper.randChance(12.5f))
 					spellId = GenericSpellIds.MissEffect;
 
-				var vehicle = GetCaster().GetVehicleBase();
+				var vehicle = Caster.GetVehicleBase();
 
 				if (vehicle)
 					vehicle.CastSpell(target, spellId, false);
 				else
-					GetCaster().CastSpell(target, spellId, false);
+					Caster.CastSpell(target, spellId, false);
 
 				break;
 			}
@@ -74,26 +74,26 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 			{
 				var auras = target.GetAppliedAurasQuery();
 
-					foreach (var pair in auras.HasSpellIds(62552, 62719, 64100, 66482).GetResults())
+				foreach (var pair in auras.HasSpellIds(62552, 62719, 64100, 66482).GetResults())
+				{
+					var aura = pair.Base;
+
+					if (aura != null)
 					{
-						var aura = pair.Base;
+						aura.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
+						// Remove dummys from rider (Necessary for updating visual shields)
+						var rider = target.GetCharmer();
 
-						if (aura != null)
+						if (rider)
 						{
-							aura.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
-							// Remove dummys from rider (Necessary for updating visual shields)
-							var rider = target.GetCharmer();
+							var defend = rider.GetAura(aura.Id);
 
-							if (rider)
-							{
-								var defend = rider.GetAura(aura.Id);
-
-								defend?.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
-							}
-
-							break;
+							defend?.ModStackAmount(-1, AuraRemoveMode.EnemySpell);
 						}
+
+						break;
 					}
+				}
 
 				break;
 			}
@@ -104,7 +104,7 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 	{
 		uint spellId;
 
-		switch (GetSpellInfo().Id)
+		switch (SpellInfo.Id)
 		{
 			case GenericSpellIds.ChargingEffect8k5:
 				spellId = GenericSpellIds.Damage8k5;
@@ -124,11 +124,11 @@ internal class spell_gen_mounted_charge : SpellScript, IHasSpellEffects
 				return;
 		}
 
-		var rider = GetCaster().GetCharmer();
+		var rider = Caster.GetCharmer();
 
 		if (rider)
-			rider.CastSpell(GetHitUnit(), spellId, false);
+			rider.CastSpell(HitUnit, spellId, false);
 		else
-			GetCaster().CastSpell(GetHitUnit(), spellId, false);
+			Caster.CastSpell(HitUnit, spellId, false);
 	}
 }

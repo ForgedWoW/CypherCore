@@ -14,6 +14,7 @@ namespace Scripts.Spells.Monk;
 [SpellScript(119607)]
 public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 {
+	private ObjectGuid _previousTargetGuid = new();
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
@@ -21,33 +22,39 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(MonkSpells.RENEWING_MIST_HOT);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargets, 1, Targets.UnitDestAreaAlly));
+		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleTargets(List<WorldObject> targets)
 	{
-		var caster         = GetCaster();
-		var previousTarget = GetExplTargetUnit();
+		var caster = Caster;
+		var previousTarget = ExplTargetUnit;
 
 		// Not remove full health targets now, dancing mists talent can jump on full health too
 
 
 		targets.RemoveIf((WorldObject a) =>
-		                 {
-			                 var ally = a.ToUnit();
+		{
+			var ally = a.ToUnit();
 
-			                 if (ally == null || ally.HasAura(MonkSpells.RENEWING_MIST_HOT, caster.GetGUID()) || ally == previousTarget)
-				                 return true;
+			if (ally == null || ally.HasAura(MonkSpells.RENEWING_MIST_HOT, caster.GetGUID()) || ally == previousTarget)
+				return true;
 
-			                 return false;
-		                 });
+			return false;
+		});
 
 		targets.RemoveIf((WorldObject a) =>
-		                 {
-			                 var ally = a.ToUnit();
+		{
+			var ally = a.ToUnit();
 
-			                 if (ally == null || ally.IsFullHealth())
-				                 return true;
+			if (ally == null || ally.IsFullHealth())
+				return true;
 
-			                 return false;
-		                 });
+			return false;
+		});
 
 		if (targets.Count > 1)
 		{
@@ -61,33 +68,24 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 	private void HandleHit(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var caster         = GetCaster();
+		var caster = Caster;
 		var previousTarget = ObjectAccessor.Instance.GetUnit(caster, _previousTargetGuid);
 
 		if (previousTarget != null)
 		{
-			var oldAura = previousTarget.GetAura(MonkSpells.RENEWING_MIST_HOT, GetCaster().GetGUID());
+			var oldAura = previousTarget.GetAura(MonkSpells.RENEWING_MIST_HOT, Caster.GetGUID());
 
 			if (oldAura != null)
 			{
-				var newAura = caster.AddAura(MonkSpells.RENEWING_MIST_HOT, GetHitUnit());
+				var newAura = caster.AddAura(MonkSpells.RENEWING_MIST_HOT, HitUnit);
 
 				if (newAura != null)
 				{
 					newAura.SetDuration(oldAura.Duration);
-					previousTarget.SendPlaySpellVisual(GetHitUnit().Location, previousTarget.Location.Orientation, MonkSpells.VISUAL_RENEWING_MIST, 0, 0, 50.0f, false);
+					previousTarget.SendPlaySpellVisual(HitUnit.Location, previousTarget.Location.Orientation, MonkSpells.VISUAL_RENEWING_MIST, 0, 0, 50.0f, false);
 					oldAura.Remove();
 				}
 			}
 		}
-	}
-
-	private ObjectGuid _previousTargetGuid = new();
-	private ObjectGuid _additionalTargetGuid = new();
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(HandleTargets, 1, Targets.UnitDestAreaAlly));
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

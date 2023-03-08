@@ -15,12 +15,12 @@ internal class spell_gen_eject_passenger_with_seatId : SpellScript, IHasSpellEff
 {
 	private readonly sbyte _seatId;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_gen_eject_passenger_with_seatId(sbyte seatId)
 	{
 		_seatId = seatId;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override void Register()
 	{
@@ -29,7 +29,7 @@ internal class spell_gen_eject_passenger_with_seatId : SpellScript, IHasSpellEff
 
 	private void EjectPassenger(int effIndex)
 	{
-		var vehicle = GetHitUnit().GetVehicleKit();
+		var vehicle = HitUnit.GetVehicleKit();
 
 		if (vehicle != null)
 		{

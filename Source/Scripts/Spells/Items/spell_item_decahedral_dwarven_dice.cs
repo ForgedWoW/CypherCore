@@ -26,7 +26,7 @@ internal class spell_item_decahedral_dwarven_dice : SpellScript, IHasSpellEffect
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override void Register()
@@ -36,11 +36,11 @@ internal class spell_item_decahedral_dwarven_dice : SpellScript, IHasSpellEffect
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().TextEmote(TextIds.DecahedralDwarvenDice, GetHitUnit());
+		Caster.TextEmote(TextIds.DecahedralDwarvenDice, HitUnit);
 
 		uint minimum = 1;
 		uint maximum = 100;
 
-		GetCaster().ToPlayer().DoRandomRoll(minimum, maximum);
+		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
 	}
 }

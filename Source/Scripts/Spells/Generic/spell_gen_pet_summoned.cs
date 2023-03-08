@@ -17,7 +17,7 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -27,24 +27,24 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player.GetLastPetNumber() != 0)
 		{
 			var newPetType = (player.GetClass() == Class.Hunter) ? PetType.Hunter : PetType.Summon;
-			Pet newPet     = new(player, newPetType);
+			Pet newPet = new(player, newPetType);
 
 			if (newPet.LoadPetFromDB(player, 0, player.GetLastPetNumber(), true))
 			{
 				// revive the pet if it is dead
 				if (newPet.GetDeathState() != DeathState.Alive &&
-				    newPet.GetDeathState() != DeathState.JustRespawned)
+					newPet.GetDeathState() != DeathState.JustRespawned)
 					newPet.SetDeathState(DeathState.JustRespawned);
 
 				newPet.SetFullHealth();
 				newPet.SetFullPower(newPet.GetPowerType());
 
-				var summonScript = GetSpell().GetSpellScripts<ISpellOnSummon>();
+				var summonScript = Spell.GetSpellScripts<ISpellOnSummon>();
 
 				foreach (ISpellOnSummon summon in summonScript)
 					summon.OnSummon(newPet);

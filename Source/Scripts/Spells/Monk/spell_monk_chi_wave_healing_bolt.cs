@@ -11,14 +11,14 @@ public class spell_monk_chi_wave_healing_bolt : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		if (!GetOriginalCaster())
+		if (!OriginalCaster)
 			return;
 
-		var _player = GetOriginalCaster().ToPlayer();
+		var _player = OriginalCaster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				_player.CastSpell(target, MonkSpells.CHI_WAVE_HEAL, true);

@@ -26,7 +26,7 @@ internal class spell_gen_mark_of_kazrogal_hellfire_AuraScript : AuraScript, IHas
 
 	private void OnPeriodic(AuraEffect aurEff)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target.GetPower(PowerType.Mana) == 0)
 		{

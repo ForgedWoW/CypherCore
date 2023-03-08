@@ -16,7 +16,7 @@ internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -26,11 +26,11 @@ internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
-		if (GetCastItem())
+		if (CastItem)
 		{
-			var creatureTarget = GetHitCreature();
+			var creatureTarget = HitCreature;
 
 			if (creatureTarget)
 			{

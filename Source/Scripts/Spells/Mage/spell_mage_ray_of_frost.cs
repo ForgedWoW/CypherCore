@@ -18,7 +18,7 @@ internal class spell_mage_ray_of_frost : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster?.CastSpell(caster, MageSpells.RayOfFrostFingersOfFrost, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 	}

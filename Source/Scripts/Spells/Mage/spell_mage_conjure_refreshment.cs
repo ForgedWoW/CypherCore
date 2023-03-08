@@ -27,7 +27,7 @@ internal class spell_mage_conjure_refreshment : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster)
 		{

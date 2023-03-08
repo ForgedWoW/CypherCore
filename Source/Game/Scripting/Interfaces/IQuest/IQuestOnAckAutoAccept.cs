@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IQuest
+namespace Game.Scripting.Interfaces.IQuest;
+
+public interface IQuestOnAckAutoAccept : IScriptObject
 {
-    public interface IQuestOnAckAutoAccept : IScriptObject
-    {
-        void OnAcknowledgeAutoAccept(Player player, Quest quest);
-    }
+	void OnAcknowledgeAutoAccept(Player player, Quest quest);
 }

@@ -15,6 +15,8 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(GenericSpellIds.CannibalizeTriggered);
@@ -22,10 +24,10 @@ internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEf
 
 	public SpellCastResult CheckCast()
 	{
-		var caster    = GetCaster();
-		var max_range = GetSpellInfo().GetMaxRange(false);
+		var caster = Caster;
+		var max_range = SpellInfo.GetMaxRange(false);
 		// search for nearby enemy corpse in range
-		var check    = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, max_range, GetSpellInfo(), SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
+		var check = new AnyDeadUnitSpellTargetInRangeCheck<Unit>(caster, max_range, SpellInfo, SpellTargetCheckTypes.Enemy, SpellTargetObjectTypes.CorpseEnemy);
 		var searcher = new UnitSearcher(caster, check, GridType.Grid);
 		Cell.VisitGrid(caster, searcher, max_range);
 
@@ -46,10 +48,8 @@ internal class spell_gen_cannibalize : SpellScript, ISpellCheckCast, IHasSpellEf
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), GenericSpellIds.CannibalizeTriggered, false);
+		Caster.CastSpell(Caster, GenericSpellIds.CannibalizeTriggered, false);
 	}
 }

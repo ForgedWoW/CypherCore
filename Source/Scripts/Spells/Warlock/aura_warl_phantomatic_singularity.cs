@@ -7,25 +7,24 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 205179
+[SpellScript(205179)]
+public class aura_warl_phantomatic_singularity : AuraScript, IHasAuraEffects
 {
-    // 205179
-    [SpellScript(205179)]
-	public class aura_warl_phantomatic_singularity : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public void OnTick(AuraEffect UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		var caster = Caster;
 
-		public void OnTick(AuraEffect UnnamedParameter)
-		{
-			var caster = GetCaster();
+		if (Caster)
+			caster.CastSpell(Target.Location, WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
+	}
 
-			if (GetCaster())
-				caster.CastSpell(GetTarget().Location, WarlockSpells.PHANTOMATIC_SINGULARITY_DAMAGE, true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicLeech));
-		}
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicLeech));
 	}
 }

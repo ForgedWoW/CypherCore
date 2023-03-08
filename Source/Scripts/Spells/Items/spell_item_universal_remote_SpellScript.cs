@@ -17,7 +17,7 @@ internal class spell_item_universal_remote_SpellScript : SpellScript, IHasSpellE
 
 	public override bool Load()
 	{
-		if (!GetCastItem())
+		if (!CastItem)
 			return false;
 
 		return true;
@@ -35,18 +35,18 @@ internal class spell_item_universal_remote_SpellScript : SpellScript, IHasSpellE
 
 	private void HandleDummy(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
 		{
 			var chance = RandomHelper.URand(0, 99);
 
 			if (chance < 15)
-				GetCaster().CastSpell(target, ItemSpellIds.TargetLock, new CastSpellExtraArgs(GetCastItem()));
+				Caster.CastSpell(target, ItemSpellIds.TargetLock, new CastSpellExtraArgs(CastItem));
 			else if (chance < 25)
-				GetCaster().CastSpell(target, ItemSpellIds.MobilityMalfunction, new CastSpellExtraArgs(GetCastItem()));
+				Caster.CastSpell(target, ItemSpellIds.MobilityMalfunction, new CastSpellExtraArgs(CastItem));
 			else
-				GetCaster().CastSpell(target, ItemSpellIds.ControlMachine, new CastSpellExtraArgs(GetCastItem()));
+				Caster.CastSpell(target, ItemSpellIds.ControlMachine, new CastSpellExtraArgs(CastItem));
 		}
 	}
 }

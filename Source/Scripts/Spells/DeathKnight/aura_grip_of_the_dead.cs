@@ -12,24 +12,24 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(273980)]
 public class aura_grip_of_the_dead : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		var target = GetTarget();
-
-		if (target != null)
-		{
-			var caster = GetCaster();
-
-			if (caster != null)
-				caster.CastSpell(target, DeathKnightSpells.GRIP_OF_THE_DEAD_SLOW, true);
-		}
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+	}
+
+
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		var target = Target;
+
+		if (target != null)
+		{
+			var caster = Caster;
+
+			if (caster != null)
+				caster.CastSpell(target, DeathKnightSpells.GRIP_OF_THE_DEAD_SLOW, true);
+		}
 	}
 }

@@ -17,23 +17,23 @@ internal class spell_quest_taming_the_beast : AuraScript, IHasAuraEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(QuestSpellIds.TameIceClawBear,
-		                         QuestSpellIds.TameLargeCragBoar,
-		                         QuestSpellIds.TameSnowLeopard,
-		                         QuestSpellIds.TameAdultPlainstrider,
-		                         QuestSpellIds.TamePrairieStalker,
-		                         QuestSpellIds.TameSwoop,
-		                         QuestSpellIds.TameWebwoodLurker,
-		                         QuestSpellIds.TameDireMottledBoar,
-		                         QuestSpellIds.TameSurfCrawler,
-		                         QuestSpellIds.TameArmoredScorpid,
-		                         QuestSpellIds.TameNightsaberStalker,
-		                         QuestSpellIds.TameStrigidScreecher,
-		                         QuestSpellIds.TameBarbedCrawler,
-		                         QuestSpellIds.TameGreaterTimberstrider,
-		                         QuestSpellIds.TameNightstalker,
-		                         QuestSpellIds.TameCrazedDragonhawk,
-		                         QuestSpellIds.TameElderSpringpaw,
-		                         QuestSpellIds.TameMistbat);
+								QuestSpellIds.TameLargeCragBoar,
+								QuestSpellIds.TameSnowLeopard,
+								QuestSpellIds.TameAdultPlainstrider,
+								QuestSpellIds.TamePrairieStalker,
+								QuestSpellIds.TameSwoop,
+								QuestSpellIds.TameWebwoodLurker,
+								QuestSpellIds.TameDireMottledBoar,
+								QuestSpellIds.TameSurfCrawler,
+								QuestSpellIds.TameArmoredScorpid,
+								QuestSpellIds.TameNightsaberStalker,
+								QuestSpellIds.TameStrigidScreecher,
+								QuestSpellIds.TameBarbedCrawler,
+								QuestSpellIds.TameGreaterTimberstrider,
+								QuestSpellIds.TameNightstalker,
+								QuestSpellIds.TameCrazedDragonhawk,
+								QuestSpellIds.TameElderSpringpaw,
+								QuestSpellIds.TameMistbat);
 	}
 
 	public override void Register()
@@ -43,38 +43,38 @@ internal class spell_quest_taming_the_beast : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (!GetCaster() ||
-		    !GetCaster().IsAlive() ||
-		    !GetTarget().IsAlive())
+		if (!Caster ||
+			!Caster.IsAlive() ||
+			!Target.IsAlive())
 			return;
 
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		uint finalSpellId = GetId() switch
-		                    {
-			                    QuestSpellIds.TameIceClawBear          => QuestSpellIds.TameIceClawBear1,
-			                    QuestSpellIds.TameLargeCragBoar        => QuestSpellIds.TameLargeCragBoar1,
-			                    QuestSpellIds.TameSnowLeopard          => QuestSpellIds.TameSnowLeopard1,
-			                    QuestSpellIds.TameAdultPlainstrider    => QuestSpellIds.TameAdultPlainstrider1,
-			                    QuestSpellIds.TamePrairieStalker       => QuestSpellIds.TamePrairieStalker1,
-			                    QuestSpellIds.TameSwoop                => QuestSpellIds.TameSwoop1,
-			                    QuestSpellIds.TameWebwoodLurker        => QuestSpellIds.TameWebwoodLurker1,
-			                    QuestSpellIds.TameDireMottledBoar      => QuestSpellIds.TameDireMottledBoar1,
-			                    QuestSpellIds.TameSurfCrawler          => QuestSpellIds.TameSurfCrawler1,
-			                    QuestSpellIds.TameArmoredScorpid       => QuestSpellIds.TameArmoredScorpid1,
-			                    QuestSpellIds.TameNightsaberStalker    => QuestSpellIds.TameNightsaberStalker1,
-			                    QuestSpellIds.TameStrigidScreecher     => QuestSpellIds.TameStrigidScreecher1,
-			                    QuestSpellIds.TameBarbedCrawler        => QuestSpellIds.TameBarbedCrawler1,
-			                    QuestSpellIds.TameGreaterTimberstrider => QuestSpellIds.TameGreaterTimberstrider1,
-			                    QuestSpellIds.TameNightstalker         => QuestSpellIds.TameNightstalker1,
-			                    QuestSpellIds.TameCrazedDragonhawk     => QuestSpellIds.TameCrazedDragonhawk1,
-			                    QuestSpellIds.TameElderSpringpaw       => QuestSpellIds.TameElderSpringpaw1,
-			                    QuestSpellIds.TameMistbat              => QuestSpellIds.TameMistbat1,
-			                    _                                      => 0
-		                    };
+		uint finalSpellId = Id switch
+		{
+			QuestSpellIds.TameIceClawBear          => QuestSpellIds.TameIceClawBear1,
+			QuestSpellIds.TameLargeCragBoar        => QuestSpellIds.TameLargeCragBoar1,
+			QuestSpellIds.TameSnowLeopard          => QuestSpellIds.TameSnowLeopard1,
+			QuestSpellIds.TameAdultPlainstrider    => QuestSpellIds.TameAdultPlainstrider1,
+			QuestSpellIds.TamePrairieStalker       => QuestSpellIds.TamePrairieStalker1,
+			QuestSpellIds.TameSwoop                => QuestSpellIds.TameSwoop1,
+			QuestSpellIds.TameWebwoodLurker        => QuestSpellIds.TameWebwoodLurker1,
+			QuestSpellIds.TameDireMottledBoar      => QuestSpellIds.TameDireMottledBoar1,
+			QuestSpellIds.TameSurfCrawler          => QuestSpellIds.TameSurfCrawler1,
+			QuestSpellIds.TameArmoredScorpid       => QuestSpellIds.TameArmoredScorpid1,
+			QuestSpellIds.TameNightsaberStalker    => QuestSpellIds.TameNightsaberStalker1,
+			QuestSpellIds.TameStrigidScreecher     => QuestSpellIds.TameStrigidScreecher1,
+			QuestSpellIds.TameBarbedCrawler        => QuestSpellIds.TameBarbedCrawler1,
+			QuestSpellIds.TameGreaterTimberstrider => QuestSpellIds.TameGreaterTimberstrider1,
+			QuestSpellIds.TameNightstalker         => QuestSpellIds.TameNightstalker1,
+			QuestSpellIds.TameCrazedDragonhawk     => QuestSpellIds.TameCrazedDragonhawk1,
+			QuestSpellIds.TameElderSpringpaw       => QuestSpellIds.TameElderSpringpaw1,
+			QuestSpellIds.TameMistbat              => QuestSpellIds.TameMistbat1,
+			_                                      => 0
+		};
 
 		if (finalSpellId != 0)
-			GetCaster().CastSpell(GetTarget(), finalSpellId, true);
+			Caster.CastSpell(Target, finalSpellId, true);
 	}
 }

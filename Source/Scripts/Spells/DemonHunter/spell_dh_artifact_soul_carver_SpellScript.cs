@@ -14,23 +14,23 @@ public class spell_dh_artifact_soul_carver_SpellScript : SpellScript, IHasSpellE
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleOnHit(int effIndex)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-		{
-			var attackPower    = GetCaster().GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
-			var damage         = (165.0f / 100.0f) * attackPower + (165.0f / 100.0f) * attackPower;
-			var damageOverTime = (107.415f / 100.0f) * attackPower;
-			GetCaster().CastSpell(target, DemonHunterSpells.SOUL_CARVER_DAMAGE, (int)damage);
-			GetCaster().CastSpell(target, DemonHunterSpells.SOUL_CARVER_DAMAGE, (int)damageOverTime);
-			// Code for shattering the soul fragments
-		}
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleOnHit, 2, SpellEffectName.WeaponPercentDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleOnHit(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+		{
+			var attackPower = Caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+			var damage = (165.0f / 100.0f) * attackPower + (165.0f / 100.0f) * attackPower;
+			var damageOverTime = (107.415f / 100.0f) * attackPower;
+			Caster.CastSpell(target, DemonHunterSpells.SOUL_CARVER_DAMAGE, (int)damage);
+			Caster.CastSpell(target, DemonHunterSpells.SOUL_CARVER_DAMAGE, (int)damageOverTime);
+			// Code for shattering the soul fragments
+		}
 	}
 }

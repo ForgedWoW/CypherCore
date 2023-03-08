@@ -10,12 +10,12 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 {
-	public int timeInterval;
-
 	public enum UsedSpells
 	{
 		TAR_TRAP_SLOW = 135299
 	}
+
+	public int timeInterval;
 
 	public at_hun_tar_trap_activatedAI(AreaTrigger areatrigger) : base(areatrigger)
 	{

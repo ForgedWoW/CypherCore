@@ -21,13 +21,13 @@ internal class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : Spell
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
 			var owner = target.GetOwner();
 
-			owner?.CastSpell(owner, (uint)GetEffectValue(), true);
+			owner?.CastSpell(owner, (uint)EffectValue, true);
 		}
 	}
 }

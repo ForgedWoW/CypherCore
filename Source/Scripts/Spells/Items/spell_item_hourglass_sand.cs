@@ -27,6 +27,6 @@ internal class spell_item_hourglass_sand : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().RemoveAura(ItemSpellIds.BroodAfflictionBronze);
+		Caster.RemoveAura(ItemSpellIds.BroodAfflictionBronze);
 	}
 }

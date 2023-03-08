@@ -18,8 +18,8 @@ public class spell_rog_grappling_hook_SpellScript : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var dest   = GetExplTargetDest();
+		var caster = Caster;
+		var dest = ExplTargetDest;
 
 		if (caster == null || dest == null)
 			return;

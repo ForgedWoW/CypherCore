@@ -14,6 +14,8 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(204288)]
 internal class spell_sha_earth_shield : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ShamanSpells.EarthShieldHeal);
@@ -21,9 +23,9 @@ internal class spell_sha_earth_shield : AuraScript, IAuraCheckProc, IHasAuraEffe
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetDamageInfo() == null ||
-		    !HasEffect(1) ||
-		    eventInfo.GetDamageInfo().GetDamage() < GetTarget().CountPctFromMaxHealth(GetEffect(1).Amount))
+		if (eventInfo.DamageInfo == null ||
+			!HasEffect(1) ||
+			eventInfo.DamageInfo.GetDamage() < Target.CountPctFromMaxHealth(GetEffect(1).Amount))
 			return false;
 
 		return true;
@@ -34,12 +36,10 @@ internal class spell_sha_earth_shield : AuraScript, IAuraCheckProc, IHasAuraEffe
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
-		GetTarget().CastSpell(GetTarget(), ShamanSpells.EarthShieldHeal, new CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
+		Target.CastSpell(Target, ShamanSpells.EarthShieldHeal, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
 	}
 }

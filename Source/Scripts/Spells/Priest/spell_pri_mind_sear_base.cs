@@ -12,10 +12,10 @@ public class spell_pri_mind_sear_base : SpellScript, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		var explTarget = GetExplTargetUnit();
+		var explTarget = ExplTargetUnit;
 
 		if (explTarget != null)
-			if (explTarget == GetCaster())
+			if (explTarget == Caster)
 				return SpellCastResult.BadTargets;
 
 		return SpellCastResult.SpellCastOk;

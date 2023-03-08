@@ -21,14 +21,14 @@ internal class spell_gen_landmine_knockback_achievement : SpellScript, IHasSpell
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		if (target)
 		{
 			var aura = GetHitAura();
 
 			if (aura == null ||
-			    aura.StackAmount < 10)
+				aura.StackAmount < 10)
 				return;
 
 			target.CastSpell(target, GenericSpellIds.LandmineKnockbackAchievement, true);

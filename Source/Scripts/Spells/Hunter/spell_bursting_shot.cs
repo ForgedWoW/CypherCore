@@ -11,9 +11,9 @@ public class spell_bursting_shot : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
-			caster.CastSpell(GetHitUnit(), HunterSpells.AURA_SHOOTING, true);
+			caster.CastSpell(HitUnit, HunterSpells.AURA_SHOOTING, true);
 	}
 }

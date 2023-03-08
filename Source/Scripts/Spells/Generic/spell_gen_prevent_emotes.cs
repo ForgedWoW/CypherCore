@@ -22,13 +22,13 @@ internal class spell_gen_prevent_emotes : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.SetUnitFlag(UnitFlags.PreventEmotesFromChatText);
 	}
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.RemoveUnitFlag(UnitFlags.PreventEmotesFromChatText);
 	}
 }

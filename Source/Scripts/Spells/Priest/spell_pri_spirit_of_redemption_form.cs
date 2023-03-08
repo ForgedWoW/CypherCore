@@ -12,24 +12,24 @@ namespace Scripts.Spells.Priest;
 [SpellScript(27827)]
 public class spell_pri_spirit_of_redemption_form : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	private struct eSpells
+	public override void Register()
 	{
-		public const uint SpiritOfRedemptionImmunity = 62371;
-		public const uint SpiritOfRedemptionForm = 27795;
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.WaterBreathing, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 
 	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var l_Target = GetTarget();
+		var l_Target = Target;
 
 		l_Target.RemoveAura(eSpells.SpiritOfRedemptionForm);
 		l_Target.RemoveAura(eSpells.SpiritOfRedemptionImmunity);
 	}
 
-	public override void Register()
+	private struct eSpells
 	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.WaterBreathing, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+		public const uint SpiritOfRedemptionImmunity = 62371;
+		public const uint SpiritOfRedemptionForm = 27795;
 	}
 }

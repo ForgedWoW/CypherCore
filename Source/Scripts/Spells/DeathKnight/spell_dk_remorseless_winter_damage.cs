@@ -14,17 +14,17 @@ public class spell_dk_remorseless_winter_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private void HandleOnHit(int effIndex)
-	{
-		var unit = GetHitUnit();
-
-		if (unit != null)
-			GetCaster().CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+
+	private void HandleOnHit(int effIndex)
+	{
+		var unit = HitUnit;
+
+		if (unit != null)
+			Caster.CastSpell(unit, DeathKnightSpells.REMORSELESS_WINTER_SLOW_DOWN, true);
 	}
 }

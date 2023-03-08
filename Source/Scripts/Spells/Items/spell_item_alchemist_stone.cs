@@ -27,7 +27,7 @@ internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 
 	private bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetDamageInfo().GetSpellInfo().SpellFamilyName == SpellFamilyNames.Potion;
+		return eventInfo.DamageInfo.GetSpellInfo().SpellFamilyName == SpellFamilyNames.Potion;
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
@@ -35,18 +35,18 @@ internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		uint spellId = 0;
-		var  amount  = (int)(eventInfo.GetDamageInfo().GetDamage() * 0.4f);
+		var amount = (int)(eventInfo.DamageInfo.GetDamage() * 0.4f);
 
-		if (eventInfo.GetDamageInfo().GetSpellInfo().HasEffect(SpellEffectName.Heal))
+		if (eventInfo.DamageInfo.GetSpellInfo().HasEffect(SpellEffectName.Heal))
 			spellId = ItemSpellIds.AlchemistStoneExtraHeal;
-		else if (eventInfo.GetDamageInfo().GetSpellInfo().HasEffect(SpellEffectName.Energize))
+		else if (eventInfo.DamageInfo.GetSpellInfo().HasEffect(SpellEffectName.Energize))
 			spellId = ItemSpellIds.AlchemistStoneExtraMana;
 
 		if (spellId == 0)
 			return;
 
-		var                caster = eventInfo.GetActionTarget();
-		CastSpellExtraArgs args   = new(aurEff);
+		var caster = eventInfo.ActionTarget;
+		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
 		caster.CastSpell((Unit)null, spellId, args);
 	}

@@ -13,24 +13,24 @@ public class spell_dru_maim : SpellScript, ISpellAfterCast, ISpellOnTakePower
 {
 	private int _usedComboPoints = 0;
 
-	public void TakePower(SpellPowerCost powerCost)
-	{
-		if (powerCost.Power == PowerType.ComboPoints)
-			_usedComboPoints = powerCost.Amount;
-	}
-
 	public void AfterCast()
 	{
-		var target = GetExplTargetUnit();
+		var target = ExplTargetUnit;
 
 		if (target == null)
 			return;
 
-		GetCaster().CastSpell(target, MaimSpells.MAIM_STUN, true);
+		Caster.CastSpell(target, MaimSpells.MAIM_STUN, true);
 
-		var maimStun = target.GetAura(MaimSpells.MAIM_STUN, GetCaster().GetGUID());
+		var maimStun = target.GetAura(MaimSpells.MAIM_STUN, Caster.GetGUID());
 
 		if (maimStun != null)
 			maimStun.SetDuration(_usedComboPoints * 1000);
+	}
+
+	public void TakePower(SpellPowerCost powerCost)
+	{
+		if (powerCost.Power == PowerType.ComboPoints)
+			_usedComboPoints = powerCost.Amount;
 	}
 }

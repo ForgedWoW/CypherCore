@@ -5,36 +5,35 @@ using System;
 using Framework.Constants;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraApplyHandler : IAuraEffectHandler
 {
-    public interface IAuraApplyHandler : IAuraEffectHandler
-    {
-        AuraEffectHandleModes Modes { get; }
-        void Apply(AuraEffect aura, AuraEffectHandleModes auraMode);
-    }
+	AuraEffectHandleModes Modes { get; }
+	void Apply(AuraEffect aura, AuraEffectHandleModes auraMode);
+}
 
-    public class AuraEffectApplyHandler : AuraEffectHandler, IAuraApplyHandler
-    {
-        private readonly Action<AuraEffect, AuraEffectHandleModes> _fn;
+public class AuraEffectApplyHandler : AuraEffectHandler, IAuraApplyHandler
+{
+	private readonly Action<AuraEffect, AuraEffectHandleModes> _fn;
 
-        public AuraEffectApplyHandler(Action<AuraEffect, AuraEffectHandleModes> fn, int effectIndex, AuraType auraType, AuraEffectHandleModes mode, AuraScriptHookType hookType = AuraScriptHookType.EffectApply) : base(effectIndex, auraType, hookType)
-        {
-            _fn = fn;
-            Modes = mode;
+	public AuraEffectHandleModes Modes { get; }
 
-            if (hookType != AuraScriptHookType.EffectApply &&
-                hookType != AuraScriptHookType.EffectRemove &&
-                hookType != AuraScriptHookType.EffectAfterApply &&
-                hookType != AuraScriptHookType.EffectAfterRemove)
-                throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectApplyHandler)}. Use {AuraScriptHookType.EffectApply}, {AuraScriptHookType.EffectRemove}, {AuraScriptHookType.EffectAfterApply}, or {AuraScriptHookType.EffectAfterRemove}");
-        }
+	public AuraEffectApplyHandler(Action<AuraEffect, AuraEffectHandleModes> fn, int effectIndex, AuraType auraType, AuraEffectHandleModes mode, AuraScriptHookType hookType = AuraScriptHookType.EffectApply) : base(effectIndex, auraType, hookType)
+	{
+		_fn = fn;
+		Modes = mode;
 
-        public AuraEffectHandleModes Modes { get; }
+		if (hookType != AuraScriptHookType.EffectApply &&
+			hookType != AuraScriptHookType.EffectRemove &&
+			hookType != AuraScriptHookType.EffectAfterApply &&
+			hookType != AuraScriptHookType.EffectAfterRemove)
+			throw new Exception($"Hook Type {hookType} is not valid for {nameof(AuraEffectApplyHandler)}. Use {AuraScriptHookType.EffectApply}, {AuraScriptHookType.EffectRemove}, {AuraScriptHookType.EffectAfterApply}, or {AuraScriptHookType.EffectAfterRemove}");
+	}
 
-        public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
-        {
-            if (Convert.ToBoolean(Modes & auraMode))
-                _fn(aura, auraMode);
-        }
-    }
+	public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
+	{
+		if (Convert.ToBoolean(Modes & auraMode))
+			_fn(aura, auraMode);
+	}
 }

@@ -3,10 +3,9 @@
 
 using Game.DataStorage;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellOnEpowerSpellStageChange : ISpellScript
 {
-    public interface ISpellOnEpowerSpellStageChange : ISpellScript
-    {
-        void EmpowerSpellStageChange(SpellEmpowerStageRecord oldStage, SpellEmpowerStageRecord newStage);
-    }
+	void EmpowerSpellStageChange(SpellEmpowerStageRecord oldStage, SpellEmpowerStageRecord newStage);
 }

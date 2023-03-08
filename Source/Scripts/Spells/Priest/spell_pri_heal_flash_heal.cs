@@ -13,7 +13,7 @@ public class spell_pri_heal_flash_heal : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (!caster.ToPlayer())
 			return;

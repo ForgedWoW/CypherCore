@@ -14,9 +14,14 @@ public class spell_mage_mirror_image_summon : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -24,10 +29,5 @@ public class spell_mage_mirror_image_summon : SpellScript, IHasSpellEffects
 			caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_FRONT, true);
 			caster.CastSpell(caster, MageSpells.MIRROR_IMAGE_RIGHT, true);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

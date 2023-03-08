@@ -13,16 +13,14 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_sentinelAI : AreaTriggerAI
 {
-	public at_hun_sentinelAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public int timeInterval;
+
+	public at_hun_sentinelAI(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnCreate()
 	{
 		timeInterval = 6000;
 	}
-
-	public int timeInterval;
 
 	public override void OnUpdate(uint diff)
 	{
@@ -36,9 +34,9 @@ public class at_hun_sentinelAI : AreaTriggerAI
 		if (caster != null)
 		{
 			var targetList = new List<Unit>();
-			var radius     = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
+			var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-			var l_Check    = new AnyUnitInObjectRangeCheck(at, radius);
+			var l_Check = new AnyUnitInObjectRangeCheck(at, radius);
 			var l_Searcher = new UnitListSearcher(at, targetList, l_Check, GridType.All);
 			Cell.VisitGrid(at, l_Searcher, radius);
 
@@ -60,9 +58,9 @@ public class at_hun_sentinelAI : AreaTriggerAI
 		if (caster != null)
 		{
 			var targetList = new List<Unit>();
-			var radius     = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
+			var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-			var l_Check    = new AnyUnitInObjectRangeCheck(at, radius);
+			var l_Check = new AnyUnitInObjectRangeCheck(at, radius);
 			var l_Searcher = new UnitListSearcher(at, targetList, l_Check, GridType.All);
 			Cell.VisitGrid(at, l_Searcher, radius);
 

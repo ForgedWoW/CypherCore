@@ -27,9 +27,9 @@ internal class spell_q13086_cannons_target : SpellScript, IHasSpellEffects
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var pos = GetExplTargetDest();
+		var pos = ExplTargetDest;
 
 		if (pos != null)
-			GetCaster().CastSpell(pos, (uint)GetEffectValue(), new CastSpellExtraArgs(true));
+			Caster.CastSpell(pos, (uint)EffectValue, new CastSpellExtraArgs(true));
 	}
 }

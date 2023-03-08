@@ -5,23 +5,22 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(58094)]
+public class spell_warl_glyph_of_soulwell : SpellScript, ISpellAfterCast
 {
-    [SpellScript(58094)]
-	public class spell_warl_glyph_of_soulwell : SpellScript, ISpellAfterCast
+	public void AfterCast()
 	{
-		public void AfterCast()
-		{
-			if (!GetCaster())
-				return;
+		if (!Caster)
+			return;
 
-			if (GetExplTargetDest() != null)
-				return;
+		if (ExplTargetDest != null)
+			return;
 
-			if (!GetCaster().HasAura(WarlockSpells.GLYPH_OF_SOULWELL))
-				return;
+		if (!Caster.HasAura(WarlockSpells.GLYPH_OF_SOULWELL))
+			return;
 
-			GetCaster().CastSpell(new Position(GetExplTargetDest().X, GetExplTargetDest().Y, GetExplTargetDest().Z), WarlockSpells.GLYPH_OF_SOULWELL_VISUAL, true);
-		}
+		Caster.CastSpell(new Position(ExplTargetDest.X, ExplTargetDest.Y, ExplTargetDest.Z), WarlockSpells.GLYPH_OF_SOULWELL_VISUAL, true);
 	}
 }

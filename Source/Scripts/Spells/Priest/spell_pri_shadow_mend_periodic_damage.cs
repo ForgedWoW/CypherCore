@@ -13,6 +13,8 @@ namespace Scripts.Spells.Priest;
 [Script] // 187464 - Shadow Mend (Damage)
 internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.SHADOW_MEND_DAMAGE);
@@ -20,7 +22,7 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetDamageInfo() != null;
+		return eventInfo.DamageInfo != null;
 	}
 
 	public override void Register()
@@ -29,20 +31,18 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleDummyTick(AuraEffect aurEff)
 	{
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-		args.SetOriginalCaster(GetCasterGUID());
+		args.SetOriginalCaster(CasterGUID);
 		args.SetTriggeringAura(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount);
-		GetTarget().CastSpell(GetTarget(), PriestSpells.SHADOW_MEND_DAMAGE, args);
+		Target.CastSpell(Target, PriestSpells.SHADOW_MEND_DAMAGE, args);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var newAmount = (int)(aurEff.Amount - eventInfo.GetDamageInfo().GetDamage());
+		var newAmount = (int)(aurEff.Amount - eventInfo.DamageInfo.GetDamage());
 
 		aurEff.ChangeAmount(newAmount);
 

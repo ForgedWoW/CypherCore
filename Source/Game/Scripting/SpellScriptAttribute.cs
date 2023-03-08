@@ -3,36 +3,34 @@
 
 using System;
 
-namespace Game.Scripting
+namespace Game.Scripting;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class SpellScriptAttribute : ScriptAttribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class SpellScriptAttribute : ScriptAttribute
-    {
-        public SpellScriptAttribute(params uint[] spellId) : base("", new object[0])
-        {
-            SpellIds = spellId;
-        }
+	public uint[] SpellIds { get; private set; }
+	public bool AllRanks { get; private set; }
 
-        public SpellScriptAttribute(string name = "", params object[] args) : base(name, args)
-        {
-        }
+	public SpellScriptAttribute(params uint[] spellId) : base("", new object[0])
+	{
+		SpellIds = spellId;
+	}
 
-        public SpellScriptAttribute(uint spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
-        {
-            SpellIds = new[]
-                       {
-                           spellId
-                       };
-            AllRanks = allRanks;
-        }
+	public SpellScriptAttribute(string name = "", params object[] args) : base(name, args) { }
 
-        public SpellScriptAttribute(uint[] spellId, string name = "", bool allRanks = false,  params object[] args) : base(name, args)
-        {
-            SpellIds = spellId;
-            AllRanks = allRanks;
-        }
+	public SpellScriptAttribute(uint spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
+	{
+		SpellIds = new[]
+		{
+			spellId
+		};
 
-        public uint[] SpellIds { get; private set; }
-        public bool AllRanks { get; private set; }
-    }
+		AllRanks = allRanks;
+	}
+
+	public SpellScriptAttribute(uint[] spellId, string name = "", bool allRanks = false, params object[] args) : base(name, args)
+	{
+		SpellIds = spellId;
+		AllRanks = allRanks;
+	}
 }

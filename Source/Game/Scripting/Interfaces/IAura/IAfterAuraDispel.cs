@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAfterAuraDispel : IAuraScript
 {
-    public interface IAfterAuraDispel : IAuraScript
-    {
-        void HandleDispel(DispelInfo dispelInfo);
-    }
+	void HandleDispel(DispelInfo dispelInfo);
 }

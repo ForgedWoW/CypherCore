@@ -20,10 +20,16 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(EvokerSpells.LIVING_FLAME_DAMAGE, EvokerSpells.LIVING_FLAME_HEAL, EvokerSpells.ENERGIZING_FLAME);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleLaunchTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.LaunchTarget));
+	}
+
 	void HandleHitTarget(int effIndex)
 	{
-		var caster  = GetCaster();
-		var hitUnit = GetHitUnit();
+		var caster = Caster;
+		var hitUnit = HitUnit;
 
 		if (caster.IsFriendlyTo(hitUnit))
 			caster.CastSpell(hitUnit, EvokerSpells.LIVING_FLAME_HEAL, true);
@@ -33,25 +39,19 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 
 	void HandleLaunchTarget(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster.IsFriendlyTo(GetHitUnit()))
+		if (caster.IsFriendlyTo(HitUnit))
 			return;
 
 		var auraEffect = caster.GetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0);
 
 		if (auraEffect != null)
 		{
-			var manaCost = GetSpell().GetPowerTypeCostAmount(PowerType.Mana).GetValueOrDefault(0);
+			var manaCost = Spell.GetPowerTypeCostAmount(PowerType.Mana).GetValueOrDefault(0);
 
 			if (manaCost != 0)
-				GetCaster().ModifyPower(PowerType.Mana, MathFunctions.CalculatePct(manaCost, auraEffect.Amount));
+				Caster.ModifyPower(PowerType.Mana, MathFunctions.CalculatePct(manaCost, auraEffect.Amount));
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleLaunchTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.LaunchTarget));
 	}
 }

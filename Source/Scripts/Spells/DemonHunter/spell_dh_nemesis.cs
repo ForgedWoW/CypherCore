@@ -12,20 +12,25 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206491)]
 public class spell_dh_nemesis : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 0, AuraType.ModSchoolMaskDamageFromCaster, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
 	private void HandleAfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		if (GetTargetApplication() == null)
+		if (TargetApplication == null)
 			return;
 
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
 			return;
 
-		var target = GetTargetApplication().Target;
-		var type   = target.GetCreatureType();
-		var dur    = GetTargetApplication().Base.Duration;
-		var caster = GetAura().GetCaster();
+		var target = TargetApplication.Target;
+		var type = target.GetCreatureType();
+		var dur = TargetApplication.Base.Duration;
+		var caster = Aura.GetCaster();
 
 		if (caster == null || target == null)
 			return;
@@ -85,10 +90,5 @@ public class spell_dh_nemesis : AuraScript, IHasAuraEffects
 			if (aur != null)
 				aur.SetDuration(dur);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleAfterRemove, 0, AuraType.ModSchoolMaskDamageFromCaster, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }

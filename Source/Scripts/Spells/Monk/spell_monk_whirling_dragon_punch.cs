@@ -12,16 +12,16 @@ namespace Scripts.Spells.Monk;
 [SpellScript(152175)]
 public class spell_monk_whirling_dragon_punch : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void OnTick(AuraEffect UnnamedParameter)
-	{
-		if (GetCaster())
-			GetCaster().CastSpell(GetCaster(), MonkSpells.WHIRLING_DRAGON_PUNCH_DAMAGE, true);
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+	}
+
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		if (Caster)
+			Caster.CastSpell(Caster, MonkSpells.WHIRLING_DRAGON_PUNCH_DAMAGE, true);
 	}
 }

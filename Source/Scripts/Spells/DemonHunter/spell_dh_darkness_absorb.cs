@@ -14,7 +14,13 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(209426)]
 public class spell_dh_darkness_absorb : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 0));
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+	}
 
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -24,22 +30,16 @@ public class spell_dh_darkness_absorb : AuraScript, IHasAuraEffects
 
 	private double OnAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return absorbAmount;
 
-		var chance = GetSpellInfo().GetEffect(1).BasePoints + caster.GetAuraEffectAmount(ShatteredSoulsSpells.COVER_OF_DARKNESS, 0);
+		var chance = SpellInfo.GetEffect(1).BasePoints + caster.GetAuraEffectAmount(ShatteredSoulsSpells.COVER_OF_DARKNESS, 0);
 
 		if (RandomHelper.randChance(chance))
 			absorbAmount = dmgInfo.GetDamage();
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(OnAbsorb, 0));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
 	}
 }

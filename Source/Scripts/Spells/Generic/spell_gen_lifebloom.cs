@@ -18,12 +18,12 @@ internal class spell_gen_lifebloom : AuraScript, IHasAuraEffects
 {
 	private readonly uint _spellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_gen_lifebloom(uint spellId)
 	{
 		_spellId = spellId;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -38,11 +38,11 @@ internal class spell_gen_lifebloom : AuraScript, IHasAuraEffects
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Final heal only on duration end
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire &&
-		    GetTargetApplication().RemoveMode != AuraRemoveMode.EnemySpell)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire &&
+			TargetApplication.RemoveMode != AuraRemoveMode.EnemySpell)
 			return;
 
 		// final heal
-		GetTarget().CastSpell(GetTarget(), _spellId, new CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
+		Target.CastSpell(Target, _spellId, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
 	}
 }

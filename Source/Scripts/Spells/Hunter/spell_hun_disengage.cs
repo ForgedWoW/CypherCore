@@ -12,7 +12,7 @@ public class spell_hun_disengage : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 		{

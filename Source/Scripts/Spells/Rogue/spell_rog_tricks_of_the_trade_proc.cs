@@ -21,6 +21,6 @@ internal class spell_rog_tricks_of_the_trade_proc : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
+		Target.GetThreatManager().UnregisterRedirectThreat(RogueSpells.TricksOfTheTrade);
 	}
 }

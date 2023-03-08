@@ -159,7 +159,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 					if (spellEffectInfo.ItemType == 0)
 					{
 						// skip auto-loot crafting spells, its not need explicit item info (but have special fake items sometime)
-						if (!spellInfo.IsLootCrafting())
+						if (!spellInfo.IsLootCrafting)
 						{
 							if (msg)
 							{
@@ -489,26 +489,26 @@ public sealed class SpellManager : Singleton<SpellManager>
 	public static bool CanSpellTriggerProcOnEvent(SpellProcEntry procEntry, ProcEventInfo eventInfo)
 	{
 		// proc type doesn't match
-		if (!(eventInfo.GetTypeMask() & procEntry.ProcFlags))
+		if (!(eventInfo.TypeMask & procEntry.ProcFlags))
 			return false;
 
 		// check XP or honor target requirement
 		if (((uint)procEntry.AttributesMask & 0x0000001) != 0)
 		{
-			var actor = eventInfo.GetActor().ToPlayer();
+			var actor = eventInfo.Actor.ToPlayer();
 
 			if (actor)
-				if (eventInfo.GetActionTarget() && !actor.IsHonorOrXPTarget(eventInfo.GetActionTarget()))
+				if (eventInfo.ActionTarget && !actor.IsHonorOrXPTarget(eventInfo.ActionTarget))
 					return false;
 		}
 
 		// check power requirement
 		if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReqPowerCost))
 		{
-			if (!eventInfo.GetProcSpell())
+			if (!eventInfo.ProcSpell)
 				return false;
 
-			var costs = eventInfo.GetProcSpell().PowerCost;
+			var costs = eventInfo.ProcSpell.PowerCost;
 			var m = costs.Find(cost => cost.Amount > 0);
 
 			if (m == null)
@@ -516,34 +516,34 @@ public sealed class SpellManager : Singleton<SpellManager>
 		}
 
 		// always trigger for these types
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.Heartbeat | ProcFlags.Kill | ProcFlags.Death))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.Heartbeat | ProcFlags.Kill | ProcFlags.Death))
 			return true;
 
 		// check school mask (if set) for other trigger types
-		if (procEntry.SchoolMask != 0 && !Convert.ToBoolean(eventInfo.GetSchoolMask() & procEntry.SchoolMask))
+		if (procEntry.SchoolMask != 0 && !Convert.ToBoolean(eventInfo.SchoolMask & procEntry.SchoolMask))
 			return false;
 
 		// check spell family name/flags (if set) for spells
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.SpellMask))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.SpellMask))
 		{
-			var eventSpellInfo = eventInfo.GetSpellInfo();
+			var eventSpellInfo = eventInfo.SpellInfo;
 
 			if (eventSpellInfo != null)
 				if (!eventSpellInfo.IsAffected(procEntry.SpellFamilyName, procEntry.SpellFamilyMask))
 					return false;
 
 			// check spell type mask (if set)
-			if (procEntry.SpellTypeMask != 0 && !Convert.ToBoolean(eventInfo.GetSpellTypeMask() & procEntry.SpellTypeMask))
+			if (procEntry.SpellTypeMask != 0 && !Convert.ToBoolean(eventInfo.SpellTypeMask & procEntry.SpellTypeMask))
 				return false;
 		}
 
 		// check spell phase mask
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.ReqSpellPhaseMask))
-			if (!Convert.ToBoolean(eventInfo.GetSpellPhaseMask() & procEntry.SpellPhaseMask))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.ReqSpellPhaseMask))
+			if (!Convert.ToBoolean(eventInfo.SpellPhaseMask & procEntry.SpellPhaseMask))
 				return false;
 
 		// check hit mask (on taken hit or on done hit, but not on spell cast phase)
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.TakenHitMask) || (eventInfo.GetTypeMask().HasFlag(ProcFlags.DoneHitMask) && !Convert.ToBoolean(eventInfo.GetSpellPhaseMask() & ProcFlagsSpellPhase.Cast)))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.TakenHitMask) || (eventInfo.TypeMask.HasFlag(ProcFlags.DoneHitMask) && !Convert.ToBoolean(eventInfo.SpellPhaseMask & ProcFlagsSpellPhase.Cast)))
 		{
 			var hitMask = procEntry.HitMask;
 
@@ -551,14 +551,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (hitMask == 0)
 			{
 				// for taken procs allow normal + critical hits by default
-				if (eventInfo.GetTypeMask().HasFlag(ProcFlags.TakenHitMask))
+				if (eventInfo.TypeMask.HasFlag(ProcFlags.TakenHitMask))
 					hitMask |= ProcFlagsHit.Normal | ProcFlagsHit.Critical;
 				// for done procs allow normal + critical + absorbs by default
 				else
 					hitMask |= ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb;
 			}
 
-			if (!Convert.ToBoolean(eventInfo.GetHitMask() & hitMask))
+			if (!Convert.ToBoolean(eventInfo.HitMask & hitMask))
 				return false;
 		}
 
@@ -1288,7 +1288,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 						// talent or passive spells or skill-step spells auto-cast and not need dependent learning,
 						// pet teaching spells must not be dependent learning (cast)
 						// other required explicit dependent learning
-						dbc_node.AutoLearned = spellEffectInfo.TargetA.Target == Targets.UnitPet || entry.HasAttribute(SpellCustomAttributes.IsTalent) || entry.IsPassive() || entry.HasEffect(SpellEffectName.SkillStep);
+						dbc_node.AutoLearned = spellEffectInfo.TargetA.Target == Targets.UnitPet || entry.HasAttribute(SpellCustomAttributes.IsTalent) || entry.IsPassive || entry.HasEffect(SpellEffectName.SkillStep);
 
 						var db_node_bounds = GetSpellLearnSpellMapBounds(entry.Id);
 
@@ -1505,7 +1505,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					return true;
 				}
-				else if (spellInfo.GetRank() > 1)
+				else if (spellInfo.Rank > 1)
 				{
 					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_group` is not first rank of spell", group.Value);
 
@@ -2852,7 +2852,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spell in kvp.Values)
-				spell._UnloadImplicitTargetConditionLists();
+				spell.UnloadImplicitTargetConditionLists();
 	}
 
 	public void LoadSpellInfoServerside()
@@ -3379,7 +3379,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 						break;
 				}
 
-				spellInfo._InitializeExplicitTargetMask();
+				spellInfo.InitializeExplicitTargetMask();
 
 				if (spellInfo.Speed > 0.0f)
 				{
@@ -5196,7 +5196,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (levels != null && levels.SpellLevel != 0)
 				continue;
 
-			if (spellInfo.IsPassive())
+			if (spellInfo.IsPassive)
 				foreach (var cFamily in CliDB.CreatureFamilyStorage.Values)
 				{
 					if (skillLine.SkillLine != cFamily.SkillLine[0] && skillLine.SkillLine != cFamily.SkillLine[1])

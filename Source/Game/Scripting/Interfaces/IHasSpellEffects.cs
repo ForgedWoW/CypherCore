@@ -4,10 +4,9 @@
 using System.Collections.Generic;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Game.Scripting.Interfaces
+namespace Game.Scripting.Interfaces;
+
+public interface IHasSpellEffects
 {
-    public interface IHasSpellEffects
-    {
-        List<ISpellEffect> SpellEffects { get; }
-    }
+	List<ISpellEffect> SpellEffects { get; }
 }

@@ -26,8 +26,8 @@ internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
 
 	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode == AuraRemoveMode.Death ||
-		    GetTargetApplication().RemoveMode == AuraRemoveMode.Expire)
-			GetCaster()?.CastSpell(GetTarget().Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
+		if (TargetApplication.RemoveMode == AuraRemoveMode.Death ||
+			TargetApplication.RemoveMode == AuraRemoveMode.Expire)
+			Caster?.CastSpell(Target.Location, PriestSpells.MIND_BOMB_STUN, new CastSpellExtraArgs(true));
 	}
 }

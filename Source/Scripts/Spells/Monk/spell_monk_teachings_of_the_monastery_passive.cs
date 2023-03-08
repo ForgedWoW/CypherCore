@@ -13,7 +13,7 @@ namespace Scripts.Spells.Monk;
 [SpellScript(116645)]
 public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -22,29 +22,29 @@ public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAur
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id != MonkSpells.TIGER_PALM && eventInfo.GetSpellInfo().Id != MonkSpells.BLACKOUT_KICK && eventInfo.GetSpellInfo().Id != MonkSpells.BLACKOUT_KICK_TRIGGERED)
+		if (eventInfo.SpellInfo.Id != MonkSpells.TIGER_PALM && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK && eventInfo.SpellInfo.Id != MonkSpells.BLACKOUT_KICK_TRIGGERED)
 			return false;
 
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == MonkSpells.TIGER_PALM)
+		if (eventInfo.SpellInfo.Id == MonkSpells.TIGER_PALM)
 		{
-			GetTarget().CastSpell(GetTarget(), MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
+			Target.CastSpell(Target, MonkSpells.TEACHINGS_OF_THE_MONASTERY, true);
 		}
 		else if (RandomHelper.randChance(aurEff.Amount))
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
 
 			if (spellInfo != null)
-				GetTarget().GetSpellHistory().RestoreCharge(spellInfo.ChargeCategoryId);
+				Target.GetSpellHistory().RestoreCharge(spellInfo.ChargeCategoryId);
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

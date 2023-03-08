@@ -15,22 +15,22 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var player = GetCaster();
+		var player = Caster;
 
 		if (player == null || !player.ToPlayer())
 			return;
 
 		Unit _player = player.ToPlayer();
 
-		var allies   = new List<Unit>();
-		var check    = new AnyFriendlyUnitInObjectRangeCheck(_player, _player, 10.0f, true);
+		var allies = new List<Unit>();
+		var check = new AnyFriendlyUnitInObjectRangeCheck(_player, _player, 10.0f, true);
 		var searcher = new UnitListSearcher(_player, allies, check, GridType.All);
 		Cell.VisitGrid(_player, searcher, 10.0f);
 
 		foreach (var unit in allies)
 		{
 			var auraListToRemove = new SortedSet<auraData>();
-			var AuraList         = unit.GetAppliedAurasQuery();
+			var AuraList = unit.GetAppliedAurasQuery();
 
 			foreach (var iter in AuraList.IsPositive(false).GetResults())
 			{
@@ -80,11 +80,11 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 							var amount = auraEffect.Amount;
 
 							if (auraEffect.AuraType == AuraType.PeriodicDamage || auraEffect.AuraType == AuraType.PeriodicDamagePercent)
-								amount = (int)caster.SpellDamageBonusDone(unit, aura.SpellInfo, amount, DamageEffectType.DOT, aura.SpellInfo.Effects[aurEff.Key], auraEffect.Base.StackAmount, GetSpell());
+								amount = (int)caster.SpellDamageBonusDone(unit, aura.SpellInfo, amount, DamageEffectType.DOT, aura.SpellInfo.Effects[aurEff.Key], auraEffect.Base.StackAmount, Spell);
 
-                            //targetAura->GetEffect(i)->VariableStorage.Set("DontRecalculatePerodics", true);
-                            aurEff.Value.SetAmount(amount);
-                            aurEff.Value.SetPeriodicTimer(auraEffect.GetPeriodicTimer());
+							//targetAura->GetEffect(i)->VariableStorage.Set("DontRecalculatePerodics", true);
+							aurEff.Value.SetAmount(amount);
+							aurEff.Value.SetPeriodicTimer(auraEffect.GetPeriodicTimer());
 						}
 					}
 

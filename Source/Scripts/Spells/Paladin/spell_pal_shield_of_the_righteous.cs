@@ -3,94 +3,88 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// Shield of the Righteous - 53600
+[SpellScript(53600)]
+public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
 {
-    // Shield of the Righteous - 53600
-    [SpellScript(53600)]
-    public class spell_pal_shield_of_the_righteous : SpellScript, ISpellOnHit
-    {
-        public void OnHit()
-        {
-            Player player = GetCaster().ToPlayer();
+	public void OnHit()
+	{
+		var player = Caster.ToPlayer();
 
-            if (player == null || !GetHitUnit())
-                return;
+		if (player == null || !HitUnit)
+			return;
 
-            if (player.FindNearestCreature(43499, 8) && player.HasAura(PaladinSpells.CONSECRATION)) //if player is standing in his consecration all effects are increased by 20%
-            {
-                int previousDuration = 0;
+		if (player.FindNearestCreature(43499, 8) && player.HasAura(PaladinSpells.CONSECRATION)) //if player is standing in his consecration all effects are increased by 20%
+		{
+			var previousDuration = 0;
 
-                Aura aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
-                if (aur != null)
-                {
-                    previousDuration = aur.Duration;
-                }
+			var aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
-                double dmg = GetHitDamage();
-                dmg += dmg / 5;
-                SetHitDamage(dmg); //damage is increased by 20%
+			if (aur != null)
+				previousDuration = aur.Duration;
 
-                double mastery = player.ActivePlayerData.Mastery;
+			var dmg = HitDamage;
+			dmg += dmg / 5;
+			HitDamage = dmg; //damage is increased by 20%
 
-                double reduction = ((-25 - mastery / 2.0f) * 120.0f) / 100.0f; //damage reduction is increased by 20%
-                player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, (int)reduction);
+			double mastery = player.ActivePlayerData.Mastery;
 
-                aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
-                if (aur != null)
-                {
-                    aur.SetDuration(aur.Duration + previousDuration);
-                }
-            }
-            else
-            {
-                int previousDuration = 0;
+			var reduction = ((-25 - mastery / 2.0f) * 120.0f) / 100.0f; //damage reduction is increased by 20%
+			player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, (int)reduction);
 
-                Aura aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
-                if (aur != null)
-                {
-                    previousDuration = aur.Duration;
-                }
+			aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
-                player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, true);
+			if (aur != null)
+				aur.SetDuration(aur.Duration + previousDuration);
+		}
+		else
+		{
+			var previousDuration = 0;
 
-                aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
-                if (aur != null)
-                {
-                    aur.SetDuration(aur.Duration + previousDuration);
-                }
-            }
+			var aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
-            Aura aura = player.GetAura(PaladinSpells.RIGHTEOUS_PROTECTOR);
-            if (aura != null) //reduce the CD of Light of the Protector and Avenging Wrath by 3
-            {
-                TimeSpan cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).BaseAmount * Time.InMilliseconds);
+			if (aur != null)
+				previousDuration = aur.Duration;
 
-                if (player.HasSpell(PaladinSpells.LIGHT_OF_THE_PROTECTOR))
-                {
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.LIGHT_OF_THE_PROTECTOR, Difficulty.None);
+			player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, true);
 
-                    if (spellInfo != null)
-                        player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
-                }
+			aur = player.GetAura(PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC);
 
-                if (player.HasSpell(PaladinSpells.HAND_OF_THE_PROTECTOR))
-                {
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HAND_OF_THE_PROTECTOR, Difficulty.None);
+			if (aur != null)
+				aur.SetDuration(aur.Duration + previousDuration);
+		}
 
-                    if (spellInfo != null)
-                        player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
-                }
+		var aura = player.GetAura(PaladinSpells.RIGHTEOUS_PROTECTOR);
 
-                SpellInfo spellInfoAR = Global.SpellMgr.GetSpellInfo(PaladinSpells.AvengingWrath, Difficulty.None);
+		if (aura != null) //reduce the CD of Light of the Protector and Avenging Wrath by 3
+		{
+			var cooldownReduction = TimeSpan.FromSeconds(aura.GetEffect(0).BaseAmount * Time.InMilliseconds);
 
-                if (spellInfoAR != null)
-                    player.GetSpellHistory().ModifySpellCooldown(spellInfoAR.Id, cooldownReduction, false);
-            }
-        }
-    }
+			if (player.HasSpell(PaladinSpells.LIGHT_OF_THE_PROTECTOR))
+			{
+				var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.LIGHT_OF_THE_PROTECTOR, Difficulty.None);
+
+				if (spellInfo != null)
+					player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
+			}
+
+			if (player.HasSpell(PaladinSpells.HAND_OF_THE_PROTECTOR))
+			{
+				var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HAND_OF_THE_PROTECTOR, Difficulty.None);
+
+				if (spellInfo != null)
+					player.GetSpellHistory().ModifySpellCooldown(spellInfo.Id, cooldownReduction, false);
+			}
+
+			var spellInfoAR = Global.SpellMgr.GetSpellInfo(PaladinSpells.AvengingWrath, Difficulty.None);
+
+			if (spellInfoAR != null)
+				player.GetSpellHistory().ModifySpellCooldown(spellInfoAR.Id, cooldownReduction, false);
+		}
+	}
 }

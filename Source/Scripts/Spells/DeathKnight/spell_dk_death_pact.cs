@@ -22,7 +22,7 @@ internal class spell_dk_death_pact : AuraScript, IHasAuraEffects
 
 	private void HandleCalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			amount.Value = caster.CountPctFromMaxHealth(amount);

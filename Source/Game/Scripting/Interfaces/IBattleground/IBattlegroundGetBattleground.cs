@@ -3,10 +3,9 @@
 
 using Game.BattleGrounds;
 
-namespace Game.Scripting.Interfaces.IBattleground
+namespace Game.Scripting.Interfaces.IBattleground;
+
+public interface IBattlegroundGetBattleground : IScriptObject
 {
-    public interface IBattlegroundGetBattleground : IScriptObject
-    {
-        Battleground GetBattleground();
-    }
+	Battleground GetBattleground();
 }

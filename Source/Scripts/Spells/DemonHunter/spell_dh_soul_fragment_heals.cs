@@ -11,22 +11,29 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(new uint[]
-             {
-	             178963, 203794, 228532
-             })]
+{
+	178963, 203794, 228532
+})]
 public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
+		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		if (!GetCaster().HasAura(DemonHunterSpells.DEMONIC_APPETITE))
+		if (!Caster.HasAura(DemonHunterSpells.DEMONIC_APPETITE))
 			PreventHitDefaultEffect(effIndex);
 	}
 
 	private void HandleHeal(int UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -38,12 +45,5 @@ public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
 			caster.GetSpellHistory().ModifyCooldown(DemonHunterSpells.CHAOS_NOVA, TimeSpan.FromSeconds(-reductionTime));
 			caster.GetSpellHistory().ModifyCooldown(DemonHunterSpells.EYE_BEAM, TimeSpan.FromSeconds(-reductionTime));
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Any, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.LaunchTarget));
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerSpell, SpellScriptHookType.Launch));
 	}
 }

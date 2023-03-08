@@ -17,13 +17,13 @@ public class spell_dru_denmother : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 			if (_player.HasAura(DEN_MOTHER))
 			{
 				var validTargets = new List<Unit>();
-				var groupList    = new List<Unit>();
+				var groupList = new List<Unit>();
 
 				_player.GetPartyMembers(groupList);
 

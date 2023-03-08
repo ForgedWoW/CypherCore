@@ -28,11 +28,11 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo != null)
-			if (damageInfo.GetAttacker() == GetCaster() &&
-			    damageInfo.GetVictim() == GetTarget())
+			if (damageInfo.GetAttacker() == Caster &&
+				damageInfo.GetVictim() == Target)
 			{
 				var extra = MathFunctions.CalculatePct(damageInfo.GetDamage(), 25);
 
@@ -46,11 +46,11 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 		var amount = aurEff.Amount;
 
 		if (amount == 0 ||
-		    GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
+			TargetApplication.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
-		caster?.CastSpell(GetTarget(), MageSpells.TouchOfTheMagiExplode, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
+		caster?.CastSpell(Target, MageSpells.TouchOfTheMagiExplode, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, amount));
 	}
 }

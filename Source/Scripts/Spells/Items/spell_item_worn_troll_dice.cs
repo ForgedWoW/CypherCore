@@ -26,7 +26,7 @@ internal class spell_item_worn_troll_dice : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override void Register()
@@ -36,13 +36,13 @@ internal class spell_item_worn_troll_dice : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().TextEmote(TextIds.WornTrollDice, GetHitUnit());
+		Caster.TextEmote(TextIds.WornTrollDice, HitUnit);
 
 		uint minimum = 1;
 		uint maximum = 6;
 
 		// roll twice
-		GetCaster().ToPlayer().DoRandomRoll(minimum, maximum);
-		GetCaster().ToPlayer().DoRandomRoll(minimum, maximum);
+		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
+		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
 	}
 }

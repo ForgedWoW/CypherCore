@@ -8,30 +8,29 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Create Healthstone (Soulwell) - 34130
+[SpellScript(34130)]
+public class spell_warl_create_healthstone_soulwell : SpellScript, IHasSpellEffects
 {
-    // Create Healthstone (Soulwell) - 34130
-    [SpellScript(34130)]
-	public class spell_warl_create_healthstone_soulwell : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.SOULWELL_CREATE_HEALTHSTONE, Difficulty.None) != null)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			if (Global.SpellMgr.GetSpellInfo(WarlockSpells.SOULWELL_CREATE_HEALTHSTONE, Difficulty.None) != null)
-				return false;
+		return true;
+	}
 
-			return true;
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleScriptEffect(int effIndex)
-		{
-			GetCaster().CastSpell(GetCaster(), 23517, true);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
-		}
+	private void HandleScriptEffect(int effIndex)
+	{
+		Caster.CastSpell(Caster, 23517, true);
 	}
 }

@@ -16,7 +16,7 @@ internal class spell_gen_dungeon_credit : SpellScript, ISpellAfterHit
 	{
 		_handled = false;
 
-		return GetCaster().IsTypeId(TypeId.Unit);
+		return Caster.IsTypeId(TypeId.Unit);
 	}
 
 	public void AfterHit()
@@ -26,9 +26,9 @@ internal class spell_gen_dungeon_credit : SpellScript, ISpellAfterHit
 			return;
 
 		_handled = true;
-		var caster   = GetCaster();
+		var caster = Caster;
 		var instance = caster.GetInstanceScript();
 
-		instance?.UpdateEncounterStateForSpellCast(GetSpellInfo().Id, caster);
+		instance?.UpdateEncounterStateForSpellCast(SpellInfo.Id, caster);
 	}
 }

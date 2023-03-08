@@ -9,57 +9,56 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
-{
-    [Script] // 48438 - Wild Growth
-	internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
-	{
-		private List<WorldObject> _targets;
-		public List<ISpellEffect> SpellEffects { get; } = new();
+namespace Scripts.Spells.Druid;
 
-		public override bool Validate(SpellInfo spellInfo)
+[Script] // 48438 - Wild Growth
+internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
+{
+	private List<WorldObject> _targets;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		if (spellInfo.Effects.Count <= 2 ||
+			spellInfo.GetEffect(2).IsEffect() ||
+			spellInfo.GetEffect(2).CalcValue() <= 0)
+			return false;
+
+		return true;
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SetTargets, 1, Targets.UnitDestAreaAlly));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.RemoveAll(obj =>
 		{
-			if (spellInfo.Effects.Count <= 2 ||
-			    spellInfo.GetEffect(2).IsEffect() ||
-			    spellInfo.GetEffect(2).CalcValue() <= 0)
-				return false;
+			var target = obj.ToUnit();
+
+			if (target)
+				return !Caster.IsInRaidWith(target);
 
 			return true;
-		}
+		});
 
-		public override void Register()
+		var maxTargets = (int)GetEffectInfo(2).CalcValue(Caster);
+
+		if (targets.Count > maxTargets)
 		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(SetTargets, 1, Targets.UnitDestAreaAlly));
+			targets.Sort(new HealthPctOrderPred());
+			targets.RemoveRange(maxTargets, targets.Count - maxTargets);
 		}
 
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			targets.RemoveAll(obj =>
-			                  {
-				                  var target = obj.ToUnit();
+		_targets = targets;
+	}
 
-				                  if (target)
-					                  return !GetCaster().IsInRaidWith(target);
-
-				                  return true;
-			                  });
-
-			var maxTargets = (int)GetEffectInfo(2).CalcValue(GetCaster());
-
-			if (targets.Count > maxTargets)
-			{
-				targets.Sort(new HealthPctOrderPred());
-				targets.RemoveRange(maxTargets, targets.Count - maxTargets);
-			}
-
-			_targets = targets;
-		}
-
-		private void SetTargets(List<WorldObject> targets)
-		{
-			targets.Clear();
-			targets.AddRange(_targets);
-		}
+	private void SetTargets(List<WorldObject> targets)
+	{
+		targets.Clear();
+		targets.AddRange(_targets);
 	}
 }

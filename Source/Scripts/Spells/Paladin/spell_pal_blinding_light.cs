@@ -3,36 +3,34 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 115750 - Blinding Light
+[SpellScript(115750)]
+internal class spell_pal_blinding_light : SpellScript, IHasSpellEffects
 {
-    // 115750 - Blinding Light
-    [SpellScript(115750)]
-    internal class spell_pal_blinding_light : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.BLINDING_LIGHT_EFFECT);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.BLINDING_LIGHT_EFFECT);
+	}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-        }
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
 
-        private void HandleDummy(int effIndex)
-        {
-            Unit target = GetHitUnit();
+	private void HandleDummy(int effIndex)
+	{
+		var target = HitUnit;
 
-            if (target)
-                GetCaster().CastSpell(target, PaladinSpells.BLINDING_LIGHT_EFFECT, true);
-        }
-    }
+		if (target)
+			Caster.CastSpell(target, PaladinSpells.BLINDING_LIGHT_EFFECT, true);
+	}
 }

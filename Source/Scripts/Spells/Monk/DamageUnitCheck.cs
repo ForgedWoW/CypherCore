@@ -8,10 +8,13 @@ namespace Scripts.Spells.Monk;
 
 public class DamageUnitCheck : ICheck<WorldObject>
 {
+	private readonly Unit m_source;
+	private float m_range;
+
 	public DamageUnitCheck(Unit source, float range)
 	{
-		this.m_source = source;
-		this.m_range  = range;
+		m_source = source;
+		m_range = range;
 	}
 
 	public bool Invoke(WorldObject @object)
@@ -30,7 +33,4 @@ public class DamageUnitCheck : ICheck<WorldObject>
 
 		return true;
 	}
-
-	private readonly Unit m_source;
-	private float m_range;
 }

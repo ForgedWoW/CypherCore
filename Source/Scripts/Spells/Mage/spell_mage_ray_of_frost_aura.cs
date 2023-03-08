@@ -27,7 +27,7 @@ internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			if (aurEff.GetTickNumber() > 1) // First tick should deal base Damage
@@ -36,7 +36,7 @@ internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster?.RemoveAura(MageSpells.RayOfFrostFingersOfFrost);
 	}

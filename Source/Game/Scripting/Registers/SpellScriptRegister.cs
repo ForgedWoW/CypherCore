@@ -4,20 +4,16 @@
 using System;
 using Game.Scripting.Interfaces;
 
-namespace Game.Scripting.Registers
+namespace Game.Scripting.Registers;
+
+public class SpellScriptRegister : IScriptRegister
 {
-    public class SpellScriptRegister : IScriptRegister
-    {
-        public Type AttributeType => typeof(SpellScriptAttribute);
+	public Type AttributeType => typeof(SpellScriptAttribute);
 
-        public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
-        {
-            if (attribute is SpellScriptAttribute spellScript && spellScript.SpellIds != null)
-                foreach (var id in spellScript.SpellIds)
-                {
-                    Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
-                }
-        }
-
-    }
+	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
+	{
+		if (attribute is SpellScriptAttribute spellScript && spellScript.SpellIds != null)
+			foreach (var id in spellScript.SpellIds)
+				Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
+	}
 }

@@ -11,7 +11,7 @@ public class spell_dru_incarnation_king_of_the_jungle : SpellScript, ISpellOnCas
 {
 	public void OnCast()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 			if (!player.HasAura(ShapeshiftFormSpells.CAT_FORM))

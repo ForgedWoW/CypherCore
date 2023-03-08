@@ -793,7 +793,7 @@ public partial class Player
 			var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
 			if (aura != null)
-				aura.SetDuration(aura.SpellInfo.GetMaxDuration());
+				aura.SetDuration(aura.SpellInfo.MaxDuration);
 		}
 	}
 

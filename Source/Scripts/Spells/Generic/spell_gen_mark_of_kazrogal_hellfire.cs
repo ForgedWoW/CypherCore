@@ -23,13 +23,13 @@ internal class spell_gen_mark_of_kazrogal_hellfire : SpellScript, IHasSpellEffec
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		targets.RemoveAll(target =>
-		                  {
-			                  var unit = target.ToUnit();
+		{
+			var unit = target.ToUnit();
 
-			                  if (unit)
-				                  return unit.GetPowerType() != PowerType.Mana;
+			if (unit)
+				return unit.GetPowerType() != PowerType.Mana;
 
-			                  return false;
-		                  });
+			return false;
+		});
 	}
 }

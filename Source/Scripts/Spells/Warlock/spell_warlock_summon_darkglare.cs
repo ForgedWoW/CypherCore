@@ -7,35 +7,34 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Summon Darkglare - 205180
+[SpellScript(205180)]
+public class spell_warlock_summon_darkglare : SpellScript, IHasSpellEffects
 {
-    // Summon Darkglare - 205180
-    [SpellScript(205180)]
-	public class spell_warlock_summon_darkglare : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleOnHitTarget(int effIndex)
+	private void HandleOnHitTarget(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
 		{
-			var target = GetHitUnit();
+			var effectList = target.GetAuraEffectsByType(AuraType.PeriodicDamage);
 
-			if (target != null)
+			foreach (var effect in effectList)
 			{
-				var effectList = target.GetAuraEffectsByType(AuraType.PeriodicDamage);
+				var aura = effect.Base;
 
-				foreach (var effect in effectList)
-				{
-					var aura = effect.Base;
-
-					if (aura != null)
-						aura.ModDuration(8 * Time.InMilliseconds);
-				}
+				if (aura != null)
+					aura.ModDuration(8 * Time.InMilliseconds);
 			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 1, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 		}
 	}
 }

@@ -21,7 +21,5 @@ internal class spell_dh_first_blood : AuraScript
 		_firstTargetGUID = targetGuid;
 	}
 
-	public override void Register()
-	{
-	}
+	public override void Register() { }
 }

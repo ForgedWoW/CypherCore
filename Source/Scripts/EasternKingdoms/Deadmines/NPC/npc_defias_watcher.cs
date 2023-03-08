@@ -9,93 +9,81 @@ using Game.Scripting;
 using Game.Spells;
 using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_foe_reaper_5000;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(47404)]
+public class npc_defias_watcher : ScriptedAI
 {
-    [CreatureScript(47404)]
-    public class npc_defias_watcher : ScriptedAI
-    {
-        public npc_defias_watcher(Creature creature) : base(creature)
-        {
-            Instance = creature.GetInstanceScript();
-            Status = false;
-        }
+	public InstanceScript Instance;
+	public bool Status;
 
-        public InstanceScript Instance;
-        public bool Status;
+	public npc_defias_watcher(Creature creature) : base(creature)
+	{
+		Instance = creature.GetInstanceScript();
+		Status = false;
+	}
 
-        public override void Reset()
-        {
-            if (!me)
-            {
-                return;
-            }
+	public override void Reset()
+	{
+		if (!me)
+			return;
 
-            me.SetPower(PowerType.Energy, 100);
-            me.SetMaxPower(PowerType.Energy, 100);
-            me.SetPowerType(PowerType.Energy);
-            if (Status == true)
-            {
-                if (!me.HasAura(eSpell.ON_FIRE))
-                {
-                    me.AddAura(eSpell.ON_FIRE, me);
-                }
-                me.SetFaction(35);
-            }
-        }
+		me.SetPower(PowerType.Energy, 100);
+		me.SetMaxPower(PowerType.Energy, 100);
+		me.SetPowerType(PowerType.Energy);
 
-        public override void JustEnteredCombat(Unit who)
-        {
-        }
+		if (Status == true)
+		{
+			if (!me.HasAura(eSpell.ON_FIRE))
+				me.AddAura(eSpell.ON_FIRE, me);
 
-        public override void JustDied(Unit killer)
-        {
-            if (!me || Status == true)
-            {
-                return;
-            }
+			me.SetFaction(35);
+		}
+	}
 
-            Energizing();
-        }
+	public override void JustEnteredCombat(Unit who) { }
 
-        public void Energizing()
-        {
-            Status = true;
-            me.SetHealth(15);
-            me.SetRegenerateHealth(false);
-            me.SetFaction(35);
-            me.AddAura(eSpell.ON_FIRE, me);
-            me.CastSpell(me, eSpell.ON_FIRE);
-            me.SetInCombatWithZone();
- 
-            Creature reaper = me.FindNearestCreature(DMCreatures.NPC_FOE_REAPER_5000, 200.0f);
-            if (reaper != null)
-            {
-                me.CastSpell(reaper, eSpell.ENERGIZE);
-            }
-        }
+	public override void JustDied(Unit killer)
+	{
+		if (!me || Status == true)
+			return;
 
-        public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
-        {
-            if (!me || damage <= 0 || Status == true)
-            {
-                return;
-            }
+		Energizing();
+	}
 
-            if (me.GetHealth() - damage <= me.GetMaxHealth() * 0.10)
-            {
-                damage = 0;
-                Energizing();
-            }
-        }
+	public void Energizing()
+	{
+		Status = true;
+		me.SetHealth(15);
+		me.SetRegenerateHealth(false);
+		me.SetFaction(35);
+		me.AddAura(eSpell.ON_FIRE, me);
+		me.CastSpell(me, eSpell.ON_FIRE);
+		me.SetInCombatWithZone();
 
-        public override void UpdateAI(uint diff)
-        {
-            if (!UpdateVictim())
-            {
-                return;
-            }
+		var reaper = me.FindNearestCreature(DMCreatures.NPC_FOE_REAPER_5000, 200.0f);
 
-            DoMeleeAttackIfReady();
-        }
-    }
+		if (reaper != null)
+			me.CastSpell(reaper, eSpell.ENERGIZE);
+	}
+
+	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
+	{
+		if (!me || damage <= 0 || Status == true)
+			return;
+
+		if (me.GetHealth() - damage <= me.GetMaxHealth() * 0.10)
+		{
+			damage = 0;
+			Energizing();
+		}
+	}
+
+	public override void UpdateAI(uint diff)
+	{
+		if (!UpdateVictim())
+			return;
+
+		DoMeleeAttackIfReady();
+	}
 }

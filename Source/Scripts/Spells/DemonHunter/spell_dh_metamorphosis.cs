@@ -23,7 +23,7 @@ public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
 
 	public void BeforeCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -33,7 +33,7 @@ public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
 		if (player == null)
 			return;
 
-		var dest = GetExplTargetDest();
+		var dest = ExplTargetDest;
 
 		if (dest != null)
 			player.CastSpell(new Position(dest.X, dest.Y, dest.Z), DemonHunterSpells.METAMORPHOSIS_JUMP, true);

@@ -4,14 +4,10 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+[SpellScript(192077)]
+internal class spell_sha_wind_rush_totem : SpellScript, ISpellOnCast
 {
-    [SpellScript(192077)]
-    internal class spell_sha_wind_rush_totem : SpellScript, ISpellOnCast
-    {
-        public void OnCast()
-        {
-            
-        }
-    }
+	public void OnCast() { }
 }

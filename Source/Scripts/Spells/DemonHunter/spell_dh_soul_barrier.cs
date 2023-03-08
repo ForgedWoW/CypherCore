@@ -15,11 +15,17 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(263648)]
 public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
+	}
 
 	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -28,9 +34,9 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 
 		if (player != null)
 		{
-			var coeff          = amount.Value / 100.0f;
-			var soulShardCoeff = GetSpellInfo().GetEffect(1).BasePoints / 100.0f;
-			var ap             = player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
+			var coeff = amount.Value / 100.0f;
+			var soulShardCoeff = SpellInfo.GetEffect(1).BasePoints / 100.0f;
+			var ap = player.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack);
 
 			amount.Value = (coeff * ap);
 
@@ -97,7 +103,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 
 	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return absorbAmount;
@@ -114,11 +120,5 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 				app.ClientUpdate();
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
 	}
 }

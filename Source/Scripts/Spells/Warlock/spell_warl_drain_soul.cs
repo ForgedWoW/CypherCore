@@ -5,17 +5,16 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
-{
-    [SpellScript(198590)] // 198590 - Drain Soul
-    internal class spell_warl_drain_soul : SpellScript, ISpellCalculateMultiplier
-    {
-        public double CalcMultiplier(double multiplier)
-        {
-            if (GetCaster().HasAuraState(AuraStateType.Wounded20Percent))
-                multiplier *= 2;
+namespace Scripts.Spells.Warlock;
 
-            return multiplier;
-        }
-    }
+[SpellScript(198590)] // 198590 - Drain Soul
+internal class spell_warl_drain_soul : SpellScript, ISpellCalculateMultiplier
+{
+	public double CalcMultiplier(double multiplier)
+	{
+		if (Caster.HasAuraState(AuraStateType.Wounded20Percent))
+			multiplier *= 2;
+
+		return multiplier;
+	}
 }

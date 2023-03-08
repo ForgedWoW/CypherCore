@@ -294,11 +294,11 @@ class TraitMgr
 		}
 	}
 
-    /**
+	/**
 	 * Generates new TraitConfig identifier.
 	 * Because this only needs to be unique for each character we let it overflow
 	 */
-    public static int GenerateNewTraitConfigId()
+	public static int GenerateNewTraitConfigId()
 	{
 		if (_configIdGenerator == int.MaxValue)
 			_configIdGenerator = 0;
@@ -316,12 +316,12 @@ class TraitMgr
 		return tree.ConfigType;
 	}
 
-    /**
+	/**
 	 * @brief Finds relevant TraitTree identifiers
 	 * @param traitConfig config data
 	 * @return Trait tree data
 	 */
-    public static List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
+	public static List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
 	{
 		switch (traitConfig.Type)
 		{

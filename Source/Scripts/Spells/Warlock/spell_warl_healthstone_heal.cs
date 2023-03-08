@@ -4,15 +4,14 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[Script] // 6262 - Healthstone
+internal class spell_warl_healthstone_heal : SpellScript, ISpellOnHit
 {
-    [Script] // 6262 - Healthstone
-	internal class spell_warl_healthstone_heal : SpellScript, ISpellOnHit
+	public void OnHit()
 	{
-		public void OnHit()
-		{
-			var heal = (int)MathFunctions.CalculatePct(GetCaster().GetCreateHealth(), GetHitHeal());
-			SetHitHeal(heal);
-		}
+		var heal = (int)MathFunctions.CalculatePct(Caster.GetCreateHealth(), HitHeal);
+		HitHeal = heal;
 	}
 }

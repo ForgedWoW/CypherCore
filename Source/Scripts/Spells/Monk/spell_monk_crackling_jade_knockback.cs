@@ -18,8 +18,8 @@ public class spell_monk_crackling_jade_knockback : SpellScript, ISpellAfterHit
 
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
-		var caster = GetCaster();
+		var target = HitUnit;
+		var caster = Caster;
 
 		if (caster != null && target != null && caster.HasAura(CracklingJade.CRACKLING_JADE_LIGHTNING_TALENT))
 			caster.CastSpell(target, CracklingJade.CRACKLING_JAD_LIGHTNING_TALENT_SPEED, true);

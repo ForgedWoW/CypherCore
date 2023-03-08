@@ -28,14 +28,14 @@ internal class spell_gen_whisper_to_controller : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var casterSummon = GetCaster().ToTempSummon();
+		var casterSummon = Caster.ToTempSummon();
 
 		if (casterSummon != null)
 		{
 			var target = casterSummon.GetSummonerUnit().ToPlayer();
 
 			if (target != null)
-				casterSummon.Whisper((uint)GetEffectValue(), target, false);
+				casterSummon.Whisper((uint)EffectValue, target, false);
 		}
 	}
 }

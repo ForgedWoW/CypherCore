@@ -13,10 +13,10 @@ internal class spell_gen_bandage : SpellScript, ISpellCheckCast, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target)
-			GetCaster().CastSpell(target, GenericSpellIds.RecentlyBandaged, true);
+			Caster.CastSpell(target, GenericSpellIds.RecentlyBandaged, true);
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -26,7 +26,7 @@ internal class spell_gen_bandage : SpellScript, ISpellCheckCast, ISpellAfterHit
 
 	public SpellCastResult CheckCast()
 	{
-		var target = GetExplTargetUnit();
+		var target = ExplTargetUnit;
 
 		if (target)
 			if (target.HasAura(GenericSpellIds.RecentlyBandaged))

@@ -8,25 +8,24 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+//200860 Unrivaled Strenght
+[SpellScript(200860)]
+public class spell_warr_unrivaled_strenght : AuraScript, IHasAuraEffects
 {
-    //200860 Unrivaled Strenght
-    [SpellScript(200860)]
-	public class spell_warr_unrivaled_strenght : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-		{
-			GetCaster().CastSpell(GetCaster(), 200977, true);
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+	{
+		Caster.CastSpell(Caster, 200977, true);
 
-			if (GetCaster().HasAura(200977))
-				GetCaster().GetAura(200977).GetEffect(0).SetAmount(aurEff.BaseAmount);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		if (Caster.HasAura(200977))
+			Caster.GetAura(200977).GetEffect(0).SetAmount(aurEff.BaseAmount);
 	}
 }

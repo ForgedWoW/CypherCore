@@ -5,66 +5,63 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(WarlockSpells.SHADOWBURN)]
+public class spell_warl_shadowburn_SpellScript : SpellScript, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
 {
-    [SpellScript(WarlockSpells.SHADOWBURN)]
-    public class spell_warl_shadowburn_SpellScript : SpellScript, ISpellCalcCritChance, ISpellOnHit, ISpellOnCast
-    {
-        public void CalcCritChance(Unit victim, ref double chance)
-        {
-            if (victim.TryGetAura(WarlockSpells.SHADOWBURN, out var shadowburn) == true && victim.HealthBelowPct(shadowburn.GetEffect(1).BaseAmount + 5))
-				chance += shadowburn.GetEffect(2).BaseAmount;
-        }
+	public void CalcCritChance(Unit victim, ref double chance)
+	{
+		if (victim.TryGetAura(WarlockSpells.SHADOWBURN, out var shadowburn) == true && victim.HealthBelowPct(shadowburn.GetEffect(1).BaseAmount + 5))
+			chance += shadowburn.GetEffect(2).BaseAmount;
+	}
 
-        public void OnHit()
-        {
-            var caster = GetCaster();
-            var target = GetHitUnit();
+	public void OnCast()
+	{
+		if (!TryGetCaster(out Unit caster))
+			return;
 
-            if (caster == null || target == null)
-                return;
+		caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
+		BurnToAshes(caster);
+	}
 
-            Eradication(caster, target);
-            ConflagrationOfChaos(caster, target);
-            MadnessOfTheAzjaqir(caster);
-        }
+	public void OnHit()
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-        private void MadnessOfTheAzjaqir(Unit caster)
-        {
-            if (caster.HasAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR))
-                caster.AddAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR_SHADOWBURN_AURA, caster);
-        }
+		if (caster == null || target == null)
+			return;
 
-        private void Eradication(Unit caster, Unit target)
-        {
-            if (caster.HasAura(WarlockSpells.ERADICATION))
-                caster.AddAura(WarlockSpells.ERADICATION_DEBUFF, target);
-        }
+		Eradication(caster, target);
+		ConflagrationOfChaos(caster, target);
+		MadnessOfTheAzjaqir(caster);
+	}
 
-        private void ConflagrationOfChaos(Unit caster, Unit target)
-        {
-            caster.RemoveAura(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN);
+	private void MadnessOfTheAzjaqir(Unit caster)
+	{
+		if (caster.HasAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR))
+			caster.AddAura(WarlockSpells.MADNESS_OF_THE_AZJAQIR_SHADOWBURN_AURA, caster);
+	}
 
-            if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
-            {
-                if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
-                    caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN, true);
-            }
-        }
+	private void Eradication(Unit caster, Unit target)
+	{
+		if (caster.HasAura(WarlockSpells.ERADICATION))
+			caster.AddAura(WarlockSpells.ERADICATION_DEBUFF, target);
+	}
 
-        public void OnCast()
-        {
-            if (!TryGetCaster(out Unit caster))
-                return;
+	private void ConflagrationOfChaos(Unit caster, Unit target)
+	{
+		caster.RemoveAura(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN);
 
-            caster.RemoveAuraApplicationCount(WarlockSpells.CRASHING_CHAOS_AURA);
-            BurnToAshes(caster);
-        }
+		if (caster.TryGetAura(WarlockSpells.CONFLAGRATION_OF_CHAOS, out var conflagrate))
+			if (RandomHelper.randChance(conflagrate.GetEffect(0).BaseAmount))
+				caster.CastSpell(WarlockSpells.CONFLAGRATION_OF_CHAOS_SHADOWBURN, true);
+	}
 
-        private void BurnToAshes(Unit caster)
-        {
-            if (caster.HasAura(WarlockSpells.BURN_TO_ASHES))
-                caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
-        }
-    }
+	private void BurnToAshes(Unit caster)
+	{
+		if (caster.HasAura(WarlockSpells.BURN_TO_ASHES))
+			caster.AddAura(WarlockSpells.BURN_TO_ASHES_INCINERATE);
+	}
 }

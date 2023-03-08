@@ -28,6 +28,6 @@ internal class spell_mage_imp_mana_gems : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetActor().CastSpell((Unit)null, MageSpells.ManaSurge, true);
+		eventInfo.Actor.CastSpell((Unit)null, MageSpells.ManaSurge, true);
 	}
 }

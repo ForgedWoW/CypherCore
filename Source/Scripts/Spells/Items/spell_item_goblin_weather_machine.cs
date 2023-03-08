@@ -22,9 +22,9 @@ internal class spell_item_goblin_weather_machine : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		var spellId = RandomHelper.RAND(ItemSpellIds.PersonalizedWeather1, ItemSpellIds.PersonalizedWeather2, ItemSpellIds.PersonalizedWeather3, ItemSpellIds.PersonalizedWeather4);
-		target.CastSpell(target, spellId, new CastSpellExtraArgs(GetSpell()));
+		target.CastSpell(target, spellId, new CastSpellExtraArgs(Spell));
 	}
 }

@@ -3,18 +3,17 @@
 
 using System;
 
-namespace Game.Scripting
-{
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class ScriptAttribute : Attribute
-    {
-        public ScriptAttribute(string name = "", params object[] args)
-        {
-            Name = name;
-            Args = args;
-        }
+namespace Game.Scripting;
 
-        public string Name { get; private set; }
-        public object[] Args { get; private set; }
-    }
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+public class ScriptAttribute : Attribute
+{
+	public string Name { get; private set; }
+	public object[] Args { get; private set; }
+
+	public ScriptAttribute(string name = "", params object[] args)
+	{
+		Name = name;
+		Args = args;
+	}
 }

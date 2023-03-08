@@ -16,7 +16,7 @@ internal class spell_gen_tournament_pennant : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetCaster() && GetCaster().IsTypeId(TypeId.Player);
+		return Caster && Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -26,10 +26,10 @@ internal class spell_gen_tournament_pennant : AuraScript, IHasAuraEffects
 
 	private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			if (!caster.GetVehicleBase())
-				caster.RemoveAura(GetId());
+				caster.RemoveAura(Id);
 	}
 }

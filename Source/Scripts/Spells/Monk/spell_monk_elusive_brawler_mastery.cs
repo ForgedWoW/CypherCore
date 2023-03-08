@@ -13,9 +13,9 @@ public class spell_monk_elusive_brawler_mastery : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetTypeMask().HasFlag(ProcFlags.TakenHitMask))
+		if (eventInfo.TypeMask.HasFlag(ProcFlags.TakenHitMask))
 			return true;
 
-		return eventInfo.GetProcSpell() && (eventInfo.GetProcSpell().SpellInfo.Id == MonkSpells.BLACKOUT_STRIKE || eventInfo.GetProcSpell().SpellInfo.Id == MonkSpells.BREATH_OF_FIRE);
+		return eventInfo.ProcSpell && (eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BLACKOUT_STRIKE || eventInfo.ProcSpell.SpellInfo.Id == MonkSpells.BREATH_OF_FIRE);
 	}
 }

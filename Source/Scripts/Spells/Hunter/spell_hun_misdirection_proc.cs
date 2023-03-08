@@ -21,6 +21,6 @@ internal class spell_hun_misdirection_proc : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
+		Target.GetThreatManager().UnregisterRedirectThreat(HunterSpells.Misdirection);
 	}
 }

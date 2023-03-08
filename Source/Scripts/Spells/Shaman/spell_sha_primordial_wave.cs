@@ -5,34 +5,34 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+[SpellScript(375982)]
+public class spell_sha_primordial_wave : SpellScript, ISpellOnHit
 {
-    [SpellScript(375982)]
-	public class spell_sha_primordial_wave : SpellScript, ISpellOnHit
+	public void OnHit()
 	{
-        public void OnHit()
-        {
-            var player = GetCaster().ToPlayer();
-            var victim = GetHitUnit();
+		var player = Caster.ToPlayer();
+		var victim = HitUnit;
 
-            if (player == null || victim == null)
-                return;
+		if (player == null || victim == null)
+			return;
 
-            if (player.IsFriendlyTo(victim))
-                player.CastSpell(victim, ShamanSpells.PrimordialWaveHealing, true);
-            else
-            {
-                player.CastSpell(victim, ShamanSpells.PrimordialWaveDamage, true);
-                player.AddAura(ShamanSpells.FlameShock, victim);
-            }
+		if (player.IsFriendlyTo(victim))
+		{
+			player.CastSpell(victim, ShamanSpells.PrimordialWaveHealing, true);
+		}
+		else
+		{
+			player.CastSpell(victim, ShamanSpells.PrimordialWaveDamage, true);
+			player.AddAura(ShamanSpells.FlameShock, victim);
+		}
 
-            player.AddAura(ShamanSpells.PrimordialWaveAura, player);
-        }
+		player.AddAura(ShamanSpells.PrimordialWaveAura, player);
+	}
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(ShamanSpells.PrimordialWave);
-        }
-    }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(ShamanSpells.PrimordialWave);
+	}
 }
-

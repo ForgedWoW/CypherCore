@@ -12,21 +12,20 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTakeDamage
 {
-    public Class PlayerClass { get; } = Class.Monk;
-    public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura")
-	{
-	}
-
 	public enum UsedSpells
 	{
 		HEALING_SPHERE_COOLDOWN = 224863
 	}
 
 	public List<uint> spellsToCast = new()
-	                                 {
-		                                 MonkSpells.GIFT_OF_THE_OX_AT_RIGHT,
-		                                 MonkSpells.GIFT_OF_THE_OX_AT_LEFT
-	                                 };
+	{
+		MonkSpells.GIFT_OF_THE_OX_AT_RIGHT,
+		MonkSpells.GIFT_OF_THE_OX_AT_LEFT
+	};
+
+	public Class PlayerClass { get; } = Class.Monk;
+
+	public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura") { }
 
 	public void OnPlayerTakeDamage(Player victim, double damage, SpellSchoolMask UnnamedParameter)
 	{

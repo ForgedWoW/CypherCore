@@ -28,14 +28,14 @@ internal class spell_gen_vampiric_touch : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var damageInfo = eventInfo.GetDamageInfo();
+		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-		    damageInfo.GetDamage() == 0)
+			damageInfo.GetDamage() == 0)
 			return;
 
-		var                caster = eventInfo.GetActor();
-		CastSpellExtraArgs args   = new(aurEff);
+		var caster = eventInfo.Actor;
+		CastSpellExtraArgs args = new(aurEff);
 		args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.GetDamage() / 2);
 		caster.CastSpell(caster, GenericSpellIds.VampiricTouchHeal, args);
 	}

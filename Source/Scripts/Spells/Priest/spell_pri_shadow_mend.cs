@@ -18,30 +18,30 @@ internal class spell_pri_shadow_mend : SpellScript, ISpellAfterHit
 
 	public void AfterHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
-			var caster = GetCaster();
+			var caster = Caster;
 
-			var periodicAmount            = GetHitHeal() / 20;
+			var periodicAmount = HitHeal / 20;
 			var damageForAuraRemoveAmount = periodicAmount * 10;
 
 			if (caster.HasAura(PriestSpells.ATONEMENT) &&
-			    !caster.HasAura(PriestSpells.TRINITY))
-				caster.CastSpell(target, PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(GetSpell()));
+				!caster.HasAura(PriestSpells.TRINITY))
+				caster.CastSpell(target, PriestSpells.ATONEMENT_TRIGGERED, new CastSpellExtraArgs(Spell));
 
 			// Handle Masochism talent
 			if (caster.HasAura(PriestSpells.MASOCHISM_TALENT) &&
-			    caster.GetGUID() == target.GetGUID())
+				caster.GetGUID() == target.GetGUID())
 			{
-				caster.CastSpell(caster, PriestSpells.MASOCHISM_PERIODIC_HEAL, new CastSpellExtraArgs(GetSpell()).AddSpellMod(SpellValueMod.BasePoint0, periodicAmount));
+				caster.CastSpell(caster, PriestSpells.MASOCHISM_PERIODIC_HEAL, new CastSpellExtraArgs(Spell).AddSpellMod(SpellValueMod.BasePoint0, periodicAmount));
 			}
 			else if (target.IsInCombat() &&
-			         periodicAmount != 0)
+					periodicAmount != 0)
 			{
 				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-				args.SetTriggeringSpell(GetSpell());
+				args.SetTriggeringSpell(Spell);
 				args.AddSpellMod(SpellValueMod.BasePoint0, periodicAmount);
 				args.AddSpellMod(SpellValueMod.BasePoint1, damageForAuraRemoveAmount);
 				caster.CastSpell(target, PriestSpells.SHADOW_MEND_PERIODIC_DUMMY, args);

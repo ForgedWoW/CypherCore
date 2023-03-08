@@ -23,7 +23,7 @@ internal class spell_gen_oracle_wolvar_reputation : SpellScript, IHasSpellEffect
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -33,9 +33,9 @@ internal class spell_gen_oracle_wolvar_reputation : SpellScript, IHasSpellEffect
 
 	private void HandleDummy(int effIndex)
 	{
-		var player    = GetCaster().ToPlayer();
-		var factionId = (uint)GetEffectInfo().CalcValue();
-		double repChange = GetEffectInfo(1).CalcValue();
+		var player = Caster.ToPlayer();
+		var factionId = (uint)EffectInfo.CalcValue();
+		var repChange = GetEffectInfo(1).CalcValue();
 
 		var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
 

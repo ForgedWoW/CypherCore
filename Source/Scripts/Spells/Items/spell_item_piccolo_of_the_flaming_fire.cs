@@ -22,7 +22,7 @@ internal class spell_item_piccolo_of_the_flaming_fire : SpellScript, IHasSpellEf
 	private void HandleScript(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		if (target)
 			target.HandleEmoteCommand(Emote.StateDance);

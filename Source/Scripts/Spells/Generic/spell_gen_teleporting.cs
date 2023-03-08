@@ -21,7 +21,7 @@ internal class spell_gen_teleporting : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (!target.IsPlayer())
 			return;

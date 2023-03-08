@@ -4,27 +4,26 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Flametongue - 193796
+[SpellScript(193796)]
+public class bfa_spell_flametongue : SpellScript, ISpellOnHit
 {
-    // Flametongue - 193796
-    [SpellScript(193796)]
-	public class bfa_spell_flametongue : SpellScript, ISpellOnHit
+	public override bool Load()
 	{
-		public override bool Load()
-		{
-			return GetCaster().IsPlayer();
-		}
+		return Caster.IsPlayer();
+	}
 
-		public void OnHit()
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+	public void OnHit()
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-			if (caster == null || target == null)
-				return;
+		if (caster == null || target == null)
+			return;
 
-			if (caster.HasAura(ShamanSpells.SEARING_ASSAULT_TALENT))
-				caster.CastSpell(target, ShamanSpells.SEARING_ASSULAT_TALENT_PROC, true);
-		}
+		if (caster.HasAura(ShamanSpells.SEARING_ASSAULT_TALENT))
+			caster.CastSpell(target, ShamanSpells.SEARING_ASSULAT_TALENT_PROC, true);
 	}
 }

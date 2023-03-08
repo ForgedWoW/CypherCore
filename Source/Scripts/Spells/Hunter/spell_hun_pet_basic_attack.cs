@@ -11,16 +11,16 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(new uint[]
-             {
-	             49966, 17253, 16827
-             })]
+{
+	49966, 17253, 16827
+})]
 public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return SpellCastResult.DontReport;
@@ -30,7 +30,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 		if (owner == null)
 			return SpellCastResult.DontReport;
 
-		var target = GetExplTargetUnit();
+		var target = ExplTargetUnit;
 
 		if (target == null)
 			return SpellCastResult.DontReport;
@@ -70,17 +70,22 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 		return SpellCastResult.SpellCastOk;
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleDamage(int effIndex)
 	{
-		var pet = GetCaster().ToPet();
+		var pet = Caster.ToPet();
 
 		if (pet != null)
 		{
-			var owner = GetCaster().GetOwner();
+			var owner = Caster.GetOwner();
 
 			if (owner != null)
 			{
-				var target = GetHitUnit();
+				var target = HitUnit;
 
 				if (target == null)
 					return;
@@ -101,7 +106,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 					if (CostModifier != null)
 						dmg += MathFunctions.CalculatePct(dmg, CostModifier.GetEffect(1).BasePoints);
 
-					pet.EnergizeBySpell(pet, GetSpellInfo(), 25, PowerType.Focus);
+					pet.EnergizeBySpell(pet, SpellInfo, 25, PowerType.Focus);
 					// pet->EnergizeBySpell(pet, GetSpellInfo()->Id, -25, PowerType.Focus);
 				}
 
@@ -109,17 +114,12 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 				if (target != null)
 				{
-					dmg = pet.SpellDamageBonusDone(target, GetSpellInfo(), dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, GetSpell());
-					dmg = target.SpellDamageBonusTaken(pet, GetSpellInfo(), dmg, DamageEffectType.Direct);
+					dmg = pet.SpellDamageBonusDone(target, SpellInfo, dmg, DamageEffectType.Direct, GetEffectInfo(0), 1, Spell);
+					dmg = target.SpellDamageBonusTaken(pet, SpellInfo, dmg, DamageEffectType.Direct);
 				}
 
-				SetHitDamage(dmg);
+				HitDamage = dmg;
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleDamage, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

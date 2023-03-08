@@ -13,7 +13,7 @@ public class spell_dh_blade_turning : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if ((eventInfo.GetHitMask() & ProcFlagsHit.Parry) != 0)
+		if ((eventInfo.HitMask & ProcFlagsHit.Parry) != 0)
 			return true;
 
 		return false;

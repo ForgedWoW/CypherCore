@@ -30,7 +30,7 @@ internal class spell_gen_running_wild_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleMount(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		PreventDefaultAction();
 
 		target.Mount(SharedConst.DisplayIdHiddenMount, 0, 0);

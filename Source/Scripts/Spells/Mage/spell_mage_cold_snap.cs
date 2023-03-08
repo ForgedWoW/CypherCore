@@ -33,8 +33,8 @@ internal class spell_mage_cold_snap : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		foreach (var spellId in SpellsToReset)
-			GetCaster().GetSpellHistory().ResetCooldown(spellId, true);
+			Caster.GetSpellHistory().ResetCooldown(spellId, true);
 
-		GetCaster().GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, GetCastDifficulty()).ChargeCategoryId);
+		Caster.GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, CastDifficulty).ChargeCategoryId);
 	}
 }

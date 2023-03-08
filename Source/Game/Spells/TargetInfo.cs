@@ -336,7 +336,7 @@ public class TargetInfo : TargetInfoBase
 			spell.HitMask |= hitMask;
 
 			// Do not take combo points on dodge and miss
-			if (MissCondition != SpellMissInfo.None && spell.NeedComboPoints && spell.Targets.GetUnitTargetGUID() == TargetGuid)
+			if (MissCondition != SpellMissInfo.None && spell.NeedComboPoints && spell.Targets.UnitTargetGUID == TargetGuid)
 				spell.NeedComboPoints = false;
 
 			// _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit

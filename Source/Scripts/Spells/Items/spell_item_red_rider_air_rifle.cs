@@ -28,8 +28,8 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 	private void HandleScript(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target)
 		{
@@ -38,7 +38,7 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 			var player = caster.ToPlayer();
 
 			if (player)
-				player.GetSpellHistory().CancelGlobalCooldown(GetSpellInfo());
+				player.GetSpellHistory().CancelGlobalCooldown(SpellInfo);
 
 			if (RandomHelper.URand(0, 4) != 0)
 				caster.CastSpell(target, ItemSpellIds.AirRifleShoot, false);

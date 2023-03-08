@@ -43,7 +43,7 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (dmgInfo.GetDamage() < target.GetHealth())
 			return absorbAmount;
@@ -54,6 +54,7 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, healAmount);
 		target.CastSpell(target, PriestSpells.GUARDIAN_SPIRIT_HEAL, args);
+
 		return dmgInfo.GetDamage();
 	}
 }

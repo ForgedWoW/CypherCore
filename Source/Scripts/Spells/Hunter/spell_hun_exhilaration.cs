@@ -17,7 +17,7 @@ internal class spell_hun_exhilaration : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		if (GetCaster().HasAura(HunterSpells.ExhilarationR2) && !GetCaster().HasAura(HunterSpells.Lonewolf))
-			GetCaster().CastSpell(null, HunterSpells.ExhilarationPet, true);
+		if (Caster.HasAura(HunterSpells.ExhilarationR2) && !Caster.HasAura(HunterSpells.Lonewolf))
+			Caster.CastSpell(null, HunterSpells.ExhilarationPet, true);
 	}
 }

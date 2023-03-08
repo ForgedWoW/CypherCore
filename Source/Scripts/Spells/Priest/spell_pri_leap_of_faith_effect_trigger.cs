@@ -27,11 +27,11 @@ internal class spell_pri_leap_of_faith_effect_trigger : SpellScript, IHasSpellEf
 
 	private void HandleEffectDummy(int effIndex)
 	{
-		var destPos = GetHitDest();
+		var destPos = HitDest;
 
 		SpellCastTargets targets = new();
 		targets.SetDst(destPos);
-		targets.SetUnitTarget(GetCaster());
-		GetHitUnit().CastSpell(targets, (uint)GetEffectValue(), new CastSpellExtraArgs(GetCastDifficulty()));
+		targets.		UnitTarget = Caster;
+		HitUnit.CastSpell(targets, (uint)EffectValue, new CastSpellExtraArgs(CastDifficulty));
 	}
 }

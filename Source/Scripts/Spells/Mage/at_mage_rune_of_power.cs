@@ -10,14 +10,7 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class at_mage_rune_of_power : AreaTriggerAI
 {
-	public at_mage_rune_of_power(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
-
-	public struct UsingSpells
-	{
-		public const uint RUNE_OF_POWER_AURA = 116014;
-	}
+	public at_mage_rune_of_power(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnCreate()
 	{
@@ -37,5 +30,10 @@ public class at_mage_rune_of_power : AreaTriggerAI
 	{
 		if (unit.HasAura(UsingSpells.RUNE_OF_POWER_AURA))
 			unit.RemoveAura(UsingSpells.RUNE_OF_POWER_AURA);
+	}
+
+	public struct UsingSpells
+	{
+		public const uint RUNE_OF_POWER_AURA = 116014;
 	}
 }

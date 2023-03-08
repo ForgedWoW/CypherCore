@@ -26,8 +26,8 @@ internal class spell_mage_ring_of_frost_freeze_AuraScript : AuraScript, IHasAura
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
-			if (GetCaster())
-				GetCaster().CastSpell(GetTarget(), MageSpells.RingOfFrostDummy, true);
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
+			if (Caster)
+				Caster.CastSpell(Target, MageSpells.RingOfFrostDummy, true);
 	}
 }

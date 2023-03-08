@@ -7,26 +7,25 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 264178 - Demonbolt
+[SpellScript(264178)]
+public class spell_warlock_demonbolt : SpellScript, IHasSpellEffects
 {
-    // 264178 - Demonbolt
-    [SpellScript(264178)]
-	public class spell_warlock_demonbolt : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+	}
 
-		private void HandleHit(int effIndex)
+	private void HandleHit(int effIndex)
+	{
+		if (Caster)
 		{
-			if (GetCaster())
-			{
-				GetCaster().CastSpell(GetCaster(), WarlockSpells.DEMONBOLT_ENERGIZE, true);
-				GetCaster().CastSpell(GetCaster(), WarlockSpells.DEMONBOLT_ENERGIZE, true);
-			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHit));
+			Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
+			Caster.CastSpell(Caster, WarlockSpells.DEMONBOLT_ENERGIZE, true);
 		}
 	}
 }

@@ -13,32 +13,38 @@ namespace Scripts.Spells.Monk;
 [SpellScript(119611)]
 public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(MonkSpells.RENEWING_MIST_JUMP, MonkSpells.RENEWING_MIST);
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicHeal, 0, AuraType.PeriodicHeal));
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.PeriodicHeal));
+	}
+
 	private void HandlePeriodicHeal(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		if (GetTarget().IsFullHealth())
-			caster.CastSpell(GetTarget(), MonkSpells.RENEWING_MIST_JUMP, true);
+		if (Target.IsFullHealth())
+			caster.CastSpell(Target, MonkSpells.RENEWING_MIST_JUMP, true);
 	}
 
 	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster         = GetCaster();
+		var caster = Caster;
 		var counteractAura = caster.GetAura(MonkSpells.COUNTERACT_MAGIC);
 
 		if (counteractAura != null)
 		{
-			var appliedAuras = GetUnitOwner().GetAppliedAurasQuery();
+			var appliedAuras = UnitOwner.GetAppliedAurasQuery();
 
 			foreach (var kvp in appliedAuras.IsPositive(false).GetResults())
 			{
@@ -55,15 +61,9 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 					var effInfo = counteractAura.GetEffect(0);
 
 					if (effInfo != null)
-                        amount.Value = MathFunctions.AddPct(amount.Value, effInfo.Amount);
+						amount.Value = MathFunctions.AddPct(amount.Value, effInfo.Amount);
 				}
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodicHeal, 0, AuraType.PeriodicHeal));
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.PeriodicHeal));
 	}
 }

@@ -13,16 +13,21 @@ namespace Scripts.Spells.Priest;
 [SpellScript(139)]
 public class spell_pri_renew : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Load()
 	{
-		return GetCaster() && GetCaster().GetTypeId() == TypeId.Player;
+		return Caster && Caster.GetTypeId() == TypeId.Player;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApplyEffect, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.RealOrReapplyMask));
 	}
 
 	private void HandleApplyEffect(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -35,20 +40,15 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
 
 			if (empoweredRenewAurEff != null)
 			{
-				var heal = caster.SpellHealingBonusDone(GetTarget(), GetSpellInfo(), aurEff.Amount, DamageEffectType.DOT, aurEff.GetSpellEffectInfo());
-				heal = GetTarget().SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DamageEffectType.DOT);
+				var heal = caster.SpellHealingBonusDone(Target, SpellInfo, aurEff.Amount, DamageEffectType.DOT, aurEff.GetSpellEffectInfo());
+				heal = Target.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.DOT);
 				var basepoints0 = MathFunctions.CalculatePct((int)heal * aurEff.GetTotalTicks(), empoweredRenewAurEff.Amount);
-				var args        = new CastSpellExtraArgs();
+				var args = new CastSpellExtraArgs();
 				args.AddSpellMod(SpellValueMod.BasePoint0, (int)basepoints0);
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);
 				args.SetTriggeringAura(aurEff);
-				caster.CastSpell(GetTarget(), PriestSpells.DIVINE_TOUCH, args);
+				caster.CastSpell(Target, PriestSpells.DIVINE_TOUCH, args);
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApplyEffect, 0, AuraType.PeriodicHeal, AuraEffectHandleModes.RealOrReapplyMask));
 	}
 }

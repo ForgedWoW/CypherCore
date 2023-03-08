@@ -29,14 +29,14 @@ internal class spell_gen_create_lance : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		if (target)
 		{
 			if (target.GetTeam() == Team.Alliance)
-				GetCaster().CastSpell(target, GenericSpellIds.CreateLanceAlliance, true);
+				Caster.CastSpell(target, GenericSpellIds.CreateLanceAlliance, true);
 			else
-				GetCaster().CastSpell(target, GenericSpellIds.CreateLanceHorde, true);
+				Caster.CastSpell(target, GenericSpellIds.CreateLanceHorde, true);
 		}
 	}
 }

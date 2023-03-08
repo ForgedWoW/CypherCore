@@ -7,31 +7,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Ravager Damage - 156287
+[SpellScript(156287)]
+public class spell_warr_ravager_damage : SpellScript, IHasSpellEffects
 {
-    // Ravager Damage - 156287
-    [SpellScript(156287)]
-	public class spell_warr_ravager_damage : SpellScript, IHasSpellEffects
+	private bool _alreadyProc = false;
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleOnHitTarget(int effIndex)
+	private void HandleOnHitTarget(int effIndex)
+	{
+		if (!_alreadyProc)
 		{
-			if (!_alreadyProc)
-			{
-				GetCaster().CastSpell(GetCaster(), WarriorSpells.RAVAGER_ENERGIZE, true);
-				_alreadyProc = true;
-			}
-
-			if (GetCaster().HasAura(262304))                       // Deep Wounds
-				GetCaster().CastSpell(GetHitUnit(), 262115, true); // Deep Wounds
+			Caster.CastSpell(Caster, WarriorSpells.RAVAGER_ENERGIZE, true);
+			_alreadyProc = true;
 		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		}
-
-		private bool _alreadyProc = false;
+		if (Caster.HasAura(262304))                  // Deep Wounds
+			Caster.CastSpell(HitUnit, 262115, true); // Deep Wounds
 	}
 }

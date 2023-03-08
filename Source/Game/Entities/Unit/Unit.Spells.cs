@@ -117,7 +117,7 @@ public partial class Unit
 
 			var attType = WeaponAttackType.BaseAttack;
 
-			if ((spellProto.IsRangedWeaponSpell() && spellProto.DmgClass != SpellDmgClass.Melee))
+			if ((spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee))
 				attType = WeaponAttackType.RangedAttack;
 
 			if (spellProto.HasAttribute(SpellAttr3.RequiresOffHandWeapon) && !spellProto.HasAttribute(SpellAttr3.RequiresMainHandWeapon))
@@ -451,7 +451,7 @@ public partial class Unit
 
 		if (spellEffectInfo.BonusCoefficientFromAp > 0.0f)
 		{
-			var attType = (spellProto.IsRangedWeaponSpell() && spellProto.DmgClass != SpellDmgClass.Melee) ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
+			var attType = (spellProto.IsRangedWeaponSpell && spellProto.DmgClass != SpellDmgClass.Melee) ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack;
 			var APbonus = victim.GetTotalAuraModifier(attType == WeaponAttackType.BaseAttack ? AuraType.MeleeAttackPowerAttackerBonus : AuraType.RangedAttackPowerAttackerBonus);
 			APbonus += GetTotalAttackPowerValue(attType);
 
@@ -2275,9 +2275,9 @@ public partial class Unit
 
 	public void IncrDiminishing(SpellInfo auraSpellInfo)
 	{
-		var group = auraSpellInfo.GetDiminishingReturnsGroupForSpell();
+		var group = auraSpellInfo.DiminishingReturnsGroupForSpell;
 		var currentLevel = GetDiminishing(group);
-		var maxLevel = auraSpellInfo.GetDiminishingReturnsMaxLevel();
+		var maxLevel = auraSpellInfo.DiminishingReturnsMaxLevel;
 
 		var diminish = _diminishing[(int)group];
 
@@ -2287,12 +2287,12 @@ public partial class Unit
 
 	public bool ApplyDiminishingToDuration(SpellInfo auraSpellInfo, ref int duration, WorldObject caster, DiminishingLevels previousLevel)
 	{
-		var group = auraSpellInfo.GetDiminishingReturnsGroupForSpell();
+		var group = auraSpellInfo.DiminishingReturnsGroupForSpell;
 
 		if (duration == -1 || group == DiminishingGroup.None)
 			return true;
 
-		var limitDuration = auraSpellInfo.GetDiminishingReturnsLimitDuration();
+		var limitDuration = auraSpellInfo.DiminishingReturnsLimitDuration;
 
 		// test pet/charm masters instead pets/charmeds
 		var targetOwner = GetCharmerOrOwner();
@@ -2343,8 +2343,8 @@ public partial class Unit
 
 				break;
 			case DiminishingGroup.AOEKnockback:
-				if (auraSpellInfo.GetDiminishingReturnsGroupType() == DiminishingReturnsType.All ||
-					(auraSpellInfo.GetDiminishingReturnsGroupType() == DiminishingReturnsType.Player &&
+				if (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.All ||
+					(auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
 					(targetOwner ? targetOwner.IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns())))
 				{
 					var diminish = previousLevel;
@@ -2364,8 +2364,8 @@ public partial class Unit
 
 				break;
 			default:
-				if (auraSpellInfo.GetDiminishingReturnsGroupType() == DiminishingReturnsType.All ||
-					(auraSpellInfo.GetDiminishingReturnsGroupType() == DiminishingReturnsType.Player &&
+				if (auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.All ||
+					(auraSpellInfo.DiminishingReturnsGroupType == DiminishingReturnsType.Player &&
 					(targetOwner ? targetOwner.IsAffectedByDiminishingReturns() : IsAffectedByDiminishingReturns())))
 				{
 					var diminish = previousLevel;
@@ -2546,7 +2546,7 @@ public partial class Unit
 		if (spellInfo == null)
 			return null;
 
-		if (!target.IsAlive() && !spellInfo.IsPassive() && !spellInfo.HasAttribute(SpellAttr2.AllowDeadTarget))
+		if (!target.IsAlive() && !spellInfo.IsPassive && !spellInfo.HasAttribute(SpellAttr2.AllowDeadTarget))
 			return null;
 
 		if (target.IsImmunedToSpell(spellInfo, this))
@@ -2799,13 +2799,13 @@ public partial class Unit
 
 	public bool HasStrongerAuraWithDR(SpellInfo auraSpellInfo, Unit caster)
 	{
-		var diminishGroup = auraSpellInfo.GetDiminishingReturnsGroupForSpell();
+		var diminishGroup = auraSpellInfo.DiminishingReturnsGroupForSpell;
 		var level = GetDiminishing(diminishGroup);
 
 		foreach (var aura in _appliedAuras.Query().HasDiminishGroup(diminishGroup).GetResults())
 		{
 			var existingDuration = aura.Base.Duration;
-			var newDuration = auraSpellInfo.GetMaxDuration();
+			var newDuration = auraSpellInfo.MaxDuration;
 			ApplyDiminishingToDuration(auraSpellInfo, ref newDuration, caster, level);
 
 			if (newDuration > 0 && newDuration < existingDuration)
@@ -2966,7 +2966,7 @@ public partial class Unit
 			aura.UpdateTargetMap(aura.GetCaster());
 
 			// Fully remove the aura if all effects were removed
-			if (!aura.IsPassive() && aura.Owner == this && aura.GetApplicationOfTarget(GetGUID()) == null)
+			if (!aura.IsPassive && aura.Owner == this && aura.GetApplicationOfTarget(GetGUID()) == null)
 				aura.Remove(removeMode);
 		}
 	}
@@ -3412,7 +3412,7 @@ public partial class Unit
 
 			return (!aura.SpellInfo.HasAttribute(SpellAttr4.AllowEnteringArena) // don't remove stances, shadowform, pally/hunter auras
 					&&
-					!aura.IsPassive() // don't remove passive auras
+					!aura.IsPassive // don't remove passive auras
 					&&
 					(aurApp.IsPositive || !aura.SpellInfo.HasAttribute(SpellAttr3.AllowAuraWhileDead))) || // not negative death persistent auras
 					aura.SpellInfo.HasAttribute(SpellAttr5.RemoveEnteringArena);                             // special marker, always remove
@@ -3440,7 +3440,7 @@ public partial class Unit
 
 						var spellInfo = Global.SpellMgr.GetSpellInfo(spell.Key, Difficulty.None);
 
-						if (spellInfo == null || !spellInfo.IsPassive())
+						if (spellInfo == null || !spellInfo.IsPassive)
 							continue;
 
 						if (spellInfo.CasterAuraState == flag)
@@ -3458,7 +3458,7 @@ public partial class Unit
 
 						var spellInfo = Global.SpellMgr.GetSpellInfo(spell.Key, Difficulty.None);
 
-						if (spellInfo == null || !spellInfo.IsPassive())
+						if (spellInfo == null || !spellInfo.IsPassive)
 							continue;
 
 						if (spellInfo.CasterAuraState == flag)
@@ -3476,7 +3476,7 @@ public partial class Unit
 				_appliedAuras.Query()
 							.HasCasterGuid(GetGUID())
 							.HasCasterAuraState(flag)
-							.AlsoMatches(app => app.Base.SpellInfo.IsPassive() || flag != AuraStateType.Enraged)
+							.AlsoMatches(app => app.Base.SpellInfo.IsPassive || flag != AuraStateType.Enraged)
 							.Execute(RemoveAura);
 			}
 		}
@@ -3558,7 +3558,7 @@ public partial class Unit
 
 		var caster = aura.GetCaster();
 
-		if (aura.SpellInfo.HasAnyAuraInterruptFlag())
+		if (aura.SpellInfo.HasAnyAuraInterruptFlag)
 		{
 			_interruptableAuras.Remove(aurApp);
 			UpdateInterruptMask();
@@ -4440,7 +4440,7 @@ public partial class Unit
 
 	void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<uint, AuraApplication>> aurasTriggeringProc)
 	{
-		var triggeringSpell = eventInfo.GetProcSpell();
+		var triggeringSpell = eventInfo.ProcSpell;
 		var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled();
 
 		if (disableProcs)

@@ -14,10 +14,15 @@ public class spell_monk_chi_burst_heal : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHeal(int effIndex)
 	{
-		var caster = GetCaster();
-		var unit   = GetHitUnit();
+		var caster = Caster;
+		var unit = HitUnit;
 
 		if (caster == null || unit == null)
 			return;
@@ -33,14 +38,9 @@ public class spell_monk_chi_burst_heal : SpellScript, IHasSpellEffects
 			return;
 
 		var damage = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 4.125f;
-		damage = caster.SpellDamageBonusDone(unit, spellInfo, damage, DamageEffectType.Heal, effectInfo, 1, GetSpell());
+		damage = caster.SpellDamageBonusDone(unit, spellInfo, damage, DamageEffectType.Heal, effectInfo, 1, Spell);
 		damage = unit.SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.Heal);
 
-		SetHitHeal(damage);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+		HitHeal = damage;
 	}
 }

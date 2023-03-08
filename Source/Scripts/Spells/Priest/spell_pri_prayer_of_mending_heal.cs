@@ -14,9 +14,14 @@ public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHeal(int effIndex)
 	{
-		var caster = GetOriginalCaster();
+		var caster = OriginalCaster;
 
 		if (caster != null)
 		{
@@ -24,15 +29,10 @@ public class spell_pri_prayer_of_mending_heal : SpellScript, IHasSpellEffects
 
 			if (aurEff != null)
 			{
-				var heal = GetHitHeal();
+				var heal = HitHeal;
 				MathFunctions.AddPct(ref heal, aurEff.Amount);
-				SetHitHeal(heal);
+				HitHeal = heal;
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHeal, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
 	}
 }

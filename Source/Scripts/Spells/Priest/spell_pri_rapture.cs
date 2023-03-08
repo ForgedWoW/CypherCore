@@ -16,6 +16,8 @@ internal class spell_pri_rapture : SpellScript, ISpellAfterCast, IHasSpellEffect
 {
 	private ObjectGuid _raptureTarget;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.POWER_WORD_SHIELD);
@@ -23,11 +25,11 @@ internal class spell_pri_rapture : SpellScript, ISpellAfterCast, IHasSpellEffect
 
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		var target = Global.ObjAccessor.GetUnit(caster, _raptureTarget);
 
 		if (target != null)
-			caster.CastSpell(target, PriestSpells.POWER_WORD_SHIELD, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnorePowerAndReagentCost | TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(GetSpell()));
+			caster.CastSpell(target, PriestSpells.POWER_WORD_SHIELD, new CastSpellExtraArgs(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnorePowerAndReagentCost | TriggerCastFlags.IgnoreCastInProgress).SetTriggeringSpell(Spell));
 	}
 
 	public override void Register()
@@ -35,10 +37,8 @@ internal class spell_pri_rapture : SpellScript, ISpellAfterCast, IHasSpellEffect
 		SpellEffects.Add(new EffectHandler(HandleEffectDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleEffectDummy(int effIndex)
 	{
-		_raptureTarget = GetHitUnit().GetGUID();
+		_raptureTarget = HitUnit.GetGUID();
 	}
 }

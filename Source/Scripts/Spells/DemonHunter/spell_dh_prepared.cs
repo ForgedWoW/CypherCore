@@ -12,20 +12,20 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(203650)]
 public class spell_dh_prepared : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.ModPowerRegen));
+	}
 
 	private void PeriodicTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
 		caster.ModifyPower(PowerType.Fury, aurEff.Amount / 10.0f);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.ModPowerRegen));
 	}
 }

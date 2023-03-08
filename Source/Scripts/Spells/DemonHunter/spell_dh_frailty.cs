@@ -13,23 +13,29 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(224509)]
 public class spell_dh_frailty : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 	double _damage = 0;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDummy));
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || caster != eventInfo.GetActor() || eventInfo.GetDamageInfo() != null)
+		if (caster == null || caster != eventInfo.Actor || eventInfo.DamageInfo != null)
 			return;
 
-		_damage += MathFunctions.CalculatePct(eventInfo.GetDamageInfo().GetDamage(), aurEff.Amount);
+		_damage += MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
 	}
 
 	private void PeriodicTick(AuraEffect UnnamedParameter)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -39,11 +45,5 @@ public class spell_dh_frailty : AuraScript, IHasAuraEffects
 			caster.CastSpell(caster, DemonHunterSpells.FRAILTY_HEAL, (int)(_damage * .1), true);
 			_damage = 0;
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.PeriodicDummy, AuraScriptHookType.EffectProc));
 	}
 }

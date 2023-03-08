@@ -5,15 +5,17 @@ using System.Collections;
 using Game.Scripting.Interfaces.ISpellManager;
 using Game.Spells;
 
-namespace Scripts.SpellFixes.Warlock
-{
-    public class BuringRushSpellFix : ISpellManagerSpellLateFix
-    {
-        public int[] SpellIds => new[] { 111400 };
+namespace Scripts.SpellFixes.Warlock;
 
-        public void ApplySpellFix(SpellInfo spellInfo)
-        {
-            spellInfo.NegativeEffects = new BitSet(spellInfo.Effects.Count); // no negitive effects for burning rush
-        }
-    }
+public class BuringRushSpellFix : ISpellManagerSpellLateFix
+{
+	public int[] SpellIds => new[]
+	{
+		111400
+	};
+
+	public void ApplySpellFix(SpellInfo spellInfo)
+	{
+		spellInfo.NegativeEffects = new BitSet(spellInfo.Effects.Count); // no negitive effects for burning rush
+	}
 }

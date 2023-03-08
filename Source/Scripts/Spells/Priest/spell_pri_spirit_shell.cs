@@ -14,18 +14,18 @@ public class spell_pri_spirit_shell : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				if (_player.HasAura(PriestSpells.SPIRIT_SHELL_AURA))
 				{
-					var bp = GetHitHeal();
+					var bp = HitHeal;
 
-					SetHitHeal(0);
+					HitHeal = 0;
 
 					var shell = _player.GetAuraEffect(114908, 0);
 

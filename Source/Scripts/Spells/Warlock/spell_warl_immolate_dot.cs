@@ -9,96 +9,95 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Immolate Dot - 157736
+[SpellScript(157736)]
+public class spell_warlock_immolate_dot : AuraScript, IHasAuraEffects
 {
-    // Immolate Dot - 157736
-    [SpellScript(157736)]
-	public class spell_warlock_immolate_dot : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterRemove));
+	}
 
-		private void HandlePeriodic(AuraEffect UnnamedParameter)
-        {
-            var caster = GetCaster();
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
 
-            if (caster == null)
-                return;
+		if (caster == null)
+			return;
 
-			Flashpoint(caster);
-            ChannelDemonfire(caster);
-            RoaringBlaze(caster);
-        }
+		Flashpoint(caster);
+		ChannelDemonfire(caster);
+		RoaringBlaze(caster);
+	}
 
-		private void Flashpoint(Unit caster)
+	private void Flashpoint(Unit caster)
+	{
+		var target = Target;
+
+		if (target != null && caster.TryGetAura(WarlockSpells.FLASHPOINT, out var fp) && target.HealthAbovePct(fp.GetEffect(1).BaseAmount))
+			caster.CastSpell(caster, WarlockSpells.FLASHPOINT_AURA, true);
+	}
+
+	private void ChannelDemonfire(Unit caster)
+	{
+		var aur = caster.GetAura(WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR);
+
+		if (aur != null)
+			aur.RefreshDuration();
+	}
+
+	private void RoaringBlaze(Unit caster)
+	{
+		if (Aura != null && caster.HasAura(WarlockSpells.ROARING_BLAZE))
 		{
-			var target = GetTarget();
+			var dmgEff = Global.SpellMgr.GetSpellInfo(WarlockSpells.ROARING_BLASE_DMG_PCT, Difficulty.None)?.GetEffect(0);
 
-			if (target != null && caster.TryGetAura(WarlockSpells.FLASHPOINT, out var fp) && target.HealthAbovePct(fp.GetEffect(1).BaseAmount))
-				caster.CastSpell(caster, WarlockSpells.FLASHPOINT_AURA, true);
-		}
-
-        private void ChannelDemonfire(Unit caster)
-        {
-            var aur = caster.GetAura(WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR);
-
-            if (aur != null)
-                aur.RefreshDuration();
-        }
-
-        private void RoaringBlaze(Unit caster)
-        {
-            if (GetAura() != null && caster.HasAura(WarlockSpells.ROARING_BLAZE))
-            {
-                var dmgEff = Global.SpellMgr.GetSpellInfo(WarlockSpells.ROARING_BLASE_DMG_PCT, Difficulty.None)?.GetEffect(0);
-
-                if (dmgEff != null)
-                {
-                    var damage = GetEffect(0).Amount;
-                    MathFunctions.AddPct(ref damage, dmgEff.BasePoints);
-
-                    GetEffect(0).SetAmount(damage);
-                    GetAura().SetNeedClientUpdateForTargets();
-                }
-            }
-        }
-
-        private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
-				return;
-
-			caster.CastSpell(caster, WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR, true);
-		}
-
-		private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
-				return;
-
-            var checker = new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID());
-            var enemies  = new List<Unit>();
-			var check    = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, 100.0f, checker.Invoke);
-			var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
-			Cell.VisitGrid(caster, searcher, 100.0f);
-
-			if (enemies.Count == 0)
+			if (dmgEff != null)
 			{
-				var aur = caster.GetAura(WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR);
+				var damage = GetEffect(0).Amount;
+				MathFunctions.AddPct(ref damage, dmgEff.BasePoints);
 
-				if (aur != null)
-					aur.SetDuration(0);
+				GetEffect(0).SetAmount(damage);
+				Aura.SetNeedClientUpdateForTargets();
 			}
 		}
+	}
 
-		public override void Register()
+	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		caster.CastSpell(caster, WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR, true);
+	}
+
+	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		var checker = new UnitAuraCheck<Unit>(true, WarlockSpells.IMMOLATE_DOT, caster.GetGUID());
+		var enemies = new List<Unit>();
+		var check = new AnyUnfriendlyUnitInObjectRangeCheck(caster, caster, 100.0f, checker.Invoke);
+		var searcher = new UnitListSearcher(caster, enemies, check, GridType.All);
+		Cell.VisitGrid(caster, searcher, 100.0f);
+
+		if (enemies.Count == 0)
 		{
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask));
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.RealOrReapplyMask, AuraScriptHookType.EffectAfterRemove));
+			var aur = caster.GetAura(WarlockSpells.CHANNEL_DEMONFIRE_ACTIVATOR);
+
+			if (aur != null)
+				aur.SetDuration(0);
 		}
 	}
 }

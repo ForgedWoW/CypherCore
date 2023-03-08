@@ -12,11 +12,16 @@ namespace Scripts.Spells.Mage;
 [SpellScript(205708)]
 public class spell_mage_chilled : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ModDecreaseSpeed, AuraEffectHandleModes.RealOrReapplyMask));
+	}
 
 	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -24,10 +29,5 @@ public class spell_mage_chilled : AuraScript, IHasAuraEffects
 		if (caster.HasAura(MageSpells.BONE_CHILLING))
 			//@TODO REDUCE BONE CHILLING DAMAGE PER STACK TO 0.5% from 1%
 			caster.CastSpell(caster, MageSpells.BONE_CHILLING_BUFF, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.ModDecreaseSpeed, AuraEffectHandleModes.RealOrReapplyMask));
 	}
 }

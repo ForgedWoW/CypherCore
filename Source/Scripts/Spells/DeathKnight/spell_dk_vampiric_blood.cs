@@ -22,6 +22,6 @@ internal class spell_dk_vampiric_blood : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount.Value = GetUnitOwner().CountPctFromMaxHealth(amount);
+		amount.Value = UnitOwner.CountPctFromMaxHealth(amount);
 	}
 }

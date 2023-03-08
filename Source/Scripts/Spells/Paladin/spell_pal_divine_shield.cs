@@ -7,36 +7,35 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(642)] // 642 - Divine Shield
+internal class spell_pal_divine_shield : SpellScript, ISpellCheckCast, ISpellAfterCast
 {
-    [SpellScript(642)] // 642 - Divine Shield
-    internal class spell_pal_divine_shield : SpellScript, ISpellCheckCast, ISpellAfterCast
-    {
-        public void AfterCast()
-        {
-            Unit caster = GetCaster();
+	public void AfterCast()
+	{
+		var caster = Caster;
 
-            if (caster.HasAura(PaladinSpells.FinalStand))
-                caster.CastSpell((Unit)null, PaladinSpells.FinalStandEffect, true);
+		if (caster.HasAura(PaladinSpells.FinalStand))
+			caster.CastSpell((Unit)null, PaladinSpells.FinalStandEffect, true);
 
 
-            caster.CastSpell(caster, PaladinSpells.Forbearance, true);
-            caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
-        }
+		caster.CastSpell(caster, PaladinSpells.Forbearance, true);
+		caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
+	}
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.FinalStand, PaladinSpells.FinalStandEffect, PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER // uncomment when we have serverside only spells
-                   &&
-                   spellInfo.ExcludeCasterAuraSpell == PaladinSpells.ImmuneShieldMarker;
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.FinalStand, PaladinSpells.FinalStandEffect, PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER // uncomment when we have serverside only spells
+				&&
+				spellInfo.ExcludeCasterAuraSpell == PaladinSpells.ImmuneShieldMarker;
+	}
 
-        public SpellCastResult CheckCast()
-        {
-            if (GetCaster().HasAura(PaladinSpells.Forbearance))
-                return SpellCastResult.TargetAurastate;
+	public SpellCastResult CheckCast()
+	{
+		if (Caster.HasAura(PaladinSpells.Forbearance))
+			return SpellCastResult.TargetAurastate;
 
-            return SpellCastResult.SpellCastOk;
-        }
-    }
+		return SpellCastResult.SpellCastOk;
+	}
 }

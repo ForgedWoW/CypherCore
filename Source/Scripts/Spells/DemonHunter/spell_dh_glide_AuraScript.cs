@@ -26,6 +26,6 @@ internal class spell_dh_glide_AuraScript : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(DemonHunterSpells.GlideDuration);
+		Target.RemoveAura(DemonHunterSpells.GlideDuration);
 	}
 }

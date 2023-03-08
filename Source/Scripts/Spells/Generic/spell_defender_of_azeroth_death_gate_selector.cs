@@ -30,13 +30,13 @@ internal class spell_defender_of_azeroth_death_gate_selector : SpellScript, IHas
 
 	private void HandleDummy(int effIndex)
 	{
-		var player = GetHitUnit().ToPlayer();
+		var player = HitUnit.ToPlayer();
 
 		if (player == null)
 			return;
 
 		if (player.GetQuestStatus(QuestIds.DefenderOfAzerothAlliance) == QuestStatus.None &&
-		    player.GetQuestStatus(QuestIds.DefenderOfAzerothHorde) == QuestStatus.None)
+			player.GetQuestStatus(QuestIds.DefenderOfAzerothHorde) == QuestStatus.None)
 			return;
 
 		(WorldLocation Loc, uint AreaId) bindLoc = player.GetTeam() == Team.Alliance ? StormwindInnLoc : OrgrimmarInnLoc;

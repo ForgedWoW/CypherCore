@@ -21,8 +21,8 @@ internal class spell_q12414_hand_over_reins : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster().ToCreature();
-		GetHitUnit().ExitVehicle();
+		var caster = Caster.ToCreature();
+		HitUnit.ExitVehicle();
 
 		if (caster)
 			caster.DespawnOrUnsummon();

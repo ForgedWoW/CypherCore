@@ -26,12 +26,12 @@ internal class spell_mage_living_bomb_periodic : AuraScript, IHasAuraEffects
 
 	private void AfterRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
-			caster.CastSpell(GetTarget(), MageSpells.LivingBombExplosion, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount));
+			caster.CastSpell(Target, MageSpells.LivingBombExplosion, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, aurEff.Amount));
 	}
 }

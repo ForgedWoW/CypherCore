@@ -26,6 +26,6 @@ internal class spell_rog_vanish_aura : AuraScript, IHasAuraEffects
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().CastSpell(GetTarget(), RogueSpells.Stealth, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Target.CastSpell(Target, RogueSpells.Stealth, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 	}
 }

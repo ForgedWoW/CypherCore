@@ -26,11 +26,11 @@ internal class spell_gen_turkey_marker : AuraScript, IHasAuraEffects
 	{
 		// store stack apply times, so we can pop them while they expire
 		_applyTimes.Add(GameTime.GetGameTimeMS());
-		var target = GetTarget();
+		var target = Target;
 
 		// on stack 15 cast the Achievement crediting spell
-		if (GetStackAmount() >= 15)
-			target.CastSpell(target, GenericSpellIds.TurkeyVengeance, new CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
+		if (StackAmount >= 15)
+			target.CastSpell(target, GenericSpellIds.TurkeyVengeance, new CastSpellExtraArgs(aurEff).SetOriginalCaster(CasterGUID));
 	}
 
 	private void OnPeriodic(AuraEffect aurEff)
@@ -38,7 +38,7 @@ internal class spell_gen_turkey_marker : AuraScript, IHasAuraEffects
 		var removeCount = 0;
 
 		// pop expired times off of the stack
-		while (!_applyTimes.Empty() && _applyTimes.FirstOrDefault() + GetMaxDuration() < GameTime.GetGameTimeMS())
+		while (!_applyTimes.Empty() && _applyTimes.FirstOrDefault() + MaxDuration < GameTime.GetGameTimeMS())
 		{
 			_applyTimes.RemoveAt(0);
 			removeCount++;

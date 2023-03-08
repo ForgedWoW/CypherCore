@@ -19,13 +19,13 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 	private readonly uint _stackSpell;
 	private readonly uint _triggerSpell;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_trinket_stack(uint stackSpell, uint triggerSpell)
 	{
-		_stackSpell   = stackSpell;
+		_stackSpell = stackSpell;
 		_triggerSpell = triggerSpell;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -42,7 +42,7 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var caster = eventInfo.GetActor();
+		var caster = eventInfo.Actor;
 
 		caster.CastSpell(caster, _stackSpell, new CastSpellExtraArgs(aurEff)); // cast the stack
 
@@ -50,12 +50,12 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 
 		//dont do anything if it's not the right amount of stacks;
 		if (dummy == null ||
-		    dummy.StackAmount < aurEff.Amount)
+			dummy.StackAmount < aurEff.Amount)
 			return;
 
 		// if right amount, Remove the aura and cast real trigger
 		caster.RemoveAura(_stackSpell);
-		var target = eventInfo.GetActionTarget();
+		var target = eventInfo.ActionTarget;
 
 		if (target)
 			caster.CastSpell(target, _triggerSpell, new CastSpellExtraArgs(aurEff));
@@ -63,6 +63,6 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(_stackSpell);
+		Target.RemoveAura(_stackSpell);
 	}
 }

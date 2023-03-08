@@ -27,7 +27,7 @@ internal class spell_gen_upper_deck_create_foam_sword : SpellScript, IHasSpellEf
 
 	private void HandleScript(int effIndex)
 	{
-		var player = GetHitPlayer();
+		var player = HitPlayer;
 
 		if (player)
 		{

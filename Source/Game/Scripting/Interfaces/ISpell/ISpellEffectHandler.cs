@@ -4,30 +4,29 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellEffectHandler : ISpellEffect
 {
-    public interface ISpellEffectHandler : ISpellEffect
-    {
-        SpellEffectName EffectName { get; }
+	SpellEffectName EffectName { get; }
 
-        void CallEffect(int effIndex);
-    }
+	void CallEffect(int effIndex);
+}
 
-    public class EffectHandler : SpellEffect, ISpellEffectHandler
-    {
-        private readonly Action<int> _callEffect;
+public class EffectHandler : SpellEffect, ISpellEffectHandler
+{
+	private readonly Action<int> _callEffect;
 
-        public EffectHandler(Action<int> callEffect, int effectIndex, SpellEffectName spellEffectName, SpellScriptHookType hookType) : base(effectIndex, hookType)
-        {
-            EffectName = spellEffectName;
-            _callEffect = callEffect;
-        }
+	public SpellEffectName EffectName { get; private set; }
 
-        public SpellEffectName EffectName { get; private set; }
+	public EffectHandler(Action<int> callEffect, int effectIndex, SpellEffectName spellEffectName, SpellScriptHookType hookType) : base(effectIndex, hookType)
+	{
+		EffectName = spellEffectName;
+		_callEffect = callEffect;
+	}
 
-        public void CallEffect(int effIndex)
-        {
-            _callEffect(EffectIndex);
-        }
-    }
+	public void CallEffect(int effIndex)
+	{
+		_callEffect(EffectIndex);
+	}
 }

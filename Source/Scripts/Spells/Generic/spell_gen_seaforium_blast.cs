@@ -23,7 +23,7 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 	public override bool Load()
 	{
 		// OriginalCaster is always available in Spell.prepare
-		return GetGObjCaster().GetOwnerGUID().IsPlayer();
+		return GObjCaster.GetOwnerGUID().IsPlayer();
 	}
 
 	public override void Register()
@@ -34,11 +34,11 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 	private void AchievementCredit(int effIndex)
 	{
 		// but in effect handling OriginalCaster can become null
-		var owner = GetGObjCaster().GetOwner();
+		var owner = GObjCaster.GetOwner();
 
 		if (owner != null)
 		{
-			var go = GetHitGObj();
+			var go = HitGObj;
 
 			if (go)
 				if (go.GetGoInfo().type == GameObjectTypes.DestructibleBuilding)

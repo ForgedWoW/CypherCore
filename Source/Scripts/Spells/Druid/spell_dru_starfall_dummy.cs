@@ -8,45 +8,44 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 50286 - Starfall (Dummy)
+internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
 {
-    [Script] // 50286 - Starfall (Dummy)
-	internal class spell_dru_starfall_dummy : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public override void Register()
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.Resize(2);
+	}
+
+	private void HandleDummy(int effIndex)
+	{
+		var caster = Caster;
+
+		// Shapeshifting into an animal form or mounting cancels the effect
+		if (caster.GetCreatureType() == CreatureType.Beast ||
+			caster.IsMounted())
 		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-			SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+			var spellInfo = TriggeringSpell;
+
+			if (spellInfo != null)
+				caster.RemoveAura(spellInfo.Id);
+
+			return;
 		}
 
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			targets.Resize(2);
-		}
+		// Any effect which causes you to lose control of your character will supress the starfall effect.
+		if (caster.HasUnitState(UnitState.Controlled))
+			return;
 
-		private void HandleDummy(int effIndex)
-		{
-			var caster = GetCaster();
-
-			// Shapeshifting into an animal form or mounting cancels the effect
-			if (caster.GetCreatureType() == CreatureType.Beast ||
-			    caster.IsMounted())
-			{
-				var spellInfo = GetTriggeringSpell();
-
-				if (spellInfo != null)
-					caster.RemoveAura(spellInfo.Id);
-
-				return;
-			}
-
-			// Any effect which causes you to lose control of your character will supress the starfall effect.
-			if (caster.HasUnitState(UnitState.Controlled))
-				return;
-
-			caster.CastSpell(GetHitUnit(), (uint)GetEffectValue(), true);
-		}
+		caster.CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 }

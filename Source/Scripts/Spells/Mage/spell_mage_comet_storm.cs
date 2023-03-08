@@ -28,6 +28,6 @@ internal class spell_mage_comet_storm : SpellScript, IHasSpellEffects
 
 	private void EffectHit(int effIndex)
 	{
-		GetCaster().Events.AddEventAtOffset(new CometStormEvent(GetCaster(), GetSpell().CastId, GetHitDest()), RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
+		Caster.Events.AddEventAtOffset(new CometStormEvent(Caster, Spell.CastId, HitDest), RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
 	}
 }

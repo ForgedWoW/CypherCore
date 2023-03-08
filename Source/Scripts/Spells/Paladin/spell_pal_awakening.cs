@@ -9,54 +9,53 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 248033 - Awakening
+[SpellScript(248033)]
+internal class spell_pal_awakening : AuraScript, IHasAuraEffects
 {
-    // 248033 - Awakening
-    [SpellScript(248033)]
-    internal class spell_pal_awakening : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.AvengingWrath) && spellInfo.Effects.Count >= 1;
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.AvengingWrath) && spellInfo.Effects.Count >= 1;
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            return RandomHelper.randChance(aurEff.Amount);
-        }
+	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		return RandomHelper.randChance(aurEff.Amount);
+	}
 
-        private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            TimeSpan extraDuration = TimeSpan.Zero;
-            AuraEffect durationEffect = GetEffect(1);
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		var extraDuration = TimeSpan.Zero;
+		var durationEffect = GetEffect(1);
 
-            if (durationEffect != null)
-                extraDuration = TimeSpan.FromSeconds(durationEffect.Amount);
+		if (durationEffect != null)
+			extraDuration = TimeSpan.FromSeconds(durationEffect.Amount);
 
-            Aura avengingWrath = GetTarget().GetAura(PaladinSpells.AvengingWrath);
+		var avengingWrath = Target.GetAura(PaladinSpells.AvengingWrath);
 
-            if (avengingWrath != null)
-            {
-                avengingWrath.SetDuration((int)(avengingWrath.Duration + extraDuration.TotalMilliseconds));
-                avengingWrath.SetMaxDuration((int)(avengingWrath.MaxDuration + extraDuration.TotalMilliseconds));
-            }
-            else
-            {
-                GetTarget()
-                    .CastSpell(GetTarget(),
-                               PaladinSpells.AvengingWrath,
-                               new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.IgnoreSpellAndCategoryCD)
-                                   .SetTriggeringSpell(eventInfo.GetProcSpell())
-                                   .AddSpellMod(SpellValueMod.Duration, (int)extraDuration.TotalMilliseconds));
-            }
-        }
-    }
+		if (avengingWrath != null)
+		{
+			avengingWrath.SetDuration((int)(avengingWrath.Duration + extraDuration.TotalMilliseconds));
+			avengingWrath.SetMaxDuration((int)(avengingWrath.MaxDuration + extraDuration.TotalMilliseconds));
+		}
+		else
+		{
+			Target
+				.CastSpell(Target,
+							PaladinSpells.AvengingWrath,
+							new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.IgnoreSpellAndCategoryCD)
+								.SetTriggeringSpell(eventInfo.ProcSpell)
+								.AddSpellMod(SpellValueMod.Duration, (int)extraDuration.TotalMilliseconds));
+		}
+	}
 }

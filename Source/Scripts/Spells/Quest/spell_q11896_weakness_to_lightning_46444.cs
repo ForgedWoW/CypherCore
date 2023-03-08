@@ -21,14 +21,14 @@ internal class spell_q11896_weakness_to_lightning_46444 : SpellScript, IHasSpell
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
 		{
 			var owner = target.GetOwner();
 
 			if (owner != null)
-				target.CastSpell(owner, (uint)GetEffectValue(), true);
+				target.CastSpell(owner, (uint)EffectValue, true);
 		}
 	}
 }

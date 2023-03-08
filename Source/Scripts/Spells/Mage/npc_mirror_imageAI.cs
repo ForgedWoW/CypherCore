@@ -3,7 +3,6 @@
 
 using System;
 using Framework.Constants;
-using Framework.Dynamic;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
@@ -13,22 +12,7 @@ namespace Scripts.Spells.Mage;
 [CreatureScript(31216)]
 public class npc_mirror_imageAI : CasterAI
 {
-	private readonly EventMap _events = new();
-
-	public struct eSpells
-	{
-		public const uint FROSTBOLT = 59638;
-		public const uint FIREBALL = 133;
-		public const uint ARCANE_BLAST = 30451;
-		public const uint GLYPH = 63093;
-		public const uint INITIALIZE_IMAGES = 102284;
-		public const uint CLONE_CASTER = 60352;
-		public const uint INHERIT_MASTER_THREAT = 58838;
-	}
-
-	public npc_mirror_imageAI(Creature creature) : base(creature)
-	{
-	}
+	public npc_mirror_imageAI(Creature creature) : base(creature) { }
 
 	public override void IsSummonedBy(WorldObject owner)
 	{
@@ -182,5 +166,16 @@ public class npc_mirror_imageAI : CasterAI
 			if (target != null)
 				me.GetAI().AttackStart(target);
 		}
+	}
+
+	public struct eSpells
+	{
+		public const uint FROSTBOLT = 59638;
+		public const uint FIREBALL = 133;
+		public const uint ARCANE_BLAST = 30451;
+		public const uint GLYPH = 63093;
+		public const uint INITIALIZE_IMAGES = 102284;
+		public const uint CLONE_CASTER = 60352;
+		public const uint INHERIT_MASTER_THREAT = 58838;
 	}
 }

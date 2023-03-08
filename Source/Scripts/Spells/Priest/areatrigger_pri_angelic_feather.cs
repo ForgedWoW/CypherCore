@@ -11,9 +11,7 @@ namespace Scripts.Spells.Priest;
 [Script] // Angelic Feather areatrigger - created by ANGELIC_FEATHER_AREATRIGGER
 internal class areatrigger_pri_angelic_feather : AreaTriggerAI
 {
-	public areatrigger_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public areatrigger_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	// Called when the AreaTrigger has just been initialized, just before added to map
 	public override void OnInitialize()

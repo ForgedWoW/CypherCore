@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IItem
+namespace Game.Scripting.Interfaces.IItem;
+
+public interface IItemOnCastItemCombatSpell : IScriptObject
 {
-    public interface IItemOnCastItemCombatSpell : IScriptObject
-    {
-        bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item);
-    }
+	bool OnCastItemCombatSpell(Player player, Unit victim, SpellInfo spellInfo, Item item);
 }

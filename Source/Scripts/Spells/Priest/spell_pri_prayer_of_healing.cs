@@ -12,7 +12,7 @@ public class spell_pri_prayer_of_healing : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

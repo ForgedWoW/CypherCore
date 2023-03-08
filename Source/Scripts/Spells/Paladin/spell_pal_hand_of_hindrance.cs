@@ -4,37 +4,32 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+//183218
+[SpellScript(183218)]
+public class spell_pal_hand_of_hindrance : AuraScript, IHasAuraEffects
 {
-    //183218
-    [SpellScript(183218)]
-    public class spell_pal_hand_of_hindrance : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes mode)
-        {
-            if (GetTargetApplication().RemoveMode == AuraRemoveMode.EnemySpell)
-            {
-                Unit caster = GetCaster();
-                if (caster != null)
-                {
-                    if (caster.HasAura(PaladinSpells.LAW_AND_ORDER))
-                    {
-                        caster.GetSpellHistory().ModifyCooldown(PaladinSpells.HAND_OF_HINDRANCE, TimeSpan.FromSeconds(-15));
-                    }
-                }
-            }
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-        }
-    }
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes mode)
+	{
+		if (TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell)
+		{
+			var caster = Caster;
+
+			if (caster != null)
+				if (caster.HasAura(PaladinSpells.LAW_AND_ORDER))
+					caster.GetSpellHistory().ModifyCooldown(PaladinSpells.HAND_OF_HINDRANCE, TimeSpan.FromSeconds(-15));
+		}
+	}
 }

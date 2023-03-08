@@ -13,6 +13,8 @@ namespace Scripts.Spells.Rogue;
 [Script] // 193358 - Grand Melee
 internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(RogueSpells.SliceAndDice);
@@ -20,7 +22,7 @@ internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffec
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var procSpell = eventInfo.GetProcSpell();
+		var procSpell = eventInfo.ProcSpell;
 
 		return procSpell && procSpell.HasPowerTypeCost(PowerType.ComboPoints);
 	}
@@ -30,14 +32,12 @@ internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffec
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo procInfo)
 	{
-		var procSpell = procInfo.GetProcSpell();
-		var amount    = aurEff.Amount * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
+		var procSpell = procInfo.ProcSpell;
+		var amount = aurEff.Amount * procSpell.GetPowerTypeCostAmount(PowerType.ComboPoints).Value * 1000;
 
-		var target = GetTarget();
+		var target = Target;
 
 		if (target != null)
 		{

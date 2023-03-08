@@ -30,13 +30,13 @@ internal class spell_mage_ice_block : SpellScript, IHasSpellEffects
 
 	private void PreventStunWithEverwarmSocks(WorldObject target)
 	{
-		if (GetCaster().HasAura(MageSpells.EverwarmSocks))
+		if (Caster.HasAura(MageSpells.EverwarmSocks))
 			target = null;
 	}
 
 	private void PreventEverwarmSocks(WorldObject target)
 	{
-		if (!GetCaster().HasAura(MageSpells.EverwarmSocks))
+		if (!Caster.HasAura(MageSpells.EverwarmSocks))
 			target = null;
 	}
 }

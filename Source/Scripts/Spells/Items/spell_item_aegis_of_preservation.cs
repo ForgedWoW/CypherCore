@@ -28,6 +28,6 @@ internal class spell_item_aegis_of_preservation : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), ItemSpellIds.AegisHeal, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, ItemSpellIds.AegisHeal, new CastSpellExtraArgs(aurEff));
 	}
 }

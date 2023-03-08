@@ -11,26 +11,26 @@ public class spell_dk_chilblains : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				if (player.HasAura(DeathKnightSpells.CHILBLAINS))
 					player.CastSpell(target, DeathKnightSpells.CHAINS_OF_ICE_ROOT, true);
 		}
 
-		if (GetCaster().HasAura(DeathKnightSpells.COLD_HEART_CHARGE))
+		if (Caster.HasAura(DeathKnightSpells.COLD_HEART_CHARGE))
 		{
-			var coldHeartCharge = GetCaster().GetAura(DeathKnightSpells.COLD_HEART_CHARGE);
+			var coldHeartCharge = Caster.GetAura(DeathKnightSpells.COLD_HEART_CHARGE);
 
 			if (coldHeartCharge != null)
 			{
 				var stacks = coldHeartCharge.StackAmount;
-				SetHitDamage(GetHitDamage() * stacks);
-				GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.COLD_HEART_DAMAGE, true);
+				HitDamage = HitDamage * stacks;
+				Caster.CastSpell(HitUnit, DeathKnightSpells.COLD_HEART_DAMAGE, true);
 				coldHeartCharge.ModStackAmount(-stacks);
 			}
 		}

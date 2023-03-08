@@ -21,11 +21,11 @@ internal class spell_mage_supernova : SpellScript, IHasSpellEffects
 
 	private void HandleDamage(int effIndex)
 	{
-		if (GetExplTargetUnit() == GetHitUnit())
+		if (ExplTargetUnit == HitUnit)
 		{
-			var damage = GetHitDamage();
+			var damage = HitDamage;
 			MathFunctions.AddPct(ref damage, GetEffectInfo(0).CalcValue());
-			SetHitDamage(damage);
+			HitDamage = damage;
 		}
 	}
 }

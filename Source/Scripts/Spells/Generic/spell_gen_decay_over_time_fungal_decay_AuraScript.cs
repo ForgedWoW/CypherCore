@@ -13,9 +13,11 @@ namespace Scripts.Spells.Generic;
 [Script] // 32065 - Fungal Decay
 internal class spell_gen_decay_over_time_fungal_decay_AuraScript : AuraScript, IAuraCheckProc, IAuraOnProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetSpellInfo() == GetSpellInfo();
+		return eventInfo.SpellInfo == SpellInfo;
 	}
 
 	public override void Register()
@@ -29,14 +31,12 @@ internal class spell_gen_decay_over_time_fungal_decay_AuraScript : AuraScript, I
 		ModStackAmount(-1);
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void ModDuration(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// only on actual reapply, not on stack decay
-		if (GetDuration() == GetMaxDuration())
+		if (Duration == MaxDuration)
 		{
-			SetMaxDuration(Misc.AuraDuration);
+			MaxDuration = Misc.AuraDuration;
 			SetDuration(Misc.AuraDuration);
 		}
 	}

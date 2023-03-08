@@ -10,9 +10,7 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class PlayerScript_black_arrow : ScriptObjectAutoAdd, IPlayerOnCreatureKill, IPlayerOnPVPKill
 {
-	public PlayerScript_black_arrow() : base("PlayerScript_black_arrow")
-	{
-	}
+	public PlayerScript_black_arrow() : base("PlayerScript_black_arrow") { }
 
 	public void OnCreatureKill(Player Player, Creature UnnamedParameter)
 	{

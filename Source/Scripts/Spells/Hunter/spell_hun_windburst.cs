@@ -12,11 +12,11 @@ public class spell_hun_windburst : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target == null)
 				return;

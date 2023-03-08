@@ -21,7 +21,7 @@ internal class spell_q12919_gymers_throw : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.IsVehicle())
 		{

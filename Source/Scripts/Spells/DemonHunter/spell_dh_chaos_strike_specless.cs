@@ -11,7 +11,7 @@ public class spell_dh_chaos_strike_specless : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		caster.CastSpell(DemonHunterSpells.CHAOS_STRIKE, true);
 	}

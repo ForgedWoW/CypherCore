@@ -14,7 +14,7 @@ namespace Scripts.Spells.Rogue;
 [SpellScript(31230)]
 public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
@@ -23,7 +23,13 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetUnitOwner().GetTypeId() == TypeId.Player;
+		return UnitOwner.GetTypeId() == TypeId.Player;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 1));
 	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -34,7 +40,7 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = GetTarget().ToPlayer();
+		var target = Target.ToPlayer();
 
 		if (target.HasAura(CheatDeath.CHEAT_DEATH_DMG_REDUC))
 		{
@@ -47,7 +53,7 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 
 			var health7 = target.CountPctFromMaxHealth(7);
 			target.SetHealth(1);
-			var healInfo = new HealInfo(target, target, (uint)health7, GetSpellInfo(), GetSpellInfo().GetSchoolMask());
+			var healInfo = new HealInfo(target, target, (uint)health7, SpellInfo, SpellInfo.GetSchoolMask());
 			target.HealBySpell(healInfo);
 			target.CastSpell(target, CheatDeath.CHEAT_DEATH_ANIM, true);
 			target.CastSpell(target, CheatDeath.CHEAT_DEATH_DMG_REDUC, true);
@@ -56,11 +62,5 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 		}
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 1));
 	}
 }

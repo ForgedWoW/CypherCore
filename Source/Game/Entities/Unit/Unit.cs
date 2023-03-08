@@ -636,7 +636,7 @@ public partial class Unit : WorldObject
 			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.GetSpellId(), GetMap().GetDifficultyID());
 
 			// Need disable spell use for owner
-			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
+			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
 				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
 				GetSpellHistory().StartCooldown(createBySpell, 0, null, true);
 		}
@@ -670,7 +670,7 @@ public partial class Unit : WorldObject
 			var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, GetMap().GetDifficultyID());
 
 			// Need activate spell use for owner
-			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
+			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
 				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
 				GetSpellHistory().SendCooldownEvent(createBySpell);
 		}
@@ -1710,7 +1710,7 @@ public partial class Unit : WorldObject
 		AuraApplication aurApp = new(this, caster, aura, effMask);
 		_appliedAuras.Add(aurApp);
 
-		if (aurSpellInfo.HasAnyAuraInterruptFlag())
+		if (aurSpellInfo.HasAnyAuraInterruptFlag)
 		{
 			_interruptableAuras.Add(aurApp);
 			AddInterruptMask(aurSpellInfo.AuraInterruptFlags, aurSpellInfo.AuraInterruptFlags2);

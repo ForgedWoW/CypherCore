@@ -8,26 +8,25 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(85804)] // 85804 - Selfless Healer
+internal class spell_pal_selfless_healer : AuraScript, IHasAuraEffects
 {
-    [SpellScript(85804)] // 85804 - Selfless Healer
-    internal class spell_pal_selfless_healer : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.ProcTriggerSpell));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckEffectProc, 0, AuraType.ProcTriggerSpell));
+	}
 
-        private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            Spell procSpell = eventInfo.GetProcSpell();
+	private bool CheckEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		var procSpell = eventInfo.ProcSpell;
 
-            if (procSpell != null)
-                return procSpell.HasPowerTypeCost(PowerType.HolyPower);
+		if (procSpell != null)
+			return procSpell.HasPowerTypeCost(PowerType.HolyPower);
 
-            return false;
-        }
-    }
+		return false;
+	}
 }

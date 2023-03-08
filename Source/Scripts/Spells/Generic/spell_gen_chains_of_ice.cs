@@ -23,7 +23,7 @@ internal class spell_gen_chains_of_ice : AuraScript, IHasAuraEffects
 	private void UpdatePeriodic(AuraEffect aurEff)
 	{
 		// Get 0 effect aura
-		var slow = GetAura().GetEffect(0);
+		var slow = Aura.GetEffect(0);
 
 		if (slow == null)
 			return;

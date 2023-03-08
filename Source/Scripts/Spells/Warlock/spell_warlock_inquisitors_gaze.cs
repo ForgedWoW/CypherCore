@@ -8,27 +8,26 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(WarlockSpells.INQUISITORS_GAZE)]
+public class spell_warlock_inquisitors_gaze : SpellScript, IHasSpellEffects
 {
-    [SpellScript(WarlockSpells.INQUISITORS_GAZE)]
-	public class spell_warlock_inquisitors_gaze : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleOnHit(int effectIndex)
+	private void HandleOnHit(int effectIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
 		{
-			var target = GetHitUnit();
-
-			if (target != null)
-			{
-				var damage = (GetCaster().SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * 15 * 16) / 100;
-				GetCaster().CastSpell(target, WarlockSpells.INQUISITORS_GAZE_EFFECT, new CastSpellExtraArgs(SpellValueMod.BasePoint0, damage));
-			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+			var damage = (Caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 15 * 16) / 100;
+			Caster.CastSpell(target, WarlockSpells.INQUISITORS_GAZE_EFFECT, new CastSpellExtraArgs(SpellValueMod.BasePoint0, damage));
 		}
 	}
 }

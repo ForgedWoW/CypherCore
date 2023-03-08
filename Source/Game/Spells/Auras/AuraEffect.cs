@@ -72,7 +72,7 @@ public class AuraEffect
 		_auraBase = baseAura;
 		_spellInfo = baseAura.SpellInfo;
 		_effectInfo = spellEfffectInfo;
-		BaseAmount = baseAmount.HasValue ? baseAmount.Value : _effectInfo.CalcBaseValue(caster, baseAura.GetAuraType() == AuraObjectType.Unit ? baseAura.Owner.ToUnit() : null, baseAura.CastItemId, baseAura.CastItemLevel);
+		BaseAmount = baseAmount.HasValue ? baseAmount.Value : _effectInfo.CalcBaseValue(caster, baseAura.AuraObjType == AuraObjectType.Unit ? baseAura.Owner.ToUnit() : null, baseAura.CastItemId, baseAura.CastItemLevel);
 		_canBeRecalculated = true;
 		_isPeriodic = false;
 
@@ -157,7 +157,7 @@ public class AuraEffect
 		if (!GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack))
 			amount *= Base.StackAmount;
 
-		if (caster && Base.GetAuraType() == AuraObjectType.Unit)
+		if (caster && Base.AuraObjType == AuraObjectType.Unit)
 		{
 			var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
 
@@ -425,7 +425,7 @@ public class AuraEffect
 
 	public void Update(uint diff, Unit caster)
 	{
-		if (!_isPeriodic || (Base.Duration < 0 && !Base.IsPassive() && !Base.IsPermanent))
+		if (!_isPeriodic || (Base.Duration < 0 && !Base.IsPassive && !Base.IsPermanent))
 			return;
 
 		var totalTicks = GetTotalTicks();
@@ -475,7 +475,7 @@ public class AuraEffect
 		if (!result)
 			return false;
 
-		var spellInfo = eventInfo.GetSpellInfo();
+		var spellInfo = eventInfo.SpellInfo;
 
 		switch (AuraType)
 		{
@@ -485,7 +485,7 @@ public class AuraEffect
 			case AuraType.ModRoot:
 			case AuraType.Transform:
 			{
-				var damageInfo = eventInfo.GetDamageInfo();
+				var damageInfo = eventInfo.DamageInfo;
 
 				if (damageInfo == null || damageInfo.GetDamage() == 0)
 					return false;
@@ -511,14 +511,14 @@ public class AuraEffect
 				break;
 			case AuraType.ModCastingSpeedNotStack:
 				// skip melee hits and instant cast spells
-				if (!eventInfo.GetProcSpell() || eventInfo.GetProcSpell().CastTime == 0)
+				if (!eventInfo.ProcSpell || eventInfo.ProcSpell.CastTime == 0)
 					return false;
 
 				break;
 			case AuraType.ModSchoolMaskDamageFromCaster:
 			case AuraType.ModSpellDamageFromCaster:
 				// Compare casters
-				if (CasterGuid != eventInfo.GetActor().GetGUID())
+				if (CasterGuid != eventInfo.Actor.GetGUID())
 					return false;
 
 				break;
@@ -529,11 +529,11 @@ public class AuraEffect
 				if (spellInfo == null ||
 					!Convert.ToBoolean((int)spellInfo.GetSchoolMask() & MiscValue) // School Check
 					||
-					!eventInfo.GetProcSpell())
+					!eventInfo.ProcSpell)
 					return false;
 
 				// Costs Check
-				var costs = eventInfo.GetProcSpell().PowerCost;
+				var costs = eventInfo.ProcSpell.PowerCost;
 				var m = costs.Find(cost => cost.Amount > 0);
 
 				if (m == null)
@@ -557,7 +557,7 @@ public class AuraEffect
 				if (triggeredSpellInfo != null)
 					if (triggeredSpellInfo.HasEffect(SpellEffectName.AddExtraAttacks))
 					{
-						var lastExtraAttackSpell = eventInfo.GetActor().GetLastExtraAttackSpell();
+						var lastExtraAttackSpell = eventInfo.Actor.GetLastExtraAttackSpell();
 
 						// Patch 1.12.0(?) extra attack abilities can no longer chain proc themselves
 						if (lastExtraAttackSpell == triggerSpellId)
@@ -719,7 +719,7 @@ public class AuraEffect
 
 					var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
 
-					if (spellInfo == null || !(spellInfo.IsPassive() || spellInfo.HasAttribute(SpellAttr0.DoNotDisplaySpellbookAuraIconCombatLog)))
+					if (spellInfo == null || !(spellInfo.IsPassive || spellInfo.HasAttribute(SpellAttr0.DoNotDisplaySpellbookAuraIconCombatLog)))
 						continue;
 
 					if (Convert.ToBoolean(spellInfo.Stances & (1ul << (MiscValue - 1))))
@@ -1950,7 +1950,7 @@ public class AuraEffect
 
 			foreach (var unit in targets)
 				for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
-					if (unit.GetCurrentSpell(i) != null && unit.GetCurrentSpell(i).Targets.GetUnitTargetGUID() == target.GetGUID())
+					if (unit.GetCurrentSpell(i) != null && unit.GetCurrentSpell(i).Targets.UnitTargetGUID == target.GetGUID())
 						unit.InterruptSpell(i, false);
 
 			foreach (var pair in target.GetThreatManager().GetThreatenedByMeList())
@@ -6000,7 +6000,7 @@ public class AuraEffect
 
 	void HandleBreakableCCAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
-		var damageLeft = (Amount - eventInfo.GetDamageInfo().GetDamage());
+		var damageLeft = (Amount - eventInfo.DamageInfo.GetDamage());
 
 		if (damageLeft <= 0)
 			aurApp.Target.RemoveAura(aurApp);
@@ -6011,7 +6011,7 @@ public class AuraEffect
 	void HandleProcTriggerSpellAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var triggerCaster = aurApp.Target;
-		var triggerTarget = eventInfo.GetProcTarget();
+		var triggerTarget = eventInfo.ProcTarget;
 
 		var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
 
@@ -6027,7 +6027,7 @@ public class AuraEffect
 		if (triggeredSpellInfo != null)
 		{
 			Log.outDebug(LogFilter.Spells, $"AuraEffect.HandleProcTriggerSpellAuraProc: Triggering spell {triggeredSpellInfo.Id} from aura {Id} proc");
-			triggerCaster.CastSpell(triggerTarget, triggeredSpellInfo.Id, new CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.GetProcSpell()));
+			triggerCaster.CastSpell(triggerTarget, triggeredSpellInfo.Id, new CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.ProcSpell));
 		}
 		else if (triggerSpellId != 0 && AuraType != AuraType.Dummy)
 		{
@@ -6038,7 +6038,7 @@ public class AuraEffect
 	void HandleProcTriggerSpellWithValueAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var triggerCaster = aurApp.Target;
-		var triggerTarget = eventInfo.GetProcTarget();
+		var triggerTarget = eventInfo.ProcTarget;
 
 		var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
 
@@ -6054,7 +6054,7 @@ public class AuraEffect
 		if (triggeredSpellInfo != null)
 		{
 			CastSpellExtraArgs args = new(this);
-			args.SetTriggeringSpell(eventInfo.GetProcSpell());
+			args.SetTriggeringSpell(eventInfo.ProcSpell);
 			args.AddSpellMod(SpellValueMod.BasePoint0, Amount);
 			triggerCaster.CastSpell(triggerTarget, triggerSpellId, args);
 			Log.outDebug(LogFilter.Spells, "AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Triggering spell {0} with value {1} from aura {2} proc", triggeredSpellInfo.Id, Amount, Id);
@@ -6068,7 +6068,7 @@ public class AuraEffect
 	void HandleProcTriggerDamageAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var target = aurApp.Target;
-		var triggerTarget = eventInfo.GetProcTarget();
+		var triggerTarget = eventInfo.ProcTarget;
 
 		if (triggerTarget.HasUnitState(UnitState.Isolated) || triggerTarget.IsImmunedToDamage(SpellInfo))
 		{

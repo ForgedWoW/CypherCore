@@ -17,7 +17,7 @@ internal class spell_item_deviate_fish : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -32,7 +32,7 @@ internal class spell_item_deviate_fish : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster  = GetCaster();
+		var caster = Caster;
 		var spellId = RandomHelper.RAND(ItemSpellIds.Sleepy, ItemSpellIds.Invigorate, ItemSpellIds.Shrink, ItemSpellIds.PartyTime, ItemSpellIds.HealthySpirit, ItemSpellIds.Rejuvenation);
 		caster.CastSpell(caster, spellId, true);
 	}

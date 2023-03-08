@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ITransport
+namespace Game.Scripting.Interfaces.ITransport;
+
+public interface ITransportOnRelocate : IScriptObject
 {
-    public interface ITransportOnRelocate : IScriptObject
-    {
-        void OnRelocate(Transport transport, uint mapId, double x, double y, double z);
-    }
+	void OnRelocate(Transport transport, uint mapId, double x, double y, double z);
 }

@@ -46,8 +46,8 @@ internal class spell_item_taunt_flag_targeting : SpellScript, IHasSpellEffects
 	{
 		// we *really* want the unit implementation here
 		// it sends a packet like seen on sniff
-		GetCaster().TextEmote(TextIds.EmotePlantsFlag, GetHitUnit(), false);
+		Caster.TextEmote(TextIds.EmotePlantsFlag, HitUnit, false);
 
-		GetCaster().CastSpell(GetHitUnit(), ItemSpellIds.TauntFlag, true);
+		Caster.CastSpell(HitUnit, ItemSpellIds.TauntFlag, true);
 	}
 }

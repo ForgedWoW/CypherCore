@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IUnit
+namespace Game.Scripting.Interfaces.IUnit;
+
+public interface IUnitModifyPeriodicDamageAurasTick : IScriptObject
 {
-    public interface IUnitModifyPeriodicDamageAurasTick : IScriptObject
-    {
-        void ModifyPeriodicDamageAurasTick(Unit target, Unit attacker, ref double damage);
-    }
+	void ModifyPeriodicDamageAurasTick(Unit target, Unit attacker, ref double damage);
 }

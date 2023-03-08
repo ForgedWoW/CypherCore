@@ -15,14 +15,14 @@ public class spell_dk_scourge_strike_trigger : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-    private void GetTargetUnit(List<WorldObject> targets)
-    {
-        targets.Clear();
-        targets.Add(GetExplTargetUnit());
-    }
-
-    public override void Register()
+	public override void Register()
 	{
-        SpellEffects.Add(new ObjectAreaTargetSelectHandler(GetTargetUnit, 1, Targets.UnitDestAreaEnemy));
-    }
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(GetTargetUnit, 1, Targets.UnitDestAreaEnemy));
+	}
+
+	private void GetTargetUnit(List<WorldObject> targets)
+	{
+		targets.Clear();
+		targets.Add(ExplTargetUnit);
+	}
 }

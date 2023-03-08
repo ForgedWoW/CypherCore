@@ -5,36 +5,43 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces
+namespace Game.Scripting.Interfaces;
+
+public interface IAuraScript : IBaseSpellScript
 {
-    public interface IAuraScript : IBaseSpellScript
-    {
-        Aura GetAura();
-        Difficulty GetCastDifficulty();
-        Unit GetCaster();
-        ObjectGuid GetCasterGUID();
-        int GetDuration();
-        AuraEffect GetEffect(byte effIndex);
-        SpellEffectInfo GetEffectInfo(int effIndex);
-        GameObject GetGObjCaster();
-        uint GetId();
-        int GetMaxDuration();
-        WorldObject GetOwner();
-        SpellInfo GetSpellInfo();
-        byte GetStackAmount();
-        Unit GetTarget();
-        AuraApplication GetTargetApplication();
-        Unit GetUnitOwner();
-        bool HasEffect(byte effIndex);
-        bool IsExpired();
-        bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default);
-        void PreventDefaultAction();
-        void Remove(AuraRemoveMode removeMode = AuraRemoveMode.None);
-        void SetDuration(int duration, bool withMods = false);
-        void SetMaxDuration(int duration);
-        void _FinishScriptCall();
-        bool _IsDefaultActionPrevented();
-        bool _Load(Aura aura);
-        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
-    }
+	Aura Aura { get; }
+
+	Difficulty CastDifficulty { get; }
+	Unit Caster { get; }
+	ObjectGuid CasterGUID { get; }
+
+	int Duration { get; }
+	GameObject GObjCaster { get; }
+	uint Id { get; }
+
+	int MaxDuration { get; set; }
+	WorldObject Owner { get; }
+	SpellInfo SpellInfo { get; }
+
+	byte StackAmount { get; }
+
+	Unit Target { get; }
+
+	AuraApplication TargetApplication { get; }
+	Unit UnitOwner { get; }
+	bool IsExpired { get; }
+
+	AuraEffect GetEffect(byte effIndex);
+	SpellEffectInfo GetEffectInfo(int effIndex);
+
+	bool HasEffect(byte effIndex);
+
+	bool ModStackAmount(int num, AuraRemoveMode removeMode = AuraRemoveMode.Default);
+	void PreventDefaultAction();
+	void Remove(AuraRemoveMode removeMode = AuraRemoveMode.None);
+	void SetDuration(int duration, bool withMods = false);
+	void _FinishScriptCall();
+	bool _IsDefaultActionPrevented();
+	bool _Load(Aura aura);
+	void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication aurApp = null);
 }

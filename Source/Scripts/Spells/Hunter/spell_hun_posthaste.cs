@@ -17,10 +17,10 @@ internal class spell_hun_posthaste : SpellScript, ISpellAfterCast
 
 	public void AfterCast()
 	{
-		if (GetCaster().HasAura(HunterSpells.PosthasteTalent))
+		if (Caster.HasAura(HunterSpells.PosthasteTalent))
 		{
-			GetCaster().RemoveMovementImpairingAuras(true);
-			GetCaster().CastSpell(GetCaster(), HunterSpells.PosthasteIncreaseSpeed, GetSpell());
+			Caster.RemoveMovementImpairingAuras(true);
+			Caster.CastSpell(Caster, HunterSpells.PosthasteIncreaseSpeed, Spell);
 		}
 	}
 }

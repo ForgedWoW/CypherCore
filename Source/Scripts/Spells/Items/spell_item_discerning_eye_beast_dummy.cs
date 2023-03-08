@@ -28,6 +28,6 @@ internal class spell_item_discerning_eye_beast_dummy : AuraScript, IHasAuraEffec
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetActor().CastSpell((Unit)null, ItemSpellIds.DiscerningEyeBeast, new CastSpellExtraArgs(aurEff));
+		eventInfo.Actor.CastSpell((Unit)null, ItemSpellIds.DiscerningEyeBeast, new CastSpellExtraArgs(aurEff));
 	}
 }

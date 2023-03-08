@@ -8,58 +8,57 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 145072 - Item - Warlock T16 2P Bonus
+[SpellScript(145072)]
+internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
 {
-    // 145072 - Item - Warlock T16 2P Bonus
-    [SpellScript(145072)]
-	internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-		private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		uint procSpellId = 0;
+		var spellInfo = eventInfo.DamageInfo.GetSpellInfo();
+
+		if (spellInfo != null)
+			procSpellId = spellInfo.Id;
+
+		double chance = 0;
+		uint triggeredSpellId = 0;
+
+		switch (procSpellId)
 		{
-			uint procSpellId = 0;
-			var spellInfo = eventInfo.GetDamageInfo().GetSpellInfo();
+			case WarlockSpells.CONFLAGRATE:
+			case WarlockSpells.CONFLAGRATE_FIRE_AND_BRIMSTONE:
+				chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
+				triggeredSpellId = 145075; // Destructive Influence
 
-			if (spellInfo != null)
-				procSpellId = spellInfo.Id;
+				break;
+			case WarlockSpells.UNSTABLE_AFFLICTION:
+				chance = aurEff.SpellInfo.GetEffect(1).BasePoints;
+				triggeredSpellId = 145082; // Empowered Grasp
 
-			double chance = 0;
-			uint triggeredSpellId = 0;
+				break;
+			case WarlockSpells.SOUL_FIRE:
+			case WarlockSpells.SOUL_FIRE_METAMORPHOSIS:
+				chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
+				triggeredSpellId = 145085; // Fiery Wrath
 
-			switch (procSpellId)
-			{
-				case WarlockSpells.CONFLAGRATE:
-				case WarlockSpells.CONFLAGRATE_FIRE_AND_BRIMSTONE:
-					chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
-					triggeredSpellId = 145075; // Destructive Influence
-
-					break;
-				case WarlockSpells.UNSTABLE_AFFLICTION:
-					chance = aurEff.SpellInfo.GetEffect(1).BasePoints;
-					triggeredSpellId = 145082; // Empowered Grasp
-
-					break;
-				case WarlockSpells.SOUL_FIRE:
-				case WarlockSpells.SOUL_FIRE_METAMORPHOSIS:
-					chance = aurEff.SpellInfo.GetEffect(3).BasePoints;
-					triggeredSpellId = 145085; // Fiery Wrath
-
-					break;
-				default:
-					return;
-			}
-
-			if (!RandomHelper.randChance(chance))
+				break;
+			default:
 				return;
-
-			var caster = GetUnitOwner();
-			caster.CastSpell(caster, triggeredSpellId, true);
 		}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		if (!RandomHelper.randChance(chance))
+			return;
+
+		var caster = UnitOwner;
+		caster.CastSpell(caster, triggeredSpellId, true);
 	}
 }

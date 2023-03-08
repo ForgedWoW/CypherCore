@@ -18,12 +18,12 @@ internal class spell_item_trigger_spell : SpellScript, IHasSpellEffects
 {
 	private readonly uint _triggeredSpellId;
 
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public spell_item_trigger_spell(uint triggeredSpellId)
 	{
 		_triggeredSpellId = triggeredSpellId;
 	}
-
-	public List<ISpellEffect> SpellEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -37,8 +37,8 @@ internal class spell_item_trigger_spell : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var item   = GetCastItem();
+		var caster = Caster;
+		var item = CastItem;
 
 		if (item)
 			caster.CastSpell(caster, _triggeredSpellId, new CastSpellExtraArgs(item));

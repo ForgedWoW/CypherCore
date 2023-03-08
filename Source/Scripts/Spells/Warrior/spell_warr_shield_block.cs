@@ -9,42 +9,41 @@ using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
-{
-    [SpellScript(2565)]
-	public class spell_warr_shield_block_SpellScript : SpellScript, ISpellOnHit
-	{
-		public void OnHit()
-		{
-			var _player = GetCaster().ToPlayer();
+namespace Scripts.Spells.Warrior;
 
-			if (_player != null)
-				_player.CastSpell(_player, WarriorSpells.SHIELD_BLOCKC_TRIGGERED, true);
-		}
+[SpellScript(2565)]
+public class spell_warr_shield_block_SpellScript : SpellScript, ISpellOnHit
+{
+	public void OnHit()
+	{
+		var _player = Caster.ToPlayer();
+
+		if (_player != null)
+			_player.CastSpell(_player, WarriorSpells.SHIELD_BLOCKC_TRIGGERED, true);
+	}
+}
+
+[SpellScript(2565)]
+public class spell_warr_shield_block_AuraScript : AuraScript, IHasAuraEffects
+{
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
+	{
+		return Global.SpellMgr.GetSpellInfo(WarriorSpells.SHIELD_BLOCKC_TRIGGERED, Difficulty.None) != null;
 	}
 
-	[SpellScript(2565)]
-	public class spell_warr_shield_block_AuraScript : AuraScript, IHasAuraEffects
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.None));
+	}
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return Global.SpellMgr.GetSpellInfo(WarriorSpells.SHIELD_BLOCKC_TRIGGERED, Difficulty.None) != null;
-		}
+	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		var caster = Caster;
 
-		private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			var caster = GetCaster();
-
-			if (caster != null)
-				if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS))
-					amount.Value += 30;
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.None));
-		}
+		if (caster != null)
+			if (caster.HasAura(WarriorSpells.HEAVY_REPERCUSSIONS))
+				amount.Value += 30;
 	}
 }

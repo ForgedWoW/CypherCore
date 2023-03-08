@@ -7,27 +7,26 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 63106 - Siphon Life @ Glyph of Siphon Life
+[SpellScript(63106)]
+public class spell_warlock_siphon_life : SpellScript, IHasSpellEffects
 {
-    // 63106 - Siphon Life @ Glyph of Siphon Life
-    [SpellScript(63106)]
-	public class spell_warlock_siphon_life : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var heal   = caster.SpellHealingBonusDone(caster, GetSpellInfo(), caster.CountPctFromMaxHealth(GetSpellInfo().GetEffect(effIndex).BasePoints), DamageEffectType.Heal, GetEffectInfo(), 1, GetSpell());
-			heal /= 100; // 0.5%
-			heal =  caster.SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DamageEffectType.Heal);
-			SetHitHeal((int)heal);
-			PreventHitDefaultEffect(effIndex);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.ApplyAura, SpellScriptHookType.EffectHitTarget));
-		}
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var heal = caster.SpellHealingBonusDone(caster, SpellInfo, caster.CountPctFromMaxHealth(SpellInfo.GetEffect(effIndex).BasePoints), DamageEffectType.Heal, EffectInfo, 1, Spell);
+		heal /= 100; // 0.5%
+		heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.Heal);
+		HitHeal = (int)heal;
+		PreventHitDefaultEffect(effIndex);
 	}
 }

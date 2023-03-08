@@ -4,10 +4,9 @@
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IUnit
+namespace Game.Scripting.Interfaces.IUnit;
+
+public interface IUnitModifySpellDamageTaken : IScriptObject
 {
-    public interface IUnitModifySpellDamageTaken : IScriptObject
-    {
-        void ModifySpellDamageTaken(Unit target, Unit attacker, ref double damage, SpellInfo spellInfo);
-    }
+	void ModifySpellDamageTaken(Unit target, Unit attacker, ref double damage, SpellInfo spellInfo);
 }

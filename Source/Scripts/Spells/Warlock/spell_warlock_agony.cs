@@ -7,58 +7,57 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 980 - Agony
+[SpellScript(980)]
+public class spell_warlock_agony : AuraScript, IHasAuraEffects
 {
-    // 980 - Agony
-    [SpellScript(980)]
-	public class spell_warlock_agony : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyPeriodic, 1, AuraType.PeriodicDummy));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
-		private void HandleDummyPeriodic(AuraEffect auraEffect)
+	private void HandleDummyPeriodic(AuraEffect auraEffect)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		var soulShardAgonyTick = caster.VariableStorage.GetValue<double>("SoulShardAgonyTick", RandomHelper.FRand(0.0f, 99.0f));
+		soulShardAgonyTick += 16.0f;
+
+		if (soulShardAgonyTick >= 100.0f)
 		{
-			var caster = GetCaster();
+			soulShardAgonyTick = RandomHelper.FRand(0.0f, 99.0f);
 
-			if (caster == null)
-				return;
+			var player = Caster.ToPlayer();
 
-			var soulShardAgonyTick = caster.VariableStorage.GetValue<double>("SoulShardAgonyTick", RandomHelper.FRand(0.0f, 99.0f));
-			soulShardAgonyTick += 16.0f;
-
-			if (soulShardAgonyTick >= 100.0f)
-			{
-				soulShardAgonyTick = RandomHelper.FRand(0.0f, 99.0f);
-
-				var player = GetCaster().ToPlayer();
-
-				if (player != null)
-					if (player.GetPower(PowerType.SoulShards) < player.GetMaxPower(PowerType.SoulShards))
-						player.SetPower(PowerType.SoulShards, player.GetPower(PowerType.SoulShards) + 10);
-			}
-
-			caster.VariableStorage.Set("SoulShardAgonyTick", soulShardAgonyTick);
-
-			// If we have more than maxStackAmount, dont do anything
-			if (GetStackAmount() >= auraEffect.Base.CalcMaxStackAmount())
-				return;
-
-			SetStackAmount((byte)(GetStackAmount() + 1));
+			if (player != null)
+				if (player.GetPower(PowerType.SoulShards) < player.GetMaxPower(PowerType.SoulShards))
+					player.SetPower(PowerType.SoulShards, player.GetPower(PowerType.SoulShards) + 10);
 		}
 
-		private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			// If last agony removed, remove tick counter
-			var caster = GetCaster();
+		caster.VariableStorage.Set("SoulShardAgonyTick", soulShardAgonyTick);
 
-			if (caster != null)
-				if (caster.GetOwnedAura(WarlockSpells.AGONY) == null)
-					caster.VariableStorage.Remove("SoulShardAgonyTick");
-		}
+		// If we have more than maxStackAmount, dont do anything
+		if (StackAmount >= auraEffect.Base.CalcMaxStackAmount())
+			return;
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandleDummyPeriodic, 1, AuraType.PeriodicDummy));
-			AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.PeriodicDummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
-		}
+		StackAmount = (byte)(StackAmount + 1);
+	}
+
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		// If last agony removed, remove tick counter
+		var caster = Caster;
+
+		if (caster != null)
+			if (caster.GetOwnedAura(WarlockSpells.AGONY) == null)
+				caster.VariableStorage.Remove("SoulShardAgonyTick");
 	}
 }

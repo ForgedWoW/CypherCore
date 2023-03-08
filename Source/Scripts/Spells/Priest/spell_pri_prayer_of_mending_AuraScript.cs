@@ -29,8 +29,8 @@ internal class spell_pri_prayer_of_mending_AuraScript : AuraScript, IHasAuraEffe
 	{
 		// Caster: player (priest) that cast the Prayer of Mending
 		// Target: player that currently has Prayer of Mending aura on him
-		var target = GetTarget();
-		var caster = GetCaster();
+		var target = Target;
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -38,7 +38,7 @@ internal class spell_pri_prayer_of_mending_AuraScript : AuraScript, IHasAuraEffe
 			caster.CastSpell(target, PriestSpells.PRAYER_OF_MENDING_HEAL, new CastSpellExtraArgs(aurEff));
 
 			// Only cast Jump if stack is higher than 0
-			int stackAmount = GetStackAmount();
+			int stackAmount = StackAmount;
 
 			if (stackAmount > 1)
 			{

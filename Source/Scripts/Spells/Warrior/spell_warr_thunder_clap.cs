@@ -4,27 +4,26 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 6343 - Thunder Clap
+[SpellScript(6343)]
+public class spell_warr_thunder_clap : SpellScript, ISpellOnHit
 {
-    // 6343 - Thunder Clap
-    [SpellScript(6343)]
-	public class spell_warr_thunder_clap : SpellScript, ISpellOnHit
+	public void OnHit()
 	{
-		public void OnHit()
+		var _player = Caster.ToPlayer();
+
+		if (_player != null)
 		{
-			var _player = GetCaster().ToPlayer();
+			var target = HitUnit;
 
-			if (_player != null)
+			if (target != null)
 			{
-				var target = GetHitUnit();
+				_player.CastSpell(target, WarriorSpells.WEAKENED_BLOWS, true);
 
-				if (target != null)
-				{
-					_player.CastSpell(target, WarriorSpells.WEAKENED_BLOWS, true);
-
-					if (_player.HasAura(WarriorSpells.THUNDERSTRUCK))
-						_player.CastSpell(target, WarriorSpells.THUNDERSTRUCK_STUN, true);
-				}
+				if (_player.HasAura(WarriorSpells.THUNDERSTRUCK))
+					_player.CastSpell(target, WarriorSpells.THUNDERSTRUCK_STUN, true);
 			}
 		}
 	}

@@ -10,12 +10,12 @@ namespace Scripts.Spells.Hunter;
 [Script]
 public class at_hun_freezing_trapAI : AreaTriggerAI
 {
-	public int timeInterval;
-
 	public enum UsedSpells
 	{
 		FREEZING_TRAP_STUN = 3355
 	}
+
+	public int timeInterval;
 
 	public at_hun_freezing_trapAI(AreaTrigger areatrigger) : base(areatrigger)
 	{

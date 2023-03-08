@@ -7,29 +7,28 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Burning Rush - 111400
+[SpellScript(111400)]
+public class aura_warl_burning_rush : AuraScript, IHasAuraEffects
 {
-    // Burning Rush - 111400
-    [SpellScript(111400)]
-	public class aura_warl_burning_rush : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDamagePercent));
+	}
 
-		private void OnTick(AuraEffect UnnamedParameter)
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		if (Caster)
 		{
-			if (GetCaster())
-			{
-				// This way if the current tick takes you below 4%, next tick won't execute
-				var basepoints = GetCaster().CountPctFromMaxHealth(4);
+			// This way if the current tick takes you below 4%, next tick won't execute
+			var basepoints = Caster.CountPctFromMaxHealth(4);
 
-				if (GetCaster().GetHealth() <= basepoints || GetCaster().GetHealth() - basepoints <= basepoints)
-					GetAura().SetDuration(0);
-			}
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 1, AuraType.PeriodicDamagePercent));
+			if (Caster.GetHealth() <= basepoints || Caster.GetHealth() - basepoints <= basepoints)
+				Aura.SetDuration(0);
 		}
 	}
 }

@@ -8,57 +8,56 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Demonbolt - 157695
+[SpellScript(157695)]
+public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 {
-    // Demonbolt - 157695
-    [SpellScript(157695)]
-	public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
+	private int _summons = 0;
+
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		private int _summons = 0;
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountSummons, 2, Targets.UnitCasterAndSummons));
+	}
 
-		public List<ISpellEffect> SpellEffects { get; } = new();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-		private void HandleHit(int effIndex)
+		if (caster == null || target == null)
+			return;
+
+		var damage = HitDamage;
+		MathFunctions.AddPct(ref damage, _summons * 20);
+		HitDamage = damage;
+	}
+
+	private void CountSummons(List<WorldObject> targets)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		foreach (var wo in targets)
 		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+			if (!wo.ToCreature())
+				continue;
 
-			if (caster == null || target == null)
-				return;
+			if (wo.ToCreature().GetOwner() != caster)
+				continue;
 
-			var damage = GetHitDamage();
-			MathFunctions.AddPct(ref damage, _summons * 20);
-			SetHitDamage(damage);
+			if (wo.ToCreature().GetCreatureType() != CreatureType.Demon)
+				continue;
+
+			_summons++;
 		}
 
-		private void CountSummons(List<WorldObject> targets)
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
-				return;
-
-			foreach (var wo in targets)
-			{
-				if (!wo.ToCreature())
-					continue;
-
-				if (wo.ToCreature().GetOwner() != caster)
-					continue;
-
-				if (wo.ToCreature().GetCreatureType() != CreatureType.Demon)
-					continue;
-
-				_summons++;
-			}
-
-			targets.Clear();
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountSummons, 2, Targets.UnitCasterAndSummons));
-		}
+		targets.Clear();
 	}
 }

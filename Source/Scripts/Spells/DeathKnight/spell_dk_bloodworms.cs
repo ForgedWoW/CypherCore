@@ -15,11 +15,16 @@ public class spell_dk_bloodworms : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaEnemy));
+	}
+
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		targets.Clear();
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 			foreach (var itr in caster.Controlled)
@@ -30,10 +35,5 @@ public class spell_dk_bloodworms : SpellScript, IHasSpellEffects
 					if (unit.GetEntry() == 99773)
 						targets.Add(unit);
 			}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitSrcAreaEnemy));
 	}
 }

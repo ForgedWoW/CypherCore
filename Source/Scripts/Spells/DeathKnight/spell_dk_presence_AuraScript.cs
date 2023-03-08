@@ -10,54 +10,24 @@ using Game.Spells;
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(new uint[]
-             {
-	             48263, 48265, 48266
-             })]
+{
+	48263, 48265, 48266
+})]
 public class spell_dk_presence_AuraScript : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		if (!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.FROST_PRESENCE, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(DeathKnightSpells.UNHOLY_PRESENCE, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, Difficulty.None) ||
-		    !Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE_TRIGGERED, Difficulty.None))
+			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.UNHOLY_PRESENCE, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, Difficulty.None) ||
+			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE_TRIGGERED, Difficulty.None))
 			return false;
 
 		return true;
-	}
-
-	private void HandleImprovedFrostPresence(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var target    = GetTarget();
-		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_FROST_PRESENCE, 0);
-
-		if (impAurEff != null)
-			impAurEff.SetAmount(impAurEff.CalculateAmount(GetCaster()));
-	}
-
-	private void HandleImprovedUnholyPresence(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
-	{
-		var target    = GetTarget();
-		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE, 0);
-
-		if (impAurEff != null)
-			if (!target.HasAura(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
-				target.CastSpell(target, DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)impAurEff.Amount).SetTriggeringAura(aurEff));
-	}
-
-	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var target    = GetTarget();
-		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_FROST_PRESENCE, 0);
-
-		if (impAurEff != null)
-			impAurEff.SetAmount(0);
-
-		target.RemoveAura(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
 	}
 
 	public override void Register()
@@ -69,5 +39,35 @@ public class spell_dk_presence_AuraScript : AuraScript, IHasAuraEffects
 			AuraEffects.Add(new AuraEffectApplyHandler(HandleImprovedUnholyPresence, 0, AuraType.Any, AuraEffectHandleModes.Real));
 
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleEffectRemove, 0, AuraType.Any, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
+
+	private void HandleImprovedFrostPresence(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var target = Target;
+		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_FROST_PRESENCE, 0);
+
+		if (impAurEff != null)
+			impAurEff.SetAmount(impAurEff.CalculateAmount(Caster));
+	}
+
+	private void HandleImprovedUnholyPresence(AuraEffect aurEff, AuraEffectHandleModes UnnamedParameter)
+	{
+		var target = Target;
+		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE, 0);
+
+		if (impAurEff != null)
+			if (!target.HasAura(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
+				target.CastSpell(target, DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)impAurEff.Amount).SetTriggeringAura(aurEff));
+	}
+
+	private void HandleEffectRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var target = Target;
+		var impAurEff = target.GetAuraEffect(DeathKnightSpells.IMPROVED_FROST_PRESENCE, 0);
+
+		if (impAurEff != null)
+			impAurEff.SetAmount(0);
+
+		target.RemoveAura(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED);
 	}
 }

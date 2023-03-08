@@ -10,9 +10,7 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class at_dk_defile : AreaTriggerAI
 {
-	public at_dk_defile(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_dk_defile(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnCreate()
 	{

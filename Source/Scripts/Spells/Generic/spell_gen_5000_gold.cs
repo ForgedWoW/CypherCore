@@ -21,7 +21,7 @@ internal class spell_gen_5000_gold : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitPlayer();
+		var target = HitPlayer;
 
 		target?.ModifyMoney(5000 * MoneyConstants.Gold);
 	}

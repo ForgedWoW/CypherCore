@@ -8,47 +8,46 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 1079 - Rip
+internal class spell_dru_rip : AuraScript, IHasAuraEffects
 {
-    [Script] // 1079 - Rip
-	internal class spell_dru_rip : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Load()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		var caster = Caster;
 
-		public override bool Load()
+		return caster != null && caster.IsTypeId(TypeId.Player);
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDamage));
+	}
+
+	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		canBeRecalculated.Value = false;
+
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			var caster = GetCaster();
+			// 0.01 * $AP * cp
+			var cp = (byte)caster.ToPlayer().GetComboPoints();
 
-			return caster != null && caster.IsTypeId(TypeId.Player);
-		}
+			// Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
+			var idol = caster.GetAuraEffect(DruidSpellIds.IdolOfFeralShadows, 0);
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDamage));
-		}
+			if (idol != null)
+				amount.Value += cp * idol.Amount;
+			// Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
+			else if ((idol = caster.GetAuraEffect(DruidSpellIds.IdolOfWorship, 0)) != null)
+				amount.Value += cp * idol.Amount;
 
-		private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			canBeRecalculated.Value = false;
-
-			var caster = GetCaster();
-
-			if (caster != null)
-			{
-				// 0.01 * $AP * cp
-				var cp = (byte)caster.ToPlayer().GetComboPoints();
-
-				// Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
-				var idol = caster.GetAuraEffect(DruidSpellIds.IdolOfFeralShadows, 0);
-
-				if (idol != null)
-					amount.Value += cp * idol.Amount;
-				// Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
-				else if ((idol = caster.GetAuraEffect(DruidSpellIds.IdolOfWorship, 0)) != null)
-					amount.Value += cp * idol.Amount;
-
-				amount.Value += MathFunctions.CalculatePct(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), cp);
-			}
+			amount.Value += MathFunctions.CalculatePct(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack), cp);
 		}
 	}
 }

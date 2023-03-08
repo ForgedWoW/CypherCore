@@ -13,20 +13,20 @@ namespace Scripts.Spells.Monk;
 [SpellScript(129914)]
 public class spell_monk_power_strike_proc : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(MonkSpells.POWER_STRIKE_ENERGIZE);
 	}
 
-	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
-	{
-		GetTarget().CastSpell(GetTarget(), MonkSpells.POWER_STRIKE_ENERGIZE, true);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
+	{
+		Target.CastSpell(Target, MonkSpells.POWER_STRIKE_ENERGIZE, true);
 	}
 }

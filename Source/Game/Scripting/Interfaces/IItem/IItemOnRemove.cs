@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IItem
+namespace Game.Scripting.Interfaces.IItem;
+
+public interface IItemOnRemove : IScriptObject
 {
-    public interface IItemOnRemove : IScriptObject
-    {
-        bool OnRemove(Player player, Item item);
-    }
+	bool OnRemove(Player player, Item item);
 }

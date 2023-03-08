@@ -18,7 +18,7 @@ public class spell_dru_rake : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAuraType(AuraType.ModStealth))
 			_stealthed = true;
@@ -26,25 +26,25 @@ public class spell_dru_rake : SpellScript, IHasSpellEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (caster == null || target == null)
 			return;
 
 		// While stealthed or have Incarnation: King of the Jungle aura, deal 100% increased damage
 		if (_stealthed || caster.HasAura(ShapeshiftFormSpells.INCARNATION_KING_OF_JUNGLE))
-			SetHitDamage(GetHitDamage() * 2);
+			HitDamage = HitDamage * 2;
 
 		// Only stun if the caster was in stealth
 		if (_stealthed)
 			caster.CastSpell(target, RakeSpells.RAKE_STUN, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

@@ -4,10 +4,9 @@
 using Game.DataStorage;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAreaTrigger
+namespace Game.Scripting.Interfaces.IAreaTrigger;
+
+public interface IAreaTriggerTryHandleOnlyOnce : IScriptObject
 {
-    public interface IAreaTriggerTryHandleOnlyOnce : IScriptObject
-    {
-        bool TryHandleOnce(Player player, AreaTriggerRecord trigger);
-    }
+	bool TryHandleOnce(Player player, AreaTriggerRecord trigger);
 }

@@ -26,6 +26,6 @@ internal class spell_gen_spectator_cheer_trigger : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().HandleEmoteCommand(EmoteArray.SelectRandom());
+		Caster.HandleEmoteCommand(EmoteArray.SelectRandom());
 	}
 }

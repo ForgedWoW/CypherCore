@@ -5,10 +5,9 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellEnergizedBySpell : ISpellScript
 {
-    public interface ISpellEnergizedBySpell : ISpellScript
-    {
-        void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType);
-    }
+	void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType);
 }

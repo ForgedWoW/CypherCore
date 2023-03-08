@@ -6,35 +6,32 @@ using Game.Entities;
 using Game.Scripting;
 using Scripts.EasternKingdoms.Deadmines.Bosses;
 
-namespace Scripts.EasternKingdoms.Deadmines.NPC
+namespace Scripts.EasternKingdoms.Deadmines.NPC;
+
+[CreatureScript(48230)]
+public class npc_ogre_henchman : ScriptedAI
 {
-    [CreatureScript(48230)]
-    public class npc_ogre_henchman : ScriptedAI
-    {
-        public npc_ogre_henchman(Creature creature) : base(creature)
-        {
-        }
+	public uint UppercutTimer;
 
-        public uint UppercutTimer;
+	public npc_ogre_henchman(Creature creature) : base(creature) { }
 
-        public override void Reset()
-        {
-            UppercutTimer = 4000;
-        }
+	public override void Reset()
+	{
+		UppercutTimer = 4000;
+	}
 
-        public override void UpdateAI(uint diff)
-        {
-            if (UppercutTimer <= diff)
-            {
-                DoCastVictim(boss_vanessa_vancleef.Spells.UPPERCUT);
-                UppercutTimer = RandomHelper.URand(8000, 11000);
-            }
-            else
-            {
-                UppercutTimer -= diff;
-            }
+	public override void UpdateAI(uint diff)
+	{
+		if (UppercutTimer <= diff)
+		{
+			DoCastVictim(boss_vanessa_vancleef.Spells.UPPERCUT);
+			UppercutTimer = RandomHelper.URand(8000, 11000);
+		}
+		else
+		{
+			UppercutTimer -= diff;
+		}
 
-            DoMeleeAttackIfReady();
-        }
-    }
+		DoMeleeAttackIfReady();
+	}
 }

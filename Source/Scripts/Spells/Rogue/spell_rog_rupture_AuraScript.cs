@@ -28,7 +28,7 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -54,10 +54,10 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 
 	private void OnEffectRemoved(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Death)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
 			return;
 
-		var aura   = GetAura();
+		var aura = Aura;
 		var caster = aura.GetCaster();
 
 		if (!caster)
@@ -69,12 +69,12 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 			return;
 
 		// Venomous Wounds: if unit dies while being affected by rupture, regain energy based on remaining duration
-		var cost = GetSpellInfo().CalcPowerCost(PowerType.Energy, false, caster, GetSpellInfo().GetSchoolMask(), null);
+		var cost = SpellInfo.CalcPowerCost(PowerType.Energy, false, caster, SpellInfo.GetSchoolMask(), null);
 
 		if (cost == null)
 			return;
 
-		var pct         = (double)aura.Duration / (double)aura.MaxDuration;
+		var pct = (double)aura.Duration / (double)aura.MaxDuration;
 		var extraAmount = (int)((double)cost.Amount * pct);
 		caster.ModifyPower(PowerType.Energy, extraAmount);
 	}

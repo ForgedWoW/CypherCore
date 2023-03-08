@@ -17,24 +17,24 @@ public class spell_mage_meteor_damage : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitDestAreaEnemy));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		var unit = GetHitUnit();
+		var unit = HitUnit;
 
 		if (unit == null)
 			return;
 
-		SetHitDamage(GetHitDamage() / _targets);
+		HitDamage = HitDamage / _targets;
 	}
 
 	private void CountTargets(List<WorldObject> targets)
 	{
 		_targets = targets.Count;
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitDestAreaEnemy));
 	}
 }

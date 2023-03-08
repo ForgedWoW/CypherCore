@@ -7,64 +7,63 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+//146739 - Corruption
+[SpellScript(146739)]
+public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
 {
-    //146739 - Corruption
-    [SpellScript(146739)]
-	public class spell_warl_corruption_effect : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None) != null)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
+		return true;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
+	}
+
+	private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var target = Target;
+		var caster = Caster;
+
+		if (target == null || caster == null)
+			return;
+
+		//If the target is a player, only cast for the time said in ABSOLUTE_CORRUPTION
+		if (caster.HasAura(WarlockSpells.ABSOLUTE_CORRUPTION))
+			Aura.SetDuration(target.GetTypeId() == TypeId.Player ? Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None).GetEffect(0).BasePoints * Time.InMilliseconds : 60 * 60 * Time.InMilliseconds); //If not player, 1 hour
+	}
+
+	/*
+	Removes the aura if the caster is null, far away or dead.
+	*/
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		var target = Target;
+		var caster = Caster;
+
+		if (target == null)
+			return;
+
+		if (caster == null)
 		{
-			if (Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None) != null)
-				return false;
+			target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
 
-			return true;
+			return;
 		}
 
-		private void HandleApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var target = GetTarget();
-			var caster = GetCaster();
+		if (caster.IsDead())
+			target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
 
-			if (target == null || caster == null)
-				return;
-
-			//If the target is a player, only cast for the time said in ABSOLUTE_CORRUPTION
-			if (caster.HasAura(WarlockSpells.ABSOLUTE_CORRUPTION))
-				GetAura().SetDuration(target.GetTypeId() == TypeId.Player ? Global.SpellMgr.GetSpellInfo(WarlockSpells.ABSOLUTE_CORRUPTION, Difficulty.None).GetEffect(0).BasePoints * Time.InMilliseconds : 60 * 60 * Time.InMilliseconds); //If not player, 1 hour
-		}
-
-		/*
-		Removes the aura if the caster is null, far away or dead.
-		*/
-		private void HandlePeriodic(AuraEffect UnnamedParameter)
-		{
-			var target = GetTarget();
-			var caster = GetCaster();
-
-			if (target == null)
-				return;
-
-			if (caster == null)
-			{
-				target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
-
-				return;
-			}
-
-			if (caster.IsDead())
-				target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
-
-			if (!caster.IsInRange(target, 0, 80))
-				target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 0, AuraType.PeriodicDamage, AuraEffectHandleModes.Real));
-			AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDamage));
-		}
+		if (!caster.IsInRange(target, 0, 80))
+			target.RemoveAura(WarlockSpells.CORRUPTION_DAMAGE);
 	}
 }

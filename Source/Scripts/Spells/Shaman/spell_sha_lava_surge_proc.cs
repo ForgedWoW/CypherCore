@@ -19,11 +19,11 @@ internal class spell_sha_lava_surge_proc : SpellScript, ISpellAfterHit
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public void AfterHit()
 	{
-		GetCaster().GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, GetCastDifficulty()).ChargeCategoryId);
+		Caster.GetSpellHistory().RestoreCharge(Global.SpellMgr.GetSpellInfo(ShamanSpells.LavaBurst, CastDifficulty).ChargeCategoryId);
 	}
 }

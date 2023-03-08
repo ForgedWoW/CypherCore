@@ -30,19 +30,19 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
 
 	private void IndexTarget(int effIndex)
 	{
-		_orderedTargets.Add(GetHitUnit().GetGUID());
+		_orderedTargets.Add(HitUnit.GetGUID());
 	}
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		var index = _orderedTargets.IndexOf(target.GetGUID());
 
 		if (index == 0 // only primary Target triggers these benefits
-		    &&
-		    target.HasAuraState(AuraStateType.Frozen, GetSpellInfo(), caster))
+			&&
+			target.HasAuraState(AuraStateType.Frozen, SpellInfo, caster))
 		{
 			// Thermal Void
 			var thermalVoid = caster.GetAura(MageSpells.ThermalVoid);

@@ -7,69 +7,68 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 30108 - Unstable Affliction
+[SpellScript(30108)]
+public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
 {
-    // 30108 - Unstable Affliction
-    [SpellScript(30108)]
-	public class spell_warlock_unstable_affliction : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void HandleHit(int effIndex)
+	private void HandleHit(int effIndex)
+	{
+		PreventHitDefaultEffect(effIndex);
+		var caster = Caster;
+		var target = HitUnit;
+
+		if (caster == null || target == null)
+			return;
+
+		var uaspells = new List<int>()
 		{
-			PreventHitDefaultEffect(effIndex);
-			var caster = GetCaster();
-			var target = GetHitUnit();
+			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
+			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
+			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
+			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
+			(int)WarlockSpells.UNSTABLE_AFFLICTION_DOT1
+		};
 
-			if (caster == null || target == null)
-				return;
+		uint spellToCast = 0;
+		var minDuration = 10000;
+		uint lowestDurationSpell = 0;
 
-			var uaspells = new List<int>()
-			               {
-				               (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT5,
-				               (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT4,
-				               (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT3,
-				               (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT2,
-				               (int)WarlockSpells.UNSTABLE_AFFLICTION_DOT1
-			               };
+		foreach (uint spellId in uaspells)
+		{
+			var ua = target.GetAura(spellId, caster.GetGUID());
 
-			uint spellToCast         = 0;
-			var  minDuration         = 10000;
-			uint lowestDurationSpell = 0;
-
-			foreach (uint spellId in uaspells)
+			if (ua != null)
 			{
-				var ua = target.GetAura(spellId, caster.GetGUID());
-
-				if (ua != null)
+				if (ua.Duration < minDuration)
 				{
-					if (ua.Duration < minDuration)
-					{
-						minDuration         = ua.Duration;
-						lowestDurationSpell = ua.SpellInfo.Id;
-					}
-				}
-				else
-				{
-					spellToCast = spellId;
+					minDuration = ua.Duration;
+					lowestDurationSpell = ua.SpellInfo.Id;
 				}
 			}
-
-			if (spellToCast == 0)
-				caster.CastSpell(target, lowestDurationSpell, true);
 			else
-				caster.CastSpell(target, spellToCast, true);
-
-			if (caster.HasAura(WarlockSpells.CONTAGION))
-				caster.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
-
-			if (caster.HasAura(WarlockSpells.COMPOUNDING_HORROR))
-				caster.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
+			{
+				spellToCast = spellId;
+			}
 		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
+		if (spellToCast == 0)
+			caster.CastSpell(target, lowestDurationSpell, true);
+		else
+			caster.CastSpell(target, spellToCast, true);
+
+		if (caster.HasAura(WarlockSpells.CONTAGION))
+			caster.CastSpell(target, WarlockSpells.CONTAGION_DEBUFF, true);
+
+		if (caster.HasAura(WarlockSpells.COMPOUNDING_HORROR))
+			caster.CastSpell(target, WarlockSpells.COMPOUNDING_HORROR_DAMAGE, true);
 	}
 }

@@ -16,11 +16,11 @@ internal class spell_item_shadows_fate : AuraScript, IAuraOnProc
 	{
 		PreventDefaultAction();
 
-		var caster = procInfo.GetActor();
-		var target = GetCaster();
+		var caster = procInfo.Actor;
+		var target = Caster;
 
 		if (!caster ||
-		    !target)
+			!target)
 			return;
 
 		caster.CastSpell(target, ItemSpellIds.SoulFeast, new CastSpellExtraArgs(TriggerCastFlags.FullMask));

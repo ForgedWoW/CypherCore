@@ -34,6 +34,6 @@ internal class spell_item_wormhole_pandaria : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 		var spellId = WormholeTargetLocations.SelectRandom();
-		GetCaster().CastSpell(GetHitUnit(), spellId, true);
+		Caster.CastSpell(HitUnit, spellId, true);
 	}
 }

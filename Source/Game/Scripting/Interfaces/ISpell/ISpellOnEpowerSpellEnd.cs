@@ -3,10 +3,9 @@
 
 using Game.DataStorage;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellOnEpowerSpellEnd : ISpellScript
 {
-    public interface ISpellOnEpowerSpellEnd : ISpellScript
-    {
-        void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta);
-    }
+	void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta);
 }

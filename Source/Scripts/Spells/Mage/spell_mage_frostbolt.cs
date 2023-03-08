@@ -18,9 +18,9 @@ internal class spell_mage_frostbolt : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
 		if (target != null)
-			GetCaster().CastSpell(target, MageSpells.Chilled, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+			Caster.CastSpell(target, MageSpells.Chilled, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 	}
 }

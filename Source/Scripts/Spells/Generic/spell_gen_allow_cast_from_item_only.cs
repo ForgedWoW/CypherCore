@@ -12,7 +12,7 @@ internal class spell_gen_allow_cast_from_item_only : SpellScript, ISpellCheckCas
 {
 	public SpellCastResult CheckCast()
 	{
-		if (!GetCastItem())
+		if (!CastItem)
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;

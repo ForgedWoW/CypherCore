@@ -22,7 +22,7 @@ internal class spell_item_artifical_damage : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetOwner().IsTypeId(TypeId.Player);
+		return Owner.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -32,9 +32,9 @@ internal class spell_item_artifical_damage : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var artifact = GetOwner().ToPlayer().GetItemByGuid(GetAura().CastItemGuid);
+		var artifact = Owner.ToPlayer().GetItemByGuid(Aura.CastItemGuid);
 
 		if (artifact)
-			amount.Value = (GetSpellInfo().GetEffect(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
+			amount.Value = (SpellInfo.GetEffect(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);
 	}
 }

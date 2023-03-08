@@ -7,22 +7,21 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+//214871 - Odyn's fury
+[SpellScript(214871)]
+internal class spell_warr_odyns_fury : AuraScript, IHasAuraEffects
 {
-    //214871 - Odyn's fury
-    [SpellScript(214871)]
-	internal class spell_warr_odyns_fury : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
+	}
 
-		private double Absorb(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double absorbAmount)
-		{
-			return 0;
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
-		}
+	private double Absorb(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double absorbAmount)
+	{
+		return 0;
 	}
 }

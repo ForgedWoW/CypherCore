@@ -24,16 +24,16 @@ public class spell_dk_blighted_rune_weapon : SpellScript, IHasSpellEffects
 		return true;
 	}
 
-	private void HandleHit(int effIndex)
-	{
-		var target = GetHitUnit();
-
-		if (target != null)
-			GetCaster().CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleHit(int effIndex)
+	{
+		var target = HitUnit;
+
+		if (target != null)
+			Caster.CastSpell(target, DeathKnightSpells.FESTERING_WOUND, true);
 	}
 }

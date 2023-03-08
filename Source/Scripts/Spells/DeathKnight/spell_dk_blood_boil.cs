@@ -17,6 +17,6 @@ internal class spell_dk_blood_boil : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		GetCaster().CastSpell(GetHitUnit(), DeathKnightSpells.BloodPlague, true);
+		Caster.CastSpell(HitUnit, DeathKnightSpells.BloodPlague, true);
 	}
 }

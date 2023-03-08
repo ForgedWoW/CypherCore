@@ -12,20 +12,20 @@ namespace Scripts.Spells.Monk;
 [SpellScript(121817)]
 public class spell_monk_power_strike_periodic : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		return ValidateSpellInfo(MonkSpells.POWER_STRIKES_AURA);
 	}
 
-	private void HandlePeriodic(AuraEffect UnnamedParameter)
-	{
-		GetTarget().CastSpell(GetTarget(), MonkSpells.POWER_STRIKES_AURA, true);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));
+	}
+
+	private void HandlePeriodic(AuraEffect UnnamedParameter)
+	{
+		Target.CastSpell(Target, MonkSpells.POWER_STRIKES_AURA, true);
 	}
 }

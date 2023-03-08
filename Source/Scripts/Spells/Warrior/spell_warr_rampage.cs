@@ -4,43 +4,42 @@
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Rampage damage dealers - 218617, 184707, 184709, 201364, 201363
+[SpellScript(new uint[]
 {
-    // Rampage damage dealers - 218617, 184707, 184709, 201364, 201363
-    [SpellScript(new uint[]
-	             {
-		             218617, 184707, 184709, 201364, 201363
-	             })]
-	public class spell_warr_rampage : SpellScript, ISpellOnHit, ISpellOnCast
+	218617, 184707, 184709, 201364, 201363
+})]
+public class spell_warr_rampage : SpellScript, ISpellOnHit, ISpellOnCast
+{
+	public void OnCast()
 	{
-		public void OnCast()
-		{
-			var caster = GetCaster();
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			var enrage = caster.GetAura(WarriorSpells.ENRAGE_AURA);
+		var enrage = caster.GetAura(WarriorSpells.ENRAGE_AURA);
 
-			if (enrage != null)
-				enrage.RefreshDuration();
-			else
-				caster.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
-		}
+		if (enrage != null)
+			enrage.RefreshDuration();
+		else
+			caster.CastSpell(caster, WarriorSpells.ENRAGE_AURA, true);
+	}
 
-		public void OnHit()
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+	public void OnHit()
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-			if (caster == null || target == null)
-				return;
+		if (caster == null || target == null)
+			return;
 
-			if (target != ObjectAccessor.Instance.GetUnit(caster, caster.GetTarget()))
-				SetHitDamage(GetHitDamage() / 2);
+		if (target != ObjectAccessor.Instance.GetUnit(caster, caster.GetTarget()))
+			HitDamage = HitDamage / 2;
 
-			if (caster == target)
-				SetHitDamage(0);
-		}
+		if (caster == target)
+			HitDamage = 0;
 	}
 }

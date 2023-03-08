@@ -3,10 +3,9 @@
 
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnInfoChanged : IScriptObject
 {
-    public interface IGuildOnInfoChanged : IScriptObject
-    {
-        void OnInfoChanged(Guild guild, string newInfo);
-    }
+	void OnInfoChanged(Guild guild, string newInfo);
 }

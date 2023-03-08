@@ -7,19 +7,19 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Druid;
 
 [SpellScript(new uint[]
-             {
-	             190984, 194153
-             })]
+{
+	190984, 194153
+})]
 public class spell_dru_blessing_of_elune : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var power = GetHitDamage();
+		var power = HitDamage;
 
 		var aura = caster.GetAura(202737);
 
@@ -31,6 +31,6 @@ public class spell_dru_blessing_of_elune : SpellScript, ISpellOnHit
 				power += MathFunctions.CalculatePct(power, aurEff.Amount);
 		}
 
-		SetHitDamage(power);
+		HitDamage = power;
 	}
 }

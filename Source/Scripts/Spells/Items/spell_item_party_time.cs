@@ -22,7 +22,7 @@ internal class spell_item_party_time : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var player = GetOwner().ToPlayer();
+		var player = Owner.ToPlayer();
 
 		if (player == null)
 			return;

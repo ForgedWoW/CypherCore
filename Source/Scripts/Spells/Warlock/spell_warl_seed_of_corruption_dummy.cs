@@ -9,61 +9,60 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(27243)] // 27243 - Seed of Corruption
+internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
 {
-    [SpellScript(27243)] // 27243 - Seed of Corruption
-	internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(WarlockSpells.SEED_OF_CORRUPTION_DAMAGE);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateBuffer, 2, AuraType.Dummy));
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void CalculateBuffer(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		var caster = Caster;
+
+		if (caster == null)
+			return;
+
+		amount.Value = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * GetEffectInfo(0).CalcValue(caster) / 100;
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var damageInfo = eventInfo.DamageInfo;
+
+		if (damageInfo == null ||
+			damageInfo.GetDamage() == 0)
+			return;
+
+		var amount = (int)(aurEff.Amount - damageInfo.GetDamage());
+
+		if (amount > 0)
 		{
-			return ValidateSpellInfo(WarlockSpells.SEED_OF_CORRUPTION_DAMAGE);
-		}
+			aurEff.SetAmount(amount);
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateBuffer, 2, AuraType.Dummy));
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 2, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
-
-		private void CalculateBuffer(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-		{
-			var caster = GetCaster();
-
-			if (caster == null)
+			if (!Target.HealthBelowPctDamaged(1, damageInfo.GetDamage()))
 				return;
-
-			amount.Value = caster.SpellBaseDamageBonusDone(GetSpellInfo().GetSchoolMask()) * GetEffectInfo(0).CalcValue(caster) / 100;
 		}
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-			var damageInfo = eventInfo.GetDamageInfo();
+		Remove();
 
-			if (damageInfo == null ||
-			    damageInfo.GetDamage() == 0)
-				return;
+		var caster = Caster;
 
-			var amount = (int)(aurEff.Amount - damageInfo.GetDamage());
+		if (!caster)
+			return;
 
-			if (amount > 0)
-			{
-				aurEff.SetAmount(amount);
-
-				if (!GetTarget().HealthBelowPctDamaged(1, damageInfo.GetDamage()))
-					return;
-			}
-
-			Remove();
-
-			var caster = GetCaster();
-
-			if (!caster)
-				return;
-
-			caster.CastSpell(eventInfo.GetActionTarget(), WarlockSpells.SEED_OF_CORRUPTION_DAMAGE, true);
-		}
+		caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_DAMAGE, true);
 	}
 }

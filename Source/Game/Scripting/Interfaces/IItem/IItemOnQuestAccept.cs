@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IItem
+namespace Game.Scripting.Interfaces.IItem;
+
+public interface IItemOnQuestAccept : IScriptObject
 {
-    public interface IItemOnQuestAccept : IScriptObject
-    {
-        bool OnQuestAccept(Player player, Item item, Quest quest);
-    }
+	bool OnQuestAccept(Player player, Item item, Quest quest);
 }

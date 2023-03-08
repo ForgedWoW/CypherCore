@@ -9,49 +9,48 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 105792 - Lava Lash
+[SpellScript(105792)]
+public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffects
 {
-    // 105792 - Lava Lash
-    [SpellScript(105792)]
-	public class spell_sha_lava_lash_spread_flame_shock : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Load()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return Caster.GetTypeId() == TypeId.Player;
+	}
 
-		public override bool Load()
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
+		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, Caster.GetGUID()));
+	}
+
+	private void HandleScript(int effIndex)
+	{
+		var mainTarget = ExplTargetUnit;
+
+		if (mainTarget != null)
 		{
-			return GetCaster().GetTypeId() == TypeId.Player;
-		}
+			var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, Caster.GetGUID());
 
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, ShamanSpells.FLAME_SHOCK, GetCaster().GetGUID()));
-		}
-
-		private void HandleScript(int effIndex)
-		{
-			var mainTarget = GetExplTargetUnit();
-
-			if (mainTarget != null)
+			if (flameShock != null)
 			{
-				var flameShock = mainTarget.GetAura(ShamanSpells.FLAME_SHOCK, GetCaster().GetGUID());
+				var newAura = Caster.AddAura(ShamanSpells.FLAME_SHOCK, HitUnit);
 
-				if (flameShock != null)
+				if (newAura != null)
 				{
-					var newAura = GetCaster().AddAura(ShamanSpells.FLAME_SHOCK, GetHitUnit());
-
-					if (newAura != null)
-					{
-						newAura.SetDuration(flameShock.Duration);
-						newAura.SetMaxDuration(flameShock.Duration);
-					}
+					newAura.SetDuration(flameShock.Duration);
+					newAura.SetMaxDuration(flameShock.Duration);
 				}
 			}
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaEnemy));
-			SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 		}
 	}
 }

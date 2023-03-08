@@ -12,7 +12,7 @@ public class spell_dh_master_of_the_glaive : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == DemonHunterSpells.THROW_GLAIVE)
+		if (eventInfo.SpellInfo.Id == DemonHunterSpells.THROW_GLAIVE)
 			return true;
 
 		return false;

@@ -13,17 +13,22 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(207771)]
 public class spell_dh_fiery_brand_dot : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamage));
+	}
 
 	private void PeriodicTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null || !caster.HasAura(DemonHunterSpells.BURNING_ALIVE))
 			return;
 
 		var unitList = new List<Unit>();
-		GetTarget().GetAnyUnitListInRange(unitList, 8.0f);
+		Target.GetAnyUnitListInRange(unitList, 8.0f);
 
 		foreach (var target in unitList)
 			if (!target.HasAura(DemonHunterSpells.FIERY_BRAND_DOT) && !target.HasAura(DemonHunterSpells.FIERY_BRAND_MARKER) && !caster.IsFriendlyTo(target))
@@ -32,10 +37,5 @@ public class spell_dh_fiery_brand_dot : AuraScript, IHasAuraEffects
 
 				break;
 			}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectPeriodicHandler(PeriodicTick, 2, AuraType.PeriodicDamage));
 	}
 }

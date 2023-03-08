@@ -28,9 +28,9 @@ internal class spell_gen_aura_of_fear : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		if (!RandomHelper.randChance(GetSpellInfo().ProcChance))
+		if (!RandomHelper.randChance(SpellInfo.ProcChance))
 			return;
 
-		GetTarget().CastSpell(null, aurEff.GetSpellEffectInfo().TriggerSpell, true);
+		Target.CastSpell(null, aurEff.GetSpellEffectInfo().TriggerSpell, true);
 	}
 }

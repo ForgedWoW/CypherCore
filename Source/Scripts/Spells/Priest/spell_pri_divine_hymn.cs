@@ -23,14 +23,14 @@ internal class spell_pri_divine_hymn : SpellScript, IHasSpellEffects
 	private void FilterTargets(List<WorldObject> targets)
 	{
 		targets.RemoveAll(obj =>
-		                  {
-			                  var target = obj.ToUnit();
+		{
+			var target = obj.ToUnit();
 
-			                  if (target)
-				                  return !GetCaster().IsInRaidWith(target);
+			if (target)
+				return !Caster.IsInRaidWith(target);
 
-			                  return true;
-		                  });
+			return true;
+		});
 
 		uint maxTargets = 3;
 

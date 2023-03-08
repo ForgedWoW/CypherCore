@@ -22,6 +22,6 @@ internal class spell_gen_throw_shield : SpellScript, IHasSpellEffects
 	private void HandleScriptEffect(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		GetCaster().CastSpell(GetHitUnit(), (uint)GetEffectValue(), true);
+		Caster.CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 }

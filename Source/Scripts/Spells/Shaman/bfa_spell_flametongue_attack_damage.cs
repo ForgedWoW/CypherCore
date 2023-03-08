@@ -5,23 +5,22 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// Flametongue Attack - 10444
+[SpellScript(10444)]
+public class bfa_spell_flametongue_attack_damage : SpellScript, ISpellOnHit
 {
-    // Flametongue Attack - 10444
-    [SpellScript(10444)]
-	public class bfa_spell_flametongue_attack_damage : SpellScript, ISpellOnHit
+	public void OnHit()
 	{
-		public void OnHit()
-		{
-			var caster = GetCaster();
+		var caster = Caster;
 
-			if (caster == null)
-				return;
+		if (caster == null)
+			return;
 
-			var flamet = caster.GetAura(ShamanSpells.FLAMETONGUE_AURA);
+		var flamet = caster.GetAura(ShamanSpells.FLAMETONGUE_AURA);
 
-			if (flamet != null)
-				SetHitDamage((int)(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.2f));
-		}
+		if (flamet != null)
+			HitDamage = (int)(caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.2f);
 	}
 }

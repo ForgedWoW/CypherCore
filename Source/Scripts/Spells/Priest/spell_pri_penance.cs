@@ -13,6 +13,8 @@ namespace Scripts.Spells.Priest;
 [Script] // 47540 - Penance
 internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(PriestSpells.PENANCE_CHANNEL_DAMAGE, PriestSpells.PENANCE_CHANNEL_HEALING);
@@ -20,8 +22,8 @@ internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffect
 
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
-		var target = GetExplTargetUnit();
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
 		if (target)
 			if (!caster.IsFriendlyTo(target))
@@ -41,19 +43,17 @@ internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffect
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target)
 		{
 			if (caster.IsFriendlyTo(target))
-				caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_HEALING, new CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+				caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_HEALING, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
 			else
-				caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_DAMAGE, new CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+				caster.CastSpell(target, PriestSpells.PENANCE_CHANNEL_DAMAGE, new CastSpellExtraArgs().SetTriggeringSpell(Spell));
 		}
 	}
 }

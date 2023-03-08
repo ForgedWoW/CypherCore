@@ -12,7 +12,7 @@ public class spell_dh_annihilation : SpellScript, ISpellBeforeHit
 {
 	public void BeforeHit(SpellMissInfo missInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -21,10 +21,10 @@ public class spell_dh_annihilation : SpellScript, ISpellBeforeHit
 			if (target == null)
 				return;
 
-			var   attackPower = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) + 28.7f;
-			double damage      = GetHitDamage();
+			var attackPower = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) + 28.7f;
+			var damage = HitDamage;
 
-			SetHitDamage(damage + attackPower);
+			HitDamage = damage + attackPower;
 
 			if (RandomHelper.randChance(20))
 				caster.ModifyPower(PowerType.Fury, +20);

@@ -22,10 +22,10 @@ internal class spell_q12308_escape_from_silverbrook_summon_worgen : SpellScript,
 
 	private void ModDest(SpellDestination dest)
 	{
-		var dist  = GetEffectInfo(0).CalcRadius(GetCaster());
+		var dist = GetEffectInfo(0).CalcRadius(Caster);
 		var angle = RandomHelper.FRand(0.75f, 1.25f) * MathFunctions.PI;
 
-		var pos = GetCaster().GetNearPosition(dist, angle);
+		var pos = Caster.GetNearPosition(dist, angle);
 		dest.Relocate(pos);
 	}
 }

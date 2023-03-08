@@ -4,10 +4,9 @@
 using Game.DataStorage;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAreaTrigger
+namespace Game.Scripting.Interfaces.IAreaTrigger;
+
+public interface IAreaTriggerOnExit : IScriptObject
 {
-    public interface IAreaTriggerOnExit : IScriptObject
-    {
-        bool OnExit(Player player, AreaTriggerRecord trigger);
-    }
+	bool OnExit(Player player, AreaTriggerRecord trigger);
 }

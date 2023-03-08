@@ -14,20 +14,20 @@ public class spell_dh_consume_soul_missile : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
+	}
+
 	private void HandleHit(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
-		var spellToCast = GetSpellValue().EffectBasePoints[0];
+		var spellToCast = SpellValue.EffectBasePoints[0];
 		caster.CastSpell(caster, (uint)spellToCast, true);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.TriggerMissile, SpellScriptHookType.EffectHit));
 	}
 }

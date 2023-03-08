@@ -12,20 +12,25 @@ namespace Scripts.Spells.Druid;
 [SpellScript(197492)]
 public class aura_dru_restoration_affinity : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-
 	private readonly List<uint> LearnedSpells = new()
-	                                            {
-		                                            (uint)DruidSpells.YSERA_GIFT,
-		                                            (uint)DruidSpells.REJUVENATION,
-		                                            (uint)DruidSpells.HEALING_TOUCH,
-		                                            (uint)DruidSpells.SWIFTMEND
-	                                            };
+	{
+		(uint)DruidSpells.YSERA_GIFT,
+		(uint)DruidSpells.REJUVENATION,
+		(uint)DruidSpells.HEALING_TOUCH,
+		(uint)DruidSpells.SWIFTMEND
+	};
+
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
+	}
 
 	private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget().ToPlayer();
+		var target = Target.ToPlayer();
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)
@@ -34,16 +39,10 @@ public class aura_dru_restoration_affinity : AuraScript, IHasAuraEffects
 
 	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = GetTarget().ToPlayer();
+		var target = Target.ToPlayer();
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)
 				target.RemoveSpell(spellId);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterApply, 0, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(AfterRemove, 0, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 }

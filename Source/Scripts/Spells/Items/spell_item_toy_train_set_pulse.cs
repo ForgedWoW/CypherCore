@@ -23,7 +23,7 @@ internal class spell_item_toy_train_set_pulse : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int index)
 	{
-		var target = GetHitUnit().ToPlayer();
+		var target = HitUnit.ToPlayer();
 
 		if (target)
 		{

@@ -27,26 +27,33 @@ internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		if (caster != null) {
-			var target = GetHitUnit();
-			if (target != null) {
-				if (target.IsFriendlyTo(caster) && target.GetCreatureType() == CreatureType.Undead) {
-					caster.CastSpell(GetHitUnit(), DeathKnightSpells.DEATH_COIL_HEAL, true);
-				} else {
-					var spell = caster.CastSpell(GetHitUnit(), DeathKnightSpells.DEATH_COIL_DAMAGE, true);
+		var caster = Caster;
+
+		if (caster != null)
+		{
+			var target = HitUnit;
+
+			if (target != null)
+			{
+				if (target.IsFriendlyTo(caster) && target.GetCreatureType() == CreatureType.Undead)
+				{
+					caster.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_HEAL, true);
+				}
+				else
+				{
+					var spell = caster.CastSpell(HitUnit, DeathKnightSpells.DEATH_COIL_DAMAGE, true);
 				}
 
 				var unholyAura = caster.GetAuraEffect(DeathKnightSpells.Unholy, 6);
+
 				if (unholyAura != null) // can be any effect, just here to send SpellFailedDontReport on failure
 					caster.CastSpell(caster, DeathKnightSpells.UnholyVigor, new CastSpellExtraArgs(unholyAura));
 
 				var suddenDoom = caster.GetAura(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM_AURA);
+
 				if (suddenDoom != null)
-				{
-                    if (caster.HasAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH))
-                        caster.AddAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH_AURA, target);
-                }
+					if (caster.HasAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH))
+						caster.AddAura(DeathKnightSpells.DEATH_COIL_ROTTENTOUCH_AURA, target);
 			}
 		}
 	}

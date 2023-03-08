@@ -32,13 +32,13 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 		var ringOfFrost = GetRingOfFrostMinion();
 
 		if (ringOfFrost)
-			GetTarget().CastSpell(ringOfFrost.Location, MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
+			Target.CastSpell(ringOfFrost.Location, MageSpells.RingOfFrostFreeze, new CastSpellExtraArgs(true));
 	}
 
 	private void Apply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		List<TempSummon> minions = new();
-		GetTarget().GetAllMinionsByEntry(minions, (uint)Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, GetCastDifficulty()).GetEffect(0).MiscValue);
+		Target.GetAllMinionsByEntry(minions, (uint)Global.SpellMgr.GetSpellInfo(MageSpells.RingOfFrostSummon, CastDifficulty).GetEffect(0).MiscValue);
 
 		// Get the last summoned RoF, save it and despawn older ones
 		foreach (var summon in minions)
@@ -66,7 +66,7 @@ internal class spell_mage_ring_of_frost : AuraScript, IHasAuraEffects
 
 	private TempSummon GetRingOfFrostMinion()
 	{
-		var creature = ObjectAccessor.GetCreature(GetOwner(), _ringOfFrostGUID);
+		var creature = ObjectAccessor.GetCreature(Owner, _ringOfFrostGUID);
 
 		if (creature)
 			return creature.ToTempSummon();

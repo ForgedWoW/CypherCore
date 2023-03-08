@@ -6,21 +6,18 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 
-namespace Scripts.Spells.Paladin
-{
-    // Light's Hammer
-    // NPC Id - 59738
-    [CreatureScript(59738)]
-    public class npc_pal_lights_hammer : ScriptedAI
-    {
-        public npc_pal_lights_hammer(Creature creature) : base(creature)
-        {
-        }
+namespace Scripts.Spells.Paladin;
 
-        public override void Reset()
-        {
-            me.CastSpell(me, PaladinSpells.LightHammerCosmetic, true);
-            me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
-        }
-    }
+// Light's Hammer
+// NPC Id - 59738
+[CreatureScript(59738)]
+public class npc_pal_lights_hammer : ScriptedAI
+{
+	public npc_pal_lights_hammer(Creature creature) : base(creature) { }
+
+	public override void Reset()
+	{
+		me.CastSpell(me, PaladinSpells.LightHammerCosmetic, true);
+		me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
+	}
 }

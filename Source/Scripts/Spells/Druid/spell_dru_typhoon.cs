@@ -14,15 +14,15 @@ public class spell_dru_typhoon : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleKnockBack(int effIndex)
-	{
-		// Glyph of Typhoon
-		if (GetCaster().HasAura(DruidSpells.GLYPH_OF_TYPHOON))
-			PreventHitDefaultEffect(effIndex);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleKnockBack, 0, SpellEffectName.KnockBack, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleKnockBack(int effIndex)
+	{
+		// Glyph of Typhoon
+		if (Caster.HasAura(DruidSpells.GLYPH_OF_TYPHOON))
+			PreventHitDefaultEffect(effIndex);
 	}
 }

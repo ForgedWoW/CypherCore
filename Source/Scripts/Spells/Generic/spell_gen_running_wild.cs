@@ -19,12 +19,10 @@ internal class spell_gen_running_wild : SpellScript
 	{
 		// Definitely not a good thing, but currently the only way to do something at cast start
 		// Should be replaced as soon as possible with a new hook: BeforeCastStart
-		GetCaster().CastSpell(GetCaster(), GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
+		Caster.CastSpell(Caster, GenericSpellIds.AlteredForm, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 
 		return false;
 	}
 
-	public override void Register()
-	{
-	}
+	public override void Register() { }
 }

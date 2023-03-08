@@ -13,9 +13,7 @@ namespace Scripts.Spells.DemonHunter;
 [Script]
 public class at_dh_artifact_inner_demons : AreaTriggerAI
 {
-	public at_dh_artifact_inner_demons(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_dh_artifact_inner_demons(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnInitialize()
 	{
@@ -24,15 +22,15 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		var guid   = caster.VariableStorage.GetValue<ObjectGuid>("Spells.InnerDemonsTarget", ObjectGuid.Empty);
+		var guid = caster.VariableStorage.GetValue<ObjectGuid>("Spells.InnerDemonsTarget", ObjectGuid.Empty);
 		var target = ObjectAccessor.Instance.GetUnit(caster, guid);
 
 		if (target != null)
 		{
 			List<Vector3> splinePoints = new();
-			var           orientation  = caster.Location.Orientation;
-			var           posX         = caster.Location.X - 7 * (float)Math.Cos(orientation);
-			var           posY         = caster.Location.Y - 7 * (float)Math.Sin(orientation); // Start from behind the caster
+			var orientation = caster.Location.Orientation;
+			var posX = caster.Location.X - 7 * (float)Math.Cos(orientation);
+			var posY = caster.Location.Y - 7 * (float)Math.Sin(orientation); // Start from behind the caster
 			splinePoints.Add(new Vector3(posX, posY, caster.Location.Z));
 			splinePoints.Add(new Vector3(target.Location.X, target.Location.Y, target.Location.Z));
 

@@ -8,48 +8,47 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// Shadow Lock - 171140
+[SpellScript(171140)]
+public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-    // Shadow Lock - 171140
-    [SpellScript(171140)]
-	public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public SpellCastResult CheckCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		var caster = Caster;
+		var pet = caster.GetGuardianPet();
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
-			var pet    = caster.GetGuardianPet();
+		if (caster == null || pet == null)
+			return SpellCastResult.DontReport;
 
-			if (caster == null || pet == null || target == null)
-				return;
+		if (pet.GetSpellHistory().HasCooldown(WarlockSpells.DOOMGUARD_SHADOW_LOCK))
+			return SpellCastResult.CantDoThatRightNow;
 
-			/*if (pet->GetEntry() != PET_ENTRY_DOOMGUARD)
-				return;*/
+		return SpellCastResult.SpellCastOk;
+	}
 
-			pet.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-			caster.ToPlayer().GetSpellHistory().ModifyCooldown(GetSpellInfo().Id, TimeSpan.FromSeconds(24));
-		}
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
+		var pet = caster.GetGuardianPet();
 
-		public SpellCastResult CheckCast()
-		{
-			var caster = GetCaster();
-			var pet    = caster.GetGuardianPet();
+		if (caster == null || pet == null || target == null)
+			return;
 
-			if (caster == null || pet == null)
-				return SpellCastResult.DontReport;
+		/*if (pet->GetEntry() != PET_ENTRY_DOOMGUARD)
+			return;*/
 
-			if (pet.GetSpellHistory().HasCooldown(WarlockSpells.DOOMGUARD_SHADOW_LOCK))
-				return SpellCastResult.CantDoThatRightNow;
+		pet.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
 
-			return SpellCastResult.SpellCastOk;
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
+		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

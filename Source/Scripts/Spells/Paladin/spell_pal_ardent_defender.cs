@@ -9,61 +9,59 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 31850 - ardent defender
+[SpellScript(31850)]
+public class spell_pal_ardent_defender : AuraScript, IHasAuraEffects
 {
-    // 31850 - ardent defender
-    [SpellScript(31850)]
-    public class spell_pal_ardent_defender : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	private double absorbPct;
+	private double healPct;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public spell_pal_ardent_defender()
-        {
-            absorbPct = 0;
-            healPct = 0;
-        }
+	public spell_pal_ardent_defender()
+	{
+		absorbPct = 0;
+		healPct = 0;
+	}
 
-        public override bool Validate(SpellInfo UnnamedParameter)
-        {
-            return ValidateSpellInfo(PaladinSpells.ARDENT_DEFENDER);
-        }
+	public override bool Validate(SpellInfo UnnamedParameter)
+	{
+		return ValidateSpellInfo(PaladinSpells.ARDENT_DEFENDER);
+	}
 
-        public override bool Load()
-        {
-            absorbPct = GetSpellInfo().GetEffect(0).CalcValue();
-            healPct = GetSpellInfo().GetEffect(1).CalcValue();
-            return GetUnitOwner().IsPlayer();
-        }
+	public override bool Load()
+	{
+		absorbPct = SpellInfo.GetEffect(0).CalcValue();
+		healPct = SpellInfo.GetEffect(1).CalcValue();
 
-        public void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
-        {
-            amount.Value = -1;
-        }
+		return UnitOwner.IsPlayer();
+	}
 
-        public double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
-        {
-            absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
+	public void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
+	{
+		amount.Value = -1;
+	}
 
-            Unit target = GetTarget();
-            if (dmgInfo.GetDamage() < target.GetHealth())
-            {
-                return absorbAmount;
-            }
+	public double Absorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
+	{
+		absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
 
-            double healAmount = target.CountPctFromMaxHealth(healPct);
-            target.CastSpell(target, PaladinSpells.ARDENT_DEFENDER_HEAL, (int)healAmount);
-            aurEff.Base.Remove();
+		var target = Target;
 
-            return absorbAmount;
-        }
+		if (dmgInfo.GetDamage() < target.GetHealth())
+			return absorbAmount;
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
-            AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 1));
-        }
+		double healAmount = target.CountPctFromMaxHealth(healPct);
+		target.CastSpell(target, PaladinSpells.ARDENT_DEFENDER_HEAL, (int)healAmount);
+		aurEff.Base.Remove();
 
-        private double absorbPct;
-        private double healPct;
-    }
+		return absorbAmount;
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 1));
+	}
 }

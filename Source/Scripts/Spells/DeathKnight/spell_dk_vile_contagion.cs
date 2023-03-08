@@ -20,18 +20,28 @@ internal class spell_dk_vile_contagion : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var target = GetHitUnit();
-        List<Unit> exclude = new List<Unit> { target };
-		if (target != null) {
+		var target = HitUnit;
+
+		var exclude = new List<Unit>
+		{
+			target
+		};
+
+		if (target != null)
+		{
 			var pustules = target.GetAura(DeathKnightSpells.FESTERING_WOUND);
-			if(pustules != null) {
+
+			if (pustules != null)
+			{
 				var stacks = pustules.StackAmount;
 				var jumps = 7;
-                for (int i = 0; i < jumps; i++){
+
+				for (var i = 0; i < jumps; i++)
+				{
 					var bounce = target.SelectNearbyAllyUnit(exclude, 8f);
-                    GetCaster().CastSpell(bounce, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, stacks));
-                    exclude.Add(bounce);
-                }
+					Caster.CastSpell(bounce, DeathKnightSpells.FESTERING_WOUND, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, stacks));
+					exclude.Add(bounce);
+				}
 			}
 		}
 	}

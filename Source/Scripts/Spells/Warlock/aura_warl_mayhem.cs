@@ -7,22 +7,21 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(WarlockSpells.MAYHEM)]
+public class aura_warl_mayhem : AuraScript, IAuraCheckProc, IAuraOnProc
 {
-    [SpellScript(WarlockSpells.MAYHEM)]
-    public class aura_warl_mayhem : AuraScript, IAuraCheckProc, IAuraOnProc
-    {
-        public bool CheckProc(ProcEventInfo info)
-        {
-            if (info.GetProcTarget() != null)
-                return RandomHelper.randChance(GetEffectInfo(0).BasePoints);
+	public bool CheckProc(ProcEventInfo info)
+	{
+		if (info.ProcTarget != null)
+			return RandomHelper.randChance(GetEffectInfo(0).BasePoints);
 
-            return false;
-        }
+		return false;
+	}
 
-        public void OnProc(ProcEventInfo info)
-        {
-            GetCaster().CastSpell(info.GetProcTarget(), WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.InMilliseconds).SetIsTriggered(true));
-        }
-    }
+	public void OnProc(ProcEventInfo info)
+	{
+		Caster.CastSpell(info.ProcTarget, WarlockSpells.HAVOC, new CastSpellExtraArgs(SpellValueMod.Duration, GetEffectInfo(2).BasePoints * Time.InMilliseconds).SetIsTriggered(true));
+	}
 }

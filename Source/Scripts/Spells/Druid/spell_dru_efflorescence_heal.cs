@@ -15,6 +15,11 @@ public class spell_dru_efflorescence_heal : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SortTargets, 0, Targets.UnitDestAreaAlly));
+	}
+
 
 	private void SortTargets(List<WorldObject> targets)
 	{
@@ -22,10 +27,5 @@ public class spell_dru_efflorescence_heal : SpellScript, IHasSpellEffects
 
 		if (targets.Count > 3)
 			targets.Resize(3);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(SortTargets, 0, Targets.UnitDestAreaAlly));
 	}
 }

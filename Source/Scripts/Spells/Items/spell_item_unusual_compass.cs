@@ -22,7 +22,7 @@ internal class spell_item_unusual_compass : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		caster.SetFacingTo(RandomHelper.FRand(0.0f, 2.0f * (float)Math.PI));
 	}
 }

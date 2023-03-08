@@ -12,6 +12,13 @@ namespace Scripts.Spells.Mage;
 [SpellScript(137019)]
 public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 {
+	private readonly SpellModifier mod = null;
+
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+
+	public spell_mage_fire_mage_passive() { }
+
 	public override bool Validate(SpellInfo UnnamedParameter)
 	{
 		// if (!Global.SpellMgr->GetSpellInfo(FIRE_MAGE_PASSIVE, Difficulty.None) ||
@@ -20,28 +27,24 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 		return true;
 	}
 
-
-	public spell_mage_fire_mage_passive()
+	public override void Register()
 	{
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 4, AuraType.Dummy, AuraEffectHandleModes.Real));
+		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 4, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
-
-
-	private readonly SpellModifier mod = null;
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 
 	private void HandleApply(AuraEffect aurEffect, AuraEffectHandleModes UnnamedParameter)
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player == null)
 			return;
 
 		var mod = new SpellModifierByClassMask(aurEffect.Base);
-		mod.Op      = SpellModOp.CritChance;
-		mod.Type    = SpellModType.Flat;
+		mod.Op = SpellModOp.CritChance;
+		mod.Type = SpellModType.Flat;
 		mod.SpellId = MageSpells.FIRE_MAGE_PASSIVE;
-		mod.Value   = 200;
+		mod.Value = 200;
 		mod.Mask[0] = 0x2;
 
 		player.AddSpellMod(mod, true);
@@ -49,18 +52,12 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player == null)
 			return;
 
 		if (mod != null)
 			player.AddSpellMod(mod, false);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 4, AuraType.Dummy, AuraEffectHandleModes.Real));
-		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 4, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
 	}
 }

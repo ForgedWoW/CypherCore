@@ -14,14 +14,20 @@ namespace Scripts.Spells.Monk;
 [SpellScript(122278)]
 public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
 	private double healthPct;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Load()
 	{
-		healthPct = GetSpellInfo().GetEffect(0).CalcValue(GetCaster());
+		healthPct = SpellInfo.GetEffect(0).CalcValue(Caster);
 
-		return GetUnitOwner().ToPlayer();
+		return UnitOwner.ToPlayer();
+	}
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
 	}
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
@@ -31,21 +37,15 @@ public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = GetTarget();
+		var target = Target;
 		var health = target.CountPctFromMaxHealth(healthPct);
 
 		if (dmgInfo.GetDamage() < health)
 			return absorbAmount;
 
-		absorbAmount = dmgInfo.GetDamage() * (GetSpellInfo().GetEffect(0).CalcValue(GetCaster()) / 100);
+		absorbAmount = dmgInfo.GetDamage() * (SpellInfo.GetEffect(0).CalcValue(Caster) / 100);
 		auraEffect.Base.DropCharge();
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(Absorb, 0));
 	}
 }

@@ -8,62 +8,61 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+[SpellScript(755)] // 755 - Health Funnel
+internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
 {
-    [SpellScript(755)] // 755 - Health Funnel
-	internal class spell_warl_health_funnel : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		AuraEffects.Add(new AuraEffectApplyHandler(ApplyEffect, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
+		AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.ObsModHealth));
+	}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(ApplyEffect, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
-			AuraEffects.Add(new AuraEffectApplyHandler(RemoveEffect, 0, AuraType.ObsModHealth, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-			AuraEffects.Add(new AuraEffectPeriodicHandler(OnPeriodic, 0, AuraType.ObsModHealth));
-		}
+	private void ApplyEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
+	{
+		var caster = Caster;
 
-		private void ApplyEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
-		{
-			var caster = GetCaster();
+		if (!caster)
+			return;
 
-			if (!caster)
-				return;
+		var target = Target;
 
-			var target = GetTarget();
+		if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R2))
+			target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
+		else if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R1))
+			target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
+	}
 
-			if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R2))
-				target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
-			else if (caster.HasAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_R1))
-				target.CastSpell(target, WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
-		}
+	private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
+	{
+		var target = Target;
+		target.RemoveAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1);
+		target.RemoveAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2);
+	}
 
-		private void RemoveEffect(AuraEffect aurEff, AuraEffectHandleModes mode)
-		{
-			var target = GetTarget();
-			target.RemoveAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R1);
-			target.RemoveAura(WarlockSpells.IMPROVED_HEALTH_FUNNEL_BUFF_R2);
-		}
+	private void OnPeriodic(AuraEffect aurEff)
+	{
+		var caster = Caster;
 
-		private void OnPeriodic(AuraEffect aurEff)
-		{
-			var caster = GetCaster();
+		if (!caster)
+			return;
 
-			if (!caster)
-				return;
+		//! HACK for self Damage, is not blizz :/
+		var damage = (uint)caster.CountPctFromMaxHealth(aurEff.BaseAmount);
 
-			//! HACK for self Damage, is not blizz :/
-			var damage = (uint)caster.CountPctFromMaxHealth(aurEff.BaseAmount);
+		var modOwner = caster.GetSpellModOwner();
 
-			var modOwner = caster.GetSpellModOwner();
+		if (modOwner)
+			modOwner.ApplySpellMod(SpellInfo, SpellModOp.PowerCost0, ref damage);
 
-			if (modOwner)
-				modOwner.ApplySpellMod(GetSpellInfo(), SpellModOp.PowerCost0, ref damage);
-
-			SpellNonMeleeDamage damageInfo = new(caster, caster, GetSpellInfo(), GetAura().SpellVisual, GetSpellInfo().SchoolMask, GetAura().CastId);
-			damageInfo.PeriodicLog = true;
-			damageInfo.Damage      = damage;
-			caster.DealSpellDamage(damageInfo, false);
-			caster.SendSpellNonMeleeDamageLog(damageInfo);
-		}
+		SpellNonMeleeDamage damageInfo = new(caster, caster, SpellInfo, Aura.SpellVisual, SpellInfo.SchoolMask, Aura.CastId);
+		damageInfo.PeriodicLog = true;
+		damageInfo.Damage = damage;
+		caster.DealSpellDamage(damageInfo, false);
+		caster.SendSpellNonMeleeDamageLog(damageInfo);
 	}
 }

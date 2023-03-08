@@ -14,7 +14,13 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(206977)]
 public class spell_dk_blood_mirror : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 1, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 1));
+	}
 
 	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> UnnamedParameter2)
 	{
@@ -25,18 +31,12 @@ public class spell_dk_blood_mirror : AuraScript, IHasAuraEffects
 	private double HandleAbsorb(AuraEffect aurEff, DamageInfo dmgInfo, double absorbAmount)
 	{
 		absorbAmount = dmgInfo.GetDamage() * ((uint)aurEff.BaseAmount / 100);
-		var caster = GetCaster();
-		var target = GetTarget();
+		var caster = Caster;
+		var target = Target;
 
 		if (caster != null && target != null)
 			caster.CastSpell(target, DeathKnightSpells.BLOOD_MIRROR_DAMAGE, (int)absorbAmount, true);
 
 		return absorbAmount;
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 1, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 1));
 	}
 }

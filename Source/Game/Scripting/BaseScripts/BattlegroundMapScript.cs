@@ -3,17 +3,16 @@
 
 using Game.Maps;
 
-namespace Game.Scripting.BaseScripts
-{
-    public class BattlegroundMapScript : MapScript<BattlegroundMap>
-    {
-        public BattlegroundMapScript(string name, uint mapId) : base(name, mapId)
-        {
-            if (GetEntry() != null &&
-                GetEntry().IsBattleground())
-                Log.outError(LogFilter.Scripts, "BattlegroundMapScript for map {0} is invalid.", mapId);
+namespace Game.Scripting.BaseScripts;
 
-            Global.ScriptMgr.AddScript(this);
-        }
-    }
+public class BattlegroundMapScript : MapScript<BattlegroundMap>
+{
+	public BattlegroundMapScript(string name, uint mapId) : base(name, mapId)
+	{
+		if (GetEntry() != null &&
+			GetEntry().IsBattleground())
+			Log.outError(LogFilter.Scripts, "BattlegroundMapScript for map {0} is invalid.", mapId);
+
+		Global.ScriptMgr.AddScript(this);
+	}
 }

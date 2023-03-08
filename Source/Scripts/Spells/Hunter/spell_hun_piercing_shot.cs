@@ -13,15 +13,15 @@ public class spell_hun_piercing_shot : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var damage = (uint)GetHitDamage();
+		var damage = (uint)HitDamage;
 		damage *= 2;
-		SetHitDamage(damage);
+		HitDamage = damage;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target == null)
 				return;

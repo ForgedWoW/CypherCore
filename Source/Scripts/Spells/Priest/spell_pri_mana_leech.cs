@@ -13,7 +13,8 @@ namespace Scripts.Spells.Priest;
 [SpellScript(28305)]
 public class spell_pri_mana_leech : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	private Unit _procTarget;
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public spell_pri_mana_leech()
 	{
@@ -30,15 +31,9 @@ public class spell_pri_mana_leech : AuraScript, IHasAuraEffects, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
-		_procTarget = GetTarget().GetOwner();
+		_procTarget = Target.GetOwner();
 
 		return _procTarget != null;
-	}
-
-	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
-	{
-		PreventDefaultAction();
-		GetTarget().CastSpell(_procTarget, PriestSpells.MANA_LEECH_PROC, aurEff);
 	}
 
 	public override void Register()
@@ -46,5 +41,9 @@ public class spell_pri_mana_leech : AuraScript, IHasAuraEffects, IAuraCheckProc
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	private Unit _procTarget;
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo UnnamedParameter)
+	{
+		PreventDefaultAction();
+		Target.CastSpell(_procTarget, PriestSpells.MANA_LEECH_PROC, aurEff);
+	}
 }

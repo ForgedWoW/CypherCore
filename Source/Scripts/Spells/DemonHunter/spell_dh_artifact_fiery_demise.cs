@@ -13,21 +13,21 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(212817)]
 public class spell_dh_artifact_fiery_demise : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
 	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
-		var target = eventInfo.GetActionTarget();
+		var caster = Caster;
+		var target = eventInfo.ActionTarget;
 
 		if (caster == null || target == null || !caster.IsValidAttackTarget(target))
 			return;
 
 		caster.CastSpell(target, ShatteredSoulsSpells.FIERY_DEMISE_DEBUFF, aurEff.Amount);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(OnProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

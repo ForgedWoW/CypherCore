@@ -17,7 +17,7 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spell)
@@ -32,12 +32,12 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
-		var target = GetHitUnit();
+		var caster = Caster.ToPlayer();
+		var target = HitUnit;
 
 		if (target)
 			if (!target.HasAura(ItemSpellIds.ChickenNet) &&
-			    (caster.GetQuestStatus(QuestIds.ChickenParty) == QuestStatus.Incomplete || caster.GetQuestStatus(QuestIds.FlownTheCoop) == QuestStatus.Incomplete))
+				(caster.GetQuestStatus(QuestIds.ChickenParty) == QuestStatus.Incomplete || caster.GetQuestStatus(QuestIds.FlownTheCoop) == QuestStatus.Incomplete))
 			{
 				caster.CastSpell(caster, ItemSpellIds.CaptureChickenEscape, true);
 				target.KillSelf();

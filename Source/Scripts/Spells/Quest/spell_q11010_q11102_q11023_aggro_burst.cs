@@ -21,7 +21,7 @@ internal class spell_q11010_q11102_q11023_aggro_burst : AuraScript, IHasAuraEffe
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target)
 			// On each tick cast Choose Loc to trigger summon

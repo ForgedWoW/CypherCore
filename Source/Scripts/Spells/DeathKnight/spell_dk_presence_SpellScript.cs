@@ -8,9 +8,9 @@ using Game.Spells;
 namespace Scripts.Spells.DeathKnight;
 
 [SpellScript(new uint[]
-             {
-	             48263, 48265, 48266
-             })]
+{
+	48263, 48265, 48266
+})]
 public class spell_dk_presence_SpellScript : SpellScript
 {
 	public override bool Validate(SpellInfo UnnamedParameter)
@@ -23,12 +23,12 @@ public class spell_dk_presence_SpellScript : SpellScript
 
 	public void AfterHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (GetHitUnit())
+		if (HitUnit)
 		{
 			var runicPower = caster.GetPower(PowerType.RunicPower);
-			var aurEff     = caster.GetAuraEffect(58647, 0);
+			var aurEff = caster.GetAuraEffect(58647, 0);
 
 			if (aurEff != null)
 				runicPower = MathFunctions.CalculatePct(runicPower, aurEff.Amount);

@@ -8,44 +8,43 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 212623 - Singe Magic
+[SpellScript(212623)]
+public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-    // 212623 - Singe Magic
-    [SpellScript(212623)]
-	public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public SpellCastResult CheckCast()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		var caster = Caster;
 
-		private void HandleHit(int effIndex)
-		{
-			var caster = GetCaster();
-			var target = GetHitUnit();
+		if (caster == null || !caster.ToPlayer())
+			return SpellCastResult.BadTargets;
 
-			if (caster == null || target == null)
-				return;
+		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().GetEntry() == 416)
+			return SpellCastResult.SpellCastOk;
 
-			var pet = caster.ToPlayer().GetPet();
+		return SpellCastResult.CantDoThatRightNow;
+	}
 
-			if (pet != null)
-				pet.CastSpell(target, WarlockSpells.SINGE_MAGIC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectInfo(0).BasePoints));
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		public SpellCastResult CheckCast()
-		{
-			var caster = GetCaster();
+	private void HandleHit(int effIndex)
+	{
+		var caster = Caster;
+		var target = HitUnit;
 
-			if (caster == null || !caster.ToPlayer())
-				return SpellCastResult.BadTargets;
+		if (caster == null || target == null)
+			return;
 
-			if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().GetEntry() == 416)
-				return SpellCastResult.SpellCastOk;
+		var pet = caster.ToPlayer().GetPet();
 
-			return SpellCastResult.CantDoThatRightNow;
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
+		if (pet != null)
+			pet.CastSpell(target, WarlockSpells.SINGE_MAGIC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectInfo(0).BasePoints));
 	}
 }

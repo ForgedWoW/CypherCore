@@ -10,9 +10,7 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_song_of_chiji : AreaTriggerAI
 {
-	public at_monk_song_of_chiji(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_monk_song_of_chiji(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

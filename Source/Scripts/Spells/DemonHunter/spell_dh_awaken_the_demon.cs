@@ -14,23 +14,28 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(205598)]
 public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
-		if (caster == null || eventInfo.GetDamageInfo() != null)
+		if (caster == null || eventInfo.DamageInfo != null)
 			return;
 
-		if (!GetSpellInfo().GetEffect(1).IsEffect() || !GetSpellInfo().GetEffect(2).IsEffect())
+		if (!SpellInfo.GetEffect(1).IsEffect() || !SpellInfo.GetEffect(2).IsEffect())
 			return;
 
 		var threshold1 = caster.CountPctFromMaxHealth(aurEff.BaseAmount);
-		var threshold2 = caster.CountPctFromMaxHealth(GetSpellInfo().GetEffect(1).BasePoints);
-		var duration   = GetSpellInfo().GetEffect(2).BasePoints;
+		var threshold2 = caster.CountPctFromMaxHealth(SpellInfo.GetEffect(1).BasePoints);
+		var duration = SpellInfo.GetEffect(2).BasePoints;
 
-		if (caster.GetHealth() - eventInfo.GetDamageInfo().GetDamage() < threshold1)
+		if (caster.GetHealth() - eventInfo.DamageInfo.GetDamage() < threshold1)
 		{
 			if (caster.HasAura(DemonHunterSpells.AWAKEN_THE_DEMON_CD))
 				return;
@@ -52,7 +57,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 		}
 
 		// Check only if we are above the second threshold and we are falling under it just now
-		if (caster.GetHealth() > threshold2 && caster.GetHealth() - eventInfo.GetDamageInfo().GetDamage() < threshold2)
+		if (caster.GetHealth() > threshold2 && caster.GetHealth() - eventInfo.DamageInfo.GetDamage() < threshold2)
 		{
 			var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
 
@@ -63,10 +68,5 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 				return;
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 }

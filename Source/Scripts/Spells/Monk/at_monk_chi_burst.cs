@@ -10,9 +10,7 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class at_monk_chi_burst : AreaTriggerAI
 {
-	public at_monk_chi_burst(AreaTrigger at) : base(at)
-	{
-	}
+	public at_monk_chi_burst(AreaTrigger at) : base(at) { }
 
 	public override void OnUnitEnter(Unit target)
 	{

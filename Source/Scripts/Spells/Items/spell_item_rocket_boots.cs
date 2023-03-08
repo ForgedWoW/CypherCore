@@ -13,9 +13,11 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public override bool Validate(SpellInfo spell)
@@ -25,7 +27,7 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
 
 	public SpellCastResult CheckCast()
 	{
-		if (GetCaster().IsInWater())
+		if (Caster.IsInWater())
 			return SpellCastResult.OnlyAbovewater;
 
 		return SpellCastResult.SpellCastOk;
@@ -36,11 +38,9 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		var bg = caster.GetBattleground();
 

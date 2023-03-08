@@ -21,6 +21,6 @@ internal class spell_gen_azgalor_rain_of_fire_hellfire_citadel : SpellScript, IH
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetHitUnit(), (uint)GetEffectValue(), true);
+		Caster.CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 }

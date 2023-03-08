@@ -4,10 +4,9 @@
 using Game.AI;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IGameObject
+namespace Game.Scripting.Interfaces.IGameObject;
+
+public interface IGameObjectGetAI : IScriptObject
 {
-    public interface IGameObjectGetAI : IScriptObject
-    {
-        GameObjectAI GetAI(GameObject go);
-    }
+	GameObjectAI GetAI(GameObject go);
 }

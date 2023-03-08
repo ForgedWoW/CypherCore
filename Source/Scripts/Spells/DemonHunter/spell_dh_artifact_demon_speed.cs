@@ -12,7 +12,7 @@ public class spell_dh_artifact_demon_speed : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

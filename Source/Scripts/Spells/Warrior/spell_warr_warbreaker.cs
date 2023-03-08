@@ -9,62 +9,61 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 262161 Warbreaker
+[SpellScript(262161)]
+public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
 {
-    // 262161 Warbreaker
-    [SpellScript(262161)]
-	public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitSrcAreaEnemy));
+	}
 
-		private void HandleOnHitTarget(int effIndex)
+	private void HandleOnHitTarget(int effIndex)
+	{
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			var caster = GetCaster();
+			var target = HitUnit;
 
-			if (caster != null)
-			{
-				var target = GetHitUnit();
-
-				if (target != null)
-					caster.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_BUFF, true);
-			}
+			if (target != null)
+				caster.CastSpell(target, WarriorSpells.COLOSSUS_SMASH_BUFF, true);
 		}
+	}
 
-		private void CountTargets(List<WorldObject> targets)
+	private void CountTargets(List<WorldObject> targets)
+	{
+		var caster = Caster;
+
+		if (caster != null)
 		{
-			var caster = GetCaster();
+			var inForTheKill = caster.GetAura(248621);
 
-			if (caster != null)
+			if (inForTheKill != null) // In For The Kill
 			{
-				var inForTheKill = caster.GetAura(248621);
+				var hpPct = inForTheKill.SpellInfo.GetEffect(2).CalcValue(caster);
+				var hastePct = inForTheKill.GetEffect(0).Amount;
 
-				if (inForTheKill != null) // In For The Kill
+				for (var itr = targets.GetEnumerator(); itr.MoveNext();)
 				{
-					var hpPct    = inForTheKill.SpellInfo.GetEffect(2).CalcValue(caster);
-					var hastePct = inForTheKill.GetEffect(0).Amount;
+					var target = itr.Current.ToUnit();
 
-					for (var itr = targets.GetEnumerator(); itr.MoveNext();)
-					{
-						var target = itr.Current.ToUnit();
+					if (target != null)
+						if (target.HealthBelowPct(hpPct))
+						{
+							hastePct = inForTheKill.SpellInfo.GetEffect(1).CalcValue(caster);
 
-						if (target != null)
-							if (target.HealthBelowPct(hpPct))
-							{
-								hastePct = inForTheKill.SpellInfo.GetEffect(1).CalcValue(caster);
-
-								break;
-							}
-					}
-
-					caster.CastSpell(caster, 248622, new CastSpellExtraArgs(SpellValueMod.DurationPct, hastePct)); // In For The Kill
+							break;
+						}
 				}
-			}
-		}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleOnHitTarget, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(CountTargets, 0, Targets.UnitSrcAreaEnemy));
+				caster.CastSpell(caster, 248622, new CastSpellExtraArgs(SpellValueMod.DurationPct, hastePct)); // In For The Kill
+			}
 		}
 	}
 }

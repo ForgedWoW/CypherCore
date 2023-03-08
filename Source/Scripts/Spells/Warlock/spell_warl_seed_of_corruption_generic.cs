@@ -8,58 +8,57 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warlock
+namespace Scripts.Spells.Warlock;
+
+// 32863 - Seed of Corruption
+// 36123 - Seed of Corruption
+// 38252 - Seed of Corruption
+// 39367 - Seed of Corruption
+// 44141 - Seed of Corruption
+// 70388 - Seed of Corruption
+[SpellScript(new uint[]
 {
-    // 32863 - Seed of Corruption
-    // 36123 - Seed of Corruption
-    // 38252 - Seed of Corruption
-    // 39367 - Seed of Corruption
-    // 44141 - Seed of Corruption
-    // 70388 - Seed of Corruption
-    [SpellScript(new uint[]
-	             {
-		             32863, 36123, 38252, 39367, 44141, 70388
-	             })] // Monster spells, triggered only on amount drop (not on death)
-	internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffects
+	32863, 36123, 38252, 39367, 44141, 70388
+})] // Monster spells, triggered only on amount drop (not on death)
+internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffects
+{
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(WarlockSpells.SEED_OF_CORRUPTION_GENERIC);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
+		var damageInfo = eventInfo.DamageInfo;
+
+		if (damageInfo == null ||
+			damageInfo.GetDamage() == 0)
+			return;
+
+		var amount = aurEff.Amount - (int)damageInfo.GetDamage();
+
+		if (amount > 0)
 		{
-			return ValidateSpellInfo(WarlockSpells.SEED_OF_CORRUPTION_GENERIC);
+			aurEff.SetAmount(amount);
+
+			return;
 		}
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 1, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
+		Remove();
 
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			PreventDefaultAction();
-			var damageInfo = eventInfo.GetDamageInfo();
+		var caster = Caster;
 
-			if (damageInfo == null ||
-			    damageInfo.GetDamage() == 0)
-				return;
+		if (!caster)
+			return;
 
-			var amount = aurEff.Amount - (int)damageInfo.GetDamage();
-
-			if (amount > 0)
-			{
-				aurEff.SetAmount(amount);
-
-				return;
-			}
-
-			Remove();
-
-			var caster = GetCaster();
-
-			if (!caster)
-				return;
-
-			caster.CastSpell(eventInfo.GetActionTarget(), WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
-		}
+		caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.SEED_OF_CORRUPTION_GENERIC, new CastSpellExtraArgs(aurEff));
 	}
 }

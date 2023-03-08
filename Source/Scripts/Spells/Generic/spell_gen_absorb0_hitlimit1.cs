@@ -20,7 +20,7 @@ internal class spell_gen_absorb0_hitlimit1 : AuraScript, IHasAuraEffects
 	public override bool Load()
 	{
 		// Max Absorb stored in 1 dummy effect
-		limit = GetSpellInfo().GetEffect(1).CalcValue();
+		limit = SpellInfo.GetEffect(1).CalcValue();
 
 		return true;
 	}

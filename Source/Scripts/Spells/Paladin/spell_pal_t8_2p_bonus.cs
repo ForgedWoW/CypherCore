@@ -8,43 +8,42 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(64890)] // 64890 - Item - Paladin T8 Holy 2P Bonus
+internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
 {
-    [SpellScript(64890)] // 64890 - Item - Paladin T8 Holy 2P Bonus
-    internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.HolyMending);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.HolyMending);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
 
-        private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-        {
-            PreventDefaultAction();
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		PreventDefaultAction();
 
-            HealInfo healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
-            if (healInfo == null ||
-                healInfo.GetHeal() == 0)
-                return;
+		if (healInfo == null ||
+			healInfo.GetHeal() == 0)
+			return;
 
-            Unit caster = eventInfo.GetActor();
-            Unit target = eventInfo.GetProcTarget();
+		var caster = eventInfo.Actor;
+		var target = eventInfo.ProcTarget;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, GetCastDifficulty());
-            int amount = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
-            amount /= (int)spellInfo.GetMaxTicks();
+		var spellInfo = Global.SpellMgr.GetSpellInfo(PaladinSpells.HolyMending, CastDifficulty);
+		var amount = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
+		amount /= (int)spellInfo.MaxTicks;
 
-            CastSpellExtraArgs args = new(aurEff);
-            args.AddSpellMod(SpellValueMod.BasePoint0, amount);
-            caster.CastSpell(target, PaladinSpells.HolyMending, args);
-        }
-    }
+		CastSpellExtraArgs args = new(aurEff);
+		args.AddSpellMod(SpellValueMod.BasePoint0, amount);
+		caster.CastSpell(target, PaladinSpells.HolyMending, args);
+	}
 }

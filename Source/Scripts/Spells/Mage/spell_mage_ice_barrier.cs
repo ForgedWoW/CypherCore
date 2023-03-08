@@ -30,16 +30,16 @@ internal class spell_mage_ice_barrier : AuraScript, IHasAuraEffects
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		canBeRecalculated.Value = false;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
-			amount.Value += (caster.SpellBaseHealingBonusDone(GetSpellInfo().GetSchoolMask()) * 10.0f);
+			amount.Value += (caster.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask()) * 10.0f);
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var caster = eventInfo.GetDamageInfo().GetVictim();
-		var target = eventInfo.GetDamageInfo().GetAttacker();
+		var caster = eventInfo.DamageInfo.GetVictim();
+		var target = eventInfo.DamageInfo.GetAttacker();
 
 		if (caster && target)
 			caster.CastSpell(target, MageSpells.Chilled, true);

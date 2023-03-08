@@ -10,50 +10,54 @@ using Scripts.Spells.Warlock;
 
 namespace Scripts.Pets
 {
-    namespace Warlock
-    {
-        [CreatureScript(185584)]
-        public class npc_warlock_blasphemy : SmartAI
-        {
-            private readonly Player _owner;
-            private static readonly TimeSpan _tickTime = TimeSpan.FromMilliseconds(500);
-            public npc_warlock_blasphemy(Creature creature) : base(creature)
-            {
-                if (!me.TryGetOwner(out Player owner))
-                    return;
+	namespace Warlock
+	{
+		[CreatureScript(185584)]
+		public class npc_warlock_blasphemy : SmartAI
+		{
+			private static readonly TimeSpan _tickTime = TimeSpan.FromMilliseconds(500);
+			private readonly Player _owner;
 
-                _owner = owner;
-                creature.SetLevel(owner.GetLevel());
-                creature.UpdateLevelDependantStats();
-                creature.SetReactState(ReactStates.Assist);
-                creature.SetCreatorGUID(owner.GetGUID());
+			public npc_warlock_blasphemy(Creature creature) : base(creature)
+			{
+				if (!me.TryGetOwner(out Player owner))
+					return;
 
-                var summon = creature.ToTempSummon();
+				_owner = owner;
+				creature.SetLevel(owner.GetLevel());
+				creature.UpdateLevelDependantStats();
+				creature.SetReactState(ReactStates.Assist);
+				creature.SetCreatorGUID(owner.GetGUID());
 
-                if (summon != null)
-                {
-                    StartAttackOnOwnersInCombatWith();
-                    if (owner.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
-                        summon.UnSummon(TimeSpan.FromSeconds(avatar.GetEffect(0).Amount));
-                }
+				var summon = creature.ToTempSummon();
 
-                creature.Events.AddRepeatEventAtOffset(() =>
-                {
-                    _owner.ModifyPower(PowerType.SoulShards, 1);
-                    return _tickTime;
-                }, _tickTime);
-            }
+				if (summon != null)
+				{
+					StartAttackOnOwnersInCombatWith();
 
+					if (owner.TryGetAura(WarlockSpells.AVATAR_OF_DESTRUCTION, out var avatar))
+						summon.UnSummon(TimeSpan.FromSeconds(avatar.GetEffect(0).Amount));
+				}
 
-            public override void UpdateAI(uint UnnamedParameter)
-            {
-                if (!me.HasAura(WarlockSpells.IMMOLATION))
-                    DoCast(WarlockSpells.IMMOLATION);
+				creature.Events.AddRepeatEventAtOffset(() =>
+														{
+															_owner.ModifyPower(PowerType.SoulShards, 1);
+
+															return _tickTime;
+														},
+														_tickTime);
+			}
 
 
-                //DoMeleeAttackIfReady();
-                base.UpdateAI(UnnamedParameter);
-            }
-        }
-    }
+			public override void UpdateAI(uint UnnamedParameter)
+			{
+				if (!me.HasAura(WarlockSpells.IMMOLATION))
+					DoCast(WarlockSpells.IMMOLATION);
+
+
+				//DoMeleeAttackIfReady();
+				base.UpdateAI(UnnamedParameter);
+			}
+		}
+	}
 }

@@ -23,7 +23,7 @@ internal class spell_gen_ancestral_call : SpellScript, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster  = GetCaster();
+		var caster = Caster;
 		var spellId = AncestralCallBuffs.SelectRandom();
 
 		caster.CastSpell(caster, spellId, true);

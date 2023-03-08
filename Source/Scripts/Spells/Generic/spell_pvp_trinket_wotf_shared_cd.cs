@@ -46,6 +46,6 @@ internal class spell_pvp_trinket_wotf_shared_cd : SpellScript, ISpellAfterCast
 			*/
 
 		// Spell flags need further research, until then just cast not triggered
-		GetCaster().CastSpell((Unit)null, _triggered, false);
+		Caster.CastSpell((Unit)null, _triggered, false);
 	}
 }

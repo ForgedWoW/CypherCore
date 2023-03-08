@@ -13,7 +13,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
 {
 	public SpellCastResult CheckCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return SpellCastResult.Error;
@@ -27,7 +27,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
 			return SpellCastResult.CustomError;
 		}
 
-		if (!spirit.IsWithinDist(caster, GetSpellInfo().GetMaxRange(true, caster, GetSpell())))
+		if (!spirit.IsWithinDist(caster, SpellInfo.GetMaxRange(true, caster, Spell)))
 			return SpellCastResult.OutOfRange;
 
 		return SpellCastResult.SpellCastOk;
@@ -35,7 +35,7 @@ public class spell_monk_transcendence_transfer : SpellScript, ISpellOnCast, ISpe
 
 	public void OnCast()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;

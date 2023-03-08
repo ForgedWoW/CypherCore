@@ -13,12 +13,12 @@ public class spell_dk_army_periodic_taunt : SpellScript, ISpellCheckCast
 {
 	public override bool Load()
 	{
-		return GetCaster().IsGuardian();
+		return Caster.IsGuardian();
 	}
 
 	public SpellCastResult CheckCast()
 	{
-		var owner = GetCaster().GetOwner();
+		var owner = Caster.GetOwner();
 
 		if (owner != null)
 			if (!owner.HasAura(DeathKnightSpells.GLYPH_OF_ARMY_OF_THE_DEAD))

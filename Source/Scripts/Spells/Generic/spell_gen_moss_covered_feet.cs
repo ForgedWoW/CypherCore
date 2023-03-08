@@ -28,6 +28,6 @@ internal class spell_gen_moss_covered_feet : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetActionTarget().CastSpell((Unit)null, GenericSpellIds.FallDown, new CastSpellExtraArgs(aurEff));
+		eventInfo.ActionTarget.CastSpell((Unit)null, GenericSpellIds.FallDown, new CastSpellExtraArgs(aurEff));
 	}
 }

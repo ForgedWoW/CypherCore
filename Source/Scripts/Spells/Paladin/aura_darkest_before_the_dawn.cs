@@ -7,30 +7,29 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+//210378
+[SpellScript(210378)]
+public class aura_darkest_before_the_dawn : AuraScript, IHasAuraEffects
 {
-    //210378
-    [SpellScript(210378)]
-    public class aura_darkest_before_the_dawn : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        private void OnTick(AuraEffect UnnamedParameter)
-        {
-            var caster = GetCaster();
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+	}
 
-            if (caster == null)
-                return;
+	private void OnTick(AuraEffect UnnamedParameter)
+	{
+		var caster = Caster;
 
-            Aura dawnTrigger = caster.GetAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN);
+		if (caster == null)
+			return;
 
-            if (dawnTrigger != null)
-                caster.AddAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN_BUFF, caster);
-        }
+		var dawnTrigger = caster.GetAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN);
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
-        }
-    }
+		if (dawnTrigger != null)
+			caster.AddAura(PaladinSpells.DARKEST_BEFORE_THE_DAWN_BUFF, caster);
+	}
 }

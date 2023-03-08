@@ -13,14 +13,16 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public SpellCastResult CheckCast()
 	{
-		if (SkillDiscovery.HasDiscoveredAllSpells(GetSpellInfo().Id, GetCaster().ToPlayer()))
+		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, Caster.ToPlayer()))
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.LearnedEverything);
 
@@ -35,12 +37,10 @@ internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, 
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleScript(int effIndex)
 	{
-		var caster  = GetCaster().ToPlayer();
-		var spellId = GetSpellInfo().Id;
+		var caster = Caster.ToPlayer();
+		var spellId = SpellInfo.Id;
 
 		// learn random explicit discovery recipe (if any)
 		var discoveredSpellId = SkillDiscovery.GetExplicitDiscoverySpell(spellId, caster);

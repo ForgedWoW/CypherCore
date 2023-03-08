@@ -9,13 +9,22 @@ namespace Scripts.Spells.Hunter;
 [SpellScript(120679)]
 public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 {
+	public void AfterCast()
+	{
+		var player = Caster.ToPlayer();
+
+		if (player != null)
+			if (player.HasAura(HunterSpells.WILD_CALL_AURA))
+				player.RemoveAura(HunterSpells.WILD_CALL_AURA);
+	}
+
 	public void OnHit()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				// Summon's skin is different function of Map or Zone ID
@@ -82,14 +91,5 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 					}
 				}
 		}
-	}
-
-	public void AfterCast()
-	{
-		var player = GetCaster().ToPlayer();
-
-		if (player != null)
-			if (player.HasAura(HunterSpells.WILD_CALL_AURA))
-				player.RemoveAura(HunterSpells.WILD_CALL_AURA);
 	}
 }

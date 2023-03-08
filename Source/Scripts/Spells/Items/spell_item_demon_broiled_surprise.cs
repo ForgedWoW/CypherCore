@@ -13,6 +13,8 @@ namespace Scripts.Spells.Items;
 [Script]
 internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spell)
 	{
 		return Global.ObjectMgr.GetCreatureTemplate(CreatureIds.AbyssalFlamebringer) != null && Global.ObjectMgr.GetQuestTemplate(QuestIds.SuperHotStew) != null && ValidateSpellInfo(ItemSpellIds.CreateDemonBroiledSurprise);
@@ -20,12 +22,12 @@ internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast,
 
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public SpellCastResult CheckCast()
 	{
-		var player = GetCaster().ToPlayer();
+		var player = Caster.ToPlayer();
 
 		if (player.GetQuestStatus(QuestIds.SuperHotStew) != QuestStatus.Incomplete)
 			return SpellCastResult.CantDoThatRightNow;
@@ -44,11 +46,9 @@ internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast,
 		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
 	private void HandleDummy(int effIndex)
 	{
-		var player = GetCaster();
+		var player = Caster;
 		player.CastSpell(player, ItemSpellIds.CreateDemonBroiledSurprise, false);
 	}
 }

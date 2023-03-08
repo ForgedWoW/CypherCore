@@ -20,26 +20,26 @@ public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(EvokerSpells.ENERGIZING_FLAME, EvokerSpells.LIVING_FLAME);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleManaRestored, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleManaRestored(int effIndex)
 	{
-		var auraEffect = GetCaster().GetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0);
+		var auraEffect = Caster.GetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0);
 
 		if (auraEffect != null)
 		{
-			var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.LIVING_FLAME, GetCastDifficulty());
+			var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.LIVING_FLAME, CastDifficulty);
 
-			var cost = spellInfo.CalcPowerCost(PowerType.Mana, false, GetCaster(), GetSpellInfo().GetSchoolMask(), null);
+			var cost = spellInfo.CalcPowerCost(PowerType.Mana, false, Caster, SpellInfo.GetSchoolMask(), null);
 
 			if (cost == null)
 				return;
 
 			var manaRestored = MathFunctions.CalculatePct(cost.Amount, auraEffect.Amount);
-			GetCaster().ModifyPower(PowerType.Mana, manaRestored);
+			Caster.ModifyPower(PowerType.Mana, manaRestored);
 		}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleManaRestored, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

@@ -21,7 +21,7 @@ internal class spell_q12459_seeds_of_natures_wrath : SpellScript, IHasSpellEffec
 
 	private void HandleDummy(int effIndex)
 	{
-		var creatureTarget = GetHitCreature();
+		var creatureTarget = HitCreature;
 
 		if (creatureTarget)
 		{

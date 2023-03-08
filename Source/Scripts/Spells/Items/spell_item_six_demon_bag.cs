@@ -27,13 +27,13 @@ internal class spell_item_six_demon_bag : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (target)
 		{
 			uint spellId;
-			var  rand = RandomHelper.URand(0, 99);
+			var rand = RandomHelper.URand(0, 99);
 
 			if (rand < 25) // Fireball (25% chance)
 			{
@@ -61,10 +61,10 @@ internal class spell_item_six_demon_bag : SpellScript, IHasSpellEffects
 			else // Summon Felhund minion (5% chance)
 			{
 				spellId = ItemSpellIds.SummonFelhoundMinion;
-				target  = caster;
+				target = caster;
 			}
 
-			caster.CastSpell(target, spellId, new CastSpellExtraArgs(GetCastItem()));
+			caster.CastSpell(target, spellId, new CastSpellExtraArgs(CastItem));
 		}
 	}
 }

@@ -11,9 +11,21 @@ namespace Scripts.Spells.Druid;
 [SpellScript(5221)]
 public class spell_dru_shred : SpellScript, ISpellOnHit, ISpellCalcCritChance
 {
+	private bool m_stealthed = false;
+	private bool m_incarnation = false;
+	private uint m_casterLevel;
+
+	public void CalcCritChance(Unit victim, ref double chance)
+	{
+		// If caster is level >= 56, While stealthed or have Incarnation: King of the Jungle aura,
+		// Double the chance to critically strike
+		if ((m_casterLevel >= 56) && (m_stealthed || m_incarnation))
+			chance *= 2.0f;
+	}
+
 	public override bool Load()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster.HasAuraType(AuraType.ModStealth))
 			m_stealthed = true;
@@ -26,23 +38,15 @@ public class spell_dru_shred : SpellScript, ISpellOnHit, ISpellCalcCritChance
 		return true;
 	}
 
-	public void CalcCritChance(Unit victim, ref double chance)
-	{
-		// If caster is level >= 56, While stealthed or have Incarnation: King of the Jungle aura,
-		// Double the chance to critically strike
-		if ((m_casterLevel >= 56) && (m_stealthed || m_incarnation))
-			chance *= 2.0f;
-	}
-
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
-		var damage = GetHitDamage();
+		var damage = HitDamage;
 
 		caster.ModifyPower(PowerType.ComboPoints, 1);
 
@@ -51,10 +55,6 @@ public class spell_dru_shred : SpellScript, ISpellOnHit, ISpellCalcCritChance
 		if ((caster.HasAura(231057)) && (m_stealthed || m_incarnation))
 			MathFunctions.AddPct(ref damage, Global.SpellMgr.GetSpellInfo(DruidSpells.SHRED, Difficulty.None).GetEffect(2).BasePoints);
 
-		SetHitDamage(damage);
+		HitDamage = damage;
 	}
-
-	private bool m_stealthed = false;
-	private bool m_incarnation = false;
-	private uint m_casterLevel;
 }

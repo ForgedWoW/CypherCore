@@ -3,20 +3,19 @@
 
 using System;
 
-namespace Game.Scripting.BaseScripts
+namespace Game.Scripting.BaseScripts;
+
+public class GenericAuraScriptLoader<A> : AuraScriptLoader where A : AuraScript
 {
-    public class GenericAuraScriptLoader<A> : AuraScriptLoader where A : AuraScript
-    {
-        private readonly object[] _args;
+	private readonly object[] _args;
 
-        public GenericAuraScriptLoader(string name, object[] args) : base(name)
-        {
-            _args = args;
-        }
+	public GenericAuraScriptLoader(string name, object[] args) : base(name)
+	{
+		_args = args;
+	}
 
-        public override AuraScript GetAuraScript()
-        {
-            return (A)Activator.CreateInstance(typeof(A), _args);
-        }
-    }
+	public override AuraScript GetAuraScript()
+	{
+		return (A)Activator.CreateInstance(typeof(A), _args);
+	}
 }

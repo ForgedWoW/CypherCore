@@ -28,6 +28,6 @@ internal class spell_item_desperate_defense : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), ItemSpellIds.DesperateRage, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(Target, ItemSpellIds.DesperateRage, new CastSpellExtraArgs(aurEff));
 	}
 }

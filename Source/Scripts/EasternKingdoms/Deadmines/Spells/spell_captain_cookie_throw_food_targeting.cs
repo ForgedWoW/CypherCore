@@ -3,34 +3,27 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
-namespace Scripts.EasternKingdoms.Deadmines.Spells
+namespace Scripts.EasternKingdoms.Deadmines.Spells;
+
+[SpellScript(89268, 89740, 90561, 90562, 90563, 90564, 90565, 90582, 90583, 90584, 90585, 90586)]
+public class spell_captain_cookie_throw_food_targeting : SpellScript, ISpellAfterHit
 {
-    [SpellScript(89268, 89740, 90561, 90562, 90563, 90564, 90565, 90582, 90583, 90584, 90585, 90586)]
-    public class spell_captain_cookie_throw_food_targeting : SpellScript, ISpellAfterHit
-    {
-        public void AfterHit()
-        {
-            if (!GetCaster() || !GetHitUnit())
-            {
-                return;
-            }
+	public void AfterHit()
+	{
+		if (!Caster || !HitUnit)
+			return;
 
-            uint spellId = 0;
+		uint spellId = 0;
 
-            SpellInfo spellInfo = GetSpellInfo();
-            if (spellInfo != null ) 
-			{
-                spellId = (uint)spellInfo.GetEffect(0).BasePoints;
-            }
+		var spellInfo = SpellInfo;
 
-            if (Global.SpellMgr.GetSpellInfo(spellId, GetCastDifficulty()) != null)
-            {
-                return;
-            }
+		if (spellInfo != null)
+			spellId = (uint)spellInfo.GetEffect(0).BasePoints;
 
-            GetCaster().CastSpell(GetHitUnit(), spellId);
-        }
-    }
+		if (Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty) != null)
+			return;
+
+		Caster.CastSpell(HitUnit, spellId);
+	}
 }

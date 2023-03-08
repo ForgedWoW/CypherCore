@@ -22,7 +22,7 @@ internal class spell_gen_fishing : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()
@@ -34,15 +34,15 @@ internal class spell_gen_fishing : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 		uint spellId;
-		var  mainHand = GetCaster().ToPlayer().GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+		var mainHand = Caster.ToPlayer().GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 		if (!mainHand ||
-		    mainHand.GetTemplate().GetClass() != ItemClass.Weapon ||
-		    (ItemSubClassWeapon)mainHand.GetTemplate().GetSubClass() != ItemSubClassWeapon.FishingPole)
+			mainHand.GetTemplate().GetClass() != ItemClass.Weapon ||
+			(ItemSubClassWeapon)mainHand.GetTemplate().GetSubClass() != ItemSubClassWeapon.FishingPole)
 			spellId = GenericSpellIds.FishingNoFishingPole;
 		else
 			spellId = GenericSpellIds.FishingWithPole;
 
-		GetCaster().CastSpell(GetCaster(), spellId, false);
+		Caster.CastSpell(Caster, spellId, false);
 	}
 }

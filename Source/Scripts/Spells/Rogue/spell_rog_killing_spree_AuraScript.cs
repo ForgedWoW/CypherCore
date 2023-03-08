@@ -35,20 +35,20 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().CastSpell(GetTarget(), RogueSpells.KillingSpreeDmgBuff, true);
+		Target.CastSpell(Target, RogueSpells.KillingSpreeDmgBuff, true);
 	}
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
 		while (!_targets.Empty())
 		{
-			var guid   = _targets.SelectRandom();
-			var target = Global.ObjAccessor.GetUnit(GetTarget(), guid);
+			var guid = _targets.SelectRandom();
+			var target = Global.ObjAccessor.GetUnit(Target, guid);
 
 			if (target != null)
 			{
-				GetTarget().CastSpell(target, RogueSpells.KillingSpreeTeleport, true);
-				GetTarget().CastSpell(target, RogueSpells.KillingSpreeWeaponDmg, true);
+				Target.CastSpell(target, RogueSpells.KillingSpreeTeleport, true);
+				Target.CastSpell(target, RogueSpells.KillingSpreeWeaponDmg, true);
 
 				break;
 			}
@@ -61,6 +61,6 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().RemoveAura(RogueSpells.KillingSpreeDmgBuff);
+		Target.RemoveAura(RogueSpells.KillingSpreeDmgBuff);
 	}
 }

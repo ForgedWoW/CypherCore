@@ -13,11 +13,11 @@ public class spell_dru_nourish : SpellScript
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitUnit();
+			var target = HitUnit;
 
 			if (target != null)
 				if (caster.HasAura(NOURISH_PASSIVE))

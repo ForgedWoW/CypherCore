@@ -11,8 +11,8 @@ public class spell_dh_fel_barrage_damage : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var chargesUsed = GetSpellValue().EffectBasePoints[0];
-		var dmg         = GetHitDamage();
-		SetHitDamage((double)(dmg * chargesUsed) / 5.0f);
+		var chargesUsed = SpellValue.EffectBasePoints[0];
+		var dmg = HitDamage;
+		HitDamage = (double)(dmg * chargesUsed) / 5.0f;
 	}
 }

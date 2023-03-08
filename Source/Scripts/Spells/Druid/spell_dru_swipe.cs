@@ -16,16 +16,21 @@ public class spell_dru_swipe : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
-		var damage      = GetHitDamage();
+		var damage = HitDamage;
 		var casterLevel = caster.GetLevelForTarget(caster);
 
 		// This prevent awarding multiple Combo Points when multiple targets hit with Swipe AoE
@@ -37,12 +42,7 @@ public class spell_dru_swipe : SpellScript, IHasSpellEffects
 		if ((casterLevel >= 44) && target.HasAuraState(AuraStateType.Bleed))
 			MathFunctions.AddPct(ref damage, Global.SpellMgr.GetSpellInfo(DruidSpells.SWIPE_CAT, Difficulty.None).GetEffect(1).BasePoints);
 
-		SetHitDamage(damage);
+		HitDamage = damage;
 		_awardComboPoint = false;
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleOnHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
 	}
 }

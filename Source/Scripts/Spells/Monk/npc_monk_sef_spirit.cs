@@ -9,14 +9,12 @@ using Game.Scripting;
 namespace Scripts.Spells.Monk;
 
 [CreatureScript(new uint[]
-                {
-	                69791, 69792
-                })]
+{
+	69791, 69792
+})]
 public class npc_monk_sef_spirit : ScriptedAI
 {
-	public npc_monk_sef_spirit(Creature creature) : base(creature)
-	{
-	}
+	public npc_monk_sef_spirit(Creature creature) : base(creature) { }
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
@@ -27,7 +25,7 @@ public class npc_monk_sef_spirit : ScriptedAI
 		me.CastSpell(me, me.GetEntry() == StormEarthAndFireSpells.NPC_FIRE_SPIRIT ? StormEarthAndFireSpells.SEF_FIRE_VISUAL : StormEarthAndFireSpells.SEF_EARTH_VISUAL, true);
 		me.CastSpell(me, StormEarthAndFireSpells.SEF_SUMMONS_STATS, true);
 		var attackPower = summoner.ToUnit().UnitData.AttackPower / 100 * 45.0f;
-		var spellPower  = summoner.ToUnit().SpellBaseDamageBonusDone(SpellSchoolMask.Nature) / 100 * 45.0f;
+		var spellPower = summoner.ToUnit().SpellBaseDamageBonusDone(SpellSchoolMask.Nature) / 100 * 45.0f;
 
 		var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.ToUnit().GetTarget());
 

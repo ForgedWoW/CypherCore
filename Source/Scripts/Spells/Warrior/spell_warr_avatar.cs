@@ -7,25 +7,24 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// Avatar - 107574
+[SpellScript(107574)]
+public class spell_warr_avatar : AuraScript, IHasAuraEffects
 {
-    // Avatar - 107574
-    [SpellScript(107574)]
-	public class spell_warr_avatar : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
+	}
 
-		private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-		{
-			var player = GetCaster().ToPlayer();
+	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var player = Caster.ToPlayer();
 
-			if (player != null)
-				player.RemoveMovementImpairingAuras(true);
-		}
-
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.AddPctModifier, AuraEffectHandleModes.Real));
-		}
+		if (player != null)
+			player.RemoveMovementImpairingAuras(true);
 	}
 }

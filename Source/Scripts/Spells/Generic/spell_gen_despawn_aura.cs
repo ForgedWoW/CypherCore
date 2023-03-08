@@ -20,6 +20,6 @@ internal class spell_gen_despawn_aura : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		GetTarget().ToCreature()?.DespawnOrUnsummon();
+		Target.ToCreature()?.DespawnOrUnsummon();
 	}
 }

@@ -14,7 +14,7 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(209258)]
 public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
 	public override bool Validate(SpellInfo UnnamedParameter)
@@ -25,6 +25,12 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		return true;
 	}
 
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
+		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
+	}
+
 	private void CalcAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		amount.Value = -1;
@@ -32,7 +38,7 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 
 	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		if (target == null)
 			return absorbAmount;
@@ -43,20 +49,14 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		if (target.HasAura(DemonHunterSpells.LAST_RESORT_DEBUFF))
 			return absorbAmount;
 
-		var healthPct = GetSpellInfo().GetEffect(1).IsEffect() ? GetSpellInfo().GetEffect(1).BasePoints : 0;
+		var healthPct = SpellInfo.GetEffect(1).IsEffect() ? SpellInfo.GetEffect(1).BasePoints : 0;
 		target.SetHealth(1);
-		var healInfo = new HealInfo(target, target, target.CountPctFromMaxHealth(healthPct), GetSpellInfo(), (SpellSchoolMask)GetSpellInfo().SchoolMask);
+		var healInfo = new HealInfo(target, target, target.CountPctFromMaxHealth(healthPct), SpellInfo, (SpellSchoolMask)SpellInfo.SchoolMask);
 		target.HealBySpell(healInfo);
 		// We use AddAura instead of CastSpell, since if the spell is on cooldown, it will not be casted
 		target.AddAura(DemonHunterSpells.METAMORPHOSIS_VENGEANCE, target);
 		target.CastSpell(target, DemonHunterSpells.LAST_RESORT_DEBUFF, true);
 
 		return dmgInfo.GetDamage();
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.SchoolAbsorb));
-		AuraEffects.Add(new AuraEffectAbsorbHandler(HandleAbsorb, 0));
 	}
 }

@@ -23,7 +23,7 @@ internal class spell_gen_remove_on_full_health_pct : AuraScript, IHasAuraEffects
 	{
 		// they apply Damage so no need to check for ticks here
 
-		if (GetTarget().IsFullHealth())
+		if (Target.IsFullHealth())
 		{
 			Remove(AuraRemoveMode.EnemySpell);
 			PreventDefaultAction();

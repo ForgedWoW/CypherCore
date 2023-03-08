@@ -4,10 +4,9 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IPlayer
+namespace Game.Scripting.Interfaces.IPlayer;
+
+public interface IPlayerOnModifyPower : IScriptObject, IClassRescriction
 {
-    public interface IPlayerOnModifyPower : IScriptObject, IClassRescriction
-    {
-        void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen);
-    }
+	void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen);
 }

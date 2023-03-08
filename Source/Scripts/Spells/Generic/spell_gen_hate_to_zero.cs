@@ -21,7 +21,7 @@ internal class spell_gen_hate_to_zero : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		if (GetCaster().CanHaveThreatList())
-			GetCaster().GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -100);
+		if (Caster.CanHaveThreatList())
+			Caster.GetThreatManager().ModifyThreatByPercent(HitUnit, -100);
 	}
 }

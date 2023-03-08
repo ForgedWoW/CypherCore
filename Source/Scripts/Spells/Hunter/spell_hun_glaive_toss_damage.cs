@@ -11,21 +11,33 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Hunter;
 
 [SpellScript(new uint[]
-             {
-	             120761, 121414
-             })]
+{
+	120761, 121414
+})]
 public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpellOnHit
 {
+	private ObjectGuid mainTargetGUID = ObjectGuid.Empty;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	private ObjectGuid mainTargetGUID = new();
-
-	private bool Load()
+	public void OnHit()
 	{
-		mainTargetGUID = ObjectGuid.Empty;
+		if (mainTargetGUID == default)
+			return;
 
-		return true;
+		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
+
+		if (target == null)
+			return;
+
+		if (HitUnit)
+			if (HitUnit == target)
+				HitDamage = HitDamage * 4;
+	}
+
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectDamageRange, 0, Targets.UnitDestAreaEnemy));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectSnareRange, 1, Targets.UnitDestAreaEnemy));
 	}
 
 	private void CorrectDamageRange(List<WorldObject> targets)
@@ -33,9 +45,9 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		targets.Clear();
 
 		var targetList = new List<Unit>();
-		var radius     = 50.0f;
+		var radius = 50.0f;
 
-		GetCaster().GetAnyUnitListInRange(targetList, radius);
+		Caster.GetAnyUnitListInRange(targetList, radius);
 
 		foreach (var itr in targetList)
 			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
@@ -48,7 +60,7 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		if (mainTargetGUID == default)
 			return;
 
-		var target = ObjectAccessor.Instance.GetUnit(GetCaster(), mainTargetGUID);
+		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
 
 		if (target == null)
 			return;
@@ -56,8 +68,8 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		targets.Add(target);
 
 		foreach (var itr in targetList)
-			if (itr.IsInBetween(GetCaster(), target, 5.0f))
-				if (!GetCaster().IsFriendlyTo(itr))
+			if (itr.IsInBetween(Caster, target, 5.0f))
+				if (!Caster.IsFriendlyTo(itr))
 					targets.Add(itr);
 	}
 
@@ -66,9 +78,9 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		targets.Clear();
 
 		var targetList = new List<Unit>();
-		var radius     = 50.0f;
+		var radius = 50.0f;
 
-		GetCaster().GetAnyUnitListInRange(targetList, radius);
+		Caster.GetAnyUnitListInRange(targetList, radius);
 
 		foreach (var itr in targetList)
 			if (itr.HasAura(HunterSpells.GLAIVE_TOSS_AURA))
@@ -84,7 +96,7 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		if (mainTargetGUID == default)
 			return;
 
-		var target = ObjectAccessor.Instance.GetUnit(GetCaster(), mainTargetGUID);
+		var target = ObjectAccessor.Instance.GetUnit(Caster, mainTargetGUID);
 
 		if (target == null)
 			return;
@@ -92,29 +104,8 @@ public class spell_hun_glaive_toss_damage : SpellScript, IHasSpellEffects, ISpel
 		targets.Add(target);
 
 		foreach (var itr in targetList)
-			if (itr.IsInBetween(GetCaster(), target, 5.0f))
-				if (!GetCaster().IsFriendlyTo(itr))
+			if (itr.IsInBetween(Caster, target, 5.0f))
+				if (!Caster.IsFriendlyTo(itr))
 					targets.Add(itr);
-	}
-
-	public void OnHit()
-	{
-		if (mainTargetGUID == default)
-			return;
-
-		var target = ObjectAccessor.Instance.GetUnit(GetCaster(), mainTargetGUID);
-
-		if (target == null)
-			return;
-
-		if (GetHitUnit())
-			if (GetHitUnit() == target)
-				SetHitDamage(GetHitDamage() * 4);
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectDamageRange, 0, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(CorrectSnareRange, 1, Targets.UnitDestAreaEnemy));
 	}
 }

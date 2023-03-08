@@ -11,11 +11,11 @@ public class spell_rog_deadly_poison_instant_damage_SpellScript : SpellScript, I
 {
 	public void OnCast()
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
 		{
-			var target = GetExplTargetUnit();
+			var target = ExplTargetUnit;
 
 			if (target != null)
 				if (target.HasAura(RogueSpells.DEADLY_POISON_DOT, _player.GetGUID()))

@@ -14,16 +14,16 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(77535)]
 public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	private struct eSpells
+	public override void Register()
 	{
-		public const uint T17Blood4P = 165571;
+		AuraEffects.Add(new AuraEffectAbsorbHandler(AfterAbsorb, 0));
 	}
 
 	private double AfterAbsorb(AuraEffect p_AurEff, DamageInfo UnnamedParameter, double p_AbsorbAmount)
 	{
-		var l_Target = GetTarget();
+		var l_Target = Target;
 
 		if (l_Target != null)
 		{
@@ -47,8 +47,8 @@ public class spell_dk_blood_shield : AuraScript, IHasAuraEffects
 		return p_AbsorbAmount;
 	}
 
-	public override void Register()
+	private struct eSpells
 	{
-		AuraEffects.Add(new AuraEffectAbsorbHandler(AfterAbsorb, 0));
+		public const uint T17Blood4P = 165571;
 	}
 }

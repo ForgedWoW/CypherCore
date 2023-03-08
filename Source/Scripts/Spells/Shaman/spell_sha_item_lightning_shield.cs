@@ -29,6 +29,6 @@ internal class spell_sha_item_lightning_shield : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(eventInfo.GetProcTarget(), ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
+		Target.CastSpell(eventInfo.ProcTarget, ShamanSpells.ItemLightningShield, new CastSpellExtraArgs(aurEff));
 	}
 }

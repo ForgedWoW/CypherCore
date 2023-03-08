@@ -22,21 +22,26 @@ internal class spell_dk_post_coil_or_epidemic : SpellScript, ISpellAfterHit
 
 	public void AfterHit()
 	{
-		var caster = GetCaster();
-		if (caster != null) {
-			var target = GetHitUnit();
-			if (target != null) {
+		var caster = Caster;
+
+		if (caster != null)
+		{
+			var target = HitUnit;
+
+			if (target != null)
+			{
 				var deathRotApply = 1;
-                var suddenDoom = caster.GetAura(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM_AURA);
+				var suddenDoom = caster.GetAura(DeathKnightSpells.DEATH_COIL_SUDDEN_DOOM_AURA);
+
 				if (suddenDoom != null)
 				{
 					deathRotApply += 1;
 					suddenDoom.ModStackAmount(-1);
-                }
+				}
 
-                if (caster.HasAura(DeathKnightSpells.DEATH_ROT))
-                    caster.CastSpell(target, DeathKnightSpells.DEATH_ROT_AURA, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, deathRotApply));
-            }
+				if (caster.HasAura(DeathKnightSpells.DEATH_ROT))
+					caster.CastSpell(target, DeathKnightSpells.DEATH_ROT_AURA, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.AuraStack, deathRotApply));
+			}
 		}
 	}
 }

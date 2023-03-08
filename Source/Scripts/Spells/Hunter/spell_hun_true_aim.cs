@@ -12,7 +12,7 @@ public class spell_hun_true_aim : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.GetSpellInfo().Id == HunterSpells.AIMED_SHOT || eventInfo.GetSpellInfo().Id == HunterSpells.ARCANE_SHOT)
+		if (eventInfo.SpellInfo.Id == HunterSpells.AIMED_SHOT || eventInfo.SpellInfo.Id == HunterSpells.ARCANE_SHOT)
 			return true;
 
 		return false;

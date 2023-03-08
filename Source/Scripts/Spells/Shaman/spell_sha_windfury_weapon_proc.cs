@@ -31,6 +31,6 @@ internal class spell_sha_windfury_weapon_proc : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		for (uint i = 0; i < 2; ++i)
-			eventInfo.GetActor().CastSpell(eventInfo.GetProcTarget(), ShamanSpells.WindfuryAttack, new CastSpellExtraArgs(aurEff));
+			eventInfo.Actor.CastSpell(eventInfo.ProcTarget, ShamanSpells.WindfuryAttack, new CastSpellExtraArgs(aurEff));
 	}
 }

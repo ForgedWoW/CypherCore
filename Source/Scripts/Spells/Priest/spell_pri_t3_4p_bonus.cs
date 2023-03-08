@@ -28,6 +28,6 @@ internal class spell_pri_t3_4p_bonus : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		eventInfo.GetActor().CastSpell(eventInfo.GetProcTarget(), PriestSpells.ARMOR_OF_FAITH, new CastSpellExtraArgs(aurEff));
+		eventInfo.Actor.CastSpell(eventInfo.ProcTarget, PriestSpells.ARMOR_OF_FAITH, new CastSpellExtraArgs(aurEff));
 	}
 }

@@ -11,7 +11,7 @@ public class spell_dk_empower_rune_weapon : SpellScript
 {
 	public void OnHit()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

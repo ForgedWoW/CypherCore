@@ -29,7 +29,7 @@ internal class spell_rog_honor_among_thieves_AuraScript : AuraScript, IHasAuraEf
 	{
 		PreventDefaultAction();
 
-		var target = GetTarget();
+		var target = Target;
 		target.CastSpell(target, RogueSpells.HonorAmongThievesEnergize, new CastSpellExtraArgs(aurEff));
 	}
 }

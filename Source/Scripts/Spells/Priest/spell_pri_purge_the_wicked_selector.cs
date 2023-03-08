@@ -22,10 +22,16 @@ public class spell_pri_purge_the_wicked_selector : SpellScript, IHasSpellEffects
 		return ValidateSpellInfo(PriestSpells.PURGE_THE_WICKED_DOT, PriestSpells.PURGE_THE_WICKED);
 	}
 
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaEnemy));
+		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, PriestSpells.PURGE_THE_WICKED_DOT, GetCaster().GetGUID()));
-		targets.Sort(new ObjectDistanceOrderPred(GetExplTargetUnit()));
+		targets.RemoveIf(new UnitAuraCheck<WorldObject>(true, PriestSpells.PURGE_THE_WICKED_DOT, Caster.GetGUID()));
+		targets.Sort(new ObjectDistanceOrderPred(ExplTargetUnit));
 
 		if (targets.Count > 1)
 			targets.Resize(1);
@@ -33,12 +39,6 @@ public class spell_pri_purge_the_wicked_selector : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().AddAura(PriestSpells.PURGE_THE_WICKED_DOT, GetHitUnit());
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitDestAreaEnemy));
-		SpellEffects.Add(new EffectHandler(HandleDummy, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		Caster.AddAura(PriestSpells.PURGE_THE_WICKED_DOT, HitUnit);
 	}
 }

@@ -11,9 +11,7 @@ namespace Scripts.Spells.Monk;
 [CreatureScript(60849)]
 public class npc_monk_jade_serpent_statue : ScriptedAI
 {
-	public npc_monk_jade_serpent_statue(Creature c) : base(c)
-	{
-	}
+	public npc_monk_jade_serpent_statue(Creature c) : base(c) { }
 
 	public override void UpdateAI(uint diff)
 	{

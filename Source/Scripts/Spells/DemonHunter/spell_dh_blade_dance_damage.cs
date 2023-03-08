@@ -17,19 +17,19 @@ internal class spell_dh_blade_dance_damage : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var damage = GetHitDamage();
+		var damage = HitDamage;
 
-		var aurEff = GetCaster().GetAuraEffect(DemonHunterSpells.FirstBlood, 0);
+		var aurEff = Caster.GetAuraEffect(DemonHunterSpells.FirstBlood, 0);
 
 		if (aurEff != null)
 		{
 			var script = aurEff.Base.GetScript<spell_dh_first_blood>();
 
 			if (script != null)
-				if (GetHitUnit().GetGUID() == script.GetFirstTarget())
+				if (HitUnit.GetGUID() == script.GetFirstTarget())
 					MathFunctions.AddPct(ref damage, aurEff.Amount);
 		}
 
-		SetHitDamage(damage);
+		HitDamage = damage;
 	}
 }

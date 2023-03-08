@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ITransport
+namespace Game.Scripting.Interfaces.ITransport;
+
+public interface ITransportOnRemovePassenger : IScriptObject
 {
-    public interface ITransportOnRemovePassenger : IScriptObject
-    {
-        void OnRemovePassenger(Transport transport, Player player);
-    }
+	void OnRemovePassenger(Transport transport, Player player);
 }

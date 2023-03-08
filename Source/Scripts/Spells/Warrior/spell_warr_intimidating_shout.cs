@@ -8,23 +8,22 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+// 5246 - Intimidating Shout
+[Script]
+internal class spell_warr_intimidating_shout : SpellScript, IHasSpellEffects
 {
-    // 5246 - Intimidating Shout
-    [Script]
-	internal class spell_warr_intimidating_shout : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override void Register()
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitSrcAreaEnemy));
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitSrcAreaEnemy));
+	}
 
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 1, Targets.UnitSrcAreaEnemy));
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 2, Targets.UnitSrcAreaEnemy));
-		}
-
-		private void FilterTargets(List<WorldObject> unitList)
-		{
-			unitList.Remove(GetExplTargetWorldObject());
-		}
+	private void FilterTargets(List<WorldObject> unitList)
+	{
+		unitList.Remove(ExplTargetWorldObject);
 	}
 }

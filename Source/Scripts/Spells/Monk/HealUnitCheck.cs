@@ -8,9 +8,11 @@ namespace Scripts.Spells.Monk;
 
 public class HealUnitCheck : ICheck<WorldObject>
 {
+	private readonly Unit m_source;
+
 	public HealUnitCheck(Unit source)
 	{
-		this.m_source = source;
+		m_source = source;
 	}
 
 	public bool Invoke(WorldObject @object)
@@ -25,6 +27,4 @@ public class HealUnitCheck : ICheck<WorldObject>
 
 		return true;
 	}
-
-	private readonly Unit m_source;
 }

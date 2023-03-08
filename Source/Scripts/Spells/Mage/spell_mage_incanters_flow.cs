@@ -28,10 +28,10 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 	private void HandlePeriodicTick(AuraEffect aurEff)
 	{
 		// Incanter's flow should not cycle out of combat
-		if (!GetTarget().IsInCombat())
+		if (!Target.IsInCombat())
 			return;
 
-		var aura = GetTarget().GetAura(MageSpells.IncantersFlow);
+		var aura = Target.GetAura(MageSpells.IncantersFlow);
 
 		if (aura != null)
 		{
@@ -39,7 +39,7 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 
 			// Force always to values between 1 and 5
 			if ((modifier == -1 && stacks == 1) ||
-			    (modifier == 1 && stacks == 5))
+				(modifier == 1 && stacks == 5))
 			{
 				modifier *= -1;
 
@@ -50,7 +50,7 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 		}
 		else
 		{
-			GetTarget().CastSpell(GetTarget(), MageSpells.IncantersFlow, true);
+			Target.CastSpell(Target, MageSpells.IncantersFlow, true);
 		}
 	}
 }

@@ -284,7 +284,7 @@ namespace Game
                     }
 
                     // do not cast not learned spells
-                    if (!pet.HasSpell(spellid) || spellInfo.IsPassive())
+                    if (!pet.HasSpell(spellid) || spellInfo.IsPassive)
                         return;
 
                     //  Clear the flags as if owner clicked 'attack'. AI will reset them
@@ -304,7 +304,7 @@ namespace Game
                     //auto turn to target unless possessed
                     if (result == SpellCastResult.UnitNotInfront && !pet.IsPossessed() && !pet.IsVehicle())
                     {
-                        Unit unit_target2 = spell.Targets.GetUnitTarget();
+                        Unit unit_target2 = spell.Targets.UnitTarget;
                         if (unit_target)
                         {
                             if (!pet.HasSpellFocus())
@@ -334,7 +334,7 @@ namespace Game
 
                     if (result == SpellCastResult.SpellCastOk)
                     {
-                        unit_target = spell.Targets.GetUnitTarget();
+                        unit_target = spell.Targets.UnitTarget;
 
                         //10% chance to play special pet attack talk, else growl
                         //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
@@ -625,7 +625,7 @@ namespace Game
             foreach (Unit petControlled in pets)
             {
                 // do not add not learned spells/ passive spells
-                if (!petControlled.HasSpell(packet.SpellID) || !spellInfo.IsAutocastable())
+                if (!petControlled.HasSpell(packet.SpellID) || !spellInfo.IsAutocastable)
                     return;
 
                 CharmInfo charmInfo = petControlled.GetCharmInfo();
@@ -672,7 +672,7 @@ namespace Game
 
             TriggerCastFlags triggerCastFlags = TriggerCastFlags.None;
 
-            if (spellInfo.IsPassive())
+            if (spellInfo.IsPassive)
                 return;
 
             // cast only learned spells

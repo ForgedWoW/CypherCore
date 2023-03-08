@@ -13,7 +13,12 @@ namespace Scripts.Spells.Priest;
 [SpellScript(152118)]
 public class spell_pri_clarity_of_will : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
+	}
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
@@ -25,14 +30,9 @@ public class spell_pri_clarity_of_will : AuraScript, IHasAuraEffects
 
 			if (player != null)
 			{
-				var absorbamount = 9.0f * player.SpellBaseHealingBonusDone(GetSpellInfo().GetSchoolMask());
+				var absorbamount = 9.0f * player.SpellBaseHealingBonusDone(SpellInfo.GetSchoolMask());
 				amount.Value += absorbamount;
 			}
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));
 	}
 }

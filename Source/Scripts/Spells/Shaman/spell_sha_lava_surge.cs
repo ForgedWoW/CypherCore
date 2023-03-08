@@ -29,8 +29,8 @@ internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
 
 	private bool CheckProcChance(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var procChance       = aurEff.Amount;
-		var igneousPotential = GetTarget().GetAuraEffect(ShamanSpells.IgneousPotential, 0);
+		var procChance = aurEff.Amount;
+		var igneousPotential = Target.GetAuraEffect(ShamanSpells.IgneousPotential, 0);
 
 		if (igneousPotential != null)
 			procChance += igneousPotential.Amount;
@@ -41,6 +41,6 @@ internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		GetTarget().CastSpell(GetTarget(), ShamanSpells.LavaSurge, true);
+		Target.CastSpell(Target, ShamanSpells.LavaSurge, true);
 	}
 }

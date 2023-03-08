@@ -11,7 +11,7 @@ internal class spell_gen_eject_all_passengers : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var vehicle = GetHitUnit().GetVehicleKit();
+		var vehicle = HitUnit.GetVehicleKit();
 
 		if (vehicle)
 			vehicle.RemoveAllPassengers();

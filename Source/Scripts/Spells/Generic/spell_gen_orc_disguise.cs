@@ -27,8 +27,8 @@ internal class spell_gen_orc_disguise : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitPlayer();
+		var caster = Caster;
+		var target = HitPlayer;
 
 		if (target)
 		{

@@ -17,13 +17,13 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return GetCaster() && GetCaster().IsTypeId(TypeId.Player);
+		return Caster && Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		if (spellInfo.Effects.Empty() ||
-		    !spellInfo.GetEffect(0).IsAura(AuraType.ModPowerRegen))
+			!spellInfo.GetEffect(0).IsAura(AuraType.ModPowerRegen))
 		{
 			Log.outError(LogFilter.Spells, "Aura {GetId()} structure has been changed - first aura is no longer AURA_MOD_POWER_REGEN");
 
@@ -43,31 +43,31 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 	private void CalcPeriodic(AuraEffect aurEff, BoxedValue<bool> isPeriodic, BoxedValue<int> amplitude)
 	{
 		// Get AURA_MOD_POWER_REGEN aura from spell
-		var regen = GetAura().GetEffect(0);
+		var regen = Aura.GetEffect(0);
 
 		if (regen == null)
 			return;
 
 		// default case - not in arena
-		if (!GetCaster().ToPlayer().InArena())
+		if (!Caster.ToPlayer().InArena())
 			isPeriodic.Value = false;
 	}
 
 	private void CalcAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var regen = GetAura().GetEffect(0);
+		var regen = Aura.GetEffect(0);
 
 		if (regen == null)
 			return;
 
 		// default case - not in arena
-		if (!GetCaster().ToPlayer().InArena())
+		if (!Caster.ToPlayer().InArena())
 			regen.ChangeAmount(amount);
 	}
 
 	private void UpdatePeriodic(AuraEffect aurEff)
 	{
-		var regen = GetAura().GetEffect(0);
+		var regen = Aura.GetEffect(0);
 
 		if (regen == null)
 			return;

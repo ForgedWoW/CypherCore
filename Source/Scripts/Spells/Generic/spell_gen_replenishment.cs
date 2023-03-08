@@ -23,7 +23,7 @@ internal class spell_gen_replenishment : SpellScript, IHasSpellEffects
 	private void RemoveInvalidTargets(List<WorldObject> targets)
 	{
 		// In arenas Replenishment may only affect the caster
-		var caster = GetCaster().ToPlayer();
+		var caster = Caster.ToPlayer();
 
 		if (caster)
 			if (caster.InArena())
@@ -35,14 +35,14 @@ internal class spell_gen_replenishment : SpellScript, IHasSpellEffects
 			}
 
 		targets.RemoveAll(obj =>
-		                  {
-			                  var target = obj.ToUnit();
+		{
+			var target = obj.ToUnit();
 
-			                  if (target)
-				                  return target.GetPowerType() != PowerType.Mana;
+			if (target)
+				return target.GetPowerType() != PowerType.Mana;
 
-			                  return true;
-		                  });
+			return true;
+		});
 
 		byte maxTargets = 10;
 

@@ -15,29 +15,29 @@ internal class spell_mage_ice_lance_damage : SpellScript, IHasSpellEffects, ISpe
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-    public double CalcMultiplier(double multiplier)
-    {
-        if (GetSpell().UnitTarget.HasAuraState(AuraStateType.Frozen, GetSpellInfo(), GetCaster()))
-            multiplier *= 3.0f;
+	public double CalcMultiplier(double multiplier)
+	{
+		if (Spell.UnitTarget.HasAuraState(AuraStateType.Frozen, SpellInfo, Caster))
+			multiplier *= 3.0f;
 
 		return multiplier;
-    }
+	}
 
-    public override void Register()
+	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(ApplyDamageMultiplier, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 
 	private void ApplyDamageMultiplier(int effIndex)
 	{
-		var spellValue = GetSpellValue();
+		var spellValue = SpellValue;
 
 		if ((spellValue.CustomBasePointsMask & (1 << 1)) != 0)
 		{
-			var originalDamage = GetHitDamage();
-			var targetIndex    = spellValue.EffectBasePoints[1];
-			var multiplier     = Math.Pow(GetEffectInfo().CalcDamageMultiplier(GetCaster(), GetSpell()), targetIndex);
-			SetHitDamage(originalDamage * multiplier);
+			var originalDamage = HitDamage;
+			var targetIndex = spellValue.EffectBasePoints[1];
+			var multiplier = Math.Pow(EffectInfo.CalcDamageMultiplier(Caster, Spell), targetIndex);
+			HitDamage = originalDamage * multiplier;
 		}
 	}
 }

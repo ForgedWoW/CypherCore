@@ -26,10 +26,10 @@ internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		if (GetTargetApplication().RemoveMode != AuraRemoveMode.Expire)
+		if (TargetApplication.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 			caster.CastSpell(caster, RandomHelper.URand(QuestSpellIds.SummonSandGnome, QuestSpellIds.SummonBoneSlicer), true);

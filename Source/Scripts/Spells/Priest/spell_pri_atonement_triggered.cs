@@ -27,7 +27,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 
 	private void HandleOnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 		{
@@ -37,14 +37,14 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 			{
 				var script = atonement.GetScript<spell_pri_atonement>();
 
-				script?.AddAtonementTarget(GetTarget().GetGUID());
+				script?.AddAtonementTarget(Target.GetGUID());
 			}
 		}
 	}
 
 	private void HandleOnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster)
 		{
@@ -54,7 +54,7 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 			{
 				var script = atonement.GetScript<spell_pri_atonement>();
 
-				script?.RemoveAtonementTarget(GetTarget().GetGUID());
+				script?.RemoveAtonementTarget(Target.GetGUID());
 			}
 		}
 	}

@@ -12,13 +12,13 @@ public class spell_hun_chimera_shot : SpellScript, ISpellOnHit
 {
 	public override bool Load()
 	{
-		return GetCaster().GetTypeId() == TypeId.Player;
+		return Caster.GetTypeId() == TypeId.Player;
 	}
 
 	public void OnHit()
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (RandomHelper.URand(0, 1) == 1)
 			caster.CastSpell(target, 171454, true);

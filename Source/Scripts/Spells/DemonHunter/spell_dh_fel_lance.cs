@@ -14,20 +14,20 @@ public class spell_dh_fel_lance : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
 	private void HandleHit(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
-		var pct = GetSpellInfo().GetEffect(0).BasePoints;
-		SetHitDamage(GetHitDamage() + (int)target.CountPctFromMaxHealth(pct));
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleHit, 1, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+		var pct = SpellInfo.GetEffect(0).BasePoints;
+		HitDamage = HitDamage + (int)target.CountPctFromMaxHealth(pct);
 	}
 }

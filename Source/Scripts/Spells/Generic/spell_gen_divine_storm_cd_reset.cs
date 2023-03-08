@@ -17,7 +17,7 @@ internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 
 	public override bool Load()
 	{
-		return GetCaster().IsTypeId(TypeId.Player);
+		return Caster.IsTypeId(TypeId.Player);
 	}
 
 	public override bool Validate(SpellInfo spellInfo)
@@ -32,6 +32,6 @@ internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		GetCaster().GetSpellHistory().ResetCooldown(GenericSpellIds.DivineStorm, true);
+		Caster.GetSpellHistory().ResetCooldown(GenericSpellIds.DivineStorm, true);
 	}
 }

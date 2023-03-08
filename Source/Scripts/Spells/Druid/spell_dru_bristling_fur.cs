@@ -8,36 +8,35 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Druid
+namespace Scripts.Spells.Druid;
+
+[Script] // 155835 - Bristling Fur
+internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
 {
-    [Script] // 155835 - Bristling Fur
-	internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override bool Validate(SpellInfo spellInfo)
 	{
-		public List<IAuraEffectHandler> AuraEffects { get; } = new();
+		return ValidateSpellInfo(DruidSpellIds.BristlingFurGainRage);
+	}
 
-		public override bool Validate(SpellInfo spellInfo)
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
+	}
+
+	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
+	{
+		// BristlingFurRage = 100 * Damage / MaxHealth.
+		var damageInfo = eventInfo.DamageInfo;
+
+		if (damageInfo != null)
 		{
-			return ValidateSpellInfo(DruidSpellIds.BristlingFurGainRage);
-		}
+			var target = Target;
+			var rage = (uint)(target.GetMaxPower(PowerType.Rage) * (double)damageInfo.GetDamage() / (double)target.GetMaxHealth());
 
-		public override void Register()
-		{
-			AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
-		}
-
-		private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
-		{
-			// BristlingFurRage = 100 * Damage / MaxHealth.
-			var damageInfo = eventInfo.GetDamageInfo();
-
-			if (damageInfo != null)
-			{
-				var target = GetTarget();
-				var rage   = (uint)(target.GetMaxPower(PowerType.Rage) * (double)damageInfo.GetDamage() / (double)target.GetMaxHealth());
-
-				if (rage > 0)
-					target.CastSpell(target, DruidSpellIds.BristlingFurGainRage, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)rage));
-			}
+			if (rage > 0)
+				target.CastSpell(target, DruidSpellIds.BristlingFurGainRage, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)rage));
 		}
 	}
 }

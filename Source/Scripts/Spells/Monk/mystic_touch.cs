@@ -14,9 +14,7 @@ public class mystic_touch : ScriptObjectAutoAdd, IPlayerOnDealDamage
 {
 	public Class PlayerClass => Class.Monk;
 
-	public mystic_touch() : base("mystic_touch")
-	{
-	}
+	public mystic_touch() : base("mystic_touch") { }
 
 	public void OnDamage(Player caster, Unit target, ref double damage, SpellInfo spellProto)
 	{

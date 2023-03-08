@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IAura
+namespace Game.Scripting.Interfaces.IAura;
+
+public interface IAuraCheckAreaTarget : IAuraScript
 {
-    public interface IAuraCheckAreaTarget : IAuraScript
-    {
-        bool CheckAreaTarget(Unit target);
-    }
+	bool CheckAreaTarget(Unit target);
 }

@@ -3,10 +3,9 @@
 
 using Game.Conditions;
 
-namespace Game.Scripting.Interfaces.ICondition
+namespace Game.Scripting.Interfaces.ICondition;
+
+public interface IConditionCheck : IScriptObject
 {
-    public interface IConditionCheck : IScriptObject
-    {
-        bool OnConditionCheck(Condition condition, ConditionSourceInfo sourceInfo);
-    }
+	bool OnConditionCheck(Condition condition, ConditionSourceInfo sourceInfo);
 }

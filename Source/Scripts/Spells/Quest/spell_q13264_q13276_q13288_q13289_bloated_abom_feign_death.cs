@@ -22,7 +22,7 @@ internal class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : Aura
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 		target.SetUnitFlag3(UnitFlags3.FakeDead);
 		target.SetUnitFlag2(UnitFlags2.FeignDeath);
 
@@ -33,7 +33,7 @@ internal class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : Aura
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target   = GetTarget();
+		var target = Target;
 		var creature = target.ToCreature();
 
 		creature?.DespawnOrUnsummon();

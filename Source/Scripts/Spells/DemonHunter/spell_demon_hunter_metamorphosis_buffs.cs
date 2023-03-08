@@ -12,11 +12,17 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(162264)]
 public class spell_demon_hunter_metamorphosis_buffs : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Transform, AuraEffectHandleModes.Real));
+	}
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
@@ -26,18 +32,12 @@ public class spell_demon_hunter_metamorphosis_buffs : AuraScript, IHasAuraEffect
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null)
 			return;
 
 		if (caster.HasAura(DemonHunterSpells.DEMONIC_ORIGINS))
 			caster.CastSpell(caster, DemonHunterSpells.DEMONIC_ORIGINS_BUFF, true);
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
-		AuraEffects.Add(new AuraEffectApplyHandler(OnApply, 0, AuraType.Transform, AuraEffectHandleModes.Real));
 	}
 }

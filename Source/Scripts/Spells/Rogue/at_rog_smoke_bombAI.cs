@@ -10,9 +10,7 @@ namespace Scripts.Spells.Rogue;
 [Script]
 public class at_rog_smoke_bombAI : AreaTriggerAI
 {
-	public at_rog_smoke_bombAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-	}
+	public at_rog_smoke_bombAI(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnUnitEnter(Unit unit)
 	{

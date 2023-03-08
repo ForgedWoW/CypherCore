@@ -14,14 +14,14 @@ public class spell_dh_artifact_anguish_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleHit(int effIndex)
-	{
-		var stacks = GetSpellValue().AuraStackAmount;
-		SetHitDamage(GetHitDamage() * stacks);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleHit, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleHit(int effIndex)
+	{
+		var stacks = SpellValue.AuraStackAmount;
+		HitDamage = HitDamage * stacks;
 	}
 }

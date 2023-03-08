@@ -14,20 +14,20 @@ public class spell_dh_felblade : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	private void HandleOnHit(int effIndex)
-	{
-		if (!GetCaster() || !GetHitUnit())
-			return;
-
-		if (GetCaster().GetDistance2d(GetHitUnit()) <= 15.0f)
-		{
-			GetCaster().CastSpell(GetHitUnit(), DemonHunterSpells.FELBLADE_CHARGE, true);
-			GetCaster().CastSpell(GetHitUnit(), DemonHunterSpells.FELBLADE_DAMAGE, true);
-		}
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
+
+	private void HandleOnHit(int effIndex)
+	{
+		if (!Caster || !HitUnit)
+			return;
+
+		if (Caster.GetDistance2d(HitUnit) <= 15.0f)
+		{
+			Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_CHARGE, true);
+			Caster.CastSpell(HitUnit, DemonHunterSpells.FELBLADE_DAMAGE, true);
+		}
 	}
 }

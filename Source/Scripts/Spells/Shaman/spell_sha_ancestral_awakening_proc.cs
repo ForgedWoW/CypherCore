@@ -10,44 +10,43 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Shaman
+namespace Scripts.Spells.Shaman;
+
+// 52759 - Ancestral Awakening
+/// Updated 4.3.4
+[SpellScript(52759)]
+public class spell_sha_ancestral_awakening_proc : SpellScript, IHasSpellEffects
 {
-    // 52759 - Ancestral Awakening
-    /// Updated 4.3.4
-    [SpellScript(52759)]
-	public class spell_sha_ancestral_awakening_proc : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.ANCESTRAL_AWAKENING_PROC, Difficulty.None) != null)
+			return false;
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			if (Global.SpellMgr.GetSpellInfo(ShamanSpells.ANCESTRAL_AWAKENING_PROC, Difficulty.None) != null)
-				return false;
+		return true;
+	}
 
-			return true;
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitCasterAreaRaid));
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-		private void FilterTargets(List<WorldObject> targets)
-		{
-			if (targets.Count < 2)
-				return;
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		if (targets.Count < 2)
+			return;
 
-			targets.Sort(new HealthPctOrderPred());
+		targets.Sort(new HealthPctOrderPred());
 
-			var target = targets.First();
-			targets.Clear();
-			targets.Add(target);
-		}
+		var target = targets.First();
+		targets.Clear();
+		targets.Add(target);
+	}
 
-		private void HandleDummy(int effIndex)
-		{
-			GetCaster().CastSpell(GetHitUnit(), ShamanSpells.ANCESTRAL_AWAKENING_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectValue()));
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitCasterAreaRaid));
-			SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-		}
+	private void HandleDummy(int effIndex)
+	{
+		Caster.CastSpell(HitUnit, ShamanSpells.ANCESTRAL_AWAKENING_PROC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)EffectValue));
 	}
 }

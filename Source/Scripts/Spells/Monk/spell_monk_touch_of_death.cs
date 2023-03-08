@@ -13,16 +13,22 @@ namespace Scripts.Spells.Monk;
 [SpellScript(115080)]
 public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDummy));
+		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
+	}
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
 		canBeRecalculated.Value = true;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var effInfo = GetAura().SpellInfo.GetEffect(1).CalcValue();
+			var effInfo = Aura.SpellInfo.GetEffect(1).CalcValue();
 
 			if (effInfo != 0)
 			{
@@ -35,23 +41,17 @@ public class spell_monk_touch_of_death : AuraScript, IHasAuraEffects
 
 	private void OnTick(AuraEffect aurEff)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
 			var damage = aurEff.Amount;
 
 			// Damage reduced to Players, need to check reduction value
-			if (GetTarget().GetTypeId() == TypeId.Player)
+			if (Target.GetTypeId() == TypeId.Player)
 				damage /= 2;
 
-			caster.CastSpell(GetTarget(), MonkSpells.TOUCH_OF_DEATH_DAMAGE, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
+			caster.CastSpell(Target, MonkSpells.TOUCH_OF_DEATH_DAMAGE, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.PeriodicDummy));
-		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, AuraType.PeriodicDummy));
 	}
 }

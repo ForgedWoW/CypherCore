@@ -3,65 +3,63 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(20473)] // 20473 - Holy Shock
+internal class spell_pal_holy_shock : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
-    [SpellScript(20473)] // 20473 - Holy Shock
-    internal class spell_pal_holy_shock : SpellScript, ISpellCheckCast, IHasSpellEffects
-    {
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.HolyShock, PaladinSpells.HolyShockHealing, PaladinSpells.HolyShockDamage);
-        }
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        public SpellCastResult CheckCast()
-        {
-            Unit caster = GetCaster();
-            Unit target = GetExplTargetUnit();
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.HolyShock, PaladinSpells.HolyShockHealing, PaladinSpells.HolyShockDamage);
+	}
 
-            if (target)
-            {
-                if (!caster.IsFriendlyTo(target))
-                {
-                    if (!caster.IsValidAttackTarget(target))
-                        return SpellCastResult.BadTargets;
+	public SpellCastResult CheckCast()
+	{
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
-                    if (!caster.IsInFront(target))
-                        return SpellCastResult.NotInfront;
-                }
-            }
-            else
-            {
-                return SpellCastResult.BadTargets;
-            }
+		if (target)
+		{
+			if (!caster.IsFriendlyTo(target))
+			{
+				if (!caster.IsValidAttackTarget(target))
+					return SpellCastResult.BadTargets;
 
-            return SpellCastResult.SpellCastOk;
-        }
+				if (!caster.IsInFront(target))
+					return SpellCastResult.NotInfront;
+			}
+		}
+		else
+		{
+			return SpellCastResult.BadTargets;
+		}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
-        }
+		return SpellCastResult.SpellCastOk;
+	}
 
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));
+	}
 
-        private void HandleDummy(int effIndex)
-        {
-            Unit caster = GetCaster();
-            Unit unitTarget = GetHitUnit();
+	private void HandleDummy(int effIndex)
+	{
+		var caster = Caster;
+		var unitTarget = HitUnit;
 
-            if (unitTarget != null)
-            {
-                if (caster.IsFriendlyTo(unitTarget))
-                    caster.CastSpell(unitTarget, PaladinSpells.HolyShockHealing, new CastSpellExtraArgs(GetSpell()));
-                else
-                    caster.CastSpell(unitTarget, PaladinSpells.HolyShockDamage, new CastSpellExtraArgs(GetSpell()));
-            }
-        }
-    }
+		if (unitTarget != null)
+		{
+			if (caster.IsFriendlyTo(unitTarget))
+				caster.CastSpell(unitTarget, PaladinSpells.HolyShockHealing, new CastSpellExtraArgs(Spell));
+			else
+				caster.CastSpell(unitTarget, PaladinSpells.HolyShockDamage, new CastSpellExtraArgs(Spell));
+		}
+	}
 }

@@ -21,11 +21,11 @@ internal class spell_gen_despawn_all_summons_owned_by_caster : SpellScript, IHas
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
-			var target = GetHitCreature();
+			var target = HitCreature;
 
 			if (target.GetOwner() == caster)
 				target.DespawnOrUnsummon();

@@ -8,31 +8,30 @@ using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
-namespace Scripts.Spells.Warrior
+namespace Scripts.Spells.Warrior;
+
+/// Updated 8.3.7
+// 12975 - Last Stand
+[SpellScript(12975)]
+public class spell_warr_last_stand : SpellScript, IHasSpellEffects
 {
-    /// Updated 8.3.7
-    // 12975 - Last Stand
-    [SpellScript(12975)]
-	public class spell_warr_last_stand : SpellScript, IHasSpellEffects
+	public List<ISpellEffect> SpellEffects { get; } = new();
+
+	public override bool Validate(SpellInfo UnnamedParameter)
 	{
-		public List<ISpellEffect> SpellEffects { get; } = new();
+		return ValidateSpellInfo(WarriorSpells.LAST_STAND_TRIGGERED);
+	}
 
-		public override bool Validate(SpellInfo UnnamedParameter)
-		{
-			return ValidateSpellInfo(WarriorSpells.LAST_STAND_TRIGGERED);
-		}
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
+	}
 
-		private void HandleDummy(int effIndex)
-		{
-			var caster = GetCaster();
-			var args   = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(GetEffectValue()));
-			caster.CastSpell(caster, WarriorSpells.LAST_STAND_TRIGGERED, args);
-		}
-
-		public override void Register()
-		{
-			SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHit));
-		}
+	private void HandleDummy(int effIndex)
+	{
+		var caster = Caster;
+		var args = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)caster.CountPctFromMaxHealth(EffectValue));
+		caster.CastSpell(caster, WarriorSpells.LAST_STAND_TRIGGERED, args);
 	}
 }

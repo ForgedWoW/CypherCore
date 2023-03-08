@@ -9,40 +9,40 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+// 185984 - Light of Dawn aoe heal
+[SpellScript(185984)]
+public class spell_pal_light_of_dawn_trigger : SpellScript, IHasSpellEffects
 {
-    // 185984 - Light of Dawn aoe heal
-    [SpellScript(185984)]
-    public class spell_pal_light_of_dawn_trigger : SpellScript, IHasSpellEffects
-    {
-        public List<ISpellEffect> SpellEffects { get; } = new();
+	public List<ISpellEffect> SpellEffects { get; } = new();
 
-        private void FilterTargets(List<WorldObject> targets)
-        {
-            Unit caster = GetCaster();
-            byte limit = 5;
+	public override void Register()
+	{
+		SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
+		SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
+	}
 
-            targets.RemoveIf((WorldObject target) =>
-            {
-                Position pos = target.Location;
-                return !(caster.IsWithinDist2d(pos, 15.0f) && caster.IsInFront(target, (float)(Math.PI / 3)));
-            });
+	private void FilterTargets(List<WorldObject> targets)
+	{
+		var caster = Caster;
+		byte limit = 5;
 
-            targets.RandomResize(limit);
-        }
+		targets.RemoveIf((WorldObject target) =>
+		{
+			Position pos = target.Location;
 
-        private void HandleOnHit(int effIndex)
-        {
-            double dmg = GetHitHeal();
-            dmg += GetCaster().UnitData.AttackPower * 1.8f;
+			return !(caster.IsWithinDist2d(pos, 15.0f) && caster.IsInFront(target, (float)(Math.PI / 3)));
+		});
 
-            SetHitHeal(dmg);
-        }
+		targets.RandomResize(limit);
+	}
 
-        public override void Register()
-        {
-            SpellEffects.Add(new ObjectAreaTargetSelectHandler(FilterTargets, 0, Targets.UnitDestAreaAlly));
-            SpellEffects.Add(new EffectHandler(HandleOnHit, 0, SpellEffectName.Heal, SpellScriptHookType.EffectHitTarget));
-        }
-    }
+	private void HandleOnHit(int effIndex)
+	{
+		var dmg = HitHeal;
+		dmg += Caster.UnitData.AttackPower * 1.8f;
+
+		HitHeal = dmg;
+	}
 }

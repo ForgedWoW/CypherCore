@@ -14,19 +14,19 @@ public class spell_rog_nightblade_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleLaunch, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
+	}
+
 	private void HandleLaunch(int effIndex)
 	{
-		var caster = GetCaster();
-		var target = GetHitUnit();
+		var caster = Caster;
+		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
 		target.RemoveAurasDueToSpell(RogueSpells.NIGHTBLADE, caster.GetGUID());
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleLaunch, 0, SpellEffectName.ApplyAura, SpellScriptHookType.LaunchTarget));
 	}
 }

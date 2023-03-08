@@ -20,14 +20,14 @@ internal class spell_sha_lava_crit_chance : SpellScript, ISpellCalcCritChance
 
 	public void CalcCritChance(Unit victim, ref double critChance)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster == null ||
-		    victim == null)
+			victim == null)
 			return;
 
 		if (caster.HasAura(ShamanSpells.LavaBurstRank2) &&
-		    victim.HasAura(ShamanSpells.FlameShock, caster.GetGUID()))
+			victim.HasAura(ShamanSpells.FlameShock, caster.GetGUID()))
 			if (victim.GetTotalAuraModifier(AuraType.ModAttackerSpellAndWeaponCritChance) > -100)
 				critChance = 100.0f;
 	}

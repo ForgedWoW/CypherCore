@@ -27,7 +27,7 @@ internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		// Master of Subtlety
 		if (target.HasAura(RogueSpells.MasterOfSubtletyPassive))
@@ -48,14 +48,14 @@ internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 
 	private void HandleEffectRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = GetTarget();
+		var target = Target;
 
 		// Master of Subtlety
-		var masterOfSubtletyPassive = GetTarget().GetAuraEffect(RogueSpells.MasterOfSubtletyPassive, 0);
+		var masterOfSubtletyPassive = Target.GetAuraEffect(RogueSpells.MasterOfSubtletyPassive, 0);
 
 		if (masterOfSubtletyPassive != null)
 		{
-			var masterOfSubtletyAura = GetTarget().GetAura(RogueSpells.MasterOfSubtletyDamagePercent);
+			var masterOfSubtletyAura = Target.GetAura(RogueSpells.MasterOfSubtletyDamagePercent);
 
 			if (masterOfSubtletyAura != null)
 			{

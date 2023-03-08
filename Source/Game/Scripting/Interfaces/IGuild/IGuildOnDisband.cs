@@ -3,10 +3,9 @@
 
 using Game.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild
+namespace Game.Scripting.Interfaces.IGuild;
+
+public interface IGuildOnDisband : IScriptObject
 {
-    public interface IGuildOnDisband : IScriptObject
-    {
-        void OnDisband(Guild guild);
-    }
+	void OnDisband(Guild guild);
 }

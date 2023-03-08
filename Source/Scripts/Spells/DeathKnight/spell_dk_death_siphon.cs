@@ -15,24 +15,24 @@ public class spell_dk_death_siphon : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
+	public override void Register()
+	{
+		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
+	}
+
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var _player = GetCaster().ToPlayer();
+		var _player = Caster.ToPlayer();
 
 		if (_player != null)
-			if (GetHitUnit())
+			if (HitUnit)
 			{
-				double bp   = GetHitDamage();
-				var   args = new CastSpellExtraArgs();
+				var bp = HitDamage;
+				var args = new CastSpellExtraArgs();
 				args.AddSpellMod(SpellValueMod.BasePoint0, (int)bp);
 				args.SetTriggerFlags(TriggerCastFlags.FullMask);
 				_player.CastSpell(_player, DeathKnightSpells.DEATH_SIPHON_HEAL, args);
 			}
-	}
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleScriptEffect, 0, SpellEffectName.SchoolDamage, SpellScriptHookType.EffectHitTarget));
 	}
 }

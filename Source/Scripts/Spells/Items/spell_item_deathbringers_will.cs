@@ -22,16 +22,16 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
 
 	private readonly uint _strengthSpellId;
 
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public spell_item_deathbringers_will(uint strengthSpellId, uint agilitySpellId, uint apSpellId, uint criticalSpellId, uint hasteSpellId)
 	{
 		_strengthSpellId = strengthSpellId;
-		_agilitySpellId  = agilitySpellId;
-		_apSpellId       = apSpellId;
+		_agilitySpellId = agilitySpellId;
+		_apSpellId = apSpellId;
 		_criticalSpellId = criticalSpellId;
-		_hasteSpellId    = hasteSpellId;
+		_hasteSpellId = hasteSpellId;
 	}
-
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override bool Validate(SpellInfo spellInfo)
 	{
@@ -95,7 +95,7 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
 		};
 
 		PreventDefaultAction();
-		var caster       = eventInfo.GetActor();
+		var caster = eventInfo.Actor;
 		var randomSpells = triggeredSpells[(int)caster.GetClass()];
 
 		if (randomSpells.Empty())

@@ -10,18 +10,17 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(47481)]
 public class spell_dk_ghoul_gnaw : SpellScript, ISpellAfterHit
 {
+	public void AfterHit()
+	{
+		var caster = Caster;
+		var target = ExplTargetUnit;
 
-	public void AfterHit(){
-        var caster = GetCaster();
-        var target = GetExplTargetUnit();
+		if (caster == null || target == null)
+			return;
 
-        if (caster == null || target == null)
-            return;
+		Unit owner = caster.GetOwner().ToPlayer();
 
-        Unit owner = caster.GetOwner().ToPlayer();
-        if (owner != null)
-        {
+		if (owner != null)
 			caster.CastSpell(target, caster.HasAura(DeathKnightSpells.DARK_TRANSFORMATION) ? DeathKnightSpells.DT_GHOUL_GNAW : DeathKnightSpells.GHOUL_GNAW, true);
-        }
-    }
+	}
 }

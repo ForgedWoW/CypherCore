@@ -3,10 +3,9 @@
 
 using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IItem
+namespace Game.Scripting.Interfaces.IItem;
+
+public interface IItemOnExpire : IScriptObject
 {
-    public interface IItemOnExpire : IScriptObject
-    {
-        bool OnExpire(Player player, ItemTemplate proto);
-    }
+	bool OnExpire(Player player, ItemTemplate proto);
 }

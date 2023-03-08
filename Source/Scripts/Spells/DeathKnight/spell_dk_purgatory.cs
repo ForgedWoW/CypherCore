@@ -12,23 +12,23 @@ namespace Scripts.Spells.DeathKnight;
 [SpellScript(116888)]
 public class spell_dk_purgatory : AuraScript, IHasAuraEffects
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new List<IAuraEffectHandler>();
-
-	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
-	{
-		var _player = GetTarget().ToPlayer();
-
-		if (_player != null)
-		{
-			var removeMode = GetTargetApplication().RemoveMode;
-
-			if (removeMode == AuraRemoveMode.Expire)
-				_player.CastSpell(_player, DeathKnightSpells.PURGATORY_INSTAKILL, true);
-		}
-	}
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 0, AuraType.SchoolHealAbsorb, AuraEffectHandleModes.Real, AuraScriptHookType.EffectRemove));
+	}
+
+	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
+	{
+		var _player = Target.ToPlayer();
+
+		if (_player != null)
+		{
+			var removeMode = TargetApplication.RemoveMode;
+
+			if (removeMode == AuraRemoveMode.Expire)
+				_player.CastSpell(_player, DeathKnightSpells.PURGATORY_INSTAKILL, true);
+		}
 	}
 }

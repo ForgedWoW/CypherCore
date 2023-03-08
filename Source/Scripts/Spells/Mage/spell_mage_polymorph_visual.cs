@@ -36,7 +36,7 @@ internal class spell_mage_polymorph_visual : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		Unit target = GetCaster().FindNearestCreature(NPC_AUROSALIA, 30.0f);
+		Unit target = Caster.FindNearestCreature(NPC_AUROSALIA, 30.0f);
 
 		if (target)
 			if (target.IsTypeId(TypeId.Unit))

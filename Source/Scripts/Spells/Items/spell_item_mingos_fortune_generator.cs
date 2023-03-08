@@ -32,6 +32,6 @@ internal class spell_item_mingos_fortune_generator : SpellScript, IHasSpellEffec
 
 	private void HandleDummy(int effIndex)
 	{
-		GetCaster().CastSpell(GetCaster(), CreateFortuneSpells.SelectRandom(), true);
+		Caster.CastSpell(Caster, CreateFortuneSpells.SelectRandom(), true);
 	}
 }

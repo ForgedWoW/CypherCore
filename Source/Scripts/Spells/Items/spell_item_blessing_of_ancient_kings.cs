@@ -14,6 +14,8 @@ namespace Scripts.Spells.Items;
 [Script] // 64411 - Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
 internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
+
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(ItemSpellIds.ProtectionOfAncientKings);
@@ -21,7 +23,7 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.GetProcTarget() != null;
+		return eventInfo.ProcTarget != null;
 	}
 
 	public override void Register()
@@ -29,20 +31,18 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
 	}
 
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
 
-		var healInfo = eventInfo.GetHealInfo();
+		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo == null ||
-		    healInfo.GetHeal() == 0)
+			healInfo.GetHeal() == 0)
 			return;
 
-		var absorb  = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), 15.0f);
-		var protEff = eventInfo.GetProcTarget().GetAuraEffect(ItemSpellIds.ProtectionOfAncientKings, 0, eventInfo.GetActor().GetGUID());
+		var absorb = (int)MathFunctions.CalculatePct(healInfo.GetHeal(), 15.0f);
+		var protEff = eventInfo.ProcTarget.GetAuraEffect(ItemSpellIds.ProtectionOfAncientKings, 0, eventInfo.Actor.GetGUID());
 
 		if (protEff != null)
 		{
@@ -56,7 +56,7 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 		{
 			CastSpellExtraArgs args = new(aurEff);
 			args.AddSpellMod(SpellValueMod.BasePoint0, absorb);
-			GetTarget().CastSpell(eventInfo.GetProcTarget(), ItemSpellIds.ProtectionOfAncientKings, args);
+			Target.CastSpell(eventInfo.ProcTarget, ItemSpellIds.ProtectionOfAncientKings, args);
 		}
 	}
 }

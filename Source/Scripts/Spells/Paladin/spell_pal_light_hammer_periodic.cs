@@ -3,38 +3,36 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;
 
-namespace Scripts.Spells.Paladin
+namespace Scripts.Spells.Paladin;
+
+[SpellScript(114918)] // 114918 - Light's Hammer (Periodic)
+internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
 {
-    [SpellScript(114918)] // 114918 - Light's Hammer (Periodic)
-    internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
-    {
-        public List<IAuraEffectHandler> AuraEffects { get; } = new();
+	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-        public override bool Validate(SpellInfo spellInfo)
-        {
-            return ValidateSpellInfo(PaladinSpells.LightHammerHealing, PaladinSpells.LightHammerDamage);
-        }
+	public override bool Validate(SpellInfo spellInfo)
+	{
+		return ValidateSpellInfo(PaladinSpells.LightHammerHealing, PaladinSpells.LightHammerDamage);
+	}
 
-        public override void Register()
-        {
-            AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
-        }
+	public override void Register()
+	{
+		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));
+	}
 
-        private void HandleEffectPeriodic(AuraEffect aurEff)
-        {
-            Unit lightHammer = GetTarget();
-            Unit originalCaster = lightHammer.GetOwner();
+	private void HandleEffectPeriodic(AuraEffect aurEff)
+	{
+		var lightHammer = Target;
+		var originalCaster = lightHammer.GetOwner();
 
-            if (originalCaster != null)
-            {
-                originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-                originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
-            }
-        }
-    }
+		if (originalCaster != null)
+		{
+			originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerDamage, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+			originalCaster.CastSpell(lightHammer.Location, PaladinSpells.LightHammerHealing, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
+		}
+	}
 }

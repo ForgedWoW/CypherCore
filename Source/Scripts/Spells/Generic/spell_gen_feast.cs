@@ -18,14 +18,14 @@ internal class spell_gen_feast : SpellScript, IHasSpellEffects
 	public override bool Validate(SpellInfo spellInfo)
 	{
 		return ValidateSpellInfo(GenericSpellIds.FeastFood,
-		                         GenericSpellIds.FeastDrink,
-		                         GenericSpellIds.BountifulFeastDrink,
-		                         GenericSpellIds.BountifulFeastFood,
-		                         GenericSpellIds.GreatFeastRefreshment,
-		                         GenericSpellIds.FishFeastRefreshment,
-		                         GenericSpellIds.GiganticFeastRefreshment,
-		                         GenericSpellIds.SmallFeastRefreshment,
-		                         GenericSpellIds.BountifulFeastRefreshment);
+								GenericSpellIds.FeastDrink,
+								GenericSpellIds.BountifulFeastDrink,
+								GenericSpellIds.BountifulFeastFood,
+								GenericSpellIds.GreatFeastRefreshment,
+								GenericSpellIds.FishFeastRefreshment,
+								GenericSpellIds.GiganticFeastRefreshment,
+								GenericSpellIds.SmallFeastRefreshment,
+								GenericSpellIds.BountifulFeastRefreshment);
 	}
 
 	public override void Register()
@@ -35,9 +35,9 @@ internal class spell_gen_feast : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var target = GetHitUnit();
+		var target = HitUnit;
 
-		switch (GetSpellInfo().Id)
+		switch (SpellInfo.Id)
 		{
 			case GenericSpellIds.GreatFeast:
 				target.CastSpell(target, GenericSpellIds.FeastFood);
