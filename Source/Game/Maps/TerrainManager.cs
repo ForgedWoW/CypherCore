@@ -18,9 +18,7 @@ public class TerrainManager : Singleton<TerrainManager>
 	// parent map links
 	MultiMap<uint, uint> _parentMapData = new();
 
-	TerrainManager()
-	{
-	}
+	TerrainManager() { }
 
 	public void InitializeParentMapData(MultiMap<uint, uint> mapData)
 	{

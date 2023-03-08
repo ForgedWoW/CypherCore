@@ -16,10 +16,10 @@ public class FriendlyBelowHpPctEntryInRange : ICheck<Unit>
 
 	public FriendlyBelowHpPctEntryInRange(Unit obj, uint entry, float range, byte pct, bool excludeSelf)
 	{
-		_obj         = obj;
-		_entry       = entry;
-		_range       = range;
-		_pct         = pct;
+		_obj = obj;
+		_entry = entry;
+		_range = range;
+		_pct = pct;
 		_excludeSelf = excludeSelf;
 	}
 

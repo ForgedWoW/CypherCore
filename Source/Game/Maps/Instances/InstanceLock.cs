@@ -18,11 +18,11 @@ public class InstanceLock
 
 	public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
 	{
-		_mapId        = mapId;
+		_mapId = mapId;
 		_difficultyId = difficultyId;
-		_instanceId   = instanceId;
-		_expiryTime   = expiryTime;
-		_extended     = false;
+		_instanceId = instanceId;
+		_expiryTime = expiryTime;
+		_extended = false;
 	}
 
 	public bool IsExpired()

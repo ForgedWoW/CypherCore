@@ -11,11 +11,11 @@ namespace Game.Maps;
 public class TransportTemplate
 {
 	public uint TotalPathTime { get; set; }
-    public double Speed { get; set; }
-    public double AccelerationRate { get; set; }
-    public double AccelerationTime { get; set; }
-    public double AccelerationDistance { get; set; }
-    public List<TransportPathLeg> PathLegs { get; set; } = new();
+	public double Speed { get; set; }
+	public double AccelerationRate { get; set; }
+	public double AccelerationTime { get; set; }
+	public double AccelerationDistance { get; set; }
+	public List<TransportPathLeg> PathLegs { get; set; } = new();
 	public List<TransportPathEvent> Events { get; set; } = new();
 
 	public HashSet<uint> MapIds { get; set; } = new();
@@ -23,7 +23,7 @@ public class TransportTemplate
 	public Position ComputePosition(uint time, out TransportMovementState moveState, out int legIndex)
 	{
 		moveState = TransportMovementState.Moving;
-		legIndex  = 0;
+		legIndex = 0;
 
 		time %= TotalPathTime;
 
@@ -62,9 +62,9 @@ public class TransportTemplate
 
 		if (!isOnPause)
 			distanceMoved += CalculateDistanceMoved((double)(time - prevSegmentTime) * 0.001,
-			                                        (double)(pathSegment.SegmentEndArrivalTimestamp - prevSegmentTime) * 0.001,
-			                                        segmentIndex == 0,
-			                                        segmentIndex == leg.Segments.Count - 1);
+													(double)(pathSegment.SegmentEndArrivalTimestamp - prevSegmentTime) * 0.001,
+													segmentIndex == 0,
+													segmentIndex == leg.Segments.Count - 1);
 
 		var splineIndex = 0;
 		float splinePointProgress = 0;
@@ -74,7 +74,7 @@ public class TransportTemplate
 		leg.Spline.Evaluate_Derivative(splineIndex, splinePointProgress, out var dir);
 
 		moveState = isOnPause ? TransportMovementState.WaitingOnPauseWaypoint : TransportMovementState.Moving;
-		legIndex  = PathLegs.IndexOf(leg);
+		legIndex = PathLegs.IndexOf(leg);
 
 		return new Position(pos.X, pos.Y, pos.Z, MathF.Atan2(dir.Y, dir.X) + MathF.PI);
 	}

@@ -10,7 +10,7 @@ public struct UpdateAdditionalSaveDataEvent
 
 	public UpdateAdditionalSaveDataEvent(string key, object value)
 	{
-		Key   = key;
+		Key = key;
 		Value = value;
 	}
 }

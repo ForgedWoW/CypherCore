@@ -14,7 +14,7 @@ public class AllCreaturesWithinRange : ICheck<Creature>
 	public AllCreaturesWithinRange(WorldObject obj, float maxRange = 0f)
 	{
 		_pObject = obj;
-		_fRange  = maxRange;
+		_fRange = maxRange;
 	}
 
 	public bool Invoke(Creature creature)

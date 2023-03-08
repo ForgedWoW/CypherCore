@@ -9,10 +9,9 @@ namespace Game.Maps;
 
 public class TransportAnimation
 {
-	public uint TotalTime { get; set; }
-
-    List<uint> _path;
+	List<uint> _path;
 	List<uint> _rotation;
+	public uint TotalTime { get; set; }
 	public Dictionary<uint, TransportAnimationRecord> Path { get; } = new();
 	public Dictionary<uint, TransportRotationRecord> Rotations { get; } = new();
 

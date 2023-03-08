@@ -15,9 +15,9 @@ class NearestGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 
 	public NearestGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range, bool spawnedOnly = true)
 	{
-		_obj         = obj;
-		_entry       = entry;
-		_range       = range;
+		_obj = obj;
+		_entry = entry;
+		_range = range;
 		_spawnedOnly = spawnedOnly;
 	}
 

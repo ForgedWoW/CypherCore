@@ -8,7 +8,7 @@ public struct ObjectData
 	public ObjectData(uint entry, uint type)
 	{
 		Entry = entry;
-		Type  = type;
+		Type = type;
 	}
 
 	public uint Entry;

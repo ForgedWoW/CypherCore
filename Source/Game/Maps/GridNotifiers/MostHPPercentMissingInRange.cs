@@ -16,11 +16,11 @@ class MostHPPercentMissingInRange : ICheck<Unit>
 
 	public MostHPPercentMissingInRange(Unit obj, float range, uint minHpPct, uint maxHpPct)
 	{
-		_obj      = obj;
-		_range    = range;
+		_obj = obj;
+		_range = range;
 		_minHpPct = minHpPct;
 		_maxHpPct = maxHpPct;
-		_hpPct    = 101.0f;
+		_hpPct = 101.0f;
 	}
 
 	public bool Invoke(Unit u)

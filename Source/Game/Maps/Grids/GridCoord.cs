@@ -11,6 +11,10 @@ public class GridCoord : ICoord
 {
 	const int Limit = MapConst.MaxGrids;
 
+
+	public uint X_Coord { get; set; }
+	public uint Y_Coord { get; set; }
+
 	public GridCoord(uint x, uint y)
 	{
 		X_Coord = x;
@@ -73,10 +77,6 @@ public class GridCoord : ICoord
 			Y_Coord = Limit - 1;
 	}
 
-
-	public uint X_Coord { get; set; }
-	public uint Y_Coord { get; set; }
-
 	public static bool operator ==(GridCoord first, GridCoord other)
 	{
 		if (ReferenceEquals(first, other))
@@ -106,9 +106,9 @@ public class GridCoord : ICoord
 	public override int GetHashCode()
 	{
 		return new
-		       {
-			       X_Coord,
-			       Y_Coord
-		       }.GetHashCode();
+		{
+			X_Coord,
+			Y_Coord
+		}.GetHashCode();
 	}
 }

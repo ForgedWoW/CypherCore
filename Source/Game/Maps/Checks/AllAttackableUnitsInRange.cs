@@ -13,7 +13,7 @@ class AllAttackableUnitsInRange : ICheck<Unit>
 
 	public AllAttackableUnitsInRange(Unit obj, float range)
 	{
-		_unit    = obj;
+		_unit = obj;
 		_range = range;
 	}
 

@@ -10,21 +10,20 @@ namespace Game.Maps;
 
 public class VisibleNotifier : IGridNotifierWorldObject
 {
+	public GridType GridType { get; set; }
 	internal Player Player { get; set; }
 	internal UpdateData Data { get; set; }
-    internal List<ObjectGuid> VisGuids { get; set; }
-    internal List<Unit> VisibleNow { get; set; }
+	internal List<ObjectGuid> VisGuids { get; set; }
+	internal List<Unit> VisibleNow { get; set; }
 
-    public VisibleNotifier(Player pl, GridType gridType)
+	public VisibleNotifier(Player pl, GridType gridType)
 	{
-		Player     = pl;
-		Data       = new UpdateData(pl.Location.MapId);
-		VisGuids    = new List<ObjectGuid>(pl.ClientGuiDs);
+		Player = pl;
+		Data = new UpdateData(pl.Location.MapId);
+		VisGuids = new List<ObjectGuid>(pl.ClientGuiDs);
 		VisibleNow = new List<Unit>();
-		GridType     = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<WorldObject> objs)
 	{

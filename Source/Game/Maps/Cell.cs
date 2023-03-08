@@ -11,15 +11,6 @@ namespace Game.Maps;
 
 public class Cell
 {
-	public struct CellMetadata
-	{
-		public uint Gridx;
-		public uint Gridy;
-		public uint Cellx;
-		public uint Celly;
-		public bool NoCreate;
-	}
-
 	public CellMetadata Data;
 
 	public Cell(ICoord p)
@@ -118,19 +109,19 @@ public class Cell
 	public CellCoord GetCellCoord()
 	{
 		return new CellCoord(Data.Gridx * MapConst.MaxCells + Data.Cellx,
-		                     Data.Gridy * MapConst.MaxCells + Data.Celly);
+							Data.Gridy * MapConst.MaxCells + Data.Celly);
 	}
 
 	public bool DiffCell(Cell cell)
 	{
 		return (Data.Cellx != cell.Data.Cellx ||
-		        Data.Celly != cell.Data.Celly);
+				Data.Celly != cell.Data.Celly);
 	}
 
 	public bool DiffGrid(Cell cell)
 	{
 		return (Data.Gridx != cell.Data.Gridx ||
-		        Data.Gridy != cell.Data.Gridy);
+				Data.Gridy != cell.Data.Gridy);
 	}
 
 	public void Visit(CellCoord standing_cell, IGridNotifier visitor, Map map, WorldObject obj, float radius)
@@ -272,7 +263,7 @@ public class Cell
 		for (uint step = 1; step <= (x_start - begin_cell.X_Coord); ++step)
 		{
 			//each step reduces strip height by 2 cells...
-			y_end   += 1;
+			y_end += 1;
 			y_start -= 1;
 
 			for (var y = y_start; y >= y_end; --y)
@@ -291,5 +282,14 @@ public class Cell
 				map.Visit(r_zone_right, visitor);
 			}
 		}
+	}
+
+	public struct CellMetadata
+	{
+		public uint Gridx;
+		public uint Gridy;
+		public uint Cellx;
+		public uint Celly;
+		public bool NoCreate;
 	}
 }

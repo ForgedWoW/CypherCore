@@ -13,14 +13,14 @@ public class AIRelocationNotifier : IGridNotifierCreature
 	readonly Unit _unit;
 	readonly bool _isCreature;
 
+	public GridType GridType { get; set; }
+
 	public AIRelocationNotifier(Unit unit, GridType gridType)
 	{
-		_unit     = unit;
+		_unit = unit;
 		_isCreature = unit.IsTypeId(TypeId.Unit);
-		GridType   = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

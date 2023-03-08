@@ -16,16 +16,16 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 	readonly CellCoord _p;
 	readonly float _radius;
 
+	public GridType GridType { get; set; }
+
 	public DelayedUnitRelocation(Cell c, CellCoord pair, Map map, float radius, GridType gridType)
 	{
-		_map    = map;
-		_cell     = c;
-		_p        = pair;
+		_map = map;
+		_cell = c;
+		_p = pair;
 		_radius = radius;
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

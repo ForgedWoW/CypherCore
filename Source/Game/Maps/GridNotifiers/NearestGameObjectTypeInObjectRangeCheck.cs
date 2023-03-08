@@ -15,8 +15,8 @@ class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
 
 	public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
 	{
-		_obj   = obj;
-		_type  = type;
+		_obj = obj;
+		_type = type;
 		_range = range;
 	}
 

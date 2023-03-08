@@ -14,14 +14,14 @@ public class PlayerLastSearcher : IGridNotifierPlayer
 	readonly ICheck<Player> _check;
 	Player _object;
 
+	public GridType GridType { get; set; }
+
 	public PlayerLastSearcher(WorldObject searcher, ICheck<Player> check, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_check      = check;
-		GridType     = gridType;
+		_check = check;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

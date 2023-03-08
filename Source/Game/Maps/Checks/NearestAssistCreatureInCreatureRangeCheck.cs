@@ -14,7 +14,7 @@ class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
 
 	public NearestAssistCreatureInCreatureRangeCheck(Creature obj, Unit enemy, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_enemy = enemy;
 		_range = range;
 	}

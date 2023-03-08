@@ -10,18 +10,18 @@ namespace Game.Maps.Grids;
 public class GridCell
 {
 	/// <summary>
-	/// Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
+	///  Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
 	/// </summary>
 	readonly MultiTypeContainer _objects;
 
 	/// <summary>
-	/// Holds all Grid objects - GameObjects, Creatures(except pets), DynamicObject, Corpse(Bones), AreaTrigger, Conversation, SceneObject
+	///  Holds all Grid objects - GameObjects, Creatures(except pets), DynamicObject, Corpse(Bones), AreaTrigger, Conversation, SceneObject
 	/// </summary>
 	readonly MultiTypeContainer _container;
 
 	public GridCell()
 	{
-		_objects   = new MultiTypeContainer();
+		_objects = new MultiTypeContainer();
 		_container = new MultiTypeContainer();
 	}
 

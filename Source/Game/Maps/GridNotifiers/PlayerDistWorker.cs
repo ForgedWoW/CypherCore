@@ -14,6 +14,8 @@ public class PlayerDistWorker : IGridNotifierPlayer
 	readonly float _dist;
 	readonly IDoWork<Player> _doWork;
 
+	public GridType GridType { get; set; }
+
 	public PlayerDistWorker(WorldObject searcher, float dist, IDoWork<Player> work, GridType gridType)
 	{
 		_searcher = searcher;
@@ -21,8 +23,6 @@ public class PlayerDistWorker : IGridNotifierPlayer
 		_doWork = work;
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

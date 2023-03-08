@@ -14,7 +14,7 @@ class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
 	public ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint entry)
 	{
 		_ownerGUID = ownerGUID;
-		_entry     = entry;
+		_entry = entry;
 	}
 
 	public bool Invoke(WorldObject obj)

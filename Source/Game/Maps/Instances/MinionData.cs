@@ -6,11 +6,11 @@ namespace Game.Maps;
 public class MinionData
 {
 	public uint Entry { get; set; }
-    public uint BossId { get; set; }
+	public uint BossId { get; set; }
 
-    public MinionData(uint _entry, uint _bossid)
+	public MinionData(uint _entry, uint _bossid)
 	{
-		Entry  = _entry;
+		Entry = _entry;
 		BossId = _bossid;
 	}
 }

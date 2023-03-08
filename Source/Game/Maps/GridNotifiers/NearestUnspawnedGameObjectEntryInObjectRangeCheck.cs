@@ -14,7 +14,7 @@ class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 
 	public NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_entry = entry;
 		_range = range;
 	}

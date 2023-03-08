@@ -10,6 +10,9 @@ public class CellCoord : ICoord
 {
 	const int Limit = MapConst.TotalCellsPerMap;
 
+	public uint X_Coord { get; set; }
+	public uint Y_Coord { get; set; }
+
 	public CellCoord(uint x, uint y)
 	{
 		X_Coord = x;
@@ -71,9 +74,6 @@ public class CellCoord : ICoord
 		else
 			Y_Coord = Limit - 1;
 	}
-
-	public uint X_Coord { get; set; }
-	public uint Y_Coord { get; set; }
 
 	public static bool operator ==(CellCoord p1, CellCoord p2)
 	{

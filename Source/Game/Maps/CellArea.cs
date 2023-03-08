@@ -8,15 +8,13 @@ namespace Game.Maps;
 public class CellArea
 {
 	public ICoord LowBound { get; set; }
-    public ICoord HighBound { get; set; }
+	public ICoord HighBound { get; set; }
 
-    public CellArea()
-	{
-	}
+	public CellArea() { }
 
 	public CellArea(CellCoord low, CellCoord high)
 	{
-		LowBound  = low;
+		LowBound = low;
 		HighBound = high;
 	}
 }

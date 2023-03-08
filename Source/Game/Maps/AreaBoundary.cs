@@ -7,6 +7,23 @@ namespace Game.Maps;
 
 public class AreaBoundary
 {
+	private readonly bool _isInvertedBoundary;
+
+	public AreaBoundary(bool isInverted)
+	{
+		_isInvertedBoundary = isInverted;
+	}
+
+	public bool IsWithinBoundary(Position pos)
+	{
+		return pos != null && (IsWithinBoundaryArea(pos) != _isInvertedBoundary);
+	}
+
+	public virtual bool IsWithinBoundaryArea(Position pos)
+	{
+		return false;
+	}
+
 	public class DoublePosition : Position
 	{
 		private readonly double _doublePosX;
@@ -27,9 +44,7 @@ public class AreaBoundary
 			_doublePosZ = z;
 		}
 
-		public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation)
-		{
-		}
+		public DoublePosition(Position pos) : this(pos.X, pos.Y, pos.Z, pos.Orientation) { }
 
 		public double GetDoublePositionX()
 		{
@@ -48,22 +63,5 @@ public class AreaBoundary
 
 			return (offX * offX) + (offY * offY);
 		}
-	}
-
-	private readonly bool _isInvertedBoundary;
-
-	public AreaBoundary(bool isInverted)
-	{
-		_isInvertedBoundary = isInverted;
-	}
-
-	public bool IsWithinBoundary(Position pos)
-	{
-		return pos != null && (IsWithinBoundaryArea(pos) != _isInvertedBoundary);
-	}
-
-	public virtual bool IsWithinBoundaryArea(Position pos)
-	{
-		return false;
 	}
 }

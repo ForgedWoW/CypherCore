@@ -12,13 +12,13 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 {
 	readonly ICollection<WorldObject> _objects;
 
+	public GridType GridType { get; set; }
+
 	public VisibleChangesNotifier(ICollection<WorldObject> objects, GridType gridType)
 	{
 		_objects = objects;
-		GridType  = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

@@ -14,8 +14,8 @@ public class AnyUnitInObjectRangeCheck : ICheck<Unit>
 
 	public AnyUnitInObjectRangeCheck(WorldObject obj, float range, bool check3D = true)
 	{
-		_obj     = obj;
-		_range   = range;
+		_obj = obj;
+		_range = range;
 		_check3D = check3D;
 	}
 

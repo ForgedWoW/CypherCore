@@ -13,7 +13,7 @@ class NearestGameObjectCheck : ICheck<GameObject>
 
 	public NearestGameObjectCheck(WorldObject obj)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = 999;
 	}
 

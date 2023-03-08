@@ -13,14 +13,14 @@ public class CreatureWorker : IGridNotifierCreature
 	readonly PhaseShift _phaseShift;
 	readonly IDoWork<Creature> _doWork;
 
+	public GridType GridType { get; set; }
+
 	public CreatureWorker(WorldObject searcher, IDoWork<Creature> work, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
 		_doWork = work;
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

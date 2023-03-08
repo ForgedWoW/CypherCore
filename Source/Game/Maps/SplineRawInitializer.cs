@@ -18,7 +18,7 @@ public class SplineRawInitializer
 
 	public void Initialize(ref EvaluationMode mode, ref bool cyclic, ref Vector3[] points, ref int lo, ref int hi)
 	{
-		mode   = EvaluationMode.Catmullrom;
+		mode = EvaluationMode.Catmullrom;
 		cyclic = false;
 		points = new Vector3[_points.Count];
 

@@ -14,7 +14,7 @@ class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
 
 	public NearestHostileUnitInAttackDistanceCheck(Creature creature, float dist = 0)
 	{
-		_me      = creature;
+		_me = creature;
 		_range = (dist == 0 ? 9999 : dist);
 		_force = (dist != 0);
 	}

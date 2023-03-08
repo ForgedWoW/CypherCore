@@ -13,7 +13,7 @@ class PlayerAtMinimumRangeAway : ICheck<Player>
 
 	public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
 	{
-		_unit   = unit;
+		_unit = unit;
 		_fRange = fMinRange;
 	}
 

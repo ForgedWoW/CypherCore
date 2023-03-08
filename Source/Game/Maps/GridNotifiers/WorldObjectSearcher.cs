@@ -15,15 +15,17 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
 	readonly ICheck<WorldObject> _check;
 	WorldObject _object;
 
-	public WorldObjectSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
-	{
-		Mask         = mapTypeMask;
-		_phaseShift = searcher.GetPhaseShift();
-		_check      = check;
-		GridType     = gridType;
-	}
+	public GridType GridType { get; set; }
 
 	public GridMapTypeMask Mask { get; set; }
+
+	public WorldObjectSearcher(WorldObject searcher, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
+	{
+		Mask = mapTypeMask;
+		_phaseShift = searcher.GetPhaseShift();
+		_check = check;
+		GridType = gridType;
+	}
 
 	public void Visit(IList<AreaTrigger> objs)
 	{
@@ -174,8 +176,6 @@ public class WorldObjectSearcher : IGridNotifierPlayer, IGridNotifierCreature, I
 			}
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

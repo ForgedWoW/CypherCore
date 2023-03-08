@@ -12,13 +12,13 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 {
 	readonly Creature _creature;
 
+	public GridType GridType { get; set; }
+
 	public CreatureRelocationNotifier(Creature c, GridType gridType)
 	{
 		_creature = c;
-		GridType   = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

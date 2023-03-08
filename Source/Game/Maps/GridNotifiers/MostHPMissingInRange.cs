@@ -14,9 +14,9 @@ public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
 
 	public MostHPMissingInRange(Unit obj, float range, uint hp)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
-		_hp    = hp;
+		_hp = hp;
 	}
 
 	public bool Invoke(T u)

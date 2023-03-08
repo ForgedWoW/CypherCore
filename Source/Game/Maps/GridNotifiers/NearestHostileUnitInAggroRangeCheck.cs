@@ -14,8 +14,8 @@ class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
 
 	public NearestHostileUnitInAggroRangeCheck(Creature creature, bool useLOS = false, bool ignoreCivilians = false)
 	{
-		_me              = creature;
-		_useLOS          = useLOS;
+		_me = creature;
+		_useLOS = useLOS;
 		_ignoreCivilians = ignoreCivilians;
 	}
 

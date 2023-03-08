@@ -14,7 +14,7 @@ class NearestGameObjectFishingHole : ICheck<GameObject>
 
 	public NearestGameObjectFishingHole(WorldObject obj, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
 	}
 

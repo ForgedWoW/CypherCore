@@ -8,7 +8,7 @@ public class BossBoundaryEntry
 	public uint BossId { get; set; }
 	public AreaBoundary Boundary { get; set; }
 
-    public BossBoundaryEntry(uint bossId, AreaBoundary boundary)
+	public BossBoundaryEntry(uint bossId, AreaBoundary boundary)
 	{
 		BossId = bossId;
 		Boundary = boundary;

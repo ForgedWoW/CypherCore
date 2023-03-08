@@ -8,11 +8,11 @@ namespace Game.Maps;
 class DoorInfo
 {
 	public BossInfo BossInfo { get; set; }
-    public DoorType Type { get; set; }
+	public DoorType Type { get; set; }
 
-    public DoorInfo(BossInfo bossInfo, DoorType doorType)
+	public DoorInfo(BossInfo bossInfo, DoorType doorType)
 	{
 		BossInfo = bossInfo;
-		Type     = doorType;
+		Type = doorType;
 	}
 }

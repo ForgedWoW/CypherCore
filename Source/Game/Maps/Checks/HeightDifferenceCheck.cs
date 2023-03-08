@@ -16,7 +16,7 @@ public class HeightDifferenceCheck : ICheck<WorldObject>
 	{
 		_baseObject = go;
 		_difference = diff;
-		_reverse    = reverse;
+		_reverse = reverse;
 	}
 
 	public bool Invoke(WorldObject unit)

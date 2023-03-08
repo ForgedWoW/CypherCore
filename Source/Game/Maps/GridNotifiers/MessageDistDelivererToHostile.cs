@@ -15,13 +15,15 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 	readonly PhaseShift _phaseShift;
 	readonly float _distSq;
 
+	public GridType GridType { get; set; }
+
 	public MessageDistDelivererToHostile(Unit src, T packetSender, float dist, GridType gridType)
 	{
-		_source       = src;
+		_source = src;
 		_packetSender = packetSender;
-		_phaseShift   = src.GetPhaseShift();
-		_distSq       = dist * dist;
-		GridType       = gridType;
+		_phaseShift = src.GetPhaseShift();
+		_distSq = dist * dist;
+		GridType = gridType;
 	}
 
 	public void Visit(IList<Creature> objs)
@@ -68,8 +70,6 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 			}
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

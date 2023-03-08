@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Threading;
 using Game.Entities;
 using Game.Maps.Interfaces;
 
@@ -11,14 +12,17 @@ namespace Game.Maps;
 public class UpdaterNotifier : IGridNotifierWorldObject
 {
 	readonly uint _timeDiff;
-
-	public UpdaterNotifier(uint diff, GridType gridType)
-	{
-		_timeDiff = diff;
-		GridType   = gridType;
-	}
+	readonly LimitedThreadTaskManager _threadManager;
+	readonly HashSet<WorldObject> _worldObjects = new();
 
 	public GridType GridType { get; set; }
+
+	public UpdaterNotifier(uint diff, GridType gridType, LimitedThreadTaskManager taskManager)
+	{
+		_timeDiff = diff;
+		GridType = gridType;
+		_threadManager = taskManager;
+	}
 
 	public void Visit(IList<WorldObject> objs)
 	{
@@ -30,7 +34,13 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 				continue;
 
 			if (obj.IsInWorld)
-				obj.Update(_timeDiff);
+				_worldObjects.Add(obj);
 		}
+	}
+
+	public void ExecuteUpdate()
+	{
+		foreach (var obj in _worldObjects)
+			_threadManager.Schedule(() => obj.Update(_timeDiff));
 	}
 }

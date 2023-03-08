@@ -16,7 +16,7 @@ public class AllCreaturesOfEntriesInRange : ICheck<Creature>
 	{
 		_pObject = obj;
 		_uiEntry = entry;
-		_fRange  = maxRange;
+		_fRange = maxRange;
 	}
 
 	public bool Invoke(Creature creature)

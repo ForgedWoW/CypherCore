@@ -10,12 +10,12 @@ namespace Game.Maps;
 
 class ObjectGridStoper : IGridNotifierCreature
 {
+	public GridType GridType { get; set; }
+
 	public ObjectGridStoper(GridType gridType)
 	{
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

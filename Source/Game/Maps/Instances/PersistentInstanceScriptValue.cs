@@ -5,9 +5,7 @@ namespace Game.Maps;
 
 class PersistentInstanceScriptValue<T> : PersistentInstanceScriptValueBase
 {
-	public PersistentInstanceScriptValue(InstanceScript instance, string name, T value) : base(instance, name, value)
-	{
-	}
+	public PersistentInstanceScriptValue(InstanceScript instance, string name, T value) : base(instance, name, value) { }
 
 	public PersistentInstanceScriptValue<T> SetValue(T value)
 	{

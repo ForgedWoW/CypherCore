@@ -14,15 +14,15 @@ public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
 	readonly List<Unit> _objects;
 	readonly ICheck<Unit> _check;
 
+	public GridType GridType { get; set; }
+
 	public UnitListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Unit> check, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_objects    = objects;
-		_check      = check;
-		GridType     = gridType;
+		_objects = objects;
+		_check = check;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

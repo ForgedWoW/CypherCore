@@ -31,7 +31,7 @@ public class LocalizedDo : IDoWork<Player>
 			if (_localizedCache.Length < cache_idx + 1)
 				Array.Resize(ref _localizedCache, cache_idx + 1);
 
-			action                     = _localizer.Invoke(loc_idx);
+			action = _localizer.Invoke(loc_idx);
 			_localizedCache[cache_idx] = action;
 		}
 		else

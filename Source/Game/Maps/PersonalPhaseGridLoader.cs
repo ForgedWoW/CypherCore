@@ -14,14 +14,14 @@ class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCreature, IGr
 	readonly ObjectGuid _phaseOwner;
 	uint _phaseId;
 
+	public GridType GridType { get; set; }
+
 	public PersonalPhaseGridLoader(Grid grid, Map map, Cell cell, ObjectGuid phaseOwner, GridType gridType) : base(grid, map, cell)
 	{
-		_phaseId    = 0;
+		_phaseId = 0;
 		_phaseOwner = phaseOwner;
-		GridType    = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{
@@ -43,7 +43,7 @@ class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCreature, IGr
 
 	public void Load(uint phaseId)
 	{
-		_phaseId           = phaseId;
+		_phaseId = phaseId;
 		i_cell.Data.Celly = 0;
 
 		for (uint x = 0; x < MapConst.MaxCells; ++x)

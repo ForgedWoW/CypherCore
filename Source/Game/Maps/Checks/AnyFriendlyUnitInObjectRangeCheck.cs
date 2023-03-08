@@ -18,11 +18,11 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
 
 	public AnyFriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
 	{
-		_obj             = obj;
-		_funit           = funit;
-		_range           = range;
-		_playerOnly      = playerOnly;
-		_incOwnRadius    = incOwnRadius;
+		_obj = obj;
+		_funit = funit;
+		_range = range;
+		_playerOnly = playerOnly;
+		_incOwnRadius = incOwnRadius;
 		_incTargetRadius = incTargetRadius;
 	}
 

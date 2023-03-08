@@ -14,11 +14,13 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
 	readonly ICheck<Unit> _check;
 	Unit _object;
 
+	public GridType GridType { get; set; }
+
 	public UnitLastSearcher(WorldObject searcher, ICheck<Unit> check, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_check      = check;
-		GridType     = gridType;
+		_check = check;
+		GridType = gridType;
 	}
 
 	public void Visit(IList<Creature> objs)
@@ -34,8 +36,6 @@ public class UnitLastSearcher : IGridNotifierPlayer, IGridNotifierCreature
 				_object = creature;
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

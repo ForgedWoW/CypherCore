@@ -15,7 +15,7 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
 	public AnyDeadUnitObjectInRangeCheck(WorldObject searchObj, float range)
 	{
 		_searchObj = searchObj;
-		_range     = range;
+		_range = range;
 	}
 
 	public virtual bool Invoke(T obj)

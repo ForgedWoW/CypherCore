@@ -11,9 +11,7 @@ namespace Game.Maps;
 
 public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IGridNotifierCreature
 {
-	public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType)
-	{
-	}
+	public PlayerRelocationNotifier(Player player, GridType gridType) : base(player, gridType) { }
 
 	public void Visit(IList<Creature> objs)
 	{

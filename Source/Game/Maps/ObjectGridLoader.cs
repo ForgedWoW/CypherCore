@@ -11,6 +11,8 @@ namespace Game.Maps;
 
 class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
 {
+	public GridType GridType { get; set; }
+
 	public ObjectGridLoader(Grid grid, Map map, Cell cell, GridType gridType) : base(grid, map, cell)
 	{
 		GridType = gridType;
@@ -38,8 +40,6 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 		LoadHelper<Creature>(cellguids.creatures, cellCoord, ref i_creatures, i_map);
 	}
 
-	public GridType GridType { get; set; }
-
 	public void Visit(IList<GameObject> objs)
 	{
 		var cellCoord = i_cell.GetCellCoord();
@@ -53,9 +53,9 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 
 	public void LoadN()
 	{
-		i_creatures        = 0;
-		i_gameObjects      = 0;
-		i_corpses          = 0;
+		i_creatures = 0;
+		i_gameObjects = 0;
+		i_corpses = 0;
 		i_cell.Data.Celly = 0;
 
 		for (uint x = 0; x < MapConst.MaxCells; ++x)

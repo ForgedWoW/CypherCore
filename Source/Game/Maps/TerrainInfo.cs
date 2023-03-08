@@ -31,13 +31,13 @@ public class TerrainInfo
 
 	public TerrainInfo(uint mapId, bool keeLoaded)
 	{
-		_mapId        = mapId;
-		_keepLoaded   = keeLoaded;
+		_mapId = mapId;
+		_keepLoaded = keeLoaded;
 		_cleanupTimer = new TimeTracker(RandomHelper.RandTime(_cleanupInterval / 2, _cleanupInterval));
 
 		for (var i = 0; i < MapConst.MaxGrids; ++i)
 		{
-			_gridMap[i]               = new GridMap[MapConst.MaxGrids];
+			_gridMap[i] = new GridMap[MapConst.MaxGrids];
 			_referenceCountFromMap[i] = new ushort[MapConst.MaxGrids];
 		}
 	}
@@ -338,7 +338,7 @@ public class TerrainInfo
 
 		if (gmap != null)
 		{
-			gridAreaId    = gmap.GetArea(x, y);
+			gridAreaId = gmap.GetArea(x, y);
 			gridMapHeight = gmap.GetHeight(x, y);
 		}
 
@@ -351,23 +351,23 @@ public class TerrainInfo
 			data.FloorZ = gridMapHeight;
 
 		if (vmapData.floorZ > MapConst.InvalidHeight &&
-		    MathFunctions.fuzzyGe(z, vmapData.floorZ - MapConst.GroundHeightTolerance) &&
-		    (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapData.floorZ > gridMapHeight))
+			MathFunctions.fuzzyGe(z, vmapData.floorZ - MapConst.GroundHeightTolerance) &&
+			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapData.floorZ > gridMapHeight))
 		{
 			data.FloorZ = vmapData.floorZ;
-			wmoData     = vmapData;
+			wmoData = vmapData;
 		}
 
 		// NOTE: Objects will not detect a case when a wmo providing area/liquid despawns from under them
 		// but this is fine as these kind of objects are not meant to be spawned and despawned a lot
 		// example: Lich King platform
 		if (dynData.floorZ > MapConst.InvalidHeight &&
-		    MathFunctions.fuzzyGe(z, dynData.floorZ - MapConst.GroundHeightTolerance) &&
-		    (MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || dynData.floorZ > gridMapHeight) &&
-		    (MathFunctions.fuzzyLt(z, vmapData.floorZ - MapConst.GroundHeightTolerance) || dynData.floorZ > vmapData.floorZ))
+			MathFunctions.fuzzyGe(z, dynData.floorZ - MapConst.GroundHeightTolerance) &&
+			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || dynData.floorZ > gridMapHeight) &&
+			(MathFunctions.fuzzyLt(z, vmapData.floorZ - MapConst.GroundHeightTolerance) || dynData.floorZ > vmapData.floorZ))
 		{
 			data.FloorZ = dynData.floorZ;
-			wmoData     = dynData;
+			wmoData = dynData;
 		}
 
 		if (wmoData != null)
@@ -402,7 +402,7 @@ public class TerrainInfo
 		else
 		{
 			data.Outdoors = true;
-			data.AreaId   = gridAreaId;
+			data.AreaId = gridAreaId;
 			var areaEntry1 = CliDB.AreaTableStorage.LookupByKey(data.AreaId);
 
 			if (areaEntry1 != null)
@@ -446,16 +446,16 @@ public class TerrainInfo
 
 				if (overrideData != null)
 				{
-					liquidType     = overrideLiquid;
+					liquidType = overrideLiquid;
 					liquidFlagType = overrideData.SoundBank;
 				}
 			}
 
-			data.LiquidInfo             = new LiquidData();
-			data.LiquidInfo.level       = wmoData.liquidInfo.Value.Level;
+			data.LiquidInfo = new LiquidData();
+			data.LiquidInfo.level = wmoData.liquidInfo.Value.Level;
 			data.LiquidInfo.depth_level = wmoData.floorZ;
-			data.LiquidInfo.entry       = liquidType;
-			data.LiquidInfo.type_flags  = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
+			data.LiquidInfo.entry = liquidType;
+			data.LiquidInfo.type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
 
 			var delta = wmoData.liquidInfo.Value.Level - z;
 
@@ -480,7 +480,7 @@ public class TerrainInfo
 				if (GetId() == 530 && gridMapLiquid.entry == 2)
 					gridMapLiquid.entry = 15;
 
-				data.LiquidInfo   = gridMapLiquid;
+				data.LiquidInfo = gridMapLiquid;
 				data.LiquidStatus = gridMapStatus;
 			}
 		}
@@ -539,16 +539,16 @@ public class TerrainInfo
 
 						if (liq1 != null)
 						{
-							liquid_type    = overrideLiquid;
+							liquid_type = overrideLiquid;
 							liquidFlagType = liq1.SoundBank;
 						}
 					}
 				}
 
-				data.level       = liquid_level;
+				data.level = liquid_level;
 				data.depth_level = ground_level;
 
-				data.entry      = liquid_type;
+				data.entry = liquid_type;
 				data.type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
 
 				var delta = liquid_level - z;
@@ -596,9 +596,9 @@ public class TerrainInfo
 	public bool GetAreaInfo(PhaseShift phaseShift, uint mapId, float x, float y, float z, out uint mogpflags, out int adtId, out int rootId, out int groupId, DynamicMapTree dynamicMapTree = null)
 	{
 		mogpflags = 0;
-		adtId     = 0;
-		rootId    = 0;
-		groupId   = 0;
+		adtId = 0;
+		rootId = 0;
+		groupId = 0;
 
 		var vmap_z = z;
 		var dynamic_z = z;
@@ -617,28 +617,28 @@ public class TerrainInfo
 		{
 			if (hasDynamicAreaInfo && dynamic_z > vmap_z)
 			{
-				check_z   = dynamic_z;
+				check_z = dynamic_z;
 				mogpflags = dflags;
-				adtId     = dadtId;
-				rootId    = drootId;
-				groupId   = dgroupId;
+				adtId = dadtId;
+				rootId = drootId;
+				groupId = dgroupId;
 			}
 			else
 			{
-				check_z   = vmap_z;
+				check_z = vmap_z;
 				mogpflags = vflags;
-				adtId     = vadtId;
-				rootId    = vrootId;
-				groupId   = vgroupId;
+				adtId = vadtId;
+				rootId = vrootId;
+				groupId = vgroupId;
 			}
 		}
 		else if (hasDynamicAreaInfo)
 		{
-			check_z   = dynamic_z;
+			check_z = dynamic_z;
 			mogpflags = dflags;
-			adtId     = dadtId;
-			rootId    = drootId;
-			groupId   = dgroupId;
+			adtId = dadtId;
+			rootId = drootId;
+			groupId = dgroupId;
 		}
 
 		if (hasVmapAreaInfo || hasDynamicAreaInfo)
@@ -677,7 +677,7 @@ public class TerrainInfo
 
 		if (gmap != null)
 		{
-			gridAreaId    = gmap.GetArea(x, y);
+			gridAreaId = gmap.GetArea(x, y);
 			gridMapHeight = gmap.GetHeight(x, y);
 		}
 

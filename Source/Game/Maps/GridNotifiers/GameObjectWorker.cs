@@ -13,14 +13,14 @@ public class GameObjectWorker : IGridNotifierGameObject
 	readonly PhaseShift _phaseShift;
 	readonly IDoWork<GameObject> _doWork;
 
+	public GridType GridType { get; set; }
+
 	public GameObjectWorker(WorldObject searcher, IDoWork<GameObject> work, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
 		_doWork = work;
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<GameObject> objs)
 	{

@@ -12,7 +12,7 @@ namespace Game.Maps;
 public class BossInfo
 {
 	public EncounterState State { get; set; }
-    public List<ObjectGuid>[] Door { get; set; } = new List<ObjectGuid>[(int)DoorType.Max];
+	public List<ObjectGuid>[] Door { get; set; } = new List<ObjectGuid>[(int)DoorType.Max];
 	public List<ObjectGuid> Minion { get; set; } = new();
 	public List<AreaBoundary> Boundary { get; set; } = new();
 	public DungeonEncounterRecord[] DungeonEncounters { get; set; } = new DungeonEncounterRecord[MapConst.MaxDungeonEncountersPerBoss];

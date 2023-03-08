@@ -19,11 +19,11 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 
 	public AnyAoETargetUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, SpellInfo spellInfo = null, bool incOwnRadius = true, bool incTargetRadius = true)
 	{
-		_obj             = obj;
-		_funit           = funit;
-		_spellInfo        = spellInfo;
-		_range           = range;
-		_incOwnRadius    = incOwnRadius;
+		_obj = obj;
+		_funit = funit;
+		_spellInfo = spellInfo;
+		_range = range;
+		_incOwnRadius = incOwnRadius;
 		_incTargetRadius = incTargetRadius;
 	}
 

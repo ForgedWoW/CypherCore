@@ -8,8 +8,8 @@ namespace Game.Maps;
 public class SpawnMetadata
 {
 	public SpawnObjectType Type { get; set; }
-    public ulong SpawnId { get; set; }
-    public uint MapId { get; set; } = 0xFFFFFFFF;
+	public ulong SpawnId { get; set; }
+	public uint MapId { get; set; } = 0xFFFFFFFF;
 	public bool DbData { get; set; } = true;
 	public SpawnGroupTemplateData SpawnGroupData { get; set; } = null;
 

@@ -16,7 +16,7 @@ class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
 
 	public NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject obj, uint entry, bool alive, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_entry = entry;
 		_alive = alive;
 		_range = range;

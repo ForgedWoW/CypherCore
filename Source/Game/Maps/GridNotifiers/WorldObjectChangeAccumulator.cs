@@ -14,11 +14,13 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 	readonly WorldObject _worldObject;
 	readonly List<ObjectGuid> _plrList = new();
 
+	public GridType GridType { get; set; }
+
 	public WorldObjectChangeAccumulator(WorldObject obj, Dictionary<Player, UpdateData> d, GridType gridType)
 	{
-		_updateData  = d;
+		_updateData = d;
 		_worldObject = obj;
-		GridType    = gridType;
+		GridType = gridType;
 	}
 
 	public void Visit(IList<Creature> objs)
@@ -52,8 +54,6 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 			}
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

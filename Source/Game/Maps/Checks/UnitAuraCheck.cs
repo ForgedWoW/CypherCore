@@ -15,8 +15,8 @@ public class UnitAuraCheck<T> : ICheck<T> where T : WorldObject
 
 	public UnitAuraCheck(bool present, uint spellId, ObjectGuid casterGUID = default)
 	{
-		_present    = present;
-		_spellId    = spellId;
+		_present = present;
+		_spellId = spellId;
 		_casterGUID = casterGUID;
 	}
 

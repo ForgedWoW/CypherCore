@@ -14,14 +14,14 @@ public class CreatureLastSearcher : IGridNotifierCreature
 	readonly ICheck<Creature> _check;
 	Creature _object;
 
+	public GridType GridType { get; set; }
+
 	public CreatureLastSearcher(WorldObject searcher, ICheck<Creature> check, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_check      = check;
-		GridType     = gridType;
+		_check = check;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

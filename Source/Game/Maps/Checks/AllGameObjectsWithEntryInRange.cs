@@ -16,7 +16,7 @@ class AllGameObjectsWithEntryInRange : ICheck<GameObject>
 	{
 		_pObject = obj;
 		_uiEntry = entry;
-		_fRange  = maxRange;
+		_fRange = maxRange;
 	}
 
 	public bool Invoke(GameObject go)

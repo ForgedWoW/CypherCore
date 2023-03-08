@@ -15,7 +15,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
 
 	public NearestHostileUnitCheck(Creature creature, float dist = 0, bool playerOnly = false)
 	{
-		_me           = creature;
+		_me = creature;
 		_playerOnly = playerOnly;
 
 		_range = (dist == 0 ? 9999 : dist);

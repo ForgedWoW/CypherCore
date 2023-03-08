@@ -14,14 +14,14 @@ public class PlayerWorker : IGridNotifierPlayer
 	readonly PhaseShift _phaseShift;
 	readonly Action<Player> _action;
 
+	public GridType GridType { get; set; }
+
 	public PlayerWorker(WorldObject searcher, Action<Player> action, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_action       = action;
-		GridType     = gridType;
+		_action = action;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

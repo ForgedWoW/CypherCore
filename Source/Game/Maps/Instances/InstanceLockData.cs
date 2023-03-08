@@ -6,6 +6,6 @@ namespace Game.Maps;
 public class InstanceLockData
 {
 	public string Data { get; set; }
-    public uint CompletedEncountersMask { get; set; }
-    public uint EntranceWorldSafeLocId { get; set; }
+	public uint CompletedEncountersMask { get; set; }
+	public uint EntranceWorldSafeLocId { get; set; }
 }

@@ -15,13 +15,13 @@ public struct MapDb2Entries
 
 	public MapDb2Entries(uint mapId, Difficulty difficulty)
 	{
-		Map           = CliDB.MapStorage.LookupByKey(mapId);
+		Map = CliDB.MapStorage.LookupByKey(mapId);
 		MapDifficulty = Global.DB2Mgr.GetMapDifficultyData(mapId, difficulty);
 	}
 
 	public MapDb2Entries(MapRecord map, MapDifficultyRecord mapDifficulty)
 	{
-		Map           = map;
+		Map = map;
 		MapDifficulty = mapDifficulty;
 	}
 

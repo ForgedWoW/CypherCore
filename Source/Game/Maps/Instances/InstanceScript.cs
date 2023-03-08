@@ -15,15 +15,7 @@ namespace Game.Maps;
 
 public class InstanceScript : ZoneScript
 {
-	enum InstanceState
-	{
-		Block,
-		Spawn,
-		ForceBlock
-	};
-
-	public InstanceMap Instance { get; set; }
-    readonly Dictionary<uint, BossInfo> _bosses = new();
+	readonly Dictionary<uint, BossInfo> _bosses = new();
 	readonly List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
 	readonly MultiMap<uint, DoorInfo> _doors = new();
 	readonly Dictionary<uint, MinionInfo> _minions = new();
@@ -40,9 +32,11 @@ public class InstanceScript : ZoneScript
 	byte _combatResurrectionCharges; // the counter for available battle resurrections
 	bool _combatResurrectionTimerStarted;
 
+	public InstanceMap Instance { get; set; }
+
 	public InstanceScript(InstanceMap map)
 	{
-		Instance             = map;
+		Instance = map;
 		_instanceSpawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(map.GetId());
 	}
 
@@ -292,10 +286,10 @@ public class InstanceScript : ZoneScript
 						SendEncounterStart(1, 9, resInterval, resInterval);
 
 						Instance.DoOnPlayers(player =>
-						                     {
-							                     if (player.IsAlive())
-								                     Unit.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
-						                     });
+						{
+							if (player.IsAlive())
+								Unit.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.EncounterStart), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
+						});
 
 						break;
 					}
@@ -628,9 +622,9 @@ public class InstanceScript : ZoneScript
 	public virtual bool CheckAchievementCriteriaMeet(uint criteria_id, Player source, Unit target = null, uint miscvalue1 = 0)
 	{
 		Log.outError(LogFilter.Server,
-		             "Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
-		             Instance.GetId(),
-		             criteria_id);
+					"Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
+					Instance.GetId(),
+					criteria_id);
 
 		return false;
 	}
@@ -658,7 +652,7 @@ public class InstanceScript : ZoneScript
 
 	public void SetEntranceLocation(uint worldSafeLocationId)
 	{
-		_entranceId          = worldSafeLocationId;
+		_entranceId = worldSafeLocationId;
 		_temporaryEntranceId = 0;
 	}
 
@@ -671,7 +665,7 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterEngageUnit encounterEngageMessage = new();
-				encounterEngageMessage.Unit                = unit.GetGUID();
+				encounterEngageMessage.Unit = unit.GetGUID();
 				encounterEngageMessage.TargetFramePriority = priority;
 				Instance.SendToPlayers(encounterEngageMessage);
 
@@ -690,7 +684,7 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterChangePriority encounterChangePriorityMessage = new();
-				encounterChangePriorityMessage.Unit                = unit.GetGUID();
+				encounterChangePriorityMessage.Unit = unit.GetGUID();
 				encounterChangePriorityMessage.TargetFramePriority = priority;
 				Instance.SendToPlayers(encounterChangePriorityMessage);
 
@@ -744,11 +738,11 @@ public class InstanceScript : ZoneScript
 	public void AddCombatResurrectionCharge()
 	{
 		++_combatResurrectionCharges;
-		_combatResurrectionTimer        = GetCombatResurrectionChargeInterval();
+		_combatResurrectionTimer = GetCombatResurrectionChargeInterval();
 		_combatResurrectionTimerStarted = true;
 
 		var gainCombatResurrectionCharge = new InstanceEncounterGainCombatResurrectionCharge();
-		gainCombatResurrectionCharge.InCombatResCount        = _combatResurrectionCharges;
+		gainCombatResurrectionCharge.InCombatResCount = _combatResurrectionCharges;
 		gainCombatResurrectionCharge.CombatResChargeRecovery = _combatResurrectionTimer;
 		Instance.SendToPlayers(gainCombatResurrectionCharge);
 	}
@@ -762,8 +756,8 @@ public class InstanceScript : ZoneScript
 
 	public void ResetCombatResurrections()
 	{
-		_combatResurrectionCharges      = 0;
-		_combatResurrectionTimer        = 0;
+		_combatResurrectionCharges = 0;
+		_combatResurrectionTimer = 0;
 		_combatResurrectionTimerStarted = false;
 	}
 
@@ -788,19 +782,13 @@ public class InstanceScript : ZoneScript
 		return false;
 	}
 
-	public virtual void Update(uint diff)
-	{
-	}
+	public virtual void Update(uint diff) { }
 
 	// Called when a player successfully enters the instance.
-	public virtual void OnPlayerEnter(Player player)
-	{
-	}
+	public virtual void OnPlayerEnter(Player player) { }
 
 	// Called when a player successfully leaves the instance.
-	public virtual void OnPlayerLeave(Player player)
-	{
-	}
+	public virtual void OnPlayerLeave(Player player) { }
 
 	// Return wether server allow two side groups or not
 	public bool ServerAllowsTwoSideGroups()
@@ -918,9 +906,7 @@ public class InstanceScript : ZoneScript
 	}
 
 	// Override this function to validate all additional data loads
-	public virtual void AfterDataLoad()
-	{
-	}
+	public virtual void AfterDataLoad() { }
 
 	void LoadObjectData(ObjectData[] objectData, Dictionary<uint, uint> objectInfo)
 	{
@@ -1066,8 +1052,8 @@ public class InstanceScript : ZoneScript
 	void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)
 	{
 		InstanceEncounterStart encounterStartMessage = new();
-		encounterStartMessage.InCombatResCount        = inCombatResCount;
-		encounterStartMessage.MaxInCombatResCount     = maxInCombatResCount;
+		encounterStartMessage.InCombatResCount = inCombatResCount;
+		encounterStartMessage.MaxInCombatResCount = maxInCombatResCount;
 		encounterStartMessage.CombatResChargeRecovery = inCombatResChargeRecovery;
 		encounterStartMessage.NextCombatResChargeTime = nextCombatResChargeTime;
 
@@ -1101,11 +1087,11 @@ public class InstanceScript : ZoneScript
 					dungeonId = encounter.lastEncounterDungeon;
 
 					Log.outDebug(LogFilter.Lfg,
-					             "UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
-					             Instance.GetMapName(),
-					             Instance.GetInstanceId(),
-					             encounter.dbcEntry.Name[Global.WorldMgr.GetDefaultDbcLocale()],
-					             dungeonId);
+								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
+								Instance.GetMapName(),
+								Instance.GetInstanceId(),
+								encounter.dbcEntry.Name[Global.WorldMgr.GetDefaultDbcLocale()],
+								dungeonId);
 
 					break;
 				}
@@ -1142,7 +1128,14 @@ public class InstanceScript : ZoneScript
 		if (interval == 0)
 			return;
 
-		_combatResurrectionTimer        = interval;
+		_combatResurrectionTimer = interval;
 		_combatResurrectionTimerStarted = true;
 	}
+
+	enum InstanceState
+	{
+		Block,
+		Spawn,
+		ForceBlock
+	};
 }

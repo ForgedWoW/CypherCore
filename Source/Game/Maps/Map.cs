@@ -66,6 +66,18 @@ public class Map : IDisposable
 	private uint _respawnCheckTimer;
 	private SpawnedPoolData _poolData;
 
+	public Dictionary<ulong, CreatureGroup> CreatureGroupHolder { get; set; } = new();
+
+	protected List<Player> ActivePlayers { get; } = new();
+	internal object MapLock { get; set; } = new();
+	internal uint InstanceId { get; set; }
+	internal uint UnloadTimer { get; set; }
+
+	public int VisibilityNotifyPeriod { get; set; }
+	public float VisibleDistance { get; set; }
+
+	public Dictionary<uint, Dictionary<uint, Grid>> Grids { get; } = new();
+
 	public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode)
 	{
 		_mapRecord = CliDB.MapStorage.LookupByKey(id);
@@ -98,18 +110,6 @@ public class Map : IDisposable
 		OnCreateMap(this);
 		_threadManager.Wait();
 	}
-
-	public Dictionary<ulong, CreatureGroup> CreatureGroupHolder { get; set; } = new();
-
-	protected List<Player> ActivePlayers { get; } = new();
-	internal object MapLock { get; set; } = new();
-	internal uint InstanceId { get; set; }
-	internal uint UnloadTimer { get; set; }
-
-	public int VisibilityNotifyPeriod { get; set; }
-	public float VisibleDistance { get; set; }
-
-	public Dictionary<uint, Dictionary<uint, Grid>> Grids { get; } = new();
 
 	public void Dispose()
 	{
@@ -159,7 +159,7 @@ public class Map : IDisposable
 		for (uint cellX = 0; cellX < MapConst.TotalCellsPerMap; cellX++)
 			for (uint cellY = 0; cellY < MapConst.TotalCellsPerMap; cellY++)
 				_manager.Schedule(() =>
-									  LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells));
+									LoadGrid((cellX + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells, (cellY + 0.5f - MapConst.CenterGridCellId) * MapConst.SizeofCells));
 
 		_manager.Wait();
 	}
@@ -260,10 +260,10 @@ public class Map : IDisposable
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-						 "Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
-						 player.GetGUID().ToString(),
-						 player.Location.X,
-						 player.Location.Y);
+						"Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
+						player.GetGUID().ToString(),
+						player.Location.X,
+						player.Location.Y);
 
 			return false;
 		}
@@ -368,12 +368,12 @@ public class Map : IDisposable
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-						 "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-						 obj.GetGUID(),
-						 obj.Location.X,
-						 obj.Location.Y,
-						 cellCoord.X_Coord,
-						 cellCoord.Y_Coord);
+						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
+						obj.GetGUID(),
+						obj.Location.X,
+						obj.Location.Y,
+						cellCoord.X_Coord,
+						cellCoord.Y_Coord);
 
 			return false; //Should delete object
 		}
@@ -415,12 +415,12 @@ public class Map : IDisposable
 		if (!cellCoord.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-						 "Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-						 obj.GetGUID(),
-						 obj.Location.X,
-						 obj.Location.Y,
-						 cellCoord.X_Coord,
-						 cellCoord.Y_Coord);
+						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
+						obj.GetGUID(),
+						obj.Location.X,
+						obj.Location.Y,
+						cellCoord.X_Coord,
+						cellCoord.Y_Coord);
 
 			return false; //Should delete object
 		}
@@ -522,7 +522,7 @@ public class Map : IDisposable
 		// update active cells around players and active objects
 		ResetMarkedCells();
 
-		var update = new UpdaterNotifier(diff, GridType.All);
+		var update = new UpdaterNotifier(diff, GridType.All, _threadManager);
 
 		for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
@@ -532,74 +532,70 @@ public class Map : IDisposable
 				continue;
 
 			_threadManager.Schedule(() =>
-									{
-										// update players at tick
-										_threadManager.Schedule(() => player.Update(diff));
+			{
+				// update players at tick
+				_threadManager.Schedule(() => player.Update(diff));
 
-										_threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+				VisitNearbyCellsOf(player, update);
 
-										// If player is using far sight or mind vision, visit that object too
-										var viewPoint = player.GetViewpoint();
+				// If player is using far sight or mind vision, visit that object too
+				var viewPoint = player.GetViewpoint();
 
-										if (viewPoint)
-											_threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+				if (viewPoint)
+					VisitNearbyCellsOf(viewPoint, update);
 
-										// Handle updates for creatures in combat with player and are more than 60 yards away
-										if (player.IsInCombat())
-										{
-											List<Unit> toVisit = new();
+				List<Unit> toVisit = new();
 
-											foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
-											{
-												var unit = pair.Value.GetOther(player).ToCreature();
+				// Handle updates for creatures in combat with player and are more than 60 yards away
+				if (player.IsInCombat())
+				{
+					foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
+					{
+						var unit = pair.Value.GetOther(player).ToCreature();
 
-												if (unit != null)
-													if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-														toVisit.Add(unit);
-											}
+						if (unit != null)
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(unit);
+					}
 
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
+					foreach (var unit in toVisit)
+						VisitNearbyCellsOf(unit, update);
+				}
 
-										{
-											// Update any creatures that own auras the player has applications of
-											List<Unit> toVisit = new();
+				// Update any creatures that own auras the player has applications of
+				toVisit.Clear();
 
-											player.GetAppliedAurasQuery()
-												  .IsPlayer(false)
-												  .ForEachResult(aur =>
-																 {
-																	 var caster = aur.Base.GetCaster();
+				player.GetAppliedAurasQuery()
+					.IsPlayer(false)
+					.ForEachResult(aur =>
+					{
+						var caster = aur.Base.GetCaster();
 
-																	 if (caster != null)
-																		 if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
-																			 toVisit.Add(caster);
-																 });
+						if (caster != null)
+							if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(caster);
+					});
 
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
+				foreach (var unit in toVisit)
+					VisitNearbyCellsOf(unit, update);
 
-										{
-											// Update player's summons
-											List<Unit> toVisit = new();
+				// Update player's summons
+				toVisit.Clear();
 
-											// Totems
-											foreach (var summonGuid in player.SummonSlot)
-												if (!summonGuid.IsEmpty())
-												{
-													var unit = GetCreature(summonGuid);
+				// Totems
+				foreach (var summonGuid in player.SummonSlot)
+					if (!summonGuid.IsEmpty())
+					{
+						var unit = GetCreature(summonGuid);
 
-													if (unit != null)
-														if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
-															toVisit.Add(unit);
-												}
+						if (unit != null)
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+								toVisit.Add(unit);
+					}
 
-											foreach (var unit in toVisit)
-												_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
-										}
-									});
+				foreach (var unit in toVisit)
+					VisitNearbyCellsOf(unit, update);
+			});
 		}
 
 		for (var i = 0; i < _activeNonPlayers.Count; ++i)
@@ -609,8 +605,13 @@ public class Map : IDisposable
 			if (!obj.IsInWorld)
 				continue;
 
-			_threadManager.Schedule(() => VisitNearbyCellsOf(obj, update));
+			VisitNearbyCellsOf(obj, update);
 		}
+
+		// all the visits are queued in the thread manager, we wait to gather all the world objects that need
+		// updating. Also guarntees objects only get updated once.
+		_threadManager.Wait();
+		update.ExecuteUpdate();
 
 		for (var i = 0; i < _transports.Count; ++i)
 		{
@@ -619,7 +620,7 @@ public class Map : IDisposable
 			if (!transport)
 				continue;
 
-			transport.Update(diff);
+			_threadManager.Schedule(() => transport.Update(diff));
 		}
 
 		_threadManager.Wait();
@@ -758,16 +759,16 @@ public class Map : IDisposable
 		if (oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
 		{
 			Log.outDebug(LogFilter.Maps,
-						 "Player {0} relocation grid[{1}, {2}]cell[{3}, {4}].grid[{5}, {6}]cell[{7}, {8}]",
-						 player.GetName(),
-						 oldcell.GetGridX(),
-						 oldcell.GetGridY(),
-						 oldcell.GetCellX(),
-						 oldcell.GetCellY(),
-						 newcell.GetGridX(),
-						 newcell.GetGridY(),
-						 newcell.GetCellX(),
-						 newcell.GetCellY());
+						"Player {0} relocation grid[{1}, {2}]cell[{3}, {4}].grid[{5}, {6}]cell[{7}, {8}]",
+						player.GetName(),
+						oldcell.GetGridX(),
+						oldcell.GetGridY(),
+						oldcell.GetCellX(),
+						oldcell.GetCellY(),
+						newcell.GetGridX(),
+						newcell.GetGridY(),
+						newcell.GetCellX(),
+						newcell.GetCellY());
 
 			RemoveFromGrid(player, oldcell);
 
@@ -838,17 +839,17 @@ public class Map : IDisposable
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
 			Log.outDebug(LogFilter.Maps,
-						 "GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
-						 go.GetGUID().ToString(),
-						 go.GetEntry(),
-						 old_cell.GetGridX(),
-						 old_cell.GetGridY(),
-						 old_cell.GetCellX(),
-						 old_cell.GetCellY(),
-						 new_cell.GetGridX(),
-						 new_cell.GetGridY(),
-						 new_cell.GetCellX(),
-						 new_cell.GetCellY());
+						"GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
+						go.GetGUID().ToString(),
+						go.GetEntry(),
+						old_cell.GetGridX(),
+						old_cell.GetGridY(),
+						old_cell.GetCellX(),
+						old_cell.GetCellY(),
+						new_cell.GetGridX(),
+						new_cell.GetGridY(),
+						new_cell.GetCellX(),
+						new_cell.GetCellY());
 
 			AddGameObjectToMoveList(go, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move go in Map.MoveAllGameObjectsInMoveList
@@ -882,16 +883,16 @@ public class Map : IDisposable
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
 			Log.outDebug(LogFilter.Maps,
-						 "DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
-						 dynObj.GetGUID().ToString(),
-						 old_cell.GetGridX(),
-						 old_cell.GetGridY(),
-						 old_cell.GetCellX(),
-						 old_cell.GetCellY(),
-						 new_cell.GetGridX(),
-						 new_cell.GetGridY(),
-						 new_cell.GetCellX(),
-						 new_cell.GetCellY());
+						"DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
+						dynObj.GetGUID().ToString(),
+						old_cell.GetGridX(),
+						old_cell.GetGridY(),
+						old_cell.GetCellX(),
+						old_cell.GetCellY(),
+						new_cell.GetGridX(),
+						new_cell.GetGridY(),
+						new_cell.GetCellX(),
+						new_cell.GetCellY());
 
 			AddDynamicObjectToMoveList(dynObj, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move dynObj in Map.MoveAllGameObjectsInMoveList
@@ -977,13 +978,13 @@ public class Map : IDisposable
 			return true;
 
 		Log.outDebug(LogFilter.Maps,
-					 "GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
-					 go.GetGUID().ToString(),
-					 go.GetEntry(),
-					 go.Location.GetCurrentCell().GetGridX(),
-					 go.Location.GetCurrentCell().GetGridY(),
-					 resp_cell.GetGridX(),
-					 resp_cell.GetGridY());
+					"GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
+					go.GetGUID().ToString(),
+					go.GetEntry(),
+					go.Location.GetCurrentCell().GetGridX(),
+					go.Location.GetCurrentCell().GetGridY(),
+					resp_cell.GetGridX(),
+					resp_cell.GetGridY());
 
 		// teleport it to respawn point (like normal respawn if player see)
 		if (GameObjectCellRelocation(go, resp_cell))
@@ -1124,22 +1125,22 @@ public class Map : IDisposable
 		_terrain.GetFullTerrainStatusForPosition(phaseShift, GetId(), x, y, z, data, reqLiquidType, collisionHeight, _dynamicTree);
 	}
 
-    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
-    {
+	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
+	{
 		return GetLiquidStatus(phaseShift, pos.X, pos.Y, pos.Z, reqLiquidType, collisionHeight);
-    }
+	}
 
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
 		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out _, collisionHeight);
 	}
 
-    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
-    {
-        return _terrain.GetLiquidStatus(phaseShift, GetId(), pos.X, pos.Y, pos.Z, reqLiquidType, out data, collisionHeight);
-    }
+	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
+	{
+		return _terrain.GetLiquidStatus(phaseShift, GetId(), pos.X, pos.Y, pos.Z, reqLiquidType, out data, collisionHeight);
+	}
 
-    public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
+	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
 		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out data, collisionHeight);
 	}
@@ -1225,15 +1226,16 @@ public class Map : IDisposable
 	{
 		return _terrain.GetWaterOrGroundLevel(phaseShift, GetId(), x, y, z, ref ground, swim, collisionHeight, _dynamicTree);
 	}
-    public bool IsInLineOfSight(PhaseShift phaseShift, Position position, Position position2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
-    {
-		return IsInLineOfSight(phaseShift, position, position2.X, position2.Y, position2.Z, checks, ignoreFlags);
-    }
 
-    public bool IsInLineOfSight(PhaseShift phaseShift, Position position, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
-    {
+	public bool IsInLineOfSight(PhaseShift phaseShift, Position position, Position position2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
+	{
+		return IsInLineOfSight(phaseShift, position, position2.X, position2.Y, position2.Z, checks, ignoreFlags);
+	}
+
+	public bool IsInLineOfSight(PhaseShift phaseShift, Position position, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
+	{
 		return IsInLineOfSight(phaseShift, position.X, position.Y, position.Z, x2, y2, z2, checks, ignoreFlags);
-    }
+	}
 
 	public bool IsInLineOfSight(PhaseShift phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
 	{
@@ -1770,10 +1772,10 @@ public class Map : IDisposable
 	public bool ActiveObjectsNearGrid(Grid grid)
 	{
 		var cell_min = new CellCoord(grid.GetX() * MapConst.MaxCells,
-		                             grid.GetY() * MapConst.MaxCells);
+									grid.GetY() * MapConst.MaxCells);
 
 		var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-		                             cell_min.Y_Coord + MapConst.MaxCells);
+									cell_min.Y_Coord + MapConst.MaxCells);
 
 		//we must find visible range in cells so we unload only non-visible cells...
 		var viewDist = GetVisibilityRange();
@@ -1789,7 +1791,7 @@ public class Map : IDisposable
 			var p = GridDefines.ComputeCellCoord(pl.Location.X, pl.Location.Y);
 
 			if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
-			    (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
+				(cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
 				return true;
 		}
 
@@ -1798,7 +1800,7 @@ public class Map : IDisposable
 			var p = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
 
 			if ((cell_min.X_Coord <= p.X_Coord && p.X_Coord <= cell_max.X_Coord) &&
-			    (cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
+				(cell_min.Y_Coord <= p.Y_Coord && p.Y_Coord <= cell_max.Y_Coord))
 				return true;
 		}
 
@@ -1817,14 +1819,14 @@ public class Map : IDisposable
 				var creature = obj.ToCreature();
 
 				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-                    respawnLocation = creature.GetRespawnPosition();
+					respawnLocation = creature.GetRespawnPosition();
 
 				break;
 			case TypeId.GameObject:
 				var gameObject = obj.ToGameObject();
 
 				if (gameObject != null && gameObject.GetSpawnId() != 0)
-                    respawnLocation = gameObject.GetRespawnPosition();
+					respawnLocation = gameObject.GetRespawnPosition();
 
 				break;
 			default:
@@ -1859,7 +1861,7 @@ public class Map : IDisposable
 				var creature = obj.ToCreature();
 
 				if (creature != null && !creature.IsPet() && creature.GetSpawnId() != 0)
-                    respawnLocation = creature.GetRespawnPosition();
+					respawnLocation = creature.GetRespawnPosition();
 
 				break;
 			case TypeId.GameObject:
@@ -1909,11 +1911,11 @@ public class Map : IDisposable
 		}
 
 		RespawnInfo ri = new();
-		ri.ObjectType  = data.Type;
-		ri.SpawnId     = data.SpawnId;
-		ri.Entry       = entry;
+		ri.ObjectType = data.Type;
+		ri.SpawnId = data.SpawnId;
+		ri.Entry = entry;
 		ri.RespawnTime = respawnTime;
-		ri.GridId      = gridId;
+		ri.GridId = gridId;
 		var success = AddRespawnInfo(ri);
 
 		if (startup)
@@ -2126,8 +2128,8 @@ public class Map : IDisposable
 		// create the bones only if the map and the grid is loaded at the corpse's location
 		// ignore bones creating option in case insignia
 		if ((insignia ||
-		     (IsBattlegroundOrArena() ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
-		    !IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
+			(IsBattlegroundOrArena() ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
+			!IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
 		{
 			// Create bones, don't change Corpse
 			bones = new Corpse();
@@ -2211,8 +2213,8 @@ public class Map : IDisposable
 		foreach (var lightOverride in zoneInfo.LightOverrides)
 		{
 			OverrideLight overrideLight = new();
-			overrideLight.AreaLightID            = lightOverride.AreaLightId;
-			overrideLight.OverrideLightID        = lightOverride.OverrideLightId;
+			overrideLight.AreaLightID = lightOverride.AreaLightId;
+			overrideLight.OverrideLightID = lightOverride.OverrideLightId;
 			overrideLight.TransitionMilliseconds = lightOverride.TransitionMilliseconds;
 			player.SendPacket(overrideLight);
 		}
@@ -2322,8 +2324,8 @@ public class Map : IDisposable
 		if (overrideLightId != 0)
 		{
 			ZoneDynamicInfo.LightOverride lightOverride = new();
-			lightOverride.AreaLightId            = areaLightId;
-			lightOverride.OverrideLightId        = overrideLightId;
+			lightOverride.AreaLightId = areaLightId;
+			lightOverride.OverrideLightId = overrideLightId;
 			lightOverride.TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds;
 			info.LightOverrides.Add(lightOverride);
 		}
@@ -2333,8 +2335,8 @@ public class Map : IDisposable
 		if (!players.Empty())
 		{
 			OverrideLight overrideLight = new();
-			overrideLight.AreaLightID            = areaLightId;
-			overrideLight.OverrideLightID        = overrideLightId;
+			overrideLight.AreaLightID = areaLightId;
+			overrideLight.OverrideLightID = overrideLightId;
 			overrideLight.TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds;
 
 			foreach (var player in players)
@@ -2389,7 +2391,7 @@ public class Map : IDisposable
 		var p = GridDefines.ComputeGridCoord(x, y);
 
 		return GetGrid(p.X_Coord, p.Y_Coord) == null ||
-		       GetGrid(p.X_Coord, p.Y_Coord).GetGridState() == GridState.Removal;
+				GetGrid(p.X_Coord, p.Y_Coord).GetGridState() == GridState.Removal;
 	}
 
 	public void ResetGridExpiry(Grid grid, float factor = 1)
@@ -2966,12 +2968,12 @@ public class Map : IDisposable
 		if (!p.IsCoordValid())
 		{
 			Log.outError(LogFilter.Maps,
-			             "Map.SwitchGridContainers: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
-			             obj.GetGUID(),
-			             obj.Location.X,
-			             obj.Location.Y,
-			             p.X_Coord,
-			             p.Y_Coord);
+						"Map.SwitchGridContainers: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
+						obj.GetGUID(),
+						obj.Location.X,
+						obj.Location.Y,
+						p.X_Coord,
+						p.Y_Coord);
 
 			return;
 		}
@@ -3057,11 +3059,11 @@ public class Map : IDisposable
 		if (grid.GetGridState() != GridState.Active)
 		{
 			Log.outDebug(LogFilter.Maps,
-			             "Active object {0} triggers loading of grid [{1}, {2}] on map {3}",
-			             obj.GetGUID(),
-			             cell.GetGridX(),
-			             cell.GetGridY(),
-			             GetId());
+						"Active object {0} triggers loading of grid [{1}, {2}] on map {3}",
+						obj.GetGUID(),
+						cell.GetGridX(),
+						cell.GetGridY(),
+						GetId());
 
 			ResetGridExpiry(grid, 0.1f);
 			grid.SetGridState(GridState.Active);
@@ -3076,11 +3078,11 @@ public class Map : IDisposable
 		if (grid != null && !IsGridObjectDataLoaded(cell.GetGridX(), cell.GetGridY()))
 		{
 			Log.outDebug(LogFilter.Maps,
-			             "Loading grid[{0}, {1}] for map {2} instance {3}",
-			             cell.GetGridX(),
-			             cell.GetGridY(),
-			             GetId(),
-			             InstanceId);
+						"Loading grid[{0}, {1}] for map {2} instance {3}",
+						cell.GetGridX(),
+						cell.GetGridY(),
+						GetId(),
+						InstanceId);
 
 			SetGridObjectDataLoaded(true, cell.GetGridX(), cell.GetGridY());
 
@@ -3227,7 +3229,7 @@ public class Map : IDisposable
 				var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
 
 				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-				                             cell_min.Y_Coord + MapConst.MaxCells);
+											cell_min.Y_Coord + MapConst.MaxCells);
 
 				for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
 				{
@@ -3368,38 +3370,38 @@ public class Map : IDisposable
 					continue;
 
 				_threadManager.Schedule(() =>
-				                        {
-					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (CreatureCellRelocation(creature, new Cell(creature.Location.NewPosition.X, creature.Location.NewPosition.Y)))
-					                        {
-						                        // update pos
-						                        creature.Location.Relocate(creature.Location.NewPosition);
+				{
+					// do move or do move to respawn or remove creature if previous all fail
+					if (CreatureCellRelocation(creature, new Cell(creature.Location.NewPosition.X, creature.Location.NewPosition.Y)))
+					{
+						// update pos
+						creature.Location.Relocate(creature.Location.NewPosition);
 
-						                        if (creature.IsVehicle())
-							                        creature.GetVehicleKit().RelocatePassengers();
+						if (creature.IsVehicle())
+							creature.GetVehicleKit().RelocatePassengers();
 
-						                        creature.UpdatePositionData();
-						                        creature.UpdateObjectVisibility(false);
-					                        }
-					                        else
-					                        {
-						                        // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-						                        // creature coordinates will be updated and notifiers send
-						                        if (!CreatureRespawnRelocation(creature, false))
-						                        {
-							                        // ... or unload (if respawn grid also not loaded)
-							                        //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
-							                        //To avoid this, we can load nearby cells when player log in
-							                        //But this check is always needed to ensure safety
-							                        // @todo pets will disappear if this is outside CreatureRespawnRelocation
-							                        //need to check why pet is frequently relocated to an unloaded cell
-							                        if (creature.IsPet())
-								                        ((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
-							                        else
-								                        AddObjectToRemoveList(creature);
-						                        }
-					                        }
-				                        });
+						creature.UpdatePositionData();
+						creature.UpdateObjectVisibility(false);
+					}
+					else
+					{
+						// if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+						// creature coordinates will be updated and notifiers send
+						if (!CreatureRespawnRelocation(creature, false))
+						{
+							// ... or unload (if respawn grid also not loaded)
+							//This may happen when a player just logs in and a pet moves to a nearby unloaded cell
+							//To avoid this, we can load nearby cells when player log in
+							//But this check is always needed to ensure safety
+							// @todo pets will disappear if this is outside CreatureRespawnRelocation
+							//need to check why pet is frequently relocated to an unloaded cell
+							if (creature.IsPet())
+								((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
+							else
+								AddObjectToRemoveList(creature);
+						}
+					}
+				});
 			}
 
 			_creaturesToMove.Clear();
@@ -3430,30 +3432,30 @@ public class Map : IDisposable
 					continue;
 
 				_threadManager.Schedule(() =>
-				                        {
-					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (GameObjectCellRelocation(go, new Cell(go.Location.NewPosition.X, go.Location.NewPosition.Y)))
-					                        {
-						                        // update pos
-						                        go.Location.Relocate(go.Location.NewPosition);
-						                        go.AfterRelocation();
-					                        }
-					                        else
-					                        {
-						                        // if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-						                        // GameObject coordinates will be updated and notifiers send
-						                        if (!GameObjectRespawnRelocation(go, false))
-						                        {
-							                        // ... or unload (if respawn grid also not loaded)
-							                        Log.outDebug(LogFilter.Maps,
-							                                     "GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
-							                                     go.GetGUID().ToString(),
-							                                     go.GetEntry());
+				{
+					// do move or do move to respawn or remove creature if previous all fail
+					if (GameObjectCellRelocation(go, new Cell(go.Location.NewPosition.X, go.Location.NewPosition.Y)))
+					{
+						// update pos
+						go.Location.Relocate(go.Location.NewPosition);
+						go.AfterRelocation();
+					}
+					else
+					{
+						// if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+						// GameObject coordinates will be updated and notifiers send
+						if (!GameObjectRespawnRelocation(go, false))
+						{
+							// ... or unload (if respawn grid also not loaded)
+							Log.outDebug(LogFilter.Maps,
+										"GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
+										go.GetGUID().ToString(),
+										go.GetEntry());
 
-							                        AddObjectToRemoveList(go);
-						                        }
-					                        }
-				                        });
+							AddObjectToRemoveList(go);
+						}
+					}
+				});
 			}
 
 			_gameObjectsToMove.Clear();
@@ -3485,20 +3487,20 @@ public class Map : IDisposable
 
 
 				_threadManager.Schedule(() =>
-				                        {
-					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj.Location.NewPosition.X, dynObj.Location.NewPosition.Y)))
-					                        {
-						                        // update pos
-						                        dynObj.Location.Relocate(dynObj.Location.NewPosition);
-						                        dynObj.UpdatePositionData();
-						                        dynObj.UpdateObjectVisibility(false);
-					                        }
-					                        else
-					                        {
-						                        Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GetGUID().ToString());
-					                        }
-				                        });
+				{
+					// do move or do move to respawn or remove creature if previous all fail
+					if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj.Location.NewPosition.X, dynObj.Location.NewPosition.Y)))
+					{
+						// update pos
+						dynObj.Location.Relocate(dynObj.Location.NewPosition);
+						dynObj.UpdatePositionData();
+						dynObj.UpdateObjectVisibility(false);
+					}
+					else
+					{
+						Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GetGUID().ToString());
+					}
+				});
 			}
 
 			_dynamicObjectsToMove.Clear();
@@ -3529,20 +3531,20 @@ public class Map : IDisposable
 					continue;
 
 				_threadManager.Schedule(() =>
-				                        {
-					                        // do move or do move to respawn or remove creature if previous all fail
-					                        if (AreaTriggerCellRelocation(at, new Cell(at.Location.NewPosition.X, at.Location.NewPosition.Y)))
-					                        {
-						                        // update pos
-						                        at.Location.Relocate(at.Location.NewPosition);
-						                        at.UpdateShape();
-						                        at.UpdateObjectVisibility(false);
-					                        }
-					                        else
-					                        {
-						                        Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GetGUID().ToString());
-					                        }
-				                        });
+				{
+					// do move or do move to respawn or remove creature if previous all fail
+					if (AreaTriggerCellRelocation(at, new Cell(at.Location.NewPosition.X, at.Location.NewPosition.Y)))
+					{
+						// update pos
+						at.Location.Relocate(at.Location.NewPosition);
+						at.UpdateShape();
+						at.UpdateObjectVisibility(false);
+					}
+					else
+					{
+						Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GetGUID().ToString());
+					}
+				});
 			}
 
 			_areaTriggersToMove.Clear();
@@ -3571,13 +3573,13 @@ public class Map : IDisposable
 			EnsureGridLoadedForActiveObject(new_cell, obj);
 
 			Log.outDebug(LogFilter.Maps,
-			             "Active creature (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to grid[{4}, {5}].",
-			             obj.GetGUID().ToString(),
-			             obj.GetEntry(),
-			             old_cell.GetGridX(),
-			             old_cell.GetGridY(),
-			             new_cell.GetGridX(),
-			             new_cell.GetGridY());
+						"Active creature (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to grid[{4}, {5}].",
+						obj.GetGUID().ToString(),
+						obj.GetEntry(),
+						old_cell.GetGridX(),
+						old_cell.GetGridY(),
+						new_cell.GetGridX(),
+						new_cell.GetGridY());
 
 			RemoveFromGrid(obj, old_cell);
 			AddToGrid(obj, new_cell);
@@ -4171,8 +4173,8 @@ public class Map : IDisposable
 	private bool GetEntrancePos(out uint mapid, out float x, out float y)
 	{
 		mapid = 0;
-		x     = 0;
-		y     = 0;
+		x = 0;
+		y = 0;
 
 		if (_mapRecord == null)
 			return false;
@@ -4349,7 +4351,7 @@ public class Map : IDisposable
 			ScriptAction sa;
 			sa.SourceGUID = sourceGUID;
 			sa.TargetGUID = targetGUID;
-			sa.OwnerGUID  = ownerGUID;
+			sa.OwnerGUID = ownerGUID;
 
 			sa.Script = script.Value;
 			_scriptSchedule.Add(GameTime.GetGameTime() + script.Key, sa);
@@ -4380,7 +4382,7 @@ public class Map : IDisposable
 		var sa = new ScriptAction();
 		sa.SourceGUID = sourceGUID;
 		sa.TargetGUID = targetGUID;
-		sa.OwnerGUID  = ownerGUID;
+		sa.OwnerGUID = ownerGUID;
 
 		sa.Script = script;
 		_scriptSchedule.Add(GameTime.GetGameTime() + delay, sa);
@@ -4415,14 +4417,14 @@ public class Map : IDisposable
 
 			if (player == null)
 				Log.outError(LogFilter.Scripts,
-				             "{0} neither source nor target object is player (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
-				             scriptInfo.GetDebugInfo(),
-				             source ? source.GetTypeId() : 0,
-				             source ? source.GetEntry() : 0,
-				             source ? source.GetGUID().ToString() : "",
-				             target ? target.GetTypeId() : 0,
-				             target ? target.GetEntry() : 0,
-				             target ? target.GetGUID().ToString() : "");
+							"{0} neither source nor target object is player (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
+							scriptInfo.GetDebugInfo(),
+							source ? source.GetTypeId() : 0,
+							source ? source.GetEntry() : 0,
+							source ? source.GetGUID().ToString() : "",
+							target ? target.GetTypeId() : 0,
+							target ? target.GetEntry() : 0,
+							target ? target.GetGUID().ToString() : "");
 		}
 
 		return player;
@@ -4459,14 +4461,14 @@ public class Map : IDisposable
 
 			if (creature == null)
 				Log.outError(LogFilter.Scripts,
-				             "{0} neither source nor target are creatures (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
-				             scriptInfo.GetDebugInfo(),
-				             source ? source.GetTypeId() : 0,
-				             source ? source.GetEntry() : 0,
-				             source ? source.GetGUID().ToString() : "",
-				             target ? target.GetTypeId() : 0,
-				             target ? target.GetEntry() : 0,
-				             target ? target.GetGUID().ToString() : "");
+							"{0} neither source nor target are creatures (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
+							scriptInfo.GetDebugInfo(),
+							source ? source.GetTypeId() : 0,
+							source ? source.GetEntry() : 0,
+							source ? source.GetGUID().ToString() : "",
+							target ? target.GetTypeId() : 0,
+							target ? target.GetEntry() : 0,
+							target ? target.GetGUID().ToString() : "");
 		}
 
 		return creature;
@@ -4503,9 +4505,9 @@ public class Map : IDisposable
 
 			if (gameobject == null)
 				Log.outError(LogFilter.MapsScript,
-				             $"{scriptInfo.GetDebugInfo()} neither source nor target are gameobjects " +
-				             $"(source: TypeId: {(source != null ? source.GetTypeId() : 0)}, Entry: {(source != null ? source.GetEntry() : 0)}, {(source != null ? source.GetGUID() : ObjectGuid.Empty)}; " +
-				             $"target: TypeId: {(target != null ? target.GetTypeId() : 0)}, Entry: {(target != null ? target.GetEntry() : 0)}, {(target != null ? target.GetGUID() : ObjectGuid.Empty)}), skipping.");
+							$"{scriptInfo.GetDebugInfo()} neither source nor target are gameobjects " +
+							$"(source: TypeId: {(source != null ? source.GetTypeId() : 0)}, Entry: {(source != null ? source.GetEntry() : 0)}, {(source != null ? source.GetGUID() : ObjectGuid.Empty)}; " +
+							$"target: TypeId: {(target != null ? target.GetTypeId() : 0)}, Entry: {(target != null ? target.GetEntry() : 0)}, {(target != null ? target.GetGUID() : ObjectGuid.Empty)}), skipping.");
 		}
 
 		return gameobject;
@@ -4518,19 +4520,19 @@ public class Map : IDisposable
 		if (obj == null)
 		{
 			Log.outError(LogFilter.Scripts,
-			             "{0} {1} object is NULL.",
-			             scriptInfo.GetDebugInfo(),
-			             isSource ? "source" : "target");
+						"{0} {1} object is NULL.",
+						scriptInfo.GetDebugInfo(),
+						isSource ? "source" : "target");
 		}
 		else if (!obj.IsTypeMask(TypeMask.Unit))
 		{
 			Log.outError(LogFilter.Scripts,
-			             "{0} {1} object is not unit (TypeId: {2}, Entry: {3}, GUID: {4}), skipping.",
-			             scriptInfo.GetDebugInfo(),
-			             isSource ? "source" : "target",
-			             obj.GetTypeId(),
-			             obj.GetEntry(),
-			             obj.GetGUID().ToString());
+						"{0} {1} object is not unit (TypeId: {2}, Entry: {3}, GUID: {4}), skipping.",
+						scriptInfo.GetDebugInfo(),
+						isSource ? "source" : "target",
+						obj.GetTypeId(),
+						obj.GetEntry(),
+						obj.GetGUID().ToString());
 		}
 		else
 		{
@@ -4550,9 +4552,9 @@ public class Map : IDisposable
 		if (obj == null)
 		{
 			Log.outError(LogFilter.Scripts,
-			             "{0} {1} object is NULL.",
-			             scriptInfo.GetDebugInfo(),
-			             isSource ? "source" : "target");
+						"{0} {1} object is NULL.",
+						scriptInfo.GetDebugInfo(),
+						isSource ? "source" : "target");
 		}
 		else
 		{
@@ -4560,12 +4562,12 @@ public class Map : IDisposable
 
 			if (player == null)
 				Log.outError(LogFilter.Scripts,
-				             "{0} {1} object is not a player (TypeId: {2}, Entry: {3}, GUID: {4}).",
-				             scriptInfo.GetDebugInfo(),
-				             isSource ? "source" : "target",
-				             obj.GetTypeId(),
-				             obj.GetEntry(),
-				             obj.GetGUID().ToString());
+							"{0} {1} object is not a player (TypeId: {2}, Entry: {3}, GUID: {4}).",
+							scriptInfo.GetDebugInfo(),
+							isSource ? "source" : "target",
+							obj.GetTypeId(),
+							obj.GetEntry(),
+							obj.GetGUID().ToString());
 		}
 
 		return player;
@@ -4585,12 +4587,12 @@ public class Map : IDisposable
 
 			if (creature == null)
 				Log.outError(LogFilter.Scripts,
-				             "{0} {1} object is not a creature (TypeId: {2}, Entry: {3}, GUID: {4}).",
-				             scriptInfo.GetDebugInfo(),
-				             isSource ? "source" : "target",
-				             obj.GetTypeId(),
-				             obj.GetEntry(),
-				             obj.GetGUID().ToString());
+							"{0} {1} object is not a creature (TypeId: {2}, Entry: {3}, GUID: {4}).",
+							scriptInfo.GetDebugInfo(),
+							isSource ? "source" : "target",
+							obj.GetTypeId(),
+							obj.GetEntry(),
+							obj.GetGUID().ToString());
 		}
 
 		return creature;
@@ -4610,12 +4612,12 @@ public class Map : IDisposable
 
 			if (pWorldObject == null)
 				Log.outError(LogFilter.Scripts,
-				             "{0} {1} object is not a world object (TypeId: {2}, Entry: {3}, GUID: {4}).",
-				             scriptInfo.GetDebugInfo(),
-				             isSource ? "source" : "target",
-				             obj.GetTypeId(),
-				             obj.GetEntry(),
-				             obj.GetGUID().ToString());
+							"{0} {1} object is not a world object (TypeId: {2}, Entry: {3}, GUID: {4}).",
+							scriptInfo.GetDebugInfo(),
+							isSource ? "source" : "target",
+							obj.GetTypeId(),
+							obj.GetEntry(),
+							obj.GetGUID().ToString());
 		}
 
 		return pWorldObject;
@@ -4652,22 +4654,22 @@ public class Map : IDisposable
 		else if (!source.IsTypeMask(TypeMask.Unit))
 		{
 			Log.outError(LogFilter.Scripts,
-			             "{0} source object is not unit (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
-			             scriptInfo.GetDebugInfo(),
-			             source.GetTypeId(),
-			             source.GetEntry(),
-			             source.GetGUID().ToString());
+						"{0} source object is not unit (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
+						scriptInfo.GetDebugInfo(),
+						source.GetTypeId(),
+						source.GetEntry(),
+						source.GetGUID().ToString());
 		}
 		else
 		{
 			if (source == null)
 			{
 				Log.outError(LogFilter.Scripts,
-				             "{0} source object could not be casted to world object (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
-				             scriptInfo.GetDebugInfo(),
-				             source.GetTypeId(),
-				             source.GetEntry(),
-				             source.GetGUID().ToString());
+							"{0} source object could not be casted to world object (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
+							scriptInfo.GetDebugInfo(),
+							source.GetTypeId(),
+							source.GetEntry(),
+							source.GetGUID().ToString());
 			}
 			else
 			{
@@ -4762,10 +4764,10 @@ public class Map : IDisposable
 							break;
 						default:
 							Log.outError(LogFilter.Scripts,
-							             "{0} source with unsupported high guid (GUID: {1}, high guid: {2}).",
-							             step.Script.GetDebugInfo(),
-							             step.SourceGUID,
-							             step.SourceGUID.ToString());
+										"{0} source with unsupported high guid (GUID: {1}, high guid: {2}).",
+										step.Script.GetDebugInfo(),
+										step.SourceGUID,
+										step.SourceGUID.ToString());
 
 							break;
 					}
@@ -4810,9 +4812,9 @@ public class Map : IDisposable
 						if (step.Script.Talk.ChatType > ChatMsg.Whisper && step.Script.Talk.ChatType != ChatMsg.RaidBossWhisper)
 						{
 							Log.outError(LogFilter.Scripts,
-							             "{0} invalid chat type ({1}) specified, skipping.",
-							             step.Script.GetDebugInfo(),
-							             step.Script.Talk.ChatType);
+										"{0} invalid chat type ({1}) specified, skipping.",
+										step.Script.GetDebugInfo(),
+										step.Script.Talk.ChatType);
 
 							break;
 						}
@@ -4895,21 +4897,21 @@ public class Map : IDisposable
 							{
 								var speed =
 									unit.GetDistance(step.Script.MoveTo.DestX,
-									                 step.Script.MoveTo.DestY,
-									                 step.Script.MoveTo.DestZ) /
+													step.Script.MoveTo.DestY,
+													step.Script.MoveTo.DestZ) /
 									(step.Script.MoveTo.TravelTime * 0.001f);
 
 								unit.MonsterMoveWithSpeed(step.Script.MoveTo.DestX,
-								                          step.Script.MoveTo.DestY,
-								                          step.Script.MoveTo.DestZ,
-								                          speed);
+														step.Script.MoveTo.DestY,
+														step.Script.MoveTo.DestZ,
+														speed);
 							}
 							else
 							{
 								unit.NearTeleportTo(step.Script.MoveTo.DestX,
-								                    step.Script.MoveTo.DestY,
-								                    step.Script.MoveTo.DestZ,
-								                    unit.Location.Orientation);
+													step.Script.MoveTo.DestY,
+													step.Script.MoveTo.DestZ,
+													unit.Location.Orientation);
 							}
 						}
 
@@ -4924,9 +4926,9 @@ public class Map : IDisposable
 
 							if (cSource)
 								cSource.NearTeleportTo(step.Script.TeleportTo.DestX,
-								                       step.Script.TeleportTo.DestY,
-								                       step.Script.TeleportTo.DestZ,
-								                       step.Script.TeleportTo.Orientation);
+														step.Script.TeleportTo.DestY,
+														step.Script.TeleportTo.DestZ,
+														step.Script.TeleportTo.Orientation);
 						}
 						else
 						{
@@ -4935,10 +4937,10 @@ public class Map : IDisposable
 
 							if (player)
 								player.TeleportTo(step.Script.TeleportTo.MapID,
-								                  step.Script.TeleportTo.DestX,
-								                  step.Script.TeleportTo.DestY,
-								                  step.Script.TeleportTo.DestZ,
-								                  step.Script.TeleportTo.Orientation);
+												step.Script.TeleportTo.DestX,
+												step.Script.TeleportTo.DestY,
+												step.Script.TeleportTo.DestZ,
+												step.Script.TeleportTo.Orientation);
 						}
 
 						break;
@@ -4968,11 +4970,11 @@ public class Map : IDisposable
 							if (!source.IsTypeId(TypeId.Unit) && !source.IsTypeId(TypeId.GameObject) && !source.IsTypeId(TypeId.Player))
 							{
 								Log.outError(LogFilter.Scripts,
-								             "{0} source is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
-								             step.Script.GetDebugInfo(),
-								             source.GetTypeId(),
-								             source.GetEntry(),
-								             source.GetGUID().ToString());
+											"{0} source is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
+											step.Script.GetDebugInfo(),
+											source.GetTypeId(),
+											source.GetEntry(),
+											source.GetGUID().ToString());
 
 								break;
 							}
@@ -4988,11 +4990,11 @@ public class Map : IDisposable
 								if (!target.IsTypeId(TypeId.Unit) && !target.IsTypeId(TypeId.GameObject) && !target.IsTypeId(TypeId.Player))
 								{
 									Log.outError(LogFilter.Scripts,
-									             "{0} target is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
-									             step.Script.GetDebugInfo(),
-									             target.GetTypeId(),
-									             target.GetEntry(),
-									             target.GetGUID().ToString());
+												"{0} target is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
+												step.Script.GetDebugInfo(),
+												target.GetTypeId(),
+												target.GetEntry(),
+												target.GetGUID().ToString());
 
 									break;
 								}
@@ -5002,12 +5004,12 @@ public class Map : IDisposable
 							else
 							{
 								Log.outError(LogFilter.Scripts,
-								             "{0} neither source nor target is player (Entry: {0}, GUID: {1}; target: Entry: {2}, GUID: {3}), skipping.",
-								             step.Script.GetDebugInfo(),
-								             source.GetEntry(),
-								             source.GetGUID().ToString(),
-								             target.GetEntry(),
-								             target.GetGUID().ToString());
+											"{0} neither source nor target is player (Entry: {0}, GUID: {1}; target: Entry: {2}, GUID: {3}), skipping.",
+											step.Script.GetDebugInfo(),
+											source.GetEntry(),
+											source.GetGUID().ToString(),
+											target.GetEntry(),
+											target.GetGUID().ToString());
 
 								break;
 							}
@@ -5015,8 +5017,8 @@ public class Map : IDisposable
 
 						// quest id and flags checked at script loading
 						if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.ToUnit().IsAlive()) &&
-						    (step.Script.QuestExplored.Distance == 0 ||
-						     worldObject.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
+							(step.Script.QuestExplored.Distance == 0 ||
+							worldObject.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
 							player.AreaExploredOrEventHappens(step.Script.QuestExplored.QuestID);
 						else
 							player.FailQuest(step.Script.QuestExplored.QuestID);
@@ -5063,15 +5065,15 @@ public class Map : IDisposable
 							}
 
 							if (pGO.GetGoType() == GameObjectTypes.FishingNode ||
-							    pGO.GetGoType() == GameObjectTypes.Door ||
-							    pGO.GetGoType() == GameObjectTypes.Button ||
-							    pGO.GetGoType() == GameObjectTypes.Trap)
+								pGO.GetGoType() == GameObjectTypes.Door ||
+								pGO.GetGoType() == GameObjectTypes.Button ||
+								pGO.GetGoType() == GameObjectTypes.Trap)
 							{
 								Log.outError(LogFilter.Scripts,
-								             "{0} can not be used with gameobject of type {1} (guid: {2}).",
-								             step.Script.GetDebugInfo(),
-								             pGO.GetGoType(),
-								             step.Script.RespawnGameObject.GOGuid);
+											"{0} can not be used with gameobject of type {1} (guid: {2}).",
+											step.Script.GetDebugInfo(),
+											pGO.GetGoType(),
+											step.Script.RespawnGameObject.GOGuid);
 
 								break;
 							}
@@ -5138,11 +5140,11 @@ public class Map : IDisposable
 							if (!target.IsTypeId(TypeId.GameObject))
 							{
 								Log.outError(LogFilter.Scripts,
-								             "{0} target object is not gameobject (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
-								             step.Script.GetDebugInfo(),
-								             target.GetTypeId(),
-								             target.GetEntry(),
-								             target.GetGUID().ToString());
+											"{0} target object is not gameobject (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
+											step.Script.GetDebugInfo(),
+											target.GetTypeId(),
+											target.GetEntry(),
+											target.GetGUID().ToString());
 
 								break;
 							}
@@ -5223,8 +5225,8 @@ public class Map : IDisposable
 						}
 
 						var triggered = ((int)step.Script.CastSpell.Flags != 4)
-							                ? step.Script.CastSpell.CreatureEntry.HasAnyFlag((int)eScriptFlags.CastspellTriggered)
-							                : step.Script.CastSpell.CreatureEntry < 0;
+											? step.Script.CastSpell.CreatureEntry.HasAnyFlag((int)eScriptFlags.CastspellTriggered)
+											: step.Script.CastSpell.CreatureEntry < 0;
 
 						uSource.CastSpell(uTarget, step.Script.CastSpell.SpellID, triggered);
 

@@ -13,7 +13,7 @@ class NearestPlayerInObjectRangeCheck : ICheck<Player>
 
 	public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
 	}
 

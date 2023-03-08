@@ -8,8 +8,8 @@ namespace Game.Maps;
 public class TransportSpawn
 {
 	public ulong SpawnId { get; set; }
-    public uint TransportGameObjectId { get; set; } // entry in respective _template table
-    public PhaseUseFlagsValues PhaseUseFlags { get; set; }
-    public uint PhaseId { get; set; }
-    public uint PhaseGroup { get; set; }
+	public uint TransportGameObjectId { get; set; } // entry in respective _template table
+	public PhaseUseFlagsValues PhaseUseFlags { get; set; }
+	public uint PhaseId { get; set; }
+	public uint PhaseGroup { get; set; }
 }

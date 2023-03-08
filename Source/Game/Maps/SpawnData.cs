@@ -23,8 +23,8 @@ public class SpawnData : SpawnMetadata
 
 	public SpawnData(SpawnObjectType t) : base(t)
 	{
-		SpawnPoint        = new Position();
-		terrainSwapMap    = -1;
+		SpawnPoint = new Position();
+		terrainSwapMap = -1;
 		SpawnDifficulties = new List<Difficulty>();
 	}
 

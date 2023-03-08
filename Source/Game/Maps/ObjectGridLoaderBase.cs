@@ -21,7 +21,7 @@ class ObjectGridLoaderBase
 	{
 		i_cell = new Cell(cell);
 		i_grid = grid;
-		i_map  = map;
+		i_map = map;
 	}
 
 	public uint GetLoadedCreatures()

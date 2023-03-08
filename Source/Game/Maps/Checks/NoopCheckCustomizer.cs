@@ -12,7 +12,5 @@ public class NoopCheckCustomizer
 		return true;
 	}
 
-	public virtual void Update(WorldObject o)
-	{
-	}
+	public virtual void Update(WorldObject o) { }
 }

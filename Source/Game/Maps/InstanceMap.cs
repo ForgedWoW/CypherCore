@@ -45,7 +45,7 @@ public class InstanceMap : Map
 	public override void InitVisibilityDistance()
 	{
 		//init visibility distance for instances
-		VisibleDistance        = Global.WorldMgr.GetMaxVisibleDistanceInInstances();
+		VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceInInstances();
 		VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodInInstances();
 	}
 
@@ -102,14 +102,14 @@ public class InstanceMap : Map
 				var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GetGUID(), entries);
 
 				if (playerLock == null ||
-				    (playerLock.IsExpired() && playerLock.IsExtended()) ||
-				    playerLock.GetData().CompletedEncountersMask != _instanceLock.GetData().CompletedEncountersMask)
+					(playerLock.IsExpired() && playerLock.IsExtended()) ||
+					playerLock.GetData().CompletedEncountersMask != _instanceLock.GetData().CompletedEncountersMask)
 				{
 					PendingRaidLock pendingRaidLock = new();
 					pendingRaidLock.TimeUntilLock = 60000;
 					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
-					pendingRaidLock.Extending     = playerLock != null && playerLock.IsExtended();
-					pendingRaidLock.WarningOnly   = entries.Map.IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+					pendingRaidLock.Extending = playerLock != null && playerLock.IsExtended();
+					pendingRaidLock.WarningOnly = entries.Map.IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
 					player.GetSession().SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
@@ -118,10 +118,10 @@ public class InstanceMap : Map
 			}
 
 		Log.outInfo(LogFilter.Maps,
-		            "MAP: Player '{0}' entered instance '{1}' of map '{2}'",
-		            player.GetName(),
-		            GetInstanceId(),
-		            GetMapName());
+					"MAP: Player '{0}' entered instance '{1}' of map '{2}'",
+					player.GetName(),
+					GetInstanceId(),
+					GetMapName());
 
 		// initialize unload state
 		UnloadTimer = 0;
@@ -185,7 +185,7 @@ public class InstanceMap : Map
 		if (mInstance != null)
 		{
 			_scriptId = mInstance.ScriptId;
-			_data     = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), GetScriptId(), null);
+			_data = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), GetScriptId(), null);
 		}
 
 		if (_data == null)
@@ -255,16 +255,16 @@ public class InstanceMap : Map
 				case InstanceResetMethod.Expire:
 				{
 					RaidInstanceMessage raidInstanceMessage = new();
-					raidInstanceMessage.Type         = InstanceResetWarningType.Expired;
-					raidInstanceMessage.MapID        = GetId();
+					raidInstanceMessage.Type = InstanceResetWarningType.Expired;
+					raidInstanceMessage.MapID = GetId();
 					raidInstanceMessage.DifficultyID = GetDifficultyID();
 					raidInstanceMessage.Write();
 
 					PendingRaidLock pendingRaidLock = new();
 					pendingRaidLock.TimeUntilLock = 60000;
 					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
-					pendingRaidLock.Extending     = true;
-					pendingRaidLock.WarningOnly   = GetEntry().IsFlexLocking();
+					pendingRaidLock.Extending = true;
+					pendingRaidLock.WarningOnly = GetEntry().IsFlexLocking();
 					pendingRaidLock.Write();
 
 					foreach (var player in GetPlayers())
@@ -310,11 +310,11 @@ public class InstanceMap : Map
 
 			if (entries.IsInstanceIdBound())
 				Global.InstanceLockMgr.UpdateSharedInstanceLock(trans,
-				                                                new InstanceLockUpdateEvent(GetInstanceId(),
-				                                                                            _data.GetSaveData(),
-				                                                                            instanceCompletedEncounters,
-				                                                                            updateSaveDataEvent.DungeonEncounter,
-				                                                                            _data.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
+																new InstanceLockUpdateEvent(GetInstanceId(),
+																							_data.GetSaveData(),
+																							instanceCompletedEncounters,
+																							updateSaveDataEvent.DungeonEncounter,
+																							_data.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
 
 			foreach (var player in GetPlayers())
 			{
@@ -328,20 +328,20 @@ public class InstanceMap : Map
 
 				if (playerLock != null)
 				{
-					oldData                   = playerLock.GetData().Data;
+					oldData = playerLock.GetData().Data;
 					playerCompletedEncounters = playerLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
 				}
 
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-				                                                                 player.GetGUID(),
-				                                                                 entries,
-				                                                                 new InstanceLockUpdateEvent(GetInstanceId(),
-				                                                                                             _data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
-				                                                                                             instanceCompletedEncounters,
-				                                                                                             updateSaveDataEvent.DungeonEncounter,
-				                                                                                             _data.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
+																				player.GetGUID(),
+																				entries,
+																				new InstanceLockUpdateEvent(GetInstanceId(),
+																											_data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
+																											instanceCompletedEncounters,
+																											updateSaveDataEvent.DungeonEncounter,
+																											_data.GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
 
 				if (isNewLock)
 				{
@@ -385,13 +385,13 @@ public class InstanceMap : Map
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-				                                                                 player.GetGUID(),
-				                                                                 entries,
-				                                                                 new InstanceLockUpdateEvent(GetInstanceId(),
-				                                                                                             _data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
-				                                                                                             instanceCompletedEncounters,
-				                                                                                             null,
-				                                                                                             null));
+																				player.GetGUID(),
+																				entries,
+																				new InstanceLockUpdateEvent(GetInstanceId(),
+																											_data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
+																											instanceCompletedEncounters,
+																											null,
+																											null));
 
 				if (isNewLock)
 				{

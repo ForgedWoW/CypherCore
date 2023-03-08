@@ -15,16 +15,18 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
 	readonly PhaseShift _phaseShift;
 	readonly ICheck<WorldObject> _check;
 
-	public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
-	{
-		Mask         = mapTypeMask;
-		_phaseShift = searcher.GetPhaseShift();
-		_objects    = objects;
-		_check      = check;
-		GridType     = gridType;
-	}
+	public GridType GridType { get; set; }
 
 	public GridMapTypeMask Mask { get; set; }
+
+	public WorldObjectListSearcher(WorldObject searcher, List<WorldObject> objects, ICheck<WorldObject> check, GridMapTypeMask mapTypeMask = GridMapTypeMask.All, GridType gridType = GridType.All)
+	{
+		Mask = mapTypeMask;
+		_phaseShift = searcher.GetPhaseShift();
+		_objects = objects;
+		_check = check;
+		GridType = gridType;
+	}
 
 	public void Visit(IList<AreaTrigger> objs)
 	{
@@ -109,8 +111,6 @@ public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreatur
 				_objects.Add(gameObject);
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

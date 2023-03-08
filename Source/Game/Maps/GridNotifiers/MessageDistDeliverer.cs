@@ -18,18 +18,20 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 	readonly Player _skippedReceiver;
 	readonly bool _required3dDist;
 
+	public GridType GridType { get; set; } = GridType.World;
+
 	public MessageDistDeliverer(WorldObject src, T packetSender, float dist, bool own_team_only = false, Player skipped = null, bool req3dDist = false)
 	{
-		_source       = src;
+		_source = src;
 		_packetSender = packetSender;
-		_phaseShift   = src.GetPhaseShift();
-		_distSq       = dist * dist;
+		_phaseShift = src.GetPhaseShift();
+		_distSq = dist * dist;
 
 		if (own_team_only && src.IsPlayer())
 			_team = src.ToPlayer().GetEffectiveTeam();
 
 		_skippedReceiver = skipped;
-		_required3dDist   = req3dDist;
+		_required3dDist = req3dDist;
 	}
 
 	public void Visit(IList<Creature> objs)
@@ -76,8 +78,6 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 			}
 		}
 	}
-
-	public GridType GridType { get; set; } = GridType.World;
 
 	public void Visit(IList<Player> objs)
 	{

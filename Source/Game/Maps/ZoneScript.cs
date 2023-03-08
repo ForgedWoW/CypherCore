@@ -28,25 +28,15 @@ public class ZoneScript
 		return entry;
 	}
 
-	public virtual void OnCreatureCreate(Creature creature)
-	{
-	}
+	public virtual void OnCreatureCreate(Creature creature) { }
 
-	public virtual void OnCreatureRemove(Creature creature)
-	{
-	}
+	public virtual void OnCreatureRemove(Creature creature) { }
 
-	public virtual void OnGameObjectCreate(GameObject go)
-	{
-	}
+	public virtual void OnGameObjectCreate(GameObject go) { }
 
-	public virtual void OnGameObjectRemove(GameObject go)
-	{
-	}
+	public virtual void OnGameObjectRemove(GameObject go) { }
 
-	public virtual void OnUnitDeath(Unit unit)
-	{
-	}
+	public virtual void OnUnitDeath(Unit unit) { }
 
 	//All-purpose data storage 64 bit
 	public virtual ObjectGuid GetGuidData(uint DataId)
@@ -54,18 +44,14 @@ public class ZoneScript
 		return ObjectGuid.Empty;
 	}
 
-	public virtual void SetGuidData(uint DataId, ObjectGuid Value)
-	{
-	}
+	public virtual void SetGuidData(uint DataId, ObjectGuid Value) { }
 
 	public virtual ulong GetData64(uint dataId)
 	{
 		return 0;
 	}
 
-	public virtual void SetData64(uint dataId, ulong value)
-	{
-	}
+	public virtual void SetData64(uint dataId, ulong value) { }
 
 	//All-purpose data storage 32 bit
 	public virtual uint GetData(uint dataId)
@@ -73,11 +59,7 @@ public class ZoneScript
 		return 0;
 	}
 
-	public virtual void SetData(uint dataId, uint value)
-	{
-	}
+	public virtual void SetData(uint dataId, uint value) { }
 
-	public virtual void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker)
-	{
-	}
+	public virtual void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker) { }
 }

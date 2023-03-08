@@ -14,7 +14,7 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
 
 	public FriendlyMissingBuffInRange(Unit obj, float range, uint spellid)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
 		_spell = spellid;
 	}
@@ -22,10 +22,10 @@ public class FriendlyMissingBuffInRange : ICheck<Creature>
 	public bool Invoke(Creature u)
 	{
 		if (u.IsAlive() &&
-		    u.IsInCombat() &&
-		    !_obj.IsHostileTo(u) &&
-		    _obj.IsWithinDist(u, _range) &&
-		    !(u.HasAura(_spell)))
+			u.IsInCombat() &&
+			!_obj.IsHostileTo(u) &&
+			_obj.IsWithinDist(u, _range) &&
+			!(u.HasAura(_spell)))
 			return true;
 
 		return false;

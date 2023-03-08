@@ -14,7 +14,7 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
 	public GetAllAlliesOfTargetCreaturesWithinRange(Unit obj, float maxRange = 0f)
 	{
 		_pObject = obj;
-		_fRange  = maxRange;
+		_fRange = maxRange;
 	}
 
 	public bool Invoke(Creature creature)

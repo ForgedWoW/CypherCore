@@ -10,12 +10,12 @@ namespace Game.Maps;
 
 class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObject
 {
+	public GridType GridType { get; set; }
+
 	public ObjectGridEvacuator(GridType gridType)
 	{
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Creature> objs)
 	{

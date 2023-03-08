@@ -13,7 +13,7 @@ class GameObjectFocusCheck : ICheck<GameObject>
 
 	public GameObjectFocusCheck(WorldObject caster, uint focusId)
 	{
-		_caster  = caster;
+		_caster = caster;
 		_focusId = focusId;
 	}
 

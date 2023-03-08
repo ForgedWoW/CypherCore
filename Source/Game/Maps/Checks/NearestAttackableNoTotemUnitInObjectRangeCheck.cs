@@ -14,7 +14,7 @@ public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
 
 	public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
 	}
 

@@ -14,7 +14,7 @@ public class AllWorldObjectsInRange : ICheck<WorldObject>
 	public AllWorldObjectsInRange(WorldObject obj, float maxRange)
 	{
 		_pObject = obj;
-		_fRange  = maxRange;
+		_fRange = maxRange;
 	}
 
 	public bool Invoke(WorldObject go)

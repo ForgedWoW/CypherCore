@@ -10,9 +10,7 @@ namespace Game.Entities;
 
 class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
 {
-	public SplitByFactionMapScript(string name, uint mapId) : base(name, mapId)
-	{
-	}
+	public SplitByFactionMapScript(string name, uint mapId) : base(name, mapId) { }
 
 	public void OnCreate(Map map)
 	{

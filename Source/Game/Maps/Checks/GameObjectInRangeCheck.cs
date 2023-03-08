@@ -13,9 +13,9 @@ class GameObjectInRangeCheck : ICheck<GameObject>
 
 	public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
 	{
-		_x     = x;
-		_y     = y;
-		_z     = z;
+		_x = x;
+		_y = y;
+		_z = z;
 		_range = range;
 		_entry = entry;
 	}

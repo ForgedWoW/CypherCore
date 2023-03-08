@@ -14,8 +14,8 @@ public class AnyPlayerInObjectRangeCheck : ICheck<Player>
 
 	public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
 	{
-		_obj      = obj;
-		_range    = range;
+		_obj = obj;
+		_range = range;
 		_reqAlive = reqAlive;
 	}
 

@@ -18,9 +18,7 @@ public class MMapManager : Singleton<MMapManager>
 	readonly Dictionary<uint, uint> parentMapData = new();
 	uint loadedTiles;
 
-	MMapManager()
-	{
-	}
+	MMapManager() { }
 
 	public void Initialize(MultiMap<uint, uint> mapData)
 	{
@@ -71,12 +69,12 @@ public class MMapManager : Singleton<MMapManager>
 		if (fileHeader.mmapVersion != MapConst.mmapVersion)
 		{
 			Log.outError(LogFilter.Maps,
-			             "MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
-			             mapId,
-			             x,
-			             y,
-			             fileHeader.mmapVersion,
-			             MapConst.mmapVersion);
+						"MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
+						mapId,
+						x,
+						y,
+						fileHeader.mmapVersion,
+						MapConst.mmapVersion);
 
 			return false;
 		}
@@ -285,10 +283,10 @@ public class MMapManager : Singleton<MMapManager>
 		Params.orig[1] = reader.ReadSingle();
 		Params.orig[2] = reader.ReadSingle();
 
-		Params.tileWidth  = reader.ReadSingle();
+		Params.tileWidth = reader.ReadSingle();
 		Params.tileHeight = reader.ReadSingle();
-		Params.maxTiles   = reader.ReadInt32();
-		Params.maxPolys   = reader.ReadInt32();
+		Params.maxTiles = reader.ReadInt32();
+		Params.maxPolys = reader.ReadInt32();
 
 		Detour.dtNavMesh mesh = new();
 

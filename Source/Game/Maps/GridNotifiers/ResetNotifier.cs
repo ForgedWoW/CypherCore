@@ -10,6 +10,8 @@ namespace Game.Maps;
 
 public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
 {
+	public GridType GridType { get; set; }
+
 	public ResetNotifier(GridType gridType)
 	{
 		GridType = gridType;
@@ -23,8 +25,6 @@ public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
 			creature.ResetAllNotifies();
 		}
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

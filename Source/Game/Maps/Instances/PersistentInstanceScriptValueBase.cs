@@ -12,8 +12,8 @@ public class PersistentInstanceScriptValueBase
 	protected PersistentInstanceScriptValueBase(InstanceScript instance, string name, object value)
 	{
 		_instance = instance;
-		_name     = name;
-		_value    = value;
+		_name = name;
+		_value = value;
 
 		_instance.RegisterPersistentScriptValue(this);
 	}

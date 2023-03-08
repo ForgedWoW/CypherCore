@@ -10,12 +10,12 @@ namespace Game.Maps;
 
 class ObjectGridCleaner : IGridNotifierWorldObject
 {
+	public GridType GridType { get; set; }
+
 	public ObjectGridCleaner(GridType gridType)
 	{
 		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<WorldObject> objs)
 	{

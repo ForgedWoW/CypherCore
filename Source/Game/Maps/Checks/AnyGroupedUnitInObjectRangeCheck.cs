@@ -18,12 +18,12 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
 
 	public AnyGroupedUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
 	{
-		_source           = obj;
-		_refUnit          = funit;
-		_range            = range;
-		_raid             = raid;
-		_playerOnly       = playerOnly;
-		_incOwnRadius    = incOwnRadius;
+		_source = obj;
+		_refUnit = funit;
+		_range = range;
+		_raid = raid;
+		_playerOnly = playerOnly;
+		_incOwnRadius = incOwnRadius;
 		_incTargetRadius = incTargetRadius;
 	}
 

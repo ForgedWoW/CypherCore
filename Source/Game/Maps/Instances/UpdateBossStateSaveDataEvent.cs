@@ -15,7 +15,7 @@ public struct UpdateBossStateSaveDataEvent
 	public UpdateBossStateSaveDataEvent(DungeonEncounterRecord dungeonEncounter, uint bossId, EncounterState state)
 	{
 		DungeonEncounter = dungeonEncounter;
-		BossId           = bossId;
-		NewState         = state;
+		BossId = bossId;
+		NewState = state;
 	}
 }

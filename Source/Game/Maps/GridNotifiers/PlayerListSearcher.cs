@@ -14,23 +14,23 @@ public class PlayerListSearcher : IGridNotifierPlayer
 	readonly List<Unit> _objects;
 	readonly ICheck<Player> _check;
 
+	public GridType GridType { get; set; }
+
 	public PlayerListSearcher(WorldObject searcher, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_objects    = objects;
-		_check      = check;
-		GridType     = gridType;
+		_objects = objects;
+		_check = check;
+		GridType = gridType;
 	}
 
 	public PlayerListSearcher(PhaseShift phaseShift, List<Unit> objects, ICheck<Player> check, GridType gridType = GridType.World)
 	{
 		_phaseShift = phaseShift;
-		_objects    = objects;
-		_check      = check;
-		GridType     = gridType;
+		_objects = objects;
+		_check = check;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Player> objs)
 	{

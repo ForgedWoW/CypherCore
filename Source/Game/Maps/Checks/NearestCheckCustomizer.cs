@@ -12,7 +12,7 @@ class NearestCheckCustomizer : NoopCheckCustomizer
 
 	public NearestCheckCustomizer(WorldObject obj, float range)
 	{
-		_obj   = obj;
+		_obj = obj;
 		_range = range;
 	}
 

@@ -15,8 +15,8 @@ public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T
 
 	public CreatureWithOptionsInObjectRangeCheck(WorldObject obj, T customizer, FindCreatureOptions args)
 	{
-		_obj        = obj;
-		_args       = args;
+		_obj = obj;
+		_args = args;
 		_customizer = customizer;
 	}
 

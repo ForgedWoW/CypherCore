@@ -19,11 +19,11 @@ public class Grid
 
 	public Grid(uint id, uint x, uint y, long expiry, bool unload = true)
 	{
-		_gridId               = id;
-		_gridX                = x;
-		_gridY                = y;
-		_gridInfo             = new GridInfo(expiry, unload);
-		_gridState            = GridState.Invalid;
+		_gridId = id;
+		_gridX = x;
+		_gridY = y;
+		_gridInfo = new GridInfo(expiry, unload);
+		_gridState = GridState.Invalid;
 		_gridObjectDataLoaded = false;
 
 		for (uint xx = 0; xx < MapConst.MaxCells; ++xx)
@@ -35,9 +35,7 @@ public class Grid
 		}
 	}
 
-	public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload)
-	{
-	}
+	public Grid(Cell cell, uint expiry, bool unload = true) : this(cell.GetId(), cell.GetGridX(), cell.GetGridY(), expiry, unload) { }
 
 	public GridCell GetGridCell(uint x, uint y)
 	{
@@ -121,10 +119,10 @@ public class Grid
 						SetGridState(GridState.Idle);
 
 						Log.outDebug(LogFilter.Maps,
-						             "Grid[{0}, {1}] on map {2} moved to IDLE state",
-						             GetX(),
-						             GetY(),
-						             map.GetId());
+									"Grid[{0}, {1}] on map {2} moved to IDLE state",
+									GetX(),
+									GetY(),
+									map.GetId());
 					}
 					else
 					{
@@ -138,10 +136,10 @@ public class Grid
 				SetGridState(GridState.Removal);
 
 				Log.outDebug(LogFilter.Maps,
-				             "Grid[{0}, {1}] on map {2} moved to REMOVAL state",
-				             GetX(),
-				             GetY(),
-				             map.GetId());
+							"Grid[{0}, {1}] on map {2} moved to REMOVAL state",
+							GetX(),
+							GetY(),
+							map.GetId());
 
 				break;
 			case GridState.Removal:
@@ -153,10 +151,10 @@ public class Grid
 						if (!map.UnloadGrid(this, false))
 						{
 							Log.outDebug(LogFilter.Maps,
-							             "Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
-							             GetX(),
-							             GetY(),
-							             map.GetId());
+										"Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
+										GetX(),
+										GetY(),
+										map.GetId());
 
 							map.ResetGridExpiry(this);
 						}

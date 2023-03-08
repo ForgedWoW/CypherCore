@@ -19,7 +19,7 @@ public class BattlegroundMap : Map
 
 	public override void InitVisibilityDistance()
 	{
-		VisibleDistance        = IsBattleArena() ? Global.WorldMgr.GetMaxVisibleDistanceInArenas() : Global.WorldMgr.GetMaxVisibleDistanceInBG();
+		VisibleDistance = IsBattleArena() ? Global.WorldMgr.GetMaxVisibleDistanceInArenas() : Global.WorldMgr.GetMaxVisibleDistanceInBG();
 		VisibilityNotifyPeriod = IsBattleArena() ? Global.WorldMgr.GetVisibilityNotifyPeriodInArenas() : Global.WorldMgr.GetVisibilityNotifyPeriodInBG();
 	}
 
@@ -49,10 +49,10 @@ public class BattlegroundMap : Map
 	public override void RemovePlayerFromMap(Player player, bool remove)
 	{
 		Log.outInfo(LogFilter.Maps,
-		            "MAP: Removing player '{0}' from bg '{1}' of map '{2}' before relocating to another map",
-		            player.GetName(),
-		            GetInstanceId(),
-		            GetMapName());
+					"MAP: Removing player '{0}' from bg '{1}' of map '{2}' before relocating to another map",
+					player.GetName(),
+					GetInstanceId(),
+					GetMapName());
 
 		base.RemovePlayerFromMap(player, remove);
 	}

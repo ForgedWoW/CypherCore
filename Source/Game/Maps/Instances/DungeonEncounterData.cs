@@ -6,11 +6,11 @@ namespace Game.Maps;
 public class DungeonEncounterData
 {
 	public uint BossId { get; set; }
-    public uint[] DungeonEncounterId { get; set; } = new uint[4];
+	public uint[] DungeonEncounterId { get; set; } = new uint[4];
 
 	public DungeonEncounterData(uint bossId, params uint[] dungeonEncounterIds)
 	{
-		BossId             = bossId;
+		BossId = bossId;
 		DungeonEncounterId = dungeonEncounterIds;
 	}
 }

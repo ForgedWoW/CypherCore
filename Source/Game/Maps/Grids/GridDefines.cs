@@ -19,12 +19,12 @@ public class GridDefines
 		return IsValidMapCoord(x) && IsValidMapCoord(y);
 	}
 
-    public static bool IsValidMapCoord(Position pos)
-    {
-        return IsValidMapCoord(pos.X, pos.Y) && IsValidMapCoord(pos.Z);
-    }
+	public static bool IsValidMapCoord(Position pos)
+	{
+		return IsValidMapCoord(pos.X, pos.Y) && IsValidMapCoord(pos.Z);
+	}
 
-    public static bool IsValidMapCoord(float x, float y, float z)
+	public static bool IsValidMapCoord(float x, float y, float z)
 	{
 		return IsValidMapCoord(x, y) && IsValidMapCoord(z);
 	}

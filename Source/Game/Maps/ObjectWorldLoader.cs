@@ -17,16 +17,16 @@ class ObjectWorldLoader : IGridNotifierCorpse
 	readonly Map i_map;
 	readonly Grid i_grid;
 
+	public GridType GridType { get; set; }
+
 	public ObjectWorldLoader(ObjectGridLoaderBase gloader, GridType gridType)
 	{
-		i_cell    = gloader.i_cell;
-		i_map     = gloader.i_map;
-		i_grid    = gloader.i_grid;
+		i_cell = gloader.i_cell;
+		i_map = gloader.i_map;
+		i_grid = gloader.i_grid;
 		i_corpses = gloader.i_corpses;
-		GridType  = gridType;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<Corpse> objs)
 	{

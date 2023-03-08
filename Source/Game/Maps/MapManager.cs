@@ -49,13 +49,13 @@ public class MapManager : Singleton<MapManager>
 	}
 
 	/// <summary>
-	/// create the instance if it's not created already
-	/// the player is not actually added to the instance(only in InstanceMap::Add)
+	///  create the instance if it's not created already
+	///  the player is not actually added to the instance(only in InstanceMap::Add)
 	/// </summary>
-	/// <param name="mapId"></param>
-	/// <param name="player"></param>
-	/// <param name="loginInstanceId"></param>
-	/// <returns>the right instance for the object, based on its InstanceId</returns>
+	/// <param name="mapId"> </param>
+	/// <param name="player"> </param>
+	/// <param name="loginInstanceId"> </param>
+	/// <returns> the right instance for the object, based on its InstanceId </returns>
 	public Map CreateMap(uint mapId, Player player)
 	{
 		if (!player)
@@ -151,7 +151,7 @@ public class MapManager : Singleton<MapManager>
 			else if (entry.IsGarrison())
 			{
 				newInstanceId = (uint)player.GetGUID().GetCounter();
-				map           = FindMap_i(mapId, newInstanceId);
+				map = FindMap_i(mapId, newInstanceId);
 
 				if (!map)
 					map = CreateGarrison(mapId, newInstanceId, player);
@@ -263,7 +263,7 @@ public class MapManager : Singleton<MapManager>
 		_updater.Wait();
 		_maps.ExecuteRemove();
 
-        foreach (var kvp in _maps.Values)
+		foreach (var kvp in _maps.Values)
 			foreach (var map in kvp.Values)
 				map.DelayedUpdate(time);
 
@@ -279,12 +279,12 @@ public class MapManager : Singleton<MapManager>
 	{
 		// first unload maps
 		foreach (var pair in _maps.Values)
-            foreach (var map in pair.Values)
-                map.UnloadAll();
+			foreach (var map in pair.Values)
+				map.UnloadAll();
 
 		foreach (var pair in _maps.Values)
-            foreach (var map in pair.Values)
-                map.Dispose();
+			foreach (var map in pair.Values)
+				map.Dispose();
 
 		_maps.Clear();
 
@@ -366,9 +366,9 @@ public class MapManager : Singleton<MapManager>
 
 		if (nextFreeId == -1)
 		{
-			_nextInstanceId                        =  (uint)_freeInstanceIds.Length;
-			_freeInstanceIds.Length                += 1;
-			_freeInstanceIds[(int)_nextInstanceId] =  true;
+			_nextInstanceId = (uint)_freeInstanceIds.Length;
+			_freeInstanceIds.Length += 1;
+			_freeInstanceIds[(int)_nextInstanceId] = true;
 		}
 		else
 		{
@@ -381,7 +381,7 @@ public class MapManager : Singleton<MapManager>
 	public void FreeInstanceId(uint instanceId)
 	{
 		// If freed instance id is lower than the next id available for new instances, use the freed one instead
-		_nextInstanceId                   = Math.Min(instanceId, _nextInstanceId);
+		_nextInstanceId = Math.Min(instanceId, _nextInstanceId);
 		_freeInstanceIds[(int)instanceId] = true;
 	}
 
@@ -428,8 +428,8 @@ public class MapManager : Singleton<MapManager>
 		{
 			if (_maps.TryGetValue(mapId, out var instanceDict))
 				foreach (var kvp in instanceDict)
-						if (kvp.Key >= 0)
-							worker(kvp.Value);
+					if (kvp.Key >= 0)
+						worker(kvp.Value);
 		}
 	}
 

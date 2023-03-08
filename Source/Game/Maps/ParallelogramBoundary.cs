@@ -20,10 +20,10 @@ public class ParallelogramBoundary : AreaBoundary
 	// Note: AB must be orthogonal to AD
 	public ParallelogramBoundary(Position cornerA, Position cornerB, Position cornerD, bool isInverted = false) : base(isInverted)
 	{
-		_a   = new DoublePosition(cornerA);
-		_b   = new DoublePosition(cornerB);
-		_d   = new DoublePosition(cornerD);
-		_c   = new DoublePosition(_d.GetDoublePositionX() + (_b.GetDoublePositionX() - _a.GetDoublePositionX()), _d.GetDoublePositionY() + (_b.GetDoublePositionY() - _a.GetDoublePositionY()));
+		_a = new DoublePosition(cornerA);
+		_b = new DoublePosition(cornerB);
+		_d = new DoublePosition(cornerD);
+		_c = new DoublePosition(_d.GetDoublePositionX() + (_b.GetDoublePositionX() - _a.GetDoublePositionX()), _d.GetDoublePositionY() + (_b.GetDoublePositionY() - _a.GetDoublePositionY()));
 		_abx = _b.GetDoublePositionX() - _a.GetDoublePositionX();
 		_dax = _a.GetDoublePositionX() - _d.GetDoublePositionX();
 		_aby = _b.GetDoublePositionY() - _a.GetDoublePositionY();

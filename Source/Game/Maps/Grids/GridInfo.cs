@@ -13,18 +13,18 @@ public class GridInfo
 
 	public GridInfo()
 	{
-		_timer                 = new TimeTracker(0);
-		_visUpdate             = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
+		_timer = new TimeTracker(0);
+		_visUpdate = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
 		_unloadActiveLockCount = 0;
-		_unloadExplicitLock    = false;
+		_unloadExplicitLock = false;
 	}
 
 	public GridInfo(long expiry, bool unload = true)
 	{
-		_timer                 = new TimeTracker((uint)expiry);
-		_visUpdate             = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
+		_timer = new TimeTracker((uint)expiry);
+		_visUpdate = new PeriodicTimer(0, RandomHelper.IRand(0, 1000));
 		_unloadActiveLockCount = 0;
-		_unloadExplicitLock    = !unload;
+		_unloadExplicitLock = !unload;
 	}
 
 	public TimeTracker GetTimeTracker()

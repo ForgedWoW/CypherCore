@@ -14,15 +14,15 @@ public class GameObjectListSearcher : IGridNotifierGameObject
 	readonly List<GameObject> _objects;
 	readonly ICheck<GameObject> _check;
 
+	public GridType GridType { get; set; }
+
 	public GameObjectListSearcher(WorldObject searcher, List<GameObject> objects, ICheck<GameObject> check, GridType gridType)
 	{
 		_phaseShift = searcher.GetPhaseShift();
-		_objects    = objects;
-		_check      = check;
-		GridType     = gridType;
+		_objects = objects;
+		_check = check;
+		GridType = gridType;
 	}
-
-	public GridType GridType { get; set; }
 
 	public void Visit(IList<GameObject> objs)
 	{
