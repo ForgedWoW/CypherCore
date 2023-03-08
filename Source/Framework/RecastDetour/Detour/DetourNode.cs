@@ -222,7 +222,8 @@ public partial class Detour
 
         public void clear()
         {
-            m_size = 0;
+            lock (_lock)
+                m_size = 0;
         }
 
         public dtNode top()
@@ -266,7 +267,8 @@ public partial class Detour
 
         public bool empty()
         {
-            return m_size == 0;
+            lock (_lock)
+                return m_size == 0;
         }
 
         public int getMemUsed()
