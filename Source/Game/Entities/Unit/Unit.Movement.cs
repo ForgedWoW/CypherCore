@@ -136,7 +136,7 @@ public partial class Unit
 
 			if (!IsInCombat)
 			{
-				var pet = AsPlayer.GetPet();
+				var pet = AsPlayer.CurrentPet;
 
 				if (pet)
 					pet.SetSpeedRate(mtype, SpeedRate[(int)mtype]);
@@ -1397,7 +1397,7 @@ public partial class Unit
 				}
 
 			// unsummon pet
-			var pet = player.GetPet();
+			var pet = player.CurrentPet;
 
 			if (pet != null)
 			{
@@ -1450,7 +1450,7 @@ public partial class Unit
 
 		if (player != null)
 		{
-			var pPet = player.GetPet();
+			var pPet = player.CurrentPet;
 
 			if (pPet != null)
 			{

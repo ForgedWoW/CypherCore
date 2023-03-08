@@ -731,7 +731,7 @@ public partial class Player
 		{
 			case TypeId.Unit:
 				PlayerTalkClass.ClearMenus();
-				questGiver.AsCreature.				AI.OnQuestAccept(this, quest);
+				questGiver.AsCreature.AI.OnQuestAccept(this, quest);
 
 				break;
 			case TypeId.Item:
@@ -1297,7 +1297,7 @@ public partial class Player
 						var creatureQGiver = questGiver.AsCreature;
 
 						if (creatureQGiver != null)
-							creatureQGiver.							AI.OnQuestReward(this, quest, rewardType, rewardId);
+							creatureQGiver.AI.OnQuestReward(this, quest, rewardType, rewardId);
 
 						break;
 					}
@@ -2270,12 +2270,12 @@ public partial class Player
 
 	public void GroupEventHappens(uint questId, WorldObject pEventObject)
 	{
-		var group = GetGroup();
+		var group = Group;
 
 		if (group)
-			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+			for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 			{
-				var player = refe.GetSource();
+				var player = refe.Source;
 
 				// for any leave or dead (with not released body) group member at appropriate distance
 				if (player && player.IsAtGroupRewardDistance(pEventObject) && !player.GetCorpse())
@@ -2388,7 +2388,7 @@ public partial class Player
 			var quest = Global.ObjectMgr.GetQuestTemplate(questId);
 
 			if (!QuestObjective.CanAlwaysBeProgressedInRaid(objectiveType))
-				if (GetGroup() && GetGroup().IsRaidGroup() && quest.IsAllowedInRaid(Map.GetDifficultyID()))
+				if (Group && Group.IsRaidGroup && quest.IsAllowedInRaid(Map.GetDifficultyID()))
 					continue;
 
 			var logSlot = objectiveStatusData.QuestStatusPair.Status.Slot;
@@ -2521,7 +2521,7 @@ public partial class Player
 				continue;
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
+			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 
@@ -2538,7 +2538,7 @@ public partial class Player
 			var qInfo = Global.ObjectMgr.GetQuestTemplate(questStatus.Key);
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
+			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground())
 					continue;
 
@@ -3001,7 +3001,7 @@ public partial class Player
 				continue;
 
 			// hide quest if player is in raid-group and quest is no raid quest
-			if (GetGroup() && GetGroup().IsRaidGroup() && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
+			if (Group && Group.IsRaidGroup && !qInfo.IsAllowedInRaid(Map.GetDifficultyID()))
 				if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
 					continue;
 

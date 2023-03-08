@@ -140,7 +140,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		const double StaggerHeavy = 0.6f;
 		const double StaggerModerate = 0.3f;
 
-		var staggerPct = amount / unit.GetMaxHealth();
+		var staggerPct = amount / unit.MaxHealth;
 
 		return (staggerPct >= StaggerHeavy)     ? MonkSpells.StaggerHeavy :
 				(staggerPct >= StaggerModerate) ? MonkSpells.StaggerModerate :

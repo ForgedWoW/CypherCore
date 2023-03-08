@@ -43,19 +43,19 @@ public class spell_dh_nether_bond_periodic : AuraScript, IHasAuraEffects
 		long targetHealBp = 0;
 		long targetDamageBp = 0;
 
-		var casterHp = caster.GetHealthPct();
-		var targetHp = m_BondUnit.GetHealthPct();
+		var casterHp = caster.HealthPct;
+		var targetHp = m_BondUnit.HealthPct;
 		var healthPct = (casterHp + targetHp) / 2.0f;
 
 		if (casterHp < targetHp)
 		{
-			casterHealBp = caster.CountPctFromMaxHealth(healthPct) - caster.GetHealth();
-			targetDamageBp = m_BondUnit.GetHealth() - m_BondUnit.CountPctFromMaxHealth(healthPct);
+			casterHealBp = caster.CountPctFromMaxHealth(healthPct) - caster.Health;
+			targetDamageBp = m_BondUnit.Health - m_BondUnit.CountPctFromMaxHealth(healthPct);
 		}
 		else
 		{
-			casterDamageBp = caster.GetHealth() - caster.CountPctFromMaxHealth(healthPct);
-			targetHealBp = m_BondUnit.CountPctFromMaxHealth(healthPct) - m_BondUnit.GetHealth();
+			casterDamageBp = caster.Health - caster.CountPctFromMaxHealth(healthPct);
+			targetHealBp = m_BondUnit.CountPctFromMaxHealth(healthPct) - m_BondUnit.Health;
 		}
 
 		caster.CastSpell(caster, DemonHunterSpells.NETHER_BOND_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, casterDamageBp).AddSpellMod(SpellValueMod.BasePoint1, casterHealBp));

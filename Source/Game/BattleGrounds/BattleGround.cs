@@ -883,7 +883,7 @@ namespace Game.BattleGrounds
                 }
 
                 // remove from raid group if player is member
-                Group group = GetBgRaid(team);
+                PlayerGroup group = GetBgRaid(team);
                 if (group)
                 {
                     if (!group.RemoveMember(guid))                // group was disbanded
@@ -1090,10 +1090,10 @@ namespace Game.BattleGrounds
         public void AddOrSetPlayerToCorrectBgGroup(Player player, TeamFaction team)
         {
             ObjectGuid playerGuid = player.GUID;
-            Group group = GetBgRaid(team);
+            PlayerGroup group = GetBgRaid(team);
             if (!group)                                      // first player joined
             {
-                group = new Group();
+                group = new PlayerGroup();
                 SetBgRaid(team, group);
                 group.Create(player);
             }
@@ -1107,7 +1107,7 @@ namespace Game.BattleGrounds
                 else
                 {
                     group.AddMember(player);
-                    Group originalGroup = player.GetOriginalGroup();
+                    PlayerGroup originalGroup = player.OriginalGroup;
                     if (originalGroup)
                         if (originalGroup.IsLeader(playerGuid))
                         {
@@ -1820,9 +1820,9 @@ namespace Game.BattleGrounds
             return -1;
         }
 
-        void SetBgRaid(TeamFaction team, Group bg_raid)
+        void SetBgRaid(TeamFaction team, PlayerGroup bg_raid)
         {
-            Group old_raid = m_BgRaids[GetTeamIndexByTeamId(team)];
+            PlayerGroup old_raid = m_BgRaids[GetTeamIndexByTeamId(team)];
             if (old_raid)
                 old_raid.SetBattlegroundGroup(null);
             if (bg_raid)
@@ -1880,7 +1880,7 @@ namespace Game.BattleGrounds
 
         public string GetName()
         {
-            return _battlegroundTemplate.BattlemasterEntry.Name[Global.WorldMgr.GetDefaultDbcLocale()];
+            return _battlegroundTemplate.BattlemasterEntry.Name[Global.WorldMgr.DefaultDbcLocale];
         }
 
         public BattlegroundTypeId GetTypeID(bool getRandom = false)
@@ -2011,7 +2011,7 @@ namespace Game.BattleGrounds
         public void SetBgMap(BattlegroundMap map) { m_Map = map; }
         BattlegroundMap FindBgMap() { return m_Map; }
 
-        Group GetBgRaid(TeamFaction team) { return m_BgRaids[GetTeamIndexByTeamId(team)]; }
+        PlayerGroup GetBgRaid(TeamFaction team) { return m_BgRaids[GetTeamIndexByTeamId(team)]; }
 
         public static int GetTeamIndexByTeamId(TeamFaction team) { return team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde; }
         public uint GetPlayersCountByTeam(TeamFaction team) { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
@@ -2137,7 +2137,7 @@ namespace Game.BattleGrounds
         uint m_InvitedHorde;
 
         // Raid Group
-        readonly Group[] m_BgRaids = new Group[SharedConst.PvpTeamsCount];                   // 0 - Team.Alliance, 1 - Team.Horde
+        readonly PlayerGroup[] m_BgRaids = new PlayerGroup[SharedConst.PvpTeamsCount];                   // 0 - Team.Alliance, 1 - Team.Horde
 
         // Players count by team
         readonly uint[] m_PlayersCount = new uint[SharedConst.PvpTeamsCount];

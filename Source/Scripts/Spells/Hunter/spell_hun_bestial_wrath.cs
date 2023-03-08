@@ -19,7 +19,7 @@ public class spell_hun_bestial_wrath : SpellScript, ISpellOnCast
 
 			if (player != null)
 			{
-				var pet = player.GetPet();
+				var pet = player.CurrentPet;
 
 				if (pet != null)
 					pet.AddAura(19574, pet);

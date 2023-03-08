@@ -31,7 +31,7 @@ public class spell_warlock_use_soulstone : SpellScript, IHasSpellEffects
 		var originalCaster = OriginalCaster;
 
 		// already have one active request
-		if (player.IsResurrectRequested())
+		if (player.IsResurrectRequested)
 			return;
 
 		var healthPct = SpellInfo.GetEffect(1).CalcValue(originalCaster);

@@ -39,7 +39,7 @@ namespace Game.Chat
                 {
                     string name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[loc];
                     if (name.IsEmpty())
-                        name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[Global.WorldMgr.GetDefaultDbcLocale()];
+                        name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[Global.WorldMgr.DefaultDbcLocale];
                     if (name.IsEmpty())
                         continue;
 
@@ -84,7 +84,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                if (ObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : Global.WorldMgr.GetDefaultDbcLocale(), true) != ResponseCodes.CharNameSuccess)
+                if (ObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
                 {
                     handler.SendSysMessage(CypherStrings.BadValue);
                     return false;

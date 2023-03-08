@@ -76,7 +76,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 						maxHealthPct = demonskinBonus;
 
 					var args = new CastSpellExtraArgs(true);
-					finalAmount = Math.Min(finalAmount, (uint)MathFunctions.CalculatePct(target.GetMaxHealth(), maxHealthPct));
+					finalAmount = Math.Min(finalAmount, (uint)MathFunctions.CalculatePct(target.MaxHealth, maxHealthPct));
 
 					args.SpellValueOverrides.Add(SpellValueMod.BasePoint0, (int)finalAmount);
 					args.SpellValueOverrides.Add(SpellValueMod.BasePoint1, (int)finalAmount);

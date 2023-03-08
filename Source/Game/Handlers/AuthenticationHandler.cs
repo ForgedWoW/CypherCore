@@ -22,10 +22,10 @@ namespace Game
                 response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
                 response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion;
                 response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion;
-                response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
                 response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
 
-                var realm = Global.WorldMgr.GetRealm();
+                var realm = Global.WorldMgr.Realm;
 
                 // Send current home realm. Also there is no need to send it later in realm queries.
                 response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));

@@ -43,7 +43,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 
 	public double GetPointsGained(Player caster, double damage)
 	{
-		var damagePct = damage / caster.GetMaxHealth() * 100.0f / 2;
+		var damagePct = damage / caster.MaxHealth * 100.0f / 2;
 		var max = SpellInfo.GetEffect(0).BasePoints;
 
 		if (damagePct > max)

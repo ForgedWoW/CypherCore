@@ -463,13 +463,10 @@ public partial class Unit
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BaseHealth), val);
 	}
 
-	public long GetHealth()
-	{
-		return UnitData.Health;
-	}
+    public long Health => UnitData.Health;
 
 
-	public void SetHealth(float val)
+    public void SetHealth(float val)
 	{
 		SetHealth((long)val);
 	}
@@ -501,13 +498,13 @@ public partial class Unit
 		}
 		else
 		{
-			var maxHealth = GetMaxHealth();
+			var maxHealth = MaxHealth;
 
 			if (maxHealth < val)
 				val = maxHealth;
 		}
 
-		var oldVal = GetHealth();
+		var oldVal = Health;
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Health), val);
 
 		TriggerOnHealthChangeAuras(oldVal, val);
@@ -517,7 +514,7 @@ public partial class Unit
 
 		if (player)
 		{
-			if (player.GetGroup())
+			if (player.Group)
 				player.SetGroupUpdateFlag(GroupUpdateFlags.CurHp);
 		}
 		else if (IsPet)
@@ -529,12 +526,9 @@ public partial class Unit
 		}
 	}
 
-	public long GetMaxHealth()
-	{
-		return UnitData.MaxHealth;
-	}
+    public long MaxHealth => UnitData.MaxHealth;
 
-	public void SetMaxHealth(double val)
+    public void SetMaxHealth(double val)
 	{
 		SetMaxHealth((long)val);
 	}
@@ -545,12 +539,12 @@ public partial class Unit
 			val = 1;
 
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MaxHealth), val);
-		var health = GetHealth();
+		var health = Health;
 
 		// group update
 		if (IsTypeId(TypeId.Player))
 		{
-			if (AsPlayer.GetGroup())
+			if (AsPlayer.Group)
 				AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxHp);
 		}
 		else if (IsPet)
@@ -565,64 +559,58 @@ public partial class Unit
 			SetHealth(val);
 	}
 
-	public float GetHealthPct()
+    public float HealthPct => MaxHealth != 0 ? 100.0f * Health / MaxHealth : 0.0f;
+
+    public void SetFullHealth()
 	{
-		return GetMaxHealth() != 0 ? 100.0f * GetHealth() / GetMaxHealth() : 0.0f;
+		SetHealth(MaxHealth);
 	}
 
-	public void SetFullHealth()
-	{
-		SetHealth(GetMaxHealth());
-	}
+    public bool IsFullHealth => Health == MaxHealth;
 
-	public bool IsFullHealth()
+    public bool HealthBelowPct(double pct)
 	{
-		return GetHealth() == GetMaxHealth();
-	}
-
-	public bool HealthBelowPct(double pct)
-	{
-		return GetHealth() < CountPctFromMaxHealth(pct);
+		return Health < CountPctFromMaxHealth(pct);
 	}
 
 	public bool HealthBelowPct(int pct)
 	{
-		return GetHealth() < CountPctFromMaxHealth(pct);
+		return Health < CountPctFromMaxHealth(pct);
 	}
 
 	public bool HealthBelowPctDamaged(int pct, double damage)
 	{
-		return GetHealth() - damage < CountPctFromMaxHealth(pct);
+		return Health - damage < CountPctFromMaxHealth(pct);
 	}
 
 	public bool HealthBelowPctDamaged(double pct, double damage)
 	{
-		return GetHealth() - damage < CountPctFromMaxHealth(pct);
+		return Health - damage < CountPctFromMaxHealth(pct);
 	}
 
 	public bool HealthAbovePct(double pct)
 	{
-		return GetHealth() > CountPctFromMaxHealth(pct);
+		return Health > CountPctFromMaxHealth(pct);
 	}
 
 	public bool HealthAbovePct(int pct)
 	{
-		return GetHealth() > CountPctFromMaxHealth(pct);
+		return Health > CountPctFromMaxHealth(pct);
 	}
 
 	public long CountPctFromMaxHealth(double pct)
 	{
-		return MathFunctions.CalculatePct(GetMaxHealth(), pct);
+		return MathFunctions.CalculatePct(MaxHealth, pct);
 	}
 
 	public long CountPctFromMaxHealth(int pct)
 	{
-		return MathFunctions.CalculatePct(GetMaxHealth(), pct);
+		return MathFunctions.CalculatePct(MaxHealth, pct);
 	}
 
 	public long CountPctFromCurHealth(double pct)
 	{
-		return MathFunctions.CalculatePct(GetHealth(), pct);
+		return MathFunctions.CalculatePct(Health, pct);
 	}
 
 	public int CountPctFromMaxPower(PowerType power, double pct)
@@ -645,15 +633,12 @@ public partial class Unit
 		return 1.0f;
 	}
 
-	//Powers
-	public PowerType GetPowerType()
-	{
-		return (PowerType)(byte)UnitData.DisplayPower;
-	}
+    //Powers
+    public PowerType DisplayPowerType => (PowerType)(byte)UnitData.DisplayPower;
 
-	public void SetPowerType(PowerType powerType, bool sendUpdate = true)
+    public void SetPowerType(PowerType powerType, bool sendUpdate = true)
 	{
-		if (GetPowerType() == powerType)
+		if (DisplayPowerType == powerType)
 			return;
 
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayPower), (byte)powerType);
@@ -664,7 +649,7 @@ public partial class Unit
 		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
-			if (thisPlayer.GetGroup())
+			if (thisPlayer.Group)
 				thisPlayer.SetGroupUpdateFlag(GroupUpdateFlags.PowerType);
 		/*else if (IsPet()) TODO 6.x
 		{
@@ -712,7 +697,7 @@ public partial class Unit
 
 		// group update
 		if (IsTypeId(TypeId.Player))
-			if (AsPlayer.GetGroup())
+			if (AsPlayer.Group)
 				AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxPower);
 		/*else if (IsPet()) TODO 6.x
 		{
@@ -765,7 +750,7 @@ public partial class Unit
 
 		// group update
 		if (IsTypeId(TypeId.Player))
-			if (player.GetGroup())
+			if (player.Group)
 				player.SetGroupUpdateFlag(GroupUpdateFlags.CurPower);
 		/*else if (IsPet()) TODO 6.x
 		{

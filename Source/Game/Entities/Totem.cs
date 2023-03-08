@@ -131,12 +131,12 @@ public class Totem : Minion
 			if (spell != null)
 				GetSpellHistory().SendCooldownEvent(spell, 0, null, false);
 
-			var group = owner.GetGroup();
+			var group = owner.Group;
 
 			if (group)
-				for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+				for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 				{
-					var target = refe.GetSource();
+					var target = refe.Source;
 
 					if (target && target.IsInMap(owner) && group.SameSubGroup(owner, target))
 						target.RemoveAurasDueToSpell(GetSpell(), GUID);

@@ -82,7 +82,7 @@ public class RASocket : ISocket
 		Log.outInfo(LogFilter.CommandsRA, $"User {userName} (IP: {_remoteAddress}) authenticated correctly to RA");
 
 		// Authentication successful, send the motd
-		foreach (var line in Global.WorldMgr.GetMotd())
+		foreach (var line in Global.WorldMgr.Motd)
 			Send(line);
 
 		Send("\r\n");

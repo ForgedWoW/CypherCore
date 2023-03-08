@@ -98,7 +98,7 @@ namespace Game
                 return;
             }
 
-            if (pet != Player.GetPet() && pet != Player.Charmed)
+            if (pet != Player.CurrentPet && pet != Player.Charmed)
             {
                 Log.outError(LogFilter.Network, "HandlePetStopAttack: {0} isn't a pet or charmed creature of player {1}", packet.PetGUID.ToString(), Player.GetName());
                 return;
@@ -522,7 +522,7 @@ namespace Game
             bool isdeclined = packet.RenameData.HasDeclinedNames;
             string name = packet.RenameData.NewName;
 
-            PetStable petStable = _player.GetPetStable();
+            PetStable petStable = _player.PetStable1;
             Pet pet = ObjectAccessor.GetPet(Player, petguid);
             // check it!
             if (!pet || !pet.IsPet || pet.AsPet.GetPetType() != PetType.Hunter || !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
@@ -752,7 +752,7 @@ namespace Game
             // Handle the packet CMSG_REQUEST_PET_INFO - sent when player does ingame /reload command
 
             // Packet sent when player has a pet
-            if (_player.GetPet())
+            if (_player.CurrentPet)
                 _player.PetSpellInitialize();
             else
             {

@@ -94,14 +94,14 @@ namespace Game
                 bool shareMoney = loot.loot_type == LootType.Corpse;
 
                 loot.NotifyMoneyRemoved(player.Map);
-                if (shareMoney && player.GetGroup() != null)      //item, pickpocket and players can be looted only single player
+                if (shareMoney && player.Group != null)      //item, pickpocket and players can be looted only single player
                 {
-                    Group group = player.GetGroup();
+                    PlayerGroup group = player.Group;
 
                     List<Player> playersNear = new();
-                    for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                    for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                     {
-                        Player member = refe.GetSource();
+                        Player member = refe.Source;
                         if (!member)
                             continue;
 
@@ -384,7 +384,7 @@ namespace Game
         {
             AELootResult aeResult = new();
 
-            if (Player.GetGroup() == null || Player.GetGroup().GetLooterGuid() != Player.GUID)
+            if (Player.Group == null || Player.Group.LooterGuid != Player.GUID)
             {
                 Player.SendLootError(ObjectGuid.Empty, ObjectGuid.Empty, LootError.DidntKill);
                 return;

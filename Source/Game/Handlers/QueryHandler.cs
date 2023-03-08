@@ -350,7 +350,7 @@ namespace Game
             {
                 realmQueryResponse.LookupState = (byte)ResponseCodes.Success;
                 realmQueryResponse.NameInfo.IsInternalRealm = false;
-                realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.GetRealm().Id.GetAddress();
+                realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.Realm.Id.GetAddress();
             }
             else
                 realmQueryResponse.LookupState = (byte)ResponseCodes.Failure;

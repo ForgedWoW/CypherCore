@@ -29,7 +29,7 @@ public class spell_warl_demon_skin : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var absorb = (aurEff.Amount / 10.0f) * caster.GetMaxHealth() / 100.0f;
+		var absorb = (aurEff.Amount / 10.0f) * caster.MaxHealth / 100.0f;
 
 		// Add remaining amount if already applied
 		var soulLeechShield = caster.GetAuraEffect(WarlockSpells.SOUL_LEECH_SHIELD, 0);

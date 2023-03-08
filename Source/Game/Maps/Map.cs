@@ -100,7 +100,7 @@ public class Map : IDisposable
 
 		_threadManager.Schedule(() => Global.TransportMgr.CreateTransportsForMap(this));
 
-		_threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.GetDataPath(), GetId(), InstanceId));
+		_threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, GetId(), InstanceId));
 
 		_worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
 
@@ -167,8 +167,8 @@ public class Map : IDisposable
 	public virtual void InitVisibilityDistance()
 	{
 		//init visibility for continents
-		VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceOnContinents();
-		VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodOnContinents();
+		VisibleDistance = Global.WorldMgr.MaxVisibleDistanceOnContinents;
+		VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodOnContinents;
 	}
 
 	public void AddToGrid<T>(T obj, Cell cell) where T : WorldObject
@@ -1292,10 +1292,10 @@ public class Map : IDisposable
 				return abortParams;
 		}
 
-		var group = player.GetGroup();
+		var group = player.Group;
 
 		if (entry.IsRaid() && (int)entry.Expansion() >= WorldConfig.GetIntValue(WorldCfg.Expansion)) // can only enter in a raid group but raids from old expansion don't need a group
-			if ((!group || !group.IsRaidGroup()) && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid))
+			if ((!group || !group.IsRaidGroup) && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid))
 				return new TransferAbortParams(TransferAbortReason.NeedGroup);
 
 		if (entry.Instanceable())
@@ -1322,7 +1322,7 @@ public class Map : IDisposable
 
 	public string GetMapName()
 	{
-		return _mapRecord.MapName[Global.WorldMgr.GetDefaultDbcLocale()];
+		return _mapRecord.MapName[Global.WorldMgr.DefaultDbcLocale];
 	}
 
 	public void SendInitSelf(Player player)

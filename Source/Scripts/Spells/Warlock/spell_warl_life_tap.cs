@@ -17,7 +17,7 @@ public class spell_warl_life_tap : SpellScript, IHasSpellEffects, ISpellCheckCas
 
 	public SpellCastResult CheckCast()
 	{
-		if (Caster.GetHealthPct() > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
+		if (Caster.HealthPct > 15.0f || Caster.HasAura(lifeTap.LIFE_TAP_GLYPH))
 			return SpellCastResult.SpellCastOk;
 
 		return SpellCastResult.Fizzle;

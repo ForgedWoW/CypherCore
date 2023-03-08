@@ -31,7 +31,7 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		var unit = Target;
-		_health = unit.GetHealth();
+		_health = unit.Health;
 		_pos = new Position(unit.Location);
 	}
 

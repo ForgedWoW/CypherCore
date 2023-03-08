@@ -72,7 +72,7 @@ public class npc_defias_watcher : ScriptedAI
 		if (!me || damage <= 0 || Status == true)
 			return;
 
-		if (me.GetHealth() - damage <= me.GetMaxHealth() * 0.10)
+		if (me.Health - damage <= me.MaxHealth * 0.10)
 		{
 			damage = 0;
 			Energizing();

@@ -1824,7 +1824,7 @@ public partial class Unit : WorldObject
 			// without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
 			// do not why since in IncreaseMaxHealth currenthealth is checked
 			SetHealth(0);
-			SetPower(GetPowerType(), 0);
+			SetPower(DisplayPowerType, 0);
 			EmoteState = Emote.OneshotNone;
 
 			// players in instance don't have ZoneScript, but they have InstanceScript
@@ -2093,7 +2093,7 @@ public partial class Unit : WorldObject
 
 		if (player != null)
 		{
-			if (player.GetGroup())
+			if (player.Group)
 				player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
 
 			Global.CharacterCacheStorage.UpdateCharacterLevel(AsPlayer.GUID, (byte)lvl);
@@ -2543,21 +2543,21 @@ public partial class Unit : WorldObject
 	public void GetPartyMembers(List<Unit> TagUnitMap)
 	{
 		var owner = CharmerOrOwnerOrSelf;
-		Group group = null;
+		PlayerGroup group = null;
 
 		if (owner.TypeId == TypeId.Player)
-			group = owner.AsPlayer.GetGroup();
+			group = owner.AsPlayer.Group;
 
 		if (group != null)
 		{
-			var subgroup = owner.AsPlayer.GetSubGroup();
+			var subgroup = owner.AsPlayer.SubGroup;
 
-			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+			for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 			{
-				var target = refe.GetSource();
+				var target = refe.Source;
 
 				// IsHostileTo check duel and controlled by enemy
-				if (target != null && target.IsInMap(owner) && target.GetSubGroup() == subgroup && !IsHostileTo(target))
+				if (target != null && target.IsInMap(owner) && target.SubGroup == subgroup && !IsHostileTo(target))
 				{
 					if (target.IsAlive)
 						TagUnitMap.Add(target);
@@ -2924,7 +2924,7 @@ public partial class Unit : WorldObject
 		}
 
 		// Rage from Damage made (only from direct weapon damage)
-		if (attacker != null && cleanDamage != null && (cleanDamage.AttackType == WeaponAttackType.BaseAttack || cleanDamage.AttackType == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.GetPowerType() == PowerType.Rage)
+		if (attacker != null && cleanDamage != null && (cleanDamage.AttackType == WeaponAttackType.BaseAttack || cleanDamage.AttackType == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.DisplayPowerType == PowerType.Rage)
 		{
 			var rage = (uint)(attacker.GetBaseAttackTime(cleanDamage.AttackType) / 1000.0f * 1.75f);
 
@@ -2937,7 +2937,7 @@ public partial class Unit : WorldObject
 		if (damageDone == 0)
 			return 0;
 
-		var health = (uint)victim.GetHealth();
+		var health = (uint)victim.Health;
 
 		// duel ends when player has 1 or less hp
 		var duel_hasEnded = false;
@@ -3226,7 +3226,7 @@ public partial class Unit : WorldObject
 		if (dVal == 0)
 			return 0;
 
-		var curHealth = (long)GetHealth();
+		var curHealth = (long)Health;
 
 		var val = dVal + curHealth;
 
@@ -3237,7 +3237,7 @@ public partial class Unit : WorldObject
 			return -curHealth;
 		}
 
-		var maxHealth = (long)GetMaxHealth();
+		var maxHealth = (long)MaxHealth;
 
 		if (val < maxHealth)
 		{
@@ -3254,7 +3254,7 @@ public partial class Unit : WorldObject
 		{
 			HealthUpdate packet = new();
 			packet.Guid = GUID;
-			packet.Health = GetHealth();
+			packet.Health = Health;
 
 			var player = CharmerOrOwnerPlayerOrPlayerItself;
 
@@ -3277,14 +3277,14 @@ public partial class Unit : WorldObject
 		if (dVal == 0)
 			return 0;
 
-		var curHealth = (long)GetHealth();
+		var curHealth = (long)Health;
 
 		var val = dVal + curHealth;
 
 		if (val <= 0)
 			return -curHealth;
 
-		var maxHealth = (long)GetMaxHealth();
+		var maxHealth = (long)MaxHealth;
 
 		if (val < maxHealth)
 			gain = dVal;
@@ -3446,7 +3446,7 @@ public partial class Unit : WorldObject
 		if (player == null)
 			return null;
 
-		var group = player.GetGroup();
+		var group = player.Group;
 
 		// When there is no group check pet presence
 		if (!group)
@@ -3468,9 +3468,9 @@ public partial class Unit : WorldObject
 		List<Unit> nearMembers = new();
 		// reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
 
-		for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+		for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 		{
-			var target = refe.GetSource();
+			var target = refe.Source;
 
 			if (target)
 			{
@@ -4736,7 +4736,7 @@ public partial class Unit : WorldObject
 				damageShield.SpellID = spellInfo.Id;
 				damageShield.TotalDamage = (uint)damage;
 				damageShield.OriginalDamage = (int)damageInfo.OriginalDamage;
-				damageShield.OverKill = (uint)Math.Max(damage - GetHealth(), 0);
+				damageShield.OverKill = (uint)Math.Max(damage - Health, 0);
 				damageShield.SchoolMask = (uint)spellInfo.SchoolMask;
 				damageShield.LogAbsorbed = (uint)damageInfo1.GetAbsorb();
 

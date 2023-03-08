@@ -191,7 +191,7 @@ public class boss_admiral_ripsnarl : BossAI
 
 		_events.Update(uiDiff);
 
-		if (me.GetHealthPct() < 75 && !_below_75)
+		if (me.HealthPct < 75 && !_below_75)
 		{
 			Talk(Says.SAY_FOG_1);
 
@@ -200,19 +200,19 @@ public class boss_admiral_ripsnarl : BossAI
 			_events.ScheduleEvent(BossEvents.EVENT_UPDATE_FOG, TimeSpan.FromMilliseconds(100));
 			_below_75 = true;
 		}
-		else if (me.GetHealthPct() < 50 && !_below_50)
+		else if (me.HealthPct < 50 && !_below_50)
 		{
 			Talk(Says.SAY_FOG_1);
 			_events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
 			_below_50 = true;
 		}
-		else if (me.GetHealthPct() < 25 && !_below_25)
+		else if (me.HealthPct < 25 && !_below_25)
 		{
 			Talk(Says.SAY_FOG_1);
 			_events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
 			_below_25 = true;
 		}
-		else if (me.GetHealthPct() < 10 && !_below_10)
+		else if (me.HealthPct < 10 && !_below_10)
 		{
 			if (IsHeroic())
 			{

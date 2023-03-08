@@ -151,7 +151,7 @@ namespace Game.Chat
 
             if (HasFlag(ChannelFlags.Lfg) && WorldConfig.GetBoolValue(WorldCfg.RestrictedLfgChannel) &&
                 Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
-                player.GetGroup())
+                player.                Group)
             {
                 var builder = new ChannelNameBuilder(this, new NotInLFGAppend());
                 SendToOne(builder, guid);
@@ -536,7 +536,7 @@ namespace Game.Chat
                     member.                    Session.                    Security <= (AccountTypes)gmLevelInWhoList) &&
                     member.IsVisibleGloballyFor(player))
                 {
-                    list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.GetVirtualRealmAddress(), pair.Value.GetFlags()));
+                    list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.VirtualRealmAddress, pair.Value.GetFlags()));
                 }
             }
 

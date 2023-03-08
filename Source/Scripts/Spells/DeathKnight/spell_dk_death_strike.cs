@@ -42,7 +42,7 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 			// Heals you for 25% of all Damage taken in the last 5 sec,
 			var heal = MathFunctions.CalculatePct(enabler.CalculateAmount(Caster), GetEffectInfo(1).CalcValue(Caster));
 			// minimum 7.0% of maximum health.
-			var pctOfMaxHealth = MathFunctions.CalculatePct(GetEffectInfo(2).CalcValue(Caster), caster.GetMaxHealth());
+			var pctOfMaxHealth = MathFunctions.CalculatePct(GetEffectInfo(2).CalcValue(Caster), caster.MaxHealth);
 			heal = Math.Max(heal, pctOfMaxHealth);
 
 			caster.CastSpell(caster, DeathKnightSpells.DeathStrikeHeal, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, heal));

@@ -45,7 +45,7 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 	{
 		var target = Target;
 
-		if (dmgInfo.GetDamage() < target.GetHealth())
+		if (dmgInfo.GetDamage() < target.Health)
 			return absorbAmount;
 
 		var healAmount = (int)target.CountPctFromMaxHealth((int)healPct);

@@ -28,7 +28,7 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 		if (!Caster)
 			return;
 
-		amount.Value = Caster.GetHealth();
+		amount.Value = Caster.Health;
 	}
 
 	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)

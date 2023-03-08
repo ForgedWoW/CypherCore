@@ -85,7 +85,7 @@ namespace Game
 
             GroupJoinBattlegroundResult err = GroupJoinBattlegroundResult.None;
 
-            Group grp = _player.GetGroup();
+            PlayerGroup grp = _player.Group;
 
             TeamFaction getQueueTeam()
             {
@@ -106,7 +106,7 @@ namespace Game
             // check queue conditions
             if (grp == null)
             {
-                if (Player.IsUsingLfg())
+                if (Player.IsUsingLfg)
                 {
                     Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out battlefieldStatusFailed, bgQueueTypeId, Player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                     SendPacket(battlefieldStatusFailed);
@@ -176,11 +176,11 @@ namespace Game
             }
             else
             {
-                if (grp.GetLeaderGUID() != Player.GUID)
+                if (grp.LeaderGUID != Player.GUID)
                     return;
 
                 err = grp.CanJoinBattlegroundQueue(bg, bgQueueTypeId, 0, bg.GetMaxPlayersPerTeam(), false, 0, out ObjectGuid errorGuid);
-                isPremade = (grp.GetMembersCount() >= bg.GetMinPlayersPerTeam());
+                isPremade = (grp.MembersCount >= bg.GetMinPlayersPerTeam());
 
                 BattlegroundQueue bgQueue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
                 GroupQueueInfo ginfo = null;
@@ -193,9 +193,9 @@ namespace Game
                     avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
                 }
 
-                for (GroupReference refe = grp.GetFirstMember(); refe != null; refe = refe.Next())
+                for (GroupReference refe = grp.FirstMember; refe != null; refe = refe.Next())
                 {
-                    Player member = refe.GetSource();
+                    Player member = refe.Source;
                     if (!member)
                         continue;   // this should never happen
 
@@ -500,11 +500,11 @@ namespace Game
             if (bracketEntry == null)
                 return;
 
-            Group grp = Player.GetGroup();
+            PlayerGroup grp = Player.Group;
             // no group found, error
             if (!grp)
                 return;
-            if (grp.GetLeaderGUID() != Player.GUID)
+            if (grp.LeaderGUID != Player.GUID)
                 return;
 
             uint ateamId = Player.GetArenaTeamId(packet.TeamSizeIndex);
@@ -535,9 +535,9 @@ namespace Game
                 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
             }
 
-            for (GroupReference refe = grp.GetFirstMember(); refe != null; refe = refe.Next())
+            for (GroupReference refe = grp.FirstMember; refe != null; refe = refe.Next())
             {
-                Player member = refe.GetSource();
+                Player member = refe.Source;
                 if (!member)
                     continue;
 
@@ -674,7 +674,7 @@ namespace Game
             }
 
             bool isPremade = false;
-            Group grp = null;
+            PlayerGroup grp = null;
 
             ArenaTypes arenatype = (packet.Bracket == BracketType.SKIRMISH_3 ? ArenaTypes.Team3v3 : ArenaTypes.Team2v2);
             
@@ -727,7 +727,7 @@ namespace Game
 
             if (!packet.JoinAsGroup)
             {
-                if (player.IsUsingLfg())
+                if (player.IsUsingLfg)
                 {
                     Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatusFailed, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
                     SendPacket(battlefieldStatusFailed);
@@ -765,14 +765,14 @@ namespace Game
             }
             else
             {
-                grp = player.GetGroup();
+                grp = player.Group;
 
                 if (grp == null)
                 {
                     return;
                 }
 
-                if (grp.GetLeaderGUID() != player.GUID)
+                if (grp.LeaderGUID != player.GUID)
                 {
                     return;
                 }
@@ -789,9 +789,9 @@ namespace Game
                     avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
                 }
 
-                foreach (var slot in grp.GetMemberSlots())
+                foreach (var slot in grp.MemberSlots)
                 {
-                    Player member = Global.ObjAccessor.FindPlayer(slot.guid);
+                    Player member = Global.ObjAccessor.FindPlayer(slot.Guid);
                     if (member == null)
                     {
                         continue;

@@ -33,7 +33,7 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		if (Target.IsFullHealth())
+		if (Target.IsFullHealth)
 			caster.CastSpell(Target, MonkSpells.RENEWING_MIST_JUMP, true);
 	}
 

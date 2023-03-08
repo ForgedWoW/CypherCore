@@ -37,7 +37,7 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 			if (!target.CreatureTemplate.IsTameable(caster.CanTameExoticPets))
 				return SpellCastResult.BadTargets;
 
-			var petStable = caster.GetPetStable();
+			var petStable = caster.PetStable1;
 
 			if (petStable != null)
 			{

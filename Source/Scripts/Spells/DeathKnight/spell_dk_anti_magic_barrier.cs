@@ -33,6 +33,6 @@ public class spell_dk_anti_magic_barrier : AuraScript, IHasAuraEffects
 		var caster = Caster;
 
 		if (caster != null)
-			amount.Value = ((caster.GetMaxHealth() * 25.0f) / 100.0f);
+			amount.Value = ((caster.MaxHealth * 25.0f) / 100.0f);
 	}
 }

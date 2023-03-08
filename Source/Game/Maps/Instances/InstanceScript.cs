@@ -1090,7 +1090,7 @@ public class InstanceScript : ZoneScript
 								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
 								Instance.GetMapName(),
 								Instance.GetInstanceId(),
-								encounter.dbcEntry.Name[Global.WorldMgr.GetDefaultDbcLocale()],
+								encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
 								dungeonId);
 
 					break;
@@ -1103,12 +1103,12 @@ public class InstanceScript : ZoneScript
 
 			foreach (var player in players)
 			{
-				var grp = player.GetGroup();
+				var grp = player.Group;
 
 				if (grp != null)
-					if (grp.IsLFGGroup())
+					if (grp.IsLFGGroup)
 					{
-						Global.LFGMgr.FinishDungeon(grp.GetGUID(), dungeonId, Instance);
+						Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
 
 						return;
 					}

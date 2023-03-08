@@ -510,7 +510,7 @@ internal class boss_malchezaar : ScriptedAI
 			if (target)
 			{
 				enfeeble_targets[i] = target.GUID;
-				enfeeble_health[i] = target.GetHealth();
+				enfeeble_health[i] = target.Health;
 
 				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 				args.OriginalCaster = me.GUID;

@@ -19,7 +19,7 @@ public class npc_monk_sef_spirit : ScriptedAI
 	public override void IsSummonedBy(WorldObject summoner)
 	{
 		me.SetLevel(summoner.AsUnit.Level);
-		me.SetMaxHealth(summoner.AsUnit.GetMaxHealth() / 3);
+		me.SetMaxHealth(summoner.AsUnit.MaxHealth / 3);
 		me.SetFullHealth();
 		summoner.CastSpell(me, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
 		me.CastSpell(me, me.Entry == StormEarthAndFireSpells.NPC_FIRE_SPIRIT ? StormEarthAndFireSpells.SEF_FIRE_VISUAL : StormEarthAndFireSpells.SEF_EARTH_VISUAL, true);

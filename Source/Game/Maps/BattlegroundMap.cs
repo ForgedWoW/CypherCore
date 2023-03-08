@@ -19,8 +19,8 @@ public class BattlegroundMap : Map
 
 	public override void InitVisibilityDistance()
 	{
-		VisibleDistance = IsBattleArena() ? Global.WorldMgr.GetMaxVisibleDistanceInArenas() : Global.WorldMgr.GetMaxVisibleDistanceInBG();
-		VisibilityNotifyPeriod = IsBattleArena() ? Global.WorldMgr.GetVisibilityNotifyPeriodInArenas() : Global.WorldMgr.GetVisibilityNotifyPeriodInBG();
+		VisibleDistance = IsBattleArena() ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
+		VisibilityNotifyPeriod = IsBattleArena() ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
 	}
 
 	public override TransferAbortParams CannotEnter(Player player)

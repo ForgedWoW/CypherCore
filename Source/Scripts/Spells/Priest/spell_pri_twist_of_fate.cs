@@ -22,6 +22,6 @@ internal class spell_pri_twist_of_fate : AuraScript, IHasAuraEffects
 
 	private bool CheckProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		return eventInfo.ProcTarget.GetHealthPct() < aurEff.Amount;
+		return eventInfo.ProcTarget.HealthPct < aurEff.Amount;
 	}
 }

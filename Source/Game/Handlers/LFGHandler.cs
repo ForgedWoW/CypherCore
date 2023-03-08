@@ -19,8 +19,8 @@ namespace Game
         void HandleLfgJoin(DFJoin dfJoin)
         {
             if (!Global.LFGMgr.IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser) ||
-                (Player.GetGroup() && Player.GetGroup().GetLeaderGUID() != Player.GUID &&
-                (Player.GetGroup().GetMembersCount() == MapConst.MaxGroupSize || !Player.GetGroup().IsLFGGroup())))
+                (Player.Group && Player.Group.LeaderGUID != Player.GUID &&
+                (Player.Group.MembersCount == MapConst.MaxGroupSize || !Player.Group.IsLFGGroup)))
                 return;
 
             if (dfJoin.Slots.Empty())
@@ -45,12 +45,12 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.DfLeave)]
         void HandleLfgLeave(DFLeave dfLeave)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
 
             Log.outDebug(LogFilter.Lfg, "CMSG_DF_LEAVE {0} in group: {1} sent guid {2}.", GetPlayerInfo(), group ? 1 : 0, dfLeave.Ticket.RequesterGuid.ToString());
 
             // Check cheating - only leader can leave the queue
-            if (!group || group.GetLeaderGUID() == dfLeave.Ticket.RequesterGuid)
+            if (!group || group.LeaderGUID == dfLeave.Ticket.RequesterGuid)
                 Global.LFGMgr.LeaveLfg(dfLeave.Ticket.RequesterGuid);
         }
 
@@ -65,14 +65,14 @@ namespace Game
         void HandleLfgSetRoles(DFSetRoles dfSetRoles)
         {
             ObjectGuid guid = Player.GUID;
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
             {
                 Log.outDebug(LogFilter.Lfg, "CMSG_DF_SET_ROLES {0} Not in group",
                     GetPlayerInfo());
                 return;
             }
-            ObjectGuid gguid = group.GetGUID();
+            ObjectGuid gguid = group.GUID;
             Log.outDebug(LogFilter.Lfg, "CMSG_DF_SET_ROLES: Group {0}, Player {1}, Roles: {2}", gguid.ToString(), GetPlayerInfo(), dfSetRoles.RolesDesired);
             Global.LFGMgr.UpdateRoleCheck(gguid, guid, dfSetRoles.RolesDesired);
         }
@@ -106,13 +106,13 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.DfGetJoinStatus, Processing = PacketProcessing.ThreadSafe)]
         void HandleDfGetJoinStatus(DFGetJoinStatus packet)
         {
-            if (!Player.IsUsingLfg())
+            if (!Player.IsUsingLfg)
                 return;
 
             ObjectGuid guid = Player.GUID;
             LfgUpdateData updateData = Global.LFGMgr.GetLfgStatus(guid);
 
-            if (Player.GetGroup())
+            if (Player.Group)
             {
                 SendLfgUpdateStatus(updateData, true);
                 updateData.dungeons.Clear();
@@ -198,16 +198,16 @@ namespace Game
         public void SendLfgPartyLockInfo()
         {
             ObjectGuid guid = Player.GUID;
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
             LfgPartyInfo lfgPartyInfo = new();
 
             // Get the Locked dungeons of the other party members
-            for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+            for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
             {
-                Player plrg = refe.GetSource();
+                Player plrg = refe.Source;
                 if (!plrg)
                     continue;
 

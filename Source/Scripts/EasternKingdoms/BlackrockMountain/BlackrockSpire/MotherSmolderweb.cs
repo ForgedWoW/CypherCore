@@ -53,7 +53,7 @@ internal class boss_mother_smolderweb : BossAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.GetHealth() <= damage)
+		if (me.Health <= damage)
 			DoCast(me, SpellIds.SummonSpireSpiderling, new CastSpellExtraArgs(true));
 	}
 

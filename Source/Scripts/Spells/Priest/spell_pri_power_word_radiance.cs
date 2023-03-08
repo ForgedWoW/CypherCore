@@ -84,6 +84,6 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 	{
 		var unit = obj.AsUnit;
 
-		return unit != null && unit.IsFullHealth();
+		return unit != null && unit.IsFullHealth;
 	}
 }

@@ -281,7 +281,7 @@ public partial class Player
 		DB.Characters.CommitTransaction(trans);
 
 		// TO-DO: We need more research to know what happens with warlock's reagent
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet)
 			RemovePet(pet, PetSaveMode.NotInSlot);
@@ -414,7 +414,7 @@ public partial class Player
 		StartLoadingActionButtons();
 
 		UpdateDisplayPower();
-		var pw = GetPowerType();
+		var pw = DisplayPowerType;
 
 		if (pw != PowerType.Mana)
 			SetPower(PowerType.Mana, 0); // Mana must be 0 even if it isn't the active power type.

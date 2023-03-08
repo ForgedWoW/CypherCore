@@ -29,7 +29,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 		if (player == null)
 			return;
 
-		var pet = player.GetPet();
+		var pet = player.CurrentPet;
 		var aurEff = GetEffect(0);
 
 		if (pet != null)

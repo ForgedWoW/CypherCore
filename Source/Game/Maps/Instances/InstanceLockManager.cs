@@ -192,7 +192,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		_temporaryInstanceLocksByPlayer[playerGuid][entries.GetKey()] = instanceLock;
 
 		Log.outDebug(LogFilter.Instance,
-					$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+					$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 					$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Created new temporary instance lock for {playerGuid} in instance {instanceId}");
 
 		return instanceLock;
@@ -225,7 +225,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 							_temporaryInstanceLocksByPlayer.Remove(playerGuid);
 
 						Log.outDebug(LogFilter.Instance,
-									$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+									$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 									$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Promoting temporary lock to permanent for {playerGuid} in instance {updateEvent.InstanceId}");
 					}
 				}
@@ -260,7 +260,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			}
 
 			Log.outDebug(LogFilter.Instance,
-						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 						$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Created new instance lock for {playerGuid} in instance {updateEvent.InstanceId}");
 		}
 		else
@@ -283,9 +283,9 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			instanceLock.GetData().CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter.Bit;
 
 			Log.outDebug(LogFilter.Instance,
-						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 						$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] " +
-						$"Instance lock for {playerGuid} in instance {updateEvent.InstanceId} gains completed encounter [{updateEvent.CompletedEncounter.Id}-{updateEvent.CompletedEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()]}]");
+						$"Instance lock for {playerGuid} in instance {updateEvent.InstanceId} gains completed encounter [{updateEvent.CompletedEncounter.Id}-{updateEvent.CompletedEncounter.Name[Global.WorldMgr.DefaultDbcLocale]}]");
 		}
 
 		// Synchronize map completed encounters into players completed encounters for UI
@@ -301,7 +301,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			instanceLock.SetExtended(false);
 
 			Log.outDebug(LogFilter.Instance,
-						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 						$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Expired instance lock for {playerGuid} in instance {updateEvent.InstanceId} is now active");
 		}
 
@@ -338,7 +338,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		if (updateEvent.CompletedEncounter != null)
 		{
 			sharedData.CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter.Bit;
-			Log.outDebug(LogFilter.Instance, $"Instance {updateEvent.InstanceId} gains completed encounter [{updateEvent.CompletedEncounter.Id}-{updateEvent.CompletedEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()]}]");
+			Log.outDebug(LogFilter.Instance, $"Instance {updateEvent.InstanceId} gains completed encounter [{updateEvent.CompletedEncounter.Id}-{updateEvent.CompletedEncounter.Name[Global.WorldMgr.DefaultDbcLocale]}]");
 		}
 
 		if (updateEvent.EntranceWorldSafeLocId.HasValue)
@@ -384,7 +384,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			DB.Characters.Execute(stmt);
 
 			Log.outDebug(LogFilter.Instance,
-						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()]} | " +
+						$"[{entries.Map.Id}-{entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale]} | " +
 						$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Instance lock for {playerGuid} is {(extended ? "now" : "no longer")} extended");
 
 			return Tuple.Create(oldExpiryTime, instanceLock.GetEffectiveExpiryTime());

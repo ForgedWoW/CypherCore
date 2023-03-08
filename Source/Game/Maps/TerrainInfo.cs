@@ -44,12 +44,12 @@ public class TerrainInfo
 
 	public string GetMapName()
 	{
-		return CliDB.MapStorage.LookupByKey(GetId()).MapName[Global.WorldMgr.GetDefaultDbcLocale()];
+		return CliDB.MapStorage.LookupByKey(GetId()).MapName[Global.WorldMgr.DefaultDbcLocale];
 	}
 
 	public void DiscoverGridMapFiles()
 	{
-		var tileListName = $"{Global.WorldMgr.GetDataPath()}/maps/{GetId():D4}.tilelist";
+		var tileListName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}.tilelist";
 
 		// tile list is optional
 		if (File.Exists(tileListName))
@@ -79,7 +79,7 @@ public class TerrainInfo
 
 	public static bool ExistMap(uint mapid, int gx, int gy, bool log = true)
 	{
-		var fileName = $"{Global.WorldMgr.GetDataPath()}/maps/{mapid:D4}_{gx:D2}_{gy:D2}.map";
+		var fileName = $"{Global.WorldMgr.DataPath}/maps/{mapid:D4}_{gx:D2}_{gy:D2}.map";
 
 		var ret = false;
 
@@ -88,7 +88,7 @@ public class TerrainInfo
 			if (log)
 			{
 				Log.outError(LogFilter.Maps, $"Map file '{fileName}' does not exist!");
-				Log.outError(LogFilter.Maps, $"Please place MAP-files (*.map) in the appropriate directory ({Global.WorldMgr.GetDataPath() + "/maps/"}), or correct the DataDir setting in your worldserver.conf file.");
+				Log.outError(LogFilter.Maps, $"Please place MAP-files (*.map) in the appropriate directory ({Global.WorldMgr.DataPath + "/maps/"}), or correct the DataDir setting in your worldserver.conf file.");
 			}
 		}
 		else
@@ -122,22 +122,22 @@ public class TerrainInfo
 				case LoadResult.Success:
 					break;
 				case LoadResult.FileNotFound:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.GetDataPath() + "/vmaps/" + name}' does not exist");
-					Log.outError(LogFilter.Maps, $"Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({Global.WorldMgr.GetDataPath() + "/vmaps/"}), or correct the DataDir setting in your worldserver.conf file.");
+					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' does not exist");
+					Log.outError(LogFilter.Maps, $"Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({Global.WorldMgr.DataPath + "/vmaps/"}), or correct the DataDir setting in your worldserver.conf file.");
 
 					return false;
 				case LoadResult.VersionMismatch:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.GetDataPath() + "/vmaps/" + name}' couldn't be loaded");
+					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
 					Log.outError(LogFilter.Maps, "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
 
 					return false;
 				case LoadResult.ReadFromFileFailed:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.GetDataPath() + "/vmaps/" + name}' couldn't be loaded");
+					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
 					Log.outError(LogFilter.Maps, "This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
 
 					return false;
 				case LoadResult.DisabledInConfig:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.GetDataPath() + "/vmaps/" + name}' couldn't be loaded");
+					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
 					Log.outError(LogFilter.Maps, "This is because VMAP is disabled in config file.");
 
 					return false;
@@ -192,7 +192,7 @@ public class TerrainInfo
 			return;
 
 		// map file name
-		var fileName = $"{Global.WorldMgr.GetDataPath()}/maps/{GetId():D4}_{gx:D2}_{gy:D2}.map";
+		var fileName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}_{gx:D2}_{gy:D2}.map";
 		Log.outInfo(LogFilter.Maps, $"Loading map {fileName}");
 
 		// loading data
@@ -239,7 +239,7 @@ public class TerrainInfo
 		if (!Global.DisableMgr.IsPathfindingEnabled(GetId()))
 			return;
 
-		var mmapLoadResult = Global.MMapMgr.LoadMap(Global.WorldMgr.GetDataPath(), GetId(), gx, gy);
+		var mmapLoadResult = Global.MMapMgr.LoadMap(Global.WorldMgr.DataPath, GetId(), gx, gy);
 
 		if (mmapLoadResult)
 			Log.outDebug(LogFilter.Maps, $"MMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");

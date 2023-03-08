@@ -465,7 +465,7 @@ namespace Game
                 bool hasDemonHunterReqLevel = demonHunterReqLevel == 0;
                 uint evokerReqLevel = WorldConfig.GetUIntValue(WorldCfg.CharacterCreatingMinLevelForEvoker);
                 bool hasEvokerReqLevel = (evokerReqLevel == 0);
-                bool allowTwoSideAccounts = !Global.WorldMgr.IsPvPRealm() || HasPermission(RBACPermissions.TwoSideCharacterCreation);
+                bool allowTwoSideAccounts = !Global.WorldMgr.IsPvPRealm || HasPermission(RBACPermissions.TwoSideCharacterCreation);
                 int skipCinematics = WorldConfig.GetIntValue(WorldCfg.SkipCinematics);
                 bool checkClassLevelReqs = (createInfo.ClassId == Class.DemonHunter || createInfo.ClassId == Class.Evoker)
                                             && !HasPermission(RBACPermissions.SkipCheckCharacterCreationDemonHunter);
@@ -601,7 +601,7 @@ namespace Game
                     stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_REALM_CHARACTERS);
                     stmt.AddValue(0, createInfo.CharCount);
                     stmt.AddValue(1, AccountId);
-                    stmt.AddValue(2, Global.WorldMgr.GetRealm().Id.Index);
+                    stmt.AddValue(2, Global.WorldMgr.Realm.Id.Index);
                     loginTransaction.Append(stmt);
 
                     DB.Login.CommitTransaction(loginTransaction);
@@ -789,7 +789,7 @@ namespace Game
                 return;
             }
 
-            pCurrChar.SetVirtualPlayerRealm(Global.WorldMgr.GetVirtualRealmAddress());
+            pCurrChar.SetVirtualPlayerRealm(Global.WorldMgr.VirtualRealmAddress);
 
             SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
             SendTutorialsData();
@@ -811,7 +811,7 @@ namespace Game
             SendFeatureSystemStatus();
 
             MOTD motd = new();
-            motd.Text = Global.WorldMgr.GetMotd();
+            motd.Text = Global.WorldMgr.Motd;
             SendPacket(motd);
 
             SendSetTimeZoneInformation();
@@ -921,11 +921,11 @@ namespace Game
             pCurrChar.SetInGameTime(GameTime.GetGameTimeMS());
 
             // announce group about member online (must be after add to player list to receive announce to self)
-            Group group = pCurrChar.GetGroup();
+            PlayerGroup group = pCurrChar.Group;
             if (group)
             {
                 group.SendUpdate();
-                if (group.GetLeaderGUID() == pCurrChar.GUID)
+                if (group.LeaderGUID == pCurrChar.GUID)
                     group.StopLeaderOfflineTimer();
             }
 
@@ -968,7 +968,7 @@ namespace Game
             pCurrChar.ResummonPetTemporaryUnSummonedIfAny();
 
             // Set FFA PvP for non GM in non-rest mode
-            if (Global.WorldMgr.IsFFAPvPRealm() && !pCurrChar.IsGameMaster && !pCurrChar.HasPlayerFlag(PlayerFlags.Resting))
+            if (Global.WorldMgr.IsFFAPvPRealm && !pCurrChar.IsGameMaster && !pCurrChar.HasPlayerFlag(PlayerFlags.Resting))
                 pCurrChar.SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
             if (pCurrChar.HasPlayerFlag(PlayerFlags.ContestedPVP))
@@ -1070,7 +1070,7 @@ namespace Game
             }
 
             // show time before shutdown if shutdown planned.
-            if (Global.WorldMgr.IsShuttingDown())
+            if (Global.WorldMgr.IsShuttingDown)
                 Global.WorldMgr.ShutdownMsg(true, pCurrChar);
 
             if (WorldConfig.GetBoolValue(WorldCfg.AllTaxiPaths))

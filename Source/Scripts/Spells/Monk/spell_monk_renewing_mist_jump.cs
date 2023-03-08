@@ -50,7 +50,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 		{
 			var ally = a.AsUnit;
 
-			if (ally == null || ally.IsFullHealth())
+			if (ally == null || ally.IsFullHealth)
 				return true;
 
 			return false;

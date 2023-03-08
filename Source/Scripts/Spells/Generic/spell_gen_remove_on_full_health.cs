@@ -27,7 +27,7 @@ internal class spell_gen_remove_on_full_health : AuraScript, IHasAuraEffects
 		if (onlyEffect && aurEff.GetTickNumber() <= 1)
 			return;
 
-		if (Target.IsFullHealth())
+		if (Target.IsFullHealth)
 		{
 			Remove(AuraRemoveMode.EnemySpell);
 			PreventDefaultAction();

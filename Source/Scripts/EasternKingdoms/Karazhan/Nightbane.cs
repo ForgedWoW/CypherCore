@@ -138,8 +138,8 @@ internal class boss_nightbane : BossAI
 	{
 		if (phase == NightbanePhases.Fly)
 		{
-			if (damage >= me.GetHealth())
-				damage = (uint)(me.GetHealth() - 1);
+			if (damage >= me.Health)
+				damage = (uint)(me.Health - 1);
 
 			return;
 		}

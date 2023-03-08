@@ -338,7 +338,7 @@ namespace Game.Chat
 
             Log.outCommand(session.AccountId, $"Command: {cmdStr} [Player: {player.GetName()} ({player.GUID}) (Account: {session.AccountId}) " +
                 $"X: {player.Location.X} Y: {player.Location.Y} Z: {player.Location.Z} Map: {player.Location.MapId} ({(player.Map ? player.Map.GetMapName() : "Unknown")}) " +
-                $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.GetSelectedUnit() ? player.GetSelectedUnit().GetName() : "")} ({targetGuid})]");
+                $"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.SelectedUnit ? player.SelectedUnit.GetName() : "")} ({targetGuid})]");
         }
 
         public void SendCommandHelp(CommandHandler handler)

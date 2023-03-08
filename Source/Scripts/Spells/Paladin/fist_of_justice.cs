@@ -25,7 +25,7 @@ public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 		if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
 			return;
 
-		if (player.GetPowerType() == PowerType.HolyPower)
+		if (player.DisplayPowerType == PowerType.HolyPower)
 			if (newValue < oldValue)
 				if (player.HasAura(PaladinSpells.FIST_OF_JUSTICE))
 					player.GetSpellHistory().ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-2));

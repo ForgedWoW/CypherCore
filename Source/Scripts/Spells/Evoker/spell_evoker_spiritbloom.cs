@@ -45,7 +45,7 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
 			// get targets that are injured
 			var targetList = new List<Unit>();
 			caster.GetAlliesWithinRange(targetList, SpellInfo.GetMaxRange());
-			targetList.RemoveIf(a => a.IsFullHealth());
+			targetList.RemoveIf(a => a.IsFullHealth);
 
 			// reduce targetList to the number allowed
 			while (targetList.Count > targets)

@@ -34,7 +34,7 @@ internal class spell_item_crazy_alchemists_potion : SpellScript, ISpellAfterCast
 		if (!target.IsInCombat)
 			availableElixirs.Add(53753); // Potion of Nightmares (40081)
 
-		if (target.GetPowerType() == PowerType.Mana)
+		if (target.DisplayPowerType == PowerType.Mana)
 			availableElixirs.Add(43186); // Runic Mana Potion(33448)
 
 		var chosenElixir = availableElixirs.SelectRandom();

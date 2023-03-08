@@ -21,7 +21,7 @@ internal class spell_pal_hand_of_sacrifice : AuraScript, IHasAuraEffects
 
 		if (caster)
 		{
-			remainingAmount = (int)caster.GetMaxHealth();
+			remainingAmount = (int)caster.MaxHealth;
 
 			return true;
 		}

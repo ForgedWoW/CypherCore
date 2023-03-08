@@ -31,7 +31,7 @@ public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 	{
 		var target = Target;
 
-		if (dmgInfo.GetDamage() < target.GetHealth())
+		if (dmgInfo.GetDamage() < target.Health)
 			return absorbAmount;
 
 		// No damage received under Shroud of Purgatory

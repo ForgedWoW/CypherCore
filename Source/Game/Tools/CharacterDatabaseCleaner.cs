@@ -46,7 +46,8 @@ namespace Game
             flags &= (CleaningFlags)WorldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
             Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
 
-            Global.WorldMgr.SetCleaningFlags(flags);
+            Global.WorldMgr.
+            CleaningFlags = flags;
 
             Log.outInfo(LogFilter.ServerLoading, "Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
         }

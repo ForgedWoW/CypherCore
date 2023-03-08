@@ -30,7 +30,7 @@ internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAura
 
 			if (healTarget)
 				// @todo: fix me later if (healInfo.GetEffectiveHeal())
-				if (healTarget.GetHealth() >= healTarget.GetMaxHealth())
+				if (healTarget.Health >= healTarget.MaxHealth)
 					return true;
 		}
 

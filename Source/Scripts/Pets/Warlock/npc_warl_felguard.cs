@@ -41,8 +41,8 @@ namespace Scripts.Pets
 				if (owner == null)
 					return;
 
-				me.SetMaxHealth(owner.GetMaxHealth());
-				me.SetHealth(me.GetMaxHealth());
+				me.SetMaxHealth(owner.MaxHealth);
+				me.SetHealth(me.MaxHealth);
 				me.SetControlled(true, UnitState.Root);
 			}
 		}

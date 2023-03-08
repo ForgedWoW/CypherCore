@@ -27,7 +27,7 @@ internal class spell_dru_t10_restoration_4p_bonus : SpellScript, IHasSpellEffect
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		if (!Caster.AsPlayer.GetGroup())
+		if (!Caster.AsPlayer.Group)
 		{
 			targets.Clear();
 			targets.Add(Caster);

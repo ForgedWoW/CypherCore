@@ -130,12 +130,9 @@ public class WorldManager : Singleton<WorldManager>
 		return null;
 	}
 
-	public bool IsClosed()
-	{
-		return _isClosed;
-	}
+    public bool IsClosed => _isClosed;
 
-	public void SetClosed(bool val)
+    public void SetClosed(bool val)
 	{
 		_isClosed = val;
 		Global.ScriptMgr.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
@@ -148,20 +145,10 @@ public class WorldManager : Singleton<WorldManager>
 		var result = DB.Login.Query(stmt);
 
 		if (!result.IsEmpty())
-			SetPlayerSecurityLimit((AccountTypes)result.Read<byte>(0));
+			PlayerSecurityLimit = (AccountTypes)result.Read<byte>(0);
 	}
 
-	public void SetPlayerSecurityLimit(AccountTypes _sec)
-	{
-		var sec = _sec < AccountTypes.Console ? _sec : AccountTypes.Player;
-		var update = sec > _allowedSecurityLevel;
-		_allowedSecurityLevel = sec;
-
-		if (update)
-			KickAllLess(_allowedSecurityLevel);
-	}
-
-	public void SetMotd(string motd)
+    public void SetMotd(string motd)
 	{
 		Global.ScriptMgr.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
 
@@ -169,12 +156,9 @@ public class WorldManager : Singleton<WorldManager>
 		_motd.AddRange(motd.Split('@'));
 	}
 
-	public List<string> GetMotd()
-	{
-		return _motd;
-	}
+    public List<string> Motd => _motd;
 
-	public void TriggerGuidWarning()
+    public void TriggerGuidWarning()
 	{
 		// Lock this only to prevent multiple maps triggering at the same time
 		lock (_guidAlertLock)
@@ -251,7 +235,7 @@ public class WorldManager : Singleton<WorldManager>
 			Environment.Exit(1);
 
 		// not send custom type REALM_FFA_PVP to realm list
-		var server_type = IsFFAPvPRealm() ? RealmType.PVP : (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
+		var server_type = IsFFAPvPRealm ? RealmType.PVP : (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
 		var realm_zone = WorldConfig.GetUIntValue(WorldCfg.RealmZone);
 
 		DB.Login.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)server_type, realm_zone, _realm.Id.Index); // One-time query
@@ -992,7 +976,7 @@ public class WorldManager : Singleton<WorldManager>
 		// load update time related configs
 		_worldUpdateTime.LoadFromConfig();
 
-		SetPlayerAmountLimit((uint)ConfigMgr.GetDefaultValue("PlayerLimit", 100));
+		PlayerAmountLimit = (uint)ConfigMgr.GetDefaultValue("PlayerLimit", 100);
 		SetMotd(ConfigMgr.GetDefaultValue("Motd", "Welcome to a Cypher Core Server."));
 
 		if (reload)
@@ -1115,7 +1099,7 @@ public class WorldManager : Singleton<WorldManager>
 		Global.VMapMgr.SetEnableHeightCalc(EnableHeight);
 
 		Log.outInfo(LogFilter.ServerLoading, "VMap support included. LineOfSight: {0}, getHeight: {1}, indoorCheck: {2}", EnableLOS, EnableHeight, EnableIndoor);
-		Log.outInfo(LogFilter.ServerLoading, @"VMap data directory is: {0}\vmaps", GetDataPath());
+		Log.outInfo(LogFilter.ServerLoading, @"VMap data directory is: {0}\vmaps", DataPath);
 	}
 
 	public void SetForcedWarModeFactionBalanceState(int team, int reward = 0)
@@ -1166,7 +1150,7 @@ public class WorldManager : Singleton<WorldManager>
 		_worldUpdateTime.UpdateWithDiff(diff);
 
 		// Record update if recording set in log and diff is greater then minimum set in log
-		_worldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)GetActiveSessionCount());
+		_worldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)ActiveSessionCount);
 
 		// Update the different timers
 		for (WorldTimers i = 0; i < WorldTimers.Max; ++i)
@@ -1260,7 +1244,7 @@ public class WorldManager : Singleton<WorldManager>
 		if (_timers[WorldTimers.UpTime].Passed)
 		{
 			var tmpDiff = GameTime.GetUptime();
-			var maxOnlinePlayers = GetMaxPlayerCount();
+			var maxOnlinePlayers = MaxPlayerCount;
 
 			_timers[WorldTimers.UpTime].Reset();
 
@@ -1283,7 +1267,7 @@ public class WorldManager : Singleton<WorldManager>
 				var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
 				stmt.AddValue(0, WorldConfig.GetIntValue(WorldCfg.LogdbCleartime));
 				stmt.AddValue(1, 0);
-				stmt.AddValue(2, GetRealm().Id.Index);
+				stmt.AddValue(2, Realm.Id.Index);
 
 				DB.Login.Execute(stmt);
 			}
@@ -1949,48 +1933,24 @@ public class WorldManager : Singleton<WorldManager>
 			session.InvalidateRBACData();
 	}
 
-	public List<WorldSession> GetAllSessions()
-	{
-		return _sessions.Values.ToList();
-	}
+    public List<WorldSession> AllSessions => _sessions.Values.ToList();
 
-	public int GetActiveAndQueuedSessionCount()
-	{
-		return _sessions.Count;
-	}
+    public int ActiveAndQueuedSessionCount => _sessions.Count;
 
-	public int GetActiveSessionCount()
-	{
-		return _sessions.Count - _queuedPlayer.Count;
-	}
+    public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
 
-	public int GetQueuedSessionCount()
-	{
-		return _queuedPlayer.Count;
-	}
+    public int QueuedSessionCount => _queuedPlayer.Count;
 
-	// Get the maximum number of parallel sessions on the server since last reboot
-	public uint GetMaxQueuedSessionCount()
-	{
-		return _maxQueuedSessionCount;
-	}
+    // Get the maximum number of parallel sessions on the server since last reboot
+    public uint MaxQueuedSessionCount => _maxQueuedSessionCount;
 
-	public uint GetMaxActiveSessionCount()
-	{
-		return _maxActiveSessionCount;
-	}
+    public uint MaxActiveSessionCount => _maxActiveSessionCount;
 
-	public uint GetPlayerCount()
-	{
-		return _playerCount;
-	}
+    public uint PlayerCount => _playerCount;
 
-	public uint GetMaxPlayerCount()
-	{
-		return _maxPlayerCount;
-	}
+    public uint MaxPlayerCount => _maxPlayerCount;
 
-	public void IncreasePlayerCount()
+    public void IncreasePlayerCount()
 	{
 		_playerCount++;
 		_maxPlayerCount = Math.Max(_maxPlayerCount, _playerCount);
@@ -2001,108 +1961,71 @@ public class WorldManager : Singleton<WorldManager>
 		_playerCount--;
 	}
 
-	public AccountTypes GetPlayerSecurityLimit()
-	{
-		return _allowedSecurityLevel;
-	}
+    public AccountTypes PlayerSecurityLimit
+    {
+        get => _allowedSecurityLevel;
+        set
+        {
+            var sec = value < AccountTypes.Console ? value : AccountTypes.Player;
+            var update = sec > _allowedSecurityLevel;
+            _allowedSecurityLevel = sec;
 
-	public void SetPlayerAmountLimit(uint limit)
-	{
-		_playerLimit = limit;
-	}
+            if (update)
+                KickAllLess(_allowedSecurityLevel);
+        }
+    }
 
-	public uint GetPlayerAmountLimit()
-	{
-		return _playerLimit;
-	}
+    public uint PlayerAmountLimit { get => _playerLimit; set => _playerLimit = value; }
 
-	/// Get the path where data (dbc, maps) are stored on disk
-	public string GetDataPath()
-	{
-		return _dataPath;
-	}
+    /// Get the path where data (dbc, maps) are stored on disk
+    public string DataPath { get => _dataPath; set => _dataPath = value; }
+    public long NextDailyQuestsResetTime { get => _nextDailyQuestReset; set => _nextDailyQuestReset = value; }
+    public long NextWeeklyQuestsResetTime { get => _nextWeeklyQuestReset; set => _nextWeeklyQuestReset = value; }
+    public long NextMonthlyQuestsResetTime { get => _nextMonthlyQuestReset; set => _nextMonthlyQuestReset = value; }
 
-	public void SetDataPath(string path)
-	{
-		_dataPath = path;
-	}
+    uint _maxSkill = 0;
+    public uint ConfigMaxSkillValue
+    {
+        get
+        {
+            if (_maxSkill == 0)
+            {
+                var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
-	public long GetNextDailyQuestsResetTime()
-	{
-		return _nextDailyQuestReset;
-	}
+                _maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
+            }
 
-	public void SetNextDailyQuestsResetTime(long time)
-	{
-		_nextDailyQuestReset = time;
-	}
+            return _maxSkill;
+        }
+    }
 
-	public long GetNextWeeklyQuestsResetTime()
-	{
-		return _nextWeeklyQuestReset;
-	}
+    public bool IsShuttingDown => _shutdownTimer > 0;
 
-	public void SetNextWeeklyQuestsResetTime(long time)
-	{
-		_nextWeeklyQuestReset = time;
-	}
+    public uint ShutDownTimeLeft => _shutdownTimer;
 
-	public long GetNextMonthlyQuestsResetTime()
-	{
-		return _nextMonthlyQuestReset;
-	}
+    public int ExitCode => (int)_exitCode;
 
-	public void SetNextMonthlyQuestsResetTime(long time)
-	{
-		_nextMonthlyQuestReset = time;
-	}
-
-	public uint GetConfigMaxSkillValue()
-	{
-		var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
-
-		return (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
-	}
-
-	public bool IsShuttingDown()
-	{
-		return _shutdownTimer > 0;
-	}
-
-	public uint GetShutDownTimeLeft()
-	{
-		return _shutdownTimer;
-	}
-
-	public int GetExitCode()
-	{
-		return (int)_exitCode;
-	}
-
-	public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
+    public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
 	{
 		IsStopped = true;
 		_exitCode = exitcode;
 	}
 
-	public bool IsPvPRealm()
-	{
-		var realmtype = (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
+    public bool IsPvPRealm
+    {
+        get
+        {
+            var realmtype = (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
 
-		return (realmtype == RealmType.PVP || realmtype == RealmType.RPPVP || realmtype == RealmType.FFAPVP);
-	}
+            return (realmtype == RealmType.PVP || realmtype == RealmType.RPPVP || realmtype == RealmType.FFAPVP);
+        }
+    }
 
-	public bool IsFFAPvPRealm()
-	{
-		return WorldConfig.GetIntValue(WorldCfg.GameType) == (int)RealmType.FFAPVP;
-	}
+    public bool IsFFAPvPRealm => WorldConfig.GetIntValue(WorldCfg.GameType) == (int)RealmType.FFAPVP;
 
-	public Locale GetDefaultDbcLocale()
-	{
-		return _defaultDbcLocale;
-	}
+    public Locale DefaultDbcLocale => _defaultDbcLocale;
 
-	public bool LoadRealmInfo()
+    public bool LoadRealmInfo()
 	{
 		var result = DB.Login.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", _realm.Id.Index);
 
@@ -2126,67 +2049,34 @@ public class WorldManager : Singleton<WorldManager>
 		return true;
 	}
 
-	public Realm GetRealm()
+    public Realm Realm => _realm;
+
+    public RealmId RealmId => _realm.Id;
+
+    public void RemoveOldCorpses()
 	{
-		return _realm;
+		_timers[WorldTimers.Corpses].Current = _timers[WorldTimers.Corpses].Interval;
 	}
 
-	public RealmId GetRealmId()
-	{
-		return _realm.Id;
-	}
+    public uint VirtualRealmAddress => _realm.Id.GetAddress();
 
-	public void RemoveOldCorpses()
-	{
-		_timers[WorldTimers.Corpses].		Current = _timers[WorldTimers.Corpses].Interval;
-	}
+    public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
 
-	public uint GetVirtualRealmAddress()
-	{
-		return _realm.Id.GetAddress();
-	}
+    public float MaxVisibleDistanceInInstances => _maxVisibleDistanceInInstances;
 
-	public float GetMaxVisibleDistanceOnContinents()
-	{
-		return _maxVisibleDistanceOnContinents;
-	}
+    public float MaxVisibleDistanceInBG => _maxVisibleDistanceInBg;
 
-	public float GetMaxVisibleDistanceInInstances()
-	{
-		return _maxVisibleDistanceInInstances;
-	}
+    public float MaxVisibleDistanceInArenas => _maxVisibleDistanceInArenas;
 
-	public float GetMaxVisibleDistanceInBG()
-	{
-		return _maxVisibleDistanceInBg;
-	}
+    public int VisibilityNotifyPeriodOnContinents => _visibilityNotifyPeriodOnContinents;
 
-	public float GetMaxVisibleDistanceInArenas()
-	{
-		return _maxVisibleDistanceInArenas;
-	}
+    public int VisibilityNotifyPeriodInInstances => _visibilityNotifyPeriodInInstances;
 
-	public int GetVisibilityNotifyPeriodOnContinents()
-	{
-		return _visibilityNotifyPeriodOnContinents;
-	}
+    public int VisibilityNotifyPeriodInBG => _visibilityNotifyPeriodInBg;
 
-	public int GetVisibilityNotifyPeriodInInstances()
-	{
-		return _visibilityNotifyPeriodInInstances;
-	}
+    public int VisibilityNotifyPeriodInArenas => _visibilityNotifyPeriodInArenas;
 
-	public int GetVisibilityNotifyPeriodInBG()
-	{
-		return _visibilityNotifyPeriodInBg;
-	}
-
-	public int GetVisibilityNotifyPeriodInArenas()
-	{
-		return _visibilityNotifyPeriodInArenas;
-	}
-
-	public Locale GetAvailableDbcLocale(Locale locale)
+    public Locale GetAvailableDbcLocale(Locale locale)
 	{
 		if (_availableDbcLocaleMask[(int)locale])
 			return locale;
@@ -2194,32 +2084,15 @@ public class WorldManager : Singleton<WorldManager>
 			return _defaultDbcLocale;
 	}
 
-	public CleaningFlags GetCleaningFlags()
-	{
-		return _cleaningFlags;
-	}
+    public CleaningFlags CleaningFlags { get => _cleaningFlags; set => _cleaningFlags = value; }
 
-	public void SetCleaningFlags(CleaningFlags flags)
-	{
-		_cleaningFlags = flags;
-	}
+    public bool IsGuidWarning => _guidWarn;
 
-	public bool IsGuidWarning()
-	{
-		return _guidWarn;
-	}
+    public bool IsGuidAlert => _guidAlert;
 
-	public bool IsGuidAlert()
-	{
-		return _guidAlert;
-	}
+    public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
 
-	public WorldUpdateTime GetWorldUpdateTime()
-	{
-		return _worldUpdateTime;
-	}
-
-	void DoGuidWarningRestart()
+    void DoGuidWarningRestart()
 	{
 		if (_shutdownTimer != 0)
 			return;
@@ -2297,9 +2170,9 @@ public class WorldManager : Singleton<WorldManager>
 		_sessions[s.AccountId] = s;
 		_sessionsByBnetGuid.Add(s.BattlenetAccountGUID, s);
 
-		var Sessions = GetActiveAndQueuedSessionCount();
-		var pLimit = GetPlayerAmountLimit();
-		var QueueSize = GetQueuedSessionCount(); //number of players in the queue
+		var Sessions = ActiveAndQueuedSessionCount;
+		var pLimit = PlayerAmountLimit;
+		var QueueSize = QueuedSessionCount; //number of players in the queue
 
 		//so we don't count the user trying to
 		//login as a session and queue the socket that we are using
@@ -2322,7 +2195,7 @@ public class WorldManager : Singleton<WorldManager>
 		// Updates the population
 		if (pLimit > 0)
 		{
-			float popu = GetActiveSessionCount(); // updated number of users on the server
+			float popu = ActiveSessionCount; // updated number of users on the server
 			popu /= pLimit;
 			popu *= 2;
 			Log.outInfo(LogFilter.Server, "Server Population ({0}).", popu);
@@ -2399,7 +2272,7 @@ public class WorldManager : Singleton<WorldManager>
 	bool RemoveQueuedPlayer(WorldSession sess)
 	{
 		// sessions count including queued to remove (if removed_session set)
-		var sessions = GetActiveSessionCount();
+		var sessions = ActiveSessionCount;
 
 		uint position = 1;
 
@@ -2470,7 +2343,7 @@ public class WorldManager : Singleton<WorldManager>
 			//- ... and it is overdue, stop the world
 			if (_shutdownTimer <= elapsed)
 			{
-				if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || GetActiveAndQueuedSessionCount() == 0)
+				if (!_shutdownMask.HasAnyFlag(ShutdownMask.Idle) || ActiveAndQueuedSessionCount == 0)
 					IsStopped = true; // exist code already set
 				else
 					_shutdownTimer = 1; // minimum timer value to wait idle state

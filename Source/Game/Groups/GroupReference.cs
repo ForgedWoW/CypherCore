@@ -4,33 +4,35 @@
 using Framework.Dynamic;
 using Game.Entities;
 
-namespace Game.Groups
+namespace Game.Groups;
+
+public class GroupReference : Reference<PlayerGroup, Player>
 {
-    public class GroupReference : Reference<Group, Player>
-    {
-        public GroupReference()
-        {
-            iSubGroup = 0;
-        }
+	byte _iSubGroup;
 
-        ~GroupReference() { Unlink(); }
+	public byte SubGroup
+	{
+		get => _iSubGroup;
+		set => _iSubGroup = value;
+	}
 
-        public override void TargetObjectBuildLink()
-        {
-            GetTarget().LinkMember(this);
-        }
+	public GroupReference()
+	{
+		_iSubGroup = 0;
+	}
 
-        public new GroupReference Next() { return (GroupReference)base.Next(); }
+	public override void TargetObjectBuildLink()
+	{
+		Target.LinkMember(this);
+	}
 
-        public byte GetSubGroup() { return iSubGroup; }
+	public new GroupReference Next()
+	{
+		return (GroupReference)base.Next();
+	}
 
-        public void SetSubGroup(byte pSubGroup) { iSubGroup = pSubGroup; }
-
-        byte iSubGroup;
-    }
-
-    public class GroupRefManager : RefManager<Group, Player>
-    {
-        public new GroupReference GetFirst() { return (GroupReference)base.GetFirst(); }
-    }
+	~GroupReference()
+	{
+		Unlink();
+	}
 }

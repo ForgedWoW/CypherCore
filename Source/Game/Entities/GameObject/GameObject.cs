@@ -1633,7 +1633,7 @@ namespace Game.Entities
 					{
 						if (info.GetLootId() != 0)
 						{
-							var group = player.GetGroup();
+							var group = player.Group;
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
 							Loot = new Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
@@ -1878,12 +1878,12 @@ namespace Game.Entities
 							if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
 								break;
 
-						var group = player.GetGroup();
+						var group = player.Group;
 
 						if (group)
-							for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+							for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 							{
-								var member = refe.GetSource();
+								var member = refe.Source;
 
 								if (member)
 									if (member.IsAtGroupRewardDistance(this))

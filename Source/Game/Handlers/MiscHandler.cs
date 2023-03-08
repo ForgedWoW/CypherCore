@@ -243,7 +243,7 @@ namespace Game
                 player.                // set resting flag we are in the inn
                 RestMgr.SetRestFlag(RestFlag.Tavern, atEntry.Id);
 
-                if (Global.WorldMgr.IsFFAPvPRealm())
+                if (Global.WorldMgr.IsFFAPvPRealm)
                     player.RemovePvpFlag(UnitPVPStateFlags.FFAPvp);
 
                 return;
@@ -342,9 +342,9 @@ namespace Game
                     return;
                 }
 
-                Group group = player.GetGroup();
+                PlayerGroup group = player.Group;
                 if (group)
-                    if (group.IsLFGGroup() && player.Map.IsDungeon())
+                    if (group.IsLFGGroup && player.Map.IsDungeon())
                         teleported = player.TeleportToBGEntryPoint();
             }
 
@@ -374,7 +374,7 @@ namespace Game
                     // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
                     if (entranceLocation == null)
                     {
-                        Group group = player.GetGroup();
+                        PlayerGroup group = player.Group;
                         Difficulty difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyId(mapEntry);
                         ObjectGuid instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GUID;
                         InstanceLock instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, Global.DB2Mgr.GetDownscaledMapDifficultyData(at.target_mapId, ref difficulty)));
@@ -595,13 +595,13 @@ namespace Game
             if (map != null && map.Instanceable())
                 return;
 
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (group)
             {
                 if (!group.IsLeader(Player.GUID))
                     return;
 
-                if (group.IsLFGGroup())
+                if (group.IsLFGGroup)
                     return;
 
                 group.ResetInstances(InstanceResetMethod.Manual, _player);
@@ -636,7 +636,7 @@ namespace Game
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == Player.GetDungeonDifficultyId())
+            if (difficultyID == Player.DungeonDifficultyId)
                 return;
 
             // cannot reset while in an instance
@@ -648,13 +648,13 @@ namespace Game
                 return;
             }
 
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (group)
             {
                 if (!group.IsLeader(_player.GUID))
                     return;
 
-                if (group.IsLFGGroup())
+                if (group.IsLFGGroup)
                     return;
 
                 // the difficulty is set even if the instances can't be reset
@@ -664,7 +664,7 @@ namespace Game
             else
             {
                 Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
-                Player.SetDungeonDifficultyId(difficultyID);
+                Player.                DungeonDifficultyId = difficultyID;
                 Player.SendDungeonDifficulty();
             }
         }
@@ -702,7 +702,7 @@ namespace Game
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? Player.GetLegacyRaidDifficultyId() : Player.GetRaidDifficultyId()))
+            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? Player.LegacyRaidDifficultyId : Player.RaidDifficultyId))
                 return;
 
             // cannot reset while in an instance
@@ -714,13 +714,13 @@ namespace Game
                 return;
             }
 
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (group)
             {
                 if (!group.IsLeader(_player.GUID))
                     return;
 
-                if (group.IsLFGGroup())
+                if (group.IsLFGGroup)
                     return;
 
                 // the difficulty is set even if the instances can't be reset
@@ -734,9 +734,9 @@ namespace Game
             {
                 Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
                 if (setRaidDifficulty.Legacy != 0)
-                    Player.SetLegacyRaidDifficultyId(difficultyID);
+                    Player.                    LegacyRaidDifficultyId = difficultyID;
                 else
-                    Player.SetRaidDifficultyId(difficultyID);
+                    Player.                    RaidDifficultyId = difficultyID;
 
                 Player.SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
             }

@@ -35,7 +35,7 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 	public override bool Load()
 	{
 		absorbPct = GetEffectInfo(1).CalcValue(Caster);
-		maxHealth = Caster.GetMaxHealth();
+		maxHealth = Caster.MaxHealth;
 		absorbedAmount = 0;
 
 		return true;

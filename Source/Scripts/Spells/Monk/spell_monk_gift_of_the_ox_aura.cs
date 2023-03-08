@@ -37,7 +37,7 @@ public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTake
 
 		var spellToCast = spellsToCast[RandomHelper.IRand(0, (spellsToCast.Count - 1))];
 
-		if (RandomHelper.randChance((0.75 * damage / victim.GetMaxHealth()) * (3 - 2 * (victim.GetHealthPct() / 100)) * 100))
+		if (RandomHelper.randChance((0.75 * damage / victim.MaxHealth) * (3 - 2 * (victim.HealthPct / 100)) * 100))
 			if (!victim.HasAura(UsedSpells.HEALING_SPHERE_COOLDOWN))
 			{
 				victim.CastSpell(victim, UsedSpells.HEALING_SPHERE_COOLDOWN, true);

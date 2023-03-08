@@ -2166,8 +2166,8 @@ public partial class Player
 			packet.IsEncounterLoot = true;
 		}
 
-		if (broadcast && GetGroup() && !item.GetTemplate().HasFlag(ItemFlags3.DontReportLootLogToParty))
-			GetGroup().BroadcastPacket(packet, true);
+		if (broadcast && Group && !item.GetTemplate().HasFlag(ItemFlags3.DontReportLootLogToParty))
+			Group.BroadcastPacket(packet, true);
 		else
 			SendPacket(packet);
 	}
@@ -2547,11 +2547,11 @@ public partial class Player
 	{
 		if (restrictOnlyLfg)
 		{
-			if (!GetGroup() || !GetGroup().IsLFGGroup())
+			if (!Group || !Group.IsLFGGroup)
 				return InventoryResult.Ok; // not in LFG group
 
 			// check if looted object is inside the lfg dungeon
-			if (!Global.LFGMgr.InLfgDungeonMap(GetGroup().GetGUID(), map.GetId(), map.GetDifficultyID()))
+			if (!Global.LFGMgr.InLfgDungeonMap(Group.GUID, map.GetId(), map.GetDifficultyID()))
 				return InventoryResult.Ok;
 		}
 
@@ -5293,7 +5293,7 @@ public partial class Player
 		// Now we must make bones lootable, and send player loot
 		bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.GetGroup());
+		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
 		// For AV Achievement
 		var bg = GetBattleground();
@@ -7492,11 +7492,11 @@ public partial class Player
 
 		if (_usePvpItemLevels != pvpActivity)
 		{
-			var healthPct = GetHealthPct();
+			var healthPct = HealthPct;
 			_RemoveAllItemMods();
 			ActivatePvpItemLevels(pvpActivity);
 			_ApplyAllItemMods();
-			SetHealth(MathFunctions.CalculatePct(GetMaxHealth(), healthPct));
+			SetHealth(MathFunctions.CalculatePct(MaxHealth, healthPct));
 		}
 		// @todo other types of power scaling such as timewalking
 	}

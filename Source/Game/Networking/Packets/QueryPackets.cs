@@ -621,7 +621,7 @@ public class PlayerGuidLookupData
 
 		IsDeleted = characterInfo.IsDeleted;
 		GuidActual = guid;
-		VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 
 		return true;
 	}

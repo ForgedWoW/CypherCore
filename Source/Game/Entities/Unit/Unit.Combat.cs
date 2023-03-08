@@ -744,7 +744,7 @@ public partial class Unit
 		packet.VictimGUID = damageInfo.Target.GUID;
 		packet.Damage = (int)damageInfo.Damage;
 		packet.OriginalDamage = (int)damageInfo.OriginalDamage;
-		var overkill = (int)(damageInfo.Damage - damageInfo.Target.GetHealth());
+		var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
 		packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
 		SubDamage subDmg = new();
@@ -793,7 +793,7 @@ public partial class Unit
 	public static void Kill(Unit attacker, Unit victim, bool durabilityLoss = true, bool skipSettingDeathState = false)
 	{
 		// Prevent killing unit twice (and giving reward from kill twice)
-		if (victim.GetHealth() == 0)
+		if (victim.Health == 0)
 			return;
 
 		if (attacker != null && !attacker.IsInMap(victim))
@@ -831,11 +831,11 @@ public partial class Unit
 		// call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
 		if (isRewardAllowed)
 		{
-			HashSet<Group> groups = new();
+			HashSet<PlayerGroup> groups = new();
 
 			foreach (var tapper in tappers)
 			{
-				var tapperGroup = tapper.GetGroup();
+				var tapperGroup = tapper.Group;
 
 				if (tapperGroup != null)
 				{
@@ -888,7 +888,7 @@ public partial class Unit
 					else if (!tappers.Empty())
 					{
 						var group = !groups.Empty() ? groups.First() : null;
-						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.GetLooterGuid()) : tappers[0];
+						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
 						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
@@ -979,7 +979,7 @@ public partial class Unit
 		// selection will get stuck on same target and break pet react state
 		foreach (var tapper in tappers)
 		{
-			var pet = tapper.GetPet();
+			var pet = tapper.CurrentPet;
 
 			if (pet != null && pet.IsAlive && pet.IsControlled())
 			{

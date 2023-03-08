@@ -28,7 +28,7 @@ namespace Game.Collision
     {
         VMapManager() { }
 
-        public static string VMapPath = Global.WorldMgr.GetDataPath() + "/vmaps/";
+        public static string VMapPath = Global.WorldMgr.DataPath + "/vmaps/";
 
         public void Initialize(MultiMap<uint, uint> mapData)
         {

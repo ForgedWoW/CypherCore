@@ -88,7 +88,7 @@ public partial class Player
 
 		if (stat == Stats.Stamina || stat == Stats.Intellect || stat == Stats.Strength)
 		{
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet != null)
 				pet.UpdateStats(stat);
@@ -136,7 +136,7 @@ public partial class Player
 		{
 			base.UpdateResistances(school);
 
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet != null)
 				pet.UpdateResistances(school);
@@ -380,7 +380,7 @@ public partial class Player
 			SetAttackPowerMultiplier((int)attPowerMultiplier);
 		}
 
-		var pet = GetPet(); //update pet's AP
+		var pet = CurrentPet; //update pet's AP
 		var guardian = GetGuardianPet();
 
 		//automatically update weapon damage after attack power modification
@@ -438,7 +438,7 @@ public partial class Player
 
 		SetArmor((int)value, (int)(value - baseValue));
 
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet)
 			pet.UpdateArmor();

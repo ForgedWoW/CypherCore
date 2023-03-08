@@ -410,9 +410,9 @@ public partial class Player
 		// init saved position, and fix it later if problematic
 		Location.Relocate(position_x, position_y, position_z, orientation);
 
-		SetDungeonDifficultyId(CheckLoadedDungeonDifficultyId(dungeonDifficulty));
-		SetRaidDifficultyId(CheckLoadedRaidDifficultyId(raidDifficulty));
-		SetLegacyRaidDifficultyId(CheckLoadedLegacyRaidDifficultyId(legacyRaidDifficulty));
+		DungeonDifficultyId = CheckLoadedDungeonDifficultyId(dungeonDifficulty);
+		RaidDifficultyId = CheckLoadedRaidDifficultyId(raidDifficulty);
+		LegacyRaidDifficultyId = CheckLoadedLegacyRaidDifficultyId(legacyRaidDifficulty);
 
 		var RelocateToHomebind = new Action(() =>
 		{
@@ -864,7 +864,7 @@ public partial class Player
 		UpdateAllStats();
 
 		// restore remembered power/health values (but not more max values)
-		SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
+		SetHealth(savedHealth > MaxHealth ? MaxHealth : savedHealth);
 		var loadedPowers = 0;
 
 		for (PowerType i = 0; i < PowerType.Max; ++i)
@@ -1103,9 +1103,9 @@ public partial class Player
 			stmt.AddValue(index++, PlayerData.PlayerFlagsEx);
 			stmt.AddValue(index++, (ushort)Location.MapId);
 			stmt.AddValue(index++, InstanceId1);
-			stmt.AddValue(index++, (byte)GetDungeonDifficultyId());
-			stmt.AddValue(index++, (byte)GetRaidDifficultyId());
-			stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyId());
+			stmt.AddValue(index++, (byte)DungeonDifficultyId);
+			stmt.AddValue(index++, (byte)RaidDifficultyId);
+			stmt.AddValue(index++, (byte)LegacyRaidDifficultyId);
 			stmt.AddValue(index++, finiteAlways(Location.X));
 			stmt.AddValue(index++, finiteAlways(Location.Y));
 			stmt.AddValue(index++, finiteAlways(Location.Z));
@@ -1156,7 +1156,7 @@ public partial class Player
 			stmt.AddValue(index++, PlayerData.PlayerTitle);
 			stmt.AddValue(index++, ActivePlayerData.WatchedFactionIndex);
 			stmt.AddValue(index++, DrunkValue);
-			stmt.AddValue(index++, GetHealth());
+			stmt.AddValue(index++, Health);
 
 			var storedPowers = 0;
 
@@ -1218,7 +1218,7 @@ public partial class Player
 			stmt.AddValue(index++, ss.ToString());
 
 			stmt.AddValue(index++, ActivePlayerData.MultiActionBars);
-			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.GetRealm().Build));
+			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
 		}
 		else
 		{
@@ -1241,9 +1241,9 @@ public partial class Player
 			{
 				stmt.AddValue(index++, (ushort)Location.MapId);
 				stmt.AddValue(index++, InstanceId1);
-				stmt.AddValue(index++, (byte)GetDungeonDifficultyId());
-				stmt.AddValue(index++, (byte)GetRaidDifficultyId());
-				stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyId());
+				stmt.AddValue(index++, (byte)DungeonDifficultyId);
+				stmt.AddValue(index++, (byte)RaidDifficultyId);
+				stmt.AddValue(index++, (byte)LegacyRaidDifficultyId);
 				stmt.AddValue(index++, finiteAlways(Location.X));
 				stmt.AddValue(index++, finiteAlways(Location.Y));
 				stmt.AddValue(index++, finiteAlways(Location.Z));
@@ -1253,9 +1253,9 @@ public partial class Player
 			{
 				stmt.AddValue(index++, (ushort)TeleportDest.MapId);
 				stmt.AddValue(index++, 0);
-				stmt.AddValue(index++, (byte)GetDungeonDifficultyId());
-				stmt.AddValue(index++, (byte)GetRaidDifficultyId());
-				stmt.AddValue(index++, (byte)GetLegacyRaidDifficultyId());
+				stmt.AddValue(index++, (byte)DungeonDifficultyId);
+				stmt.AddValue(index++, (byte)RaidDifficultyId);
+				stmt.AddValue(index++, (byte)LegacyRaidDifficultyId);
 				stmt.AddValue(index++, finiteAlways(TeleportDest.X));
 				stmt.AddValue(index++, finiteAlways(TeleportDest.Y));
 				stmt.AddValue(index++, finiteAlways(TeleportDest.Z));
@@ -1293,7 +1293,7 @@ public partial class Player
 			stmt.AddValue(index++, NumRespecs);
 			stmt.AddValue(index++, GetPrimarySpecialization());
 			stmt.AddValue(index++, (ushort)_extraFlags);
-			var petStable = GetPetStable();
+			var petStable = PetStable1;
 
 			if (petStable != null)
 				stmt.AddValue(index++, petStable.GetCurrentPet() != null && petStable.GetCurrentPet().Health > 0 ? petStable.GetCurrentPet().PetNumber : 0); // summonedPetNumber
@@ -1314,7 +1314,7 @@ public partial class Player
 			stmt.AddValue(index++, PlayerData.PlayerTitle);
 			stmt.AddValue(index++, ActivePlayerData.WatchedFactionIndex);
 			stmt.AddValue(index++, DrunkValue);
-			stmt.AddValue(index++, GetHealth());
+			stmt.AddValue(index++, Health);
 
 			var storedPowers = 0;
 
@@ -1381,7 +1381,7 @@ public partial class Player
 			stmt.AddValue(index++, GetHonorLevel());
 			stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.Honor)));
-			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.GetRealm().Build));
+			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
 
 			// Index
 			stmt.AddValue(index, GUID.Counter);
@@ -1449,22 +1449,22 @@ public partial class Player
 
 		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
 		stmt.AddValue(0, Session.AccountId);
-		stmt.AddValue(1, Global.WorldMgr.GetRealmId().Region);
-		stmt.AddValue(2, Global.WorldMgr.GetRealmId().Site);
+		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
+		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
 		loginTransaction.Append(stmt);
 
 		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
 		stmt.AddValue(0, Session.AccountId);
-		stmt.AddValue(1, Global.WorldMgr.GetRealmId().Region);
-		stmt.AddValue(2, Global.WorldMgr.GetRealmId().Site);
-		stmt.AddValue(3, Global.WorldMgr.GetRealmId().Index);
+		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
+		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
+		stmt.AddValue(3, Global.WorldMgr.RealmId.Index);
 		stmt.AddValue(4, GetName());
 		stmt.AddValue(5, GUID.Counter);
 		stmt.AddValue(6, GameTime.GetGameTime());
 		loginTransaction.Append(stmt);
 
 		// save pet (hunter pet level and experience and all type pets health/mana).
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet)
 			pet.SavePetToDB(PetSaveMode.AsCurrent);
@@ -1959,12 +1959,12 @@ public partial class Player
 
 				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME_BY_OWNER);
 				stmt.AddValue(0, guid);
-				stmt.AddValue(1, Global.WorldMgr.GetRealmId().Index);
+				stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
 				loginTransaction.Append(stmt);
 
 				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS_BY_OWNER);
 				stmt.AddValue(0, guid);
-				stmt.AddValue(1, Global.WorldMgr.GetRealmId().Index);
+				stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
 				loginTransaction.Append(stmt);
 
 				Corpse.DeleteFromDB(playerGuid, trans);
@@ -3579,17 +3579,17 @@ public partial class Player
 
 				var subgroup = group.GetMemberGroup(GUID);
 				SetGroup(group, subgroup);
-				SetPartyType(group.GetGroupCategory(), GroupType.Normal);
+				SetPartyType(group.GroupCategory, GroupType.Normal);
 				ResetGroupUpdateSequenceIfNeeded(group);
 
 				// the group leader may change the instance difficulty while the player is offline
-				SetDungeonDifficultyId(group.GetDungeonDifficultyID());
-				SetRaidDifficultyId(group.GetRaidDifficultyID());
-				SetLegacyRaidDifficultyId(group.GetLegacyRaidDifficultyID());
+				DungeonDifficultyId = group.DungeonDifficultyID;
+				RaidDifficultyId = group.RaidDifficultyID;
+				LegacyRaidDifficultyId = group.LegacyRaidDifficultyID;
 			}
 		}
 
-		if (!GetGroup() || !GetGroup().IsLeader(GUID))
+		if (!Group || !Group.IsLeader(GUID))
 			RemovePlayerFlag(PlayerFlags.GroupLeader);
 	}
 
@@ -4227,7 +4227,7 @@ public partial class Player
 			trans = new SQLTransaction();
 
 		PreparedStatement stmt;
-		var keepAbandoned = !Global.WorldMgr.GetCleaningFlags().HasAnyFlag(CleaningFlags.Queststatus);
+		var keepAbandoned = !Global.WorldMgr.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
 
 		foreach (var save in _questStatusSave)
 			if (save.Value == QuestSaveType.Default)
@@ -4597,7 +4597,7 @@ public partial class Player
 		byte index = 0;
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_STATS);
 		stmt.AddValue(index++, GUID.Counter);
-		stmt.AddValue(index++, GetMaxHealth());
+		stmt.AddValue(index++, MaxHealth);
 
 		for (byte i = 0; i < (int)PowerType.MaxPerClass; ++i)
 			stmt.AddValue(index++, UnitData.MaxPower[i]);

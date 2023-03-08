@@ -71,8 +71,8 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
 			if (target != null)
 			{
-				targets[target.GUID] = target.GetHealthPct();
-				averagePercentage += target.GetHealthPct();
+				targets[target.GUID] = target.HealthPct;
+				averagePercentage += target.HealthPct;
 				++targetCount;
 			}
 		}

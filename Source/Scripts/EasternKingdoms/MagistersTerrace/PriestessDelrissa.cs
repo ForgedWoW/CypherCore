@@ -229,7 +229,7 @@ internal class boss_priestess_delrissa : BossAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
-								var health = me.GetHealth();
+								var health = me.Health;
 								Unit target = me;
 
 								for (byte i = 0; i < _auiLackeyGUID.Length; ++i)
@@ -238,7 +238,7 @@ internal class boss_priestess_delrissa : BossAI
 
 									if (pAdd != null &&
 										pAdd.IsAlive &&
-										pAdd.GetHealth() < health)
+										pAdd.										Health < health)
 										target = pAdd;
 								}
 

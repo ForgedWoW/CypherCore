@@ -25,8 +25,8 @@ namespace Scripts.Pets
 				if (me.OwnerUnit)
 				{
 					me.SetLevel(owner.Level);
-					me.SetMaxHealth(owner.GetMaxHealth() / 3);
-					me.SetHealth(owner.GetHealth() / 3);
+					me.SetMaxHealth(owner.MaxHealth / 3);
+					me.SetHealth(owner.Health / 3);
 
 					if (owner.IsPlayer)
 					{

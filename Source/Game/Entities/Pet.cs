@@ -181,7 +181,7 @@ public class Pet : Guardian
 	{
 		_loading = true;
 
-		var petStable = owner.GetPetStable();
+		var petStable = owner.PetStable1;
 
 		var ownerid = owner.GUID.Counter;
 		var (petInfo, slot) = GetLoadPetInfo(petStable, petEntry, petnumber, forcedSlot);
@@ -194,7 +194,7 @@ public class Pet : Guardian
 		}
 
 		// Don't try to reload the current pet
-		if (petStable.GetCurrentPet() != null && owner.GetPet() != null && petStable.GetCurrentPet().PetNumber == petInfo.PetNumber)
+		if (petStable.GetCurrentPet() != null && owner.CurrentPet != null && petStable.GetCurrentPet().PetNumber == petInfo.PetNumber)
 			return false;
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Map.GetDifficultyID());
@@ -214,7 +214,7 @@ public class Pet : Guardian
 
 		if (current && owner.IsPetNeedBeTemporaryUnsummoned())
 		{
-			owner.SetTemporaryUnsummonedPetNumber(petInfo.PetNumber);
+			owner.			TemporaryUnsummonedPetNumber = petInfo.PetNumber;
 
 			return false;
 		}
@@ -385,7 +385,7 @@ public class Pet : Guardian
 
 		//set last used pet number (for use in BG's)
 		if (owner.IsPlayer && IsControlled() && !IsTemporarySummoned() && (GetPetType() == PetType.Summon || GetPetType() == PetType.Hunter))
-			owner.AsPlayer.SetLastPetNumber(petInfo.PetNumber);
+			owner.AsPlayer.			LastPetNumber = petInfo.PetNumber;
 
 		var session = owner.Session;
 		var lastSaveTime = petInfo.LastSaveTime;
@@ -395,7 +395,7 @@ public class Pet : Guardian
 			.AddQueryHolderCallback(DB.Characters.DelayQueryHolder(new PetLoadQueryHolder(ownerid, petInfo.PetNumber)))
 			.AfterComplete(holder =>
 			{
-				if (session.Player != owner || owner.GetPet() != this)
+				if (session.Player != owner || owner.CurrentPet != this)
 					return;
 
 				// passing previous checks ensure that 'this' is still valid
@@ -481,8 +481,8 @@ public class Pet : Guardian
 
 		// not save pet as current if another pet temporary unsummoned
 		if (mode == PetSaveMode.AsCurrent &&
-			owner.GetTemporaryUnsummonedPetNumber() != 0 &&
-			owner.GetTemporaryUnsummonedPetNumber() != GetCharmInfo().GetPetNumber())
+			owner.			TemporaryUnsummonedPetNumber != 0 &&
+			owner.			TemporaryUnsummonedPetNumber != GetCharmInfo().GetPetNumber())
 		{
 			// pet will lost anyway at restore temporary unsummoned
 			if (GetPetType() == PetType.Hunter)
@@ -492,7 +492,7 @@ public class Pet : Guardian
 			mode = PetSaveMode.NotInSlot;
 		}
 
-		var curhealth = (uint)GetHealth();
+		var curhealth = (uint)Health;
 		var curmana = GetPower(PowerType.Mana);
 
 		SQLTransaction trans = new();
@@ -501,7 +501,7 @@ public class Pet : Guardian
 
 		if (mode == PetSaveMode.AsCurrent)
 		{
-			var activeSlot = owner.GetPetStable().GetCurrentActivePetIndex();
+			var activeSlot = owner.PetStable1.GetCurrentActivePetIndex();
 
 			if (activeSlot.HasValue)
 				mode = (PetSaveMode)activeSlot;
@@ -529,8 +529,8 @@ public class Pet : Guardian
 			// save pet
 			var actionBar = GenerateActionBarData();
 
-			Cypher.Assert(owner.GetPetStable().GetCurrentPet() != null && owner.GetPetStable().GetCurrentPet().PetNumber == GetCharmInfo().GetPetNumber());
-			FillPetInfo(owner.GetPetStable().GetCurrentPet());
+			Cypher.Assert(owner.PetStable1.GetCurrentPet() != null && owner.PetStable1.GetCurrentPet().PetNumber == GetCharmInfo().GetPetNumber());
+			FillPetInfo(owner.PetStable1.GetCurrentPet());
 
 			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET);
 			stmt.AddValue(0, GetCharmInfo().GetPetNumber());
@@ -540,7 +540,7 @@ public class Pet : Guardian
 			stmt.AddValue(4, Level);
 			stmt.AddValue(5, UnitData.PetExperience);
 			stmt.AddValue(6, (byte)ReactState);
-			stmt.AddValue(7, (owner.GetPetStable().GetCurrentActivePetIndex().HasValue ? (short)owner.GetPetStable().GetCurrentActivePetIndex().Value : (short)PetSaveMode.NotInSlot));
+			stmt.AddValue(7, (owner.PetStable1.GetCurrentActivePetIndex().HasValue ? (short)owner.PetStable1.GetCurrentActivePetIndex().Value : (short)PetSaveMode.NotInSlot));
 			stmt.AddValue(8, GetName());
 			stmt.AddValue(9, HasPetFlag(UnitPetFlags.CanBeRenamed) ? 0 : 1);
 			stmt.AddValue(10, curhealth);
@@ -574,7 +574,7 @@ public class Pet : Guardian
 		petInfo.ReactState = ReactState;
 		petInfo.Name = GetName();
 		petInfo.WasRenamed = !HasPetFlag(UnitPetFlags.CanBeRenamed);
-		petInfo.Health = (uint)GetHealth();
+		petInfo.Health = (uint)Health;
 		petInfo.Mana = (uint)GetPower(PowerType.Mana);
 		petInfo.ActionBar = GenerateActionBarData();
 		petInfo.LastSaveTime = (uint)GameTime.GetGameTime();
@@ -700,7 +700,7 @@ public class Pet : Guardian
 					if (_focusRegenTimer > diff)
 						_focusRegenTimer -= diff;
 					else
-						switch (GetPowerType())
+						switch (DisplayPowerType)
 						{
 							case PowerType.Focus:
 								Regenerate(PowerType.Focus);
@@ -824,7 +824,7 @@ public class Pet : Guardian
 		if (cFamily != null)
 			SetName(cFamily.Name[GetOwner().Session.SessionDbcLocale]);
 		else
-			SetName(creature.GetName(Global.WorldMgr.GetDefaultDbcLocale()));
+			SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
 
 		return true;
 	}
@@ -1142,7 +1142,7 @@ public class Pet : Guardian
 
 	public void SetGroupUpdateFlag(GroupUpdatePetFlags flag)
 	{
-		if (GetOwner().GetGroup())
+		if (GetOwner().Group)
 		{
 			_mGroupUpdateMask |= flag;
 			GetOwner().SetGroupUpdateFlag(GroupUpdateFlags.Pet);
@@ -1153,7 +1153,7 @@ public class Pet : Guardian
 	{
 		_mGroupUpdateMask = GroupUpdatePetFlags.None;
 
-		if (GetOwner().GetGroup())
+		if (GetOwner().Group)
 			GetOwner().RemoveGroupUpdateFlag(GroupUpdateFlags.Pet);
 	}
 

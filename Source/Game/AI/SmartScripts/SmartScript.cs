@@ -2692,12 +2692,12 @@ namespace Game.AI
                         Player player = scriptTrigger.AsPlayer;
                         if (player != null)
                         {
-                            Group group = player.GetGroup();
+                            PlayerGroup group = player.Group;
                             if (group)
                             {
-                                for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                                for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                                 {
-                                    Player member = groupRef.GetSource();
+                                    Player member = groupRef.Source;
                                     if (member)
                                         if (member.IsInMap(player))
                                             targets.Add(member);
@@ -3084,9 +3084,9 @@ namespace Game.AI
                     break;
                 case SmartEvents.HealthPct:
                 {
-                    if (_me == null || !_me.IsEngaged || _me.GetMaxHealth() == 0)
+                    if (_me == null || !_me.IsEngaged || _me.MaxHealth == 0)
                         return;
-                    uint perc = (uint)_me.GetHealthPct();
+                    uint perc = (uint)_me.HealthPct;
                     if (perc > e.Event.minMaxRepeat.max || perc < e.Event.minMaxRepeat.min)
                         return;
                     ProcessTimedAction(e, e.Event.minMaxRepeat.repeatMin, e.Event.minMaxRepeat.repeatMax);
@@ -3520,7 +3520,7 @@ namespace Game.AI
                             {
                                 if (IsUnit(target) && _me.IsFriendlyTo(target.AsUnit) && target.AsUnit.IsAlive && target.AsUnit.IsInCombat)
                                 {
-                                    uint healthPct = (uint)target.AsUnit.GetHealthPct();
+                                    uint healthPct = (uint)target.AsUnit.HealthPct;
                                     if (healthPct > e.Event.friendlyHealthPct.maxHpPct || healthPct < e.Event.friendlyHealthPct.minHpPct)
                                         continue;
 

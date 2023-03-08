@@ -45,12 +45,12 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 				loser.RestoreHealthAfterDuel();
 
 				// check if player1 class uses mana
-				if (winner.GetPowerType() == PowerType.Mana ||
+				if (winner.DisplayPowerType == PowerType.Mana ||
 					winner.Class == Class.Druid)
 					winner.RestoreManaAfterDuel();
 
 				// check if player2 class uses mana
-				if (loser.GetPowerType() == PowerType.Mana ||
+				if (loser.DisplayPowerType == PowerType.Mana ||
 					loser.Class == Class.Druid)
 					loser.RestoreManaAfterDuel();
 			}
@@ -118,7 +118,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 							true);
 
 		// pet cooldowns
-		var pet = player.GetPet();
+		var pet = player.CurrentPet;
 
 		if (pet)
 			pet.GetSpellHistory().ResetAllCooldowns();

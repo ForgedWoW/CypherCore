@@ -1262,11 +1262,11 @@ public class SpellCastLogData
 
 	public void Initialize(Unit unit)
 	{
-		Health = unit.GetHealth();
+		Health = unit.Health;
 		AttackPower = unit.GetTotalAttackPowerValue(unit.Class == Class.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
 		SpellPower = unit.SpellBaseDamageBonusDone(SpellSchoolMask.Spell);
 		Armor = unit.GetArmor();
-		PowerData.Add(new SpellLogPowerData((int)unit.GetPowerType(), unit.GetPower(unit.GetPowerType()), 0));
+		PowerData.Add(new SpellLogPowerData((int)unit.DisplayPowerType, unit.GetPower(unit.DisplayPowerType), 0));
 	}
 
 	public void Initialize(Spell spell)
@@ -1275,11 +1275,11 @@ public class SpellCastLogData
 
 		if (unitCaster != null)
 		{
-			Health = unitCaster.GetHealth();
+			Health = unitCaster.Health;
 			AttackPower = unitCaster.GetTotalAttackPowerValue(unitCaster.Class == Class.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
 			SpellPower = unitCaster.SpellBaseDamageBonusDone(SpellSchoolMask.Spell);
 			Armor = unitCaster.GetArmor();
-			var primaryPowerType = unitCaster.GetPowerType();
+			var primaryPowerType = unitCaster.DisplayPowerType;
 			var primaryPowerAdded = false;
 
 			foreach (var cost in spell.PowerCost)

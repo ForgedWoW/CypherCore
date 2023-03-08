@@ -443,8 +443,8 @@ namespace Game.Loots
                         continue;
                     }
                     // initialize player vote map
-                    m_rollVoteMap[allowedLooter].Vote = plr.GetPassOnGroupLoot() ? RollVote.Pass : RollVote.NotEmitedYet;
-                    if (!plr.GetPassOnGroupLoot())
+                    m_rollVoteMap[allowedLooter].Vote = plr.PassOnGroupLoot ? RollVote.Pass : RollVote.NotEmitedYet;
+                    if (!plr.PassOnGroupLoot)
                         plr.AddLootRoll(this);
 
                     ++playerCount;
@@ -643,14 +643,14 @@ namespace Game.Loots
 
     public class Loot
     {
-        public Loot(Map map, ObjectGuid owner, LootType type, Group group)
+        public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group)
         {
             loot_type = type;
             _guid = map ? ObjectGuid.Create(HighGuid.LootObject, map.GetId(), 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
             _owner = owner;
             _itemContext = ItemContext.None;
-            _lootMethod = group != null ? group.GetLootMethod() : LootMethod.FreeForAll;
-            _lootMaster = group != null ? group.GetMasterLooterGuid() : ObjectGuid.Empty;
+            _lootMethod = group != null ? group.LootMethod : LootMethod.FreeForAll;
+            _lootMaster = group != null ? group.MasterLooterGuid : ObjectGuid.Empty;
         }
 
         // Inserts the item into the loot (called by LootTemplate processors)
@@ -756,15 +756,15 @@ namespace Game.Loots
             tab.Process(this, store.IsRatesAllowed(), (byte)lootMode, 0);          // Processing is done there, callback via Loot.AddItem()
 
             // Setting access rights for group loot case
-            Group group = lootOwner.GetGroup();
+            PlayerGroup group = lootOwner.Group;
             if (!personal && group != null)
             {
                 if (loot_type == LootType.Corpse)
                     roundRobinPlayer = lootOwner.GUID;
 
-                for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                 {
-                    Player player = refe.GetSource();
+                    Player player = refe.Source;
                     if (player)   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                         if (player.IsAtGroupRewardDistance(lootOwner))
                             FillNotNormalLootFor(player);
@@ -778,7 +778,7 @@ namespace Game.Loots
                     ItemTemplate proto = Global.ObjectMgr.GetItemTemplate(item.itemid);
                     if (proto != null)
                     {
-                        if (proto.GetQuality() < group.GetLootThreshold())
+                        if (proto.GetQuality() < group.LootThreshold)
                             item.is_underthreshold = true;
                         else
                         {

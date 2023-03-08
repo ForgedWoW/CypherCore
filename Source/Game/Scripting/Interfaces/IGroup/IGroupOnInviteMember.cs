@@ -8,5 +8,5 @@ namespace Game.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnInviteMember : IScriptObject
 {
-	void OnInviteMember(Group group, ObjectGuid guid);
+	void OnInviteMember(PlayerGroup group, ObjectGuid guid);
 }

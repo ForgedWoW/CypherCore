@@ -140,7 +140,7 @@ public partial class Spell
 
 		var player = UnitTarget.AsPlayer;
 
-		var group = player.GetGroup();
+		var group = player.Group;
 		var creature = _caster.AsCreature;
 
 		if (creature == null)
@@ -148,7 +148,7 @@ public partial class Spell
 
 		if (group == null)
 		{
-			group = new Group();
+			group = new PlayerGroup();
 			group.Create(player);
 			// group->ConvertToLFG(dungeon);
 			group.SetDungeonDifficultyID(SpellInfo.Difficulty);
@@ -296,7 +296,7 @@ public partial class Spell
 		if (player == null || player.IsAlive || !player.IsInWorld)
 			return;
 
-		if (player.IsResurrectRequested()) // already have one active request
+		if (player.IsResurrectRequested) // already have one active request
 			return;
 
 		ExecuteLogEffectResurrect(EffectInfo.Effect, player);
@@ -970,7 +970,7 @@ public partial class Spell
 
 		var powerType = (PowerType)EffectInfo.MiscValue;
 
-		if (UnitTarget == null || !UnitTarget.IsAlive || UnitTarget.GetPowerType() != powerType || Damage < 0)
+		if (UnitTarget == null || !UnitTarget.IsAlive || UnitTarget.DisplayPowerType != powerType || Damage < 0)
 			return;
 
 		var unitCaster = GetUnitCasterForEffectHandlers();
@@ -1049,7 +1049,7 @@ public partial class Spell
 
 		var powerType = (PowerType)EffectInfo.MiscValue;
 
-		if (UnitTarget == null || !UnitTarget.IsAlive || UnitTarget.GetPowerType() != powerType || Damage < 0)
+		if (UnitTarget == null || !UnitTarget.IsAlive || UnitTarget.DisplayPowerType != powerType || Damage < 0)
 			return;
 
 		double newDamage = -(UnitTarget.ModifyPower(powerType, -Damage));
@@ -1112,7 +1112,7 @@ public partial class Spell
 		addhealth = (int)UnitTarget.SpellHealingBonusTaken(unitCaster, SpellInfo, addhealth, DamageEffectType.Heal);
 
 		// Remove Grievious bite if fully healed
-		if (UnitTarget.HasAura(48920) && ((UnitTarget.GetHealth() + addhealth) >= UnitTarget.GetMaxHealth()))
+		if (UnitTarget.HasAura(48920) && ((UnitTarget.Health + addhealth) >= UnitTarget.MaxHealth))
 			UnitTarget.RemoveAura(48920);
 
 		HealingInEffects += addhealth;
@@ -1694,8 +1694,8 @@ public partial class Spell
 			privateObjectOwner = caster.PrivateObjectOwner;
 
 		if (properties.GetFlags().HasFlag(SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
-			if (caster.IsPlayer && _originalCaster.AsPlayer.GetGroup())
-				privateObjectOwner = caster.AsPlayer.GetGroup().GetGUID();
+			if (caster.IsPlayer && _originalCaster.AsPlayer.Group)
+				privateObjectOwner = caster.AsPlayer.Group.GUID;
 
 		var duration = SpellInfo.CalcDuration(caster);
 
@@ -2525,7 +2525,7 @@ public partial class Spell
 			return;
 		}
 
-		var OldSummon = owner.GetPet();
+		var OldSummon = owner.CurrentPet;
 
 		// if pet requested type already exist
 		if (OldSummon != null)
@@ -2846,9 +2846,9 @@ public partial class Spell
 
 		// damage == 0 - heal for caster max health
 		if (Damage == 0)
-			addhealth = (int)unitCaster.GetMaxHealth();
+			addhealth = (int)unitCaster.MaxHealth;
 		else
-			addhealth = (int)(UnitTarget.GetMaxHealth() - UnitTarget.GetHealth());
+			addhealth = (int)(UnitTarget.MaxHealth - UnitTarget.Health);
 
 		HealingInEffects += addhealth;
 	}
@@ -3520,7 +3520,7 @@ public partial class Spell
 		if (foodItem == null)
 			return;
 
-		var pet = player.GetPet();
+		var pet = player.CurrentPet;
 
 		if (pet == null)
 			return;
@@ -3654,7 +3654,7 @@ public partial class Spell
 		if (player == null || player.IsAlive || !player.IsInWorld)
 			return;
 
-		if (player.IsResurrectRequested()) // already have one active request
+		if (player.IsResurrectRequested) // already have one active request
 			return;
 
 		var health = (uint)player.CountPctFromMaxHealth(Damage);
@@ -4229,9 +4229,9 @@ public partial class Spell
 		if (!player || !Targets.HasDst)
 			return;
 
-		var group = player.GetGroup();
+		var group = player.Group;
 
-		if (!group || (group.IsRaidGroup() && !group.IsLeader(player.GUID) && !group.IsAssistant(player.GUID)))
+		if (!group || (group.IsRaidGroup && !group.IsLeader(player.GUID) && !group.IsAssistant(player.GUID)))
 			return;
 
 		group.AddRaidMarker((byte)Damage, player.Location.MapId, DestTarget.X, DestTarget.Y, DestTarget.Z);
@@ -4284,9 +4284,9 @@ public partial class Spell
 		// Maybe player dismissed dead pet or pet despawned?
 		var hadPet = true;
 
-		if (player.GetPet() == null)
+		if (player.CurrentPet == null)
 		{
-			var petStable = player.GetPetStable();
+			var petStable = player.PetStable1;
 			var deadPetIndex = Array.FindIndex(petStable.ActivePets, petInfo => petInfo?.Health == 0);
 
 			var slot = (PetSaveMode)deadPetIndex;
@@ -4296,7 +4296,7 @@ public partial class Spell
 		}
 
 		// TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
-		var pet = player.GetPet(); // Attempt to get current pet
+		var pet = player.CurrentPet; // Attempt to get current pet
 
 		if (pet == null || pet.IsAlive)
 			return;
@@ -5157,7 +5157,7 @@ public partial class Spell
 		if (!spec.IsPetSpecialization())
 			player.ActivateTalentGroup(spec);
 		else
-			player.GetPet().SetSpecialization(specID);
+			player.			CurrentPet.SetSpecialization(specID);
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlaySound)]
@@ -5478,7 +5478,7 @@ public partial class Spell
 		if (UnitTarget.IsAlive)
 			return;
 
-		if (target.IsResurrectRequested()) // already have one active request
+		if (target.IsResurrectRequested) // already have one active request
 			return;
 
 		var health = (uint)target.CountPctFromMaxHealth(Damage);

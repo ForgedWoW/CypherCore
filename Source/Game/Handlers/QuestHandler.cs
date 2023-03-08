@@ -152,12 +152,12 @@ namespace Game
 
                     if (quest.HasFlag(QuestFlags.PartyAccept))
                     {
-                        var group = _player.GetGroup();
+                        var group = _player.Group;
                         if (group)
                         {
-                            for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                            for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                             {
-                                Player player = refe.GetSource();
+                                Player player = refe.Source;
 
                                 if (!player || player == _player || !player.IsInMap(_player))     // not self and in same map
                                     continue;
@@ -550,16 +550,16 @@ namespace Game
                 return;
             }
 
-            Group group = sender.GetGroup();
+            PlayerGroup group = sender.Group;
             if (!group)
             {
                 sender.SendPushToPartyResponse(sender, QuestPushReason.NotInParty);
                 return;
             }
 
-            for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+            for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
             {
-                Player receiver = refe.GetSource();
+                Player receiver = refe.Source;
 
                 if (!receiver || receiver == sender)
                     continue;

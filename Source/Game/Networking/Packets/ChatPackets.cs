@@ -169,8 +169,8 @@ public class ChatPkt : ServerPacket
 		if (receiver)
 			SetReceiver(receiver, locale);
 
-		SenderVirtualAddress = Global.WorldMgr.GetVirtualRealmAddress();
-		TargetVirtualAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		SenderVirtualAddress = Global.WorldMgr.VirtualRealmAddress;
+		TargetVirtualAddress = Global.WorldMgr.VirtualRealmAddress;
 		AchievementID = achievementId;
 		Channel = channelName;
 		Prefix = addonPrefix;
@@ -243,10 +243,10 @@ public class ChatPkt : ServerPacket
 
 			SenderGuildGUID = ObjectGuid.Create(HighGuid.Guild, playerSender.GuildId);
 
-			var group = playerSender.GetGroup();
+			var group = playerSender.Group;
 
 			if (group)
-				PartyGUID = group.GetGUID();
+				PartyGUID = group.GUID;
 		}
 	}
 }

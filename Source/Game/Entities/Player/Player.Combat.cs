@@ -21,12 +21,12 @@ public partial class Player
 		var creature_guid = pRewardSource.IsTypeId(TypeId.Unit) ? pRewardSource.GUID : ObjectGuid.Empty;
 
 		// prepare data for near group iteration
-		var group = GetGroup();
+		var group = Group;
 
 		if (group)
-			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+			for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 			{
-				var player = refe.GetSource();
+				var player = refe.Source;
 
 				if (!player)
 					continue;
@@ -210,7 +210,7 @@ public partial class Player
 	// duel health and mana reset methods
 	public void SaveHealthBeforeDuel()
 	{
-		_healthBeforeDuel = (uint)GetHealth();
+		_healthBeforeDuel = (uint)Health;
 	}
 
 	public void SaveManaBeforeDuel()
@@ -256,8 +256,8 @@ public partial class Player
 			DuelWinner duelWinner = new();
 			duelWinner.BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName());
 			duelWinner.WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName());
-			duelWinner.BeatenVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
-			duelWinner.WinnerVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+			duelWinner.BeatenVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			duelWinner.WinnerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 			duelWinner.Fled = type != DuelCompleteType.Won;
 
 			SendMessageToSet(duelWinner, true);
@@ -432,7 +432,7 @@ public partial class Player
 	{
 		// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
 		// no, we shouldn't, those are checked for affecting player by client
-		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm() || HasAuraType(AuraType.SetFFAPvp)))
+		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
 		{
 			if (!IsFFAPvP)
 			{

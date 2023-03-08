@@ -42,7 +42,7 @@ public partial class Creature
 
 	public override uint GetPowerIndex(PowerType powerType)
 	{
-		if (powerType == GetPowerType())
+		if (powerType == DisplayPowerType)
 			return 0;
 
 		if (powerType == PowerType.AlternatePower)

@@ -342,6 +342,74 @@ public partial class Player : Unit
 
 	bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
 
+	//Pet - Summons - Vehicles
+	public PetStable PetStable1 => _petStable;
+
+	// last used pet number (for BG's)
+	public uint LastPetNumber
+	{
+		get => _lastpetnumber;
+		set => _lastpetnumber = value;
+	}
+
+	public uint TemporaryUnsummonedPetNumber
+	{
+		get => _temporaryUnsummonedPetNumber;
+		set => _temporaryUnsummonedPetNumber = value;
+	}
+
+	public bool IsResurrectRequested => _resurrectionData != null;
+
+	public Unit SelectedUnit
+	{
+		get
+		{
+			var selectionGUID = Target;
+
+			if (!selectionGUID.IsEmpty)
+				return Global.ObjAccessor.GetUnit(this, selectionGUID);
+
+			return null;
+		}
+	}
+
+	public Player SelectedPlayer
+	{
+		get
+		{
+			var selectionGUID = Target;
+
+			if (!selectionGUID.IsEmpty)
+				return Global.ObjAccessor.GetPlayer(this, selectionGUID);
+
+			return null;
+		}
+	}
+
+	public Pet CurrentPet
+	{
+		get
+		{
+			var petGuid = PetGUID;
+
+			if (!petGuid.IsEmpty)
+			{
+				if (!petGuid.IsPet)
+					return null;
+
+				var pet = ObjectAccessor.GetPet(this, petGuid);
+
+				if (pet == null)
+					return null;
+
+				if (IsInWorld)
+					return pet;
+			}
+
+			return null;
+		}
+	}
+
 	public Player(WorldSession session) : base(true)
 	{
 		ObjectTypeMask |= TypeMask.Player;
@@ -360,7 +428,7 @@ public partial class Player : Unit
 		_nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
 		_customizationsChanged = false;
 
-		SetGroupInvite(null);
+		GroupInvite = null;
 
 		LoginFlags = AtLoginFlags.None;
 		PlayerTalkClass = new PlayerMenu(session);
@@ -961,7 +1029,7 @@ public partial class Player : Unit
 			_groupUpdateTimer.Reset(5000);
 		}
 
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet != null && !pet.IsWithinDistInMap(this, Map.GetVisibilityRange()) && !pet.IsPossessed)
 			RemovePet(pet, PetSaveMode.NotInSlot, true);
@@ -1147,7 +1215,7 @@ public partial class Player : Unit
 
 		if (_delayedOperations.HasAnyFlag(PlayerDelayedOperations.BGGroupRestore))
 		{
-			var g = GetGroup();
+			var g = Group;
 
 			if (g != null)
 				g.SendUpdateToPlayer(GUID);
@@ -1203,36 +1271,9 @@ public partial class Player : Unit
 		_activeCheats &= ~command;
 	}
 
-	//Pet - Summons - Vehicles
-	public PetStable GetPetStable()
-	{
-		return _petStable;
-	}
-
-	// last used pet number (for BG's)
-	public uint GetLastPetNumber()
-	{
-		return _lastpetnumber;
-	}
-
-	public void SetLastPetNumber(uint petnumber)
-	{
-		_lastpetnumber = petnumber;
-	}
-
-	public uint GetTemporaryUnsummonedPetNumber()
-	{
-		return _temporaryUnsummonedPetNumber;
-	}
-
-	public void SetTemporaryUnsummonedPetNumber(uint petnumber)
-	{
-		_temporaryUnsummonedPetNumber = petnumber;
-	}
-
 	public void UnsummonPetTemporaryIfAny()
 	{
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (!pet)
 			return;
@@ -2002,7 +2043,7 @@ public partial class Player : Unit
 		}
 
 		// preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		var mEntry = CliDB.MapStorage.LookupByKey(mapid);
 
@@ -2402,7 +2443,7 @@ public partial class Player : Unit
 
 			if (damageperc > 0)
 			{
-				var damage = damageperc * GetMaxHealth() * WorldConfig.GetFloatValue(WorldCfg.RateDamageFall);
+				var damage = damageperc * MaxHealth * WorldConfig.GetFloatValue(WorldCfg.RateDamageFall);
 
 				var height = movementInfo.Pos.Z;
 				height = UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
@@ -2412,14 +2453,14 @@ public partial class Player : Unit
 				if (damage > 0)
 				{
 					//Prevent fall damage from being more than the player maximum health
-					if (damage > GetMaxHealth())
-						damage = GetMaxHealth();
+					if (damage > MaxHealth)
+						damage = MaxHealth;
 
 					// Gust of Wind
 					if (HasAura(43621))
-						damage = GetMaxHealth() / 2;
+						damage = MaxHealth / 2;
 
-					var original_health = GetHealth();
+					var original_health = Health;
 					var final_damage = EnvironmentalDamage(EnviromentalDamage.Fall, damage);
 
 					// recheck alive, might have died of EnvironmentalDamage, avoid cases when player die in fact like Spirit of Redemption case
@@ -2458,11 +2499,11 @@ public partial class Player : Unit
 
 		SummonRequest summonRequest = new();
 		summonRequest.SummonerGUID = summoner.GUID;
-		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 		summonRequest.AreaID = (int)summoner.Zone;
 		SendPacket(summonRequest);
 
-		var group = GetGroup();
+		var group = Group;
 
 		if (group != null)
 		{
@@ -2507,7 +2548,7 @@ public partial class Player : Unit
 	{
 		void broadcastSummonResponse(bool accepted)
 		{
-			var group = GetGroup();
+			var group = Group;
 
 			if (group != null)
 			{
@@ -2586,7 +2627,7 @@ public partial class Player : Unit
 			SetPlayerFlag(PlayerFlags.GM);
 			SetUnitFlag2(UnitFlags2.AllowCheatSpells);
 
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet != null)
 				pet.Faction = 35;
@@ -2608,13 +2649,13 @@ public partial class Player : Unit
 			RemovePlayerFlag(PlayerFlags.GM);
 			RemoveUnitFlag2(UnitFlags2.AllowCheatSpells);
 
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet != null)
 				pet.Faction = Faction;
 
 			// restore FFA PvP Server state
-			if (Global.WorldMgr.IsFFAPvPRealm())
+			if (Global.WorldMgr.IsFFAPvPRealm)
 				SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
 			// restore FFA PvP area state, remove not allowed for GM mounts
@@ -3315,7 +3356,7 @@ public partial class Player : Unit
 
 	public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
 	{
-		Cypher.Assert(!IsResurrectRequested());
+		Cypher.Assert(!IsResurrectRequested);
 		_resurrectionData = new ResurrectionData();
 		_resurrectionData.Guid = caster.GUID;
 		_resurrectionData.Location.WorldRelocate(caster.Location);
@@ -3331,15 +3372,10 @@ public partial class Player : Unit
 
 	public bool IsRessurectRequestedBy(ObjectGuid guid)
 	{
-		if (!IsResurrectRequested())
+		if (!IsResurrectRequested)
 			return false;
 
 		return !_resurrectionData.Guid.IsEmpty && _resurrectionData.Guid == guid;
-	}
-
-	public bool IsResurrectRequested()
-	{
-		return _resurrectionData != null;
 	}
 
 	public void ResurrectUsingRequestData()
@@ -3462,7 +3498,7 @@ public partial class Player : Unit
 	{
 		SetFullHealth();
 
-		switch (GetPowerType())
+		switch (DisplayPowerType)
 		{
 			case PowerType.Mana:
 				SetFullPower(PowerType.Mana);
@@ -3487,26 +3523,6 @@ public partial class Player : Unit
 			default:
 				break;
 		}
-	}
-
-	public Unit GetSelectedUnit()
-	{
-		var selectionGUID = Target;
-
-		if (!selectionGUID.IsEmpty)
-			return Global.ObjAccessor.GetUnit(this, selectionGUID);
-
-		return null;
-	}
-
-	public Player GetSelectedPlayer()
-	{
-		var selectionGUID = Target;
-
-		if (!selectionGUID.IsEmpty)
-			return Global.ObjAccessor.GetPlayer(this, selectionGUID);
-
-		return null;
 	}
 
 	public static bool IsValidGender(Gender _gender)
@@ -3744,7 +3760,7 @@ public partial class Player : Unit
 		// set health/powers (0- will be set in caller)
 		if (restore_percent > 0.0f)
 		{
-			SetHealth((ulong)(GetMaxHealth() * restore_percent));
+			SetHealth((ulong)(MaxHealth * restore_percent));
 			SetPower(PowerType.Mana, (int)(GetMaxPower(PowerType.Mana) * restore_percent));
 			SetPower(PowerType.Rage, 0);
 			SetPower(PowerType.Energy, (int)(GetMaxPower(PowerType.Energy) * restore_percent));
@@ -3936,30 +3952,9 @@ public partial class Player : Unit
 		return PlayerConst.copseReclaimDelay[count];
 	}
 
-	public Pet GetPet()
-	{
-		var petGuid = PetGUID;
-
-		if (!petGuid.IsEmpty)
-		{
-			if (!petGuid.IsPet)
-				return null;
-
-			var pet = ObjectAccessor.GetPet(this, petGuid);
-
-			if (pet == null)
-				return null;
-
-			if (IsInWorld)
-				return pet;
-		}
-
-		return null;
-	}
-
 	public bool TryGetPet(out Pet pet)
 	{
-		pet = GetPet();
+		pet = CurrentPet;
 
 		return pet != null;
 	}
@@ -4072,7 +4067,7 @@ public partial class Player : Unit
 	public void RemovePet(Pet pet, PetSaveMode mode, bool returnreagent = false)
 	{
 		if (!pet)
-			pet = GetPet();
+			pet = CurrentPet;
 
 		if (pet)
 		{
@@ -4138,7 +4133,7 @@ public partial class Player : Unit
 		{
 			SendPacket(new PetSpells());
 
-			if (GetGroup())
+			if (Group)
 				SetGroupUpdateFlag(GroupUpdateFlags.Pet);
 		}
 	}
@@ -4154,7 +4149,7 @@ public partial class Player : Unit
 	{
 		PetAuras.Add(petSpell);
 
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet != null)
 			pet.CastPetAura(petSpell);
@@ -4164,7 +4159,7 @@ public partial class Player : Unit
 	{
 		PetAuras.Remove(petSpell);
 
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet != null)
 			pet.RemoveAura(petSpell.GetAura(pet.Entry));
@@ -4633,7 +4628,7 @@ public partial class Player : Unit
 		SetFullPower(PowerType.Mana);
 
 		// update level to hunter/summon pet
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet)
 			pet.SynchronizeLevelWithOwner();
@@ -4874,9 +4869,9 @@ public partial class Player : Unit
 		// SMSG_WORLD_SERVER_INFO
 		WorldServerInfo worldServerInfo = new();
 		worldServerInfo.InstanceGroupSize = Map.GetMapDifficulty().MaxPlayers; // @todo
-		worldServerInfo.IsTournamentRealm = false;                                  // @todo
-		worldServerInfo.RestrictedAccountMaxLevel = null;                           // @todo
-		worldServerInfo.RestrictedAccountMaxMoney = null;                           // @todo
+		worldServerInfo.IsTournamentRealm = false;                             // @todo
+		worldServerInfo.RestrictedAccountMaxLevel = null;                      // @todo
+		worldServerInfo.RestrictedAccountMaxMoney = null;                      // @todo
 		worldServerInfo.DifficultyID = (uint)Map.GetDifficultyID();
 		// worldServerInfo.XRealmPvpAlert;  // @todo
 		SendPacket(worldServerInfo);
@@ -5221,7 +5216,7 @@ public partial class Player : Unit
 		SetPower(PowerType.RunicPower, 0);
 
 		// update level to hunter/summon pet
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (pet)
 			pet.SynchronizeLevelWithOwner();
@@ -5836,12 +5831,12 @@ public partial class Player : Unit
 
 		if (Level <= WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
 		{
-			var group = GetGroup();
+			var group = Group;
 
 			if (group)
-				for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+				for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 				{
-					var player = refe.GetSource();
+					var player = refe.Source;
 
 					if (!player)
 						continue;
@@ -5905,7 +5900,7 @@ public partial class Player : Unit
 		randomRoll.Roller = GUID;
 		randomRoll.RollerWowAccount = Session.AccountGUID;
 
-		var group = GetGroup();
+		var group = Group;
 
 		if (group)
 			group.BroadcastPacket(randomRoll, false);
@@ -7300,8 +7295,8 @@ public partial class Player : Unit
 
 	void RegenerateHealth()
 	{
-		var curValue = GetHealth();
-		var maxValue = GetMaxHealth();
+		var curValue = Health;
+		var maxValue = MaxHealth;
 
 		if (curValue >= maxValue)
 			return;
@@ -7312,7 +7307,7 @@ public partial class Player : Unit
 		// polymorphed case
 		if (IsPolymorphed())
 		{
-			addValue = GetMaxHealth() / 3;
+			addValue = MaxHealth / 3;
 		}
 		// normal regen case (maybe partly in combat case)
 		else if (!IsInCombat || HasAuraType(AuraType.ModRegenDuringCombat))
@@ -7322,9 +7317,9 @@ public partial class Player : Unit
 			if (!IsInCombat)
 			{
 				if (Level < 15)
-					addValue = (0.20f * (GetMaxHealth()) / Level * HealthIncreaseRate);
+					addValue = (0.20f * (MaxHealth) / Level * HealthIncreaseRate);
 				else
-					addValue = 0.015f * (GetMaxHealth()) * HealthIncreaseRate;
+					addValue = 0.015f * (MaxHealth) * HealthIncreaseRate;
 
 				addValue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
 				addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.InMilliseconds / (5 * Time.InMilliseconds);
@@ -7407,7 +7402,7 @@ public partial class Player : Unit
 					_mirrorTimer[breathTimer] += 1 * Time.InMilliseconds;
 					// Calculate and deal damage
 					// @todo Check this formula
-					var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, Level - 1));
+					var damage = (uint)(MaxHealth / 5 + RandomHelper.URand(0, Level - 1));
 					EnvironmentalDamage(EnviromentalDamage.Drowning, damage);
 				}
 				else if (!_mirrorTimerFlagsLast.HasAnyFlag(PlayerUnderwaterState.InWater)) // Update time in client if need
@@ -7448,7 +7443,7 @@ public partial class Player : Unit
 
 					if (IsAlive) // Calculate and deal damage
 					{
-						var damage = (uint)(GetMaxHealth() / 5 + RandomHelper.URand(0, Level - 1));
+						var damage = (uint)(MaxHealth / 5 + RandomHelper.URand(0, Level - 1));
 						EnvironmentalDamage(EnviromentalDamage.Exhausted, damage);
 					}
 					else if (HasPlayerFlag(PlayerFlags.Ghost)) // Teleport ghost to graveyard
@@ -8166,7 +8161,7 @@ public partial class Player : Unit
 			return false;
 
 		// group update
-		if (GetGroup())
+		if (Group)
 			SetGroupUpdateFlag(GroupUpdateFlags.Position);
 
 		if (GetTrader() && !IsWithinDistInMap(GetTrader(), SharedConst.InteractionDistance))

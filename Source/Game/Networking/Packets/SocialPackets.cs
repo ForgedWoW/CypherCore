@@ -56,7 +56,7 @@ public class FriendStatusPkt : ServerPacket
 
 	public void Initialize(ObjectGuid guid, FriendsResult result, FriendInfo friendInfo)
 	{
-		VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 		Notes = friendInfo.Note;
 		ClassID = friendInfo.Class;
 		Status = friendInfo.Status;
@@ -188,8 +188,8 @@ public class ContactInfo
 	{
 		Guid = guid;
 		WowAccountGuid = friendInfo.WowAccountGuid;
-		VirtualRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
-		NativeRealmAddr = Global.WorldMgr.GetVirtualRealmAddress();
+		VirtualRealmAddr = Global.WorldMgr.VirtualRealmAddress;
+		NativeRealmAddr = Global.WorldMgr.VirtualRealmAddress;
 		TypeFlags = friendInfo.Flags;
 		Notes = friendInfo.Note;
 		Status = friendInfo.Status;

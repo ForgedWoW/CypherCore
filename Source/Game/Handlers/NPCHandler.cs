@@ -338,7 +338,7 @@ namespace Game
             PetStableList packet = new();
             packet.StableMaster = guid;
 
-            PetStable petStable = Player.GetPetStable();
+            PetStable petStable = Player.PetStable1;
             if (petStable == null)
             {
                 SendPacket(packet);
@@ -402,7 +402,7 @@ namespace Game
 
             Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
 
-            PetStable petStable = Player.GetPetStable();
+            PetStable petStable = Player.PetStable1;
             if (petStable == null)
             {
                 SendPetStableResult(StableResult.InternalError);
@@ -451,7 +451,7 @@ namespace Game
                 // active<.stabled: swap petStable contents and despawn active pet if it is involved in swap
                 if (petStable.CurrentPetIndex.Value == (uint)srcPetSlot)
                 {
-                    Pet oldPet = _player.GetPet();
+                    Pet oldPet = _player.CurrentPet;
                     if (oldPet != null && !oldPet.IsAlive)
                     {
                         SendPetStableResult(StableResult.InternalError);
@@ -479,7 +479,7 @@ namespace Game
                 // stabled<.active: swap petStable contents and despawn active pet if it is involved in swap
                 if (petStable.CurrentPetIndex.Value == (uint)dstPetSlot)
                 {
-                    Pet oldPet = _player.GetPet();
+                    Pet oldPet = _player.CurrentPet;
                     if (oldPet != null && !oldPet.IsAlive)
                     {
                         SendPetStableResult(StableResult.InternalError);
@@ -526,7 +526,7 @@ namespace Game
                     {
                         Extensions.Swap(ref src, ref dst);
                         if (newActivePetIndex.HasValue)
-                            Player.GetPetStable().SetCurrentActivePetIndex((uint)newActivePetIndex.Value);
+                            Player.                            PetStable1.SetCurrentActivePetIndex((uint)newActivePetIndex.Value);
                         SendPetStableResult(StableResult.StableSuccess);
                     }
                     else

@@ -43,7 +43,7 @@ namespace Game.BattleGrounds
         }
 
         // add group or player (grp == null) to bg queue with the given leader and bg specifications
-        public GroupQueueInfo AddGroup(Player leader, Group group, TeamFaction team, PvpDifficultyRecord bracketEntry, bool isPremade, uint ArenaRating, uint MatchmakerRating, uint arenateamid = 0)
+        public GroupQueueInfo AddGroup(Player leader, PlayerGroup group, TeamFaction team, PvpDifficultyRecord bracketEntry, bool isPremade, uint ArenaRating, uint MatchmakerRating, uint arenateamid = 0)
         {
             BattlegroundBracketId bracketId = bracketEntry.GetBracketId();
 
@@ -82,9 +82,9 @@ namespace Game.BattleGrounds
             //add players from group to ginfo
             if (group)
             {
-                for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                 {
-                    Player member = refe.GetSource();
+                    Player member = refe.Source;
                     if (!member)
                         continue;   // this should never happen
 

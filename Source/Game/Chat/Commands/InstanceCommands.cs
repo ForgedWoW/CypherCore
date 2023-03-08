@@ -70,7 +70,7 @@ namespace Game.Chat
                 MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
                 string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
                 handler.SendSysMessage(CypherStrings.CommandListBindInfo,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()],
+                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
                     entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                     instanceLock.GetInstanceId(),
                     handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
@@ -167,7 +167,7 @@ namespace Game.Chat
                 MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
                 string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
                 handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()],
+                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
                     entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                     instanceLock.GetInstanceId(),
                     handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
@@ -182,7 +182,7 @@ namespace Game.Chat
                 MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
                 string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
                 handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.GetDefaultDbcLocale()],
+                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
                     entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
                     instanceLock.GetInstanceId(),
                     handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),

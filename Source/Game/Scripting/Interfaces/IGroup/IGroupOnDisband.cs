@@ -7,5 +7,5 @@ namespace Game.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnDisband : IScriptObject
 {
-	void OnDisband(Group group);
+	void OnDisband(PlayerGroup group);
 }

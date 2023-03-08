@@ -27,7 +27,7 @@ public class aura_warl_burning_rush : AuraScript, IHasAuraEffects
 			// This way if the current tick takes you below 4%, next tick won't execute
 			var basepoints = Caster.CountPctFromMaxHealth(4);
 
-			if (Caster.GetHealth() <= basepoints || Caster.GetHealth() - basepoints <= basepoints)
+			if (Caster.Health <= basepoints || Caster.Health - basepoints <= basepoints)
 				Aura.SetDuration(0);
 		}
 	}

@@ -90,7 +90,7 @@ class PartyInvite : ServerPacket
 
 		ProposedRoles = proposedRoles;
 
-		var realm = Global.WorldMgr.GetRealm();
+		var realm = Global.WorldMgr.Realm;
 		InviterRealm = new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
 	}
 
@@ -246,14 +246,14 @@ class PartyMemberFullState : ServerPacket
 		MemberStats.Level = (ushort)player.Level;
 
 		// Health
-		MemberStats.CurrentHealth = (int)player.GetHealth();
-		MemberStats.MaxHealth = (int)player.GetMaxHealth();
+		MemberStats.CurrentHealth = (int)player.Health;
+		MemberStats.MaxHealth = (int)player.MaxHealth;
 
 		// Power
-		MemberStats.PowerType = (byte)player.GetPowerType();
+		MemberStats.PowerType = (byte)player.DisplayPowerType;
 		MemberStats.PowerDisplayID = 0;
-		MemberStats.CurrentPower = (ushort)player.GetPower(player.GetPowerType());
-		MemberStats.MaxPower = (ushort)player.GetMaxPower(player.GetPowerType());
+		MemberStats.CurrentPower = (ushort)player.GetPower(player.DisplayPowerType);
+		MemberStats.MaxPower = (ushort)player.GetMaxPower(player.DisplayPowerType);
 
 		// Position
 		MemberStats.ZoneID = (ushort)player.Zone;
@@ -298,9 +298,9 @@ class PartyMemberFullState : ServerPacket
 		PhasingHandler.FillPartyMemberPhase(MemberStats.Phases, player.PhaseShift);
 
 		// Pet
-		if (player.GetPet())
+		if (player.CurrentPet)
 		{
-			var pet = player.GetPet();
+			var pet = player.CurrentPet;
 
 			MemberStats.PetStats = new PartyMemberPetStats();
 
@@ -308,8 +308,8 @@ class PartyMemberFullState : ServerPacket
 			MemberStats.PetStats.Name = pet.GetName();
 			MemberStats.PetStats.ModelId = (short)pet.DisplayId;
 
-			MemberStats.PetStats.CurrentHealth = (int)pet.GetHealth();
-			MemberStats.PetStats.MaxHealth = (int)pet.GetMaxHealth();
+			MemberStats.PetStats.CurrentHealth = (int)pet.Health;
+			MemberStats.PetStats.MaxHealth = (int)pet.MaxHealth;
 
 			foreach (var aurApp in pet.GetVisibleAuras())
 			{

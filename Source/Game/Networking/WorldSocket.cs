@@ -547,7 +547,7 @@ public class WorldSocket : SocketBase
 	{
 		// Get the account information from the realmd database
 		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
-		stmt.AddValue(0, Global.WorldMgr.GetRealm().Id.Index);
+		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
 		stmt.AddValue(1, authSession.RealmJoinTicket);
 
 		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
@@ -564,12 +564,12 @@ public class WorldSocket : SocketBase
 			return;
 		}
 
-		var buildInfo = Global.RealmMgr.GetBuildInfo(Global.WorldMgr.GetRealm().Build);
+		var buildInfo = Global.RealmMgr.GetBuildInfo(Global.WorldMgr.Realm.Build);
 
 		if (buildInfo == null)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.BadVersion);
-			Log.outError(LogFilter.Network, $"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {Global.WorldMgr.GetRealm().Build} ({GetRemoteIpAddress()}).");
+			Log.outError(LogFilter.Network, $"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {Global.WorldMgr.Realm.Build} ({GetRemoteIpAddress()}).");
 			CloseSocket();
 
 			return;
@@ -651,7 +651,7 @@ public class WorldSocket : SocketBase
 		DB.Login.Execute(stmt);
 
 		// First reject the connection if packet contains invalid data or realm state doesn't allow logging in
-		if (Global.WorldMgr.IsClosed())
+		if (Global.WorldMgr.IsClosed)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
@@ -660,7 +660,7 @@ public class WorldSocket : SocketBase
 			return;
 		}
 
-		if (authSession.RealmID != Global.WorldMgr.GetRealm().Id.Index)
+		if (authSession.RealmID != Global.WorldMgr.Realm.Id.Index)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 
@@ -668,7 +668,7 @@ public class WorldSocket : SocketBase
 						"WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
 						GetRemoteIpAddress().ToString(),
 						authSession.RealmID,
-						Global.WorldMgr.GetRealm().Id.Index);
+						Global.WorldMgr.						Realm.Id.Index);
 
 			CloseSocket();
 
@@ -734,7 +734,7 @@ public class WorldSocket : SocketBase
 		}
 
 		// Check locked state for server
-		var allowedAccountType = Global.WorldMgr.GetPlayerSecurityLimit();
+		var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
 
 		if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
 		{

@@ -26,9 +26,9 @@ public class npc_mirror_imageAI : CasterAI
 		}
 
 		// me->SetMaxPower(me->GetPowerType(), owner->GetMaxPower(me->GetPowerType()));
-		me.SetFullPower(me.GetPowerType());
-		me.SetMaxHealth(owner.AsUnit.GetMaxHealth());
-		me.SetHealth(owner.AsUnit.GetHealth());
+		me.SetFullPower(me.DisplayPowerType);
+		me.SetMaxHealth(owner.AsUnit.MaxHealth);
+		me.SetHealth(owner.AsUnit.Health);
 		me.ReactState = ReactStates.Defensive;
 
 		me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);

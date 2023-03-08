@@ -1358,7 +1358,7 @@ namespace Game
                         return false;
                     }
 
-                    if (cond.ConditionValue2 < 1 || cond.ConditionValue2 > Global.WorldMgr.GetConfigMaxSkillValue())
+                    if (cond.ConditionValue2 < 1 || cond.ConditionValue2 > Global.WorldMgr.ConfigMaxSkillValue)
                     {
                         Log.outDebug(LogFilter.Sql, "{0} specifies skill ({1}) with invalid value ({1}), skipped.", cond.ToString(true), cond.ConditionValue1, cond.ConditionValue2);
                         return false;
@@ -1916,7 +1916,7 @@ namespace Game
 
         public static uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
         {
-            if (player.GetGroup() == null)
+            if (player.Group == null)
                 return 0;
 
             switch (status)
@@ -2134,7 +2134,7 @@ namespace Game
 
             if (condition.PartyStatus != 0)
             {
-                Group group = player.GetGroup();
+                PlayerGroup group = player.Group;
                 switch (condition.PartyStatus)
                 {
                     case 1:
@@ -2146,15 +2146,15 @@ namespace Game
                             return false;
                         break;
                     case 3:
-                        if (!group || group.IsRaidGroup())
+                        if (!group || group.IsRaidGroup)
                             return false;
                         break;
                     case 4:
-                        if (!group || !group.IsRaidGroup())
+                        if (!group || !group.IsRaidGroup)
                             return false;
                         break;
                     case 5:
-                        if (group && group.IsRaidGroup())
+                        if (group && group.IsRaidGroup)
                             return false;
                         break;
                     default:
@@ -2536,7 +2536,7 @@ namespace Game
                         return (player.GetWeaponForAttack(WeaponAttackType.BaseAttack) || player.GetWeaponForAttack(WeaponAttackType.OffAttack)) ? 1 : 0;
                     return (unit.GetVirtualItemId(0) != 0 || unit.GetVirtualItemId(1) != 0) ? 1 : 0;
                 case UnitConditionVariable.HealthPct:
-                    return (int)unit.GetHealthPct();
+                    return (int)unit.HealthPct;
                 case UnitConditionVariable.ManaPct:
                     return (int)unit.GetPowerPct(PowerType.Mana);
                 case UnitConditionVariable.RagePct:
@@ -2688,7 +2688,7 @@ namespace Game
                     return 0;
                 }
                 case UnitConditionVariable.Health:
-                    return (int)unit.GetHealth();
+                    return (int)unit.Health;
                 case UnitConditionVariable.SpellKnown:
                     return unit.HasSpell((uint)value) ? value : 0;
                 case UnitConditionVariable.HasHarmfulAuraEffect:
@@ -2736,7 +2736,7 @@ namespace Game
                 case UnitConditionVariable.IsPlayerControlledNPC:
                     return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
                 case UnitConditionVariable.IsDying:
-                    return unit.GetHealth() == 0 ? 1 : 0;
+                    return unit.Health == 0 ? 1 : 0;
                 case UnitConditionVariable.PathFailCount:
                     break;
                 case UnitConditionVariable.IsMounted:
@@ -2870,7 +2870,7 @@ namespace Game
                     DateTime localTime = GameTime.GetDateAndTime();
                     return localTime.Hour * Time.Minute + localTime.Minute;
                 case WorldStateExpressionFunctions.Region:
-                    return Global.WorldMgr.GetRealmId().Region;
+                    return Global.WorldMgr.RealmId.Region;
                 case WorldStateExpressionFunctions.ClockHour:
                     int currentHour = GameTime.GetDateAndTime().Hour + 1;
                     return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
@@ -2887,7 +2887,7 @@ namespace Game
                 case WorldStateExpressionFunctions.WeekNumber:
                     long now = GameTime.GetGameTime();
                     uint raidOrigin = 1135695600;
-                    Cfg_RegionsRecord region = CliDB.CfgRegionsStorage.LookupByKey(Global.WorldMgr.GetRealmId().Region);
+                    Cfg_RegionsRecord region = CliDB.CfgRegionsStorage.LookupByKey(Global.WorldMgr.RealmId.Region);
                     if (region != null)
                         raidOrigin = region.Raidorigin;
 

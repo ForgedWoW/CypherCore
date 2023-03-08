@@ -104,7 +104,7 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.RespawnCompatibilityMode);
             handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.Level);
             handler.SendSysMessage(CypherStrings.NpcinfoEquipment, target.CurrentEquipmentId, target.OriginalEquipmentId);
-            handler.SendSysMessage(CypherStrings.NpcinfoHealth, target.GetCreateHealth(), target.GetMaxHealth(), target.GetHealth());
+            handler.SendSysMessage(CypherStrings.NpcinfoHealth, target.GetCreateHealth(), target.MaxHealth, target.Health);
             handler.SendSysMessage(CypherStrings.NpcinfoMovementData, target.MovementTemplate.ToString());
 
             handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags, (uint)target.UnitData.Flags);

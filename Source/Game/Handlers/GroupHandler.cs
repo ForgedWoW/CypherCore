@@ -64,7 +64,7 @@ namespace Game
                 return;
             }
             // just ignore us
-            if (invitedPlayer.InstanceId1 != 0 && invitedPlayer.GetDungeonDifficultyId() != invitingPlayer.GetDungeonDifficultyId())
+            if (invitedPlayer.InstanceId1 != 0 && invitedPlayer.DungeonDifficultyId != invitingPlayer.DungeonDifficultyId)
             {
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.IgnoringYouS);
                 return;
@@ -82,20 +82,20 @@ namespace Game
                 return;
             }
 
-            Group group = invitingPlayer.GetGroup();
-            if (group != null && group.IsBGGroup())
-                group = invitingPlayer.GetOriginalGroup();
+            PlayerGroup group = invitingPlayer.Group;
+            if (group != null && group.IsBGGroup)
+                group = invitingPlayer.OriginalGroup;
 
             if (group == null)
-                group = invitingPlayer.GetGroupInvite();
+                group = invitingPlayer.GroupInvite;
 
-            Group group2 = invitedPlayer.GetGroup();
-            if (group2 != null && group2.IsBGGroup())
-                group2 = invitedPlayer.GetOriginalGroup();
+            PlayerGroup group2 = invitedPlayer.Group;
+            if (group2 != null && group2.IsBGGroup)
+                group2 = invitedPlayer.OriginalGroup;
 
             PartyInvite partyInvite;
             // player already in another group or invited
-            if (group2 || invitedPlayer.GetGroupInvite())
+            if (group2 || invitedPlayer.GroupInvite)
             {
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.AlreadyInGroupS);
 
@@ -115,12 +115,12 @@ namespace Game
                 // not have permissions for invite
                 if (!group.IsLeader(invitingPlayer.GUID) && !group.IsAssistant(invitingPlayer.GUID))
                 {
-                    if (group.IsCreated())
+                    if (group.IsCreated)
                         SendPartyResult(PartyOperation.Invite, "", PartyResult.NotLeader);
                     return;
                 }
                 // not have place
-                if (group.IsFull())
+                if (group.IsFull)
                 {
                     SendPartyResult(PartyOperation.Invite, "", PartyResult.GroupFull);
                     return;
@@ -132,7 +132,7 @@ namespace Game
             // at least one person joins
             if (group == null)
             {
-                group = new Group();
+                group = new PlayerGroup();
                 // new group: if can't add then delete
                 if (!group.AddLeaderInvite(invitingPlayer))
                     return;
@@ -160,7 +160,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.PartyInviteResponse)]
         void HandlePartyInviteResponse(PartyInviteResponse packet)
         {
-            Group group = Player.GetGroupInvite();
+            PlayerGroup group = Player.GroupInvite;
             if (!group)
                 return;
 
@@ -169,23 +169,23 @@ namespace Game
                 // Remove player from invitees in any case
                 group.RemoveInvite(Player);
 
-                if (group.GetLeaderGUID() == Player.GUID)
+                if (group.LeaderGUID == Player.GUID)
                 {
                     Log.outError(LogFilter.Network, "HandleGroupAcceptOpcode: player {0} ({1}) tried to accept an invite to his own group", Player.GetName(), Player.GUID.ToString());
                     return;
                 }
 
                 // Group is full
-                if (group.IsFull())
+                if (group.IsFull)
                 {
                     SendPartyResult(PartyOperation.Invite, "", PartyResult.GroupFull);
                     return;
                 }
 
-                Player leader = Global.ObjAccessor.FindPlayer(group.GetLeaderGUID());
+                Player leader = Global.ObjAccessor.FindPlayer(group.LeaderGUID);
 
                 // Forming a new group, create it
-                if (!group.IsCreated())
+                if (!group.IsCreated)
                 {
                     // This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
                     if (!leader)
@@ -210,7 +210,7 @@ namespace Game
             else
             {
                 // Remember leader if online (group will be invalid if group gets disbanded)
-                Player leader = Global.ObjAccessor.FindPlayer(group.GetLeaderGUID());
+                Player leader = Global.ObjAccessor.FindPlayer(group.LeaderGUID);
 
                 // uninvite, group can be deleted
                 Player.UninviteFromGroup();
@@ -242,7 +242,7 @@ namespace Game
                 return;
             }
 
-            Group grp = Player.GetGroup();
+            PlayerGroup grp = Player.Group;
             // grp is checked already above in CanUninviteFromGroup()
             Cypher.Assert(grp);
 
@@ -265,12 +265,12 @@ namespace Game
         void HandleSetPartyLeader(SetPartyLeader packet)
         {
             Player player = Global.ObjAccessor.FindConnectedPlayer(packet.TargetGUID);
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
 
             if (!group || !player)
                 return;
 
-            if (!group.IsLeader(Player.GUID) || player.GetGroup() != group)
+            if (!group.IsLeader(Player.GUID) || player.Group != group)
                 return;
 
             // Everything's fine, accepted.
@@ -283,7 +283,7 @@ namespace Game
         {
             RoleChangedInform roleChangedInform = new();
 
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             byte oldRole = (byte)(group ? group.GetLfgRoles(packet.TargetGUID) : 0);
             if (oldRole == packet.Role)
                 return;
@@ -306,8 +306,8 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.LeaveGroup)]
         void HandleLeaveGroup(LeaveGroup packet)
         {
-            Group grp = Player.GetGroup();
-            Group grpInvite = Player.GetGroupInvite();
+            PlayerGroup grp = Player.Group;
+            PlayerGroup grpInvite = Player.GroupInvite;
             if (grp == null && grpInvite == null)
                 return;
 
@@ -326,7 +326,7 @@ namespace Game
                 SendPartyResult(PartyOperation.Leave, Player.GetName(), PartyResult.Ok);
                 Player.RemoveFromGroup(RemoveMethod.Leave);
             }
-            else if (grpInvite != null && grpInvite.GetLeaderGUID() == Player.GUID)
+            else if (grpInvite != null && grpInvite.LeaderGUID == Player.GUID)
             { // pending group creation being cancelled
                 SendPartyResult(PartyOperation.Leave, Player.GetName(), PartyResult.Ok);
                 grpInvite.Disband();
@@ -376,14 +376,14 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.MinimapPing)]
         void HandleMinimapPing(MinimapPingClient packet)
         {
-            if (!Player.GetGroup())
+            if (!Player.Group)
                 return;
 
             MinimapPing minimapPing = new();
             minimapPing.Sender = Player.GUID;
             minimapPing.PositionX = packet.PositionX;
             minimapPing.PositionY = packet.PositionY;
-            Player.GetGroup().BroadcastPacket(minimapPing, true, -1, Player.GUID);
+            Player.            Group.BroadcastPacket(minimapPing, true, -1, Player.GUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.RandomRoll)]
@@ -398,7 +398,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.UpdateRaidTarget)]
         void HandleUpdateRaidTarget(UpdateRaidTarget packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -406,7 +406,7 @@ namespace Game
                 group.SendTargetIconList(this, packet.PartyIndex);
             else                                        // target icon update
             {
-                if (group.IsRaidGroup() && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
+                if (group.IsRaidGroup && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
                     return;
 
                 if (packet.Target.IsPlayer)
@@ -423,7 +423,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ConvertRaid)]
         void HandleConvertRaid(ConvertRaid packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -431,7 +431,7 @@ namespace Game
                 return;
 
             // error handling
-            if (!group.IsLeader(Player.GUID) || group.GetMembersCount() < 2)
+            if (!group.IsLeader(Player.GUID) || group.MembersCount < 2)
                 return;
 
             // everything's fine, do it (is it 0 (PartyOperation.Invite) correct code)
@@ -447,7 +447,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.RequestPartyJoinUpdates)]
         void HandleRequestPartyJoinUpdates(RequestPartyJoinUpdates packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -459,7 +459,7 @@ namespace Game
         void HandleChangeSubGroup(ChangeSubGroup packet)
         {
             // we will get correct for group here, so we don't have to check if group is BG raid
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -479,7 +479,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SwapSubGroups, Processing = PacketProcessing.ThreadUnsafe)]
         void HandleSwapSubGroups(SwapSubGroups packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -493,7 +493,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetAssistantLeader)]
         void HandleSetAssistantLeader(SetAssistantLeader packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -506,7 +506,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetPartyAssignment)]
         void HandleSetPartyAssignment(SetPartyAssignment packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -532,7 +532,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.DoReadyCheck)]
         void HandleDoReadyCheckOpcode(DoReadyCheck packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -547,7 +547,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ReadyCheckResponse, Processing = PacketProcessing.Inplace)]
         void HandleReadyCheckResponseOpcode(ReadyCheckResponseClient packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -590,13 +590,14 @@ namespace Game
                 return;
             }
 
-            Player.SetPassOnGroupLoot(packet.PassOnLoot);
+            Player.
+            PassOnGroupLoot = packet.PassOnLoot;
         }
 
         [WorldPacketHandler(ClientOpcodes.InitiateRolePoll)]
         void HandleInitiateRolePoll(InitiateRolePoll packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -613,7 +614,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SetEveryoneIsAssistant)]
         void HandleSetEveryoneIsAssistant(SetEveryoneIsAssistant packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
@@ -626,11 +627,11 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.ClearRaidMarker)]
         void HandleClearRaidMarker(ClearRaidMarker packet)
         {
-            Group group = Player.GetGroup();
+            PlayerGroup group = Player.Group;
             if (!group)
                 return;
 
-            if (group.IsRaidGroup() && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
+            if (group.IsRaidGroup && !group.IsLeader(Player.GUID) && !group.IsAssistant(Player.GUID))
                 return;
 
             group.DeleteRaidMarker(packet.MarkerId);

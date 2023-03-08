@@ -22,7 +22,7 @@ public class spell_warr_wirlwind_dmg : SpellScript, IHasSpellEffects
 		if (caster != null)
 			if (caster.HasAura(202316)) // Fervor of Battle
 			{
-				var target = caster.GetSelectedUnit();
+				var target = caster.SelectedUnit;
 
 				if (target != null)
 					if (caster.IsValidAttackTarget(target))

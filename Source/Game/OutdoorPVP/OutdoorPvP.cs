@@ -68,12 +68,12 @@ namespace Game.PvP
 
         public virtual void HandleKill(Player killer, Unit killed)
         {
-            Group group = killer.GetGroup();
+            PlayerGroup group = killer.Group;
             if (group)
             {
-                for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                 {
-                    Player groupGuy = refe.GetSource();
+                    Player groupGuy = refe.Source;
 
                     if (!groupGuy)
                         continue;

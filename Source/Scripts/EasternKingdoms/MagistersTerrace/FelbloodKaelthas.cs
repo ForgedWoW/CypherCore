@@ -175,7 +175,7 @@ internal class boss_felblood_kaelthas : BossAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Checking for lethal Damage first so we trigger the outro phase without triggering phase two in case of oneshot attacks
-		if (damage >= me.GetHealth() &&
+		if (damage >= me.Health &&
 			_phase != Phase.Outro)
 		{
 			me.AttackStop();
@@ -248,9 +248,9 @@ internal class boss_felblood_kaelthas : BossAI
 		}
 
 		// Kael'thas may only kill himself via Quite Suicide
-		if (damage >= me.GetHealth() &&
+		if (damage >= me.Health &&
 			attacker != me)
-			damage = (uint)(me.GetHealth() - 1);
+			damage = (uint)(me.Health - 1);
 	}
 
 	public override void SetData(uint type, uint data)
@@ -386,7 +386,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage >= me.GetHealth())
+		if (damage >= me.Health)
 		{
 			if (!_isInEgg)
 			{
@@ -439,7 +439,7 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 				_isInEgg = true;
 			}
 
-			damage = (uint)(me.GetHealth() - 1);
+			damage = (uint)(me.Health - 1);
 		}
 	}
 

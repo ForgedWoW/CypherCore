@@ -4,22 +4,22 @@
 using Framework.Dynamic;
 using Game.Maps;
 
-namespace Game.Groups
+namespace Game.Groups;
+
+public class GroupInstanceReference : Reference<PlayerGroup, InstanceMap>
 {
-    public class GroupInstanceReference : Reference<Group, InstanceMap>
-    {
-        ~GroupInstanceReference() { Unlink(); }
+	public new GroupInstanceReference Next()
+	{
+		return (GroupInstanceReference)base.Next();
+	}
 
-        public new GroupInstanceReference Next() { return (GroupInstanceReference)base.Next(); }
+	public override void TargetObjectBuildLink()
+	{
+		Target.LinkOwnedInstance(this);
+	}
 
-        public override void TargetObjectBuildLink()
-        {
-            GetTarget().LinkOwnedInstance(this);
-        }
-    }
-
-    class GroupInstanceRefManager : RefManager<Group, InstanceMap>
-    {
-        public new GroupInstanceReference GetFirst() { return (GroupInstanceReference)base.GetFirst(); }
-    }
+	~GroupInstanceReference()
+	{
+		Unlink();
+	}
 }

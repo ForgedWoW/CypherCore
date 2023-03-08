@@ -26,7 +26,7 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 		if (!unit.IsAlive)
 			return;
 
-		unit.SetHealth(Math.Min(_health, unit.GetMaxHealth()));
+		unit.SetHealth(Math.Min(_health, unit.MaxHealth));
 
 		if (unit.Location.MapId == _mapId)
 			unit.UpdatePosition(_pos, true);
@@ -44,7 +44,7 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 	private void AuraApplied(AuraEffect aurEff, AuraEffectHandleModes handleModes)
 	{
 		var unit = UnitOwner;
-		_health = unit.GetHealth();
+		_health = unit.Health;
 		_mapId = unit.Location.MapId;
 		_pos = new Position(unit.Location);
 	}

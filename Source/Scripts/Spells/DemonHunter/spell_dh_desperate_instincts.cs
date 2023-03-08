@@ -32,7 +32,7 @@ public class spell_dh_desperate_instincts : AuraScript, IHasAuraEffects
 			return;
 
 		var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);
-		var currentHealth = caster.GetHealth();
+		var currentHealth = caster.Health;
 
 		// Just falling below threshold
 		if (currentHealth > triggerOnHealth && (currentHealth - eventInfo.DamageInfo.GetDamage()) <= triggerOnHealth)

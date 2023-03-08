@@ -26,7 +26,7 @@ public class spell_warr_defensive_stance : AuraScript, IAuraOnProc
 		if (_damageTaken <= 0)
 			return;
 
-		var rageAmount = (int)((50.0f * _damageTaken) / caster.GetMaxHealth());
+		var rageAmount = (int)((50.0f * _damageTaken) / caster.MaxHealth);
 		caster.ModifyPower(PowerType.Rage, 10 * rageAmount);
 	}
 }

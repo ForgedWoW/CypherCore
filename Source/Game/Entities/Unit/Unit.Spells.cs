@@ -556,7 +556,7 @@ public partial class Unit
 		DoneTotalMod *= GetTotalAuraMultiplier(AuraType.ModHealingDonePercent);
 
 		// bonus from missing health of target
-		var healthPctDiff = 100.0f - victim.GetHealthPct();
+		var healthPctDiff = 100.0f - victim.HealthPct;
 
 		foreach (var healingDonePctVsTargetHealth in GetAuraEffectsByType(AuraType.ModHealingDonePctVersusTargetHealth))
 			if (healingDonePctVsTargetHealth.IsAffectingSpell(spellProto))
@@ -4641,7 +4641,7 @@ public partial class Unit
 
 		if (player != null)
 		{
-			if (player.GetGroup() != null)
+			if (player.Group != null)
 				player.SetGroupUpdateFlag(GroupUpdateFlags.Auras);
 		}
 		else if (IsPet)

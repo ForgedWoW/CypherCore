@@ -30,19 +30,19 @@ public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCas
 				switch (spell.SpellInfo.Id)
 				{
 					case ShamanSpells.LIGHTNING_BOLT_ELEM:
-						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LIGHTNING_BOLT_ELEM, true);
+						player.CastSpell(player.SelectedUnit, ShamanSpells.LIGHTNING_BOLT_ELEM, true);
 
 						break;
 					case ShamanSpells.ELEMENTAL_BLAST:
-						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.ELEMENTAL_BLAST, true);
+						player.CastSpell(player.SelectedUnit, ShamanSpells.ELEMENTAL_BLAST, true);
 
 						break;
 					case ShamanSpells.LAVA_BURST:
-						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
+						player.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
 
 						break;
 					case ShamanSpells.CHAIN_LIGHTNING:
-						player.CastSpell(player.GetSelectedUnit(), ShamanSpells.LAVA_BURST, true);
+						player.CastSpell(player.SelectedUnit, ShamanSpells.LAVA_BURST, true);
 
 						break;
 				}

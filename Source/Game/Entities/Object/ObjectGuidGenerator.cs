@@ -45,9 +45,9 @@ public class ObjectGuidGenerator
 
 	void CheckGuidTrigger(ulong guidlow)
 	{
-		if (!Global.WorldMgr.IsGuidAlert() && guidlow > WorldConfig.GetUInt64Value(WorldCfg.RespawnGuidAlertLevel))
+		if (!Global.WorldMgr.IsGuidAlert && guidlow > WorldConfig.GetUInt64Value(WorldCfg.RespawnGuidAlertLevel))
 			Global.WorldMgr.TriggerGuidAlert();
-		else if (!Global.WorldMgr.IsGuidWarning() && guidlow > WorldConfig.GetUInt64Value(WorldCfg.RespawnGuidWarnLevel))
+		else if (!Global.WorldMgr.IsGuidWarning && guidlow > WorldConfig.GetUInt64Value(WorldCfg.RespawnGuidWarnLevel))
 			Global.WorldMgr.TriggerGuidWarning();
 	}
 }

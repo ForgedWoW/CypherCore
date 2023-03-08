@@ -9,5 +9,5 @@ namespace Game.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnRemoveMember : IScriptObject
 {
-	void OnRemoveMember(Group group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, string reason);
+	void OnRemoveMember(PlayerGroup group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, string reason);
 }

@@ -1976,7 +1976,7 @@ public partial class Spell : IDisposable
 					if (spellEffectInfo.TargetA.Target != Framework.Constants.Targets.UnitPet)
 						break;
 
-					var pet = _caster.AsPlayer.GetPet();
+					var pet = _caster.AsPlayer.CurrentPet;
 
 					if (pet == null)
 						return SpellCastResult.NoPet;
@@ -2108,7 +2108,7 @@ public partial class Spell : IDisposable
 					if (!foodItem)
 						return SpellCastResult.BadTargets;
 
-					var pet = _caster.AsPlayer.GetPet();
+					var pet = _caster.AsPlayer.CurrentPet;
 
 					if (!pet)
 						return SpellCastResult.NoPet;
@@ -2264,15 +2264,15 @@ public partial class Spell : IDisposable
 				{
 					var playerCaster = _caster.AsPlayer;
 
-					if (playerCaster == null || playerCaster.GetPetStable() == null)
+					if (playerCaster == null || playerCaster.PetStable1 == null)
 						return SpellCastResult.BadTargets;
 
-					var pet = playerCaster.GetPet();
+					var pet = playerCaster.CurrentPet;
 
 					if (pet != null && pet.IsAlive)
 						return SpellCastResult.AlreadyHaveSummon;
 
-					var petStable = playerCaster.GetPetStable();
+					var petStable = playerCaster.PetStable1;
 					var deadPetInfo = petStable.ActivePets.FirstOrDefault(petInfo => petInfo?.Health == 0);
 
 					if (deadPetInfo == null)
@@ -2331,7 +2331,7 @@ public partial class Spell : IDisposable
 						{
 							if (strict) //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
 							{
-								var pet = unitCaster.AsPlayer.GetPet();
+								var pet = unitCaster.AsPlayer.CurrentPet;
 
 								if (pet != null)
 									pet.CastSpell(pet,
@@ -2352,7 +2352,7 @@ public partial class Spell : IDisposable
 
 					var playerCaster = unitCaster.AsPlayer;
 
-					if (playerCaster != null && playerCaster.GetPetStable() != null)
+					if (playerCaster != null && playerCaster.PetStable1 != null)
 					{
 						PetSaveMode? petSlot = null;
 
@@ -2361,7 +2361,7 @@ public partial class Spell : IDisposable
 							petSlot = (PetSaveMode)spellEffectInfo.CalcValue();
 
 							// No pet can be summoned if any pet is dead
-							foreach (var activePet in playerCaster.GetPetStable().ActivePets)
+							foreach (var activePet in playerCaster.PetStable1.ActivePets)
 								if (activePet?.Health == 0)
 								{
 									playerCaster.SendTameFailure(PetTameResult.Dead);
@@ -2370,7 +2370,7 @@ public partial class Spell : IDisposable
 								}
 						}
 
-						var info = Pet.GetLoadPetInfo(playerCaster.GetPetStable(), (uint)spellEffectInfo.MiscValue, 0, petSlot);
+						var info = Pet.GetLoadPetInfo(playerCaster.PetStable1, (uint)spellEffectInfo.MiscValue, 0, petSlot);
 
 						if (info.Item1 != null)
 						{
@@ -2407,7 +2407,7 @@ public partial class Spell : IDisposable
 					if (playerCaster == null)
 						return SpellCastResult.BadTargets;
 
-					var pet = playerCaster.GetPet();
+					var pet = playerCaster.CurrentPet;
 
 					if (pet == null)
 						return SpellCastResult.NoPet;
@@ -2533,7 +2533,7 @@ public partial class Spell : IDisposable
 
 					if (spec.IsPetSpecialization())
 					{
-						var pet = player.GetPet();
+						var pet = player.CurrentPet;
 
 						if (!pet || pet.GetPetType() != PetType.Hunter || pet.GetCharmInfo() == null)
 							return SpellCastResult.NoPet;
@@ -2679,7 +2679,7 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.NoPet;
 
-					var pet = _caster.AsPlayer.GetPet();
+					var pet = _caster.AsPlayer.CurrentPet;
 
 					if (pet == null)
 						return SpellCastResult.NoPet;
@@ -2790,7 +2790,7 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player) || CastItem != null)
 						break;
 
-					if (Targets.UnitTarget.GetPowerType() != PowerType.Mana)
+					if (Targets.UnitTarget.DisplayPowerType != PowerType.Mana)
 						return SpellCastResult.BadTargets;
 
 					break;
@@ -4953,7 +4953,7 @@ public partial class Spell : IDisposable
 
 					if (unitTarget != null)
 					{
-						var deficit = (uint)(unitTarget.GetMaxHealth() - unitTarget.GetHealth());
+						var deficit = (uint)(unitTarget.MaxHealth - unitTarget.Health);
 
 						if ((deficit > maxHPDeficit || found == null) && chainSource.IsWithinDist(unitTarget, jumpRadius) && chainSource.IsWithinLOSInMap(unitTarget, LineOfSightChecks.All, ModelIgnoreFlags.M2))
 						{
@@ -6777,12 +6777,12 @@ public partial class Spell : IDisposable
 
 		ResurrectRequest resurrectRequest = new();
 		resurrectRequest.ResurrectOffererGUID = _caster.GUID;
-		resurrectRequest.ResurrectOffererVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+		resurrectRequest.ResurrectOffererVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 		resurrectRequest.Name = sentName;
 		resurrectRequest.Sickness = _caster.IsUnit && !_caster.IsTypeId(TypeId.Player); // "you'll be afflicted with resurrection sickness"
 		resurrectRequest.UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer);
 
-		var pet = target.GetPet();
+		var pet = target.CurrentPet;
 
 		if (pet)
 		{
@@ -7493,7 +7493,7 @@ public partial class Spell : IDisposable
 			// health as power used - need check health amount
 			if (cost.Power == PowerType.Health)
 			{
-				if (unitCaster.GetHealth() <= cost.Amount)
+				if (unitCaster.Health <= cost.Amount)
 					return SpellCastResult.CasterAurastate;
 
 				continue;
@@ -7567,7 +7567,7 @@ public partial class Spell : IDisposable
 
 					if (spellEffectInfo.Effect == SpellEffectName.Heal)
 					{
-						if (Targets.UnitTarget.IsFullHealth())
+						if (Targets.UnitTarget.IsFullHealth)
 						{
 							failReason = SpellCastResult.AlreadyAtFullHealth;
 
@@ -9028,7 +9028,7 @@ public partial class Spell : IDisposable
 
 	string GetDebugInfo()
 	{
-		return $"Id: {SpellInfo.Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.GetDefaultDbcLocale()]}' OriginalCaster: {_originalCasterGuid} State: {State}";
+		return $"Id: {SpellInfo.Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.DefaultDbcLocale]}' OriginalCaster: {_originalCasterGuid} State: {State}";
 	}
 
 

@@ -218,7 +218,7 @@ namespace Game.Guilds
 
                 //GuildRosterProfessionData
 
-                memberData.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                memberData.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
                 memberData.Status = (byte)member.GetFlags();
                 memberData.Level = member.GetLevel();
                 memberData.ClassID = (byte)member.GetClass();
@@ -250,7 +250,7 @@ namespace Game.Guilds
             response.HasGuildInfo = true;
 
             response.Info.GuildGuid = GetGUID();
-            response.Info.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+            response.Info.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 
             response.Info.EmblemStyle = m_emblemInfo.GetStyle();
             response.Info.EmblemColor = m_emblemInfo.GetColor();
@@ -582,8 +582,8 @@ namespace Game.Guilds
 
             GuildInvite invite = new();
 
-            invite.InviterVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
-            invite.GuildVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+            invite.InviterVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+            invite.GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             invite.GuildGUID = GetGUID();
 
             invite.EmblemStyle = m_emblemInfo.GetStyle();
@@ -591,7 +591,7 @@ namespace Game.Guilds
             invite.BorderStyle = m_emblemInfo.GetBorderStyle();
             invite.BorderColor = m_emblemInfo.GetBorderColor();
             invite.Background = m_emblemInfo.GetBackgroundColor();
-            invite.AchievementPoints = (int)GetAchievementMgr().GetAchievementPoints();
+            invite.AchievementPoints = (int)GetAchievementMgr().AchievementPoints;
 
             invite.InviterName = player.GetName();
             invite.GuildName = GetName();
@@ -601,7 +601,7 @@ namespace Game.Guilds
             {
                 invite.OldGuildGUID = oldGuild.GetGUID();
                 invite.OldGuildName = oldGuild.GetName();
-                invite.OldGuildVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                invite.OldGuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             }
 
             pInvitee.SendPacket(invite);
@@ -992,7 +992,7 @@ namespace Game.Guilds
         public void HandleGuildPartyRequest(WorldSession session)
         {
             Player player = session.Player;
-            Group group = player.GetGroup();
+            PlayerGroup group = player.Group;
 
             // Make sure player is a member of the guild and that he is in a group.
             if (!IsMember(player.GUID) || !group)
@@ -1197,14 +1197,14 @@ namespace Game.Guilds
             {
                 eventPacket.NewLeaderGUID = newLeader.GetGUID();
                 eventPacket.NewLeaderName = newLeader.GetName();
-                eventPacket.NewLeaderVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                eventPacket.NewLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             }
 
             if (oldLeader != null)
             {
                 eventPacket.OldLeaderGUID = oldLeader.GetGUID();
                 eventPacket.OldLeaderName = oldLeader.GetName();
-                eventPacket.OldLeaderVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                eventPacket.OldLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             }
 
             BroadcastPacket(eventPacket);
@@ -1216,13 +1216,13 @@ namespace Game.Guilds
             eventPacket.Removed = isRemoved;
             eventPacket.LeaverGUID = leaver.GUID;
             eventPacket.LeaverName = leaver.GetName();
-            eventPacket.LeaverVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+            eventPacket.LeaverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
 
             if (isRemoved && remover)
             {
                 eventPacket.RemoverGUID = remover.GUID;
                 eventPacket.RemoverName = remover.GetName();
-                eventPacket.RemoverVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                eventPacket.RemoverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             }
 
             BroadcastPacket(eventPacket);
@@ -1235,7 +1235,7 @@ namespace Game.Guilds
             GuildEventPresenceChange eventPacket = new();
             eventPacket.Guid = player.GUID;
             eventPacket.Name = player.GetName();
-            eventPacket.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+            eventPacket.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             eventPacket.LoggedOn = loggedOn;
             eventPacket.Mobile = false;
 
@@ -1664,7 +1664,7 @@ namespace Game.Guilds
             GuildEventPlayerJoined joinNotificationPacket = new();
             joinNotificationPacket.Guid = guid;
             joinNotificationPacket.Name = name;
-            joinNotificationPacket.VirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+            joinNotificationPacket.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
             BroadcastPacket(joinNotificationPacket);
 
             // Call scripts if member was succesfully added (and stored to database)
@@ -2597,7 +2597,7 @@ namespace Game.Guilds
                 _gender = player.NativeGender;
                 m_zoneId = player.Zone;
                 m_accountId = player.Session.AccountId;
-                m_achievementPoints = player.GetAchievementPoints();
+                m_achievementPoints = player.AchievementPoints;
             }
 
             public void SetStats(string name, byte level, Race race, Class _class, Gender gender, uint zoneId, uint accountId, uint reputation)

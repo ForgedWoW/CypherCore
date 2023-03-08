@@ -39,10 +39,10 @@ namespace Game.Chat
             if (player == null)
                 return false;
 
-            Group groupTarget = null;
+            PlayerGroup groupTarget = null;
             Player target = player.GetConnectedPlayer();
             if (target != null)
-                groupTarget = target.GetGroup();
+                groupTarget = target.Group;
             else
             {
                 PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
@@ -58,16 +58,16 @@ namespace Game.Chat
                 return false;
             }
 
-            ObjectGuid guid = groupTarget.GetGUID();
-            handler.SendSysMessage(CypherStrings.LfgGroupInfo, groupTarget.IsLFGGroup(), Global.LFGMgr.GetState(guid), Global.LFGMgr.GetDungeon(guid));
+            ObjectGuid guid = groupTarget.GUID;
+            handler.SendSysMessage(CypherStrings.LfgGroupInfo, groupTarget.IsLFGGroup, Global.LFGMgr.GetState(guid), Global.LFGMgr.GetDungeon(guid));
 
-            foreach (var slot in groupTarget.GetMemberSlots())
+            foreach (var slot in groupTarget.MemberSlots)
             {
-                Player p = Global.ObjAccessor.FindPlayer(slot.guid);
+                Player p = Global.ObjAccessor.FindPlayer(slot.Guid);
                 if (p)
                     PrintPlayerInfo(handler, p);
                 else
-                    handler.SendSysMessage("{0} is offline.", slot.name);
+                    handler.SendSysMessage("{0} is offline.", slot.Name);
             }
 
             return true;

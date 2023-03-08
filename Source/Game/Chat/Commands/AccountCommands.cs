@@ -488,7 +488,7 @@ namespace Game.Chat
             {
                 int sessionsMatchCount = 0;
 
-                foreach (var session in Global.WorldMgr.GetAllSessions())
+                foreach (var session in Global.WorldMgr.AllSessions)
                 {
                     Player player = session.Player;
 

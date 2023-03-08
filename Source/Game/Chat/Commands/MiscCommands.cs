@@ -68,10 +68,10 @@ namespace Game.Chat
                     // we have to go to instance, and can go to player only if:
                     //   1) we are in his group (either as leader or as member)
                     //   2) we are not bound to any group and have GM mode on
-                    if (_player.GetGroup())
+                    if (_player.Group)
                     {
                         // we are in group, we can go only if we are in the player group
-                        if (_player.GetGroup() != target.GetGroup())
+                        if (_player.Group != target.Group)
                         {
                             handler.SendSysMessage(CypherStrings.CannotGoToInstParty, chrNameLink);
                             return false;
@@ -89,11 +89,11 @@ namespace Game.Chat
 
                     if (map.IsRaid())
                     {
-                        _player.SetRaidDifficultyId(target.GetRaidDifficultyId());
-                        _player.SetLegacyRaidDifficultyId(target.GetLegacyRaidDifficultyId());
+                        _player.                        RaidDifficultyId = target.RaidDifficultyId;
+                        _player.                        LegacyRaidDifficultyId = target.LegacyRaidDifficultyId;
                     }
                     else
-                        _player.SetDungeonDifficultyId(target.GetDungeonDifficultyId());
+                        _player.                        DungeonDifficultyId = target.DungeonDifficultyId;
                 }
 
                 handler.SendSysMessage(CypherStrings.AppearingAt, chrNameLink);
@@ -1305,7 +1305,7 @@ namespace Game.Chat
 
             // Query the prepared statement for login data
             stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_PINFO);
-            stmt.AddValue(0, Global.WorldMgr.GetRealm().Id.Index);
+            stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
             stmt.AddValue(1, accId);
             SQLResult result0 = DB.Login.Query(stmt);
 
@@ -1782,9 +1782,9 @@ namespace Game.Chat
                     Map targetMap = target.Map;
 
                     Player targetGroupLeader = null;
-                    Group targetGroup = target.GetGroup();
+                    PlayerGroup targetGroup = target.Group;
                     if (targetGroup != null)
-                        targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.GetLeaderGUID());
+                        targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
                     // check if far teleport is allowed
                     if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.GetId()) || (targetGroupLeader.InstanceId1 != map.GetInstanceId()))

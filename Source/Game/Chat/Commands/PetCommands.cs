@@ -149,14 +149,14 @@ namespace Game.Chat
             if (target)
             {
                 if (target.IsTypeId(TypeId.Player))
-                    return target.AsPlayer.GetPet();
+                    return target.AsPlayer.CurrentPet;
                 if (target.IsPet)
                     return target.AsPet;
                 return null;
             }
 
             Player player = handler.GetSession().Player;
-            return player ? player.GetPet() : null;
+            return player ? player.CurrentPet : null;
         }
     }
 }

@@ -47,7 +47,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 			if ((player.Class == Class.Hunter) ||
 				(player.Class == Class.Warlock))
 			{
-				var pet = player.GetPet();
+				var pet = player.CurrentPet;
 
 				if (pet)
 				{

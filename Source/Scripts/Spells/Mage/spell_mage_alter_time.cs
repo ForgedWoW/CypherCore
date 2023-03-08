@@ -57,7 +57,7 @@ public class spell_mage_alter_time : SpellScript, IHasSpellEffects
 		{
 			// Save the target's current location and health
 			caster.AddAura(MageSpells.ALTER_TIME, target);
-			target.SetAuraStack(MageSpells.ALTER_TIME, target, (uint)target.GetHealth());
+			target.SetAuraStack(MageSpells.ALTER_TIME, target, (uint)target.Health);
 		}
 	}
 }

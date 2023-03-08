@@ -65,9 +65,8 @@ namespace Framework.Dynamic
         public Reference<TO, FROM> Next() { return ((Reference<TO, FROM>)GetNextElement()); }
         public Reference<TO, FROM> Prev() { return ((Reference<TO, FROM>)GetPrevElement()); }
 
-        public TO GetTarget() { return _RefTo; }
-
-        public FROM GetSource() { return _RefFrom; }
+        public TO Target => _RefTo;
+        public FROM Source => _RefFrom;
     }
 
     public class RefManager<TO, FROM> : LinkedListHead where TO : class where FROM : class

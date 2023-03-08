@@ -35,7 +35,7 @@ public class spell_demon_hunter_pain : AuraScript, IHasAuraEffects
 		if (damageTaken <= 0)
 			return;
 
-		var painAmount = (50.0f * (double)damageTaken) / (double)caster.GetMaxHealth();
+		var painAmount = (50.0f * (double)damageTaken) / (double)caster.MaxHealth;
 		caster.CastSpell(caster, DemonHunterSpells.REWARD_PAIN, (int)painAmount);
 	}
 }

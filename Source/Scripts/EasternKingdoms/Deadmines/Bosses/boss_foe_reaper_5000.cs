@@ -118,7 +118,7 @@ public class boss_foe_reaper_5000 : BossAI
 			var prototypeReaper = ObjectAccessor.GetCreature(me, _prototypeGUID);
 
 			if (prototypeReaper != null)
-				if (prototypeReaper.GetHealth() >= 0.9 * prototypeReaper.GetMaxHealth())
+				if (prototypeReaper.Health >= 0.9 * prototypeReaper.MaxHealth)
 					return true ? 1 : 0;
 		}
 
@@ -219,7 +219,7 @@ public class boss_foe_reaper_5000 : BossAI
 
 				case BossEvents.EVENT_START_2:
 					me.TextEmote(MONSTER_SLAG, null, true);
-					me.SetHealth(me.GetMaxHealth());
+					me.SetHealth(me.MaxHealth);
 					DoZoneInCombat();
 					me.ReactState = ReactStates.Aggressive;
 					me.RemoveUnitFlag(UnitFlags.NonAttackable);

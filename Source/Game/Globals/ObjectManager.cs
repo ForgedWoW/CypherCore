@@ -4410,7 +4410,7 @@ namespace Game
                 go.entry = db2go.Id;
                 go.type = db2go.TypeID;
                 go.displayId = db2go.DisplayID;
-                go.name = db2go.Name[Global.WorldMgr.GetDefaultDbcLocale()];
+                go.name = db2go.Name[Global.WorldMgr.DefaultDbcLocale];
                 go.size = db2go.Scale;
 
                 unsafe
@@ -5964,7 +5964,7 @@ namespace Game
                 if (lastEncounterDungeon != 0 && Global.LFGMgr.GetLFGDungeonEntry(lastEncounterDungeon) == 0)
                 {
                     Log.outError(LogFilter.Sql, "Table `instance_encounters` has an encounter {0} ({1}) marked as final for invalid dungeon id {2}, skipped!",
-                        entry, dungeonEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()], lastEncounterDungeon);
+                        entry, dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale], lastEncounterDungeon);
                     continue;
                 }
 
@@ -5974,7 +5974,7 @@ namespace Game
                     if (pair != null)
                     {
                         Log.outError(LogFilter.Sql, "Table `instance_encounters` specified encounter {0} ({1}) as last encounter but {2} ({3}) is already marked as one, skipped!",
-                            entry, dungeonEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()], pair.Item1, pair.Item2.Name[Global.WorldMgr.GetDefaultDbcLocale()]);
+                            entry, dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale], pair.Item1, pair.Item2.Name[Global.WorldMgr.DefaultDbcLocale]);
                         continue;
                     }
 
@@ -5989,7 +5989,7 @@ namespace Game
                         if (creatureInfo == null)
                         {
                             Log.outError(LogFilter.Sql, "Table `instance_encounters` has an invalid creature (entry {0}) linked to the encounter {1} ({2}), skipped!",
-                                creditEntry, entry, dungeonEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()]);
+                                creditEntry, entry, dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
                             continue;
                         }
                         creatureInfo.FlagsExtra |= CreatureFlagsExtra.DungeonBoss;
@@ -6009,13 +6009,13 @@ namespace Game
                         if (!Global.SpellMgr.HasSpellInfo(creditEntry, Difficulty.None))
                         {
                             Log.outError(LogFilter.Sql, "Table `instance_encounters` has an invalid spell (entry {0}) linked to the encounter {1} ({2}), skipped!",
-                                creditEntry, entry, dungeonEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()]);
+                                creditEntry, entry, dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
                             continue;
                         }
                         break;
                     default:
                         Log.outError(LogFilter.Sql, "Table `instance_encounters` has an invalid credit type ({0}) for encounter {1} ({2}), skipped!",
-                            creditType, entry, dungeonEncounter.Name[Global.WorldMgr.GetDefaultDbcLocale()]);
+                            creditType, entry, dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
                         continue;
                 }
 
@@ -7311,7 +7311,7 @@ namespace Game
                 if (cinfo == null)
                     return "";
 
-                string petname = Global.DB2Mgr.GetCreatureFamilyPetName(cinfo.Family, Global.WorldMgr.GetDefaultDbcLocale());
+                string petname = Global.DB2Mgr.GetCreatureFamilyPetName(cinfo.Family, Global.WorldMgr.DefaultDbcLocale);
                 if (!string.IsNullOrEmpty(petname))
                     return petname;
                 else
@@ -7913,10 +7913,10 @@ namespace Game
 
                 if (qinfo.RequiredSkillPoints != 0)
                 {
-                    if (qinfo.RequiredSkillPoints > Global.WorldMgr.GetConfigMaxSkillValue())
+                    if (qinfo.RequiredSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
                     {
                         Log.outError(LogFilter.Sql, "Quest {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
-                            qinfo.Id, qinfo.RequiredSkillPoints, Global.WorldMgr.GetConfigMaxSkillValue());
+                            qinfo.Id, qinfo.RequiredSkillPoints, Global.WorldMgr.ConfigMaxSkillValue);
                         // no changes, quest can't be done for this requirement
                     }
                 }
@@ -8414,10 +8414,10 @@ namespace Game
 
                 if (qinfo.RewardSkillPoints != 0)
                 {
-                    if (qinfo.RewardSkillPoints > Global.WorldMgr.GetConfigMaxSkillValue())
+                    if (qinfo.RewardSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
                     {
                         Log.outError(LogFilter.Sql, "Quest {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
-                            qinfo.Id, qinfo.RewardSkillPoints, Global.WorldMgr.GetConfigMaxSkillValue());
+                            qinfo.Id, qinfo.RewardSkillPoints, Global.WorldMgr.ConfigMaxSkillValue);
                         // no changes, quest can't be done for this requirement
                     }
                     if (qinfo.RewardSkillId == 0)

@@ -31,7 +31,7 @@ internal class spell_mage_conjure_refreshment : SpellScript, IHasSpellEffects
 
 		if (caster)
 		{
-			var group = caster.GetGroup();
+			var group = caster.Group;
 
 			if (group)
 				caster.CastSpell(caster, MageSpells.ConjureRefreshmentTable, true);

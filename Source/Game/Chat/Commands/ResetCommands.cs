@@ -104,7 +104,7 @@ namespace Game.Chat
             target._ApplyAllLevelScaleItemMods(true);
 
             // reset level for pet
-            Pet pet = target.GetPet();
+            Pet pet = target.CurrentPet;
             if (pet)
                 pet.SynchronizeLevelWithOwner();
 

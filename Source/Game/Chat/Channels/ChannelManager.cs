@@ -202,7 +202,7 @@ namespace Game.Chat
         {
             ulong high = 0;
             high |= (ulong)HighGuid.ChatChannel << 58;
-            high |= (ulong)Global.WorldMgr.GetRealmId().Index << 42;
+            high |= (ulong)Global.WorldMgr.RealmId.Index << 42;
             high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
             ObjectGuid channelGuid = new();
@@ -220,7 +220,7 @@ namespace Game.Chat
 
             ulong high = 0;
             high |= (ulong)HighGuid.ChatChannel << 58;
-            high |= (ulong)Global.WorldMgr.GetRealmId().Index << 42;
+            high |= (ulong)Global.WorldMgr.RealmId.Index << 42;
             high |= 1ul << 25; // built-in
             if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2))
                 high |= 1ul << 24; // trade

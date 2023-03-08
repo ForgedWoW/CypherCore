@@ -51,7 +51,7 @@ namespace Game
                 InspectGuildData guildData;
                 guildData.GuildGUID = guild.GetGUID();
                 guildData.NumGuildMembers = guild.GetMembersCount();
-                guildData.AchievementPoints = (int)guild.GetAchievementMgr().GetAchievementPoints();
+                guildData.AchievementPoints = (int)guild.GetAchievementMgr().AchievementPoints;
 
                 inspectResult.GuildData = guildData;
             }

@@ -47,14 +47,14 @@ public class KillRewarder
 
 	public void Reward()
 	{
-		SortedSet<Group> processedGroups = new();
+		SortedSet<PlayerGroup> processedGroups = new();
 
 		foreach (var killer in _killers)
 		{
 			_InitGroupData(killer);
 
 			// 3. Reward killer (and group, if necessary).
-			var group = killer.GetGroup();
+			var group = killer.Group;
 
 			if (group != null)
 			{
@@ -112,14 +112,14 @@ public class KillRewarder
 
 	void _InitGroupData(Player killer)
 	{
-		var group = killer.GetGroup();
+		var group = killer.Group;
 
 		if (group != null)
 		{
 			// 2. In case when player is in group, initialize variables necessary for group calculations:
-			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+			for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 			{
-				var member = refe.GetSource();
+				var member = refe.Source;
 
 				if (member != null)
 					if (killer == member || (member.IsAtGroupRewardDistance(_victim) && member.IsAlive))
@@ -175,7 +175,7 @@ public class KillRewarder
 	{
 		var xp = _xp;
 
-		if (player.GetGroup() != null)
+		if (player.Group != null)
 		{
 			// 4.2.1. If player is in group, adjust XP:
 			//        * set to 0 if player's level is more than maximum level of not gray member;
@@ -199,11 +199,11 @@ public class KillRewarder
 
 			// 4.2.3. Give XP to player.
 			player.GiveXP(xp, _victim, _groupRate);
-			var pet = player.GetPet();
+			var pet = player.CurrentPet;
 
 			if (pet)
 				// 4.2.4. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-				pet.GivePetXP(player.GetGroup() != null ? xp / 2 : xp);
+				pet.GivePetXP(player.Group != null ? xp / 2 : xp);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class KillRewarder
 	void _RewardKillCredit(Player player)
 	{
 		// 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
-		if (player.GetGroup() == null || player.IsAlive || player.GetCorpse() == null)
+		if (player.Group == null || player.IsAlive || player.GetCorpse() == null)
 		{
 			var target = _victim.AsCreature;
 
@@ -246,7 +246,7 @@ public class KillRewarder
 		// Give reputation and kill credit only in PvE.
 		if (!_isPvP || _isBattleground)
 		{
-			var rate = player.GetGroup() != null ? _groupRate * player.Level / _sumLevel : 1.0f;
+			var rate = player.Group != null ? _groupRate * player.Level / _sumLevel : 1.0f;
 
 			if (_xp != 0)
 				// 4.2. Give XP.
@@ -261,7 +261,7 @@ public class KillRewarder
 		}
 	}
 
-	void _RewardGroup(Group group, Player killer)
+	void _RewardGroup(PlayerGroup group, Player killer)
 	{
 		if (_maxLevel != 0)
 		{
@@ -280,14 +280,14 @@ public class KillRewarder
 				if (!_isBattleground)
 				{
 					// 3.1.2. Alter group rate if group is in raid (not for Battlegrounds).
-					var isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup();
+					var isRaid = !_isPvP && CliDB.MapStorage.LookupByKey(killer.Location.MapId).IsRaid() && group.IsRaidGroup;
 					_groupRate = Formulas.XPInGroupRate(_count, isRaid);
 				}
 
 				// 3.1.3. Reward each group member (even dead or corpse) within reward distance.
-				for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+				for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 				{
-					var member = refe.GetSource();
+					var member = refe.Source;
 
 					if (member)
 						// Killer may not be at reward distance, check directly

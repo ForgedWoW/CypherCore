@@ -8,5 +8,5 @@ namespace Game.Scripting.Interfaces.IGroup;
 
 public interface IGroupOnChangeLeader : IScriptObject
 {
-	void OnChangeLeader(Group group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
+	void OnChangeLeader(PlayerGroup group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
 }

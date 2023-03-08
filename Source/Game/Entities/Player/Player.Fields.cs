@@ -96,7 +96,7 @@ public partial class Player
 	long _lastHonorUpdateTime;
 	uint _contestedPvPTimer;
 	bool _usePvpItemLevels;
-	Group _groupInvite;
+	PlayerGroup _groupInvite;
 	GroupUpdateFlags _groupUpdateFlags;
 	bool _bPassOnGroupLoot;
 	uint _pendingBindId;

@@ -28,6 +28,7 @@ namespace Framework.Constants
         Vehicle = 0x200,    // Lua_UnitInVehicle
     }
 
+    [Flags]
     public enum GroupMemberFlags
     {
         Assistant = 0x01,

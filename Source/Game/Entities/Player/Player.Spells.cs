@@ -162,7 +162,7 @@ public partial class Player
 
 	public void PetSpellInitialize()
 	{
-		var pet = GetPet();
+		var pet = CurrentPet;
 
 		if (!pet)
 			return;
@@ -2398,7 +2398,7 @@ public partial class Player
 		// pet cooldowns
 		if (removeActivePetCooldowns)
 		{
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet)
 				pet.GetSpellHistory().ResetAllCooldowns();

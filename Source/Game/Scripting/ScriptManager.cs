@@ -685,7 +685,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		ForEach<IPlayerOnChatWhisper>(p => p.OnChat(player, type, lang, msg, receiver));
 	}
 
-	public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg, Group group)
+	public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg, PlayerGroup group)
 	{
 		ForEach<IPlayerOnChatGroup>(p => p.OnChat(player, type, lang, msg, group));
 	}

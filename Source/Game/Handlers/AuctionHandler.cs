@@ -720,7 +720,7 @@ namespace Game
             if (HasPermission(RBACPermissions.LogGmTrade))
             {
                 Item logItem = items2.First().Value.Item1;
-                Log.outCommand(AccountId, $"GM {PlayerName} (Account: {AccountId}) create auction: {logItem.GetName(Global.WorldMgr.GetDefaultDbcLocale())} (Entry: {logItem.Entry} Count: {totalCount})");
+                Log.outCommand(AccountId, $"GM {PlayerName} (Account: {AccountId}) create auction: {logItem.GetName(Global.WorldMgr.DefaultDbcLocale)} (Entry: {logItem.Entry} Count: {totalCount})");
             }
 
             SQLTransaction trans = new();

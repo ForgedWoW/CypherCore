@@ -439,7 +439,7 @@ namespace Game.Arenas
             return false;
         }
 
-        public uint GetAverageMMR(Group group)
+        public uint GetAverageMMR(PlayerGroup group)
         {
             if (!group)
                 return 0;

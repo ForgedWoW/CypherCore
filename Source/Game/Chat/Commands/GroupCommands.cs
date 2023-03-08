@@ -20,7 +20,7 @@ namespace Game.Chat
         [Command("disband", RBACPermissions.CommandGroupDisband)]
         static bool HandleGroupDisbandCommand(CommandHandler handler, string name)
         {
-            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out Group group, out _))
+            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out PlayerGroup group, out _))
                 return false;
 
             if (!group)
@@ -36,7 +36,7 @@ namespace Game.Chat
         [Command("join", RBACPermissions.CommandGroupJoin)]
         static bool HandleGroupJoinCommand(CommandHandler handler, string playerNameGroup, string playerName)
         {
-            if (!handler.GetPlayerGroupAndGUIDByName(playerNameGroup, out Player playerSource, out Group groupSource, out _, true))
+            if (!handler.GetPlayerGroupAndGUIDByName(playerNameGroup, out Player playerSource, out PlayerGroup groupSource, out _, true))
                 return false;
 
             if (!groupSource)
@@ -45,16 +45,16 @@ namespace Game.Chat
                 return false;
             }
 
-            if (!handler.GetPlayerGroupAndGUIDByName(playerName, out Player playerTarget, out Group groupTarget, out _, true))
+            if (!handler.GetPlayerGroupAndGUIDByName(playerName, out Player playerTarget, out PlayerGroup groupTarget, out _, true))
                 return false;
 
-            if (groupTarget || playerTarget.GetGroup() == groupSource)
+            if (groupTarget || playerTarget.Group == groupSource)
             {
                 handler.SendSysMessage(CypherStrings.GroupAlreadyInGroup, playerTarget.GetName());
                 return false;
             }
 
-            if (groupSource.IsFull())
+            if (groupSource.IsFull)
             {
                 handler.SendSysMessage(CypherStrings.GroupFull);
                 return false;
@@ -69,7 +69,7 @@ namespace Game.Chat
         [Command("leader", RBACPermissions.CommandGroupLeader)]
         static bool HandleGroupLeaderCommand(CommandHandler handler, string name)
         {
-            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out Group group, out ObjectGuid guid))
+            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out PlayerGroup group, out ObjectGuid guid))
                 return false;
 
             if (!group)
@@ -78,7 +78,7 @@ namespace Game.Chat
                 return false;
             }
 
-            if (group.GetLeaderGUID() != guid)
+            if (group.LeaderGUID != guid)
             {
                 group.ChangeLeader(guid);
                 group.SendUpdate();
@@ -102,13 +102,13 @@ namespace Game.Chat
             if (target == null)
                 return false;
 
-            Group groupTarget = target.GetGroup();
+            PlayerGroup groupTarget = target.Group;
             if (groupTarget == null)
                 return false;
 
-            for (GroupReference it = groupTarget.GetFirstMember(); it != null; it = it.Next())
+            for (GroupReference it = groupTarget.FirstMember; it != null; it = it.Next())
             {
-                target = it.GetSource();
+                target = it.Source;
                 if (target != null)
                 {
                     uint oldlevel = target.Level;
@@ -155,11 +155,11 @@ namespace Game.Chat
                 return false;
 
             // Next, we need a group. So we define a group variable.
-            Group groupTarget = null;
+            PlayerGroup groupTarget = null;
 
             // We try to extract a group from an online player.
             if (playerTarget)
-                groupTarget = playerTarget.GetGroup();
+                groupTarget = playerTarget.Group;
 
             // If not, we extract it from the SQL.
             if (!groupTarget)
@@ -179,10 +179,10 @@ namespace Game.Chat
             }
 
             // We get the group members after successfully detecting a group.
-            var members = groupTarget.GetMemberSlots();
+            var members = groupTarget.MemberSlots;
 
             // To avoid a cluster fuck, namely trying multiple queries to simply get a group member count...
-            handler.SendSysMessage(CypherStrings.GroupType, (groupTarget.IsRaidGroup() ? "raid" : "party"), members.Count);
+            handler.SendSysMessage(CypherStrings.GroupType, (groupTarget.IsRaidGroup ? "raid" : "party"), members.Count);
             // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
 
             // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
@@ -190,17 +190,17 @@ namespace Game.Chat
             {
                 // Check for given flag and assign it to that iterator
                 string flags = "";
-                if (slot.flags.HasAnyFlag(GroupMemberFlags.Assistant))
+                if (slot.Flags.HasAnyFlag(GroupMemberFlags.Assistant))
                     flags = "Assistant";
 
-                if (slot.flags.HasAnyFlag(GroupMemberFlags.MainTank))
+                if (slot.Flags.HasAnyFlag(GroupMemberFlags.MainTank))
                 {
                     if (!string.IsNullOrEmpty(flags))
                         flags += ", ";
                     flags += "MainTank";
                 }
 
-                if (slot.flags.HasAnyFlag(GroupMemberFlags.MainAssist))
+                if (slot.Flags.HasAnyFlag(GroupMemberFlags.MainAssist))
                 {
                     if (!string.IsNullOrEmpty(flags))
                         flags += ", ";
@@ -211,7 +211,7 @@ namespace Game.Chat
                     flags = "None";
 
                 // Check if iterator is online. If is...
-                Player p = Global.ObjAccessor.FindPlayer(slot.guid);
+                Player p = Global.ObjAccessor.FindPlayer(slot.Guid);
                 string phases = "";
                 if (p && p.IsInWorld)
                 {
@@ -235,8 +235,8 @@ namespace Game.Chat
                 }
 
                 // Now we can print those informations for every single member of each group!
-                handler.SendSysMessage(CypherStrings.GroupPlayerNameGuid, slot.name, onlineState,
-                    zoneName, phases, slot.guid.ToString(), flags, LFGQueue.GetRolesString(slot.roles));
+                handler.SendSysMessage(CypherStrings.GroupPlayerNameGuid, slot.Name, onlineState,
+                    zoneName, phases, slot.Guid.ToString(), flags, LFGQueue.GetRolesString(slot.Roles));
             }
 
             // And finish after every iterator is done.
@@ -246,7 +246,7 @@ namespace Game.Chat
         [Command("remove", RBACPermissions.CommandGroupRemove)]
         static bool HandleGroupRemoveCommand(CommandHandler handler, string name)
         {
-            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out Group group, out ObjectGuid guid))
+            if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out PlayerGroup group, out ObjectGuid guid))
                 return false;
 
             if (!group)
@@ -267,13 +267,13 @@ namespace Game.Chat
             if (playerTarget == null || !playerTarget.IsConnected())
                 return false;
 
-            Group groupTarget = playerTarget.GetConnectedPlayer().GetGroup();
+            PlayerGroup groupTarget = playerTarget.GetConnectedPlayer().Group;
             if (groupTarget == null)
                 return false;
 
-            for (GroupReference it = groupTarget.GetFirstMember(); it != null; it = it.Next())
+            for (GroupReference it = groupTarget.FirstMember; it != null; it = it.Next())
             {
-                Player target = it.GetSource();
+                Player target = it.Source;
                 if (target != null)
                     target.DurabilityRepairAll(false, 0, false);
             }
@@ -289,13 +289,13 @@ namespace Game.Chat
             if (playerTarget == null || !playerTarget.IsConnected())
                 return false;
 
-            Group groupTarget = playerTarget.GetConnectedPlayer().GetGroup();
+            PlayerGroup groupTarget = playerTarget.GetConnectedPlayer().Group;
             if (groupTarget == null)
                 return false;
 
-            for (GroupReference it = groupTarget.GetFirstMember(); it != null; it = it.Next())
+            for (GroupReference it = groupTarget.FirstMember; it != null; it = it.Next())
             {
-                Player target = it.GetSource();
+                Player target = it.Source;
                 if (target)
                 {
                     target.ResurrectPlayer(target.Session.HasPermission(RBACPermissions.ResurrectWithFullHps) ? 1.0f : 0.5f);
@@ -321,7 +321,7 @@ namespace Game.Chat
             if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
                 return false;
 
-            Group group = target.GetGroup();
+            PlayerGroup group = target.Group;
 
             string nameLink = handler.GetNameLink(target);
 
@@ -341,7 +341,7 @@ namespace Game.Chat
             // :close enough:
             if (toInstance)
             {
-                Player groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.GetLeaderGUID());
+                Player groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.LeaderGUID);
                 if (!groupLeader || (groupLeader.Location.MapId != gmMap.GetId()) || (groupLeader.InstanceId1 != gmMap.GetInstanceId()))
                 {
                     handler.SendSysMessage(CypherStrings.PartialGroupSummon);
@@ -349,9 +349,9 @@ namespace Game.Chat
                 }
             }
 
-            for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+            for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
             {
-                Player player = refe.GetSource();
+                Player player = refe.Source;
 
                 if (!player || player == gmPlayer || player.Session == null)
                     continue;
@@ -430,7 +430,7 @@ namespace Game.Chat
 
             static bool GroupFlagCommand(string name, CommandHandler handler, GroupMemberFlags flag)
             {
-                if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out Group group, out ObjectGuid guid))
+                if (!handler.GetPlayerGroupAndGUIDByName(name, out Player player, out PlayerGroup group, out ObjectGuid guid))
                     return false;
 
                 if (!group)
@@ -439,7 +439,7 @@ namespace Game.Chat
                     return false;
                 }
 
-                if (!group.IsRaidGroup())
+                if (!group.IsRaidGroup)
                 {
                     handler.SendSysMessage(CypherStrings.GroupNotInRaidGroup, player.GetName());
                     return false;

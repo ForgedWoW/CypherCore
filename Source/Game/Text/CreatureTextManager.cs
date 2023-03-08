@@ -319,7 +319,7 @@ namespace Game
                     Player whisperPlayer = whisperTarget.AsPlayer;
                     if (whisperPlayer)
                     {
-                        Group group = whisperPlayer.GetGroup();
+                        PlayerGroup group = whisperPlayer.Group;
                         if (group)
                             group.BroadcastWorker(player => player.SendPacket(data));
                     }
@@ -372,7 +372,7 @@ namespace Game
                     }
                 case CreatureTextRange.World:
                     {
-                        var smap = Global.WorldMgr.GetAllSessions();
+                        var smap = Global.WorldMgr.AllSessions;
                         foreach (var session in smap)
                         {
                             Player player = session.Player;
@@ -525,7 +525,7 @@ namespace Game
                     }
                 case CreatureTextRange.World:
                     {
-                        var smap = Global.WorldMgr.GetAllSessions();
+                        var smap = Global.WorldMgr.AllSessions;
                         foreach (var session in smap)
                         {
                             Player player = session.Player;

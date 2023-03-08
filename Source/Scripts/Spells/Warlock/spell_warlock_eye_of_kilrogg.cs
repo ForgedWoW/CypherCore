@@ -29,7 +29,7 @@ public class spell_warlock_eye_of_kilrogg : AuraScript, IHasAuraEffects
 		if (caster == null || !caster.AsPlayer)
 			return;
 
-		if (caster.AsPlayer.GetPet())
+		if (caster.AsPlayer.CurrentPet)
 			caster.Events.AddEventAtOffset(() => { caster.AsPlayer.PetSpellInitialize(); }, TimeSpan.FromMilliseconds(250));
 	}
 }

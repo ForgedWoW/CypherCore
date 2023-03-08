@@ -29,8 +29,8 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
 			if (dreadstalker.OwnerUnit == caster)
 			{
 				dreadstalker.SetLevel(caster.Level);
-				dreadstalker.SetMaxHealth(caster.GetMaxHealth() / 3);
-				dreadstalker.SetHealth(caster.GetHealth() / 3);
+				dreadstalker.SetMaxHealth(caster.MaxHealth / 3);
+				dreadstalker.SetHealth(caster.Health / 3);
 				dreadstalker.AI.AttackStart(target);
 			}
 

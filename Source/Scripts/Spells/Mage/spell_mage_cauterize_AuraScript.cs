@@ -31,8 +31,8 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 
 		if (effectInfo == null ||
 			!TargetApplication.HasEffect(1) ||
-			dmgInfo.GetDamage() < Target.GetHealth() ||
-			dmgInfo.GetDamage() > Target.GetMaxHealth() * 2 ||
+			dmgInfo.GetDamage() < Target.Health ||
+			dmgInfo.GetDamage() > Target.MaxHealth * 2 ||
 			Target.HasAura(MageSpells.Cauterized))
 		{
 			PreventDefaultAction();

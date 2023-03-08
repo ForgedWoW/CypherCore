@@ -1991,13 +1991,13 @@ public class Aura
 							if (power.PowerType != PowerType.Health)
 								manaPerSecond += MathFunctions.CalculatePct(caster.GetMaxPower(power.PowerType), power.PowerPctPerSecond);
 							else
-								manaPerSecond += (int)MathFunctions.CalculatePct(caster.GetMaxHealth(), power.PowerPctPerSecond);
+								manaPerSecond += (int)MathFunctions.CalculatePct(caster.MaxHealth, power.PowerPctPerSecond);
 
 							if (manaPerSecond != 0)
 							{
 								if (power.PowerType == PowerType.Health)
 								{
-									if ((int)caster.GetHealth() > manaPerSecond)
+									if ((int)caster.Health > manaPerSecond)
 										caster.ModifyHealth(-manaPerSecond);
 									else
 										Remove();
@@ -2595,7 +2595,7 @@ public class Aura
 
 	public virtual string GetDebugInfo()
 	{
-		return $"Id: {Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.GetDefaultDbcLocale()]}' Caster: {CasterGuid}\nOwner: {(Owner != null ? Owner.GetDebugInfo() : "NULL")}";
+		return $"Id: {Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.DefaultDbcLocale]}' Caster: {CasterGuid}\nOwner: {(Owner != null ? Owner.GetDebugInfo() : "NULL")}";
 	}
 
 	#endregion

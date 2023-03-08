@@ -35,7 +35,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 		var threshold2 = caster.CountPctFromMaxHealth(SpellInfo.GetEffect(1).BasePoints);
 		var duration = SpellInfo.GetEffect(2).BasePoints;
 
-		if (caster.GetHealth() - eventInfo.DamageInfo.GetDamage() < threshold1)
+		if (caster.Health - eventInfo.DamageInfo.GetDamage() < threshold1)
 		{
 			if (caster.HasAura(DemonHunterSpells.AWAKEN_THE_DEMON_CD))
 				return;
@@ -57,7 +57,7 @@ public class spell_dh_awaken_the_demon : AuraScript, IHasAuraEffects
 		}
 
 		// Check only if we are above the second threshold and we are falling under it just now
-		if (caster.GetHealth() > threshold2 && caster.GetHealth() - eventInfo.DamageInfo.GetDamage() < threshold2)
+		if (caster.Health > threshold2 && caster.Health - eventInfo.DamageInfo.GetDamage() < threshold2)
 		{
 			var aur = caster.GetAura(DemonHunterSpells.METAMORPHOSIS_HAVOC);
 

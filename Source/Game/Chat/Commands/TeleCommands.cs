@@ -126,16 +126,16 @@ namespace Game.Chat
 
             string nameLink = handler.GetNameLink(target);
 
-            Group grp = target.GetGroup();
+            PlayerGroup grp = target.Group;
             if (!grp)
             {
                 handler.SendSysMessage(CypherStrings.NotInGroup, nameLink);
                 return false;
             }
 
-            for (GroupReference refe = grp.GetFirstMember(); refe != null; refe = refe.Next())
+            for (GroupReference refe = grp.FirstMember; refe != null; refe = refe.Next())
             {
-                Player player = refe.GetSource();
+                Player player = refe.Source;
                 if (!player || !player.Session)
                     continue;
 

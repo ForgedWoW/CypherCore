@@ -467,7 +467,7 @@ namespace Game.AI
 
             if (summon != null)
             {
-                var attack = owner.GetSelectedUnit();
+                var attack = owner.SelectedUnit;
 
                 if (attack == null)
                     attack = owner.Attackers.FirstOrDefault();
@@ -525,7 +525,7 @@ namespace Game.AI
                 Unit ownerTarget;
                 Player owner = me.CharmerOrOwner.AsPlayer;
                 if (owner)
-                    ownerTarget = owner.GetSelectedUnit();
+                    ownerTarget = owner.SelectedUnit;
                 else
                     ownerTarget = me.CharmerOrOwner.Victim;
 
@@ -607,26 +607,26 @@ namespace Game.AI
             if (!owner)
                 return;
 
-            Group group = null;
+            PlayerGroup group = null;
             Player player = owner.AsPlayer;
             if (player)
-                group = player.GetGroup();
+                group = player.Group;
 
             // only pet and owner/not in group.ok
             if (_allySet.Count == 2 && !group)
                 return;
 
             // owner is in group; group members filled in already (no raid . subgroupcount = whole count)
-            if (group && !group.IsRaidGroup() && _allySet.Count == (group.GetMembersCount() + 2))
+            if (group && !group.IsRaidGroup && _allySet.Count == (group.MembersCount + 2))
                 return;
 
             _allySet.Clear();
             _allySet.Add(me.GUID);
             if (group) // add group
             {
-                for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+                for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
                 {
-                    Player target = refe.GetSource();
+                    Player target = refe.Source;
                     if (!target || !target.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
                         continue;
 

@@ -10,6 +10,10 @@ namespace Game.Entities;
 
 public partial class Player
 {
+	public uint AchievementPoints => _AchievementSys.AchievementPoints;
+
+	public ICollection<uint> CompletedAchievementIds => _AchievementSys.CompletedAchievementIds;
+
 	public void ResetAchievements()
 	{
 		_AchievementSys.Reset();
@@ -18,16 +22,6 @@ public partial class Player
 	public void SendRespondInspectAchievements(Player player)
 	{
 		_AchievementSys.SendAchievementInfo(player);
-	}
-
-	public uint GetAchievementPoints()
-	{
-		return _AchievementSys.GetAchievementPoints();
-	}
-
-	public ICollection<uint> GetCompletedAchievementIds()
-	{
-		return _AchievementSys.GetCompletedAchievementIds();
 	}
 
 	public bool HasAchieved(uint achievementId)

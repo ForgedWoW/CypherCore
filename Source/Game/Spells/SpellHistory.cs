@@ -431,7 +431,7 @@ public class SpellHistory
 					var categoryEntry = CliDB.SpellCategoryStorage.LookupByKey(categoryId);
 
 					if (categoryEntry.Flags.HasAnyFlag(SpellCategoryFlags.CooldownExpiresAtDailyReset))
-						categoryCooldown = Time.UnixTimeToDateTime(Global.WorldMgr.GetNextDailyQuestsResetTime()) - GameTime.GetSystemTime();
+						categoryCooldown = Time.UnixTimeToDateTime(Global.WorldMgr.NextDailyQuestsResetTime) - GameTime.GetSystemTime();
 				}
 			}
 			else

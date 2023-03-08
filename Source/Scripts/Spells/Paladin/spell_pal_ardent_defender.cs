@@ -49,7 +49,7 @@ public class spell_pal_ardent_defender : AuraScript, IHasAuraEffects
 
 		var target = Target;
 
-		if (dmgInfo.GetDamage() < target.GetHealth())
+		if (dmgInfo.GetDamage() < target.Health)
 			return absorbAmount;
 
 		double healAmount = target.CountPctFromMaxHealth(healPct);

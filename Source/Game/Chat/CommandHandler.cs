@@ -318,7 +318,7 @@ namespace Game.Chat
             if (_session == null)
                 return null;
 
-            Unit selected = _session.Player.GetSelectedUnit();
+            Unit selected = _session.Player.SelectedUnit;
             if (selected)
                 return selected;
 
@@ -453,7 +453,7 @@ namespace Game.Chat
             if (target != null)
                 target_ac_sec = target.Security;
             else if (target_account != 0)
-                target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)Global.WorldMgr.GetRealmId().Index);
+                target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)Global.WorldMgr.RealmId.Index);
             else
                 return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
@@ -566,7 +566,7 @@ namespace Game.Chat
             Global.WorldMgr.SendGlobalGMMessage(data);
         }
 
-        public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out Group group, out ObjectGuid guid, bool offline = false)
+        public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
         {
             player = null;
             guid = ObjectGuid.Empty;
@@ -587,7 +587,7 @@ namespace Game.Chat
 
             if (player)
             {
-                group = player.GetGroup();
+                group = player.Group;
                 if (guid.IsEmpty || !offline)
                     guid = player.GUID;
             }
@@ -600,7 +600,7 @@ namespace Game.Chat
 
                 if (guid.IsEmpty || !offline)
                     guid = player.GUID;
-                group = player.GetGroup();
+                group = player.Group;
             }
 
             return true;
@@ -753,12 +753,12 @@ namespace Game.Chat
 
         public override Locale GetSessionDbcLocale()
         {
-            return Global.WorldMgr.GetDefaultDbcLocale();
+            return Global.WorldMgr.DefaultDbcLocale;
         }
 
         public override byte GetSessionDbLocaleIndex()
         {
-            return (byte)Global.WorldMgr.GetDefaultDbcLocale();
+            return (byte)Global.WorldMgr.DefaultDbcLocale;
         }
     }
 
@@ -811,12 +811,12 @@ namespace Game.Chat
 
         public override Locale GetSessionDbcLocale()
         {
-            return Global.WorldMgr.GetDefaultDbcLocale();
+            return Global.WorldMgr.DefaultDbcLocale;
         }
 
         public override byte GetSessionDbLocaleIndex()
         {
-            return (byte)Global.WorldMgr.GetDefaultDbcLocale();
+            return (byte)Global.WorldMgr.DefaultDbcLocale;
         }
     }
 }

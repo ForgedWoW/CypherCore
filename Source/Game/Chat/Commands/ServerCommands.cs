@@ -35,22 +35,22 @@ namespace Game.Chat
         [Command("info", RBACPermissions.CommandServerInfo, true)]
         static bool HandleServerInfoCommand(CommandHandler handler)
         {
-            uint playersNum = Global.WorldMgr.GetPlayerCount();
-            uint maxPlayersNum = Global.WorldMgr.GetMaxPlayerCount();
-            int activeClientsNum = Global.WorldMgr.GetActiveSessionCount();
-            int queuedClientsNum = Global.WorldMgr.GetQueuedSessionCount();
-            uint maxActiveClientsNum = Global.WorldMgr.GetMaxActiveSessionCount();
-            uint maxQueuedClientsNum = Global.WorldMgr.GetMaxQueuedSessionCount();
+            uint playersNum = Global.WorldMgr.PlayerCount;
+            uint maxPlayersNum = Global.WorldMgr.MaxPlayerCount;
+            int activeClientsNum = Global.WorldMgr.ActiveSessionCount;
+            int queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
+            uint maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
+            uint maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
             string uptime = Time.secsToTimeString(GameTime.GetUptime());
-            uint updateTime = Global.WorldMgr.GetWorldUpdateTime().GetLastUpdateTime();
+            uint updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
 
             handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
             handler.SendSysMessage(CypherStrings.ConnectedUsers, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
             handler.SendSysMessage(CypherStrings.Uptime, uptime);
             handler.SendSysMessage(CypherStrings.UpdateDiff, updateTime);
             // Can't use Global.WorldMgr.ShutdownMsg here in case of console command
-            if (Global.WorldMgr.IsShuttingDown())
-                handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.GetShutDownTimeLeft()));
+            if (Global.WorldMgr.IsShuttingDown)
+                handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
 
             return true;
         }
@@ -59,7 +59,7 @@ namespace Game.Chat
         static bool HandleServerMotdCommand(CommandHandler handler)
         {
             string motd = "";
-            foreach (var line in Global.WorldMgr.GetMotd())
+            foreach (var line in Global.WorldMgr.Motd)
                 motd += line;
 
             handler.SendSysMessage(CypherStrings.MotdCurrent, motd);
@@ -78,19 +78,19 @@ namespace Game.Chat
                 switch (paramStr.ToLower())
                 {
                     case "player":
-                        Global.WorldMgr.SetPlayerSecurityLimit(AccountTypes.Player);
+                        Global.WorldMgr.                        PlayerSecurityLimit = AccountTypes.Player;
                         break;
                     case "moderator":
-                        Global.WorldMgr.SetPlayerSecurityLimit(AccountTypes.Moderator);
+                        Global.WorldMgr.                        PlayerSecurityLimit = AccountTypes.Moderator;
                         break;
                     case "gamemaster":
-                        Global.WorldMgr.SetPlayerSecurityLimit(AccountTypes.GameMaster);
+                        Global.WorldMgr.                        PlayerSecurityLimit = AccountTypes.GameMaster;
                         break;
                     case "administrator":
-                        Global.WorldMgr.SetPlayerSecurityLimit(AccountTypes.Administrator);
+                        Global.WorldMgr.                        PlayerSecurityLimit = AccountTypes.Administrator;
                         break;
                     case "reset":
-                        Global.WorldMgr.SetPlayerAmountLimit(ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100));
+                        Global.WorldMgr.                        PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
                         Global.WorldMgr.LoadDBAllowedSecurityLevel();
                         break;
                     default:
@@ -98,15 +98,15 @@ namespace Game.Chat
                             return false;
 
                         if (value < 0)
-                            Global.WorldMgr.SetPlayerSecurityLimit((AccountTypes)(-value));
+                            Global.WorldMgr.                            PlayerSecurityLimit = (AccountTypes)(-value);
                         else
-                            Global.WorldMgr.SetPlayerAmountLimit((uint)value);
+                            Global.WorldMgr.                            PlayerAmountLimit = (uint)value;
                         break;
                 }
             }
 
-            uint playerAmountLimit = Global.WorldMgr.GetPlayerAmountLimit();
-            AccountTypes allowedAccountType = Global.WorldMgr.GetPlayerSecurityLimit();
+            uint playerAmountLimit = Global.WorldMgr.PlayerAmountLimit;
+            AccountTypes allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
             string secName;
             switch (allowedAccountType)
             {
@@ -135,7 +135,7 @@ namespace Game.Chat
         {
             // check if there is any session connected from a different address
             string myAddr = mySession ? mySession.RemoteAddress : "";
-            var sessions = Global.WorldMgr.GetAllSessions();
+            var sessions = Global.WorldMgr.AllSessions;
             foreach (var session in sessions)
                 if (session && myAddr != session.RemoteAddress)
                     return false;

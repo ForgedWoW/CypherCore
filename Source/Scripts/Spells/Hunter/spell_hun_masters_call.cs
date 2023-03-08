@@ -71,7 +71,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 	private void HandleDummy(int effIndex)
 	{
-		Caster.AsPlayer.GetPet().CastSpell(HitUnit, (uint)EffectValue, true);
+		Caster.AsPlayer.		CurrentPet.CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 
 	private void HandleScriptEffect(int effIndex)

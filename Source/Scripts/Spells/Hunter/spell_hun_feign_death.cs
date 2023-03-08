@@ -24,7 +24,7 @@ public class spell_hun_feign_death : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		health = Target.GetHealth();
+		health = Target.Health;
 		focus = Target.GetPower(PowerType.Focus);
 	}
 

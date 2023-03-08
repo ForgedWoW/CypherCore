@@ -1079,11 +1079,11 @@ public class npc_injured_patient : ScriptedAI
 	{
 		//lower HP on every world tick makes it a useful counter, not officlone though
 		if (me.IsAlive &&
-			me.GetHealth() > 6)
+			me.			Health > 6)
 			me.ModifyHealth(-5);
 
 		if (me.IsAlive &&
-			me.GetHealth() <= 6)
+			me.			Health <= 6)
 		{
 			me.RemoveUnitFlag(UnitFlags.InCombat);
 			me.SetUnitFlag(UnitFlags.Uninteractible);
@@ -1624,7 +1624,7 @@ internal class npc_imp_in_a_ball : ScriptedAI
 									var owner = Global.ObjAccessor.GetPlayer(me, summonerGUID);
 
 									if (owner)
-										Global.CreatureTextMgr.SendChat(me, 0, owner, owner.GetGroup() ? ChatMsg.MonsterParty : ChatMsg.MonsterWhisper, Language.Addon, CreatureTextRange.Normal);
+										Global.CreatureTextMgr.SendChat(me, 0, owner, owner.Group ? ChatMsg.MonsterParty : ChatMsg.MonsterWhisper, Language.Addon, CreatureTextRange.Normal);
 								});
 		}
 	}

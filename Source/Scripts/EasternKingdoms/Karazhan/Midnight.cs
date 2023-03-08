@@ -110,9 +110,9 @@ internal class boss_attumen : BossAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Attumen does not die until he mounts Midnight, let health fall to 1 and prevent further Damage.
-		if (damage >= me.GetHealth() &&
+		if (damage >= me.Health &&
 			_phase != Phases.Mounted)
-			damage = (uint)(me.GetHealth() - 1);
+			damage = (uint)(me.Health - 1);
 
 		if (_phase == Phases.AttumenEngages &&
 			me.HealthBelowPctDamaged(25, damage))
@@ -139,10 +139,10 @@ internal class boss_attumen : BossAI
 
 			if (midnight)
 			{
-				if (midnight.GetHealth() > me.GetHealth())
-					summon.SetHealth(midnight.GetHealth());
+				if (midnight.Health > me.Health)
+					summon.SetHealth(midnight.Health);
 				else
-					summon.SetHealth(me.GetHealth());
+					summon.SetHealth(me.Health);
 
 				summon.AI.DoZoneInCombat();
 				summon.AI.SetGUID(_midnightGUID, (int)CreatureIds.Midnight);
@@ -305,8 +305,8 @@ internal class boss_midnight : BossAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Midnight never dies, let health fall to 1 and prevent further Damage.
-		if (damage >= me.GetHealth())
-			damage = (uint)(me.GetHealth() - 1);
+		if (damage >= me.Health)
+			damage = (uint)(me.Health - 1);
 
 		if (_phase == Phases.None &&
 			me.HealthBelowPctDamaged(95, damage))

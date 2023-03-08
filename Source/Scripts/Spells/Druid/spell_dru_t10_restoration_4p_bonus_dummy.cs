@@ -39,7 +39,7 @@ internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheck
 		if (!caster)
 			return false;
 
-		return caster.GetGroup() || caster != eventInfo.ProcTarget;
+		return caster.Group || caster != eventInfo.ProcTarget;
 	}
 
 	public override void Register()

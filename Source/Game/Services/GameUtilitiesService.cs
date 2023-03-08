@@ -72,7 +72,7 @@ namespace Game
             if (subRegion != null)
                 subRegionId = subRegion.StringValue;
 
-            var compressed = Global.RealmMgr.GetRealmList(Global.WorldMgr.GetRealm().Build, subRegionId);
+            var compressed = Global.RealmMgr.GetRealmList(Global.WorldMgr.Realm.Build, subRegionId);
             if (compressed.Empty())
                 return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
 
@@ -104,7 +104,7 @@ namespace Game
         {
             var realmAddress = Params.LookupByKey("Param_RealmAddress");
             if (realmAddress != null)
-                return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue, Global.WorldMgr.GetRealm().Build, System.Net.IPAddress.Parse(RemoteAddress), RealmListSecret,
+                return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue, Global.WorldMgr.Realm.Build, System.Net.IPAddress.Parse(RemoteAddress), RealmListSecret,
                     SessionDbcLocale, OS, AccountName, response);
 
             return BattlenetRpcErrorCode.Ok;

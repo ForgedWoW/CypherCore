@@ -74,7 +74,7 @@ internal class npc_firesworn : ScriptedAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		var health10pct = me.CountPctFromMaxHealth(10);
-		var health = me.GetHealth();
+		var health = me.Health;
 
 		if (health - damage < health10pct)
 		{

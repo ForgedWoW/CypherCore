@@ -130,7 +130,7 @@ namespace Game
                 if (!target.GuildGuid.IsEmpty)
                 {
                     whoEntry.GuildGUID = target.GuildGuid;
-                    whoEntry.GuildVirtualRealmAddress = Global.WorldMgr.GetVirtualRealmAddress();
+                    whoEntry.GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
                     whoEntry.GuildName = target.GuildName;
                 }
 
@@ -270,7 +270,7 @@ namespace Game
             }
 
             // When not found, consult database
-            QueryProcessor.AddCallback(Global.AccountMgr.GetSecurityAsync(friendCharacterInfo.AccountId, (int)Global.WorldMgr.GetRealmId().Index, friendSecurity =>
+            QueryProcessor.AddCallback(Global.AccountMgr.GetSecurityAsync(friendCharacterInfo.AccountId, (int)Global.WorldMgr.RealmId.Index, friendSecurity =>
             {
                 if (!Global.AccountMgr.IsPlayerAccount((AccountTypes)friendSecurity))
                 {

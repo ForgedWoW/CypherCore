@@ -15,6 +15,30 @@ namespace Game.Entities;
 
 public partial class Player
 {
+	public Difficulty DungeonDifficultyId
+	{
+		get => _dungeonDifficulty;
+		set => _dungeonDifficulty = value;
+	}
+
+	public Difficulty RaidDifficultyId
+	{
+		get => _raidDifficulty;
+		set => _raidDifficulty = value;
+	}
+
+	public Difficulty LegacyRaidDifficultyId
+	{
+		get => _legacyRaidDifficulty;
+		set => _legacyRaidDifficulty = value;
+	}
+
+	public ZonePVPTypeOverride OverrideZonePvpType
+	{
+		get => (ZonePVPTypeOverride)(uint)ActivePlayerData.OverrideZonePVPType;
+		set => SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OverrideZonePVPType), (uint)value);
+	}
+
 	public Difficulty GetDifficultyId(MapRecord mapEntry)
 	{
 		if (!mapEntry.IsRaid())
@@ -31,36 +55,6 @@ public partial class Player
 			return _legacyRaidDifficulty;
 
 		return _raidDifficulty;
-	}
-
-	public Difficulty GetDungeonDifficultyId()
-	{
-		return _dungeonDifficulty;
-	}
-
-	public Difficulty GetRaidDifficultyId()
-	{
-		return _raidDifficulty;
-	}
-
-	public Difficulty GetLegacyRaidDifficultyId()
-	{
-		return _legacyRaidDifficulty;
-	}
-
-	public void SetDungeonDifficultyId(Difficulty dungeonDifficulty)
-	{
-		_dungeonDifficulty = dungeonDifficulty;
-	}
-
-	public void SetRaidDifficultyId(Difficulty raidDifficulty)
-	{
-		_raidDifficulty = raidDifficulty;
-	}
-
-	public void SetLegacyRaidDifficultyId(Difficulty raidDifficulty)
-	{
-		_legacyRaidDifficulty = raidDifficulty;
 	}
 
 	public static Difficulty CheckLoadedDungeonDifficultyId(Difficulty difficulty)
@@ -139,11 +133,11 @@ public partial class Player
 		}
 
 		// group update
-		if (GetGroup())
+		if (Group)
 		{
 			SetGroupUpdateFlag(GroupUpdateFlags.Full);
 
-			var pet = GetPet();
+			var pet = CurrentPet;
 
 			if (pet)
 				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.Full);
@@ -210,7 +204,7 @@ public partial class Player
 
 	public void UpdateHostileAreaState(AreaTableRecord area)
 	{
-		var overrideZonePvpType = GetOverrideZonePvpType();
+		var overrideZonePvpType = OverrideZonePvpType;
 
 		PvpInfo.IsInHostileArea = false;
 
@@ -243,7 +237,7 @@ public partial class Player
 					else if (factionTemplate.EnemyGroup.HasAnyFlag(area.FactionGroupMask))
 						PvpInfo.IsInHostileArea = true;
 					else
-						PvpInfo.IsInHostileArea = Global.WorldMgr.IsPvPRealm();
+						PvpInfo.IsInHostileArea = Global.WorldMgr.IsPvPRealm;
 				}
 			}
 		}
@@ -266,16 +260,6 @@ public partial class Player
 
 		// Treat players having a quest flagging for PvP as always in hostile area
 		PvpInfo.IsHostile = PvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive;
-	}
-
-	public ZonePVPTypeOverride GetOverrideZonePvpType()
-	{
-		return (ZonePVPTypeOverride)(uint)ActivePlayerData.OverrideZonePVPType;
-	}
-
-	public void SetOverrideZonePvpType(ZonePVPTypeOverride type)
-	{
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.OverrideZonePVPType), (uint)type);
 	}
 
 	public void ConfirmPendingBind()
@@ -381,7 +365,7 @@ public partial class Player
 					missingQuest = ar.QuestH;
 
 				var leader = this;
-				var leaderGuid = GetGroup() != null ? GetGroup().GetLeaderGUID() : GUID;
+				var leaderGuid = Group != null ? Group.LeaderGUID : GUID;
 
 				if (leaderGuid != GUID)
 					leader = Global.ObjAccessor.FindPlayer(leaderGuid);
@@ -402,7 +386,7 @@ public partial class Player
 					{
 						SendSysMessage("{0}", ar.QuestFailedText);
 					}
-					else if (!mapDiff.Message[Global.WorldMgr.GetDefaultDbcLocale()].IsEmpty() && mapDiff.Message[Global.WorldMgr.GetDefaultDbcLocale()][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
+					else if (!mapDiff.Message[Global.WorldMgr.DefaultDbcLocale].IsEmpty() && mapDiff.Message[Global.WorldMgr.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
 					{
 						if (abortParams != null)
 						{
@@ -441,11 +425,11 @@ public partial class Player
 		if (instance == null)
 			return true;
 
-		var group = GetGroup();
+		var group = Group;
 
 		// raid instances require the player to be in a raid group to be valid
 		if (map.IsRaid() && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.GetEntry().Expansion() >= (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion)))
-			if (group == null || group.IsRaidGroup())
+			if (group == null || group.IsRaidGroup)
 				return false;
 
 		if (group)
@@ -481,14 +465,14 @@ public partial class Player
 	public void SendDungeonDifficulty(int forcedDifficulty = -1)
 	{
 		DungeonDifficultySet dungeonDifficultySet = new();
-		dungeonDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)GetDungeonDifficultyId() : forcedDifficulty;
+		dungeonDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)DungeonDifficultyId : forcedDifficulty;
 		SendPacket(dungeonDifficultySet);
 	}
 
 	public void SendRaidDifficulty(bool legacy, int forcedDifficulty = -1)
 	{
 		RaidDifficultySet raidDifficultySet = new();
-		raidDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? GetLegacyRaidDifficultyId() : GetRaidDifficultyId()) : forcedDifficulty;
+		raidDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? LegacyRaidDifficultyId : RaidDifficultyId) : forcedDifficulty;
 		raidDifficultySet.Legacy = legacy;
 		SendPacket(raidDifficultySet);
 	}

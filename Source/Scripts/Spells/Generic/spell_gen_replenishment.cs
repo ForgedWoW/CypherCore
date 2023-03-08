@@ -39,7 +39,7 @@ internal class spell_gen_replenishment : SpellScript, IHasSpellEffects
 			var target = obj.AsUnit;
 
 			if (target)
-				return target.GetPowerType() != PowerType.Mana;
+				return target.DisplayPowerType != PowerType.Mana;
 
 			return true;
 		});

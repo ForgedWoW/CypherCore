@@ -44,10 +44,10 @@ public class spell_class_mecagnomo_emergency : AuraScript, IAuraCheckProc, IHasA
 		var caster = Caster;
 
 		var triggerOnHealth = caster.CountPctFromMaxHealth(aurEff.Amount);
-		var currentHealth = caster.GetHealth();
+		var currentHealth = caster.Health;
 
 		// Just falling below threshold
-		if (currentHealth > triggerOnHealth && (currentHealth - caster.GetMaxHealth() * 25.0f / 100.0f) <= triggerOnHealth)
+		if (currentHealth > triggerOnHealth && (currentHealth - caster.MaxHealth * 25.0f / 100.0f) <= triggerOnHealth)
 			caster.CastSpell(caster, 313010);
 	}
 }
@@ -90,7 +90,7 @@ public class spell_class_mecagnomo_emergency3 : SpellScript, IHasSpellEffects
 	private void HandleHeal(int effIndex)
 	{
 		var caster = Caster;
-		double heal = caster.GetMaxHealth() * 25.0f / 100.0f;
+		double heal = caster.MaxHealth * 25.0f / 100.0f;
 		//caster->SpellHealingBonusDone(caster, GetSpellInfo(), caster->CountPctFromMaxHealth(GetSpellInfo()->GetEffect(effIndex)->BasePoints), DamageEffectType.Heal, GetEffectInfo());
 		heal = caster.SpellHealingBonusTaken(caster, SpellInfo, heal, DamageEffectType.Heal);
 		HitHeal = (int)heal;

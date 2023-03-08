@@ -1046,7 +1046,7 @@ namespace Game.Chat
                     foreach (var outerPair in redirectRegistry) // (spellId, (guid, pct))
                     {
                         SpellInfo spell = Global.SpellMgr.GetSpellInfo(outerPair.Key, Difficulty.None);
-                        handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[Global.WorldMgr.GetDefaultDbcLocale()] : "<unknown>")} ({outerPair.Value.Count} entries):");
+                        handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[Global.WorldMgr.DefaultDbcLocale] : "<unknown>")} ({outerPair.Value.Count} entries):");
                         foreach (var innerPair in outerPair.Value) // (guid, pct)
                         {
                             Unit unit = Global.ObjAccessor.GetUnit(target, innerPair.Key);

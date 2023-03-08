@@ -224,11 +224,11 @@ internal class boss_coren_direbrew : BossAI
 
 		if (!players.Empty())
 		{
-			var group = players[0].GetGroup();
+			var group = players[0].Group;
 
 			if (group)
-				if (group.IsLFGGroup())
-					Global.LFGMgr.FinishDungeon(group.GetGUID(), 287, me.Map);
+				if (group.IsLFGGroup)
+					Global.LFGMgr.FinishDungeon(group.GUID, 287, me.Map);
 		}
 	}
 

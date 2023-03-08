@@ -80,12 +80,12 @@ namespace Game.AI
             Player player = GetPlayerForEscort();
             if (player)
             {
-                Group group = player.GetGroup();
+                PlayerGroup group = player.Group;
                 if (group)
                 {
-                    for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                    for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                     {
-                        Player member = groupRef.GetSource();
+                        Player member = groupRef.Source;
                         if (member)
                             if (member.IsInMap(player))
                                 member.FailQuest(_escortQuest.Id);
@@ -145,12 +145,12 @@ namespace Game.AI
             Player player = GetPlayerForEscort();
             if (player)
             {
-                Group group = player.GetGroup();
+                PlayerGroup group = player.Group;
                 if (group)
                 {
-                    for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                    for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                     {
-                        Player member = groupRef.GetSource();
+                        Player member = groupRef.Source;
                         if (member)
                             if (me.IsWithinDistInMap(member, GetMaxPlayerDistance()))
                                 return true;

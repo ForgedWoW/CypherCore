@@ -178,9 +178,9 @@ public class boss_vanessa_vancleef : BossAI
 		if (player != null)
 			PlayerGUID = player;
 
-		if (me.GetHealth() <= damage)
+		if (me.Health <= damage)
 		{
-			damage = (uint)me.GetHealth() - 1;
+			damage = (uint)me.Health - 1;
 
 			if (!Killed)
 			{
@@ -271,7 +271,7 @@ public class boss_vanessa_vancleef : BossAI
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_1:
-					if ((me.GetHealth() * 100) / me.GetMaxHealth() > 50)
+					if ((me.Health * 100) / me.MaxHealth > 50)
 					{
 						me.SummonCreature(DMCreatures.NPC_DEFIAS_ENFORCER, Shadowspawn[1], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_2, TimeSpan.FromMilliseconds(15000));
@@ -279,7 +279,7 @@ public class boss_vanessa_vancleef : BossAI
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_2:
-					if ((me.GetHealth() * 100) / me.GetMaxHealth() > 50)
+					if ((me.Health * 100) / me.MaxHealth > 50)
 					{
 						me.SummonCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, Shadowspawn[0], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_3, TimeSpan.FromMilliseconds(15000));
@@ -287,7 +287,7 @@ public class boss_vanessa_vancleef : BossAI
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_3:
-					if ((me.GetHealth() * 100) / me.GetMaxHealth() > 50)
+					if ((me.Health * 100) / me.MaxHealth > 50)
 					{
 						me.SummonCreature(DMCreatures.NPC_DEFIAS_BLOODWIZARD, Shadowspawn[2], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(15000));

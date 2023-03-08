@@ -1086,7 +1086,7 @@ internal class boss_julianne : ScriptedAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage < me.GetHealth())
+		if (damage < me.Health)
 			return;
 
 		//anything below only used if incoming Damage will kill
@@ -1390,7 +1390,7 @@ internal class boss_romulo : ScriptedAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage < me.GetHealth())
+		if (damage < me.Health)
 			return;
 
 		//anything below only used if incoming Damage will kill

@@ -186,7 +186,7 @@ namespace Game
                         {
                             Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
                             plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
-                            plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.GetMaxHealth());
+                            plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.MaxHealth);
                             // player can be alive if GM/etc
                             // change the death state to CORPSE to prevent the death timer from
                             // starting in the next player update

@@ -30,7 +30,7 @@ public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
 		if (caster.TryGetAura(WarlockSpells.DEMON_SKIN, out var ds))
 			basePointNormal = ds.GetEffect(1).Amount;
 
-		var threshold = (caster.GetMaxHealth() * basePointNormal) / 100.0f;
+		var threshold = (caster.MaxHealth * basePointNormal) / 100.0f;
 		absorb = Math.Min(absorb, threshold);
 
 		caster.CastSpell(caster, WarlockSpells.SOUL_LEECH_ABSORB, absorb, true);

@@ -381,7 +381,7 @@ internal class boss_baroness_dorothea_millstipe : boss_moroes_guest
 			var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
 			if (target)
-				if (target.GetPowerType() == PowerType.Mana)
+				if (target.DisplayPowerType == PowerType.Mana)
 					DoCast(target, SpellIds.Manaburn);
 
 			ManaBurn_Timer = 5000; // 3 sec cast

@@ -47,8 +47,8 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 
 			if (target != null)
 			{
-				var playerPct = _player.GetHealthPct();
-				var targetPct = target.GetHealthPct();
+				var playerPct = _player.HealthPct;
+				var targetPct = target.HealthPct;
 
 				if (playerPct < 25)
 					playerPct = 25;
@@ -59,8 +59,8 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 				playerPct /= 100;
 				targetPct /= 100;
 
-				_player.SetHealth(_player.GetMaxHealth() * targetPct);
-				target.SetHealth(target.GetMaxHealth() * playerPct);
+				_player.SetHealth(_player.MaxHealth * targetPct);
+				target.SetHealth(target.MaxHealth * playerPct);
 			}
 		}
 	}

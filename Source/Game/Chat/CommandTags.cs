@@ -32,7 +32,7 @@ namespace Game.Chat
             Player player = handler.GetPlayer();
             if (player != null)
             {
-                Player target = player.GetSelectedPlayer();
+                Player target = player.SelectedPlayer;
                 if (target != null)
                     return new PlayerIdentifier(target);
             }
@@ -140,7 +140,7 @@ namespace Game.Chat
             Player player = handler.GetPlayer();
             if (player != null)
             {
-                Player target = player.GetSelectedPlayer();
+                Player target = player.SelectedPlayer;
                 if (target != null)
                 {
                     WorldSession session = target.Session;

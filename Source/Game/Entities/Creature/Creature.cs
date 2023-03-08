@@ -658,7 +658,7 @@ public partial class Creature : Unit
 		}
 		else if (!IsGuardian)
 		{
-			var previousHealth = GetHealth();
+			var previousHealth = Health;
 			UpdateLevelDependantStats(); // We still re-initialize level dependant stats on entry update
 
 			if (previousHealth > 0)
@@ -921,7 +921,7 @@ public partial class Creature : Unit
 						}
 					}
 
-					if (GetPowerType() == PowerType.Energy)
+					if (DisplayPowerType == PowerType.Energy)
 						Regenerate(PowerType.Energy);
 					else
 						Regenerate(PowerType.Mana);
@@ -1484,12 +1484,12 @@ public partial class Creature : Unit
 
 		if (withGroup)
 		{
-			var group = player.GetGroup();
+			var group = player.Group;
 
 			if (group != null)
-				for (var itr = group.GetFirstMember(); itr != null; itr = itr.Next())
-					if (Map.IsRaid() || group.SameSubGroup(player, itr.GetSource()))
-						_tapList.Add(itr.GetSource().GUID);
+				for (var itr = group.FirstMember; itr != null; itr = itr.Next())
+					if (Map.IsRaid() || group.SameSubGroup(player, itr.Source))
+						_tapList.Add(itr.Source.GUID);
 		}
 
 		if (_tapList.Count >= SharedConst.CreatureTappersSoftCap)
@@ -1616,7 +1616,7 @@ public partial class Creature : Unit
 		// prevent add data integrity problems
 		data.WanderDistance = GetDefaultMovementType() == MovementGeneratorType.Idle ? 0.0f : _wanderDistance;
 		data.Currentwaypoint = 0;
-		data.Curhealth = (uint)GetHealth();
+		data.Curhealth = (uint)Health;
 		data.Curmana = (uint)GetPower(PowerType.Mana);
 
 		// prevent add data integrity problems
@@ -1662,7 +1662,7 @@ public partial class Creature : Unit
 		stmt.AddValue(index++, _respawnDelay);
 		stmt.AddValue(index++, _wanderDistance);
 		stmt.AddValue(index++, 0);
-		stmt.AddValue(index++, GetHealth());
+		stmt.AddValue(index++, Health);
 		stmt.AddValue(index++, GetPower(PowerType.Mana));
 		stmt.AddValue(index++, (byte)GetDefaultMovementType());
 		stmt.AddValue(index++, npcflag);
@@ -1876,7 +1876,7 @@ public partial class Creature : Unit
 		}
 		else
 		{
-			curhealth = GetMaxHealth();
+			curhealth = MaxHealth;
 			SetFullPower(PowerType.Mana);
 		}
 
@@ -3488,7 +3488,7 @@ public partial class Creature : Unit
 
 	public void ResetPlayerDamageReq()
 	{
-		PlayerDamageReq = (uint)(GetHealth() / 2);
+		PlayerDamageReq = (uint)(Health / 2);
 	}
 
 	void RegenerateHealth()
@@ -3496,8 +3496,8 @@ public partial class Creature : Unit
 		if (!CanRegenerateHealth)
 			return;
 
-		var curValue = GetHealth();
-		var maxValue = GetMaxHealth();
+		var curValue = Health;
+		var maxValue = MaxHealth;
 
 		if (curValue >= maxValue)
 			return;
@@ -3508,7 +3508,7 @@ public partial class Creature : Unit
 		if (!CharmerOrOwnerGUID.IsEmpty && !IsPolymorphed())
 		{
 			var HealthIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RateHealth);
-			addvalue = 0.015f * GetMaxHealth() * HealthIncreaseRate;
+			addvalue = 0.015f * MaxHealth * HealthIncreaseRate;
 		}
 		else
 		{

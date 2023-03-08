@@ -722,10 +722,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		var tempPlayers = targets.Where(p => p.IsPlayer).ToList();
 
 		//List of all injured non player targets.
-		var tempInjuredUnits = targets.Where(target => target.IsUnit && !target.AsUnit.IsFullHealth()).ToList();
+		var tempInjuredUnits = targets.Where(target => target.IsUnit && !target.AsUnit.IsFullHealth).ToList();
 
 		//List of all none injured non player targets.
-		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit && target.AsUnit.IsFullHealth()).ToList();
+		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit && target.AsUnit.IsFullHealth).ToList();
 
 		targets.Clear();
 
@@ -755,7 +755,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 				return;
 			}
 
-		var lookupPlayers = tempPlayers.ToLookup(target => !target.AsUnit.IsFullHealth());
+		var lookupPlayers = tempPlayers.ToLookup(target => !target.AsUnit.IsFullHealth);
 
 		if (lookupPlayers[true].Count() < maxTargets)
 		{

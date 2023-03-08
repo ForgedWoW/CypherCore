@@ -201,7 +201,7 @@ namespace Game.AI
             if (_me == null || target == null)
                 return false;
 
-            if (target.GetPowerType() != _power)
+            if (target.DisplayPowerType != _power)
                 return false;
 
             if (_playerOnly && target.TypeId != TypeId.Player)

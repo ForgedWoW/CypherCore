@@ -340,13 +340,13 @@ public partial class WorldSession : IDisposable
 			_player.UninviteFromGroup();
 
 			//! Send update to group and reset stored max enchanting level
-			var group = _player.GetGroup();
+			var group = _player.Group;
 
 			if (group != null)
 			{
 				group.SendUpdate();
 
-				if (group.GetLeaderGUID() == _player.GUID)
+				if (group.LeaderGUID == _player.GUID)
 					group.StartLeaderOfflineTimer();
 			}
 
@@ -659,7 +659,7 @@ public partial class WorldSession : IDisposable
 
 	public void SendConnectToInstance(ConnectToSerial serial)
 	{
-		var instanceAddress = Global.WorldMgr.GetRealm().GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
+		var instanceAddress = Global.WorldMgr.Realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
 
 		_instanceConnectKey.AccountId = AccountId;
 		_instanceConnectKey.connectionType = ConnectionType.Instance;
@@ -760,10 +760,10 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.GetRealm().Id.Index,
+					Global.WorldMgr.					Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.GetRealm().Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
 		_rbacData.LoadFromDB();
 	}
 
@@ -776,10 +776,10 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.GetRealm().Id.Index,
+					Global.WorldMgr.					Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.GetRealm().Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
 
 		return _rbacData.LoadFromDBAsync();
 	}
@@ -825,7 +825,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.GetId(),
 					_rbacData.GetName(),
-					Global.WorldMgr.GetRealm().Id.Index);
+					Global.WorldMgr.					Realm.Id.Index);
 
 		return hasPermission;
 	}
@@ -836,7 +836,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.GetId(),
 					_rbacData.GetName(),
-					Global.WorldMgr.GetRealm().Id.Index);
+					Global.WorldMgr.					Realm.Id.Index);
 
 		_rbacData = null;
 	}

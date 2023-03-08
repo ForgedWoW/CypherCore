@@ -295,11 +295,11 @@ namespace Game.Conditions
                     break;
                 case ConditionTypes.HpVal:
                     if (unit != null)
-                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.GetHealth(), ConditionValue1);
+                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.Health, ConditionValue1);
                     break;
                 case ConditionTypes.HpPct:
                     if (unit != null)
-                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.GetHealthPct(), ConditionValue1);
+                        condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue2, unit.HealthPct, ConditionValue1);
                     break;
                 case ConditionTypes.PhaseId:
                     condMeets = obj.PhaseShift.HasPhase(ConditionValue1);
@@ -355,7 +355,7 @@ namespace Game.Conditions
                 {
                     if (player)
                     {
-                        Pet pet = player.GetPet();
+                        Pet pet = player.CurrentPet;
                         if (pet)
                             condMeets = (((1 << (int)pet.GetPetType()) & ConditionValue1) != 0);
                     }

@@ -2463,7 +2463,7 @@ public class SpellInfo
 			if (power.PowerType == PowerType.Health)
 			{
 				cost.Power = PowerType.Health;
-				cost.Amount = (int)unitCaster.GetHealth();
+				cost.Amount = (int)unitCaster.Health;
 
 				return cost;
 			}
@@ -2496,9 +2496,9 @@ public class SpellInfo
 					// health as power used
 					case PowerType.Health:
 						if (MathFunctions.fuzzyEq(power.PowerCostPct, 0.0f))
-							powerCost += (int)MathFunctions.CalculatePct(unitCaster.GetMaxHealth(), power.PowerCostMaxPct);
+							powerCost += (int)MathFunctions.CalculatePct(unitCaster.MaxHealth, power.PowerCostMaxPct);
 						else
-							powerCost += (int)MathFunctions.CalculatePct(unitCaster.GetMaxHealth(), power.PowerCostPct);
+							powerCost += (int)MathFunctions.CalculatePct(unitCaster.MaxHealth, power.PowerCostPct);
 
 						break;
 					case PowerType.Mana:
@@ -2535,7 +2535,7 @@ public class SpellInfo
 				{
 					// health as power used
 					case PowerType.Health:
-						powerCost += (int)MathFunctions.CalculatePct(unitCaster.GetMaxHealth(), power.OptionalCostPct);
+						powerCost += (int)MathFunctions.CalculatePct(unitCaster.MaxHealth, power.OptionalCostPct);
 
 						break;
 					case PowerType.Mana:

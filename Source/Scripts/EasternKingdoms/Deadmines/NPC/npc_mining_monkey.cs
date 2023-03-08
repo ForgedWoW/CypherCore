@@ -40,7 +40,7 @@ public class npc_mining_monkey : ScriptedAI
 			return;
 
 		if (Phase == 1)
-			if (me.GetHealth() - damage <= me.GetMaxHealth() * 0.15)
+			if (me.Health - damage <= me.MaxHealth * 0.15)
 				Phase++;
 	}
 

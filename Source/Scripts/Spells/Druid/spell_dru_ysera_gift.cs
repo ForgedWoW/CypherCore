@@ -26,12 +26,12 @@ public class spell_dru_ysera_gift : AuraScript, IHasAuraEffects
 		if (caster == null || !caster.IsAlive)
 			return;
 
-		var amount = MathFunctions.CalculatePct(caster.GetMaxHealth(), aurEff.BaseAmount);
+		var amount = MathFunctions.CalculatePct(caster.MaxHealth, aurEff.BaseAmount);
 		var values = new CastSpellExtraArgs(TriggerCastFlags.FullMask);
 		values.AddSpellMod(SpellValueMod.MaxTargets, 1);
 		values.AddSpellMod(SpellValueMod.BasePoint0, (int)amount);
 
-		if (caster.IsFullHealth())
+		if (caster.IsFullHealth)
 			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_RAID_HEAL, values);
 		else
 			caster.CastSpell(caster, DruidSpells.YSERA_GIFT_CASTER_HEAL, values);

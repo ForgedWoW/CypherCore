@@ -100,7 +100,7 @@ public class MapManager : Singleton<MapManager>
 			}
 			else if (entry.IsDungeon())
 			{
-				var group = player.GetGroup();
+				var group = player.Group;
 				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 				MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
@@ -197,7 +197,7 @@ public class MapManager : Singleton<MapManager>
 		}
 		else if (entry.IsDungeon())
 		{
-			var group = player.GetGroup();
+			var group = player.Group;
 			var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 			MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 
@@ -479,7 +479,7 @@ public class MapManager : Singleton<MapManager>
 		return map;
 	}
 
-	InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, Group group)
+	InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
 	{
 		// make sure we have a valid map id
 		var entry = CliDB.MapStorage.LookupByKey(mapId);

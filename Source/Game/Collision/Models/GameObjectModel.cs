@@ -213,7 +213,7 @@ namespace Game.Collision
         public static bool LoadGameObjectModelList()
         {
             uint oldMSTime = Time.MSTime;
-            var filename = Global.WorldMgr.GetDataPath() + "/vmaps/GameObjectModels.dtree";
+            var filename = Global.WorldMgr.DataPath + "/vmaps/GameObjectModels.dtree";
             if (!File.Exists(filename))
             {
                 Log.outWarn(LogFilter.Server, "Unable to open '{0}' file.", filename);

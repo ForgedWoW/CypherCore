@@ -251,11 +251,11 @@ namespace Game
                 case ChatMsg.Party:
                     {
                         // if player is in Battleground, he cannot say to Battlegroundmembers by /p
-                        Group group = _player.GetOriginalGroup();
+                        PlayerGroup group = _player.OriginalGroup;
                         if (!group)
                         {
-                            group = _player.GetGroup();
-                            if (!group || group.IsBGGroup())
+                            group = _player.Group;
+                            if (!group || group.IsBGGroup)
                                 return;
                         }
 
@@ -295,8 +295,8 @@ namespace Game
                     break;
                 case ChatMsg.Raid:
                     {
-                        Group group = _player.GetGroup();
-                        if (!group || !group.IsRaidGroup() || group.IsBGGroup())
+                        PlayerGroup group = _player.Group;
+                        if (!group || !group.IsRaidGroup || group.IsBGGroup)
                             return;
 
                         if (group.IsLeader(_player.GUID))
@@ -311,8 +311,8 @@ namespace Game
                     break;
                 case ChatMsg.RaidWarning:
                     {
-                        Group group = _player.GetGroup();
-                        if (!group || !(group.IsRaidGroup() || WorldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup())
+                        PlayerGroup group = _player.Group;
+                        if (!group || !(group.IsRaidGroup || WorldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup)
                             return;
 
                         Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
@@ -341,7 +341,7 @@ namespace Game
                     break;
                 case ChatMsg.InstanceChat:
                     {
-                        Group group = _player.GetGroup();
+                        PlayerGroup group = _player.Group;
                         if (!group)
                             return;
 
@@ -416,19 +416,19 @@ namespace Game
                 case ChatMsg.Raid:
                 case ChatMsg.InstanceChat:
                     {
-                        Group group = null;
+                        PlayerGroup group = null;
                         int subGroup = -1;
                         if (type != ChatMsg.InstanceChat)
-                            group = sender.GetOriginalGroup();
+                            group = sender.OriginalGroup;
 
                         if (!group)
                         {
-                            group = sender.GetGroup();
+                            group = sender.Group;
                             if (!group)
                                 break;
 
                             if (type == ChatMsg.Party)
-                                subGroup = sender.GetSubGroup();
+                                subGroup = sender.SubGroup;
                         }
 
                         ChatPkt data = new();

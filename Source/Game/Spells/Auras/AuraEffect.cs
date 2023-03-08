@@ -2861,7 +2861,7 @@ public class AuraEffect
 
 		if (apply)
 		{
-			if (caster.AsPlayer.GetPet() != pet)
+			if (caster.AsPlayer.CurrentPet != pet)
 				return;
 
 			pet.SetCharmedBy(caster, CharmType.Possess, aurApp);
@@ -3547,14 +3547,14 @@ public class AuraEffect
 		var target = aurApp.Target;
 
 		// save current health state
-		double healthPct = target.GetHealthPct();
+		double healthPct = target.HealthPct;
 		var zeroHealth = !target.IsAlive;
 
 		// players in corpse state may mean two different states:
 		/// 1. player just died but did not release (in this case health == 0)
 		/// 2. player is corpse running (ie ghost) (in this case health == 1)
 		if (target.DeathState == DeathState.Corpse)
-			zeroHealth = target.GetHealth() == 0;
+			zeroHealth = target.Health == 0;
 
 		for (var i = (int)Stats.Strength; i < (int)Stats.Max; i++)
 			if (Convert.ToBoolean(MiscValueB & 1 << i) || MiscValueB == 0) // 0 is also used for all stats
@@ -3580,7 +3580,7 @@ public class AuraEffect
 		// recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR0_ABILITY 0x00000010 flag)
 		// this check is total bullshit i think
 		if ((Convert.ToBoolean(MiscValueB & 1 << (int)Stats.Stamina) || MiscValueB == 0) && _spellInfo.HasAttribute(SpellAttr0.IsAbility))
-			target.SetHealth(Math.Max(MathFunctions.CalculatePct(target.GetMaxHealth(), healthPct), (zeroHealth ? 0 : 1L)));
+			target.SetHealth(Math.Max(MathFunctions.CalculatePct(target.MaxHealth, healthPct), (zeroHealth ? 0 : 1L)));
 	}
 
 	[AuraEffectHandler(AuraType.ModExpertise)]
@@ -3777,7 +3777,7 @@ public class AuraEffect
 		var amt = apply ? AmountAsLong : -AmountAsLong;
 
 		if (amt < 0)
-			target.ModifyHealth(Math.Max(1L - target.GetHealth(), amt));
+			target.ModifyHealth(Math.Max(1L - target.Health, amt));
 
 		target.HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Total, Amount, apply);
 
@@ -3792,12 +3792,12 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		double percent = target.GetHealthPct();
+		double percent = target.HealthPct;
 
 		target.HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Total, Amount, apply);
 
 		// refresh percentage
-		if (target.GetHealth() > 0)
+		if (target.Health > 0)
 		{
 			var newHealth = Math.Max(target.CountPctFromMaxHealth(percent), 1);
 			target.SetHealth(newHealth);
@@ -3874,7 +3874,7 @@ public class AuraEffect
 		var target = aurApp.Target;
 
 		// Unit will keep hp% after MaxHealth being modified if unit is alive.
-		double percent = target.GetHealthPct();
+		double percent = target.HealthPct;
 
 		if (apply)
 		{
@@ -3886,9 +3886,9 @@ public class AuraEffect
 			target.SetStatPctModifier(UnitMods.Health, UnitModifierPctType.Total, amount);
 		}
 
-		if (target.GetHealth() > 0)
+		if (target.Health > 0)
 		{
-			var newHealth = Math.Max(MathFunctions.CalculatePct(target.GetMaxHealth(), percent), 1);
+			var newHealth = Math.Max(MathFunctions.CalculatePct(target.MaxHealth, percent), 1);
 			target.SetHealth(newHealth);
 		}
 	}
@@ -5560,7 +5560,7 @@ public class AuraEffect
 			}
 			case AuraType.PeriodicDamagePercent:
 				// ceil obtained value, it may happen that 10 ticks for 10% damage may not kill owner
-				damage = Math.Ceiling(MathFunctions.CalculatePct((double)target.GetMaxHealth(), damage));
+				damage = Math.Ceiling(MathFunctions.CalculatePct((double)target.MaxHealth, damage));
 				damage = target.SpellDamageBonusTaken(caster, SpellInfo, damage, DamageEffectType.DOT);
 
 				break;
@@ -5611,7 +5611,7 @@ public class AuraEffect
 			procVictim.Or(ProcFlags.TakeAnyDamage);
 		}
 
-		var overkill = damage - target.GetHealth();
+		var overkill = damage - target.Health;
 
 		if (overkill < 0)
 			overkill = 0;
@@ -5741,8 +5741,8 @@ public class AuraEffect
 		var damage = Math.Max(Amount, 0);
 
 		// do not kill health donator
-		if (caster.GetHealth() < damage)
-			damage = caster.GetHealth() - 1;
+		if (caster.Health < damage)
+			damage = caster.Health - 1;
 
 		if (damage == 0)
 			return;
@@ -5772,7 +5772,7 @@ public class AuraEffect
 		}
 
 		// don't regen when permanent aura target has full power
-		if (Base.IsPermanent && target.IsFullHealth())
+		if (Base.IsPermanent && target.IsFullHealth)
 			return;
 
 		var stackAmountForBonuses = !GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes.NoScaleWithStack) ? Base.StackAmount : 1u;
@@ -5830,7 +5830,7 @@ public class AuraEffect
 	{
 		var powerType = (PowerType)MiscValue;
 
-		if (caster == null || !caster.IsAlive || !target.IsAlive || target.GetPowerType() != powerType)
+		if (caster == null || !caster.IsAlive || !target.IsAlive || target.DisplayPowerType != powerType)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -5891,7 +5891,7 @@ public class AuraEffect
 		PowerType powerType;
 
 		if (MiscValue == (int)PowerType.All)
-			powerType = target.GetPowerType();
+			powerType = target.DisplayPowerType;
 		else
 			powerType = (PowerType)MiscValue;
 
@@ -5956,7 +5956,7 @@ public class AuraEffect
 	{
 		var powerType = (PowerType)MiscValue;
 
-		if (caster == null || !target.IsAlive || target.GetPowerType() != powerType)
+		if (caster == null || !target.IsAlive || target.DisplayPowerType != powerType)
 			return;
 
 		if (target.HasUnitState(UnitState.Isolated) || target.IsImmunedToDamage(SpellInfo))
@@ -6192,7 +6192,7 @@ public class AuraEffect
 		if (player.Class != Class.Hunter)
 			return;
 
-		var pet = player.GetPet();
+		var pet = player.CurrentPet;
 
 		if (!pet)
 			return;
@@ -6365,11 +6365,11 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			target.SetOverrideZonePvpType((ZonePVPTypeOverride)MiscValue);
+			target.			OverrideZonePvpType = (ZonePVPTypeOverride)MiscValue;
 		else if (target.HasAuraType(AuraType.ModOverrideZonePvpType))
-			target.SetOverrideZonePvpType((ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().MiscValue);
+			target.			OverrideZonePvpType = (ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().MiscValue;
 		else
-			target.SetOverrideZonePvpType(ZonePVPTypeOverride.None);
+			target.			OverrideZonePvpType = ZonePVPTypeOverride.None;
 
 		target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.Zone));
 		target.UpdatePvPState();

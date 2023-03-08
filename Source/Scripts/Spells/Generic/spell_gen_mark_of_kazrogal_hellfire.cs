@@ -27,7 +27,7 @@ internal class spell_gen_mark_of_kazrogal_hellfire : SpellScript, IHasSpellEffec
 			var unit = target.AsUnit;
 
 			if (unit)
-				return unit.GetPowerType() != PowerType.Mana;
+				return unit.DisplayPowerType != PowerType.Mana;
 
 			return false;
 		});

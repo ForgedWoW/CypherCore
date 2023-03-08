@@ -84,7 +84,7 @@ namespace Game.BattleFields
                 if (m_PlayersInWar[player.TeamId].Contains(player.GUID))
                 {
                     m_PlayersInWar[player.TeamId].Remove(player.GUID);
-                    Group group = player.GetGroup();
+                    PlayerGroup group = player.Group;
                     if (group) // Remove the player from the raid group
                         group.RemoveMember(player.GUID);
 
@@ -498,24 +498,24 @@ namespace Game.BattleFields
         // ****************************************************
         // ******************* Group System *******************
         // ****************************************************
-        Group GetFreeBfRaid(int teamIndex)
+        PlayerGroup GetFreeBfRaid(int teamIndex)
         {
             foreach (var guid in m_Groups[teamIndex])
             {
-                Group group = Global.GroupMgr.GetGroupByGUID(guid);
+                PlayerGroup group = Global.GroupMgr.GetGroupByGUID(guid);
                 if (group)
-                    if (!group.IsFull())
+                    if (!group.IsFull)
                         return group;
             }
 
             return null;
         }
 
-        Group GetGroupPlayer(ObjectGuid plguid, int teamIndex)
+        PlayerGroup GetGroupPlayer(ObjectGuid plguid, int teamIndex)
         {
             foreach (var guid in m_Groups[teamIndex])
             {
-                Group group = Global.GroupMgr.GetGroupByGUID(guid);
+                PlayerGroup group = Global.GroupMgr.GetGroupByGUID(guid);
                 if (group)
                     if (group.IsMember(plguid))
                         return group;
@@ -529,18 +529,18 @@ namespace Game.BattleFields
             if (!player.IsInWorld)
                 return false;
 
-            Group oldgroup = player.GetGroup();
+            PlayerGroup oldgroup = player.Group;
             if (oldgroup)
                 oldgroup.RemoveMember(player.GUID);
 
-            Group group = GetFreeBfRaid(player.TeamId);
+            PlayerGroup group = GetFreeBfRaid(player.TeamId);
             if (!group)
             {
-                group = new Group();
+                group = new PlayerGroup();
                 group.SetBattlefieldGroup(this);
                 group.Create(player);
                 Global.GroupMgr.AddGroup(group);
-                m_Groups[player.TeamId].Add(group.GetGUID());
+                m_Groups[player.TeamId].Add(group.GUID);
             }
             else if (group.IsMember(player.GUID))
             {

@@ -41,7 +41,7 @@ internal class spell_item_mad_alchemists_potion : SpellScript, ISpellAfterCast
 
 		var target = Caster;
 
-		if (target.GetPowerType() == PowerType.Mana)
+		if (target.DisplayPowerType == PowerType.Mana)
 			availableElixirs.Add(28509); // Elixir of Major Mageblood (22840)
 
 		var chosenElixir = availableElixirs.SelectRandom();

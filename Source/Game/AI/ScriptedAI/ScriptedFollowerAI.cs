@@ -48,12 +48,12 @@ namespace Game.AI
             Player player = GetLeaderForFollower();
             if (player)
             {
-                Group group = player.GetGroup();
+                PlayerGroup group = player.Group;
                 if (group)
                 {
-                    for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                    for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                     {
-                        Player member = groupRef.GetSource();
+                        Player member = groupRef.Source;
                         if (member)
                             if (member.IsInMap(player))
                                 member.FailQuest(_questForFollow);
@@ -105,12 +105,12 @@ namespace Game.AI
                     Player player = GetLeaderForFollower();
                     if (player)
                     {
-                        Group group = player.GetGroup();
+                        PlayerGroup group = player.Group;
                         if (group)
                         {
-                            for (GroupReference groupRef = group.GetFirstMember(); groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.Next())
+                            for (GroupReference groupRef = group.FirstMember; groupRef != null && (maxRangeExceeded || questAbandoned); groupRef = groupRef.Next())
                             {
-                                Player member = groupRef.GetSource();
+                                Player member = groupRef.Source;
                                 if (member == null)
                                     continue;
 
@@ -254,12 +254,12 @@ namespace Game.AI
                     return player;
                 else
                 {
-                    Group group = player.GetGroup();
+                    PlayerGroup group = player.Group;
                     if (group)
                     {
-                        for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                        for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                         {
-                            Player member = groupRef.GetSource();
+                            Player member = groupRef.Source;
                             if (member && me.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
                             {
                                 Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({me.GUID})");

@@ -45,8 +45,8 @@ public class InstanceMap : Map
 	public override void InitVisibilityDistance()
 	{
 		//init visibility distance for instances
-		VisibleDistance = Global.WorldMgr.GetMaxVisibleDistanceInInstances();
-		VisibilityNotifyPeriod = Global.WorldMgr.GetVisibilityNotifyPeriodInInstances();
+		VisibleDistance = Global.WorldMgr.MaxVisibleDistanceInInstances;
+		VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodInInstances;
 	}
 
 	public override TransferAbortParams CannotEnter(Player player)
@@ -222,12 +222,12 @@ public class InstanceMap : Map
 		}
 	}
 
-	public Group GetOwningGroup()
+	public PlayerGroup GetOwningGroup()
 	{
-		return _owningGroupRef.GetTarget();
+		return _owningGroupRef.Target;
 	}
 
-	public void TrySetOwningGroup(Group group)
+	public void TrySetOwningGroup(PlayerGroup group)
 	{
 		if (!_owningGroupRef.IsValid())
 			_owningGroupRef.Link(group, this);

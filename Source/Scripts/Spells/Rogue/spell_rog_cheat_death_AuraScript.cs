@@ -48,7 +48,7 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 		}
 		else
 		{
-			if (dmgInfo.GetDamage() < target.GetHealth() || target.HasAura(RogueSpells.CHEAT_DEATH_COOLDOWN))
+			if (dmgInfo.GetDamage() < target.Health || target.HasAura(RogueSpells.CHEAT_DEATH_COOLDOWN))
 				return absorbAmount;
 
 			var health7 = target.CountPctFromMaxHealth(7);

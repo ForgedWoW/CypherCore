@@ -38,7 +38,7 @@ namespace WorldServer
             uint startupBegin = Time.MSTime;
 
             // set server offline (not connectable)
-            DB.Login.DirectExecute("UPDATE realmlist SET flag = (flag & ~{0}) | {1} WHERE id = '{2}'", (uint)RealmFlags.VersionMismatch, (uint)RealmFlags.Offline, Global.WorldMgr.GetRealm().Id.Index);
+            DB.Login.DirectExecute("UPDATE realmlist SET flag = (flag & ~{0}) | {1} WHERE id = '{2}'", (uint)RealmFlags.VersionMismatch, (uint)RealmFlags.Offline, Global.WorldMgr.Realm.Id.Index);
 
             Global.RealmMgr.Initialize(ConfigMgr.GetDefaultValue("RealmsStateUpdateDelay", 10));
 
@@ -76,9 +76,9 @@ namespace WorldServer
             }
 
             // set server online (allow connecting now)
-            DB.Login.DirectExecute("UPDATE realmlist SET flag = flag & ~{0}, population = 0 WHERE id = '{1}'", (uint)RealmFlags.Offline, Global.WorldMgr.GetRealm().Id.Index);
-            Global.WorldMgr.GetRealm().PopulationLevel = 0.0f;
-            Global.WorldMgr.GetRealm().Flags = Global.WorldMgr.GetRealm().Flags & ~RealmFlags.VersionMismatch;
+            DB.Login.DirectExecute("UPDATE realmlist SET flag = flag & ~{0}, population = 0 WHERE id = '{1}'", (uint)RealmFlags.Offline, Global.WorldMgr.Realm.Id.Index);
+            Global.WorldMgr.            Realm.PopulationLevel = 0.0f;
+            Global.WorldMgr.            Realm.Flags = Global.WorldMgr.Realm.Flags & ~RealmFlags.VersionMismatch;
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -120,7 +120,7 @@ namespace WorldServer
                 Global.ScriptMgr.Unload();
 
                 // set server offline
-                DB.Login.DirectExecute("UPDATE realmlist SET flag = flag | {0} WHERE id = '{1}'", (uint)RealmFlags.Offline, Global.WorldMgr.GetRealm().Id.Index);
+                DB.Login.DirectExecute("UPDATE realmlist SET flag = flag | {0} WHERE id = '{1}'", (uint)RealmFlags.Offline, Global.WorldMgr.Realm.Id.Index);
                 Global.RealmMgr.Close();
 
                 ClearOnlineAccounts();
@@ -147,13 +147,15 @@ namespace WorldServer
                 return false;
 
             // Get the realm Id from the configuration file
-            Global.WorldMgr.GetRealm().Id.Index = ConfigMgr.GetDefaultValue("RealmID", 0u);
-            if (Global.WorldMgr.GetRealm().Id.Index == 0)
+            Global.WorldMgr.
+            // Get the realm Id from the configuration file
+            Realm.Id.Index = ConfigMgr.GetDefaultValue("RealmID", 0u);
+            if (Global.WorldMgr.Realm.Id.Index == 0)
             {
                 Log.outError(LogFilter.Server, "Realm ID not defined in configuration file");
                 return false;
             }
-            Log.outInfo(LogFilter.ServerLoading, "Realm running as realm ID {0} ", Global.WorldMgr.GetRealm().Id.Index);
+            Log.outInfo(LogFilter.ServerLoading, "Realm running as realm ID {0} ", Global.WorldMgr.Realm.Id.Index);
 
             // Clean the database before starting
             ClearOnlineAccounts();
@@ -165,7 +167,7 @@ namespace WorldServer
         static void ClearOnlineAccounts()
         {
             // Reset online status for all accounts with characters on the current realm
-            DB.Login.DirectExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {0})", Global.WorldMgr.GetRealm().Id.Index);
+            DB.Login.DirectExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {0})", Global.WorldMgr.Realm.Id.Index);
 
             // Reset online status for all characters
             DB.Characters.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -248,7 +250,7 @@ namespace WorldServer
         {
             Log.outInfo(LogFilter.Server, "Halting process...");
             Thread.Sleep(5000);
-            Environment.Exit(Global.WorldMgr.GetExitCode());
+            Environment.Exit(Global.WorldMgr.ExitCode);
         }
     }
 }

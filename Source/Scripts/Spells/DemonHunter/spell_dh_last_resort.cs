@@ -43,7 +43,7 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		if (target == null)
 			return absorbAmount;
 
-		if (dmgInfo.GetDamage() < target.GetHealth())
+		if (dmgInfo.GetDamage() < target.Health)
 			return absorbAmount;
 
 		if (target.HasAura(DemonHunterSpells.LAST_RESORT_DEBUFF))

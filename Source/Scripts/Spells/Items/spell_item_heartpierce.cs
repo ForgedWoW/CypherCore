@@ -46,7 +46,7 @@ internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
 
 		uint spellId;
 
-		switch (caster.GetPowerType())
+		switch (caster.DisplayPowerType)
 		{
 			case PowerType.Mana:
 				spellId = _manaSpellId;

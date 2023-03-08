@@ -242,12 +242,12 @@ namespace Game.AI
                     if (fail)
                         player.FailQuest(EscortQuestID);
 
-                    Group group = player.GetGroup();
+                    PlayerGroup group = player.Group;
                     if (group)
                     {
-                        for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                        for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                         {
-                            Player groupGuy = groupRef.GetSource();
+                            Player groupGuy = groupRef.Source;
                             if (!groupGuy.IsInMap(player))
                                 continue;
 
@@ -357,12 +357,12 @@ namespace Game.AI
                     if (me.GetDistance(player) <= checkDist)
                         return true;
 
-                    Group group = player.GetGroup();
+                    PlayerGroup group = player.Group;
                     if (group)
                     {
-                        for (GroupReference groupRef = group.GetFirstMember(); groupRef != null; groupRef = groupRef.Next())
+                        for (GroupReference groupRef = group.FirstMember; groupRef != null; groupRef = groupRef.Next())
                         {
-                            Player groupGuy = groupRef.GetSource();
+                            Player groupGuy = groupRef.Source;
                             if (groupGuy.IsInMap(player) && me.GetDistance(groupGuy) <= checkDist)
                                 return true;
                         }
@@ -447,7 +447,7 @@ namespace Game.AI
 
             if (summon != null)
             {
-                var attack = owner.GetSelectedUnit();
+                var attack = owner.SelectedUnit;
 
                 if (attack == null)
                     attack = owner.Attackers.FirstOrDefault();
@@ -700,8 +700,8 @@ namespace Game.AI
             if (!IsAIControlled()) // don't allow players to use unkillable units
                 return;
 
-            if (_invincibilityHpLevel != 0 && (damage >= me.GetHealth() - _invincibilityHpLevel))
-                damage = (uint)(me.GetHealth() - _invincibilityHpLevel);  // damage should not be nullified, because of player damage req.
+            if (_invincibilityHpLevel != 0 && (damage >= me.Health - _invincibilityHpLevel))
+                damage = (uint)(me.Health - _invincibilityHpLevel);  // damage should not be nullified, because of player damage req.
         }
 
         public override void HealReceived(Unit by, double addhealth)

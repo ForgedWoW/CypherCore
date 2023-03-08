@@ -838,7 +838,7 @@ namespace Game.Chat
                 var mapInfo = CliDB.MapStorage.LookupByKey(id);
                 if (mapInfo != null)
                 {
-                    Locale locale = handler.GetSession() ? handler.GetSession().SessionDbcLocale : Global.WorldMgr.GetDefaultDbcLocale();
+                    Locale locale = handler.GetSession() ? handler.GetSession().SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale;
                     string name = mapInfo.MapName[locale];
                     if (name.IsEmpty())
                     {
