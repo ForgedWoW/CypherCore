@@ -32,7 +32,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		foreach (var itr in at.InsideUnits)
@@ -62,7 +62,7 @@ public class at_hun_tar_trap_not_activatedAI : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (!caster.IsFriendlyTo(unit))

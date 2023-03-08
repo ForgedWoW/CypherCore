@@ -18,16 +18,16 @@ public class npc_monk_sef_spirit : ScriptedAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		me.SetLevel(summoner.ToUnit().Level);
-		me.SetMaxHealth(summoner.ToUnit().GetMaxHealth() / 3);
+		me.SetLevel(summoner.AsUnit.Level);
+		me.SetMaxHealth(summoner.AsUnit.GetMaxHealth() / 3);
 		me.SetFullHealth();
 		summoner.CastSpell(me, MonkSpells.TRANSCENDENCE_CLONE_TARGET, true);
 		me.CastSpell(me, me.Entry == StormEarthAndFireSpells.NPC_FIRE_SPIRIT ? StormEarthAndFireSpells.SEF_FIRE_VISUAL : StormEarthAndFireSpells.SEF_EARTH_VISUAL, true);
 		me.CastSpell(me, StormEarthAndFireSpells.SEF_SUMMONS_STATS, true);
-		var attackPower = summoner.ToUnit().UnitData.AttackPower / 100 * 45.0f;
-		var spellPower = summoner.ToUnit().SpellBaseDamageBonusDone(SpellSchoolMask.Nature) / 100 * 45.0f;
+		var attackPower = summoner.AsUnit.UnitData.AttackPower / 100 * 45.0f;
+		var spellPower = summoner.AsUnit.SpellBaseDamageBonusDone(SpellSchoolMask.Nature) / 100 * 45.0f;
 
-		var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.ToUnit().GetTarget());
+		var target = ObjectAccessor.Instance.GetUnit(summoner, summoner.AsUnit.GetTarget());
 
 		if (target != null)
 		{
@@ -36,9 +36,9 @@ public class npc_monk_sef_spirit : ScriptedAI
 		else
 		{
 			if (me.Entry == StormEarthAndFireSpells.NPC_FIRE_SPIRIT)
-				me.MotionMaster.MoveFollow(summoner.ToUnit(), SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+				me.MotionMaster.MoveFollow(summoner.AsUnit, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 			else
-				me.MotionMaster.MoveFollow(summoner.ToUnit(), SharedConst.PetFollowDist, SharedConst.PetFollowAngle * 3);
+				me.MotionMaster.MoveFollow(summoner.AsUnit, SharedConst.PetFollowDist, SharedConst.PetFollowAngle * 3);
 		}
 	}
 }

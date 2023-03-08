@@ -18,7 +18,7 @@ internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 
 	public SpellCastResult CheckCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (!player)
 			return SpellCastResult.CustomError;

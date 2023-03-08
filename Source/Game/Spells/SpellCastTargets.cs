@@ -77,7 +77,7 @@ public class SpellCastTargets
 		get
 		{
 			if (_objectTarget)
-				return _objectTarget.ToUnit();
+				return _objectTarget.AsUnit;
 
 			return null;
 		}
@@ -98,7 +98,7 @@ public class SpellCastTargets
 		get
 		{
 			if (_objectTarget != null)
-				return _objectTarget.ToGameObject();
+				return _objectTarget.AsGameObject;
 
 			return null;
 		}
@@ -130,7 +130,7 @@ public class SpellCastTargets
 		get
 		{
 			if (_objectTarget != null)
-				return _objectTarget.ToCorpse();
+				return _objectTarget.AsCorpse;
 
 			return null;
 		}
@@ -354,7 +354,7 @@ public class SpellCastTargets
 
 		if (caster is Player)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (TargetMask.HasAnyFlag(SpellCastTargetFlags.Item))
 				_itemTarget = player.GetItemByGuid(_itemTargetGuid);

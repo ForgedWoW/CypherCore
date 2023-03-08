@@ -34,7 +34,7 @@ internal class spell_gen_fishing : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 		uint spellId;
-		var mainHand = Caster.ToPlayer().GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+		var mainHand = Caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 		if (!mainHand ||
 			mainHand.GetTemplate().GetClass() != ItemClass.Weapon ||

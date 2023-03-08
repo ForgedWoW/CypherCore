@@ -200,7 +200,7 @@ public class DynamicObject : WorldObject
 
 	public void SetCasterViewpoint()
 	{
-		var caster = _caster.ToPlayer();
+		var caster = _caster.AsPlayer;
 
 		if (caster != null)
 		{
@@ -290,7 +290,7 @@ public class DynamicObject : WorldObject
 
 	void RemoveCasterViewpoint()
 	{
-		var caster = _caster.ToPlayer();
+		var caster = _caster.AsPlayer;
 
 		if (caster != null)
 		{

@@ -122,7 +122,7 @@ namespace Game.Movement
 
                     // pets are allowed to "cheat" on pathfinding when following their master
                     bool allowShortcut = false;
-                    Pet oPet = owner.ToPet();
+                    Pet oPet = owner.AsPet;
                     if (oPet != null)
                         if (target.GUID == oPet.OwnerGUID)
                             allowShortcut = true;
@@ -166,7 +166,7 @@ namespace Game.Movement
 
         void UpdatePetSpeed(Unit owner)
         {
-            Pet oPet = owner.ToPet();
+            Pet oPet = owner.AsPet;
             if (oPet != null)
             {
                 if (!_abstractFollower.GetTarget() || _abstractFollower.GetTarget().GUID == owner.OwnerGUID)
@@ -202,7 +202,7 @@ namespace Game.Movement
             if (!owner.IsCreature)
                 return;
 
-            CreatureAI ai = owner.ToCreature().GetAI();
+            CreatureAI ai = owner.AsCreature.GetAI();
             if (ai != null)
                 ai.MovementInform(MovementGeneratorType.Follow, (uint)target.GUID.Counter);
         }

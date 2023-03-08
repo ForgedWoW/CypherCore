@@ -175,7 +175,7 @@ internal class instance_karazhan : InstanceMapScript, IInstanceMapGetInstanceScr
 
 		public override void OnUnitDeath(Unit unit)
 		{
-			var creature = unit.ToCreature();
+			var creature = unit.AsCreature;
 
 			if (!creature)
 				return;

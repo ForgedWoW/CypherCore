@@ -1430,7 +1430,7 @@ public class Item : WorldObject
 		owner.DeleteRefundReference(GUID);
 
 		if (addToCollection)
-			owner.Session.			CollectionMgr.AddItemAppearance(this);
+			owner.Session.CollectionMgr.AddItemAppearance(this);
 	}
 
 	public void UpdatePlayedTime(Player owner)
@@ -1486,8 +1486,7 @@ public class Item : WorldObject
 		if (_allowedGuiDs.Empty())
 			return;
 
-		currentOwner.Session.
-		CollectionMgr.AddItemAppearance(this);
+		currentOwner.Session.CollectionMgr.AddItemAppearance(this);
 		_allowedGuiDs.Clear();
 		SetState(ItemUpdateState.Changed, currentOwner);
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_BOP_TRADE);

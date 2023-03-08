@@ -13,7 +13,7 @@ internal class spell_gen_pvp_trinket : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		switch (caster.EffectiveTeam)
 		{

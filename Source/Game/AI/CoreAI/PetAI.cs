@@ -523,7 +523,7 @@ namespace Game.AI
             {
                 // Check if our owner selected this target and clicked "attack"
                 Unit ownerTarget;
-                Player owner = me.CharmerOrOwner.ToPlayer();
+                Player owner = me.CharmerOrOwner.AsPlayer;
                 if (owner)
                     ownerTarget = owner.GetSelectedUnit();
                 else
@@ -549,19 +549,19 @@ namespace Game.AI
             switch (emoteId)
             {
                 case TextEmotes.Cower:
-                    if (me.IsPet && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.AsPet.IsPetGhoul())
                         me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
                     break;
                 case TextEmotes.Angry:
-                    if (me.IsPet && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.AsPet.IsPetGhoul())
                         me.HandleEmoteCommand(Emote.StateStun);
                     break;
                 case TextEmotes.Glare:
-                    if (me.IsPet && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.AsPet.IsPetGhoul())
                         me.HandleEmoteCommand(Emote.StateStun);
                     break;
                 case TextEmotes.Soothe:
-                    if (me.IsPet && me.ToPet().IsPetGhoul())
+                    if (me.IsPet && me.AsPet.IsPetGhoul())
                         me.HandleEmoteCommand(Emote.OneshotOmnicastGhoul);
                     break;
             }
@@ -608,7 +608,7 @@ namespace Game.AI
                 return;
 
             Group group = null;
-            Player player = owner.ToPlayer();
+            Player player = owner.AsPlayer;
             if (player)
                 group = player.GetGroup();
 
@@ -627,7 +627,7 @@ namespace Game.AI
                 for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
                 {
                     Player target = refe.GetSource();
-                    if (!target || !target.IsInMap(owner) || !group.SameSubGroup(owner.ToPlayer(), target))
+                    if (!target || !target.IsInMap(owner) || !group.SameSubGroup(owner.AsPlayer, target))
                         continue;
 
                     if (target.GUID == owner.GUID)

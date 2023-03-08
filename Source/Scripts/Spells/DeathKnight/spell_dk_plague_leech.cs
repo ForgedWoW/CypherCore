@@ -30,7 +30,7 @@ public class spell_dk_plague_leech : SpellScript, ISpellOnHit, ISpellCheckCast
 
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;

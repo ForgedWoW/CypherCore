@@ -54,7 +54,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 		if (aurEff != null) // Skeletal Shattering
 		{
-			var thisPlayer = target.ToPlayer();
+			var thisPlayer = target.AsPlayer;
 
 			if (thisPlayer != null)
 				if (RandomHelper.randChance(thisPlayer.ActivePlayerData.SpellCritPercentage))
@@ -63,7 +63,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 
 		absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPerc);
 
-		var _player = target.ToPlayer();
+		var _player = target.AsPlayer;
 
 		if (_player != null)
 			if ((dmgInfo.GetSchoolMask() & SpellSchoolMask.Normal) != 0)

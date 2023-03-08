@@ -41,7 +41,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 	{
 		var caster = at.GetCaster();
 
-		if (caster == null || !caster.ToPlayer())
+		if (caster == null || !caster.AsPlayer)
 			return;
 
 		//   int32 rageOfTheIllidari = caster->VariableStorage.GetValue<int32>("Spells.RageOfTheIllidariDamage");

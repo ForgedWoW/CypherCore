@@ -48,7 +48,7 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 			if (charmer != null)
 			{
-				var player = charmer.ToPlayer();
+				var player = charmer.AsPlayer;
 
 				if (player != null)
 					if (player.GetQuestStatus(Misc.QuestFuelForTheFire) == QuestStatus.Incomplete)
@@ -71,6 +71,6 @@ internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEff
 
 	private void HandleScript(int effIndex)
 	{
-		Caster.ToCreature().DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+		Caster.		AsCreature.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 	}
 }

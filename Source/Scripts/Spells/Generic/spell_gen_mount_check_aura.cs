@@ -29,7 +29,7 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 		if (tempSummon == null)
 			return;
 
-		var summoner = tempSummon.GetSummoner()?.ToPlayer();
+		var summoner = tempSummon.GetSummoner()?.AsPlayer;
 
 		if (summoner == null)
 			return;

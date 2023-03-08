@@ -59,7 +59,7 @@ namespace Game.Chat.Commands
                 }
 
                 // check online security
-                Player player = target.ToPlayer();
+                Player player = target.AsPlayer;
                 if (player)
                     if (handler.HasLowerSecurity(player, ObjectGuid.Empty))
                         return false;

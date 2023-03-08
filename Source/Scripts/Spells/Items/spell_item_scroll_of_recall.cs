@@ -54,7 +54,7 @@ internal class spell_item_scroll_of_recall : SpellScript, IHasSpellEffects
 			// ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
 			var spellId = ItemSpellIds.ScrollOfRecallFailAlliance1;
 
-			if (Caster.ToPlayer().Team == TeamFaction.Horde)
+			if (Caster.AsPlayer.Team == TeamFaction.Horde)
 				spellId = ItemSpellIds.ScrollOfRecallFailHorde1;
 
 			Caster.CastSpell(Caster, spellId + RandomHelper.URand(0, 7), true);

@@ -26,7 +26,7 @@ internal class spell_item_runic_healing_injector : SpellScript, IHasSpellEffects
 
 	private void HandleHeal(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster != null)
 			if (caster.HasSkill(SkillType.Engineering))

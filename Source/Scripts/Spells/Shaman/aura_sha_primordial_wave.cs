@@ -23,7 +23,7 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
 
 	public void AfterCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;
@@ -67,7 +67,7 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
 
 	public double CalcMultiplier(double multiplier)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null || !player.HasAura(ShamanSpells.PrimordialWaveAura))
 			return multiplier;

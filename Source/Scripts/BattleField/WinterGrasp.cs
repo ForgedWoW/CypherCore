@@ -764,7 +764,7 @@ internal class BattlefieldWG : BattleField
 			return;
 
 		// We handle only gameobjects here
-		var go = obj.ToGameObject();
+		var go = obj.AsGameObject;
 
 		if (!go)
 			return;
@@ -1749,6 +1749,6 @@ internal class npc_wg_give_promotion_credit : ScriptedAI
 		if (wintergrasp == null)
 			return;
 
-		wintergrasp.HandlePromotion(killer.ToPlayer(), me);
+		wintergrasp.HandlePromotion(killer.AsPlayer, me);
 	}
 }

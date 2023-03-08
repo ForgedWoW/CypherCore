@@ -49,10 +49,10 @@ public class spell_warl_demonwrath : SpellScript, IHasSpellEffects
 
 		targets.RemoveIf((WorldObject obj) =>
 		{
-			if (!obj.ToUnit())
+			if (!obj.AsUnit)
 				return true;
 
-			if (!caster.IsValidAttackTarget(obj.ToUnit()))
+			if (!caster.IsValidAttackTarget(obj.AsUnit))
 				return true;
 
 			var inRange = false;

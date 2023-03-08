@@ -28,10 +28,10 @@ internal class spell_warl_cataclysm : SpellScript, IHasSpellEffects
 		if (caster == null || target == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
-		if (Caster.ToPlayer().GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
+		if (Caster.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarlockDestruction)
 			caster.CastSpell(target, WarlockSpells.IMMOLATE_DOT, true);
 	}
 }

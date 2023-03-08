@@ -22,7 +22,7 @@ public class spell_hun_intimidation : SpellScript, IHasSpellEffects
 	private void HandleDummy(int effIndex)
 	{
 		var caster = Caster;
-		var target = caster.ToPlayer().GetSelectedUnit();
+		var target = caster.AsPlayer.GetSelectedUnit();
 
 		if (caster == null || target == null)
 			return;

@@ -15,7 +15,7 @@ public class spell_dk_empower_rune_weapon : SpellScript
 
 		if (caster != null)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 			{

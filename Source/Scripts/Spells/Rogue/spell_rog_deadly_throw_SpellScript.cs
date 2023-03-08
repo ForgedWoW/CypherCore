@@ -16,7 +16,7 @@ public class spell_rog_deadly_throw_SpellScript : SpellScript, ISpellOnHit
 
 		if (target != null)
 		{
-			var caster = Caster.ToPlayer();
+			var caster = Caster.AsPlayer;
 
 			if (caster != null)
 				if (caster.GetPower(PowerType.ComboPoints) >= 5)

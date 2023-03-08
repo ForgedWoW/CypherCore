@@ -117,7 +117,7 @@ namespace Game.Movement
             init.Launch();
 
             // Call for creature group update
-            Creature creature = owner.ToCreature();
+            Creature creature = owner.AsCreature;
             if (creature != null)
                 creature.SignalFormationMovement();
         }
@@ -164,7 +164,7 @@ namespace Game.Movement
                 init.Launch();
 
                 // Call for creature group update
-                Creature creature = owner.ToCreature();
+                Creature creature = owner.AsCreature;
                 if (creature != null)
                     creature.SignalFormationMovement();
             }
@@ -198,8 +198,8 @@ namespace Game.Movement
         {
             if (owner.IsTypeId(TypeId.Unit))
             {
-                if (owner.ToCreature().GetAI() != null)
-                    owner.ToCreature().GetAI().MovementInform(MovementGeneratorType.Point, _movementId);
+                if (owner.AsCreature.GetAI() != null)
+                    owner.                    AsCreature.GetAI().MovementInform(MovementGeneratorType.Point, _movementId);
             }
         }
 
@@ -226,7 +226,7 @@ namespace Game.Movement
 
             if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
             {
-                Creature ownerCreature = owner.ToCreature();
+                Creature ownerCreature = owner.AsCreature;
                 ownerCreature.SetNoCallAssistance(false);
                 ownerCreature.CallAssistance();
                 if (ownerCreature.IsAlive)

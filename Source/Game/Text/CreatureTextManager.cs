@@ -316,7 +316,7 @@ namespace Game
                     if (!whisperTarget)
                         return;
 
-                    Player whisperPlayer = whisperTarget.ToPlayer();
+                    Player whisperPlayer = whisperTarget.AsPlayer;
                     if (whisperPlayer)
                     {
                         Group group = whisperPlayer.GetGroup();
@@ -332,7 +332,8 @@ namespace Game
                             if (!whisperTarget || !whisperTarget.IsTypeId(TypeId.Player))
                                 return;
 
-                            whisperTarget.ToPlayer().SendPacket(data);
+                            whisperTarget.
+                            AsPlayer.SendPacket(data);
                             return;
                         }
                         break;
@@ -385,7 +386,8 @@ namespace Game
                     if (whisperTarget == null || !whisperTarget.IsPlayer)
                         return;
 
-                    whisperTarget.ToPlayer().SendPacket(data);
+                    whisperTarget.
+                    AsPlayer.SendPacket(data);
                     return;
                 case CreatureTextRange.Normal:
                 default:
@@ -484,7 +486,7 @@ namespace Game
                             if (!whisperTarget || !whisperTarget.IsTypeId(TypeId.Player))
                                 return;
 
-                            localizer.Invoke(whisperTarget.ToPlayer());
+                            localizer.Invoke(whisperTarget.AsPlayer);
                             return;
                         }
                         break;
@@ -537,7 +539,7 @@ namespace Game
                     if (whisperTarget == null || !whisperTarget.IsPlayer)
                         return;
 
-                    localizer.Invoke(whisperTarget.ToPlayer());
+                    localizer.Invoke(whisperTarget.AsPlayer);
                     return;
                 case CreatureTextRange.Normal:
                 default:

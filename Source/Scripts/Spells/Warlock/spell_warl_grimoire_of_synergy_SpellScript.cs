@@ -17,9 +17,9 @@ public class spell_warl_grimoire_of_synergy_SpellScript : SpellScript, ISpellOnC
 		if (caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
-		if (caster.ToPlayer())
+		if (caster.AsPlayer)
 		{
 			var pet = player.GetGuardianPet();
 			player.AddAura(SpellInfo.Id, player);

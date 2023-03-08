@@ -32,7 +32,7 @@ public class spell_hun_farstrider : AuraScript, IHasAuraEffects, IAuraCheckProc
 	{
 		PreventDefaultAction();
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

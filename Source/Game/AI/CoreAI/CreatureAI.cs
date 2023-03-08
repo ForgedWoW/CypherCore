@@ -63,7 +63,7 @@ namespace Game.AI
             Map map = creature.GetMap();
             if (!map.IsDungeon()) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
             {
-                Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.ToCreature().Entry : 0);
+                Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.AsCreature.Entry : 0);
                 return;
             }
 
@@ -327,7 +327,7 @@ namespace Game.AI
                 startPosition = me.Location;
                 if (!IsInBoundary(startPosition))
                 {
-                    startPosition = me.GetHomePosition();
+                    startPosition = me.HomePosition;
                     if (!IsInBoundary(startPosition)) // fall back to creature home position
                         return CypherStrings.CreatureNoInteriorPointFound;
                 }

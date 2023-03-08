@@ -487,7 +487,7 @@ namespace Game.BattleGrounds.Zones
 
         public override void ProcessEvent(WorldObject obj, uint eventId, WorldObject invoker = null)
         {
-            GameObject go = obj.ToGameObject();
+            GameObject go = obj.AsGameObject;
             if (go)
             {
                 switch (go.GetGoType())
@@ -495,7 +495,7 @@ namespace Game.BattleGrounds.Zones
                     case GameObjectTypes.Goober:
                         if (invoker)
                             if (eventId == (uint)SAEventIds.BG_SA_EVENT_TITAN_RELIC_ACTIVATED)
-                                TitanRelicActivated(invoker.ToPlayer());
+                                TitanRelicActivated(invoker.AsPlayer);
                         break;
                     case GameObjectTypes.DestructibleBuilding:
                     {
@@ -554,7 +554,7 @@ namespace Game.BattleGrounds.Zones
 
                                 if (invoker)
                                 {
-                                    Unit unit = invoker.ToUnit();
+                                    Unit unit = invoker.AsUnit;
                                     if (unit)
                                     {
                                         Player player = unit.GetCharmerOrOwnerPlayerOrPlayerItself();

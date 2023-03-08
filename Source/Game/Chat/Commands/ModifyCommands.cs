@@ -201,7 +201,7 @@ namespace Game.Chat
             if (CheckModifySpeed(args, handler, target, out float Scale, 0.1f, 10.0f, false))
             {
                 NotifyModification(handler, target, CypherStrings.YouChangeSize, CypherStrings.YoursSizeChanged, Scale);
-                Creature creatureTarget = target.ToCreature();
+                Creature creatureTarget = target.AsCreature;
                 if (creatureTarget)
                     creatureTarget.SetDisplayId(creatureTarget.DisplayId, Scale);
                 else
@@ -705,7 +705,7 @@ namespace Game.Chat
                 target = handler.GetSession().Player;
 
             // check online security
-            else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.ToPlayer(), ObjectGuid.Empty))
+            else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.AsPlayer, ObjectGuid.Empty))
                 return false;
 
             target.SetDisplayId(display_id);
@@ -721,7 +721,7 @@ namespace Game.Chat
                 target = handler.GetSession().Player;
 
             // check online security
-            else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.ToPlayer(), ObjectGuid.Empty))
+            else if (target.IsTypeId(TypeId.Player) && handler.HasLowerSecurity(target.AsPlayer, ObjectGuid.Empty))
                 return false;
 
             target.DeMorph();
@@ -809,7 +809,7 @@ namespace Game.Chat
 
         static void NotifyModification(CommandHandler handler, Unit target, CypherStrings resourceMessage, CypherStrings resourceReportMessage, params object[] args)
         {
-            Player player = target.ToPlayer();
+            Player player = target.AsPlayer;
             if (player)
             {
                 handler.SendSysMessage(resourceMessage, new object[] { handler.GetNameLink(player) }.Combine(args));
@@ -864,7 +864,7 @@ namespace Game.Chat
                 return false;
             }
 
-            Player player = target.ToPlayer();
+            Player player = target.AsPlayer;
             if (player)
             {
                 // check online security

@@ -32,7 +32,7 @@ internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
 
 	private void UpdateReviveBattlePetCooldown(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = UnitOwner.ToPlayer();
+		var target = UnitOwner.AsPlayer;
 		var reviveBattlePetSpellInfo = Global.SpellMgr.GetSpellInfo(SharedConst.SpellReviveBattlePets, Difficulty.None);
 
 		if (target.Session.BattlePetMgr.IsBattlePetSystemEnabled())

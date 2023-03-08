@@ -30,7 +30,7 @@ namespace Scripts.Pets
 
 					if (owner.IsPlayer)
 					{
-						var p = owner.ToPlayer();
+						var p = owner.AsPlayer;
 						p.AddAura(296553, p);
 					}
 				}

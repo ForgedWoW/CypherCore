@@ -28,7 +28,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Do what was done before to the Target in HandleFreezeCommand
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player)
 		{
@@ -64,7 +64,7 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Do what was done before to the Target in HandleUnfreezeCommand
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player)
 		{

@@ -74,7 +74,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 	// Returns true if obj is a unit but has no atonement
 	private bool IsUnitWithNoAtonement(WorldObject obj)
 	{
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		return unit != null && !unit.HasAura(PriestSpells.ATONEMENT_TRIGGERED, Caster.GUID);
 	}
@@ -82,7 +82,7 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 	// Returns true if obj is a unit and is injured
 	private static bool IsUnitInjured(WorldObject obj)
 	{
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		return unit != null && unit.IsFullHealth();
 	}

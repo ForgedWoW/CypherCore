@@ -40,7 +40,7 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		var target = Target.ToPlayer();
+		var target = Target.AsPlayer;
 
 		if (target.HasAura(CheatDeath.CHEAT_DEATH_DMG_REDUC))
 		{

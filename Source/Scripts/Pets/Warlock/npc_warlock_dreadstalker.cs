@@ -43,10 +43,10 @@ namespace Scripts.Pets
 					var owner = me.GetOwner();
 
 					if (!me.GetOwner() ||
-						!me.GetOwner().ToPlayer())
+						!me.GetOwner().AsPlayer)
 						return;
 
-					var target = owner.ToPlayer().GetSelectedUnit();
+					var target = owner.AsPlayer.GetSelectedUnit();
 
 					if (target)
 						me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);

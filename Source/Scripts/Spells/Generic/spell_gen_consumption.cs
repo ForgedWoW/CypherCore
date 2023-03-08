@@ -21,7 +21,7 @@ internal class spell_gen_consumption : SpellScript, IHasSpellEffects
 
 	private void HandleDamageCalc(int effIndex)
 	{
-		var caster = Caster.ToCreature();
+		var caster = Caster.AsCreature;
 
 		if (caster == null)
 			return;

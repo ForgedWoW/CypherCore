@@ -23,7 +23,7 @@ public class spell_dk_death_gate_293891 : SpellScript, IHasSpellEffects
 	{
 		var target = HitUnit;
 
-		var player = target.ToPlayer();
+		var player = target.AsPlayer;
 
 		if (player != null)
 		{

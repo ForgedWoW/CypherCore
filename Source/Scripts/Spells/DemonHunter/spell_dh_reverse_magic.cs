@@ -17,10 +17,10 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 	{
 		var player = Caster;
 
-		if (player == null || !player.ToPlayer())
+		if (player == null || !player.AsPlayer)
 			return;
 
-		Unit _player = player.ToPlayer();
+		Unit _player = player.AsPlayer;
 
 		var allies = new List<Unit>();
 		var check = new AnyFriendlyUnitInObjectRangeCheck(_player, _player, 10.0f, true);
@@ -50,7 +50,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 				if (aura.SpellInfo.Dispel != DispelType.Magic)
 					continue;
 
-				var creature = caster.ToCreature();
+				var creature = caster.AsCreature;
 
 				if (creature != null)
 				{

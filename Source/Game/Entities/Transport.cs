@@ -48,7 +48,7 @@ public class Transport : GameObject, ITransport
 				passenger.SetTransport(this);
 				passenger.MovementInfo.Transport.Guid = GUID;
 
-				var player = passenger.ToPlayer();
+				var player = passenger.AsPlayer;
 
 				if (player)
 					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), GetScriptId());
@@ -66,7 +66,7 @@ public class Transport : GameObject, ITransport
 				passenger.MovementInfo.Transport.Reset();
 				Log.outDebug(LogFilter.Transport, "Object {0} removed from transport {1}.", passenger.GetName(), GetName());
 
-				var plr = passenger.ToPlayer();
+				var plr = passenger.AsPlayer;
 
 				if (plr != null)
 				{
@@ -335,7 +335,7 @@ public class Transport : GameObject, ITransport
 		CalculatePassengerPosition(spawn);
 		creature.Location.Relocate(spawn);
 		creature.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
-		creature.SetTransportHomePosition(creature.MovementInfo.Transport.Pos);
+		creature.TransportHomePosition = creature.MovementInfo.Transport.Pos;
 
 		// @HACK - transport models are not added to map's dynamic LoS calculations
 		//         because the current GameObjectModel cannot be moved without recreating
@@ -473,8 +473,8 @@ public class Transport : GameObject, ITransport
 		summon.MovementInfo.Transport.Guid = GUID;
 		summon.MovementInfo.Transport.Pos.Relocate(pos);
 		summon.Location.Relocate(newPos);
-		summon.SetHomePosition(newPos);
-		summon.SetTransportHomePosition(pos);
+		summon.HomePosition = newPos;
+		summon.TransportHomePosition = pos;
 
 		// @HACK - transport models are not added to map's dynamic LoS calculations
 		//         because the current GameObjectModel cannot be moved without recreating
@@ -681,7 +681,7 @@ public class Transport : GameObject, ITransport
 				if (obj.IsTypeId(TypeId.Player))
 				{
 					// will be relocated in UpdatePosition of the vehicle
-					var veh = obj.ToUnit().GetVehicleBase();
+					var veh = obj.AsUnit.GetVehicleBase();
 
 					if (veh)
 						if (veh.Transport == this)
@@ -690,7 +690,7 @@ public class Transport : GameObject, ITransport
 					var pos = obj.MovementInfo.Transport.Pos.Copy();
 					ITransport.CalculatePassengerPosition(pos, x, y, z, o);
 
-					obj.ToUnit().NearTeleportTo(pos);
+					obj.AsUnit.NearTeleportTo(pos);
 				}
 
 			return false;
@@ -740,7 +740,7 @@ public class Transport : GameObject, ITransport
 			switch (obj.TypeId)
 			{
 				case TypeId.Player:
-					if (!obj.ToPlayer().TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))
+					if (!obj.AsPlayer.TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))
 						RemovePassenger(obj);
 
 					break;

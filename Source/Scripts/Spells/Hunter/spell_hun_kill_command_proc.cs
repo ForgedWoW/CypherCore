@@ -30,7 +30,7 @@ public class spell_hun_kill_command_proc : SpellScript, IHasSpellEffects
 		double dmg = 4.5f * owner.UnitData.RangedAttackPower;
 		var lowNerf = Math.Min((int)owner.Level, 20) * 0.05f;
 
-		var ownerPlayer = owner.ToPlayer();
+		var ownerPlayer = owner.AsPlayer;
 
 		if (ownerPlayer != null)
 			dmg = MathFunctions.AddPct(ref dmg, ownerPlayer.ActivePlayerData.Mastery);

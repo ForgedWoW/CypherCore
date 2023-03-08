@@ -88,7 +88,7 @@ namespace Game.AI
         public static MovementGenerator SelectMovementGenerator(Unit unit)
         {
             MovementGeneratorType type = unit.GetDefaultMovementType();
-            Creature creature = unit.ToCreature();
+            Creature creature = unit.AsCreature;
             if (creature != null && creature.GetPlayerMovingMe() == null)
                 type = creature.GetDefaultMovementType();
 

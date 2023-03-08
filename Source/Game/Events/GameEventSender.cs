@@ -24,7 +24,7 @@ namespace Game
                 zoneScript.ProcessEvent(target, gameEventId, source);
 
             Map map = refForMapAndZoneScript.GetMap();
-            GameObject goTarget = target?.ToGameObject();
+            GameObject goTarget = target?.AsGameObject;
             if (goTarget != null)
             {
                 GameObjectAI goAI = goTarget.GetAI();
@@ -32,7 +32,7 @@ namespace Game
                     goAI.EventInform(gameEventId);
             }
 
-            Player sourcePlayer = source?.ToPlayer();
+            Player sourcePlayer = source?.AsPlayer;
             if (sourcePlayer != null)
                 TriggerForPlayer(gameEventId, sourcePlayer);
 

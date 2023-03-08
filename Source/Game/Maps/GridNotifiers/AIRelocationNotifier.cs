@@ -30,7 +30,7 @@ public class AIRelocationNotifier : IGridNotifierCreature
 			NotifierHelpers.CreatureUnitRelocationWorker(creature, _unit);
 
 			if (_isCreature)
-				NotifierHelpers.CreatureUnitRelocationWorker(_unit.ToCreature(), creature);
+				NotifierHelpers.CreatureUnitRelocationWorker(_unit.AsCreature, creature);
 		}
 	}
 }

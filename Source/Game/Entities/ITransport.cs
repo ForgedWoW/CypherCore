@@ -35,45 +35,45 @@ public interface ITransport
 		{
 			case TypeId.Unit:
 			{
-				var creature = passenger.ToCreature();
+				var creature = passenger.AsCreature;
 				map.CreatureRelocation(creature, pos, false);
 
 				if (setHomePosition)
 				{
-					pos = creature.GetTransportHomePosition();
+					pos = creature.TransportHomePosition;
 					transport.CalculatePassengerPosition(pos);
-					creature.SetHomePosition(pos);
+					creature.HomePosition = pos;
 				}
 
 				break;
 			}
 			case TypeId.Player:
 				//relocate only passengers in world and skip any player that might be still logging in/teleporting
-				if (passenger.IsInWorld && !passenger.ToPlayer().IsBeingTeleported)
+				if (passenger.IsInWorld && !passenger.AsPlayer.IsBeingTeleported)
 				{
-					map.PlayerRelocation(passenger.ToPlayer(), pos);
-					passenger.ToPlayer().SetFallInformation(0, passenger.Location.Z);
+					map.PlayerRelocation(passenger.AsPlayer, pos);
+					passenger.AsPlayer.SetFallInformation(0, passenger.Location.Z);
 				}
 
 				break;
 			case TypeId.GameObject:
-				map.GameObjectRelocation(passenger.ToGameObject(), pos, false);
-				passenger.ToGameObject().RelocateStationaryPosition(pos);
+				map.GameObjectRelocation(passenger.AsGameObject, pos, false);
+				passenger.AsGameObject.RelocateStationaryPosition(pos);
 
 				break;
 			case TypeId.DynamicObject:
-				map.DynamicObjectRelocation(passenger.ToDynamicObject(), pos);
+				map.DynamicObjectRelocation(passenger.AsDynamicObject, pos);
 
 				break;
 			case TypeId.AreaTrigger:
-				map.AreaTriggerRelocation(passenger.ToAreaTrigger(), pos);
+				map.AreaTriggerRelocation(passenger.AsAreaTrigger, pos);
 
 				break;
 			default:
 				break;
 		}
 
-		var unit = passenger.ToUnit();
+		var unit = passenger.AsUnit;
 
 		if (unit != null)
 		{

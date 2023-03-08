@@ -51,26 +51,26 @@ public class VisibleNotifier : IGridNotifierWorldObject
 					switch (obj.TypeId)
 					{
 						case TypeId.GameObject:
-							Player.UpdateVisibilityOf(obj.ToGameObject(), Data, VisibleNow);
+							Player.UpdateVisibilityOf(obj.AsGameObject, Data, VisibleNow);
 
 							break;
 						case TypeId.Player:
-							Player.UpdateVisibilityOf(obj.ToPlayer(), Data, VisibleNow);
+							Player.UpdateVisibilityOf(obj.AsPlayer, Data, VisibleNow);
 
 							if (!obj.IsNeedNotify(NotifyFlags.VisibilityChanged))
-								obj.ToPlayer().UpdateVisibilityOf(Player);
+								obj.								AsPlayer.UpdateVisibilityOf(Player);
 
 							break;
 						case TypeId.Unit:
-							Player.UpdateVisibilityOf(obj.ToCreature(), Data, VisibleNow);
+							Player.UpdateVisibilityOf(obj.AsCreature, Data, VisibleNow);
 
 							break;
 						case TypeId.DynamicObject:
-							Player.UpdateVisibilityOf(obj.ToDynamicObject(), Data, VisibleNow);
+							Player.UpdateVisibilityOf(obj.AsDynamicObject, Data, VisibleNow);
 
 							break;
 						case TypeId.AreaTrigger:
-							Player.UpdateVisibilityOf(obj.ToAreaTrigger(), Data, VisibleNow);
+							Player.UpdateVisibilityOf(obj.AsAreaTrigger, Data, VisibleNow);
 
 							break;
 						default:

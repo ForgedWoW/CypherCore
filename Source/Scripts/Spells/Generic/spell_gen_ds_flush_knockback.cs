@@ -26,7 +26,7 @@ internal class spell_gen_ds_flush_knockback : SpellScript, IHasSpellEffects
 
 		if (target)
 		{
-			var player = Caster.ToPlayer();
+			var player = Caster.AsPlayer;
 
 			if (player)
 			{

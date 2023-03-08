@@ -328,7 +328,7 @@ internal class boss_priestess_delrissa : BossAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								var homePos = me.GetHomePosition();
+								var homePos = me.HomePosition;
 
 								if (me.Location.Z >= homePos.Z + 10)
 								{

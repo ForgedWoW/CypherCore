@@ -77,7 +77,7 @@ public class boss_helix_gearbreaker : BossAI
 			}
 			else
 			{
-				_oaf = me.SummonCreature(DMCreatures.NPC_OAF, me.GetHomePosition());
+				_oaf = me.SummonCreature(DMCreatures.NPC_OAF, me.HomePosition);
 
 				if (_oaf != null && _oaf.IsAlive)
 					me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);

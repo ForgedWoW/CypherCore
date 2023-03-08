@@ -47,7 +47,7 @@ public partial class Player
 			if (!victim || victim == this || !victim.IsTypeId(TypeId.Player))
 				return false;
 
-			if (GetBgTeam() == victim.ToPlayer().GetBgTeam())
+			if (GetBgTeam() == victim.AsPlayer.GetBgTeam())
 				return false;
 
 			return true;
@@ -76,7 +76,7 @@ public partial class Player
 				return false;
 
 			victimGuid = victim.GUID;
-			var plrVictim = victim.ToPlayer();
+			var plrVictim = victim.AsPlayer;
 
 			if (plrVictim)
 			{
@@ -128,7 +128,7 @@ public partial class Player
 			}
 			else
 			{
-				if (!victim.ToCreature().IsRacialLeader)
+				if (!victim.AsCreature.IsRacialLeader)
 					return false;
 
 				honorF = 100.0f;  // ??? need more info

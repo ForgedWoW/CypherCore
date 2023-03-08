@@ -16,7 +16,7 @@ public class spell_warlock_glyph_of_felguard : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster != null)
 		{

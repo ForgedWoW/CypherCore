@@ -34,7 +34,7 @@ public class CreatureGroup
 		// formation must be registered at this point
 		var formationInfo = FormationMgr.GetFormationInfo(member.SpawnId);
 		_members.Add(member, formationInfo);
-		member.SetFormation(this);
+		member.Formation = this;
 	}
 
 	public void RemoveMember(Creature member)
@@ -43,7 +43,7 @@ public class CreatureGroup
 			_leader = null;
 
 		_members.Remove(member);
-		member.SetFormation(null);
+		member.Formation = null;
 	}
 
 	public void MemberEngagingTarget(Creature member, Unit target)

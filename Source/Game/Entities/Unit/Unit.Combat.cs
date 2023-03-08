@@ -61,7 +61,7 @@ public partial class Unit
 		RemoveAllAttackers();
 
 		if (IsTypeId(TypeId.Player))
-			ToPlayer().SendAttackSwingCancelAttack(); // melee and ranged forced attack cancel
+			AsPlayer.SendAttackSwingCancelAttack(); // melee and ranged forced attack cancel
 
 		if (mutualPvP)
 		{
@@ -234,7 +234,7 @@ public partial class Unit
 		if (HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible))
 			return false;
 
-		if (IsTypeId(TypeId.Player) && ToPlayer().IsGameMaster)
+		if (IsTypeId(TypeId.Player) && AsPlayer.IsGameMaster)
 			return false;
 
 		return !HasUnitState(UnitState.Unattackable) && (!checkFakeDeath || !HasUnitState(UnitState.Died));
@@ -274,7 +274,7 @@ public partial class Unit
 
 				// melee and ranged forced attack cancel
 				if (IsTypeId(TypeId.Player))
-					ToPlayer().SendAttackSwingCancelAttack();
+					AsPlayer.SendAttackSwingCancelAttack();
 			}
 
 		var attackers = GetAttackers();
@@ -349,7 +349,7 @@ public partial class Unit
 		if (IsTypeId(TypeId.Player) && IsMounted)
 			return false;
 
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		// creatures cannot attack while evading
 		if (creature != null && creature.IsInEvadeMode)
@@ -358,12 +358,12 @@ public partial class Unit
 		// nobody can attack GM in GM-mode
 		if (victim.IsTypeId(TypeId.Player))
 		{
-			if (victim.ToPlayer().IsGameMaster)
+			if (victim.AsPlayer.IsGameMaster)
 				return false;
 		}
 		else
 		{
-			if (victim.ToCreature().IsEvadingAttacks)
+			if (victim.AsCreature.IsEvadingAttacks)
 				return false;
 		}
 
@@ -439,7 +439,7 @@ public partial class Unit
 		if (IsTypeId(TypeId.Player))
 			foreach (var controlled in Controlled)
 			{
-				var cControlled = controlled.ToCreature();
+				var cControlled = controlled.AsCreature;
 
 				if (cControlled != null)
 				{
@@ -501,7 +501,7 @@ public partial class Unit
 		InterruptSpell(CurrentSpellTypes.Melee);
 
 		// reset only at real combat stop
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		if (creature != null)
 			creature.SetNoCallAssistance(false);
@@ -819,7 +819,7 @@ public partial class Unit
 		if (attacker != null)
 			player = attacker.GetCharmerOrOwnerPlayerOrPlayerItself();
 
-		var creature = victim.ToCreature();
+		var creature = victim.AsCreature;
 
 		var isRewardAllowed = attacker != victim;
 
@@ -1005,7 +1005,7 @@ public partial class Unit
 		}
 
 		// 10% durability loss on death
-		var plrVictim = victim.ToPlayer();
+		var plrVictim = victim.AsPlayer;
 
 		if (plrVictim != null)
 		{
@@ -1014,7 +1014,7 @@ public partial class Unit
 			plrVictim.SetPvPDeath(player != null);
 
 			// only if not player and not controlled by player pet. And not at BG
-			if ((durabilityLoss && player == null && !victim.ToPlayer().InBattleground()) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
+			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground()) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
 			{
 				double baseLoss = WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
@@ -1027,7 +1027,7 @@ public partial class Unit
 
 			// Call KilledUnit for creatures
 			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
-				attacker.ToCreature().GetAI().KilledUnit(victim);
+				attacker.AsCreature.GetAI().KilledUnit(victim);
 
 			// last damage from non duel opponent or opponent controlled creature
 			if (plrVictim.Duel != null)
@@ -1058,7 +1058,7 @@ public partial class Unit
 
 			// Call KilledUnit for creatures, this needs to be called after the lootable flag is set
 			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
-				attacker.ToCreature().GetAI().KilledUnit(victim);
+				attacker.AsCreature.GetAI().KilledUnit(victim);
 
 			// Call creature just died function
 			var ai = creature.GetAI();
@@ -1075,9 +1075,9 @@ public partial class Unit
 				if (summoner != null)
 				{
 					if (summoner.IsCreature)
-						summoner.ToCreature().GetAI()?.SummonedCreatureDies(creature, attacker);
+						summoner.AsCreature.GetAI()?.SummonedCreatureDies(creature, attacker);
 					else if (summoner.IsGameObject)
-						summoner.ToGameObject().GetAI()?.SummonedCreatureDies(creature, attacker);
+						summoner.AsGameObject.GetAI()?.SummonedCreatureDies(creature, attacker);
 				}
 			}
 		}
@@ -1104,12 +1104,12 @@ public partial class Unit
 
 			if (bg)
 			{
-				var playerVictim = victim.ToPlayer();
+				var playerVictim = victim.AsPlayer;
 
 				if (playerVictim)
 					bg.HandleKillPlayer(playerVictim, player);
 				else
-					bg.HandleKillUnit(victim.ToCreature(), player);
+					bg.HandleKillUnit(victim.AsCreature, player);
 			}
 		}
 
@@ -1117,19 +1117,19 @@ public partial class Unit
 		if (attacker != null && victim.IsPlayer)
 		{
 			if (attacker.IsCreature)
-				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByCreature, attacker.Entry);
+				victim.AsPlayer.UpdateCriteria(CriteriaType.KilledByCreature, attacker.Entry);
 			else if (attacker.IsPlayer && victim != attacker)
-				victim.ToPlayer().UpdateCriteria(CriteriaType.KilledByPlayer, 1, (ulong)attacker.ToPlayer().EffectiveTeam);
+				victim.AsPlayer.UpdateCriteria(CriteriaType.KilledByPlayer, 1, (ulong)attacker.AsPlayer.EffectiveTeam);
 		}
 
 		// Hook for OnPVPKill Event
 		if (attacker != null)
 		{
-			var killerPlr = attacker.ToPlayer();
+			var killerPlr = attacker.AsPlayer;
 
 			if (killerPlr != null)
 			{
-				var killedPlr = victim.ToPlayer();
+				var killedPlr = victim.AsPlayer;
 
 				if (killedPlr != null)
 				{
@@ -1137,7 +1137,7 @@ public partial class Unit
 				}
 				else
 				{
-					var killedCre = victim.ToCreature();
+					var killedCre = victim.AsCreature;
 
 					if (killedCre != null)
 						Global.ScriptMgr.ForEach<IPlayerOnCreatureKill>(p => p.OnCreatureKill(killerPlr, killedCre));
@@ -1145,11 +1145,11 @@ public partial class Unit
 			}
 			else
 			{
-				var killerCre = attacker.ToCreature();
+				var killerCre = attacker.AsCreature;
 
 				if (killerCre != null)
 				{
-					var killed = victim.ToPlayer();
+					var killed = victim.AsPlayer;
 
 					if (killed != null)
 						Global.ScriptMgr.ForEach<IPlayerOnPlayerKilledByCreature>(p => p.OnPlayerKilledByCreature(killerCre, killed));
@@ -1250,7 +1250,7 @@ public partial class Unit
 		if (!IsTypeId(TypeId.Player) || (IsInFeralForm && !normalized))
 			return GetBaseAttackTime(attType) / 1000.0f;
 
-		var weapon = ToPlayer().GetWeaponForAttack(attType, true);
+		var weapon = AsPlayer.GetWeaponForAttack(attType, true);
 
 		if (!weapon)
 			return 2.0f;
@@ -1645,7 +1645,7 @@ public partial class Unit
 
 	MeleeHitOutcome RollMeleeOutcomeAgainst(Unit victim, WeaponAttackType attType)
 	{
-		if (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks)
+		if (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks)
 			return MeleeHitOutcome.Evade;
 
 		// Miss chance based on melee
@@ -1750,7 +1750,7 @@ public partial class Unit
 		if (attackerLevel >= victimLevel + 4 &&
 			// can be from by creature (if can) or from controlled player that considered as creature
 			!IsControlledByPlayer &&
-			!(TypeId == TypeId.Unit && ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
+			!(TypeId == TypeId.Unit && AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
 		{
 			// add 2% chance per level, min. is 15%
 			tmp = (int)(attackerLevel - victimLevel * 1000 - 1500);

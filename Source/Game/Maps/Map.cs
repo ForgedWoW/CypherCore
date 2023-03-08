@@ -551,7 +551,7 @@ public class Map : IDisposable
 				{
 					foreach (var pair in player.GetCombatManager().GetPvECombatRefs())
 					{
-						var unit = pair.Value.GetOther(player).ToCreature();
+						var unit = pair.Value.GetOther(player).AsCreature;
 
 						if (unit != null)
 							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
@@ -1532,7 +1532,7 @@ public class Map : IDisposable
 					var obj = GetWorldObjectBySpawnId(data.Type, data.SpawnId);
 
 					if (obj != null)
-						if ((data.Type != SpawnObjectType.Creature) || obj.ToCreature().IsAlive)
+						if ((data.Type != SpawnObjectType.Creature) || obj.AsCreature.IsAlive)
 							continue;
 				}
 
@@ -1816,14 +1816,14 @@ public class Map : IDisposable
 		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
-				var creature = obj.ToCreature();
+				var creature = obj.AsCreature;
 
 				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
 					respawnLocation = creature.RespawnPosition;
 
 				break;
 			case TypeId.GameObject:
-				var gameObject = obj.ToGameObject();
+				var gameObject = obj.AsGameObject;
 
 				if (gameObject != null && gameObject.GetSpawnId() != 0)
 					respawnLocation = gameObject.GetRespawnPosition();
@@ -1858,14 +1858,14 @@ public class Map : IDisposable
 		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
-				var creature = obj.ToCreature();
+				var creature = obj.AsCreature;
 
 				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
 					respawnLocation = creature.RespawnPosition;
 
 				break;
 			case TypeId.GameObject:
-				var gameObject = obj.ToGameObject();
+				var gameObject = obj.AsGameObject;
 
 				if (gameObject != null && gameObject.GetSpawnId() != 0)
 					respawnLocation = gameObject.GetRespawnPosition();
@@ -2824,7 +2824,7 @@ public class Map : IDisposable
 					return null;
 			}
 
-		var summonerUnit = summoner?.ToUnit();
+		var summonerUnit = summoner?.AsUnit;
 
 		TempSummon summon;
 
@@ -2874,7 +2874,7 @@ public class Map : IDisposable
 			PhasingHandler.InheritPhaseShift(summon, summoner);
 
 		summon.SetCreatedBySpell(spellId);
-		summon.SetHomePosition(pos);
+		summon.		HomePosition = pos;
 		summon.InitStats(duration);
 		summon.		PrivateObjectOwner = privateObjectOwner;
 
@@ -2898,7 +2898,7 @@ public class Map : IDisposable
 			summon.GetOrCreateSmoothPhasing().SetSingleInfo(smoothPhasingInfo);
 		}
 
-		if (!AddToMap(summon.ToCreature()))
+		if (!AddToMap(summon.AsCreature))
 		{
 			// Returning false will cause the object to be deleted - remove from transport
 			transport?.RemovePassenger(summon);
@@ -3004,7 +3004,7 @@ public class Map : IDisposable
 		}
 
 		obj.Location.SetCurrentCell(cell);
-		obj.ToCreature().IsTempWorldObject = on;
+		obj.		AsCreature.IsTempWorldObject = on;
 	}
 
 	private void DeleteFromWorld(Player player)
@@ -3588,7 +3588,7 @@ public class Map : IDisposable
 			return true;
 		}
 
-		var c = obj.ToCreature();
+		var c = obj.AsCreature;
 
 		if (c != null && c.CharmerOrOwnerGUID.IsPlayer)
 			EnsureGridLoaded(new_cell);
@@ -4054,7 +4054,7 @@ public class Map : IDisposable
 				switch (obj.TypeId)
 				{
 					case TypeId.Unit:
-						SwitchGridContainers(obj.ToCreature(), on);
+						SwitchGridContainers(obj.AsCreature, on);
 
 						break;
 					default:
@@ -4092,7 +4092,7 @@ public class Map : IDisposable
 
 					break;
 				case TypeId.GameObject:
-					var go = obj.ToGameObject();
+					var go = obj.AsGameObject;
 					var transport = go.ToTransport();
 
 					if (transport)
@@ -4104,8 +4104,10 @@ public class Map : IDisposable
 				case TypeId.Unit:
 					// in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
 					// make sure that like sources auras/etc removed before destructor start
-					obj.ToCreature().CleanupsBeforeDelete();
-					RemoveFromMap(obj.ToCreature(), true);
+					obj.					// in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+					// make sure that like sources auras/etc removed before destructor start
+					AsCreature.CleanupsBeforeDelete();
+					RemoveFromMap(obj.AsCreature, true);
 
 					break;
 				default:
@@ -4411,10 +4413,10 @@ public class Map : IDisposable
 		{
 			// Check target first, then source.
 			if (target != null)
-				player = target.ToPlayer();
+				player = target.AsPlayer;
 
 			if (player == null && source != null)
-				player = source.ToPlayer();
+				player = source.AsPlayer;
 
 			if (player == null)
 				Log.outError(LogFilter.Scripts,
@@ -4445,19 +4447,19 @@ public class Map : IDisposable
 			{
 				// Check target first, then source.
 				if (target != null)
-					creature = target.ToCreature();
+					creature = target.AsCreature;
 
 				if (creature == null && source != null)
-					creature = source.ToCreature();
+					creature = source.AsCreature;
 			}
 			else
 			{
 				// Check source first, then target.
 				if (source != null)
-					creature = source.ToCreature();
+					creature = source.AsCreature;
 
 				if (creature == null && target != null)
-					creature = target.ToCreature();
+					creature = target.AsCreature;
 			}
 
 			if (creature == null)
@@ -4489,19 +4491,19 @@ public class Map : IDisposable
 			{
 				// Check target first, then source.
 				if (target != null)
-					gameobject = target.ToGameObject();
+					gameobject = target.AsGameObject;
 
 				if (gameobject == null && source != null)
-					gameobject = source.ToGameObject();
+					gameobject = source.AsGameObject;
 			}
 			else
 			{
 				// Check source first, then target.
 				if (source != null)
-					gameobject = source.ToGameObject();
+					gameobject = source.AsGameObject;
 
 				if (gameobject == null && target != null)
-					gameobject = target.ToGameObject();
+					gameobject = target.AsGameObject;
 			}
 
 			if (gameobject == null)
@@ -4537,7 +4539,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			unit = obj.ToUnit();
+			unit = obj.AsUnit;
 
 			if (unit == null)
 				Log.outError(LogFilter.Scripts, "{0} {1} object could not be casted to unit.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
@@ -4559,7 +4561,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			player = obj.ToPlayer();
+			player = obj.AsPlayer;
 
 			if (player == null)
 				Log.outError(LogFilter.Scripts,
@@ -4584,7 +4586,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			creature = obj.ToCreature();
+			creature = obj.AsCreature;
 
 			if (creature == null)
 				Log.outError(LogFilter.Scripts,
@@ -4690,7 +4692,7 @@ public class Map : IDisposable
 
 					if (target != null && target.IsTypeMask(TypeMask.GameObject))
 					{
-						var goTarget = target.ToGameObject();
+						var goTarget = target.AsGameObject;
 
 						if (goTarget != null && goTarget.GetGoType() == GameObjectTypes.Button)
 							goTarget.UseDoorOrButton((uint)nTimeToToggle);
@@ -4827,7 +4829,7 @@ public class Map : IDisposable
 
 						if (source)
 						{
-							var sourceUnit = source.ToUnit();
+							var sourceUnit = source.AsUnit;
 
 							if (!sourceUnit)
 							{
@@ -4854,7 +4856,7 @@ public class Map : IDisposable
 								case ChatMsg.Whisper:
 								case ChatMsg.RaidBossWhisper:
 								{
-									var receiver = target ? target.ToPlayer() : null;
+									var receiver = target ? target.AsPlayer : null;
 
 									if (!receiver)
 										Log.outError(LogFilter.Scripts, "{0} attempt to whisper to non-player unit, skipping.", step.Script.GetDebugInfo());
@@ -4892,7 +4894,7 @@ public class Map : IDisposable
 
 						if (cSource)
 						{
-							var unit = cSource.ToUnit();
+							var unit = cSource.AsUnit;
 
 							if (step.Script.MoveTo.TravelTime != 0)
 							{
@@ -4964,7 +4966,7 @@ public class Map : IDisposable
 
 						// when script called for item spell casting then target == (unit or GO) and source is player
 						WorldObject worldObject;
-						var player = target.ToPlayer();
+						var player = target.AsPlayer;
 
 						if (player != null)
 						{
@@ -4984,7 +4986,7 @@ public class Map : IDisposable
 						}
 						else
 						{
-							player = source.ToPlayer();
+							player = source.AsPlayer;
 
 							if (player != null)
 							{
@@ -5017,7 +5019,7 @@ public class Map : IDisposable
 						}
 
 						// quest id and flags checked at script loading
-						if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.ToUnit().IsAlive) &&
+						if ((!worldObject.IsTypeId(TypeId.Unit) || worldObject.AsUnit.IsAlive) &&
 							(step.Script.QuestExplored.Distance == 0 ||
 							worldObject.IsWithinDistInMap(player, step.Script.QuestExplored.Distance)))
 							player.AreaExploredOrEventHappens(step.Script.QuestExplored.QuestID);
@@ -5150,7 +5152,7 @@ public class Map : IDisposable
 								break;
 							}
 
-							var pGO = target.ToGameObject();
+							var pGO = target.AsGameObject;
 
 							if (pGO)
 								pGO.Use(unit);

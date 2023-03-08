@@ -11,7 +11,7 @@ public class spell_rog_deadly_poison_instant_damage_SpellScript : SpellScript, I
 {
 	public void OnCast()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

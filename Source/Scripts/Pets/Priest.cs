@@ -44,7 +44,7 @@ namespace Scripts.Pets
 
 			public override void IsSummonedBy(WorldObject summoner)
 			{
-				var unitSummoner = summoner.ToUnit();
+				var unitSummoner = summoner.AsUnit;
 
 				if (unitSummoner == null)
 					return;

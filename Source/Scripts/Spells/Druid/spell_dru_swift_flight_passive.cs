@@ -27,7 +27,7 @@ internal class spell_dru_swift_flight_passive : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster != null)
 			if (caster.GetSkillValue(SkillType.Riding) >= 375)

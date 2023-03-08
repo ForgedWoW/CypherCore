@@ -26,7 +26,7 @@ public class spell_dk_harbinger_of_doom_aura : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 			{

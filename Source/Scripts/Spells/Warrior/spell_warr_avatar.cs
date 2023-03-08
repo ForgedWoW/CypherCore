@@ -22,7 +22,7 @@ public class spell_warr_avatar : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			player.RemoveMovementImpairingAuras(true);

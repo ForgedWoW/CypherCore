@@ -11,7 +11,7 @@ public class spell_sha_glyph_of_lakestrider : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			if (_player.HasAura(ShamanSpells.GLYPH_OF_LAKESTRIDER))

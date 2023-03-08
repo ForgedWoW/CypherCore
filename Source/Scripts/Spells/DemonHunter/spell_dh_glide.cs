@@ -14,7 +14,7 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 {
 	public void BeforeCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (!caster)
 			return;

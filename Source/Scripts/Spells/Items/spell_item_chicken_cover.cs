@@ -32,7 +32,7 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (target)

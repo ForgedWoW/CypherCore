@@ -31,7 +31,7 @@ public class spell_hun_snake_hunter : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;

@@ -26,7 +26,7 @@ internal class spell_q12659_ahunaes_knife : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		var target = HitCreature;
 

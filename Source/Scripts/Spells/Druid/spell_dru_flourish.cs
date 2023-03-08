@@ -44,7 +44,7 @@ public class spell_dru_flourish : SpellScript, IHasSpellEffects
 
 		foreach (var target in targets)
 			if (target.IsPlayer)
-				if (target.ToUnit().HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GUID))
+				if (target.AsUnit.HasAuraTypeWithCaster(AuraType.PeriodicHeal, Caster.GUID))
 					tempTargets.Add(target);
 
 		if (tempTargets.Count > 0)

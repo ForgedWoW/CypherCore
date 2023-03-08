@@ -415,7 +415,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void UpdateRacials(Race oldRace, Race newRace)
 	{
-		var player = UnitOwner.ToPlayer();
+		var player = UnitOwner.AsPlayer;
 
 		if (player == null)
 			return;

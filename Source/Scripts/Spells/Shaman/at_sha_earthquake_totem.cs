@@ -30,7 +30,7 @@ public class at_sha_earthquake_totem : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		// Check if we can handle actions

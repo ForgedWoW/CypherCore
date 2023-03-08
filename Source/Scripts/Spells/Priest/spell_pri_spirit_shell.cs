@@ -14,7 +14,7 @@ public class spell_pri_spirit_shell : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

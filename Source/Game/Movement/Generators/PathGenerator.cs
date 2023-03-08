@@ -50,7 +50,7 @@ namespace Game.Movement
 
             // make sure navMesh works - we can run on map w/o mmap
             // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
-            Unit _sourceUnit = _source.ToUnit();
+            Unit _sourceUnit = _source.AsUnit;
             if (_navMesh == null || _navMeshQuery == null || (_sourceUnit != null && _sourceUnit.HasUnitState(UnitState.IgnorePathfinding))
                 || !HaveTile(start) || !HaveTile(dest))
             {
@@ -150,9 +150,9 @@ namespace Game.Movement
             {
                 Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
                 BuildShortcut();
-                bool path = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanFly;
+                bool path = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanFly;
 
-                bool waterPath = _source.IsTypeId(TypeId.Unit) && _source.ToCreature().CanSwim;
+                bool waterPath = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanSwim;
                 if (waterPath)
                 {
                     // Check both start and end points, if they're both in water, then we can *safely* let the creature move
@@ -194,7 +194,7 @@ namespace Game.Movement
                 if (_source.GetMap().IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
                 {
                     Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: underWater case");
-                    Unit _sourceUnit = _source.ToUnit();
+                    Unit _sourceUnit = _source.AsUnit;
                     if (_sourceUnit != null)
                         if (_sourceUnit.CanSwim)
                             buildShotrcut = true;
@@ -202,7 +202,7 @@ namespace Game.Movement
                 else
                 {
                     Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: flying case");
-                    Unit _sourceUnit = _source.ToUnit();
+                    Unit _sourceUnit = _source.AsUnit;
                     if (_sourceUnit != null)
                     {
                         if (_sourceUnit.CanFly)
@@ -849,7 +849,7 @@ namespace Game.Movement
 
             if (_source.IsTypeId(TypeId.Unit))
             {
-                Creature creature = _source.ToCreature();
+                Creature creature = _source.AsCreature;
                 if (creature.CanWalk)
                     includeFlags |= NavTerrainFlag.Ground;
 
@@ -870,7 +870,7 @@ namespace Game.Movement
         {
             // allow creatures to cheat and use different movement types if they are moved
             // forcefully into terrain they can't normally move in
-            Unit _sourceUnit = _source.ToUnit();
+            Unit _sourceUnit = _source.AsUnit;
             if (_sourceUnit != null)
             {
                 if (_sourceUnit.IsInWater() || _sourceUnit.IsUnderWater())
@@ -881,7 +881,7 @@ namespace Game.Movement
                     _filter.setIncludeFlags((ushort)includedFlags);
                 }
 
-                Creature _sourceCreature = _source.ToCreature();
+                Creature _sourceCreature = _source.AsCreature;
                 if (_sourceCreature != null)
                     if (_sourceCreature.IsInCombat() || _sourceCreature.IsInEvadeMode)
                         _filter.setIncludeFlags((ushort)(_filter.getIncludeFlags() | (ushort)NavTerrainFlag.GroundSteep));

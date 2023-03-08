@@ -18,7 +18,7 @@ public class spell_monk_vivify : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

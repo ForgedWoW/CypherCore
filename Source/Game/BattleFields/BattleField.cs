@@ -651,7 +651,8 @@ namespace Game.BattleFields
                 return null;
             }
 
-            creature.SetHomePosition(pos);
+            creature.
+            HomePosition = pos;
 
             // Set creature in world
             m_Map.AddToMap(creature);

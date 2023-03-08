@@ -20,10 +20,10 @@ public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpell
 	{
 		var caster = Caster;
 
-		if (caster == null || !caster.ToPlayer())
+		if (caster == null || !caster.AsPlayer)
 			return SpellCastResult.BadTargets;
 
-		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().Entry == 416)
+		if (caster.AsPlayer.GetPet() && caster.AsPlayer.GetPet().Entry == 416)
 			return SpellCastResult.SpellCastOk;
 
 		return SpellCastResult.CantDoThatRightNow;
@@ -42,7 +42,7 @@ public class spell_warlock_singe_magic : SpellScript, ISpellCheckCast, IHasSpell
 		if (caster == null || target == null)
 			return;
 
-		var pet = caster.ToPlayer().GetPet();
+		var pet = caster.AsPlayer.GetPet();
 
 		if (pet != null)
 			pet.CastSpell(target, WarlockSpells.SINGE_MAGIC, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)GetEffectInfo(0).BasePoints));

@@ -34,7 +34,7 @@ internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheck
 			healInfo.GetHeal() == 0)
 			return false;
 
-		var caster = eventInfo.Actor.ToPlayer();
+		var caster = eventInfo.Actor.AsPlayer;
 
 		if (!caster)
 			return false;

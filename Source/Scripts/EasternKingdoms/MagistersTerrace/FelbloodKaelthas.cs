@@ -289,7 +289,7 @@ internal class boss_felblood_kaelthas : BossAI
 
 	public override void SpellHitTarget(WorldObject target, SpellInfo spellInfo)
 	{
-		var unitTarget = target.ToUnit();
+		var unitTarget = target.AsUnit;
 
 		if (!unitTarget)
 			return;

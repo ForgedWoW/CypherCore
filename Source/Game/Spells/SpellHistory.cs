@@ -190,7 +190,7 @@ public class SpellHistory
 		if (ConsumeCharge(spellInfo.ChargeCategoryId))
 			return;
 
-		var player = _owner.ToPlayer();
+		var player = _owner.AsPlayer;
 
 		if (player)
 		{
@@ -722,7 +722,7 @@ public class SpellHistory
 				_schoolLockouts[i] = lockoutEnd;
 
 		List<uint> knownSpells = new();
-		var plrOwner = _owner.ToPlayer();
+		var plrOwner = _owner.AsPlayer;
 
 		if (plrOwner)
 		{
@@ -732,7 +732,7 @@ public class SpellHistory
 		}
 		else if (_owner.IsPet)
 		{
-			var petOwner = _owner.ToPet();
+			var petOwner = _owner.AsPet;
 
 			foreach (var p in petOwner.Spells)
 				if (p.Value.State != PetSpellState.Removed)
@@ -740,7 +740,7 @@ public class SpellHistory
 		}
 		else
 		{
-			var creatureOwner = _owner.ToCreature();
+			var creatureOwner = _owner.AsCreature;
 
 			for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 				if (creatureOwner.Spells[i] != 0)
@@ -960,7 +960,7 @@ public class SpellHistory
 
 	public void RestoreCooldownStateAfterDuel()
 	{
-		var player = _owner.ToPlayer();
+		var player = _owner.AsPlayer;
 
 		if (player)
 		{

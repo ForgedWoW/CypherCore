@@ -30,7 +30,7 @@ public class spell_monk_zen_flight_check_AuraScript : AuraScript, IHasAuraEffect
 		if (!Caster)
 			return;
 
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster != null)
 			if (caster.GetSkillValue(SkillType.Riding) >= 375)

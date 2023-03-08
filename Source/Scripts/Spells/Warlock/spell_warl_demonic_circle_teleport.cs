@@ -21,7 +21,7 @@ internal class spell_warl_demonic_circle_teleport : AuraScript, IHasAuraEffects
 
 	private void HandleTeleport(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player)
 		{

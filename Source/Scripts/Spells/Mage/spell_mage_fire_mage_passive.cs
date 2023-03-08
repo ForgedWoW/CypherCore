@@ -35,7 +35,7 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 
 	private void HandleApply(AuraEffect aurEffect, AuraEffectHandleModes UnnamedParameter)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;
@@ -52,7 +52,7 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;

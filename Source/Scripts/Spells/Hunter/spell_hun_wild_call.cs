@@ -30,7 +30,7 @@ public class spell_hun_wild_call : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.GetSpellHistory().HasCooldown(HunterSpells.BARBED_SHOT))

@@ -39,7 +39,7 @@ public class spell_pri_void_shift : SpellScript, IHasSpellEffects, ISpellCheckCa
 
 	private void HandleDummy(int effIndex)
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

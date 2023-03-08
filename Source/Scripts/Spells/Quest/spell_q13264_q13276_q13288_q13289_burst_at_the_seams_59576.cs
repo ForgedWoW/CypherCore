@@ -27,7 +27,7 @@ internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : Spel
 
 	private void HandleScript(int effIndex)
 	{
-		var creature = Caster.ToCreature();
+		var creature = Caster.AsCreature;
 
 		if (creature != null)
 		{

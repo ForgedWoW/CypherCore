@@ -22,7 +22,7 @@ public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHi
 
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

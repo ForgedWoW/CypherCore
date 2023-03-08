@@ -32,7 +32,7 @@ internal class spell_item_artifical_damage : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var artifact = Owner.ToPlayer().GetItemByGuid(Aura.CastItemGuid);
+		var artifact = Owner.AsPlayer.GetItemByGuid(Aura.CastItemGuid);
 
 		if (artifact)
 			amount.Value = (SpellInfo.GetEffect(1).BasePoints * artifact.GetTotalPurchasedArtifactPowers() / 100);

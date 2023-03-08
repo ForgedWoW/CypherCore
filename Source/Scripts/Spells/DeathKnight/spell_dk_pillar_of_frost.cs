@@ -22,7 +22,7 @@ public class spell_dk_pillar_of_frost : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var _player = Target.ToPlayer();
+		var _player = Target.AsPlayer;
 
 		if (_player != null)
 			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, false);
@@ -30,7 +30,7 @@ public class spell_dk_pillar_of_frost : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var _player = Target.ToPlayer();
+		var _player = Target.AsPlayer;
 
 		if (_player != null)
 			_player.ApplySpellImmune(DeathKnightSpells.PILLAR_OF_FROST, SpellImmunity.Mechanic, Mechanics.Knockout, true);

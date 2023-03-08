@@ -12,7 +12,7 @@ public class spell_pri_holy_word_serenity : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			player.GetSpellHistory().ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));

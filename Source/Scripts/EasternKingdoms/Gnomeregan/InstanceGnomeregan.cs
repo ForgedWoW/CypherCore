@@ -100,7 +100,7 @@ internal class instance_gnomeregan : InstanceMapScript, IInstanceMapGetInstanceS
 
 		public override void OnUnitDeath(Unit unit)
 		{
-			var creature = unit.ToCreature();
+			var creature = unit.AsCreature;
 
 			if (creature)
 				switch (creature.Entry)

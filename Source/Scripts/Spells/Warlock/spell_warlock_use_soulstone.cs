@@ -23,7 +23,7 @@ public class spell_warlock_use_soulstone : SpellScript, IHasSpellEffects
 	private void HandleHit(int effIndex)
 	{
 		PreventHitDefaultEffect(effIndex);
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;

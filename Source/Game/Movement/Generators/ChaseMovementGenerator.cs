@@ -67,7 +67,7 @@ namespace Game.Movement
             {
                 owner.StopMoving();
                 _lastTargetPosition = null;
-                Creature cOwner = owner.ToCreature();
+                Creature cOwner = owner.AsCreature;
                 if (cOwner != null)
                     cOwner.SetCannotReachTarget(false);
                 return true;
@@ -91,7 +91,7 @@ namespace Game.Movement
                     RemoveFlag(MovementGeneratorFlags.InformEnabled);
                     _path = null;
 
-                    Creature cOwner = owner.ToCreature();
+                    Creature cOwner = owner.AsCreature;
                     if (cOwner != null)
                         cOwner.SetCannotReachTarget(false);
 
@@ -107,7 +107,7 @@ namespace Game.Movement
             {
                 RemoveFlag(MovementGeneratorFlags.InformEnabled);
                 _path = null;
-                Creature cOwner = owner.ToCreature();
+                Creature cOwner = owner.AsCreature;
                 if (cOwner != null)
                     cOwner.SetCannotReachTarget(false);
                 owner.ClearUnitState(UnitState.ChaseMove);
@@ -122,7 +122,7 @@ namespace Game.Movement
                 _mutualChase = mutualChase;
                 if (owner.HasUnitState(UnitState.ChaseMove) || !PositionOkay(owner, target, minRange, maxRange, angle))
                 {
-                    Creature cOwner = owner.ToCreature();
+                    Creature cOwner = owner.AsCreature;
                     // can we get to the target?
                     if (cOwner != null && !target.IsInAccessiblePlaceFor(cOwner))
                     {
@@ -210,7 +210,7 @@ namespace Game.Movement
             AddFlag(MovementGeneratorFlags.Deactivated);
             RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled);
             owner.ClearUnitState(UnitState.ChaseMove);
-            Creature cOwner = owner.ToCreature();
+            Creature cOwner = owner.AsCreature;
             if (cOwner != null)
                 cOwner.SetCannotReachTarget(false);
         }
@@ -221,7 +221,7 @@ namespace Game.Movement
             if (active)
             {
                 owner.ClearUnitState(UnitState.ChaseMove);
-                Creature cOwner = owner.ToCreature();
+                Creature cOwner = owner.AsCreature;
                 if (cOwner != null)
                     cOwner.SetCannotReachTarget(false);
             }
@@ -267,7 +267,7 @@ namespace Game.Movement
             if (!owner.IsCreature)
                 return;
 
-            CreatureAI ai = owner.ToCreature().GetAI();
+            CreatureAI ai = owner.AsCreature.GetAI();
             if (ai != null)
                 ai.MovementInform(MovementGeneratorType.Chase, (uint)target.GUID.Counter);
         }

@@ -510,7 +510,7 @@ internal class boss_aran : ScriptedAI
 			me.GetDistance2d(who) > me.GetAttackDistance(who) + 10.0f)
 			return;
 
-		var player = who.ToPlayer();
+		var player = who.AsPlayer;
 
 		if (!player)
 			return;

@@ -32,7 +32,7 @@ public class spell_dk_item_t17_frost_4p_driver_periodic : AuraScript, IHasAuraEf
 		if (l_Target == null)
 			return;
 
-		var l_Player = l_Caster.ToPlayer();
+		var l_Player = l_Caster.AsPlayer;
 
 		if (l_Player != null)
 		{

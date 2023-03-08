@@ -36,12 +36,12 @@ public class spell_dh_intimidated : AuraScript, IHasAuraEffects
 			return;
 		}
 
-		if (_uniqueTargets.Count >= 4 || !auraOwner.ToUnit())
+		if (_uniqueTargets.Count >= 4 || !auraOwner.AsUnit)
 			return;
 
 		if (_uniqueTargets.Contains(attacker.GUID))
 		{
-			attacker.CastSpell(auraOwner.ToUnit(), SpellInfo.Id, true);
+			attacker.CastSpell(auraOwner.AsUnit, SpellInfo.Id, true);
 			_uniqueTargets.Add(attacker.GUID);
 		}
 	}

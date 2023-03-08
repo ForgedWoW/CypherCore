@@ -339,7 +339,7 @@ namespace Game.AI
                         Unit passenger = Global.ObjAccessor.GetUnit(me, pair.Value.Passenger.Guid);
                         if (passenger)
                         {
-                            Player player = passenger.ToPlayer();
+                            Player player = passenger.AsPlayer;
                             if (player)
                             {
                                 if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.Entry, player, me))

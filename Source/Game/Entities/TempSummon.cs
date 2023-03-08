@@ -45,7 +45,7 @@ public class TempSummon : Creature
 		var summoner = GetSummoner();
 
 		if (summoner != null)
-			return summoner.ToUnit();
+			return summoner.AsUnit;
 
 		return null;
 	}
@@ -60,7 +60,7 @@ public class TempSummon : Creature
 		var summoner = GetSummoner();
 
 		if (summoner != null)
-			return summoner.ToGameObject();
+			return summoner.AsGameObject;
 
 		return null;
 	}
@@ -282,9 +282,9 @@ public class TempSummon : Creature
 		if (owner != null)
 		{
 			if (owner.IsCreature)
-				owner.ToCreature().GetAI()?.JustSummoned(this);
+				owner.AsCreature.GetAI()?.JustSummoned(this);
 			else if (owner.IsGameObject)
-				owner.ToGameObject().GetAI()?.JustSummoned(this);
+				owner.AsGameObject.GetAI()?.JustSummoned(this);
 
 			if (IsAIEnabled)
 				GetAI().IsSummonedBy(owner);
@@ -379,7 +379,7 @@ public class TempSummon : Creature
 
 		if (IsPet)
 		{
-			ToPet().Remove(PetSaveMode.NotInSlot);
+			AsPet.Remove(PetSaveMode.NotInSlot);
 			Cypher.Assert(!IsInWorld);
 
 			return;
@@ -390,9 +390,9 @@ public class TempSummon : Creature
 		if (owner != null)
 		{
 			if (owner.IsCreature)
-				owner.ToCreature().GetAI()?.SummonedCreatureDespawn(this);
+				owner.AsCreature.GetAI()?.SummonedCreatureDespawn(this);
 			else if (owner.IsGameObject)
-				owner.ToGameObject().GetAI()?.SummonedCreatureDespawn(this);
+				owner.AsGameObject.GetAI()?.SummonedCreatureDespawn(this);
 		}
 
 		AddObjectToRemoveList();

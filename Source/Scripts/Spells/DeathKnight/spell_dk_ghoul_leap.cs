@@ -18,7 +18,7 @@ public class spell_dk_ghoul_leap : SpellScript, ISpellAfterHit
 		if (caster == null || target == null)
 			return;
 
-		Unit owner = caster.GetOwner().ToPlayer();
+		Unit owner = caster.GetOwner().AsPlayer;
 
 		if (owner != null)
 		{

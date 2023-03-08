@@ -27,7 +27,7 @@ public class aura_warr_ravager : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player != null)
 			if (player.GetPrimarySpecialization() == TalentSpecialization.WarriorProtection)

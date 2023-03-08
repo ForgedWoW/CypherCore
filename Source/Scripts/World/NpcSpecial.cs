@@ -1027,7 +1027,7 @@ public class npc_injured_patient : ScriptedAI
 
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 	{
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (!player ||
 			!me.IsAlive ||
@@ -1177,7 +1177,7 @@ internal class npc_garments_of_quests : EscortAI
 			if (IsHealed && CanRun)
 				return;
 
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player)
 			{
@@ -1791,7 +1791,7 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
 	public override void Reset()
 	{
-		var owner = me.GetOwner()?.ToPlayer();
+		var owner = me.GetOwner()?.AsPlayer;
 
 		if (owner != null)
 		{
@@ -1969,7 +1969,7 @@ internal class npc_bountiful_table : PassiveAI
 
 		who.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
 		who.Events.AddEvent(new CastFoodSpell(who, ChairSpells[who.Entry]), who.Events.CalculateTime(TimeSpan.FromSeconds(1)));
-		var creature = who.ToCreature();
+		var creature = who.AsCreature;
 
 		if (creature)
 			creature.SetDisplayFromModel(0);

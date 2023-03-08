@@ -35,7 +35,7 @@ internal class spell_item_red_rider_air_rifle : SpellScript, IHasSpellEffects
 		{
 			caster.CastSpell(caster, ItemSpellIds.AirRifleHoldVisual, true);
 			// needed because this spell shares GCD with its triggered spells (which must not be cast with triggered flag)
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player)
 				player.GetSpellHistory().CancelGlobalCooldown(SpellInfo);

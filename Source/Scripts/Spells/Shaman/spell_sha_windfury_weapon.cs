@@ -17,7 +17,7 @@ internal class spell_sha_windfury_weapon : SpellScript, ISpellOnCast, ISpellChec
 
 	public SpellCastResult CheckCast()
 	{
-		_item = Caster.ToPlayer().GetWeaponForAttack(WeaponAttackType.BaseAttack, false);
+		_item = Caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.BaseAttack, false);
 
 		return _item == null || !_item.GetTemplate().IsWeapon() ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
 	}

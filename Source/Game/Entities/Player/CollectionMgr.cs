@@ -89,14 +89,14 @@ public class CollectionMgr
 	public void LoadToys()
 	{
 		foreach (var pair in _toys)
-			_owner.			Player.AddToy(pair.Key, (uint)pair.Value);
+			_owner.Player.AddToy(pair.Key, (uint)pair.Value);
 	}
 
 	public bool AddToy(uint itemId, bool isFavourite, bool hasFanfare)
 	{
 		if (UpdateAccountToys(itemId, isFavourite, hasFanfare))
 		{
-			_owner.			Player?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
+			_owner.Player?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
 
 			return true;
 		}
@@ -214,13 +214,13 @@ public class CollectionMgr
 	public void LoadHeirlooms()
 	{
 		foreach (var item in _heirlooms)
-			_owner.			Player.AddHeirloom(item.Key, (uint)item.Value.Flags);
+			_owner.Player.AddHeirloom(item.Key, (uint)item.Value.Flags);
 	}
 
 	public void AddHeirloom(uint itemId, HeirloomPlayerFlags flags)
 	{
 		if (UpdateAccountHeirlooms(itemId, flags))
-			_owner.			Player.AddHeirloom(itemId, (uint)flags);
+			_owner.Player.AddHeirloom(itemId, (uint)flags);
 	}
 
 	public void UpgradeHeirloom(uint itemId, uint castItem)
@@ -574,7 +574,7 @@ public class CollectionMgr
 
 		if (guid.Empty())
 		{
-			_owner.			Player.RemoveConditionalTransmog(itemModifiedAppearance.Id);
+			_owner.Player.RemoveConditionalTransmog(itemModifiedAppearance.Id);
 			_temporaryAppearances.Remove(itemModifiedAppearance.Id);
 		}
 	}
@@ -945,14 +945,14 @@ public class CollectionMgr
 			var transmogSlot = Item.ItemTransmogrificationSlots[(int)item.inventoryType];
 
 			if (transmogSlot >= 0)
-				_owner.				Player.UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
+				_owner.Player.UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
 		}
 
 		var sets = Global.DB2Mgr.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
 
 		foreach (var set in sets)
 			if (IsSetCompleted(set.Id))
-				_owner.				Player.UpdateCriteria(CriteriaType.CollectTransmogSetFromGroup, set.TransmogSetGroupID);
+				_owner.Player.UpdateCriteria(CriteriaType.CollectTransmogSetFromGroup, set.TransmogSetGroupID);
 	}
 
 	void AddTemporaryAppearance(ObjectGuid itemGuid, ItemModifiedAppearanceRecord itemModifiedAppearance)
@@ -960,7 +960,7 @@ public class CollectionMgr
 		var itemsWithAppearance = _temporaryAppearances[itemModifiedAppearance.Id];
 
 		if (itemsWithAppearance.Empty())
-			_owner.			Player.AddConditionalTransmog(itemModifiedAppearance.Id);
+			_owner.Player.AddConditionalTransmog(itemModifiedAppearance.Id);
 
 		itemsWithAppearance.Add(itemGuid);
 	}

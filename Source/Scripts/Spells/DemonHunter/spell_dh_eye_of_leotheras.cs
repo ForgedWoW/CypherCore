@@ -26,10 +26,10 @@ public class spell_dh_eye_of_leotheras : AuraScript, IAuraCheckProc
 		var caster = Caster;
 		var target = Aura.Owner;
 
-		if (caster == null || target == null || eventInfo.SpellInfo != null || !caster.ToPlayer())
+		if (caster == null || target == null || eventInfo.SpellInfo != null || !caster.AsPlayer)
 			return false;
 
-		var unitTarget = target.ToUnit();
+		var unitTarget = target.AsUnit;
 
 		if (unitTarget == null || eventInfo.SpellInfo.IsPositive)
 			return false;

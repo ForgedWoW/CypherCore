@@ -793,7 +793,7 @@ public class AreaTrigger : WorldObject
 		// Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
 		foreach (var unit in enteringUnits)
 		{
-			var player = unit.ToPlayer();
+			var player = unit.AsPlayer;
 
 			if (player)
 			{
@@ -813,7 +813,7 @@ public class AreaTrigger : WorldObject
 
 			if (leavingUnit)
 			{
-				var player = leavingUnit.ToPlayer();
+				var player = leavingUnit.AsPlayer;
 
 				if (player)
 				{
@@ -1190,7 +1190,7 @@ public class AreaTrigger : WorldObject
 
 		if (caster)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player)
 				if (player.IsDebugAreaTriggers)

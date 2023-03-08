@@ -58,7 +58,7 @@ namespace Game
         void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
         {
             Unit mover = Player.GetUnitBeingMoved();
-            Player plrMover = mover.ToPlayer();
+            Player plrMover = mover.AsPlayer;
 
             if (plrMover && plrMover.IsBeingTeleported)
                 return;
@@ -439,7 +439,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.MoveTeleportAck, Processing = PacketProcessing.ThreadSafe)]
         void HandleMoveTeleportAck(MoveTeleportAck packet)
         {
-            Player plMover = Player.GetUnitBeingMoved().ToPlayer();
+            Player plMover = Player.GetUnitBeingMoved().AsPlayer;
 
             if (!plMover || !plMover.IsBeingTeleportedNear)
                 return;

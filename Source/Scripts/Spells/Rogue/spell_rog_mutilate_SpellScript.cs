@@ -22,17 +22,17 @@ public class spell_rog_mutilate_SpellScript : SpellScript, IHasSpellEffects
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (target == null || caster == null)
 			return;
 
 		if (caster.HasAura(5374) || caster.HasAura(27576))
-			caster.ToPlayer().ModifyPower(PowerType.ComboPoints, 1);
+			caster.			AsPlayer.ModifyPower(PowerType.ComboPoints, 1);
 
 		if (caster.HasAura(14190))
-			caster.ToPlayer().ModifyPower(PowerType.ComboPoints, 2);
+			caster.			AsPlayer.ModifyPower(PowerType.ComboPoints, 2);
 
 		caster.ModifyPower(PowerType.ComboPoints, -3);
 	}

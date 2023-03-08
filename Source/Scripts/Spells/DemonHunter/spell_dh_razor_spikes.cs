@@ -30,7 +30,7 @@ public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
 			var caster = damageInfo.GetAttacker();
 			var target = damageInfo.GetVictim();
 
-			if (caster == null || target == null || !caster.ToPlayer())
+			if (caster == null || target == null || !caster.AsPlayer)
 				return false;
 
 			if (!caster.IsValidAttackTarget(target))

@@ -181,7 +181,7 @@ public class ChatPkt : ServerPacket
 	{
 		TargetGUID = receiver.GUID;
 
-		var creatureReceiver = receiver.ToCreature();
+		var creatureReceiver = receiver.AsCreature;
 
 		if (creatureReceiver)
 			TargetName = creatureReceiver.GetName(locale);
@@ -229,12 +229,12 @@ public class ChatPkt : ServerPacket
 	{
 		SenderGUID = sender.GUID;
 
-		var creatureSender = sender.ToCreature();
+		var creatureSender = sender.AsCreature;
 
 		if (creatureSender)
 			SenderName = creatureSender.GetName(locale);
 
-		var playerSender = sender.ToPlayer();
+		var playerSender = sender.AsPlayer;
 
 		if (playerSender)
 		{

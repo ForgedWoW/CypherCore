@@ -48,6 +48,6 @@ public class spell_warl_suffering : SpellScript, ISpellCheckCast, IHasSpellEffec
 			return;*/
 
 		pet.CastSpell(target, WarlockSpells.VOIDWALKER_SUFFERING, true);
-		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(10));
+		caster.		AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(10));
 	}
 }

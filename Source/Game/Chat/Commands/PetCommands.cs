@@ -46,7 +46,7 @@ namespace Game.Chat
             pet.SetLevel(player.Level - 1);
 
             // add to world
-            pet.GetMap().AddToMap(pet.ToCreature());
+            pet.GetMap().AddToMap(pet.AsCreature);
 
             // visual effect for levelup
             pet.SetLevel(player.Level);
@@ -147,9 +147,9 @@ namespace Game.Chat
             if (target)
             {
                 if (target.IsTypeId(TypeId.Player))
-                    return target.ToPlayer().GetPet();
+                    return target.AsPlayer.GetPet();
                 if (target.IsPet)
-                    return target.ToPet();
+                    return target.AsPet;
                 return null;
             }
 

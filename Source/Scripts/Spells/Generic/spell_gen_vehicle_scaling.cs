@@ -48,7 +48,7 @@ internal class spell_gen_vehicle_scaling : AuraScript, IHasAuraEffects
 				break;
 		}
 
-		var avgILvl = caster.ToPlayer().GetAverageItemLevel();
+		var avgILvl = caster.AsPlayer.GetAverageItemLevel();
 
 		if (avgILvl < baseItemLevel)
 			return; // @todo Research possibility of scaling down

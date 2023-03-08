@@ -15,14 +15,14 @@ public class spell_warr_raging_blow : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			player.CastSpell(player, WarriorSpells.ALLOW_RAGING_BLOW, true);
 
 		if (Caster.HasAura(WarriorSpells.BATTLE_TRANCE))
 		{
-			var target = Caster.ToPlayer().GetSelectedUnit();
+			var target = Caster.AsPlayer.GetSelectedUnit();
 			var targetGUID = target.GUID;
 			_targetHit++;
 

@@ -95,7 +95,7 @@ public partial class Player
 
 		// Delete any references to the refund data
 		item.SetNotRefundable(this, true, trans, false);
-		Session.		CollectionMgr.RemoveTemporaryAppearance(item);
+		Session.CollectionMgr.RemoveTemporaryAppearance(item);
 
 		// Destroy item
 		DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
@@ -857,7 +857,7 @@ public partial class Player
 			}
 
 			if (addToCollection)
-				Session.				CollectionMgr.OnItemAdded(item);
+				Session.CollectionMgr.OnItemAdded(item);
 
 			var childItemEntry = Global.DB2Mgr.GetItemChildEquipment(itemId);
 
@@ -3670,7 +3670,7 @@ public partial class Player
 			ItemRemovedQuestCheck(it.Entry, it.GetCount());
 			it.SetNotRefundable(this, false, null, false);
 			Item.RemoveItemFromUpdateQueueOf(it, this);
-			Session.			CollectionMgr.RemoveTemporaryAppearance(it);
+			Session.CollectionMgr.RemoveTemporaryAppearance(it);
 
 			if (it.IsInWorld)
 			{
@@ -6517,8 +6517,7 @@ public partial class Player
 				AddRefundReference(it.GUID);
 			}
 
-			Session.
-			CollectionMgr.OnItemAdded(it);
+			Session.CollectionMgr.OnItemAdded(it);
 		}
 
 		return true;
@@ -7442,7 +7441,7 @@ public partial class Player
 			pItem.SetBinding(true);
 
 			if (IsInWorld)
-				Session.				CollectionMgr.AddItemAppearance(pItem);
+				Session.CollectionMgr.AddItemAppearance(pItem);
 		}
 
 		Log.outDebug(LogFilter.Player, "STORAGE: EquipItem slot = {0}, item = {1}", slot, pItem.Entry);

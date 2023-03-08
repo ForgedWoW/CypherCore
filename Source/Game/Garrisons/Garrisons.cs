@@ -831,10 +831,10 @@ namespace Game.Garrisons
                 switch (spawn.TypeId)
                 {
                     case TypeId.Unit:
-                        spawn.ToCreature().SetHomePosition(pos);
+                        spawn.                        AsCreature.                        HomePosition = pos;
                         break;
                     case TypeId.GameObject:
-                        spawn.ToGameObject().RelocateStationaryPosition(pos);
+                        spawn.                        AsGameObject.RelocateStationaryPosition(pos);
                         break;
                 }
 

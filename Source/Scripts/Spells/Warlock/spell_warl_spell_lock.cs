@@ -48,6 +48,6 @@ public class spell_warl_spell_lock : SpellScript, ISpellCheckCast, IHasSpellEffe
 			return;*/
 
 		pet.CastSpell(target, WarlockSpells.FELHUNTER_LOCK, true);
-		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
+		caster.		AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

@@ -136,7 +136,7 @@ namespace Game
             uint pause = unit.MovementTemplate.GetInteractionPauseTimer();
             if (pause != 0)
                 unit.PauseMovement(pause);
-            unit.SetHomePosition(unit.Location);
+            unit.            HomePosition = unit.Location;
 
             // If spiritguide, no need for gossip menu, just put player into resurrect queue
             if (unit.IsSpiritGuide)
@@ -596,7 +596,7 @@ namespace Game
             uint pause = vendor.MovementTemplate.GetInteractionPauseTimer();
             if (pause != 0)
                 vendor.PauseMovement(pause);
-            vendor.SetHomePosition(vendor.Location);
+            vendor.            HomePosition = vendor.Location;
 
             VendorItemData vendorItems = vendor.VendorItems;
             int rawItemCount = vendorItems != null ? vendorItems.GetItemCount() : 0;

@@ -16,7 +16,7 @@ public class spell_paladin_exorcism : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

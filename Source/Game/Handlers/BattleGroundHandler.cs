@@ -28,7 +28,7 @@ namespace Game
             uint pause = unit.MovementTemplate.GetInteractionPauseTimer();
             if (pause != 0)
                 unit.PauseMovement(pause);
-            unit.SetHomePosition(unit.Location);
+            unit.            HomePosition = unit.Location;
 
             BattlegroundTypeId bgTypeId = Global.BattlegroundMgr.GetBattleMasterBG(unit.Entry);
 

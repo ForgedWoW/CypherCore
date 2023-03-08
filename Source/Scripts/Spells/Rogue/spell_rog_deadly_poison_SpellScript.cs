@@ -20,7 +20,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 		if (_stackAmount < 5)
 			return;
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (target != null)

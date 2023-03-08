@@ -44,7 +44,7 @@ public class spell_dh_soul_cleave_damage : SpellScript, IHasSpellEffects, ISpell
 		HitDamage = dmg;
 
 		caster.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
-		caster.ToPlayer().SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
+		caster.		AsPlayer.SetPower(PowerType.Pain, caster.GetPower(PowerType.Pain) - m_ExtraSpellCost);
 
 		if (caster.HasAura(DemonHunterSpells.GLUTTONY_BUFF))
 			caster.RemoveAura(DemonHunterSpells.GLUTTONY_BUFF);

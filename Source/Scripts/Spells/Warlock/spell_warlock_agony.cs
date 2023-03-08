@@ -35,7 +35,7 @@ public class spell_warlock_agony : AuraScript, IHasAuraEffects
 		{
 			soulShardAgonyTick = RandomHelper.FRand(0.0f, 99.0f);
 
-			var player = Caster.ToPlayer();
+			var player = Caster.AsPlayer;
 
 			if (player != null)
 				if (player.GetPower(PowerType.SoulShards) < player.GetMaxPower(PowerType.SoulShards))

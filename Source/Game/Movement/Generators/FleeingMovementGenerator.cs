@@ -211,7 +211,7 @@ namespace Game.Movement
             if (_totalFleeTime.Passed())
                 return false;
 
-            return DoUpdate(owner.ToCreature(), diff);
+            return DoUpdate(owner.AsCreature, diff);
         }
 
         public override void Finalize(Unit owner, bool active, bool movementInform)
@@ -227,13 +227,13 @@ namespace Game.Movement
                 if (owner.IsAlive)
                 {
                     owner.AttackStop();
-                    owner.ToCreature().GetAI().AttackStart(victim);
+                    owner.                    AsCreature.GetAI().AttackStart(victim);
                 }
             }
 
             if (movementInform)
             {
-                Creature ownerCreature = owner.ToCreature();
+                Creature ownerCreature = owner.AsCreature;
                 CreatureAI ai = ownerCreature != null ? ownerCreature.GetAI() : null;
                 if (ai != null)
                     ai.MovementInform(MovementGeneratorType.TimedFleeing, 0);

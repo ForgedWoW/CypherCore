@@ -174,7 +174,7 @@ namespace Game
                                 if (pet.GetVictim())
                                     pet.AttackStop();
 
-                                if (!pet.IsTypeId(TypeId.Player) && pet.ToCreature().IsAIEnabled)
+                                if (!pet.IsTypeId(TypeId.Player) && pet.AsCreature.IsAIEnabled)
                                 {
                                     charmInfo.SetIsCommandAttack(true);
                                     charmInfo.SetIsAtStay(false);
@@ -182,14 +182,14 @@ namespace Game
                                     charmInfo.SetIsCommandFollow(false);
                                     charmInfo.SetIsReturning(false);
 
-                                    CreatureAI AI = pet.ToCreature().GetAI();
+                                    CreatureAI AI = pet.AsCreature.GetAI();
                                     if (AI is PetAI)
                                         ((PetAI)AI)._AttackStart(TargetUnit); // force target switch
                                     else
                                         AI.AttackStart(TargetUnit);
 
                                     //10% chance to play special pet attack talk, else growl
-                                    if (pet.IsPet && pet.ToPet().GetPetType() == PetType.Summon && pet != TargetUnit && RandomHelper.IRand(0, 100) < 10)
+                                    if (pet.IsPet && pet.AsPet.GetPetType() == PetType.Summon && pet != TargetUnit && RandomHelper.IRand(0, 100) < 10)
                                         pet.SendPetTalk(PetTalk.Attack);
                                     else
                                     {
@@ -219,10 +219,10 @@ namespace Game
                                 Cypher.Assert(pet.IsTypeId(TypeId.Unit));
                                 if (pet.IsPet)
                                 {
-                                    if (pet.ToPet().GetPetType() == PetType.Hunter)
-                                        Player.RemovePet(pet.ToPet(), PetSaveMode.AsDeleted);
+                                    if (pet.AsPet.GetPetType() == PetType.Hunter)
+                                        Player.RemovePet(pet.AsPet, PetSaveMode.AsDeleted);
                                     else
-                                        Player.RemovePet(pet.ToPet(), PetSaveMode.NotInSlot);
+                                        Player.RemovePet(pet.AsPet, PetSaveMode.NotInSlot);
                                 }
                                 else if (pet.HasUnitTypeMask(UnitTypeMask.Minion))
                                 {
@@ -256,7 +256,7 @@ namespace Game
                         case ReactStates.Defensive: //recovery
                         case ReactStates.Aggressive: //activete
                             if (pet.IsTypeId(TypeId.Unit))
-                                pet.ToCreature().                                ReactState = (ReactStates)spellid;
+                                pet.                                AsCreature.                                ReactState = (ReactStates)spellid;
                             break;
                     }
                     break;
@@ -309,7 +309,7 @@ namespace Game
                         {
                             if (!pet.HasSpellFocus())
                                 pet.SetInFront(unit_target);
-                            Player player = unit_target.ToPlayer();
+                            Player player = unit_target.AsPlayer;
                             if (player)
                                 pet.SendUpdateToPlayer(player);
                         }
@@ -317,14 +317,14 @@ namespace Game
                         {
                             if (!pet.HasSpellFocus())
                                 pet.SetInFront(unit_target2);
-                            Player player = unit_target2.ToPlayer();
+                            Player player = unit_target2.AsPlayer;
                             if (player)
                                 pet.SendUpdateToPlayer(player);
                         }
                         Unit powner = pet.CharmerOrOwner;
                         if (powner)
                         {
-                            Player player = powner.ToPlayer();
+                            Player player = powner.AsPlayer;
                             if (player)
                                 pet.SendUpdateToPlayer(player);
                         }
@@ -338,7 +338,7 @@ namespace Game
 
                         //10% chance to play special pet attack talk, else growl
                         //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                        if (pet.IsPet && (pet.ToPet().GetPetType() == PetType.Summon) && (pet != unit_target) && (RandomHelper.IRand(0, 100) < 10))
+                        if (pet.IsPet && (pet.AsPet.GetPetType() == PetType.Summon) && (pet != unit_target) && (RandomHelper.IRand(0, 100) < 10))
                             pet.SendPetTalk(PetTalk.SpecialSpell);
                         else
                         {
@@ -350,7 +350,7 @@ namespace Game
                             // This is true if pet has no target or has target but targets differs.
                             if (pet.GetVictim() != unit_target)
                             {
-                                CreatureAI ai = pet.ToCreature().GetAI();
+                                CreatureAI ai = pet.AsCreature.GetAI();
                                 if (ai != null)
                                 {
                                     PetAI petAI = (PetAI)ai;
@@ -407,7 +407,7 @@ namespace Game
                 response.Timestamp = unit.UnitData.PetNameTimestamp;
                 response.Name = unit.GetName();
 
-                Pet pet = unit.ToPet();
+                Pet pet = unit.AsPet;
                 if (pet)
                 {
                     DeclinedName names = pet.GetDeclinedNames();
@@ -500,7 +500,7 @@ namespace Game
                         else if (act_state == ActiveStates.Disabled)
                         {
                             if (petControlled.TypeId == TypeId.Unit && petControlled.IsPet)
-                                petControlled.ToPet().ToggleAutocast(spellInfo, false);
+                                petControlled.                                AsPet.ToggleAutocast(spellInfo, false);
                             else
                             {
                                 foreach (var unit in Player.Controlled)
@@ -525,7 +525,7 @@ namespace Game
             PetStable petStable = _player.GetPetStable();
             Pet pet = ObjectAccessor.GetPet(Player, petguid);
             // check it!
-            if (!pet || !pet.IsPet || pet.ToPet().GetPetType() != PetType.Hunter || !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
+            if (!pet || !pet.IsPet || pet.AsPet.GetPetType() != PetType.Hunter || !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
                 pet.                OwnerGUID != _player.GUID || pet.GetCharmInfo() == null ||
                 petStable == null || petStable.GetCurrentPet() == null || petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
                 return;
@@ -587,7 +587,7 @@ namespace Game
 
             // pet/charmed
             Creature pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.Pet);
-            if (pet && pet.ToPet() && pet.ToPet().GetPetType() == PetType.Hunter)
+            if (pet && pet.AsPet && pet.AsPet.GetPetType() == PetType.Hunter)
             {
                 _player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
             }
@@ -636,7 +636,7 @@ namespace Game
                 }
 
                 if (petControlled.IsPet)
-                    petControlled.ToPet().ToggleAutocast(spellInfo, packet.AutocastEnabled);
+                    petControlled.                    AsPet.ToggleAutocast(spellInfo, packet.AutocastEnabled);
                 else
                     charmInfo.ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
 
@@ -701,10 +701,10 @@ namespace Game
 
             if (result == SpellCastResult.SpellCastOk)
             {
-                Creature creature = caster.ToCreature();
+                Creature creature = caster.AsCreature;
                 if (creature)
                 {
-                    Pet pet = creature.ToPet();
+                    Pet pet = creature.AsPet;
                     if (pet)
                     {
                         // 10% chance to play special pet attack talk, else growl

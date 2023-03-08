@@ -38,7 +38,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 		if (caster == null)
 			return null;
 
-		return caster.ToPlayer();
+		return caster.AsPlayer;
 	}
 
 	public double GetPointsGained(Player caster, double damage)

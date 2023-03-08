@@ -42,7 +42,9 @@ internal class spell_item_worn_troll_dice : SpellScript, IHasSpellEffects
 		uint maximum = 6;
 
 		// roll twice
-		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
-		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
+		Caster.
+		// roll twice
+		AsPlayer.DoRandomRoll(minimum, maximum);
+		Caster.		AsPlayer.DoRandomRoll(minimum, maximum);
 	}
 }

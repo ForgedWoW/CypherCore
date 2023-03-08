@@ -23,7 +23,7 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;
@@ -40,13 +40,13 @@ public class spell_pri_smite : SpellScript, IHasSpellEffects, ISpellAfterCast
 
 	private void HandleHit(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (caster == null || target == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		var dmg = HitDamage;

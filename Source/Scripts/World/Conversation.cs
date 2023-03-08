@@ -18,7 +18,7 @@ internal class conversation_allied_race_dk_defender_of_azeroth : ScriptObjectAut
 
 	public void OnConversationCreate(Conversation conversation, Unit creator)
 	{
-		var player = creator.ToPlayer();
+		var player = creator.AsPlayer;
 
 		player?.KilledMonsterCredit(NpcTalkToYourCommanderCredit);
 	}

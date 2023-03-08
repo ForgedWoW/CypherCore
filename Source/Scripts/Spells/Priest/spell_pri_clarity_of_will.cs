@@ -26,7 +26,7 @@ public class spell_pri_clarity_of_will : AuraScript, IHasAuraEffects
 
 		if (caster != null)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 			{

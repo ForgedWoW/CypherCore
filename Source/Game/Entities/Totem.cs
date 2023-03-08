@@ -46,7 +46,7 @@ public class Totem : Minion
 	public override void InitStats(uint duration)
 	{
 		// client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-		var owner = GetOwner().ToPlayer();
+		var owner = GetOwner().AsPlayer;
 
 		if (owner)
 		{
@@ -57,7 +57,7 @@ public class Totem : Minion
 				packet.Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem);
 				packet.Duration = duration;
 				packet.SpellID = UnitData.CreatedBySpell;
-				owner.ToPlayer().SendPacket(packet);
+				owner.AsPlayer.SendPacket(packet);
 			}
 
 			// set display id depending on caster's race
@@ -120,7 +120,7 @@ public class Totem : Minion
 		GetOwner().RemoveAurasDueToSpell(GetSpell(), GUID);
 
 		// remove aura all party members too
-		var owner = GetOwner().ToPlayer();
+		var owner = GetOwner().AsPlayer;
 
 		if (owner != null)
 		{

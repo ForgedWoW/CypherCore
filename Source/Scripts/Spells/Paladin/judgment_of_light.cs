@@ -17,7 +17,7 @@ public class judgment_of_light : ScriptObjectAutoAdd, IUnitOnDamage
 
 	public void OnDamage(Unit caster, Unit target, ref double damage)
 	{
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player != null)
 			if (player.Class != Class.Paladin)

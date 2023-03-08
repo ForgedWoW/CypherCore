@@ -32,7 +32,7 @@ internal class spell_dru_travel_form_dummy_AuraScript : AuraScript, IHasAuraEffe
 
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		// Outdoor check already passed - Travel Form (dummy) has ATTR0_OUTDOORS_ONLY attribute.
 		var triggeredSpellId = spell_dru_travel_form_AuraScript.GetFormSpellId(player, CastDifficulty, false);

@@ -11,7 +11,7 @@ public class spell_dk_chilblains : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

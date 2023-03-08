@@ -23,10 +23,10 @@ public class WorldObjectSpellAreaTargetCheck : WorldObjectSpellTargetCheck
 
 	public override bool Invoke(WorldObject target)
 	{
-		if (target.ToGameObject())
+		if (target.AsGameObject)
 		{
 			// isInRange including the dimension of the GO
-			var isInRange = target.ToGameObject().IsInRange(_position.X, _position.Y, _position.Z, _range);
+			var isInRange = target.AsGameObject.IsInRange(_position.X, _position.Y, _position.Z, _range);
 
 			if (!isInRange)
 				return false;

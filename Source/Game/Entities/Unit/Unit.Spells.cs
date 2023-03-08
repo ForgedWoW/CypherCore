@@ -37,7 +37,7 @@ public partial class Unit
 
 	public double SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 	{
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer)
 		{
@@ -52,7 +52,7 @@ public partial class Unit
 		if (IsTypeId(TypeId.Player))
 		{
 			// Base value
-			DoneAdvertisedBenefit += (int)ToPlayer().GetBaseSpellPowerBonus();
+			DoneAdvertisedBenefit += (int)AsPlayer.GetBaseSpellPowerBonus();
 
 			// Check if we are ever using mana - PaperDollFrame.lua
 			if (GetPowerIndex(PowerType.Mana) != (uint)PowerType.Max)
@@ -193,7 +193,7 @@ public partial class Unit
 
 		// Pet damage?
 		if (IsTypeId(TypeId.Unit) && !IsPet)
-			DoneTotalMod *= ToCreature().GetSpellDamageMod(ToCreature().CreatureTemplate.Rank);
+			DoneTotalMod *= AsCreature.GetSpellDamageMod(AsCreature.CreatureTemplate.Rank);
 
 		// Versatility
 		var modOwner = GetSpellModOwner();
@@ -202,7 +202,7 @@ public partial class Unit
 			MathFunctions.AddPct(ref DoneTotalMod, modOwner.GetRatingBonusValue(CombatRating.VersatilityDamageDone) + modOwner.GetTotalAuraModifier(AuraType.ModVersatility));
 
 		double maxModDamagePercentSchool = 0.0f;
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer)
 		{
@@ -335,7 +335,7 @@ public partial class Unit
 
 	public double SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
 	{
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 		{
@@ -358,7 +358,7 @@ public partial class Unit
 		if (IsTypeId(TypeId.Player))
 		{
 			// Base value
-			advertisedBenefit += ToPlayer().GetBaseSpellPowerBonus();
+			advertisedBenefit += AsPlayer.GetBaseSpellPowerBonus();
 
 			// Check if we are ever using mana - PaperDollFrame.lua
 			if (GetPowerIndex(PowerType.Mana) != (uint)PowerType.Max)
@@ -534,7 +534,7 @@ public partial class Unit
 		if (spellProto.SpellFamilyName == SpellFamilyNames.Potion)
 			return 1.0f;
 
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 		{
@@ -645,7 +645,7 @@ public partial class Unit
 					crit_chance = 0.0f;
 				// For other schools
 				else if (IsTypeId(TypeId.Player))
-					crit_chance = ToPlayer().ActivePlayerData.SpellCritPercentage;
+					crit_chance = AsPlayer.ActivePlayerData.SpellCritPercentage;
 				else
 					crit_chance = BaseSpellCritChance;
 
@@ -1888,7 +1888,7 @@ public partial class Unit
 
 		if (unit)
 		{
-			var bgPlayer = unit.ToPlayer();
+			var bgPlayer = unit.AsPlayer;
 
 			if (bgPlayer != null)
 			{
@@ -1905,7 +1905,7 @@ public partial class Unit
 			}
 		}
 
-		var player = victim.ToPlayer();
+		var player = victim.AsPlayer;
 
 		if (player != null)
 		{
@@ -2095,7 +2095,7 @@ public partial class Unit
 		if (victim == null)
 			return;
 
-		if (!victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks))
+		if (!victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks))
 			return;
 
 		if (damageInfo.Spell == null)
@@ -2309,7 +2309,7 @@ public partial class Unit
 		switch (group)
 		{
 			case DiminishingGroup.Taunt:
-				if (IsTypeId(TypeId.Unit) && ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.ObeysTauntDiminishingReturns))
+				if (IsTypeId(TypeId.Unit) && AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.ObeysTauntDiminishingReturns))
 				{
 					var diminish = previousLevel;
 
@@ -2446,7 +2446,7 @@ public partial class Unit
 			// send autorepeat cancel message for autorepeat spells
 			if (spellType == CurrentSpellTypes.AutoRepeat)
 				if (IsTypeId(TypeId.Player))
-					ToPlayer().SendAutoRepeatCancel(this);
+					AsPlayer.SendAutoRepeatCancel(this);
 
 			if (spell.State != SpellState.Finished)
 			{
@@ -2459,7 +2459,7 @@ public partial class Unit
 			}
 
 			if (IsCreature && IsAIEnabled)
-				ToCreature().GetAI().OnSpellFailed(spell.SpellInfo);
+				AsCreature.GetAI().OnSpellFailed(spell.SpellInfo);
 		}
 	}
 
@@ -2671,7 +2671,7 @@ public partial class Unit
 			spellClickHandled = true;
 		}
 
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		if (creature && creature.IsAIEnabled)
 			creature.GetAI().OnSpellClick(clicker, ref spellClickHandled);
@@ -2993,7 +2993,7 @@ public partial class Unit
 			// Cast duration to unsigned to prevent permanent aura's such as Righteous Fury being permanently added to caster
 			var dur = (uint)Math.Min(2u * Time.Minute * Time.InMilliseconds, aura.Duration);
 
-			var unitStealer = stealer.ToUnit();
+			var unitStealer = stealer.AsUnit;
 
 			if (unitStealer != null)
 			{
@@ -3428,7 +3428,7 @@ public partial class Unit
 
 				if (IsTypeId(TypeId.Player))
 				{
-					var sp_list = ToPlayer().GetSpellMap();
+					var sp_list = AsPlayer.GetSpellMap();
 
 					foreach (var spell in sp_list)
 					{
@@ -3446,7 +3446,7 @@ public partial class Unit
 				}
 				else if (IsPet)
 				{
-					var pet = ToPet();
+					var pet = AsPet;
 
 					foreach (var spell in pet.Spells)
 					{
@@ -3625,7 +3625,7 @@ public partial class Unit
 
 		aura.HandleAuraSpecificMods(aurApp, caster, false, false);
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 			if (Global.ConditionMgr.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
@@ -3847,7 +3847,7 @@ public partial class Unit
 			if (Convert.ToBoolean(effMask & 1 << effect.Key) && !(aurApp.HasRemoveMode))
 				aurApp._HandleEffect(effect.Key, true);
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 			if (Global.ConditionMgr.IsSpellUsedInSpellClickConditions(aurApp.Base.Id))
@@ -4312,7 +4312,7 @@ public partial class Unit
 	void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
 	{
 		// Player is loaded now - do not allow passive spell casts to proc
-		if (IsPlayer && ToPlayer().Session.PlayerLoading)
+		if (IsPlayer && AsPlayer.Session.PlayerLoading)
 			return;
 
 		// For melee/ranged based attack need update skills and set some Aura states if victim present
@@ -4637,7 +4637,7 @@ public partial class Unit
 
 	void UpdateAuraForGroup()
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 		{
@@ -4646,7 +4646,7 @@ public partial class Unit
 		}
 		else if (IsPet)
 		{
-			var pet = ToPet();
+			var pet = AsPet;
 
 			if (pet.IsControlled())
 				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.Auras);

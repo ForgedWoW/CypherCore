@@ -36,7 +36,7 @@ internal class spell_dru_rip : AuraScript, IHasAuraEffects
 		if (caster != null)
 		{
 			// 0.01 * $AP * cp
-			var cp = (byte)caster.ToPlayer().GetComboPoints();
+			var cp = (byte)caster.AsPlayer.GetComboPoints();
 
 			// Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
 			var idol = caster.GetAuraEffect(DruidSpellIds.IdolOfFeralShadows, 0);

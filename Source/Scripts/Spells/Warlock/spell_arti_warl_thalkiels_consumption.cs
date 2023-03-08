@@ -37,10 +37,10 @@ public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffec
 			if (!target.IsCreature)
 				return true;
 
-			if (!target.ToCreature().IsPet || target.ToCreature().ToPet().GetOwner() != Caster)
+			if (!target.AsCreature.IsPet || target.AsCreature.AsPet.GetOwner() != Caster)
 				return true;
 
-			if (target.ToCreature().CreatureType != CreatureType.Demon)
+			if (target.AsCreature.CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;
@@ -49,7 +49,7 @@ public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffec
 		var basePoints = SpellInfo.GetEffect(1).BasePoints;
 
 		foreach (var pet in targets)
-			_damage += (int)pet.ToUnit().CountPctFromMaxHealth(basePoints);
+			_damage += (int)pet.AsUnit.CountPctFromMaxHealth(basePoints);
 	}
 
 	public override void Register()

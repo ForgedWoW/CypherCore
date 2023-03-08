@@ -89,7 +89,7 @@ namespace Game.Movement
             if (_arrivalSpellId != 0)
                 owner.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
 
-            Creature creature = owner.ToCreature();
+            Creature creature = owner.AsCreature;
             if (creature != null && creature.GetAI() != null)
                 creature.GetAI().MovementInform(_type, _pointId);
         }

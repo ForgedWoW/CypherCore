@@ -121,7 +121,7 @@ namespace Game.Movement
             AddFlag(MovementGeneratorFlags.Finalized);
 
             if (movementInform && owner.IsCreature)
-                owner.ToCreature().GetAI().MovementInform(MovementGeneratorType.Rotate, _id);
+                owner.                AsCreature.GetAI().MovementInform(MovementGeneratorType.Rotate, _id);
         }
 
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Rotate; }
@@ -197,7 +197,7 @@ namespace Game.Movement
             // If this is a creature, then return orientation to original position (for idle movement creatures)
             if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
             {
-                float angle = owner.ToCreature().GetHomePosition().Orientation;
+                float angle = owner.AsCreature.HomePosition.Orientation;
                 owner.SetFacingTo(angle);
             }
         }
@@ -218,7 +218,7 @@ namespace Game.Movement
         public override void Finalize(Unit owner, bool active, bool movementInform)
         {
             owner.ClearUnitState(UnitState.Distracted);
-            owner.ToCreature().            ReactState = ReactStates.Aggressive;
+            owner.            AsCreature.            ReactState = ReactStates.Aggressive;
         }
 
         public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.AssistanceDistract; }

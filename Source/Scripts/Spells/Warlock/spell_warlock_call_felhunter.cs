@@ -15,10 +15,10 @@ public class spell_warlock_call_felhunter : SpellScript, ISpellCheckCast
 	{
 		var caster = Caster;
 
-		if (caster == null || !caster.ToPlayer())
+		if (caster == null || !caster.AsPlayer)
 			return SpellCastResult.BadTargets;
 
-		if (caster.ToPlayer().GetPet() && caster.ToPlayer().GetPet().Entry == 417)
+		if (caster.AsPlayer.GetPet() && caster.AsPlayer.GetPet().Entry == 417)
 			return SpellCastResult.CantDoThatRightNow;
 
 		return SpellCastResult.SpellCastOk;

@@ -17,7 +17,7 @@ internal class spell_sha_flametongue_weapon : SpellScript, ISpellOnCast, ISpellC
 
 	public SpellCastResult CheckCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var slot = EquipmentSlot.MainHand;
 
 		if (player.GetPrimarySpecialization() == TalentSpecialization.ShamanEnhancement)

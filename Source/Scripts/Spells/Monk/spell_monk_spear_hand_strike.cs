@@ -12,7 +12,7 @@ public class spell_monk_spear_hand_strike : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

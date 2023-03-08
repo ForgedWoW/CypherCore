@@ -453,7 +453,7 @@ internal class go_soulwell : GameObjectAI
 
 		if (!owner ||
 			!owner.IsTypeId(TypeId.Player) ||
-			!player.IsInSameRaidWith(owner.ToPlayer()))
+			!player.IsInSameRaidWith(owner.AsPlayer))
 			return true;
 
 		return false;

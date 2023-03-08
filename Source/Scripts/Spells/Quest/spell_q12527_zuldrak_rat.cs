@@ -32,7 +32,7 @@ internal class spell_q12527_zuldrak_rat : SpellScript, IHasSpellEffects
 			GetHitAura().StackAmount >= SpellInfo.StackAmount)
 		{
 			HitUnit.CastSpell((Unit)null, QuestSpellIds.SummonGorgedLurkingBasilisk, true);
-			var basilisk = HitUnit.ToCreature();
+			var basilisk = HitUnit.AsCreature;
 
 			if (basilisk)
 				basilisk.DespawnOrUnsummon();

@@ -40,14 +40,14 @@ public partial class Unit
 				if (charmer != null)
 				{
 					// first, we check if the creature's own AI specifies an override playerai for its owned players
-					var creatureCharmer = charmer.ToCreature();
+					var creatureCharmer = charmer.AsCreature;
 
 					if (creatureCharmer != null)
 					{
 						var charmerAI = creatureCharmer.GetAI();
 
 						if (charmerAI != null)
-							newAI = charmerAI.GetAIForCharmedPlayer(ToPlayer());
+							newAI = charmerAI.GetAIForCharmedPlayer(AsPlayer);
 					}
 					else
 					{
@@ -56,16 +56,16 @@ public partial class Unit
 				}
 
 				if (newAI == null) // otherwise, we default to the generic one
-					newAI = new SimpleCharmedPlayerAI(ToPlayer());
+					newAI = new SimpleCharmedPlayerAI(AsPlayer);
 			}
 			else
 			{
 				Cypher.Assert(IsCreature);
 
 				if (IsPossessed || IsVehicle)
-					newAI = new PossessedAI(ToCreature());
+					newAI = new PossessedAI(AsCreature);
 				else
-					newAI = new PetAI(ToCreature());
+					newAI = new PetAI(AsCreature);
 			}
 
 			Cypher.Assert(newAI != null);
@@ -125,7 +125,7 @@ public partial class Unit
 					if (oldPet != minion && (oldPet.IsPet || minion.IsPet || oldPet.Entry != minion.Entry))
 					{
 						// remove existing minion pet
-						var oldPetAsPet = oldPet.ToPet();
+						var oldPetAsPet = oldPet.AsPet;
 
 						if (oldPetAsPet != null)
 							oldPetAsPet.Remove(PetSaveMode.NotInSlot);
@@ -152,7 +152,7 @@ public partial class Unit
 			if (properties != null && properties.Title == SummonTitle.Companion)
 			{
 				CritterGUID = minion.GUID;
-				var thisPlayer = ToPlayer();
+				var thisPlayer = AsPlayer;
 
 				if (thisPlayer != null)
 					if (properties.GetFlags().HasFlag(SummonPropertiesFlags.SummonFromBattlePetJournal))
@@ -258,9 +258,9 @@ public partial class Unit
 					if (TypeId == TypeId.Player && CharmedGUID.IsEmpty)
 					{
 						if (unit.IsPet)
-							ToPlayer().PetSpellInitialize();
+							AsPlayer.PetSpellInitialize();
 						else
-							ToPlayer().CharmSpellInitialize();
+							AsPlayer.CharmSpellInitialize();
 					}
 
 					break;
@@ -295,7 +295,7 @@ public partial class Unit
 			return false;
 		}
 
-		if (IsPlayer && ToPlayer().Transport != null)
+		if (IsPlayer && AsPlayer.Transport != null)
 		{
 			Log.outFatal(LogFilter.Unit, "Unit:SetCharmedBy: Player on transport is trying to charm {0} (GUID {1})", Entry, GUID.ToString());
 
@@ -313,7 +313,7 @@ public partial class Unit
 		CastStop();
 		AttackStop();
 
-		var playerCharmer = charmer.ToPlayer();
+		var playerCharmer = charmer.AsPlayer;
 
 		// Charmer stop charming
 		if (playerCharmer)
@@ -325,8 +325,8 @@ public partial class Unit
 		// Charmed stop charming
 		if (IsTypeId(TypeId.Player))
 		{
-			ToPlayer().StopCastingCharm();
-			ToPlayer().StopCastingBindSight();
+			AsPlayer.StopCastingCharm();
+			AsPlayer.StopCastingBindSight();
 		}
 
 		// StopCastingCharm may remove a possessed pet?
@@ -360,7 +360,7 @@ public partial class Unit
 		// Set charmed
 		charmer.SetCharm(this, true);
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player)
 		{
@@ -413,7 +413,7 @@ public partial class Unit
 				case CharmType.Charm:
 					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
 					{
-						var cinfo = ToCreature().CreatureTemplate;
+						var cinfo = AsCreature.CreatureTemplate;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{
@@ -439,7 +439,7 @@ public partial class Unit
 
 		AddUnitState(UnitState.Charmed);
 
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		if (creature != null)
 			creature.RefreshCanSwimFlag();
@@ -505,7 +505,7 @@ public partial class Unit
 		charmer.SetCharm(this, false);
 		_combatManager.RevalidateCombat();
 
-		var playerCharmer = charmer.ToPlayer();
+		var playerCharmer = charmer.AsPlayer;
 
 		if (playerCharmer)
 			switch (type)
@@ -527,7 +527,7 @@ public partial class Unit
 				case CharmType.Charm:
 					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
 					{
-						var cinfo = ToCreature().CreatureTemplate;
+						var cinfo = AsCreature.CreatureTemplate;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{
@@ -545,7 +545,7 @@ public partial class Unit
 					break;
 			}
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 			player.SetClientControl(this, true);
@@ -588,7 +588,7 @@ public partial class Unit
 		{
 			var unit = Controlled[i];
 
-			if (unit.Entry == entry && unit.IsTypeId(TypeId.Unit) && unit.ToCreature().IsSummon) // minion, actually
+			if (unit.Entry == entry && unit.IsTypeId(TypeId.Unit) && unit.AsCreature.IsSummon) // minion, actually
 				unit.ToTempSummon().UnSummon();
 			// i think this is safe because i have never heard that a despawned minion will trigger a same minion
 		}
@@ -649,7 +649,7 @@ public partial class Unit
 			{
 				charm.ControlledByPlayer = true;
 				charm.SetUnitFlag(UnitFlags.PlayerControlled);
-				charm.ToPlayer().UpdatePvPState();
+				charm.AsPlayer.UpdatePvPState();
 			}
 			else if (player)
 			{
@@ -667,7 +667,7 @@ public partial class Unit
 			if (charm.IsWalking() != _isWalkingBeforeCharm)
 				charm.SetWalk(_isWalkingBeforeCharm);
 
-			if (charm.IsTypeId(TypeId.Player) || !charm.ToCreature().HasUnitTypeMask(UnitTypeMask.Minion) || charm.OwnerGUID != GUID)
+			if (charm.IsTypeId(TypeId.Player) || !charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Minion) || charm.OwnerGUID != GUID)
 				Controlled.Remove(charm);
 		}
 
@@ -702,7 +702,7 @@ public partial class Unit
 	{
 		// possessed pet and vehicle
 		if (IsTypeId(TypeId.Player))
-			ToPlayer().StopCastingCharm();
+			AsPlayer.StopCastingCharm();
 
 		while (!Controlled.Empty())
 		{
@@ -740,7 +740,7 @@ public partial class Unit
 		PetActionFeedbackPacket petActionFeedback = new();
 		petActionFeedback.SpellID = spellId;
 		petActionFeedback.Response = msg;
-		owner.ToPlayer().SendPacket(petActionFeedback);
+		owner.AsPlayer.SendPacket(petActionFeedback);
 	}
 
 	public void SendPetTalk(PetTalk pettalk)
@@ -753,7 +753,7 @@ public partial class Unit
 		PetActionSound petActionSound = new();
 		petActionSound.UnitGUID = GUID;
 		petActionSound.Action = pettalk;
-		owner.ToPlayer().SendPacket(petActionSound);
+		owner.AsPlayer.SendPacket(petActionSound);
 	}
 
 	public void SendPetAIReaction(ObjectGuid guid)
@@ -767,7 +767,7 @@ public partial class Unit
 		packet.UnitGUID = guid;
 		packet.Reaction = AiReaction.Hostile;
 
-		owner.ToPlayer().SendPacket(packet);
+		owner.AsPlayer.SendPacket(packet);
 	}
 
 	public Pet CreateTamedPetFrom(Creature creatureTarget, uint spell_id = 0)
@@ -775,7 +775,7 @@ public partial class Unit
 		if (!IsTypeId(TypeId.Player))
 			return null;
 
-		Pet pet = new(ToPlayer(), PetType.Hunter);
+		Pet pet = new(AsPlayer, PetType.Hunter);
 
 		if (!pet.CreateBaseAtCreature(creatureTarget))
 			return null;
@@ -802,7 +802,7 @@ public partial class Unit
 		if (creatureInfo == null)
 			return null;
 
-		Pet pet = new(ToPlayer(), PetType.Hunter);
+		Pet pet = new(AsPlayer, PetType.Hunter);
 
 		if (!pet.CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, Level, spell_id))
 			return null;
@@ -841,7 +841,7 @@ public partial class Unit
 
 	bool InitTamedPet(Pet pet, uint level, uint spell_id)
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 		var petStable = player.PetStable;
 
 		var freeActiveSlot = Array.FindIndex(petStable.ActivePets, petInfo => petInfo == null);

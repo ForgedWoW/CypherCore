@@ -18,7 +18,7 @@ public class spell_monk_jade_serpent_statue : SpellScript, ISpellOnCast
 		if (caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player == null)
 			return;

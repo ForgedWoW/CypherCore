@@ -17,7 +17,7 @@ public class spell_warr_wirlwind_dmg : SpellScript, IHasSpellEffects
 
 	public void HandleOnHitTarget(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster != null)
 			if (caster.HasAura(202316)) // Fervor of Battle

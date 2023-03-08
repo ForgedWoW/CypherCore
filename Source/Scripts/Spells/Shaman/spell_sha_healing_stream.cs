@@ -24,7 +24,7 @@ public class spell_sha_healing_stream : SpellScript, ISpellOnHit
 		if (!Caster.GetOwner())
 			return;
 
-		var _player = Caster.GetOwner().ToPlayer();
+		var _player = Caster.GetOwner().AsPlayer;
 
 		if (_player != null)
 		{

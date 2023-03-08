@@ -33,7 +33,7 @@ public class spell_pal_absolution : ScriptObjectAutoAdd, IPlayerOnSpellCast
 			foreach (var targets in allies)
 				if (targets.IsDead)
 				{
-					var playerTarget = targets.ToPlayer();
+					var playerTarget = targets.AsPlayer;
 
 					if (playerTarget != null)
 						playerTarget.ResurrectPlayer(0.35f, false);

@@ -22,7 +22,7 @@ public class UnitAuraCheck<T> : ICheck<T> where T : WorldObject
 
 	public bool Invoke(T obj)
 	{
-		return obj.ToUnit() && obj.ToUnit().HasAura(_spellId, _casterGUID) == _present;
+		return obj.AsUnit && obj.AsUnit.HasAura(_spellId, _casterGUID) == _present;
 	}
 
 	public static implicit operator Predicate<T>(UnitAuraCheck<T> unit)

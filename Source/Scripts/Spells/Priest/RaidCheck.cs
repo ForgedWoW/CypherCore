@@ -17,7 +17,7 @@ public class RaidCheck : ICheck<WorldObject>
 
 	public bool Invoke(WorldObject obj)
 	{
-		var target = obj.ToUnit();
+		var target = obj.AsUnit;
 
 		if (target != null)
 			return !_caster.IsInRaidWith(target);

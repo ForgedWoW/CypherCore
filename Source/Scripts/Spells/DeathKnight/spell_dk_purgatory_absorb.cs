@@ -35,10 +35,10 @@ public class spell_dk_purgatory_absorb : AuraScript, IHasAuraEffects
 			return absorbAmount;
 
 		// No damage received under Shroud of Purgatory
-		if (target.ToPlayer().HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
+		if (target.AsPlayer.HasAura(DeathKnightSpells.SHROUD_OF_PURGATORY))
 			return dmgInfo.GetDamage();
 
-		if (target.ToPlayer().HasAura(DeathKnightSpells.PERDITION))
+		if (target.AsPlayer.HasAura(DeathKnightSpells.PERDITION))
 			return absorbAmount;
 
 		var bp = dmgInfo.GetDamage();

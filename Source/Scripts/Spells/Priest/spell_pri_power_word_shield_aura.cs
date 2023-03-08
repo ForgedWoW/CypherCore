@@ -52,7 +52,7 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 		{
 			var amountF = caster.SpellBaseDamageBonusDone(SpellInfo.GetSchoolMask()) * 1.65f;
 
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 			{

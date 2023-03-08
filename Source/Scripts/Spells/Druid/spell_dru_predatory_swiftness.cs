@@ -26,7 +26,7 @@ public class spell_dru_predatory_swiftness : SpellScript, ISpellCheckCast, ISpel
 			if (Caster.TypeId != TypeId.Player)
 				return SpellCastResult.DontReport;
 
-			if (Caster.ToPlayer().GetPower(PowerType.ComboPoints) != 0)
+			if (Caster.AsPlayer.GetPower(PowerType.ComboPoints) != 0)
 				return SpellCastResult.NoComboPoints;
 		}
 		else
@@ -39,7 +39,7 @@ public class spell_dru_predatory_swiftness : SpellScript, ISpellCheckCast, ISpel
 
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.HasAura(PredatorySwiftnessSpells.PREDATORY_SWIFTNESS) && RandomHelper.randChance(20 * _cp))

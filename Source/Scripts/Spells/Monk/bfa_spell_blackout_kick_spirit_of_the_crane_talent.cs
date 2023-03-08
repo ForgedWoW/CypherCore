@@ -12,7 +12,7 @@ public class bfa_spell_blackout_kick_spirit_of_the_crane_talent : SpellScript, I
 {
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

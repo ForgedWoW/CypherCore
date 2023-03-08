@@ -64,7 +64,7 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 			return;
 
 		// Check what form is appropriate
-		triggeredSpellId = GetFormSpellId(Target.ToPlayer(), CastDifficulty, true);
+		triggeredSpellId = GetFormSpellId(Target.AsPlayer, CastDifficulty, true);
 
 		// If chosen form is current aura, just don't remove it.
 		if (triggeredSpellId == ScriptSpellId)
@@ -76,7 +76,7 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 		if (triggeredSpellId == ScriptSpellId)
 			return;
 
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (triggeredSpellId != 0) // Apply new form
 			player.CastSpell(player, triggeredSpellId, new CastSpellExtraArgs(aurEff));

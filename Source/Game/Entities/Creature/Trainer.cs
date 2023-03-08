@@ -113,7 +113,7 @@ public class Trainer
 
 			if (speciesEntry != null)
 			{
-				player.Session.				BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+				player.Session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 				// If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
 				// marking as dependent prevents saving the spell to database (intended)
 				dependent = true;

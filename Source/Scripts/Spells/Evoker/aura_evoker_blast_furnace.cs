@@ -16,7 +16,7 @@ internal class aura_evoker_blast_furnace : AuraScript, IHasAuraEffects
 
 	public void AfterApply(AuraEffect aura, AuraEffectHandleModes auraMode)
 	{
-		if (!Owner.ToUnit().TryGetAura(EvokerSpells.BLAST_FURNACE, out var bfAura))
+		if (!Owner.AsUnit.TryGetAura(EvokerSpells.BLAST_FURNACE, out var bfAura))
 			return;
 
 		Aura.ModDuration(bfAura.GetEffect(0).Amount * 1000, true, true);

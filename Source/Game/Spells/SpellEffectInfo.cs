@@ -457,7 +457,7 @@ public class SpellEffectInfo
 		Unit casterUnit = null;
 
 		if (caster != null)
-			casterUnit = caster.ToUnit();
+			casterUnit = caster.AsUnit;
 
 		if (Scaling.Variance != 0)
 		{
@@ -520,7 +520,7 @@ public class SpellEffectInfo
 			if (target && _spellInfo.IsPositiveEffect(EffectIndex) && (Effect == SpellEffectName.ApplyAura))
 				level = target.Level;
 			else if (caster != null && caster.IsUnit)
-				level = caster.ToUnit().Level;
+				level = caster.AsUnit.Level;
 
 			if (_spellInfo.BaseLevel != 0 && !_spellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel) && _spellInfo.HasAttribute(SpellAttr10.UseSpellBaseLevelForScaling))
 				level = _spellInfo.BaseLevel;
@@ -616,7 +616,7 @@ public class SpellEffectInfo
 				if (contentTuning != null)
 					expansion = contentTuning.ExpansionID;
 
-				var level = caster != null && caster.IsUnit ? caster.ToUnit().Level : 1;
+				var level = caster != null && caster.IsUnit ? caster.AsUnit.Level : 1;
 				tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, Class.None) * BasePoints / 100.0f;
 			}
 
@@ -686,7 +686,7 @@ public class SpellEffectInfo
 
 		if (caster != null)
 		{
-			var casterUnit = caster.ToUnit();
+			var casterUnit = caster.AsUnit;
 
 			if (casterUnit != null)
 				radius += entry.RadiusPerLevel * casterUnit.Level;

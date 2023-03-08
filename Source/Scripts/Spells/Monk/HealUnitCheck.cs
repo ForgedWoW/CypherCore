@@ -17,7 +17,7 @@ public class HealUnitCheck : ICheck<WorldObject>
 
 	public bool Invoke(WorldObject @object)
 	{
-		var unit = @object.ToUnit();
+		var unit = @object.AsUnit;
 
 		if (unit == null)
 			return true;

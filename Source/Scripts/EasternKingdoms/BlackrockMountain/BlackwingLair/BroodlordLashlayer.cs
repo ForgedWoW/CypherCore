@@ -82,7 +82,7 @@ internal class boss_broodlord : BossAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
-								if (me.GetDistance(me.GetHomePosition()) > 150.0f)
+								if (me.GetDistance(me.HomePosition) > 150.0f)
 								{
 									Talk(TextIds.SayLeash);
 									EnterEvadeMode(EvadeReason.Boundary);

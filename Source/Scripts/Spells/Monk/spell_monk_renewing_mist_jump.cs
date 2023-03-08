@@ -38,7 +38,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 
 		targets.RemoveIf((WorldObject a) =>
 		{
-			var ally = a.ToUnit();
+			var ally = a.AsUnit;
 
 			if (ally == null || ally.HasAura(MonkSpells.RENEWING_MIST_HOT, caster.GUID) || ally == previousTarget)
 				return true;
@@ -48,7 +48,7 @@ public class spell_monk_renewing_mist_jump : SpellScript, IHasSpellEffects
 
 		targets.RemoveIf((WorldObject a) =>
 		{
-			var ally = a.ToUnit();
+			var ally = a.AsUnit;
 
 			if (ally == null || ally.IsFullHealth())
 				return true;

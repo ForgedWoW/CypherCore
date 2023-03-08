@@ -53,7 +53,7 @@ public class Guardian : Minion
 		base.InitSummon();
 
 		if (GetOwner().IsTypeId(TypeId.Player) && GetOwner().MinionGUID == GUID && GetOwner().CharmedGUID.IsEmpty)
-			GetOwner().ToPlayer().CharmSpellInitialize();
+			GetOwner().AsPlayer.CharmSpellInitialize();
 	}
 
 	// @todo Move stat mods code to pet passive auras
@@ -162,8 +162,8 @@ public class Guardian : Minion
 			case PetType.Summon:
 			{
 				// the damage bonus used for pets is either fire or shadow damage, whatever is higher
-				var fire = GetOwner().ToPlayer().ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Fire];
-				var shadow = GetOwner().ToPlayer().ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Shadow];
+				var fire = GetOwner().AsPlayer.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Fire];
+				var shadow = GetOwner().AsPlayer.ActivePlayerData.ModDamageDonePos[(int)SpellSchools.Shadow];
 				var val = (fire > shadow) ? fire : shadow;
 
 				if (val < 0)
@@ -178,7 +178,7 @@ public class Guardian : Minion
 			}
 			case PetType.Hunter:
 			{
-				ToPet().SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
+				AsPet.SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel(petlevel) * 0.05f));
 				//these formula may not be correct; however, it is designed to be close to what it should be
 				//this makes dps 0.5 of pets level
 				SetBaseWeaponDamage(WeaponAttackType.BaseAttack, WeaponDamageRange.MinDamage, petlevel - (petlevel / 4));
@@ -552,7 +552,7 @@ public class Guardian : Minion
 		else
 			val = 2 * GetStat(Stats.Strength) - 20.0f;
 
-		var owner = GetOwner() ? GetOwner().ToPlayer() : null;
+		var owner = GetOwner() ? GetOwner().AsPlayer : null;
 
 		if (owner != null)
 		{
@@ -617,7 +617,7 @@ public class Guardian : Minion
 			return;
 
 		var bonusDamage = 0.0f;
-		var playerOwner = Owner.ToPlayer();
+		var playerOwner = Owner.AsPlayer;
 
 		if (playerOwner != null)
 		{
@@ -671,7 +671,7 @@ public class Guardian : Minion
 	void SetBonusDamage(float damage)
 	{
 		_bonusSpellDamage = damage;
-		var playerOwner = GetOwner().ToPlayer();
+		var playerOwner = GetOwner().AsPlayer;
 
 		if (playerOwner != null)
 			playerOwner.SetPetSpellPower((uint)damage);

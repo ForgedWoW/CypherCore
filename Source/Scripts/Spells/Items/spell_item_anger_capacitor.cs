@@ -49,7 +49,7 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 
 		caster.RemoveAura(ItemSpellIds.MoteOfAnger);
 		var spellId = ItemSpellIds.ManifestAngerMainHand;
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player)
 			if (player.GetWeaponForAttack(WeaponAttackType.OffAttack, true) &&

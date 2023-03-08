@@ -28,7 +28,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 		_distSq = dist * dist;
 
 		if (own_team_only && src.IsPlayer)
-			_team = src.ToPlayer().EffectiveTeam;
+			_team = src.AsPlayer.EffectiveTeam;
 
 		_skippedReceiver = skipped;
 		_required3dDist = req3dDist;
@@ -71,7 +71,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 
 			if (caster)
 			{
-				var player = caster.ToPlayer();
+				var player = caster.AsPlayer;
 
 				if (player && player.SeerView == dynamicObject)
 					SendPacket(player);

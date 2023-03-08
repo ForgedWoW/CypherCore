@@ -27,7 +27,7 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player.GetLastPetNumber() != 0)
 		{

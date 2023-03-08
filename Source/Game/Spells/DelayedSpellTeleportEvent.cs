@@ -30,7 +30,7 @@ class DelayedSpellTeleportEvent : BasicEvent
 		}
 		else
 		{
-			var player = _target.ToPlayer();
+			var player = _target.AsPlayer;
 
 			if (player != null)
 				player.TeleportTo(_targetDest, _options);

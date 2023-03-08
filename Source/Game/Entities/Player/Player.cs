@@ -471,7 +471,7 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid race/class pair ({2}/{3}) - refusing to do so.",
-						Session.						AccountId,
+						Session.AccountId,
 						GetName(),
 						createInfo.RaceId,
 						createInfo.ClassId);
@@ -485,7 +485,7 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid character class ({2}) - refusing to do so (wrong DBC-files?)",
-						Session.						AccountId,
+						Session.AccountId,
 						GetName(),
 						createInfo.ClassId);
 
@@ -496,7 +496,7 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
-						Session.						AccountId,
+						Session.AccountId,
 						GetName());
 
 			return false;
@@ -538,7 +538,7 @@ public partial class Player : Unit
 		{
 			Log.outError(LogFilter.Player,
 						"Player:Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid gender ({2}) - refusing to do so",
-						Session.						AccountId,
+						Session.AccountId,
 						GetName(),
 						createInfo.Sex);
 
@@ -1312,7 +1312,7 @@ public partial class Player : Unit
 
 		if (charm.IsTypeId(TypeId.Unit))
 		{
-			if (charm.ToCreature().HasUnitTypeMask(UnitTypeMask.Puppet))
+			if (charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Puppet))
 			{
 				((Puppet)charm).UnSummon();
 			}
@@ -1370,7 +1370,7 @@ public partial class Player : Unit
 
 		if (charm.IsTypeId(TypeId.Unit))
 		{
-			petSpells.ReactState = charm.ToCreature().ReactState;
+			petSpells.ReactState = charm.AsCreature.ReactState;
 			petSpells.CommandState = charmInfo.GetCommandState();
 		}
 
@@ -1452,7 +1452,7 @@ public partial class Player : Unit
 
 			if (!Global.ConditionMgr.IsObjectMeetingVehicleSpellConditions(vehicle.Entry, spellId, this, vehicle))
 			{
-				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.ToCreature().Entry, spellId);
+				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.AsCreature.Entry, spellId);
 
 				continue;
 			}
@@ -1907,10 +1907,10 @@ public partial class Player : Unit
 		if (!victim || victim.IsTypeId(TypeId.Player))
 			return;
 
-		if (victim.ToCreature().IsReputationGainDisabled)
+		if (victim.AsCreature.IsReputationGainDisabled)
 			return;
 
-		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.ToCreature().CreatureTemplate.Entry);
+		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.AsCreature.CreatureTemplate.Entry);
 
 		if (Rep == null)
 			return;
@@ -2364,7 +2364,7 @@ public partial class Player : Unit
 		*/
 
 		RemoveViolatingFlags(mi.HasMovementFlag(MovementFlag.Flying | MovementFlag.CanFly) &&
-							Session.							Security == AccountTypes.Player &&
+							Session.Security == AccountTypes.Player &&
 							!UnitMovedByMe.HasAuraType(AuraType.Fly) &&
 							!UnitMovedByMe.HasAuraType(AuraType.ModIncreaseMountedFlightSpeed),
 							MovementFlag.Flying | MovementFlag.CanFly);
@@ -2675,12 +2675,12 @@ public partial class Player : Unit
 
 		if (source.IsTypeId(TypeId.Unit))
 		{
-			if (showQuests && source.ToUnit().IsQuestGiver)
+			if (showQuests && source.AsUnit.IsQuestGiver)
 				PrepareQuestMenu(source.GUID);
 		}
 		else if (source.IsTypeId(TypeId.GameObject))
 		{
-			if (source.ToGameObject().GetGoType() == GameObjectTypes.QuestGiver)
+			if (source.AsGameObject.GetGoType() == GameObjectTypes.QuestGiver)
 				PrepareQuestMenu(source.GUID);
 		}
 
@@ -2690,8 +2690,8 @@ public partial class Player : Unit
 				continue;
 
 			var canTalk = true;
-			var go = source.ToGameObject();
-			var creature = source.ToCreature();
+			var go = source.AsGameObject;
+			var creature = source.AsCreature;
 
 			if (creature)
 				switch (gossipMenuItem.OptionNpc)
@@ -2878,15 +2878,15 @@ public partial class Player : Unit
 
 				break;
 			case GossipOptionNpc.Taxinode:
-				Session.SendTaxiMenu(source.ToCreature());
+				Session.SendTaxiMenu(source.AsCreature);
 
 				break;
 			case GossipOptionNpc.Trainer:
-				Session.SendTrainerList(source.ToCreature(), Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
+				Session.SendTrainerList(source.AsCreature, Global.ObjectMgr.GetCreatureTrainerForGossipOption(source.Entry, menuId, item.OrderIndex));
 
 				break;
 			case GossipOptionNpc.SpiritHealer:
-				source.CastSpell(source.ToCreature(), 17251, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(GUID));
+				source.CastSpell(source.AsCreature, 17251, new CastSpellExtraArgs(TriggerCastFlags.FullMask).SetOriginalCaster(GUID));
 				handled = false;
 
 				break;
@@ -2911,7 +2911,7 @@ public partial class Player : Unit
 				break;
 			}
 			case GossipOptionNpc.Auctioneer:
-				Session.SendAuctionHello(guid, source.ToCreature());
+				Session.SendAuctionHello(guid, source.AsCreature);
 
 				break;
 			case GossipOptionNpc.TalentMaster:
@@ -2938,7 +2938,7 @@ public partial class Player : Unit
 
 				break;
 			case GossipOptionNpc.Spellclick:
-				var sourceUnit = source.ToUnit();
+				var sourceUnit = source.AsUnit;
 
 				if (sourceUnit != null)
 					sourceUnit.HandleSpellClick(this);
@@ -3054,9 +3054,9 @@ public partial class Player : Unit
 		switch (source.TypeId)
 		{
 			case TypeId.Unit:
-				return source.ToCreature().CreatureTemplate.GossipMenuId;
+				return source.AsCreature.CreatureTemplate.GossipMenuId;
 			case TypeId.GameObject:
-				return source.ToGameObject().GetGoInfo().GetGossipMenuId();
+				return source.AsGameObject.GetGoInfo().GetGossipMenuId();
 			default:
 				break;
 		}
@@ -3608,7 +3608,7 @@ public partial class Player : Unit
 		if (Duel != null && Duel.State != DuelState.Challenged && Duel.Opponent == seer)
 			return false;
 
-		var seerPlayer = seer.ToPlayer();
+		var seerPlayer = seer.AsPlayer;
 
 		if (seerPlayer != null)
 			if (IsGroupVisibleFor(seerPlayer))
@@ -3848,7 +3848,7 @@ public partial class Player : Unit
 
 		if (GetMap().ConvertCorpseToBones(GUID))
 			if (triggerSave && !Session.PlayerLogoutWithSave) // at logout we will already store the player
-				SaveToDB();                                     // prevent loading as ghost without corpse
+				SaveToDB();                                   // prevent loading as ghost without corpse
 	}
 
 	public Corpse GetCorpse()
@@ -4047,7 +4047,7 @@ public partial class Player : Unit
 		pet.SetFullPower(PowerType.Mana);
 		pet.SetPetNameTimestamp((uint)GameTime.GetGameTime());
 
-		map.AddToMap(pet.ToCreature());
+		map.AddToMap(pet.AsCreature);
 
 		Cypher.Assert(!petStable.CurrentPetIndex.HasValue);
 		petStable.SetCurrentUnslottedPetIndex((uint)petStable.UnslottedPets.Count);
@@ -4410,7 +4410,7 @@ public partial class Player : Unit
 		if (v_level < k_grey && WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) == 0)
 			return false;
 
-		var creature = victim.ToCreature();
+		var creature = victim.AsCreature;
 
 		if (creature != null)
 			if (creature.IsCritter || creature.IsTotem)
@@ -4902,8 +4902,7 @@ public partial class Player : Unit
 		heirloomUpdate.Heirlooms = Session.CollectionMgr.GetAccountHeirlooms();
 		SendPacket(heirloomUpdate);
 
-		Session.
-		CollectionMgr.SendFavoriteAppearances();
+		Session.CollectionMgr.SendFavoriteAppearances();
 
 		InitialSetup initialSetup = new();
 		initialSetup.ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion);
@@ -5359,7 +5358,7 @@ public partial class Player : Unit
 		if (HasPlayerFlag(PlayerFlags.NoXPGain))
 			return;
 
-		if (victim != null && victim.IsTypeId(TypeId.Unit) && !victim.ToCreature().HasLootRecipient)
+		if (victim != null && victim.IsTypeId(TypeId.Unit) && !victim.AsCreature.HasLootRecipient)
 			return;
 
 		var level = Level;
@@ -6064,7 +6063,7 @@ public partial class Player : Unit
 			UpdateVisibilityOf(target);
 
 			if (target.IsTypeMask(TypeMask.Unit) && target != GetVehicleBase())
-				target.ToUnit().AddPlayerToVision(this);
+				target.AsUnit.AddPlayerToVision(this);
 
 			SetSeer(target);
 		}
@@ -6082,7 +6081,7 @@ public partial class Player : Unit
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.FarsightObject), ObjectGuid.Empty);
 
 			if (target.IsTypeMask(TypeMask.Unit) && target != GetVehicleBase())
-				target.ToUnit().RemovePlayerFromVision(this);
+				target.AsUnit.RemovePlayerFromVision(this);
 
 			//must immediately set seer back otherwise may crash
 			SetSeer(this);
@@ -6705,7 +6704,7 @@ public partial class Player : Unit
 			SetPlayerLocalFlag(PlayerLocalFlags.AccountSecured);
 
 		if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
-			Session.			CollectionMgr.AddToy(193588, true, true);
+			Session.CollectionMgr.AddToy(193588, true, true);
 	}
 
 	void ScheduleDelayedOperation(PlayerDelayedOperations operation)
@@ -7939,7 +7938,7 @@ public partial class Player : Unit
 		if (!obj.IsTypeId(TypeId.Unit))
 			return;
 
-		if (p.PetGUID == obj.GUID && obj.ToCreature().IsPet)
+		if (p.PetGUID == obj.GUID && obj.AsCreature.IsPet)
 			((Pet)obj).Remove(PetSaveMode.NotInSlot, true);
 	}
 
@@ -7959,35 +7958,35 @@ public partial class Player : Unit
 			switch (target.TypeId)
 			{
 				case TypeId.Unit:
-					UpdateVisibilityOf(target.ToCreature(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsCreature, udata, newVisibleUnits);
 
 					break;
 				case TypeId.Player:
-					UpdateVisibilityOf(target.ToPlayer(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsPlayer, udata, newVisibleUnits);
 
 					break;
 				case TypeId.GameObject:
-					UpdateVisibilityOf(target.ToGameObject(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsGameObject, udata, newVisibleUnits);
 
 					break;
 				case TypeId.DynamicObject:
-					UpdateVisibilityOf(target.ToDynamicObject(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsDynamicObject, udata, newVisibleUnits);
 
 					break;
 				case TypeId.Corpse:
-					UpdateVisibilityOf(target.ToCorpse(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsCorpse, udata, newVisibleUnits);
 
 					break;
 				case TypeId.AreaTrigger:
-					UpdateVisibilityOf(target.ToAreaTrigger(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsAreaTrigger, udata, newVisibleUnits);
 
 					break;
 				case TypeId.SceneObject:
-					UpdateVisibilityOf(target.ToSceneObject(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsSceneObject, udata, newVisibleUnits);
 
 					break;
 				case TypeId.Conversation:
-					UpdateVisibilityOf(target.ToConversation(), udata, newVisibleUnits);
+					UpdateVisibilityOf(target.AsConversation, udata, newVisibleUnits);
 
 					break;
 				default:
@@ -8012,7 +8011,7 @@ public partial class Player : Unit
 			if (!CanSeeOrDetect(target, false, true))
 			{
 				if (target.IsTypeId(TypeId.Unit))
-					BeforeVisibilityDestroy(target.ToCreature(), this);
+					BeforeVisibilityDestroy(target.AsCreature, this);
 
 				if (!target.IsDestroyedObject)
 					target.SendOutOfRangeForPlayer(this);
@@ -8032,7 +8031,7 @@ public partial class Player : Unit
 				// target aura duration for caster show only if target exist at caster client
 				// send data at target visibility change (adding to client)
 				if (target.IsTypeMask(TypeMask.Unit))
-					SendInitialVisiblePackets(target.ToUnit());
+					SendInitialVisiblePackets(target.AsUnit);
 			}
 		}
 	}
@@ -8070,11 +8069,11 @@ public partial class Player : Unit
 		switch (target.TypeId)
 		{
 			case TypeId.Unit:
-				v.Add(target.ToCreature());
+				v.Add(target.AsCreature);
 
 				break;
 			case TypeId.Player:
-				v.Add(target.ToPlayer());
+				v.Add(target.AsPlayer);
 
 				break;
 		}

@@ -296,7 +296,7 @@ namespace Game
                 return;
 
             Unit caster = mover;
-            if (caster.IsTypeId(TypeId.Unit) && !caster.ToCreature().HasSpell(spellInfo.Id))
+            if (caster.IsTypeId(TypeId.Unit) && !caster.AsCreature.HasSpell(spellInfo.Id))
             {
                 // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
                 // change caster to player and let him cast
@@ -312,7 +312,7 @@ namespace Game
             SpellCastTargets targets = new(caster, cast.Cast);
 
             // check known spell or raid marker spell (which not requires player to know it)
-            if (caster.IsTypeId(TypeId.Player) && !caster.ToPlayer().HasActiveSpell(spellInfo.Id) && !spellInfo.HasEffect(SpellEffectName.ChangeRaidMarker) && !spellInfo.HasAttribute(SpellAttr8.RaidMarker))
+            if (caster.IsTypeId(TypeId.Player) && !caster.AsPlayer.HasActiveSpell(spellInfo.Id) && !spellInfo.HasEffect(SpellEffectName.ChangeRaidMarker) && !spellInfo.HasAttribute(SpellAttr8.RaidMarker))
             {
                 bool allow = false;
 
@@ -320,7 +320,7 @@ namespace Game
                 // allow casting of unknown spells for special lock cases
                 GameObject go = targets.GOTarget;
                 if (go != null)
-                    if (go.GetSpellForLock(caster.ToPlayer()) == spellInfo)
+                    if (go.GetSpellForLock(caster.AsPlayer) == spellInfo)
                         allow = true;
 
                 // allow casting of spells triggered by clientside periodic trigger auras
@@ -583,7 +583,7 @@ namespace Game
             if (!creator)
                 return;
 
-            Player player = creator.ToPlayer();
+            Player player = creator.AsPlayer;
             if (player)
             {
                 MirrorImageComponentedData mirrorImageComponentedData = new();

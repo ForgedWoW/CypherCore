@@ -37,7 +37,7 @@ internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
 	{
 		targets.RemoveAll(obj =>
 		{
-			var target = obj.ToUnit();
+			var target = obj.AsUnit;
 
 			if (target)
 				return !Caster.IsInRaidWith(target);

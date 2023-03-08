@@ -12,7 +12,7 @@ public class spell_monk_zen_flight_check : SpellScript, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

@@ -13,7 +13,7 @@ public class spell_rog_slice_and_dice : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

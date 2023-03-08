@@ -27,7 +27,7 @@ public class spell_rog_roll_the_bones_visual_SpellScript : SpellScript, IHasSpel
 		if (caster == null)
 			return;
 
-		if (caster.ToPlayer())
+		if (caster.AsPlayer)
 		{
 			PreventHitAura();
 			PreventHitDamage();

@@ -348,7 +348,7 @@ namespace Game.AI
         {
             if (unit == null)
                 return;
-            Player player = unit.ToPlayer();
+            Player player = unit.AsPlayer;
             if (player != null)
                 player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
             else
@@ -548,7 +548,7 @@ namespace Game.AI
             if (instance != null)
             {
                 // bosses do not respawn, check only on enter combat
-                if (!instance.CheckRequiredBosses(_bossId, who.ToPlayer()))
+                if (!instance.CheckRequiredBosses(_bossId, who.AsPlayer))
                 {
                     EnterEvadeMode(EvadeReason.SequenceBreak);
                     return;

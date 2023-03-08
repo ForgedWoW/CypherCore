@@ -20,7 +20,7 @@ namespace Game.AI
 
         public override bool CanSeeAlways(WorldObject obj)
         {
-            Unit unit = obj.ToUnit();
+            Unit unit = obj.AsUnit;
             if (unit != null)
                 if (unit.IsControlledByPlayer && me.IsEngagedBy(unit))
                     return true;

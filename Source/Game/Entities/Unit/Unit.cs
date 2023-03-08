@@ -356,7 +356,7 @@ public partial class Unit : WorldObject
 			}
 			else
 			{
-				return ToCreature().CreatureTemplate.CreatureType;
+				return AsCreature.CreatureTemplate.CreatureType;
 			}
 		}
 	}
@@ -423,6 +423,8 @@ public partial class Unit : WorldObject
 	public uint ChannelSpellXSpellVisualId => UnitData.ChannelData.GetValue().SpellVisual.SpellXSpellVisualID;
 
 	public uint ChannelScriptVisualId => UnitData.ChannelData.GetValue().SpellVisual.ScriptVisualID;
+
+	public Pet AsPet => this as Pet;
 
 	public Unit(bool isWorldObject) : base(isWorldObject)
 	{
@@ -938,7 +940,7 @@ public partial class Unit : WorldObject
 
 		if (veh != null)
 		{
-			var c = veh.ToCreature();
+			var c = veh.AsCreature;
 
 			if (c != null)
 				return c;
@@ -962,7 +964,7 @@ public partial class Unit : WorldObject
 		DynamicObjects.Add(dynObj);
 
 		if (IsTypeId(TypeId.Unit) && IsAIEnabled)
-			ToCreature().GetAI().JustRegisteredDynObject(dynObj);
+			AsCreature.GetAI().JustRegisteredDynObject(dynObj);
 	}
 
 	public void _UnregisterDynObject(DynamicObject dynObj)
@@ -970,7 +972,7 @@ public partial class Unit : WorldObject
 		DynamicObjects.Remove(dynObj);
 
 		if (IsTypeId(TypeId.Unit) && IsAIEnabled)
-			ToCreature().GetAI().JustUnregisteredDynObject(dynObj);
+			AsCreature.GetAI().JustUnregisteredDynObject(dynObj);
 	}
 
 	public DynamicObject GetDynObject(uint spellId)
@@ -1018,8 +1020,8 @@ public partial class Unit : WorldObject
 				GetSpellHistory().StartCooldown(createBySpell, 0, null, true);
 		}
 
-		if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled)
-			ToCreature().GetAI().JustSummonedGameobject(gameObj);
+		if (IsTypeId(TypeId.Unit) && AsCreature.IsAIEnabled)
+			AsCreature.GetAI().JustSummonedGameobject(gameObj);
 	}
 
 	public void RemoveGameObject(GameObject gameObj, bool del)
@@ -1054,8 +1056,8 @@ public partial class Unit : WorldObject
 
 		GameObjects.Remove(gameObj);
 
-		if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled)
-			ToCreature().GetAI().SummonedGameobjectDespawn(gameObj);
+		if (IsTypeId(TypeId.Unit) && AsCreature.IsAIEnabled)
+			AsCreature.GetAI().SummonedGameobjectDespawn(gameObj);
 
 		if (del)
 		{
@@ -1106,7 +1108,7 @@ public partial class Unit : WorldObject
 		_areaTrigger.Add(areaTrigger);
 
 		if (IsTypeId(TypeId.Unit) && IsAIEnabled)
-			ToCreature().GetAI().JustRegisteredAreaTrigger(areaTrigger);
+			AsCreature.GetAI().JustRegisteredAreaTrigger(areaTrigger);
 	}
 
 	public void _UnregisterAreaTrigger(AreaTrigger areaTrigger)
@@ -1114,7 +1116,7 @@ public partial class Unit : WorldObject
 		_areaTrigger.Remove(areaTrigger);
 
 		if (IsTypeId(TypeId.Unit) && IsAIEnabled)
-			ToCreature().GetAI().JustUnregisteredAreaTrigger(areaTrigger);
+			AsCreature.GetAI().JustUnregisteredAreaTrigger(areaTrigger);
 	}
 
 	public AreaTrigger GetAreaTrigger(uint spellId)
@@ -1350,7 +1352,7 @@ public partial class Unit : WorldObject
 		if (aurApp.HasRemoveMode)
 			return;
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 		{
@@ -1364,10 +1366,10 @@ public partial class Unit : WorldObject
 			if (vehicle.GetBase().IsCreature)
 			{
 				// If a player entered a vehicle that is part of a formation, remove it from said formation
-				var creatureGroup = vehicle.GetBase().ToCreature().GetFormation();
+				var creatureGroup = vehicle.GetBase().AsCreature.Formation;
 
 				if (creatureGroup != null)
-					creatureGroup.RemoveMember(vehicle.GetBase().ToCreature());
+					creatureGroup.RemoveMember(vehicle.GetBase().AsCreature);
 			}
 		}
 
@@ -1447,7 +1449,7 @@ public partial class Unit : WorldObject
 			return;
 		}
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		// If the player is on mounted duel and exits the mount, he should immediatly lose the duel
 		if (player && player.Duel != null && player.Duel.IsMounted)
@@ -1503,7 +1505,7 @@ public partial class Unit : WorldObject
 
 		if (vehicle.GetBase().HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.GetBase().IsTypeId(TypeId.Unit))
 			if (((Minion)vehicle.GetBase()).GetOwner() == this)
-				vehicle.GetBase().ToCreature().DespawnOrUnsummon(vehicle.GetDespawnDelay());
+				vehicle.GetBase().AsCreature.DespawnOrUnsummon(vehicle.GetDespawnDelay());
 
 		if (HasUnitTypeMask(UnitTypeMask.Accessory))
 		{
@@ -1658,7 +1660,7 @@ public partial class Unit : WorldObject
 				break;
 		}
 
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 		{
@@ -1666,7 +1668,7 @@ public partial class Unit : WorldObject
 
 			if (artifactAura != null)
 			{
-				var artifact = ToPlayer().GetItemByGuid(artifactAura.CastItemGuid);
+				var artifact = AsPlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
 				if (artifact != null)
 				{
@@ -1885,7 +1887,7 @@ public partial class Unit : WorldObject
 		// ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
 		if (!IsAlive &&
 			!aurSpellInfo.IsDeathPersistent &&
-			(!IsTypeId(TypeId.Player) || !ToPlayer().Session.PlayerLoading))
+			(!IsTypeId(TypeId.Player) || !AsPlayer.Session.PlayerLoading))
 			return null;
 
 		var caster = aura.GetCaster();
@@ -1966,7 +1968,7 @@ public partial class Unit : WorldObject
 					}
 					else
 					{
-						var pet = ToPet();
+						var pet = AsPet;
 
 						if (pet)
 						{
@@ -1993,11 +1995,6 @@ public partial class Unit : WorldObject
 	public void FollowerRemoved(AbstractFollower f)
 	{
 		_followingMe.Remove(f);
-	}
-
-	public Pet ToPet()
-	{
-		return IsPet ? (this as Pet) : null;
 	}
 
 	public void PlayOneShotAnimKitId(ushort animKitId)
@@ -2104,14 +2101,14 @@ public partial class Unit : WorldObject
 		if (!sendUpdate)
 			return;
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 		{
 			if (player.GetGroup())
 				player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
 
-			Global.CharacterCacheStorage.UpdateCharacterLevel(ToPlayer().GUID, (byte)lvl);
+			Global.CharacterCacheStorage.UpdateCharacterLevel(AsPlayer.GUID, (byte)lvl);
 		}
 	}
 
@@ -2122,7 +2119,7 @@ public partial class Unit : WorldObject
 
 	public bool IsAlliedRace()
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player == null)
 			return false;
@@ -2461,7 +2458,7 @@ public partial class Unit : WorldObject
 			if (seer.GUID == guid)
 				return true;
 
-		var seerPlayer = seer.ToPlayer();
+		var seerPlayer = seer.AsPlayer;
 
 		if (seerPlayer != null)
 		{
@@ -2469,7 +2466,7 @@ public partial class Unit : WorldObject
 
 			if (owner != null)
 			{
-				var ownerPlayer = owner.ToPlayer();
+				var ownerPlayer = owner.AsPlayer;
 
 				if (ownerPlayer)
 					if (ownerPlayer.IsGroupVisibleFor(seerPlayer))
@@ -2491,7 +2488,7 @@ public partial class Unit : WorldObject
 
 		if (IsTypeId(TypeId.Player))
 		{
-			ToPlayer().SetFactionForRace(Race);
+			AsPlayer.SetFactionForRace(Race);
 		}
 		else
 		{
@@ -2507,7 +2504,7 @@ public partial class Unit : WorldObject
 				}
 			}
 
-			var cinfo = ToCreature().CreatureTemplate;
+			var cinfo = AsCreature.CreatureTemplate;
 
 			if (cinfo != null) // normal creature
 				Faction = cinfo.Faction;
@@ -2526,9 +2523,9 @@ public partial class Unit : WorldObject
 			return true;
 
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
-			return u1.ToPlayer().IsInSameGroupWith(u2.ToPlayer());
-		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+			return u1.AsPlayer.IsInSameGroupWith(u2.AsPlayer);
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		return u1.TypeId == TypeId.Unit && u2.TypeId == TypeId.Unit && u1.Faction == u2.Faction;
@@ -2546,9 +2543,9 @@ public partial class Unit : WorldObject
 			return true;
 
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
-			return u1.ToPlayer().IsInSameRaidWith(u2.ToPlayer());
-		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+			return u1.AsPlayer.IsInSameRaidWith(u2.AsPlayer);
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		// else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
@@ -2561,11 +2558,11 @@ public partial class Unit : WorldObject
 		Group group = null;
 
 		if (owner.TypeId == TypeId.Player)
-			group = owner.ToPlayer().GetGroup();
+			group = owner.AsPlayer.GetGroup();
 
 		if (group != null)
 		{
-			var subgroup = owner.ToPlayer().GetSubGroup();
+			var subgroup = owner.AsPlayer.GetSubGroup();
 
 			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
 			{
@@ -2623,7 +2620,7 @@ public partial class Unit : WorldObject
 		if (IsTypeId(TypeId.Player))
 		{
 			StandStateUpdate packet = new(state, animKitId);
-			ToPlayer().SendPacket(packet);
+			AsPlayer.SendPacket(packet);
 		}
 	}
 
@@ -2798,20 +2795,20 @@ public partial class Unit : WorldObject
 	public bool HaveOffhandWeapon()
 	{
 		if (IsTypeId(TypeId.Player))
-			return ToPlayer().GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
+			return AsPlayer.GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
 		else
 			return CanDualWield;
 	}
 
 	public static void DealDamageMods(Unit attacker, Unit victim, ref double damage)
 	{
-		if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsInEvadeMode))
+		if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsInEvadeMode))
 			damage = 0;
 	}
 
 	public static bool CheckEvade(Unit attacker, Unit victim, ref double damage, ref double absorb)
 	{
-		if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks))
+		if (victim == null || !victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks))
 		{
 			absorb += damage;
 			damage = 0;
@@ -2869,7 +2866,7 @@ public partial class Unit : WorldObject
 		if (attacker != victim && damagetype != DamageEffectType.DOT)
 			foreach (var controlled in victim.Controlled)
 			{
-				var cControlled = controlled.ToCreature();
+				var cControlled = controlled.AsCreature;
 
 				if (cControlled != null)
 				{
@@ -2880,7 +2877,7 @@ public partial class Unit : WorldObject
 				}
 			}
 
-		var player = victim.ToPlayer();
+		var player = victim.AsPlayer;
 
 		if (player != null && player.GetCommandStatus(PlayerCommandStates.God))
 			return 0;
@@ -2958,20 +2955,20 @@ public partial class Unit : WorldObject
 		var duel_hasEnded = false;
 		var duel_wasMounted = false;
 
-		if (victim.IsPlayer && victim.ToPlayer().Duel != null && damageTaken >= (health - 1))
+		if (victim.IsPlayer && victim.AsPlayer.Duel != null && damageTaken >= (health - 1))
 		{
 			if (!attacker)
 				return 0;
 
 			// prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-			if (victim.ToPlayer().Duel.Opponent == attacker.GetControllingPlayer())
+			if (victim.AsPlayer.Duel.Opponent == attacker.GetControllingPlayer())
 				damageTaken = health - 1;
 
 			duel_hasEnded = true;
 		}
 		else if (victim.IsVehicle && damageTaken >= (health - 1) && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
 		{
-			var victimRider = victim.Charmer.ToPlayer();
+			var victimRider = victim.Charmer.AsPlayer;
 
 			if (victimRider != null && victimRider.Duel != null && victimRider.Duel.IsMounted)
 			{
@@ -2989,7 +2986,7 @@ public partial class Unit : WorldObject
 
 		if (attacker != null && attacker != victim)
 		{
-			var killer = attacker.ToPlayer();
+			var killer = attacker.AsPlayer;
 
 			if (killer != null)
 			{
@@ -3008,14 +3005,14 @@ public partial class Unit : WorldObject
 		}
 
 		if (victim.IsPlayer)
-			victim.ToPlayer().UpdateCriteria(CriteriaType.HighestDamageTaken, damageTaken);
+			victim.AsPlayer.UpdateCriteria(CriteriaType.HighestDamageTaken, damageTaken);
 
 		if (victim.TypeId != TypeId.Player && (!victim.IsControlledByPlayer || victim.IsVehicle))
 		{
-			victim.ToCreature().SetTappedBy(attacker);
+			victim.AsCreature.SetTappedBy(attacker);
 
 			if (attacker == null || attacker.IsControlledByPlayer)
-				victim.ToCreature().LowerPlayerDamageReq(health < damageTaken ? health : damageTaken);
+				victim.AsCreature.LowerPlayerDamageReq(health < damageTaken ? health : damageTaken);
 		}
 
 		var killed = false;
@@ -3026,7 +3023,7 @@ public partial class Unit : WorldObject
 			killed = true;
 
 			if (victim.IsPlayer && victim != attacker)
-				victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, health);
+				victim.AsPlayer.UpdateCriteria(CriteriaType.TotalDamageTaken, health);
 
 			if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.Self && victim.HasAuraType(AuraType.SchoolAbsorbOverkill))
 			{
@@ -3102,7 +3099,7 @@ public partial class Unit : WorldObject
 		else
 		{
 			if (victim.IsTypeId(TypeId.Player))
-				victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, damageTaken);
+				victim.AsPlayer.UpdateCriteria(CriteriaType.TotalDamageTaken, damageTaken);
 
 			victim.ModifyHealth(-(int)damageTaken);
 
@@ -3113,7 +3110,7 @@ public partial class Unit : WorldObject
 			{
 				// Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
 				if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.OwnerGUID.IsPlayer && (spellProto == null || !spellProto.HasAura(AuraType.DamageShield)))
-					victim.ToCreature().LastDamagedTime = GameTime.GetGameTime() + SharedConst.MaxAggroResetTime;
+					victim.AsCreature.LastDamagedTime = GameTime.GetGameTime() + SharedConst.MaxAggroResetTime;
 
 				if (attacker != null && (spellProto == null || !spellProto.HasAttribute(SpellAttr4.NoHarmfulThreat)))
 					victim.GetThreatManager().AddThreat(attacker, damageTaken, spellProto);
@@ -3124,7 +3121,7 @@ public partial class Unit : WorldObject
 				if (durabilityLoss && WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
-					victim.ToPlayer().DurabilityPointLossForEquipSlot(slot);
+					victim.AsPlayer.DurabilityPointLossForEquipSlot(slot);
 				}
 			}
 
@@ -3133,7 +3130,7 @@ public partial class Unit : WorldObject
 				if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
-					attacker.ToPlayer().DurabilityPointLossForEquipSlot(slot);
+					attacker.AsPlayer.DurabilityPointLossForEquipSlot(slot);
 				}
 
 			if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.DOT)
@@ -3195,7 +3192,7 @@ public partial class Unit : WorldObject
 			// last damage from duel opponent
 			if (duel_hasEnded)
 			{
-				var he = duel_wasMounted ? victim.Charmer.ToPlayer() : victim.ToPlayer();
+				var he = duel_wasMounted ? victim.Charmer.AsPlayer : victim.AsPlayer;
 
 				Cypher.Assert(he && he.Duel != null);
 
@@ -3215,7 +3212,7 @@ public partial class Unit : WorldObject
 		// logging uses damageDone
 		if (victim.IsPlayer)
 		{
-			player = victim.ToPlayer();
+			player = victim.AsPlayer;
 			ScriptManager.Instance.ForEach<IPlayerOnTakeDamage>(player.Class, a => a.OnPlayerTakeDamage(player, damageDone, damageSchoolMask));
 		}
 
@@ -3453,10 +3450,10 @@ public partial class Unit : WorldObject
 		Player player = null;
 
 		if (IsTypeId(TypeId.Player))
-			player = ToPlayer();
+			player = AsPlayer;
 		// Should we enable this also for charmed units?
 		else if (IsTypeId(TypeId.Unit) && IsPet)
-			player = GetOwner().ToPlayer();
+			player = GetOwner().AsPlayer;
 
 		if (player == null)
 			return null;
@@ -3939,7 +3936,7 @@ public partial class Unit : WorldObject
 			// Apply Player CR_ARMOR_PENETRATION rating
 			if (attacker.IsPlayer)
 			{
-				var arpPct = attacker.ToPlayer().GetRatingBonusValue(CombatRating.ArmorPenetration);
+				var arpPct = attacker.AsPlayer.GetRatingBonusValue(CombatRating.ArmorPenetration);
 
 				// no more than 100%
 				MathFunctions.RoundToInterval(ref arpPct, 0.0f, 100.0f);
@@ -4031,7 +4028,7 @@ public partial class Unit : WorldObject
 			if (spellProto == null || !spellProto.HasAttribute(SpellAttr6.IgnoreCasterDamageModifiers))
 			{
 				double maxModDamagePercentSchool = 0.0f;
-				var thisPlayer = ToPlayer();
+				var thisPlayer = AsPlayer;
 
 				if (thisPlayer != null)
 				{
@@ -4332,7 +4329,7 @@ public partial class Unit : WorldObject
 		{
 			if (GetOwner())
 			{
-				var ownerPlayer = GetOwner().ToPlayer();
+				var ownerPlayer = GetOwner().AsPlayer;
 
 				if (ownerPlayer != null)
 				{
@@ -4356,7 +4353,7 @@ public partial class Unit : WorldObject
 				return SpellBaseDamageBonusDone(mask);
 		}
 
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		var sp = 0;
 
@@ -4517,7 +4514,7 @@ public partial class Unit : WorldObject
 
 	UnitAI GetScheduledChangeAI()
 	{
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		if (creature != null)
 			return new ScheduledChangeAI(creature);
@@ -4577,7 +4574,7 @@ public partial class Unit : WorldObject
 				if (autoRepeatSpellInfo.Id != 75)
 					InterruptSpell(CurrentSpellTypes.AutoRepeat);
 				else if (TypeId == TypeId.Player)
-					Spell.SendCastResult(ToPlayer(), autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].CastId, result);
+					Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].CastId, result);
 
 				return;
 			}
@@ -4608,7 +4605,7 @@ public partial class Unit : WorldObject
 		}
 		else
 		{
-			return ToPlayer();
+			return AsPlayer;
 		}
 	}
 
@@ -4621,11 +4618,11 @@ public partial class Unit : WorldObject
 	{
 		var victim = damageInfo.Target;
 
-		if (!victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks))
+		if (!victim.IsAlive || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks))
 			return;
 
 		if (damageInfo.TargetState == VictimState.Parry &&
-			(!victim.IsCreature || victim.ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
+			(!victim.IsCreature || victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
 		{
 			// Get attack timers
 			float offtime = victim.GetAttackTimer(WeaponAttackType.OffAttack);
@@ -4671,9 +4668,9 @@ public partial class Unit : WorldObject
 		// If this is a creature and it attacks from behind it has a probability to daze it's victim
 		if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
 			!IsTypeId(TypeId.Player) &&
-			!ToCreature().IsControlledByPlayer &&
+			!AsCreature.IsControlledByPlayer &&
 			!victim.Location.HasInArc(MathFunctions.PI, Location) &&
-			(victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss) &&
+			(victim.IsTypeId(TypeId.Player) || !victim.AsCreature.IsWorldBoss) &&
 			!victim.IsVehicle)
 		{
 			// 20% base chance
@@ -4698,7 +4695,7 @@ public partial class Unit : WorldObject
 		if (IsTypeId(TypeId.Player))
 		{
 			DamageInfo dmgInfo = new(damageInfo);
-			ToPlayer().CastItemCombatSpell(dmgInfo);
+			AsPlayer.CastItemCombatSpell(dmgInfo);
 		}
 
 		// Do effect if any damage done to target
@@ -4917,7 +4914,7 @@ public partial class Unit : WorldObject
 			}
 			else
 			{
-				var unitCaster = caster.ToUnit();
+				var unitCaster = caster.AsUnit;
 
 				if (unitCaster != null)
 					victimResistance += unitCaster.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)schoolMask);

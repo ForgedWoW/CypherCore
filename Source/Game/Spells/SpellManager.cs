@@ -495,7 +495,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		// check XP or honor target requirement
 		if (((uint)procEntry.AttributesMask & 0x0000001) != 0)
 		{
-			var actor = eventInfo.Actor.ToPlayer();
+			var actor = eventInfo.Actor.AsPlayer;
 
 			if (actor)
 				if (eventInfo.ActionTarget && !actor.IsHonorOrXPTarget(eventInfo.ActionTarget))

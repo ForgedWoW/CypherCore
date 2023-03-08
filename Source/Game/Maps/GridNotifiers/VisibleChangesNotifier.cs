@@ -41,7 +41,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 
 			if (caster)
 			{
-				var pl = caster.ToPlayer();
+				var pl = caster.AsPlayer;
 
 				if (pl && pl.SeerView == dynamicObject)
 					pl.UpdateVisibilityOf(_objects);

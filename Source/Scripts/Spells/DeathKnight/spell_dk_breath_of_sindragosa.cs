@@ -26,7 +26,7 @@ public class spell_dk_breath_of_sindragosa : AuraScript, IHasAuraEffects
 		if (l_Caster == null)
 			return;
 
-		var l_Player = l_Caster.ToPlayer();
+		var l_Player = l_Caster.AsPlayer;
 
 		if (l_Player == null)
 			return;

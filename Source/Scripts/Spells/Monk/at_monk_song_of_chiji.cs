@@ -19,7 +19,7 @@ public class at_monk_song_of_chiji : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (unit != caster && caster.IsValidAttackTarget(unit))

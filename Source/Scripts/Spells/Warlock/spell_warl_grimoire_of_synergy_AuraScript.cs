@@ -32,9 +32,9 @@ public class spell_warl_grimoire_of_synergy_AuraScript : AuraScript, IAuraCheckP
 			return true;
 		}
 
-		var player = actor.ToPlayer();
+		var player = actor.AsPlayer;
 
-		if (actor.ToPlayer())
+		if (actor.AsPlayer)
 		{
 			var guardian = player.GetGuardianPet();
 

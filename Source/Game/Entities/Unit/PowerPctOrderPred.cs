@@ -20,8 +20,8 @@ public class PowerPctOrderPred : IComparer<WorldObject>
 
 	public int Compare(WorldObject objA, WorldObject objB)
 	{
-		var a = objA.ToUnit();
-		var b = objB.ToUnit();
+		var a = objA.AsUnit;
+		var b = objB.AsUnit;
 		var rA = a != null ? a.GetPowerPct(_power) : 0.0f;
 		var rB = b != null ? b.GetPowerPct(_power) : 0.0f;
 

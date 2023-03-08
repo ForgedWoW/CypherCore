@@ -30,7 +30,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player != null)
 		{

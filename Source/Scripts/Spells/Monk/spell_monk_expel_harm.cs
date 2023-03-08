@@ -18,7 +18,7 @@ public class spell_monk_expel_harm : SpellScript, ISpellOnHit
 		if (!Caster)
 			return;
 
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

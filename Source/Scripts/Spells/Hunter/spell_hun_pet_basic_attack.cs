@@ -37,33 +37,35 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 		if (owner.HasSpell(HunterSpells.BLINK_STRIKES))
 		{
-			if (owner.ToPlayer().GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && caster.GetDistance(target) > 10.0f)
+			if (owner.AsPlayer.GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && caster.GetDistance(target) > 10.0f)
 				return SpellCastResult.OutOfRange;
 
 			if ((caster.HasAuraType(AuraType.ModRoot) || caster.HasAuraType(AuraType.ModStun)) && caster.GetDistance(target) > 5.0f)
 				return SpellCastResult.Rooted;
 
-			if (!owner.ToPlayer().GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && target.IsWithinLOSInMap(caster) && caster.GetDistance(target) > 10.0f && caster.GetDistance(target) < 30.0f && !caster.HasAuraType(AuraType.ModStun))
+			if (!owner.AsPlayer.GetSpellHistory().HasCooldown(HunterSpells.BLINK_STRIKES) && target.IsWithinLOSInMap(caster) && caster.GetDistance(target) > 10.0f && caster.GetDistance(target) < 30.0f && !caster.HasAuraType(AuraType.ModStun))
 			{
 				caster.CastSpell(target, HunterSpells.BLINK_STRIKES_TELEPORT, true);
 
-				if (caster.ToCreature().IsAIEnabled && caster.ToPet())
+				if (caster.AsCreature.IsAIEnabled && caster.AsPet)
 				{
-					caster.ToPet().ClearUnitState(UnitState.Follow);
+					caster.					AsPet.ClearUnitState(UnitState.Follow);
 
-					if (caster.ToPet().GetVictim())
-						caster.ToPet().AttackStop();
+					if (caster.AsPet.GetVictim())
+						caster.						AsPet.AttackStop();
 
 					caster.MotionMaster.Clear();
-					caster.ToPet().GetCharmInfo().SetIsCommandAttack(true);
-					caster.ToPet().GetCharmInfo().SetIsAtStay(false);
-					caster.ToPet().GetCharmInfo().SetIsReturning(false);
-					caster.ToPet().GetCharmInfo().SetIsFollowing(false);
+					caster.					AsPet.GetCharmInfo().SetIsCommandAttack(true);
+					caster.					AsPet.GetCharmInfo().SetIsAtStay(false);
+					caster.					AsPet.GetCharmInfo().SetIsReturning(false);
+					caster.					AsPet.GetCharmInfo().SetIsFollowing(false);
 
-					caster.ToCreature().GetAI().AttackStart(target);
+					caster.
+					AsCreature.GetAI().AttackStart(target);
 				}
 
-				owner.ToPlayer().GetSpellHistory().AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
+				owner.
+				AsPlayer.GetSpellHistory().AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
 			}
 		}
 
@@ -77,7 +79,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 
 	private void HandleDamage(int effIndex)
 	{
-		var pet = Caster.ToPet();
+		var pet = Caster.AsPet;
 
 		if (pet != null)
 		{

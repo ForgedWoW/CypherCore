@@ -24,7 +24,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
 		if (caster == null)
 			return;
 
-		var dispeller = dispelInfo.GetDispeller().ToUnit();
+		var dispeller = dispelInfo.GetDispeller().AsUnit;
 
 		if (dispeller != null)
 		{
@@ -46,7 +46,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
 		var caster = Caster;
 		var target = UnitOwner;
 
-		if (caster == null || target == null || !caster.ToPlayer())
+		if (caster == null || target == null || !caster.AsPlayer)
 			return;
 
 		if (caster.HasAura(WarlockSpells.UNSTABLE_AFFLICTION_RANK2))

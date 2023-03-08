@@ -27,10 +27,10 @@ internal class spell_warlock_unending_resolve : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		if (caster == null || caster.ToPlayer())
+		if (caster == null || caster.AsPlayer)
 			return;
 
-		var pCaster = caster.ToPlayer();
+		var pCaster = caster.AsPlayer;
 
 		if (pCaster == null)
 			return;

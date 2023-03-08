@@ -30,7 +30,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
 	{
 		RescheduleBuff();
 
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player != null)
 			player.SetSpeed(UnitMoveType.Run, player.GetSpeedRate(UnitMoveType.Run) + 0.15f);
@@ -67,7 +67,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player != null)
 			player.SetSpeed(UnitMoveType.Run, player.GetSpeedRate(UnitMoveType.Run) - 0.15f);

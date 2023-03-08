@@ -30,7 +30,7 @@ public class spell_warr_devastate : SpellScript, IHasSpellEffects
 		// https://www.wowhead.com/spell=23922/shield-slam
 		if (RandomHelper.randChance(Global.SpellMgr.GetSpellInfo(WarriorSpells.DEVASTATE, Difficulty.None).GetEffect(effIndex).BasePoints))
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 				player.GetSpellHistory().ResetCooldown(WarriorSpells.SHIELD_SLAM, true);

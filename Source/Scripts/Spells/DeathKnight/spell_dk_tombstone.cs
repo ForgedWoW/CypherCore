@@ -39,7 +39,7 @@ public class spell_dk_tombstone : AuraScript, IHasAuraEffects
 					stack = maxStack;
 
 				amount.Value = caster.CountPctFromMaxHealth(SpellInfo.GetEffect(3).CalcValue(caster)) * stack;
-				var _player = caster.ToPlayer();
+				var _player = caster.AsPlayer;
 
 				if (_player != null)
 				{

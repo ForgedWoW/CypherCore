@@ -25,7 +25,7 @@ public class spell_monk_fists_of_fury_damage : SpellScript, IHasSpellEffects
 			return;
 
 		var l_Target = HitUnit;
-		var l_Player = Caster.ToPlayer();
+		var l_Player = Caster.AsPlayer;
 
 		if (l_Target == null || l_Player == null)
 			return;

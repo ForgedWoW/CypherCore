@@ -36,7 +36,7 @@ internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (!caster)
 			return;

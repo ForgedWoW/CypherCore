@@ -1271,7 +1271,7 @@ public class SpellCastLogData
 
 	public void Initialize(Spell spell)
 	{
-		var unitCaster = spell.Caster.ToUnit();
+		var unitCaster = spell.Caster.AsUnit;
 
 		if (unitCaster != null)
 		{
@@ -1345,13 +1345,13 @@ class ContentTuningParams
 
 	public bool GenerateDataForUnits(Unit attacker, Unit target)
 	{
-		var playerAttacker = attacker.ToPlayer();
-		var creatureAttacker = attacker.ToCreature();
+		var playerAttacker = attacker.AsPlayer;
+		var creatureAttacker = attacker.AsCreature;
 
 		if (playerAttacker)
 		{
-			var playerTarget = target.ToPlayer();
-			var creatureTarget = target.ToCreature();
+			var playerTarget = target.AsPlayer;
+			var creatureTarget = target.AsCreature;
 
 			if (playerTarget)
 				return GenerateDataPlayerToPlayer(playerAttacker, playerTarget);
@@ -1361,8 +1361,8 @@ class ContentTuningParams
 		}
 		else if (creatureAttacker)
 		{
-			var playerTarget = target.ToPlayer();
-			var creatureTarget = target.ToCreature();
+			var playerTarget = target.AsPlayer;
+			var creatureTarget = target.AsCreature;
 
 			if (playerTarget)
 			{

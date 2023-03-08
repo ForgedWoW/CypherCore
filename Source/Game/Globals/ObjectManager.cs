@@ -11413,7 +11413,7 @@ namespace Game
         }
         public List<VehicleAccessory> GetVehicleAccessoryList(Vehicle veh)
         {
-            Creature cre = veh.GetBase().ToCreature();
+            Creature cre = veh.GetBase().AsCreature;
             if (cre != null)
             {
                 // Give preference to GUID-based accessories
@@ -11945,7 +11945,7 @@ namespace Game
         // helpers
         public bool IsFitToRequirements(Unit clicker, Unit clickee)
         {
-            Player playerClicker = clicker.ToPlayer();
+            Player playerClicker = clicker.AsPlayer;
             if (playerClicker == null)
                 return true;
 

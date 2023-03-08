@@ -42,7 +42,7 @@ internal class spell_gen_whisper_to_controller_random : SpellScript, IHasSpellEf
 
 			if (targetSummon != null)
 			{
-				var player = targetSummon.GetSummonerUnit().ToPlayer();
+				var player = targetSummon.GetSummonerUnit().AsPlayer;
 
 				if (player != null)
 					targetSummon.GetAI().Talk(_text, player);

@@ -18,7 +18,7 @@ public class spell_pal_divine_purpose_proc : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.HasSpell(PaladinSpells.DIVINE_PURPOSE_RET) || player.HasSpell(PaladinSpells.DIVINE_PURPOSE_HOLY))

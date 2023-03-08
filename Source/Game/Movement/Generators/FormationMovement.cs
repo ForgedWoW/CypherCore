@@ -87,7 +87,7 @@ namespace Game.Movement
             }
 
             if (!owner.MoveSpline.Finalized())
-                owner.SetHomePosition(owner.Location);
+                owner.                HomePosition = owner.Location;
 
             // Formation leader has launched a new spline, launch a new one for our member as well
             // This action does not reset the regular movement launch cycle interval
@@ -96,13 +96,13 @@ namespace Game.Movement
                 // Update formation angle
                 if (_point1 != 0 && target.IsCreature)
                 {
-                    CreatureGroup formation = target.ToCreature().GetFormation();
+                    CreatureGroup formation = target.AsCreature.Formation;
                     if (formation != null)
                     {
                         Creature leader = formation.GetLeader();
                         if (leader != null)
                         {
-                            uint currentWaypoint = leader.GetCurrentWaypointInfo().nodeId;
+                            uint currentWaypoint = leader.CurrentWaypointInfo.nodeId;
                             if (currentWaypoint == _point1 || currentWaypoint == _point2)
                                 _angle = MathF.PI * 2 - _angle;
                         }

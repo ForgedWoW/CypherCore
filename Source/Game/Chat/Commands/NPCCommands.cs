@@ -88,12 +88,12 @@ namespace Game.Chat
             uint nativeid = target.NativeDisplayId;
             uint entry = target.Entry;
 
-            long curRespawnDelay = target.GetRespawnCompatibilityMode() ? target.RespawnTimeEx - GameTime.GetGameTime() : target.GetMap().GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
+            long curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.GetMap().GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
             string curRespawnDelayStr = Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
-            string defRespawnDelayStr = Time.secsToTimeString(target.GetRespawnDelay(), TimeFormat.ShortText);
+            string defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
             handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.SpawnId, target.GUID.ToString(), entry, faction, npcflags, displayid, nativeid);
             if (target.CreatureData != null && target.CreatureData.SpawnGroupData.GroupId != 0)
@@ -101,7 +101,7 @@ namespace Game.Chat
                 SpawnGroupTemplateData groupData = target.CreatureData.SpawnGroupData;
                 handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, target.GetMap().IsSpawnGroupActive(groupData.GroupId));
             }
-            handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.GetRespawnCompatibilityMode());
+            handler.SendSysMessage(CypherStrings.SpawninfoCompatibilityMode, target.RespawnCompatibilityMode);
             handler.SendSysMessage(CypherStrings.NpcinfoLevel, target.Level);
             handler.SendSysMessage(CypherStrings.NpcinfoEquipment, target.CurrentEquipmentId, target.OriginalEquipmentId);
             handler.SendSysMessage(CypherStrings.NpcinfoHealth, target.GetCreateHealth(), target.GetMaxHealth(), target.GetHealth());
@@ -439,7 +439,7 @@ namespace Game.Chat
             pet.SetLevel(level - 1);
 
             // add to world
-            pet.GetMap().AddToMap(pet.ToCreature());
+            pet.GetMap().AddToMap(pet.AsCreature);
 
             // visual effect for levelup
             pet.SetLevel(level);
@@ -683,9 +683,9 @@ namespace Game.Chat
                 }
 
                 ulong lowguid = creature.SpawnId;
-                if (creature.GetFormation() != null)
+                if (creature.Formation != null)
                 {
-                    handler.SendSysMessage("Selected creature is already member of group {0}", creature.GetFormation().GetLeaderSpawnId());
+                    handler.SendSysMessage("Selected creature is already member of group {0}", creature.Formation.GetLeaderSpawnId());
                     return false;
                 }
 
@@ -908,7 +908,7 @@ namespace Game.Chat
                     handler.SendSysMessage(CypherStrings.SelectCreature);
                     return false;
                 }
-                Creature creature = unit.ToCreature();
+                Creature creature = unit.AsCreature;
                 if (creature.UpdateEntry(newEntryNum))
                     handler.SendSysMessage(CypherStrings.Done);
                 else
@@ -1215,7 +1215,8 @@ namespace Game.Chat
                 else
                     return false;
 
-                creature.SetWanderDistance(option);
+                creature.
+                WanderDistance = option;
                 creature.SetDefaultMovementType(mtype);
                 creature.                MotionMaster.Initialize();
                 if (creature.IsAlive)                                // dead creature will reset movement generator at respawn
@@ -1247,7 +1248,8 @@ namespace Game.Chat
                 stmt.AddValue(1, creature.SpawnId);
                 DB.World.Execute(stmt);
 
-                creature.SetRespawnDelay(spawnTime);
+                creature.
+                RespawnDelay = spawnTime;
                 handler.SendSysMessage(CypherStrings.CommandSpawntime, spawnTime);
 
                 return true;

@@ -204,7 +204,7 @@ public class PoolGroup<T>
 						var creature = creatureBounds[i];
 
 						// For dynamic spawns, save respawn time here
-						if (saveRespawnTime && !creature.GetRespawnCompatibilityMode())
+						if (saveRespawnTime && !creature.RespawnCompatibilityMode)
 							creature.SaveRespawnTime();
 
 						creature.AddObjectToRemoveList();

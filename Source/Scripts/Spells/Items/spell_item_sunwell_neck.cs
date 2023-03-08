@@ -49,7 +49,7 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var player = eventInfo.Actor.ToPlayer();
+		var player = eventInfo.Actor.AsPlayer;
 		var target = eventInfo.ProcTarget;
 
 		// Aggression checks are in the spell system... just cast and forget

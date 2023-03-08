@@ -12,7 +12,7 @@ public class spell_dru_teleport_moonglade : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			_player.TeleportTo(1, 7964.063f, -2491.099f, 487.83f, _player.Location.Orientation);

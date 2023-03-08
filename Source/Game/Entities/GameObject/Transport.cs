@@ -114,7 +114,7 @@ class Transport : GameObjectTypeBase, ITransport
 			passenger.MovementInfo.Transport.Reset();
 			Log.outDebug(LogFilter.Transport, $"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
 
-			var plr = passenger.ToPlayer();
+			var plr = passenger.AsPlayer;
 
 			if (plr != null)
 				plr.SetFallInformation(0, plr.Location.Z);

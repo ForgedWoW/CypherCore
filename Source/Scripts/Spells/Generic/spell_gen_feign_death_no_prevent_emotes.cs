@@ -26,7 +26,7 @@ internal class spell_gen_feign_death_no_prevent_emotes : AuraScript, IHasAuraEff
 		target.SetUnitFlag3(UnitFlags3.FakeDead);
 		target.SetUnitFlag2(UnitFlags2.FeignDeath);
 
-		var creature = target.ToCreature();
+		var creature = target.AsCreature;
 
 		creature.ReactState = ReactStates.Passive;
 	}
@@ -37,7 +37,7 @@ internal class spell_gen_feign_death_no_prevent_emotes : AuraScript, IHasAuraEff
 		target.RemoveUnitFlag3(UnitFlags3.FakeDead);
 		target.RemoveUnitFlag2(UnitFlags2.FeignDeath);
 
-		var creature = target.ToCreature();
+		var creature = target.AsCreature;
 
 		creature?.InitializeReactState();
 	}

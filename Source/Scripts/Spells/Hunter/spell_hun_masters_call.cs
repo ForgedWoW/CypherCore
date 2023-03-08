@@ -29,7 +29,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 	public SpellCastResult CheckCast()
 	{
-		var pet = Caster.ToPlayer().GetGuardianPet();
+		var pet = Caster.AsPlayer.GetGuardianPet();
 
 		if (pet == null ||
 			!pet.IsPet ||
@@ -71,7 +71,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 	private void HandleDummy(int effIndex)
 	{
-		Caster.ToPlayer().GetPet().CastSpell(HitUnit, (uint)EffectValue, true);
+		Caster.		AsPlayer.GetPet().CastSpell(HitUnit, (uint)EffectValue, true);
 	}
 
 	private void HandleScriptEffect(int effIndex)

@@ -149,18 +149,18 @@ public partial class Unit
 		{
 			// register forced speed changes for WorldSession.HandleForceSpeedChangeAck
 			// and do it only for real sent packets and use run for run/mounted as client expected
-			++ToPlayer().ForcedSpeedChanges[(int)mtype];
+			++AsPlayer.ForcedSpeedChanges[(int)mtype];
 
 			if (!IsInCombat())
 			{
-				var pet = ToPlayer().GetPet();
+				var pet = AsPlayer.GetPet();
 
 				if (pet)
 					pet.SetSpeedRate(mtype, SpeedRate[(int)mtype]);
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer(); // unit controlled by a player.
+		var playerMover = GetUnitBeingMoved()?.AsPlayer; // unit controlled by a player.
 
 		if (playerMover)
 		{
@@ -310,7 +310,7 @@ public partial class Unit
 
 	public void KnockbackFrom(Position origin, float speedXY, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (!player)
 		{
@@ -318,7 +318,7 @@ public partial class Unit
 
 			if (charmer)
 			{
-				player = charmer.ToPlayer();
+				player = charmer.AsPlayer;
 
 				if (player && player.GetUnitBeingMoved() != this)
 					player = null;
@@ -358,7 +358,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -386,7 +386,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanTurnWhileFalling);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -413,7 +413,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag2(MovementFlag2.CanDoubleJump);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -440,7 +440,7 @@ public partial class Unit
 		else
 			RemoveExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover != null)
 		{
@@ -470,7 +470,7 @@ public partial class Unit
 		{
 			var vcos = (float)Math.Cos(angle + Location.Orientation);
 			var vsin = (float)Math.Sin(angle + Location.Orientation);
-			SendMoveKnockBack(ToPlayer(), speedXY, -speedZ, vcos, vsin);
+			SendMoveKnockBack(AsPlayer, speedXY, -speedZ, vcos, vsin);
 		}
 	}
 
@@ -576,7 +576,7 @@ public partial class Unit
 			{
 				// Set creature speed rate
 				if (IsTypeId(TypeId.Unit))
-					speed *= ToCreature().CreatureTemplate.SpeedRun; // at this point, MOVE_WALK is never reached
+					speed *= AsCreature.CreatureTemplate.SpeedRun; // at this point, MOVE_WALK is never reached
 
 				// Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
 				// @todo possible affect only on MOVE_RUN
@@ -584,7 +584,7 @@ public partial class Unit
 
 				if (normalization != 0)
 				{
-					var creature1 = ToCreature();
+					var creature1 = AsCreature;
 
 					if (creature1)
 					{
@@ -621,7 +621,7 @@ public partial class Unit
 				break;
 		}
 
-		var creature = ToCreature();
+		var creature = AsCreature;
 
 		if (creature != null)
 			if (creature.HasUnitTypeMask(UnitTypeMask.Minion) && !creature.IsInCombat())
@@ -653,7 +653,7 @@ public partial class Unit
 			var baseMinSpeed = 1.0f;
 
 			if (!OwnerGUID.IsPlayer && !IsHunterPet && TypeId == TypeId.Unit)
-				baseMinSpeed = ToCreature().CreatureTemplate.SpeedRun;
+				baseMinSpeed = AsCreature.CreatureTemplate.SpeedRun;
 
 			var min_speed = MathFunctions.CalculatePct(baseMinSpeed, minSpeedMod);
 
@@ -691,9 +691,9 @@ public partial class Unit
 		{
 			// move and update visible state if need
 			if (IsTypeId(TypeId.Player))
-				GetMap().PlayerRelocation(ToPlayer(), x, y, z, orientation);
+				GetMap().PlayerRelocation(AsPlayer, x, y, z, orientation);
 			else
-				GetMap().CreatureRelocation(ToCreature(), x, y, z, orientation);
+				GetMap().CreatureRelocation(AsCreature, x, y, z, orientation);
 		}
 		else if (turn)
 		{
@@ -745,7 +745,7 @@ public partial class Unit
 		}
 
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -765,7 +765,7 @@ public partial class Unit
 			SendMessageToSet(packet, true);
 		}
 
-		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !ToCreature().MovementTemplate.IsRooted())
+		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
 		{
 			if (IsGravityDisabled())
 				SetAnimTier(AnimTier.Fly);
@@ -795,7 +795,7 @@ public partial class Unit
 		bool isInWater;
 
 		if (IsTypeId(TypeId.Player))
-			ridingSkill = ToPlayer().GetSkillValue(SkillType.Riding);
+			ridingSkill = AsPlayer.GetSkillValue(SkillType.Riding);
 
 		if (HasAuraType(AuraType.MountRestrictions))
 		{
@@ -878,7 +878,7 @@ public partial class Unit
 			if (mountCapability.ReqSpellKnownID != 0 && !HasSpell(mountCapability.ReqSpellKnownID))
 				continue;
 
-			var thisPlayer = ToPlayer();
+			var thisPlayer = AsPlayer;
 
 			if (thisPlayer != null)
 			{
@@ -1029,9 +1029,9 @@ public partial class Unit
 		}
 
 		if (!enable && IsTypeId(TypeId.Player))
-			ToPlayer().SetFallInformation(0, Location.Z);
+			AsPlayer.SetFallInformation(0, Location.Z);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1065,7 +1065,7 @@ public partial class Unit
 			RemoveUnitMovementFlag(MovementFlag.WaterWalk);
 
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1100,7 +1100,7 @@ public partial class Unit
 			RemoveUnitMovementFlag(MovementFlag.FallingSlow);
 
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1151,7 +1151,7 @@ public partial class Unit
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1171,7 +1171,7 @@ public partial class Unit
 			SendMessageToSet(packet, true);
 		}
 
-		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !ToCreature().MovementTemplate.IsRooted())
+		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
 		{
 			if (IsGravityDisabled())
 				SetAnimTier(AnimTier.Fly);
@@ -1230,7 +1230,7 @@ public partial class Unit
 		if (IsTypeId(TypeId.Player))
 		{
 			WorldLocation target = new(Location.MapId, pos);
-			ToPlayer().TeleportTo(target, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet | (casting ? TeleportToOptions.Spell : 0)));
+			AsPlayer.TeleportTo(target, (TeleportToOptions.NotLeaveTransport | TeleportToOptions.NotLeaveCombat | TeleportToOptions.NotUnSummonPet | (casting ? TeleportToOptions.Spell : 0)));
 		}
 		else
 		{
@@ -1244,11 +1244,11 @@ public partial class Unit
 	{
 		UnitMovedByMe.PlayerMovingMe = null;
 		UnitMovedByMe = target;
-		UnitMovedByMe.PlayerMovingMe = ToPlayer();
+		UnitMovedByMe.PlayerMovingMe = AsPlayer;
 
 		MoveSetActiveMover packet = new();
 		packet.MoverGUID = target.GUID;
-		ToPlayer().SendPacket(packet);
+		AsPlayer.SendPacket(packet);
 	}
 
 	public void SetControlled(bool apply, UnitState state)
@@ -1311,7 +1311,7 @@ public partial class Unit
 
 					break;
 				case UnitState.Root:
-					if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || GetVehicle() != null || (IsCreature && ToCreature().MovementTemplate.IsRooted()))
+					if (HasAuraType(AuraType.ModRoot) || HasAuraType(AuraType.ModRoot2) || HasAuraType(AuraType.ModRootDisableGravity) || GetVehicle() != null || (IsCreature && AsCreature.MovementTemplate.IsRooted()))
 						return;
 
 					ClearUnitState(state);
@@ -1363,7 +1363,7 @@ public partial class Unit
 			}
 		}
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer(); // unit controlled by a player.
+		var playerMover = GetUnitBeingMoved()?.AsPlayer; // unit controlled by a player.
 
 		if (playerMover)
 		{
@@ -1404,7 +1404,7 @@ public partial class Unit
 
 		SetUnitFlag(UnitFlags.Mount);
 
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 		{
@@ -1423,7 +1423,7 @@ public partial class Unit
 
 			if (pet != null)
 			{
-				var bg = ToPlayer().GetBattleground();
+				var bg = AsPlayer.GetBattleground();
 
 				// don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
 				if (bg && bg.IsArena())
@@ -1453,7 +1453,7 @@ public partial class Unit
 		MountDisplayId = 0;
 		RemoveUnitFlag(UnitFlags.Mount);
 
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 			thisPlayer.SendMovementSetCollisionHeight(thisPlayer.CollisionHeight, UpdateCollisionHeightReason.Mount);
@@ -1468,7 +1468,7 @@ public partial class Unit
 		// only resummon old pet if the player is already added to a map
 		// this prevents adding a pet to a not created map which would otherwise cause a crash
 		// (it could probably happen when logging in after a previous crash)
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player != null)
 		{
@@ -1723,7 +1723,7 @@ public partial class Unit
 		var broadcastSource = this;
 
 		// should this really be the unit _being_ moved? not the unit doing the moving?
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1794,7 +1794,7 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag(MovementFlag.DisableCollision);
 
-		var playerMover = GetUnitBeingMoved()?.ToPlayer();
+		var playerMover = GetUnitBeingMoved()?.AsPlayer;
 
 		if (playerMover)
 		{
@@ -1874,7 +1874,7 @@ public partial class Unit
 			// don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
 			var owner = CharmerOrOwner;
 
-			if (owner == null || !owner.IsTypeId(TypeId.Player) || !owner.ToPlayer().IsMounted)
+			if (owner == null || !owner.IsTypeId(TypeId.Player) || !owner.AsPlayer.IsMounted)
 				RemoveUnitFlag(UnitFlags.Stunned);
 
 			if (!HasUnitState(UnitState.Root)) // prevent moving if it also has root effect
@@ -1945,7 +1945,7 @@ public partial class Unit
 
 	void SendSetVehicleRecId(uint vehicleId)
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player)
 		{
@@ -2046,7 +2046,7 @@ public partial class Unit
 		var mover = GetUnitBeingMoved();
 
 		if (mover)
-			return mover.ToPlayer();
+			return mover.AsPlayer;
 
 		return null;
 	}

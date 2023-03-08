@@ -46,13 +46,13 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
 	{
 		targets.RemoveIf((WorldObject target) =>
 		{
-			if (!target.ToUnit() || target.ToPlayer())
+			if (!target.AsUnit || target.AsPlayer)
 				return true;
 
-			if (target.ToCreature().GetOwner() != Caster)
+			if (target.AsCreature.GetOwner() != Caster)
 				return true;
 
-			if (target.ToCreature().Entry != DeathKnightSpells.DKNPCS.GARGOYLE && target.ToCreature().Entry != DeathKnightSpells.DKNPCS.AOTD_GHOUL)
+			if (target.AsCreature.Entry != DeathKnightSpells.DKNPCS.GARGOYLE && target.AsCreature.Entry != DeathKnightSpells.DKNPCS.AOTD_GHOUL)
 				return true;
 
 			saveTargets.Add(target);

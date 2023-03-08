@@ -14,7 +14,7 @@ public class spell_monk_chi_wave_healing_bolt : SpellScript, ISpellOnHit
 		if (!OriginalCaster)
 			return;
 
-		var _player = OriginalCaster.ToPlayer();
+		var _player = OriginalCaster.AsPlayer;
 
 		if (_player != null)
 		{

@@ -37,7 +37,7 @@ public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
 		}
 		else
 		{
-			if (!Caster.IsUnit || !Caster.ToUnit().IsWithinBoundaryRadius(target.ToUnit()))
+			if (!Caster.IsUnit || !Caster.AsUnit.IsWithinBoundaryRadius(target.AsUnit))
 				// ConeAngle > 0 . select targets in front
 				// ConeAngle < 0 . select targets in back
 				if (_coneSrc.HasInArc(_coneAngle, target.Location) != MathFunctions.fuzzyGe(_coneAngle, 0.0f))

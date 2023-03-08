@@ -1518,7 +1518,8 @@ namespace Game.BattleGrounds
                 return null;
             }
 
-            creature.SetHomePosition(pos);
+            creature.
+            HomePosition = pos;
 
             if (!map.AddToMap(creature))
                 return null;
@@ -1526,7 +1527,7 @@ namespace Game.BattleGrounds
             BgCreatures[type] = creature.GUID;
 
             if (respawntime != 0)
-                creature.SetRespawnDelay(respawntime);
+                creature.                RespawnDelay = respawntime;
 
             return creature;
         }

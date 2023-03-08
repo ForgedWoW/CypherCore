@@ -465,7 +465,7 @@ internal class npc_odyn : ScriptedAI
 	// What about a QuestScript with a hook "OnPlayerChangeArea" ? But The Great Mead Hall does not have a specific area...
 	public override void MoveInLineOfSight(Unit who)
 	{
-		var player = who.ToPlayer();
+		var player = who.AsPlayer;
 
 		if (player)
 			if (player.GetQuestStatus(QuestIds.OdynAndTheValarjar) == QuestStatus.Incomplete)

@@ -49,7 +49,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 			{
 				prevItem = target.GetVirtualItemId(0);
 
-				var player = caster.ToPlayer();
+				var player = caster.AsPlayer;
 
 				if (player)
 				{
@@ -70,7 +70,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 			{
 				prevItem = target.GetVirtualItemId(1);
 
-				var player = caster.ToPlayer();
+				var player = caster.AsPlayer;
 
 				if (player)
 				{
@@ -90,7 +90,7 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 			{
 				prevItem = target.GetVirtualItemId(2);
 
-				var player = caster.ToPlayer();
+				var player = caster.AsPlayer;
 
 				if (player)
 				{

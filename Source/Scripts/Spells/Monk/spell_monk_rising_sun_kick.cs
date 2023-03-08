@@ -22,14 +22,14 @@ public class spell_monk_rising_sun_kick : SpellScript, IHasSpellEffects
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (target == null || caster == null)
 			return;
 
 		if (caster.HasAura(MonkSpells.RISING_THUNDER))
-			caster.ToPlayer().GetSpellHistory().ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
+			caster.			AsPlayer.GetSpellHistory().ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.MonkBattledancer)
 			caster.CastSpell(target, MonkSpells.MORTAL_WOUNDS, true);

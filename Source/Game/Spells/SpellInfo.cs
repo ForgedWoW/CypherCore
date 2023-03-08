@@ -1205,7 +1205,7 @@ public class SpellInfo
 		if (!HasAttribute(SpellAttr6.IgnorePhaseShift) && !caster.CanSeeOrDetect(target, Implicit))
 			return SpellCastResult.BadTargets;
 
-		var unitTarget = target.ToUnit();
+		var unitTarget = target.AsUnit;
 
 		// creature/player specific target checks
 		if (unitTarget != null)
@@ -1229,16 +1229,16 @@ public class SpellInfo
 					// Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
 					if (HasAttribute(SpellAttr2.CannotCastOnTapped))
 					{
-						var targetCreature = unitTarget.ToCreature();
+						var targetCreature = unitTarget.AsCreature;
 
 						if (targetCreature != null)
-							if (targetCreature.HasLootRecipient && !targetCreature.IsTappedBy(caster.ToPlayer()))
+							if (targetCreature.HasLootRecipient && !targetCreature.IsTappedBy(caster.AsPlayer))
 								return SpellCastResult.CantCastOnTapped;
 					}
 
 					if (HasAttribute(SpellCustomAttributes.PickPocket))
 					{
-						var targetCreature = unitTarget.ToCreature();
+						var targetCreature = unitTarget.AsCreature;
 
 						if (targetCreature == null)
 							return SpellCastResult.BadTargets;
@@ -1252,7 +1252,7 @@ public class SpellInfo
 					{
 						if (unitTarget.IsTypeId(TypeId.Player))
 						{
-							var player = unitTarget.ToPlayer();
+							var player = unitTarget.AsPlayer;
 
 							if (player.GetWeaponForAttack(WeaponAttackType.BaseAttack) == null || !player.IsUseEquipedWeapon(true))
 								return SpellCastResult.TargetNoWeapons;
@@ -1267,7 +1267,7 @@ public class SpellInfo
 		// corpse specific target checks
 		else if (target.IsTypeId(TypeId.Corpse))
 		{
-			var corpseTarget = target.ToCorpse();
+			var corpseTarget = target.AsCorpse;
 
 			// cannot target bare bones
 			if (corpseTarget.GetCorpseType() == CorpseType.Bones)
@@ -1320,10 +1320,10 @@ public class SpellInfo
 		// check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
 		if (unitTarget != caster && (caster.GetAffectingPlayer() != null || !IsPositive) && unitTarget.IsTypeId(TypeId.Player))
 		{
-			if (!unitTarget.ToPlayer().IsVisible())
+			if (!unitTarget.AsPlayer.IsVisible())
 				return SpellCastResult.BmOrInvisgod;
 
-			if (unitTarget.ToPlayer().IsGameMaster)
+			if (unitTarget.AsPlayer.IsGameMaster)
 				return SpellCastResult.BmOrInvisgod;
 		}
 
@@ -1338,7 +1338,7 @@ public class SpellInfo
 		him, because it would be it's passenger, there's no such case where this gets to fail legitimacy, this problem
 		cannot be solved from within the check in other way since target type cannot be called for the spell currently
 		Spell examples: [ID - 52864 Devour Water, ID - 52862 Devour Wind, ID - 49370 Wyrmrest Defender: Destabilize Azure Dragonshrine Effect] */
-		var unitCaster = caster.ToUnit();
+		var unitCaster = caster.AsUnit;
 
 		if (unitCaster != null)
 			if (!unitCaster.IsVehicle && unitCaster.CharmerOrOwner != target)
@@ -1395,12 +1395,12 @@ public class SpellInfo
 			return SpellCastResult.SpellCastOk;
 		}
 
-		var unitTarget = target.ToUnit();
+		var unitTarget = target.AsUnit;
 
 		if (unitTarget != null)
 			if (neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitEnemy | SpellCastTargetFlags.UnitAlly | SpellCastTargetFlags.UnitRaid | SpellCastTargetFlags.UnitParty | SpellCastTargetFlags.UnitMinipet | SpellCastTargetFlags.UnitPassenger))
 			{
-				var unitCaster = caster.ToUnit();
+				var unitCaster = caster.AsUnit;
 
 				if (neededTargets.HasFlag(SpellCastTargetFlags.UnitEnemy))
 					if (caster.IsValidAttackTarget(unitTarget, this))
@@ -2430,7 +2430,7 @@ public class SpellInfo
 	public SpellPowerCost CalcPowerCost(PowerType powerType, bool optionalCost, WorldObject caster, SpellSchoolMask schoolMask, Spell spell = null)
 	{
 		// gameobject casts don't use power
-		var unitCaster = caster.ToUnit();
+		var unitCaster = caster.AsUnit;
 
 		if (unitCaster == null)
 			return null;
@@ -2446,7 +2446,7 @@ public class SpellInfo
 	public SpellPowerCost CalcPowerCost(SpellPowerRecord power, bool optionalCost, WorldObject caster, SpellSchoolMask schoolMask, Spell spell = null)
 	{
 		// gameobject casts don't use power
-		var unitCaster = caster.ToUnit();
+		var unitCaster = caster.AsUnit;
 
 		if (!unitCaster)
 			return null;
@@ -2720,7 +2720,7 @@ public class SpellInfo
 				if (optionalCost != null)
 				{
 					var cost1 = getOrCreatePowerCost(optionalCost.Power);
-					var remainingPower = caster.ToUnit().GetPower(optionalCost.Power) - cost1.Amount;
+					var remainingPower = caster.AsUnit.GetPower(optionalCost.Power) - cost1.Amount;
 
 					if (remainingPower > 0)
 						cost1.Amount += Math.Min(optionalCost.Amount, remainingPower);
@@ -2762,7 +2762,7 @@ public class SpellInfo
 				}
 				case SpellProcsPerMinuteModType.Spec:
 				{
-					var plrCaster = caster.ToPlayer();
+					var plrCaster = caster.AsPlayer;
 
 					if (plrCaster)
 						if (plrCaster.GetPrimarySpecialization() == mod.Param)
@@ -2881,13 +2881,13 @@ public class SpellInfo
 			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(visual.CasterPlayerConditionID);
 
 			if (playerCondition != null)
-				if (!caster || !caster.IsPlayer || !ConditionManager.IsPlayerMeetingCondition(caster.ToPlayer(), playerCondition))
+				if (!caster || !caster.IsPlayer || !ConditionManager.IsPlayerMeetingCondition(caster.AsPlayer, playerCondition))
 					continue;
 
 			var unitCondition = CliDB.UnitConditionStorage.LookupByKey(visual.CasterUnitConditionID);
 
 			if (unitCondition != null)
-				if (!caster || !caster.IsUnit || !ConditionManager.IsUnitMeetingCondition(caster.ToUnit(), viewer?.ToUnit(), unitCondition))
+				if (!caster || !caster.IsUnit || !ConditionManager.IsUnitMeetingCondition(caster.AsUnit, viewer?.AsUnit, unitCondition))
 					continue;
 
 			return visual.Id;
@@ -3160,7 +3160,7 @@ public class SpellInfo
 
 	public bool CanBeInterrupted(WorldObject interruptCaster, Unit interruptTarget, bool ignoreImmunity = false)
 	{
-		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit && interruptCaster.ToUnit().HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.GetMechanicImmunityMask() & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
+		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit && interruptCaster.AsUnit.HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.GetMechanicImmunityMask() & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
 	}
 
 	public bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag)
@@ -3797,7 +3797,7 @@ public class SpellInfo
 
 	double CalcPPMCritMod(SpellProcsPerMinuteModRecord mod, Unit caster)
 	{
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player == null)
 			return 0.0f;

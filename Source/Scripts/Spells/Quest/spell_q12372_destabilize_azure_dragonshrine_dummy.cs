@@ -35,7 +35,7 @@ internal class spell_q12372_destabilize_azure_dragonshrine_dummy : SpellScript, 
 
 					if (passenger)
 					{
-						var player = passenger.ToPlayer();
+						var player = passenger.AsPlayer;
 
 						if (player)
 							player.KilledMonsterCredit(CreatureIds.WyrmrestTempleCredit);

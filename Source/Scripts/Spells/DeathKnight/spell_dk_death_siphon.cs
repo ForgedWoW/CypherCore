@@ -23,7 +23,7 @@ public class spell_dk_death_siphon : SpellScript, IHasSpellEffects
 
 	private void HandleScriptEffect(int effIndex)
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			if (HitUnit)

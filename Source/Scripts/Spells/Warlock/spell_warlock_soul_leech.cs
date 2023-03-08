@@ -33,7 +33,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 		Unit secondaryTarget = null;
 		//  if (Player* player = caster->ToPlayer())
 		// secondaryTarget = player->GetPet();
-		var pet = caster.ToPet();
+		var pet = caster.AsPet;
 
 		if (pet != null)
 		{
@@ -84,7 +84,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 					args.SpellValueOverrides.Add(SpellValueMod.BasePoint3, (int)finalAmount);
 					target.CastSpell(target, WarlockSpells.SOUL_LEECH_SHIELD, args);
 
-					if (target.ToPlayer() && target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
+					if (target.AsPlayer && target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
 					{
 						var playerHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(1).Amount);
 						var petHeal = MathFunctions.CalculatePct(soulLinkHeal, target.GetAura(WarlockSpells.SOUL_LINK_BUFF).GetEffect(2).Amount);

@@ -36,7 +36,7 @@ public class spell_warl_implosion : SpellScript, IHasSpellEffects
 				imp.VariableStorage.Set("ForceUpdateTimers", true);
 				imp.CastSpell(target, WarlockSpells.IMPLOSION_JUMP, true);
 				imp.MotionMaster.MoveJump(target.Location, 300.0f, 1.0f, EventId.Jump);
-				imp.SendUpdateToPlayer(caster.ToPlayer());
+				imp.SendUpdateToPlayer(caster.AsPlayer);
 				var casterGuid = caster.GUID;
 
 				imp.Events.AddEventAtOffset(() =>

@@ -24,7 +24,7 @@ internal class spell_defender_of_azeroth_speak_with_mograine : SpellScript, IHas
 		if (!Caster)
 			return;
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player == null)
 			return;

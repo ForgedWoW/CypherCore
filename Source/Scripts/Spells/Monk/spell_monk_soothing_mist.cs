@@ -34,7 +34,7 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
 		if (target != null)
 			target.CastSpell(target, MonkSpells.SOOTHING_MIST_VISUAL, true);
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (target != null)
@@ -73,7 +73,7 @@ public class spell_monk_soothing_mist : AuraScript, IHasAuraEffects
 
 						if (statue.GetOwner() != null && statue.GetOwner().GUID == player.GUID)
 							if (statue.GetOwner() && statue.GetOwner().GUID == player.GUID)
-								statue.CastSpell(statue.GetOwner().ToPlayer().GetSelectedUnit(), MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
+								statue.CastSpell(statue.GetOwner().AsPlayer.GetSelectedUnit(), MonkSpells.SERPENT_STATUE_SOOTHING_MIST, false);
 					}
 			}
 	}

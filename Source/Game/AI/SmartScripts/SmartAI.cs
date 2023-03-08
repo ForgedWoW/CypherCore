@@ -138,7 +138,7 @@ namespace Game.AI
                 me.PauseMovement(delay, MovementSlot.Default, forced);
                 if (me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
                 {
-                    var (nodeId, pathId) = me.GetCurrentWaypointInfo();
+                    var (nodeId, pathId) = me.CurrentWaypointInfo;
                     GetScript().ProcessEventsFor(SmartEvents.WaypointPaused, null, nodeId, pathId);
                 }
                 return;
@@ -157,7 +157,7 @@ namespace Game.AI
                 _waypointPauseForced = forced;
                 SetRun(_run);
                 me.PauseMovement();
-                me.SetHomePosition(me.Location);
+                me.                HomePosition = me.Location;
             }
             else
                 _waypointReached = false;
@@ -183,7 +183,7 @@ namespace Game.AI
             {
                 (uint nodeId, uint pathId) waypointInfo = new ();
                 if (me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
-                    waypointInfo = me.GetCurrentWaypointInfo();
+                    waypointInfo = me.CurrentWaypointInfo;
 
                 if (_despawnState != 2)
                     SetDespawnTime(despawnTime);
@@ -235,7 +235,7 @@ namespace Game.AI
             {
                 if (targets.Count == 1 && GetScript().IsPlayer(targets.First()))
                 {
-                    Player player = targets.First().ToPlayer();
+                    Player player = targets.First().AsPlayer;
                     if (!fail && player.IsAtGroupRewardDistance(me) && player.GetCorpse() == null)
                         player.GroupEventHappens(EscortQuestID, me);
 
@@ -264,7 +264,7 @@ namespace Game.AI
                     {
                         if (GetScript().IsPlayer(obj))
                         {
-                            Player player = obj.ToPlayer();
+                            Player player = obj.AsPlayer;
                             if (!fail && player.IsAtGroupRewardDistance(me) && player.GetCorpse() == null)
                                 player.AreaExploredOrEventHappens(EscortQuestID);
                             else if (fail)
@@ -313,7 +313,7 @@ namespace Game.AI
                 return;
 
             me.SetWalk(false);
-            me.            MotionMaster.MovePoint(EventId.SmartEscortLastOCCPoint, me.GetHomePosition());
+            me.            MotionMaster.MovePoint(EventId.SmartEscortLastOCCPoint, me.HomePosition);
         }
 
         public override void UpdateAI(uint diff)
@@ -353,7 +353,7 @@ namespace Game.AI
                 float checkDist = me.GetInstanceScript() != null ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
                 if (targets.Count == 1 && GetScript().IsPlayer(targets.First()))
                 {
-                    Player player = targets.First().ToPlayer();
+                    Player player = targets.First().AsPlayer;
                     if (me.GetDistance(player) <= checkDist)
                         return true;
 
@@ -374,7 +374,7 @@ namespace Game.AI
                     {
                         if (GetScript().IsPlayer(obj))
                         {
-                            if (me.GetDistance(obj.ToPlayer()) <= checkDist)
+                            if (me.GetDistance(obj.AsPlayer) <= checkDist)
                                 return true;
                         }
                     }
@@ -404,7 +404,7 @@ namespace Game.AI
             {
                 _waypointReached = true;
                 me.PauseMovement();
-                me.SetHomePosition(me.Location);
+                me.                HomePosition = me.Location;
             }
             else if (HasEscortState(SmartEscortState.Escorting) && me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
             {
@@ -552,7 +552,7 @@ namespace Game.AI
                 return false;
 
             // or if enemy is in evade mode
-            if (who.IsCreature && who.ToCreature().IsInEvadeMode)
+            if (who.IsCreature && who.AsCreature.IsInEvadeMode)
                 return false;
 
             if (!me.IsValidAssistTarget(who.GetVictim()))
@@ -601,12 +601,12 @@ namespace Game.AI
             GetScript().OnReset();
             GetScript().ProcessEventsFor(SmartEvents.ReachedHome);
 
-            CreatureGroup formation = me.GetFormation();
+            CreatureGroup formation = me.Formation;
             if (formation == null || formation.GetLeader() == me || !formation.IsFormed())
             {
                 if (me.MotionMaster.GetCurrentMovementGeneratorType(MovementSlot.Default) != MovementGeneratorType.Waypoint)
-                    if (me.GetWaypointPath() != 0)
-                        me.                        MotionMaster.MovePath(me.GetWaypointPath(), true);
+                    if (me.WaypointPath != 0)
+                        me.                        MotionMaster.MovePath(me.WaypointPath, true);
                 
                 me.ResumeMovement();
             }
@@ -670,12 +670,12 @@ namespace Game.AI
 
         public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
         {
-            GetScript().ProcessEventsFor(SmartEvents.SpellHit, caster.ToUnit(), 0, 0, false, spellInfo, caster.ToGameObject());
+            GetScript().ProcessEventsFor(SmartEvents.SpellHit, caster.AsUnit, 0, 0, false, spellInfo, caster.AsGameObject);
         }
         
         public override void SpellHitTarget(WorldObject target, SpellInfo spellInfo)
         {
-            GetScript().ProcessEventsFor(SmartEvents.SpellHitTarget, target.ToUnit(), 0, 0, false, spellInfo, target.ToGameObject());
+            GetScript().ProcessEventsFor(SmartEvents.SpellHitTarget, target.AsUnit, 0, 0, false, spellInfo, target.AsGameObject);
         }
 
         public override void OnSpellCast(SpellInfo spellInfo)
@@ -716,7 +716,7 @@ namespace Game.AI
 
         public override void IsSummonedBy(WorldObject summoner)
         {
-            GetScript().ProcessEventsFor(SmartEvents.JustSummoned, summoner.ToUnit(), 0, 0, false, null, summoner.ToGameObject());
+            GetScript().ProcessEventsFor(SmartEvents.JustSummoned, summoner.AsUnit, 0, 0, false, null, summoner.AsGameObject);
         }
 
         public override void DamageDealt(Unit victim, ref double damage, DamageEffectType damageType)
@@ -976,7 +976,7 @@ namespace Game.AI
                         Unit passenger = Global.ObjAccessor.GetUnit(me, pair.Value.Passenger.Guid);
                         if (passenger != null)
                         {
-                            Player player = passenger.ToPlayer();
+                            Player player = passenger.AsPlayer;
                             if (player != null)
                             {
                                 if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.CreatureTemplateVehicle, me.Entry, player, me))
@@ -1183,7 +1183,7 @@ namespace Game.AI
 
         public override void Destroyed(WorldObject attacker, uint eventId)
         {
-            GetScript().ProcessEventsFor(SmartEvents.Death, attacker != null ? attacker.ToUnit() : null, eventId, 0, false, null, me);
+            GetScript().ProcessEventsFor(SmartEvents.Death, attacker != null ? attacker.AsUnit : null, eventId, 0, false, null, me);
         }
 
         public override void SetData(uint id, uint value) { SetData(id, value, null); }
@@ -1215,7 +1215,7 @@ namespace Game.AI
 
         public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
         {
-            GetScript().ProcessEventsFor(SmartEvents.SpellHit, caster.ToUnit(), 0, 0, false, spellInfo);
+            GetScript().ProcessEventsFor(SmartEvents.SpellHit, caster.AsUnit, 0, 0, false, spellInfo);
         }
 
         public override void JustSummoned(Creature creature)

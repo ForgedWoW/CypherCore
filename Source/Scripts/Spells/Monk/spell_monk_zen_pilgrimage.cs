@@ -19,7 +19,7 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 
 		if (caster != null)
 		{
-			var _player = caster.ToPlayer();
+			var _player = caster.AsPlayer;
 
 			if (_player != null)
 				if (_player.IsQuestRewarded(40236)) // Check quest for port to oplot
@@ -39,7 +39,7 @@ public class spell_monk_zen_pilgrimage : SpellScript, ISpellOnCast, ISpellCheckC
 
 		if (caster != null)
 		{
-			var _player = caster.ToPlayer();
+			var _player = caster.AsPlayer;
 
 			if (_player != null)
 			{

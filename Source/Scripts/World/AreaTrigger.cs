@@ -424,7 +424,7 @@ internal class areatrigger_stormwind_teleport_unit : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var player = unit.ToPlayer();
+		var player = unit.AsPlayer;
 
 		if (player == null)
 			return;

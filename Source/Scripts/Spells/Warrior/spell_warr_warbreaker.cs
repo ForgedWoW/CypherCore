@@ -51,7 +51,7 @@ public class spell_warr_warbreaker : SpellScript, IHasSpellEffects
 
 				for (var itr = targets.GetEnumerator(); itr.MoveNext();)
 				{
-					var target = itr.Current.ToUnit();
+					var target = itr.Current.AsUnit;
 
 					if (target != null)
 						if (target.HealthBelowPct(hpPct))

@@ -27,7 +27,7 @@ public class npc_warr_ravager : ScriptedAI
 		if (summoner == null || !summoner.IsPlayer)
 			return;
 
-		var player = summoner.ToPlayer();
+		var player = summoner.AsPlayer;
 
 		if (player != null)
 		{

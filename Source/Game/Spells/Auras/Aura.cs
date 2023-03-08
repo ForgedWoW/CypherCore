@@ -96,9 +96,9 @@ public class Aura
 
 	public WorldObject Owner => _owner;
 
-	public Unit UnitOwner => _owner.ToUnit();
+	public Unit UnitOwner => _owner.AsUnit;
 
-	public DynamicObject DynobjOwner => _owner.ToDynamicObject();
+	public DynamicObject DynobjOwner => _owner.AsDynamicObject;
 
 	public long ApplyTime => _applyTime;
 
@@ -232,7 +232,7 @@ public class Aura
 		if (caster != null && caster.IsTypeId(TypeId.Player))
 			if (_spellInfo.IsCooldownStartedOnEvent)
 			{
-				var castItem = !_castItemGuid.IsEmpty ? caster.ToPlayer().GetItemByGuid(_castItemGuid) : null;
+				var castItem = !_castItemGuid.IsEmpty ? caster.AsPlayer.GetItemByGuid(_castItemGuid) : null;
 				caster.GetSpellHistory().StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
 	}
@@ -645,7 +645,7 @@ public class Aura
 			return;
 
 		// only units have events
-		var owner = _owner.ToUnit();
+		var owner = _owner.AsUnit;
 
 		if (!owner)
 			return;
@@ -1339,8 +1339,8 @@ public class Aura
 		{
 			Vehicle veh = null;
 
-			if (Owner.ToUnit())
-				veh = Owner.ToUnit().GetVehicleKit();
+			if (Owner.AsUnit)
+				veh = Owner.AsUnit.GetVehicleKit();
 
 			if (!veh) // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
 				return true;
@@ -1543,7 +1543,7 @@ public class Aura
 
 				if (SpellInfo.EquippedItemClass == ItemClass.Weapon)
 				{
-					if (target.ToPlayer().IsInFeralForm)
+					if (target.AsPlayer.IsInFeralForm)
 						return 0;
 
 					var damageInfo = eventInfo.DamageInfo;
@@ -1551,15 +1551,15 @@ public class Aura
 					if (damageInfo != null)
 					{
 						if (damageInfo.GetAttackType() != WeaponAttackType.OffAttack)
-							item = target.ToPlayer().GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
+							item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 						else
-							item = target.ToPlayer().GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+							item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 					}
 				}
 				else if (SpellInfo.EquippedItemClass == ItemClass.Armor)
 				{
 					// Check if player is wearing shield
-					item = target.ToPlayer().GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+					item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 				}
 
 				if (!item || item.IsBroken() || !item.IsFitToSpellRequirements(SpellInfo))
@@ -1836,7 +1836,7 @@ public class Aura
 		if (effMask == 0)
 			return null;
 
-		var foundAura = createInfo.GetOwner().ToUnit()._TryStackingOrRefreshingExistingAura(createInfo);
+		var foundAura = createInfo.GetOwner().AsUnit._TryStackingOrRefreshingExistingAura(createInfo);
 
 		if (foundAura != null)
 		{
@@ -1848,7 +1848,7 @@ public class Aura
 			createInfo.IsRefresh = true;
 
 			// add owner
-			var unit = createInfo.GetOwner().ToUnit();
+			var unit = createInfo.GetOwner().AsUnit;
 
 			// check effmask on owner application (if existing)
 			if (updateEffectMask)
@@ -1890,7 +1890,7 @@ public class Aura
 			if (createInfo.CasterGuid.IsUnit)
 			{
 				if (createInfo.Owner.GUID == createInfo.CasterGuid)
-					createInfo.Caster = createInfo.Owner.ToUnit();
+					createInfo.Caster = createInfo.Owner.AsUnit;
 				else
 					createInfo.Caster = Global.ObjAccessor.GetUnit(createInfo.Owner, createInfo.CasterGuid);
 			}
@@ -1902,7 +1902,7 @@ public class Aura
 
 		// check if aura can be owned by owner
 		if (createInfo.GetOwner().IsTypeMask(TypeMask.Unit))
-			if (!createInfo.GetOwner().IsInWorld || createInfo.GetOwner().ToUnit().IsDuringRemoveFromWorld)
+			if (!createInfo.GetOwner().IsInWorld || createInfo.GetOwner().AsUnit.IsDuringRemoveFromWorld)
 				// owner not in world so don't allow to own not self casted single target auras
 				if (createInfo.CasterGuid != createInfo.GetOwner().GUID && createInfo.GetSpellInfo().IsSingleTarget())
 					return null;
@@ -1928,7 +1928,7 @@ public class Aura
 				effMask = BuildEffectMaskForOwner(createInfo.GetSpellInfo(), effMask, createInfo.GetOwner());
 				Cypher.Assert(effMask != 0);
 
-				var unit = createInfo.GetOwner().ToUnit();
+				var unit = createInfo.GetOwner().AsUnit;
 				aura.ToUnitAura().AddStaticApplication(unit, effMask);
 
 				break;

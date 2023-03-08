@@ -23,7 +23,7 @@ public class spell_warr_bladestorm_offhand : SpellScript, IHasSpellEffects
 
 	private void HandleOnHit(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

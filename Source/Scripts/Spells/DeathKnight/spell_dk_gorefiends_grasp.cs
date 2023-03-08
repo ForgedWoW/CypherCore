@@ -23,7 +23,7 @@ public class spell_dk_gorefiends_grasp : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

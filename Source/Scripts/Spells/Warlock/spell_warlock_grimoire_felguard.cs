@@ -13,7 +13,7 @@ public class spell_warlock_grimoire_felguard : SpellScript, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return SpellCastResult.CantDoThatRightNow;

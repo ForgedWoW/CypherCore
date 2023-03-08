@@ -25,7 +25,7 @@ public class spell_monk_zen_pilgrimage_return : SpellScript, IHasSpellEffects
 
 		if (caster != null)
 		{
-			var _player = caster.ToPlayer();
+			var _player = caster.AsPlayer;
 
 			if (_player != null)
 				// _player->TeleportTo(_player->m_recallLoc); After change now iw work

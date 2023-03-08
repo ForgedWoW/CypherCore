@@ -44,13 +44,13 @@ public class spell_warl_demonic_empowerment : SpellScript, IHasSpellEffects, ISp
 
 		targets.RemoveIf((WorldObject target) =>
 		{
-			if (!target.ToCreature())
+			if (!target.AsCreature)
 				return true;
 
-			if (!caster.IsFriendlyTo(target.ToUnit()))
+			if (!caster.IsFriendlyTo(target.AsUnit))
 				return true;
 
-			if (target.ToCreature().CreatureType != CreatureType.Demon)
+			if (target.AsCreature.CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;

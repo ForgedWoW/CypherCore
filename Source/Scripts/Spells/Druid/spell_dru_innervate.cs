@@ -15,7 +15,7 @@ internal class spell_dru_innervate : SpellScript, ISpellCheckCast, ISpellOnHit
 {
 	public SpellCastResult CheckCast()
 	{
-		var target = ExplTargetUnit?.ToPlayer();
+		var target = ExplTargetUnit?.AsPlayer;
 
 		if (target == null)
 			return SpellCastResult.BadTargets;

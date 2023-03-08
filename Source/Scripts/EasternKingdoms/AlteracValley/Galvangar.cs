@@ -92,7 +92,7 @@ internal class boss_galvangar : ScriptedAI
 
 	public override bool CheckInRoom()
 	{
-		if (me.GetDistance2d(me.GetHomePosition().X, me.GetHomePosition().Y) > 50)
+		if (me.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
 		{
 			EnterEvadeMode();
 			Talk(TextIds.SayEvade);

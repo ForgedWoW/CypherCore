@@ -27,7 +27,7 @@ internal class spell_item_demon_broiled_surprise : SpellScript, ISpellCheckCast,
 
 	public SpellCastResult CheckCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player.GetQuestStatus(QuestIds.SuperHotStew) != QuestStatus.Incomplete)
 			return SpellCastResult.CantDoThatRightNow;

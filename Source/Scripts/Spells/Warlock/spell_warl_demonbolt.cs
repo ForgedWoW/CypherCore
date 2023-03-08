@@ -46,13 +46,13 @@ public class spell_warl_demonbolt : SpellScript, IHasSpellEffects
 
 		foreach (var wo in targets)
 		{
-			if (!wo.ToCreature())
+			if (!wo.AsCreature)
 				continue;
 
-			if (wo.ToCreature().GetOwner() != caster)
+			if (wo.AsCreature.GetOwner() != caster)
 				continue;
 
-			if (wo.ToCreature().CreatureType != CreatureType.Demon)
+			if (wo.AsCreature.CreatureType != CreatureType.Demon)
 				continue;
 
 			_summons++;

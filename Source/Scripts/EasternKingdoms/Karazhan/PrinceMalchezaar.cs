@@ -81,7 +81,7 @@ internal class netherspite_infernal : ScriptedAI
 
 		if (unit)
 		{
-			var creature = unit.ToCreature();
+			var creature = unit.AsCreature;
 
 			if (creature)
 				creature.GetAI().KilledUnit(who);

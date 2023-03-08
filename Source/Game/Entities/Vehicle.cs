@@ -77,7 +77,7 @@ public class Vehicle : ITransport, IDisposable
 
 	public ITransport RemovePassenger(WorldObject passenger)
 	{
-		var unit = passenger.ToUnit();
+		var unit = passenger.AsUnit;
 
 		if (unit == null)
 			return null;
@@ -119,11 +119,11 @@ public class Vehicle : ITransport, IDisposable
 		if (unit.IsFlying())
 			_me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
-		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().IsAIEnabled)
-			_me.ToCreature().GetAI().PassengerBoarded(unit, seat.Key, false);
+		if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
+			_me.AsCreature.GetAI().PassengerBoarded(unit, seat.Key, false);
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().ToCreature().GetScriptId());
+			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
 		unit.SetVehicle(null);
 
@@ -173,7 +173,7 @@ public class Vehicle : ITransport, IDisposable
 		_status = Status.Installed;
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().ToCreature().GetScriptId());
+			Global.ScriptMgr.RunScript<IVehicleOnInstall>(p => p.OnInstall(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void InstallAllAccessories(bool evading)
@@ -210,7 +210,7 @@ public class Vehicle : ITransport, IDisposable
 		RemoveAllPassengers();
 
 		if (GetBase().IsTypeId(TypeId.Unit))
-			Global.ScriptMgr.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().ToCreature().GetScriptId());
+			Global.ScriptMgr.RunScript<IVehicleOnUninstall>(p => p.OnUninstall(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void Reset(bool evading = false)
@@ -218,14 +218,14 @@ public class Vehicle : ITransport, IDisposable
 		if (!GetBase().IsTypeId(TypeId.Unit))
 			return;
 
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GUID.ToString(), _me.ToCreature().SpawnId);
+		Log.outDebug(LogFilter.Vehicle, "Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GUID.ToString(), _me.AsCreature.SpawnId);
 
 		ApplyAllImmunities();
 
 		if (GetBase().IsAlive)
 			InstallAllAccessories(evading);
 
-		Global.ScriptMgr.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().ToCreature().GetScriptId());
+		Global.ScriptMgr.RunScript<IVehicleOnReset>(p => p.OnReset(this), GetBase().AsCreature.GetScriptId());
 	}
 
 	public void RemoveAllPassengers()
@@ -343,7 +343,7 @@ public class Vehicle : ITransport, IDisposable
 					_me.Entry,
 					_vehicleInfo.Id,
 					_me.GUID.ToString(),
-					(_me.IsTypeId(TypeId.Unit) ? _me.ToCreature().SpawnId : 0),
+					(_me.IsTypeId(TypeId.Unit) ? _me.AsCreature.SpawnId : 0),
 					seatId);
 
 		// The seat selection code may kick other passengers off the vehicle.
@@ -568,7 +568,7 @@ public class Vehicle : ITransport, IDisposable
 		_me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBackDest, true);
 
 		// Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
-		if (_me.IsTypeId(TypeId.Unit) && _me.ToCreature().CreatureTemplate.CreatureType == CreatureType.Mechanical && !_me.ToCreature().IsWorldBoss)
+		if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.CreatureTemplate.CreatureType == CreatureType.Mechanical && !_me.AsCreature.IsWorldBoss)
 		{
 			// Heal & dispel ...
 			_me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.Heal, true);

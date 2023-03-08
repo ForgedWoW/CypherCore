@@ -27,7 +27,7 @@ internal class spell_gen_teleporting : SpellScript, IHasSpellEffects
 			return;
 
 		// return from top
-		if (target.ToPlayer().GetAreaId() == Misc.AreaVioletCitadelSpire)
+		if (target.AsPlayer.GetAreaId() == Misc.AreaVioletCitadelSpire)
 			target.CastSpell(target, GenericSpellIds.TeleportSpireDown, true);
 		// teleport atop
 		else

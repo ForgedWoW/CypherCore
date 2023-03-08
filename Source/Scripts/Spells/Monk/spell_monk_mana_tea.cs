@@ -17,7 +17,7 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
 	{
 		if (mod != null)
 		{
-			var _player = Caster.ToPlayer();
+			var _player = Caster.AsPlayer;
 
 			if (_player != null)
 				_player.AddSpellMod(mod, false);
@@ -26,7 +26,7 @@ public class spell_monk_mana_tea : SpellScript, ISpellAfterCast, ISpellBeforeCas
 
 	public void BeforeCast()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 		{

@@ -34,7 +34,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void PreprocessTarget(Spell spell)
 	{
-		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -51,7 +51,7 @@ public class TargetInfo : TargetInfoBase
 		if (MissCondition == SpellMissInfo.None || (MissCondition == SpellMissInfo.Block && !spell.SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked)))
 			_spellHitTarget = unit;
 		else if (MissCondition == SpellMissInfo.Reflect && ReflectResult == SpellMissInfo.None)
-			_spellHitTarget = spell.Caster.ToUnit();
+			_spellHitTarget = spell.Caster.AsUnit;
 
 		if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
 			unit.SetInCombatWith(spell.OriginalCaster);
@@ -82,7 +82,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo)
 	{
-		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -112,7 +112,7 @@ public class TargetInfo : TargetInfoBase
 
 	public override void DoDamageAndTriggers(Spell spell)
 	{
-		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.ToUnit() : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
+		var unit = spell.Caster.GUID == TargetGuid ? spell.Caster.AsUnit : Global.ObjAccessor.GetUnit(spell.Caster, TargetGuid);
 
 		if (unit == null)
 			return;
@@ -129,7 +129,7 @@ public class TargetInfo : TargetInfoBase
 
 		// Get original caster (if exist) and calculate damage/healing from him data
 		// Skip if m_originalCaster not available
-		var caster = spell.OriginalCaster ? spell.OriginalCaster : spell.Caster.ToUnit();
+		var caster = spell.OriginalCaster ? spell.OriginalCaster : spell.Caster.AsUnit;
 
 		if (caster != null)
 		{
@@ -265,7 +265,7 @@ public class TargetInfo : TargetInfoBase
 					// Add bonuses and fill damageInfo struct
 					caster.CalculateSpellDamageTaken(damageInfo, spell.DamageInEffects, spell.SpellInfo, spell.AttackType, IsCrit, MissCondition == SpellMissInfo.Block, spell);
 
-					var p = caster.ToPlayer();
+					var p = caster.AsPlayer;
 
 					if (p != null)
 						Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.Class, d => d.OnDamage(p, spell.UnitTarget, ref damageInfo.Damage, spell.SpellInfo));
@@ -308,9 +308,9 @@ public class TargetInfo : TargetInfoBase
 				// Failed Pickpocket, reveal rogue
 				if (MissCondition == SpellMissInfo.Resist && spell.SpellInfo.HasAttribute(SpellCustomAttributes.PickPocket) && spell.UnitTarget.IsCreature)
 				{
-					var unitCaster = spell.Caster.ToUnit();
+					var unitCaster = spell.Caster.AsUnit;
 					unitCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
-					spell.UnitTarget.ToCreature().EngageWithTarget(unitCaster);
+					spell.UnitTarget.					AsCreature.EngageWithTarget(unitCaster);
 				}
 			}
 
@@ -329,7 +329,7 @@ public class TargetInfo : TargetInfoBase
 				if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
 					if (spell.SpellInfo.DmgClass == SpellDmgClass.Melee || spell.SpellInfo.DmgClass == SpellDmgClass.Ranged)
 						if (!spell.SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat) && !spell.SpellInfo.HasAttribute(SpellAttr4.SuppressWeaponProcs))
-							caster.ToPlayer().CastItemCombatSpell(spellDamageInfo);
+							caster.							AsPlayer.CastItemCombatSpell(spellDamageInfo);
 			}
 
 			// set hitmask for finish procs
@@ -342,7 +342,7 @@ public class TargetInfo : TargetInfoBase
 			// _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
 			if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.IsFriendlyTo(unit) && (!spell.IsPositive() || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
 			{
-				var unitCaster = spell.Caster.ToUnit();
+				var unitCaster = spell.Caster.AsUnit;
 
 				if (unitCaster != null)
 				{
@@ -350,7 +350,7 @@ public class TargetInfo : TargetInfoBase
 
 					if (spell.SpellInfo.HasAttribute(SpellAttr6.TapsImmediately))
 					{
-						var targetCreature = unit.ToCreature();
+						var targetCreature = unit.AsCreature;
 
 						if (targetCreature != null)
 							if (unitCaster.IsPlayer)
@@ -370,7 +370,7 @@ public class TargetInfo : TargetInfoBase
 		if (_spellHitTarget)
 		{
 			//AI functions
-			var cHitTarget = _spellHitTarget.ToCreature();
+			var cHitTarget = _spellHitTarget.AsCreature;
 
 			if (cHitTarget != null)
 			{
@@ -380,10 +380,10 @@ public class TargetInfo : TargetInfoBase
 					hitTargetAI.SpellHit(spell.Caster, spell.SpellInfo);
 			}
 
-			if (spell.Caster.IsCreature && spell.Caster.ToCreature().IsAIEnabled)
-				spell.Caster.ToCreature().GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
-			else if (spell.Caster.IsGameObject && spell.Caster.ToGameObject().GetAI() != null)
-				spell.Caster.ToGameObject().GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+			if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
+				spell.Caster.				AsCreature.GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+			else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.GetAI() != null)
+				spell.Caster.				AsGameObject.GetAI().SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 
 			if (HitAura != null)
 			{
@@ -408,7 +408,7 @@ public class TargetInfo : TargetInfoBase
 		}
 
 		if (_enablePVP)
-			spell.Caster.ToPlayer().UpdatePvP(true);
+			spell.Caster.			AsPlayer.UpdatePvP(true);
 
 		spell.SpellAura = HitAura;
 		spell.CallScriptAfterHitHandlers();

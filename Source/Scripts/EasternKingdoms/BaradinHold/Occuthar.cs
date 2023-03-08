@@ -288,7 +288,8 @@ internal class spell_occuthar_occuthars_destruction_AuraScript : AuraScript, IHa
 			if (IsExpired)
 				caster.CastSpell((WorldObject)null, SpellIds.OccutharsDestuction, new CastSpellExtraArgs(aurEff));
 
-			caster.ToCreature().DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+			caster.
+			AsCreature.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 		}
 	}
 }

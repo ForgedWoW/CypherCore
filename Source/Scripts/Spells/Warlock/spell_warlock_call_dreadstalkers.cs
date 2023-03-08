@@ -55,7 +55,7 @@ public class spell_warlock_call_dreadstalkers : SpellScript, ISpellAfterCast, IH
 		for (var i = 0; i < EffectValue; ++i)
 			caster.CastSpell(caster, WarlockSpells.CALL_DREADSTALKERS_SUMMON, true);
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player == null)
 			return;

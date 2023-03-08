@@ -137,7 +137,7 @@ namespace Game
 
         public static uint XPGain(Player player, Unit u, bool isBattleGround = false)
         {
-            Creature creature = u.ToCreature();
+            Creature creature = u.AsCreature;
             uint gain = 0;
 
             if (!creature || creature.CanGiveExperience)

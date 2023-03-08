@@ -533,7 +533,7 @@ namespace Game.Movement
 
         public void MoveTargetedHome()
         {
-            Creature owner = _owner.ToCreature();
+            Creature owner = _owner.AsCreature;
             if (owner == null)
             {
                 Log.outError(LogFilter.Movement, $"MotionMaster::MoveTargetedHome: '{_owner.GUID}', attempted to move towards target home.");
@@ -878,7 +878,7 @@ namespace Game.Movement
 
         public void MoveAlongSplineChain(uint pointId, uint dbChainId, bool walk)
         {
-            Creature owner = _owner.ToCreature();
+            Creature owner = _owner.AsCreature;
             if (!owner)
             {
                 Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GUID.ToString());
@@ -929,7 +929,7 @@ namespace Game.Movement
             // Don't run spline movement for players
             if (_owner.IsTypeId(TypeId.Player))
             {
-                _owner.ToPlayer().SetFallInformation(0, _owner.Location.Z);
+                _owner.                AsPlayer.SetFallInformation(0, _owner.Location.Z);
                 return;
             }
 
@@ -946,7 +946,7 @@ namespace Game.Movement
 
         public void MoveSeekAssistance(float x, float y, float z)
         {
-            Creature creature = _owner.ToCreature();
+            Creature creature = _owner.AsCreature;
             if (creature != null)
             {
                 Log.outDebug(LogFilter.Movement, $"MotionMaster::MoveSeekAssistance: '{creature.GUID}', seeks assistance (X: {x}, Y: {y}, Z: {z})");
@@ -981,7 +981,7 @@ namespace Game.Movement
                     Cypher.Assert(!hasExisting, "Duplicate flight path movement generator");
 
                     FlightPathMovementGenerator movement = new();
-                    movement.LoadPath(_owner.ToPlayer());
+                    movement.LoadPath(_owner.AsPlayer);
                     Add(movement);
                 }
                 else

@@ -27,7 +27,7 @@ internal class spell_q12805_lifeblood_dummy : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		var target = HitCreature;
 

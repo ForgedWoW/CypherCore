@@ -113,8 +113,8 @@ namespace Game.Conditions
                 return false;
             }
 
-            Player player = obj?.ToPlayer();
-            Unit unit = obj?.ToUnit();
+            Player player = obj?.AsPlayer;
+            Unit unit = obj?.AsUnit;
 
             switch (ConditionType)
             {
@@ -226,10 +226,10 @@ namespace Game.Conditions
                             switch (obj.TypeId)
                             {
                                 case TypeId.Unit:
-                                    condMeets &= obj.ToCreature().SpawnId == ConditionValue3;
+                                    condMeets &= obj.AsCreature.SpawnId == ConditionValue3;
                                     break;
                                 case TypeId.GameObject:
-                                    condMeets &= obj.ToGameObject().GetSpawnId() == ConditionValue3;
+                                    condMeets &= obj.AsGameObject.GetSpawnId() == ConditionValue3;
                                     break;
                             }
                         }
@@ -243,7 +243,7 @@ namespace Game.Conditions
                     WorldObject toObject = sourceInfo.mConditionTargets[ConditionValue1];
                     if (toObject != null)
                     {
-                        Unit toUnit = toObject.ToUnit();
+                        Unit toUnit = toObject.AsUnit;
                         if (toUnit != null && unit != null)
                         {
                             switch ((RelationType)ConditionValue2)
@@ -276,7 +276,7 @@ namespace Game.Conditions
                     WorldObject toObject = sourceInfo.mConditionTargets[ConditionValue1];
                     if (toObject != null)
                     {
-                        Unit toUnit = toObject.ToUnit();
+                        Unit toUnit = toObject.AsUnit;
                         if (toUnit != null && unit != null)
                             condMeets = Convert.ToBoolean((1 << (int)unit.GetReactionTo(toUnit)) & ConditionValue2);
                     }
@@ -314,7 +314,7 @@ namespace Game.Conditions
                     break;
                 case ConditionTypes.CreatureType:
                 {
-                    Creature creature = obj.ToCreature();
+                    Creature creature = obj.AsCreature;
                     if (creature)
                         condMeets = (uint)creature.CreatureTemplate.CreatureType == ConditionValue1;
                     break;

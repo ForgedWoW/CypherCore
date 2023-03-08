@@ -26,7 +26,7 @@ internal class spell_gen_feign_death_no_dyn_flag : AuraScript, IHasAuraEffects
 		target.SetUnitFlag2(UnitFlags2.FeignDeath);
 		target.SetUnitFlag(UnitFlags.PreventEmotesFromChatText);
 
-		var creature = target.ToCreature();
+		var creature = target.AsCreature;
 
 		creature.ReactState = ReactStates.Passive;
 	}
@@ -37,7 +37,7 @@ internal class spell_gen_feign_death_no_dyn_flag : AuraScript, IHasAuraEffects
 		target.RemoveUnitFlag2(UnitFlags2.FeignDeath);
 		target.RemoveUnitFlag(UnitFlags.PreventEmotesFromChatText);
 
-		var creature = target.ToCreature();
+		var creature = target.AsCreature;
 
 		creature?.InitializeReactState();
 	}

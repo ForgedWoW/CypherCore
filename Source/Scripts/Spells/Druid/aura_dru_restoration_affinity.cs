@@ -30,7 +30,7 @@ public class aura_dru_restoration_affinity : AuraScript, IHasAuraEffects
 
 	private void AfterApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = Target.ToPlayer();
+		var target = Target.AsPlayer;
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)
@@ -39,7 +39,7 @@ public class aura_dru_restoration_affinity : AuraScript, IHasAuraEffects
 
 	private void AfterRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var target = Target.ToPlayer();
+		var target = Target.AsPlayer;
 
 		if (target != null)
 			foreach (var spellId in LearnedSpells)

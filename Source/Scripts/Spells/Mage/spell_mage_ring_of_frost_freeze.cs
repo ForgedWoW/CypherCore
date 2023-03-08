@@ -34,7 +34,7 @@ internal class spell_mage_ring_of_frost_freeze : SpellScript, IHasSpellEffects
 
 		targets.RemoveAll(target =>
 		{
-			var unit = target.ToUnit();
+			var unit = target.AsUnit;
 
 			if (!unit)
 				return true;

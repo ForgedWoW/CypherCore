@@ -513,7 +513,7 @@ public partial class Unit
 		TriggerOnHealthChangeAuras(oldVal, val);
 
 		// group update
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player)
 		{
@@ -522,7 +522,7 @@ public partial class Unit
 		}
 		else if (IsPet)
 		{
-			var pet = ToCreature().ToPet();
+			var pet = AsCreature.AsPet;
 
 			if (pet.IsControlled())
 				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.CurHp);
@@ -550,12 +550,12 @@ public partial class Unit
 		// group update
 		if (IsTypeId(TypeId.Player))
 		{
-			if (ToPlayer().GetGroup())
-				ToPlayer().SetGroupUpdateFlag(GroupUpdateFlags.MaxHp);
+			if (AsPlayer.GetGroup())
+				AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxHp);
 		}
 		else if (IsPet)
 		{
-			var pet = ToCreature().ToPet();
+			var pet = AsCreature.AsPet;
 
 			if (pet.IsControlled())
 				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.MaxHp);
@@ -661,7 +661,7 @@ public partial class Unit
 		if (!sendUpdate)
 			return;
 
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 			if (thisPlayer.GetGroup())
@@ -712,8 +712,8 @@ public partial class Unit
 
 		// group update
 		if (IsTypeId(TypeId.Player))
-			if (ToPlayer().GetGroup())
-				ToPlayer().SetGroupUpdateFlag(GroupUpdateFlags.MaxPower);
+			if (AsPlayer.GetGroup())
+				AsPlayer.SetGroupUpdateFlag(GroupUpdateFlags.MaxPower);
 		/*else if (IsPet()) TODO 6.x
 		{
 		    Pet pet = ToCreature().ToPet();
@@ -1176,7 +1176,7 @@ public partial class Unit
 
 	double GetCombatRatingReduction(CombatRating cr)
 	{
-		var player = ToPlayer();
+		var player = AsPlayer;
 
 		if (player)
 		{
@@ -1185,7 +1185,7 @@ public partial class Unit
 		// Player's pet get resilience from owner
 		else if (IsPet && GetOwner())
 		{
-			var owner = GetOwner().ToPlayer();
+			var owner = GetOwner().AsPlayer;
 
 			if (owner)
 				return owner.GetRatingBonusValue(cr);
@@ -1204,7 +1204,7 @@ public partial class Unit
 	double GetUnitCriticalChanceDone(WeaponAttackType attackType)
 	{
 		double chance = 0.0f;
-		var thisPlayer = ToPlayer();
+		var thisPlayer = AsPlayer;
 
 		if (thisPlayer != null)
 		{
@@ -1226,7 +1226,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
+			if (!AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
 			{
 				chance = 5.0f;
 				chance += GetTotalAuraModifier(AuraType.ModWeaponCritPercent);
@@ -1267,7 +1267,7 @@ public partial class Unit
 
 		double chance = 0.0f;
 		double levelBonus = 0.0f;
-		var playerVictim = victim.ToPlayer();
+		var playerVictim = victim.AsPlayer;
 
 		if (playerVictim)
 		{
@@ -1295,7 +1295,7 @@ public partial class Unit
 
 		// Reduce dodge chance by attacker expertise rating
 		if (IsTypeId(TypeId.Player))
-			chance -= ToPlayer().GetExpertiseDodgeOrParryReduction(attType);
+			chance -= AsPlayer.GetExpertiseDodgeOrParryReduction(attType);
 		else
 			chance -= GetTotalAuraModifier(AuraType.ModExpertise) / 4.0f;
 
@@ -1308,7 +1308,7 @@ public partial class Unit
 
 		double chance = 0.0f;
 		double levelBonus = 0.0f;
-		var playerVictim = victim.ToPlayer();
+		var playerVictim = victim.AsPlayer;
 
 		if (playerVictim)
 		{
@@ -1325,7 +1325,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem && !victim.ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
+			if (!victim.IsTotem && !victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
 			{
 				chance = 6.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModParryPercent);
@@ -1339,7 +1339,7 @@ public partial class Unit
 
 		// Reduce parry chance by attacker expertise rating
 		if (IsTypeId(TypeId.Player))
-			chance -= ToPlayer().GetExpertiseDodgeOrParryReduction(attType);
+			chance -= AsPlayer.GetExpertiseDodgeOrParryReduction(attType);
 		else
 			chance -= GetTotalAuraModifier(AuraType.ModExpertise) / 4.0f;
 
@@ -1359,7 +1359,7 @@ public partial class Unit
 
 		double chance = 0.0f;
 		double levelBonus = 0.0f;
-		var playerVictim = victim.ToPlayer();
+		var playerVictim = victim.AsPlayer;
 
 		if (playerVictim)
 		{
@@ -1373,7 +1373,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem && !(victim.ToCreature().CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
+			if (!victim.IsTotem && !(victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
 			{
 				chance = 3.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModBlockPercent);

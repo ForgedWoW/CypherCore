@@ -28,7 +28,7 @@ internal class spell_item_ashbringer : SpellScript, IHasSpellEffects
 	{
 		PreventHitDefaultEffect(effIndex);
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		var sound_id = RandomHelper.RAND(SoundIds.Ashbringer1,
 										SoundIds.Ashbringer2,

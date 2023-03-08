@@ -114,7 +114,7 @@ namespace Game.AI
 
         void ReturnToLastPoint()
         {
-            me.            MotionMaster.MovePoint(0xFFFFFF, me.GetHomePosition());
+            me.            MotionMaster.MovePoint(0xFFFFFF, me.HomePosition);
         }
 
         public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
@@ -363,7 +363,7 @@ namespace Game.AI
             if (cdata != null)
             {
                 if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
-                    me.SaveRespawnTime(me.GetRespawnDelay());
+                    me.SaveRespawnTime(me.RespawnDelay);
             }
 
             if (me.IsEngaged)

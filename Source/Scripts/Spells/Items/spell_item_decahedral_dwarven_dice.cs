@@ -41,6 +41,7 @@ internal class spell_item_decahedral_dwarven_dice : SpellScript, IHasSpellEffect
 		uint minimum = 1;
 		uint maximum = 100;
 
-		Caster.ToPlayer().DoRandomRoll(minimum, maximum);
+		Caster.
+		AsPlayer.DoRandomRoll(minimum, maximum);
 	}
 }

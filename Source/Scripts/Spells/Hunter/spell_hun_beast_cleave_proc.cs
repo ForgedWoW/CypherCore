@@ -33,7 +33,7 @@ public class spell_hun_beast_cleave_proc : AuraScript, IHasAuraEffects
 		if (eventInfo.DamageInfo.GetSpellInfo() != null && eventInfo.DamageInfo.GetSpellInfo().Id == HunterSpells.BEAST_CLEAVE_DAMAGE)
 			return;
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (Target.HasAura(aurEff.SpellInfo.Id, player.GUID))

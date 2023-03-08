@@ -67,7 +67,7 @@ public class Minion : TempSummon
 			{
 				owner.MinionGUID = controlled.GUID;
 				owner.PetGUID = controlled.GUID;
-				owner.ToPlayer().CharmSpellInitialize();
+				owner.AsPlayer.CharmSpellInitialize();
 
 				break;
 			}

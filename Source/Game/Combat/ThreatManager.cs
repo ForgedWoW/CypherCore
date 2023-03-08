@@ -35,7 +35,7 @@ namespace Game.Combat
 
         public static bool CanHaveThreatList(Unit who)
         {
-            Creature cWho = who.ToCreature();
+            Creature cWho = who.AsCreature;
             // only creatures can have threat list
             if (!cWho)
                 return false;
@@ -496,7 +496,7 @@ namespace Game.Combat
 
         void ProcessAIUpdates()
         {
-            CreatureAI ai = _owner.ToCreature().GetAI();
+            CreatureAI ai = _owner.AsCreature.GetAI();
             List<ThreatReference> v = new(_needsAIUpdate); // _needClientUpdate is now empty in case this triggers a recursive call
             if (ai == null)
                 return;
@@ -869,7 +869,7 @@ namespace Game.Combat
 
         public static bool FlagsAllowFighting(Unit a, Unit b)
         {
-            if (a.IsCreature && a.ToCreature().IsTrigger)
+            if (a.IsCreature && a.AsCreature.IsTrigger)
                 return false;
 
             if (a.HasUnitFlag(UnitFlags.PlayerControlled))

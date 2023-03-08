@@ -32,7 +32,7 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 
 	public void OnCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

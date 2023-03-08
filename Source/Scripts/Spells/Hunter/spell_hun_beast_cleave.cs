@@ -11,7 +11,7 @@ public class spell_hun_beast_cleave : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.HasAura(HunterSpells.BEAST_CLEAVE_AURA))

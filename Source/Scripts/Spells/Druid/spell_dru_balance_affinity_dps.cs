@@ -27,7 +27,7 @@ public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player != null)
 		{
@@ -46,7 +46,7 @@ public class spell_dru_balance_affinity_dps : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player != null)
 		{

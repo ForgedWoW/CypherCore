@@ -15,13 +15,13 @@ public class at_shattered_soul_fragment : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		if (unit != at.GetCaster() || !unit.IsPlayer || unit.ToPlayer().Class != Class.DemonHunter)
+		if (unit != at.GetCaster() || !unit.IsPlayer || unit.AsPlayer.Class != Class.DemonHunter)
 			return;
 
 		switch (at.Entry)
 		{
 			case 10665:
-				if (at.GetCaster().ToPlayer().GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
+				if (at.GetCaster().AsPlayer.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
 					at.GetCaster().CastSpell(at.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
 
 				at.Remove();
@@ -29,7 +29,7 @@ public class at_shattered_soul_fragment : AreaTriggerAI
 				break;
 
 			case 10666:
-				if (at.GetCaster().ToPlayer().GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
+				if (at.GetCaster().AsPlayer.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
 					at.GetCaster().CastSpell(at.GetCaster(), ShatteredSoulsSpells.SOUL_FRAGMENT_HEAL_25_HAVOC, true);
 
 				at.Remove();

@@ -34,7 +34,7 @@ public class spell_hun_mortal_wounds : AuraScript, IHasAuraEffects, IAuraCheckPr
 	{
 		PreventDefaultAction();
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

@@ -102,7 +102,7 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(5),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			var _homePosition = me.GetHomePosition();
+																			var _homePosition = me.HomePosition;
 
 																			if (me.GetDistance2d(_homePosition.X, _homePosition.Y) > 50.0f)
 																			{

@@ -32,7 +32,7 @@ internal class spell_q13280_13283_plant_battle_standard : SpellScript, IHasSpell
 			var player = caster.GetVehicleKit().GetPassenger(0);
 
 			if (player)
-				player.ToPlayer().KilledMonsterCredit(CreatureIds.KingOfTheMountaintKc);
+				player.				AsPlayer.KilledMonsterCredit(CreatureIds.KingOfTheMountaintKc);
 		}
 
 		if (SpellInfo.Id == QuestSpellIds.PlantHordeBattleStandard)

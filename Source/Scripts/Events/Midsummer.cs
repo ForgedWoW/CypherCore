@@ -80,7 +80,7 @@ internal class spell_midsummer_braziers_hit : AuraScript, IHasAuraEffects
 
 	private void HandleEffectApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (!player)
 			return;

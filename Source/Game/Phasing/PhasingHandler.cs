@@ -195,7 +195,7 @@ public class PhasingHandler
 		}
 
 		var changed = phaseShift.Phases != oldPhases;
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -280,7 +280,7 @@ public class PhasingHandler
 				suppressedPhaseShift.VisibleMapIds.Remove(pair.Key);
 			}
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -561,7 +561,7 @@ public class PhasingHandler
 		if (obj.PhaseShift.PersonalReferences != 0)
 			obj.PhaseShift.PersonalGuid = personalGuid;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -577,7 +577,7 @@ public class PhasingHandler
 	{
 		var changed = obj.PhaseShift.RemovePhase(phaseId);
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -599,7 +599,7 @@ public class PhasingHandler
 		if (obj.PhaseShift.PersonalReferences != 0)
 			obj.PhaseShift.PersonalGuid = personalGuid;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -618,7 +618,7 @@ public class PhasingHandler
 		foreach (var phaseId in phasesInGroup)
 			changed = obj.PhaseShift.RemovePhase(phaseId) || changed;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 		{
@@ -638,7 +638,7 @@ public class PhasingHandler
 		foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
 			changed = obj.PhaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 			visitor.VisitControlledOf(unit, controlled => { AddVisibleMapId(controlled, visibleMapId, visitor); });
@@ -654,7 +654,7 @@ public class PhasingHandler
 		foreach (var uiWorldMapAreaIDSwap in terrainSwapInfo.UiMapPhaseIDs)
 			changed = obj.PhaseShift.RemoveUiMapPhaseId(uiWorldMapAreaIDSwap) || changed;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit)
 			visitor.VisitControlledOf(unit, controlled => { RemoveVisibleMapId(controlled, visibleMapId, visitor); });
@@ -666,7 +666,7 @@ public class PhasingHandler
 	{
 		if (changed && obj.IsInWorld)
 		{
-			var player = obj.ToPlayer();
+			var player = obj.AsPlayer;
 
 			if (player)
 				SendToPlayer(player);

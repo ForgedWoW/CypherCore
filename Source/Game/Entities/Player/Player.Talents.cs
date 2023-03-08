@@ -1030,8 +1030,7 @@ public partial class Player
 
 		var mySess = Session;
 
-		mySess.
-		QueryProcessor
+		mySess.QueryProcessor
 			.AddCallback(DB.Characters.AsyncQuery(stmt)
 							.WithCallback(result =>
 							{

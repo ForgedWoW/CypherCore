@@ -76,7 +76,7 @@ public class VehicleJoinEvent : BasicEvent
 		var veSeat = Seat.Value.SeatInfo;
 		var veSeatAddon = Seat.Value.SeatAddon;
 
-		var player = Passenger.ToPlayer();
+		var player = Passenger.AsPlayer;
 
 		if (player != null)
 		{
@@ -134,7 +134,7 @@ public class VehicleJoinEvent : BasicEvent
 		foreach (var (_, threatRef) in Passenger.GetThreatManager().GetThreatenedByMeList())
 			threatRef.GetOwner().GetThreatManager().AddThreat(Target.GetBase(), threatRef.GetThreat(), null, true, true);
 
-		var creature = Target.GetBase().ToCreature();
+		var creature = Target.GetBase().AsCreature;
 
 		if (creature != null)
 		{
@@ -143,11 +143,11 @@ public class VehicleJoinEvent : BasicEvent
 			if (ai != null)
 				ai.PassengerBoarded(Passenger, Seat.Key, true);
 
-			Global.ScriptMgr.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().ToCreature().GetScriptId());
+			Global.ScriptMgr.RunScript<IVehicleOnAddPassenger>(p => p.OnAddPassenger(Target, Passenger, Seat.Key), Target.GetBase().AsCreature.GetScriptId());
 
 			// Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
 			if (Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-				Global.ScriptMgr.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.ToCreature()), Target.GetBase().ToCreature().GetScriptId());
+				Global.ScriptMgr.RunScript<IVehicleOnInstallAccessory>(p => p.OnInstallAccessory(Target, Passenger.AsCreature), Target.GetBase().AsCreature.GetScriptId());
 		}
 
 		return true;
@@ -184,6 +184,6 @@ public class VehicleJoinEvent : BasicEvent
 		}
 
 		if (Passenger.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))
-			Passenger.ToCreature().DespawnOrUnsummon();
+			Passenger.AsCreature.DespawnOrUnsummon();
 	}
 }

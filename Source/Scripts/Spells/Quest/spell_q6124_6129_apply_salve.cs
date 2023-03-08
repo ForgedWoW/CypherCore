@@ -26,7 +26,7 @@ internal class spell_q6124_6129_apply_salve : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (CastItem)
 		{

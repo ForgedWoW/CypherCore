@@ -15,7 +15,7 @@ public class spell_monk_purifying_brew : SpellScript, ISpellOnHit
 
 		if (caster != null)
 		{
-			var _player = caster.ToPlayer();
+			var _player = caster.AsPlayer;
 
 			if (_player != null)
 			{

@@ -82,7 +82,7 @@ public class KillRewarder
 		// 5. Credit instance encounter.
 		// 6. Update guild achievements.
 		// 7. Credit scenario criterias
-		var victim = _victim.ToCreature();
+		var victim = _victim.AsCreature;
 
 		if (victim != null)
 		{
@@ -219,7 +219,7 @@ public class KillRewarder
 		// 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
 		if (player.GetGroup() == null || player.IsAlive || player.GetCorpse() == null)
 		{
-			var target = _victim.ToCreature();
+			var target = _victim.AsCreature;
 
 			if (target != null)
 			{

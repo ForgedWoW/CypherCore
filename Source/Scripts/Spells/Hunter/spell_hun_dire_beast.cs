@@ -11,7 +11,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 {
 	public void AfterCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.HasAura(HunterSpells.WILD_CALL_AURA))
@@ -20,7 +20,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

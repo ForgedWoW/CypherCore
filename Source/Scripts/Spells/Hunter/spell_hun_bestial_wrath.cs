@@ -15,7 +15,7 @@ public class spell_hun_bestial_wrath : SpellScript, ISpellOnCast
 
 		if (caster != null)
 		{
-			var player = caster.ToPlayer();
+			var player = caster.AsPlayer;
 
 			if (player != null)
 			{

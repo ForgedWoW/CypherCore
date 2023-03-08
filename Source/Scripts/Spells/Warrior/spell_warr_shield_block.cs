@@ -16,7 +16,7 @@ public class spell_warr_shield_block_SpellScript : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			_player.CastSpell(_player, WarriorSpells.SHIELD_BLOCKC_TRIGGERED, true);

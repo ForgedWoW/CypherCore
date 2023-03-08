@@ -318,7 +318,7 @@ internal class npc_spirit_shade : PassiveAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		var unitSummoner = summoner.ToUnit();
+		var unitSummoner = summoner.AsUnit;
 
 		if (unitSummoner == null)
 			return;
@@ -520,7 +520,7 @@ internal class spell_dream_fog_sleep_SpellScript : SpellScript, IHasSpellEffects
 	{
 		targets.RemoveAll(obj =>
 		{
-			var unit = obj.ToUnit();
+			var unit = obj.AsUnit;
 
 			if (unit)
 				return unit.HasAura(SpellIds.Sleep);
@@ -551,7 +551,7 @@ internal class spell_mark_of_nature_SpellScript : SpellScript, IHasSpellEffects
 		targets.RemoveAll(obj =>
 		{
 			// return those not tagged or already under the influence of Aura of Nature
-			var unit = obj.ToUnit();
+			var unit = obj.AsUnit;
 
 			if (unit)
 				return !(unit.HasAura(SpellIds.MarkOfNature) && !unit.HasAura(SpellIds.AuraOfNature));

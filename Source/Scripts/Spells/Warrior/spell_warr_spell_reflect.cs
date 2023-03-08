@@ -28,7 +28,7 @@ public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 		if (caster == null || caster.TypeId != TypeId.Player)
 			return;
 
-		var item = caster.ToPlayer().GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
+		var item = caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
 		if (item != null && item.GetTemplate().GetInventoryType() == InventoryType.Shield)
 			caster.CastSpell(caster, 146120, true);

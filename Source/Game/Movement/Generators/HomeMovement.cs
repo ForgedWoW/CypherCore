@@ -86,7 +86,7 @@ namespace Game.AI
             owner.ClearUnitState(UnitState.AllErasable & ~UnitState.Evade);
             owner.AddUnitState(UnitState.RoamingMove);
 
-            Position destination = owner.GetHomePosition();
+            Position destination = owner.HomePosition;
             MoveSplineInit init = new(owner);
             /*
              * TODO: maybe this never worked, who knows, top is always this generator, so this code calls GetResetPosition on itself

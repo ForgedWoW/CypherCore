@@ -18,7 +18,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 	{
 		if (SpellInfo.Id == HunterSpells.GLAIVE_TOSS_RIGHT)
 		{
-			var plr = Caster.ToPlayer();
+			var plr = Caster.AsPlayer;
 
 			if (plr != null)
 			{
@@ -26,7 +26,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 			}
 			else if (OriginalCaster)
 			{
-				var caster = OriginalCaster.ToPlayer();
+				var caster = OriginalCaster.AsPlayer;
 
 				if (caster != null)
 					caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT, true);
@@ -34,7 +34,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 		}
 		else
 		{
-			var plr = Caster.ToPlayer();
+			var plr = Caster.AsPlayer;
 
 			if (plr != null)
 			{
@@ -42,7 +42,7 @@ public class spell_hun_glaive_toss_missile : SpellScript, ISpellOnHit, ISpellAft
 			}
 			else if (OriginalCaster)
 			{
-				var caster = OriginalCaster.ToPlayer();
+				var caster = OriginalCaster.AsPlayer;
 
 				if (caster != null)
 					caster.CastSpell(caster, HunterSpells.GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT, true);

@@ -11,7 +11,7 @@ public class spell_monk_item_s12_4p_mistweaver : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			if (_player.HasAura(MonkSpells.ITEM_4_S12_MISTWEAVER))

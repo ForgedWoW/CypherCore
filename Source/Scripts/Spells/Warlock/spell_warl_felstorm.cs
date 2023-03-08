@@ -19,7 +19,8 @@ public class spell_warl_felstorm : SpellScript, ISpellAfterHit, ISpellCheckCast
 		if (caster == null)
 			return;
 
-		caster.ToPlayer().GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
+		caster.
+		AsPlayer.GetSpellHistory().ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(45));
 	}
 
 	public SpellCastResult CheckCast()

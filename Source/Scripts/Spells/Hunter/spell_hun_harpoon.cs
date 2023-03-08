@@ -25,7 +25,7 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
 	public void AfterCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (player.HasSpell(HunterSpells.POSTHAST))
@@ -39,7 +39,7 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
 	public void OnCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var target = ExplTargetUnit;
 
 		if (player == null || target == null)
@@ -50,7 +50,7 @@ public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast,
 
 	private void HandleDummy(int effIndex)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var target = ExplTargetUnit;
 
 		if (player == null || target == null)

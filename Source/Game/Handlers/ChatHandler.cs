@@ -588,7 +588,7 @@ namespace Game
             // Send scripted event call
             if (unit)
             {
-                Creature creature = unit.ToCreature();
+                Creature creature = unit.AsCreature;
                 if (creature)
                     creature.GetAI().ReceiveEmote(_player, (TextEmotes)packet.EmoteID);
             }

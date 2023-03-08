@@ -57,7 +57,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 	uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
 	{
 		uint entryId = objectData.EntryId;
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit != null)
 		{
@@ -75,11 +75,11 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 	{
 		uint unitDynFlags = objectData.DynamicFlags;
 
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (unit != null)
 		{
-			var creature = obj.ToCreature();
+			var creature = obj.AsCreature;
 
 			if (creature != null)
 			{
@@ -100,7 +100,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 		}
 		else
 		{
-			var gameObject = obj.ToGameObject();
+			var gameObject = obj.AsGameObject;
 
 			if (gameObject != null)
 			{

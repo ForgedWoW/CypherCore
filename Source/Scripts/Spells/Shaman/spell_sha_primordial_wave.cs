@@ -12,7 +12,7 @@ public class spell_sha_primordial_wave : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var victim = HitUnit;
 
 		if (player == null || victim == null)

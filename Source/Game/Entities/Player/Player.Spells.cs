@@ -1186,7 +1186,7 @@ public partial class Player
 		var greenLevel = RedLevel + 50;
 		var yellowLevel = RedLevel + 25;
 
-		var go = obj?.ToGameObject();
+		var go = obj?.AsGameObject;
 
 		if (go != null)
 		{
@@ -3804,7 +3804,7 @@ public partial class Player
 
 		// needs to be when spell is already learned, to prevent infinite recursion crashes
 		if (Global.DB2Mgr.GetMount(spellId) != null)
-			Session.			CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
+			Session.CollectionMgr.AddMount(spellId, MountStatusFlags.None, false, !IsInWorld);
 
 		// return true (for send learn packet) only if spell active (in case ranked spells) and not replace old spell
 		return active && !disabled && !superceded_old;

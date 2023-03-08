@@ -387,8 +387,8 @@ namespace Game.Entities
 
 										if (caster != null && caster.IsTypeId(TypeId.Player))
 										{
-											caster.ToPlayer().RemoveGameObject(this, false);
-											caster.ToPlayer().SendPacket(new FishEscaped());
+											caster.AsPlayer.RemoveGameObject(this, false);
+											caster.AsPlayer.SendPacket(new FishEscaped());
 										}
 
 										// can be delete
@@ -632,7 +632,7 @@ namespace Game.Entities
 								// Battleground gameobjects have data2 == 0 && data5 == 3
 								if (goInfo.Trap.radius == 0 && goInfo.Trap.cooldown == 3)
 								{
-									var player = target.ToPlayer();
+									var player = target.AsPlayer;
 
 									if (player)
 									{
@@ -1230,7 +1230,7 @@ namespace Game.Entities
 
 				var owner = GetOwner();
 
-				if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.IsFriendlyTo(seer.ToUnit()))
+				if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.IsFriendlyTo(seer.AsUnit))
 					return true;
 			}
 
@@ -1369,7 +1369,7 @@ namespace Game.Entities
 
 		public void ActivateObject(GameObjectActions action, int param, WorldObject spellCaster = null, uint spellId = 0, int effectIndex = -1)
 		{
-			var unitCaster = spellCaster ? spellCaster.ToUnit() : null;
+			var unitCaster = spellCaster ? spellCaster.AsUnit : null;
 
 			switch (action)
 			{
@@ -1568,7 +1568,7 @@ namespace Game.Entities
 			uint spellId = 0;
 			var triggered = false;
 
-			var playerUser = user.ToPlayer();
+			var playerUser = user.AsPlayer;
 
 			if (playerUser != null)
 			{
@@ -1608,7 +1608,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					player.PrepareGossipMenu(this, GetGoInfo().QuestGiver.gossipID, true);
 					player.SendPreparedGossip(this);
@@ -1617,7 +1617,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.Chest: //3
 				{
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (!player)
 						return;
@@ -1850,7 +1850,7 @@ namespace Game.Entities
 				case GameObjectTypes.Goober: //10
 				{
 					var info = GetGoInfo();
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (player != null)
 					{
@@ -1937,7 +1937,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (info.Camera._camera != 0)
 						player.SendCinematicStart(info.Camera._camera);
@@ -1950,7 +1950,7 @@ namespace Game.Entities
 				//fishing bobber
 				case GameObjectTypes.FishingNode: //17
 				{
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (player == null)
 						return;
@@ -2054,7 +2054,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					var owner = GetOwner();
 
@@ -2070,7 +2070,7 @@ namespace Game.Entities
 							return;
 
 						// accept only use by player from same group as owner, excluding owner itself (unique use already added in spell effect)
-						if (player == owner.ToPlayer() || (info.Ritual.castersGrouped != 0 && !player.IsInSameRaidWith(owner.ToPlayer())))
+						if (player == owner.AsPlayer || (info.Ritual.castersGrouped != 0 && !player.IsInSameRaidWith(owner.AsPlayer)))
 							return;
 
 						// expect owner to already be channeling, so if not...
@@ -2166,7 +2166,7 @@ namespace Game.Entities
 						if (caster == null || !caster.IsTypeId(TypeId.Player))
 							return;
 
-						if (!user.IsTypeId(TypeId.Player) || !user.ToPlayer().IsInSameRaidWith(caster.ToPlayer()))
+						if (!user.IsTypeId(TypeId.Player) || !user.AsPlayer.IsInSameRaidWith(caster.AsPlayer))
 							return;
 					}
 
@@ -2184,7 +2184,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					var targetPlayer = Global.ObjAccessor.FindPlayer(player.GetTarget());
 
@@ -2218,7 +2218,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (player.CanUseBattlegroundObject(this))
 					{
@@ -2253,7 +2253,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					var loot = new Loot(GetMap(), GUID, LootType.Fishinghole, null);
 					loot.FillLoot(GetGoInfo().GetLootId(), LootStorage.Gameobject, player, true);
@@ -2270,7 +2270,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (player.CanUseBattlegroundObject(this))
 					{
@@ -2331,7 +2331,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					player.SendPacket(new EnableBarberShop());
 
@@ -2365,7 +2365,7 @@ namespace Game.Entities
 					if (!user.IsTypeId(TypeId.Player))
 						return;
 
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 					var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(info.ItemForge.conditionID1);
 
 					if (playerCondition != null)
@@ -2416,7 +2416,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.UILink:
 				{
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (!player)
 						return;
@@ -2452,7 +2452,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.GatheringNode: //50
 				{
-					var player = user.ToPlayer();
+					var player = user.AsPlayer;
 
 					if (player == null)
 						return;
@@ -2536,7 +2536,7 @@ namespace Game.Entities
 
 			if (!Global.SpellMgr.HasSpellInfo(spellId, GetMap().GetDifficultyID()))
 			{
-				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.ToPlayer(), spellId, this))
+				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
 					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GetGoType());
 				else
 					Log.outDebug(LogFilter.Outdoorpvp, "WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
@@ -2544,7 +2544,7 @@ namespace Game.Entities
 				return;
 			}
 
-			var player1 = user.ToPlayer();
+			var player1 = user.AsPlayer;
 
 			if (player1)
 				Global.OutdoorPvPMgr.HandleCustomSpell(player1, spellId, this);
@@ -3681,7 +3681,7 @@ namespace Game.Entities
 
 			if (GetGoType() == GameObjectTypes.Trap)
 			{
-				var player = target.ToPlayer();
+				var player = target.AsPlayer;
 
 				if (player != null)
 				{
@@ -3691,7 +3691,7 @@ namespace Game.Entities
 						return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
 				}
 
-				var targetUnit = target.ToUnit();
+				var targetUnit = target.AsUnit;
 
 				if (targetUnit != null)
 					return targetUnit.Level;

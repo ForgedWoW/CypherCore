@@ -28,7 +28,7 @@ internal class spell_warr_sudden_death : AuraScript, IHasAuraEffects
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
 		// Remove cooldown on Colossus Smash
-		var player = Target.ToPlayer();
+		var player = Target.AsPlayer;
 
 		if (player)
 			player.GetSpellHistory().ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);

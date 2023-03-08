@@ -251,7 +251,7 @@ public class Pet : Guardian
 				return false;
 			}
 
-			map.AddToMap(ToCreature());
+			map.AddToMap(AsCreature);
 
 			return true;
 		}
@@ -381,11 +381,11 @@ public class Pet : Guardian
 		if (!isTemporarySummon)
 			GetCharmInfo().LoadPetActionBar(petInfo.ActionBar);
 
-		map.AddToMap(ToCreature());
+		map.AddToMap(AsCreature);
 
 		//set last used pet number (for use in BG's)
 		if (owner.IsPlayer && IsControlled() && !IsTemporarySummoned() && (GetPetType() == PetType.Summon || GetPetType() == PetType.Hunter))
-			owner.ToPlayer().SetLastPetNumber(petInfo.PetNumber);
+			owner.AsPlayer.SetLastPetNumber(petInfo.PetNumber);
 
 		var session = owner.Session;
 		var lastSaveTime = petInfo.LastSaveTime;
@@ -918,7 +918,7 @@ public class Pet : Guardian
 
 				if (owner)
 					if (owner.IsTypeId(TypeId.Player))
-						owner.ToPlayer().PetSpellInitialize();
+						owner.AsPlayer.PetSpellInitialize();
 			}
 
 		return true;
@@ -1069,7 +1069,7 @@ public class Pet : Guardian
 
 	public new Player GetOwner()
 	{
-		return base.GetOwner().ToPlayer();
+		return base.GetOwner().AsPlayer;
 	}
 
 	public override void SetDisplayId(uint modelId, float displayScale = 1f)

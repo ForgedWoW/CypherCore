@@ -27,7 +27,7 @@ internal class spell_gen_spirit_healer_res : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var originalCaster = OriginalCaster.ToPlayer();
+		var originalCaster = OriginalCaster.AsPlayer;
 		var target = HitUnit;
 
 		if (target)

@@ -39,7 +39,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 			WorldObject caster = _aura.GetCaster();
 
 			if (caster != null)
-				return caster.ToGameObject();
+				return caster.AsGameObject;
 
 			return null;
 		}

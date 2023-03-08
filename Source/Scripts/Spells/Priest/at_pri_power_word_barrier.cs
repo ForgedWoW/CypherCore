@@ -19,7 +19,7 @@ public class at_pri_power_word_barrier : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (caster.IsFriendlyTo(unit))
@@ -33,7 +33,7 @@ public class at_pri_power_word_barrier : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (unit.HasAura(PriestSpells.POWER_WORD_BARRIER_BUFF, caster.GUID))

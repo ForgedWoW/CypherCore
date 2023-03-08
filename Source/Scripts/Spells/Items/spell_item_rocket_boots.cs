@@ -40,7 +40,7 @@ internal class spell_item_rocket_boots : SpellScript, ISpellCheckCast, IHasSpell
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		var bg = caster.GetBattleground();
 

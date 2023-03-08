@@ -197,7 +197,7 @@ public partial class Spell : IDisposable
 		if (originalCasterGuid.IsEmpty)
 			_originalCasterGuid = _caster.GUID;
 
-		var playerCaster = _caster.ToPlayer();
+		var playerCaster = _caster.AsPlayer;
 
 		if (playerCaster != null)
 			// wand case
@@ -218,7 +218,7 @@ public partial class Spell : IDisposable
 
 		if (_originalCasterGuid == _caster.GUID)
 		{
-			_originalCaster = _caster.ToUnit();
+			_originalCaster = _caster.AsUnit;
 		}
 		else
 		{
@@ -227,7 +227,7 @@ public partial class Spell : IDisposable
 			if (_originalCaster != null && !_originalCaster.IsInWorld)
 				_originalCaster = null;
 			else
-				_originalCaster = _caster.ToUnit();
+				_originalCaster = _caster.AsUnit;
 		}
 
 		_triggeredCastFlags = triggerFlags;
@@ -278,7 +278,7 @@ public partial class Spell : IDisposable
 		}
 
 		if (_caster && _caster.TypeId == TypeId.Player)
-			Cypher.Assert(_caster.ToPlayer().SpellModTakingSpell != this);
+			Cypher.Assert(_caster.AsPlayer.SpellModTakingSpell != this);
 	}
 
 	public void InitExplicitTargets(SpellCastTargets targets)
@@ -296,7 +296,7 @@ public partial class Spell : IDisposable
 		{
 			// check if object target is valid with needed target flags
 			// for unit case allow corpse target mask because player with not released corpse is a unit target
-			if ((target.ToUnit() && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)) || (target.IsTypeId(TypeId.GameObject) && !neededTargets.HasFlag(SpellCastTargetFlags.GameobjectMask)) || (target.IsTypeId(TypeId.Corpse) && !neededTargets.HasFlag(SpellCastTargetFlags.CorpseMask)))
+			if ((target.AsUnit && !neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitMask | SpellCastTargetFlags.CorpseMask)) || (target.IsTypeId(TypeId.GameObject) && !neededTargets.HasFlag(SpellCastTargetFlags.GameobjectMask)) || (target.IsTypeId(TypeId.Corpse) && !neededTargets.HasFlag(SpellCastTargetFlags.CorpseMask)))
 				Targets.RemoveObjectTarget();
 		}
 		else
@@ -306,7 +306,7 @@ public partial class Spell : IDisposable
 			{
 				Unit unit = null;
 				// try to use player selection as a target
-				var playerCaster = _caster.ToPlayer();
+				var playerCaster = _caster.AsPlayer;
 
 				if (playerCaster != null)
 				{
@@ -320,12 +320,12 @@ public partial class Spell : IDisposable
 				// try to use attacked unit as a target
 				else if (_caster.IsTypeId(TypeId.Unit) && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitEnemy | SpellCastTargetFlags.Unit))
 				{
-					unit = _caster.ToUnit().GetVictim();
+					unit = _caster.AsUnit.GetVictim();
 				}
 
 				// didn't find anything - let's use self as target
 				if (unit == null && neededTargets.HasAnyFlag(SpellCastTargetFlags.UnitRaid | SpellCastTargetFlags.UnitParty | SpellCastTargetFlags.UnitAlly))
-					unit = _caster.ToUnit();
+					unit = _caster.AsUnit;
 
 				Targets.
 				UnitTarget = unit;
@@ -541,7 +541,7 @@ public partial class Spell : IDisposable
 			return SpellMissInfo.Evade;
 
 		// Target may have begun evading between launch and hit phases - re-check now
-		var creatureTarget = unit.ToCreature();
+		var creatureTarget = unit.AsCreature;
 
 		if (creatureTarget != null && creatureTarget.IsEvadingAttacks)
 			return SpellMissInfo.Evade;
@@ -552,7 +552,7 @@ public partial class Spell : IDisposable
 
 		CallScriptBeforeHitHandlers(hitInfo.MissCondition);
 
-		var player = unit.ToPlayer();
+		var player = unit.AsPlayer;
 
 		if (player != null)
 		{
@@ -561,7 +561,7 @@ public partial class Spell : IDisposable
 			player.UpdateCriteria(CriteriaType.GainAura, SpellInfo.Id);
 		}
 
-		var casterPlayer = _caster.ToPlayer();
+		var casterPlayer = _caster.AsPlayer;
 
 		if (casterPlayer)
 		{
@@ -832,7 +832,7 @@ public partial class Spell : IDisposable
 			}
 			else if (CastItem.OwnerGUID == _caster.GUID)
 			{
-				CastItemLevel = (int)CastItem.GetItemLevel(_caster.ToPlayer());
+				CastItemLevel = (int)CastItem.GetItemLevel(_caster.AsPlayer);
 			}
 			else
 			{
@@ -867,7 +867,7 @@ public partial class Spell : IDisposable
 		}
 
 		// Prevent casting at cast another spell (ServerSide check)
-		if (!_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress) && _caster.ToUnit() != null && _caster.ToUnit().IsNonMeleeSpellCast(false, true, true, SpellInfo.Id == 75) && !CastId.IsEmpty)
+		if (!_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress) && _caster.AsUnit != null && _caster.AsUnit.IsNonMeleeSpellCast(false, true, true, SpellInfo.Id == 75) && !CastId.IsEmpty)
 		{
 			SendCastResult(SpellCastResult.SpellInProgress);
 			Finish(SpellCastResult.SpellInProgress);
@@ -912,7 +912,7 @@ public partial class Spell : IDisposable
 
 			// queue autorepeat spells for future repeating
 			if (GetCurrentContainer() == CurrentSpellTypes.AutoRepeat && _caster.IsUnit)
-				_caster.ToUnit().SetCurrentCastSpell(this);
+				_caster.				AsUnit.SetCurrentCastSpell(this);
 
 			Finish(result);
 
@@ -924,7 +924,7 @@ public partial class Spell : IDisposable
 
 		_casttime = CallScriptCalcCastTimeHandlers(SpellInfo.CalcCastTime(this));
 
-		if (_caster.IsUnit && _caster.ToUnit().IsMoving())
+		if (_caster.IsUnit && _caster.AsUnit.IsMoving())
 		{
 			result = CheckMovement();
 
@@ -938,15 +938,15 @@ public partial class Spell : IDisposable
 		}
 
 		// Creatures focus their target when possible
-		if (_casttime != 0 && _caster.IsCreature && !SpellInfo.IsNextMeleeSwingSpell && !IsAutoRepeat && !_caster.ToUnit().HasUnitFlag(UnitFlags.Possessed))
+		if (_casttime != 0 && _caster.IsCreature && !SpellInfo.IsNextMeleeSwingSpell && !IsAutoRepeat && !_caster.AsUnit.HasUnitFlag(UnitFlags.Possessed))
 		{
 			// Channeled spells and some triggered spells do not focus a cast target. They face their target later on via channel object guid and via spell attribute or not at all
 			var focusTarget = !SpellInfo.IsChanneled && !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing);
 
 			if (focusTarget && Targets.ObjectTarget && _caster != Targets.ObjectTarget)
-				_caster.ToCreature().SetSpellFocus(this, Targets.ObjectTarget);
+				_caster.				AsCreature.SetSpellFocus(this, Targets.ObjectTarget);
 			else
-				_caster.ToCreature().SetSpellFocus(this, null);
+				_caster.				AsCreature.SetSpellFocus(this, null);
 		}
 
 		CallScriptOnPrecastHandler();
@@ -974,7 +974,7 @@ public partial class Spell : IDisposable
 			// because target could be relocated in the meantime, making the spell fly to the air (no targets can be registered, so no effects processed, nothing in combat log)
 			var willCastDirectly = _casttime == 0 && /*!m_spellInfo->StartRecoveryTime && */ GetCurrentContainer() == CurrentSpellTypes.Generic;
 
-			var unitCaster = _caster.ToUnit();
+			var unitCaster = _caster.AsUnit;
 
 			if (unitCaster != null)
 			{
@@ -995,7 +995,7 @@ public partial class Spell : IDisposable
 				TriggerGlobalCooldown();
 
 			// Call CreatureAI hook OnSpellStart
-			var caster = _caster.ToCreature();
+			var caster = _caster.AsCreature;
 
 			if (caster != null)
 				if (caster.IsAIEnabled)
@@ -1033,7 +1033,7 @@ public partial class Spell : IDisposable
 				foreach (var ihit in UniqueTargetInfo)
 					if (ihit.MissCondition == SpellMissInfo.None)
 					{
-						var unit = _caster.GUID == ihit.TargetGuid ? _caster.ToUnit() : Global.ObjAccessor.GetUnit(_caster, ihit.TargetGuid);
+						var unit = _caster.GUID == ihit.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, ihit.TargetGuid);
 
 						if (unit != null)
 							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, 0, AuraRemoveMode.Cancel);
@@ -1236,11 +1236,11 @@ public partial class Spell : IDisposable
 
 		// check if the player caster has moved before the spell finished
 		// with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
-		if (_timer != 0 && _caster.IsUnit && _caster.ToUnit().IsMoving() && CheckMovement() != SpellCastResult.SpellCastOk)
+		if (_timer != 0 && _caster.IsUnit && _caster.AsUnit.IsMoving() && CheckMovement() != SpellCastResult.SpellCastOk)
 			// if charmed by creature, trust the AI not to cheat and allow the cast to proceed
 			// @todo this is a hack, "creature" movesplines don't differentiate turning/moving right now
 			// however, checking what type of movement the spline is for every single spline would be really expensive
-			if (!_caster.ToUnit().CharmerGUID.IsCreature)
+			if (!_caster.AsUnit.CharmerGUID.IsCreature)
 				Cancel();
 
 		switch (_spellState)
@@ -1274,7 +1274,7 @@ public partial class Spell : IDisposable
 						// Also remove applied auras
 						foreach (var target in UniqueTargetInfo)
 						{
-							var unit = _caster.GUID == target.TargetGuid ? _caster.ToUnit() : Global.ObjAccessor.GetUnit(_caster, target.TargetGuid);
+							var unit = _caster.GUID == target.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, target.TargetGuid);
 
 							if (unit)
 								unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, 0, AuraRemoveMode.Cancel);
@@ -1299,7 +1299,7 @@ public partial class Spell : IDisposable
 					Finish();
 
 					// We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
-					var creatureCaster = _caster.ToCreature();
+					var creatureCaster = _caster.AsCreature;
 
 					if (creatureCaster != null)
 						if (creatureCaster.IsAIEnabled)
@@ -1355,7 +1355,7 @@ public partial class Spell : IDisposable
 		if (!_caster)
 			return;
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -1376,11 +1376,11 @@ public partial class Spell : IDisposable
 			var charm = unitCaster.Charmed;
 
 			if (charm != null)
-				if (charm.IsTypeId(TypeId.Unit) && charm.ToCreature().HasUnitTypeMask(UnitTypeMask.Puppet) && charm.UnitData.CreatedBySpell == SpellInfo.Id)
+				if (charm.IsTypeId(TypeId.Unit) && charm.AsCreature.HasUnitTypeMask(UnitTypeMask.Puppet) && charm.UnitData.CreatedBySpell == SpellInfo.Id)
 					((Puppet)charm).UnSummon();
 		}
 
-		var creatureCaster = unitCaster.ToCreature();
+		var creatureCaster = unitCaster.AsCreature;
 
 		if (creatureCaster != null)
 			creatureCaster.ReleaseSpellFocus(this);
@@ -1393,12 +1393,12 @@ public partial class Spell : IDisposable
 			// on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
 			if (_caster.IsPlayer && SpellInfo.HasEffect(SpellEffectName.ChangeActiveCombatTraitConfig))
 				if (CustomArg is TraitConfig)
-					_caster.ToPlayer().SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
+					_caster.					AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
 
 			return;
 		}
 
-		if (unitCaster.IsTypeId(TypeId.Unit) && unitCaster.ToCreature().IsSummon)
+		if (unitCaster.IsTypeId(TypeId.Unit) && unitCaster.AsCreature.IsSummon)
 		{
 			// Unsummon statue
 			uint spell = unitCaster.UnitData.CreatedBySpell;
@@ -1431,7 +1431,7 @@ public partial class Spell : IDisposable
 		// potions disabled by client, send event "not in combat" if need
 		if (unitCaster.IsTypeId(TypeId.Player))
 			if (TriggeredByAuraSpell == null)
-				unitCaster.ToPlayer().UpdatePotionCooldown(this);
+				unitCaster.				AsPlayer.UpdatePotionCooldown(this);
 
 		// Stop Attack for some spells
 		if (SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat))
@@ -1446,7 +1446,7 @@ public partial class Spell : IDisposable
 		if (!_caster.IsTypeId(TypeId.Player))
 			return;
 
-		if (_caster.ToPlayer().IsLoading) // don't send cast results at loading time
+		if (_caster.AsPlayer.IsLoading) // don't send cast results at loading time
 			return;
 
 		if (_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.DontReportCastError))
@@ -1454,8 +1454,8 @@ public partial class Spell : IDisposable
 
 		CastFailed castFailed = new();
 		castFailed.Visual = SpellVisual;
-		FillSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, _caster.ToPlayer());
-		_caster.ToPlayer().SendPacket(castFailed);
+		FillSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, _caster.AsPlayer);
+		_caster.		AsPlayer.SendPacket(castFailed);
 	}
 
 	public void SendPetCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
@@ -1472,8 +1472,8 @@ public partial class Spell : IDisposable
 			result = SpellCastResult.DontReport;
 
 		PetCastFailed petCastFailed = new();
-		FillSpellCastFailedArgs(petCastFailed, CastId, SpellInfo, result, SpellCustomErrors.None, param1, param2, owner.ToPlayer());
-		owner.ToPlayer().SendPacket(petCastFailed);
+		FillSpellCastFailedArgs(petCastFailed, CastId, SpellInfo, result, SpellCustomErrors.None, param1, param2, owner.AsPlayer);
+		owner.		AsPlayer.SendPacket(petCastFailed);
 	}
 
 	public static void SendCastResult(Player caster, SpellInfo spellInfo, SpellCastVisual spellVisual, ObjectGuid castCount, SpellCastResult result, SpellCustomErrors customError = SpellCustomErrors.None, int? param1 = null, int? param2 = null)
@@ -1504,7 +1504,7 @@ public partial class Spell : IDisposable
 	public void SendChannelUpdate(uint time)
 	{
 		// GameObjects don't channel
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -1562,18 +1562,18 @@ public partial class Spell : IDisposable
 		SpellCastResult castResult;
 
 		// check death state
-		if (_caster.ToUnit() && !_caster.ToUnit().IsAlive && !SpellInfo.IsPassive && !(SpellInfo.HasAttribute(SpellAttr0.AllowCastWhileDead) || (IsTriggered() && TriggeredByAuraSpell == null)))
+		if (_caster.AsUnit && !_caster.AsUnit.IsAlive && !SpellInfo.IsPassive && !(SpellInfo.HasAttribute(SpellAttr0.AllowCastWhileDead) || (IsTriggered() && TriggeredByAuraSpell == null)))
 			return SpellCastResult.CasterDead;
 
 		// Prevent cheating in case the player has an immunity effect and tries to interact with a non-allowed gameobject. The error message is handled by the client so we don't report anything here
 		if (_caster.IsPlayer && Targets.GOTarget != null)
-			if (Targets.GOTarget.GetGoInfo().GetNoDamageImmune() != 0 && _caster.ToUnit().HasUnitFlag(UnitFlags.Immune))
+			if (Targets.GOTarget.GetGoInfo().GetNoDamageImmune() != 0 && _caster.AsUnit.HasUnitFlag(UnitFlags.Immune))
 				return SpellCastResult.DontReport;
 
 		// check cooldowns to prevent cheating
 		if (!SpellInfo.IsPassive)
 		{
-			var playerCaster = _caster.ToPlayer();
+			var playerCaster = _caster.AsPlayer;
 
 			if (playerCaster != null)
 			{
@@ -1595,9 +1595,9 @@ public partial class Spell : IDisposable
 					return SpellCastResult.NotReady;
 			}
 
-			if (!IsIgnoringCooldowns() && _caster.ToUnit() != null)
+			if (!IsIgnoringCooldowns() && _caster.AsUnit != null)
 			{
-				if (!_caster.ToUnit().GetSpellHistory().IsReady(SpellInfo, CastItemEntry))
+				if (!_caster.AsUnit.GetSpellHistory().IsReady(SpellInfo, CastItemEntry))
 				{
 					if (TriggeredByAuraSpell != null)
 						return SpellCastResult.DontReport;
@@ -1605,12 +1605,12 @@ public partial class Spell : IDisposable
 						return SpellCastResult.NotReady;
 				}
 
-				if ((IsAutoRepeat || SpellInfo.CategoryId == 76) && !_caster.ToUnit().IsAttackReady(WeaponAttackType.RangedAttack))
+				if ((IsAutoRepeat || SpellInfo.CategoryId == 76) && !_caster.AsUnit.IsAttackReady(WeaponAttackType.RangedAttack))
 					return SpellCastResult.DontReport;
 			}
 		}
 
-		if (SpellInfo.HasAttribute(SpellAttr7.IsCheatSpell) && _caster.IsUnit && !_caster.ToUnit().HasUnitFlag2(UnitFlags2.AllowCheatSpells))
+		if (SpellInfo.HasAttribute(SpellAttr7.IsCheatSpell) && _caster.IsUnit && !_caster.AsUnit.HasUnitFlag2(UnitFlags2.AllowCheatSpells))
 		{
 			CustomErrors = SpellCustomErrors.GmOnly;
 
@@ -1624,7 +1624,7 @@ public partial class Spell : IDisposable
 		// only triggered spells can be processed an ended Battleground
 		if (!IsTriggered() && _caster.IsTypeId(TypeId.Player))
 		{
-			var bg = _caster.ToPlayer().GetBattleground();
+			var bg = _caster.AsPlayer.GetBattleground();
 
 			if (bg)
 				if (bg.GetStatus() == BattlegroundStatus.WaitLeave)
@@ -1640,7 +1640,7 @@ public partial class Spell : IDisposable
 				return SpellCastResult.OnlyIndoors;
 		}
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null)
 		{
@@ -1785,7 +1785,7 @@ public partial class Spell : IDisposable
 			// If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_TARGETTING
 			if (SpellInfo.DmgClass != SpellDmgClass.Melee)
 			{
-				var unitCaster1 = _caster.ToUnit();
+				var unitCaster1 = _caster.AsUnit;
 
 				if (unitCaster1 != null)
 				{
@@ -1816,7 +1816,7 @@ public partial class Spell : IDisposable
 
 					if (IsTriggered() && TriggeredByAuraSpell != null)
 					{
-						var dynObj = _caster.ToUnit().GetDynObject(TriggeredByAuraSpell.Id);
+						var dynObj = _caster.AsUnit.GetDynObject(TriggeredByAuraSpell.Id);
 
 						if (dynObj)
 							losTarget = dynObj;
@@ -1861,7 +1861,7 @@ public partial class Spell : IDisposable
 				return SpellCastResult.OnlyBattlegrounds;
 
 		// do not allow spells to be cast in arenas or rated Battlegrounds
-		var player = _caster.ToPlayer();
+		var player = _caster.AsPlayer;
 
 		if (player != null)
 			if (player.InArena /* || player.InRatedBattleground() NYI*/)
@@ -1873,11 +1873,11 @@ public partial class Spell : IDisposable
 			}
 
 		// zone check
-		if (!_caster.IsPlayer || !_caster.ToPlayer().IsGameMaster)
+		if (!_caster.IsPlayer || !_caster.AsPlayer.IsGameMaster)
 		{
 			_caster.GetZoneAndAreaId(out var zone, out var area);
 
-			var locRes = SpellInfo.CheckLocation(_caster.Location.MapId, zone, area, _caster.ToPlayer());
+			var locRes = SpellInfo.CheckLocation(_caster.Location.MapId, zone, area, _caster.AsPlayer);
 
 			if (locRes != SpellCastResult.SpellCastOk)
 				return locRes;
@@ -1885,9 +1885,9 @@ public partial class Spell : IDisposable
 
 		// not let players cast spells at mount (and let do it to creatures)
 		if (!_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle))
-			if (_caster.IsPlayer && _caster.ToPlayer().IsMounted && !SpellInfo.IsPassive && !SpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
+			if (_caster.IsPlayer && _caster.AsPlayer.IsMounted && !SpellInfo.IsPassive && !SpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
 			{
-				if (_caster.ToPlayer().IsInFlight)
+				if (_caster.AsPlayer.IsInFlight)
 					return SpellCastResult.NotOnTaxi;
 				else
 					return SpellCastResult.NotMounted;
@@ -1895,7 +1895,7 @@ public partial class Spell : IDisposable
 
 		// check spell focus object
 		if (SpellInfo.RequiresSpellFocus != 0)
-			if (!_caster.IsUnit || !_caster.ToUnit().HasAuraTypeWithMiscvalue(AuraType.ProvideSpellFocus, (int)SpellInfo.RequiresSpellFocus))
+			if (!_caster.IsUnit || !_caster.AsUnit.HasAuraTypeWithMiscvalue(AuraType.ProvideSpellFocus, (int)SpellInfo.RequiresSpellFocus))
 			{
 				_focusObject = SearchSpellFocus();
 
@@ -1976,7 +1976,7 @@ public partial class Spell : IDisposable
 					if (spellEffectInfo.TargetA.Target != Framework.Constants.Targets.UnitPet)
 						break;
 
-					var pet = _caster.ToPlayer().GetPet();
+					var pet = _caster.AsPlayer.GetPet();
 
 					if (pet == null)
 						return SpellCastResult.NoPet;
@@ -1996,10 +1996,10 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.BadTargets;
 
-					var guild = _caster.ToPlayer().Guild;
+					var guild = _caster.AsPlayer.Guild;
 
 					if (guild != null)
-						if (guild.GetLeaderGUID() != _caster.ToPlayer().GUID)
+						if (guild.GetLeaderGUID() != _caster.AsPlayer.GUID)
 							return SpellCastResult.CantDoThatRightNow;
 
 					break;
@@ -2014,7 +2014,7 @@ public partial class Spell : IDisposable
 						if (!_caster.IsTypeId(TypeId.Player))
 							return SpellCastResult.BadTargets;
 
-						var pet = target.ToPet();
+						var pet = target.AsPet;
 
 						if (pet == null || pet.GetOwner() != _caster)
 							return SpellCastResult.BadTargets;
@@ -2035,7 +2035,7 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.GlyphNoSpec;
 
-					var caster = _caster.ToPlayer();
+					var caster = _caster.AsPlayer;
 
 					if (!caster.HasSpell(SpellMisc.SpellId))
 						return SpellCastResult.NotKnown;
@@ -2108,7 +2108,7 @@ public partial class Spell : IDisposable
 					if (!foodItem)
 						return SpellCastResult.BadTargets;
 
-					var pet = _caster.ToPlayer().GetPet();
+					var pet = _caster.AsPlayer.GetPet();
 
 					if (!pet)
 						return SpellCastResult.NoPet;
@@ -2119,7 +2119,7 @@ public partial class Spell : IDisposable
 					if (foodItem.GetTemplate().GetBaseItemLevel() + 30 <= pet.Level)
 						return SpellCastResult.FoodLowlevel;
 
-					if (_caster.ToPlayer().IsInCombat() || pet.IsInCombat())
+					if (_caster.AsPlayer.IsInCombat() || pet.IsInCombat())
 						return SpellCastResult.AffectingCombat;
 
 					break;
@@ -2172,15 +2172,15 @@ public partial class Spell : IDisposable
 					if (!Targets.UnitTarget.HasUnitFlag(UnitFlags.Skinnable))
 						return SpellCastResult.TargetUnskinnable;
 
-					var creature = Targets.UnitTarget.ToCreature();
-					var loot = creature.GetLootForPlayer(_caster.ToPlayer());
+					var creature = Targets.UnitTarget.AsCreature;
+					var loot = creature.GetLootForPlayer(_caster.AsPlayer);
 
 					if (loot != null && (!loot.IsLooted() || loot.loot_type == LootType.Skinning))
 						return SpellCastResult.TargetNotLooted;
 
 					var skill = creature.CreatureTemplate.GetRequiredLootSkill();
 
-					var skillValue = _caster.ToPlayer().GetSkillValue(skill);
+					var skillValue = _caster.AsPlayer.GetSkillValue(skill);
 					var TargetLevel = Targets.UnitTarget.GetLevelForTarget(_caster);
 					var ReqValue = (int)(skillValue < 100 ? (TargetLevel - 10) * 10 : TargetLevel * 5);
 
@@ -2205,14 +2205,14 @@ public partial class Spell : IDisposable
 
 					if (Convert.ToBoolean(Targets.TargetMask & SpellCastTargetFlags.TradeItem))
 					{
-						var pTrade = _caster.ToPlayer().GetTradeData();
+						var pTrade = _caster.AsPlayer.GetTradeData();
 
 						if (pTrade != null)
 							pTempItem = pTrade.GetTraderData().GetItem(TradeSlots.NonTraded);
 					}
 					else if (Convert.ToBoolean(Targets.TargetMask & SpellCastTargetFlags.Item))
 					{
-						pTempItem = _caster.ToPlayer().GetItemByGuid(Targets.ItemTargetGuid);
+						pTempItem = _caster.AsPlayer.GetItemByGuid(Targets.ItemTargetGuid);
 					}
 
 					// we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
@@ -2224,8 +2224,8 @@ public partial class Spell : IDisposable
 					if (SpellInfo.Id != 1842 ||
 						(Targets.GOTarget != null &&
 						Targets.						GOTarget.GetGoInfo().type != GameObjectTypes.Trap))
-						if (_caster.ToPlayer().InBattleground() && // In Battlegroundplayers can use only flags and banners
-							!_caster.ToPlayer().CanUseBattlegroundObject(Targets.GOTarget))
+						if (_caster.AsPlayer.InBattleground() && // In Battlegroundplayers can use only flags and banners
+							!_caster.AsPlayer.CanUseBattlegroundObject(Targets.GOTarget))
 							return SpellCastResult.TryAgain;
 
 					// get the lock entry
@@ -2240,7 +2240,7 @@ public partial class Spell : IDisposable
 						if (lockId == 0)
 							return SpellCastResult.BadTargets;
 
-						if (go.GetGoInfo().GetNotInCombat() != 0 && _caster.ToUnit().IsInCombat())
+						if (go.GetGoInfo().GetNotInCombat() != 0 && _caster.AsUnit.IsInCombat())
 							return SpellCastResult.AffectingCombat;
 					}
 					else if (itm != null)
@@ -2262,7 +2262,7 @@ public partial class Spell : IDisposable
 				}
 				case SpellEffectName.ResurrectPet:
 				{
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (playerCaster == null || playerCaster.GetPetStable() == null)
 						return SpellCastResult.BadTargets;
@@ -2331,7 +2331,7 @@ public partial class Spell : IDisposable
 						{
 							if (strict) //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
 							{
-								var pet = unitCaster.ToPlayer().GetPet();
+								var pet = unitCaster.AsPlayer.GetPet();
 
 								if (pet != null)
 									pet.CastSpell(pet,
@@ -2350,7 +2350,7 @@ public partial class Spell : IDisposable
 					if (!unitCaster.CharmedGUID.IsEmpty)
 						return SpellCastResult.AlreadyHaveCharm;
 
-					var playerCaster = unitCaster.ToPlayer();
+					var playerCaster = unitCaster.AsPlayer;
 
 					if (playerCaster != null && playerCaster.GetPetStable() != null)
 					{
@@ -2402,7 +2402,7 @@ public partial class Spell : IDisposable
 				}
 				case SpellEffectName.DismissPet:
 				{
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (playerCaster == null)
 						return SpellCastResult.BadTargets;
@@ -2422,12 +2422,12 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.BadTargets;
 
-					if (_caster.ToPlayer().GetTarget().IsEmpty)
+					if (_caster.AsPlayer.GetTarget().IsEmpty)
 						return SpellCastResult.BadTargets;
 
-					var target = Global.ObjAccessor.FindPlayer(_caster.ToPlayer().GetTarget());
+					var target = Global.ObjAccessor.FindPlayer(_caster.AsPlayer.GetTarget());
 
-					if (target == null || _caster.ToPlayer() == target || (!target.IsInSameRaidWith(_caster.ToPlayer()) && SpellInfo.Id != 48955)) // refer-a-friend spell
+					if (target == null || _caster.AsPlayer == target || (!target.IsInSameRaidWith(_caster.AsPlayer) && SpellInfo.Id != 48955)) // refer-a-friend spell
 						return SpellCastResult.BadTargets;
 
 					if (target.HasSummonPending)
@@ -2458,7 +2458,7 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.BadTargets;
 
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					//
 					if (playerCaster.GetTarget().IsEmpty)
@@ -2478,7 +2478,7 @@ public partial class Spell : IDisposable
 					//Do not allow to cast it before BG starts.
 					if (_caster.IsTypeId(TypeId.Player))
 					{
-						var bg = _caster.ToPlayer().GetBattleground();
+						var bg = _caster.AsPlayer.GetBattleground();
 
 						if (bg)
 							if (bg.GetStatus() != BattlegroundStatus.InProgress)
@@ -2523,7 +2523,7 @@ public partial class Spell : IDisposable
 				case SpellEffectName.TalentSpecSelect:
 				{
 					var spec = CliDB.ChrSpecializationStorage.LookupByKey(SpellMisc.SpecializationId);
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (!playerCaster)
 						return SpellCastResult.TargetNotPlayer;
@@ -2550,7 +2550,7 @@ public partial class Spell : IDisposable
 				}
 				case SpellEffectName.RemoveTalent:
 				{
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (playerCaster == null)
 						return SpellCastResult.BadTargets;
@@ -2572,7 +2572,7 @@ public partial class Spell : IDisposable
 				case SpellEffectName.GiveArtifactPower:
 				case SpellEffectName.GiveArtifactPowerNoBonus:
 				{
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (playerCaster == null)
 						return SpellCastResult.BadTargets;
@@ -2582,7 +2582,7 @@ public partial class Spell : IDisposable
 					if (artifactAura == null)
 						return SpellCastResult.NoArtifactEquipped;
 
-					var artifact = playerCaster.ToPlayer().GetItemByGuid(artifactAura.CastItemGuid);
+					var artifact = playerCaster.AsPlayer.GetItemByGuid(artifactAura.CastItemGuid);
 
 					if (artifact == null)
 						return SpellCastResult.NoArtifactEquipped;
@@ -2601,7 +2601,7 @@ public partial class Spell : IDisposable
 				case SpellEffectName.GrantBattlepetLevel:
 				case SpellEffectName.GrantBattlepetExperience:
 				{
-					var playerCaster = _caster.ToPlayer();
+					var playerCaster = _caster.AsPlayer;
 
 					if (playerCaster == null || !Targets.UnitTarget || !Targets.UnitTarget.IsCreature)
 						return SpellCastResult.BadTargets;
@@ -2611,7 +2611,7 @@ public partial class Spell : IDisposable
 					if (!battlePetMgr.HasJournalLock())
 						return SpellCastResult.CantDoThatRightNow;
 
-					var creature = Targets.UnitTarget.ToCreature();
+					var creature = Targets.UnitTarget.AsCreature;
 
 					if (creature != null)
 					{
@@ -2679,7 +2679,7 @@ public partial class Spell : IDisposable
 					if (!_caster.IsTypeId(TypeId.Player))
 						return SpellCastResult.NoPet;
 
-					var pet = _caster.ToPlayer().GetPet();
+					var pet = _caster.AsPlayer.GetPet();
 
 					if (pet == null)
 						return SpellCastResult.NoPet;
@@ -2693,7 +2693,7 @@ public partial class Spell : IDisposable
 				case AuraType.ModCharm:
 				case AuraType.AoeCharm:
 				{
-					var unitCaster1 = (_originalCaster ? _originalCaster : _caster.ToUnit());
+					var unitCaster1 = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
 					if (unitCaster1 == null)
 						return SpellCastResult.BadTargets;
@@ -2714,7 +2714,7 @@ public partial class Spell : IDisposable
 
 					if (target != null)
 					{
-						if (target.IsTypeId(TypeId.Unit) && target.ToCreature().IsVehicle)
+						if (target.IsTypeId(TypeId.Unit) && target.AsCreature.IsVehicle)
 							return SpellCastResult.BadImplicitTargets;
 
 						if (target.IsMounted)
@@ -2822,7 +2822,7 @@ public partial class Spell : IDisposable
 			if (!_caster.IsTypeId(TypeId.Player))
 				return SpellCastResult.NotTrading;
 
-			var my_trade = _caster.ToPlayer().GetTradeData();
+			var my_trade = _caster.AsPlayer.GetTradeData();
 
 			if (my_trade == null)
 				return SpellCastResult.NotTrading;
@@ -2840,7 +2840,7 @@ public partial class Spell : IDisposable
 		// check if caster has at least 1 combo point for spells that require combo points
 		if (NeedComboPoints)
 		{
-			var plrCaster = _caster.ToPlayer();
+			var plrCaster = _caster.AsPlayer;
 
 			if (plrCaster != null)
 				if (plrCaster.GetComboPoints() == 0)
@@ -2853,7 +2853,7 @@ public partial class Spell : IDisposable
 
 	public SpellCastResult CheckPetCast(Unit target)
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null && unitCaster.HasUnitState(UnitState.Casting) && !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreCastInProgress)) //prevent spellcast interruption by another spellcast
 			return SpellCastResult.SpellInProgress;
@@ -2878,7 +2878,7 @@ public partial class Spell : IDisposable
 		}
 
 		// cooldown
-		var creatureCaster = _caster.ToCreature();
+		var creatureCaster = _caster.AsCreature;
 
 		if (creatureCaster)
 			if (creatureCaster.GetSpellHistory().HasCooldown(SpellInfo.Id))
@@ -2957,7 +2957,7 @@ public partial class Spell : IDisposable
 
 	public void Delayed() // only called in DealDamage()
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -3000,7 +3000,7 @@ public partial class Spell : IDisposable
 
 	public void DelayedChannel()
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -3097,7 +3097,7 @@ public partial class Spell : IDisposable
 
 	public Unit GetUnitCasterForEffectHandlers()
 	{
-		return _originalCaster != null ? _originalCaster : _caster.ToUnit();
+		return _originalCaster != null ? _originalCaster : _caster.AsUnit;
 	}
 
 	public void SetSpellValue(SpellValueMod mod, float value)
@@ -3306,7 +3306,7 @@ public partial class Spell : IDisposable
 		if (IsTriggered())
 			return SpellCastResult.SpellCastOk;
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null)
 			if (!unitCaster.CanCastSpellWhileMoving(SpellInfo))
@@ -3352,7 +3352,7 @@ public partial class Spell : IDisposable
 
 	public bool IsChannelActive()
 	{
-		return _caster.IsUnit && _caster.ToUnit().ChannelSpellId != 0;
+		return _caster.IsUnit && _caster.AsUnit.ChannelSpellId != 0;
 	}
 
 	public void SetReferencedFromCurrent(bool yes)
@@ -3412,7 +3412,7 @@ public partial class Spell : IDisposable
 					case SpellDmgClass.Melee:
 					case SpellDmgClass.Ranged:
 						// should gameobjects cast damagetype melee/ranged spells this needs to be changed
-						redirect = _caster.ToUnit().GetMeleeHitRedirectTarget(target, SpellInfo);
+						redirect = _caster.AsUnit.GetMeleeHitRedirectTarget(target, SpellInfo);
 
 						break;
 					default:
@@ -3620,7 +3620,7 @@ public partial class Spell : IDisposable
 					WorldObject target = Global.ObjAccessor.GetUnit(_caster, channelTarget);
 					CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
 					// unit target may be no longer avalible - teleported out of map for example
-					var unitTarget = target ? target.ToUnit() : null;
+					var unitTarget = target ? target.AsUnit : null;
 
 					if (unitTarget)
 						AddUnitTarget(unitTarget, 1u << spellEffectInfo.EffectIndex);
@@ -3797,7 +3797,7 @@ public partial class Spell : IDisposable
 		switch (targetType.ObjectType)
 		{
 			case SpellTargetObjectTypes.Unit:
-				var unitTarget = target.ToUnit();
+				var unitTarget = target.AsUnit;
 
 				if (unitTarget != null)
 				{
@@ -3814,7 +3814,7 @@ public partial class Spell : IDisposable
 
 				break;
 			case SpellTargetObjectTypes.Gobj:
-				var gobjTarget = target.ToGameObject();
+				var gobjTarget = target.AsGameObject;
 
 				if (gobjTarget != null)
 				{
@@ -3831,7 +3831,7 @@ public partial class Spell : IDisposable
 
 				break;
 			case SpellTargetObjectTypes.Corpse:
-				var corpseTarget = target.ToCorpse();
+				var corpseTarget = target.AsCorpse;
 
 				if (corpseTarget != null)
 				{
@@ -3923,11 +3923,11 @@ public partial class Spell : IDisposable
 
 				foreach (var obj in targets)
 					if (obj.IsUnit)
-						AddUnitTarget(obj.ToUnit(), effMask, false);
+						AddUnitTarget(obj.AsUnit, effMask, false);
 					else if (obj.IsGameObject)
-						AddGOTarget(obj.ToGameObject(), effMask);
+						AddGOTarget(obj.AsGameObject, effMask);
 					else if (obj.IsCorpse)
-						AddCorpseTarget(obj.ToCorpse(), effMask);
+						AddCorpseTarget(obj.AsCorpse, effMask);
 			}
 		}
 	}
@@ -4003,7 +4003,7 @@ public partial class Spell : IDisposable
 		{
 			case Framework.Constants.Targets.UnitCasterAndPassengers:
 				targets.Add(_caster);
-				var unit = _caster.ToUnit();
+				var unit = _caster.AsUnit;
 
 				if (unit != null)
 				{
@@ -4025,7 +4025,7 @@ public partial class Spell : IDisposable
 
 				if (targetedUnit != null)
 				{
-					if (!_caster.IsUnit || !_caster.ToUnit().IsInRaidWith(targetedUnit))
+					if (!_caster.IsUnit || !_caster.AsUnit.IsInRaidWith(targetedUnit))
 						targets.Add(Targets.UnitTarget);
 					else
 						SearchAreaTargets(targets, radius, targetedUnit.Location, referer, targetType.ObjectType, targetType.CheckType, spellEffectInfo.ImplicitTargetConditions);
@@ -4075,11 +4075,11 @@ public partial class Spell : IDisposable
 
 			foreach (var obj in targets)
 				if (obj.IsUnit)
-					AddUnitTarget(obj.ToUnit(), effMask, false, true, center);
+					AddUnitTarget(obj.AsUnit, effMask, false, true, center);
 				else if (obj.IsGameObject)
-					AddGOTarget(obj.ToGameObject(), effMask);
+					AddGOTarget(obj.AsGameObject, effMask);
 				else if (obj.IsCorpse)
-					AddCorpseTarget(obj.ToCorpse(), effMask);
+					AddCorpseTarget(obj.AsCorpse, effMask);
 		}
 	}
 
@@ -4092,7 +4092,7 @@ public partial class Spell : IDisposable
 			case Framework.Constants.Targets.DestCaster:
 				break;
 			case Framework.Constants.Targets.DestHome:
-				var playerCaster = _caster.ToPlayer();
+				var playerCaster = _caster.AsPlayer;
 
 				if (playerCaster != null)
 					dest = new SpellDestination(playerCaster.Homebind);
@@ -4159,7 +4159,7 @@ public partial class Spell : IDisposable
 			case Framework.Constants.Targets.DestCasterFrontLeap:
 			case Framework.Constants.Targets.DestCasterMovementDirection:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster == null)
 					break;
@@ -4230,7 +4230,7 @@ public partial class Spell : IDisposable
 				break;
 			case Framework.Constants.Targets.DestSummoner:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
 				{
@@ -4398,7 +4398,7 @@ public partial class Spell : IDisposable
 				break;
 			case Framework.Constants.Targets.UnitPet:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
 					target = unitCaster.GetGuardianPet();
@@ -4407,7 +4407,7 @@ public partial class Spell : IDisposable
 			}
 			case Framework.Constants.Targets.UnitSummoner:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
 					if (unitCaster.IsSummon)
@@ -4417,7 +4417,7 @@ public partial class Spell : IDisposable
 			}
 			case Framework.Constants.Targets.UnitVehicle:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
 					target = unitCaster.GetVehicleBase();
@@ -4432,14 +4432,14 @@ public partial class Spell : IDisposable
 			case Framework.Constants.Targets.UnitPassenger5:
 			case Framework.Constants.Targets.UnitPassenger6:
 			case Framework.Constants.Targets.UnitPassenger7:
-				var vehicleBase = _caster.ToCreature();
+				var vehicleBase = _caster.AsCreature;
 
 				if (vehicleBase != null && vehicleBase.IsVehicle)
 					target = vehicleBase.GetVehicleKit().GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
 
 				break;
 			case Framework.Constants.Targets.UnitTargetTapList:
-				var creatureCaster = _caster.ToCreature();
+				var creatureCaster = _caster.AsCreature;
 
 				if (creatureCaster != null && !creatureCaster.TapList.Empty())
 					target = Global.ObjAccessor.GetWorldObject(creatureCaster, creatureCaster.TapList.SelectRandom());
@@ -4447,7 +4447,7 @@ public partial class Spell : IDisposable
 				break;
 			case Framework.Constants.Targets.UnitOwnCritter:
 			{
-				var unitCaster = _caster.ToUnit();
+				var unitCaster = _caster.AsUnit;
 
 				if (unitCaster != null)
 					target = ObjectAccessor.GetCreatureOrPetOrVehicle(_caster, unitCaster.CritterGUID);
@@ -4463,11 +4463,11 @@ public partial class Spell : IDisposable
 		if (target)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.ToUnit(), 1u << spellEffectInfo.EffectIndex, checkIfValid);
+				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, checkIfValid);
 			else if (target.IsGameObject)
-				AddGOTarget(target.ToGameObject(), 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.ToCorpse(), 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
 		}
 	}
 
@@ -4482,11 +4482,11 @@ public partial class Spell : IDisposable
 		if (target != null)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.ToUnit(), 1u << spellEffectInfo.EffectIndex, true, false);
+				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, true, false);
 			else if (target.IsGameObject)
-				AddGOTarget(target.ToGameObject(), 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.ToCorpse(), 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
 
 			SelectImplicitChainTargets(spellEffectInfo, targetType, target, 1u << spellEffectInfo.EffectIndex);
 		}
@@ -4524,7 +4524,7 @@ public partial class Spell : IDisposable
 
 			foreach (var obj in targets)
 			{
-				var unitTarget = obj.ToUnit();
+				var unitTarget = obj.AsUnit;
 
 				if (unitTarget)
 					AddUnitTarget(unitTarget, effMask, false, true, losPosition);
@@ -4585,21 +4585,21 @@ public partial class Spell : IDisposable
 			bestDist = Math.Min(Math.Max(bestDist, triggerSpellInfo.GetMaxRange(false)), Math.Min(dist2d, 300.0f));
 
 		// GameObjects don't cast traj
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		foreach (var obj in targets)
 		{
 			if (SpellInfo.CheckTarget(unitCaster, obj, true) != SpellCastResult.SpellCastOk)
 				continue;
 
-			var unitTarget = obj.ToUnit();
+			var unitTarget = obj.AsUnit;
 
 			if (unitTarget)
 			{
 				if (unitCaster == obj || unitCaster.IsOnVehicle(unitTarget) || unitTarget.GetVehicle())
 					continue;
 
-				var creatureTarget = unitTarget.ToCreature();
+				var creatureTarget = unitTarget.AsCreature;
 
 				if (creatureTarget)
 					if (!creatureTarget.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CollideWithMissiles))
@@ -4701,11 +4701,11 @@ public partial class Spell : IDisposable
 
 				foreach (var obj in targets)
 					if (obj.IsUnit)
-						AddUnitTarget(obj.ToUnit(), effMask, false);
+						AddUnitTarget(obj.AsUnit, effMask, false);
 					else if (obj.IsGameObject)
-						AddGOTarget(obj.ToGameObject(), effMask);
+						AddGOTarget(obj.AsGameObject, effMask);
 					else if (obj.IsCorpse)
-						AddCorpseTarget(obj.ToCorpse(), effMask);
+						AddCorpseTarget(obj.AsCorpse, effMask);
 			}
 		}
 	}
@@ -4717,9 +4717,9 @@ public partial class Spell : IDisposable
 		{
 			case SpellEffectName.SummonRafFriend:
 			case SpellEffectName.SummonPlayer:
-				if (_caster.IsTypeId(TypeId.Player) && !_caster.ToPlayer().GetTarget().IsEmpty)
+				if (_caster.IsTypeId(TypeId.Player) && !_caster.AsPlayer.GetTarget().IsEmpty)
 				{
-					WorldObject rafTarget = Global.ObjAccessor.FindPlayer(_caster.ToPlayer().GetTarget());
+					WorldObject rafTarget = Global.ObjAccessor.FindPlayer(_caster.AsPlayer.GetTarget());
 
 					CallScriptObjectTargetSelectHandlers(ref rafTarget, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
 
@@ -4729,7 +4729,7 @@ public partial class Spell : IDisposable
 						// target is not stored in target map for those spells
 						// since we're completely skipping AddUnitTarget logic, we need to check immunity manually
 						// eg. aura 21546 makes target immune to summons
-						var player = rafTarget.ToPlayer();
+						var player = rafTarget.AsPlayer;
 
 						if (player.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, null))
 							return;
@@ -4825,11 +4825,11 @@ public partial class Spell : IDisposable
 		if (target != null)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.ToUnit(), 1u << spellEffectInfo.EffectIndex, false);
+				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, false);
 			else if (target.IsGameObject)
-				AddGOTarget(target.ToGameObject(), 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.ToCorpse(), 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
 		}
 	}
 
@@ -4948,7 +4948,7 @@ public partial class Spell : IDisposable
 
 				foreach (var obj in tempTargets)
 				{
-					var unitTarget = obj.ToUnit();
+					var unitTarget = obj.AsUnit;
 
 					if (unitTarget != null)
 					{
@@ -5142,7 +5142,7 @@ public partial class Spell : IDisposable
 		if (targetInfo.MissCondition == SpellMissInfo.Reflect)
 		{
 			// Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
-			var unitCaster = _caster.ToUnit();
+			var unitCaster = _caster.AsUnit;
 			targetInfo.ReflectResult = unitCaster.SpellHitResult(unitCaster, SpellInfo, false); // can't reflect twice
 
 			// Proc spell reflect aura when missile hits the original target
@@ -5350,11 +5350,11 @@ public partial class Spell : IDisposable
 		foreach (var targetInfo in UniqueTargetInfo)
 			if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask & targetInfo.EffectMask))
 			{
-				var unit = _caster.GUID == targetInfo.TargetGuid ? _caster.ToUnit() : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
+				var unit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 
 				if (unit == null)
 				{
-					var unitCaster = _caster.ToUnit();
+					var unitCaster = _caster.AsUnit;
 
 					if (unitCaster != null)
 						unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
@@ -5374,7 +5374,7 @@ public partial class Spell : IDisposable
 							{
 								targetInfo.EffectMask &= ~aurApp.EffectMask;
 								unit.RemoveAura(aurApp);
-								var unitCaster = _caster.ToUnit();
+								var unitCaster = _caster.AsUnit;
 
 								if (unitCaster != null)
 									unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
@@ -5384,7 +5384,7 @@ public partial class Spell : IDisposable
 						}
 						else // aura is dispelled
 						{
-							var unitCaster = _caster.ToUnit();
+							var unitCaster = _caster.AsUnit;
 
 							if (unitCaster != null)
 								unitCaster.RemoveChannelObject(targetInfo.TargetGuid);
@@ -5419,7 +5419,7 @@ public partial class Spell : IDisposable
 			return;
 		}
 
-		var playerCaster = _caster.ToPlayer();
+		var playerCaster = _caster.AsPlayer;
 
 		if (playerCaster != null)
 		{
@@ -5437,7 +5437,7 @@ public partial class Spell : IDisposable
 				if (target != null)
 					foreach (var controlled in playerCaster.Controlled)
 					{
-						var cControlled = controlled.ToCreature();
+						var cControlled = controlled.AsCreature;
 
 						if (cControlled != null)
 						{
@@ -5523,7 +5523,7 @@ public partial class Spell : IDisposable
 
 						if (type == DiminishingReturnsType.All || (type == DiminishingReturnsType.Player && target.IsAffectedByDiminishingReturns))
 						{
-							var caster1 = _originalCaster ? _originalCaster : _caster.ToUnit();
+							var caster1 = _originalCaster ? _originalCaster : _caster.AsUnit;
 
 							if (caster1 != null)
 								if (target.HasStrongerAuraWithDR(SpellInfo, caster1))
@@ -5538,7 +5538,7 @@ public partial class Spell : IDisposable
 		}
 
 		// The spell focusing is making sure that we have a valid cast target guid when we need it so only check for a guid value here.
-		var creatureCaster = _caster.ToCreature();
+		var creatureCaster = _caster.AsCreature;
 
 		if (creatureCaster != null)
 			if (!creatureCaster.GetTarget().IsEmpty && !creatureCaster.HasUnitFlag(UnitFlags.Possessed))
@@ -5557,7 +5557,7 @@ public partial class Spell : IDisposable
 			SendInterrupted(0);
 
 			if (_caster.IsTypeId(TypeId.Player))
-				_caster.ToPlayer().SetSpellModTakingSpell(this, false);
+				_caster.				AsPlayer.SetSpellModTakingSpell(this, false);
 
 			Finish(SpellCastResult.Interrupted);
 			SetExecutedCurrently(false);
@@ -5565,7 +5565,7 @@ public partial class Spell : IDisposable
 			return;
 		}
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null)
 			if (SpellInfo.HasAttribute(SpellAttr1.DismissPetFirst))
@@ -5584,7 +5584,7 @@ public partial class Spell : IDisposable
 		// set to real guid to be sent later to the client
 		Targets.UpdateTradeSlotItem();
 
-		var player = _caster.ToPlayer();
+		var player = _caster.AsPlayer;
 
 		if (player != null)
 		{
@@ -5641,7 +5641,7 @@ public partial class Spell : IDisposable
 			_spellState = SpellState.Delayed;
 			DelayStart = 0;
 
-			unitCaster = _caster.ToUnit();
+			unitCaster = _caster.AsUnit;
 
 			if (unitCaster != null)
 				if (unitCaster.HasUnitState(UnitState.Casting) && !unitCaster.IsNonMeleeSpellCast(false, false, true))
@@ -5661,7 +5661,7 @@ public partial class Spell : IDisposable
 			foreach (var spellId in spell_triggered)
 				if (spellId < 0)
 				{
-					unitCaster = _caster.ToUnit();
+					unitCaster = _caster.AsUnit;
 
 					if (unitCaster != null)
 						unitCaster.RemoveAura((uint)-spellId);
@@ -5730,7 +5730,7 @@ public partial class Spell : IDisposable
 			Unit.ProcSkillsAndAuras(_originalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Cast, hitMask, this, null, null);
 
 		// Call CreatureAI hook OnSpellCast
-		var caster = _originalCaster.ToCreature();
+		var caster = _originalCaster.AsCreature;
 
 		if (caster)
 			if (caster.IsAIEnabled)
@@ -5793,7 +5793,8 @@ public partial class Spell : IDisposable
 			{
 				_spellState = SpellState.Casting;
 				// GameObjects shouldn't cast channeled spells
-				_caster.ToUnit()?.AddInterruptMask(SpellInfo.ChannelInterruptFlags, SpellInfo.ChannelInterruptFlags2);
+				_caster.				// GameObjects shouldn't cast channeled spells
+				AsUnit?.AddInterruptMask(SpellInfo.ChannelInterruptFlags, SpellInfo.ChannelInterruptFlags2);
 			}
 		}
 
@@ -5847,7 +5848,7 @@ public partial class Spell : IDisposable
 
 	void _handle_finish_phase()
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null)
 		{
@@ -5904,12 +5905,12 @@ public partial class Spell : IDisposable
 			return;
 
 		if (CastItem)
-			_caster.ToUnit().GetSpellHistory().HandleCooldowns(SpellInfo, CastItem, this);
+			_caster.			AsUnit.GetSpellHistory().HandleCooldowns(SpellInfo, CastItem, this);
 		else
-			_caster.ToUnit().GetSpellHistory().HandleCooldowns(SpellInfo, CastItemEntry, this);
+			_caster.			AsUnit.GetSpellHistory().HandleCooldowns(SpellInfo, CastItemEntry, this);
 
 		if (IsAutoRepeat)
-			_caster.ToUnit().ResetAttackTimer(WeaponAttackType.RangedAttack);
+			_caster.			AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
 	}
 
 	private void UpdateEmpoweredSpell(uint difftime)
@@ -6185,7 +6186,7 @@ public partial class Spell : IDisposable
 		if (!_caster.IsPlayer)
 			return;
 
-		var caster = _caster.ToPlayer();
+		var caster = _caster.AsPlayer;
 
 		if (caster.IsLoading) // don't send mount results at loading time
 			return;
@@ -6203,7 +6204,7 @@ public partial class Spell : IDisposable
 		var castFlags = SpellCastFlags.HasTrajectory;
 		uint schoolImmunityMask = 0;
 		ulong mechanicImmunityMask = 0;
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster != null)
 		{
@@ -6220,7 +6221,7 @@ public partial class Spell : IDisposable
 		if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
 			castFlags |= SpellCastFlags.Projectile;
 
-		if ((_caster.IsTypeId(TypeId.Player) || (_caster.IsTypeId(TypeId.Unit) && _caster.ToCreature().IsPet)) && _powerCosts.Any(cost => cost.Power != PowerType.Health))
+		if ((_caster.IsTypeId(TypeId.Player) || (_caster.IsTypeId(TypeId.Unit) && _caster.AsCreature.IsPet)) && _powerCosts.Any(cost => cost.Power != PowerType.Health))
 			castFlags |= SpellCastFlags.PowerLeftSelf;
 
 		if (HasPowerTypeCost(PowerType.Runes))
@@ -6250,7 +6251,7 @@ public partial class Spell : IDisposable
 			{
 				SpellPowerData powerData;
 				powerData.Type = cost.Power;
-				powerData.Cost = _caster.ToUnit().GetPower(cost.Power);
+				powerData.Cost = _caster.AsUnit.GetPower(cost.Power);
 				castData.RemainingPower.Add(powerData);
 			}
 
@@ -6262,7 +6263,7 @@ public partial class Spell : IDisposable
 			//TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
 			//The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
 
-			var player = _caster.ToPlayer();
+			var player = _caster.AsPlayer;
 
 			if (player)
 			{
@@ -6322,11 +6323,11 @@ public partial class Spell : IDisposable
 		if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) || SpellInfo.HasAttribute(SpellAttr10.UsesRangedSlotCosmeticOnly) || SpellInfo.HasAttribute(SpellCustomAttributes.NeedsAmmoData))
 			castFlags |= SpellCastFlags.Projectile; // arrows/bullets visual
 
-		if ((_caster.IsTypeId(TypeId.Player) || (_caster.IsTypeId(TypeId.Unit) && _caster.ToCreature().IsPet)) && _powerCosts.Any(cost => cost.Power != PowerType.Health))
+		if ((_caster.IsTypeId(TypeId.Player) || (_caster.IsTypeId(TypeId.Unit) && _caster.AsCreature.IsPet)) && _powerCosts.Any(cost => cost.Power != PowerType.Health))
 			castFlags |= SpellCastFlags.PowerLeftSelf;
 
 		if (_caster.IsTypeId(TypeId.Player) &&
-			_caster.ToPlayer().			Class == Class.Deathknight &&
+			_caster.			AsPlayer.			Class == Class.Deathknight &&
 			HasPowerTypeCost(PowerType.Runes) &&
 			!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnorePowerAndReagentCost))
 		{
@@ -6370,7 +6371,7 @@ public partial class Spell : IDisposable
 			{
 				SpellPowerData powerData;
 				powerData.Type = cost.Power;
-				powerData.Cost = _caster.ToUnit().GetPower(cost.Power);
+				powerData.Cost = _caster.AsUnit.GetPower(cost.Power);
 				castData.RemainingPower.Add(powerData);
 			}
 		}
@@ -6380,7 +6381,7 @@ public partial class Spell : IDisposable
 			castData.RemainingRunes = new RuneData();
 			var runeData = castData.RemainingRunes;
 
-			var player = _caster.ToPlayer();
+			var player = _caster.AsPlayer;
 			runeData.Start = _runesState;            // runes state before
 			runeData.Count = player.GetRunesState(); // runes state after
 
@@ -6474,7 +6475,7 @@ public partial class Spell : IDisposable
 		InventoryType ammoInventoryType = 0;
 		uint ammoDisplayID = 0;
 
-		var playerCaster = _caster.ToPlayer();
+		var playerCaster = _caster.AsPlayer;
 
 		if (playerCaster != null)
 		{
@@ -6497,7 +6498,7 @@ public partial class Spell : IDisposable
 		}
 		else
 		{
-			var unitCaster = _caster.ToUnit();
+			var unitCaster = _caster.AsUnit;
 
 			if (unitCaster != null)
 			{
@@ -6685,7 +6686,7 @@ public partial class Spell : IDisposable
 	void SendChannelStart(uint duration)
 	{
 		// GameObjects don't channel
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -6752,7 +6753,7 @@ public partial class Spell : IDisposable
 			unitCaster.AddChannelObject(unitCaster.GUID);
 		}
 
-		var creatureCaster = unitCaster.ToCreature();
+		var creatureCaster = unitCaster.AsCreature;
 
 		if (creatureCaster != null)
 			if (unitCaster.UnitData.ChannelObjects.Size() == 1 && unitCaster.UnitData.ChannelObjects[0].IsUnit)
@@ -6842,7 +6843,7 @@ public partial class Spell : IDisposable
 					if (proto.GetMaxStackSize() == 1)
 						CastItem.SetSpellCharges(itemEffect.LegacySlotIndex, charges);
 
-					CastItem.SetState(ItemUpdateState.Changed, _caster.ToPlayer());
+					CastItem.SetState(ItemUpdateState.Changed, _caster.AsPlayer);
 				}
 
 				// all charges used
@@ -6853,7 +6854,7 @@ public partial class Spell : IDisposable
 		if (expendable && withoutCharges)
 		{
 			uint count = 1;
-			_caster.ToPlayer().DestroyItemCount(CastItem, ref count, true);
+			_caster.			AsPlayer.DestroyItemCount(CastItem, ref count, true);
 
 			// prevent crash at access to deleted m_targets.GetItemTarget
 			if (CastItem == Targets.ItemTarget)
@@ -6868,7 +6869,7 @@ public partial class Spell : IDisposable
 	void TakePower()
 	{
 		// GameObjects don't use power
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (!unitCaster)
 			return;
@@ -6878,7 +6879,7 @@ public partial class Spell : IDisposable
 
 		//Don't take power if the spell is cast while .cheat power is enabled.
 		if (unitCaster.IsTypeId(TypeId.Player))
-			if (unitCaster.ToPlayer().GetCommandStatus(PlayerCommandStates.Power))
+			if (unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Power))
 				return;
 
 		foreach (var cost in _powerCosts)
@@ -6943,7 +6944,7 @@ public partial class Spell : IDisposable
 		if (runeCost == 0)
 			return SpellCastResult.SpellCastOk;
 
-		var player = _caster.ToPlayer();
+		var player = _caster.AsPlayer;
 
 		if (!player)
 			return SpellCastResult.SpellCastOk;
@@ -6965,10 +6966,10 @@ public partial class Spell : IDisposable
 
 	void TakeRunePower(bool didHit)
 	{
-		if (!_caster.IsTypeId(TypeId.Player) || _caster.ToPlayer().Class != Class.Deathknight)
+		if (!_caster.IsTypeId(TypeId.Player) || _caster.AsPlayer.Class != Class.Deathknight)
 			return;
 
-		var player = _caster.ToPlayer();
+		var player = _caster.AsPlayer;
 		_runesState = player.GetRunesState(); // store previous state
 
 		var runeCost = _powerCosts.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
@@ -6990,7 +6991,7 @@ public partial class Spell : IDisposable
 		if (CastItem != null && CastItem.GetTemplate().HasFlag(ItemFlags.NoReagentCost))
 			return;
 
-		var p_caster = _caster.ToPlayer();
+		var p_caster = _caster.AsPlayer;
 
 		if (p_caster.CanNoReagentCast(SpellInfo))
 			return;
@@ -7041,7 +7042,7 @@ public partial class Spell : IDisposable
 	void HandleThreatSpells()
 	{
 		// wild GameObject spells don't cause threat
-		var unitCaster = (_originalCaster ? _originalCaster : _caster.ToUnit());
+		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
 		if (unitCaster == null)
 			return;
@@ -7106,7 +7107,7 @@ public partial class Spell : IDisposable
 
 	SpellCastResult CheckCasterAuras(ref int param1)
 	{
-		var unitCaster = (_originalCaster ? _originalCaster : _caster.ToUnit());
+		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
 		if (unitCaster == null)
 			return SpellCastResult.SpellCastOk;
@@ -7193,7 +7194,7 @@ public partial class Spell : IDisposable
 			{
 				result = SpellCastResult.Stunned;
 			}
-			else if ((SpellInfo.Mechanic & Mechanics.ImmuneShield) != 0 && _caster.IsUnit && _caster.ToUnit().HasAuraWithMechanic(1 << (int)Mechanics.Banish))
+			else if ((SpellInfo.Mechanic & Mechanics.ImmuneShield) != 0 && _caster.IsUnit && _caster.AsUnit.HasAuraWithMechanic(1 << (int)Mechanics.Banish))
 			{
 				result = SpellCastResult.Stunned;
 			}
@@ -7257,7 +7258,7 @@ public partial class Spell : IDisposable
 
 	bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
 	{
-		var unitCaster = (_originalCaster ? _originalCaster : _caster.ToUnit());
+		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
 		if (unitCaster == null)
 			return false;
@@ -7383,14 +7384,14 @@ public partial class Spell : IDisposable
 				return SpellCastResult.OutOfRange;
 
 			if (_caster.IsTypeId(TypeId.Player) &&
-				((SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !_caster.Location.HasInArc((float)Math.PI, target.Location)) && !_caster.ToPlayer().IsWithinBoundaryRadius(target)))
+				((SpellInfo.FacingCasterFlags.HasAnyFlag(1u) && !_caster.Location.HasInArc((float)Math.PI, target.Location)) && !_caster.AsPlayer.IsWithinBoundaryRadius(target)))
 				return SpellCastResult.UnitNotInfront;
 		}
 
 		var goTarget = Targets.GOTarget;
 
 		if (goTarget != null)
-			if (!goTarget.IsAtInteractDistance(_caster.ToPlayer(), SpellInfo))
+			if (!goTarget.IsAtInteractDistance(_caster.AsPlayer, SpellInfo))
 				return SpellCastResult.OutOfRange;
 
 		if (Targets.HasDst && !Targets.HasTraj)
@@ -7414,7 +7415,7 @@ public partial class Spell : IDisposable
 		if (strict && SpellInfo.IsNextMeleeSwingSpell)
 			return (0.0f, 100.0f);
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (SpellInfo.RangeEntry != null)
 		{
@@ -7459,7 +7460,7 @@ public partial class Spell : IDisposable
 
 		if (SpellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && _caster.IsTypeId(TypeId.Player))
 		{
-			var ranged = _caster.ToPlayer().GetWeaponForAttack(WeaponAttackType.RangedAttack, true);
+			var ranged = _caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.RangedAttack, true);
 
 			if (ranged)
 				maxRange *= ranged.GetTemplate().GetRangedModRange() * 0.01f;
@@ -7477,7 +7478,7 @@ public partial class Spell : IDisposable
 
 	SpellCastResult CheckPower()
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return SpellCastResult.SpellCastOk;
@@ -7524,7 +7525,7 @@ public partial class Spell : IDisposable
 
 	SpellCastResult CheckItems(ref int param1, ref int param2)
 	{
-		var player = _caster.ToPlayer();
+		var player = _caster.AsPlayer;
 
 		if (!player)
 			return SpellCastResult.SpellCastOk;
@@ -7626,7 +7627,7 @@ public partial class Spell : IDisposable
 		else
 		{
 			if (!Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreEquippedItemRequirement))
-				if (_caster.IsTypeId(TypeId.Player) && !_caster.ToPlayer().HasItemFitToSpellRequirements(SpellInfo))
+				if (_caster.IsTypeId(TypeId.Player) && !_caster.AsPlayer.HasItemFitToSpellRequirements(SpellInfo))
 					return SpellCastResult.EquippedItemClass;
 		}
 
@@ -7757,7 +7758,7 @@ public partial class Spell : IDisposable
 						// SPELL_EFFECT_CREATE_ITEM_2 differs from SPELL_EFFECT_CREATE_ITEM in that it picks the random item to create from a pool of potential items,
 						// so we need to make sure there is at least one free space in the player's inventory
 						if (spellEffectInfo.Effect == SpellEffectName.CreateLoot)
-							if (target.ToPlayer().GetFreeInventorySpace() == 0)
+							if (target.AsPlayer.GetFreeInventorySpace() == 0)
 							{
 								player.SendEquipError(InventoryResult.InvFull, null, null, spellEffectInfo.ItemType);
 
@@ -7774,7 +7775,7 @@ public partial class Spell : IDisposable
 							var createCount = (uint)Math.Clamp(spellEffectInfo.CalcValue(), 1u, itemTemplate.GetMaxStackSize());
 
 							List<ItemPosCount> dest = new();
-							var msg = target.ToPlayer().CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, spellEffectInfo.ItemType, createCount);
+							var msg = target.AsPlayer.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, spellEffectInfo.ItemType, createCount);
 
 							if (msg != InventoryResult.Ok)
 							{
@@ -7792,7 +7793,7 @@ public partial class Spell : IDisposable
 									{
 										return SpellCastResult.TooManyOfItem;
 									}
-									else if (!target.ToPlayer().HasItemCount(spellEffectInfo.ItemType))
+									else if (!target.AsPlayer.HasItemCount(spellEffectInfo.ItemType))
 									{
 										player.SendEquipError(msg, null, null, spellEffectInfo.ItemType);
 
@@ -7948,7 +7949,7 @@ public partial class Spell : IDisposable
 					if (itemProto == null)
 						return SpellCastResult.CantBeSalvaged;
 
-					var itemDisenchantLoot = item.GetDisenchantLoot(_caster.ToPlayer());
+					var itemDisenchantLoot = item.GetDisenchantLoot(_caster.AsPlayer);
 
 					if (itemDisenchantLoot == null)
 						return SpellCastResult.CantBeSalvaged;
@@ -8107,7 +8108,7 @@ public partial class Spell : IDisposable
 					if (!hasSelections)
 						return SpellCastResult.AzeriteEmpoweredNoChoicesToUndo;
 
-					if (!_caster.ToPlayer().HasEnoughMoney(azeriteEmpoweredItem.GetRespecCost()))
+					if (!_caster.AsPlayer.HasEnoughMoney(azeriteEmpoweredItem.GetRespecCost()))
 						return SpellCastResult.DontReport;
 
 					break;
@@ -8121,7 +8122,7 @@ public partial class Spell : IDisposable
 		{
 			var weaponCheck = new Func<WeaponAttackType, SpellCastResult>(attackType =>
 			{
-				var item = player.ToPlayer().GetWeaponForAttack(attackType);
+				var item = player.AsPlayer.GetWeaponForAttack(attackType);
 
 				// skip spell if no weapon in slot or broken
 				if (!item || item.IsBroken())
@@ -8160,7 +8161,7 @@ public partial class Spell : IDisposable
 	{
 		if (_originalCasterGuid == _caster.GUID)
 		{
-			_originalCaster = _caster.ToUnit();
+			_originalCaster = _caster.AsUnit;
 		}
 		else
 		{
@@ -8169,12 +8170,12 @@ public partial class Spell : IDisposable
 			if (_originalCaster != null && !_originalCaster.IsInWorld)
 				_originalCaster = null;
 			else
-				_originalCaster = _caster.ToUnit();
+				_originalCaster = _caster.AsUnit;
 		}
 
 		if (!CastItemGuid.IsEmpty && _caster.IsTypeId(TypeId.Player))
 		{
-			CastItem = _caster.ToPlayer().GetItemByGuid(CastItemGuid);
+			CastItem = _caster.AsPlayer.GetItemByGuid(CastItemGuid);
 			CastItemLevel = -1;
 
 			// cast item not found, somehow the item is no longer where we expected
@@ -8185,7 +8186,7 @@ public partial class Spell : IDisposable
 			if (CastItemEntry != CastItem.Entry)
 				return false;
 
-			CastItemLevel = (int)CastItem.GetItemLevel(_caster.ToPlayer());
+			CastItemLevel = (int)CastItem.GetItemLevel(_caster.AsPlayer);
 		}
 
 		Targets.Update(_caster);
@@ -8254,7 +8255,7 @@ public partial class Spell : IDisposable
 			return true;
 
 		// check if gameobject ignores LOS
-		var gobCaster = _caster.ToGameObject();
+		var gobCaster = _caster.AsGameObject;
 
 		if (gobCaster != null)
 			if (gobCaster.GetGoInfo().GetRequireLOS() == 0)
@@ -8423,7 +8424,7 @@ public partial class Spell : IDisposable
 
 	void PreprocessSpellLaunch(TargetInfo targetInfo)
 	{
-		var targetUnit = _caster.GUID == targetInfo.TargetGuid ? _caster.ToUnit() : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
+		var targetUnit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 
 		if (targetUnit == null)
 			return;
@@ -8439,7 +8440,7 @@ public partial class Spell : IDisposable
 			unit = targetUnit;
 		// In case spell reflect from target, do all effect on caster (if hit)
 		else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
-			unit = _caster.ToUnit();
+			unit = _caster.AsUnit;
 
 		if (unit == null)
 			return;
@@ -8463,10 +8464,10 @@ public partial class Spell : IDisposable
 
 		// In case spell hit target, do all effect on that target
 		if (targetInfo.MissCondition == SpellMissInfo.None || (targetInfo.MissCondition == SpellMissInfo.Block && !SpellInfo.HasAttribute(SpellAttr3.CompletelyBlocked)))
-			unit = _caster.GUID == targetInfo.TargetGuid ? _caster.ToUnit() : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
+			unit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 		// In case spell reflect from target, do all effect on caster (if hit)
 		else if (targetInfo.MissCondition == SpellMissInfo.Reflect && targetInfo.ReflectResult == SpellMissInfo.None)
-			unit = _caster.ToUnit();
+			unit = _caster.AsUnit;
 
 		if (!unit)
 			return;
@@ -8508,7 +8509,7 @@ public partial class Spell : IDisposable
 		if (lockId == 0) // possible case for GO and maybe for items.
 			return SpellCastResult.SpellCastOk;
 
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return SpellCastResult.BadTargets;
@@ -8551,7 +8552,7 @@ public partial class Spell : IDisposable
 						skillValue = 0;
 
 						if (!CastItem && unitCaster.IsTypeId(TypeId.Player))
-							skillValue = unitCaster.ToPlayer().GetSkillValue(skillId);
+							skillValue = unitCaster.AsPlayer.GetSkillValue(skillId);
 						else if (lockInfo.Index[j] == (uint)LockType.Lockpicking)
 							skillValue = (int)unitCaster.Level * 5;
 
@@ -8900,7 +8901,7 @@ public partial class Spell : IDisposable
 
 	void PrepareTriggersExecutedOnHit()
 	{
-		var unitCaster = _caster.ToUnit();
+		var unitCaster = _caster.AsUnit;
 
 		if (unitCaster == null)
 			return;
@@ -8935,7 +8936,7 @@ public partial class Spell : IDisposable
 	bool CanHaveGlobalCooldown(WorldObject caster)
 	{
 		// Only players or controlled units have global cooldown
-		if (!caster.IsPlayer && (!caster.IsCreature || caster.ToCreature().GetCharmInfo() == null))
+		if (!caster.IsPlayer && (!caster.IsCreature || caster.AsCreature.GetCharmInfo() == null))
 			return false;
 
 		return true;
@@ -8946,7 +8947,7 @@ public partial class Spell : IDisposable
 		if (!CanHaveGlobalCooldown(_caster))
 			return false;
 
-		return _caster.ToUnit().GetSpellHistory().HasGlobalCooldown(SpellInfo);
+		return _caster.AsUnit.GetSpellHistory().HasGlobalCooldown(SpellInfo);
 	}
 
 	void TriggerGlobalCooldown()
@@ -8960,7 +8961,7 @@ public partial class Spell : IDisposable
 			return;
 
 		if (_caster.IsTypeId(TypeId.Player))
-			if (_caster.ToPlayer().GetCommandStatus(PlayerCommandStates.Cooldown))
+			if (_caster.AsPlayer.GetCommandStatus(PlayerCommandStates.Cooldown))
 				return;
 
 		var MinGCD = TimeSpan.FromMilliseconds(750);
@@ -8989,22 +8990,23 @@ public partial class Spell : IDisposable
 			// Apply haste rating
 			if (gcd > MinGCD && (SpellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell))
 			{
-				gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * _caster.ToUnit().UnitData.ModSpellHaste);
+				gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * _caster.AsUnit.UnitData.ModSpellHaste);
 				var intGcd = (int)gcd.TotalMilliseconds;
 				MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
 				gcd = TimeSpan.FromMilliseconds(intGcd);
 			}
 
-			if (gcd > MinGCD && _caster.ToUnit().HasAuraTypeWithAffectMask(AuraType.ModGlobalCooldownByHasteRegen, SpellInfo))
+			if (gcd > MinGCD && _caster.AsUnit.HasAuraTypeWithAffectMask(AuraType.ModGlobalCooldownByHasteRegen, SpellInfo))
 			{
-				gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * _caster.ToUnit().UnitData.ModHasteRegen);
+				gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * _caster.AsUnit.UnitData.ModHasteRegen);
 				var intGcd = (int)gcd.TotalMilliseconds;
 				MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
 				gcd = TimeSpan.FromMilliseconds(intGcd);
 			}
 		}
 
-		_caster.ToUnit().GetSpellHistory().AddGlobalCooldown(SpellInfo, gcd);
+		_caster.
+		AsUnit.GetSpellHistory().AddGlobalCooldown(SpellInfo, gcd);
 	}
 
 	void CancelGlobalCooldown()
@@ -9016,10 +9018,11 @@ public partial class Spell : IDisposable
 			return;
 
 		// Cancel global cooldown when interrupting current cast
-		if (_caster.ToUnit().GetCurrentSpell(CurrentSpellTypes.Generic) != this)
+		if (_caster.AsUnit.GetCurrentSpell(CurrentSpellTypes.Generic) != this)
 			return;
 
-		_caster.ToUnit().GetSpellHistory().CancelGlobalCooldown(SpellInfo);
+		_caster.
+		AsUnit.GetSpellHistory().CancelGlobalCooldown(SpellInfo);
 	}
 
 	string GetDebugInfo()

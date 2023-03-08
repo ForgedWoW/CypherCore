@@ -264,7 +264,7 @@ public partial class Player
 			case TypeId.GameObject:
 				return GetGameObjectIfCanInteractWith(questGiver.GUID, GameObjectTypes.QuestGiver) != null;
 			case TypeId.Player:
-				return IsAlive && questGiver.ToPlayer().IsAlive;
+				return IsAlive && questGiver.AsPlayer.IsAlive;
 			case TypeId.Item:
 				return IsAlive;
 			default:
@@ -731,7 +731,7 @@ public partial class Player
 		{
 			case TypeId.Unit:
 				PlayerTalkClass.ClearMenus();
-				questGiver.ToCreature().GetAI().OnQuestAccept(this, quest);
+				questGiver.AsCreature.GetAI().OnQuestAccept(this, quest);
 
 				break;
 			case TypeId.Item:
@@ -765,7 +765,7 @@ public partial class Player
 			}
 			case TypeId.GameObject:
 				PlayerTalkClass.ClearMenus();
-				questGiver.ToGameObject().GetAI().OnQuestAccept(this, quest);
+				questGiver.AsGameObject.GetAI().OnQuestAccept(this, quest);
 
 				break;
 			default:
@@ -833,7 +833,7 @@ public partial class Player
 		{
 			// shared timed quest
 			if (questGiver != null && questGiver.IsTypeId(TypeId.Player))
-				limittime = questGiver.ToPlayer()._mQuestStatus[questId].Timer / Time.InMilliseconds;
+				limittime = questGiver.AsPlayer._mQuestStatus[questId].Timer / Time.InMilliseconds;
 
 			AddTimedQuest(questId);
 			questStatusData.Timer = limittime * Time.InMilliseconds;
@@ -857,7 +857,7 @@ public partial class Player
 
 			if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnAccept) && !spellInfo.HasTargetType(Targets.UnitCaster) && !spellInfo.HasTargetType(Targets.DestCasterSummon))
 			{
-				var unit = questGiver.ToUnit();
+				var unit = questGiver.AsUnit;
 
 				if (unit != null)
 					caster = unit;
@@ -1196,7 +1196,7 @@ public partial class Player
 		if (quest.CanIncreaseRewardedQuestCounters())
 			SetRewardedQuest(questId);
 
-		SendQuestReward(quest, questGiver?.ToCreature(), XP, !announce);
+		SendQuestReward(quest, questGiver?.AsCreature, XP, !announce);
 
 		RewardReputation(quest);
 
@@ -1208,7 +1208,7 @@ public partial class Player
 
 			if (questGiver != null && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
 			{
-				var unit = questGiver.ToUnit();
+				var unit = questGiver.AsUnit;
 
 				if (unit != null)
 					caster = unit;
@@ -1231,7 +1231,7 @@ public partial class Player
 
 				if (questGiver && questGiver.IsTypeMask(TypeMask.Unit) && !quest.HasFlag(QuestFlags.PlayerCastOnComplete) && !spellInfo.HasTargetType(Targets.UnitCaster))
 				{
-					var unit = questGiver.ToUnit();
+					var unit = questGiver.AsUnit;
 
 					if (unit)
 						caster = unit;
@@ -1294,7 +1294,7 @@ public partial class Player
 							}
 
 						PlayerTalkClass.ClearMenus();
-						var creatureQGiver = questGiver.ToCreature();
+						var creatureQGiver = questGiver.AsCreature;
 
 						if (creatureQGiver != null)
 							creatureQGiver.GetAI().OnQuestReward(this, quest, rewardType, rewardId);
@@ -1303,7 +1303,7 @@ public partial class Player
 					}
 					case TypeId.GameObject:
 					{
-						var questGiverGob = questGiver.ToGameObject();
+						var questGiverGob = questGiver.AsGameObject;
 						// Send next quest
 						var nextQuest = GetNextQuest(questGiverGob.GUID, quest);
 
@@ -1980,7 +1980,7 @@ public partial class Player
 		{
 			case TypeId.GameObject:
 			{
-				var ai = questgiver.ToGameObject().GetAI();
+				var ai = questgiver.AsGameObject.GetAI();
 
 				if (ai != null)
 				{
@@ -1997,7 +1997,7 @@ public partial class Player
 			}
 			case TypeId.Unit:
 			{
-				var ai = questgiver.ToCreature().GetAI();
+				var ai = questgiver.AsCreature.GetAI();
 
 				if (ai != null)
 				{

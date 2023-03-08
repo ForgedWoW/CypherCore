@@ -25,7 +25,7 @@ public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
 	private void PeriodicTick(AuraEffect aurEffConst)
 	{
 		// "When a Burning Ember fills up, your critical strike chance is increased by 15% for 5 seconds"
-		var caster = UnitOwner.ToPlayer();
+		var caster = UnitOwner.AsPlayer;
 
 		if (caster == null || caster.HasAura(WarlockSpells.T16_4P_INTERNAL_CD))
 			return;

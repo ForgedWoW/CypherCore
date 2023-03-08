@@ -110,9 +110,9 @@ namespace Game.Movement
                     moveFlagsForSpeed &= ~MovementFlag.Walking;
 
                 args.velocity = unit.GetSpeed(SelectSpeedType(moveFlagsForSpeed));
-                Creature creature = unit.ToCreature();
+                Creature creature = unit.AsCreature;
                 if (creature != null)
-                    if (creature.HasSearchedAssistance())
+                    if (creature.HasSearchedAssistance)
                         args.velocity *= 0.66f;
             }
 

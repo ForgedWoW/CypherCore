@@ -23,7 +23,7 @@ public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
 
 		if (target != null)
 		{
-			var _player = Caster.ToPlayer();
+			var _player = Caster.AsPlayer;
 
 			if (_player != null)
 			{

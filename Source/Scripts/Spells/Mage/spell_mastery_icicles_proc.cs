@@ -73,7 +73,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 		if (target == null || caster == null)
 			return;
 
-		var player = caster.ToPlayer();
+		var player = caster.AsPlayer;
 
 		if (player == null)
 			return;

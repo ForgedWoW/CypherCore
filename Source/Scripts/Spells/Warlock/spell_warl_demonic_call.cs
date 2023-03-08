@@ -14,7 +14,7 @@ public class spell_warl_demonic_call : SpellScript, ISpellOnHit
 {
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			if (HitUnit)

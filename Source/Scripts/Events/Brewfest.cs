@@ -354,7 +354,7 @@ internal class spell_brewfest_barker_bunny : AuraScript, IHasAuraEffects
 
 	private void OnApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var target = Target.ToPlayer();
+		var target = Target.AsPlayer;
 
 		uint BroadcastTextId = 0;
 
@@ -396,7 +396,7 @@ internal class spell_item_brewfest_mount_transformation : SpellScript, IHasSpell
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster.HasAuraType(AuraType.Mounted))
 		{

@@ -431,8 +431,7 @@ public partial class Player
 		_LoadInstanceTimeRestrictions(holder.GetResult(PlayerLoginQueryLoad.InstanceLockTimes));
 		_LoadBGData(holder.GetResult(PlayerLoginQueryLoad.BgData));
 
-		Session.
-		Player = this;
+		Session.Player = this;
 
 		Map map = null;
 		var player_at_bg = false;
@@ -771,11 +770,11 @@ public partial class Player
 		_LoadTalents(holder.GetResult(PlayerLoginQueryLoad.Talents));
 		_LoadPvpTalents(holder.GetResult(PlayerLoginQueryLoad.PvpTalents));
 		_LoadSpells(holder.GetResult(PlayerLoginQueryLoad.Spells), holder.GetResult(PlayerLoginQueryLoad.SpellFavorites));
-		Session.		CollectionMgr.LoadToys();
-		Session.		CollectionMgr.LoadHeirlooms();
-		Session.		CollectionMgr.LoadMounts();
-		Session.		CollectionMgr.LoadItemAppearances();
-		Session.		CollectionMgr.LoadTransmogIllusions();
+		Session.CollectionMgr.LoadToys();
+		Session.CollectionMgr.LoadHeirlooms();
+		Session.CollectionMgr.LoadMounts();
+		Session.CollectionMgr.LoadItemAppearances();
+		Session.CollectionMgr.LoadTransmogIllusions();
 
 		LearnSpecializationSpells();
 
@@ -1031,8 +1030,7 @@ public partial class Player
 				if (!ConditionManager.IsPlayerMeetingCondition(this, playerCondition))
 					continue;
 
-			Session.
-			CollectionMgr.AddTransmogIllusion(transmogIllusion.Id);
+			Session.CollectionMgr.AddTransmogIllusion(transmogIllusion.Id);
 		}
 
 		return true;
@@ -1440,13 +1438,14 @@ public partial class Player
 
 		// TODO: Move this out
 		Session.
-		// TODO: Move this out
-		CollectionMgr.SaveAccountToys(loginTransaction);
-		Session.		BattlePetMgr.SaveToDB(loginTransaction);
-		Session.		CollectionMgr.SaveAccountHeirlooms(loginTransaction);
-		Session.		CollectionMgr.SaveAccountMounts(loginTransaction);
-		Session.		CollectionMgr.SaveAccountItemAppearances(loginTransaction);
-		Session.		CollectionMgr.SaveAccountTransmogIllusions(loginTransaction);
+			// TODO: Move this out
+			CollectionMgr.SaveAccountToys(loginTransaction);
+
+		Session.BattlePetMgr.SaveToDB(loginTransaction);
+		Session.CollectionMgr.SaveAccountHeirlooms(loginTransaction);
+		Session.CollectionMgr.SaveAccountMounts(loginTransaction);
+		Session.CollectionMgr.SaveAccountItemAppearances(loginTransaction);
+		Session.CollectionMgr.SaveAccountTransmogIllusions(loginTransaction);
 
 		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
 		stmt.AddValue(0, Session.AccountId);
@@ -2130,9 +2129,8 @@ public partial class Player
 					var bagGuid = counter != 0 ? ObjectGuid.Create(HighGuid.Item, counter) : ObjectGuid.Empty;
 					var slot = result.Read<byte>(52);
 
-					Session.
-					CollectionMgr.CheckHeirloomUpgrades(item);
-					Session.					CollectionMgr.AddItemAppearance(item);
+					Session.CollectionMgr.CheckHeirloomUpgrades(item);
+					Session.CollectionMgr.AddItemAppearance(item);
 
 					var err = InventoryResult.Ok;
 
@@ -2738,7 +2736,7 @@ public partial class Player
 			// accept saved data only for valid position (and non instanceable), and accessable
 			if (GridDefines.IsValidMapCoord(_homebind) &&
 				!map.Instanceable() &&
-				Session.				Expansion >= map.Expansion())
+				Session.Expansion >= map.Expansion())
 			{
 				ok = true;
 			}
@@ -3021,10 +3019,10 @@ public partial class Player
 					}
 
 					for (uint i = 0; i < quest.RewChoiceItemsCount; ++i)
-						Session.						CollectionMgr.AddItemAppearance(quest.RewardChoiceItemId[i]);
+						Session.CollectionMgr.AddItemAppearance(quest.RewardChoiceItemId[i]);
 
 					for (uint i = 0; i < quest.RewItemsCount; ++i)
-						Session.						CollectionMgr.AddItemAppearance(quest.RewardItemId[i]);
+						Session.CollectionMgr.AddItemAppearance(quest.RewardItemId[i]);
 
 					var questPackageItems = Global.DB2Mgr.GetQuestPackageItems(quest.PackageID);
 
@@ -3035,7 +3033,7 @@ public partial class Player
 
 							if (rewardProto != null)
 								if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
-									Session.									CollectionMgr.AddItemAppearance(questPackageItem.ItemID);
+									Session.CollectionMgr.AddItemAppearance(questPackageItem.ItemID);
 						}
 
 					if (quest.CanIncreaseRewardedQuestCounters())
@@ -3400,7 +3398,7 @@ public partial class Player
 			_voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomBonusListId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs);
 
 			BonusData bonus = new(new ItemInstance(_voidStorageItems[slot]));
-			Session.			CollectionMgr.AddItemAppearance(itemEntry, bonus.AppearanceModID);
+			Session.CollectionMgr.AddItemAppearance(itemEntry, bonus.AppearanceModID);
 		} while (result.NextRow());
 	}
 

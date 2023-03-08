@@ -154,8 +154,8 @@ public class SpellScript : BaseSpellScript, ISpellScript
 	// methods allowing interaction with Spell object
 	//
 	// methods useable during all spell handling phases
-	public Unit Caster => _spell.Caster.ToUnit();
-	public GameObject GObjCaster => _spell.Caster.ToGameObject();
+	public Unit Caster => _spell.Caster.AsUnit;
+	public GameObject GObjCaster => _spell.Caster.AsGameObject;
 	public Unit OriginalCaster => _spell.OriginalCaster;
 	public SpellInfo SpellInfo => _spell.SpellInfo;
 	public Difficulty CastDifficulty => _spell.GetCastDifficulty();
@@ -232,7 +232,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 			}
 
 			if (_spell.UnitTarget != null)
-				return _spell.UnitTarget.ToCreature();
+				return _spell.UnitTarget.AsCreature;
 			else
 				return null;
 		}
@@ -253,7 +253,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 			}
 
 			if (_spell.UnitTarget != null)
-				return _spell.UnitTarget.ToPlayer();
+				return _spell.UnitTarget.AsPlayer;
 			else
 				return null;
 		}
@@ -722,10 +722,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		var tempPlayers = targets.Where(p => p.IsPlayer).ToList();
 
 		//List of all injured non player targets.
-		var tempInjuredUnits = targets.Where(target => target.IsUnit && !target.ToUnit().IsFullHealth()).ToList();
+		var tempInjuredUnits = targets.Where(target => target.IsUnit && !target.AsUnit.IsFullHealth()).ToList();
 
 		//List of all none injured non player targets.
-		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit && target.ToUnit().IsFullHealth()).ToList();
+		var tempNoneInjuredUnits = targets.Where(target => target.IsUnit && target.AsUnit.IsFullHealth()).ToList();
 
 		targets.Clear();
 
@@ -755,7 +755,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 				return;
 			}
 
-		var lookupPlayers = tempPlayers.ToLookup(target => !target.ToUnit().IsFullHealth());
+		var lookupPlayers = tempPlayers.ToLookup(target => !target.AsUnit.IsFullHealth());
 
 		if (lookupPlayers[true].Count() < maxTargets)
 		{
@@ -775,14 +775,14 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
 	public bool TryGetCaster(out Unit result)
 	{
-		result = _spell.Caster?.ToUnit();
+		result = _spell.Caster?.AsUnit;
 
 		return result != null;
 	}
 
 	public bool TryGetCaster(out Player result)
 	{
-		result = _spell.Caster?.ToPlayer();
+		result = _spell.Caster?.AsPlayer;
 
 		return result != null;
 	}

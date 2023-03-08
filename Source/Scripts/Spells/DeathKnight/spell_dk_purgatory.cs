@@ -21,7 +21,7 @@ public class spell_dk_purgatory : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var _player = Target.ToPlayer();
+		var _player = Target.AsPlayer;
 
 		if (_player != null)
 		{

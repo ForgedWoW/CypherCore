@@ -188,7 +188,7 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 
 			if (target != null)
 			{
-				var player = target.ToPlayer();
+				var player = target.AsPlayer;
 
 				if (player != null)
 				{
@@ -231,7 +231,7 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = Caster.ToCreature();
+		var caster = Caster.AsCreature;
 		var target = HitUnit;
 
 		if (target == null ||

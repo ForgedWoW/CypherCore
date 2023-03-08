@@ -14,7 +14,7 @@ public class PlayerOrPetCheck : ICheck<WorldObject>
 		if (obj.IsTypeId(TypeId.Player))
 			return false;
 
-		var creature = obj.ToCreature();
+		var creature = obj.AsCreature;
 
 		if (creature)
 			return !creature.IsPet;

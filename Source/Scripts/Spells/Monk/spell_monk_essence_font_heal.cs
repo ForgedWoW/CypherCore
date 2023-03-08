@@ -29,10 +29,10 @@ public class spell_monk_essence_font_heal : SpellScript, IHasSpellEffects
 		{
 			p_Targets.RemoveIf((WorldObject @object) =>
 			{
-				if (@object == null || @object.ToUnit() == null)
+				if (@object == null || @object.AsUnit == null)
 					return true;
 
-				var unit = @object.ToUnit();
+				var unit = @object.AsUnit;
 
 				if (unit == caster)
 					return true;

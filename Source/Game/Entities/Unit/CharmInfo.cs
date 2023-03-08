@@ -43,7 +43,7 @@ public class CharmInfo
 		for (var i = 0; i < SharedConst.ActionBarIndexMax; ++i)
 			PetActionBar[i] = new UnitActionBarEntry();
 
-		var creature = _unit.ToCreature();
+		var creature = _unit.AsCreature;
 
 		if (creature != null)
 		{
@@ -56,7 +56,7 @@ public class CharmInfo
 	{
 		if (_unit.IsTypeId(TypeId.Unit))
 		{
-			var creature = _unit.ToCreature();
+			var creature = _unit.AsCreature;
 
 			if (creature)
 				creature.ReactState = _oldReactState;
@@ -111,7 +111,7 @@ public class CharmInfo
 
 			for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 			{
-				var spellId = _unit.ToCreature().Spells[i];
+				var spellId = _unit.AsCreature.Spells[i];
 				var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.GetMap().GetDifficultyID());
 
 				if (spellInfo != null)
@@ -145,7 +145,7 @@ public class CharmInfo
 
 		for (uint x = 0; x < SharedConst.MaxSpellCharm; ++x)
 		{
-			var spellId = _unit.ToCreature().Spells[x];
+			var spellId = _unit.AsCreature.Spells[x];
 			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _unit.GetMap().GetDifficultyID());
 
 			if (spellInfo == null)

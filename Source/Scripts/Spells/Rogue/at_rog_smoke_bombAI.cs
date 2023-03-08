@@ -19,7 +19,7 @@ public class at_rog_smoke_bombAI : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (caster.IsValidAssistTarget(unit))
@@ -33,7 +33,7 @@ public class at_rog_smoke_bombAI : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (unit.HasAura(RogueSpells.SMOKE_BOMB_AURA))

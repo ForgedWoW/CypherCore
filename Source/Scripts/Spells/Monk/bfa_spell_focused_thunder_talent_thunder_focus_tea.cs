@@ -22,7 +22,7 @@ public class bfa_spell_focused_thunder_talent_thunder_focus_tea : AuraScript, IH
 
 	private void OnApply(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		Unit caster = Caster.ToPlayer();
+		Unit caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

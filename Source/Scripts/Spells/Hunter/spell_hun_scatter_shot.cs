@@ -26,7 +26,7 @@ internal class spell_hun_scatter_shot : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		// break auto Shot and varhit
 		caster.InterruptSpell(CurrentSpellTypes.AutoRepeat);
 		caster.AttackStop();

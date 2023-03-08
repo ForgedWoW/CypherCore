@@ -148,7 +148,7 @@ namespace Game.Chat
 
                 if (thisGO.GetGameObjectData() != null && thisGO.GetGameObjectData().SpawnGroupData.GroupId != 0)
                 {
-                    SpawnGroupTemplateData groupData = thisGO.ToGameObject().GetGameObjectData().SpawnGroupData;
+                    SpawnGroupTemplateData groupData = thisGO.AsGameObject.GetGameObjectData().SpawnGroupData;
                     handler.SendSysMessage(CypherStrings.SpawninfoGroupId, groupData.Name, groupData.GroupId, groupData.Flags, thisGO.GetMap().IsSpawnGroupActive(groupData.GroupId));
                 }
 

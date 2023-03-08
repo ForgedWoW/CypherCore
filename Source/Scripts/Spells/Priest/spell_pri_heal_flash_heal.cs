@@ -13,9 +13,9 @@ public class spell_pri_heal_flash_heal : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.PriestHoly)

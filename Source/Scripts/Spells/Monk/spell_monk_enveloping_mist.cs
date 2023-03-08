@@ -12,7 +12,7 @@ public class spell_monk_enveloping_mist : SpellScript, ISpellAfterCast, ISpellBe
 {
 	public void AfterCast()
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 
 		if (caster == null)
 			return;

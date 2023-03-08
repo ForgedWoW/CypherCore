@@ -169,7 +169,7 @@ namespace Game.AI
             if (cdata != null)
             {
                 if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
-                    me.SaveRespawnTime(me.GetRespawnDelay());
+                    me.SaveRespawnTime(me.RespawnDelay);
             }
 
             if (me.IsEngaged)
@@ -298,7 +298,7 @@ namespace Game.AI
                 return false;
 
             // or if enemy is in evade mode
-            if (who.TypeId == TypeId.Unit && who.ToCreature().IsInEvadeMode)
+            if (who.TypeId == TypeId.Unit && who.AsCreature.IsInEvadeMode)
                 return false;
 
             //never attack friendly

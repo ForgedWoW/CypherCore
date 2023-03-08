@@ -22,7 +22,7 @@ internal class spell_gen_profession_research : SpellScript, ISpellCheckCast, IHa
 
 	public SpellCastResult CheckCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, player))
 		{
@@ -41,7 +41,7 @@ internal class spell_gen_profession_research : SpellScript, ISpellCheckCast, IHa
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var spellId = SpellInfo.Id;
 
 		// Learn random explicit discovery recipe (if any)

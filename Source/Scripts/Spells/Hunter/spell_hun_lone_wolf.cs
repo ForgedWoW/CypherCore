@@ -24,7 +24,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 		if (!UnitOwner)
 			return;
 
-		var player = UnitOwner.ToPlayer();
+		var player = UnitOwner.AsPlayer;
 
 		if (player == null)
 			return;
@@ -73,7 +73,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 		if (!Caster)
 			return;
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{
@@ -93,7 +93,7 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 		if (!Caster)
 			return;
 
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 		{

@@ -1014,7 +1014,7 @@ public class UnitData : BaseUpdateData<Unit>
 
 		if (unit.IsCreature)
 		{
-			var cinfo = unit.ToCreature().CreatureTemplate;
+			var cinfo = unit.AsCreature.CreatureTemplate;
 			var summon = unit.ToTempSummon();
 
 			if (summon != null)
@@ -1056,7 +1056,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		var npcFlag = unitData.NpcFlags[i];
 
-		if (i == 0 && unit.IsCreature && !receiver.CanSeeSpellClickOn(unit.ToCreature()))
+		if (i == 0 && unit.IsCreature && !receiver.CanSeeSpellClickOn(unit.AsCreature))
 			npcFlag &= ~(uint)NPCFlags.SpellClick;
 
 		return npcFlag;
@@ -1094,7 +1094,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		uint flags = unitData.Flags3;
 
-		if ((flags & (uint)UnitFlags3.AlreadySkinned) != 0 && unit.IsCreature && !unit.ToCreature().IsSkinnedBy(receiver))
+		if ((flags & (uint)UnitFlags3.AlreadySkinned) != 0 && unit.IsCreature && !unit.AsCreature.IsSkinnedBy(receiver))
 			flags &= ~(uint)UnitFlags3.AlreadySkinned;
 
 		return flags;

@@ -96,12 +96,12 @@ namespace Game.Chat
             foreach (var refe in target.GetCombatManager().GetPvPCombatRefs())
             {
                 Unit unit = refe.Value.GetOther(target);
-                handler.SendSysMessage($"[PvP] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.ToCreature().SpawnId : 0)})");
+                handler.SendSysMessage($"[PvP] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})");
             }
             foreach (var refe in target.GetCombatManager().GetPvECombatRefs())
             {
                 Unit unit = refe.Value.GetOther(target);
-                handler.SendSysMessage($"[PvE] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.ToCreature().SpawnId : 0)})");
+                handler.SendSysMessage($"[PvE] {unit.GetName()} (SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})");
             }
 
             return true;
@@ -947,7 +947,7 @@ namespace Game.Chat
                 foreach (var pair in threatenedByMe)
                 {
                     Unit unit = pair.Value.GetOwner();
-                    handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID}, SpawnID {(unit.IsCreature ? unit.ToCreature().SpawnId : 0)})  - threat {pair.Value.GetThreat()}");
+                    handler.SendSysMessage($"   {++count}.   {unit.GetName()}   ({unit.GUID}, SpawnID {(unit.IsCreature ? unit.AsCreature.SpawnId : 0)})  - threat {pair.Value.GetThreat()}");
                 }
                 handler.SendSysMessage("End of threatened-by-me list.");
             }
@@ -957,9 +957,9 @@ namespace Game.Chat
                 if (!mgr.IsThreatListEmpty(true))
                 {
                     if (target.IsEngaged)
-                        handler.SendSysMessage($"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.ToCreature().SpawnId : 0)}):");
+                        handler.SendSysMessage($"Threat list of {target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}):");
                     else
-                        handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.ToCreature().SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
+                        handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not engaged, but still has a threat list? Well, here it is:");
 
                     count = 0;
                     Unit fixateVictim = mgr.GetFixateTarget();
@@ -971,9 +971,9 @@ namespace Game.Chat
                     handler.SendSysMessage("End of threat list.");
                 }
                 else if (!target.IsEngaged)
-                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.ToCreature().SpawnId : 0)}) is not currently engaged.");
+                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) is not currently engaged.");
                 else
-                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.ToCreature().SpawnId : 0)}) seems to be engaged, but does not have a threat list??");
+                    handler.SendSysMessage($"{target.GetName()} ({target.GUID}, SpawnID {(target.IsCreature ? target.AsCreature.SpawnId : 0)}) seems to be engaged, but does not have a threat list??");
             }
             else if (target.IsEngaged)
                 handler.SendSysMessage($"{target.GetName()} ({target.GUID}) is currently engaged. (This unit cannot have a threat list.)");

@@ -271,6 +271,61 @@ public partial class Creature : Unit
 		set => _lastDamagedTime = value;
 	}
 
+	public bool HasSearchedAssistance => _alreadySearchedAssistance;
+
+	public bool CanIgnoreFeignDeath => CreatureTemplate.FlagsExtra.HasFlag(CreatureFlagsExtra.IgnoreFeighDeath);
+
+	public long RespawnTime => _respawnTime;
+
+	public uint RespawnDelay
+	{
+		get => _respawnDelay;
+		set => _respawnDelay = value;
+	}
+
+	public float WanderDistance
+	{
+		get => _wanderDistance;
+		set => _wanderDistance = value;
+	}
+
+	public bool CanRegenerateHealth => !_regenerateHealthLock && _regenerateHealth;
+
+	public Position HomePosition
+	{
+		get => _homePosition;
+		set => _homePosition.Relocate(value);
+	}
+
+	public Position TransportHomePosition
+	{
+		get => _transportHomePosition;
+		set => _transportHomePosition.Relocate(value);
+	}
+
+	public uint WaypointPath => _waypointPathId;
+
+	public (uint nodeId, uint pathId) CurrentWaypointInfo => _currentWaypointNodeInfo;
+
+	public CreatureGroup Formation
+	{
+		get => _creatureGroup;
+		set => _creatureGroup = value;
+	}
+
+	public uint OriginalEntry1
+	{
+		get => OriginalEntry;
+		private set => OriginalEntry = value;
+	}
+
+	// There's many places not ready for dynamic spawns. This allows them to live on for now.
+	public bool RespawnCompatibilityMode
+	{
+		get => _respawnCompatibilityMode;
+		private set => _respawnCompatibilityMode = value;
+	}
+
 	public Creature() : this(false) { }
 
 	public Creature(bool worldObject) : base(worldObject)
@@ -411,7 +466,7 @@ public partial class Creature : Unit
 			}
 
 			respawn.Z = UpdateAllowedPositionZ(respawn.X, respawn.Y, respawn.Z);
-			SetHomePosition(respawn);
+			HomePosition = respawn;
 			GetMap().CreatureRelocation(this, respawn);
 		}
 		else
@@ -1032,7 +1087,7 @@ public partial class Creature : Unit
 
 		// Set if this creature can handle dynamic spawns
 		if (!dynamic)
-			SetRespawnCompatibilityMode();
+			RespawnCompatibilityMode = true;
 
 		var cinfo = Global.ObjectMgr.GetCreatureTemplate(entry);
 
@@ -1309,7 +1364,7 @@ public partial class Creature : Unit
 
 		if (movetype == MovementGeneratorType.Waypoint || movetype == MovementGeneratorType.Point || (IsAIEnabled && GetAI().IsEscorted()))
 		{
-			SetHomePosition(Location);
+			HomePosition = Location;
 			// if its a vehicle, set the home positon of every creature passenger at engage
 			// so that they are in combat range if hostile
 			var vehicle = GetVehicleKit();
@@ -1321,10 +1376,10 @@ public partial class Creature : Unit
 
 					if (passenger != null)
 					{
-						var creature = passenger.ToCreature();
+						var creature = passenger.AsCreature;
 
 						if (creature != null)
-							creature.SetHomePosition(Location);
+							creature.HomePosition = Location;
 					}
 				}
 		}
@@ -1334,7 +1389,7 @@ public partial class Creature : Unit
 		if (ai != null)
 			ai.JustEngagedWith(target);
 
-		var formation = GetFormation();
+		var formation = Formation;
 
 		if (formation != null)
 			formation.MemberEngagingTarget(this, target);
@@ -1359,7 +1414,7 @@ public partial class Creature : Unit
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nAIName: {GetAIName()} ScriptName: {GetScriptName()} WaypointPath: {GetWaypointPath()} SpawnId: {SpawnId}";
+		return $"{base.GetDebugInfo()}\nAIName: {GetAIName()} ScriptName: {GetScriptName()} WaypointPath: {WaypointPath} SpawnId: {SpawnId}";
 	}
 
 	public override void ExitVehicle(Position exitPosition = null)
@@ -1368,7 +1423,7 @@ public partial class Creature : Unit
 
 		// if the creature exits a vehicle, set it's home position to the
 		// exited position so it won't run away (home) and evade if it's hostile
-		SetHomePosition(Location);
+		HomePosition = Location;
 	}
 
 	public override bool IsMovementPreventedByCasting()
@@ -2189,7 +2244,7 @@ public partial class Creature : Unit
 		if (_respawnCompatibilityMode)
 		{
 			var corpseDelay = CorpseDelay;
-			var respawnDelay = GetRespawnDelay();
+			var respawnDelay = RespawnDelay;
 
 			// do it before killing creature
 			UpdateObjectVisibilityOnDestroy();
@@ -2201,7 +2256,7 @@ public partial class Creature : Unit
 				if (forceRespawnTimer > TimeSpan.Zero)
 				{
 					SetCorpseDelay(0);
-					SetRespawnDelay((uint)forceRespawnTimer.TotalSeconds);
+					RespawnDelay = (uint)forceRespawnTimer.TotalSeconds;
 					overrideRespawnTime = false;
 				}
 
@@ -2212,7 +2267,7 @@ public partial class Creature : Unit
 			RemoveCorpse(overrideRespawnTime, false);
 
 			SetCorpseDelay(corpseDelay);
-			SetRespawnDelay(respawnDelay);
+			RespawnDelay = respawnDelay;
 		}
 		else
 		{
@@ -2399,7 +2454,7 @@ public partial class Creature : Unit
 			return false;
 
 		// or if enemy is in evade mode
-		if (enemy.TypeId == TypeId.Unit && enemy.ToCreature().IsInEvadeMode)
+		if (enemy.TypeId == TypeId.Unit && enemy.AsCreature.IsInEvadeMode)
 			return false;
 
 		// we don't need help from non-combatant ;)
@@ -2445,7 +2500,7 @@ public partial class Creature : Unit
 		if (target.HasUnitState(UnitState.Died))
 		{
 			// some creatures can detect fake death
-			if (CanIgnoreFeignDeath() && target.HasUnitFlag2(UnitFlags2.FeignDeath))
+			if (CanIgnoreFeignDeath && target.HasUnitFlag2(UnitFlags2.FeignDeath))
 				return true;
 			else
 				return false;
@@ -2476,7 +2531,7 @@ public partial class Creature : Unit
 		}
 
 		var thisRespawnTime = forceDelay != 0 ? GameTime.GetGameTime() + forceDelay : _respawnTime;
-		GetMap().SaveRespawnTime(SpawnObjectType.Creature, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(GetHomePosition().X, GetHomePosition().Y).GetId());
+		GetMap().SaveRespawnTime(SpawnObjectType.Creature, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(HomePosition.X, HomePosition.Y).GetId());
 	}
 
 	public bool CanCreatureAttack(Unit victim, bool force = true)
@@ -2501,7 +2556,7 @@ public partial class Creature : Unit
 			return false;
 
 		// or if enemy is in evade mode
-		if (victim.TypeId == TypeId.Unit && victim.ToCreature().IsInEvadeMode)
+		if (victim.TypeId == TypeId.Unit && victim.AsCreature.IsInEvadeMode)
 			return false;
 
 		if (!CharmerOrOwnerGUID.IsPlayer)
@@ -2630,7 +2685,7 @@ public partial class Creature : Unit
 		{
 			dist = 0;
 
-			return GetHomePosition().Copy();
+			return HomePosition.Copy();
 		}
 	}
 
@@ -2785,7 +2840,7 @@ public partial class Creature : Unit
 
 	public override uint GetLevelForTarget(WorldObject target)
 	{
-		var unitTarget = target.ToUnit();
+		var unitTarget = target.AsUnit;
 
 		if (unitTarget)
 		{
@@ -2811,7 +2866,7 @@ public partial class Creature : Unit
 
 				var targetLevelDelta = 0;
 
-				var playerTarget = target.ToPlayer();
+				var playerTarget = target.AsPlayer;
 
 				if (playerTarget != null)
 				{
@@ -3015,7 +3070,7 @@ public partial class Creature : Unit
 			if (target.IsTypeId(TypeId.Player))
 				targetLevel = target.GetLevelForTarget(this);
 			else if (target.IsTypeId(TypeId.Unit))
-				targetLevel = target.ToCreature().GetLevelForTarget(this);
+				targetLevel = target.AsCreature.GetLevelForTarget(this);
 
 			var myLevel = GetLevelForTarget(target);
 			var levelDiff = (int)(targetLevel - myLevel);
@@ -3290,7 +3345,7 @@ public partial class Creature : Unit
 			return false;
 
 		//We should set first home position, because then AI calls home movement
-		SetHomePosition(Location);
+		HomePosition = Location;
 
 		DeathState = DeathState.Alive;
 
@@ -3392,16 +3447,6 @@ public partial class Creature : Unit
 		_alreadySearchedAssistance = val;
 	}
 
-	public bool HasSearchedAssistance()
-	{
-		return _alreadySearchedAssistance;
-	}
-
-	public bool CanIgnoreFeignDeath()
-	{
-		return CreatureTemplate.FlagsExtra.HasFlag(CreatureFlagsExtra.IgnoreFeighDeath);
-	}
-
 	public override MovementGeneratorType GetDefaultMovementType()
 	{
 		return DefaultMovementType;
@@ -3412,45 +3457,12 @@ public partial class Creature : Unit
 		DefaultMovementType = mgt;
 	}
 
-	public long GetRespawnTime()
-	{
-		return _respawnTime;
-	}
-
 	public void SetRespawnTime(uint respawn)
 	{
 		_respawnTime = respawn != 0 ? GameTime.GetGameTime() + respawn : 0;
 	}
 
-	public uint GetRespawnDelay()
-	{
-		return _respawnDelay;
-	}
-
-	public void SetRespawnDelay(uint delay)
-	{
-		_respawnDelay = delay;
-	}
-
-	public float GetWanderDistance()
-	{
-		return _wanderDistance;
-	}
-
-	public void SetWanderDistance(float dist)
-	{
-		_wanderDistance = dist;
-	}
-
-	public void DoImmediateBoundaryCheck()
-	{
-		_boundaryCheckTime = 0;
-	}
-
-	public bool CanRegenerateHealth()
-	{
-		return !_regenerateHealthLock && _regenerateHealth;
-	}
+	public void DoImmediateBoundaryCheck() => _boundaryCheckTime = 0;
 
 	public void SetRegenerateHealth(bool value)
 	{
@@ -3462,34 +3474,9 @@ public partial class Creature : Unit
 		_homePosition.Relocate(x, y, z, o);
 	}
 
-	public void SetHomePosition(Position pos)
-	{
-		_homePosition.Relocate(pos);
-	}
-
-	public Position GetHomePosition()
-	{
-		return _homePosition;
-	}
-
 	public void SetTransportHomePosition(float x, float y, float z, float o)
 	{
 		_transportHomePosition.Relocate(x, y, z, o);
-	}
-
-	public void SetTransportHomePosition(Position pos)
-	{
-		_transportHomePosition.Relocate(pos);
-	}
-
-	public Position GetTransportHomePosition()
-	{
-		return _transportHomePosition;
-	}
-
-	public uint GetWaypointPath()
-	{
-		return _waypointPathId;
 	}
 
 	public void LoadPath(uint pathid)
@@ -3497,24 +3484,9 @@ public partial class Creature : Unit
 		_waypointPathId = pathid;
 	}
 
-	public (uint nodeId, uint pathId) GetCurrentWaypointInfo()
-	{
-		return _currentWaypointNodeInfo;
-	}
-
 	public void UpdateCurrentWaypointInfo(uint nodeId, uint pathId)
 	{
 		_currentWaypointNodeInfo = (nodeId, pathId);
-	}
-
-	public CreatureGroup GetFormation()
-	{
-		return _creatureGroup;
-	}
-
-	public void SetFormation(CreatureGroup formation)
-	{
-		_creatureGroup = formation;
 	}
 
 	public void ResetPlayerDamageReq()
@@ -3522,19 +3494,9 @@ public partial class Creature : Unit
 		PlayerDamageReq = (uint)(GetHealth() / 2);
 	}
 
-	public uint GetOriginalEntry()
-	{
-		return OriginalEntry;
-	}
-
-	public bool GetRespawnCompatibilityMode()
-	{
-		return _respawnCompatibilityMode;
-	}
-
 	void RegenerateHealth()
 	{
-		if (!CanRegenerateHealth())
+		if (!CanRegenerateHealth)
 			return;
 
 		var curValue = GetHealth();
@@ -3627,7 +3589,7 @@ public partial class Creature : Unit
 			return false;
 		}
 
-		SetOriginalEntry(entry);
+		OriginalEntry1 = entry;
 
 		if (vehId != 0 || cinfo.VehicleId != 0)
 			Create(ObjectGuid.Create(HighGuid.Vehicle, Location.MapId, entry, guidlow));
@@ -3733,16 +3695,5 @@ public partial class Creature : Unit
 	void SetDisableReputationGain(bool disable)
 	{
 		_reputationGain = disable;
-	}
-
-	void SetOriginalEntry(uint entry)
-	{
-		OriginalEntry = entry;
-	}
-
-	// There's many places not ready for dynamic spawns. This allows them to live on for now.
-	void SetRespawnCompatibilityMode(bool mode = true)
-	{
-		_respawnCompatibilityMode = mode;
 	}
 }

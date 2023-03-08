@@ -173,7 +173,7 @@ public class boss_vanessa_vancleef : BossAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		var player = done_by.ToPlayer();
+		var player = done_by.AsPlayer;
 
 		if (player != null)
 			PlayerGUID = player;

@@ -62,18 +62,18 @@ public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheck
 					return;
 
 				var target = ExplTargetUnit;
-				var player = Caster.ToPlayer();
+				var player = Caster.AsPlayer;
 
 				pet.CastSpell(ExplTargetUnit, HunterSpells.KILL_COMMAND_TRIGGER, true);
 
 				if (pet.GetVictim())
 				{
 					pet.AttackStop();
-					pet.ToCreature().GetAI().AttackStart(ExplTargetUnit);
+					pet.					AsCreature.GetAI().AttackStart(ExplTargetUnit);
 				}
 				else
 				{
-					pet.ToCreature().GetAI().AttackStart(ExplTargetUnit);
+					pet.					AsCreature.GetAI().AttackStart(ExplTargetUnit);
 				}
 				//pet->CastSpell(GetExplTargetUnit(), KILL_COMMAND_CHARGE, true);
 

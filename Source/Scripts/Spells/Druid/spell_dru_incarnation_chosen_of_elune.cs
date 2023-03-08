@@ -11,7 +11,7 @@ public class spell_dru_incarnation_chosen_of_elune : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
 		if (player != null)
 			if (!player.HasAura(ShapeshiftFormSpells.MOONKIN_FORM))

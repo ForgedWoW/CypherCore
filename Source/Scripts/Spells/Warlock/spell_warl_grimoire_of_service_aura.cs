@@ -17,9 +17,9 @@ internal class spell_warl_grimoire_of_service_aura : AuraScript, IHasAuraEffects
 
 	public void Handlearn(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
-		if (Caster.ToPlayer())
+		if (Caster.AsPlayer)
 		{
 			player.LearnSpell(WarlockSpells.GRIMOIRE_IMP, false);
 			player.LearnSpell(WarlockSpells.GRIMOIRE_VOIDWALKER, false);
@@ -33,9 +33,9 @@ internal class spell_warl_grimoire_of_service_aura : AuraScript, IHasAuraEffects
 
 	public void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 
-		if (Caster.ToPlayer())
+		if (Caster.AsPlayer)
 		{
 			player.RemoveSpell(WarlockSpells.GRIMOIRE_IMP, false, false);
 			player.RemoveSpell(WarlockSpells.GRIMOIRE_VOIDWALKER, false, false);

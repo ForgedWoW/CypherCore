@@ -63,7 +63,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 			if (caster != null)
 			{
 				// Send packet back to the caster if the caster has vision of dynamic object
-				var player = caster.ToPlayer();
+				var player = caster.AsPlayer;
 
 				if (player && player.SeerView == dynamicObject)
 					SendPacket(player);

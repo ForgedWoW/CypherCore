@@ -234,7 +234,7 @@ internal class boss_garothi_worldbreaker : BossAI
 			me.AttackStop();
 			me.ReactState = ReactStates.Passive;
 			me.InterruptNonMeleeSpells(true);
-			me.SetFacingTo(me.GetHomePosition().Orientation);
+			me.SetFacingTo(me.HomePosition.Orientation);
 			_events.Reset();
 
 			if (GetDifficulty() == Difficulty.MythicRaid ||
@@ -548,7 +548,7 @@ internal class spell_garothi_fel_bombardment_selector : SpellScript, IHasSpellEf
 
 	private void HandleWarningEffect(int effIndex)
 	{
-		var caster = Caster ? Caster.ToCreature() : null;
+		var caster = Caster ? Caster.AsCreature : null;
 
 		if (!caster ||
 			!caster.IsAIEnabled)
@@ -692,7 +692,7 @@ internal class spell_garothi_decimation_selector : SpellScript, IHasSpellEffects
 		if (caster)
 		{
 			caster.CastSpell(HitUnit, SpellIds.DecimationWarning, true);
-			var decimator = caster.ToCreature();
+			var decimator = caster.AsCreature;
 
 			if (decimator)
 				if (decimator.IsAIEnabled)
@@ -909,7 +909,7 @@ internal class VictimCheck : ICheck<WorldObject>
 
 	public bool Invoke(WorldObject obj)
 	{
-		var unit = obj.ToUnit();
+		var unit = obj.AsUnit;
 
 		if (!unit)
 			return true;

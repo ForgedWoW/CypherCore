@@ -36,8 +36,8 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 		if (SpellInfo.CheckTarget(Caster, target, true) != SpellCastResult.SpellCastOk)
 			return false;
 
-		var unitTarget = target.ToUnit();
-		var corpseTarget = target.ToCorpse();
+		var unitTarget = target.AsUnit;
+		var corpseTarget = target.AsCorpse;
 
 		if (corpseTarget != null)
 		{
@@ -50,7 +50,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 				return false;
 		}
 
-		var refUnit = _referer.ToUnit();
+		var refUnit = _referer.AsUnit;
 
 		if (unitTarget != null)
 		{
@@ -122,7 +122,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 
 					break;
 				case SpellTargetCheckTypes.Threat:
-					if (!_referer.IsUnit || _referer.ToUnit().GetThreatManager().GetThreat(unitTarget, true) <= 0.0f)
+					if (!_referer.IsUnit || _referer.AsUnit.GetThreatManager().GetThreat(unitTarget, true) <= 0.0f)
 						return false;
 
 					break;
@@ -130,7 +130,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 					if (_referer.TypeId != TypeId.Unit || unitTarget.TypeId != TypeId.Player)
 						return false;
 
-					if (!_referer.ToCreature().IsTappedBy(unitTarget.ToPlayer()))
+					if (!_referer.AsCreature.IsTappedBy(unitTarget.AsPlayer))
 						return false;
 
 					break;

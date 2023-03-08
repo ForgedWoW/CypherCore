@@ -54,7 +54,7 @@ internal class spell_item_dimensional_ripper_area52 : SpellScript, IHasSpellEffe
 
 				break;
 			case 3:
-				if (caster.ToPlayer().TeamId == TeamIds.Alliance)
+				if (caster.AsPlayer.TeamId == TeamIds.Alliance)
 					spellId = ItemSpellIds.TransformHorde;
 				else
 					spellId = ItemSpellIds.TransformAlliance;

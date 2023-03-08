@@ -36,7 +36,7 @@ class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
 		// pets in aggressive do not attack civilians
 		if (_ignoreCivilians)
 		{
-			var c = u.ToCreature();
+			var c = u.AsCreature;
 
 			if (c != null)
 				if (c.IsCivilian)

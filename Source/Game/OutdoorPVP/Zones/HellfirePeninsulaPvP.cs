@@ -133,9 +133,9 @@ namespace Game.PvP
             if (!killed.IsTypeId(TypeId.Player))
                 return;
 
-            if (killer.Team == TeamFaction.Alliance && killed.ToPlayer().Team != TeamFaction.Alliance)
+            if (killer.Team == TeamFaction.Alliance && killed.AsPlayer.Team != TeamFaction.Alliance)
                 killer.CastSpell(killer, OutdoorPvPHPSpells.AlliancePlayerKillReward, true);
-            else if (killer.Team == TeamFaction.Horde && killed.ToPlayer().Team != TeamFaction.Horde)
+            else if (killer.Team == TeamFaction.Horde && killed.AsPlayer.Team != TeamFaction.Horde)
                 killer.CastSpell(killer, OutdoorPvPHPSpells.HordePlayerKillReward, true);
         }
 

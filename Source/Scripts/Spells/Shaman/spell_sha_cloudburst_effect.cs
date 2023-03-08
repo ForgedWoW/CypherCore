@@ -40,7 +40,7 @@ public class spell_sha_cloudburst_effect : AuraScript, IHasAuraEffects
 
 	private void OnRemove(AuraEffect p_AurEff, AuraEffectHandleModes UnnamedParameter)
 	{
-		var l_Owner = Owner.ToUnit();
+		var l_Owner = Owner.AsUnit;
 
 		if (l_Owner != null)
 		{

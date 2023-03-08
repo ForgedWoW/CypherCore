@@ -18,7 +18,7 @@ public class CastSpellTargetArg
 	{
 		if (target != null)
 		{
-			var unitTarget = target.ToUnit();
+			var unitTarget = target.AsUnit;
 
 			if (unitTarget != null)
 			{
@@ -27,7 +27,7 @@ public class CastSpellTargetArg
 			}
 			else
 			{
-				var goTarget = target.ToGameObject();
+				var goTarget = target.AsGameObject;
 
 				if (goTarget != null)
 				{
@@ -36,7 +36,7 @@ public class CastSpellTargetArg
 				}
 				else
 				{
-					var itemTarget = target.ToItem();
+					var itemTarget = target.AsItem;
 
 					if (itemTarget != null)
 					{

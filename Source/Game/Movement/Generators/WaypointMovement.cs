@@ -91,7 +91,7 @@ namespace Game.Movement
             if (_loadedFromDB)
             {
                 if (_pathId == 0)
-                    _pathId = owner.GetWaypointPath();
+                    _pathId = owner.WaypointPath;
 
                 _path = Global.WaypointMgr.GetPath(_pathId);
             }
@@ -158,7 +158,7 @@ namespace Game.Movement
             {
                 // set home position at place (every MotionMaster::UpdateMotion)
                 if (owner.GetTransGUID().IsEmpty)
-                    owner.SetHomePosition(owner.Location);
+                    owner.                    HomePosition = owner.Location;
 
                 // relaunch movement if its speed has changed
                 if (HasFlag(MovementGeneratorFlags.SpeedUpdatePending))
@@ -283,16 +283,16 @@ namespace Game.Movement
                     var pos = new Position(currentWaypoint.x, currentWaypoint.y, currentWaypoint.z, owner.Location.Orientation);
 
                     if (!transportPath)
-                        owner.SetHomePosition(pos);
+                        owner.                        HomePosition = pos;
                     else
                     {
                         ITransport trans = owner.Transport;
                         if (trans != null)
                         {
                             pos.Orientation -= trans.GetTransportOrientation();
-                            owner.SetTransportHomePosition(pos);
+                            owner.                            TransportHomePosition = pos;
                             trans.CalculatePassengerPosition(pos);
-                            owner.SetHomePosition(pos);
+                            owner.                            HomePosition = pos;
                         }
                         // else if (vehicle) - this should never happen, vehicle offsets are const
                     }

@@ -25,7 +25,7 @@ namespace Game.Chat.Commands
             if (!optionalPathId.HasValue)
             {
                 if (target)
-                    pathId = target.GetWaypointPath();
+                    pathId = target.WaypointPath;
                 else
                 {
                     stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
@@ -580,7 +580,7 @@ namespace Game.Chat.Commands
                     return false;
                 }
 
-                pathId = target.GetWaypointPath();
+                pathId = target.WaypointPath;
             }
             else
             {

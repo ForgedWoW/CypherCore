@@ -32,6 +32,7 @@ public class spell_monk_rising_thunder : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		caster.ToPlayer().GetSpellHistory().ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
+		caster.
+		AsPlayer.GetSpellHistory().ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
 	}
 }

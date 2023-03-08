@@ -28,6 +28,6 @@ internal class spell_gen_despawn_self : SpellScript, IHasSpellEffects
 	{
 		if (EffectInfo.IsEffect(SpellEffectName.Dummy) ||
 			EffectInfo.IsEffect(SpellEffectName.ScriptEffect))
-			Caster.ToCreature().DespawnOrUnsummon();
+			Caster.			AsCreature.DespawnOrUnsummon();
 	}
 }

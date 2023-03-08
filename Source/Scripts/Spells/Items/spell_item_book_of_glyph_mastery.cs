@@ -22,7 +22,7 @@ internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, 
 
 	public SpellCastResult CheckCast()
 	{
-		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, Caster.ToPlayer()))
+		if (SkillDiscovery.HasDiscoveredAllSpells(SpellInfo.Id, Caster.AsPlayer))
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.LearnedEverything);
 
@@ -39,7 +39,7 @@ internal class spell_item_book_of_glyph_mastery : SpellScript, ISpellCheckCast, 
 
 	private void HandleScript(int effIndex)
 	{
-		var caster = Caster.ToPlayer();
+		var caster = Caster.AsPlayer;
 		var spellId = SpellInfo.Id;
 
 		// learn random explicit discovery recipe (if any)

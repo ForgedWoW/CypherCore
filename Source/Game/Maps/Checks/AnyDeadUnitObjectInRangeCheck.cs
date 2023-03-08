@@ -20,17 +20,17 @@ public class AnyDeadUnitObjectInRangeCheck<T> : ICheck<T> where T : WorldObject
 
 	public virtual bool Invoke(T obj)
 	{
-		var player = obj.ToPlayer();
+		var player = obj.AsPlayer;
 
 		if (player)
 			return !player.IsAlive && !player.HasAuraType(AuraType.Ghost) && _searchObj.IsWithinDistInMap(player, _range);
 
-		var creature = obj.ToCreature();
+		var creature = obj.AsCreature;
 
 		if (creature)
 			return !creature.IsAlive && _searchObj.IsWithinDistInMap(creature, _range);
 
-		var corpse = obj.ToCorpse();
+		var corpse = obj.AsCorpse;
 
 		if (corpse)
 			return corpse.GetCorpseType() != CorpseType.Bones && _searchObj.IsWithinDistInMap(corpse, _range);

@@ -17,8 +17,8 @@ public class HealthPctOrderPred : IComparer<WorldObject>
 
 	public int Compare(WorldObject objA, WorldObject objB)
 	{
-		var a = objA.ToUnit();
-		var b = objB.ToUnit();
+		var a = objA.AsUnit;
+		var b = objB.AsUnit;
 		var rA = a.GetMaxHealth() != 0 ? a.GetHealth() / (float)a.GetMaxHealth() : 0.0f;
 		var rB = b.GetMaxHealth() != 0 ? b.GetHealth() / (float)b.GetMaxHealth() : 0.0f;
 

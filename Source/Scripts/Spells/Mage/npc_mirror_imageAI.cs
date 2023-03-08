@@ -22,13 +22,13 @@ public class npc_mirror_imageAI : CasterAI
 		if (!me.HasUnitState(UnitState.Follow))
 		{
 			me.MotionMaster.Clear();
-			me.MotionMaster.MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
+			me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
 		}
 
 		// me->SetMaxPower(me->GetPowerType(), owner->GetMaxPower(me->GetPowerType()));
 		me.SetFullPower(me.GetPowerType());
-		me.SetMaxHealth(owner.ToUnit().GetMaxHealth());
-		me.SetHealth(owner.ToUnit().GetHealth());
+		me.SetMaxHealth(owner.AsUnit.GetMaxHealth());
+		me.SetHealth(owner.AsUnit.GetHealth());
 		me.ReactState = ReactStates.Defensive;
 
 		me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);
@@ -39,8 +39,8 @@ public class npc_mirror_imageAI : CasterAI
 		for (uint attackType = 0; attackType < (int)WeaponAttackType.Max; ++attackType)
 		{
 			var attackTypeEnum = (WeaponAttackType)attackType;
-			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MaxDamage, owner.ToUnit().GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MaxDamage));
-			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MinDamage, owner.ToUnit().GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MinDamage));
+			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MaxDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MaxDamage));
+			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MinDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MinDamage));
 		}
 
 		me.UpdateAttackPowerAndDamage();
@@ -53,7 +53,7 @@ public class npc_mirror_imageAI : CasterAI
 		if (owner == null)
 			return;
 
-		var ownerPlayer = owner.ToPlayer();
+		var ownerPlayer = owner.AsPlayer;
 
 		if (ownerPlayer == null)
 			return;
@@ -92,7 +92,7 @@ public class npc_mirror_imageAI : CasterAI
 		if (owner != null && !me.HasUnitState(UnitState.Follow))
 		{
 			me.MotionMaster.Clear();
-			me.MotionMaster.MoveFollow(owner.ToUnit(), SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
+			me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
 		}
 	}
 

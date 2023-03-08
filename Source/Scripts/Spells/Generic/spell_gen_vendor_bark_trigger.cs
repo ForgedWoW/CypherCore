@@ -21,7 +21,7 @@ internal class spell_gen_vendor_bark_trigger : SpellScript, IHasSpellEffects
 
 	private void HandleDummy(int effIndex)
 	{
-		var vendor = Caster.ToCreature();
+		var vendor = Caster.AsCreature;
 
 		if (vendor)
 			if (vendor.Entry == CreatureIds.AmphitheaterVendor)

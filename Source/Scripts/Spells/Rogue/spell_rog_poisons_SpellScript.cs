@@ -18,7 +18,7 @@ public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
 		if (missInfo != SpellMissInfo.None)
 			return;
 
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			RemovePreviousPoisons();
@@ -26,7 +26,7 @@ public class spell_rog_poisons_SpellScript : SpellScript, ISpellBeforeHit
 
 	private void RemovePreviousPoisons()
 	{
-		var plr = Caster.ToPlayer();
+		var plr = Caster.AsPlayer;
 
 		if (plr != null)
 		{

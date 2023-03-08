@@ -54,7 +54,7 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
 
 		targets.RemoveIf((WorldObject target) =>
 		{
-			var targ = target.ToUnit();
+			var targ = target.AsUnit;
 
 			if (targ == null)
 				return true;

@@ -40,10 +40,10 @@ public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpe
 	{
 		targets.RemoveIf((WorldObject target) =>
 		{
-			if (!target.ToUnit() || target.ToPlayer())
+			if (!target.AsUnit || target.AsPlayer)
 				return true;
 
-			if (target.ToCreature().CreatureType != CreatureType.Demon)
+			if (target.AsCreature.CreatureType != CreatureType.Demon)
 				return true;
 
 			return false;
@@ -52,6 +52,6 @@ public class spell_warlock_artifact_thalkiels_consumption : SpellScript, IHasSpe
 		var basePoints = SpellInfo.GetEffect(1).BasePoints;
 
 		foreach (var pet in targets)
-			_damage += (uint)pet.ToUnit().CountPctFromMaxHealth(basePoints);
+			_damage += (uint)pet.AsUnit.CountPctFromMaxHealth(basePoints);
 	}
 }

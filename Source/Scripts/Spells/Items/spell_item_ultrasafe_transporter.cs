@@ -58,7 +58,7 @@ internal class spell_item_ultrasafe_transporter : SpellScript, IHasSpellEffects
 
 				break;
 			case 4:
-				if (caster.ToPlayer().TeamId == TeamIds.Alliance)
+				if (caster.AsPlayer.TeamId == TeamIds.Alliance)
 					spellId = ItemSpellIds.TransformHorde;
 				else
 					spellId = ItemSpellIds.TransformAlliance;

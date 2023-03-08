@@ -29,7 +29,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		foreach (var itr in at.InsideUnits)
@@ -48,7 +48,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (!caster.IsFriendlyTo(unit))
@@ -62,7 +62,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).GetCaster() == caster)
@@ -76,7 +76,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		if (!caster.ToPlayer())
+		if (!caster.AsPlayer)
 			return;
 
 		foreach (var itr in at.InsideUnits)

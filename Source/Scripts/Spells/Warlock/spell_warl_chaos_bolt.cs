@@ -56,7 +56,7 @@ internal class spell_warl_chaos_bolt : SpellScript, IHasSpellEffects, ISpellCalc
 
 	private void HandleDummy(int effIndex)
 	{
-		HitDamage = HitDamage + MathFunctions.CalculatePct(HitDamage, Caster.ToPlayer().ActivePlayerData.SpellCritPercentage);
+		HitDamage = HitDamage + MathFunctions.CalculatePct(HitDamage, Caster.AsPlayer.ActivePlayerData.SpellCritPercentage);
 	}
 
 	private void MadnessOfTheAzjaqir(Unit caster)

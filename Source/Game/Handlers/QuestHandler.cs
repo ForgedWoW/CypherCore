@@ -31,7 +31,7 @@ namespace Game
             switch (questgiver.TypeId)
             {
                 case TypeId.Unit:
-                    if (!questgiver.ToCreature().IsHostileTo(Player))// do not show quest status to enemies
+                    if (!questgiver.AsCreature.IsHostileTo(Player))// do not show quest status to enemies
                         questStatus = _player.GetQuestDialogStatus(questgiver);
                     break;
                 case TypeId.GameObject:
@@ -64,7 +64,7 @@ namespace Game
             uint pause = creature.MovementTemplate.GetInteractionPauseTimer();
             if (pause != 0)
                 creature.PauseMovement(pause);
-            creature.SetHomePosition(creature.Location);
+            creature.            HomePosition = creature.Location;
 
             _player.PlayerTalkClass.ClearMenus();
             if (creature.GetAI().OnGossipHello(_player))
@@ -96,7 +96,7 @@ namespace Game
                 return;
             }
 
-            Player playerQuestObject = obj.ToPlayer();
+            Player playerQuestObject = obj.AsPlayer;
             if (playerQuestObject)
             {
                 if ((_player.GetPlayerSharingQuest().IsEmpty && _player.GetPlayerSharingQuest() != packet.QuestGiverGUID) || !playerQuestObject.CanShareQuest(packet.QuestID))

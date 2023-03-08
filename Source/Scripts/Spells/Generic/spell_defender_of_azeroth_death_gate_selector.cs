@@ -30,7 +30,7 @@ internal class spell_defender_of_azeroth_death_gate_selector : SpellScript, IHas
 
 	private void HandleDummy(int effIndex)
 	{
-		var player = HitUnit.ToPlayer();
+		var player = HitUnit.AsPlayer;
 
 		if (player == null)
 			return;

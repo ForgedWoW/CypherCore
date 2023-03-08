@@ -26,7 +26,7 @@ internal class spell_gen_parachute : AuraScript, IHasAuraEffects
 
 	private void HandleEffectPeriodic(AuraEffect aurEff)
 	{
-		var target = Target.ToPlayer();
+		var target = Target.AsPlayer;
 
 		if (target)
 			if (target.IsFalling())

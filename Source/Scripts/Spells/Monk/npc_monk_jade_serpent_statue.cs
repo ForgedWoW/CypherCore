@@ -19,7 +19,7 @@ public class npc_monk_jade_serpent_statue : ScriptedAI
 
 		if (owner != null)
 		{
-			var player = owner.ToPlayer();
+			var player = owner.AsPlayer;
 
 			if (player != null)
 			{

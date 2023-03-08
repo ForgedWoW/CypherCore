@@ -16,7 +16,7 @@ public class spell_rog_serrated_blades_SpellScript : SpellScript, ISpellOnHit
 
 		if (blade != null)
 		{
-			var combo = Caster.ToPlayer().GetPower(PowerType.ComboPoints);
+			var combo = Caster.AsPlayer.GetPower(PowerType.ComboPoints);
 
 			if (RandomHelper.randChance(blade.Amount * combo))
 			{

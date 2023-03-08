@@ -263,7 +263,7 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.SelectCharOrCreature);
                 return false;
             }
-            Player player_ = target.ToPlayer();
+            Player player_ = target.AsPlayer;
             if (player_)
                 if (handler.HasLowerSecurity(player_, ObjectGuid.Empty, false))
                     return false;
@@ -374,7 +374,7 @@ namespace Game.Chat
                 return false;
             }
 
-            Player player = target.ToPlayer();
+            Player player = target.AsPlayer;
             if (player)
                 if (handler.HasLowerSecurity(player, ObjectGuid.Empty, false))
                     return false;

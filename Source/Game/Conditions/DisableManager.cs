@@ -288,7 +288,7 @@ namespace Game
                     if (refe != null)
                     {
                         if ((refe.IsPlayer && spellFlags.HasFlag(DisableFlags.SpellPlayer)) ||
-                        (refe.IsCreature && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.ToUnit().IsPet && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
+                        (refe.IsCreature && (spellFlags.HasFlag(DisableFlags.SpellCreature) || (refe.AsUnit.IsPet && spellFlags.HasFlag(DisableFlags.SpellPet)))) ||
                         (refe.IsGameObject && spellFlags.HasFlag(DisableFlags.SpellGameobject)))
                         {
                             if (spellFlags.HasAnyFlag(DisableFlags.SpellArenas | DisableFlags.SpellBattleGrounds))
@@ -338,7 +338,7 @@ namespace Game
                 }
                 case DisableType.Map:
                 case DisableType.LFGMap:
-                    Player player = refe.ToPlayer();
+                    Player player = refe.AsPlayer;
                     if (player != null)
                     {
                         MapRecord mapEntry = CliDB.MapStorage.LookupByKey(entry);

@@ -14,7 +14,7 @@ internal class runic_mana_injector : SpellScript, ISpellEnergizedBySpell
 {
 	public void EnergizeBySpell(Unit target, SpellInfo spellInfo, ref double amount, PowerType powerType)
 	{
-		var player = target.ToPlayer();
+		var player = target.AsPlayer;
 
 		if (player != null)
 			if (player.HasSkill(SkillType.Engineering))

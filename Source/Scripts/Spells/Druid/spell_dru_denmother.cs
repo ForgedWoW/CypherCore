@@ -17,7 +17,7 @@ public class spell_dru_denmother : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		var _player = Caster.ToPlayer();
+		var _player = Caster.AsPlayer;
 
 		if (_player != null)
 			if (_player.HasAura(DEN_MOTHER))
@@ -32,7 +32,7 @@ public class spell_dru_denmother : SpellScript, ISpellOnHit
 
 				foreach (var itr in groupList)
 					if ((itr.GUID != _player.GUID) && (itr.IsInRange(_player, 0, 50, true)))
-						validTargets.Add(itr.ToUnit());
+						validTargets.Add(itr.AsUnit);
 
 				if (validTargets.Count == 0)
 					return;

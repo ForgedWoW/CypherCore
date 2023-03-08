@@ -17,7 +17,7 @@ public class spell_hun_barrage : SpellScript, IHasSpellEffects, ISpellOnHit
 
 	public void OnHit()
 	{
-		var player = Caster.ToPlayer();
+		var player = Caster.AsPlayer;
 		var target = HitUnit;
 
 		if (player == null || target == null)
@@ -67,7 +67,7 @@ public class spell_hun_barrage : SpellScript, IHasSpellEffects, ISpellOnHit
 			if (!objects.IsWithinLOSInMap(caster))
 				return true;
 
-			if (objects.ToUnit() && !caster.IsValidAttackTarget(objects.ToUnit()))
+			if (objects.AsUnit && !caster.IsValidAttackTarget(objects.AsUnit))
 				return true;
 
 			return false;

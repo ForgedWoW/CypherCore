@@ -67,7 +67,7 @@ public class spell_sha_spirit_link : SpellScript, ISpellOnHit
 
 		for (var itr = unitList.GetEnumerator(); itr.MoveNext();)
 		{
-			var target = itr.Current.ToUnit();
+			var target = itr.Current.AsUnit;
 
 			if (target != null)
 			{
