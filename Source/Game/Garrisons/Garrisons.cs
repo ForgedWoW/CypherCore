@@ -548,7 +548,7 @@ namespace Game.Garrisons
         public void SendRemoteInfo()
         {
             MapRecord garrisonMap = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
-            if (garrisonMap == null || _owner.Location.GetMapId() != garrisonMap.ParentMapID)
+            if (garrisonMap == null || _owner.Location.MapId != garrisonMap.ParentMapID)
                 return;
 
             GarrisonRemoteInfo remoteInfo = new();

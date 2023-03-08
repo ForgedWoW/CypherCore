@@ -479,10 +479,10 @@ namespace Game.Networking.Packets
                 _worldPacket.WriteBit(HasDeclined);
 
                 for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                    _worldPacket.WriteBits(DeclinedNames.name[i].GetByteCount(), 7);
+                    _worldPacket.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
 
                 for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                    _worldPacket.WriteString(DeclinedNames.name[i]);
+                    _worldPacket.WriteString(DeclinedNames.Name[i]);
 
                 _worldPacket.WriteInt64(Timestamp);
                 _worldPacket.WriteString(Name);
@@ -631,11 +631,11 @@ namespace Game.Networking.Packets
             data.WriteBits(Name.GetByteCount(), 6);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                data.WriteBits(DeclinedNames.name[i].GetByteCount(), 7);
+                data.WriteBits(DeclinedNames.Name[i].GetByteCount(), 7);
 
             data.FlushBits();
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                data.WriteString(DeclinedNames.name[i]);
+                data.WriteString(DeclinedNames.Name[i]);
 
             data.WritePackedGuid(AccountID);
             data.WritePackedGuid(BnetAccountID);

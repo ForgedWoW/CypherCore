@@ -201,7 +201,7 @@ namespace Game
                         }
                     }
 
-                    if (item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.m_itemData.Expiration != 0)
+                    if (item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.ItemData.Expiration != 0)
                     {
                         player.SendMailResult(0, MailResponseType.Send, MailResponseResult.EquipError, InventoryResult.MailBoundItem);
                         return;
@@ -321,10 +321,10 @@ namespace Game
             Mail m = player.GetMail(markAsRead.MailID);
             if (m != null && m.state != MailState.Deleted)
             {
-                if (player.unReadMails != 0)
-                    --player.unReadMails;
+                if (player.UnReadMails != 0)
+                    --player.UnReadMails;
                 m.checkMask = m.checkMask | MailCheckMask.Read;
-                player.m_mailsUpdated = true;
+                player.MailsUpdated = true;
                 m.state = MailState.Changed;
             }
         }
@@ -335,7 +335,7 @@ namespace Game
         {
             Mail m = GetPlayer().GetMail(mailDelete.MailID);
             Player player = GetPlayer();
-            player.m_mailsUpdated = true;
+            player.MailsUpdated = true;
             if (m != null)
             {
                 // delete shouldn't show up for COD mails
@@ -484,7 +484,7 @@ namespace Game
                 }
                 m.COD = 0;
                 m.state = MailState.Changed;
-                player.m_mailsUpdated = true;
+                player.MailsUpdated = true;
                 player.RemoveMItem(it.GetGUID().GetCounter());
 
                 uint count = it.GetCount();                      // save counts before store and possible merge with deleting
@@ -525,7 +525,7 @@ namespace Game
 
             m.money = 0;
             m.state = MailState.Changed;
-            player.m_mailsUpdated = true;
+            player.MailsUpdated = true;
 
             player.SendMailResult(takeMoney.MailID, MailResponseType.MoneyTaken, MailResponseResult.Ok);
 
@@ -617,7 +617,7 @@ namespace Game
             {
                 m.checkMask = m.checkMask | MailCheckMask.Copied;
                 m.state = MailState.Changed;
-                player.m_mailsUpdated = true;
+                player.MailsUpdated = true;
 
                 player.StoreItem(dest, bodyItem, true);
                 player.SendMailResult(createTextItem.MailID, MailResponseType.MadePermanent, MailResponseResult.Ok);
@@ -631,7 +631,7 @@ namespace Game
         {
             MailQueryNextTimeResult result = new();
 
-            if (GetPlayer().unReadMails > 0)
+            if (GetPlayer().UnReadMails > 0)
             {
                 result.NextMailTime = 0.0f;
 

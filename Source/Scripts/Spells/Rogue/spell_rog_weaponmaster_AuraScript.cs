@@ -31,8 +31,8 @@ public class spell_rog_weaponmaster_AuraScript : AuraScript, IAuraCheckProc
 			return false;
 
 		var damageLog = new SpellNonMeleeDamage(caster, target, triggerSpell, new SpellCastVisual(triggerSpell.GetSpellXSpellVisualId(), 0), triggerSpell.SchoolMask);
-		damageLog.damage      = eventInfo.GetDamageInfo().GetDamage();
-		damageLog.cleanDamage = damageLog.damage;
+		damageLog.Damage      = eventInfo.GetDamageInfo().GetDamage();
+		damageLog.CleanDamage = damageLog.Damage;
 		caster.DealSpellDamage(damageLog, true);
 		caster.SendSpellNonMeleeDamageLog(damageLog);
 

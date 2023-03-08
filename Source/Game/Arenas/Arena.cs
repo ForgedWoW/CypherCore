@@ -34,9 +34,9 @@ namespace Game.Arenas
             bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new ArenaScore(player.GetGUID(), player.GetBGTeam());
+                PlayerScores[player.GetGUID()] = new ArenaScore(player.GetGUID(), player.GetBgTeam());
 
-            if (player.GetBGTeam() == Team.Alliance)        // gold
+            if (player.GetBgTeam() == Team.Alliance)        // gold
             {
                 if (player.GetEffectiveTeam() == Team.Horde)
                     player.CastSpell(player, ArenaSpellIds.HordeGoldFlag, true);
@@ -247,7 +247,7 @@ namespace Game.Arenas
                             if (!guildAwarded)
                             {
                                 guildAwarded = true;
-                                ulong guildId = GetBgMap().GetOwnerGuildId(player.GetBGTeam());
+                                ulong guildId = GetBgMap().GetOwnerGuildId(player.GetBgTeam());
                                 if (guildId != 0)
                                 {
                                     Guild guild = Global.GuildMgr.GetGuildById(guildId);

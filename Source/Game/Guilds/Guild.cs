@@ -2266,7 +2266,7 @@ namespace Game.Guilds
                     if (tabItem != null)
                     {
                         byte i = 0;
-                        foreach (SocketedGem gemData in tabItem.m_itemData.Gems)
+                        foreach (SocketedGem gemData in tabItem.ItemData.Gems)
                         {
                             if (gemData.ItemId != 0)
                             {
@@ -2342,10 +2342,10 @@ namespace Game.Guilds
                             itemInfo.Charges = Math.Abs(tabItem.GetSpellCharges());
                             itemInfo.EnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Perm);
                             itemInfo.OnUseEnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Use);
-                            itemInfo.Flags = tabItem.m_itemData.DynamicFlags;
+                            itemInfo.Flags = tabItem.ItemData.DynamicFlags;
 
                             byte i = 0;
-                            foreach (SocketedGem gemData in tabItem.m_itemData.Gems)
+                            foreach (SocketedGem gemData in tabItem.ItemData.Gems)
                             {
                                 if (gemData.ItemId != 0)
                                 {
@@ -3643,7 +3643,7 @@ namespace Game.Guilds
             public void CopySlots(List<byte> ids)
             {
                 foreach (var item in m_vec)
-                    ids.Add((byte)item.pos);
+                    ids.Add((byte)item.Pos);
             }
 
             public void SendEquipError(InventoryResult result, Item item)
@@ -3846,8 +3846,8 @@ namespace Game.Guilds
 
             Item _StoreItem(SQLTransaction trans, BankTab pTab, Item pItem, ItemPosCount pos, bool clone)
             {
-                byte slotId = (byte)pos.pos;
-                uint count = pos.count;
+                byte slotId = (byte)pos.Pos;
+                uint count = pos.Count;
                 Item pItemDest = pTab.GetItem(slotId);
                 if (pItemDest != null)
                 {

@@ -47,7 +47,7 @@ public class DelayedUnitRelocation : IGridNotifierCreature, IGridNotifierPlayer
 		for (var i = 0; i < objs.Count; ++i)
 		{
 			var player = objs[i];
-			var viewPoint = player.seerView;
+			var viewPoint = player.SeerView;
 
 			if (!viewPoint.IsNeedNotify(NotifyFlags.VisibilityChanged))
 				continue;

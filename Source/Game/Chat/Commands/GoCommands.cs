@@ -152,7 +152,7 @@ namespace Game.Chat.Commands
 
             if (!GridDefines.IsValidMapCoord(gy.Loc))
             {
-                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Loc.X, gy.Loc.Y, gy.Loc.GetMapId());
+                handler.SendSysMessage(CypherStrings.InvalidTargetCoord, gy.Loc.X, gy.Loc.Y, gy.Loc.MapId);
                 return false;
             }
 
@@ -171,7 +171,7 @@ namespace Game.Chat.Commands
         static bool HandleGoGridCommand(CommandHandler handler, float gridX, float gridY, uint? mapIdArg)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint mapId = mapIdArg.GetValueOrDefault(player.Location.GetMapId());
+            uint mapId = mapIdArg.GetValueOrDefault(player.Location.MapId);
 
             // center of grid
             float x = (gridX - MapConst.CenterGridId + 0.5f) * MapConst.SizeofGrids;
@@ -366,7 +366,7 @@ namespace Game.Chat.Commands
         static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint mapId = id.GetValueOrDefault(player.Location.GetMapId());
+            uint mapId = id.GetValueOrDefault(player.Location.MapId);
             if (z.HasValue)
             {
                 if (!GridDefines.IsValidMapCoord(mapId, x, y, z.Value))
@@ -462,7 +462,7 @@ namespace Game.Chat.Commands
             Player player = handler.GetSession().GetPlayer();
 
             if (mapId == 0xFFFFFFFF)
-                mapId = player.Location.GetMapId();
+                mapId = player.Location.MapId;
 
             if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
             {

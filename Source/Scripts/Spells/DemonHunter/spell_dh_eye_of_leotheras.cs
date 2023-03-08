@@ -42,7 +42,7 @@ public class spell_dh_eye_of_leotheras : AuraScript, IAuraCheckProc
 			GetAura().RefreshDuration();
 
 
-			caster.m_Events.AddEventAtOffset(() => { caster.CastSpell(unitTarget, DemonHunterSpells.EYE_OF_LEOTHERAS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp)); }, TimeSpan.FromMilliseconds(100));
+			caster.Events.AddEventAtOffset(() => { caster.CastSpell(unitTarget, DemonHunterSpells.EYE_OF_LEOTHERAS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)bp)); }, TimeSpan.FromMilliseconds(100));
 
 			return true;
 		}

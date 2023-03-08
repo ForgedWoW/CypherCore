@@ -632,7 +632,7 @@ namespace Game
                 }
 
                 if (Global.AuctionHouseMgr.GetAItem(item.GetGUID()) || !item.CanBeTraded() || item.IsNotEmptyBag() ||
-                    item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.m_itemData.Expiration != 0 ||
+                    item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.ItemData.Expiration != 0 ||
                     item.GetCount() < itemForSale.UseCount)
                 {
                     SendAuctionCommandResult(0, AuctionCommand.SellItem, AuctionResult.DatabaseError, throttle.DelayUntilNext);
@@ -845,7 +845,7 @@ namespace Game
             }
 
             if (Global.AuctionHouseMgr.GetAItem(item.GetGUID()) || !item.CanBeTraded() || item.IsNotEmptyBag() ||
-                item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.m_itemData.Expiration != 0 ||
+                item.GetTemplate().HasFlag(ItemFlags.Conjured) || item.ItemData.Expiration != 0 ||
                 item.GetCount() != 1)
             {
                 SendAuctionCommandResult(0, AuctionCommand.SellItem, AuctionResult.DatabaseError, throttle.DelayUntilNext);

@@ -18,8 +18,8 @@ public class VisibleNotifier : IGridNotifierWorldObject
     public VisibleNotifier(Player pl, GridType gridType)
 	{
 		Player     = pl;
-		Data       = new UpdateData(pl.Location.GetMapId());
-		VisGuids    = new List<ObjectGuid>(pl.m_clientGUIDs);
+		Data       = new UpdateData(pl.Location.MapId);
+		VisGuids    = new List<ObjectGuid>(pl.ClientGuiDs);
 		VisibleNow = new List<Unit>();
 		GridType     = gridType;
 	}
@@ -81,7 +81,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
 
 		foreach (var guid in VisGuids)
 		{
-			Player.m_clientGUIDs.Remove(guid);
+			Player.ClientGuiDs.Remove(guid);
 			Data.AddOutOfRangeGUID(guid);
 
 			if (guid.IsPlayer())

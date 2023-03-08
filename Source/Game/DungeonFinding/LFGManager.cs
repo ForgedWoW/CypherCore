@@ -1272,8 +1272,8 @@ namespace Game.DungeonFinding
 
             if (outt)
             {
-                Log.outDebug(LogFilter.Lfg, "TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.Location.GetMapId(), dungeon.map);
-                if (player.Location.GetMapId() == dungeon.map)
+                Log.outDebug(LogFilter.Lfg, "TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.Location.MapId, dungeon.map);
+                if (player.Location.MapId == dungeon.map)
                     player.TeleportToBGEntryPoint();
 
                 return;
@@ -1292,7 +1292,7 @@ namespace Game.DungeonFinding
                 error = LfgTeleportResult.ImmuneToSummons;
             else if (player.HasAura(9454)) // check Freeze debuff
                 error = LfgTeleportResult.NoReturnLocation;
-            else if (player.Location.GetMapId() != dungeon.map)  // Do not teleport players in dungeon to the entrance
+            else if (player.Location.MapId != dungeon.map)  // Do not teleport players in dungeon to the entrance
             {
                 uint mapid = dungeon.map;
                 float x = dungeon.x;
@@ -1306,9 +1306,9 @@ namespace Game.DungeonFinding
                     for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
                     {
                         Player plrg = refe.GetSource();
-                        if (plrg && plrg != player && plrg.Location.GetMapId() == dungeon.map)
+                        if (plrg && plrg != player && plrg.Location.MapId == dungeon.map)
                         {
-                            mapid = plrg.Location.GetMapId();
+                            mapid = plrg.Location.MapId;
                             x = plrg.Location.X;
                             y = plrg.Location.Y;
                             z = plrg.Location.Z;
@@ -1395,9 +1395,9 @@ namespace Game.DungeonFinding
                 LFGDungeonData dungeonDone = GetLFGDungeon(dungeonId);
                 uint mapId = dungeonDone != null ? dungeonDone.map : 0;
 
-                if (player.Location.GetMapId() != mapId)
+                if (player.Location.MapId != mapId)
                 {
-                    Log.outDebug(LogFilter.Lfg, $"Group: {gguid}, Player: {guid} is in map {player.Location.GetMapId()} and should be in {mapId} to get reward");
+                    Log.outDebug(LogFilter.Lfg, $"Group: {gguid}, Player: {guid} is in map {player.Location.MapId} and should be in {mapId} to get reward");
                     continue;
                 }
 
@@ -1615,24 +1615,24 @@ namespace Game.DungeonFinding
                     lockStatus = LfgLockStatusType.TooLowGearScore;
                 else if ((ar = Global.ObjectMgr.GetAccessRequirement(dungeon.map, dungeon.difficulty)) != null)
                 {
-                    if (ar.achievement != 0 && !player.HasAchieved(ar.achievement))
+                    if (ar.Achievement != 0 && !player.HasAchieved(ar.Achievement))
                         lockStatus = LfgLockStatusType.MissingAchievement;
-                    else if (player.GetTeam() == Team.Alliance && ar.quest_A != 0 && !player.GetQuestRewardStatus(ar.quest_A))
+                    else if (player.GetTeam() == Team.Alliance && ar.QuestA != 0 && !player.GetQuestRewardStatus(ar.QuestA))
                         lockStatus = LfgLockStatusType.QuestNotCompleted;
-                    else if (player.GetTeam() == Team.Horde && ar.quest_H != 0 && !player.GetQuestRewardStatus(ar.quest_H))
+                    else if (player.GetTeam() == Team.Horde && ar.QuestH != 0 && !player.GetQuestRewardStatus(ar.QuestH))
                         lockStatus = LfgLockStatusType.QuestNotCompleted;
                     else
-                        if (ar.item != 0)
+                        if (ar.Item != 0)
                     {
-                        if (!player.HasItemCount(ar.item) && (ar.item2 == 0 || !player.HasItemCount(ar.item2)))
+                        if (!player.HasItemCount(ar.Item) && (ar.Item2 == 0 || !player.HasItemCount(ar.Item2)))
                             lockStatus = LfgLockStatusType.MissingItem;
                     }
-                    else if (ar.item2 != 0 && !player.HasItemCount(ar.item2))
+                    else if (ar.Item2 != 0 && !player.HasItemCount(ar.Item2))
                         lockStatus = LfgLockStatusType.MissingItem;
                 }
                 else
                 {
-                    var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, player.m_playerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                    var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                     if (levels.HasValue)
                     {
                         if (levels.Value.MinLevel > level)

@@ -4,96 +4,78 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Loots;
-using Game.Spells;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public partial class Creature
 {
-    public partial class Creature
-    {
-        CreatureTemplate m_creatureInfo;
-        CreatureData m_creatureData;
-        readonly string[] m_stringIds = new string[3];
-        string m_scriptStringId;
+	readonly string[] _stringIds = new string[3];
+	readonly MultiMap<byte, byte> _textRepeat = new();
+	readonly Position _homePosition;
+	readonly Position _transportHomePosition = new();
 
-        SpellFocusInfo _spellFocusInfo;
+	// vendor items
+	readonly List<VendorItemCount> _vendorItemCounts = new();
+	CreatureTemplate _creatureInfo;
+	CreatureData _creatureData;
+	string _scriptStringId;
 
-        long _lastDamagedTime; // Part of Evade mechanics
-        readonly MultiMap<byte, byte> m_textRepeat = new();
+	SpellFocusInfo _spellFocusInfo;
 
-        // Regenerate health
-        bool _regenerateHealth; // Set on creation
-        bool _regenerateHealthLock; // Dynamically set
+	long _lastDamagedTime; // Part of Evade mechanics
 
-        bool _isMissingCanSwimFlagOutOfCombat;
+	// Regenerate health
+	bool _regenerateHealth;     // Set on creation
+	bool _regenerateHealthLock; // Dynamically set
 
-        public ulong m_PlayerDamageReq;
-        public float m_SightDistance;
-        public float m_CombatDistance;
-        public bool m_isTempWorldObject; //true when possessed
+	bool _isMissingCanSwimFlagOutOfCombat;
 
-        ReactStates reactState;                           // for AI, not charmInfo
-        public MovementGeneratorType DefaultMovementType { get; set; }
-        public ulong m_spawnId;
-        byte m_equipmentId;
-        sbyte m_originalEquipmentId; // can be -1
+	ReactStates _reactState; // for AI, not charmInfo
+	byte _equipmentId;
+	sbyte _originalEquipmentId; // can be -1
 
-        bool m_AlreadyCallAssistance;
-        bool m_AlreadySearchedAssistance;
-        bool m_cannotReachTarget;
-        uint m_cannotReachTimer;
+	bool _alreadyCallAssistance;
+	bool _alreadySearchedAssistance;
+	bool _cannotReachTarget;
+	uint _cannotReachTimer;
 
-        SpellSchoolMask m_meleeDamageSchoolMask;
-        public uint m_originalEntry;
-        readonly Position m_homePosition;
-        readonly Position m_transportHomePosition = new();
+	SpellSchoolMask _meleeDamageSchoolMask;
 
-        bool DisableReputationGain;
+	bool _reputationGain;
 
-        LootModes m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
+	LootModes _lootMode; // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 
-        // Waypoint path
-        uint _waypointPathId;
-        (uint nodeId, uint pathId) _currentWaypointNodeInfo;
+	// Waypoint path
+	uint _waypointPathId;
+	(uint nodeId, uint pathId) _currentWaypointNodeInfo;
 
-        //Formation var
-        CreatureGroup m_formation;
-        bool triggerJustAppeared;
-        bool m_respawnCompatibilityMode;
+	//Formation var
+	CreatureGroup _creatureGroup;
+	bool _triggerJustAppeared;
+	bool _respawnCompatibilityMode;
 
-        public uint[] m_spells = new uint[SharedConst.MaxCreatureSpells];
+	// Timers
+	long _pickpocketLootRestore;
+	long _respawnTime;  // (secs) time of next respawn
+	uint _respawnDelay; // (secs) delay between corpse disappearance and respawning
+	uint _corpseDelay;  // (secs) delay between death and corpse disappearance
+	bool _ignoreCorpseDecayRatio;
+	float _wanderDistance;
+	uint _boundaryCheckTime; // (msecs) remaining time for next evade boundary check
+	uint _combatPulseTime;   // (msecs) remaining time for next zone-in-combat pulse
+	uint _combatPulseDelay;  // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
+	HashSet<ObjectGuid> _tapList = new();
+	public ulong PlayerDamageReq { get; set; }
+	public float SightDistance { get; set; }
+	public float CombatDistance { get; set; }
+	public bool IsTempWorldObject { get; set; } //true when possessed
+	public uint OriginalEntry { get; set; }
 
-        // Timers
-        long _pickpocketLootRestore;
-        public long m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
-        long m_respawnTime;                               // (secs) time of next respawn
-        uint m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
-        uint m_corpseDelay;                               // (secs) delay between death and corpse disappearance
-        bool m_ignoreCorpseDecayRatio;
-        float m_wanderDistance;
-        uint m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
-        uint m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
-        uint m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
+	internal Dictionary<ObjectGuid, Loot> PersonalLoot { get; set; } = new();
+	public MovementGeneratorType DefaultMovementType { get; set; }
+	public ulong SpawnId { get; set; }
 
-        // vendor items
-        readonly List<VendorItemCount> m_vendorItemCounts = new();
-
-        internal Dictionary<ObjectGuid, Loot> m_personalLoot = new();
-        public Loot _loot;
-        HashSet<ObjectGuid> m_tapList = new();
-    }
-
-    public enum ObjectCellMoveState
-    {
-        None,    // not in move list
-        Active,  // in move list
-        Inactive // in move list but should not move
-    }
-
-    struct SpellFocusInfo
-    {
-        public Spell Spell;
-        public uint Delay;         // ms until the creature's target should snap back (0 = no snapback scheduled)
-        public ObjectGuid Target;        // the creature's "real" target while casting
-        public float Orientation; // the creature's "real" orientation while casting
-    }
+	public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
+	public long CorpseRemoveTime { get; set; } // (msecs)timer for death or corpse disappearance
+	public Loot Loot { get; set; }
 }

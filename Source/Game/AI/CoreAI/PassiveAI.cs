@@ -124,11 +124,11 @@ namespace Game.AI
 
         public override void IsSummonedBy(WorldObject summoner)
         {
-            if (me.m_spells[0] != 0)
+            if (me.Spells[0] != 0)
             {
                 CastSpellExtraArgs extra = new();
                 extra.OriginalCaster = summoner.GetGUID();
-                me.CastSpell(me, me.m_spells[0], extra);
+                me.CastSpell(me, me.Spells[0], extra);
             }
         }
     }

@@ -101,7 +101,7 @@ public class MapManager : Singleton<MapManager>
 			else if (entry.IsDungeon())
 			{
 				var group = player.GetGroup();
-				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyID(entry);
+				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 				MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GetGUID();
 				var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
@@ -198,7 +198,7 @@ public class MapManager : Singleton<MapManager>
 		else if (entry.IsDungeon())
 		{
 			var group = player.GetGroup();
-			var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyID(entry);
+			var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
 			MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 
 			var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(mapId) : player.GetGUID();

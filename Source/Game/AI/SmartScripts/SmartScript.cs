@@ -282,9 +282,9 @@ namespace Game.AI
                                 if (ci != null)
                                 {
                                     CreatureModel model = ObjectManager.ChooseDisplayId(ci);
-                                    target.ToCreature().SetDisplayId(model.CreatureDisplayID, model.DisplayScale);
+                                    target.ToCreature().SetDisplayId(model.CreatureDisplayId, model.DisplayScale);
                                     Log.outDebug(LogFilter.ScriptsAi, "SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} set displayid to {2}",
-                                        target.GetEntry(), target.GetGUID().ToString(), model.CreatureDisplayID);
+                                        target.GetEntry(), target.GetGUID().ToString(), model.CreatureDisplayId);
                                 }
                             }
                             //if no param1, then use value from param2 (modelId)
@@ -1012,7 +1012,7 @@ namespace Game.AI
                             {
                                 CreatureTemplate cInfo = Global.ObjectMgr.GetCreatureTemplate(e.Action.morphOrMount.creature);
                                 if (cInfo != null)
-                                    target.ToUnit().Mount(ObjectManager.ChooseDisplayId(cInfo).CreatureDisplayID);
+                                    target.ToUnit().Mount(ObjectManager.ChooseDisplayId(cInfo).CreatureDisplayId);
                             }
                             else
                                 target.ToUnit().Mount(e.Action.morphOrMount.model);
@@ -1554,7 +1554,7 @@ namespace Game.AI
                                 AreaTrigger areaTriggerTarget = target.ToAreaTrigger();
                                 if (areaTriggerTarget != null)
                                 {
-                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAI<SmartAreaTriggerAI>();
+                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
                                     if (atSAI != null)
                                         atSAI.SetTimedActionList(e, e.Action.timedActionList.id, GetLastInvoker());
                                 }
@@ -1655,7 +1655,7 @@ namespace Game.AI
                                 AreaTrigger areaTriggerTarget = target.ToAreaTrigger();
                                 if (areaTriggerTarget != null)
                                 {
-                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAI<SmartAreaTriggerAI>();
+                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
                                     if (atSAI != null)
                                         atSAI.SetTimedActionList(e, randomId, GetLastInvoker());
                                 }
@@ -1694,7 +1694,7 @@ namespace Game.AI
                                 AreaTrigger areaTriggerTarget = target.ToAreaTrigger();
                                 if (areaTriggerTarget != null)
                                 {
-                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAI<SmartAreaTriggerAI>();
+                                    SmartAreaTriggerAI atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
                                     if (atSAI != null)
                                         atSAI.SetTimedActionList(e, id, GetLastInvoker());
                                 }
@@ -3324,7 +3324,7 @@ namespace Game.AI
                 {
                     if (GetBaseObject() == null)
                         return;
-                    if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().Location.GetMapId() != e.Event.respawn.map)
+                    if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && GetBaseObject().Location.MapId != e.Event.respawn.map)
                         return;
                     if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && GetBaseObject().GetZoneId() != e.Event.respawn.area)
                         return;

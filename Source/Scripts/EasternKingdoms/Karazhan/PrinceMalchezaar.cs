@@ -551,7 +551,7 @@ namespace Scripts.EasternKingdoms.Karazhan.PrinceMalchezaar
             Vector2 point = Vector2.Zero;
             Position pos = null;
 
-            if ((me.Location.GetMapId() != 532) ||
+            if ((me.Location.MapId != 532) ||
                 positions.Empty())
             {
                 pos = me.GetRandomNearPosition(60);

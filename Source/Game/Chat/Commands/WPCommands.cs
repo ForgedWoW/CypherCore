@@ -905,7 +905,7 @@ namespace Game.Chat.Commands
             }
 
             CreatureAddon addon = Global.ObjectMgr.GetCreatureAddon(guidLow);
-            if (addon == null || addon.path_id == 0)
+            if (addon == null || addon.PathId == 0)
             {
                 handler.SendSysMessage("|cffff33ffTarget does not have a loaded path.|r");
                 return true;

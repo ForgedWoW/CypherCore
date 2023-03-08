@@ -282,7 +282,7 @@ public class Map : IDisposable
 		SendInitTransports(player);
 
 		if (initPlayer)
-			player.m_clientGUIDs.Clear();
+			player.ClientGuiDs.Clear();
 
 		player.UpdateObjectVisibility(false);
 		PhasingHandler.SendToPlayer(player);
@@ -437,7 +437,7 @@ public class Map : IDisposable
 				{
 					var data = new UpdateData(GetId());
 					obj.BuildCreateUpdateBlockForPlayer(data, player);
-					player.m_visibleTransports.Add(obj.GetGUID());
+					player.VisibleTransports.Add(obj.GetGUID());
 					data.BuildPacket(out var packet);
 					player.SendPacket(packet);
 				}
@@ -554,7 +554,7 @@ public class Map : IDisposable
 												var unit = pair.Value.GetOther(player).ToCreature();
 
 												if (unit != null)
-													if (unit.Location.GetMapId() == player.Location.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+													if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
 														toVisit.Add(unit);
 											}
 
@@ -586,13 +586,13 @@ public class Map : IDisposable
 											List<Unit> toVisit = new();
 
 											// Totems
-											foreach (var summonGuid in player.m_SummonSlot)
+											foreach (var summonGuid in player.SummonSlot)
 												if (!summonGuid.IsEmpty())
 												{
 													var unit = GetCreature(summonGuid);
 
 													if (unit != null)
-														if (unit.Location.GetMapId() == player.Location.GetMapId() && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+														if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
 															toVisit.Add(unit);
 												}
 
@@ -722,10 +722,10 @@ public class Map : IDisposable
 			data.BuildPacket(out var packet);
 
 			foreach (var player in GetPlayers())
-				if (player.GetTransport() != obj && player.m_visibleTransports.Contains(obj.GetGUID()))
+				if (player.GetTransport() != obj && player.VisibleTransports.Contains(obj.GetGUID()))
 				{
 					player.SendPacket(packet);
-					player.m_visibleTransports.Remove(obj.GetGUID());
+					player.VisibleTransports.Remove(obj.GetGUID());
 				}
 		}
 
@@ -1271,7 +1271,7 @@ public class Map : IDisposable
 		if (!entry.IsDungeon())
 			return null;
 
-		var targetDifficulty = player.GetDifficultyID(entry);
+		var targetDifficulty = player.GetDifficultyId(entry);
 		// Get the highest available difficulty if current setting is higher than the instance allows
 		var mapDiff = Global.DB2Mgr.GetDownscaledMapDifficultyData(mapid, ref targetDifficulty);
 
@@ -1325,7 +1325,7 @@ public class Map : IDisposable
 
 	public void SendInitSelf(Player player)
 	{
-		var data = new UpdateData(player.Location.GetMapId());
+		var data = new UpdateData(player.Location.MapId);
 
 		// attach to player data current transport data
 		var transport = player.GetTransport<Transport>();
@@ -1333,7 +1333,7 @@ public class Map : IDisposable
 		if (transport != null)
 		{
 			transport.BuildCreateUpdateBlockForPlayer(data, player);
-			player.m_visibleTransports.Add(transport.GetGUID());
+			player.VisibleTransports.Add(transport.GetGUID());
 		}
 
 		player.BuildCreateUpdateBlockForPlayer(data, player);
@@ -1351,27 +1351,27 @@ public class Map : IDisposable
 	public void SendUpdateTransportVisibility(Player player)
 	{
 		// Hack to send out transports
-		UpdateData transData = new(player.Location.GetMapId());
+		UpdateData transData = new(player.Location.MapId);
 
 		foreach (var transport in _transports)
 		{
 			if (!transport.IsInWorld)
 				continue;
 
-			var hasTransport = player.m_visibleTransports.Contains(transport.GetGUID());
+			var hasTransport = player.VisibleTransports.Contains(transport.GetGUID());
 
 			if (player.InSamePhase(transport))
 			{
 				if (!hasTransport)
 				{
 					transport.BuildCreateUpdateBlockForPlayer(transData, player);
-					player.m_visibleTransports.Add(transport.GetGUID());
+					player.VisibleTransports.Add(transport.GetGUID());
 				}
 			}
 			else
 			{
 				transport.BuildOutOfRangeUpdateBlock(transData);
-				player.m_visibleTransports.Remove(transport.GetGUID());
+				player.VisibleTransports.Remove(transport.GetGUID());
 			}
 		}
 
@@ -1725,7 +1725,7 @@ public class Map : IDisposable
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.Location.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == GetId() && obj.GetInstanceId() == GetInstanceId());
 
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
@@ -1735,7 +1735,7 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.Location.GetMapId() == GetId() && obj.GetInstanceId() == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == GetId() && obj.GetInstanceId() == GetInstanceId());
 
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
@@ -2133,20 +2133,20 @@ public class Map : IDisposable
 			bones = new Corpse();
 			bones.Create(corpse.GetGUID().GetCounter(), this);
 
-			bones.ReplaceAllCorpseDynamicFlags((CorpseDynFlags)(byte)corpse.m_corpseData.DynamicFlags);
-			bones.SetOwnerGUID(corpse.m_corpseData.Owner);
-			bones.SetPartyGUID(corpse.m_corpseData.PartyGUID);
-			bones.SetGuildGUID(corpse.m_corpseData.GuildGUID);
-			bones.SetDisplayId(corpse.m_corpseData.DisplayID);
-			bones.SetRace(corpse.m_corpseData.RaceID);
-			bones.SetSex(corpse.m_corpseData.Sex);
-			bones.SetClass(corpse.m_corpseData.Class);
-			bones.SetCustomizations(corpse.m_corpseData.Customizations);
-			bones.ReplaceAllFlags((CorpseFlags)(corpse.m_corpseData.Flags | (uint)CorpseFlags.Bones));
-			bones.SetFactionTemplate(corpse.m_corpseData.FactionTemplate);
+			bones.ReplaceAllCorpseDynamicFlags((CorpseDynFlags)(byte)corpse.CorpseData.DynamicFlags);
+			bones.SetOwnerGUID(corpse.CorpseData.Owner);
+			bones.SetPartyGUID(corpse.CorpseData.PartyGUID);
+			bones.SetGuildGUID(corpse.CorpseData.GuildGUID);
+			bones.SetDisplayId(corpse.CorpseData.DisplayID);
+			bones.SetRace(corpse.CorpseData.RaceID);
+			bones.SetSex(corpse.CorpseData.Sex);
+			bones.SetClass(corpse.CorpseData.Class);
+			bones.SetCustomizations(corpse.CorpseData.Customizations);
+			bones.ReplaceAllFlags((CorpseFlags)(corpse.CorpseData.Flags | (uint)CorpseFlags.Bones));
+			bones.SetFactionTemplate(corpse.CorpseData.FactionTemplate);
 
 			for (var i = 0; i < EquipmentSlot.End; ++i)
-				bones.SetItem((uint)i, corpse.m_corpseData.Items[i]);
+				bones.SetItem((uint)i, corpse.CorpseData.Items[i]);
 
 			bones.SetCellCoord(corpse.GetCellCoord());
 			bones.Location.Relocate(corpse.Location.X, corpse.Location.Y, corpse.Location.Z, corpse.Location.Orientation);
@@ -2861,7 +2861,7 @@ public class Map : IDisposable
 		{
 			var relocatePos = pos.Copy();
 			transport.CalculatePassengerOffset(relocatePos);
-			summon.m_movementInfo.transport.pos.Relocate(relocatePos);
+			summon.MovementInfo.Transport.Pos.Relocate(relocatePos);
 
 			// This object must be added to transport before adding to map for the client to properly display it
 			transport.AddPassenger(summon);
@@ -3001,7 +3001,7 @@ public class Map : IDisposable
 		}
 
 		obj.Location.SetCurrentCell(cell);
-		obj.ToCreature().m_isTempWorldObject = on;
+		obj.ToCreature().IsTempWorldObject = on;
 	}
 
 	private void DeleteFromWorld(Player player)
@@ -3639,7 +3639,7 @@ public class Map : IDisposable
 			if (transport.IsInWorld && transport != player.GetTransport() && player.InSamePhase(transport))
 			{
 				transport.BuildCreateUpdateBlockForPlayer(transData, player);
-				player.m_visibleTransports.Add(transport.GetGUID());
+				player.VisibleTransports.Add(transport.GetGUID());
 			}
 
 		transData.BuildPacket(out var packet);
@@ -3648,13 +3648,13 @@ public class Map : IDisposable
 
 	private void SendRemoveTransports(Player player)
 	{
-		var transData = new UpdateData(player.Location.GetMapId());
+		var transData = new UpdateData(player.Location.MapId);
 
 		foreach (var transport in _transports)
-			if (player.m_visibleTransports.Contains(transport.GetGUID()) && transport != player.GetTransport())
+			if (player.VisibleTransports.Contains(transport.GetGUID()) && transport != player.GetTransport())
 			{
 				transport.BuildOutOfRangeUpdateBlock(transData);
-				player.m_visibleTransports.Remove(transport.GetGUID());
+				player.VisibleTransports.Remove(transport.GetGUID());
 			}
 
 		transData.BuildPacket(out var packet);

@@ -33,7 +33,7 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 
 				if (foundAreaTrigger != null)
 				{
-					var eq = foundAreaTrigger.GetAI<areatrigger_sha_earthquake>();
+					var eq = foundAreaTrigger.GetAi<areatrigger_sha_earthquake>();
 
 					if (eq != null)
 						if (eq.AddStunnedTarget(target.GetGUID()))

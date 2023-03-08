@@ -265,8 +265,8 @@ namespace Game.Networking.Packets
             MemberStats.PositionZ = (short)(player.Location.Z);
 
             MemberStats.SpecID = (ushort)player.GetPrimarySpecialization();
-            MemberStats.PartyType[0] = (sbyte)(player.m_playerData.PartyType & 0xF);
-            MemberStats.PartyType[1] = (sbyte)(player.m_playerData.PartyType >> 4);
+            MemberStats.PartyType[0] = (sbyte)(player.PlayerData.PartyType & 0xF);
+            MemberStats.PartyType[1] = (sbyte)(player.PlayerData.PartyType >> 4);
             MemberStats.WmoGroupID = 0;
             MemberStats.WmoDoodadPlacementID = 0;
 
@@ -834,7 +834,7 @@ namespace Game.Networking.Packets
             foreach (RaidMarker raidMarker in RaidMarkers)
             {
                 _worldPacket.WritePackedGuid(raidMarker.TransportGUID);
-                _worldPacket.WriteUInt32(raidMarker.Location.GetMapId());
+                _worldPacket.WriteUInt32(raidMarker.Location.MapId);
                 _worldPacket.WriteXYZ(raidMarker.Location);
             }
         }

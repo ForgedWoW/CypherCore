@@ -368,14 +368,14 @@ namespace Game.Spells
 
                     if (_owner.HasAuraTypeWithAffectMask(AuraType.ModSpellCooldownByHaste, spellInfo))
                     {
-                        cooldown = TimeSpan.FromMilliseconds(cooldown.TotalMilliseconds * _owner.m_unitData.ModSpellHaste);
-                        categoryCooldown = TimeSpan.FromMilliseconds(categoryCooldown.TotalMilliseconds * _owner.m_unitData.ModSpellHaste);
+                        cooldown = TimeSpan.FromMilliseconds(cooldown.TotalMilliseconds * _owner.UnitData.ModSpellHaste);
+                        categoryCooldown = TimeSpan.FromMilliseconds(categoryCooldown.TotalMilliseconds * _owner.UnitData.ModSpellHaste);
                     }
 
                     if (_owner.HasAuraTypeWithAffectMask(AuraType.ModCooldownByHasteRegen, spellInfo))
                     {
-                        cooldown = TimeSpan.FromMilliseconds(cooldown.TotalMilliseconds * _owner.m_unitData.ModHasteRegen);
-                        categoryCooldown = TimeSpan.FromMilliseconds(categoryCooldown.TotalMilliseconds * _owner.m_unitData.ModHasteRegen);
+                        cooldown = TimeSpan.FromMilliseconds(cooldown.TotalMilliseconds * _owner.UnitData.ModHasteRegen);
+                        categoryCooldown = TimeSpan.FromMilliseconds(categoryCooldown.TotalMilliseconds * _owner.UnitData.ModHasteRegen);
                     }
 
                     var cooldownMod = _owner.GetTotalAuraModifier(AuraType.ModCooldown);
@@ -727,16 +727,16 @@ namespace Game.Spells
             else if (_owner.IsPet())
             {
                 Pet petOwner = _owner.ToPet();
-                foreach (var p in petOwner.m_spells)
-                    if (p.Value.state != PetSpellState.Removed)
+                foreach (var p in petOwner.Spells)
+                    if (p.Value.State != PetSpellState.Removed)
                         knownSpells.Add(p.Key);
             }
             else
             {
                 Creature creatureOwner = _owner.ToCreature();
                 for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
-                    if (creatureOwner.m_spells[i] != 0)
-                        knownSpells.Add(creatureOwner.m_spells[i]);
+                    if (creatureOwner.Spells[i] != 0)
+                        knownSpells.Add(creatureOwner.Spells[i]);
             }
 
             SpellCooldownPkt spellCooldown = new();
@@ -913,10 +913,10 @@ namespace Game.Spells
             recoveryTimeF *= _owner.GetTotalAuraMultiplierByMiscValue(AuraType.ChargeRecoveryMultiplier, (int)chargeCategoryId);
 
             if (_owner.HasAuraType(AuraType.ChargeRecoveryAffectedByHaste))
-                recoveryTimeF *= _owner.m_unitData.ModSpellHaste;
+                recoveryTimeF *= _owner.UnitData.ModSpellHaste;
 
             if (_owner.HasAuraType(AuraType.ChargeRecoveryAffectedByHasteRegen))
-                recoveryTimeF *= _owner.m_unitData.ModHasteRegen;
+                recoveryTimeF *= _owner.UnitData.ModHasteRegen;
 
             return (int)Math.Floor(recoveryTimeF);
         }

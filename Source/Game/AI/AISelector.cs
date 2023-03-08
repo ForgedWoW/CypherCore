@@ -68,7 +68,7 @@ namespace Game.AI
                 return new TotemAI(creature);
             else if (creature.IsTrigger())
             {
-                if (creature.m_spells[0] != 0)
+                if (creature.Spells[0] != 0)
                     return new TriggerAI(creature);
                 else
                     return new NullCreatureAI(creature);
@@ -108,7 +108,7 @@ namespace Game.AI
             if (scriptedAI != null)
                 return scriptedAI;
 
-            return go.GetAIName() switch
+            return go.GetAiName() switch
             {
                 "SmartGameObjectAI" => new SmartGameObjectAI(go),
                 _ => new GameObjectAI(go),

@@ -85,7 +85,7 @@ namespace Game
             }
 
             // Pretend we've never seen this object
-            GetPlayer().m_clientGUIDs.Remove(objectUpdateFailed.ObjectGUID);
+            GetPlayer().ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
@@ -95,7 +95,7 @@ namespace Game
 
             // Client received values update after destroying object
             // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-            GetPlayer().m_clientGUIDs.Add(objectUpdateRescued.ObjectGUID);
+            GetPlayer().ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetActionButton)]
@@ -260,14 +260,14 @@ namespace Game
                 return;
 
             bool teleported = false;
-            if (player.Location.GetMapId() != at.target_mapId)
+            if (player.Location.MapId != at.target_mapId)
             {
                 if (!player.IsAlive())
                 {
                     if (player.HasCorpse())
                     {
                         // let enter in ghost mode in instance that connected to inner instance with corpse
-                        uint corpseMap = player.GetCorpseLocation().GetMapId();
+                        uint corpseMap = player.GetCorpseLocation().MapId;
                         do
                         {
                             if (corpseMap == at.target_mapId)
@@ -328,7 +328,7 @@ namespace Game
 
                     if (!player.IsAlive() && player.HasCorpse())
                     {
-                        if (player.GetCorpseLocation().GetMapId() == at.target_mapId)
+                        if (player.GetCorpseLocation().MapId == at.target_mapId)
                         {
                             player.ResurrectPlayer(0.5f);
                             player.SpawnCorpseBones();
@@ -371,7 +371,7 @@ namespace Game
                     if (entranceLocation == null)
                     {
                         Group group = player.GetGroup();
-                        Difficulty difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyID(mapEntry);
+                        Difficulty difficulty = group ? group.GetDifficultyID(mapEntry) : player.GetDifficultyId(mapEntry);
                         ObjectGuid instanceOwnerGuid = group ? group.GetRecentInstanceOwner(at.target_mapId) : player.GetGUID();
                         InstanceLock instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, new MapDb2Entries(mapEntry, Global.DB2Mgr.GetDownscaledMapDifficultyData(at.target_mapId, ref difficulty)));
                         if (instanceLock != null)
@@ -420,7 +420,7 @@ namespace Game
 
             for (byte i = 0; i < PlayerConst.MaxCUFProfiles; ++i)
             {
-                CUFProfile cufProfile = player.GetCUFProfile(i);
+                CufProfile cufProfile = player.GetCUFProfile(i);
                 if (cufProfile != null)
                     loadCUFProfiles.CUFProfiles.Add(cufProfile);
             }
@@ -511,15 +511,15 @@ namespace Game
             {
                 GetPlayer().SetPlayerFlag(PlayerFlags.InPVP);
                 GetPlayer().RemovePlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().IsPvP() || GetPlayer().pvpInfo.EndTimer != 0)
+                if (!GetPlayer().IsPvP() || GetPlayer().PvpInfo.EndTimer != 0)
                     GetPlayer().UpdatePvP(true, true);
             }
             else if (!GetPlayer().IsWarModeLocalActive())
             {
                 GetPlayer().RemovePlayerFlag(PlayerFlags.InPVP);
                 GetPlayer().SetPlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().pvpInfo.IsHostile && GetPlayer().IsPvP())
-                    GetPlayer().pvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+                if (!GetPlayer().PvpInfo.IsHostile && GetPlayer().IsPvP())
+                    GetPlayer().PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
             }
         }
 
@@ -530,15 +530,15 @@ namespace Game
             {
                 GetPlayer().SetPlayerFlag(PlayerFlags.InPVP);
                 GetPlayer().RemovePlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().IsPvP() || GetPlayer().pvpInfo.EndTimer != 0)
+                if (!GetPlayer().IsPvP() || GetPlayer().PvpInfo.EndTimer != 0)
                     GetPlayer().UpdatePvP(true, true);
             }
             else if (!GetPlayer().IsWarModeLocalActive())
             {
                 GetPlayer().RemovePlayerFlag(PlayerFlags.InPVP);
                 GetPlayer().SetPlayerFlag(PlayerFlags.PVPTimer);
-                if (!GetPlayer().pvpInfo.IsHostile && GetPlayer().IsPvP())
-                    GetPlayer().pvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+                if (!GetPlayer().PvpInfo.IsHostile && GetPlayer().IsPvP())
+                    GetPlayer().PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
             }
         }
 
@@ -553,12 +553,12 @@ namespace Game
         {
             if (farSight.Enable)
             {
-                Log.outDebug(LogFilter.Network, "Added FarSight {0} to player {1}", GetPlayer().m_activePlayerData.FarsightObject.ToString(), GetPlayer().GetGUID().ToString());
+                Log.outDebug(LogFilter.Network, "Added FarSight {0} to player {1}", GetPlayer().ActivePlayerData.FarsightObject.ToString(), GetPlayer().GetGUID().ToString());
                 WorldObject target = GetPlayer().GetViewpoint();
                 if (target)
                     GetPlayer().SetSeer(target);
                 else
-                    Log.outDebug(LogFilter.Network, "Player {0} (GUID: {1}) requests non-existing seer {2}", GetPlayer().GetName(), GetPlayer().GetGUID().ToString(), GetPlayer().m_activePlayerData.FarsightObject.ToString());
+                    Log.outDebug(LogFilter.Network, "Player {0} (GUID: {1}) requests non-existing seer {2}", GetPlayer().GetName(), GetPlayer().GetGUID().ToString(), GetPlayer().ActivePlayerData.FarsightObject.ToString());
             }
             else
             {
@@ -632,7 +632,7 @@ namespace Game
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == GetPlayer().GetDungeonDifficultyID())
+            if (difficultyID == GetPlayer().GetDungeonDifficultyId())
                 return;
 
             // cannot reset while in an instance
@@ -660,7 +660,7 @@ namespace Game
             else
             {
                 GetPlayer().ResetInstances(InstanceResetMethod.OnChangeDifficulty);
-                GetPlayer().SetDungeonDifficultyID(difficultyID);
+                GetPlayer().SetDungeonDifficultyId(difficultyID);
                 GetPlayer().SendDungeonDifficulty();
             }
         }
@@ -698,7 +698,7 @@ namespace Game
             }
 
             Difficulty difficultyID = (Difficulty)difficultyEntry.Id;
-            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? GetPlayer().GetLegacyRaidDifficultyID() : GetPlayer().GetRaidDifficultyID()))
+            if (difficultyID == (setRaidDifficulty.Legacy != 0 ? GetPlayer().GetLegacyRaidDifficultyId() : GetPlayer().GetRaidDifficultyId()))
                 return;
 
             // cannot reset while in an instance
@@ -730,9 +730,9 @@ namespace Game
             {
                 GetPlayer().ResetInstances(InstanceResetMethod.OnChangeDifficulty);
                 if (setRaidDifficulty.Legacy != 0)
-                    GetPlayer().SetLegacyRaidDifficultyID(difficultyID);
+                    GetPlayer().SetLegacyRaidDifficultyId(difficultyID);
                 else
-                    GetPlayer().SetRaidDifficultyID(difficultyID);
+                    GetPlayer().SetRaidDifficultyId(difficultyID);
 
                 GetPlayer().SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
             }

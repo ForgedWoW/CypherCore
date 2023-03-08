@@ -13,7 +13,7 @@ public class event_dh_infernal_strike : BasicEvent
 		this._caster = caster;
 	}
 
-	public override bool Execute(ulong UnnamedParameter, uint UnnamedParameter2)
+	public override bool Execute(ulong etime, uint pTime)
 	{
 		if (_caster != null)
 		{

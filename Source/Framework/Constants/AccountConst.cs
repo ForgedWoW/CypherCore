@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+
 namespace Framework.Constants
 {
     public enum AccountDataTypes
@@ -747,6 +749,7 @@ namespace Framework.Constants
         Max
     }
 
+    [Flags]
     public enum MountStatusFlags
     {
         None = 0x00,
@@ -754,6 +757,7 @@ namespace Framework.Constants
         IsFavorite = 0x02
     }
 
+    [Flags]
     public enum ToyFlags
     {
         None = 0,

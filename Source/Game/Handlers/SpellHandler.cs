@@ -187,10 +187,10 @@ namespace Game
             {
                 // If item doesn't already have loot, attempt to load it. If that
                 // fails then this is first time opening, generate loot
-                if (!item.m_lootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
+                if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
                 {
                     Loot loot = new(player.GetMap(), item.GetGUID(), LootType.Item, null);
-                    item.loot = loot;
+                    item.Loot = loot;
                     loot.GenerateMoneyLoot(item.GetTemplate().MinMoneyLoot, item.GetTemplate().MaxMoneyLoot);
                     loot.FillLoot(item.GetEntry(), LootStorage.Items, player, true, loot.gold != 0);
 
@@ -199,8 +199,8 @@ namespace Game
                     if (loot.gold > 0 || loot.unlootedCount > 0)
                         Global.LootItemStorage.AddNewStoredLoot(item.GetGUID().GetCounter(), loot, player);
                 }
-                if (item.loot != null)
-                    player.SendLoot(item.loot);
+                if (item.Loot != null)
+                    player.SendLoot(item.Loot);
                 else
                     player.SendLootError(ObjectGuid.Empty, item.GetGUID(), LootError.NoLoot);
             }
@@ -524,10 +524,10 @@ namespace Game
             if (slotId >= SharedConst.MaxTotemSlot)
                 return;
 
-            if (GetPlayer().m_SummonSlot[slotId].IsEmpty())
+            if (GetPlayer().SummonSlot[slotId].IsEmpty())
                 return;
 
-            Creature totem = ObjectAccessor.GetCreature(GetPlayer(), _player.m_SummonSlot[slotId]);
+            Creature totem = ObjectAccessor.GetCreature(GetPlayer(), _player.SummonSlot[slotId]);
             if (totem != null && totem.IsTotem())// && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
                 totem.ToTotem().UnSummon();
         }
@@ -535,7 +535,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SelfRes)]
         void HandleSelfRes(SelfRes selfRes)
         {
-            List<uint> selfResSpells = _player.m_activePlayerData.SelfResSpells;
+            List<uint> selfResSpells = _player.ActivePlayerData.SelfResSpells;
             if (!selfResSpells.Contains(selfRes.SpellId))
                 return;
 
@@ -593,7 +593,7 @@ namespace Game
                 mirrorImageComponentedData.Gender = (byte)creator.GetGender();
                 mirrorImageComponentedData.ClassID = (byte)creator.GetClass();
 
-                foreach (var customization in player.m_playerData.Customizations)
+                foreach (var customization in player.PlayerData.Customizations)
                 {
                     var chrCustomizationChoice = new ChrCustomizationChoice();
                     chrCustomizationChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;

@@ -467,11 +467,11 @@ namespace Game
                 if (string.IsNullOrEmpty(packet.Text))
                     sender.ToggleAFK(); // Remove AFK
                 else
-                    sender.autoReplyMsg = packet.Text; // Update message
+                    sender.AutoReplyMsg = packet.Text; // Update message
             }
             else // New AFK mode
             {
-                sender.autoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
+                sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
 
                 if (sender.IsDND())
                     sender.ToggleDND();
@@ -505,11 +505,11 @@ namespace Game
                 if (string.IsNullOrEmpty(packet.Text))
                     sender.ToggleDND(); // Remove DND
                 else
-                    sender.autoReplyMsg = packet.Text; // Update message
+                    sender.AutoReplyMsg = packet.Text; // Update message
             }
             else // New DND mode
             {
-                sender.autoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
+                sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
 
                 if (sender.IsAFK())
                     sender.ToggleAFK();

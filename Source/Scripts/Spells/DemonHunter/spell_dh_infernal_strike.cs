@@ -38,6 +38,6 @@ public class spell_dh_infernal_strike : SpellScript, ISpellOnCast, ISpellOnHit
 		var caster = GetCaster();
 
 		if (caster != null)
-			caster.m_Events.AddEventAtOffset(new event_dh_infernal_strike(caster), TimeSpan.FromMilliseconds(750));
+			caster.Events.AddEventAtOffset(new event_dh_infernal_strike(caster), TimeSpan.FromMilliseconds(750));
 	}
 }

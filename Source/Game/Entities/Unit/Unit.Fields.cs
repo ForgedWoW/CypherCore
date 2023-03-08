@@ -3,585 +3,148 @@
 
 using System;
 using System.Collections.Generic;
-using Framework.Collections;
 using Framework.Constants;
 using Game.AI;
 using Game.Combat;
 using Game.DataStorage;
 using Game.Movement;
-using Game.Networking.Packets;
 using Game.Spells;
 using Game.Spells.Auras;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public partial class Unit
 {
-    public partial class Unit
-    {
-        //AI
-        protected Stack<IUnitAI> i_AIs = new();
-        protected IUnitAI i_AI;
-
-        //Movement
-        protected float[] m_speed_rate = new float[(int)UnitMoveType.Max];
-        readonly List<AbstractFollower> m_followingMe = new();
-        public MoveSpline MoveSpline { get; set; }
-
-        readonly MotionMaster i_motionMaster;
-        public uint m_movementCounter;       //< Incrementing counter used in movement packets
-        readonly TimeTracker splineSyncTimer;
-        MovementForces _movementForces;
-        PositionUpdateInfo _positionUpdateInfo;
-        protected Unit m_unitMovedByMe;    // only ever set for players, and only for direct client control
-        protected Player m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
-
-        //Combat
-        protected List<Unit> attackerList = new();
-        readonly Dictionary<ReactiveType, uint> m_reactiveTimer = new();
-        protected double[][] m_weaponDamage = new double[(int)WeaponAttackType.Max][];
-        readonly uint[] m_baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
-        internal double[] m_modAttackSpeedPct = new double[(int)WeaponAttackType.Max];
-        protected uint[] m_attackTimer = new uint[(int)WeaponAttackType.Max];
-        bool _isCombatDisallowed;
-
-        // Threat+combat management
-        readonly CombatManager m_combatManager;
-        readonly ThreatManager m_threatManager;
-
-        protected Unit attacking;
-
-        public double ModMeleeHitChance { get; set; }
-        public double ModRangedHitChance { get; set; }
-        public double ModSpellHitChance { get; set; }
-        public bool m_canDualWield;
-        public double BaseSpellCritChance { get; set; }
-        public uint RegenTimer { get; set; }
-
-        uint _lastExtraAttackSpell;
-        readonly Dictionary<ObjectGuid, uint> extraAttacksTargets = new();
-        ObjectGuid _lastDamagedTargetGuid;
-
-        //Charm
-        public List<Unit> m_Controlled = new();
-        readonly List<Player> m_sharedVision = new();
-        Unit m_charmer; // Unit that is charming ME
-        Unit m_charmed; // Unit that is being charmed BY ME
-        CharmInfo m_charmInfo;
-        protected bool m_ControlledByPlayer;
-        public ObjectGuid LastCharmerGUID { get; set; }
-
-        uint _oldFactionId;         // faction before charm
-        bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
-
-        //Spells 
-        protected Dictionary<CurrentSpellTypes, Spell> m_currentSpells = new((int)CurrentSpellTypes.Max);
-        readonly MultiMap<uint, uint>[] m_spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
-        SpellAuraInterruptFlags m_interruptMask;
-        SpellAuraInterruptFlags2 m_interruptMask2;
-        protected int m_procDeep;
-        SpellHistory _spellHistory;
-
-        //Auras
-        readonly MultiMap<AuraType, AuraEffect> m_modAuras = new();
-        readonly List<Aura> m_removedAuras = new();
-        readonly List<AuraApplication> m_interruptableAuras = new();             // auras which have interrupt mask applied on unit
-        readonly MultiMap<AuraStateType, AuraApplication> m_auraStateAuras = new();        // Used for improve performance of aura state checks on aura apply/remove
-        readonly SortedSet<AuraApplication> m_visibleAuras = new(new VisibleAuraSlotCompare());
-        readonly SortedSet<AuraApplication> m_visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
-        readonly AuraApplicationCollection m_appliedAuras = new();
-        readonly AuraCollection m_ownedAuras = new();
-        readonly List<Aura> m_scAuras = new();
-        protected double[][] m_auraFlatModifiersGroup = new double[(int)UnitMods.End][];
-        protected double[][] m_auraPctModifiersGroup = new double[(int)UnitMods.End][];
-        uint m_removedAurasCount;
-
-        //General  
-        public UnitData m_unitData;
-        readonly DiminishingReturn[] m_Diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
-        protected List<GameObject> m_gameObj = new();
-        readonly List<AreaTrigger> m_areaTrigger = new();
-        protected List<DynamicObject> m_dynObj = new();
-        protected float[] CreateStats = new float[(int)Stats.Max];
-        readonly double[] m_floatStatPosBuff = new double[(int)Stats.Max];
-        readonly double[] m_floatStatNegBuff = new double[(int)Stats.Max];
-        public ObjectGuid[] m_SummonSlot = new ObjectGuid[7];
-        public ObjectGuid[] m_ObjectSlot = new ObjectGuid[4];
-        public UnitTypeMask UnitTypeMask { get; set; }
-        UnitState m_state;
-        protected LiquidTypeRecord _lastLiquid;
-        protected DeathState m_deathState;
-        public Vehicle m_vehicle { get; set; }
-        public Vehicle VehicleKit { get; set; }
-        bool canModifyStats;
-        public uint LastSanctuaryTime { get; set; }
-        uint m_transformSpell;
-        bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
-        bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
-        bool _instantCast;
-
-        bool _playHoverAnim;
-
-        ushort _aiAnimKitId;
-        ushort _movementAnimKitId;
-        ushort _meleeAnimKitId;
-
-        public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
-        public SortedDictionary<DateTime, double> _damageTakenHistory = new SortedDictionary<DateTime, double>();
-
-        class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-        {
-            readonly Unit Owner;
-            readonly ObjectFieldData ObjectMask = new();
-            readonly UnitData UnitMask = new();
-
-            public ValuesUpdateForPlayerWithMaskSender(Unit owner)
-            {
-                Owner = owner;
-            }
-
-            public void Invoke(Player player)
-            {
-                UpdateData udata = new(Owner.Location.GetMapId());
-
-                Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), UnitMask.GetUpdateMask(), player);
-
-                udata.BuildPacket(out UpdateObject packet);
-                player.SendPacket(packet);
-            }
-        }
-    }
-
-    public struct DiminishingReturn
-    {
-        public DiminishingReturn(uint hitTime, DiminishingLevels hitCount)
-        {
-            Stack = 0;
-            HitTime = hitTime;
-            HitCount = hitCount;
-        }
-
-        public void Clear()
-        {
-            Stack = 0;
-            HitTime = 0;
-            HitCount = DiminishingLevels.Level1;
-        }
-
-        public uint Stack;
-        public uint HitTime;
-        public DiminishingLevels HitCount;
-    }
-
-    public class ProcEventInfo
-    {
-        public ProcEventInfo(Unit actor, Unit actionTarget, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsSpellType spellTypeMask,
-            ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
-        {
-            _actor = actor;
-            _actionTarget = actionTarget;
-            _procTarget = procTarget;
-            _typeMask = typeMask;
-            _spellTypeMask = spellTypeMask;
-            _spellPhaseMask = spellPhaseMask;
-            _hitMask = hitMask;
-            _spell = spell;
-            _damageInfo = damageInfo;
-            _healInfo = healInfo;
-        }
-
-        public Unit GetActor() { return _actor; }
-        public Unit GetActionTarget() { return _actionTarget; }
-        public Unit GetProcTarget() { return _procTarget; }
-
-        public ProcFlagsInit GetTypeMask() { return _typeMask; }
-        public ProcFlagsSpellType GetSpellTypeMask() { return _spellTypeMask; }
-        public ProcFlagsSpellPhase GetSpellPhaseMask() { return _spellPhaseMask; }
-        public ProcFlagsHit GetHitMask() { return _hitMask; }
-
-        public SpellInfo GetSpellInfo()
-        {
-            if (_spell)
-                return _spell.GetSpellInfo();
-            if (_damageInfo != null)
-                return _damageInfo.GetSpellInfo();
-            if (_healInfo != null)
-                return _healInfo.GetSpellInfo();
-
-            return null;
-        }
-        public SpellSchoolMask GetSchoolMask()
-        {
-            if (_spell)
-                return _spell.GetSpellInfo().GetSchoolMask();
-            if (_damageInfo != null)
-                return _damageInfo.GetSchoolMask();
-            if (_healInfo != null)
-                return _healInfo.GetSchoolMask();
-
-            return SpellSchoolMask.None;
-        }
-
-        public DamageInfo GetDamageInfo() { return _damageInfo; }
-        public HealInfo GetHealInfo() { return _healInfo; }
-
-        public Spell GetProcSpell() { return _spell; }
-
-        readonly Unit _actor;
-        readonly Unit _actionTarget;
-        readonly Unit _procTarget;
-        readonly ProcFlagsInit _typeMask;
-        readonly ProcFlagsSpellType _spellTypeMask;
-        readonly ProcFlagsSpellPhase _spellPhaseMask;
-        readonly ProcFlagsHit _hitMask;
-        readonly Spell _spell;
-        readonly DamageInfo _damageInfo;
-        readonly HealInfo _healInfo;
-    }
-
-    public class DamageInfo
-    {
-        public DamageInfo(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
-        {
-            m_attacker = attacker;
-            m_victim = victim;
-            m_damage = damage;
-            m_originalDamage = damage;
-            m_spellInfo = spellInfo;
-            m_schoolMask = schoolMask;
-            m_damageType = damageType;
-            m_attackType = attackType;
-        }
-
-        public DamageInfo(CalcDamageInfo dmgInfo)
-        {
-            m_attacker = dmgInfo.Attacker;
-            m_victim = dmgInfo.Target;
-            m_damage = dmgInfo.Damage;
-            m_originalDamage = dmgInfo.Damage;
-            m_spellInfo = null;
-            m_schoolMask = (SpellSchoolMask)dmgInfo.DamageSchoolMask;
-            m_damageType = DamageEffectType.Direct;
-            m_attackType = dmgInfo.AttackType;
-            m_absorb = dmgInfo.Absorb;
-            m_resist = dmgInfo.Resist;
-            m_block = dmgInfo.Blocked;
-
-            switch (dmgInfo.TargetState)
-            {
-                case VictimState.Immune:
-                    m_hitMask |= ProcFlagsHit.Immune;
-                    break;
-                case VictimState.Blocks:
-                    m_hitMask |= ProcFlagsHit.FullBlock;
-                    break;
-            }
-
-            if (dmgInfo.HitInfo.HasAnyFlag(HitInfo.PartialAbsorb | HitInfo.FullAbsorb))
-                m_hitMask |= ProcFlagsHit.Absorb;
-
-            if (dmgInfo.HitInfo.HasAnyFlag(HitInfo.FullResist))
-                m_hitMask |= ProcFlagsHit.FullResist;
-
-            if (m_block != 0)
-                m_hitMask |= ProcFlagsHit.Block;
-
-            bool damageNullified = dmgInfo.HitInfo.HasAnyFlag(HitInfo.FullAbsorb | HitInfo.FullResist) || m_hitMask.HasAnyFlag(ProcFlagsHit.Immune | ProcFlagsHit.FullBlock);
-            switch (dmgInfo.HitOutCome)
-            {
-                case MeleeHitOutcome.Miss:
-                    m_hitMask |= ProcFlagsHit.Miss;
-                    break;
-                case MeleeHitOutcome.Dodge:
-                    m_hitMask |= ProcFlagsHit.Dodge;
-                    break;
-                case MeleeHitOutcome.Parry:
-                    m_hitMask |= ProcFlagsHit.Parry;
-                    break;
-                case MeleeHitOutcome.Evade:
-                    m_hitMask |= ProcFlagsHit.Evade;
-                    break;
-                case MeleeHitOutcome.Block:
-                case MeleeHitOutcome.Crushing:
-                case MeleeHitOutcome.Glancing:
-                case MeleeHitOutcome.Normal:
-                    if (!damageNullified)
-                        m_hitMask |= ProcFlagsHit.Normal;
-                    break;
-                case MeleeHitOutcome.Crit:
-                    if (!damageNullified)
-                        m_hitMask |= ProcFlagsHit.Critical;
-                    break;
-            }
-        }
-
-        public DamageInfo(SpellNonMeleeDamage spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType, ProcFlagsHit hitMask)
-        {
-            m_attacker = spellNonMeleeDamage.attacker;
-            m_victim = spellNonMeleeDamage.target;
-            m_damage = spellNonMeleeDamage.damage;
-            m_spellInfo = spellNonMeleeDamage.Spell;
-            m_schoolMask = spellNonMeleeDamage.schoolMask;
-            m_damageType = damageType;
-            m_attackType = attackType;
-            m_absorb = spellNonMeleeDamage.absorb;
-            m_resist = spellNonMeleeDamage.resist;
-            m_block = spellNonMeleeDamage.blocked;
-            m_hitMask = hitMask;
-
-            if (spellNonMeleeDamage.blocked != 0)
-                m_hitMask |= ProcFlagsHit.Block;
-            if (spellNonMeleeDamage.absorb != 0)
-                m_hitMask |= ProcFlagsHit.Absorb;
-        }
-
-        public void ModifyDamage(double amount)
-        {
-            amount = Math.Max(amount, -GetDamage());
-            m_damage += amount;
-        }
-
-        public void AbsorbDamage(double amount)
-        {
-            amount = Math.Min(amount, GetDamage());
-            m_absorb += amount;
-            m_damage -= amount;
-            m_hitMask |= ProcFlagsHit.Absorb;
-        }
-        public void ResistDamage(double amount)
-        {
-            amount = Math.Min(amount, GetDamage());
-            m_resist += amount;
-            m_damage -= amount;
-            if (m_damage == 0)
-            { 
-                m_hitMask |= ProcFlagsHit.FullResist;
-                m_hitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
-            }
-        }
-        void BlockDamage(double amount)
-        {
-            amount = Math.Min(amount, GetDamage());
-            m_block += amount;
-            m_damage -= amount;
-            m_hitMask |= ProcFlagsHit.Block;
-            if (m_damage == 0)
-            { 
-                m_hitMask |= ProcFlagsHit.FullBlock;
-                m_hitMask &= ~(ProcFlagsHit.Normal | ProcFlagsHit.Critical);
-            }
-        }
-
-        public Unit GetAttacker() { return m_attacker; }
-        public Unit GetVictim() { return m_victim; }
-        public SpellInfo GetSpellInfo() { return m_spellInfo; }
-        public SpellSchoolMask GetSchoolMask() { return m_schoolMask; }
-        public DamageEffectType GetDamageType() { return m_damageType; }
-        public WeaponAttackType GetAttackType() { return m_attackType; }
-        public double GetDamage() { return m_damage; }
-        public double GetOriginalDamage() { return m_originalDamage; }
-        public double GetAbsorb() { return m_absorb; }
-        public double GetResist() { return m_resist; }
-        public double GetBlock() { return m_block; }
-        public ProcFlagsHit GetHitMask() { return m_hitMask; }
-
-        readonly Unit m_attacker;
-        readonly Unit m_victim;
-        double m_damage;
-        readonly double m_originalDamage;
-        readonly SpellInfo m_spellInfo;
-        readonly SpellSchoolMask m_schoolMask;
-        readonly DamageEffectType m_damageType;
-        readonly WeaponAttackType m_attackType;
-        double m_absorb;
-        double m_resist;
-        double m_block;
-        ProcFlagsHit m_hitMask;
-    }
-
-    public class HealInfo
-    {
-        public HealInfo(Unit healer, Unit target, double heal, SpellInfo spellInfo, SpellSchoolMask schoolMask)
-        {
-            _healer = healer;
-            _target = target;
-            _heal = heal;
-            _originalHeal = heal;
-            _spellInfo = spellInfo;
-            _schoolMask = schoolMask;
-        }
-
-        public void AbsorbHeal(double amount)
-        {
-            amount = Math.Min(amount, GetHeal());
-            _absorb += amount;
-            _heal -= amount;
-            amount = Math.Min(amount, GetEffectiveHeal());
-            _effectiveHeal -= amount;
-            _hitMask |= ProcFlagsHit.Absorb;
-        }
-        public void SetEffectiveHeal(uint amount) { _effectiveHeal = amount; }
-
-        public Unit GetHealer() { return _healer; }
-        public Unit GetTarget() { return _target; }
-        public double GetHeal() { return _heal; }
-        public double GetOriginalHeal() { return _originalHeal; }
-        public double GetEffectiveHeal() { return _effectiveHeal; }
-        public double GetAbsorb() { return _absorb; }
-        public SpellInfo GetSpellInfo() { return _spellInfo; }
-        public SpellSchoolMask GetSchoolMask() { return _schoolMask; }
-        ProcFlagsHit GetHitMask() { return _hitMask; }
-
-        readonly Unit _healer;
-        readonly Unit _target;
-        double _heal;
-        readonly double _originalHeal;
-        double _effectiveHeal;
-        double _absorb;
-        readonly SpellInfo _spellInfo;
-        readonly SpellSchoolMask _schoolMask;
-        ProcFlagsHit _hitMask;
-    }
-
-    public class CalcDamageInfo
-    {
-        public Unit Attacker { get; set; }             // Attacker
-        public Unit Target { get; set; }               // Target for damage
-        public uint DamageSchoolMask { get; set; }
-        public double Damage;
-        public double OriginalDamage { get; set; }
-        public double Absorb;
-        public double Resist { get; set; }
-        public double Blocked { get; set; }
-        public HitInfo HitInfo { get; set; }
-        public VictimState TargetState { get; set; }
-
-        // Helper
-        public WeaponAttackType AttackType { get; set; }
-        public ProcFlagsInit ProcAttacker { get; set; }
-        public ProcFlagsInit ProcVictim { get; set; }
-        public double CleanDamage { get; set; }        // Used only for rage calculation
-        public MeleeHitOutcome HitOutCome { get; set; }  // TODO: remove this field (need use TargetState)
-    }
-
-    public class SpellNonMeleeDamage
-    {
-        public SpellNonMeleeDamage(Unit _attacker, Unit _target, SpellInfo _spellInfo, SpellCastVisual spellVisual, SpellSchoolMask _schoolMask, ObjectGuid _castId = default)
-        {
-            target = _target;
-            attacker = _attacker;
-            Spell = _spellInfo;
-            SpellVisual = spellVisual;
-            schoolMask = _schoolMask;
-            castId = _castId;
-            preHitHealth = (uint)_target.GetHealth();
-
-            if (_attacker == _target)
-                HitInfo |= (int)SpellHitType.VictimIsAttacker;
-        }
-
-        public Unit target;
-        public Unit attacker;
-        public ObjectGuid castId;
-        public SpellInfo Spell;
-        public SpellCastVisual SpellVisual;
-        public double damage;
-        public double originalDamage;
-        public SpellSchoolMask schoolMask;
-        public double absorb;
-        public double resist;
-        public bool periodicLog;
-        public double blocked;
-        public int HitInfo;
-        // Used for help
-        public double cleanDamage;
-        public bool fullBlock;
-        public long preHitHealth;
-    }
-
-    public class CleanDamage
-    {
-        public CleanDamage(double mitigated, double absorbed, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome)
-        {
-            absorbed_damage = absorbed;
-            mitigated_damage = mitigated;
-            attackType = _attackType;
-            hitOutCome = _hitOutCome;
-        }
-
-        public double absorbed_damage { get; }
-        public double mitigated_damage { get; set; }
-
-        public WeaponAttackType attackType { get; }
-        public MeleeHitOutcome hitOutCome { get; }
-    }
-
-    public class DispelInfo
-    {
-        public DispelInfo(WorldObject dispeller, uint dispellerSpellId, byte chargesRemoved)
-        {
-            _dispeller = dispeller;
-            _dispellerSpell = dispellerSpellId;
-            _chargesRemoved = chargesRemoved;
-        }
-
-        public WorldObject GetDispeller() { return _dispeller; }
-        uint GetDispellerSpellId() { return _dispellerSpell; }
-        public byte GetRemovedCharges() { return _chargesRemoved; }
-        public void SetRemovedCharges(byte amount)
-        {
-            _chargesRemoved = amount;
-        }
-
-        readonly WorldObject _dispeller;
-        readonly uint _dispellerSpell;
-        byte _chargesRemoved;
-    }
-
-    public class SpellPeriodicAuraLogInfo
-    {
-        public SpellPeriodicAuraLogInfo(AuraEffect _auraEff, double _damage, double _originalDamage, double _overDamage, double _absorb, double _resist, double _multiplier, bool _critical)
-        {
-            auraEff = _auraEff;
-            damage = _damage;
-            originalDamage = _originalDamage;
-            overDamage = _overDamage;
-            absorb = _absorb;
-            resist = _resist;
-            multiplier = _multiplier;
-            critical = _critical;
-        }
-
-        public AuraEffect auraEff;
-        public double damage;
-        public double originalDamage;
-        public double overDamage;                                      // overkill/overheal
-        public double absorb;
-        public double resist;
-        public double multiplier;
-        public bool critical;
-    }
-
-    class VisibleAuraSlotCompare : IComparer<AuraApplication>
-    {
-        public int Compare(AuraApplication x, AuraApplication y)
-        {
-            return x.GetSlot().CompareTo(y.GetSlot());
-        }
-    }
-
-    public class DeclinedName
-    {
-        public StringArray name = new(SharedConst.MaxDeclinedNameCases);
-    }
-
-    struct PositionUpdateInfo
-    {
-        public bool Relocated;
-        public bool Turned;
-
-        public void Reset()
-        {
-            Relocated = false;
-            Turned = false;
-        }
-    }
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Unit _owner;
+		readonly ObjectFieldData _objectMask = new();
+		readonly UnitData _unitMask = new();
+
+		public ValuesUpdateForPlayerWithMaskSender(Unit owner)
+		{
+			_owner = owner;
+		}
+
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(_owner.Location.MapId);
+
+			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), player);
+
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
+	}
+
+	public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
+	public bool m_canDualWield;
+	protected float[] CreateStats = new float[(int)Stats.Max];
+	readonly List<AbstractFollower> _followingMe = new();
+
+	readonly MotionMaster _motionMaster;
+	readonly TimeTracker _splineSyncTimer;
+	readonly Dictionary<ReactiveType, uint> _reactiveTimer = new();
+	readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
+
+	// Threat+combat management
+	readonly CombatManager _combatManager;
+	readonly ThreatManager _threatManager;
+	readonly Dictionary<ObjectGuid, uint> _extraAttacksTargets = new();
+	readonly List<Player> _sharedVision = new();
+	readonly MultiMap<uint, uint>[] _spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
+
+	//Auras
+	readonly MultiMap<AuraType, AuraEffect> _modAuras = new();
+	readonly List<Aura> _removedAuras = new();
+	readonly List<AuraApplication> _interruptableAuras = new();                // auras which have interrupt mask applied on unit
+	readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new(); // Used for improve performance of aura state checks on aura apply/remove
+	readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());
+	readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
+	readonly AuraApplicationCollection _appliedAuras = new();
+	readonly AuraCollection _ownedAuras = new();
+	readonly List<Aura> _scAuras = new();
+	readonly DiminishingReturn[] _diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
+	readonly List<AreaTrigger> _areaTrigger = new();
+	readonly double[] _floatStatPosBuff = new double[(int)Stats.Max];
+	readonly double[] _floatStatNegBuff = new double[(int)Stats.Max];
+	MovementForces _movementForces;
+	PositionUpdateInfo _positionUpdateInfo;
+	bool _isCombatDisallowed;
+
+	uint _lastExtraAttackSpell;
+	ObjectGuid _lastDamagedTargetGuid;
+	Unit _charmer; // Unit that is charming ME
+	Unit _charmed; // Unit that is being charmed BY ME
+	CharmInfo _charmInfo;
+
+	uint _oldFactionId;         // faction before charm
+	bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+	SpellAuraInterruptFlags _interruptMask;
+	SpellAuraInterruptFlags2 _interruptMask2;
+	SpellHistory _spellHistory;
+	uint _removedAurasCount;
+	UnitState _state;
+	bool _canModifyStats;
+	uint _transformSpell;
+	bool _cleanupDone;           // lock made to not add stuff after cleanup before delete
+	bool _duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
+	bool _instantCast;
+
+	bool _playHoverAnim;
+
+	ushort _aiAnimKitId;
+	ushort _movementAnimKitId;
+
+	ushort _meleeAnimKitId;
+
+	//AI
+	protected Stack<IUnitAI> UnitAis { get; set; } = new();
+	protected IUnitAI Ai { get; set; }
+
+	//Movement
+	protected float[] SpeedRate { get; set; } = new float[(int)UnitMoveType.Max];
+	public MoveSpline MoveSpline { get; set; }
+	public uint MovementCounter { get; set; }     //< Incrementing counter used in movement packets
+	protected Unit UnitMovedByMe { get; set; }    // only ever set for players, and only for direct client control
+	protected Player PlayerMovingMe { get; set; } // only set for direct client control (possess effects, vehicles and similar)
+
+	//Combat
+	protected List<Unit> AttackerList { get; set; } = new();
+	protected double[][] WeaponDamage { get; set; } = new double[(int)WeaponAttackType.Max][];
+	internal double[] ModAttackSpeedPct { get; set; } = new double[(int)WeaponAttackType.Max];
+	protected uint[] AttackTimer { get; set; } = new uint[(int)WeaponAttackType.Max];
+
+	protected Unit Attacking { get; set; }
+
+	public double ModMeleeHitChance { get; set; }
+	public double ModRangedHitChance { get; set; }
+	public double ModSpellHitChance { get; set; }
+	public double BaseSpellCritChance { get; set; }
+	public uint RegenTimer { get; set; }
+
+	//Charm
+	public List<Unit> Controlled { get; set; } = new();
+	protected bool ControlledByPlayer { get; set; }
+	public ObjectGuid LastCharmerGuid { get; set; }
+
+	//Spells 
+	protected Dictionary<CurrentSpellTypes, Spell> CurrentSpells { get; set; } = new((int)CurrentSpellTypes.Max);
+	protected int ProcDeep { get; set; }
+	protected double[][] AuraFlatModifiersGroup { get; set; } = new double[(int)UnitMods.End][];
+	protected double[][] AuraPctModifiersGroup { get; set; } = new double[(int)UnitMods.End][];
+
+	//General  
+	public UnitData UnitData { get; set; }
+	protected List<GameObject> GameObjects { get; set; } = new();
+	protected List<DynamicObject> DynamicObjects { get; set; } = new();
+	public ObjectGuid[] SummonSlot { get; set; } = new ObjectGuid[7];
+	public ObjectGuid[] ObjectSlot { get; set; } = new ObjectGuid[4];
+	public UnitTypeMask UnitTypeMask { get; set; }
+	protected LiquidTypeRecord LastLiquid { get; set; }
+	protected DeathState DeathState { get; set; }
+	public Vehicle Vehicle { get; set; }
+	public Vehicle VehicleKit { get; set; }
+	public uint LastSanctuaryTime { get; set; }
+	public SortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
 }

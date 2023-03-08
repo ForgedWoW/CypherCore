@@ -288,8 +288,8 @@ namespace Game.Networking.Packets
             Item = new ItemInstance(item);
             Count = item.GetCount();
             Charges = item.GetSpellCharges();
-            MaxDurability = item.m_itemData.MaxDurability;
-            Durability = item.m_itemData.Durability;
+            MaxDurability = item.ItemData.MaxDurability;
+            Durability = item.ItemData.Durability;
             Unlocked = !item.IsLocked();
 
             for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.MaxInspected; slot++)
@@ -301,7 +301,7 @@ namespace Game.Networking.Packets
             }
 
             byte i = 0;
-            foreach (SocketedGem gemData in item.m_itemData.Gems)
+            foreach (SocketedGem gemData in item.ItemData.Gems)
             {
                 if (gemData.ItemId != 0)
                 {

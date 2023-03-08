@@ -183,7 +183,7 @@ namespace Framework.Dynamic
         // this method executes when the event is triggered
         // return false if event does not want to be deleted
         // e_time is execution time, p_time is update interval
-        public virtual bool Execute(ulong e_time, uint p_time) { return true; }
+        public virtual bool Execute(ulong etime, uint pTime) { return true; }
 
         public virtual bool IsDeletable() { return true; }   // this event can be safely deleted
 
@@ -207,7 +207,7 @@ namespace Framework.Dynamic
             _callback = callback;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             _callback();
             return true;
@@ -231,7 +231,7 @@ namespace Framework.Dynamic
             _event = func;
             _eventSystem = eventSystem;
         }
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             var ts = _event.Invoke();
             if (ts != default)

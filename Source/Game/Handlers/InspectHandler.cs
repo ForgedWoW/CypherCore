@@ -41,8 +41,8 @@ namespace Game
             }
 
             inspectResult.TalentTraits = new TraitInspectInfo();
-            inspectResult.TalentTraits.Config = new TraitConfigPacket(player.GetTraitConfig((int)(uint)player.m_activePlayerData.ActiveCombatTraitConfigID));
-            inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.m_activePlayerData.ActiveCombatTraitConfigID;
+            inspectResult.TalentTraits.Config = new TraitConfigPacket(player.GetTraitConfig((int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID));
+            inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID;
             inspectResult.TalentTraits.Level = (int)player.GetLevel();
 
             Guild guild = Global.GuildMgr.GetGuildById(player.GetGuildId());
@@ -65,11 +65,11 @@ namespace Game
             }
 
             inspectResult.ItemLevel = (int)player.GetAverageItemLevel();
-            inspectResult.LifetimeMaxRank = player.m_activePlayerData.LifetimeMaxRank;
-            inspectResult.TodayHK = player.m_activePlayerData.TodayHonorableKills;
-            inspectResult.YesterdayHK = player.m_activePlayerData.YesterdayHonorableKills;
-            inspectResult.LifetimeHK = player.m_activePlayerData.LifetimeHonorableKills;
-            inspectResult.HonorLevel = player.m_playerData.HonorLevel;
+            inspectResult.LifetimeMaxRank = player.ActivePlayerData.LifetimeMaxRank;
+            inspectResult.TodayHK = player.ActivePlayerData.TodayHonorableKills;
+            inspectResult.YesterdayHK = player.ActivePlayerData.YesterdayHonorableKills;
+            inspectResult.LifetimeHK = player.ActivePlayerData.LifetimeHonorableKills;
+            inspectResult.HonorLevel = player.PlayerData.HonorLevel;
 
             SendPacket(inspectResult);
         }

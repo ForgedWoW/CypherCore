@@ -82,7 +82,7 @@ namespace Game.Chat
             CreatureTemplate cInfo = target.GetCreatureTemplate();
 
             uint faction = target.GetFaction();
-            ulong npcflags = (ulong)target.m_unitData.NpcFlags[1] << 32 | target.m_unitData.NpcFlags[0];
+            ulong npcflags = (ulong)target.UnitData.NpcFlags[1] << 32 | target.UnitData.NpcFlags[0];
             ulong mechanicImmuneMask = cInfo.MechanicImmuneMask;
             uint displayid = target.GetDisplayId();
             uint nativeid = target.GetNativeDisplayId();
@@ -107,17 +107,17 @@ namespace Game.Chat
             handler.SendSysMessage(CypherStrings.NpcinfoHealth, target.GetCreateHealth(), target.GetMaxHealth(), target.GetHealth());
             handler.SendSysMessage(CypherStrings.NpcinfoMovementData, target.GetMovementTemplate().ToString());
 
-            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags, (uint)target.m_unitData.Flags);
+            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags, (uint)target.UnitData.Flags);
             foreach (UnitFlags value in Enum.GetValues(typeof(UnitFlags)))
                 if (target.HasUnitFlag(value))
                     handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags)value, value);
 
-            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags2, (uint)target.m_unitData.Flags2);
+            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags2, (uint)target.UnitData.Flags2);
             foreach (UnitFlags2 value in Enum.GetValues(typeof(UnitFlags2)))
                 if (target.HasUnitFlag2(value))
                     handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags2)value, value);
 
-            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags3, (uint)target.m_unitData.Flags3);
+            handler.SendSysMessage(CypherStrings.NpcinfoUnitFieldFlags3, (uint)target.UnitData.Flags3);
             foreach (UnitFlags3 value in Enum.GetValues(typeof(UnitFlags3)))
                 if (target.HasUnitFlag3(value))
                     handler.SendSysMessage("{0} (0x{1:X})", (UnitFlags3)value, value);
@@ -146,7 +146,7 @@ namespace Game.Chat
                 if (cInfo.FlagsExtra.HasAnyFlag((CreatureFlagsExtra)value))
                     handler.SendSysMessage("{0} (0x{1:X})", (CreatureFlagsExtra)value, value);
 
-            handler.SendSysMessage(CypherStrings.NpcinfoNpcFlags, target.m_unitData.NpcFlags[0]);
+            handler.SendSysMessage(CypherStrings.NpcinfoNpcFlags, target.UnitData.NpcFlags[0]);
             foreach (uint value in Enum.GetValues(typeof(NPCFlags)))
                 if (npcflags.HasAnyFlag(value))
                     handler.SendSysMessage("{0} (0x{1:X})", (NPCFlags)value, value);
@@ -180,7 +180,7 @@ namespace Game.Chat
                 return false;
             }
 
-            if (player.Location.GetMapId() != data.MapId)
+            if (player.Location.MapId != data.MapId)
             {
                 handler.SendSysMessage(CypherStrings.CommandCreatureatsamemap, lowguid);
                 return false;
@@ -220,7 +220,7 @@ namespace Game.Chat
             stmt.AddValue(0, player.Location.X);
             stmt.AddValue(1, player.Location.Y);
             stmt.AddValue(2, player.Location.Z);
-            stmt.AddValue(3, player.Location.GetMapId());
+            stmt.AddValue(3, player.Location.MapId);
             stmt.AddValue(4, player.Location.X);
             stmt.AddValue(5, player.Location.Y);
             stmt.AddValue(6, player.Location.Z);
@@ -311,7 +311,7 @@ namespace Game.Chat
                 return false;
             }
 
-            Loot loot = creatureTarget._loot;
+            Loot loot = creatureTarget.Loot;
             if (!creatureTarget.IsDead() || loot == null || loot.IsLooted())
             {
                 handler.SendSysMessage(CypherStrings.CommandNotDeadOrNoLoot, creatureTarget.GetName());
@@ -617,9 +617,9 @@ namespace Game.Chat
                 uint vendor_entry = vendor.GetEntry();
 
                 VendorItem vItem = new();
-                vItem.item = itemId;
-                vItem.maxcount = maxcount;
-                vItem.incrtime = incrtime;
+                vItem.Item = itemId;
+                vItem.Maxcount = maxcount;
+                vItem.Incrtime = incrtime;
                 vItem.ExtendedCost = extendedcost;
                 vItem.Type = ItemVendorType.Item;
 

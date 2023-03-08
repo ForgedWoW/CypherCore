@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.AI;
-using Game.BattleGrounds;
 using Game.Chat;
 using Game.Combat;
 using Game.DataStorage;
@@ -21,4312 +20,5213 @@ using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public partial class Unit : WorldObject
 {
-    public partial class Unit : WorldObject
-    {
-        public Unit(bool isWorldObject) : base(isWorldObject)
-        {
-            MoveSpline = new MoveSpline();
-            i_motionMaster = new MotionMaster(this);
-            m_combatManager = new CombatManager(this);
-            m_threatManager = new ThreatManager(this);
-            _spellHistory = new SpellHistory(this);
-
-            ObjectTypeId = TypeId.Unit;
-            ObjectTypeMask |= TypeMask.Unit;
-            m_updateFlag.MovementUpdate = true;
-
-            m_modAttackSpeedPct = new double[] { 1.0f, 1.0f, 1.0f };
-            m_deathState = DeathState.Alive;
-
-            for (byte i = 0; i < (int)SpellImmunity.Max; ++i)
-                m_spellImmune[i] = new MultiMap<uint, uint>();
-
-            for (byte i = 0; i < (int)UnitMods.End; ++i)
-            {
-                m_auraFlatModifiersGroup[i] = new double[(int)UnitModifierFlatType.End];
-                m_auraFlatModifiersGroup[i][(int)UnitModifierFlatType.Base] = 0.0f;
-                m_auraFlatModifiersGroup[i][(int)UnitModifierFlatType.BasePCTExcludeCreate] = 100.0f;
-                m_auraFlatModifiersGroup[i][(int)UnitModifierFlatType.Total] = 0.0f;
-
-                m_auraPctModifiersGroup[i] = new double[(int)UnitModifierPctType.End];
-                m_auraPctModifiersGroup[i][(int)UnitModifierPctType.Base] = 1.0f;
-                m_auraPctModifiersGroup[i][(int)UnitModifierPctType.Total] = 1.0f;
-            }
-
-            m_auraPctModifiersGroup[(int)UnitMods.DamageOffHand][(int)UnitModifierPctType.Total] = 0.5f;
-
-            foreach (AuraType auraType in Enum.GetValues(typeof(AuraType)))
-                m_modAuras[auraType] = new List<AuraEffect>();
-
-            for (byte i = 0; i < (int)WeaponAttackType.Max; ++i)
-                m_weaponDamage[i] = new double[] { 1.0f, 2.0f };
-
-            if (IsTypeId(TypeId.Player))
-            {
-                ModMeleeHitChance = 7.5f;
-                ModRangedHitChance = 7.5f;
-                ModSpellHitChance = 15.0f;
-            }
-            BaseSpellCritChance = 5;
-
-            for (byte i = 0; i < (int)UnitMoveType.Max; ++i)
-                m_speed_rate[i] = 1.0f;
-
-            m_serverSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-
-            splineSyncTimer = new TimeTracker();
-
-            m_unitData = new UnitData();
-        }
-
-        public override void Dispose()
-        {
-            // set current spells as deletable
-            for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
-            {
-                if (m_currentSpells.ContainsKey(i))
-                {
-                    if (m_currentSpells[i] != null)
-                    {
-                        m_currentSpells[i].SetReferencedFromCurrent(false);
-                        m_currentSpells[i] = null;
-                    }
-                }
-            }
-
-            m_Events.KillAllEvents(true);
-
-            _DeleteRemovedAuras();
-
-            //i_motionMaster = null;
-            m_charmInfo = null;
-            MoveSpline = null;
-            _spellHistory = null;
-
-            /*ASSERT(!m_duringRemoveFromWorld);
-            ASSERT(!m_attacking);
-            ASSERT(m_attackers.empty());
-            ASSERT(m_sharedVision.empty());
-            ASSERT(m_Controlled.empty());
-            ASSERT(m_appliedAuras.empty());
-            ASSERT(m_ownedAuras.empty());
-            ASSERT(m_removedAuras.empty());
-            ASSERT(m_gameObj.empty());
-            ASSERT(m_dynObj.empty());*/
-
-            base.Dispose();
-        }
-
-        public override void Update(uint diff)
-        {
-            // WARNING! Order of execution here is important, do not change.
-            // Spells must be processed with event system BEFORE they go to _UpdateSpells.
-            base.Update(diff);
-
-            if (!IsInWorld)
-                return;
-
-            _UpdateSpells(diff);
-
-            // If this is set during update SetCantProc(false) call is missing somewhere in the code
-            // Having this would prevent spells from being proced, so let's crash
-            Cypher.Assert(m_procDeep == 0);
-
-            m_combatManager.Update(diff);
-
-            _lastDamagedTargetGuid = ObjectGuid.Empty;
-            if (_lastExtraAttackSpell != 0)
-            {
-                while (!extraAttacksTargets.Empty())
-                {
-                    var (targetGuid, count) = extraAttacksTargets.FirstOrDefault();
-                    extraAttacksTargets.Remove(targetGuid);
-
-                    Unit victim = Global.ObjAccessor.GetUnit(this, targetGuid);
-                    if (victim != null)
-                        HandleProcExtraAttackFor(victim, count);
-                }
-                _lastExtraAttackSpell = 0;
-            }
-
-            bool spellPausesCombatTimer(CurrentSpellTypes type)
-            {
-                return GetCurrentSpell(type) != null && GetCurrentSpell(type).GetSpellInfo().HasAttribute(SpellAttr6.DelayCombatTimerDuringCast);
-            }
-
-            if (!spellPausesCombatTimer(CurrentSpellTypes.Generic) && !spellPausesCombatTimer(CurrentSpellTypes.Channeled))
-            {
-                uint base_att = GetAttackTimer(WeaponAttackType.BaseAttack);
-                if (base_att != 0)
-                    SetAttackTimer(WeaponAttackType.BaseAttack, (diff >= base_att ? 0 : base_att - diff));
-
-                uint ranged_att = GetAttackTimer(WeaponAttackType.RangedAttack);
-                if (ranged_att != 0)
-                    SetAttackTimer(WeaponAttackType.RangedAttack, (diff >= ranged_att ? 0 : ranged_att - diff));
-
-                uint off_att = GetAttackTimer(WeaponAttackType.OffAttack);
-                if (off_att != 0)
-                    SetAttackTimer(WeaponAttackType.OffAttack, (diff >= off_att ? 0 : off_att - diff));
-            }
-
-            // update abilities available only for fraction of time
-            UpdateReactives(diff);
-
-            if (IsAlive())
-            {
-                ModifyAuraState(AuraStateType.Wounded20Percent, HealthBelowPct(20));
-                ModifyAuraState(AuraStateType.Wounded25Percent, HealthBelowPct(25));
-                ModifyAuraState(AuraStateType.Wounded35Percent, HealthBelowPct(35));
-                ModifyAuraState(AuraStateType.WoundHealth20_80, HealthBelowPct(20) || HealthAbovePct(80));
-                ModifyAuraState(AuraStateType.Healthy75Percent, HealthAbovePct(75));
-                ModifyAuraState(AuraStateType.WoundHealth35_80, HealthBelowPct(35) || HealthAbovePct(80));
-            }
-
-            UpdateSplineMovement(diff);
-            GetMotionMaster().Update(diff);
-
-            // Wait with the aura interrupts until we have updated our movement generators and position
-            if (IsPlayer())
-                InterruptMovementBasedAuras();
-            else if (!MoveSpline.Finalized())
-                InterruptMovementBasedAuras();
-
-            // All position info based actions have been executed, reset info
-            _positionUpdateInfo.Reset();
-
-            if (HasScheduledAIChange() && (!IsPlayer() || (IsCharmed() && GetCharmerGUID().IsCreature())))
-                UpdateCharmAI();
-
-            RefreshAI();
-        }
-
-        void _UpdateSpells(uint diff)
-        {
-            _spellHistory.Update();
-
-            if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null)
-                _UpdateAutoRepeatSpell();
-
-            for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
-            {
-                if (GetCurrentSpell(i) != null && m_currentSpells[i].GetState() == SpellState.Finished)
-                {
-                    m_currentSpells[i].SetReferencedFromCurrent(false);
-                    m_currentSpells[i] = null;
-                }
-            }
-
-            List<Aura> toRemove = new();
-            foreach (var aura in m_ownedAuras.Auras)
-            {
-                if (aura == null)
-                    continue;
-
-                aura.UpdateOwner(diff, this);
-
-                if (aura.IsExpired())
-                    toRemove.Add(aura);
-
-                if (aura.GetSpellInfo().IsChanneled() &&
-                    aura.GetCasterGUID() != GetGUID() && 
-                    !Global.ObjAccessor.GetWorldObject(this, aura.GetCasterGUID()))
-                    toRemove.Add(aura);
-            }
-
-            // remove expired auras - do that after updates(used in scripts?)
-            foreach (var pair in toRemove)
-                RemoveOwnedAura(pair.GetId(), pair, AuraRemoveMode.Expire);
-
-            foreach (var aura in m_visibleAurasToUpdate.ToArray())
-                aura.ClientUpdate();
-
-            m_visibleAurasToUpdate.Clear();
-
-            _DeleteRemovedAuras();
-
-            if (!m_gameObj.Empty())
-            {
-                for (var i = 0; i < m_gameObj.Count; ++i)
-                {
-                    GameObject go = m_gameObj[i];
-                    if (!go.IsSpawned())
-                    {
-                        go.SetOwnerGUID(ObjectGuid.Empty);
-                        go.SetRespawnTime(0);
-                        go.Delete();
-                        m_gameObj.Remove(go);
-                    }
-                }
-            }
-        }
-
-        public void HandleEmoteCommand(Emote emoteId, Player target = null, uint[] spellVisualKitIds = null, int sequenceVariation = 0)
-        {
-            EmoteMessage packet = new();
-            packet.Guid = GetGUID();
-            packet.EmoteID = (uint)emoteId;
-
-            var emotesEntry = CliDB.EmotesStorage.LookupByKey(emoteId);
-            if (emotesEntry != null && spellVisualKitIds != null)
-                if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
-                    packet.SpellVisualKitIDs.AddRange(spellVisualKitIds);
-
-            packet.SequenceVariation = sequenceVariation;
-
-            if (target != null)
-                target.SendPacket(packet);
-            else
-                SendMessageToSet(packet, true);
-        }
-
-        public void SendDurabilityLoss(Player receiver, uint percent)
-        {
-            DurabilityDamageDeath packet = new();
-            packet.Percent = percent;
-            receiver.SendPacket(packet);
-        }
-
-        public bool IsInDisallowedMountForm()
-        {
-            return IsDisallowedMountForm(GetTransformSpell(), GetShapeshiftForm(), GetDisplayId());
-        }
-
-        public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
-        {
-            SpellInfo transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetMap().GetDifficultyID());
-            if (transformSpellInfo != null)
-                if (transformSpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
-                    return false;
-
-            if (form != 0)
-            {
-                SpellShapeshiftFormRecord shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
-                if (shapeshift == null)
-                    return true;
-
-                if (!shapeshift.Flags.HasAnyFlag(SpellShapeshiftFormFlags.Stance))
-                    return true;
-            }
-            if (displayId == GetNativeDisplayId())
-                return false;
-
-            CreatureDisplayInfoRecord display = CliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
-            if (display == null)
-                return true;
-
-            CreatureDisplayInfoExtraRecord displayExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey(display.ExtendedDisplayInfoID);
-            if (displayExtra == null)
-                return true;
-
-            CreatureModelDataRecord model = CliDB.CreatureModelDataStorage.LookupByKey(display.ModelID);
-            ChrRacesRecord race = CliDB.ChrRacesStorage.LookupByKey(displayExtra.DisplayRaceID);
-
-            if (model != null && !model.GetFlags().HasFlag(CreatureModelDataFlags.CanMountWhileTransformedAsThis))
-                if (race != null && !race.GetFlags().HasFlag(ChrRacesFlag.CanMount))
-                    return true;
-
-            return false;
-        }
-
-        public void SendClearTarget()
-        {
-            BreakTarget breakTarget = new();
-            breakTarget.UnitGUID = GetGUID();
-            SendMessageToSet(breakTarget, false);
-        }
-        public virtual bool IsLoading() { return false; }
-        public bool IsDuringRemoveFromWorld() { return m_duringRemoveFromWorld; }
-
-        //SharedVision
-        public bool HasSharedVision() { return !m_sharedVision.Empty(); }
-        public List<Player> GetSharedVisionList() { return m_sharedVision; }
-
-        public void AddPlayerToVision(Player player)
-        {
-            if (m_sharedVision.Empty())
-            {
-                SetActive(true);
-                SetWorldObject(true);
-            }
-            m_sharedVision.Add(player);
-        }
-
-        // only called in Player.SetSeer
-        public void RemovePlayerFromVision(Player player)
-        {
-            m_sharedVision.Remove(player);
-            if (m_sharedVision.Empty())
-            {
-                SetActive(false);
-                SetWorldObject(false);
-            }
-        }
-
-        public virtual void Talk(string text, ChatMsg msgType, Language language, float textRange, WorldObject target)
-        {
-            var builder = new CustomChatTextBuilder(this, msgType, text, language, target);
-            var localizer = new LocalizedDo(builder);
-            var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
-            Cell.VisitGrid(this, worker, textRange);
-        }
-
-        public virtual void Say(string text, Language language, WorldObject target = null)
-        {
-            Talk(text, ChatMsg.MonsterSay, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
-        }
-
-        public virtual void Yell(string text, Language language = Language.Universal, WorldObject target = null)
-        {
-            Talk(text, ChatMsg.MonsterYell, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
-        }
-
-        public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
-        {
-            Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
-        }
-
-        public virtual void Whisper(string text, Player target, bool isBossWhisper = false)
-        {
-            Whisper(text, Language.Universal, target, isBossWhisper);
-        }
-
-        public virtual void Whisper(string text, Language language, Player target, bool isBossWhisper = false)
-        {
-            if (!target)
-                return;
-
-            Locale locale = target.GetSession().GetSessionDbLocaleIndex();
-            ChatPkt data = new();
-            data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, text, 0, "", locale);
-            target.SendPacket(data);
-        }
-
-        public void Talk(uint textId, ChatMsg msgType, float textRange, WorldObject target)
-        {
-            if (!CliDB.BroadcastTextStorage.ContainsKey(textId))
-            {
-                Log.outError(LogFilter.Unit, "Unit.Talk: `broadcast_text` (Id: {0}) was not found", textId);
-                return;
-            }
-
-            var builder = new BroadcastTextBuilder(this, msgType, textId, GetGender(), target);
-            var localizer = new LocalizedDo(builder);
-            var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
-            Cell.VisitGrid(this, worker, textRange);
-        }
-
-        public virtual void Say(uint textId, WorldObject target = null)
-        {
-            Talk(textId, ChatMsg.MonsterSay, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
-        }
-
-        public virtual void Yell(uint textId, WorldObject target = null)
-        {
-            Talk(textId, ChatMsg.MonsterYell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
-        }
-
-        public virtual void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
-        {
-            Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
-        }
-
-        public virtual void Whisper(uint textId, Player target, bool isBossWhisper = false)
-        {
-            if (!target)
-                return;
-
-            BroadcastTextRecord bct = CliDB.BroadcastTextStorage.LookupByKey(textId);
-            if (bct == null)
-            {
-                Log.outError(LogFilter.Unit, "Unit.Whisper: `broadcast_text` was not {0} found", textId);
-                return;
-            }
-
-            Locale locale = target.GetSession().GetSessionDbLocaleIndex();
-            ChatPkt data = new();
-            data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, GetGender()), 0, "", locale);
-            target.SendPacket(data);
-        }
-
-        public override void UpdateObjectVisibility(bool forced = true)
-        {
-            if (!forced)
-                AddToNotify(NotifyFlags.VisibilityChanged);
-            else
-            {
-                base.UpdateObjectVisibility(true);
-                // call MoveInLineOfSight for nearby creatures
-                AIRelocationNotifier notifier = new(this, GridType.All);
-                Cell.VisitGrid(this, notifier, GetVisibilityRange());
-            }
-        }
-
-        public override void AddToWorld()
-        {
-            base.AddToWorld();
-            i_motionMaster.AddToWorld();
-
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.EnterWorld);
-        }
-
-        public override void RemoveFromWorld()
-        {
-            // cleanup
-
-            if (IsInWorld)
-            {
-                m_duringRemoveFromWorld = true;
-                IUnitAI ai = GetAI();
-                if (ai != null)
-                    ai.OnDespawn();
-
-                if (IsVehicle())
-                    RemoveVehicleKit(true);
-
-                RemoveCharmAuras();
-                RemoveAurasByType(AuraType.BindSight);
-                RemoveNotOwnSingleTargetAuras();
-                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeaveWorld);
-
-                RemoveAllGameObjects();
-                RemoveAllDynObjects();
-                RemoveAllAreaTriggers();
-
-                ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
-                UnsummonAllTotems();
-                RemoveAllControlled();
-
-                RemoveAreaAurasDueToLeaveWorld();
-
-                RemoveAllFollowers();
-
-                if (IsCharmed())
-                    RemoveCharmedBy(null);
-
-                Cypher.Assert(GetCharmedGUID().IsEmpty(), $"Unit {GetEntry()} has charmed guid when removed from world");
-                Cypher.Assert(GetCharmerGUID().IsEmpty(), $"Unit {GetEntry()} has charmer guid when removed from world");
-
-                Unit owner = GetOwner();
-                if (owner != null)
-                {
-                    if (owner.m_Controlled.Contains(this))
-                    {
-                        Log.outFatal(LogFilter.Unit, "Unit {0} is in controlled list of {1} when removed from world", GetEntry(), owner.GetEntry());
-                    }
-                }
-
-                base.RemoveFromWorld();
-                m_duringRemoveFromWorld = false;
-            }
-        }
-
-        public void CleanupBeforeRemoveFromMap(bool finalCleanup)
-        {
-            // This needs to be before RemoveFromWorld to make GetCaster() return a valid for aura removal
-            InterruptNonMeleeSpells(true);
-
-            if (IsInWorld)
-                RemoveFromWorld();
-
-            // A unit may be in removelist and not in world, but it is still in grid
-            // and may have some references during delete
-            RemoveAllAuras();
-            RemoveAllGameObjects();
-
-            if (finalCleanup)
-                m_cleanupDone = true;
-
-            CombatStop();
-        }
-
-        public override void CleanupsBeforeDelete(bool finalCleanup = true)
-        {
-            CleanupBeforeRemoveFromMap(finalCleanup);
-
-            base.CleanupsBeforeDelete(finalCleanup);
-        }
-
-        public void SetTransformSpell(uint spellid) { m_transformSpell = spellid; }
-        public uint GetTransformSpell() { return m_transformSpell; }
-
-        public Vehicle GetVehicleKit() { return VehicleKit; }
-        public Vehicle GetVehicle() { return m_vehicle; }
-        public void SetVehicle(Vehicle vehicle) { m_vehicle = vehicle; }
-        public Unit GetVehicleBase()
-        {
-            return m_vehicle != null ? m_vehicle.GetBase() : null;
-        }
-
-        Unit GetVehicleRoot()
-        {
-            Unit vehicleRoot = GetVehicleBase();
-
-            if (!vehicleRoot)
-                return null;
-
-            for (; ; )
-            {
-                if (!vehicleRoot.GetVehicleBase())
-                    return vehicleRoot;
-
-                vehicleRoot = vehicleRoot.GetVehicleBase();
-            }
-        }
-        
-        public Creature GetVehicleCreatureBase()
-        {
-            Unit veh = GetVehicleBase();
-            if (veh != null)
-            {
-                Creature c = veh.ToCreature();
-                if (c != null)
-                    return c;
-            }
-            return null;
-        }
-        public ITransport GetDirectTransport()
-        {
-            Vehicle veh = GetVehicle();
-            if (veh != null)
-                return veh;
-            return GetTransport();
-        }
-
-        public void _RegisterDynObject(DynamicObject dynObj)
-        {
-            m_dynObj.Add(dynObj);
-            if (IsTypeId(TypeId.Unit) && IsAIEnabled())
-                ToCreature().GetAI().JustRegisteredDynObject(dynObj);
-        }
-
-        public void _UnregisterDynObject(DynamicObject dynObj)
-        {
-            m_dynObj.Remove(dynObj);
-            if (IsTypeId(TypeId.Unit) && IsAIEnabled())
-                ToCreature().GetAI().JustUnregisteredDynObject(dynObj);
-        }
-
-        public DynamicObject GetDynObject(uint spellId)
-        {
-            return GetDynObjects(spellId).FirstOrDefault();
-        }
-
-        List<DynamicObject> GetDynObjects(uint spellId)
-        {
-            List<DynamicObject> dynamicobjects = new();
-            foreach (var obj in m_dynObj)
-                if (obj.GetSpellId() == spellId)
-                    dynamicobjects.Add(obj);
-
-            return dynamicobjects;
-        }
-
-        public void RemoveDynObject(uint spellId)
-        {
-            for (var i = 0; i < m_dynObj.Count; ++i)
-            {
-                var dynObj = m_dynObj[i];
-                if (dynObj.GetSpellId() == spellId)
-                    dynObj.Remove();
-            }
-        }
-
-        public void RemoveAllDynObjects()
-        {
-            while (!m_dynObj.Empty())
-                m_dynObj.First().Remove();
-        }
-
-        public GameObject GetGameObject(uint spellId)
-        {
-            return GetGameObjects(spellId).FirstOrDefault();
-        }
-
-        List<GameObject> GetGameObjects(uint spellId)
-        {
-            List<GameObject> gameobjects = new();
-            foreach (var obj in m_gameObj)
-                if (obj.GetSpellId() == spellId)
-                    gameobjects.Add(obj);
-
-            return gameobjects;
-        }
-
-        public void AddGameObject(GameObject gameObj)
-        {
-            if (gameObj == null || !gameObj.GetOwnerGUID().IsEmpty())
-                return;
-
-            m_gameObj.Add(gameObj);
-            gameObj.SetOwnerGUID(GetGUID());
-
-            if (gameObj.GetSpellId() != 0)
-            {
-                SpellInfo createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.GetSpellId(), GetMap().GetDifficultyID());
-                // Need disable spell use for owner
-                if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
-                    // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-                    GetSpellHistory().StartCooldown(createBySpell, 0, null, true);
-            }
-
-            if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled())
-                ToCreature().GetAI().JustSummonedGameobject(gameObj);
-        }
-
-        public void RemoveGameObject(GameObject gameObj, bool del)
-        {
-            if (gameObj == null || gameObj.GetOwnerGUID() != GetGUID())
-                return;
-
-            gameObj.SetOwnerGUID(ObjectGuid.Empty);
-
-            for (byte i = 0; i < SharedConst.MaxGameObjectSlot; ++i)
-            {
-                if (m_ObjectSlot[i] == gameObj.GetGUID())
-                {
-                    m_ObjectSlot[i].Clear();
-                    break;
-                }
-            }
-
-            // GO created by some spell
-            uint spellid = gameObj.GetSpellId();
-            if (spellid != 0)
-            {
-                RemoveAura(spellid);
-
-                SpellInfo createBySpell = Global.SpellMgr.GetSpellInfo(spellid, GetMap().GetDifficultyID());
-                // Need activate spell use for owner
-                if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
-                    // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
-                    GetSpellHistory().SendCooldownEvent(createBySpell);
-            }
-
-            m_gameObj.Remove(gameObj);
-
-            if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled())
-                ToCreature().GetAI().SummonedGameobjectDespawn(gameObj);
-
-            if (del)
-            {
-                gameObj.SetRespawnTime(0);
-                gameObj.Delete();
-            }
-        }
-
-        public void RemoveGameObject(uint spellid, bool del)
-        {
-            if (m_gameObj.Empty())
-                return;
-
-            for (var i = 0; i < m_gameObj.Count; ++i)
-            {
-                var obj = m_gameObj[i];
-                if (spellid == 0 || obj.GetSpellId() == spellid)
-                {
-                    obj.SetOwnerGUID(ObjectGuid.Empty);
-                    if (del)
-                    {
-                        obj.SetRespawnTime(0);
-                        obj.Delete();
-                    }
-
-                    m_gameObj.Remove(obj);
-                }
-            }
-        }
-
-        public void RemoveAllGameObjects()
-        {
-            // remove references to unit
-            while (!m_gameObj.Empty())
-            {
-                var obj = m_gameObj.First();
-                obj.SetOwnerGUID(ObjectGuid.Empty);
-                obj.SetRespawnTime(0);
-                obj.Delete();
-                m_gameObj.Remove(obj);
-            }
-        }
-
-        public void _RegisterAreaTrigger(AreaTrigger areaTrigger)
-        {
-            m_areaTrigger.Add(areaTrigger);
-            if (IsTypeId(TypeId.Unit) && IsAIEnabled())
-                ToCreature().GetAI().JustRegisteredAreaTrigger(areaTrigger);
-        }
-
-        public void _UnregisterAreaTrigger(AreaTrigger areaTrigger)
-        {
-            m_areaTrigger.Remove(areaTrigger);
-            if (IsTypeId(TypeId.Unit) && IsAIEnabled())
-                ToCreature().GetAI().JustUnregisteredAreaTrigger(areaTrigger);
-        }
-
-        public AreaTrigger GetAreaTrigger(uint spellId)
-        {
-            List<AreaTrigger> areaTriggers = GetAreaTriggers(spellId);
-            return areaTriggers.Empty() ? null : areaTriggers[0];
-        }
-
-        public List<AreaTrigger> GetAreaTriggers(uint spellId)
-        {
-            return m_areaTrigger.Where(trigger => trigger.GetSpellId() == spellId).ToList();
-        }
-
-        public void RemoveAreaTrigger(uint spellId)
-        {
-            if (m_areaTrigger.Empty())
-                return;
-
-            for (var i = 0; i < m_areaTrigger.Count; ++i)
-            {
-                AreaTrigger areaTrigger = m_areaTrigger[i];
-                if (areaTrigger.GetSpellId() == spellId)
-                    areaTrigger.Remove();
-            }
-        }
-
-        public void RemoveAreaTrigger(AuraEffect aurEff)
-        {
-            if (m_areaTrigger.Empty())
-                return;
-
-            foreach (AreaTrigger areaTrigger in m_areaTrigger)
-            {
-                if (areaTrigger.GetAuraEffect() == aurEff)
-                {
-                    areaTrigger.Remove();
-                    break; // There can only be one AreaTrigger per AuraEffect
-                }
-            }
-        }
-
-        public void RemoveAllAreaTriggers()
-        {
-            while (!m_areaTrigger.Empty())
-                m_areaTrigger[0].Remove();
-        }
-
-        public NPCFlags GetNpcFlags() { return (NPCFlags)m_unitData.NpcFlags[0]; }
-        public bool HasNpcFlag(NPCFlags flags) { return (m_unitData.NpcFlags[0] & (uint)flags) != 0; }
-        public void SetNpcFlag(NPCFlags flags) { SetUpdateFieldFlagValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 0), (uint)flags); }
-        public void RemoveNpcFlag(NPCFlags flags) { RemoveUpdateFieldFlagValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 0), (uint)flags); }
-        public void ReplaceAllNpcFlags(NPCFlags flags) { SetUpdateFieldValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 0), (uint)flags); }
-
-        public NPCFlags2 GetNpcFlags2() { return (NPCFlags2)m_unitData.NpcFlags[1]; }
-        public bool HasNpcFlag2(NPCFlags2 flags) { return (m_unitData.NpcFlags[1] & (uint)flags) != 0; }
-        public void SetNpcFlag2(NPCFlags2 flags) { SetUpdateFieldFlagValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 1), (uint)flags); }
-        public void RemoveNpcFlag2(NPCFlags2 flags) { RemoveUpdateFieldFlagValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 1), (uint)flags); }
-        public void ReplaceAllNpcFlags2(NPCFlags2 flags) { SetUpdateFieldValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NpcFlags, 1), (uint)flags); }
-
-        public bool IsVendor() { return HasNpcFlag(NPCFlags.Vendor); }
-        public bool IsTrainer() { return HasNpcFlag(NPCFlags.Trainer); }
-        public bool IsQuestGiver() { return HasNpcFlag(NPCFlags.QuestGiver); }
-        public bool IsGossip() { return HasNpcFlag(NPCFlags.Gossip); }
-        public bool IsTaxi() { return HasNpcFlag(NPCFlags.FlightMaster); }
-        public bool IsGuildMaster() { return HasNpcFlag(NPCFlags.Petitioner); }
-        public bool IsBattleMaster() { return HasNpcFlag(NPCFlags.BattleMaster); }
-        public bool IsBanker() { return HasNpcFlag(NPCFlags.Banker); }
-        public bool IsInnkeeper() { return HasNpcFlag(NPCFlags.Innkeeper); }
-        public bool IsSpiritHealer() { return HasNpcFlag(NPCFlags.SpiritHealer); }
-        public bool IsSpiritGuide() { return HasNpcFlag(NPCFlags.SpiritGuide); }
-        public bool IsTabardDesigner() { return HasNpcFlag(NPCFlags.TabardDesigner); }
-        public bool IsAuctioner() { return HasNpcFlag(NPCFlags.Auctioneer); }
-        public bool IsArmorer() { return HasNpcFlag(NPCFlags.Repair); }
-        public bool IsWildBattlePet() { return HasNpcFlag(NPCFlags.WildBattlePet); }
-        public bool IsServiceProvider()
-        {
-            return HasNpcFlag(NPCFlags.Vendor | NPCFlags.Trainer | NPCFlags.FlightMaster |
-                NPCFlags.Petitioner | NPCFlags.BattleMaster | NPCFlags.Banker |
-                NPCFlags.Innkeeper | NPCFlags.SpiritHealer |
-                NPCFlags.SpiritGuide | NPCFlags.TabardDesigner | NPCFlags.Auctioneer);
-        }
-        public bool IsSpiritService() { return HasNpcFlag(NPCFlags.SpiritHealer | NPCFlags.SpiritGuide); }
-        public bool IsCritter() { return GetCreatureType() == CreatureType.Critter; }
-        public bool IsInFlight() { return HasUnitState(UnitState.InFlight); }
-
-        public bool IsContestedGuard()
-        {
-            var entry = GetFactionTemplateEntry();
-            if (entry != null)
-                return entry.IsContestedGuardFaction();
-
-            return false;
-        }
-
-        public void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.HoverHeight), hoverHeight); }
-
-        public override float GetCollisionHeight()
-        {
-            float scaleMod = GetObjectScale(); // 99% sure about this
-
-            if (IsMounted())
-            {
-                var mountDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetMountDisplayId());
-                if (mountDisplayInfo != null)
-                {
-                    var mountModelData = CliDB.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
-                    if (mountModelData != null)
-                    {
-                        var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetNativeDisplayId());
-                        var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
-                        float collisionHeight = scaleMod * ((mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale) + (modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f));
-                        return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
-                    }
-                }
-            }
-
-            //! Dismounting case - use basic default model data
-            var defaultDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetNativeDisplayId());
-            var defaultModelData = CliDB.CreatureModelDataStorage.LookupByKey(defaultDisplayInfo.ModelID);
-
-            float collisionHeight1 = scaleMod * defaultModelData.CollisionHeight * defaultModelData.ModelScale * defaultDisplayInfo.CreatureModelScale;
-            return collisionHeight1 == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight1;
-        }
-
-        public override string GetDebugInfo()
-        {
-            string str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled()} DeathState: {GetDeathState()} UnitMovementFlags: {GetUnitMovementFlags()} UnitMovementFlags2: {GetUnitMovementFlags2()} Class: {GetClass()}\n" +
-                    $" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {GetCharmedGUID()}\nGetCharmerGUID(): {GetCharmerGUID()}\n{(GetVehicleKit() != null ? GetVehicleKit().GetDebugInfo() : "No vehicle kit")}\n" +
-                    $"m_Controlled size: {m_Controlled.Count}";
-
-            int controlledCount = 0;
-            foreach (Unit controlled in m_Controlled)
-            {
-                ++controlledCount;
-                str += $"\nm_Controlled {controlledCount} : {controlled.GetGUID()}";
-            }
-
-            return str;
-        }
-        
-        public Guardian GetGuardianPet()
-        {
-            ObjectGuid pet_guid = GetPetGUID();
-            if (!pet_guid.IsEmpty())
-            {
-                Creature pet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, pet_guid);
-                if (pet != null)
-                    if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
-                        return (Guardian)pet;
-
-                Log.outFatal(LogFilter.Unit, "Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
-                SetPetGUID(ObjectGuid.Empty);
-            }
-
-            return null;
-        }
-
-        public Creature GetSummonedCreatureByEntry(uint entry)
-        {
-            foreach(var sum in m_SummonSlot)
-            {
-                var cre = ObjectAccessor.GetCreature(this, sum);
-
-                if (cre.GetEntry() == entry) 
-                    return cre;
-            }
-
-            return null;
-        }
-
-
-        public Unit SelectNearbyTarget(Unit exclude = null, float dist = SharedConst.NominalMeleeRange)
-        {
-            bool AddUnit(Unit u)
-            {
-                if (GetVictim() == u)
-                    return false;
-
-                if (exclude == u)
-                    return false;
-
-                // remove not LoS targets
-                if (!IsWithinLOSInMap(u) || u.IsTotem() || u.IsSpiritService() || u.IsCritter())
-                    return false;
-
-                return true;
-            }
-
-            List<Unit> targets = new();
-            var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(this, this, dist, AddUnit);
-            var searcher = new UnitListSearcher(this, targets, u_check, GridType.All);
-            Cell.VisitGrid(this, searcher, dist);
-
-            // no appropriate targets
-            if (targets.Empty())
-                return null;
-
-            // select random
-            return targets.SelectRandom();
-        }
-
-        public Unit SelectNearbyAllyUnit(List<Unit> exclude, float dist = SharedConst.NominalMeleeRange) {
-            List<Unit> targets = new();
-            var u_check = new AnyFriendlyUnitInObjectRangeCheck(this, this, dist);
-            var searcher = new UnitListSearcher(this, targets, u_check, GridType.All);
-            Cell.VisitGrid(this, searcher, dist);
-
-            // no appropriate targets
-            targets.RemoveAll(k => exclude.Contains(k));
-            if (targets.Empty())
-                return null;
-            return targets.SelectRandom();
-        }
-
-        public void EnterVehicle(Unit baseUnit, sbyte seatId = -1)
-        {
-            CastSpellExtraArgs args = new(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle);
-            args.AddSpellMod(SpellValueMod.BasePoint0, seatId + 1);
-            CastSpell(baseUnit, SharedConst.VehicleSpellRideHardcoded, args);
-        }
-
-        public void _EnterVehicle(Vehicle vehicle, sbyte seatId, AuraApplication aurApp)
-        {
-            // Must be called only from aura handler
-            Cypher.Assert(aurApp != null);
-
-            if (!IsAlive() || GetVehicleKit() == vehicle || vehicle.GetBase().IsOnVehicle(this))
-                return;
-
-            if (m_vehicle != null)
-            {
-                if (m_vehicle != vehicle)
-                {
-                    Log.outDebug(LogFilter.Vehicle, "EnterVehicle: {0} exit {1} and enter {2}.", GetEntry(), m_vehicle.GetBase().GetEntry(), vehicle.GetBase().GetEntry());
-                    ExitVehicle();
-                }
-                else if (seatId >= 0 && seatId == GetTransSeat())
-                    return;
-                else
-                {
-                    //Exit the current vehicle because unit will reenter in a new seat.
-                    m_vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID(), aurApp.GetBase());
-                }
-            }
-
-            if (aurApp.HasRemoveMode())
-                return;
-
-            Player player = ToPlayer();
-            if (player != null)
-            {
-                if (vehicle.GetBase().IsTypeId(TypeId.Player) && player.IsInCombat())
-                {
-                    vehicle.GetBase().RemoveAura(aurApp);
-                    return;
-                }
-
-                if (vehicle.GetBase().IsCreature())
-                {
-                    // If a player entered a vehicle that is part of a formation, remove it from said formation
-                    CreatureGroup creatureGroup = vehicle.GetBase().ToCreature().GetFormation();
-                    if (creatureGroup != null)
-                        creatureGroup.RemoveMember(vehicle.GetBase().ToCreature());
-                }
-            }
-
-            Cypher.Assert(!m_vehicle);
-            vehicle.AddVehiclePassenger(this, seatId);
-        }
-
-        public void ChangeSeat(sbyte seatId, bool next = true)
-        {
-            if (m_vehicle == null)
-                return;
-
-            // Don't change if current and new seat are identical
-            if (seatId == GetTransSeat())
-                return;
-
-            var seat = (seatId < 0 ? m_vehicle.GetNextEmptySeat(GetTransSeat(), next) : m_vehicle.Seats.LookupByKey(seatId));
-            // The second part of the check will only return true if seatId >= 0. @Vehicle.GetNextEmptySeat makes sure of that.
-            if (seat == null || !seat.IsEmpty())
-                return;
-
-            AuraEffect rideVehicleEffect = null;
-            var vehicleAuras = m_vehicle.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
-            foreach (var eff in vehicleAuras)
-            {
-                if (eff.GetCasterGUID() != GetGUID())
-                    continue;
-
-                // Make sure there is only one ride vehicle aura on target cast by the unit changing seat
-                Cypher.Assert(rideVehicleEffect == null);
-                rideVehicleEffect = eff;
-            }
-
-            // Unit riding a vehicle must always have control vehicle aura on target
-            Cypher.Assert(rideVehicleEffect != null);
-
-            rideVehicleEffect.ChangeAmount((seatId < 0 ? GetTransSeat() : seatId) + 1);
-        }
-
-        public virtual void ExitVehicle(Position exitPosition = null)
-        {
-            //! This function can be called at upper level code to initialize an exit from the passenger's side.
-            if (m_vehicle == null)
-                return;
-
-            GetVehicleBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID());
-            //! The following call would not even be executed successfully as the
-            //! SPELL_AURA_CONTROL_VEHICLE unapply handler already calls _ExitVehicle without
-            //! specifying an exitposition. The subsequent call below would return on if (!m_vehicle).
-
-            //! To do:
-            //! We need to allow SPELL_AURA_CONTROL_VEHICLE unapply handlers in spellscripts
-            //! to specify exit coordinates and either store those per passenger, or we need to
-            //! init spline movement based on those coordinates in unapply handlers, and
-            //! relocate exiting passengers based on Unit.moveSpline data. Either way,
-            //! Coming Soon(TM)
-        }
-
-        public void _ExitVehicle(Position exitPosition = null)
-        {
-            // It's possible m_vehicle is NULL, when this function is called indirectly from @VehicleJoinEvent.Abort.
-            // In that case it was not possible to add the passenger to the vehicle. The vehicle aura has already been removed
-            // from the target in the aforementioned function and we don't need to do anything else at this point.
-            if (m_vehicle == null)
-                return;
-
-            // This should be done before dismiss, because there may be some aura removal
-            VehicleSeatAddon seatAddon = m_vehicle.GetSeatAddonForSeatOfPassenger(this);
-            Vehicle vehicle = (Vehicle)m_vehicle.RemovePassenger(this);
-
-            if (vehicle == null)
-            {
-                Log.outError(LogFilter.Vehicle, $"RemovePassenger() couldn't remove current unit from vehicle. Debug info: {GetDebugInfo()}");
-                return;
-            }
-
-            Player player = ToPlayer();
-
-            // If the player is on mounted duel and exits the mount, he should immediatly lose the duel
-            if (player && player.duel != null && player.duel.IsMounted)
-                player.DuelComplete(DuelCompleteType.Fled);
-
-            SetControlled(false, UnitState.Root);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
-
-            AddUnitState(UnitState.Move);
-
-            if (player != null)
-                player.SetFallInformation(0, Location.Z);
-
-            Position pos;
-            // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
-            if (exitPosition != null)
-                pos = exitPosition;
-            else
-            {
-                // Set exit position to vehicle position and use the current orientation
-                pos = vehicle.GetBase().Location;
-                pos.                Orientation = Location.Orientation;
-
-                // Change exit position based on seat entry addon data
-                if (seatAddon != null)
-                {
-                    if (seatAddon.ExitParameter == VehicleExitParameters.VehicleExitParamOffset)
-                        pos.RelocateOffset(new Position(seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO));
-                    else if (seatAddon.ExitParameter == VehicleExitParameters.VehicleExitParamDest)
-                        pos.Relocate(new Position(seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO));
-                }
-            }
-
-            var initializer = (MoveSplineInit init) =>
-            {
-                float height = pos.Z + vehicle.GetBase().GetCollisionHeight();
-
-                // Creatures without inhabit type air should begin falling after exiting the vehicle
-                if (IsTypeId(TypeId.Unit) && !CanFly() && height > GetMap().GetWaterOrGroundLevel(GetPhaseShift(), pos.X, pos.Y, pos.Z + vehicle.GetBase().GetCollisionHeight(), ref height))
-                    init.SetFall();
-
-                init.MoveTo(pos.X, pos.Y, height, false);
-                init.SetFacing(pos.Orientation);
-                init.SetTransportExit();
-            };
-
-            GetMotionMaster().LaunchMoveSpline(initializer, EventId.VehicleExit, MovementGeneratorPriority.Highest);
-
-            if (player != null)
-                player.ResummonPetTemporaryUnSummonedIfAny();
-
-            if (vehicle.GetBase().HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.GetBase().IsTypeId(TypeId.Unit))
-                if (((Minion)vehicle.GetBase()).GetOwner() == this)
-                    vehicle.GetBase().ToCreature().DespawnOrUnsummon(vehicle.GetDespawnDelay());
-
-            if (HasUnitTypeMask(UnitTypeMask.Accessory))
-            {
-                // Vehicle just died, we die too
-                if (vehicle.GetBase().GetDeathState() == DeathState.JustDied)
-                    SetDeathState(DeathState.JustDied);
-                // If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
-                else
-                    ToTempSummon().UnSummon(_despawnTime); // Approximation
-            }
-        }
-
-        static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
-
-        void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
-        {
-            bool hasMissile = false;
-            m_Events.ScheduleAbortOnAllMatchingEvents(e =>
-            {
-                Spell spell = Spell.ExtractSpellFromEvent(e);
-                if (spell != null)
-                {
-                    if (spell.GetSpellInfo().Id == spellId)
-                    {
-                        hasMissile = true;
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-
-            if (hasMissile)
-            {
-                MissileCancel packet = new();
-                packet.OwnerGUID = GetGUID();
-                packet.SpellID = spellId;
-                packet.Reverse = reverseMissile;
-                SendMessageToSet(packet, false);
-            }
-        }
-
-        public void UnsummonAllTotems()
-        {
-            for (byte i = 0; i < SharedConst.MaxSummonSlot; ++i)
-            {
-                if (m_SummonSlot[i].IsEmpty())
-                    continue;
-
-                Creature OldTotem = GetMap().GetCreature(m_SummonSlot[i]);
-                if (OldTotem != null)
-                    if (OldTotem.IsSummon())
-                        OldTotem.ToTempSummon().UnSummon();
-            }
-        }
-
-        public bool IsOnVehicle(Unit vehicle)
-        {
-            return m_vehicle != null && m_vehicle == vehicle.GetVehicleKit();
-        }
-
-        public bool IsAIEnabled() { return i_AI != null; }
-
-        public virtual IUnitAI GetAI() { return i_AI; }
-
-        public IUnitAI GetBaseAI() { return i_AI; }
-
-        public bool TryGetAI(out IUnitAI ai) { ai = GetBaseAI(); return ai != null; }
-
-        public bool TryGetCreatureAI(out CreatureAI ai) { ai = GetAI() as CreatureAI; return ai != null; }
-
-        public IUnitAI GetTopAI() { lock (i_AIs) return i_AIs.Count == 0 ? null : i_AIs.Peek(); }
-
-        public void AIUpdateTick(uint diff)
-        {
-            IUnitAI ai = GetAI();
-            if (ai != null)
-            {
-                lock (i_AIs)
-                    ai.UpdateAI(diff);
-            }
-        }
-
-        public void PushAI(IUnitAI newAI)
-        {
-            lock (i_AIs)
-                i_AIs.Push(newAI);
-        }
-
-        public void SetAI(IUnitAI newAI)
-        {
-            PushAI(newAI);
-            RefreshAI();
-        }
-
-        public bool PopAI()
-        {
-            lock (i_AIs)
-                if (i_AIs.Count != 0)
-                {
-                    i_AIs.Pop();
-                    return true;
-                }
-                else
-                    return false;
-        }
-
-        public void RefreshAI()
-        {
-            lock (i_AIs)
-                if (i_AIs.Count == 0)
-                    i_AI = null;
-                else
-                    i_AI = i_AIs.Peek();
-        }
-
-        public void ScheduleAIChange()
-        {
-            bool charmed = IsCharmed();
-
-            if (charmed)
-                PushAI(GetScheduledChangeAI());
-            else
-            {
-                RestoreDisabledAI();
-                PushAI(GetScheduledChangeAI()); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
-            }
-        }
-
-        void RestoreDisabledAI()
-        {
-            // Keep popping the stack until we either reach the bottom or find a valid AI
-            while (PopAI())
-                if (GetTopAI() != null && GetTopAI() is not ScheduledChangeAI)
-                    return;
-        }
-
-        UnitAI GetScheduledChangeAI()
-        {
-            Creature creature = ToCreature();
-            if (creature != null)
-                return new ScheduledChangeAI(creature);
-            else
-                return null;
-        }
-
-        bool HasScheduledAIChange()
-        {
-            IUnitAI ai = GetAI();
-            if (ai != null)
-                return ai is ScheduledChangeAI;
-            else
-                return true;
-        }
-        
-        public bool IsPossessedByPlayer()
-        {
-            return HasUnitState(UnitState.Possessed) && GetCharmerGUID().IsPlayer();
-        }
-        
-        public bool IsPossessing()
-        {
-            Unit u = GetCharmed();
-            if (u != null)
-                return u.IsPossessed();
-            else
-                return false;
-        }
-
-        public bool IsCharmed() { return !GetCharmerGUID().IsEmpty(); }
-
-        public bool IsPossessed() { return HasUnitState(UnitState.Possessed); }
-
-        public virtual void OnPhaseChange() { }
-
-        public uint GetModelForForm(ShapeShiftForm form, uint spellId)
-        {
-            // Hardcoded cases
-            switch (spellId)
-            {
-                case 7090: // Bear Form
-                    return 29414;
-                case 35200: // Roc Form
-                    return 4877;
-                case 24858: // Moonkin Form
-                {
-                    if (HasAura(114301)) // Glyph of Stars
-                        return 0;
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            Player thisPlayer = ToPlayer();
-            if (thisPlayer != null)
-            {
-                Aura artifactAura = GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
-                if (artifactAura != null)
-                {
-                    Item artifact = ToPlayer().GetItemByGuid(artifactAura.GetCastItemGUID());
-                    if (artifact != null)
-                    {
-                        ArtifactAppearanceRecord artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
-                        if (artifactAppearance != null)
-                            if ((ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID == form)
-                                return artifactAppearance.OverrideShapeshiftDisplayID;
-                    }
-                }
-
-                ShapeshiftFormModelData formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(GetRace(), thisPlayer.GetNativeGender(), form);
-                if (formModelData != null)
-                {
-                    bool useRandom = false;
-                    switch (form)
-                    {
-                        case ShapeShiftForm.CatForm:
-                            useRandom = HasAura(210333);
-                            break; // Glyph of the Feral Chameleon
-                        case ShapeShiftForm.TravelForm:
-                            useRandom = HasAura(344336);
-                            break; // Glyph of the Swift Chameleon
-                        case ShapeShiftForm.AquaticForm:
-                            useRandom = HasAura(344338);
-                            break; // Glyph of the Aquatic Chameleon
-                        case ShapeShiftForm.BearForm:
-                            useRandom = HasAura(107059);
-                            break; // Glyph of the Ursol Chameleon
-                        case ShapeShiftForm.FlightFormEpic:
-                        case ShapeShiftForm.FlightForm:
-                            useRandom = HasAura(344342);
-                            break; // Glyph of the Aerial Chameleon
-                        default:
-                            break;
-                    }
-
-                    if (useRandom)
-                    {
-                        List<uint> displayIds = new();
-                        for (var i = 0; i < formModelData.Choices.Count; ++i)
-                        {
-                            ChrCustomizationDisplayInfoRecord displayInfo = formModelData.Displays[i];
-                            if (displayInfo != null)
-                            {
-                                ChrCustomizationReqRecord choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
-                                if (choiceReq == null || thisPlayer.GetSession().MeetsChrCustomizationReq(choiceReq, GetClass(), false, thisPlayer.m_playerData.Customizations))
-                                    displayIds.Add(displayInfo.DisplayID);
-                            }
-                        }
-
-                        if (!displayIds.Empty())
-                            return displayIds.SelectRandom();
-                    }
-                    else
-                    {
-                        uint formChoice = thisPlayer.GetCustomizationChoice(formModelData.OptionID);
-                        if (formChoice != 0)
-                        {
-                            var choiceIndex = formModelData.Choices.FindIndex(choice =>
-                            {
-                                return choice.Id == formChoice;
-                            });
-
-                            if (choiceIndex != -1)
-                            {
-                                ChrCustomizationDisplayInfoRecord displayInfo = formModelData.Displays[choiceIndex];
-                                if (displayInfo != null)
-                                    return displayInfo.DisplayID;
-                            }
-                        }
-                    }
-                }
-                switch (form)
-                {
-                    case ShapeShiftForm.GhostWolf:
-                        if (HasAura(58135)) // Glyph of Spectral Wolf
-                            return 60247;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            uint modelid = 0;
-            SpellShapeshiftFormRecord formEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
-            if (formEntry != null && formEntry.CreatureDisplayID[0] != 0)
-            {
-                // Take the alliance modelid as default
-                if (GetTypeId() != TypeId.Player)
-                    return formEntry.CreatureDisplayID[0];
-                else
-                {
-                    if (Player.TeamForRace(GetRace()) == Team.Alliance)
-                        modelid = formEntry.CreatureDisplayID[0];
-                    else
-                        modelid = formEntry.CreatureDisplayID[1];
-
-                    // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-                    if (modelid == 0 && Player.TeamForRace(GetRace()) == Team.Horde)
-                        modelid = formEntry.CreatureDisplayID[0];
-                }
-            }
-
-            return modelid;
-        }
-
-        public Totem ToTotem() { return IsTotem() ? (this as Totem) : null; }
-        public TempSummon ToTempSummon() { return IsSummon() ? (this as TempSummon) : null; }
-
-        void RemoveAllFollowers()
-        {
-            while (!m_followingMe.Empty())
-                m_followingMe[0].SetTarget(null);
-        }
-
-        public virtual void SetDeathState(DeathState s)
-        {
-            // Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
-            m_deathState = s;
-
-            bool isOnVehicle = GetVehicle() != null;
-
-            if (s != DeathState.Alive && s != DeathState.JustRespawned)
-            {
-                CombatStop();
-
-                if (IsNonMeleeSpellCast(false))
-                    InterruptNonMeleeSpells(false);
-
-                ExitVehicle();                                      // Exit vehicle before calling RemoveAllControlled
-                // vehicles use special type of charm that is not removed by the next function
-                // triggering an assert
-                UnsummonAllTotems();
-                RemoveAllControlled();
-                RemoveAllAurasOnDeath();
-            }
-
-            if (s == DeathState.JustDied)
-            {
-                // remove aurastates allowing special moves
-                ClearAllReactives();
-                m_Diminishing.Clear();
-
-                // Don't clear the movement if the Unit was on a vehicle as we are exiting now
-                if (!isOnVehicle)
-                {
-                    if (GetMotionMaster().StopOnDeath())
-                        DisableSpline();
-                }
-
-                // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
-                // do not why since in IncreaseMaxHealth currenthealth is checked
-                SetHealth(0);
-                SetPower(GetPowerType(), 0);
-                SetEmoteState(Emote.OneshotNone);
-
-                // players in instance don't have ZoneScript, but they have InstanceScript
-                ZoneScript zoneScript = GetZoneScript() != null ? GetZoneScript() : GetInstanceScript();
-                if (zoneScript != null)
-                    zoneScript.OnUnitDeath(this);
-            }
-            else if (s == DeathState.JustRespawned)
-                RemoveUnitFlag(UnitFlags.Skinnable); // clear skinnable for creature and player (at Battleground)
-        }
-
-        public bool IsVisible()
-        {
-            return m_serverSideVisibility.GetValue(ServerSideVisibilityType.GM) <= (uint)AccountTypes.Player;
-        }
-
-        public void SetVisible(bool val)
-        {
-            if (!val)
-                m_serverSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.GameMaster);
-            else
-                m_serverSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
-
-            UpdateObjectVisibility();
-        }
-
-        public bool IsMagnet()
-        {
-            // Grounding Totem
-            if (m_unitData.CreatedBySpell == 8177) /// @todo: find a more generic solution
-                return true;
-
-            return false;
-        }
-
-        public void SetShapeshiftForm(ShapeShiftForm form)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ShapeshiftForm), (byte)form);
-        }
-
-        // creates aura application instance and registers it in lists
-        // aura application effects are handled separately to prevent aura list corruption
-        public AuraApplication _CreateAuraApplication(Aura aura, uint effMask)
-        {
-            // can't apply aura on unit which is going to be deleted - to not create a memory leak
-            Cypher.Assert(!m_cleanupDone);
-            // just return if the aura has been already removed
-            // this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
-            if (aura.IsRemoved())
-            {
-                Log.outError(LogFilter.Spells, $"Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: {GetDebugInfo()}\nAura: {aura.GetDebugInfo()}");
-                return null;
-            }
-
-            // aura mustn't be already applied on target
-            Cypher.Assert(!aura.IsAppliedOnTarget(GetGUID()), "Unit._CreateAuraApplication: aura musn't be applied on target");
-
-            SpellInfo aurSpellInfo = aura.GetSpellInfo();
-
-            // ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
-            if (!IsAlive() && !aurSpellInfo.IsDeathPersistent() &&
-                (!IsTypeId(TypeId.Player) || !ToPlayer().GetSession().PlayerLoading()))
-                return null;
-
-            Unit caster = aura.GetCaster();
-
-            AuraApplication aurApp = new(this, caster, aura, effMask);
-            m_appliedAuras.Add(aurApp);
-
-            if (aurSpellInfo.HasAnyAuraInterruptFlag())
-            {
-                m_interruptableAuras.Add(aurApp);
-                AddInterruptMask(aurSpellInfo.AuraInterruptFlags, aurSpellInfo.AuraInterruptFlags2);
-            }
-
-            AuraStateType aState = aura.GetSpellInfo().GetAuraState();
-            if (aState != 0)
-                m_auraStateAuras.Add(aState, aurApp);
-
-            aura._ApplyForTarget(this, caster, aurApp);
-            return aurApp;
-        }
-
-        bool HasInterruptFlag(SpellAuraInterruptFlags flags) { return m_interruptMask.HasAnyFlag(flags); }
-        bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) { return m_interruptMask2.HasAnyFlag(flags); }
-
-        public void AddInterruptMask(SpellAuraInterruptFlags flags, SpellAuraInterruptFlags2 flags2)
-        {
-            m_interruptMask |= flags;
-            m_interruptMask2 |= flags2;
-        }
-
-        void _UpdateAutoRepeatSpell()
-        {
-            SpellInfo autoRepeatSpellInfo = m_currentSpells[CurrentSpellTypes.AutoRepeat].m_spellInfo;
-
-            // check "realtime" interrupts
-            // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
-            if ((IsMoving() && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).CheckMovement() != SpellCastResult.SpellCastOk) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo.Id == 75))
-            {
-                // cancel wand shoot
-                if (autoRepeatSpellInfo.Id != 75)
-                    InterruptSpell(CurrentSpellTypes.AutoRepeat);
-                return;
-            }
-
-            // castroutine
-            if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).GetState() != SpellState.Preparing)
-            {
-                // Check if able to cast
-                SpellCastResult result = m_currentSpells[CurrentSpellTypes.AutoRepeat].CheckCast(true);
-                if (result != SpellCastResult.SpellCastOk)
-                {
-                    if (autoRepeatSpellInfo.Id != 75)
-                        InterruptSpell(CurrentSpellTypes.AutoRepeat);
-                    else if (GetTypeId() == TypeId.Player)
-                        Spell.SendCastResult(ToPlayer(), autoRepeatSpellInfo, m_currentSpells[CurrentSpellTypes.AutoRepeat].m_SpellVisual, m_currentSpells[CurrentSpellTypes.AutoRepeat].m_castId, result);
-
-                    return;
-                }
-
-                // we want to shoot
-                Spell spell = new(this, autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
-                spell.Prepare(m_currentSpells[CurrentSpellTypes.AutoRepeat].m_targets);
-            }
-        }
-
-        public void UpdateDisplayPower()
-        {
-            PowerType displayPower = PowerType.Mana;
-            switch (GetShapeshiftForm())
-            {
-                case ShapeShiftForm.Ghoul:
-                case ShapeShiftForm.CatForm:
-                    displayPower = PowerType.Energy;
-                    break;
-                case ShapeShiftForm.BearForm:
-                    displayPower = PowerType.Rage;
-                    break;
-                case ShapeShiftForm.TravelForm:
-                case ShapeShiftForm.GhostWolf:
-                    displayPower = PowerType.Mana;
-                    break;
-                default:
-                {
-                    var powerTypeAuras = GetAuraEffectsByType(AuraType.ModPowerDisplay);
-                    if (!powerTypeAuras.Empty())
-                    {
-                        AuraEffect powerTypeAura = powerTypeAuras.First();
-                        displayPower = (PowerType)powerTypeAura.GetMiscValue();
-                    }
-                    else if (GetTypeId() == TypeId.Player)
-                    {
-                        ChrClassesRecord cEntry = CliDB.ChrClassesStorage.LookupByKey(GetClass());
-                        if (cEntry != null && cEntry.DisplayPower < PowerType.Max)
-                            displayPower = cEntry.DisplayPower;
-                    }
-                    else if (GetTypeId() == TypeId.Unit)
-                    {
-                        Vehicle vehicle = GetVehicleKit();
-                        if (vehicle)
-                        {
-                            PowerDisplayRecord powerDisplay = CliDB.PowerDisplayStorage.LookupByKey(vehicle.GetVehicleInfo().PowerDisplayID[0]);
-                            if (powerDisplay != null)
-                                displayPower = (PowerType)powerDisplay.ActualType;
-                            else if (GetClass() == Class.Rogue)
-                                displayPower = PowerType.Energy;
-                        }
-                        else
-                        {
-                            Pet pet = ToPet();
-                            if (pet)
-                            {
-                                if (pet.GetPetType() == PetType.Hunter) // Hunter pets have focus
-                                    displayPower = PowerType.Focus;
-                                else if (pet.IsPetGhoul() || pet.IsPetAbomination()) // DK pets have energy
-                                    displayPower = PowerType.Energy;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-
-            SetPowerType(displayPower);
-        }
-
-        public void SetSheath(SheathState sheathed)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.SheatheState), (byte)sheathed);
-            if (sheathed == SheathState.Unarmed)
-                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Sheathing);
-        }
-
-        public bool IsInFeralForm()
-        {
-            ShapeShiftForm form = GetShapeshiftForm();
-            return form == ShapeShiftForm.CatForm || form == ShapeShiftForm.BearForm || form == ShapeShiftForm.DireBearForm || form == ShapeShiftForm.GhostWolf;
-        }
-        public bool IsControlledByPlayer() { return m_ControlledByPlayer; }
-
-        public bool IsCharmedOwnedByPlayerOrPlayer() { return GetCharmerOrOwnerOrOwnGUID().IsPlayer(); }
-
-        public void FollowerAdded(AbstractFollower f) { m_followingMe.Add(f); }
-        public void FollowerRemoved(AbstractFollower f) { m_followingMe.Remove(f); }
-
-        public uint GetCreatureTypeMask()
-        {
-            uint creatureType = (uint)GetCreatureType();
-            return (uint)(creatureType >= 1 ? (1 << (int)(creatureType - 1)) : 0);
-        }
-
-        public Pet ToPet()
-        {
-            return IsPet() ? (this as Pet) : null;
-        }
-        public MotionMaster GetMotionMaster() { return i_motionMaster; }
-
-        public void PlayOneShotAnimKitId(ushort animKitId)
-        {
-            if (!CliDB.AnimKitStorage.ContainsKey(animKitId))
-            {
-                Log.outError(LogFilter.Unit, "Unit.PlayOneShotAnimKitId using invalid AnimKit ID: {0}", animKitId);
-                return;
-            }
-
-            PlayOneShotAnimKit packet = new();
-            packet.Unit = GetGUID();
-            packet.AnimKitID = animKitId;
-            SendMessageToSet(packet, true);
-        }
-
-        public void SetAIAnimKitId(ushort animKitId)
-        {
-            if (_aiAnimKitId == animKitId)
-                return;
-
-            if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
-                return;
-
-            _aiAnimKitId = animKitId;
-
-            SetAIAnimKit data = new();
-            data.Unit = GetGUID();
-            data.AnimKitID = animKitId;
-            SendMessageToSet(data, true);
-        }
-
-        public override ushort GetAIAnimKitId() { return _aiAnimKitId; }
-
-        public void SetMovementAnimKitId(ushort animKitId)
-        {
-            if (_movementAnimKitId == animKitId)
-                return;
-
-            if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
-                return;
-
-            _movementAnimKitId = animKitId;
-
-            SetMovementAnimKit data = new();
-            data.Unit = GetGUID();
-            data.AnimKitID = animKitId;
-            SendMessageToSet(data, true);
-        }
-
-        public override ushort GetMovementAnimKitId() { return _movementAnimKitId; }
-
-        public void SetMeleeAnimKitId(ushort animKitId)
-        {
-            if (_meleeAnimKitId == animKitId)
-                return;
-
-            if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
-                return;
-
-            _meleeAnimKitId = animKitId;
-
-            SetMeleeAnimKit data = new();
-            data.Unit = GetGUID();
-            data.AnimKitID = animKitId;
-            SendMessageToSet(data, true);
-        }
-
-
-        public bool HasExtraUnitMovementFlag(MovementFlag2 f) 
-        { 
-            return m_movementInfo.HasMovementFlag2(f); 
-        }
-
-        public override ushort GetMeleeAnimKitId() { return _meleeAnimKitId; }
-
-        public uint GetVirtualItemId(int slot)
-        {
-            if (slot >= SharedConst.MaxEquipmentItems)
-                return 0;
-
-            return m_unitData.VirtualItems[slot].ItemID;
-        }
-
-        public ushort GetVirtualItemAppearanceMod(uint slot)
-        {
-            if (slot >= SharedConst.MaxEquipmentItems)
-                return 0;
-
-            return m_unitData.VirtualItems[(int)slot].ItemAppearanceModID;
-        }
-
-        public void SetVirtualItem(uint slot, uint itemId, ushort appearanceModId = 0, ushort itemVisual = 0)
-        {
-            if (slot >= SharedConst.MaxEquipmentItems)
-                return;
-
-            var virtualItemField = m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.VirtualItems, (int)slot);
-            SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemID), itemId);
-            SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemAppearanceModID), appearanceModId);
-            SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemVisual), itemVisual);
-        }
-
-        //Unit
-        public void SetLevel(uint lvl, bool sendUpdate = true)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Level), lvl);
-
-            if (!sendUpdate)
-                return;
-
-            Player player = ToPlayer();
-            if (player != null)
-            {
-                if (player.GetGroup())
-                    player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
-
-                Global.CharacterCacheStorage.UpdateCharacterLevel(ToPlayer().GetGUID(), (byte)lvl);
-            }
-        }
-        public uint GetLevel() { return m_unitData.Level; }
-        public override uint GetLevelForTarget(WorldObject target) { return GetLevel(); }
-
-        public Race GetRace() { return (Race)(byte)m_unitData.Race; }
-        public void SetRace(Race race) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Race), (byte)race); }
-
-        public bool IsAlliedRace()
-        {
-            var player = ToPlayer();
-
-            if (player == null) 
-                return false;
-
-            var race = GetRace();
-            /* pandaren death knight (basically same thing as allied death knight) */
-            if ((race == Race.PandarenAlliance || race == Race.PandarenHorde || race == Race.PandarenNeutral) && GetClass() == Class.Deathknight)
-            {
-                return true;
-            }
-
-            /* other allied races */
-            switch (race)
-            {
-                case Race.Nightborne:
-                case Race.HighmountainTauren:
-                case Race.VoidElf:
-                case Race.LightforgedDraenei:
-                case Race.ZandalariTroll:
-                case Race.KulTiran:
-                case Race.DarkIronDwarf:
-                case Race.Vulpera:
-                case Race.MagharOrc:
-                case Race.MechaGnome:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-
-        public Class GetClass() { return (Class)(byte)m_unitData.ClassId; }
-        public void SetClass(Class classId) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ClassId), (byte)classId); }
-        public uint GetClassMask() { return (uint)(1 << ((int)GetClass() - 1)); }
-        public Gender GetGender() { return (Gender)(byte)m_unitData.Sex; }
-        public void SetGender(Gender sex) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Sex), (byte)sex); }
-
-        public virtual Gender GetNativeGender() { return GetGender();    }
-        public virtual void SetNativeGender(Gender gender) { SetGender(gender); }
-
-        public void RecalculateObjectScale()
-        {
-            var scaleAuras = GetTotalAuraModifier(AuraType.ModScale) + GetTotalAuraModifier(AuraType.ModScale2);
-            var scale = GetNativeObjectScale() + MathFunctions.CalculatePct(1.0f, scaleAuras);
-            var scaleMin = IsPlayer() ? 0.1f : 0.01f;
-            SetObjectScale((float)Math.Max(scale, scaleMin));
-        }
-
-        public virtual float GetNativeObjectScale() { return 1.0f; }
-        
-        public uint GetDisplayId() { return m_unitData.DisplayID; }
-
-        public virtual void SetDisplayId(uint modelId, float displayScale = 1f)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.DisplayID), modelId);
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.DisplayScale), displayScale);
-            // Set Gender by modelId
-            CreatureModelInfo minfo = Global.ObjectMgr.GetCreatureModelInfo(modelId);
-            if (minfo != null)
-                SetGender((Gender)minfo.gender);
-        }
-
-        public void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false)
-        {
-            AuraEffect handledAura = null;
-            // try to receive model from transform auras
-            var transforms = GetAuraEffectsByType(AuraType.Transform);
-            if (!transforms.Empty())
-            {
-                // iterate over already applied transform auras - from newest to oldest
-                foreach (var eff in transforms)
-                {
-                    AuraApplication aurApp = eff.GetBase().GetApplicationOfTarget(GetGUID());
-                    if (aurApp != null)
-                    {
-                        if (handledAura == null)
-                        {
-                            if (!ignorePositiveAurasPreventingMounting)
-                                handledAura = eff;
-                            else
-                            {
-                                CreatureTemplate ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.GetMiscValue());
-                                if (ci != null)
-                                    if (!IsDisallowedMountForm(eff.GetId(), ShapeShiftForm.None, ObjectManager.ChooseDisplayId(ci).CreatureDisplayID))
-                                        handledAura = eff;
-                            }
-                        }
-
-                        // prefer negative auras
-                        if (!aurApp.IsPositive())
-                        {
-                            handledAura = eff;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            var shapeshiftAura = GetAuraEffectsByType(AuraType.ModShapeshift);
-
-            // transform aura was found
-            if (handledAura != null)
-            {
-                handledAura.HandleEffect(this, AuraEffectHandleModes.SendForClient, true);
-                return;
-            }
-            // we've found shapeshift
-            else if (!shapeshiftAura.Empty()) // we've found shapeshift
-            {
-                // only one such aura possible at a time
-                uint modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura[0].GetId());
-                if (modelId != 0)
-                {
-                    if (!ignorePositiveAurasPreventingMounting || !IsDisallowedMountForm(0, GetShapeshiftForm(), modelId))
-                        SetDisplayId(modelId);
-                    else
-                        SetDisplayId(GetNativeDisplayId());
-                    return;
-                }
-            }
-            // no auras found - set modelid to default
-            SetDisplayId(GetNativeDisplayId());
-        }
-        public uint GetNativeDisplayId() { return m_unitData.NativeDisplayID; }
-        public void SetNativeDisplayId(uint displayId, float displayScale = 1f)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NativeDisplayID), displayId);
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NativeXDisplayScale), displayScale);
-        }
-        public float GetNativeDisplayScale() { return m_unitData.NativeXDisplayScale; }
-
-        public bool IsMounted()
-        {
-            return HasUnitFlag(UnitFlags.Mount);
-        }
-        public uint GetMountDisplayId() { return m_unitData.MountDisplayID; }
-        public void SetMountDisplayId(uint mountDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.MountDisplayID), mountDisplayId); }
-        uint GetCosmeticMountDisplayId() { return m_unitData.CosmeticMountDisplayID; }
-        public void SetCosmeticMountDisplayId(uint mountDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.CosmeticMountDisplayID), mountDisplayId); }
-
-        public virtual float GetFollowAngle() { return MathFunctions.PiOver2; }
-
-        public override ObjectGuid GetOwnerGUID() { return m_unitData.SummonedBy; }
-        public void SetOwnerGUID(ObjectGuid owner)
-        {
-            if (GetOwnerGUID() == owner)
-                return;
-
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.SummonedBy), owner);
-            if (owner.IsEmpty())
-                return;
-
-            // Update owner dependent fields
-            Player player = Global.ObjAccessor.GetPlayer(this, owner);
-            if (player == null || !player.HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
-                return;
-
-            UpdateData udata = new(Location.GetMapId());
-            BuildValuesUpdateBlockForPlayerWithFlag(udata, UpdateFieldFlag.Owner, player);
-            udata.BuildPacket(out UpdateObject packet);
-            player.SendPacket(packet);
-        }
-        public ObjectGuid GetCreatorGUID() { return m_unitData.CreatedBy; }
-        public void SetCreatorGUID(ObjectGuid creator) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.CreatedBy), creator); }
-        public ObjectGuid GetMinionGUID() { return m_unitData.Summon; }
-        public void SetMinionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Summon), guid); }
-        public ObjectGuid GetPetGUID() { return m_SummonSlot[0]; }
-        public void SetPetGUID(ObjectGuid guid) { m_SummonSlot[0] = guid; }
-        public ObjectGuid GetCritterGUID() { return m_unitData.Critter; }
-        public void SetCritterGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Critter), guid); }
-        public ObjectGuid GetBattlePetCompanionGUID() { return m_unitData.BattlePetCompanionGUID; }
-        public void SetBattlePetCompanionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.BattlePetCompanionGUID), guid); }
-        public ObjectGuid GetDemonCreatorGUID() { return m_unitData.DemonCreator; }
-        public void SetDemonCreatorGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.DemonCreator), guid); }
-        
-        public ObjectGuid GetCharmerGUID() { return m_unitData.CharmedBy; }
-
-        public Unit GetCharmer() { return m_charmer; }
-
-        public ObjectGuid GetCharmedGUID() { return m_unitData.Charm; }
-
-        public Unit GetCharmed() { return m_charmed; }
-
-        public override ObjectGuid GetCharmerOrOwnerGUID()
-        {
-            return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID();
-        }
-
-        Player GetControllingPlayer()
-        {
-            ObjectGuid guid = GetCharmerOrOwnerGUID();
-            if (!guid.IsEmpty())
-            {
-                Unit master = Global.ObjAccessor.GetUnit(this, guid);
-                if (master != null)
-                    return master.GetControllingPlayer();
-
-                return null;
-            }
-            else
-                return ToPlayer();
-        }
-
-        public override Unit GetCharmerOrOwner()
-        {
-            return IsCharmed() ? GetCharmer() : GetOwner();
-        }
-
-        public uint GetBattlePetCompanionNameTimestamp() { return m_unitData.BattlePetCompanionNameTimestamp; }
-        public void SetBattlePetCompanionNameTimestamp(uint timestamp) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.BattlePetCompanionNameTimestamp), timestamp); }
-        public uint GetBattlePetCompanionExperience() { return m_unitData.BattlePetCompanionExperience; }
-        public void SetBattlePetCompanionExperience(uint experience) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.BattlePetCompanionExperience), experience); }
-        public uint GetWildBattlePetLevel() { return m_unitData.WildBattlePetLevel; }
-        public void SetWildBattlePetLevel(uint wildBattlePetLevel) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.WildBattlePetLevel), wildBattlePetLevel); }
-
-        public bool HasUnitFlag(UnitFlags flags) { return (m_unitData.Flags & (uint)flags) != 0; }
-        public void SetUnitFlag(UnitFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags), (uint)flags); }
-        public void RemoveUnitFlag(UnitFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags), (uint)flags); }
-        public void ReplaceAllUnitFlags(UnitFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags), (uint)flags); }
-        public bool HasUnitFlag2(UnitFlags2 flags) { return (m_unitData.Flags2 & (uint)flags) != 0; }
-        public void SetUnitFlag2(UnitFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags2), (uint)flags); }
-        public void RemoveUnitFlag2(UnitFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags2), (uint)flags); }
-        public void ReplaceAllUnitFlags2(UnitFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags2), (uint)flags); }
-        public bool HasUnitFlag3(UnitFlags3 flags) { return (m_unitData.Flags3 & (uint)flags) != 0; }
-        public void SetUnitFlag3(UnitFlags3 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags3), (uint)flags); }
-        public void RemoveUnitFlag3(UnitFlags3 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags3), (uint)flags); }
-        public void ReplaceAllUnitFlags3(UnitFlags3 flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.Flags3), (uint)flags); }
-
-        public UnitDynFlags GetDynamicFlags() { return (UnitDynFlags)(uint)m_objectData.DynamicFlags; }
-        public bool HasDynamicFlag(UnitDynFlags flag) { return (m_objectData.DynamicFlags & (uint)flag) != 0; }
-        public void SetDynamicFlag(UnitDynFlags flag) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_objectData).ModifyValue(m_objectData.DynamicFlags), (uint)flag); }
-        public void RemoveDynamicFlag(UnitDynFlags flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_objectData).ModifyValue(m_objectData.DynamicFlags), (uint)flag); }
-        public void ReplaceAllDynamicFlags(UnitDynFlags flag) { SetUpdateFieldValue(m_values.ModifyValue(m_objectData).ModifyValue(m_objectData.DynamicFlags), (uint)flag); }
-
-        public void SetCreatedBySpell(uint spellId) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.CreatedBySpell), spellId); }
-
-        public void SetNameplateAttachToGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.NameplateAttachToGUID), guid); }
-
-        public Emote GetEmoteState() { return (Emote)(int)m_unitData.EmoteState; }
-        public void SetEmoteState(Emote emote) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.EmoteState), (int)emote); }
-
-        public SheathState GetSheath() { return (SheathState)(byte)m_unitData.SheatheState; }
-
-        public UnitPVPStateFlags GetPvpFlags() { return (UnitPVPStateFlags)(byte)m_unitData.PvpFlags; }
-        public bool HasPvpFlag(UnitPVPStateFlags flags) { return (m_unitData.PvpFlags & (uint)flags) != 0; }
-        public void SetPvpFlag(UnitPVPStateFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PvpFlags), (byte)flags); }
-        public void RemovePvpFlag(UnitPVPStateFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PvpFlags), (byte)flags); }
-        public void ReplaceAllPvpFlags(UnitPVPStateFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PvpFlags), (byte)flags); }
-        public bool IsInSanctuary() { return HasPvpFlag(UnitPVPStateFlags.Sanctuary); }
-        public bool IsPvP() { return HasPvpFlag(UnitPVPStateFlags.PvP); }
-        public bool IsFFAPvP() { return HasPvpFlag(UnitPVPStateFlags.FFAPvp); }
-
-        public UnitPetFlags GetPetFlags()
-        {
-            return (UnitPetFlags)(byte)m_unitData.PetFlags;
-        }
-        public bool HasPetFlag(UnitPetFlags flags) { return (m_unitData.PetFlags & (byte)flags) != 0; }
-        public void SetPetFlag(UnitPetFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PetFlags), (byte)flags); }
-        public void RemovePetFlag(UnitPetFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PetFlags), (byte)flags); }
-        public void ReplaceAllPetFlags(UnitPetFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PetFlags), (byte)flags); }
-
-        public void SetPetNumberForClient(uint petNumber) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PetNumber), petNumber); }
-        public void SetPetNameTimestamp(uint timestamp) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.PetNameTimestamp), timestamp); }
-
-        public ShapeShiftForm GetShapeshiftForm() { return (ShapeShiftForm)(byte)m_unitData.ShapeshiftForm; }
-        public CreatureType GetCreatureType()
-        {
-            if (IsTypeId(TypeId.Player))
-            {
-                ShapeShiftForm form = GetShapeshiftForm();
-                var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
-                if (ssEntry != null && ssEntry.CreatureType > 0)
-                    return (CreatureType)ssEntry.CreatureType;
-                else
-                {
-                    var raceEntry = CliDB.ChrRacesStorage.LookupByKey(GetRace());
-                    return  (CreatureType)raceEntry.CreatureType;
-                }
-            }
-            else
-                return ToCreature().GetCreatureTemplate().CreatureType;
-        }
-
-        public void DeMorph()
-        {
-            SetDisplayId(GetNativeDisplayId());
-        }
-
-        public bool HasUnitTypeMask(UnitTypeMask mask) { return Convert.ToBoolean(mask & UnitTypeMask); }
-        public void AddUnitTypeMask(UnitTypeMask mask) { UnitTypeMask |= mask; }
-
-        public bool IsAlive() { return m_deathState == DeathState.Alive; }
-        public bool IsDying() { return m_deathState == DeathState.JustDied; }
-        public bool IsDead() { return (m_deathState == DeathState.Dead || m_deathState == DeathState.Corpse); }
-        public bool IsSummon() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.Summon); }
-        public bool IsGuardian() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.Guardian); }
-        public bool IsPet() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.Pet); }
-        public bool IsHunterPet() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.HunterPet); }
-        public bool IsTotem() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.Totem); }
-        public bool IsVehicle() { return UnitTypeMask.HasAnyFlag(UnitTypeMask.Vehicle); }
-
-        public void AddUnitState(UnitState f)
-        {
-            m_state |= f;
-        }
-        public bool HasUnitState(UnitState f)
-        {
-            return m_state.HasAnyFlag(f);
-        }
-        public void ClearUnitState(UnitState f)
-        {
-            m_state &= ~f;
-        }
-
-        public override bool IsAlwaysVisibleFor(WorldObject seer)
-        {
-            if (base.IsAlwaysVisibleFor(seer))
-                return true;
-
-            // Always seen by owner
-            ObjectGuid guid = GetCharmerOrOwnerGUID();
-            if (!guid.IsEmpty())
-                if (seer.GetGUID() == guid)
-                    return true;
-
-            Player seerPlayer = seer.ToPlayer();
-            if (seerPlayer != null)
-            {
-                Unit owner = GetOwner();
-                if (owner != null)
-                {
-                    Player ownerPlayer = owner.ToPlayer();
-                    if (ownerPlayer)
-                        if (ownerPlayer.IsGroupVisibleFor(seerPlayer))
-                            return true;
-                }
-            }
-
-            return false;
-        }
-
-        public override uint GetFaction() { return m_unitData.FactionTemplate; }
-        public override void SetFaction(uint faction) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.FactionTemplate), faction); }
-
-        public void RestoreFaction()
-        {
-            if (HasAuraType(AuraType.ModFaction))
-            {
-                SetFaction((uint)GetAuraEffectsByType(AuraType.ModFaction).LastOrDefault().GetMiscValue());
-                return;
-            }
-
-            if (IsTypeId(TypeId.Player))
-                ToPlayer().SetFactionForRace(GetRace());
-            else
-            {
-                if (HasUnitTypeMask(UnitTypeMask.Minion))
-                {
-                    Unit owner = GetOwner();
-                    if (owner)
-                    {
-                        SetFaction(owner.GetFaction());
-                        return;
-                    }
-                }
-                CreatureTemplate cinfo = ToCreature().GetCreatureTemplate();
-                if (cinfo != null)  // normal creature
-                    SetFaction(cinfo.Faction);
-            }
-        }
-
-        public bool IsInPartyWith(Unit unit)
-        {
-            if (this == unit)
-                return true;
-
-            Unit u1 = GetCharmerOrOwnerOrSelf();
-            Unit u2 = unit.GetCharmerOrOwnerOrSelf();
-            if (u1 == u2)
-                return true;
-
-            if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
-                return u1.ToPlayer().IsInSameGroupWith(u2.ToPlayer());
-            else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-                (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
-                return true;
-
-            return u1.GetTypeId() == TypeId.Unit && u2.GetTypeId() == TypeId.Unit && u1.GetFaction() == u2.GetFaction();
-        }
-
-        public bool IsInRaidWith(Unit unit)
-        {
-            if (this == unit)
-                return true;
-
-            Unit u1 = GetCharmerOrOwnerOrSelf();
-            Unit u2 = unit.GetCharmerOrOwnerOrSelf();
-            if (u1 == u2)
-                return true;
-
-            if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
-                return u1.ToPlayer().IsInSameRaidWith(u2.ToPlayer());
-            else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-                    (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
-                return true;
-
-            // else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
-            return u1.GetFaction() == u2.GetFaction();
-        }
-
-        public void GetPartyMembers(List<Unit> TagUnitMap)
-        {
-            Unit owner = GetCharmerOrOwnerOrSelf();
-            Group group = null;
-            if (owner.GetTypeId() == TypeId.Player)
-            {
-                group = owner.ToPlayer().GetGroup();
-            }
-
-            if (group != null)
-            {
-                byte subgroup = owner.ToPlayer().GetSubGroup();
-
-                for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
-                {
-                    Player target = refe.GetSource();
-
-                    // IsHostileTo check duel and controlled by enemy
-                    if (target != null && target.IsInMap(owner) && target.GetSubGroup() == subgroup && !IsHostileTo(target))
-                    {
-                        if (target.IsAlive())
-                        {
-                            TagUnitMap.Add(target);
-                        }
-
-                        Guardian pet = target.GetGuardianPet();
-                        if (target.GetGuardianPet())
-                        {
-                            if (pet.IsAlive())
-                            {
-                                TagUnitMap.Add(pet);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if ((owner == this || IsInMap(owner)) && owner.IsAlive())
-                {
-                    TagUnitMap.Add(owner);
-                }
-                Guardian pet = owner.GetGuardianPet();
-                if (owner.GetGuardianPet() != null)
-                {
-                    if ((pet == this || IsInMap(pet)) && pet.IsAlive())
-                    {
-                        TagUnitMap.Add(pet);
-                    }
-                }
-            }
-        }
-
-        public UnitStandStateType GetStandState() { return (UnitStandStateType)(byte)m_unitData.StandState; }
-        public void SetVisFlag(UnitVisFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.VisFlags), (byte)flags); }
-        public void RemoveVisFlag(UnitVisFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.VisFlags), (byte)flags); }
-        public void ReplaceAllVisFlags(UnitVisFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.VisFlags), (byte)flags); }
-
-        public bool IsSitState()
-        {
-            UnitStandStateType s = GetStandState();
-            return
-                s == UnitStandStateType.SitChair || s == UnitStandStateType.SitLowChair ||
-                s == UnitStandStateType.SitMediumChair || s == UnitStandStateType.SitHighChair ||
-                s == UnitStandStateType.Sit;
-        }
-
-        public bool IsStandState()
-        {
-            UnitStandStateType s = GetStandState();
-            return !IsSitState() && s != UnitStandStateType.Sleep && s != UnitStandStateType.Kneel;
-        }
-
-        public void SetStandState(UnitStandStateType state, uint animKitId = 0)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.StandState), (byte)state);
-
-            if (IsStandState())
-                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Standing);
-
-            if (IsTypeId(TypeId.Player))
-            {
-                StandStateUpdate packet = new(state, animKitId);
-                ToPlayer().SendPacket(packet);
-            }
-        }
-
-        public AnimTier GetAnimTier() { return (AnimTier)(byte)m_unitData.AnimTier; }
-        
-        public void SetAnimTier(AnimTier animTier, bool notifyClient = true)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.AnimTier), (byte)animTier);
-
-            if (notifyClient)
-            {
-                SetAnimTier setAnimTier = new();
-                setAnimTier.Unit = GetGUID();
-                setAnimTier.Tier = (int)animTier;
-                SendMessageToSet(setAnimTier, true);
-            }
-        }
-
-        public uint GetChannelSpellId() { return ((UnitChannel)m_unitData.ChannelData).SpellID; }
-        public void SetChannelSpellId(uint channelSpellId)
-        {
-            SetUpdateFieldValue(ref m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelData)._value.SpellID, channelSpellId);
-        }
-        public uint GetChannelSpellXSpellVisualId() { return m_unitData.ChannelData.GetValue().SpellVisual.SpellXSpellVisualID; }
-        public uint GetChannelScriptVisualId() { return m_unitData.ChannelData.GetValue().SpellVisual.ScriptVisualID; }
-        public void SetChannelVisual(SpellCastVisualField channelVisual)
-        {
-            UnitChannel unitChannel = m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelData);
-            SetUpdateFieldValue(ref unitChannel.SpellVisual, channelVisual);
-        }
-        public void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelObjects), guid); }
-        public void SetChannelObject(int slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelObjects, slot), guid); }
-        public void ClearChannelObjects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelObjects)); }
-
-        public void RemoveChannelObject(ObjectGuid guid)
-        {
-            int index = m_unitData.ChannelObjects.FindIndex(guid);
-            if (index >= 0)
-                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(m_unitData).ModifyValue(m_unitData.ChannelObjects), index);
-        }
-
-        public static bool IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo spellInfo = null)
-        {
-            // only physical spells damage gets reduced by armor
-            if ((schoolMask & SpellSchoolMask.Normal) == 0)
-                return false;
-
-            return spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.IgnoreArmor);
-        }
-
-        public override UpdateFieldFlag GetUpdateFieldFlagsFor(Player target)
-        {
-            UpdateFieldFlag flags = UpdateFieldFlag.None;
-            if (target == this || GetOwnerGUID() == target.GetGUID())
-                flags |= UpdateFieldFlag.Owner;
-
-            if (HasDynamicFlag(UnitDynFlags.SpecialInfo))
-                if (HasAuraTypeWithCaster(AuraType.Empathy, target.GetGUID()))
-                    flags |= UpdateFieldFlag.Empath;
-
-            return flags;
-        }
-
-        public override void BuildValuesCreate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
-
-            buffer.WriteUInt8((byte)flags);
-            m_objectData.WriteCreate(buffer, flags, this, target);
-            m_unitData.WriteCreate(buffer, flags, this, target);
-
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteBytes(buffer);
-        }
-
-        public override void BuildValuesUpdate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
-
-            buffer.WriteUInt32(m_values.GetChangedObjectTypeMask());
-            if (m_values.HasChanged(TypeId.Object))
-                m_objectData.WriteUpdate(buffer, flags, this, target);
-
-            if (m_values.HasChanged(TypeId.Unit))
-                m_unitData.WriteUpdate(buffer, flags, this, target);
-
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteBytes(buffer);
-        }
-
-        public override void BuildValuesUpdateWithFlag(WorldPacket data, UpdateFieldFlag flags, Player target)
-        {
-            UpdateMask valuesMask = new(14);
-            valuesMask.Set((int)TypeId.Unit);
-
-            WorldPacket buffer = new();
-
-            UpdateMask mask = new(194);
-            m_unitData.AppendAllowedFieldsMaskForFlag(mask, flags);
-            m_unitData.WriteUpdate(buffer, mask, true, this, target);
-
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteUInt32(valuesMask.GetBlock(0));
-            data.WriteBytes(buffer);
-        }
-
-        public void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedUnitMask, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            UpdateMask valuesMask = new((int)TypeId.Max);
-            if (requestedObjectMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Object);
-
-            m_unitData.FilterDisallowedFieldsMaskForFlag(requestedUnitMask, flags);
-            if (requestedUnitMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Unit);
-
-            WorldPacket buffer = new();
-            buffer.WriteUInt32(valuesMask.GetBlock(0));
-
-            if (valuesMask[(int)TypeId.Object])
-                m_objectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
-
-            if (valuesMask[(int)TypeId.Unit])
-                m_unitData.WriteUpdate(buffer, requestedUnitMask, true, this, target);
-
-            WorldPacket buffer1 = new();
-            buffer1.WriteUInt8((byte)UpdateType.Values);
-            buffer1.WritePackedGuid(GetGUID());
-            buffer1.WriteUInt32(buffer.GetSize());
-            buffer1.WriteBytes(buffer.GetData());
-
-            data.AddUpdateBlock(buffer1);
-        }
-
-        public override void ClearUpdateMask(bool remove)
-        {
-            m_values.ClearChangesMask(m_unitData);
-            base.ClearUpdateMask(remove);
-        }
-
-        public override void DestroyForPlayer(Player target)
-        {
-            Battleground bg = target.GetBattleground();
-            if (bg != null)
-            {
-                if (bg.IsArena())
-                {
-                    DestroyArenaUnit destroyArenaUnit = new();
-                    destroyArenaUnit.Guid = GetGUID();
-                    target.SendPacket(destroyArenaUnit);
-                }
-            }
-
-            base.DestroyForPlayer(target);
-        }
-
-        public bool CanDualWield() { return m_canDualWield; }
-
-        public virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
-
-        public DeathState GetDeathState()
-        {
-            return m_deathState;
-        }
-
-        public bool HaveOffhandWeapon()
-        {
-            if (IsTypeId(TypeId.Player))
-                return ToPlayer().GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
-            else
-                return m_canDualWield;
-        }
-
-        void StartReactiveTimer(ReactiveType reactive) { m_reactiveTimer[reactive] = 4000; }
-
-        public static void DealDamageMods(Unit attacker, Unit victim, ref double damage)
-        {
-            if (victim == null || !victim.IsAlive() || victim.HasUnitState(UnitState.InFlight)
-                || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsInEvadeMode()))
-            {
-                damage = 0;
-            }
-        }
-
-        public static bool CheckEvade(Unit attacker, Unit victim, ref double damage, ref double absorb)
-        {
-            if (victim == null || !victim.IsAlive() || victim.HasUnitState(UnitState.InFlight)
-              || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks()))
-            {
-                absorb += damage;
-                damage = 0;
-                return true;
-            }
-            return false;
-        }
-
-        public static void ScaleDamage(Unit attacker, Unit victim, ref double damage)
-        {
-            if (attacker != null)
-                damage = damage * attacker.GetDamageMultiplierForTarget(victim);
-        }
-
-        public static void DealDamageMods(Unit attacker, Unit victim, ref double damage, ref double absorb)
-        {
-            if (!CheckEvade(attacker, victim, ref damage, ref absorb))
-                ScaleDamage(attacker, victim, ref damage);
-        }
-
-        public static double DealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage = null, DamageEffectType damagetype = DamageEffectType.Direct, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal, SpellInfo spellProto = null, bool durabilityLoss = true)
-        {
-            var damageDone = damage;
-            var damageTaken = damage;
-            if (attacker != null)
-                damageTaken = (damage / victim.GetHealthMultiplierForTarget(attacker));
-
-            // call script hooks
-            {
-                var tmpDamage = damageTaken;
-
-                victim.GetAI()?.DamageTaken(attacker, ref tmpDamage, damagetype, spellProto);
-
-                attacker?.GetAI()?.DamageDealt(victim, ref tmpDamage, damagetype);
-
-                // Hook for OnDamage Event
-                Global.ScriptMgr.ForEach<IUnitOnDamage>(p => p.OnDamage(attacker, victim, ref tmpDamage));
-
-                // if any script modified damage, we need to also apply the same modification to unscaled damage value
-                if (tmpDamage != damageTaken)
-                {
-                    if (attacker)
-                        damageDone = (uint)(tmpDamage * victim.GetHealthMultiplierForTarget(attacker));
-                    else
-                        damageDone = tmpDamage;
-
-                    damageTaken = tmpDamage;
-                }
-            }
-
-            // Signal to pets that their owner was attacked - except when DOT.
-            if (attacker != victim && damagetype != DamageEffectType.DOT)
-            {
-                foreach (Unit controlled in victim.m_Controlled)
-                {
-                    Creature cControlled = controlled.ToCreature();
-                    if (cControlled != null)
-                    {
-                        CreatureAI controlledAI = cControlled.GetAI();
-                        if (controlledAI != null)
-                            controlledAI.OwnerAttackedBy(attacker);
-                    }
-                }
-            }
-            
-            Player player = victim.ToPlayer();
-            if (player != null && player.GetCommandStatus(PlayerCommandStates.God))
-                return 0;
-
-            if (damagetype != DamageEffectType.NoDamage)
-            {
-                // interrupting auras with SpellAuraInterruptFlags.Damage before checking !damage (absorbed damage breaks that type of auras)
-                if (spellProto != null)
-                {
-                    if (!spellProto.HasAttribute(SpellAttr4.ReactiveDamageProc))
-                        victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage, spellProto);
-                }
-                else
-                    victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage);
-
-                if (damageTaken == 0 && damagetype != DamageEffectType.DOT && cleanDamage != null && cleanDamage.absorbed_damage != 0)
-                {
-                    if (victim != attacker && victim.IsPlayer())
-                    {
-                        Spell spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
-                        if (spell != null)
-                            if (spell.GetState() == SpellState.Preparing && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageAbsorb))
-                                victim.InterruptNonMeleeSpells(false);
-                    }
-                }
-
-                // We're going to call functions which can modify content of the list during iteration over it's elements
-                // Let's copy the list so we can prevent iterator invalidation
-                var vCopyDamageCopy = victim.GetAuraEffectsByType(AuraType.ShareDamagePct);
-                // copy damage to casters of this aura
-                foreach (var aura in vCopyDamageCopy)
-                {
-                    // Check if aura was removed during iteration - we don't need to work on such auras
-                    if (!aura.GetBase().IsAppliedOnTarget(victim.GetGUID()))
-                        continue;
-
-                    // check damage school mask
-                    if ((aura.GetMiscValue() & (int)damageSchoolMask) == 0)
-                        continue;
-
-                    Unit shareDamageTarget = aura.GetCaster();
-                    if (shareDamageTarget == null)
-                        continue;
-
-                    SpellInfo spell = aura.GetSpellInfo();
-
-                    var share = MathFunctions.CalculatePct(damageDone, aura.GetAmount());
-
-                    // @todo check packets if damage is done by victim, or by attacker of victim
-                    DealDamageMods(attacker, shareDamageTarget, ref share);
-                    DealDamage(attacker, shareDamageTarget, share, null, DamageEffectType.NoDamage, spell.GetSchoolMask(), spell, false);
-                }
-            }
-
-            // Rage from Damage made (only from direct weapon damage)
-            if (attacker != null && cleanDamage != null && (cleanDamage.attackType == WeaponAttackType.BaseAttack || cleanDamage.attackType == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.GetPowerType() == PowerType.Rage)
-            {
-                uint rage = (uint)(attacker.GetBaseAttackTime(cleanDamage.attackType) / 1000.0f * 1.75f);
-                if (cleanDamage.attackType == WeaponAttackType.OffAttack)
-                    rage /= 2;
-
-                attacker.RewardRage(rage);
-            }
-
-            if (damageDone == 0)
-                return 0;
-
-            uint health = (uint)victim.GetHealth();
-
-            // duel ends when player has 1 or less hp
-            bool duel_hasEnded = false;
-            bool duel_wasMounted = false;
-            if (victim.IsPlayer() && victim.ToPlayer().duel != null && damageTaken >= (health - 1))
-            {
-                if (!attacker)
-                    return 0;
-
-                // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-                if (victim.ToPlayer().duel.Opponent == attacker.GetControllingPlayer())
-                    damageTaken = health - 1;
-
-                duel_hasEnded = true;
-            }
-            else if (victim.IsVehicle() && damageTaken >= (health - 1) && victim.GetCharmer() != null && victim.GetCharmer().IsTypeId(TypeId.Player))
-            {
-                Player victimRider = victim.GetCharmer().ToPlayer();
-                if (victimRider != null && victimRider.duel != null && victimRider.duel.IsMounted)
-                {
-                    if (!attacker)
-                        return 0;
-
-                    // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-                    if (victimRider.duel.Opponent == attacker.GetControllingPlayer())
-                        damageTaken = health - 1;
-
-                    duel_wasMounted = true;
-                    duel_hasEnded = true;
-                }
-            }
-
-            if (attacker != null && attacker != victim)
-            {
-                Player killer = attacker.ToPlayer();
-                if (killer != null)
-                {
-                    // in bg, count dmg if victim is also a player
-                    if (victim.IsPlayer())
-                    {
-                        Battleground bg = killer.GetBattleground();
-                        if (bg != null)
-                            bg.UpdatePlayerScore(killer, ScoreType.DamageDone, (uint)damageDone);
-                    }
-
-                    killer.UpdateCriteria(CriteriaType.DamageDealt, health > damageDone ? damageDone : health, 0, 0, victim);
-                    killer.UpdateCriteria(CriteriaType.HighestDamageDone, damageDone);
-                }
-            }
-
-            if (victim.IsPlayer())
-                victim.ToPlayer().UpdateCriteria(CriteriaType.HighestDamageTaken, damageTaken);
-
-            if (victim.GetTypeId() != TypeId.Player && (!victim.IsControlledByPlayer() || victim.IsVehicle()))
-            {
-                victim.ToCreature().SetTappedBy(attacker);
-
-                if (attacker == null || attacker.IsControlledByPlayer())
-                    victim.ToCreature().LowerPlayerDamageReq(health < damageTaken ? health : damageTaken);
-            }
-
-            bool killed = false;
-            bool skipSettingDeathState = false;
-
-            if (health <= damageTaken)
-            {
-                killed = true;
-
-                if (victim.IsPlayer() && victim != attacker)
-                    victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, health);
-
-                if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.Self && victim.HasAuraType(AuraType.SchoolAbsorbOverkill))
-                {
-                    var vAbsorbOverkill = victim.GetAuraEffectsByType(AuraType.SchoolAbsorbOverkill);
-                    DamageInfo damageInfo = new(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage != null ? cleanDamage.attackType : WeaponAttackType.BaseAttack);
-
-                    foreach (var absorbAurEff in vAbsorbOverkill)
-                    {
-                        Aura baseAura = absorbAurEff.GetBase();
-                        AuraApplication aurApp = baseAura.GetApplicationOfTarget(victim.GetGUID());
-                        if (aurApp == null)
-                            continue;
-
-                        if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
-                            continue;
-
-                        // cannot absorb over limit
-                        if (damageTaken >= victim.CountPctFromMaxHealth(100 + absorbAurEff.GetMiscValueB()))
-                            continue;
-
-                        // get amount which can be still absorbed by the aura
-                        var currentAbsorb = absorbAurEff.GetAmount();
-                        // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
-                        if (currentAbsorb < 0)
-                            currentAbsorb = 0;
-
-                        var tempAbsorb = currentAbsorb;
-
-                        // This aura type is used both by Spirit of Redemption (death not really prevented, must grant all credit immediately) and Cheat Death (death prevented)
-                        // repurpose PreventDefaultAction for this
-                        bool deathFullyPrevented = false;
-
-                        absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref deathFullyPrevented);
-                        currentAbsorb = tempAbsorb;
-
-                        // absorb must be smaller than the damage itself
-                        currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
-                        damageInfo.AbsorbDamage(currentAbsorb);
-
-                        if (deathFullyPrevented)
-                            killed = false;
-
-                        skipSettingDeathState = true;
-
-                        if (currentAbsorb != 0)
-                        {
-                            SpellAbsorbLog absorbLog = new();
-                            absorbLog.Attacker = attacker != null ? attacker.GetGUID() : ObjectGuid.Empty;
-                            absorbLog.Victim = victim.GetGUID();
-                            absorbLog.Caster = baseAura.GetCasterGUID();
-                            absorbLog.AbsorbedSpellID = spellProto != null ? spellProto.Id : 0;
-                            absorbLog.AbsorbSpellID = baseAura.GetId();
-                            absorbLog.Absorbed = (int)currentAbsorb;
-                            absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
-                            absorbLog.LogData.Initialize(victim);
-                            victim.SendCombatLogMessage(absorbLog);
-                        }
-                    }
-
-                    damageTaken = damageInfo.GetDamage();
-                }
-            }
-
-            if (spellProto != null && spellProto.HasAttribute(SpellAttr3.NoDurabilityLoss))
-                durabilityLoss = false;
-
-            if (killed)
-                Kill(attacker, victim, durabilityLoss, skipSettingDeathState);
-            else
-            {
-                if (victim.IsTypeId(TypeId.Player))
-                    victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, damageTaken);
-
-                victim.ModifyHealth(-(int)damageTaken);
-
-                if (damagetype == DamageEffectType.Direct || damagetype == DamageEffectType.SpellDirect)
-                    victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.NonPeriodicDamage, spellProto);
-
-                if (!victim.IsTypeId(TypeId.Player))
-                {
-                    // Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
-                    if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.GetOwnerGUID().IsPlayer() && (spellProto == null || !spellProto.HasAura(AuraType.DamageShield)))
-                        victim.ToCreature().SetLastDamagedTime(GameTime.GetGameTime() + SharedConst.MaxAggroResetTime);
-
-                    if (attacker != null && (spellProto == null || !spellProto.HasAttribute(SpellAttr4.NoHarmfulThreat)))
-                        victim.GetThreatManager().AddThreat(attacker, damageTaken, spellProto);
-                }
-                else                                                // victim is a player
-                {
-                    // random durability for items (HIT TAKEN)
-                    if (durabilityLoss && WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
-                    {
-                        byte slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
-                        victim.ToPlayer().DurabilityPointLossForEquipSlot(slot);
-                    }
-                }
-
-                if (attacker != null && attacker.IsPlayer())
-                {
-                    // random durability for items (HIT DONE)
-                    if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
-                    {
-                        byte slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
-                        attacker.ToPlayer().DurabilityPointLossForEquipSlot(slot);
-                    }
-                }
-
-                if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.DOT)
-                {
-                    if (victim != attacker && (spellProto == null || !(spellProto.HasAttribute(SpellAttr6.NoPushback) || spellProto.HasAttribute(SpellAttr7.NoPushbackOnDamage) || spellProto.HasAttribute(SpellAttr3.TreatAsPeriodic))))
-                    {
-                        Spell spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
-                        if (spell != null)
-                        {
-                            if (spell.GetState() == SpellState.Preparing)
-                            {
-                                bool isCastInterrupted()
-                                {
-                                    if (damageTaken == 0)
-                                        return spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
-
-                                    if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
-                                        return true;
-
-                                    if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
-                                        return true;
-
-                                    return false;
-                                };
-
-                                bool isCastDelayed()
-                                {
-                                    if (damageTaken == 0)
-                                        return false;
-
-                                    if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
-                                        return true;
-
-                                    if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
-                                        return true;
-
-                                    return false;
-                                }
-
-                                if (isCastInterrupted())
-                                    victim.InterruptNonMeleeSpells(false);
-                                else if (isCastDelayed())
-                                    spell.Delayed();
-                            }
-                        }
-                    }
-
-                    if (damageTaken != 0 && victim.IsPlayer())
-                    {
-                        Spell spell1 = victim.GetCurrentSpell(CurrentSpellTypes.Channeled);
-                        if (spell1 != null)
-                            if (spell1.GetState() == SpellState.Casting && spell1.m_spellInfo.HasChannelInterruptFlag(SpellAuraInterruptFlags.DamageChannelDuration))
-                                spell1.DelayedChannel();
-                    }
-                }
-
-                // last damage from duel opponent
-                if (duel_hasEnded)
-                {
-                    Player he = duel_wasMounted ? victim.GetCharmer().ToPlayer() : victim.ToPlayer();
-
-                    Cypher.Assert(he && he.duel != null);
-
-                    if (duel_wasMounted) // In this case victim==mount
-                        victim.SetHealth(1);
-                    else
-                        he.SetHealth(1);
-
-                    he.duel.Opponent.CombatStopWithPets(true);
-                    he.CombatStopWithPets(true);
-
-                    he.CastSpell(he, 7267, true);                  // beg
-                    he.DuelComplete(DuelCompleteType.Won);
-                }
-            }
-
-            // logging uses damageDone
-            if (victim.IsPlayer())
-            {
-                player = victim.ToPlayer();
-                ScriptManager.Instance.ForEach<IPlayerOnTakeDamage>(player.GetClass(), a => a.OnPlayerTakeDamage(player, damageDone, damageSchoolMask));
-            }
-
-            // make player victims stand up automatically
-            if (victim.GetStandState() != 0 && victim.IsPlayer())
-                victim.SetStandState(UnitStandStateType.Stand);
-
-            if (player != null && player.GetPrimarySpecialization() == TalentSpecialization.DruidBear)
-                    victim.SaveDamageHistory(damageDone);
-
-            return damageDone;
-        }
-
-        void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
-        {
-            Unit victim = damageInfo.Target;
-
-            if (!victim.IsAlive() || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks()))
-                return;
-
-            if (damageInfo.TargetState == VictimState.Parry &&
-                (!victim.IsCreature() || victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
-            {
-                // Get attack timers
-                float offtime = victim.GetAttackTimer(WeaponAttackType.OffAttack);
-                float basetime = victim.GetAttackTimer(WeaponAttackType.BaseAttack);
-                // Reduce attack time
-                if (victim.HaveOffhandWeapon() && offtime < basetime)
-                {
-                    float percent20 = victim.GetBaseAttackTime(WeaponAttackType.OffAttack) * 0.20f;
-                    float percent60 = 3.0f * percent20;
-                    if (offtime > percent20 && offtime <= percent60)
-                        victim.SetAttackTimer(WeaponAttackType.OffAttack, (uint)percent20);
-                    else if (offtime > percent60)
-                    {
-                        offtime -= 2.0f * percent20;
-                        victim.SetAttackTimer(WeaponAttackType.OffAttack, (uint)offtime);
-                    }
-                }
-                else
-                {
-                    float percent20 = victim.GetBaseAttackTime(WeaponAttackType.BaseAttack) * 0.20f;
-                    float percent60 = 3.0f * percent20;
-                    if (basetime > percent20 && basetime <= percent60)
-                        victim.SetAttackTimer(WeaponAttackType.BaseAttack, (uint)percent20);
-                    else if (basetime > percent60)
-                    {
-                        basetime -= 2.0f * percent20;
-                        victim.SetAttackTimer(WeaponAttackType.BaseAttack, (uint)basetime);
-                    }
-                }
-            }
-
-            // Call default DealDamage
-            CleanDamage cleanDamage = new(damageInfo.CleanDamage, damageInfo.Absorb, damageInfo.AttackType, damageInfo.HitOutCome);
-            damageInfo.Damage = DealDamage(this, victim, damageInfo.Damage, cleanDamage, DamageEffectType.Direct, (SpellSchoolMask)damageInfo.DamageSchoolMask, null, durabilityLoss);
-
-            // If this is a creature and it attacks from behind it has a probability to daze it's victim
-            if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
-                !IsTypeId(TypeId.Player) && !ToCreature().IsControlledByPlayer() && !victim.Location.HasInArc(MathFunctions.PI, Location)
-                && (victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss()) && !victim.IsVehicle())
-            {
-                // 20% base chance
-                float chance = 20.0f;
-
-                // there is a newbie protection, at level 10 just 7% base chance; assuming linear function
-                if (victim.GetLevel() < 30)
-                    chance = 0.65f * victim.GetLevelForTarget(this) + 0.5f;
-
-                uint victimDefense = victim.GetMaxSkillValueForLevel(this);
-                uint attackerMeleeSkill = GetMaxSkillValueForLevel();
-
-                chance *= attackerMeleeSkill / victimDefense * 0.16f;
-
-                // -probability is between 0% and 40%
-                MathFunctions.RoundToInterval(ref chance, 0.0f, 40.0f);
-
-                if (RandomHelper.randChance(chance))
-                    CastSpell(victim, 1604, true);
-            }
-
-            if (IsTypeId(TypeId.Player))
-            {
-                DamageInfo dmgInfo = new(damageInfo);
-                ToPlayer().CastItemCombatSpell(dmgInfo);
-            }
-
-            // Do effect if any damage done to target
-            if (damageInfo.Damage != 0)
-            {
-                // We're going to call functions which can modify content of the list during iteration over it's elements
-                // Let's copy the list so we can prevent iterator invalidation
-                var vDamageShieldsCopy = victim.GetAuraEffectsByType(AuraType.DamageShield);
-                foreach (var dmgShield in vDamageShieldsCopy)
-                {
-                    SpellInfo spellInfo = dmgShield.GetSpellInfo();
-
-                    // Damage shield can be resisted...
-                    var missInfo = victim.SpellHitResult(this, spellInfo, false);
-                    if (missInfo != SpellMissInfo.None)
-                    {
-                        victim.SendSpellMiss(this, spellInfo.Id, missInfo);
-                        continue;
-                    }
-
-                    // ...or immuned
-                    if (IsImmunedToDamage(spellInfo))
-                    {
-                        victim.SendSpellDamageImmune(this, spellInfo.Id, false);
-                        continue;
-                    }
-
-                    var damage = dmgShield.GetAmount();
-                    Unit caster = dmgShield.GetCaster();
-                    if (caster)
-                    {
-                        damage = caster.SpellDamageBonusDone(this, spellInfo, damage, DamageEffectType.SpellDirect, dmgShield.GetSpellEffectInfo());
-                        damage = SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
-                    }
-
-                    DamageInfo damageInfo1 = new(this, victim, damage, spellInfo, spellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
-                    CalcAbsorbResist(damageInfo1);
-                    damage = damageInfo1.GetDamage();
-
-                    DealDamageMods(victim, this, ref damage);
-
-                    SpellDamageShield damageShield = new();
-                    damageShield.Attacker = victim.GetGUID();
-                    damageShield.Defender = GetGUID();
-                    damageShield.SpellID = spellInfo.Id;
-                    damageShield.TotalDamage = (uint)damage;
-                    damageShield.OriginalDamage = (int)damageInfo.OriginalDamage;
-                    damageShield.OverKill = (uint)Math.Max(damage - GetHealth(), 0);
-                    damageShield.SchoolMask = (uint)spellInfo.SchoolMask;
-                    damageShield.LogAbsorbed = (uint)damageInfo1.GetAbsorb();
-
-                    DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
-                    damageShield.LogData.Initialize(this);
-
-                    victim.SendCombatLogMessage(damageShield);
-                }
-            }
-        }
-
-        public long ModifyHealth(double dval)
-        {
-            return ModifyHealth((long)dval);
-        }
-
-        public long ModifyHealth(long dVal)
-        {
-            long gain = 0;
-
-            if (dVal == 0)
-                return 0;
-
-            long curHealth = (long)GetHealth();
-
-            long val = dVal + curHealth;
-            if (val <= 0)
-            {
-                SetHealth(0);
-                return -curHealth;
-            }
-
-            long maxHealth = (long)GetMaxHealth();
-            if (val < maxHealth)
-            {
-                SetHealth((ulong)val);
-                gain = val - curHealth;
-            }
-            else if (curHealth != maxHealth)
-            {
-                SetHealth((ulong)maxHealth);
-                gain = maxHealth - curHealth;
-            }
-
-            if (dVal < 0)
-            {
-                HealthUpdate packet = new();
-                packet.Guid = GetGUID();
-                packet.Health = GetHealth();
-
-                Player player = GetCharmerOrOwnerPlayerOrPlayerItself();
-                if (player)
-                    player.SendPacket(packet);
-            }
-
-            return gain;
-        }
-
-        public long GetHealthGain(double dVal)
-        {
-            return GetHealthGain((long)dVal);
-        }
-
-        public long GetHealthGain(long dVal)
-        {
-            long gain = 0;
-
-            if (dVal == 0)
-                return 0;
-
-            long curHealth = (long)GetHealth();
-
-            long val = dVal + curHealth;
-            if (val <= 0)
-            {
-                return -curHealth;
-            }
-
-            long maxHealth = (long)GetMaxHealth();
-
-            if (val < maxHealth)
-                gain = dVal;
-            else if (curHealth != maxHealth)
-                gain = maxHealth - curHealth;
-
-            return gain;
-        }
-
-        void TriggerOnHealthChangeAuras(long oldVal, long newVal)
-        {
-            foreach (AuraEffect effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
-            {
-                var triggerHealthPct = effect.GetAmount();
-                uint triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
-                long threshold = CountPctFromMaxHealth(triggerHealthPct);
-
-                switch ((AuraTriggerOnHealthChangeDirection)effect.GetMiscValue())
-                {
-                    case AuraTriggerOnHealthChangeDirection.Above:
-                        if (newVal < threshold || oldVal > threshold)
-                            continue;
-                        break;
-                    case AuraTriggerOnHealthChangeDirection.Below:
-                        if (newVal > threshold || oldVal < threshold)
-                            continue;
-                        break;
-                    default:
-                        break;
-                }
-
-                CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));
-            }
-        }
-
-        public bool IsImmuneToAll() { return IsImmuneToPC() && IsImmuneToNPC(); }
-
-        public void SetImmuneToAll(bool apply, bool keepCombat)
-        {
-            if (apply)
-            {
-                SetUnitFlag(UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
-                ValidateAttackersAndOwnTarget();
-                if (!keepCombat)
-                    m_combatManager.EndAllCombat();
-            }
-            else
-                RemoveUnitFlag(UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
-        }
-
-        public virtual void SetImmuneToAll(bool apply) { SetImmuneToAll(apply, false); }
-
-        public bool IsImmuneToPC() { return HasUnitFlag(UnitFlags.ImmuneToPc); }
-
-        public void SetImmuneToPC(bool apply, bool keepCombat)
-        {
-            if (apply)
-            {
-                SetUnitFlag(UnitFlags.ImmuneToPc);
-                ValidateAttackersAndOwnTarget();
-                if (!keepCombat)
-                {
-                    List<CombatReference> toEnd = new();
-                    foreach (var pair in m_combatManager.GetPvECombatRefs())
-                        if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
-                            toEnd.Add(pair.Value);
-
-                    foreach (var pair in m_combatManager.GetPvPCombatRefs())
-                        if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
-                            toEnd.Add(pair.Value);
-
-                    foreach (CombatReference refe in toEnd)
-                        refe.EndCombat();
-                }
-            }
-            else
-                RemoveUnitFlag(UnitFlags.ImmuneToPc);
-        }
-
-        public virtual void SetImmuneToPC(bool apply) { SetImmuneToPC(apply, false); }
-
-        public bool IsImmuneToNPC() { return HasUnitFlag(UnitFlags.ImmuneToNpc); }
-
-        public void SetImmuneToNPC(bool apply, bool keepCombat)
-        {
-            if (apply)
-            {
-                SetUnitFlag(UnitFlags.ImmuneToNpc);
-                ValidateAttackersAndOwnTarget();
-                if (!keepCombat)
-                {
-                    List<CombatReference> toEnd = new();
-                    foreach (var pair in m_combatManager.GetPvECombatRefs())
-                        if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
-                            toEnd.Add(pair.Value);
-
-                    foreach (var pair in m_combatManager.GetPvPCombatRefs())
-                        if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
-                            toEnd.Add(pair.Value);
-
-                    foreach (CombatReference refe in toEnd)
-                        refe.EndCombat();
-                }
-            }
-            else
-                RemoveUnitFlag(UnitFlags.ImmuneToNpc);
-        }
-
-        public virtual void SetImmuneToNPC(bool apply) { SetImmuneToNPC(apply, false); }
-
-        public virtual float GetBlockPercent(uint attackerLevel) { return 30.0f; }
-
-        void UpdateReactives(uint p_time)
-        {
-            for (ReactiveType reactive = 0; reactive < ReactiveType.Max; ++reactive)
-            {
-                if (!m_reactiveTimer.ContainsKey(reactive))
-                    continue;
-
-                if (m_reactiveTimer[reactive] <= p_time)
-                {
-                    m_reactiveTimer[reactive] = 0;
-
-                    switch (reactive)
-                    {
-                        case ReactiveType.Defense:
-                            if (HasAuraState(AuraStateType.Defensive))
-                                ModifyAuraState(AuraStateType.Defensive, false);
-                            break;
-                        case ReactiveType.Defense2:
-                            if (HasAuraState(AuraStateType.Defensive2))
-                                ModifyAuraState(AuraStateType.Defensive2, false);
-                            break;
-                    }
-                }
-                else
-                {
-                    m_reactiveTimer[reactive] -= p_time;
-                }
-            }
-        }
-
-        public void RewardRage(uint baseRage)
-        {
-            double addRage = baseRage;
-
-            // talent who gave more rage on attack
-            MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
-
-            addRage *= WorldConfig.GetFloatValue(WorldCfg.RatePowerRageIncome);
-
-            ModifyPower(PowerType.Rage, (int)(addRage * 10));
-        }
-
-        public float GetPPMProcChance(uint WeaponSpeed, float PPM, SpellInfo spellProto)
-        {
-            // proc per minute chance calculation
-            if (PPM <= 0)
-                return 0.0f;
-
-            // Apply chance modifer aura
-            if (spellProto != null)
-            {
-                Player modOwner = GetSpellModOwner();
-                if (modOwner != null)
-                    modOwner.ApplySpellMod(spellProto, SpellModOp.ProcFrequency, ref PPM);
-            }
-
-            return (float)Math.Floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
-        }
-
-        public Unit GetNextRandomRaidMemberOrPet(float radius)
-        {
-            Player player = null;
-            if (IsTypeId(TypeId.Player))
-                player = ToPlayer();
-            // Should we enable this also for charmed units?
-            else if (IsTypeId(TypeId.Unit) && IsPet())
-                player = GetOwner().ToPlayer();
-
-            if (player == null)
-                return null;
-            Group group = player.GetGroup();
-            // When there is no group check pet presence
-            if (!group)
-            {
-                // We are pet now, return owner
-                if (player != this)
-                    return IsWithinDistInMap(player, radius) ? player : null;
-                Unit pet = GetGuardianPet();
-                // No pet, no group, nothing to return
-                if (pet == null)
-                    return null;
-                // We are owner now, return pet
-                return IsWithinDistInMap(pet, radius) ? pet : null;
-            }
-
-            List<Unit> nearMembers = new();
-            // reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
-
-            for (GroupReference refe = group.GetFirstMember(); refe != null; refe = refe.Next())
-            {
-                Player target = refe.GetSource();
-                if (target)
-                {
-                    // IsHostileTo check duel and controlled by enemy
-                    if (target != this && IsWithinDistInMap(target, radius) && target.IsAlive() && !IsHostileTo(target))
-                        nearMembers.Add(target);
-
-                    // Push player's pet to vector
-                    Unit pet = target.GetGuardianPet();
-                    if (pet)
-                        if (pet != this && IsWithinDistInMap(pet, radius) && pet.IsAlive() && !IsHostileTo(pet))
-                            nearMembers.Add(pet);
-                }
-            }
-
-            if (nearMembers.Empty())
-                return null;
-
-            int randTarget = RandomHelper.IRand(0, nearMembers.Count - 1);
-            return nearMembers[randTarget];
-        }
-
-        public uint GetComboPoints() { return (uint)GetPower(PowerType.ComboPoints); }
-
-        public void AddComboPoints(sbyte count, Spell spell = null)
-        {
-            if (count == 0)
-                return;
-
-            sbyte comboPoints = (sbyte)(spell != null ? spell.m_comboPointGain : GetPower(PowerType.ComboPoints));
-
-            comboPoints += count;
-
-            if (comboPoints > 5)
-                comboPoints = 5;
-            else if (comboPoints < 0)
-                comboPoints = 0;
-
-            if (!spell)
-                SetPower(PowerType.ComboPoints, comboPoints);
-            else
-                spell.m_comboPointGain = comboPoints;
-        }
-
-        void GainSpellComboPoints(sbyte count)
-        {
-            if (count == 0)
-                return;
-
-            sbyte cp = (sbyte)GetPower(PowerType.ComboPoints);
-
-            cp += count;
-            if (cp > 5) cp = 5;
-            else if (cp < 0) cp = 0;
-
-            SetPower(PowerType.ComboPoints, cp);
-        }
-
-        public void ClearComboPoints()
-        {
-            SetPower(PowerType.ComboPoints, 0);
-        }
-
-        public void ClearAllReactives()
-        {
-            for (ReactiveType i = 0; i < ReactiveType.Max; ++i)
-                m_reactiveTimer[i] = 0;
-
-            if (HasAuraState(AuraStateType.Defensive))
-                ModifyAuraState(AuraStateType.Defensive, false);
-            if (HasAuraState(AuraStateType.Defensive2))
-                ModifyAuraState(AuraStateType.Defensive2, false);
-        }
-
-        public virtual void SetPvP(bool state)
-        {
-            if (state)
-                SetPvpFlag(UnitPVPStateFlags.PvP);
-            else
-                RemovePvpFlag(UnitPVPStateFlags.PvP);
-        }
-
-        static double CalcSpellResistedDamage(Unit attacker, Unit victim, double damage, SpellSchoolMask schoolMask, SpellInfo spellInfo)
-        {
-            // Magic damage, check for resists
-            if (!Convert.ToBoolean(schoolMask & SpellSchoolMask.Magic))
-                return 0;
-
-            // Npcs can have holy resistance
-            if (schoolMask.HasAnyFlag(SpellSchoolMask.Holy) && victim.GetTypeId() != TypeId.Unit)
-                return 0;
-
-            var averageResist = CalculateAverageResistReduction(attacker, schoolMask, victim, spellInfo);
-
-            double[] discreteResistProbability = new double[11];
-            if (averageResist <= 0.1f)
-            {
-                discreteResistProbability[0] = 1.0f - 7.5f * averageResist;
-                discreteResistProbability[1] = 5.0f * averageResist;
-                discreteResistProbability[2] = 2.5f * averageResist;
-            }
-            else
-            {
-                for (uint i = 0; i < 11; ++i)
-                    discreteResistProbability[i] = Math.Max(0.5f - 2.5f * Math.Abs(0.1f * i - averageResist), 0.0f);
-            }
-
-            double roll = RandomHelper.NextDouble();
-            double probabilitySum = 0.0f;
-
-            uint resistance = 0;
-            for (; resistance < 11; ++resistance)
-                if (roll < (probabilitySum += discreteResistProbability[resistance]))
-                    break;
-
-            double damageResisted = damage * resistance / 10f;
-            if (damageResisted > 0.0f) // if any damage was resisted
-            {
-                double ignoredResistance = 0;
-
-                if (attacker != null)
-                    ignoredResistance += attacker.GetTotalAuraModifierByMiscMask(AuraType.ModIgnoreTargetResist, (int)schoolMask);
-
-                ignoredResistance = Math.Min(ignoredResistance, 100);
-                MathFunctions.ApplyPct(ref damageResisted, 100 - ignoredResistance);
-
-                // Spells with melee and magic school mask, decide whether resistance or armor absorb is higher
-                if (spellInfo != null && spellInfo.HasAttribute(SpellCustomAttributes.SchoolmaskNormalWithMagic))
-                {
-                    var damageAfterArmor = CalcArmorReducedDamage(attacker, victim, damage, spellInfo, spellInfo.GetAttackType());
-                    var armorReduction = damage - damageAfterArmor;
-
-                    // pick the lower one, the weakest resistance counts
-                    damageResisted = Math.Min(damageResisted, armorReduction);
-                }
-            }
-
-            damageResisted = Math.Max(damageResisted, 0.0f);
-            return damageResisted;
-        }
-
-        static double CalculateAverageResistReduction(WorldObject caster, SpellSchoolMask schoolMask, Unit victim, SpellInfo spellInfo = null)
-        {
-            double victimResistance = victim.GetResistance(schoolMask);
-
-            if (caster != null)
-            {
-                // pets inherit 100% of masters penetration
-                Player player = caster.GetSpellModOwner();
-                if (player != null)
-                {
-                    victimResistance += player.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)schoolMask);
-                    victimResistance -= player.GetSpellPenetrationItemMod();
-                }
-                else
-                {
-                    Unit unitCaster = caster.ToUnit();
-                    if (unitCaster != null)
-                        victimResistance += unitCaster.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)schoolMask);
-                }
-            }
-
-            // holy resistance exists in pve and comes from level difference, ignore template values
-            if (schoolMask.HasAnyFlag(SpellSchoolMask.Holy))
-                victimResistance = 0.0f;
-
-            // Chaos Bolt exception, ignore all target resistances (unknown attribute?)
-            if (spellInfo != null && spellInfo.SpellFamilyName == SpellFamilyNames.Warlock && spellInfo.Id == 116858)
-                victimResistance = 0.0f;
-
-            victimResistance = Math.Max(victimResistance, 0.0f);
-
-            // level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
-            // gameobject caster -- should it have level based resistance?
-            if (caster != null && !caster.IsGameObject() && (spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.BinarySpell)))
-                victimResistance += Math.Max(((float)victim.GetLevelForTarget(caster) - (float)caster.GetLevelForTarget(victim)) * 5.0f, 0.0f);
-
-            uint bossLevel = 83;
-            float bossResistanceConstant = 510.0f;
-            uint level = caster ? victim.GetLevelForTarget(caster) : victim.GetLevel();
-            float resistanceConstant;
-
-            if (level == bossLevel)
-                resistanceConstant = bossResistanceConstant;
-            else
-                resistanceConstant = level * 5.0f;
-
-            return victimResistance / (victimResistance + resistanceConstant);
-        }
-
-        public static void CalcAbsorbResist(DamageInfo damageInfo, Spell spell = null)
-        {
-            if (!damageInfo.GetVictim() || !damageInfo.GetVictim().IsAlive() || damageInfo.GetDamage() == 0)
-                return;
-
-            var resistedDamage = CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
-
-            // Ignore Absorption Auras
-            double auraAbsorbMod = 0f;
-
-            Unit attacker = damageInfo.GetAttacker();
-            if (attacker != null)
-                auraAbsorbMod = attacker.GetMaxPositiveAuraModifierByMiscMask(AuraType.ModTargetAbsorbSchool, (uint)damageInfo.GetSchoolMask());
-
-            MathFunctions.RoundToInterval(ref auraAbsorbMod, 0.0f, 100.0f);
-
-            var absorbIgnoringDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), auraAbsorbMod);
-            if (spell != null)
-                spell.CallScriptOnResistAbsorbCalculateHandlers(damageInfo, ref resistedDamage, ref absorbIgnoringDamage);
-
-            damageInfo.ResistDamage(resistedDamage);
-
-            // We're going to call functions which can modify content of the list during iteration over it's elements
-            // Let's copy the list so we can prevent iterator invalidation
-            var vSchoolAbsorbCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SchoolAbsorb);
-            vSchoolAbsorbCopy.Sort(new AbsorbAuraOrderPred());
-
-            // absorb without mana cost
-            for (var i = 0; i < vSchoolAbsorbCopy.Count && (damageInfo.GetDamage() > 0); ++i)
-            {
-                var absorbAurEff = vSchoolAbsorbCopy[i];
-
-                // Check if aura was removed during iteration - we don't need to work on such auras
-                AuraApplication aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
-                if (aurApp == null)
-                    continue;
-                if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
-                    continue;
-
-                // get amount which can be still absorbed by the aura
-                var currentAbsorb = absorbAurEff.GetAmount();
-                // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
-                if (currentAbsorb < 0)
-                    currentAbsorb = 0;
-
-                if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
-                    damageInfo.ModifyDamage(-absorbIgnoringDamage);
-
-                var tempAbsorb = currentAbsorb;
-
-                bool defaultPrevented = false;
-
-                absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
-                currentAbsorb = (int)tempAbsorb;
-
-                if (!defaultPrevented)
-                {
-                    // absorb must be smaller than the damage itself
-                    currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
-
-                    damageInfo.AbsorbDamage(currentAbsorb);
-
-                    tempAbsorb = (uint)currentAbsorb;
-                    absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
-
-                    // Check if our aura is using amount to count heal
-                    if (absorbAurEff.GetAmount() >= 0)
-                    {
-                        // Reduce shield amount
-                        absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
-                        // Aura cannot absorb anything more - remove it
-                        if (absorbAurEff.GetAmount() <= 0 && !absorbAurEff.GetBase().GetSpellInfo().HasAttribute(SpellAttr0.Passive))
-                            absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
-                    }
-                }
-
-                if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
-                    damageInfo.ModifyDamage(absorbIgnoringDamage);
-
-                if (currentAbsorb != 0)
-                {
-                    SpellAbsorbLog absorbLog = new();
-                    absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
-                    absorbLog.Victim = damageInfo.GetVictim().GetGUID();
-                    absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
-                    absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
-                    absorbLog.AbsorbSpellID = absorbAurEff.GetId();
-                    absorbLog.Absorbed = (int)currentAbsorb;
-                    absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
-                    absorbLog.LogData.Initialize(damageInfo.GetVictim());
-                    damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
-                }
-            }
-
-            // absorb by mana cost
-            var vManaShieldCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.ManaShield);
-            foreach (var absorbAurEff in vManaShieldCopy)
-            {
-                if (damageInfo.GetDamage() == 0)
-                    break;
-
-                // Check if aura was removed during iteration - we don't need to work on such auras
-                AuraApplication aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
-                if (aurApp == null)
-                    continue;
-                // check damage school mask
-                if (!Convert.ToBoolean(absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
-                    continue;
-
-                // get amount which can be still absorbed by the aura
-                var currentAbsorb = absorbAurEff.GetAmount();
-                // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
-                if (currentAbsorb < 0)
-                    currentAbsorb = 0;
-
-                if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
-                    damageInfo.ModifyDamage(-absorbIgnoringDamage);
-
-                var tempAbsorb = currentAbsorb;
-
-                bool defaultPrevented = false;
-
-                absorbAurEff.GetBase().CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
-                currentAbsorb = (int)tempAbsorb;
-
-                if (!defaultPrevented)
-                {
-                    // absorb must be smaller than the damage itself
-                    currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
-
-                    var manaReduction = currentAbsorb;
-
-                    // lower absorb amount by talents
-                    var manaMultiplier = absorbAurEff.GetSpellEffectInfo().CalcValueMultiplier(absorbAurEff.GetCaster());
-                    if (manaMultiplier != 0)
-                        manaReduction = (int)(manaReduction * manaMultiplier);
-
-                    int manaTaken = -damageInfo.GetVictim().ModifyPower(PowerType.Mana, -manaReduction);
-
-                    // take case when mana has ended up into account
-                    currentAbsorb = currentAbsorb != 0 ? (currentAbsorb * (manaTaken / manaReduction)) : 0;
-
-                    damageInfo.AbsorbDamage((uint)currentAbsorb);
-
-                    tempAbsorb = (uint)currentAbsorb;
-                    absorbAurEff.GetBase().CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
-
-                    // Check if our aura is using amount to count damage
-                    if (absorbAurEff.GetAmount() >= 0)
-                    {
-                        absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
-                        if ((absorbAurEff.GetAmount() <= 0))
-                            absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
-                    }
-                }
-
-                if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
-                    damageInfo.ModifyDamage(absorbIgnoringDamage);
-
-                if (currentAbsorb != 0)
-                {
-                    SpellAbsorbLog absorbLog = new();
-                    absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
-                    absorbLog.Victim = damageInfo.GetVictim().GetGUID();
-                    absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
-                    absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
-                    absorbLog.AbsorbSpellID = absorbAurEff.GetId();
-                    absorbLog.Absorbed = (int)currentAbsorb;
-                    absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
-                    absorbLog.LogData.Initialize(damageInfo.GetVictim());
-                    damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
-                }
-            }
-
-            // split damage auras - only when not damaging self
-            if (damageInfo.GetVictim() != damageInfo.GetAttacker())
-            {
-                // We're going to call functions which can modify content of the list during iteration over it's elements
-                // Let's copy the list so we can prevent iterator invalidation
-                var vSplitDamagePctCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SplitDamagePct);
-                foreach (var itr in vSplitDamagePctCopy)
-                {
-                    if (damageInfo.GetDamage() == 0)
-                        break;
-
-                    // Check if aura was removed during iteration - we don't need to work on such auras
-                    AuraApplication aurApp = itr.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
-                    if (aurApp == null)
-                        continue;
-
-                    // check damage school mask
-                    if (!Convert.ToBoolean(itr.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
-                        continue;
-
-                    // Damage can be splitted only if aura has an alive caster
-                    Unit caster = itr.GetCaster();
-                    if (!caster || (caster == damageInfo.GetVictim()) || !caster.IsInWorld || !caster.IsAlive())
-                        continue;
-
-                    var splitDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), itr.GetAmount());
-
-                    itr.GetBase().CallScriptEffectSplitHandlers(itr, aurApp, damageInfo, ref splitDamage);
-
-                    // absorb must be smaller than the damage itself
-                    splitDamage = MathFunctions.RoundToInterval(ref splitDamage, 0, damageInfo.GetDamage());
-
-                    damageInfo.AbsorbDamage(splitDamage);
-
-                    // check if caster is immune to damage
-                    if (caster.IsImmunedToDamage(damageInfo.GetSchoolMask()))
-                    {
-                        damageInfo.GetVictim().SendSpellMiss(caster, itr.GetSpellInfo().Id, SpellMissInfo.Immune);
-                        continue;
-                    }
-
-                    double split_absorb = 0;
-                    DealDamageMods(damageInfo.GetAttacker(), caster, ref splitDamage, ref split_absorb);
-
-                    SpellNonMeleeDamage log = new(damageInfo.GetAttacker(), caster, itr.GetSpellInfo(), itr.GetBase().GetSpellVisual(), damageInfo.GetSchoolMask(), itr.GetBase().GetCastId());
-                    CleanDamage cleanDamage = new(splitDamage, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
-                    splitDamage = DealDamage(damageInfo.GetAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.GetSchoolMask(), itr.GetSpellInfo(), false);
-                    log.damage = splitDamage;
-                    log.originalDamage = splitDamage;
-                    log.absorb = split_absorb;
-                    log.HitInfo |= (int)SpellHitType.Split;
-
-                    caster.SendSpellNonMeleeDamageLog(log);
-
-                    // break 'Fear' and similar auras
-                    ProcSkillsAndAuras(damageInfo.GetAttacker(), caster, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.TakeHarmfulSpell), ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, damageInfo, null);
-                }
-            }
-        }
-
-        public static void CalcHealAbsorb(HealInfo healInfo)
-        {
-            if (healInfo.GetHeal() == 0)
-                return;
-
-            // Need remove expired auras after
-            bool existExpired = false;
-
-            // absorb without mana cost
-            var vHealAbsorb = healInfo.GetTarget().GetAuraEffectsByType(AuraType.SchoolHealAbsorb);
-            for (var i = 0; i < vHealAbsorb.Count && healInfo.GetHeal() > 0; ++i)
-            {
-                AuraEffect absorbAurEff = vHealAbsorb[i];
-                // Check if aura was removed during iteration - we don't need to work on such auras
-                AuraApplication aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(healInfo.GetTarget().GetGUID());
-                if (aurApp == null)
-                    continue;
-
-                if ((absorbAurEff.GetMiscValue() & (int)healInfo.GetSchoolMask()) == 0)
-                    continue;
-
-                // get amount which can be still absorbed by the aura
-                var currentAbsorb = absorbAurEff.GetAmount();
-                // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
-                if (currentAbsorb < 0)
-                    currentAbsorb = 0;
-
-                var tempAbsorb = currentAbsorb;
-
-                bool defaultPrevented = false;
-
-                absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb, ref defaultPrevented);
-                currentAbsorb = tempAbsorb;
-
-                if (!defaultPrevented)
-                {
-                    // absorb must be smaller than the heal itself
-                    currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, healInfo.GetHeal());
-
-                    healInfo.AbsorbHeal((uint)currentAbsorb);
-
-                    tempAbsorb = currentAbsorb;
-                    absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb);
-
-                    // Check if our aura is using amount to count heal
-                    if (absorbAurEff.GetAmount() >= 0)
-                    {
-                        // Reduce shield amount
-                        absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
-                        // Aura cannot absorb anything more - remove it
-                        if (absorbAurEff.GetAmount() <= 0)
-                            existExpired = true;
-                    }
-                }
-
-                if (currentAbsorb != 0)
-                {
-                    SpellHealAbsorbLog absorbLog = new();
-                    absorbLog.Healer = healInfo.GetHealer() ? healInfo.GetHealer().GetGUID() : ObjectGuid.Empty;
-                    absorbLog.Target = healInfo.GetTarget().GetGUID();
-                    absorbLog.AbsorbCaster = absorbAurEff.GetBase().GetCasterGUID();
-                    absorbLog.AbsorbedSpellID = (int)(healInfo.GetSpellInfo() != null ? healInfo.GetSpellInfo().Id : 0);
-                    absorbLog.AbsorbSpellID = (int)absorbAurEff.GetId();
-                    absorbLog.Absorbed = (int)currentAbsorb;
-                    absorbLog.OriginalHeal = (int)healInfo.GetOriginalHeal();
-                    healInfo.GetTarget().SendMessageToSet(absorbLog, true);
-                }
-            }
-
-            // Remove all expired absorb auras
-            if (existExpired)
-            {
-                for (var i = 0; i < vHealAbsorb.Count;)
-                {
-                    AuraEffect auraEff = vHealAbsorb[i];
-                    ++i;
-                    if (auraEff.GetAmount() <= 0)
-                    {
-                        uint removedAuras = healInfo.GetTarget().m_removedAurasCount;
-                        auraEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
-                        if (removedAuras + 1 < healInfo.GetTarget().m_removedAurasCount)
-                            i = 0;
-                    }
-                }
-            }
-        }
-
-        public static double CalcArmorReducedDamage(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, WeaponAttackType attackType = WeaponAttackType.Max, uint attackerLevel = 0)
-        {
-            double armor = victim.GetArmor();
-
-            if (attacker != null)
-            {
-                armor *= victim.GetArmorMultiplierForTarget(attacker);
-
-                // bypass enemy armor by SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
-                double armorBypassPct = 0;
-                var reductionAuras = victim.GetAuraEffectsByType(AuraType.BypassArmorForCaster);
-                foreach (var eff in reductionAuras)
-                    if (eff.GetCasterGUID() == attacker.GetGUID())
-                        armorBypassPct += eff.GetAmount();
-
-                armor = MathFunctions.CalculatePct(armor, 100 - Math.Min(armorBypassPct, 100));
-
-                // Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
-                armor += attacker.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)SpellSchoolMask.Normal);
-
-                if (spellInfo != null)
-                {
-                    Player modOwner = attacker.GetSpellModOwner();
-                    if (modOwner != null)
-                        modOwner.ApplySpellMod(spellInfo, SpellModOp.TargetResistance, ref armor);
-                }
-
-                var resIgnoreAuras = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
-                foreach (var eff in resIgnoreAuras)
-                {
-                    if (eff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal) && eff.IsAffectingSpell(spellInfo))
-                        armor = (float)Math.Floor(MathFunctions.AddPct(ref armor, -eff.GetAmount()));
-                }
-
-                // Apply Player CR_ARMOR_PENETRATION rating
-                if (attacker.IsPlayer())
-                {
-                    double arpPct = attacker.ToPlayer().GetRatingBonusValue(CombatRating.ArmorPenetration);
-
-                    // no more than 100%
-                    MathFunctions.RoundToInterval(ref arpPct, 0.0f, 100.0f);
-
-                    double maxArmorPen;
-                    if (victim.GetLevelForTarget(attacker) < 60)
-                        maxArmorPen = 400 + 85 * victim.GetLevelForTarget(attacker);
-                    else
-                        maxArmorPen = 400 + 85 * victim.GetLevelForTarget(attacker) + 4.5f * 85 * (victim.GetLevelForTarget(attacker) - 59);
-
-                    // Cap armor penetration to this number
-                    maxArmorPen = Math.Min((armor + maxArmorPen) / 3.0f, armor);
-                    // Figure out how much armor do we ignore
-                    armor -= MathFunctions.CalculatePct(maxArmorPen, arpPct);
-                }
-            }
-
-            if (MathFunctions.fuzzyLe(armor, 0.0f))
-                return damage;
-
-            Class attackerClass = Class.Warrior;
-            if (attacker != null)
-            {
-                attackerLevel = attacker.GetLevelForTarget(victim);
-                attackerClass = attacker.GetClass();
-            }
-
-            // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
-            float armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, attackerClass);
-            if ((armor + armorConstant) == 0)
-                return damage;
-
-            var mitigation = Math.Min(armor / (armor + armorConstant), 0.85f);
-            return Math.Max(damage * (1.0f - mitigation), 0.0f);
-        }
-
-        public double MeleeDamageBonusDone(Unit victim, double damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo spellProto = null, SpellEffectInfo spellEffectInfo = null, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal)
-        {
-            if (victim == null || damage == 0)
-                return 0;
-
-            uint creatureTypeMask = victim.GetCreatureTypeMask();
-
-            // Done fixed damage bonus auras
-            double DoneFlatBenefit = 0;
-
-            // ..done
-            DoneFlatBenefit += GetTotalAuraModifierByMiscMask(AuraType.ModDamageDoneCreature, (int)creatureTypeMask);
-
-            // ..done
-            // SPELL_AURA_MOD_DAMAGE_DONE included in weapon damage
-
-            // ..done (base at attack power for marked target and base at attack power for creature type)
-            double APbonus = 0;
-
-            if (attType == WeaponAttackType.RangedAttack)
-            {
-                APbonus += victim.GetTotalAuraModifier(AuraType.RangedAttackPowerAttackerBonus);
-
-                // ..done (base at attack power and creature type)
-                APbonus += GetTotalAuraModifierByMiscMask(AuraType.ModRangedAttackPowerVersus, (int)creatureTypeMask);
-            }
-            else
-            {
-                APbonus += victim.GetTotalAuraModifier(AuraType.MeleeAttackPowerAttackerBonus);
-
-                // ..done (base at attack power and creature type)
-                APbonus += GetTotalAuraModifierByMiscMask(AuraType.ModMeleeAttackPowerVersus, (int)creatureTypeMask);
-            }
-
-            if (APbonus != 0)                                       // Can be negative
-            {
-                bool normalized = spellProto != null && spellProto.HasEffect(SpellEffectName.NormalizedWeaponDmg);
-                DoneFlatBenefit += (int)(APbonus / 3.5f * GetAPMultiplier(attType, normalized));
-            }
-
-            // Done total percent damage auras
-            double DoneTotalMod = 1.0f;
-
-            SpellSchoolMask schoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
-
-            if ((schoolMask & SpellSchoolMask.Normal) == 0)
-            {
-                // Some spells don't benefit from pct done mods
-                // mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
-                if (spellProto == null || !spellProto.HasAttribute(SpellAttr6.IgnoreCasterDamageModifiers))
-                {
-                    double maxModDamagePercentSchool = 0.0f;
-                    Player thisPlayer = ToPlayer();
-                    if (thisPlayer != null)
-                    {
-                        for (var i = SpellSchools.Holy; i < SpellSchools.Max; ++i)
-                        {
-                            if (Convert.ToBoolean((int)schoolMask & (1 << (int)i)))
-                                maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.m_activePlayerData.ModDamageDonePercent[(int)i]);
-                        }
-                    }
-                    else
-                        maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)schoolMask);
-
-                    DoneTotalMod *= maxModDamagePercentSchool;
-                }
-            }
-
-            if (spellProto == null)
-            {
-                // melee attack
-                foreach (AuraEffect autoAttackDamage in GetAuraEffectsByType(AuraType.ModAutoAttackDamage))
-                    MathFunctions.AddPct(ref DoneTotalMod, autoAttackDamage.GetAmount());
-            }
-
-            DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamageDoneVersus, creatureTypeMask);
-
-            // bonus against aurastate
-            DoneTotalMod *= GetTotalAuraMultiplier(AuraType.ModDamageDoneVersusAurastate, aurEff =>
-            {
-                if (victim.HasAuraState((AuraStateType)aurEff.GetMiscValue()))
-                    return true;
-                return false;
-            });
-
-            // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
-            if (spellEffectInfo != null && spellEffectInfo.Mechanic != 0)
-                MathFunctions.AddPct(ref DoneTotalMod, GetTotalAuraModifierByMiscValue(AuraType.ModDamageDoneForMechanic, (int)spellEffectInfo.Mechanic));
-            else if (spellProto != null && spellProto.Mechanic != 0)
-                MathFunctions.AddPct(ref DoneTotalMod, GetTotalAuraModifierByMiscValue(AuraType.ModDamageDoneForMechanic, (int)spellProto.Mechanic));
-
-            var damageF = damage;
-
-            // apply spellmod to Done damage
-            if (spellProto != null)
-            {
-                Player modOwner = GetSpellModOwner();
-                if (modOwner != null)
-                    modOwner.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref damageF);
-            }
-
-            damageF = (damageF + DoneFlatBenefit) * DoneTotalMod;
-
-            // bonus result can be negative
-            return Math.Max(damageF, 0.0f);
-        }
-
-        public double MeleeDamageBonusTaken(Unit attacker, double pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo spellProto = null, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal)
-        {
-            if (pdamage == 0)
-                return 0;
-
-            double TakenFlatBenefit = 0;
-
-            // ..taken
-            TakenFlatBenefit += GetTotalAuraModifierByMiscMask(AuraType.ModDamageTaken, (int)attacker.GetMeleeDamageSchoolMask());
-
-            if (attType != WeaponAttackType.RangedAttack)
-                TakenFlatBenefit += GetTotalAuraModifier(AuraType.ModMeleeDamageTaken);
-            else
-                TakenFlatBenefit += GetTotalAuraModifier(AuraType.ModRangedDamageTaken);
-
-            if ((TakenFlatBenefit < 0) && (pdamage < -TakenFlatBenefit))
-                return 0;
-
-            // Taken total percent damage auras
-            double TakenTotalMod = 1.0f;
-
-            // ..taken
-            TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentTaken, (uint)attacker.GetMeleeDamageSchoolMask());
-
-            // .. taken pct (special attacks)
-            if (spellProto != null)
-            {
-                // From caster spells
-                TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff =>
-                {
-                    return aurEff.GetCasterGUID() == attacker.GetGUID() && (aurEff.GetMiscValue() & (int)spellProto.GetSchoolMask()) != 0;
-                });
-
-                TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff =>
-                {
-                    return aurEff.GetCasterGUID() == attacker.GetGUID() && aurEff.IsAffectingSpell(spellProto);
-                });
-
-                // Mod damage from spell mechanic
-                ulong mechanicMask = spellProto.GetAllEffectsMechanicMask();
-
-                // Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
-                if (spellProto.SpellFamilyName == SpellFamilyNames.Druid && spellProto.SpellFamilyFlags[0].HasAnyFlag(0x00008800u))
-                    mechanicMask |= (1 << (int)Mechanics.Bleed);
-
-                if (mechanicMask != 0)
-                {
-                    TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMechanicDamageTakenPercent, aurEff =>
-                    {
-                        if ((mechanicMask & (1ul << (aurEff.GetMiscValue()))) != 0)
-                            return true;
-                        return false;
-                    });
-                }
-
-                if (damagetype == DamageEffectType.DOT)
-                    TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.GetMiscValue() & (uint)spellProto.GetSchoolMask()) != 0);
-            }
-            else // melee attack
-            {
-                TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff =>
-                {
-                    return aurEff.GetCasterGUID() == attacker.GetGUID();
-                });
-            }
-
-            AuraEffect cheatDeath = GetAuraEffect(45182, 0);
-            if (cheatDeath != null)
-                MathFunctions.AddPct(ref TakenTotalMod, cheatDeath.GetAmount());
-
-            if (attType != WeaponAttackType.RangedAttack)
-                TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageTakenPct);
-            else
-                TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModRangedDamageTakenPct);
-
-            // Versatility
-            Player modOwner = GetSpellModOwner();
-            if (modOwner)
-            {
-                // only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
-                var versaBonus = modOwner.GetTotalAuraModifier(AuraType.ModVersatility) / 2.0f;
-                MathFunctions.AddPct(ref TakenTotalMod, -(modOwner.GetRatingBonusValue(CombatRating.VersatilityDamageTaken) + versaBonus));
-            }
-
-            // Sanctified Wrath (bypass damage reduction)
-            if (TakenTotalMod < 1.0f)
-            {
-                SpellSchoolMask attackSchoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
-
-                var damageReduction = 1.0f - TakenTotalMod;
-                var casterIgnoreResist = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
-                foreach (AuraEffect aurEff in casterIgnoreResist)
-                {
-                    if ((aurEff.GetMiscValue() & (int)attackSchoolMask) == 0)
-                        continue;
-
-                    MathFunctions.AddPct(ref damageReduction, -aurEff.GetAmount());
-                }
-
-                TakenTotalMod = 1.0f - damageReduction;
-            }
-
-            var tmpDamage = (pdamage + TakenFlatBenefit) * TakenTotalMod;
-            return Math.Max(tmpDamage, 0.0f);
-        }
-
-
-        public void SaveDamageHistory(double damage)
-        {
-            var currentTime = GameTime.GetDateAndTime();
-            var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
-
-            // Remove damages older than maxPastTime, can be increased if required
-            _damageTakenHistory.RemoveAllMatchingKeys(k => k < maxPastTime);
-
-            _damageTakenHistory[currentTime] += damage;
-        }
-
-        public double GetDamageOverLastSeconds(uint seconds)
-        {
-            var maxPastTime = GameTime.GetDateAndTime() - TimeSpan.FromSeconds(seconds);
-
-            double damageOverLastSeconds = 0;
-            foreach(var itr in _damageTakenHistory)
-            {
-                if (itr.Key >= maxPastTime)
-                {
-                    damageOverLastSeconds += itr.Value;
-                }
-            }
-
-            return damageOverLastSeconds;
-        }
-
-        bool IsBlockCritical()
-        {
-            if (RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance)))
-                return true;
-            return false;
-        }
-
-        public virtual SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = WeaponAttackType.BaseAttack) { return SpellSchoolMask.None; }
-
-        public virtual void UpdateDamageDoneMods(WeaponAttackType attackType, int skipEnchantSlot = -1)
-        {
-            UnitMods unitMod = attackType switch
-            {
-                WeaponAttackType.BaseAttack => UnitMods.DamageMainHand,
-                WeaponAttackType.OffAttack => UnitMods.DamageOffHand,
-                WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
-                _ => throw new NotImplementedException(),
-            };
-
-            var amount = GetTotalAuraModifier(AuraType.ModDamageDone, aurEff =>
-            {
-                if ((aurEff.GetMiscValue() & (int)SpellSchoolMask.Normal) == 0)
-                    return false;
-
-                return CheckAttackFitToAuraRequirement(attackType, aurEff);
-            });
-
-            SetStatFlatModifier(unitMod, UnitModifierFlatType.Total, amount);
-        }
-
-        public void UpdateAllDamageDoneMods()
-        {
-            for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
-                UpdateDamageDoneMods(attackType);
-        }
-
-        public void UpdateDamagePctDoneMods(WeaponAttackType attackType)
-        {
-            (UnitMods unitMod, double factor) = attackType switch
-            {
-                WeaponAttackType.BaseAttack => (UnitMods.DamageMainHand, 1.0f),
-                WeaponAttackType.OffAttack => (UnitMods.DamageOffHand, 0.5f),
-                WeaponAttackType.RangedAttack => (UnitMods.DamageRanged, 1.0f),
-                _ => throw new NotImplementedException(),
-            };
-
-            factor *= GetTotalAuraMultiplier(AuraType.ModDamagePercentDone, aurEff =>
-            {
-                if (!aurEff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal))
-                    return false;
-
-                return CheckAttackFitToAuraRequirement(attackType, aurEff);
-            });
-
-            if (attackType == WeaponAttackType.OffAttack)
-                factor *= GetTotalAuraMultiplier(AuraType.ModOffhandDamagePct, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
-
-            SetStatPctModifier(unitMod, UnitModifierPctType.Total, factor);
-        }
-
-        public void UpdateAllDamagePctDoneMods()
-        {
-            for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
-                UpdateDamagePctDoneMods(attackType);
-        }
-
-        public void GetAnyUnitListInRange(List<Unit> list, float fMaxSearchRange)
-        {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-            Cell cell = new Cell(p);
-            cell.SetNoCreate();
-
-            AnyUnitInObjectRangeCheck u_check = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
-            UnitListSearcher searcher = new UnitListSearcher(this, list, u_check, GridType.All);
-
-            cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
-        }
-
-        public void GetAttackableUnitListInRange(List<Unit> list, float fMaxSearchRange)
-        {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-            Cell cell = new Cell(p);
-            cell.SetNoCreate();
-
-            var u_check = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
-            UnitListSearcher searcher = new UnitListSearcher(this, list, u_check, GridType.All);
-
-            cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
-        }
-
-        public void GetFriendlyUnitListInRange(List<Unit> list, float fMaxSearchRange, bool exceptSelf = false)
-        {
-            CellCoord p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
-            Cell cell = new Cell(p);
-            cell.SetNoCreate();
-
-            AnyFriendlyUnitInObjectRangeCheck u_check = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
-            UnitListSearcher searcher = new UnitListSearcher(this, list, u_check, GridType.All);
-
-            cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
-        }
-
-        public CombatManager GetCombatManager() { return m_combatManager; }
-
-        // Exposes the threat manager directly - be careful when interfacing with this
-        // As a general rule of thumb, any unit pointer MUST be null checked BEFORE passing it to threatmanager methods
-        // threatmanager will NOT null check your pointers for you - misuse = crash
-        public ThreatManager GetThreatManager() { return m_threatManager; }
-
-        public double GetTotalSpellPowerValue(SpellSchoolMask mask, bool heal)
-        {
-            if (!IsPlayer())
-            {
-                if (GetOwner())
-                {
-                    Player ownerPlayer = GetOwner().ToPlayer();
-
-                    if (ownerPlayer != null)
-                    {
-                        if (IsTotem())
-                            return GetOwner().GetTotalSpellPowerValue(mask, heal);
-                        else
-                        {
-                            if (IsPet())
-                                return ownerPlayer.m_activePlayerData.PetSpellPower.GetValue();
-                            else if (IsGuardian())
-                                return ((Guardian)this).GetBonusDamage();
-                        }
-                    }
-                }
-
-                if (heal)
-                    return SpellBaseHealingBonusDone(mask);
-                else
-                    return SpellBaseDamageBonusDone(mask);
-            }
-
-            Player thisPlayer = ToPlayer();
-
-            int sp = 0;
-
-            if (heal)
-                sp = thisPlayer.m_activePlayerData.ModHealingDonePos;
-            else
-            {
-                int counter = 0;
-                for (int i = 1; i < (int)SpellSchools.Max; i++)
-                {
-                    if (((int)mask & (1 << i)) > 0)
-                    {
-                        sp += thisPlayer.m_activePlayerData.ModDamageDonePos[i];
-                        counter++;
-                    }
-                }
-                if (counter > 0)
-                    sp /= counter;
-            }
-
-            return Math.Max(sp, 0); //avoid negative spell power
-        }
-    }
+	static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
+
+	public Unit(bool isWorldObject) : base(isWorldObject)
+	{
+		MoveSpline = new MoveSpline();
+		_motionMaster = new MotionMaster(this);
+		_combatManager = new CombatManager(this);
+		_threatManager = new ThreatManager(this);
+		_spellHistory = new SpellHistory(this);
+
+		ObjectTypeId = TypeId.Unit;
+		ObjectTypeMask |= TypeMask.Unit;
+		_updateFlag.MovementUpdate = true;
+
+		ModAttackSpeedPct = new double[]
+		                    {
+			                    1.0f, 1.0f, 1.0f
+		                    };
+
+		DeathState = DeathState.Alive;
+
+		for (byte i = 0; i < (int)SpellImmunity.Max; ++i)
+			_spellImmune[i] = new MultiMap<uint, uint>();
+
+		for (byte i = 0; i < (int)UnitMods.End; ++i)
+		{
+			AuraFlatModifiersGroup[i] = new double[(int)UnitModifierFlatType.End];
+			AuraFlatModifiersGroup[i][(int)UnitModifierFlatType.Base] = 0.0f;
+			AuraFlatModifiersGroup[i][(int)UnitModifierFlatType.BasePCTExcludeCreate] = 100.0f;
+			AuraFlatModifiersGroup[i][(int)UnitModifierFlatType.Total] = 0.0f;
+
+			AuraPctModifiersGroup[i] = new double[(int)UnitModifierPctType.End];
+			AuraPctModifiersGroup[i][(int)UnitModifierPctType.Base] = 1.0f;
+			AuraPctModifiersGroup[i][(int)UnitModifierPctType.Total] = 1.0f;
+		}
+
+		AuraPctModifiersGroup[(int)UnitMods.DamageOffHand][(int)UnitModifierPctType.Total] = 0.5f;
+
+		foreach (AuraType auraType in Enum.GetValues(typeof(AuraType)))
+			_modAuras[auraType] = new List<AuraEffect>();
+
+		for (byte i = 0; i < (int)WeaponAttackType.Max; ++i)
+			WeaponDamage[i] = new double[]
+			                  {
+				                  1.0f, 2.0f
+			                  };
+
+		if (IsTypeId(TypeId.Player))
+		{
+			ModMeleeHitChance = 7.5f;
+			ModRangedHitChance = 7.5f;
+			ModSpellHitChance = 15.0f;
+		}
+
+		BaseSpellCritChance = 5;
+
+		for (byte i = 0; i < (int)UnitMoveType.Max; ++i)
+			SpeedRate[i] = 1.0f;
+
+		ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+
+		_splineSyncTimer = new TimeTracker();
+
+		UnitData = new UnitData();
+	}
+
+	public override void Dispose()
+	{
+		// set current spells as deletable
+		for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
+			if (CurrentSpells.ContainsKey(i))
+				if (CurrentSpells[i] != null)
+				{
+					CurrentSpells[i].SetReferencedFromCurrent(false);
+					CurrentSpells[i] = null;
+				}
+
+		Events.KillAllEvents(true);
+
+		_DeleteRemovedAuras();
+
+		//i_motionMaster = null;
+		_charmInfo = null;
+		MoveSpline = null;
+		_spellHistory = null;
+
+		/*ASSERT(!m_duringRemoveFromWorld);
+		ASSERT(!m_attacking);
+		ASSERT(m_attackers.empty());
+		ASSERT(m_sharedVision.empty());
+		ASSERT(m_Controlled.empty());
+		ASSERT(m_appliedAuras.empty());
+		ASSERT(m_ownedAuras.empty());
+		ASSERT(m_removedAuras.empty());
+		ASSERT(m_gameObj.empty());
+		ASSERT(m_dynObj.empty());*/
+
+		base.Dispose();
+	}
+
+	public override void Update(uint diff)
+	{
+		// WARNING! Order of execution here is important, do not change.
+		// Spells must be processed with event system BEFORE they go to _UpdateSpells.
+		base.Update(diff);
+
+		if (!IsInWorld)
+			return;
+
+		_UpdateSpells(diff);
+
+		// If this is set during update SetCantProc(false) call is missing somewhere in the code
+		// Having this would prevent spells from being proced, so let's crash
+		Cypher.Assert(ProcDeep == 0);
+
+		_combatManager.Update(diff);
+
+		_lastDamagedTargetGuid = ObjectGuid.Empty;
+
+		if (_lastExtraAttackSpell != 0)
+		{
+			while (!_extraAttacksTargets.Empty())
+			{
+				var (targetGuid, count) = _extraAttacksTargets.FirstOrDefault();
+				_extraAttacksTargets.Remove(targetGuid);
+
+				var victim = Global.ObjAccessor.GetUnit(this, targetGuid);
+
+				if (victim != null)
+					HandleProcExtraAttackFor(victim, count);
+			}
+
+			_lastExtraAttackSpell = 0;
+		}
+
+		bool spellPausesCombatTimer(CurrentSpellTypes type)
+		{
+			return GetCurrentSpell(type) != null && GetCurrentSpell(type).GetSpellInfo().HasAttribute(SpellAttr6.DelayCombatTimerDuringCast);
+		}
+
+		if (!spellPausesCombatTimer(CurrentSpellTypes.Generic) && !spellPausesCombatTimer(CurrentSpellTypes.Channeled))
+		{
+			var base_att = GetAttackTimer(WeaponAttackType.BaseAttack);
+
+			if (base_att != 0)
+				SetAttackTimer(WeaponAttackType.BaseAttack, (diff >= base_att ? 0 : base_att - diff));
+
+			var ranged_att = GetAttackTimer(WeaponAttackType.RangedAttack);
+
+			if (ranged_att != 0)
+				SetAttackTimer(WeaponAttackType.RangedAttack, (diff >= ranged_att ? 0 : ranged_att - diff));
+
+			var off_att = GetAttackTimer(WeaponAttackType.OffAttack);
+
+			if (off_att != 0)
+				SetAttackTimer(WeaponAttackType.OffAttack, (diff >= off_att ? 0 : off_att - diff));
+		}
+
+		// update abilities available only for fraction of time
+		UpdateReactives(diff);
+
+		if (IsAlive())
+		{
+			ModifyAuraState(AuraStateType.Wounded20Percent, HealthBelowPct(20));
+			ModifyAuraState(AuraStateType.Wounded25Percent, HealthBelowPct(25));
+			ModifyAuraState(AuraStateType.Wounded35Percent, HealthBelowPct(35));
+			ModifyAuraState(AuraStateType.WoundHealth20_80, HealthBelowPct(20) || HealthAbovePct(80));
+			ModifyAuraState(AuraStateType.Healthy75Percent, HealthAbovePct(75));
+			ModifyAuraState(AuraStateType.WoundHealth35_80, HealthBelowPct(35) || HealthAbovePct(80));
+		}
+
+		UpdateSplineMovement(diff);
+		GetMotionMaster().Update(diff);
+
+		// Wait with the aura interrupts until we have updated our movement generators and position
+		if (IsPlayer())
+			InterruptMovementBasedAuras();
+		else if (!MoveSpline.Finalized())
+			InterruptMovementBasedAuras();
+
+		// All position info based actions have been executed, reset info
+		_positionUpdateInfo.Reset();
+
+		if (HasScheduledAIChange() && (!IsPlayer() || (IsCharmed() && GetCharmerGUID().IsCreature())))
+			UpdateCharmAI();
+
+		RefreshAI();
+	}
+
+	public void HandleEmoteCommand(Emote emoteId, Player target = null, uint[] spellVisualKitIds = null, int sequenceVariation = 0)
+	{
+		EmoteMessage packet = new();
+		packet.Guid = GetGUID();
+		packet.EmoteID = (uint)emoteId;
+
+		var emotesEntry = CliDB.EmotesStorage.LookupByKey(emoteId);
+
+		if (emotesEntry != null && spellVisualKitIds != null)
+			if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
+				packet.SpellVisualKitIDs.AddRange(spellVisualKitIds);
+
+		packet.SequenceVariation = sequenceVariation;
+
+		if (target != null)
+			target.SendPacket(packet);
+		else
+			SendMessageToSet(packet, true);
+	}
+
+	public void SendDurabilityLoss(Player receiver, uint percent)
+	{
+		DurabilityDamageDeath packet = new();
+		packet.Percent = percent;
+		receiver.SendPacket(packet);
+	}
+
+	public bool IsInDisallowedMountForm()
+	{
+		return IsDisallowedMountForm(GetTransformSpell(), GetShapeshiftForm(), GetDisplayId());
+	}
+
+	public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
+	{
+		var transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetMap().GetDifficultyID());
+
+		if (transformSpellInfo != null)
+			if (transformSpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
+				return false;
+
+		if (form != 0)
+		{
+			var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
+
+			if (shapeshift == null)
+				return true;
+
+			if (!shapeshift.Flags.HasAnyFlag(SpellShapeshiftFormFlags.Stance))
+				return true;
+		}
+
+		if (displayId == GetNativeDisplayId())
+			return false;
+
+		var display = CliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
+
+		if (display == null)
+			return true;
+
+		var displayExtra = CliDB.CreatureDisplayInfoExtraStorage.LookupByKey(display.ExtendedDisplayInfoID);
+
+		if (displayExtra == null)
+			return true;
+
+		var model = CliDB.CreatureModelDataStorage.LookupByKey(display.ModelID);
+		var race = CliDB.ChrRacesStorage.LookupByKey(displayExtra.DisplayRaceID);
+
+		if (model != null && !model.GetFlags().HasFlag(CreatureModelDataFlags.CanMountWhileTransformedAsThis))
+			if (race != null && !race.GetFlags().HasFlag(ChrRacesFlag.CanMount))
+				return true;
+
+		return false;
+	}
+
+	public void SendClearTarget()
+	{
+		BreakTarget breakTarget = new();
+		breakTarget.UnitGUID = GetGUID();
+		SendMessageToSet(breakTarget, false);
+	}
+
+	public virtual bool IsLoading()
+	{
+		return false;
+	}
+
+	public bool IsDuringRemoveFromWorld()
+	{
+		return _duringRemoveFromWorld;
+	}
+
+	//SharedVision
+	public bool HasSharedVision()
+	{
+		return !_sharedVision.Empty();
+	}
+
+	public List<Player> GetSharedVisionList()
+	{
+		return _sharedVision;
+	}
+
+	public void AddPlayerToVision(Player player)
+	{
+		if (_sharedVision.Empty())
+		{
+			SetActive(true);
+			SetWorldObject(true);
+		}
+
+		_sharedVision.Add(player);
+	}
+
+	// only called in Player.SetSeer
+	public void RemovePlayerFromVision(Player player)
+	{
+		_sharedVision.Remove(player);
+
+		if (_sharedVision.Empty())
+		{
+			SetActive(false);
+			SetWorldObject(false);
+		}
+	}
+
+	public virtual void Talk(string text, ChatMsg msgType, Language language, float textRange, WorldObject target)
+	{
+		var builder = new CustomChatTextBuilder(this, msgType, text, language, target);
+		var localizer = new LocalizedDo(builder);
+		var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
+		Cell.VisitGrid(this, worker, textRange);
+	}
+
+	public virtual void Say(string text, Language language, WorldObject target = null)
+	{
+		Talk(text, ChatMsg.MonsterSay, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+	}
+
+	public virtual void Yell(string text, Language language = Language.Universal, WorldObject target = null)
+	{
+		Talk(text, ChatMsg.MonsterYell, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+	}
+
+	public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
+	{
+		Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+	}
+
+	public virtual void Whisper(string text, Player target, bool isBossWhisper = false)
+	{
+		Whisper(text, Language.Universal, target, isBossWhisper);
+	}
+
+	public virtual void Whisper(string text, Language language, Player target, bool isBossWhisper = false)
+	{
+		if (!target)
+			return;
+
+		var locale = target.GetSession().GetSessionDbLocaleIndex();
+		ChatPkt data = new();
+		data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, text, 0, "", locale);
+		target.SendPacket(data);
+	}
+
+	public void Talk(uint textId, ChatMsg msgType, float textRange, WorldObject target)
+	{
+		if (!CliDB.BroadcastTextStorage.ContainsKey(textId))
+		{
+			Log.outError(LogFilter.Unit, "Unit.Talk: `broadcast_text` (Id: {0}) was not found", textId);
+
+			return;
+		}
+
+		var builder = new BroadcastTextBuilder(this, msgType, textId, GetGender(), target);
+		var localizer = new LocalizedDo(builder);
+		var worker = new PlayerDistWorker(this, textRange, localizer, GridType.World);
+		Cell.VisitGrid(this, worker, textRange);
+	}
+
+	public virtual void Say(uint textId, WorldObject target = null)
+	{
+		Talk(textId, ChatMsg.MonsterSay, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+	}
+
+	public virtual void Yell(uint textId, WorldObject target = null)
+	{
+		Talk(textId, ChatMsg.MonsterYell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+	}
+
+	public virtual void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
+	{
+		Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+	}
+
+	public virtual void Whisper(uint textId, Player target, bool isBossWhisper = false)
+	{
+		if (!target)
+			return;
+
+		var bct = CliDB.BroadcastTextStorage.LookupByKey(textId);
+
+		if (bct == null)
+		{
+			Log.outError(LogFilter.Unit, "Unit.Whisper: `broadcast_text` was not {0} found", textId);
+
+			return;
+		}
+
+		var locale = target.GetSession().GetSessionDbLocaleIndex();
+		ChatPkt data = new();
+		data.Initialize(isBossWhisper ? ChatMsg.RaidBossWhisper : ChatMsg.MonsterWhisper, Language.Universal, this, target, Global.DB2Mgr.GetBroadcastTextValue(bct, locale, GetGender()), 0, "", locale);
+		target.SendPacket(data);
+	}
+
+	public override void UpdateObjectVisibility(bool forced = true)
+	{
+		if (!forced)
+		{
+			AddToNotify(NotifyFlags.VisibilityChanged);
+		}
+		else
+		{
+			base.UpdateObjectVisibility(true);
+			// call MoveInLineOfSight for nearby creatures
+			AIRelocationNotifier notifier = new(this, GridType.All);
+			Cell.VisitGrid(this, notifier, GetVisibilityRange());
+		}
+	}
+
+	public override void AddToWorld()
+	{
+		base.AddToWorld();
+		_motionMaster.AddToWorld();
+
+		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.EnterWorld);
+	}
+
+	public override void RemoveFromWorld()
+	{
+		// cleanup
+
+		if (IsInWorld)
+		{
+			_duringRemoveFromWorld = true;
+			var ai = GetAI();
+
+			if (ai != null)
+				ai.OnDespawn();
+
+			if (IsVehicle())
+				RemoveVehicleKit(true);
+
+			RemoveCharmAuras();
+			RemoveAurasByType(AuraType.BindSight);
+			RemoveNotOwnSingleTargetAuras();
+			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.LeaveWorld);
+
+			RemoveAllGameObjects();
+			RemoveAllDynObjects();
+			RemoveAllAreaTriggers();
+
+			ExitVehicle(); // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
+			UnsummonAllTotems();
+			RemoveAllControlled();
+
+			RemoveAreaAurasDueToLeaveWorld();
+
+			RemoveAllFollowers();
+
+			if (IsCharmed())
+				RemoveCharmedBy(null);
+
+			Cypher.Assert(GetCharmedGUID().IsEmpty(), $"Unit {GetEntry()} has charmed guid when removed from world");
+			Cypher.Assert(GetCharmerGUID().IsEmpty(), $"Unit {GetEntry()} has charmer guid when removed from world");
+
+			var owner = GetOwner();
+
+			if (owner != null)
+				if (owner.Controlled.Contains(this))
+					Log.outFatal(LogFilter.Unit, "Unit {0} is in controlled list of {1} when removed from world", GetEntry(), owner.GetEntry());
+
+			base.RemoveFromWorld();
+			_duringRemoveFromWorld = false;
+		}
+	}
+
+	public void CleanupBeforeRemoveFromMap(bool finalCleanup)
+	{
+		// This needs to be before RemoveFromWorld to make GetCaster() return a valid for aura removal
+		InterruptNonMeleeSpells(true);
+
+		if (IsInWorld)
+			RemoveFromWorld();
+
+		// A unit may be in removelist and not in world, but it is still in grid
+		// and may have some references during delete
+		RemoveAllAuras();
+		RemoveAllGameObjects();
+
+		if (finalCleanup)
+			_cleanupDone = true;
+
+		CombatStop();
+	}
+
+	public override void CleanupsBeforeDelete(bool finalCleanup = true)
+	{
+		CleanupBeforeRemoveFromMap(finalCleanup);
+
+		base.CleanupsBeforeDelete(finalCleanup);
+	}
+
+	public void SetTransformSpell(uint spellid)
+	{
+		_transformSpell = spellid;
+	}
+
+	public uint GetTransformSpell()
+	{
+		return _transformSpell;
+	}
+
+	public Vehicle GetVehicleKit()
+	{
+		return VehicleKit;
+	}
+
+	public Vehicle GetVehicle()
+	{
+		return Vehicle;
+	}
+
+	public void SetVehicle(Vehicle vehicle)
+	{
+		Vehicle = vehicle;
+	}
+
+	public Unit GetVehicleBase()
+	{
+		return Vehicle != null ? Vehicle.GetBase() : null;
+	}
+
+	public Creature GetVehicleCreatureBase()
+	{
+		var veh = GetVehicleBase();
+
+		if (veh != null)
+		{
+			var c = veh.ToCreature();
+
+			if (c != null)
+				return c;
+		}
+
+		return null;
+	}
+
+	public ITransport GetDirectTransport()
+	{
+		var veh = GetVehicle();
+
+		if (veh != null)
+			return veh;
+
+		return GetTransport();
+	}
+
+	public void _RegisterDynObject(DynamicObject dynObj)
+	{
+		DynamicObjects.Add(dynObj);
+
+		if (IsTypeId(TypeId.Unit) && IsAIEnabled())
+			ToCreature().GetAI().JustRegisteredDynObject(dynObj);
+	}
+
+	public void _UnregisterDynObject(DynamicObject dynObj)
+	{
+		DynamicObjects.Remove(dynObj);
+
+		if (IsTypeId(TypeId.Unit) && IsAIEnabled())
+			ToCreature().GetAI().JustUnregisteredDynObject(dynObj);
+	}
+
+	public DynamicObject GetDynObject(uint spellId)
+	{
+		return GetDynObjects(spellId).FirstOrDefault();
+	}
+
+	public void RemoveDynObject(uint spellId)
+	{
+		for (var i = 0; i < DynamicObjects.Count; ++i)
+		{
+			var dynObj = DynamicObjects[i];
+
+			if (dynObj.GetSpellId() == spellId)
+				dynObj.Remove();
+		}
+	}
+
+	public void RemoveAllDynObjects()
+	{
+		while (!DynamicObjects.Empty())
+			DynamicObjects.First().Remove();
+	}
+
+	public GameObject GetGameObject(uint spellId)
+	{
+		return GetGameObjects(spellId).FirstOrDefault();
+	}
+
+	public void AddGameObject(GameObject gameObj)
+	{
+		if (gameObj == null || !gameObj.GetOwnerGUID().IsEmpty())
+			return;
+
+		GameObjects.Add(gameObj);
+		gameObj.SetOwnerGUID(GetGUID());
+
+		if (gameObj.GetSpellId() != 0)
+		{
+			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.GetSpellId(), GetMap().GetDifficultyID());
+
+			// Need disable spell use for owner
+			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
+				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
+				GetSpellHistory().StartCooldown(createBySpell, 0, null, true);
+		}
+
+		if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled())
+			ToCreature().GetAI().JustSummonedGameobject(gameObj);
+	}
+
+	public void RemoveGameObject(GameObject gameObj, bool del)
+	{
+		if (gameObj == null || gameObj.GetOwnerGUID() != GetGUID())
+			return;
+
+		gameObj.SetOwnerGUID(ObjectGuid.Empty);
+
+		for (byte i = 0; i < SharedConst.MaxGameObjectSlot; ++i)
+			if (ObjectSlot[i] == gameObj.GetGUID())
+			{
+				ObjectSlot[i].Clear();
+
+				break;
+			}
+
+		// GO created by some spell
+		var spellid = gameObj.GetSpellId();
+
+		if (spellid != 0)
+		{
+			RemoveAura(spellid);
+
+			var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, GetMap().GetDifficultyID());
+
+			// Need activate spell use for owner
+			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent())
+				// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existing cases)
+				GetSpellHistory().SendCooldownEvent(createBySpell);
+		}
+
+		GameObjects.Remove(gameObj);
+
+		if (IsTypeId(TypeId.Unit) && ToCreature().IsAIEnabled())
+			ToCreature().GetAI().SummonedGameobjectDespawn(gameObj);
+
+		if (del)
+		{
+			gameObj.SetRespawnTime(0);
+			gameObj.Delete();
+		}
+	}
+
+	public void RemoveGameObject(uint spellid, bool del)
+	{
+		if (GameObjects.Empty())
+			return;
+
+		for (var i = 0; i < GameObjects.Count; ++i)
+		{
+			var obj = GameObjects[i];
+
+			if (spellid == 0 || obj.GetSpellId() == spellid)
+			{
+				obj.SetOwnerGUID(ObjectGuid.Empty);
+
+				if (del)
+				{
+					obj.SetRespawnTime(0);
+					obj.Delete();
+				}
+
+				GameObjects.Remove(obj);
+			}
+		}
+	}
+
+	public void RemoveAllGameObjects()
+	{
+		// remove references to unit
+		while (!GameObjects.Empty())
+		{
+			var obj = GameObjects.First();
+			obj.SetOwnerGUID(ObjectGuid.Empty);
+			obj.SetRespawnTime(0);
+			obj.Delete();
+			GameObjects.Remove(obj);
+		}
+	}
+
+	public void _RegisterAreaTrigger(AreaTrigger areaTrigger)
+	{
+		_areaTrigger.Add(areaTrigger);
+
+		if (IsTypeId(TypeId.Unit) && IsAIEnabled())
+			ToCreature().GetAI().JustRegisteredAreaTrigger(areaTrigger);
+	}
+
+	public void _UnregisterAreaTrigger(AreaTrigger areaTrigger)
+	{
+		_areaTrigger.Remove(areaTrigger);
+
+		if (IsTypeId(TypeId.Unit) && IsAIEnabled())
+			ToCreature().GetAI().JustUnregisteredAreaTrigger(areaTrigger);
+	}
+
+	public AreaTrigger GetAreaTrigger(uint spellId)
+	{
+		var areaTriggers = GetAreaTriggers(spellId);
+
+		return areaTriggers.Empty() ? null : areaTriggers[0];
+	}
+
+	public List<AreaTrigger> GetAreaTriggers(uint spellId)
+	{
+		return _areaTrigger.Where(trigger => trigger.GetSpellId() == spellId).ToList();
+	}
+
+	public void RemoveAreaTrigger(uint spellId)
+	{
+		if (_areaTrigger.Empty())
+			return;
+
+		for (var i = 0; i < _areaTrigger.Count; ++i)
+		{
+			var areaTrigger = _areaTrigger[i];
+
+			if (areaTrigger.GetSpellId() == spellId)
+				areaTrigger.Remove();
+		}
+	}
+
+	public void RemoveAreaTrigger(AuraEffect aurEff)
+	{
+		if (_areaTrigger.Empty())
+			return;
+
+		foreach (var areaTrigger in _areaTrigger)
+			if (areaTrigger.GetAuraEffect() == aurEff)
+			{
+				areaTrigger.Remove();
+
+				break; // There can only be one AreaTrigger per AuraEffect
+			}
+	}
+
+	public void RemoveAllAreaTriggers()
+	{
+		while (!_areaTrigger.Empty())
+			_areaTrigger[0].Remove();
+	}
+
+	public NPCFlags GetNpcFlags()
+	{
+		return (NPCFlags)UnitData.NpcFlags[0];
+	}
+
+	public bool HasNpcFlag(NPCFlags flags)
+	{
+		return (UnitData.NpcFlags[0] & (uint)flags) != 0;
+	}
+
+	public void SetNpcFlag(NPCFlags flags)
+	{
+		SetUpdateFieldFlagValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 0), (uint)flags);
+	}
+
+	public void RemoveNpcFlag(NPCFlags flags)
+	{
+		RemoveUpdateFieldFlagValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 0), (uint)flags);
+	}
+
+	public void ReplaceAllNpcFlags(NPCFlags flags)
+	{
+		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 0), (uint)flags);
+	}
+
+	public NPCFlags2 GetNpcFlags2()
+	{
+		return (NPCFlags2)UnitData.NpcFlags[1];
+	}
+
+	public bool HasNpcFlag2(NPCFlags2 flags)
+	{
+		return (UnitData.NpcFlags[1] & (uint)flags) != 0;
+	}
+
+	public void SetNpcFlag2(NPCFlags2 flags)
+	{
+		SetUpdateFieldFlagValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 1), (uint)flags);
+	}
+
+	public void RemoveNpcFlag2(NPCFlags2 flags)
+	{
+		RemoveUpdateFieldFlagValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 1), (uint)flags);
+	}
+
+	public void ReplaceAllNpcFlags2(NPCFlags2 flags)
+	{
+		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.NpcFlags, 1), (uint)flags);
+	}
+
+	public bool IsVendor()
+	{
+		return HasNpcFlag(NPCFlags.Vendor);
+	}
+
+	public bool IsTrainer()
+	{
+		return HasNpcFlag(NPCFlags.Trainer);
+	}
+
+	public bool IsQuestGiver()
+	{
+		return HasNpcFlag(NPCFlags.QuestGiver);
+	}
+
+	public bool IsGossip()
+	{
+		return HasNpcFlag(NPCFlags.Gossip);
+	}
+
+	public bool IsTaxi()
+	{
+		return HasNpcFlag(NPCFlags.FlightMaster);
+	}
+
+	public bool IsGuildMaster()
+	{
+		return HasNpcFlag(NPCFlags.Petitioner);
+	}
+
+	public bool IsBattleMaster()
+	{
+		return HasNpcFlag(NPCFlags.BattleMaster);
+	}
+
+	public bool IsBanker()
+	{
+		return HasNpcFlag(NPCFlags.Banker);
+	}
+
+	public bool IsInnkeeper()
+	{
+		return HasNpcFlag(NPCFlags.Innkeeper);
+	}
+
+	public bool IsSpiritHealer()
+	{
+		return HasNpcFlag(NPCFlags.SpiritHealer);
+	}
+
+	public bool IsSpiritGuide()
+	{
+		return HasNpcFlag(NPCFlags.SpiritGuide);
+	}
+
+	public bool IsTabardDesigner()
+	{
+		return HasNpcFlag(NPCFlags.TabardDesigner);
+	}
+
+	public bool IsAuctioner()
+	{
+		return HasNpcFlag(NPCFlags.Auctioneer);
+	}
+
+	public bool IsArmorer()
+	{
+		return HasNpcFlag(NPCFlags.Repair);
+	}
+
+	public bool IsWildBattlePet()
+	{
+		return HasNpcFlag(NPCFlags.WildBattlePet);
+	}
+
+	public bool IsServiceProvider()
+	{
+		return HasNpcFlag(NPCFlags.Vendor |
+		                  NPCFlags.Trainer |
+		                  NPCFlags.FlightMaster |
+		                  NPCFlags.Petitioner |
+		                  NPCFlags.BattleMaster |
+		                  NPCFlags.Banker |
+		                  NPCFlags.Innkeeper |
+		                  NPCFlags.SpiritHealer |
+		                  NPCFlags.SpiritGuide |
+		                  NPCFlags.TabardDesigner |
+		                  NPCFlags.Auctioneer);
+	}
+
+	public bool IsSpiritService()
+	{
+		return HasNpcFlag(NPCFlags.SpiritHealer | NPCFlags.SpiritGuide);
+	}
+
+	public bool IsCritter()
+	{
+		return GetCreatureType() == CreatureType.Critter;
+	}
+
+	public bool IsInFlight()
+	{
+		return HasUnitState(UnitState.InFlight);
+	}
+
+	public bool IsContestedGuard()
+	{
+		var entry = GetFactionTemplateEntry();
+
+		if (entry != null)
+			return entry.IsContestedGuardFaction();
+
+		return false;
+	}
+
+	public void SetHoverHeight(float hoverHeight)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.HoverHeight), hoverHeight);
+	}
+
+	public override float GetCollisionHeight()
+	{
+		var scaleMod = GetObjectScale(); // 99% sure about this
+
+		if (IsMounted())
+		{
+			var mountDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetMountDisplayId());
+
+			if (mountDisplayInfo != null)
+			{
+				var mountModelData = CliDB.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
+
+				if (mountModelData != null)
+				{
+					var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetNativeDisplayId());
+					var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
+					var collisionHeight = scaleMod * ((mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale) + (modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f));
+
+					return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
+				}
+			}
+		}
+
+		//! Dismounting case - use basic default model data
+		var defaultDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(GetNativeDisplayId());
+		var defaultModelData = CliDB.CreatureModelDataStorage.LookupByKey(defaultDisplayInfo.ModelID);
+
+		var collisionHeight1 = scaleMod * defaultModelData.CollisionHeight * defaultModelData.ModelScale * defaultDisplayInfo.CreatureModelScale;
+
+		return collisionHeight1 == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight1;
+	}
+
+	public override string GetDebugInfo()
+	{
+		var str = $"{base.GetDebugInfo()}\nIsAIEnabled: {IsAIEnabled()} DeathState: {GetDeathState()} UnitMovementFlags: {GetUnitMovementFlags()} UnitMovementFlags2: {GetUnitMovementFlags2()} Class: {GetClass()}\n" +
+		          $" {(MoveSpline != null ? MoveSpline.ToString() : "Movespline: <none>\n")} GetCharmedGUID(): {GetCharmedGUID()}\nGetCharmerGUID(): {GetCharmerGUID()}\n{(GetVehicleKit() != null ? GetVehicleKit().GetDebugInfo() : "No vehicle kit")}\n" +
+		          $"m_Controlled size: {Controlled.Count}";
+
+		var controlledCount = 0;
+
+		foreach (var controlled in Controlled)
+		{
+			++controlledCount;
+			str += $"\nm_Controlled {controlledCount} : {controlled.GetGUID()}";
+		}
+
+		return str;
+	}
+
+	public Guardian GetGuardianPet()
+	{
+		var pet_guid = GetPetGUID();
+
+		if (!pet_guid.IsEmpty())
+		{
+			var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(this, pet_guid);
+
+			if (pet != null)
+				if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
+					return (Guardian)pet;
+
+			Log.outFatal(LogFilter.Unit, "Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
+			SetPetGUID(ObjectGuid.Empty);
+		}
+
+		return null;
+	}
+
+	public Creature GetSummonedCreatureByEntry(uint entry)
+	{
+		foreach (var sum in SummonSlot)
+		{
+			var cre = ObjectAccessor.GetCreature(this, sum);
+
+			if (cre.GetEntry() == entry)
+				return cre;
+		}
+
+		return null;
+	}
+
+
+	public Unit SelectNearbyTarget(Unit exclude = null, float dist = SharedConst.NominalMeleeRange)
+	{
+		bool AddUnit(Unit u)
+		{
+			if (GetVictim() == u)
+				return false;
+
+			if (exclude == u)
+				return false;
+
+			// remove not LoS targets
+			if (!IsWithinLOSInMap(u) || u.IsTotem() || u.IsSpiritService() || u.IsCritter())
+				return false;
+
+			return true;
+		}
+
+		List<Unit> targets = new();
+		var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(this, this, dist, AddUnit);
+		var searcher = new UnitListSearcher(this, targets, u_check, GridType.All);
+		Cell.VisitGrid(this, searcher, dist);
+
+		// no appropriate targets
+		if (targets.Empty())
+			return null;
+
+		// select random
+		return targets.SelectRandom();
+	}
+
+	public Unit SelectNearbyAllyUnit(List<Unit> exclude, float dist = SharedConst.NominalMeleeRange)
+	{
+		List<Unit> targets = new();
+		var u_check = new AnyFriendlyUnitInObjectRangeCheck(this, this, dist);
+		var searcher = new UnitListSearcher(this, targets, u_check, GridType.All);
+		Cell.VisitGrid(this, searcher, dist);
+
+		// no appropriate targets
+		targets.RemoveAll(k => exclude.Contains(k));
+
+		if (targets.Empty())
+			return null;
+
+		return targets.SelectRandom();
+	}
+
+	public void EnterVehicle(Unit baseUnit, sbyte seatId = -1)
+	{
+		CastSpellExtraArgs args = new(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle);
+		args.AddSpellMod(SpellValueMod.BasePoint0, seatId + 1);
+		CastSpell(baseUnit, SharedConst.VehicleSpellRideHardcoded, args);
+	}
+
+	public void _EnterVehicle(Vehicle vehicle, sbyte seatId, AuraApplication aurApp)
+	{
+		// Must be called only from aura handler
+		Cypher.Assert(aurApp != null);
+
+		if (!IsAlive() || GetVehicleKit() == vehicle || vehicle.GetBase().IsOnVehicle(this))
+			return;
+
+		if (Vehicle != null)
+		{
+			if (Vehicle != vehicle)
+			{
+				Log.outDebug(LogFilter.Vehicle, "EnterVehicle: {0} exit {1} and enter {2}.", GetEntry(), Vehicle.GetBase().GetEntry(), vehicle.GetBase().GetEntry());
+				ExitVehicle();
+			}
+			else if (seatId >= 0 && seatId == GetTransSeat())
+			{
+				return;
+			}
+			else
+			{
+				//Exit the current vehicle because unit will reenter in a new seat.
+				Vehicle.GetBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID(), aurApp.GetBase());
+			}
+		}
+
+		if (aurApp.HasRemoveMode())
+			return;
+
+		var player = ToPlayer();
+
+		if (player != null)
+		{
+			if (vehicle.GetBase().IsTypeId(TypeId.Player) && player.IsInCombat())
+			{
+				vehicle.GetBase().RemoveAura(aurApp);
+
+				return;
+			}
+
+			if (vehicle.GetBase().IsCreature())
+			{
+				// If a player entered a vehicle that is part of a formation, remove it from said formation
+				var creatureGroup = vehicle.GetBase().ToCreature().GetFormation();
+
+				if (creatureGroup != null)
+					creatureGroup.RemoveMember(vehicle.GetBase().ToCreature());
+			}
+		}
+
+		Cypher.Assert(!Vehicle);
+		vehicle.AddVehiclePassenger(this, seatId);
+	}
+
+	public void ChangeSeat(sbyte seatId, bool next = true)
+	{
+		if (Vehicle == null)
+			return;
+
+		// Don't change if current and new seat are identical
+		if (seatId == GetTransSeat())
+			return;
+
+		var seat = (seatId < 0 ? Vehicle.GetNextEmptySeat(GetTransSeat(), next) : Vehicle.Seats.LookupByKey(seatId));
+
+		// The second part of the check will only return true if seatId >= 0. @Vehicle.GetNextEmptySeat makes sure of that.
+		if (seat == null || !seat.IsEmpty())
+			return;
+
+		AuraEffect rideVehicleEffect = null;
+		var vehicleAuras = Vehicle.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
+
+		foreach (var eff in vehicleAuras)
+		{
+			if (eff.GetCasterGUID() != GetGUID())
+				continue;
+
+			// Make sure there is only one ride vehicle aura on target cast by the unit changing seat
+			Cypher.Assert(rideVehicleEffect == null);
+			rideVehicleEffect = eff;
+		}
+
+		// Unit riding a vehicle must always have control vehicle aura on target
+		Cypher.Assert(rideVehicleEffect != null);
+
+		rideVehicleEffect.ChangeAmount((seatId < 0 ? GetTransSeat() : seatId) + 1);
+	}
+
+	public virtual void ExitVehicle(Position exitPosition = null)
+	{
+		//! This function can be called at upper level code to initialize an exit from the passenger's side.
+		if (Vehicle == null)
+			return;
+
+		GetVehicleBase().RemoveAurasByType(AuraType.ControlVehicle, GetGUID());
+		//! The following call would not even be executed successfully as the
+		//! SPELL_AURA_CONTROL_VEHICLE unapply handler already calls _ExitVehicle without
+		//! specifying an exitposition. The subsequent call below would return on if (!m_vehicle).
+
+		//! To do:
+		//! We need to allow SPELL_AURA_CONTROL_VEHICLE unapply handlers in spellscripts
+		//! to specify exit coordinates and either store those per passenger, or we need to
+		//! init spline movement based on those coordinates in unapply handlers, and
+		//! relocate exiting passengers based on Unit.moveSpline data. Either way,
+		//! Coming Soon(TM)
+	}
+
+	public void _ExitVehicle(Position exitPosition = null)
+	{
+		// It's possible m_vehicle is NULL, when this function is called indirectly from @VehicleJoinEvent.Abort.
+		// In that case it was not possible to add the passenger to the vehicle. The vehicle aura has already been removed
+		// from the target in the aforementioned function and we don't need to do anything else at this point.
+		if (Vehicle == null)
+			return;
+
+		// This should be done before dismiss, because there may be some aura removal
+		var seatAddon = Vehicle.GetSeatAddonForSeatOfPassenger(this);
+		var vehicle = (Vehicle)Vehicle.RemovePassenger(this);
+
+		if (vehicle == null)
+		{
+			Log.outError(LogFilter.Vehicle, $"RemovePassenger() couldn't remove current unit from vehicle. Debug info: {GetDebugInfo()}");
+
+			return;
+		}
+
+		var player = ToPlayer();
+
+		// If the player is on mounted duel and exits the mount, he should immediatly lose the duel
+		if (player && player.Duel != null && player.Duel.IsMounted)
+			player.DuelComplete(DuelCompleteType.Fled);
+
+		SetControlled(false, UnitState.Root); // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
+
+		AddUnitState(UnitState.Move);
+
+		if (player != null)
+			player.SetFallInformation(0, Location.Z);
+
+		Position pos;
+
+		// If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
+		if (exitPosition != null)
+		{
+			pos = exitPosition;
+		}
+		else
+		{
+			// Set exit position to vehicle position and use the current orientation
+			pos = vehicle.GetBase().Location;
+			pos.Orientation = Location.Orientation;
+
+			// Change exit position based on seat entry addon data
+			if (seatAddon != null)
+			{
+				if (seatAddon.ExitParameter == VehicleExitParameters.VehicleExitParamOffset)
+					pos.RelocateOffset(new Position(seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO));
+				else if (seatAddon.ExitParameter == VehicleExitParameters.VehicleExitParamDest)
+					pos.Relocate(new Position(seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO));
+			}
+		}
+
+		var initializer = (MoveSplineInit init) =>
+		{
+			var height = pos.Z + vehicle.GetBase().GetCollisionHeight();
+
+			// Creatures without inhabit type air should begin falling after exiting the vehicle
+			if (IsTypeId(TypeId.Unit) && !CanFly() && height > GetMap().GetWaterOrGroundLevel(GetPhaseShift(), pos.X, pos.Y, pos.Z + vehicle.GetBase().GetCollisionHeight(), ref height))
+				init.SetFall();
+
+			init.MoveTo(pos.X, pos.Y, height, false);
+			init.SetFacing(pos.Orientation);
+			init.SetTransportExit();
+		};
+
+		GetMotionMaster().LaunchMoveSpline(initializer, EventId.VehicleExit, MovementGeneratorPriority.Highest);
+
+		if (player != null)
+			player.ResummonPetTemporaryUnSummonedIfAny();
+
+		if (vehicle.GetBase().HasUnitTypeMask(UnitTypeMask.Minion) && vehicle.GetBase().IsTypeId(TypeId.Unit))
+			if (((Minion)vehicle.GetBase()).GetOwner() == this)
+				vehicle.GetBase().ToCreature().DespawnOrUnsummon(vehicle.GetDespawnDelay());
+
+		if (HasUnitTypeMask(UnitTypeMask.Accessory))
+		{
+			// Vehicle just died, we die too
+			if (vehicle.GetBase().GetDeathState() == DeathState.JustDied)
+				SetDeathState(DeathState.JustDied);
+			// If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
+			else
+				ToTempSummon().UnSummon(_despawnTime); // Approximation
+		}
+	}
+
+	public void UnsummonAllTotems()
+	{
+		for (byte i = 0; i < SharedConst.MaxSummonSlot; ++i)
+		{
+			if (SummonSlot[i].IsEmpty())
+				continue;
+
+			var OldTotem = GetMap().GetCreature(SummonSlot[i]);
+
+			if (OldTotem != null)
+				if (OldTotem.IsSummon())
+					OldTotem.ToTempSummon().UnSummon();
+		}
+	}
+
+	public bool IsOnVehicle(Unit vehicle)
+	{
+		return Vehicle != null && Vehicle == vehicle.GetVehicleKit();
+	}
+
+	public bool IsAIEnabled()
+	{
+		return Ai != null;
+	}
+
+	public virtual IUnitAI GetAI()
+	{
+		return Ai;
+	}
+
+	public IUnitAI GetBaseAI()
+	{
+		return Ai;
+	}
+
+	public bool TryGetAI(out IUnitAI ai)
+	{
+		ai = GetBaseAI();
+
+		return ai != null;
+	}
+
+	public bool TryGetCreatureAI(out CreatureAI ai)
+	{
+		ai = GetAI() as CreatureAI;
+
+		return ai != null;
+	}
+
+	public IUnitAI GetTopAI()
+	{
+		lock (UnitAis)
+		{
+			return UnitAis.Count == 0 ? null : UnitAis.Peek();
+		}
+	}
+
+	public void AIUpdateTick(uint diff)
+	{
+		var ai = GetAI();
+
+		if (ai != null)
+			lock (UnitAis)
+			{
+				ai.UpdateAI(diff);
+			}
+	}
+
+	public void PushAI(IUnitAI newAI)
+	{
+		lock (UnitAis)
+		{
+			UnitAis.Push(newAI);
+		}
+	}
+
+	public void SetAI(IUnitAI newAI)
+	{
+		PushAI(newAI);
+		RefreshAI();
+	}
+
+	public bool PopAI()
+	{
+		lock (UnitAis)
+		{
+			if (UnitAis.Count != 0)
+			{
+				UnitAis.Pop();
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+
+	public void RefreshAI()
+	{
+		lock (UnitAis)
+		{
+			if (UnitAis.Count == 0)
+				Ai = null;
+			else
+				Ai = UnitAis.Peek();
+		}
+	}
+
+	public void ScheduleAIChange()
+	{
+		var charmed = IsCharmed();
+
+		if (charmed)
+		{
+			PushAI(GetScheduledChangeAI());
+		}
+		else
+		{
+			RestoreDisabledAI();
+			PushAI(GetScheduledChangeAI()); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
+		}
+	}
+
+	public bool IsPossessedByPlayer()
+	{
+		return HasUnitState(UnitState.Possessed) && GetCharmerGUID().IsPlayer();
+	}
+
+	public bool IsPossessing()
+	{
+		var u = GetCharmed();
+
+		if (u != null)
+			return u.IsPossessed();
+		else
+			return false;
+	}
+
+	public bool IsCharmed()
+	{
+		return !GetCharmerGUID().IsEmpty();
+	}
+
+	public bool IsPossessed()
+	{
+		return HasUnitState(UnitState.Possessed);
+	}
+
+	public virtual void OnPhaseChange()
+	{
+	}
+
+	public uint GetModelForForm(ShapeShiftForm form, uint spellId)
+	{
+		// Hardcoded cases
+		switch (spellId)
+		{
+			case 7090: // Bear Form
+				return 29414;
+			case 35200: // Roc Form
+				return 4877;
+			case 24858: // Moonkin Form
+			{
+				if (HasAura(114301)) // Glyph of Stars
+					return 0;
+
+				break;
+			}
+			default:
+				break;
+		}
+
+		var thisPlayer = ToPlayer();
+
+		if (thisPlayer != null)
+		{
+			var artifactAura = GetAura(PlayerConst.ArtifactsAllWeaponsGeneralWeaponEquippedPassive);
+
+			if (artifactAura != null)
+			{
+				var artifact = ToPlayer().GetItemByGuid(artifactAura.GetCastItemGUID());
+
+				if (artifact != null)
+				{
+					var artifactAppearance = CliDB.ArtifactAppearanceStorage.LookupByKey(artifact.GetModifier(ItemModifier.ArtifactAppearanceId));
+
+					if (artifactAppearance != null)
+						if ((ShapeShiftForm)artifactAppearance.OverrideShapeshiftFormID == form)
+							return artifactAppearance.OverrideShapeshiftDisplayID;
+				}
+			}
+
+			var formModelData = Global.DB2Mgr.GetShapeshiftFormModelData(GetRace(), thisPlayer.GetNativeGender(), form);
+
+			if (formModelData != null)
+			{
+				var useRandom = false;
+
+				switch (form)
+				{
+					case ShapeShiftForm.CatForm:
+						useRandom = HasAura(210333);
+
+						break; // Glyph of the Feral Chameleon
+					case ShapeShiftForm.TravelForm:
+						useRandom = HasAura(344336);
+
+						break; // Glyph of the Swift Chameleon
+					case ShapeShiftForm.AquaticForm:
+						useRandom = HasAura(344338);
+
+						break; // Glyph of the Aquatic Chameleon
+					case ShapeShiftForm.BearForm:
+						useRandom = HasAura(107059);
+
+						break; // Glyph of the Ursol Chameleon
+					case ShapeShiftForm.FlightFormEpic:
+					case ShapeShiftForm.FlightForm:
+						useRandom = HasAura(344342);
+
+						break; // Glyph of the Aerial Chameleon
+					default:
+						break;
+				}
+
+				if (useRandom)
+				{
+					List<uint> displayIds = new();
+
+					for (var i = 0; i < formModelData.Choices.Count; ++i)
+					{
+						var displayInfo = formModelData.Displays[i];
+
+						if (displayInfo != null)
+						{
+							var choiceReq = CliDB.ChrCustomizationReqStorage.LookupByKey(formModelData.Choices[i].ChrCustomizationReqID);
+
+							if (choiceReq == null || thisPlayer.GetSession().MeetsChrCustomizationReq(choiceReq, GetClass(), false, thisPlayer.PlayerData.Customizations))
+								displayIds.Add(displayInfo.DisplayID);
+						}
+					}
+
+					if (!displayIds.Empty())
+						return displayIds.SelectRandom();
+				}
+				else
+				{
+					var formChoice = thisPlayer.GetCustomizationChoice(formModelData.OptionID);
+
+					if (formChoice != 0)
+					{
+						var choiceIndex = formModelData.Choices.FindIndex(choice => { return choice.Id == formChoice; });
+
+						if (choiceIndex != -1)
+						{
+							var displayInfo = formModelData.Displays[choiceIndex];
+
+							if (displayInfo != null)
+								return displayInfo.DisplayID;
+						}
+					}
+				}
+			}
+
+			switch (form)
+			{
+				case ShapeShiftForm.GhostWolf:
+					if (HasAura(58135)) // Glyph of Spectral Wolf
+						return 60247;
+
+					break;
+				default:
+					break;
+			}
+		}
+
+		uint modelid = 0;
+		var formEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey(form);
+
+		if (formEntry != null && formEntry.CreatureDisplayID[0] != 0)
+		{
+			// Take the alliance modelid as default
+			if (GetTypeId() != TypeId.Player)
+			{
+				return formEntry.CreatureDisplayID[0];
+			}
+			else
+			{
+				if (Player.TeamForRace(GetRace()) == Team.Alliance)
+					modelid = formEntry.CreatureDisplayID[0];
+				else
+					modelid = formEntry.CreatureDisplayID[1];
+
+				// If the player is horde but there are no values for the horde modelid - take the alliance modelid
+				if (modelid == 0 && Player.TeamForRace(GetRace()) == Team.Horde)
+					modelid = formEntry.CreatureDisplayID[0];
+			}
+		}
+
+		return modelid;
+	}
+
+	public Totem ToTotem()
+	{
+		return IsTotem() ? (this as Totem) : null;
+	}
+
+	public TempSummon ToTempSummon()
+	{
+		return IsSummon() ? (this as TempSummon) : null;
+	}
+
+	public virtual void SetDeathState(DeathState s)
+	{
+		// Death state needs to be updated before RemoveAllAurasOnDeath() is called, to prevent entering combat
+		DeathState = s;
+
+		var isOnVehicle = GetVehicle() != null;
+
+		if (s != DeathState.Alive && s != DeathState.JustRespawned)
+		{
+			CombatStop();
+
+			if (IsNonMeleeSpellCast(false))
+				InterruptNonMeleeSpells(false);
+
+			ExitVehicle(); // Exit vehicle before calling RemoveAllControlled
+			// vehicles use special type of charm that is not removed by the next function
+			// triggering an assert
+			UnsummonAllTotems();
+			RemoveAllControlled();
+			RemoveAllAurasOnDeath();
+		}
+
+		if (s == DeathState.JustDied)
+		{
+			// remove aurastates allowing special moves
+			ClearAllReactives();
+			_diminishing.Clear();
+
+			// Don't clear the movement if the Unit was on a vehicle as we are exiting now
+			if (!isOnVehicle)
+				if (GetMotionMaster().StopOnDeath())
+					DisableSpline();
+
+			// without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
+			// do not why since in IncreaseMaxHealth currenthealth is checked
+			SetHealth(0);
+			SetPower(GetPowerType(), 0);
+			SetEmoteState(Emote.OneshotNone);
+
+			// players in instance don't have ZoneScript, but they have InstanceScript
+			var zoneScript = GetZoneScript() != null ? GetZoneScript() : GetInstanceScript();
+
+			if (zoneScript != null)
+				zoneScript.OnUnitDeath(this);
+		}
+		else if (s == DeathState.JustRespawned)
+		{
+			RemoveUnitFlag(UnitFlags.Skinnable); // clear skinnable for creature and player (at Battleground)
+		}
+	}
+
+	public bool IsVisible()
+	{
+		return ServerSideVisibility.GetValue(ServerSideVisibilityType.GM) <= (uint)AccountTypes.Player;
+	}
+
+	public void SetVisible(bool val)
+	{
+		if (!val)
+			ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.GameMaster);
+		else
+			ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
+
+		UpdateObjectVisibility();
+	}
+
+	public bool IsMagnet()
+	{
+		// Grounding Totem
+		if (UnitData.CreatedBySpell == 8177) /// @todo: find a more generic solution
+			return true;
+
+		return false;
+	}
+
+	public void SetShapeshiftForm(ShapeShiftForm form)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ShapeshiftForm), (byte)form);
+	}
+
+	// creates aura application instance and registers it in lists
+	// aura application effects are handled separately to prevent aura list corruption
+	public AuraApplication _CreateAuraApplication(Aura aura, uint effMask)
+	{
+		// can't apply aura on unit which is going to be deleted - to not create a memory leak
+		Cypher.Assert(!_cleanupDone);
+
+		// just return if the aura has been already removed
+		// this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
+		if (aura.IsRemoved())
+		{
+			Log.outError(LogFilter.Spells, $"Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: {GetDebugInfo()}\nAura: {aura.GetDebugInfo()}");
+
+			return null;
+		}
+
+		// aura mustn't be already applied on target
+		Cypher.Assert(!aura.IsAppliedOnTarget(GetGUID()), "Unit._CreateAuraApplication: aura musn't be applied on target");
+
+		var aurSpellInfo = aura.GetSpellInfo();
+
+		// ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
+		if (!IsAlive() &&
+		    !aurSpellInfo.IsDeathPersistent() &&
+		    (!IsTypeId(TypeId.Player) || !ToPlayer().GetSession().PlayerLoading()))
+			return null;
+
+		var caster = aura.GetCaster();
+
+		AuraApplication aurApp = new(this, caster, aura, effMask);
+		_appliedAuras.Add(aurApp);
+
+		if (aurSpellInfo.HasAnyAuraInterruptFlag())
+		{
+			_interruptableAuras.Add(aurApp);
+			AddInterruptMask(aurSpellInfo.AuraInterruptFlags, aurSpellInfo.AuraInterruptFlags2);
+		}
+
+		var aState = aura.GetSpellInfo().GetAuraState();
+
+		if (aState != 0)
+			_auraStateAuras.Add(aState, aurApp);
+
+		aura._ApplyForTarget(this, caster, aurApp);
+
+		return aurApp;
+	}
+
+	public void AddInterruptMask(SpellAuraInterruptFlags flags, SpellAuraInterruptFlags2 flags2)
+	{
+		_interruptMask |= flags;
+		_interruptMask2 |= flags2;
+	}
+
+	public void UpdateDisplayPower()
+	{
+		var displayPower = PowerType.Mana;
+
+		switch (GetShapeshiftForm())
+		{
+			case ShapeShiftForm.Ghoul:
+			case ShapeShiftForm.CatForm:
+				displayPower = PowerType.Energy;
+
+				break;
+			case ShapeShiftForm.BearForm:
+				displayPower = PowerType.Rage;
+
+				break;
+			case ShapeShiftForm.TravelForm:
+			case ShapeShiftForm.GhostWolf:
+				displayPower = PowerType.Mana;
+
+				break;
+			default:
+			{
+				var powerTypeAuras = GetAuraEffectsByType(AuraType.ModPowerDisplay);
+
+				if (!powerTypeAuras.Empty())
+				{
+					var powerTypeAura = powerTypeAuras.First();
+					displayPower = (PowerType)powerTypeAura.GetMiscValue();
+				}
+				else if (GetTypeId() == TypeId.Player)
+				{
+					var cEntry = CliDB.ChrClassesStorage.LookupByKey(GetClass());
+
+					if (cEntry != null && cEntry.DisplayPower < PowerType.Max)
+						displayPower = cEntry.DisplayPower;
+				}
+				else if (GetTypeId() == TypeId.Unit)
+				{
+					var vehicle = GetVehicleKit();
+
+					if (vehicle)
+					{
+						var powerDisplay = CliDB.PowerDisplayStorage.LookupByKey(vehicle.GetVehicleInfo().PowerDisplayID[0]);
+
+						if (powerDisplay != null)
+							displayPower = (PowerType)powerDisplay.ActualType;
+						else if (GetClass() == Class.Rogue)
+							displayPower = PowerType.Energy;
+					}
+					else
+					{
+						var pet = ToPet();
+
+						if (pet)
+						{
+							if (pet.GetPetType() == PetType.Hunter) // Hunter pets have focus
+								displayPower = PowerType.Focus;
+							else if (pet.IsPetGhoul() || pet.IsPetAbomination()) // DK pets have energy
+								displayPower = PowerType.Energy;
+						}
+					}
+				}
+
+				break;
+			}
+		}
+
+		SetPowerType(displayPower);
+	}
+
+	public void SetSheath(SheathState sheathed)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SheatheState), (byte)sheathed);
+
+		if (sheathed == SheathState.Unarmed)
+			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Sheathing);
+	}
+
+	public bool IsInFeralForm()
+	{
+		var form = GetShapeshiftForm();
+
+		return form == ShapeShiftForm.CatForm || form == ShapeShiftForm.BearForm || form == ShapeShiftForm.DireBearForm || form == ShapeShiftForm.GhostWolf;
+	}
+
+	public bool IsControlledByPlayer()
+	{
+		return ControlledByPlayer;
+	}
+
+	public bool IsCharmedOwnedByPlayerOrPlayer()
+	{
+		return GetCharmerOrOwnerOrOwnGUID().IsPlayer();
+	}
+
+	public void FollowerAdded(AbstractFollower f)
+	{
+		_followingMe.Add(f);
+	}
+
+	public void FollowerRemoved(AbstractFollower f)
+	{
+		_followingMe.Remove(f);
+	}
+
+	public uint GetCreatureTypeMask()
+	{
+		var creatureType = (uint)GetCreatureType();
+
+		return (uint)(creatureType >= 1 ? (1 << (int)(creatureType - 1)) : 0);
+	}
+
+	public Pet ToPet()
+	{
+		return IsPet() ? (this as Pet) : null;
+	}
+
+	public MotionMaster GetMotionMaster()
+	{
+		return _motionMaster;
+	}
+
+	public void PlayOneShotAnimKitId(ushort animKitId)
+	{
+		if (!CliDB.AnimKitStorage.ContainsKey(animKitId))
+		{
+			Log.outError(LogFilter.Unit, "Unit.PlayOneShotAnimKitId using invalid AnimKit ID: {0}", animKitId);
+
+			return;
+		}
+
+		PlayOneShotAnimKit packet = new();
+		packet.Unit = GetGUID();
+		packet.AnimKitID = animKitId;
+		SendMessageToSet(packet, true);
+	}
+
+	public void SetAIAnimKitId(ushort animKitId)
+	{
+		if (_aiAnimKitId == animKitId)
+			return;
+
+		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+			return;
+
+		_aiAnimKitId = animKitId;
+
+		SetAIAnimKit data = new();
+		data.Unit = GetGUID();
+		data.AnimKitID = animKitId;
+		SendMessageToSet(data, true);
+	}
+
+	public override ushort GetAIAnimKitId()
+	{
+		return _aiAnimKitId;
+	}
+
+	public void SetMovementAnimKitId(ushort animKitId)
+	{
+		if (_movementAnimKitId == animKitId)
+			return;
+
+		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+			return;
+
+		_movementAnimKitId = animKitId;
+
+		SetMovementAnimKit data = new();
+		data.Unit = GetGUID();
+		data.AnimKitID = animKitId;
+		SendMessageToSet(data, true);
+	}
+
+	public override ushort GetMovementAnimKitId()
+	{
+		return _movementAnimKitId;
+	}
+
+	public void SetMeleeAnimKitId(ushort animKitId)
+	{
+		if (_meleeAnimKitId == animKitId)
+			return;
+
+		if (animKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(animKitId))
+			return;
+
+		_meleeAnimKitId = animKitId;
+
+		SetMeleeAnimKit data = new();
+		data.Unit = GetGUID();
+		data.AnimKitID = animKitId;
+		SendMessageToSet(data, true);
+	}
+
+
+	public bool HasExtraUnitMovementFlag(MovementFlag2 f)
+	{
+		return MovementInfo.HasMovementFlag2(f);
+	}
+
+	public override ushort GetMeleeAnimKitId()
+	{
+		return _meleeAnimKitId;
+	}
+
+	public uint GetVirtualItemId(int slot)
+	{
+		if (slot >= SharedConst.MaxEquipmentItems)
+			return 0;
+
+		return UnitData.VirtualItems[slot].ItemID;
+	}
+
+	public ushort GetVirtualItemAppearanceMod(uint slot)
+	{
+		if (slot >= SharedConst.MaxEquipmentItems)
+			return 0;
+
+		return UnitData.VirtualItems[(int)slot].ItemAppearanceModID;
+	}
+
+	public void SetVirtualItem(uint slot, uint itemId, ushort appearanceModId = 0, ushort itemVisual = 0)
+	{
+		if (slot >= SharedConst.MaxEquipmentItems)
+			return;
+
+		var virtualItemField = Values.ModifyValue(UnitData).ModifyValue(UnitData.VirtualItems, (int)slot);
+		SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemID), itemId);
+		SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemAppearanceModID), appearanceModId);
+		SetUpdateFieldValue(virtualItemField.ModifyValue(virtualItemField.ItemVisual), itemVisual);
+	}
+
+	//Unit
+	public void SetLevel(uint lvl, bool sendUpdate = true)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Level), lvl);
+
+		if (!sendUpdate)
+			return;
+
+		var player = ToPlayer();
+
+		if (player != null)
+		{
+			if (player.GetGroup())
+				player.SetGroupUpdateFlag(GroupUpdateFlags.Level);
+
+			Global.CharacterCacheStorage.UpdateCharacterLevel(ToPlayer().GetGUID(), (byte)lvl);
+		}
+	}
+
+	public uint GetLevel()
+	{
+		return UnitData.Level;
+	}
+
+	public override uint GetLevelForTarget(WorldObject target)
+	{
+		return GetLevel();
+	}
+
+	public Race GetRace()
+	{
+		return (Race)(byte)UnitData.Race;
+	}
+
+	public void SetRace(Race race)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Race), (byte)race);
+	}
+
+	public bool IsAlliedRace()
+	{
+		var player = ToPlayer();
+
+		if (player == null)
+			return false;
+
+		var race = GetRace();
+
+		/* pandaren death knight (basically same thing as allied death knight) */
+		if ((race == Race.PandarenAlliance || race == Race.PandarenHorde || race == Race.PandarenNeutral) && GetClass() == Class.Deathknight)
+			return true;
+
+		/* other allied races */
+		switch (race)
+		{
+			case Race.Nightborne:
+			case Race.HighmountainTauren:
+			case Race.VoidElf:
+			case Race.LightforgedDraenei:
+			case Race.ZandalariTroll:
+			case Race.KulTiran:
+			case Race.DarkIronDwarf:
+			case Race.Vulpera:
+			case Race.MagharOrc:
+			case Race.MechaGnome:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+
+	public Class GetClass()
+	{
+		return (Class)(byte)UnitData.ClassId;
+	}
+
+	public void SetClass(Class classId)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ClassId), (byte)classId);
+	}
+
+	public uint GetClassMask()
+	{
+		return (uint)(1 << ((int)GetClass() - 1));
+	}
+
+	public Gender GetGender()
+	{
+		return (Gender)(byte)UnitData.Sex;
+	}
+
+	public void SetGender(Gender sex)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Sex), (byte)sex);
+	}
+
+	public virtual Gender GetNativeGender()
+	{
+		return GetGender();
+	}
+
+	public virtual void SetNativeGender(Gender gender)
+	{
+		SetGender(gender);
+	}
+
+	public void RecalculateObjectScale()
+	{
+		var scaleAuras = GetTotalAuraModifier(AuraType.ModScale) + GetTotalAuraModifier(AuraType.ModScale2);
+		var scale = GetNativeObjectScale() + MathFunctions.CalculatePct(1.0f, scaleAuras);
+		var scaleMin = IsPlayer() ? 0.1f : 0.01f;
+		SetObjectScale((float)Math.Max(scale, scaleMin));
+	}
+
+	public virtual float GetNativeObjectScale()
+	{
+		return 1.0f;
+	}
+
+	public uint GetDisplayId()
+	{
+		return UnitData.DisplayID;
+	}
+
+	public virtual void SetDisplayId(uint modelId, float displayScale = 1f)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID), modelId);
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayScale), displayScale);
+		// Set Gender by modelId
+		var minfo = Global.ObjectMgr.GetCreatureModelInfo(modelId);
+
+		if (minfo != null)
+			SetGender((Gender)minfo.Gender);
+	}
+
+	public void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false)
+	{
+		AuraEffect handledAura = null;
+		// try to receive model from transform auras
+		var transforms = GetAuraEffectsByType(AuraType.Transform);
+
+		if (!transforms.Empty())
+			// iterate over already applied transform auras - from newest to oldest
+			foreach (var eff in transforms)
+			{
+				var aurApp = eff.GetBase().GetApplicationOfTarget(GetGUID());
+
+				if (aurApp != null)
+				{
+					if (handledAura == null)
+					{
+						if (!ignorePositiveAurasPreventingMounting)
+						{
+							handledAura = eff;
+						}
+						else
+						{
+							var ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.GetMiscValue());
+
+							if (ci != null)
+								if (!IsDisallowedMountForm(eff.GetId(), ShapeShiftForm.None, ObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
+									handledAura = eff;
+						}
+					}
+
+					// prefer negative auras
+					if (!aurApp.IsPositive())
+					{
+						handledAura = eff;
+
+						break;
+					}
+				}
+			}
+
+		var shapeshiftAura = GetAuraEffectsByType(AuraType.ModShapeshift);
+
+		// transform aura was found
+		if (handledAura != null)
+		{
+			handledAura.HandleEffect(this, AuraEffectHandleModes.SendForClient, true);
+
+			return;
+		}
+		// we've found shapeshift
+		else if (!shapeshiftAura.Empty()) // we've found shapeshift
+		{
+			// only one such aura possible at a time
+			var modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura[0].GetId());
+
+			if (modelId != 0)
+			{
+				if (!ignorePositiveAurasPreventingMounting || !IsDisallowedMountForm(0, GetShapeshiftForm(), modelId))
+					SetDisplayId(modelId);
+				else
+					SetDisplayId(GetNativeDisplayId());
+
+				return;
+			}
+		}
+
+		// no auras found - set modelid to default
+		SetDisplayId(GetNativeDisplayId());
+	}
+
+	public uint GetNativeDisplayId()
+	{
+		return UnitData.NativeDisplayID;
+	}
+
+	public void SetNativeDisplayId(uint displayId, float displayScale = 1f)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.NativeDisplayID), displayId);
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.NativeXDisplayScale), displayScale);
+	}
+
+	public float GetNativeDisplayScale()
+	{
+		return UnitData.NativeXDisplayScale;
+	}
+
+	public bool IsMounted()
+	{
+		return HasUnitFlag(UnitFlags.Mount);
+	}
+
+	public uint GetMountDisplayId()
+	{
+		return UnitData.MountDisplayID;
+	}
+
+	public void SetMountDisplayId(uint mountDisplayId)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.MountDisplayID), mountDisplayId);
+	}
+
+	public void SetCosmeticMountDisplayId(uint mountDisplayId)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CosmeticMountDisplayID), mountDisplayId);
+	}
+
+	public virtual float GetFollowAngle()
+	{
+		return MathFunctions.PiOver2;
+	}
+
+	public override ObjectGuid GetOwnerGUID()
+	{
+		return UnitData.SummonedBy;
+	}
+
+	public void SetOwnerGUID(ObjectGuid owner)
+	{
+		if (GetOwnerGUID() == owner)
+			return;
+
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.SummonedBy), owner);
+
+		if (owner.IsEmpty())
+			return;
+
+		// Update owner dependent fields
+		var player = Global.ObjAccessor.GetPlayer(this, owner);
+
+		if (player == null || !player.HaveAtClient(this)) // if player cannot see this unit yet, he will receive needed data with create object
+			return;
+
+		UpdateData udata = new(Location.MapId);
+		BuildValuesUpdateBlockForPlayerWithFlag(udata, UpdateFieldFlag.Owner, player);
+		udata.BuildPacket(out var packet);
+		player.SendPacket(packet);
+	}
+
+	public ObjectGuid GetCreatorGUID()
+	{
+		return UnitData.CreatedBy;
+	}
+
+	public void SetCreatorGUID(ObjectGuid creator)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CreatedBy), creator);
+	}
+
+	public ObjectGuid GetMinionGUID()
+	{
+		return UnitData.Summon;
+	}
+
+	public void SetMinionGUID(ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Summon), guid);
+	}
+
+	public ObjectGuid GetPetGUID()
+	{
+		return SummonSlot[0];
+	}
+
+	public void SetPetGUID(ObjectGuid guid)
+	{
+		SummonSlot[0] = guid;
+	}
+
+	public ObjectGuid GetCritterGUID()
+	{
+		return UnitData.Critter;
+	}
+
+	public void SetCritterGUID(ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Critter), guid);
+	}
+
+	public ObjectGuid GetBattlePetCompanionGUID()
+	{
+		return UnitData.BattlePetCompanionGUID;
+	}
+
+	public void SetBattlePetCompanionGUID(ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BattlePetCompanionGUID), guid);
+	}
+
+	public ObjectGuid GetDemonCreatorGUID()
+	{
+		return UnitData.DemonCreator;
+	}
+
+	public void SetDemonCreatorGUID(ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.DemonCreator), guid);
+	}
+
+	public ObjectGuid GetCharmerGUID()
+	{
+		return UnitData.CharmedBy;
+	}
+
+	public Unit GetCharmer()
+	{
+		return _charmer;
+	}
+
+	public ObjectGuid GetCharmedGUID()
+	{
+		return UnitData.Charm;
+	}
+
+	public Unit GetCharmed()
+	{
+		return _charmed;
+	}
+
+	public override ObjectGuid GetCharmerOrOwnerGUID()
+	{
+		return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID();
+	}
+
+	public override Unit GetCharmerOrOwner()
+	{
+		return IsCharmed() ? GetCharmer() : GetOwner();
+	}
+
+	public uint GetBattlePetCompanionNameTimestamp()
+	{
+		return UnitData.BattlePetCompanionNameTimestamp;
+	}
+
+	public void SetBattlePetCompanionNameTimestamp(uint timestamp)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BattlePetCompanionNameTimestamp), timestamp);
+	}
+
+	public uint GetBattlePetCompanionExperience()
+	{
+		return UnitData.BattlePetCompanionExperience;
+	}
+
+	public void SetBattlePetCompanionExperience(uint experience)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.BattlePetCompanionExperience), experience);
+	}
+
+	public uint GetWildBattlePetLevel()
+	{
+		return UnitData.WildBattlePetLevel;
+	}
+
+	public void SetWildBattlePetLevel(uint wildBattlePetLevel)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.WildBattlePetLevel), wildBattlePetLevel);
+	}
+
+	public bool HasUnitFlag(UnitFlags flags)
+	{
+		return (UnitData.Flags & (uint)flags) != 0;
+	}
+
+	public void SetUnitFlag(UnitFlags flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags), (uint)flags);
+	}
+
+	public void RemoveUnitFlag(UnitFlags flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags), (uint)flags);
+	}
+
+	public void ReplaceAllUnitFlags(UnitFlags flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags), (uint)flags);
+	}
+
+	public bool HasUnitFlag2(UnitFlags2 flags)
+	{
+		return (UnitData.Flags2 & (uint)flags) != 0;
+	}
+
+	public void SetUnitFlag2(UnitFlags2 flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags2), (uint)flags);
+	}
+
+	public void RemoveUnitFlag2(UnitFlags2 flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags2), (uint)flags);
+	}
+
+	public void ReplaceAllUnitFlags2(UnitFlags2 flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags2), (uint)flags);
+	}
+
+	public bool HasUnitFlag3(UnitFlags3 flags)
+	{
+		return (UnitData.Flags3 & (uint)flags) != 0;
+	}
+
+	public void SetUnitFlag3(UnitFlags3 flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags3), (uint)flags);
+	}
+
+	public void RemoveUnitFlag3(UnitFlags3 flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags3), (uint)flags);
+	}
+
+	public void ReplaceAllUnitFlags3(UnitFlags3 flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags3), (uint)flags);
+	}
+
+	public UnitDynFlags GetDynamicFlags()
+	{
+		return (UnitDynFlags)(uint)ObjectData.DynamicFlags;
+	}
+
+	public bool HasDynamicFlag(UnitDynFlags flag)
+	{
+		return (ObjectData.DynamicFlags & (uint)flag) != 0;
+	}
+
+	public void SetDynamicFlag(UnitDynFlags flag)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags), (uint)flag);
+	}
+
+	public void RemoveDynamicFlag(UnitDynFlags flag)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags), (uint)flag);
+	}
+
+	public void ReplaceAllDynamicFlags(UnitDynFlags flag)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags), (uint)flag);
+	}
+
+	public void SetCreatedBySpell(uint spellId)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CreatedBySpell), spellId);
+	}
+
+	public void SetNameplateAttachToGUID(ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.NameplateAttachToGUID), guid);
+	}
+
+	public Emote GetEmoteState()
+	{
+		return (Emote)(int)UnitData.EmoteState;
+	}
+
+	public void SetEmoteState(Emote emote)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.EmoteState), (int)emote);
+	}
+
+	public SheathState GetSheath()
+	{
+		return (SheathState)(byte)UnitData.SheatheState;
+	}
+
+	public UnitPVPStateFlags GetPvpFlags()
+	{
+		return (UnitPVPStateFlags)(byte)UnitData.PvpFlags;
+	}
+
+	public bool HasPvpFlag(UnitPVPStateFlags flags)
+	{
+		return (UnitData.PvpFlags & (uint)flags) != 0;
+	}
+
+	public void SetPvpFlag(UnitPVPStateFlags flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PvpFlags), (byte)flags);
+	}
+
+	public void RemovePvpFlag(UnitPVPStateFlags flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PvpFlags), (byte)flags);
+	}
+
+	public void ReplaceAllPvpFlags(UnitPVPStateFlags flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PvpFlags), (byte)flags);
+	}
+
+	public bool IsInSanctuary()
+	{
+		return HasPvpFlag(UnitPVPStateFlags.Sanctuary);
+	}
+
+	public bool IsPvP()
+	{
+		return HasPvpFlag(UnitPVPStateFlags.PvP);
+	}
+
+	public bool IsFFAPvP()
+	{
+		return HasPvpFlag(UnitPVPStateFlags.FFAPvp);
+	}
+
+	public UnitPetFlags GetPetFlags()
+	{
+		return (UnitPetFlags)(byte)UnitData.PetFlags;
+	}
+
+	public bool HasPetFlag(UnitPetFlags flags)
+	{
+		return (UnitData.PetFlags & (byte)flags) != 0;
+	}
+
+	public void SetPetFlag(UnitPetFlags flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetFlags), (byte)flags);
+	}
+
+	public void RemovePetFlag(UnitPetFlags flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetFlags), (byte)flags);
+	}
+
+	public void ReplaceAllPetFlags(UnitPetFlags flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetFlags), (byte)flags);
+	}
+
+	public void SetPetNumberForClient(uint petNumber)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetNumber), petNumber);
+	}
+
+	public void SetPetNameTimestamp(uint timestamp)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetNameTimestamp), timestamp);
+	}
+
+	public ShapeShiftForm GetShapeshiftForm()
+	{
+		return (ShapeShiftForm)(byte)UnitData.ShapeshiftForm;
+	}
+
+	public CreatureType GetCreatureType()
+	{
+		if (IsTypeId(TypeId.Player))
+		{
+			var form = GetShapeshiftForm();
+			var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
+
+			if (ssEntry != null && ssEntry.CreatureType > 0)
+			{
+				return (CreatureType)ssEntry.CreatureType;
+			}
+			else
+			{
+				var raceEntry = CliDB.ChrRacesStorage.LookupByKey(GetRace());
+
+				return (CreatureType)raceEntry.CreatureType;
+			}
+		}
+		else
+		{
+			return ToCreature().GetCreatureTemplate().CreatureType;
+		}
+	}
+
+	public void DeMorph()
+	{
+		SetDisplayId(GetNativeDisplayId());
+	}
+
+	public bool HasUnitTypeMask(UnitTypeMask mask)
+	{
+		return Convert.ToBoolean(mask & UnitTypeMask);
+	}
+
+	public void AddUnitTypeMask(UnitTypeMask mask)
+	{
+		UnitTypeMask |= mask;
+	}
+
+	public bool IsAlive()
+	{
+		return DeathState == DeathState.Alive;
+	}
+
+	public bool IsDying()
+	{
+		return DeathState == DeathState.JustDied;
+	}
+
+	public bool IsDead()
+	{
+		return (DeathState == DeathState.Dead || DeathState == DeathState.Corpse);
+	}
+
+	public bool IsSummon()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.Summon);
+	}
+
+	public bool IsGuardian()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.Guardian);
+	}
+
+	public bool IsPet()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.Pet);
+	}
+
+	public bool IsHunterPet()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.HunterPet);
+	}
+
+	public bool IsTotem()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.Totem);
+	}
+
+	public bool IsVehicle()
+	{
+		return UnitTypeMask.HasAnyFlag(UnitTypeMask.Vehicle);
+	}
+
+	public void AddUnitState(UnitState f)
+	{
+		_state |= f;
+	}
+
+	public bool HasUnitState(UnitState f)
+	{
+		return _state.HasAnyFlag(f);
+	}
+
+	public void ClearUnitState(UnitState f)
+	{
+		_state &= ~f;
+	}
+
+	public override bool IsAlwaysVisibleFor(WorldObject seer)
+	{
+		if (base.IsAlwaysVisibleFor(seer))
+			return true;
+
+		// Always seen by owner
+		var guid = GetCharmerOrOwnerGUID();
+
+		if (!guid.IsEmpty())
+			if (seer.GetGUID() == guid)
+				return true;
+
+		var seerPlayer = seer.ToPlayer();
+
+		if (seerPlayer != null)
+		{
+			var owner = GetOwner();
+
+			if (owner != null)
+			{
+				var ownerPlayer = owner.ToPlayer();
+
+				if (ownerPlayer)
+					if (ownerPlayer.IsGroupVisibleFor(seerPlayer))
+						return true;
+			}
+		}
+
+		return false;
+	}
+
+	public override uint GetFaction()
+	{
+		return UnitData.FactionTemplate;
+	}
+
+	public override void SetFaction(uint faction)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.FactionTemplate), faction);
+	}
+
+	public void RestoreFaction()
+	{
+		if (HasAuraType(AuraType.ModFaction))
+		{
+			SetFaction((uint)GetAuraEffectsByType(AuraType.ModFaction).LastOrDefault().GetMiscValue());
+
+			return;
+		}
+
+		if (IsTypeId(TypeId.Player))
+		{
+			ToPlayer().SetFactionForRace(GetRace());
+		}
+		else
+		{
+			if (HasUnitTypeMask(UnitTypeMask.Minion))
+			{
+				var owner = GetOwner();
+
+				if (owner)
+				{
+					SetFaction(owner.GetFaction());
+
+					return;
+				}
+			}
+
+			var cinfo = ToCreature().GetCreatureTemplate();
+
+			if (cinfo != null) // normal creature
+				SetFaction(cinfo.Faction);
+		}
+	}
+
+	public bool IsInPartyWith(Unit unit)
+	{
+		if (this == unit)
+			return true;
+
+		var u1 = GetCharmerOrOwnerOrSelf();
+		var u2 = unit.GetCharmerOrOwnerOrSelf();
+
+		if (u1 == u2)
+			return true;
+
+		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
+			return u1.ToPlayer().IsInSameGroupWith(u2.ToPlayer());
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+		         (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+			return true;
+
+		return u1.GetTypeId() == TypeId.Unit && u2.GetTypeId() == TypeId.Unit && u1.GetFaction() == u2.GetFaction();
+	}
+
+	public bool IsInRaidWith(Unit unit)
+	{
+		if (this == unit)
+			return true;
+
+		var u1 = GetCharmerOrOwnerOrSelf();
+		var u2 = unit.GetCharmerOrOwnerOrSelf();
+
+		if (u1 == u2)
+			return true;
+
+		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
+			return u1.ToPlayer().IsInSameRaidWith(u2.ToPlayer());
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+		         (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.ToCreature().GetCreatureTemplate().TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+			return true;
+
+		// else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
+		return u1.GetFaction() == u2.GetFaction();
+	}
+
+	public void GetPartyMembers(List<Unit> TagUnitMap)
+	{
+		var owner = GetCharmerOrOwnerOrSelf();
+		Group group = null;
+
+		if (owner.GetTypeId() == TypeId.Player)
+			group = owner.ToPlayer().GetGroup();
+
+		if (group != null)
+		{
+			var subgroup = owner.ToPlayer().GetSubGroup();
+
+			for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+			{
+				var target = refe.GetSource();
+
+				// IsHostileTo check duel and controlled by enemy
+				if (target != null && target.IsInMap(owner) && target.GetSubGroup() == subgroup && !IsHostileTo(target))
+				{
+					if (target.IsAlive())
+						TagUnitMap.Add(target);
+
+					var pet = target.GetGuardianPet();
+
+					if (target.GetGuardianPet())
+						if (pet.IsAlive())
+							TagUnitMap.Add(pet);
+				}
+			}
+		}
+		else
+		{
+			if ((owner == this || IsInMap(owner)) && owner.IsAlive())
+				TagUnitMap.Add(owner);
+
+			var pet = owner.GetGuardianPet();
+
+			if (owner.GetGuardianPet() != null)
+				if ((pet == this || IsInMap(pet)) && pet.IsAlive())
+					TagUnitMap.Add(pet);
+		}
+	}
+
+	public UnitStandStateType GetStandState()
+	{
+		return (UnitStandStateType)(byte)UnitData.StandState;
+	}
+
+	public void SetVisFlag(UnitVisFlags flags)
+	{
+		SetUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.VisFlags), (byte)flags);
+	}
+
+	public void RemoveVisFlag(UnitVisFlags flags)
+	{
+		RemoveUpdateFieldFlagValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.VisFlags), (byte)flags);
+	}
+
+	public void ReplaceAllVisFlags(UnitVisFlags flags)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.VisFlags), (byte)flags);
+	}
+
+	public bool IsSitState()
+	{
+		var s = GetStandState();
+
+		return
+			s == UnitStandStateType.SitChair ||
+			s == UnitStandStateType.SitLowChair ||
+			s == UnitStandStateType.SitMediumChair ||
+			s == UnitStandStateType.SitHighChair ||
+			s == UnitStandStateType.Sit;
+	}
+
+	public bool IsStandState()
+	{
+		var s = GetStandState();
+
+		return !IsSitState() && s != UnitStandStateType.Sleep && s != UnitStandStateType.Kneel;
+	}
+
+	public void SetStandState(UnitStandStateType state, uint animKitId = 0)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.StandState), (byte)state);
+
+		if (IsStandState())
+			RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Standing);
+
+		if (IsTypeId(TypeId.Player))
+		{
+			StandStateUpdate packet = new(state, animKitId);
+			ToPlayer().SendPacket(packet);
+		}
+	}
+
+	public AnimTier GetAnimTier()
+	{
+		return (AnimTier)(byte)UnitData.AnimTier;
+	}
+
+	public void SetAnimTier(AnimTier animTier, bool notifyClient = true)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.AnimTier), (byte)animTier);
+
+		if (notifyClient)
+		{
+			SetAnimTier setAnimTier = new();
+			setAnimTier.Unit = GetGUID();
+			setAnimTier.Tier = (int)animTier;
+			SendMessageToSet(setAnimTier, true);
+		}
+	}
+
+	public uint GetChannelSpellId()
+	{
+		return ((UnitChannel)UnitData.ChannelData).SpellID;
+	}
+
+	public void SetChannelSpellId(uint channelSpellId)
+	{
+		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelData).Value.SpellID, channelSpellId);
+	}
+
+	public uint GetChannelSpellXSpellVisualId()
+	{
+		return UnitData.ChannelData.GetValue().SpellVisual.SpellXSpellVisualID;
+	}
+
+	public uint GetChannelScriptVisualId()
+	{
+		return UnitData.ChannelData.GetValue().SpellVisual.ScriptVisualID;
+	}
+
+	public void SetChannelVisual(SpellCastVisualField channelVisual)
+	{
+		UnitChannel unitChannel = Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelData);
+		SetUpdateFieldValue(ref unitChannel.SpellVisual, channelVisual);
+	}
+
+	public void AddChannelObject(ObjectGuid guid)
+	{
+		AddDynamicUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelObjects), guid);
+	}
+
+	public void SetChannelObject(int slot, ObjectGuid guid)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelObjects, slot), guid);
+	}
+
+	public void ClearChannelObjects()
+	{
+		ClearDynamicUpdateFieldValues(Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelObjects));
+	}
+
+	public void RemoveChannelObject(ObjectGuid guid)
+	{
+		var index = UnitData.ChannelObjects.FindIndex(guid);
+
+		if (index >= 0)
+			RemoveDynamicUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ChannelObjects), index);
+	}
+
+	public static bool IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo spellInfo = null)
+	{
+		// only physical spells damage gets reduced by armor
+		if ((schoolMask & SpellSchoolMask.Normal) == 0)
+			return false;
+
+		return spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.IgnoreArmor);
+	}
+
+	public override UpdateFieldFlag GetUpdateFieldFlagsFor(Player target)
+	{
+		var flags = UpdateFieldFlag.None;
+
+		if (target == this || GetOwnerGUID() == target.GetGUID())
+			flags |= UpdateFieldFlag.Owner;
+
+		if (HasDynamicFlag(UnitDynFlags.SpecialInfo))
+			if (HasAuraTypeWithCaster(AuraType.Empathy, target.GetGUID()))
+				flags |= UpdateFieldFlag.Empath;
+
+		return flags;
+	}
+
+	public override void BuildValuesCreate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
+
+		buffer.WriteUInt8((byte)flags);
+		ObjectData.WriteCreate(buffer, flags, this, target);
+		UnitData.WriteCreate(buffer, flags, this, target);
+
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteBytes(buffer);
+	}
+
+	public override void BuildValuesUpdate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
+
+		buffer.WriteUInt32(Values.GetChangedObjectTypeMask());
+
+		if (Values.HasChanged(TypeId.Object))
+			ObjectData.WriteUpdate(buffer, flags, this, target);
+
+		if (Values.HasChanged(TypeId.Unit))
+			UnitData.WriteUpdate(buffer, flags, this, target);
+
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteBytes(buffer);
+	}
+
+	public override void BuildValuesUpdateWithFlag(WorldPacket data, UpdateFieldFlag flags, Player target)
+	{
+		UpdateMask valuesMask = new(14);
+		valuesMask.Set((int)TypeId.Unit);
+
+		WorldPacket buffer = new();
+
+		UpdateMask mask = new(194);
+		UnitData.AppendAllowedFieldsMaskForFlag(mask, flags);
+		UnitData.WriteUpdate(buffer, mask, true, this, target);
+
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteUInt32(valuesMask.GetBlock(0));
+		data.WriteBytes(buffer);
+	}
+
+	public void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedUnitMask, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		UpdateMask valuesMask = new((int)TypeId.Max);
+
+		if (requestedObjectMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Object);
+
+		UnitData.FilterDisallowedFieldsMaskForFlag(requestedUnitMask, flags);
+
+		if (requestedUnitMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Unit);
+
+		WorldPacket buffer = new();
+		buffer.WriteUInt32(valuesMask.GetBlock(0));
+
+		if (valuesMask[(int)TypeId.Object])
+			ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+		if (valuesMask[(int)TypeId.Unit])
+			UnitData.WriteUpdate(buffer, requestedUnitMask, true, this, target);
+
+		WorldPacket buffer1 = new();
+		buffer1.WriteUInt8((byte)UpdateType.Values);
+		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WriteUInt32(buffer.GetSize());
+		buffer1.WriteBytes(buffer.GetData());
+
+		data.AddUpdateBlock(buffer1);
+	}
+
+	public override void ClearUpdateMask(bool remove)
+	{
+		Values.ClearChangesMask(UnitData);
+		base.ClearUpdateMask(remove);
+	}
+
+	public override void DestroyForPlayer(Player target)
+	{
+		var bg = target.GetBattleground();
+
+		if (bg != null)
+			if (bg.IsArena())
+			{
+				DestroyArenaUnit destroyArenaUnit = new();
+				destroyArenaUnit.Guid = GetGUID();
+				target.SendPacket(destroyArenaUnit);
+			}
+
+		base.DestroyForPlayer(target);
+	}
+
+	public bool CanDualWield()
+	{
+		return m_canDualWield;
+	}
+
+	public virtual void SetCanDualWield(bool value)
+	{
+		m_canDualWield = value;
+	}
+
+	public DeathState GetDeathState()
+	{
+		return DeathState;
+	}
+
+	public bool HaveOffhandWeapon()
+	{
+		if (IsTypeId(TypeId.Player))
+			return ToPlayer().GetWeaponForAttack(WeaponAttackType.OffAttack, true) != null;
+		else
+			return m_canDualWield;
+	}
+
+	public static void DealDamageMods(Unit attacker, Unit victim, ref double damage)
+	{
+		if (victim == null || !victim.IsAlive() || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsInEvadeMode()))
+			damage = 0;
+	}
+
+	public static bool CheckEvade(Unit attacker, Unit victim, ref double damage, ref double absorb)
+	{
+		if (victim == null || !victim.IsAlive() || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks()))
+		{
+			absorb += damage;
+			damage = 0;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void ScaleDamage(Unit attacker, Unit victim, ref double damage)
+	{
+		if (attacker != null)
+			damage = damage * attacker.GetDamageMultiplierForTarget(victim);
+	}
+
+	public static void DealDamageMods(Unit attacker, Unit victim, ref double damage, ref double absorb)
+	{
+		if (!CheckEvade(attacker, victim, ref damage, ref absorb))
+			ScaleDamage(attacker, victim, ref damage);
+	}
+
+	public static double DealDamage(Unit attacker, Unit victim, double damage, CleanDamage cleanDamage = null, DamageEffectType damagetype = DamageEffectType.Direct, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal, SpellInfo spellProto = null, bool durabilityLoss = true)
+	{
+		var damageDone = damage;
+		var damageTaken = damage;
+
+		if (attacker != null)
+			damageTaken = (damage / victim.GetHealthMultiplierForTarget(attacker));
+
+		// call script hooks
+		{
+			var tmpDamage = damageTaken;
+
+			victim.GetAI()?.DamageTaken(attacker, ref tmpDamage, damagetype, spellProto);
+
+			attacker?.GetAI()?.DamageDealt(victim, ref tmpDamage, damagetype);
+
+			// Hook for OnDamage Event
+			Global.ScriptMgr.ForEach<IUnitOnDamage>(p => p.OnDamage(attacker, victim, ref tmpDamage));
+
+			// if any script modified damage, we need to also apply the same modification to unscaled damage value
+			if (tmpDamage != damageTaken)
+			{
+				if (attacker)
+					damageDone = (uint)(tmpDamage * victim.GetHealthMultiplierForTarget(attacker));
+				else
+					damageDone = tmpDamage;
+
+				damageTaken = tmpDamage;
+			}
+		}
+
+		// Signal to pets that their owner was attacked - except when DOT.
+		if (attacker != victim && damagetype != DamageEffectType.DOT)
+			foreach (var controlled in victim.Controlled)
+			{
+				var cControlled = controlled.ToCreature();
+
+				if (cControlled != null)
+				{
+					var controlledAI = cControlled.GetAI();
+
+					if (controlledAI != null)
+						controlledAI.OwnerAttackedBy(attacker);
+				}
+			}
+
+		var player = victim.ToPlayer();
+
+		if (player != null && player.GetCommandStatus(PlayerCommandStates.God))
+			return 0;
+
+		if (damagetype != DamageEffectType.NoDamage)
+		{
+			// interrupting auras with SpellAuraInterruptFlags.Damage before checking !damage (absorbed damage breaks that type of auras)
+			if (spellProto != null)
+			{
+				if (!spellProto.HasAttribute(SpellAttr4.ReactiveDamageProc))
+					victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage, spellProto);
+			}
+			else
+			{
+				victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Damage);
+			}
+
+			if (damageTaken == 0 && damagetype != DamageEffectType.DOT && cleanDamage != null && cleanDamage.AbsorbedDamage != 0)
+				if (victim != attacker && victim.IsPlayer())
+				{
+					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
+
+					if (spell != null)
+						if (spell.GetState() == SpellState.Preparing && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageAbsorb))
+							victim.InterruptNonMeleeSpells(false);
+				}
+
+			// We're going to call functions which can modify content of the list during iteration over it's elements
+			// Let's copy the list so we can prevent iterator invalidation
+			var vCopyDamageCopy = victim.GetAuraEffectsByType(AuraType.ShareDamagePct);
+
+			// copy damage to casters of this aura
+			foreach (var aura in vCopyDamageCopy)
+			{
+				// Check if aura was removed during iteration - we don't need to work on such auras
+				if (!aura.GetBase().IsAppliedOnTarget(victim.GetGUID()))
+					continue;
+
+				// check damage school mask
+				if ((aura.GetMiscValue() & (int)damageSchoolMask) == 0)
+					continue;
+
+				var shareDamageTarget = aura.GetCaster();
+
+				if (shareDamageTarget == null)
+					continue;
+
+				var spell = aura.GetSpellInfo();
+
+				var share = MathFunctions.CalculatePct(damageDone, aura.GetAmount());
+
+				// @todo check packets if damage is done by victim, or by attacker of victim
+				DealDamageMods(attacker, shareDamageTarget, ref share);
+				DealDamage(attacker, shareDamageTarget, share, null, DamageEffectType.NoDamage, spell.GetSchoolMask(), spell, false);
+			}
+		}
+
+		// Rage from Damage made (only from direct weapon damage)
+		if (attacker != null && cleanDamage != null && (cleanDamage.AttackType == WeaponAttackType.BaseAttack || cleanDamage.AttackType == WeaponAttackType.OffAttack) && damagetype == DamageEffectType.Direct && attacker != victim && attacker.GetPowerType() == PowerType.Rage)
+		{
+			var rage = (uint)(attacker.GetBaseAttackTime(cleanDamage.AttackType) / 1000.0f * 1.75f);
+
+			if (cleanDamage.AttackType == WeaponAttackType.OffAttack)
+				rage /= 2;
+
+			attacker.RewardRage(rage);
+		}
+
+		if (damageDone == 0)
+			return 0;
+
+		var health = (uint)victim.GetHealth();
+
+		// duel ends when player has 1 or less hp
+		var duel_hasEnded = false;
+		var duel_wasMounted = false;
+
+		if (victim.IsPlayer() && victim.ToPlayer().Duel != null && damageTaken >= (health - 1))
+		{
+			if (!attacker)
+				return 0;
+
+			// prevent kill only if killed in duel and killed by opponent or opponent controlled creature
+			if (victim.ToPlayer().Duel.Opponent == attacker.GetControllingPlayer())
+				damageTaken = health - 1;
+
+			duel_hasEnded = true;
+		}
+		else if (victim.IsVehicle() && damageTaken >= (health - 1) && victim.GetCharmer() != null && victim.GetCharmer().IsTypeId(TypeId.Player))
+		{
+			var victimRider = victim.GetCharmer().ToPlayer();
+
+			if (victimRider != null && victimRider.Duel != null && victimRider.Duel.IsMounted)
+			{
+				if (!attacker)
+					return 0;
+
+				// prevent kill only if killed in duel and killed by opponent or opponent controlled creature
+				if (victimRider.Duel.Opponent == attacker.GetControllingPlayer())
+					damageTaken = health - 1;
+
+				duel_wasMounted = true;
+				duel_hasEnded = true;
+			}
+		}
+
+		if (attacker != null && attacker != victim)
+		{
+			var killer = attacker.ToPlayer();
+
+			if (killer != null)
+			{
+				// in bg, count dmg if victim is also a player
+				if (victim.IsPlayer())
+				{
+					var bg = killer.GetBattleground();
+
+					if (bg != null)
+						bg.UpdatePlayerScore(killer, ScoreType.DamageDone, (uint)damageDone);
+				}
+
+				killer.UpdateCriteria(CriteriaType.DamageDealt, health > damageDone ? damageDone : health, 0, 0, victim);
+				killer.UpdateCriteria(CriteriaType.HighestDamageDone, damageDone);
+			}
+		}
+
+		if (victim.IsPlayer())
+			victim.ToPlayer().UpdateCriteria(CriteriaType.HighestDamageTaken, damageTaken);
+
+		if (victim.GetTypeId() != TypeId.Player && (!victim.IsControlledByPlayer() || victim.IsVehicle()))
+		{
+			victim.ToCreature().SetTappedBy(attacker);
+
+			if (attacker == null || attacker.IsControlledByPlayer())
+				victim.ToCreature().LowerPlayerDamageReq(health < damageTaken ? health : damageTaken);
+		}
+
+		var killed = false;
+		var skipSettingDeathState = false;
+
+		if (health <= damageTaken)
+		{
+			killed = true;
+
+			if (victim.IsPlayer() && victim != attacker)
+				victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, health);
+
+			if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.Self && victim.HasAuraType(AuraType.SchoolAbsorbOverkill))
+			{
+				var vAbsorbOverkill = victim.GetAuraEffectsByType(AuraType.SchoolAbsorbOverkill);
+				DamageInfo damageInfo = new(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype, cleanDamage != null ? cleanDamage.AttackType : WeaponAttackType.BaseAttack);
+
+				foreach (var absorbAurEff in vAbsorbOverkill)
+				{
+					var baseAura = absorbAurEff.GetBase();
+					var aurApp = baseAura.GetApplicationOfTarget(victim.GetGUID());
+
+					if (aurApp == null)
+						continue;
+
+					if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
+						continue;
+
+					// cannot absorb over limit
+					if (damageTaken >= victim.CountPctFromMaxHealth(100 + absorbAurEff.GetMiscValueB()))
+						continue;
+
+					// get amount which can be still absorbed by the aura
+					var currentAbsorb = absorbAurEff.GetAmount();
+
+					// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+					if (currentAbsorb < 0)
+						currentAbsorb = 0;
+
+					var tempAbsorb = currentAbsorb;
+
+					// This aura type is used both by Spirit of Redemption (death not really prevented, must grant all credit immediately) and Cheat Death (death prevented)
+					// repurpose PreventDefaultAction for this
+					var deathFullyPrevented = false;
+
+					absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref deathFullyPrevented);
+					currentAbsorb = tempAbsorb;
+
+					// absorb must be smaller than the damage itself
+					currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+					damageInfo.AbsorbDamage(currentAbsorb);
+
+					if (deathFullyPrevented)
+						killed = false;
+
+					skipSettingDeathState = true;
+
+					if (currentAbsorb != 0)
+					{
+						SpellAbsorbLog absorbLog = new();
+						absorbLog.Attacker = attacker != null ? attacker.GetGUID() : ObjectGuid.Empty;
+						absorbLog.Victim = victim.GetGUID();
+						absorbLog.Caster = baseAura.GetCasterGUID();
+						absorbLog.AbsorbedSpellID = spellProto != null ? spellProto.Id : 0;
+						absorbLog.AbsorbSpellID = baseAura.GetId();
+						absorbLog.Absorbed = (int)currentAbsorb;
+						absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
+						absorbLog.LogData.Initialize(victim);
+						victim.SendCombatLogMessage(absorbLog);
+					}
+				}
+
+				damageTaken = damageInfo.GetDamage();
+			}
+		}
+
+		if (spellProto != null && spellProto.HasAttribute(SpellAttr3.NoDurabilityLoss))
+			durabilityLoss = false;
+
+		if (killed)
+		{
+			Kill(attacker, victim, durabilityLoss, skipSettingDeathState);
+		}
+		else
+		{
+			if (victim.IsTypeId(TypeId.Player))
+				victim.ToPlayer().UpdateCriteria(CriteriaType.TotalDamageTaken, damageTaken);
+
+			victim.ModifyHealth(-(int)damageTaken);
+
+			if (damagetype == DamageEffectType.Direct || damagetype == DamageEffectType.SpellDirect)
+				victim.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.NonPeriodicDamage, spellProto);
+
+			if (!victim.IsTypeId(TypeId.Player))
+			{
+				// Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
+				if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.GetOwnerGUID().IsPlayer() && (spellProto == null || !spellProto.HasAura(AuraType.DamageShield)))
+					victim.ToCreature().SetLastDamagedTime(GameTime.GetGameTime() + SharedConst.MaxAggroResetTime);
+
+				if (attacker != null && (spellProto == null || !spellProto.HasAttribute(SpellAttr4.NoHarmfulThreat)))
+					victim.GetThreatManager().AddThreat(attacker, damageTaken, spellProto);
+			}
+			else // victim is a player
+			{
+				// random durability for items (HIT TAKEN)
+				if (durabilityLoss && WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
+				{
+					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
+					victim.ToPlayer().DurabilityPointLossForEquipSlot(slot);
+				}
+			}
+
+			if (attacker != null && attacker.IsPlayer())
+				// random durability for items (HIT DONE)
+				if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
+				{
+					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
+					attacker.ToPlayer().DurabilityPointLossForEquipSlot(slot);
+				}
+
+			if (damagetype != DamageEffectType.NoDamage && damagetype != DamageEffectType.DOT)
+			{
+				if (victim != attacker && (spellProto == null || !(spellProto.HasAttribute(SpellAttr6.NoPushback) || spellProto.HasAttribute(SpellAttr7.NoPushbackOnDamage) || spellProto.HasAttribute(SpellAttr3.TreatAsPeriodic))))
+				{
+					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
+
+					if (spell != null)
+						if (spell.GetState() == SpellState.Preparing)
+						{
+							bool isCastInterrupted()
+							{
+								if (damageTaken == 0)
+									return spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
+
+								if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
+									return true;
+
+								if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
+									return true;
+
+								return false;
+							}
+
+							;
+
+							bool isCastDelayed()
+							{
+								if (damageTaken == 0)
+									return false;
+
+								if (victim.IsPlayer() && spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
+									return true;
+
+								if (spell.m_spellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
+									return true;
+
+								return false;
+							}
+
+							if (isCastInterrupted())
+								victim.InterruptNonMeleeSpells(false);
+							else if (isCastDelayed())
+								spell.Delayed();
+						}
+				}
+
+				if (damageTaken != 0 && victim.IsPlayer())
+				{
+					var spell1 = victim.GetCurrentSpell(CurrentSpellTypes.Channeled);
+
+					if (spell1 != null)
+						if (spell1.GetState() == SpellState.Casting && spell1.m_spellInfo.HasChannelInterruptFlag(SpellAuraInterruptFlags.DamageChannelDuration))
+							spell1.DelayedChannel();
+				}
+			}
+
+			// last damage from duel opponent
+			if (duel_hasEnded)
+			{
+				var he = duel_wasMounted ? victim.GetCharmer().ToPlayer() : victim.ToPlayer();
+
+				Cypher.Assert(he && he.Duel != null);
+
+				if (duel_wasMounted) // In this case victim==mount
+					victim.SetHealth(1);
+				else
+					he.SetHealth(1);
+
+				he.Duel.Opponent.CombatStopWithPets(true);
+				he.CombatStopWithPets(true);
+
+				he.CastSpell(he, 7267, true); // beg
+				he.DuelComplete(DuelCompleteType.Won);
+			}
+		}
+
+		// logging uses damageDone
+		if (victim.IsPlayer())
+		{
+			player = victim.ToPlayer();
+			ScriptManager.Instance.ForEach<IPlayerOnTakeDamage>(player.GetClass(), a => a.OnPlayerTakeDamage(player, damageDone, damageSchoolMask));
+		}
+
+		// make player victims stand up automatically
+		if (victim.GetStandState() != 0 && victim.IsPlayer())
+			victim.SetStandState(UnitStandStateType.Stand);
+
+		if (player != null && player.GetPrimarySpecialization() == TalentSpecialization.DruidBear)
+			victim.SaveDamageHistory(damageDone);
+
+		return damageDone;
+	}
+
+	public long ModifyHealth(double dval)
+	{
+		return ModifyHealth((long)dval);
+	}
+
+	public long ModifyHealth(long dVal)
+	{
+		long gain = 0;
+
+		if (dVal == 0)
+			return 0;
+
+		var curHealth = (long)GetHealth();
+
+		var val = dVal + curHealth;
+
+		if (val <= 0)
+		{
+			SetHealth(0);
+
+			return -curHealth;
+		}
+
+		var maxHealth = (long)GetMaxHealth();
+
+		if (val < maxHealth)
+		{
+			SetHealth((ulong)val);
+			gain = val - curHealth;
+		}
+		else if (curHealth != maxHealth)
+		{
+			SetHealth((ulong)maxHealth);
+			gain = maxHealth - curHealth;
+		}
+
+		if (dVal < 0)
+		{
+			HealthUpdate packet = new();
+			packet.Guid = GetGUID();
+			packet.Health = GetHealth();
+
+			var player = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+			if (player)
+				player.SendPacket(packet);
+		}
+
+		return gain;
+	}
+
+	public long GetHealthGain(double dVal)
+	{
+		return GetHealthGain((long)dVal);
+	}
+
+	public long GetHealthGain(long dVal)
+	{
+		long gain = 0;
+
+		if (dVal == 0)
+			return 0;
+
+		var curHealth = (long)GetHealth();
+
+		var val = dVal + curHealth;
+
+		if (val <= 0)
+			return -curHealth;
+
+		var maxHealth = (long)GetMaxHealth();
+
+		if (val < maxHealth)
+			gain = dVal;
+		else if (curHealth != maxHealth)
+			gain = maxHealth - curHealth;
+
+		return gain;
+	}
+
+	public bool IsImmuneToAll()
+	{
+		return IsImmuneToPC() && IsImmuneToNPC();
+	}
+
+	public void SetImmuneToAll(bool apply, bool keepCombat)
+	{
+		if (apply)
+		{
+			SetUnitFlag(UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
+			ValidateAttackersAndOwnTarget();
+
+			if (!keepCombat)
+				_combatManager.EndAllCombat();
+		}
+		else
+		{
+			RemoveUnitFlag(UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
+		}
+	}
+
+	public virtual void SetImmuneToAll(bool apply)
+	{
+		SetImmuneToAll(apply, false);
+	}
+
+	public bool IsImmuneToPC()
+	{
+		return HasUnitFlag(UnitFlags.ImmuneToPc);
+	}
+
+	public void SetImmuneToPC(bool apply, bool keepCombat)
+	{
+		if (apply)
+		{
+			SetUnitFlag(UnitFlags.ImmuneToPc);
+			ValidateAttackersAndOwnTarget();
+
+			if (!keepCombat)
+			{
+				List<CombatReference> toEnd = new();
+
+				foreach (var pair in _combatManager.GetPvECombatRefs())
+					if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
+						toEnd.Add(pair.Value);
+
+				foreach (var pair in _combatManager.GetPvPCombatRefs())
+					if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
+						toEnd.Add(pair.Value);
+
+				foreach (var refe in toEnd)
+					refe.EndCombat();
+			}
+		}
+		else
+		{
+			RemoveUnitFlag(UnitFlags.ImmuneToPc);
+		}
+	}
+
+	public virtual void SetImmuneToPC(bool apply)
+	{
+		SetImmuneToPC(apply, false);
+	}
+
+	public bool IsImmuneToNPC()
+	{
+		return HasUnitFlag(UnitFlags.ImmuneToNpc);
+	}
+
+	public void SetImmuneToNPC(bool apply, bool keepCombat)
+	{
+		if (apply)
+		{
+			SetUnitFlag(UnitFlags.ImmuneToNpc);
+			ValidateAttackersAndOwnTarget();
+
+			if (!keepCombat)
+			{
+				List<CombatReference> toEnd = new();
+
+				foreach (var pair in _combatManager.GetPvECombatRefs())
+					if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
+						toEnd.Add(pair.Value);
+
+				foreach (var pair in _combatManager.GetPvPCombatRefs())
+					if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
+						toEnd.Add(pair.Value);
+
+				foreach (var refe in toEnd)
+					refe.EndCombat();
+			}
+		}
+		else
+		{
+			RemoveUnitFlag(UnitFlags.ImmuneToNpc);
+		}
+	}
+
+	public virtual void SetImmuneToNPC(bool apply)
+	{
+		SetImmuneToNPC(apply, false);
+	}
+
+	public virtual float GetBlockPercent(uint attackerLevel)
+	{
+		return 30.0f;
+	}
+
+	public void RewardRage(uint baseRage)
+	{
+		double addRage = baseRage;
+
+		// talent who gave more rage on attack
+		MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
+
+		addRage *= WorldConfig.GetFloatValue(WorldCfg.RatePowerRageIncome);
+
+		ModifyPower(PowerType.Rage, (int)(addRage * 10));
+	}
+
+	public float GetPPMProcChance(uint WeaponSpeed, float PPM, SpellInfo spellProto)
+	{
+		// proc per minute chance calculation
+		if (PPM <= 0)
+			return 0.0f;
+
+		// Apply chance modifer aura
+		if (spellProto != null)
+		{
+			var modOwner = GetSpellModOwner();
+
+			if (modOwner != null)
+				modOwner.ApplySpellMod(spellProto, SpellModOp.ProcFrequency, ref PPM);
+		}
+
+		return (float)Math.Floor((WeaponSpeed * PPM) / 600.0f); // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+	}
+
+	public Unit GetNextRandomRaidMemberOrPet(float radius)
+	{
+		Player player = null;
+
+		if (IsTypeId(TypeId.Player))
+			player = ToPlayer();
+		// Should we enable this also for charmed units?
+		else if (IsTypeId(TypeId.Unit) && IsPet())
+			player = GetOwner().ToPlayer();
+
+		if (player == null)
+			return null;
+
+		var group = player.GetGroup();
+
+		// When there is no group check pet presence
+		if (!group)
+		{
+			// We are pet now, return owner
+			if (player != this)
+				return IsWithinDistInMap(player, radius) ? player : null;
+
+			Unit pet = GetGuardianPet();
+
+			// No pet, no group, nothing to return
+			if (pet == null)
+				return null;
+
+			// We are owner now, return pet
+			return IsWithinDistInMap(pet, radius) ? pet : null;
+		}
+
+		List<Unit> nearMembers = new();
+		// reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
+
+		for (var refe = group.GetFirstMember(); refe != null; refe = refe.Next())
+		{
+			var target = refe.GetSource();
+
+			if (target)
+			{
+				// IsHostileTo check duel and controlled by enemy
+				if (target != this && IsWithinDistInMap(target, radius) && target.IsAlive() && !IsHostileTo(target))
+					nearMembers.Add(target);
+
+				// Push player's pet to vector
+				Unit pet = target.GetGuardianPet();
+
+				if (pet)
+					if (pet != this && IsWithinDistInMap(pet, radius) && pet.IsAlive() && !IsHostileTo(pet))
+						nearMembers.Add(pet);
+			}
+		}
+
+		if (nearMembers.Empty())
+			return null;
+
+		var randTarget = RandomHelper.IRand(0, nearMembers.Count - 1);
+
+		return nearMembers[randTarget];
+	}
+
+	public uint GetComboPoints()
+	{
+		return (uint)GetPower(PowerType.ComboPoints);
+	}
+
+	public void AddComboPoints(sbyte count, Spell spell = null)
+	{
+		if (count == 0)
+			return;
+
+		var comboPoints = (sbyte)(spell != null ? spell.m_comboPointGain : GetPower(PowerType.ComboPoints));
+
+		comboPoints += count;
+
+		if (comboPoints > 5)
+			comboPoints = 5;
+		else if (comboPoints < 0)
+			comboPoints = 0;
+
+		if (!spell)
+			SetPower(PowerType.ComboPoints, comboPoints);
+		else
+			spell.m_comboPointGain = comboPoints;
+	}
+
+	public void ClearComboPoints()
+	{
+		SetPower(PowerType.ComboPoints, 0);
+	}
+
+	public void ClearAllReactives()
+	{
+		for (ReactiveType i = 0; i < ReactiveType.Max; ++i)
+			_reactiveTimer[i] = 0;
+
+		if (HasAuraState(AuraStateType.Defensive))
+			ModifyAuraState(AuraStateType.Defensive, false);
+
+		if (HasAuraState(AuraStateType.Defensive2))
+			ModifyAuraState(AuraStateType.Defensive2, false);
+	}
+
+	public virtual void SetPvP(bool state)
+	{
+		if (state)
+			SetPvpFlag(UnitPVPStateFlags.PvP);
+		else
+			RemovePvpFlag(UnitPVPStateFlags.PvP);
+	}
+
+	public static void CalcAbsorbResist(DamageInfo damageInfo, Spell spell = null)
+	{
+		if (!damageInfo.GetVictim() || !damageInfo.GetVictim().IsAlive() || damageInfo.GetDamage() == 0)
+			return;
+
+		var resistedDamage = CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+
+		// Ignore Absorption Auras
+		double auraAbsorbMod = 0f;
+
+		var attacker = damageInfo.GetAttacker();
+
+		if (attacker != null)
+			auraAbsorbMod = attacker.GetMaxPositiveAuraModifierByMiscMask(AuraType.ModTargetAbsorbSchool, (uint)damageInfo.GetSchoolMask());
+
+		MathFunctions.RoundToInterval(ref auraAbsorbMod, 0.0f, 100.0f);
+
+		var absorbIgnoringDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), auraAbsorbMod);
+
+		if (spell != null)
+			spell.CallScriptOnResistAbsorbCalculateHandlers(damageInfo, ref resistedDamage, ref absorbIgnoringDamage);
+
+		damageInfo.ResistDamage(resistedDamage);
+
+		// We're going to call functions which can modify content of the list during iteration over it's elements
+		// Let's copy the list so we can prevent iterator invalidation
+		var vSchoolAbsorbCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SchoolAbsorb);
+		vSchoolAbsorbCopy.Sort(new AbsorbAuraOrderPred());
+
+		// absorb without mana cost
+		for (var i = 0; i < vSchoolAbsorbCopy.Count && (damageInfo.GetDamage() > 0); ++i)
+		{
+			var absorbAurEff = vSchoolAbsorbCopy[i];
+
+			// Check if aura was removed during iteration - we don't need to work on such auras
+			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+
+			if (aurApp == null)
+				continue;
+
+			if ((absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()) == 0)
+				continue;
+
+			// get amount which can be still absorbed by the aura
+			var currentAbsorb = absorbAurEff.GetAmount();
+
+			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+			if (currentAbsorb < 0)
+				currentAbsorb = 0;
+
+			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+				damageInfo.ModifyDamage(-absorbIgnoringDamage);
+
+			var tempAbsorb = currentAbsorb;
+
+			var defaultPrevented = false;
+
+			absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
+			currentAbsorb = (int)tempAbsorb;
+
+			if (!defaultPrevented)
+			{
+				// absorb must be smaller than the damage itself
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+
+				damageInfo.AbsorbDamage(currentAbsorb);
+
+				tempAbsorb = (uint)currentAbsorb;
+				absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
+
+				// Check if our aura is using amount to count heal
+				if (absorbAurEff.GetAmount() >= 0)
+				{
+					// Reduce shield amount
+					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+
+					// Aura cannot absorb anything more - remove it
+					if (absorbAurEff.GetAmount() <= 0 && !absorbAurEff.GetBase().GetSpellInfo().HasAttribute(SpellAttr0.Passive))
+						absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+				}
+			}
+
+			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+				damageInfo.ModifyDamage(absorbIgnoringDamage);
+
+			if (currentAbsorb != 0)
+			{
+				SpellAbsorbLog absorbLog = new();
+				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
+				absorbLog.Victim = damageInfo.GetVictim().GetGUID();
+				absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
+				absorbLog.AbsorbSpellID = absorbAurEff.GetId();
+				absorbLog.Absorbed = (int)currentAbsorb;
+				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
+				absorbLog.LogData.Initialize(damageInfo.GetVictim());
+				damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
+			}
+		}
+
+		// absorb by mana cost
+		var vManaShieldCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.ManaShield);
+
+		foreach (var absorbAurEff in vManaShieldCopy)
+		{
+			if (damageInfo.GetDamage() == 0)
+				break;
+
+			// Check if aura was removed during iteration - we don't need to work on such auras
+			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+
+			if (aurApp == null)
+				continue;
+
+			// check damage school mask
+			if (!Convert.ToBoolean(absorbAurEff.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
+				continue;
+
+			// get amount which can be still absorbed by the aura
+			var currentAbsorb = absorbAurEff.GetAmount();
+
+			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+			if (currentAbsorb < 0)
+				currentAbsorb = 0;
+
+			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+				damageInfo.ModifyDamage(-absorbIgnoringDamage);
+
+			var tempAbsorb = currentAbsorb;
+
+			var defaultPrevented = false;
+
+			absorbAurEff.GetBase().CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb, ref defaultPrevented);
+			currentAbsorb = (int)tempAbsorb;
+
+			if (!defaultPrevented)
+			{
+				// absorb must be smaller than the damage itself
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+
+				var manaReduction = currentAbsorb;
+
+				// lower absorb amount by talents
+				var manaMultiplier = absorbAurEff.GetSpellEffectInfo().CalcValueMultiplier(absorbAurEff.GetCaster());
+
+				if (manaMultiplier != 0)
+					manaReduction = (int)(manaReduction * manaMultiplier);
+
+				var manaTaken = -damageInfo.GetVictim().ModifyPower(PowerType.Mana, -manaReduction);
+
+				// take case when mana has ended up into account
+				currentAbsorb = currentAbsorb != 0 ? (currentAbsorb * (manaTaken / manaReduction)) : 0;
+
+				damageInfo.AbsorbDamage((uint)currentAbsorb);
+
+				tempAbsorb = (uint)currentAbsorb;
+				absorbAurEff.GetBase().CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, damageInfo, ref tempAbsorb);
+
+				// Check if our aura is using amount to count damage
+				if (absorbAurEff.GetAmount() >= 0)
+				{
+					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+
+					if ((absorbAurEff.GetAmount() <= 0))
+						absorbAurEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+				}
+			}
+
+			if (!absorbAurEff.GetSpellInfo().HasAttribute(SpellAttr6.AbsorbCannotBeIgnore))
+				damageInfo.ModifyDamage(absorbIgnoringDamage);
+
+			if (currentAbsorb != 0)
+			{
+				SpellAbsorbLog absorbLog = new();
+				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GetGUID() : ObjectGuid.Empty;
+				absorbLog.Victim = damageInfo.GetVictim().GetGUID();
+				absorbLog.Caster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
+				absorbLog.AbsorbSpellID = absorbAurEff.GetId();
+				absorbLog.Absorbed = (int)currentAbsorb;
+				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
+				absorbLog.LogData.Initialize(damageInfo.GetVictim());
+				damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
+			}
+		}
+
+		// split damage auras - only when not damaging self
+		if (damageInfo.GetVictim() != damageInfo.GetAttacker())
+		{
+			// We're going to call functions which can modify content of the list during iteration over it's elements
+			// Let's copy the list so we can prevent iterator invalidation
+			var vSplitDamagePctCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SplitDamagePct);
+
+			foreach (var itr in vSplitDamagePctCopy)
+			{
+				if (damageInfo.GetDamage() == 0)
+					break;
+
+				// Check if aura was removed during iteration - we don't need to work on such auras
+				var aurApp = itr.GetBase().GetApplicationOfTarget(damageInfo.GetVictim().GetGUID());
+
+				if (aurApp == null)
+					continue;
+
+				// check damage school mask
+				if (!Convert.ToBoolean(itr.GetMiscValue() & (int)damageInfo.GetSchoolMask()))
+					continue;
+
+				// Damage can be splitted only if aura has an alive caster
+				var caster = itr.GetCaster();
+
+				if (!caster || (caster == damageInfo.GetVictim()) || !caster.IsInWorld || !caster.IsAlive())
+					continue;
+
+				var splitDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), itr.GetAmount());
+
+				itr.GetBase().CallScriptEffectSplitHandlers(itr, aurApp, damageInfo, ref splitDamage);
+
+				// absorb must be smaller than the damage itself
+				splitDamage = MathFunctions.RoundToInterval(ref splitDamage, 0, damageInfo.GetDamage());
+
+				damageInfo.AbsorbDamage(splitDamage);
+
+				// check if caster is immune to damage
+				if (caster.IsImmunedToDamage(damageInfo.GetSchoolMask()))
+				{
+					damageInfo.GetVictim().SendSpellMiss(caster, itr.GetSpellInfo().Id, SpellMissInfo.Immune);
+
+					continue;
+				}
+
+				double split_absorb = 0;
+				DealDamageMods(damageInfo.GetAttacker(), caster, ref splitDamage, ref split_absorb);
+
+				SpellNonMeleeDamage log = new(damageInfo.GetAttacker(), caster, itr.GetSpellInfo(), itr.GetBase().GetSpellVisual(), damageInfo.GetSchoolMask(), itr.GetBase().GetCastId());
+				CleanDamage cleanDamage = new(splitDamage, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
+				splitDamage = DealDamage(damageInfo.GetAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.GetSchoolMask(), itr.GetSpellInfo(), false);
+				log.Damage = splitDamage;
+				log.OriginalDamage = splitDamage;
+				log.Absorb = split_absorb;
+				log.HitInfo |= (int)SpellHitType.Split;
+
+				caster.SendSpellNonMeleeDamageLog(log);
+
+				// break 'Fear' and similar auras
+				ProcSkillsAndAuras(damageInfo.GetAttacker(), caster, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.TakeHarmfulSpell), ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, damageInfo, null);
+			}
+		}
+	}
+
+	public static void CalcHealAbsorb(HealInfo healInfo)
+	{
+		if (healInfo.GetHeal() == 0)
+			return;
+
+		// Need remove expired auras after
+		var existExpired = false;
+
+		// absorb without mana cost
+		var vHealAbsorb = healInfo.GetTarget().GetAuraEffectsByType(AuraType.SchoolHealAbsorb);
+
+		for (var i = 0; i < vHealAbsorb.Count && healInfo.GetHeal() > 0; ++i)
+		{
+			var absorbAurEff = vHealAbsorb[i];
+			// Check if aura was removed during iteration - we don't need to work on such auras
+			var aurApp = absorbAurEff.GetBase().GetApplicationOfTarget(healInfo.GetTarget().GetGUID());
+
+			if (aurApp == null)
+				continue;
+
+			if ((absorbAurEff.GetMiscValue() & (int)healInfo.GetSchoolMask()) == 0)
+				continue;
+
+			// get amount which can be still absorbed by the aura
+			var currentAbsorb = absorbAurEff.GetAmount();
+
+			// aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+			if (currentAbsorb < 0)
+				currentAbsorb = 0;
+
+			var tempAbsorb = currentAbsorb;
+
+			var defaultPrevented = false;
+
+			absorbAurEff.GetBase().CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb, ref defaultPrevented);
+			currentAbsorb = tempAbsorb;
+
+			if (!defaultPrevented)
+			{
+				// absorb must be smaller than the heal itself
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, healInfo.GetHeal());
+
+				healInfo.AbsorbHeal((uint)currentAbsorb);
+
+				tempAbsorb = currentAbsorb;
+				absorbAurEff.GetBase().CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, healInfo, ref tempAbsorb);
+
+				// Check if our aura is using amount to count heal
+				if (absorbAurEff.GetAmount() >= 0)
+				{
+					// Reduce shield amount
+					absorbAurEff.ChangeAmount(absorbAurEff.GetAmount() - currentAbsorb);
+
+					// Aura cannot absorb anything more - remove it
+					if (absorbAurEff.GetAmount() <= 0)
+						existExpired = true;
+				}
+			}
+
+			if (currentAbsorb != 0)
+			{
+				SpellHealAbsorbLog absorbLog = new();
+				absorbLog.Healer = healInfo.GetHealer() ? healInfo.GetHealer().GetGUID() : ObjectGuid.Empty;
+				absorbLog.Target = healInfo.GetTarget().GetGUID();
+				absorbLog.AbsorbCaster = absorbAurEff.GetBase().GetCasterGUID();
+				absorbLog.AbsorbedSpellID = (int)(healInfo.GetSpellInfo() != null ? healInfo.GetSpellInfo().Id : 0);
+				absorbLog.AbsorbSpellID = (int)absorbAurEff.GetId();
+				absorbLog.Absorbed = (int)currentAbsorb;
+				absorbLog.OriginalHeal = (int)healInfo.GetOriginalHeal();
+				healInfo.GetTarget().SendMessageToSet(absorbLog, true);
+			}
+		}
+
+		// Remove all expired absorb auras
+		if (existExpired)
+			for (var i = 0; i < vHealAbsorb.Count;)
+			{
+				var auraEff = vHealAbsorb[i];
+				++i;
+
+				if (auraEff.GetAmount() <= 0)
+				{
+					var removedAuras = healInfo.GetTarget()._removedAurasCount;
+					auraEff.GetBase().Remove(AuraRemoveMode.EnemySpell);
+
+					if (removedAuras + 1 < healInfo.GetTarget()._removedAurasCount)
+						i = 0;
+				}
+			}
+	}
+
+	public static double CalcArmorReducedDamage(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, WeaponAttackType attackType = WeaponAttackType.Max, uint attackerLevel = 0)
+	{
+		double armor = victim.GetArmor();
+
+		if (attacker != null)
+		{
+			armor *= victim.GetArmorMultiplierForTarget(attacker);
+
+			// bypass enemy armor by SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
+			double armorBypassPct = 0;
+			var reductionAuras = victim.GetAuraEffectsByType(AuraType.BypassArmorForCaster);
+
+			foreach (var eff in reductionAuras)
+				if (eff.GetCasterGUID() == attacker.GetGUID())
+					armorBypassPct += eff.GetAmount();
+
+			armor = MathFunctions.CalculatePct(armor, 100 - Math.Min(armorBypassPct, 100));
+
+			// Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
+			armor += attacker.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)SpellSchoolMask.Normal);
+
+			if (spellInfo != null)
+			{
+				var modOwner = attacker.GetSpellModOwner();
+
+				if (modOwner != null)
+					modOwner.ApplySpellMod(spellInfo, SpellModOp.TargetResistance, ref armor);
+			}
+
+			var resIgnoreAuras = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
+
+			foreach (var eff in resIgnoreAuras)
+				if (eff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal) && eff.IsAffectingSpell(spellInfo))
+					armor = (float)Math.Floor(MathFunctions.AddPct(ref armor, -eff.GetAmount()));
+
+			// Apply Player CR_ARMOR_PENETRATION rating
+			if (attacker.IsPlayer())
+			{
+				var arpPct = attacker.ToPlayer().GetRatingBonusValue(CombatRating.ArmorPenetration);
+
+				// no more than 100%
+				MathFunctions.RoundToInterval(ref arpPct, 0.0f, 100.0f);
+
+				double maxArmorPen;
+
+				if (victim.GetLevelForTarget(attacker) < 60)
+					maxArmorPen = 400 + 85 * victim.GetLevelForTarget(attacker);
+				else
+					maxArmorPen = 400 + 85 * victim.GetLevelForTarget(attacker) + 4.5f * 85 * (victim.GetLevelForTarget(attacker) - 59);
+
+				// Cap armor penetration to this number
+				maxArmorPen = Math.Min((armor + maxArmorPen) / 3.0f, armor);
+				// Figure out how much armor do we ignore
+				armor -= MathFunctions.CalculatePct(maxArmorPen, arpPct);
+			}
+		}
+
+		if (MathFunctions.fuzzyLe(armor, 0.0f))
+			return damage;
+
+		var attackerClass = Class.Warrior;
+
+		if (attacker != null)
+		{
+			attackerLevel = attacker.GetLevelForTarget(victim);
+			attackerClass = attacker.GetClass();
+		}
+
+		// Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
+		var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, attackerClass);
+
+		if ((armor + armorConstant) == 0)
+			return damage;
+
+		var mitigation = Math.Min(armor / (armor + armorConstant), 0.85f);
+
+		return Math.Max(damage * (1.0f - mitigation), 0.0f);
+	}
+
+	public double MeleeDamageBonusDone(Unit victim, double damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo spellProto = null, SpellEffectInfo spellEffectInfo = null, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal)
+	{
+		if (victim == null || damage == 0)
+			return 0;
+
+		var creatureTypeMask = victim.GetCreatureTypeMask();
+
+		// Done fixed damage bonus auras
+		double DoneFlatBenefit = 0;
+
+		// ..done
+		DoneFlatBenefit += GetTotalAuraModifierByMiscMask(AuraType.ModDamageDoneCreature, (int)creatureTypeMask);
+
+		// ..done
+		// SPELL_AURA_MOD_DAMAGE_DONE included in weapon damage
+
+		// ..done (base at attack power for marked target and base at attack power for creature type)
+		double APbonus = 0;
+
+		if (attType == WeaponAttackType.RangedAttack)
+		{
+			APbonus += victim.GetTotalAuraModifier(AuraType.RangedAttackPowerAttackerBonus);
+
+			// ..done (base at attack power and creature type)
+			APbonus += GetTotalAuraModifierByMiscMask(AuraType.ModRangedAttackPowerVersus, (int)creatureTypeMask);
+		}
+		else
+		{
+			APbonus += victim.GetTotalAuraModifier(AuraType.MeleeAttackPowerAttackerBonus);
+
+			// ..done (base at attack power and creature type)
+			APbonus += GetTotalAuraModifierByMiscMask(AuraType.ModMeleeAttackPowerVersus, (int)creatureTypeMask);
+		}
+
+		if (APbonus != 0) // Can be negative
+		{
+			var normalized = spellProto != null && spellProto.HasEffect(SpellEffectName.NormalizedWeaponDmg);
+			DoneFlatBenefit += (int)(APbonus / 3.5f * GetAPMultiplier(attType, normalized));
+		}
+
+		// Done total percent damage auras
+		double DoneTotalMod = 1.0f;
+
+		var schoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
+
+		if ((schoolMask & SpellSchoolMask.Normal) == 0)
+			// Some spells don't benefit from pct done mods
+			// mods for SPELL_SCHOOL_MASK_NORMAL are already factored in base melee damage calculation
+			if (spellProto == null || !spellProto.HasAttribute(SpellAttr6.IgnoreCasterDamageModifiers))
+			{
+				double maxModDamagePercentSchool = 0.0f;
+				var thisPlayer = ToPlayer();
+
+				if (thisPlayer != null)
+				{
+					for (var i = SpellSchools.Holy; i < SpellSchools.Max; ++i)
+						if (Convert.ToBoolean((int)schoolMask & (1 << (int)i)))
+							maxModDamagePercentSchool = Math.Max(maxModDamagePercentSchool, thisPlayer.ActivePlayerData.ModDamageDonePercent[(int)i]);
+				}
+				else
+				{
+					maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentDone, (uint)schoolMask);
+				}
+
+				DoneTotalMod *= maxModDamagePercentSchool;
+			}
+
+		if (spellProto == null)
+			// melee attack
+			foreach (var autoAttackDamage in GetAuraEffectsByType(AuraType.ModAutoAttackDamage))
+				MathFunctions.AddPct(ref DoneTotalMod, autoAttackDamage.GetAmount());
+
+		DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamageDoneVersus, creatureTypeMask);
+
+		// bonus against aurastate
+		DoneTotalMod *= GetTotalAuraMultiplier(AuraType.ModDamageDoneVersusAurastate,
+		                                       aurEff =>
+		                                       {
+			                                       if (victim.HasAuraState((AuraStateType)aurEff.GetMiscValue()))
+				                                       return true;
+
+			                                       return false;
+		                                       });
+
+		// Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
+		if (spellEffectInfo != null && spellEffectInfo.Mechanic != 0)
+			MathFunctions.AddPct(ref DoneTotalMod, GetTotalAuraModifierByMiscValue(AuraType.ModDamageDoneForMechanic, (int)spellEffectInfo.Mechanic));
+		else if (spellProto != null && spellProto.Mechanic != 0)
+			MathFunctions.AddPct(ref DoneTotalMod, GetTotalAuraModifierByMiscValue(AuraType.ModDamageDoneForMechanic, (int)spellProto.Mechanic));
+
+		var damageF = damage;
+
+		// apply spellmod to Done damage
+		if (spellProto != null)
+		{
+			var modOwner = GetSpellModOwner();
+
+			if (modOwner != null)
+				modOwner.ApplySpellMod(spellProto, damagetype == DamageEffectType.DOT ? SpellModOp.PeriodicHealingAndDamage : SpellModOp.HealingAndDamage, ref damageF);
+		}
+
+		damageF = (damageF + DoneFlatBenefit) * DoneTotalMod;
+
+		// bonus result can be negative
+		return Math.Max(damageF, 0.0f);
+	}
+
+	public double MeleeDamageBonusTaken(Unit attacker, double pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo spellProto = null, SpellSchoolMask damageSchoolMask = SpellSchoolMask.Normal)
+	{
+		if (pdamage == 0)
+			return 0;
+
+		double TakenFlatBenefit = 0;
+
+		// ..taken
+		TakenFlatBenefit += GetTotalAuraModifierByMiscMask(AuraType.ModDamageTaken, (int)attacker.GetMeleeDamageSchoolMask());
+
+		if (attType != WeaponAttackType.RangedAttack)
+			TakenFlatBenefit += GetTotalAuraModifier(AuraType.ModMeleeDamageTaken);
+		else
+			TakenFlatBenefit += GetTotalAuraModifier(AuraType.ModRangedDamageTaken);
+
+		if ((TakenFlatBenefit < 0) && (pdamage < -TakenFlatBenefit))
+			return 0;
+
+		// Taken total percent damage auras
+		double TakenTotalMod = 1.0f;
+
+		// ..taken
+		TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(AuraType.ModDamagePercentTaken, (uint)attacker.GetMeleeDamageSchoolMask());
+
+		// .. taken pct (special attacks)
+		if (spellProto != null)
+		{
+			// From caster spells
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSchoolMaskDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID() && (aurEff.GetMiscValue() & (int)spellProto.GetSchoolMask()) != 0; });
+
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModSpellDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID() && aurEff.IsAffectingSpell(spellProto); });
+
+			// Mod damage from spell mechanic
+			var mechanicMask = spellProto.GetAllEffectsMechanicMask();
+
+			// Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
+			if (spellProto.SpellFamilyName == SpellFamilyNames.Druid && spellProto.SpellFamilyFlags[0].HasAnyFlag(0x00008800u))
+				mechanicMask |= (1 << (int)Mechanics.Bleed);
+
+			if (mechanicMask != 0)
+				TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMechanicDamageTakenPercent,
+				                                        aurEff =>
+				                                        {
+					                                        if ((mechanicMask & (1ul << (aurEff.GetMiscValue()))) != 0)
+						                                        return true;
+
+					                                        return false;
+				                                        });
+
+			if (damagetype == DamageEffectType.DOT)
+				TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModPeriodicDamageTaken, aurEff => (aurEff.GetMiscValue() & (uint)spellProto.GetSchoolMask()) != 0);
+		}
+		else // melee attack
+		{
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageFromCaster, aurEff => { return aurEff.GetCasterGUID() == attacker.GetGUID(); });
+		}
+
+		var cheatDeath = GetAuraEffect(45182, 0);
+
+		if (cheatDeath != null)
+			MathFunctions.AddPct(ref TakenTotalMod, cheatDeath.GetAmount());
+
+		if (attType != WeaponAttackType.RangedAttack)
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModMeleeDamageTakenPct);
+		else
+			TakenTotalMod *= GetTotalAuraMultiplier(AuraType.ModRangedDamageTakenPct);
+
+		// Versatility
+		var modOwner = GetSpellModOwner();
+
+		if (modOwner)
+		{
+			// only 50% of SPELL_AURA_MOD_VERSATILITY for damage reduction
+			var versaBonus = modOwner.GetTotalAuraModifier(AuraType.ModVersatility) / 2.0f;
+			MathFunctions.AddPct(ref TakenTotalMod, -(modOwner.GetRatingBonusValue(CombatRating.VersatilityDamageTaken) + versaBonus));
+		}
+
+		// Sanctified Wrath (bypass damage reduction)
+		if (TakenTotalMod < 1.0f)
+		{
+			var attackSchoolMask = spellProto != null ? spellProto.GetSchoolMask() : damageSchoolMask;
+
+			var damageReduction = 1.0f - TakenTotalMod;
+			var casterIgnoreResist = attacker.GetAuraEffectsByType(AuraType.ModIgnoreTargetResist);
+
+			foreach (var aurEff in casterIgnoreResist)
+			{
+				if ((aurEff.GetMiscValue() & (int)attackSchoolMask) == 0)
+					continue;
+
+				MathFunctions.AddPct(ref damageReduction, -aurEff.GetAmount());
+			}
+
+			TakenTotalMod = 1.0f - damageReduction;
+		}
+
+		var tmpDamage = (pdamage + TakenFlatBenefit) * TakenTotalMod;
+
+		return Math.Max(tmpDamage, 0.0f);
+	}
+
+
+	public void SaveDamageHistory(double damage)
+	{
+		var currentTime = GameTime.GetDateAndTime();
+		var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
+
+		// Remove damages older than maxPastTime, can be increased if required
+		DamageTakenHistory.RemoveAllMatchingKeys(k => k < maxPastTime);
+
+		DamageTakenHistory[currentTime] += damage;
+	}
+
+	public double GetDamageOverLastSeconds(uint seconds)
+	{
+		var maxPastTime = GameTime.GetDateAndTime() - TimeSpan.FromSeconds(seconds);
+
+		double damageOverLastSeconds = 0;
+
+		foreach (var itr in DamageTakenHistory)
+			if (itr.Key >= maxPastTime)
+				damageOverLastSeconds += itr.Value;
+
+		return damageOverLastSeconds;
+	}
+
+	public virtual SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = WeaponAttackType.BaseAttack)
+	{
+		return SpellSchoolMask.None;
+	}
+
+	public virtual void UpdateDamageDoneMods(WeaponAttackType attackType, int skipEnchantSlot = -1)
+	{
+		var unitMod = attackType switch
+		{
+			WeaponAttackType.BaseAttack   => UnitMods.DamageMainHand,
+			WeaponAttackType.OffAttack    => UnitMods.DamageOffHand,
+			WeaponAttackType.RangedAttack => UnitMods.DamageRanged,
+			_                             => throw new NotImplementedException(),
+		};
+
+		var amount = GetTotalAuraModifier(AuraType.ModDamageDone,
+		                                  aurEff =>
+		                                  {
+			                                  if ((aurEff.GetMiscValue() & (int)SpellSchoolMask.Normal) == 0)
+				                                  return false;
+
+			                                  return CheckAttackFitToAuraRequirement(attackType, aurEff);
+		                                  });
+
+		SetStatFlatModifier(unitMod, UnitModifierFlatType.Total, amount);
+	}
+
+	public void UpdateAllDamageDoneMods()
+	{
+		for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
+			UpdateDamageDoneMods(attackType);
+	}
+
+	public void UpdateDamagePctDoneMods(WeaponAttackType attackType)
+	{
+		(UnitMods unitMod, double factor) = attackType switch
+		{
+			WeaponAttackType.BaseAttack   => (UnitMods.DamageMainHand, 1.0f),
+			WeaponAttackType.OffAttack    => (UnitMods.DamageOffHand, 0.5f),
+			WeaponAttackType.RangedAttack => (UnitMods.DamageRanged, 1.0f),
+			_                             => throw new NotImplementedException(),
+		};
+
+		factor *= GetTotalAuraMultiplier(AuraType.ModDamagePercentDone,
+		                                 aurEff =>
+		                                 {
+			                                 if (!aurEff.GetMiscValue().HasAnyFlag((int)SpellSchoolMask.Normal))
+				                                 return false;
+
+			                                 return CheckAttackFitToAuraRequirement(attackType, aurEff);
+		                                 });
+
+		if (attackType == WeaponAttackType.OffAttack)
+			factor *= GetTotalAuraMultiplier(AuraType.ModOffhandDamagePct, auraEffect => CheckAttackFitToAuraRequirement(attackType, auraEffect));
+
+		SetStatPctModifier(unitMod, UnitModifierPctType.Total, factor);
+	}
+
+	public void UpdateAllDamagePctDoneMods()
+	{
+		for (var attackType = WeaponAttackType.BaseAttack; attackType < WeaponAttackType.Max; ++attackType)
+			UpdateDamagePctDoneMods(attackType);
+	}
+
+	public void GetAnyUnitListInRange(List<Unit> list, float fMaxSearchRange)
+	{
+		var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
+		var cell = new Cell(p);
+		cell.SetNoCreate();
+
+		var u_check = new AnyUnitInObjectRangeCheck(this, fMaxSearchRange);
+		var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
+
+		cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
+	}
+
+	public void GetAttackableUnitListInRange(List<Unit> list, float fMaxSearchRange)
+	{
+		var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
+		var cell = new Cell(p);
+		cell.SetNoCreate();
+
+		var u_check = new NearestAttackableUnitInObjectRangeCheck(this, this, fMaxSearchRange);
+		var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
+
+		cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
+	}
+
+	public void GetFriendlyUnitListInRange(List<Unit> list, float fMaxSearchRange, bool exceptSelf = false)
+	{
+		var p = new CellCoord(GridDefines.ComputeCellCoord(Location.X, Location.Y));
+		var cell = new Cell(p);
+		cell.SetNoCreate();
+
+		var u_check = new AnyFriendlyUnitInObjectRangeCheck(this, this, fMaxSearchRange, false, exceptSelf);
+		var searcher = new UnitListSearcher(this, list, u_check, GridType.All);
+
+		cell.Visit(p, searcher, GetMap(), this, fMaxSearchRange);
+	}
+
+	public CombatManager GetCombatManager()
+	{
+		return _combatManager;
+	}
+
+	// Exposes the threat manager directly - be careful when interfacing with this
+	// As a general rule of thumb, any unit pointer MUST be null checked BEFORE passing it to threatmanager methods
+	// threatmanager will NOT null check your pointers for you - misuse = crash
+	public ThreatManager GetThreatManager()
+	{
+		return _threatManager;
+	}
+
+	public double GetTotalSpellPowerValue(SpellSchoolMask mask, bool heal)
+	{
+		if (!IsPlayer())
+		{
+			if (GetOwner())
+			{
+				var ownerPlayer = GetOwner().ToPlayer();
+
+				if (ownerPlayer != null)
+				{
+					if (IsTotem())
+					{
+						return GetOwner().GetTotalSpellPowerValue(mask, heal);
+					}
+					else
+					{
+						if (IsPet())
+							return ownerPlayer.ActivePlayerData.PetSpellPower.GetValue();
+						else if (IsGuardian())
+							return ((Guardian)this).GetBonusDamage();
+					}
+				}
+			}
+
+			if (heal)
+				return SpellBaseHealingBonusDone(mask);
+			else
+				return SpellBaseDamageBonusDone(mask);
+		}
+
+		var thisPlayer = ToPlayer();
+
+		var sp = 0;
+
+		if (heal)
+		{
+			sp = thisPlayer.ActivePlayerData.ModHealingDonePos;
+		}
+		else
+		{
+			var counter = 0;
+
+			for (var i = 1; i < (int)SpellSchools.Max; i++)
+				if (((int)mask & (1 << i)) > 0)
+				{
+					sp += thisPlayer.ActivePlayerData.ModDamageDonePos[i];
+					counter++;
+				}
+
+			if (counter > 0)
+				sp /= counter;
+		}
+
+		return Math.Max(sp, 0); //avoid negative spell power
+	}
+
+	void _UpdateSpells(uint diff)
+	{
+		_spellHistory.Update();
+
+		if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null)
+			_UpdateAutoRepeatSpell();
+
+		for (CurrentSpellTypes i = 0; i < CurrentSpellTypes.Max; ++i)
+			if (GetCurrentSpell(i) != null && CurrentSpells[i].GetState() == SpellState.Finished)
+			{
+				CurrentSpells[i].SetReferencedFromCurrent(false);
+				CurrentSpells[i] = null;
+			}
+
+		List<Aura> toRemove = new();
+
+		foreach (var aura in _ownedAuras.Auras)
+		{
+			if (aura == null)
+				continue;
+
+			aura.UpdateOwner(diff, this);
+
+			if (aura.IsExpired())
+				toRemove.Add(aura);
+
+			if (aura.GetSpellInfo().IsChanneled() &&
+			    aura.GetCasterGUID() != GetGUID() &&
+			    !Global.ObjAccessor.GetWorldObject(this, aura.GetCasterGUID()))
+				toRemove.Add(aura);
+		}
+
+		// remove expired auras - do that after updates(used in scripts?)
+		foreach (var pair in toRemove)
+			RemoveOwnedAura(pair.GetId(), pair, AuraRemoveMode.Expire);
+
+		foreach (var aura in _visibleAurasToUpdate.ToArray())
+			aura.ClientUpdate();
+
+		_visibleAurasToUpdate.Clear();
+
+		_DeleteRemovedAuras();
+
+		if (!GameObjects.Empty())
+			for (var i = 0; i < GameObjects.Count; ++i)
+			{
+				var go = GameObjects[i];
+
+				if (!go.IsSpawned())
+				{
+					go.SetOwnerGUID(ObjectGuid.Empty);
+					go.SetRespawnTime(0);
+					go.Delete();
+					GameObjects.Remove(go);
+				}
+			}
+	}
+
+	Unit GetVehicleRoot()
+	{
+		var vehicleRoot = GetVehicleBase();
+
+		if (!vehicleRoot)
+			return null;
+
+		for (;;)
+		{
+			if (!vehicleRoot.GetVehicleBase())
+				return vehicleRoot;
+
+			vehicleRoot = vehicleRoot.GetVehicleBase();
+		}
+	}
+
+	List<DynamicObject> GetDynObjects(uint spellId)
+	{
+		List<DynamicObject> dynamicobjects = new();
+
+		foreach (var obj in DynamicObjects)
+			if (obj.GetSpellId() == spellId)
+				dynamicobjects.Add(obj);
+
+		return dynamicobjects;
+	}
+
+	List<GameObject> GetGameObjects(uint spellId)
+	{
+		List<GameObject> gameobjects = new();
+
+		foreach (var obj in GameObjects)
+			if (obj.GetSpellId() == spellId)
+				gameobjects.Add(obj);
+
+		return gameobjects;
+	}
+
+	void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
+	{
+		var hasMissile = false;
+
+		Events.ScheduleAbortOnAllMatchingEvents(e =>
+		{
+			var spell = Spell.ExtractSpellFromEvent(e);
+
+			if (spell != null)
+				if (spell.GetSpellInfo().Id == spellId)
+				{
+					hasMissile = true;
+
+					return true;
+				}
+
+			return false;
+		});
+
+		if (hasMissile)
+		{
+			MissileCancel packet = new();
+			packet.OwnerGUID = GetGUID();
+			packet.SpellID = spellId;
+			packet.Reverse = reverseMissile;
+			SendMessageToSet(packet, false);
+		}
+	}
+
+	void RestoreDisabledAI()
+	{
+		// Keep popping the stack until we either reach the bottom or find a valid AI
+		while (PopAI())
+			if (GetTopAI() != null && GetTopAI() is not ScheduledChangeAI)
+				return;
+	}
+
+	UnitAI GetScheduledChangeAI()
+	{
+		var creature = ToCreature();
+
+		if (creature != null)
+			return new ScheduledChangeAI(creature);
+		else
+			return null;
+	}
+
+	bool HasScheduledAIChange()
+	{
+		var ai = GetAI();
+
+		if (ai != null)
+			return ai is ScheduledChangeAI;
+		else
+			return true;
+	}
+
+	void RemoveAllFollowers()
+	{
+		while (!_followingMe.Empty())
+			_followingMe[0].SetTarget(null);
+	}
+
+	bool HasInterruptFlag(SpellAuraInterruptFlags flags)
+	{
+		return _interruptMask.HasAnyFlag(flags);
+	}
+
+	bool HasInterruptFlag(SpellAuraInterruptFlags2 flags)
+	{
+		return _interruptMask2.HasAnyFlag(flags);
+	}
+
+	void _UpdateAutoRepeatSpell()
+	{
+		var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].m_spellInfo;
+
+		// check "realtime" interrupts
+		// don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
+		if ((IsMoving() && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).CheckMovement() != SpellCastResult.SpellCastOk) || IsNonMeleeSpellCast(false, false, true, autoRepeatSpellInfo.Id == 75))
+		{
+			// cancel wand shoot
+			if (autoRepeatSpellInfo.Id != 75)
+				InterruptSpell(CurrentSpellTypes.AutoRepeat);
+
+			return;
+		}
+
+		// castroutine
+		if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).GetState() != SpellState.Preparing)
+		{
+			// Check if able to cast
+			var result = CurrentSpells[CurrentSpellTypes.AutoRepeat].CheckCast(true);
+
+			if (result != SpellCastResult.SpellCastOk)
+			{
+				if (autoRepeatSpellInfo.Id != 75)
+					InterruptSpell(CurrentSpellTypes.AutoRepeat);
+				else if (GetTypeId() == TypeId.Player)
+					Spell.SendCastResult(ToPlayer(), autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].m_SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].m_castId, result);
+
+				return;
+			}
+
+			// we want to shoot
+			Spell spell = new(this, autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
+			spell.Prepare(CurrentSpells[CurrentSpellTypes.AutoRepeat].m_targets);
+		}
+	}
+
+	uint GetCosmeticMountDisplayId()
+	{
+		return UnitData.CosmeticMountDisplayID;
+	}
+
+	Player GetControllingPlayer()
+	{
+		var guid = GetCharmerOrOwnerGUID();
+
+		if (!guid.IsEmpty())
+		{
+			var master = Global.ObjAccessor.GetUnit(this, guid);
+
+			if (master != null)
+				return master.GetControllingPlayer();
+
+			return null;
+		}
+		else
+		{
+			return ToPlayer();
+		}
+	}
+
+	void StartReactiveTimer(ReactiveType reactive)
+	{
+		_reactiveTimer[reactive] = 4000;
+	}
+
+	void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
+	{
+		var victim = damageInfo.Target;
+
+		if (!victim.IsAlive() || victim.HasUnitState(UnitState.InFlight) || (victim.IsTypeId(TypeId.Unit) && victim.ToCreature().IsEvadingAttacks()))
+			return;
+
+		if (damageInfo.TargetState == VictimState.Parry &&
+		    (!victim.IsCreature() || victim.ToCreature().GetCreatureTemplate().FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
+		{
+			// Get attack timers
+			float offtime = victim.GetAttackTimer(WeaponAttackType.OffAttack);
+			float basetime = victim.GetAttackTimer(WeaponAttackType.BaseAttack);
+
+			// Reduce attack time
+			if (victim.HaveOffhandWeapon() && offtime < basetime)
+			{
+				var percent20 = victim.GetBaseAttackTime(WeaponAttackType.OffAttack) * 0.20f;
+				var percent60 = 3.0f * percent20;
+
+				if (offtime > percent20 && offtime <= percent60)
+				{
+					victim.SetAttackTimer(WeaponAttackType.OffAttack, (uint)percent20);
+				}
+				else if (offtime > percent60)
+				{
+					offtime -= 2.0f * percent20;
+					victim.SetAttackTimer(WeaponAttackType.OffAttack, (uint)offtime);
+				}
+			}
+			else
+			{
+				var percent20 = victim.GetBaseAttackTime(WeaponAttackType.BaseAttack) * 0.20f;
+				var percent60 = 3.0f * percent20;
+
+				if (basetime > percent20 && basetime <= percent60)
+				{
+					victim.SetAttackTimer(WeaponAttackType.BaseAttack, (uint)percent20);
+				}
+				else if (basetime > percent60)
+				{
+					basetime -= 2.0f * percent20;
+					victim.SetAttackTimer(WeaponAttackType.BaseAttack, (uint)basetime);
+				}
+			}
+		}
+
+		// Call default DealDamage
+		CleanDamage cleanDamage = new(damageInfo.CleanDamage, damageInfo.Absorb, damageInfo.AttackType, damageInfo.HitOutCome);
+		damageInfo.Damage = DealDamage(this, victim, damageInfo.Damage, cleanDamage, DamageEffectType.Direct, (SpellSchoolMask)damageInfo.DamageSchoolMask, null, durabilityLoss);
+
+		// If this is a creature and it attacks from behind it has a probability to daze it's victim
+		if ((damageInfo.HitOutCome == MeleeHitOutcome.Crit || damageInfo.HitOutCome == MeleeHitOutcome.Crushing || damageInfo.HitOutCome == MeleeHitOutcome.Normal || damageInfo.HitOutCome == MeleeHitOutcome.Glancing) &&
+		    !IsTypeId(TypeId.Player) &&
+		    !ToCreature().IsControlledByPlayer() &&
+		    !victim.Location.HasInArc(MathFunctions.PI, Location) &&
+		    (victim.IsTypeId(TypeId.Player) || !victim.ToCreature().IsWorldBoss()) &&
+		    !victim.IsVehicle())
+		{
+			// 20% base chance
+			var chance = 20.0f;
+
+			// there is a newbie protection, at level 10 just 7% base chance; assuming linear function
+			if (victim.GetLevel() < 30)
+				chance = 0.65f * victim.GetLevelForTarget(this) + 0.5f;
+
+			uint victimDefense = victim.GetMaxSkillValueForLevel(this);
+			uint attackerMeleeSkill = GetMaxSkillValueForLevel();
+
+			chance *= attackerMeleeSkill / victimDefense * 0.16f;
+
+			// -probability is between 0% and 40%
+			MathFunctions.RoundToInterval(ref chance, 0.0f, 40.0f);
+
+			if (RandomHelper.randChance(chance))
+				CastSpell(victim, 1604, true);
+		}
+
+		if (IsTypeId(TypeId.Player))
+		{
+			DamageInfo dmgInfo = new(damageInfo);
+			ToPlayer().CastItemCombatSpell(dmgInfo);
+		}
+
+		// Do effect if any damage done to target
+		if (damageInfo.Damage != 0)
+		{
+			// We're going to call functions which can modify content of the list during iteration over it's elements
+			// Let's copy the list so we can prevent iterator invalidation
+			var vDamageShieldsCopy = victim.GetAuraEffectsByType(AuraType.DamageShield);
+
+			foreach (var dmgShield in vDamageShieldsCopy)
+			{
+				var spellInfo = dmgShield.GetSpellInfo();
+
+				// Damage shield can be resisted...
+				var missInfo = victim.SpellHitResult(this, spellInfo, false);
+
+				if (missInfo != SpellMissInfo.None)
+				{
+					victim.SendSpellMiss(this, spellInfo.Id, missInfo);
+
+					continue;
+				}
+
+				// ...or immuned
+				if (IsImmunedToDamage(spellInfo))
+				{
+					victim.SendSpellDamageImmune(this, spellInfo.Id, false);
+
+					continue;
+				}
+
+				var damage = dmgShield.GetAmount();
+				var caster = dmgShield.GetCaster();
+
+				if (caster)
+				{
+					damage = caster.SpellDamageBonusDone(this, spellInfo, damage, DamageEffectType.SpellDirect, dmgShield.GetSpellEffectInfo());
+					damage = SpellDamageBonusTaken(caster, spellInfo, damage, DamageEffectType.SpellDirect);
+				}
+
+				DamageInfo damageInfo1 = new(this, victim, damage, spellInfo, spellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
+				CalcAbsorbResist(damageInfo1);
+				damage = damageInfo1.GetDamage();
+
+				DealDamageMods(victim, this, ref damage);
+
+				SpellDamageShield damageShield = new();
+				damageShield.Attacker = victim.GetGUID();
+				damageShield.Defender = GetGUID();
+				damageShield.SpellID = spellInfo.Id;
+				damageShield.TotalDamage = (uint)damage;
+				damageShield.OriginalDamage = (int)damageInfo.OriginalDamage;
+				damageShield.OverKill = (uint)Math.Max(damage - GetHealth(), 0);
+				damageShield.SchoolMask = (uint)spellInfo.SchoolMask;
+				damageShield.LogAbsorbed = (uint)damageInfo1.GetAbsorb();
+
+				DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
+				damageShield.LogData.Initialize(this);
+
+				victim.SendCombatLogMessage(damageShield);
+			}
+		}
+	}
+
+	void TriggerOnHealthChangeAuras(long oldVal, long newVal)
+	{
+		foreach (var effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
+		{
+			var triggerHealthPct = effect.GetAmount();
+			var triggerSpell = effect.GetSpellEffectInfo().TriggerSpell;
+			var threshold = CountPctFromMaxHealth(triggerHealthPct);
+
+			switch ((AuraTriggerOnHealthChangeDirection)effect.GetMiscValue())
+			{
+				case AuraTriggerOnHealthChangeDirection.Above:
+					if (newVal < threshold || oldVal > threshold)
+						continue;
+
+					break;
+				case AuraTriggerOnHealthChangeDirection.Below:
+					if (newVal > threshold || oldVal < threshold)
+						continue;
+
+					break;
+				default:
+					break;
+			}
+
+			CastSpell(this, triggerSpell, new CastSpellExtraArgs(effect));
+		}
+	}
+
+	void UpdateReactives(uint p_time)
+	{
+		for (ReactiveType reactive = 0; reactive < ReactiveType.Max; ++reactive)
+		{
+			if (!_reactiveTimer.ContainsKey(reactive))
+				continue;
+
+			if (_reactiveTimer[reactive] <= p_time)
+			{
+				_reactiveTimer[reactive] = 0;
+
+				switch (reactive)
+				{
+					case ReactiveType.Defense:
+						if (HasAuraState(AuraStateType.Defensive))
+							ModifyAuraState(AuraStateType.Defensive, false);
+
+						break;
+					case ReactiveType.Defense2:
+						if (HasAuraState(AuraStateType.Defensive2))
+							ModifyAuraState(AuraStateType.Defensive2, false);
+
+						break;
+				}
+			}
+			else
+			{
+				_reactiveTimer[reactive] -= p_time;
+			}
+		}
+	}
+
+	void GainSpellComboPoints(sbyte count)
+	{
+		if (count == 0)
+			return;
+
+		var cp = (sbyte)GetPower(PowerType.ComboPoints);
+
+		cp += count;
+
+		if (cp > 5) cp = 5;
+		else if (cp < 0) cp = 0;
+
+		SetPower(PowerType.ComboPoints, cp);
+	}
+
+	static double CalcSpellResistedDamage(Unit attacker, Unit victim, double damage, SpellSchoolMask schoolMask, SpellInfo spellInfo)
+	{
+		// Magic damage, check for resists
+		if (!Convert.ToBoolean(schoolMask & SpellSchoolMask.Magic))
+			return 0;
+
+		// Npcs can have holy resistance
+		if (schoolMask.HasAnyFlag(SpellSchoolMask.Holy) && victim.GetTypeId() != TypeId.Unit)
+			return 0;
+
+		var averageResist = CalculateAverageResistReduction(attacker, schoolMask, victim, spellInfo);
+
+		var discreteResistProbability = new double[11];
+
+		if (averageResist <= 0.1f)
+		{
+			discreteResistProbability[0] = 1.0f - 7.5f * averageResist;
+			discreteResistProbability[1] = 5.0f * averageResist;
+			discreteResistProbability[2] = 2.5f * averageResist;
+		}
+		else
+		{
+			for (uint i = 0; i < 11; ++i)
+				discreteResistProbability[i] = Math.Max(0.5f - 2.5f * Math.Abs(0.1f * i - averageResist), 0.0f);
+		}
+
+		var roll = RandomHelper.NextDouble();
+		double probabilitySum = 0.0f;
+
+		uint resistance = 0;
+
+		for (; resistance < 11; ++resistance)
+			if (roll < (probabilitySum += discreteResistProbability[resistance]))
+				break;
+
+		var damageResisted = damage * resistance / 10f;
+
+		if (damageResisted > 0.0f) // if any damage was resisted
+		{
+			double ignoredResistance = 0;
+
+			if (attacker != null)
+				ignoredResistance += attacker.GetTotalAuraModifierByMiscMask(AuraType.ModIgnoreTargetResist, (int)schoolMask);
+
+			ignoredResistance = Math.Min(ignoredResistance, 100);
+			MathFunctions.ApplyPct(ref damageResisted, 100 - ignoredResistance);
+
+			// Spells with melee and magic school mask, decide whether resistance or armor absorb is higher
+			if (spellInfo != null && spellInfo.HasAttribute(SpellCustomAttributes.SchoolmaskNormalWithMagic))
+			{
+				var damageAfterArmor = CalcArmorReducedDamage(attacker, victim, damage, spellInfo, spellInfo.GetAttackType());
+				var armorReduction = damage - damageAfterArmor;
+
+				// pick the lower one, the weakest resistance counts
+				damageResisted = Math.Min(damageResisted, armorReduction);
+			}
+		}
+
+		damageResisted = Math.Max(damageResisted, 0.0f);
+
+		return damageResisted;
+	}
+
+	static double CalculateAverageResistReduction(WorldObject caster, SpellSchoolMask schoolMask, Unit victim, SpellInfo spellInfo = null)
+	{
+		double victimResistance = victim.GetResistance(schoolMask);
+
+		if (caster != null)
+		{
+			// pets inherit 100% of masters penetration
+			var player = caster.GetSpellModOwner();
+
+			if (player != null)
+			{
+				victimResistance += player.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)schoolMask);
+				victimResistance -= player.GetSpellPenetrationItemMod();
+			}
+			else
+			{
+				var unitCaster = caster.ToUnit();
+
+				if (unitCaster != null)
+					victimResistance += unitCaster.GetTotalAuraModifierByMiscMask(AuraType.ModTargetResistance, (int)schoolMask);
+			}
+		}
+
+		// holy resistance exists in pve and comes from level difference, ignore template values
+		if (schoolMask.HasAnyFlag(SpellSchoolMask.Holy))
+			victimResistance = 0.0f;
+
+		// Chaos Bolt exception, ignore all target resistances (unknown attribute?)
+		if (spellInfo != null && spellInfo.SpellFamilyName == SpellFamilyNames.Warlock && spellInfo.Id == 116858)
+			victimResistance = 0.0f;
+
+		victimResistance = Math.Max(victimResistance, 0.0f);
+
+		// level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
+		// gameobject caster -- should it have level based resistance?
+		if (caster != null && !caster.IsGameObject() && (spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.BinarySpell)))
+			victimResistance += Math.Max(((float)victim.GetLevelForTarget(caster) - (float)caster.GetLevelForTarget(victim)) * 5.0f, 0.0f);
+
+		uint bossLevel = 83;
+		var bossResistanceConstant = 510.0f;
+		var level = caster ? victim.GetLevelForTarget(caster) : victim.GetLevel();
+		float resistanceConstant;
+
+		if (level == bossLevel)
+			resistanceConstant = bossResistanceConstant;
+		else
+			resistanceConstant = level * 5.0f;
+
+		return victimResistance / (victimResistance + resistanceConstant);
+	}
+
+	bool IsBlockCritical()
+	{
+		if (RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance)))
+			return true;
+
+		return false;
+	}
 }

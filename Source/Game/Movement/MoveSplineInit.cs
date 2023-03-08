@@ -72,7 +72,7 @@ namespace Game.Movement
                 if (!transport)
                     pos = unit.Location;
                 else
-                    pos = unit.m_movementInfo.transport.pos;
+                    pos = unit.MovementInfo.Transport.Pos;
 
                 real_position.X = pos.X;
                 real_position.Y = pos.Y;
@@ -90,7 +90,7 @@ namespace Game.Movement
             args.flags.SetUnsetFlag(SplineFlag.EnterCycle, args.flags.HasFlag(SplineFlag.Cyclic));
             move_spline.onTransport = transport;
 
-            MovementFlag moveFlags = unit.m_movementInfo.GetMovementFlags();
+            MovementFlag moveFlags = unit.MovementInfo.GetMovementFlags();
             if (!args.flags.HasFlag(SplineFlag.Backward))
                 moveFlags = (moveFlags & ~MovementFlag.Backward) | MovementFlag.Forward;
             else
@@ -133,7 +133,7 @@ namespace Game.Movement
             if (!args.Validate(unit))
                 return 0;
 
-            unit.m_movementInfo.SetMovementFlags(moveFlags);
+            unit.MovementInfo.SetMovementFlags(moveFlags);
             move_spline.Initialize(args);
 
             MonsterMove packet = new();
@@ -168,7 +168,7 @@ namespace Game.Movement
                 if (!transport)
                     pos = unit.Location;
                 else
-                    pos = unit.m_movementInfo.transport.pos;
+                    pos = unit.MovementInfo.Transport.Pos;
 
                 loc.X = pos.X;
                 loc.Y = pos.Y;
@@ -177,7 +177,7 @@ namespace Game.Movement
             }
 
             args.flags.Flags = SplineFlag.Done;
-            unit.m_movementInfo.RemoveMovementFlag(MovementFlag.Forward);
+            unit.MovementInfo.RemoveMovementFlag(MovementFlag.Forward);
             move_spline.onTransport = transport;
             move_spline.Initialize(args);
 

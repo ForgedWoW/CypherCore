@@ -24,8 +24,8 @@ namespace Game.Movement
             _navMeshQuery = null;
             Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GetGUID().ToString());
 
-            uint mapId = PhasingHandler.GetTerrainMapId(_source.GetPhaseShift(), _source.Location.GetMapId(), _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
-            if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.GetMapId()))
+            uint mapId = PhasingHandler.GetTerrainMapId(_source.GetPhaseShift(), _source.Location.MapId, _source.GetMap().GetTerrain(), _source.Location.X, _source.Location.Y);
+            if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
             {
                 _navMesh = Global.MMapMgr.GetNavMesh(mapId);
                 _navMeshQuery = Global.MMapMgr.GetNavMeshQuery(mapId, _source.GetInstanceId());
@@ -278,7 +278,7 @@ namespace Game.Movement
                     if (_pathPolyRefs[pathStartIndex] == 0)
                     {
                         Log.outError(LogFilter.Maps, "Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
-                            " startPos: {2}, endPos: {3}, mapid: {4}", _polyLength, pathStartIndex, startPos, endPos, _source.Location.GetMapId());
+                            " startPos: {2}, endPos: {3}, mapid: {4}", _polyLength, pathStartIndex, startPos, endPos, _source.Location.MapId);
                         break;
                     }
 

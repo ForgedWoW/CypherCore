@@ -110,7 +110,7 @@ namespace Game.PvP
         public override void SendRemoveWorldStates(Player player)
         {
             InitWorldStates initWorldStates = new();
-            initWorldStates.MapID = player.Location.GetMapId();
+            initWorldStates.MapID = player.Location.MapId;
             initWorldStates.AreaID = player.GetZoneId();
             initWorldStates.SubareaID = player.GetAreaId();
             initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);

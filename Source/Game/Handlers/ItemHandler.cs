@@ -499,7 +499,7 @@ namespace Game
             Item pItem = _player.GetItemFromBuyBackSlot(packet.Slot);
             if (pItem != null)
             {
-                uint price = _player.m_activePlayerData.BuybackPrice[(int)(packet.Slot - InventorySlots.BuyBackStart)];
+                uint price = _player.ActivePlayerData.BuybackPrice[(int)(packet.Slot - InventorySlots.BuyBackStart)];
                 if (!_player.HasEnoughMoney(price))
                 {
                     _player.SendBuyError(BuyResult.NotEnoughtMoney, creature, pItem.GetEntry());
@@ -595,7 +595,7 @@ namespace Game
             }
 
             // no-op: placed in same slot
-            if (dest.Count == 1 && dest[0].pos == src)
+            if (dest.Count == 1 && dest[0].Pos == src)
             {
                 // just remove grey item state
                 GetPlayer().SendEquipError(InventoryResult.InternalBagError, item);
@@ -714,7 +714,7 @@ namespace Game
             stmt.AddValue(0, item.GetOwnerGUID().GetCounter());
             stmt.AddValue(1, item.GetGUID().GetCounter());
             stmt.AddValue(2, item.GetEntry());
-            stmt.AddValue(3, (uint)item.m_itemData.DynamicFlags);
+            stmt.AddValue(3, (uint)item.ItemData.DynamicFlags);
             trans.Append(stmt);
 
             item.SetEntry(gift.GetEntry());
@@ -792,7 +792,7 @@ namespace Game
                 {
                     gems[i] = gem;
                     gemData[i].ItemId = gem.GetEntry();
-                    gemData[i].Context = (byte)gem.m_itemData.Context;
+                    gemData[i].Context = (byte)gem.ItemData.Context;
                     for (int b = 0; b < gem.GetBonusListIDs().Count && b < 16; ++b)
                         gemData[i].BonusListIDs[b] = (ushort)gem.GetBonusListIDs()[b];
 

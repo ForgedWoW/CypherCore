@@ -496,7 +496,7 @@ namespace Game.Chat
                     if (player == null)
                         continue;
 
-                    uint playerMapId = player.Location.GetMapId();
+                    uint playerMapId = player.Location.MapId;
                     uint playerZoneId = player.GetZoneId();
 
                     // Apply optional ipAddress filter

@@ -14,46 +14,46 @@ namespace Game.Networking.Packets
     {
         public static void ReadTransportInfo(WorldPacket data, ref MovementInfo.TransportInfo transportInfo)
         {
-            transportInfo.guid = data.ReadPackedGuid();                 // Transport Guid
-            transportInfo.pos.X = data.ReadFloat();
-            transportInfo.pos.Y = data.ReadFloat();
-            transportInfo.pos.Z = data.ReadFloat();
-            transportInfo.pos.Orientation = data.ReadFloat();
-            transportInfo.seat = data.ReadInt8();                 // VehicleSeatIndex
-            transportInfo.time = data.ReadUInt32();                 // MoveTime
+            transportInfo.Guid = data.ReadPackedGuid();                 // Transport Guid
+            transportInfo.Pos.X = data.ReadFloat();
+            transportInfo.Pos.Y = data.ReadFloat();
+            transportInfo.Pos.Z = data.ReadFloat();
+            transportInfo.Pos.Orientation = data.ReadFloat();
+            transportInfo.Seat = data.ReadInt8();                 // VehicleSeatIndex
+            transportInfo.Time = data.ReadUInt32();                 // MoveTime
 
             bool hasPrevTime = data.HasBit();
             bool hasVehicleId = data.HasBit();
 
             if (hasPrevTime)
-                transportInfo.prevTime = data.ReadUInt32();         // PrevMoveTime
+                transportInfo.PrevTime = data.ReadUInt32();         // PrevMoveTime
 
             if (hasVehicleId)
-                transportInfo.vehicleId = data.ReadUInt32();        // VehicleRecID
+                transportInfo.VehicleId = data.ReadUInt32();        // VehicleRecID
         }
 
         public static void WriteTransportInfo(WorldPacket data, MovementInfo.TransportInfo transportInfo)
         {
-            bool hasPrevTime = transportInfo.prevTime != 0;
-            bool hasVehicleId = transportInfo.vehicleId != 0;
+            bool hasPrevTime = transportInfo.PrevTime != 0;
+            bool hasVehicleId = transportInfo.VehicleId != 0;
 
-            data.WritePackedGuid(transportInfo.guid);                 // Transport Guid
-            data.WriteFloat(transportInfo.pos.X);
-            data.WriteFloat(transportInfo.pos.Y);
-            data.WriteFloat(transportInfo.pos.Z);
-            data.WriteFloat(transportInfo.pos.Orientation);
-            data.WriteInt8(transportInfo.seat);                 // VehicleSeatIndex
-            data.WriteUInt32(transportInfo.time);                 // MoveTime
+            data.WritePackedGuid(transportInfo.Guid);                 // Transport Guid
+            data.WriteFloat(transportInfo.Pos.X);
+            data.WriteFloat(transportInfo.Pos.Y);
+            data.WriteFloat(transportInfo.Pos.Z);
+            data.WriteFloat(transportInfo.Pos.Orientation);
+            data.WriteInt8(transportInfo.Seat);                 // VehicleSeatIndex
+            data.WriteUInt32(transportInfo.Time);                 // MoveTime
 
             data.WriteBit(hasPrevTime);
             data.WriteBit(hasVehicleId);
             data.FlushBits();
 
             if (hasPrevTime)
-                data.WriteUInt32(transportInfo.prevTime);         // PrevMoveTime
+                data.WriteUInt32(transportInfo.PrevTime);         // PrevMoveTime
 
             if (hasVehicleId)
-                data.WriteUInt32(transportInfo.vehicleId);        // VehicleRecID
+                data.WriteUInt32(transportInfo.VehicleId);        // VehicleRecID
         }
 
         public static MovementInfo ReadMovementInfo(WorldPacket data)
@@ -71,7 +71,7 @@ namespace Game.Networking.Packets
 
             movementInfo.Pos.Relocate(x, y, z, o);
             movementInfo.Pitch = data.ReadFloat();
-            movementInfo.stepUpStartElevation = data.ReadFloat();
+            movementInfo.StepUpStartElevation = data.ReadFloat();
 
             uint removeMovementForcesCount = data.ReadUInt32();
 
@@ -94,40 +94,40 @@ namespace Game.Networking.Packets
             bool hasAdvFlying = data.HasBit();
 
             if (hasTransport)
-                ReadTransportInfo(data, ref movementInfo.transport);
+                ReadTransportInfo(data, ref movementInfo.Transport);
 
             if (hasInertia)
             {
-                MovementInfo.Inertia inertia = new();
-                inertia.id = data.ReadInt32();
-                inertia.force = data.ReadPosition();
-                inertia.lifetime = data.ReadUInt32();
+                MovementInfo.MovementInertia inertia = new();
+                inertia.Id = data.ReadInt32();
+                inertia.Force = data.ReadPosition();
+                inertia.Lifetime = data.ReadUInt32();
 
-                movementInfo.inertia = inertia;
+                movementInfo.Inertia = inertia;
             }
 
             if (hasAdvFlying)
             {
-                MovementInfo.AdvFlying advFlying = new();
+                MovementInfo.AdvFlyingMovement advFlying = new();
 
-                advFlying.forwardVelocity = data.ReadFloat();
-                advFlying.upVelocity = data.ReadFloat();
-                movementInfo.advFlying = advFlying;
+                advFlying.ForwardVelocity = data.ReadFloat();
+                advFlying.UpVelocity = data.ReadFloat();
+                movementInfo.AdvFlying = advFlying;
             }
 
             if (hasFall)
             {
-                movementInfo.jump.fallTime = data.ReadUInt32();
-                movementInfo.jump.zspeed = data.ReadFloat();
+                movementInfo.Jump.FallTime = data.ReadUInt32();
+                movementInfo.Jump.Zspeed = data.ReadFloat();
 
                 // ResetBitReader
 
                 bool hasFallDirection = data.HasBit();
                 if (hasFallDirection)
                 {
-                    movementInfo.jump.sinAngle = data.ReadFloat();
-                    movementInfo.jump.cosAngle = data.ReadFloat();
-                    movementInfo.jump.xyspeed = data.ReadFloat();
+                    movementInfo.Jump.SinAngle = data.ReadFloat();
+                    movementInfo.Jump.CosAngle = data.ReadFloat();
+                    movementInfo.Jump.Xyspeed = data.ReadFloat();
                 }
             }
 
@@ -136,12 +136,12 @@ namespace Game.Networking.Packets
 
         public static void WriteMovementInfo(WorldPacket data, MovementInfo movementInfo)
         {
-            bool hasTransportData = !movementInfo.transport.guid.IsEmpty();
+            bool hasTransportData = !movementInfo.Transport.Guid.IsEmpty();
             bool hasFallDirection = movementInfo.HasMovementFlag(MovementFlag.Falling | MovementFlag.FallingFar);
-            bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
+            bool hasFallData = hasFallDirection || movementInfo.Jump.FallTime != 0;
             bool hasSpline = false; // todo 6.x send this infos
-            bool hasInertia = movementInfo.inertia.HasValue;
-            bool hasAdvFlying = movementInfo.advFlying.HasValue;
+            bool hasInertia = movementInfo.Inertia.HasValue;
+            bool hasAdvFlying = movementInfo.AdvFlying.HasValue;
 
             data.WritePackedGuid(movementInfo.Guid);
             data.WriteUInt32((uint)movementInfo.GetMovementFlags());
@@ -153,7 +153,7 @@ namespace Game.Networking.Packets
             data.WriteFloat(movementInfo.Pos.Z);
             data.WriteFloat(movementInfo.Pos.Orientation);
             data.WriteFloat(movementInfo.Pitch);
-            data.WriteFloat(movementInfo.stepUpStartElevation);
+            data.WriteFloat(movementInfo.StepUpStartElevation);
 
             uint removeMovementForcesCount = 0;
             data.WriteUInt32(removeMovementForcesCount);
@@ -176,33 +176,33 @@ namespace Game.Networking.Packets
             data.FlushBits();
 
             if (hasTransportData)
-                WriteTransportInfo(data, movementInfo.transport);
+                WriteTransportInfo(data, movementInfo.Transport);
 
             if (hasInertia)
             {
-                data.WriteInt32(movementInfo.inertia.Value.id);
-                data.WriteXYZ(movementInfo.inertia.Value.force);
-                data.WriteUInt32(movementInfo.inertia.Value.lifetime);
+                data.WriteInt32(movementInfo.Inertia.Value.Id);
+                data.WriteXYZ(movementInfo.Inertia.Value.Force);
+                data.WriteUInt32(movementInfo.Inertia.Value.Lifetime);
             }
 
             if (hasAdvFlying)
             {
-                data.WriteFloat(movementInfo.advFlying.Value.forwardVelocity);
-                data.WriteFloat(movementInfo.advFlying.Value.upVelocity);
+                data.WriteFloat(movementInfo.AdvFlying.Value.ForwardVelocity);
+                data.WriteFloat(movementInfo.AdvFlying.Value.UpVelocity);
             }
 
             if (hasFallData)
             {
-                data.WriteUInt32(movementInfo.jump.fallTime);
-                data.WriteFloat(movementInfo.jump.zspeed);
+                data.WriteUInt32(movementInfo.Jump.FallTime);
+                data.WriteFloat(movementInfo.Jump.Zspeed);
 
                 data.WriteBit(hasFallDirection);
                 data.FlushBits();
                 if (hasFallDirection)
                 {
-                    data.WriteFloat(movementInfo.jump.sinAngle);
-                    data.WriteFloat(movementInfo.jump.cosAngle);
-                    data.WriteFloat(movementInfo.jump.xyspeed);
+                    data.WriteFloat(movementInfo.Jump.SinAngle);
+                    data.WriteFloat(movementInfo.Jump.CosAngle);
+                    data.WriteFloat(movementInfo.Jump.Xyspeed);
                 }
             }
         }

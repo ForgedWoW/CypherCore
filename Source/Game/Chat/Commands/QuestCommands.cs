@@ -101,7 +101,7 @@ namespace Game.Chat
 
                         if (quest.HasFlag(QuestFlags.Pvp))
                         {
-                            player.pvpInfo.IsHostile = player.pvpInfo.IsInHostileArea || player.HasPvPForcingQuest();
+                            player.PvpInfo.IsHostile = player.PvpInfo.IsInHostileArea || player.HasPvPForcingQuest();
                             player.UpdatePvPState();
                         }
                     }

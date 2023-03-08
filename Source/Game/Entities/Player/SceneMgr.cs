@@ -8,243 +8,258 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IScene;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class SceneMgr
 {
-    public class SceneMgr
-    {
-        readonly Player _player;
-        readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
-        uint _standaloneSceneInstanceID;
-        readonly List<ServerPacket> _delayedScenes = new();
-        bool _isDebuggingScenes;
+	readonly Player _player;
+	readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
+	readonly List<ServerPacket> _delayedScenes = new();
+	uint _standaloneSceneInstanceId;
+	bool _isDebuggingScenes;
 
-        public SceneMgr(Player player)
-        {
-            _player = player;
-            _standaloneSceneInstanceID = 0;
-            _isDebuggingScenes = false;
-        }
+	Player Player => _player;
 
-        public uint PlayScene(uint sceneId, Position position = null)
-        {
-            SceneTemplate sceneTemplate = Global.ObjectMgr.GetSceneTemplate(sceneId);
-            return PlaySceneByTemplate(sceneTemplate, position);
-        }
+	public SceneMgr(Player player)
+	{
+		_player = player;
+		_standaloneSceneInstanceId = 0;
+		_isDebuggingScenes = false;
+	}
 
-        public uint PlaySceneByTemplate(SceneTemplate sceneTemplate, Position position = null)
-        {
-            if (sceneTemplate == null)
-                return 0;
+	public uint PlayScene(uint sceneId, Position position = null)
+	{
+		var sceneTemplate = Global.ObjectMgr.GetSceneTemplate(sceneId);
 
-            SceneScriptPackageRecord entry = CliDB.SceneScriptPackageStorage.LookupByKey(sceneTemplate.ScenePackageId);
-            if (entry == null)
-                return 0;
+		return PlaySceneByTemplate(sceneTemplate, position);
+	}
 
-            // By default, take player position
-            if (position == null)
-                position = Player.Location;
+	public uint PlaySceneByTemplate(SceneTemplate sceneTemplate, Position position = null)
+	{
+		if (sceneTemplate == null)
+			return 0;
 
-            uint sceneInstanceID = GetNewStandaloneSceneInstanceID();
+		var entry = CliDB.SceneScriptPackageStorage.LookupByKey(sceneTemplate.ScenePackageId);
 
-            if (_isDebuggingScenes)
-                Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceID, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
+		if (entry == null)
+			return 0;
 
-            PlayScene playScene = new();
-            playScene.SceneID = sceneTemplate.SceneId;
-            playScene.PlaybackFlags = (uint)sceneTemplate.PlaybackFlags;
-            playScene.SceneInstanceID = sceneInstanceID;
-            playScene.SceneScriptPackageID = sceneTemplate.ScenePackageId;
-            playScene.Location = position;
-            playScene.TransportGUID = Player.GetTransGUID();
-            playScene.Encrypted = sceneTemplate.Encrypted;
-            playScene.Write();
+		// By default, take player position
+		if (position == null)
+			position = Player.Location;
 
-            if (Player.IsInWorld)
-                Player.SendPacket(playScene);
-            else
-                _delayedScenes.Add(playScene);
+		var sceneInstanceId = GetNewStandaloneSceneInstanceId();
 
-            AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
+		if (_isDebuggingScenes)
+			Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceId, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+		PlayScene playScene = new();
+		playScene.SceneID = sceneTemplate.SceneId;
+		playScene.PlaybackFlags = (uint)sceneTemplate.PlaybackFlags;
+		playScene.SceneInstanceID = sceneInstanceId;
+		playScene.SceneScriptPackageID = sceneTemplate.ScenePackageId;
+		playScene.Location = position;
+		playScene.TransportGUID = Player.GetTransGUID();
+		playScene.Encrypted = sceneTemplate.Encrypted;
+		playScene.Write();
 
-            return sceneInstanceID;
-        }
+		if (Player.IsInWorld)
+			Player.SendPacket(playScene);
+		else
+			_delayedScenes.Add(playScene);
 
-        public uint PlaySceneByPackageId(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
-        {
-            SceneTemplate sceneTemplate = new();
-            sceneTemplate.SceneId = 0;
-            sceneTemplate.ScenePackageId = sceneScriptPackageId;
-            sceneTemplate.PlaybackFlags = playbackflags;
-            sceneTemplate.Encrypted = false;
-            sceneTemplate.ScriptId = 0;
+		AddInstanceIdToSceneMap(sceneInstanceId, sceneTemplate);
 
-            return PlaySceneByTemplate(sceneTemplate, position);
-        }
+		Global.ScriptMgr.RunScript<ISceneOnSceneStart>(script => script.OnSceneStart(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
-        void CancelScene(uint sceneInstanceID, bool removeFromMap = true)
-        {
-            if (removeFromMap)
-                RemoveSceneInstanceId(sceneInstanceID);
+		return sceneInstanceId;
+	}
 
-            CancelScene cancelScene = new();
-            cancelScene.SceneInstanceID = sceneInstanceID;
-            Player.SendPacket(cancelScene);
-        }
+	public uint PlaySceneByPackageId(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
+	{
+		SceneTemplate sceneTemplate = new();
+		sceneTemplate.SceneId = 0;
+		sceneTemplate.ScenePackageId = sceneScriptPackageId;
+		sceneTemplate.PlaybackFlags = playbackflags;
+		sceneTemplate.Encrypted = false;
+		sceneTemplate.ScriptId = 0;
 
-        public void OnSceneTrigger(uint sceneInstanceID, string triggerName)
-        {
-            if (!HasScene(sceneInstanceID))
-                return;
+		return PlaySceneByTemplate(sceneTemplate, position);
+	}
 
-            if (_isDebuggingScenes)
-                Player.SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceID, triggerName);
+	public void OnSceneTrigger(uint sceneInstanceId, string triggerName)
+	{
+		if (!HasScene(sceneInstanceId))
+			return;
 
-            SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-            Global.ScriptMgr.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(Player, sceneInstanceID, sceneTemplate, triggerName), sceneTemplate.ScriptId);
-        }
+		if (_isDebuggingScenes)
+			Player.SendSysMessage(CypherStrings.CommandSceneDebugTrigger, sceneInstanceId, triggerName);
 
-        public void OnSceneCancel(uint sceneInstanceID)
-        {
-            if (!HasScene(sceneInstanceID))
-                return;
+		var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
+		Global.ScriptMgr.RunScript<ISceneOnSceneTrigger>(script => script.OnSceneTriggerEvent(Player, sceneInstanceId, sceneTemplate, triggerName), sceneTemplate.ScriptId);
+	}
 
-            if (_isDebuggingScenes)
-                Player.SendSysMessage(CypherStrings.CommandSceneDebugCancel, sceneInstanceID);
+	public void OnSceneCancel(uint sceneInstanceId)
+	{
+		if (!HasScene(sceneInstanceId))
+			return;
 
-            SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
-            if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.NotCancelable))
-                return;
+		if (_isDebuggingScenes)
+			Player.SendSysMessage(CypherStrings.CommandSceneDebugCancel, sceneInstanceId);
 
-            // Must be done before removing aura
-            RemoveSceneInstanceId(sceneInstanceID);
+		var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
 
-            if (sceneTemplate.SceneId != 0)
-                RemoveAurasDueToSceneId(sceneTemplate.SceneId);
+		if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.NotCancelable))
+			return;
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+		// Must be done before removing aura
+		RemoveSceneInstanceId(sceneInstanceId);
 
-            if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnCancel))
-                CancelScene(sceneInstanceID, false);
-        }
+		if (sceneTemplate.SceneId != 0)
+			RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-        public void OnSceneComplete(uint sceneInstanceID)
-        {
-            if (!HasScene(sceneInstanceID))
-                return;
+		Global.ScriptMgr.RunScript<ISceneOnSceneChancel>(script => script.OnSceneCancel(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
-            if (_isDebuggingScenes)
-                Player.SendSysMessage(CypherStrings.CommandSceneDebugComplete, sceneInstanceID);
+		if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnCancel))
+			CancelScene(sceneInstanceId, false);
+	}
 
-            SceneTemplate sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
+	public void OnSceneComplete(uint sceneInstanceId)
+	{
+		if (!HasScene(sceneInstanceId))
+			return;
 
-            // Must be done before removing aura
-            RemoveSceneInstanceId(sceneInstanceID);
+		if (_isDebuggingScenes)
+			Player.SendSysMessage(CypherStrings.CommandSceneDebugComplete, sceneInstanceId);
 
-            if (sceneTemplate.SceneId != 0)
-                RemoveAurasDueToSceneId(sceneTemplate.SceneId);
+		var sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceId);
 
-            Global.ScriptMgr.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(Player, sceneInstanceID, sceneTemplate), sceneTemplate.ScriptId);
+		// Must be done before removing aura
+		RemoveSceneInstanceId(sceneInstanceId);
 
-            if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnComplete))
-                CancelScene(sceneInstanceID, false);
-        }
+		if (sceneTemplate.SceneId != 0)
+			RemoveAurasDueToSceneId(sceneTemplate.SceneId);
 
-        bool HasScene(uint sceneInstanceID, uint sceneScriptPackageId = 0)
-        {
-            var sceneTempalte = _scenesByInstance.LookupByKey(sceneInstanceID);
+		Global.ScriptMgr.RunScript<ISceneOnSceneComplete>(script => script.OnSceneComplete(Player, sceneInstanceId, sceneTemplate), sceneTemplate.ScriptId);
 
-            if (sceneTempalte != null)
-                return sceneScriptPackageId == 0 || sceneScriptPackageId == sceneTempalte.ScenePackageId;
+		if (sceneTemplate.PlaybackFlags.HasFlag(SceneFlags.FadeToBlackscreenOnComplete))
+			CancelScene(sceneInstanceId, false);
+	}
 
-            return false;
-        }
+	public void CancelSceneBySceneId(uint sceneId)
+	{
+		List<uint> instancesIds = new();
 
-        void AddInstanceIdToSceneMap(uint sceneInstanceID, SceneTemplate sceneTemplate)
-        {
-            _scenesByInstance[sceneInstanceID] = sceneTemplate;
-        }
+		foreach (var pair in _scenesByInstance)
+			if (pair.Value.SceneId == sceneId)
+				instancesIds.Add(pair.Key);
 
-        public void CancelSceneBySceneId(uint sceneId)
-        {
-            List<uint> instancesIds = new();
+		foreach (var sceneInstanceId in instancesIds)
+			CancelScene(sceneInstanceId);
+	}
 
-            foreach (var pair in _scenesByInstance)
-                if (pair.Value.SceneId == sceneId)
-                    instancesIds.Add(pair.Key);
+	public void CancelSceneByPackageId(uint sceneScriptPackageId)
+	{
+		List<uint> instancesIds = new();
 
-            foreach (uint sceneInstanceID in instancesIds)
-                CancelScene(sceneInstanceID);
-        }
+		foreach (var sceneTemplate in _scenesByInstance)
+			if (sceneTemplate.Value.ScenePackageId == sceneScriptPackageId)
+				instancesIds.Add(sceneTemplate.Key);
 
-        public void CancelSceneByPackageId(uint sceneScriptPackageId)
-        {
-            List<uint> instancesIds = new();
+		foreach (var sceneInstanceId in instancesIds)
+			CancelScene(sceneInstanceId);
+	}
 
-            foreach (var sceneTemplate in _scenesByInstance)
-                if (sceneTemplate.Value.ScenePackageId == sceneScriptPackageId)
-                    instancesIds.Add(sceneTemplate.Key);
+	public uint GetActiveSceneCount(uint sceneScriptPackageId = 0)
+	{
+		uint activeSceneCount = 0;
 
-            foreach (uint sceneInstanceID in instancesIds)
-                CancelScene(sceneInstanceID);
-        }
+		foreach (var sceneTemplate in _scenesByInstance.Values)
+			if (sceneScriptPackageId == 0 || sceneTemplate.ScenePackageId == sceneScriptPackageId)
+				++activeSceneCount;
 
-        void RemoveSceneInstanceId(uint sceneInstanceID)
-        {
-            _scenesByInstance.Remove(sceneInstanceID);
-        }
+		return activeSceneCount;
+	}
 
-        void RemoveAurasDueToSceneId(uint sceneId)
-        {
-            var scenePlayAuras = Player.GetAuraEffectsByType(AuraType.PlayScene);
-            foreach (var scenePlayAura in scenePlayAuras)
-            {
-                if (scenePlayAura.GetMiscValue() == sceneId)
-                {
-                    Player.RemoveAura(scenePlayAura.GetBase());
-                    break;
-                }
-            }
-        }
+	public void TriggerDelayedScenes()
+	{
+		foreach (var playScene in _delayedScenes)
+			Player.SendPacket(playScene);
 
-        SceneTemplate GetSceneTemplateFromInstanceId(uint sceneInstanceID)
-        {
-            return _scenesByInstance.LookupByKey(sceneInstanceID);
-        }
+		_delayedScenes.Clear();
+	}
 
-        public uint GetActiveSceneCount(uint sceneScriptPackageId = 0)
-        {
-            uint activeSceneCount = 0;
+	public Dictionary<uint, SceneTemplate> GetSceneTemplateByInstanceMap()
+	{
+		return _scenesByInstance;
+	}
 
-            foreach (var sceneTemplate in _scenesByInstance.Values)
-                if (sceneScriptPackageId == 0 || sceneTemplate.ScenePackageId == sceneScriptPackageId)
-                    ++activeSceneCount;
+	public void ToggleDebugSceneMode()
+	{
+		_isDebuggingScenes = !_isDebuggingScenes;
+	}
 
-            return activeSceneCount;
-        }
+	public bool IsInDebugSceneMode()
+	{
+		return _isDebuggingScenes;
+	}
 
-        public void TriggerDelayedScenes()
-        {
-            foreach (var playScene in _delayedScenes)
-                Player.SendPacket(playScene);
+	void CancelScene(uint sceneInstanceId, bool removeFromMap = true)
+	{
+		if (removeFromMap)
+			RemoveSceneInstanceId(sceneInstanceId);
 
-            _delayedScenes.Clear();
-        }
+		CancelScene cancelScene = new();
+		cancelScene.SceneInstanceID = sceneInstanceId;
+		Player.SendPacket(cancelScene);
+	}
 
-        Player Player => _player;
+	bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)
+	{
+		var sceneTempalte = _scenesByInstance.LookupByKey(sceneInstanceId);
 
-        void RecreateScene(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
-        {
-            CancelSceneByPackageId(sceneScriptPackageId);
-            PlaySceneByPackageId(sceneScriptPackageId, playbackflags, position);
-        }
+		if (sceneTempalte != null)
+			return sceneScriptPackageId == 0 || sceneScriptPackageId == sceneTempalte.ScenePackageId;
 
-        public Dictionary<uint, SceneTemplate> GetSceneTemplateByInstanceMap() { return _scenesByInstance; }
+		return false;
+	}
 
-        uint GetNewStandaloneSceneInstanceID() { return ++_standaloneSceneInstanceID; }
+	void AddInstanceIdToSceneMap(uint sceneInstanceId, SceneTemplate sceneTemplate)
+	{
+		_scenesByInstance[sceneInstanceId] = sceneTemplate;
+	}
 
-        public void ToggleDebugSceneMode() { _isDebuggingScenes = !_isDebuggingScenes; }
-        public bool IsInDebugSceneMode() { return _isDebuggingScenes; }
-    }
+	void RemoveSceneInstanceId(uint sceneInstanceId)
+	{
+		_scenesByInstance.Remove(sceneInstanceId);
+	}
+
+	void RemoveAurasDueToSceneId(uint sceneId)
+	{
+		var scenePlayAuras = Player.GetAuraEffectsByType(AuraType.PlayScene);
+
+		foreach (var scenePlayAura in scenePlayAuras)
+			if (scenePlayAura.GetMiscValue() == sceneId)
+			{
+				Player.RemoveAura(scenePlayAura.GetBase());
+
+				break;
+			}
+	}
+
+	SceneTemplate GetSceneTemplateFromInstanceId(uint sceneInstanceId)
+	{
+		return _scenesByInstance.LookupByKey(sceneInstanceId);
+	}
+
+	void RecreateScene(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
+	{
+		CancelSceneByPackageId(sceneScriptPackageId);
+		PlaySceneByPackageId(sceneScriptPackageId, playbackflags, position);
+	}
+
+	uint GetNewStandaloneSceneInstanceId()
+	{
+		return ++_standaloneSceneInstanceId;
+	}
 }

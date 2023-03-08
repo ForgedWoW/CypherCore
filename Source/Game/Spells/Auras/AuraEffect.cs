@@ -64,7 +64,7 @@ namespace Game.Spells
             if (!m_spellInfo.HasAttribute(SpellAttr8.MasteryAffectPoints) || MathFunctions.fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
                 amount = GetSpellEffectInfo().CalcValue(caster, m_baseAmount, GetBase().GetOwner().ToUnit(), GetBase().GetCastItemId(), GetBase().GetCastItemLevel());
             else if (caster != null && caster.IsTypeId(TypeId.Player))
-                amount = caster.ToPlayer().m_activePlayerData.Mastery * GetSpellEffectInfo().BonusCoefficient;
+                amount = caster.ToPlayer().ActivePlayerData.Mastery * GetSpellEffectInfo().BonusCoefficient;
 
             // custom amount calculations go here
             switch (GetAuraType())
@@ -210,7 +210,7 @@ namespace Game.Spells
                     if (m_spellInfo.IsChanneled())
                         caster.ModSpellDurationTime(m_spellInfo, ref _period);
                     else if (m_spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
-                        _period = (int)(_period * caster.m_unitData.ModCastingSpeed);
+                        _period = (int)(_period * caster.UnitData.ModCastingSpeed);
                 }
             }
             else // prevent infinite loop on Update
@@ -500,9 +500,9 @@ namespace Game.Spells
 
             // Update serverside orientation of tracking channeled auras on periodic update ticks
             // exclude players because can turn during channeling and shouldn't desync orientation client/server
-            if (caster != null && !caster.IsPlayer() && m_spellInfo.IsChanneled() && m_spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.m_unitData.ChannelObjects.Size() != 0)
+            if (caster != null && !caster.IsPlayer() && m_spellInfo.IsChanneled() && m_spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.UnitData.ChannelObjects.Size() != 0)
             {
-                ObjectGuid channelGuid = caster.m_unitData.ChannelObjects[0];
+                ObjectGuid channelGuid = caster.UnitData.ChannelObjects[0];
                 if (channelGuid != caster.GetGUID())
                 {
                     WorldObject objectTarget = Global.ObjAccessor.GetWorldObject(caster, channelGuid);
@@ -952,15 +952,15 @@ namespace Game.Spells
 
             if (apply)
             {
-                target.m_invisibilityDetect.AddFlag(type);
-                target.m_invisibilityDetect.AddValue(type, GetAmount());
+                target.InvisibilityDetect.AddFlag(type);
+                target.InvisibilityDetect.AddValue(type, GetAmount());
             }
             else
             {
                 if (!target.HasAuraType(AuraType.ModInvisibilityDetect))
-                    target.m_invisibilityDetect.DelFlag(type);
+                    target.InvisibilityDetect.DelFlag(type);
 
-                target.m_invisibilityDetect.AddValue(type, -GetAmount());
+                target.InvisibilityDetect.AddValue(type, -GetAmount());
             }
 
             // call functions which may have additional effects after changing state of unit
@@ -984,8 +984,8 @@ namespace Game.Spells
                 if (playerTarget != null && type == InvisibilityType.General)
                     playerTarget.AddAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-                target.m_invisibility.AddFlag(type);
-                target.m_invisibility.AddValue(type, GetAmount());
+                target.Invisibility.AddFlag(type);
+                target.Invisibility.AddValue(type, GetAmount());
 
                 target.SetVisFlag(UnitVisFlags.Invisible);
             }
@@ -998,7 +998,7 @@ namespace Game.Spells
                     if (playerTarget != null)
                         playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-                    target.m_invisibility.DelFlag(type);
+                    target.Invisibility.DelFlag(type);
                 }
                 else
                 {
@@ -1019,13 +1019,13 @@ namespace Game.Spells
                         if (playerTarget != null && type == InvisibilityType.General)
                             playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-                        target.m_invisibility.DelFlag(type);
+                        target.Invisibility.DelFlag(type);
 
                         target.RemoveVisFlag(UnitVisFlags.Invisible);
                     }
                 }
 
-                target.m_invisibility.AddValue(type, -GetAmount());
+                target.Invisibility.AddValue(type, -GetAmount());
             }
 
             // call functions which may have additional effects after changing state of unit
@@ -1050,15 +1050,15 @@ namespace Game.Spells
 
             if (apply)
             {
-                target.m_stealthDetect.AddFlag(type);
-                target.m_stealthDetect.AddValue(type, GetAmount());
+                target.StealthDetect.AddFlag(type);
+                target.StealthDetect.AddValue(type, GetAmount());
             }
             else
             {
                 if (!target.HasAuraType(AuraType.ModStealthDetect))
-                    target.m_stealthDetect.DelFlag(type);
+                    target.StealthDetect.DelFlag(type);
 
-                target.m_stealthDetect.AddValue(type, -GetAmount());
+                target.StealthDetect.AddValue(type, -GetAmount());
             }
 
             // call functions which may have additional effects after changing state of unit
@@ -1077,8 +1077,8 @@ namespace Game.Spells
 
             if (apply)
             {
-                target.m_stealth.AddFlag(type);
-                target.m_stealth.AddValue(type, GetAmount());
+                target.Stealth.AddFlag(type);
+                target.Stealth.AddValue(type, GetAmount());
                 target.SetVisFlag(UnitVisFlags.Stealthed);
                 Player playerTarget = target.ToPlayer();
                 if (playerTarget != null)
@@ -1086,11 +1086,11 @@ namespace Game.Spells
             }
             else
             {
-                target.m_stealth.AddValue(type, -GetAmount());
+                target.Stealth.AddValue(type, -GetAmount());
 
                 if (!target.HasAuraType(AuraType.ModStealth)) // if last SPELL_AURA_MOD_STEALTH
                 {
-                    target.m_stealth.DelFlag(type);
+                    target.Stealth.DelFlag(type);
 
                     target.RemoveVisFlag(UnitVisFlags.Stealthed);
                     Player playerTarget = target.ToPlayer();
@@ -1120,9 +1120,9 @@ namespace Game.Spells
             StealthType type = (StealthType)GetMiscValue();
 
             if (apply)
-                target.m_stealth.AddValue(type, GetAmount());
+                target.Stealth.AddValue(type, GetAmount());
             else
-                target.m_stealth.AddValue(type, -GetAmount());
+                target.Stealth.AddValue(type, -GetAmount());
 
             // call functions which may have additional effects after changing state of unit
             if (target.IsInWorld)
@@ -1206,8 +1206,8 @@ namespace Game.Spells
             if (apply)
             {
                 target.SetPlayerFlag(PlayerFlags.Ghost);
-                target.m_serverSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
-                target.m_serverSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+                target.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+                target.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
             }
             else
             {
@@ -1215,8 +1215,8 @@ namespace Game.Spells
                     return;
 
                 target.RemovePlayerFlag(PlayerFlags.Ghost);
-                target.m_serverSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-                target.m_serverSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+                target.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+                target.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
             }
         }
 
@@ -1583,7 +1583,7 @@ namespace Game.Spells
                         else
                         {
                             uint model_id = 0;
-                            uint modelid = ObjectManager.ChooseDisplayId(ci).CreatureDisplayID;
+                            uint modelid = ObjectManager.ChooseDisplayId(ci).CreatureDisplayId;
                             if (modelid != 0)
                                 model_id = modelid;                     // Will use the default model here
 
@@ -1628,7 +1628,7 @@ namespace Game.Spells
                             CreatureModel model = ObjectManager.ChooseDisplayId(ci);
                             Global.ObjectMgr.GetCreatureModelRandomGender(ref model, ci);
 
-                            target.SetMountDisplayId(model.CreatureDisplayID);
+                            target.SetMountDisplayId(model.CreatureDisplayId);
                         }
                     }
                 }
@@ -2153,7 +2153,7 @@ namespace Game.Spells
                         {
                             CreatureModel model = ObjectManager.ChooseDisplayId(creatureInfo);
                             Global.ObjectMgr.GetCreatureModelRandomGender(ref model, creatureInfo);
-                            displayId = model.CreatureDisplayID;
+                            displayId = model.CreatureDisplayId;
                         }
 
                         //some spell has one aura of mount and one of vehicle
@@ -4846,8 +4846,8 @@ namespace Game.Spells
 
             if (apply)
             {
-                target.m_invisibilityDetect.AddFlag(InvisibilityType.Drunk);
-                target.m_invisibilityDetect.AddValue(InvisibilityType.Drunk, AmountAsInt);
+                target.InvisibilityDetect.AddFlag(InvisibilityType.Drunk);
+                target.InvisibilityDetect.AddValue(InvisibilityType.Drunk, AmountAsInt);
 
                 Player playerTarget = target.ToPlayer();
                 if (playerTarget)
@@ -4857,7 +4857,7 @@ namespace Game.Spells
             {
                 bool removeDetect = !target.HasAuraType(AuraType.ModFakeInebriate);
 
-                target.m_invisibilityDetect.AddValue(InvisibilityType.Drunk, -AmountAsInt);
+                target.InvisibilityDetect.AddValue(InvisibilityType.Drunk, -AmountAsInt);
 
                 Player playerTarget = target.ToPlayer();
                 if (playerTarget != null)
@@ -4869,7 +4869,7 @@ namespace Game.Spells
                 }
 
                 if (removeDetect)
-                    target.m_invisibilityDetect.DelFlag(InvisibilityType.Drunk);
+                    target.InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
             }
 
             // call functions which may have additional effects after changing state of unit
@@ -5115,7 +5115,7 @@ namespace Game.Spells
             if (Unit.IsDamageReducedByArmor(GetSpellInfo().GetSchoolMask(), GetSpellInfo()))
             {
                 double damageReducedArmor = Unit.CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetSpellInfo().GetAttackType(), GetBase().GetCasterLevel());
-                cleanDamage.mitigated_damage += damage - damageReducedArmor;
+                cleanDamage.MitigatedDamage += damage - damageReducedArmor;
                 damage = damageReducedArmor;
             }
 
@@ -5197,7 +5197,7 @@ namespace Game.Spells
             if (Unit.IsDamageReducedByArmor(GetSpellInfo().GetSchoolMask(), GetSpellInfo()))
             {
                 double damageReducedArmor = Unit.CalcArmorReducedDamage(caster, target, damage, GetSpellInfo(), GetSpellInfo().GetAttackType(), GetBase().GetCasterLevel());
-                cleanDamage.mitigated_damage += damage - damageReducedArmor;
+                cleanDamage.MitigatedDamage += damage - damageReducedArmor;
                 damage = damageReducedArmor;
             }
 
@@ -5221,11 +5221,11 @@ namespace Game.Spells
 
             // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
             SpellNonMeleeDamage log = new(caster, target, GetSpellInfo(), GetBase().GetSpellVisual(), GetSpellInfo().GetSchoolMask(), GetBase().GetCastId());
-            log.damage = damage;
-            log.originalDamage = dmg;
-            log.absorb = absorb;
-            log.resist = resist;
-            log.periodicLog = true;
+            log.Damage = damage;
+            log.OriginalDamage = dmg;
+            log.Absorb = absorb;
+            log.Resist = resist;
+            log.PeriodicLog = true;
             if (crit)
                 log.HitInfo |= (int)SpellHitType.Crit;
 
@@ -5490,18 +5490,18 @@ namespace Game.Spells
             SpellInfo spellProto = GetSpellInfo();
             // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
             SpellNonMeleeDamage damageInfo = new(caster, target, spellProto, GetBase().GetSpellVisual(), spellProto.SchoolMask, GetBase().GetCastId());
-            damageInfo.periodicLog = true;
+            damageInfo.PeriodicLog = true;
             // no SpellDamageBonus for burn mana
             caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, spellProto);
 
-            Unit.DealDamageMods(damageInfo.attacker, damageInfo.target, ref damageInfo.damage, ref damageInfo.absorb);
+            Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
             // Set trigger flag
             ProcFlagsInit procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
             ProcFlagsInit procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
             ProcFlagsHit hitMask = Unit.CreateProcHitMask(damageInfo, SpellMissInfo.None);
             ProcFlagsSpellType spellTypeMask = ProcFlagsSpellType.NoDmgHeal;
-            if (damageInfo.damage != 0)
+            if (damageInfo.Damage != 0)
             {
                 procVictim.Or(ProcFlags.TakeAnyDamage);
                 spellTypeMask |= ProcFlagsSpellType.Damage;
@@ -5607,7 +5607,7 @@ namespace Game.Spells
             double damage = target.SpellDamageBonusDone(triggerTarget, GetSpellInfo(), GetAmount(), DamageEffectType.SpellDirect, GetSpellEffectInfo());
             damage = triggerTarget.SpellDamageBonusTaken(target, GetSpellInfo(), damage, DamageEffectType.SpellDirect);
             target.CalculateSpellDamageTaken(damageInfo, damage, GetSpellInfo());
-            Unit.DealDamageMods(damageInfo.attacker, damageInfo.target, ref damageInfo.damage, ref damageInfo.absorb);
+            Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
             target.DealSpellDamage(damageInfo, true);
             target.SendSpellNonMeleeDamageLog(damageInfo);
         }
@@ -5852,11 +5852,11 @@ namespace Game.Spells
                 return;
 
             if (apply)
-                target.SetOverrideZonePVPType((ZonePVPTypeOverride)GetMiscValue());
+                target.SetOverrideZonePvpType((ZonePVPTypeOverride)GetMiscValue());
             else if (target.HasAuraType(AuraType.ModOverrideZonePvpType))
-                target.SetOverrideZonePVPType((ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().GetMiscValue());
+                target.SetOverrideZonePvpType((ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().GetMiscValue());
             else
-                target.SetOverrideZonePVPType(ZonePVPTypeOverride.None);
+                target.SetOverrideZonePvpType(ZonePVPTypeOverride.None);
 
             target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.GetZoneId()));
             target.UpdatePvPState();

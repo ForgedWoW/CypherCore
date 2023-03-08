@@ -7,254 +7,262 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class AzeriteEmpoweredItem : Item
 {
-    public class AzeriteEmpoweredItem : Item
-    {
-        readonly AzeriteEmpoweredItemData m_azeriteEmpoweredItemData;
-        List<AzeritePowerSetMemberRecord> m_azeritePowers;
-        int m_maxTier;
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly AzeriteEmpoweredItem Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ItemData ItemMask = new();
+		readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
 
-        public AzeriteEmpoweredItem()
-        {
-            ObjectTypeMask |= TypeMask.AzeriteEmpoweredItem;
-            ObjectTypeId = TypeId.AzeriteEmpoweredItem;
+		public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
+		{
+			Owner = owner;
+		}
 
-            m_azeriteEmpoweredItemData = new AzeriteEmpoweredItemData();
-        }
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
 
-        public override bool Create(ulong guidlow, uint itemId, ItemContext context, Player owner)
-        {
-            if (!base.Create(guidlow, itemId, context, owner))
-                return false;
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteEmpoweredItemMask.GetUpdateMask(), player);
 
-            InitAzeritePowerData();
-            return true;
-        }
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
+	}
 
-        public override void SaveToDB(SQLTransaction trans)
-        {
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
-            stmt.AddValue(0, GetGUID().GetCounter());
-            trans.Append(stmt);
+	readonly AzeriteEmpoweredItemData _azeriteEmpoweredItemData;
+	List<AzeritePowerSetMemberRecord> _azeritePowers;
+	int _maxTier;
 
-            switch (GetState())
-            {
-                case ItemUpdateState.New:
-                case ItemUpdateState.Changed:
-                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
-                    stmt.AddValue(0, GetGUID().GetCounter());
-                    for (int i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
-                        stmt.AddValue(1 + i, m_azeriteEmpoweredItemData.Selections[i]);
+	public AzeriteEmpoweredItem()
+	{
+		ObjectTypeMask |= TypeMask.AzeriteEmpoweredItem;
+		ObjectTypeId = TypeId.AzeriteEmpoweredItem;
 
-                    trans.Append(stmt);
-                    break;
-            }
+		_azeriteEmpoweredItemData = new AzeriteEmpoweredItemData();
+	}
 
-            base.SaveToDB(trans);
-        }
+	public override bool Create(ulong guidlow, uint itemId, ItemContext context, Player owner)
+	{
+		if (!base.Create(guidlow, itemId, context, owner))
+			return false;
 
-        public void LoadAzeriteEmpoweredItemData(Player owner, AzeriteEmpoweredData azeriteEmpoweredItem)
-        {
-            InitAzeritePowerData();
-            bool needSave = false;
-            if (m_azeritePowers != null)
-            {
-                for (int i = SharedConst.MaxAzeriteEmpoweredTier; --i >= 0;)
-                {
-                    int selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
-                    if (GetTierForAzeritePower(owner.GetClass(), selection) != i)
-                    {
-                        needSave = true;
-                        break;
-                    }
+		InitAzeritePowerData();
 
-                    SetSelectedAzeritePower(i, selection);
-                }
-            }
-            else
-                needSave = true;
+		return true;
+	}
 
-            if (needSave)
-            {
-                PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_EMPOWERED);
-                for (int i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
-                    stmt.AddValue(i, m_azeriteEmpoweredItemData.Selections[i]);
+	public override void SaveToDB(SQLTransaction trans)
+	{
+		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
+		stmt.AddValue(0, GetGUID().GetCounter());
+		trans.Append(stmt);
 
-                stmt.AddValue(5, GetGUID().GetCounter());
-                DB.Characters.Execute(stmt);
-            }
-        }
+		switch (GetState())
+		{
+			case ItemUpdateState.New:
+			case ItemUpdateState.Changed:
+				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
+				stmt.AddValue(0, GetGUID().GetCounter());
 
-        public static new void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
-        {
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
-            stmt.AddValue(0, itemGuid);
-            DB.Characters.ExecuteOrAppend(trans, stmt);
-        }
+				for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
+					stmt.AddValue(1 + i, _azeriteEmpoweredItemData.Selections[i]);
 
-        public override void DeleteFromDB(SQLTransaction trans)
-        {
-            DeleteFromDB(trans, GetGUID().GetCounter());
-            base.DeleteFromDB(trans);
-        }
+				trans.Append(stmt);
 
-        public uint GetRequiredAzeriteLevelForTier(uint tier)
-        {
-            return Global.DB2Mgr.GetRequiredAzeriteLevelForAzeritePowerTier(_bonusData.AzeriteTierUnlockSetId, GetContext(), tier);
-        }
+				break;
+		}
 
-        public int GetTierForAzeritePower(Class playerClass, int azeritePowerId)
-        {
-            var azeritePowerItr = m_azeritePowers.Find(power =>
-            {
-                return power.AzeritePowerID == azeritePowerId && power.Class == (int)playerClass;
-            });
+		base.SaveToDB(trans);
+	}
 
-            if (azeritePowerItr != null)
-                return azeritePowerItr.Tier;
+	public void LoadAzeriteEmpoweredItemData(Player owner, AzeriteEmpoweredData azeriteEmpoweredItem)
+	{
+		InitAzeritePowerData();
+		var needSave = false;
 
-            return SharedConst.MaxAzeriteEmpoweredTier;
-        }
+		if (_azeritePowers != null)
+			for (var i = SharedConst.MaxAzeriteEmpoweredTier; --i >= 0;)
+			{
+				var selection = azeriteEmpoweredItem.SelectedAzeritePowers[i];
 
-        public void SetSelectedAzeritePower(int tier, int azeritePowerId)
-        {
-            SetUpdateFieldValue(ref m_values.ModifyValue(m_azeriteEmpoweredItemData).ModifyValue(m_azeriteEmpoweredItemData.Selections, tier), azeritePowerId);
+				if (GetTierForAzeritePower(owner.GetClass(), selection) != i)
+				{
+					needSave = true;
 
-            // Not added to UF::ItemData::BonusListIDs, client fakes it on its own too
-            _bonusData.AddBonusList(CliDB.AzeritePowerStorage.LookupByKey(azeritePowerId).ItemBonusListID);
-        }
+					break;
+				}
 
-        void ClearSelectedAzeritePowers()
-        {
-            for (int i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
-                SetUpdateFieldValue(ref m_values.ModifyValue(m_azeriteEmpoweredItemData).ModifyValue(m_azeriteEmpoweredItemData.Selections, i), 0);
+				SetSelectedAzeritePower(i, selection);
+			}
+		else
+			needSave = true;
 
-            _bonusData = new BonusData(GetTemplate());
-            foreach (uint bonusListID in GetBonusListIDs())
-                _bonusData.AddBonusList(bonusListID);
-        }
+		if (needSave)
+		{
+			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_EMPOWERED);
 
-        public long GetRespecCost()
-        {
-            Player owner = GetOwner();
-            if (owner != null)
-                return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.GetNumRespecs()));
+			for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
+				stmt.AddValue(i, _azeriteEmpoweredItemData.Selections[i]);
 
-            return (long)PlayerConst.MaxMoneyAmount + 1;
-        }
+			stmt.AddValue(5, GetGUID().GetCounter());
+			DB.Characters.Execute(stmt);
+		}
+	}
 
-        public override void BuildValuesCreate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
+	public static new void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
+	{
+		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
+		stmt.AddValue(0, itemGuid);
+		DB.Characters.ExecuteOrAppend(trans, stmt);
+	}
 
-            buffer.WriteUInt8((byte)flags);
-            m_objectData.WriteCreate(buffer, flags, this, target);
-            m_itemData.WriteCreate(buffer, flags, this, target);
-            m_azeriteEmpoweredItemData.WriteCreate(buffer, flags, this, target);
+	public override void DeleteFromDB(SQLTransaction trans)
+	{
+		DeleteFromDB(trans, GetGUID().GetCounter());
+		base.DeleteFromDB(trans);
+	}
 
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteBytes(buffer);
-        }
+	public uint GetRequiredAzeriteLevelForTier(uint tier)
+	{
+		return Global.DB2Mgr.GetRequiredAzeriteLevelForAzeritePowerTier(BonusData.AzeriteTierUnlockSetId, GetContext(), tier);
+	}
 
-        public override void BuildValuesUpdate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
+	public int GetTierForAzeritePower(Class playerClass, int azeritePowerId)
+	{
+		var azeritePowerItr = _azeritePowers.Find(power => { return power.AzeritePowerID == azeritePowerId && power.Class == (int)playerClass; });
 
-            if (m_values.HasChanged(TypeId.Object))
-                m_objectData.WriteUpdate(buffer, flags, this, target);
+		if (azeritePowerItr != null)
+			return azeritePowerItr.Tier;
 
-            if (m_values.HasChanged(TypeId.Item))
-                m_itemData.WriteUpdate(buffer, flags, this, target);
+		return SharedConst.MaxAzeriteEmpoweredTier;
+	}
 
-            if (m_values.HasChanged(TypeId.AzeriteEmpoweredItem))
-                m_azeriteEmpoweredItemData.WriteUpdate(buffer, flags, this, target);
+	public void SetSelectedAzeritePower(int tier, int azeritePowerId)
+	{
+		SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, tier), azeritePowerId);
 
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteUInt32(m_values.GetChangedObjectTypeMask());
-            data.WriteBytes(buffer);
-        }
+		// Not added to UF::ItemData::BonusListIDs, client fakes it on its own too
+		BonusData.AddBonusList(CliDB.AzeritePowerStorage.LookupByKey(azeritePowerId).ItemBonusListID);
+	}
 
-        void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteEmpoweredItemMask, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            UpdateMask valuesMask = new((int)TypeId.Max);
-            if (requestedObjectMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Object);
+	public long GetRespecCost()
+	{
+		var owner = GetOwner();
 
-            m_itemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
-            if (requestedItemMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Item);
+		if (owner != null)
+			return (long)(MoneyConstants.Gold * Global.DB2Mgr.GetCurveValueAt((uint)Curves.AzeriteEmpoweredItemRespecCost, (float)owner.GetNumRespecs()));
 
-            if (requestedAzeriteEmpoweredItemMask.IsAnySet())
-                valuesMask.Set((int)TypeId.AzeriteEmpoweredItem);
+		return (long)PlayerConst.MaxMoneyAmount + 1;
+	}
 
-            WorldPacket buffer = new();
-            buffer.WriteUInt32(valuesMask.GetBlock(0));
+	public override void BuildValuesCreate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
 
-            if (valuesMask[(int)TypeId.Object])
-                m_objectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+		buffer.WriteUInt8((byte)flags);
+		ObjectData.WriteCreate(buffer, flags, this, target);
+		ItemData.WriteCreate(buffer, flags, this, target);
+		_azeriteEmpoweredItemData.WriteCreate(buffer, flags, this, target);
 
-            if (valuesMask[(int)TypeId.Item])
-                m_itemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteBytes(buffer);
+	}
 
-            if (valuesMask[(int)TypeId.AzeriteEmpoweredItem])
-                m_azeriteEmpoweredItemData.WriteUpdate(buffer, requestedAzeriteEmpoweredItemMask, true, this, target);
+	public override void BuildValuesUpdate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
 
-            WorldPacket buffer1 = new();
-            buffer1.WriteUInt8((byte)UpdateType.Values);
-            buffer1.WritePackedGuid(GetGUID());
-            buffer1.WriteUInt32(buffer.GetSize());
-            buffer1.WriteBytes(buffer.GetData());
+		if (Values.HasChanged(TypeId.Object))
+			ObjectData.WriteUpdate(buffer, flags, this, target);
 
-            data.AddUpdateBlock(buffer1);
-        }
+		if (Values.HasChanged(TypeId.Item))
+			ItemData.WriteUpdate(buffer, flags, this, target);
 
-        public override void ClearUpdateMask(bool remove)
-        {
-            m_values.ClearChangesMask(m_azeriteEmpoweredItemData);
-            base.ClearUpdateMask(remove);
-        }
+		if (Values.HasChanged(TypeId.AzeriteEmpoweredItem))
+			_azeriteEmpoweredItemData.WriteUpdate(buffer, flags, this, target);
 
-        void InitAzeritePowerData()
-        {
-            m_azeritePowers = Global.DB2Mgr.GetAzeritePowers(GetEntry());
-            if (m_azeritePowers != null)
-                m_maxTier = m_azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;
-        }
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteUInt32(Values.GetChangedObjectTypeMask());
+		data.WriteBytes(buffer);
+	}
 
-        public int GetMaxAzeritePowerTier() { return m_maxTier; }
+	public override void ClearUpdateMask(bool remove)
+	{
+		Values.ClearChangesMask(_azeriteEmpoweredItemData);
+		base.ClearUpdateMask(remove);
+	}
 
-        public uint GetSelectedAzeritePower(int tier)
-        {
-            return (uint)m_azeriteEmpoweredItemData.Selections[tier];
-        }
+	public int GetMaxAzeritePowerTier()
+	{
+		return _maxTier;
+	}
 
-        class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-        {
-            readonly AzeriteEmpoweredItem Owner;
-            readonly ObjectFieldData ObjectMask = new();
-            readonly ItemData ItemMask = new();
-            readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
+	public uint GetSelectedAzeritePower(int tier)
+	{
+		return (uint)_azeriteEmpoweredItemData.Selections[tier];
+	}
 
-            public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
-            {
-                Owner = owner;
-            }
+	void ClearSelectedAzeritePowers()
+	{
+		for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
+			SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, i), 0);
 
-            public void Invoke(Player player)
-            {
-                UpdateData udata = new(Owner.Location.GetMapId());
+		BonusData = new BonusData(GetTemplate());
 
-                Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), AzeriteEmpoweredItemMask.GetUpdateMask(), player);
+		foreach (var bonusListID in GetBonusListIDs())
+			BonusData.AddBonusList(bonusListID);
+	}
 
-                udata.BuildPacket(out UpdateObject packet);
-                player.SendPacket(packet);
-            }
-        }
-    }
+	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteEmpoweredItemMask, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		UpdateMask valuesMask = new((int)TypeId.Max);
+
+		if (requestedObjectMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Object);
+
+		ItemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
+
+		if (requestedItemMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Item);
+
+		if (requestedAzeriteEmpoweredItemMask.IsAnySet())
+			valuesMask.Set((int)TypeId.AzeriteEmpoweredItem);
+
+		WorldPacket buffer = new();
+		buffer.WriteUInt32(valuesMask.GetBlock(0));
+
+		if (valuesMask[(int)TypeId.Object])
+			ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+		if (valuesMask[(int)TypeId.Item])
+			ItemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
+
+		if (valuesMask[(int)TypeId.AzeriteEmpoweredItem])
+			_azeriteEmpoweredItemData.WriteUpdate(buffer, requestedAzeriteEmpoweredItemMask, true, this, target);
+
+		WorldPacket buffer1 = new();
+		buffer1.WriteUInt8((byte)UpdateType.Values);
+		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WriteUInt32(buffer.GetSize());
+		buffer1.WriteBytes(buffer.GetData());
+
+		data.AddUpdateBlock(buffer1);
+	}
+
+	void InitAzeritePowerData()
+	{
+		_azeritePowers = Global.DB2Mgr.GetAzeritePowers(GetEntry());
+
+		if (_azeritePowers != null)
+			_maxTier = _azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;
+	}
 }

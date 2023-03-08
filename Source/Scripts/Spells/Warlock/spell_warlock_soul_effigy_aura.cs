@@ -49,7 +49,7 @@ namespace Scripts.Spells.Warlock
 
 				//C++ TO C# CONVERTER TASK: Only lambdas having all locals passed by reference can be converted to C#:
 				//ORIGINAL LINE: caster->GetScheduler().Schedule(750ms, [caster, targetGuid, damage, ownerGuid](TaskContext)
-				caster.m_Events.AddEvent(() =>
+				caster.Events.AddEvent(() =>
 				                         {
 					                         var target = ObjectAccessor.Instance.GetUnit(caster, targetGuid);
 					                         var owner  = ObjectAccessor.Instance.GetUnit(caster, ownerGuid);

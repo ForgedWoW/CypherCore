@@ -269,8 +269,8 @@ namespace Game.AI
             //Check if each spell is viable(set it to null if not)
             for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
             {
-                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.m_spells[i], me.GetMap().GetDifficultyID());
-                AISpellInfoType aiSpell = GetAISpellInfo(me.m_spells[i], me.GetMap().GetDifficultyID());
+                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.Spells[i], me.GetMap().GetDifficultyID());
+                AISpellInfoType aiSpell = GetAISpellInfo(me.Spells[i], me.GetMap().GetDifficultyID());
 
                 //This spell doesn't exist
                 if (tempSpell == null || aiSpell == null)
@@ -349,7 +349,7 @@ namespace Game.AI
                 return;
             Player player = unit.ToPlayer();
             if (player != null)
-                player.TeleportTo(unit.Location.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
+                player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
             else
                 Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoTeleportPlayer: Creature {me.GetGUID()} Tried to teleport non-player unit ({unit.GetGUID()}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
         }
@@ -363,7 +363,7 @@ namespace Game.AI
             var PlayerList = map.GetPlayers();
             foreach (var player in PlayerList)
                 if (player.IsAlive())
-                    player.TeleportTo(me.Location.GetMapId(), x, y, z, o, TeleportToOptions.NotLeaveCombat);
+                    player.TeleportTo(me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
 
         }
 

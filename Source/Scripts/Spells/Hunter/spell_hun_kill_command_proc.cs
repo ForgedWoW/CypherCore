@@ -22,13 +22,13 @@ public class spell_hun_kill_command_proc : SpellScript, IHasSpellEffects
 		var target = GetExplTargetUnit();
 
 		// (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))
-		double dmg     = 4.5f * owner.m_unitData.RangedAttackPower;
+		double dmg     = 4.5f * owner.UnitData.RangedAttackPower;
 		var lowNerf = Math.Min((int)owner.GetLevel(), 20) * 0.05f;
 
 		var ownerPlayer = owner.ToPlayer();
 
 		if (ownerPlayer != null)
-			dmg = MathFunctions.AddPct(ref dmg, ownerPlayer.m_activePlayerData.Mastery);
+			dmg = MathFunctions.AddPct(ref dmg, ownerPlayer.ActivePlayerData.Mastery);
 
 		dmg *= lowNerf;
 

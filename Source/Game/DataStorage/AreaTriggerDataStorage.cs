@@ -298,7 +298,7 @@ namespace Game.DataStorage
 
                     if (!GridDefines.IsValidMapCoord(location))
                     {
-                        Log.outError(LogFilter.Sql, $"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.GetMapId()}, Position: {location}");
+                        Log.outError(LogFilter.Sql, $"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
                         continue;
                     }
 
@@ -310,7 +310,7 @@ namespace Game.DataStorage
 
                     AreaTriggerSpawn spawn = new();
                     spawn.SpawnId = spawnId;
-                    spawn.MapId = location.GetMapId();
+                    spawn.MapId = location.MapId;
                     spawn.TriggerId = areaTriggerId;
                     spawn.SpawnPoint = new Position(location);
 

@@ -965,7 +965,7 @@ namespace Game.Networking.Packets
             uint count = _worldPacket.ReadUInt32();
             for (byte i = 0; i < count && i < PlayerConst.MaxCUFProfiles; i++)
             {
-                CUFProfile cufProfile = new();
+                CufProfile cufProfile = new();
 
                 byte strLen = _worldPacket.ReadBits<byte>(7);
 
@@ -994,7 +994,7 @@ namespace Game.Networking.Packets
             }
         }
 
-        public List<CUFProfile> CUFProfiles = new();
+        public List<CufProfile> CUFProfiles = new();
     }
 
     class LoadCUFProfiles : ServerPacket
@@ -1005,7 +1005,7 @@ namespace Game.Networking.Packets
         {
             _worldPacket.WriteInt32(CUFProfiles.Count);
 
-            foreach (CUFProfile cufProfile in CUFProfiles)
+            foreach (CufProfile cufProfile in CUFProfiles)
             {
                 _worldPacket.WriteBits(cufProfile.ProfileName.GetByteCount(), 7);
 
@@ -1032,7 +1032,7 @@ namespace Game.Networking.Packets
             }
         }
 
-        public List<CUFProfile> CUFProfiles = new();
+        public List<CufProfile> CUFProfiles = new();
     }
 
     class PlayOneShotAnimKit : ServerPacket
@@ -1156,7 +1156,7 @@ namespace Game.Networking.Packets
                 _worldPacket.WriteUInt32(item.Key);
 
             foreach (var flags in Heirlooms)
-                _worldPacket.WriteUInt32((uint)flags.Value.flags);
+                _worldPacket.WriteUInt32((uint)flags.Value.Flags);
         }
 
         public bool IsFullUpdate;

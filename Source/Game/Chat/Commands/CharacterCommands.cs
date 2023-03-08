@@ -44,7 +44,7 @@ namespace Game.Chat
                         continue;
 
                     string activeStr = "";
-                    if (target.m_playerData.PlayerTitle == titleInfo.MaskID)
+                    if (target.PlayerData.PlayerTitle == titleInfo.MaskID)
                         activeStr = handler.GetCypherString(CypherStrings.Active);
 
                     string titleName = string.Format(name.ConvertFormatSyntax(), targetName);

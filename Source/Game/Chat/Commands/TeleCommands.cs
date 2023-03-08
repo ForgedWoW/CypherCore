@@ -32,7 +32,7 @@ namespace Game.Chat
             }
 
             var map = CliDB.MapStorage.LookupByKey(tele.mapId);
-            if (map == null || (map.IsBattlegroundOrArena() && (player.Location.GetMapId() != tele.mapId || !player.IsGameMaster())))
+            if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.mapId || !player.IsGameMaster())))
             {
                 handler.SendSysMessage(CypherStrings.CannotTeleToBg);
                 return false;
@@ -66,7 +66,7 @@ namespace Game.Chat
             tele.posY = player.Location.Y;
             tele.posZ = player.Location.Z;
             tele.orientation = player.Location.Orientation;
-            tele.mapId = player.Location.GetMapId();
+            tele.mapId = player.Location.MapId;
             tele.name = name;
             tele.nameLow = name.ToLowerInvariant();
 

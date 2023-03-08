@@ -27,6 +27,6 @@ internal class spell_item_party_time : AuraScript, IHasAuraEffects
 		if (player == null)
 			return;
 
-		player.m_Events.AddEventAtOffset(new PartyTimeEmoteEvent(player), TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
+		player.Events.AddEventAtOffset(new PartyTimeEmoteEvent(player), TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
 	}
 }

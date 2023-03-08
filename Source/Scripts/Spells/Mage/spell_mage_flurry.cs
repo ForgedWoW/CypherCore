@@ -37,7 +37,7 @@ public class spell_mage_flurry : SpellScript, IHasSpellEffects
 
 		if (targetGuid != ObjectGuid.Empty)
 			for (byte i = 1; i < 3; ++i) // basepoint value is 3 all the time, so, set it 3 because sometimes it won't read
-				caster.m_Events.AddEventAtOffset(() =>
+				caster.Events.AddEventAtOffset(() =>
 				                                 {
 					                                 if (caster != null)
 					                                 {

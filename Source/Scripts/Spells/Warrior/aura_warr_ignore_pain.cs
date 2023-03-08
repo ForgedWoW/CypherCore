@@ -56,8 +56,8 @@ namespace Scripts.Spells.Warrior
 			if (caster != null)
 			{
 				var spell = new SpellNonMeleeDamage(caster, caster, GetSpellInfo(), new SpellCastVisual(0, 0), SpellSchoolMask.Normal);
-				spell.damage = dmgInfo.GetDamage() - dmgInfo.GetDamage() * 0.9f;
-				spell.cleanDamage = spell.damage;
+				spell.Damage = dmgInfo.GetDamage() - dmgInfo.GetDamage() * 0.9f;
+				spell.CleanDamage = spell.Damage;
 				caster.DealSpellDamage(spell, false);
 				caster.SendSpellNonMeleeDamageLog(spell);
 			}

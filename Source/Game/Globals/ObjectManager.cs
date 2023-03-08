@@ -96,9 +96,9 @@ namespace Game
         public static CreatureModel ChooseDisplayId(CreatureTemplate cinfo, CreatureData data = null)
         {
             // Load creature model (display id)
-            if (data != null && data.displayid != 0)
+            if (data != null && data.Displayid != 0)
             {
-                CreatureModel model = cinfo.GetModelWithDisplayId(data.displayid);
+                CreatureModel model = cinfo.GetModelWithDisplayId(data.Displayid);
                 if (model != null)
                     return model;
             }
@@ -116,11 +116,11 @@ namespace Game
 
         public static void ChooseCreatureFlags(CreatureTemplate cInfo, out ulong npcFlag, out uint unitFlags, out uint unitFlags2, out uint unitFlags3, out uint dynamicFlags, CreatureData data = null)
         {
-            npcFlag = data != null && data.npcflag != 0 ? data.npcflag : cInfo.Npcflag;
-            unitFlags = data != null && data.unit_flags != 0 ? data.unit_flags : (uint)cInfo.UnitFlags;
-            unitFlags2 = data != null && data.unit_flags2 != 0 ? data.unit_flags2 : cInfo.UnitFlags2;
-            unitFlags3 = data != null && data.unit_flags3 != 0 ? data.unit_flags3 : cInfo.UnitFlags3;
-            dynamicFlags = data != null && data.dynamicflags != 0 ? data.dynamicflags : cInfo.DynamicFlags;
+            npcFlag = data != null && data.Npcflag != 0 ? data.Npcflag : cInfo.Npcflag;
+            unitFlags = data != null && data.UnitFlags != 0 ? data.UnitFlags : (uint)cInfo.UnitFlags;
+            unitFlags2 = data != null && data.UnitFlags2 != 0 ? data.UnitFlags2 : cInfo.UnitFlags2;
+            unitFlags3 = data != null && data.UnitFlags3 != 0 ? data.UnitFlags3 : cInfo.UnitFlags3;
+            dynamicFlags = data != null && data.Dynamicflags != 0 ? data.Dynamicflags : cInfo.DynamicFlags;
         }
 
         public static ResponseCodes CheckPlayerName(string name, Locale locale, bool create = false)
@@ -605,32 +605,32 @@ namespace Game
             {
                 GossipMenuItems gMenuItem = new();
 
-                gMenuItem.MenuID = result.Read<uint>(0);
-                gMenuItem.GossipOptionID = result.Read<int>(1);
+                gMenuItem.MenuId = result.Read<uint>(0);
+                gMenuItem.GossipOptionId = result.Read<int>(1);
                 gMenuItem.OrderIndex = result.Read<uint>(2);
                 gMenuItem.OptionNpc = (GossipOptionNpc)result.Read<byte>(3);
                 gMenuItem.OptionText = result.Read<string>(4);
                 gMenuItem.OptionBroadcastTextId = result.Read<uint>(5);
                 gMenuItem.Language = result.Read<uint>(6);
                 gMenuItem.Flags = (GossipOptionFlags)result.Read<int>(7);
-                gMenuItem.ActionMenuID = result.Read<uint>(8);
-                gMenuItem.ActionPoiID = result.Read<uint>(9);
+                gMenuItem.ActionMenuId = result.Read<uint>(8);
+                gMenuItem.ActionPoiId = result.Read<uint>(9);
                 if (!result.IsNull(10))
-                    gMenuItem.GossipNpcOptionID = result.Read<int>(10);
+                    gMenuItem.GossipNpcOptionId = result.Read<int>(10);
 
                 gMenuItem.BoxCoded = result.Read<bool>(11);
                 gMenuItem.BoxMoney = result.Read<uint>(12);
                 gMenuItem.BoxText = result.Read<string>(13);
                 gMenuItem.BoxBroadcastTextId = result.Read<uint>(14);
                 if (!result.IsNull(15))
-                    gMenuItem.SpellID = result.Read<int>(15);
+                    gMenuItem.SpellId = result.Read<int>(15);
 
                 if (!result.IsNull(16))
-                    gMenuItem.OverrideIconID = result.Read<int>(16);
+                    gMenuItem.OverrideIconId = result.Read<int>(16);
 
                 if (gMenuItem.OptionNpc >= GossipOptionNpc.Max)
                 {
-                    Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} has unknown NPC option id {gMenuItem.OptionNpc}. Replacing with GossipOptionNpc.None");
+                    Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} has unknown NPC option id {gMenuItem.OptionNpc}. Replacing with GossipOptionNpc.None");
                     gMenuItem.OptionNpc = GossipOptionNpc.None;
                 }
 
@@ -640,10 +640,10 @@ namespace Game
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuID}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
                         gMenuItem.OptionBroadcastTextId = 0;
                     }
                 }
@@ -652,66 +652,66 @@ namespace Game
                 {
                     if (WorldConfig.GetDefaultValue("load.autoclean", false))
                     {
-                        DB.World.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                        DB.World.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     }
                     else
-                        Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
+                        Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
                     gMenuItem.Language = 0;
                 }
 
-                if (gMenuItem.ActionMenuID != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
+                if (gMenuItem.ActionMenuId != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
                 {
                     if (WorldConfig.GetDefaultValue("load.autoclean", false))
                     {
-                        DB.World.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                        DB.World.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                     }
                     else
-                        Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
-                    gMenuItem.ActionMenuID = 0;
+                        Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
+                    gMenuItem.ActionMenuId = 0;
                 }
 
-                if (gMenuItem.ActionPoiID != 0)
+                if (gMenuItem.ActionPoiId != 0)
                 {
                     if (gMenuItem.OptionNpc != GossipOptionNpc.None)
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
-                        gMenuItem.ActionPoiID = 0;
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
+                        gMenuItem.ActionPoiId = 0;
                     }
-                    else if (GetPointOfInterest(gMenuItem.ActionPoiID) == null)
+                    else if (GetPointOfInterest(gMenuItem.ActionPoiId) == null)
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiID}, ignoring");
-                        gMenuItem.ActionPoiID = 0;
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
+                        gMenuItem.ActionPoiId = 0;
                     }
                 }
 
-                if (gMenuItem.GossipNpcOptionID.HasValue)
+                if (gMenuItem.GossipNpcOptionId.HasValue)
                 {
-                    if (!CliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionID.Value))
+                    if (!CliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionID}, ignoring");
-                        gMenuItem.GossipNpcOptionID = null;
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
+                        gMenuItem.GossipNpcOptionId = null;
                     }
                 }
                 else
                 {
-                    uint npcOptionId = optionToNpcOption.LookupByKey(gMenuItem.GossipOptionID);
+                    uint npcOptionId = optionToNpcOption.LookupByKey(gMenuItem.GossipOptionId);
                     if (npcOptionId != 0)
-                        gMenuItem.GossipNpcOptionID = (int)npcOptionId;
+                        gMenuItem.GossipNpcOptionId = (int)npcOptionId;
                 }
 
                 if (gMenuItem.BoxBroadcastTextId != 0)
@@ -720,29 +720,29 @@ namespace Game
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuID}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
                         gMenuItem.BoxBroadcastTextId = 0;
                     }
                 }
 
-                if (gMenuItem.SpellID.HasValue)
+                if (gMenuItem.SpellId.HasValue)
                 {
-                    if (!Global.SpellMgr.HasSpellInfo((uint)gMenuItem.SpellID.Value, Difficulty.None))
+                    if (!Global.SpellMgr.HasSpellInfo((uint)gMenuItem.SpellId.Value, Difficulty.None))
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
-                            DB.World.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuID}");
+                            DB.World.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
                         }
                         else
-                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuID}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellID}, ignoring");
-                        gMenuItem.SpellID = null;
+                            Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
+                        gMenuItem.SpellId = null;
                     }
                 }
 
-                gossipMenuItemsStorage.Add(gMenuItem.MenuID, gMenuItem);
+                gossipMenuItemsStorage.Add(gMenuItem.MenuId, gMenuItem);
             } while (result.NextRow());
 
             Log.outInfo(LogFilter.ServerLoading, $"Loaded {gossipMenuItemsStorage.Count} gossip_menu_option entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -765,21 +765,21 @@ namespace Game
             {
                 uint menuID = result.Read<uint>(0);
                 GossipMenuAddon addon = new();
-                addon.FriendshipFactionID = result.Read<int>(1);
+                addon.FriendshipFactionId = result.Read<int>(1);
 
-                var faction = CliDB.FactionStorage.LookupByKey(addon.FriendshipFactionID);
+                var faction = CliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
                 if (faction != null)
                 {
                     if (!CliDB.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
                     {
-                        Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionID} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
-                        addon.FriendshipFactionID = 0;
+                        Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionId} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
+                        addon.FriendshipFactionId = 0;
                     }
                 }
                 else
                 {
-                    Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using non-existing FriendshipFactionID {addon.FriendshipFactionID}");
-                    addon.FriendshipFactionID = 0;
+                    Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using non-existing FriendshipFactionID {addon.FriendshipFactionId}");
+                    addon.FriendshipFactionId = 0;
                 }
 
                 _gossipMenuAddonStorage[menuID] = addon;
@@ -814,7 +814,7 @@ namespace Game
                 POI.Flags = result.Read<uint>(5);
                 POI.Importance = result.Read<uint>(6);
                 POI.Name = result.Read<string>(7);
-                POI.WMOGroupID = result.Read<uint>(8);
+                POI.WmoGroupId = result.Read<uint>(8);
 
                 if (!GridDefines.IsValidMapCoord(POI.Pos.X, POI.Pos.Y, POI.Pos.Z))
                 {
@@ -914,7 +914,7 @@ namespace Game
                 WorldLocation loc = new(result.Read<uint>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), MathFunctions.DegToRad(result.Read<float>(5)));
                 if (!GridDefines.IsValidMapCoord(loc))
                 {
-                    Log.outError(LogFilter.Sql, $"World location (ID: {id}) has a invalid position MapID: {loc.GetMapId()} {loc}, skipped");
+                    Log.outError(LogFilter.Sql, $"World location (ID: {id}) has a invalid position MapID: {loc.MapId} {loc}, skipped");
                     continue;
                 }
 
@@ -940,7 +940,7 @@ namespace Game
         public WorldSafeLocsEntry GetClosestGraveYard(WorldLocation location, Team team, WorldObject conditionObject)
         {
             
-            uint MapId = location.GetMapId();
+            uint MapId = location.MapId;
 
             // search for zone associated closest graveyard
             uint zoneId = Global.TerrainMgr.GetZoneId(conditionObject ? conditionObject.GetPhaseShift() : PhasingHandler.EmptyPhaseShift, MapId, location);
@@ -1005,17 +1005,17 @@ namespace Game
                     if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.safeLocId, conditionSource))
                         continue;
 
-                    if (entry.Loc.GetMapId() == mapEntry.ParentMapID && !conditionObject.GetPhaseShift().HasVisibleMapId(entry.Loc.GetMapId()))
+                    if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.GetPhaseShift().HasVisibleMapId(entry.Loc.MapId))
                         continue;
                 }
 
                 // find now nearest graveyard at other map
-                if (MapId != entry.Loc.GetMapId() && entry.Loc.GetMapId() != mapEntry.ParentMapID)
+                if (MapId != entry.Loc.MapId && entry.Loc.MapId != mapEntry.ParentMapID)
                 {
                     // if find graveyard at different map from where entrance placed (or no entrance data), use any first
                     if (mapEntry == null
                         || mapEntry.CorpseMapID < 0
-                        || mapEntry.CorpseMapID != entry.Loc.GetMapId()
+                        || mapEntry.CorpseMapID != entry.Loc.MapId
                         || (mapEntry.Corpse.X == 0 && mapEntry.Corpse.Y == 0))
                     {
                         // not have any corrdinates for check distance anyway
@@ -2263,31 +2263,31 @@ namespace Game
 
                 if (!result.IsNull(1))
                 {
-                    summonedData.CreatureIDVisibleToSummoner = result.Read<uint>(1);
-                    if (GetCreatureTemplate(summonedData.CreatureIDVisibleToSummoner.Value) == null)
+                    summonedData.CreatureIdVisibleToSummoner = result.Read<uint>(1);
+                    if (GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value) == null)
                     {
-                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing creature {summonedData.CreatureIDVisibleToSummoner.Value} in CreatureIDVisibleToSummoner for creature {creatureId}, set to 0");
-                        summonedData.CreatureIDVisibleToSummoner = null;
+                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing creature {summonedData.CreatureIdVisibleToSummoner.Value} in CreatureIDVisibleToSummoner for creature {creatureId}, set to 0");
+                        summonedData.CreatureIdVisibleToSummoner = null;
                     }
                 }
 
                 if (!result.IsNull(2))
                 {
-                    summonedData.GroundMountDisplayID = result.Read<uint>(2);
-                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayID.Value))
+                    summonedData.GroundMountDisplayId = result.Read<uint>(2);
+                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
                     {
-                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayID.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
-                        summonedData.CreatureIDVisibleToSummoner = null;
+                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayId.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
+                        summonedData.CreatureIdVisibleToSummoner = null;
                     }
                 }
 
                 if (!result.IsNull(3))
                 {
-                    summonedData.FlyingMountDisplayID = result.Read<uint>(3);
-                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayID.Value))
+                    summonedData.FlyingMountDisplayId = result.Read<uint>(3);
+                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
                     {
-                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayID.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
-                        summonedData.GroundMountDisplayID = null;
+                        Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayId.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
+                        summonedData.GroundMountDisplayId = null;
                     }
                 }
 
@@ -2323,18 +2323,18 @@ namespace Game
                 }
 
                 CreatureAddon creatureAddon = new();
-                creatureAddon.path_id = result.Read<uint>(1);
-                creatureAddon.mount = result.Read<uint>(2);
-                creatureAddon.standState = result.Read<byte>(3);
-                creatureAddon.animTier = result.Read<byte>(4);
-                creatureAddon.visFlags = result.Read<byte>(5);
-                creatureAddon.sheathState = result.Read<byte>(6);
-                creatureAddon.pvpFlags = result.Read<byte>(7);
-                creatureAddon.emote = result.Read<uint>(8);
-                creatureAddon.aiAnimKit = result.Read<ushort>(9);
-                creatureAddon.movementAnimKit = result.Read<ushort>(10);
-                creatureAddon.meleeAnimKit = result.Read<ushort>(11);
-                creatureAddon.visibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12);
+                creatureAddon.PathId = result.Read<uint>(1);
+                creatureAddon.Mount = result.Read<uint>(2);
+                creatureAddon.StandState = result.Read<byte>(3);
+                creatureAddon.AnimTier = result.Read<byte>(4);
+                creatureAddon.VisFlags = result.Read<byte>(5);
+                creatureAddon.SheathState = result.Read<byte>(6);
+                creatureAddon.PvpFlags = result.Read<byte>(7);
+                creatureAddon.Emote = result.Read<uint>(8);
+                creatureAddon.AiAnimKit = result.Read<ushort>(9);
+                creatureAddon.MovementAnimKit = result.Read<ushort>(10);
+                creatureAddon.MeleeAnimKit = result.Read<ushort>(11);
+                creatureAddon.VisibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12);
 
                 var tokens = new StringArray(result.Read<string>(13), ' ');
                 for (var c = 0; c < tokens.Length; ++c)
@@ -2358,7 +2358,7 @@ namespace Game
                     if (AdditionalSpellInfo.HasAura(AuraType.ControlVehicle))
                         Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_template_addon`.");
 
-                    if (creatureAddon.auras.Contains(spellId))
+                    if (creatureAddon.Auras.Contains(spellId))
                     {
                         if (WorldConfig.GetDefaultValue("load.autoclean", false))
                         {
@@ -2380,66 +2380,66 @@ namespace Game
                         continue;
                     }
 
-                    creatureAddon.auras.Add(spellId);
+                    creatureAddon.Auras.Add(spellId);
                 }
 
-                if (creatureAddon.mount != 0)
+                if (creatureAddon.Mount != 0)
                 {
-                    if (CliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.mount) == null)
+                    if (CliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
                     {
-                        Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.mount}) for mount defined in `creature_template_addon`");
-                        creatureAddon.mount = 0;
+                        Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creature_template_addon`");
+                        creatureAddon.Mount = 0;
                     }
                 }
 
-                if (creatureAddon.standState >= (int)UnitStandStateType.Max)
+                if (creatureAddon.StandState >= (int)UnitStandStateType.Max)
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid unit stand state ({creatureAddon.standState}) defined in `creature_template_addon`. Truncated to 0.");
-                    creatureAddon.standState = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_template_addon`. Truncated to 0.");
+                    creatureAddon.StandState = 0;
                 }
 
-                if (creatureAddon.animTier >= (int)AnimTier.Max)
+                if (creatureAddon.AnimTier >= (int)AnimTier.Max)
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid animation tier ({creatureAddon.animTier}) defined in `creature_template_addon`. Truncated to 0.");
-                    creatureAddon.animTier = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_template_addon`. Truncated to 0.");
+                    creatureAddon.AnimTier = 0;
                 }
 
-                if (creatureAddon.sheathState >= (int)SheathState.Max)
+                if (creatureAddon.SheathState >= (int)SheathState.Max)
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid sheath state ({creatureAddon.sheathState}) defined in `creature_template_addon`. Truncated to 0.");
-                    creatureAddon.sheathState = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_template_addon`. Truncated to 0.");
+                    creatureAddon.SheathState = 0;
                 }
 
                 // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-                if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.emote))
+                if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid emote ({creatureAddon.emote}) defined in `creatureaddon`.");
-                    creatureAddon.emote = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
+                    creatureAddon.Emote = 0;
                 }
 
-                if (creatureAddon.aiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.aiAnimKit))
+                if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.aiAnimKit}) defined in `creature_template_addon`.");
-                    creatureAddon.aiAnimKit = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_template_addon`.");
+                    creatureAddon.AiAnimKit = 0;
                 }
 
-                if (creatureAddon.movementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.movementAnimKit))
+                if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.movementAnimKit}) defined in `creature_template_addon`.");
-                    creatureAddon.movementAnimKit = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_template_addon`.");
+                    creatureAddon.MovementAnimKit = 0;
                 }
 
-                if (creatureAddon.meleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.meleeAnimKit))
+                if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.meleeAnimKit}) defined in `creature_template_addon`.");
-                    creatureAddon.meleeAnimKit = 0;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_template_addon`.");
+                    creatureAddon.MeleeAnimKit = 0;
                 }
 
-                if (creatureAddon.visibilityDistanceType >= VisibilityDistanceType.Max)
+                if (creatureAddon.VisibilityDistanceType >= VisibilityDistanceType.Max)
                 {
-                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid visibilityDistanceType ({creatureAddon.visibilityDistanceType}) defined in `creature_template_addon`.");
-                    creatureAddon.visibilityDistanceType = VisibilityDistanceType.Normal;
+                    Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_template_addon`.");
+                    creatureAddon.VisibilityDistanceType = VisibilityDistanceType.Normal;
                 }
 
                 creatureTemplateAddonStorage.Add(entry, creatureAddon);
@@ -2478,24 +2478,24 @@ namespace Game
 
                 CreatureAddon creatureAddon = new();
 
-                creatureAddon.path_id = result.Read<uint>(1);
-                if (creData.movementType == (byte)MovementGeneratorType.Waypoint && creatureAddon.path_id == 0)
+                creatureAddon.PathId = result.Read<uint>(1);
+                if (creData.MovementType == (byte)MovementGeneratorType.Waypoint && creatureAddon.PathId == 0)
                 {
-                    creData.movementType = (byte)MovementGeneratorType.Idle;
+                    creData.MovementType = (byte)MovementGeneratorType.Idle;
                     Log.outError(LogFilter.Sql, $"Creature (GUID {guid}) has movement type set to WAYPOINTMOTIONTYPE but no path assigned");
                 }
 
-                creatureAddon.mount = result.Read<uint>(2);
-                creatureAddon.standState = result.Read<byte>(3);
-                creatureAddon.animTier = result.Read<byte>(4);
-                creatureAddon.visFlags = result.Read<byte>(5);
-                creatureAddon.sheathState = result.Read<byte>(6);
-                creatureAddon.pvpFlags = result.Read<byte>(7);
-                creatureAddon.emote = result.Read<uint>(8);
-                creatureAddon.aiAnimKit = result.Read<ushort>(9);
-                creatureAddon.movementAnimKit = result.Read<ushort>(10);
-                creatureAddon.meleeAnimKit = result.Read<ushort>(11);
-                creatureAddon.visibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12);
+                creatureAddon.Mount = result.Read<uint>(2);
+                creatureAddon.StandState = result.Read<byte>(3);
+                creatureAddon.AnimTier = result.Read<byte>(4);
+                creatureAddon.VisFlags = result.Read<byte>(5);
+                creatureAddon.SheathState = result.Read<byte>(6);
+                creatureAddon.PvpFlags = result.Read<byte>(7);
+                creatureAddon.Emote = result.Read<uint>(8);
+                creatureAddon.AiAnimKit = result.Read<ushort>(9);
+                creatureAddon.MovementAnimKit = result.Read<ushort>(10);
+                creatureAddon.MeleeAnimKit = result.Read<ushort>(11);
+                creatureAddon.VisibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12);
 
                 var tokens = new StringArray(result.Read<string>(13), ' ');
                 for (var c = 0; c < tokens.Length; ++c)
@@ -2514,7 +2514,7 @@ namespace Game
                     if (AdditionalSpellInfo.HasAura(AuraType.ControlVehicle))
                         Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_addon`.");
 
-                    if (creatureAddon.auras.Contains(spellId))
+                    if (creatureAddon.Auras.Contains(spellId))
                     {
                         Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has duplicate aura (spell {spellId}) in `auras` field in `creature_addon`.");
                         continue;
@@ -2526,67 +2526,67 @@ namespace Game
                         continue;
                     }
 
-                    creatureAddon.auras.Add(spellId);
+                    creatureAddon.Auras.Add(spellId);
                 }
 
-                if (creatureAddon.mount != 0)
+                if (creatureAddon.Mount != 0)
                 {
-                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.mount))
+                    if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
                     {
-                        Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.mount}) for mount defined in `creatureaddon`");
-                        creatureAddon.mount = 0;
+                        Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creatureaddon`");
+                        creatureAddon.Mount = 0;
                     }
                 }
 
-                if (creatureAddon.standState >= (int)UnitStandStateType.Max)
+                if (creatureAddon.StandState >= (int)UnitStandStateType.Max)
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid unit stand state ({creatureAddon.standState}) defined in `creature_addon`. Truncated to 0.");
-                    creatureAddon.standState = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_addon`. Truncated to 0.");
+                    creatureAddon.StandState = 0;
                 }
 
-                if (creatureAddon.animTier >= (int)AnimTier.Max)
+                if (creatureAddon.AnimTier >= (int)AnimTier.Max)
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid animation tier ({creatureAddon.animTier}) defined in `creature_addon`. Truncated to 0.");
-                    creatureAddon.animTier = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_addon`. Truncated to 0.");
+                    creatureAddon.AnimTier = 0;
                 }
 
-                if (creatureAddon.sheathState >= (int)SheathState.Max)
+                if (creatureAddon.SheathState >= (int)SheathState.Max)
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid sheath state ({creatureAddon.sheathState}) defined in `creature_addon`. Truncated to 0.");
-                    creatureAddon.sheathState = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_addon`. Truncated to 0.");
+                    creatureAddon.SheathState = 0;
                 }
 
                 // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-                if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.emote))
+                if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid emote ({creatureAddon.emote}) defined in `creatureaddon`.");
-                    creatureAddon.emote = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
+                    creatureAddon.Emote = 0;
                 }
 
 
-                if (creatureAddon.aiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.aiAnimKit))
+                if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.aiAnimKit}) defined in `creature_addon`.");
-                    creatureAddon.aiAnimKit = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_addon`.");
+                    creatureAddon.AiAnimKit = 0;
                 }
 
-                if (creatureAddon.movementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.movementAnimKit))
+                if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.movementAnimKit}) defined in `creature_addon`.");
-                    creatureAddon.movementAnimKit = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_addon`.");
+                    creatureAddon.MovementAnimKit = 0;
                 }
 
-                if (creatureAddon.meleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.meleeAnimKit))
+                if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.meleeAnimKit}) defined in `creature_addon`.");
-                    creatureAddon.meleeAnimKit = 0;
+                    Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_addon`.");
+                    creatureAddon.MeleeAnimKit = 0;
                 }
 
-                if (creatureAddon.visibilityDistanceType >= VisibilityDistanceType.Max)
+                if (creatureAddon.VisibilityDistanceType >= VisibilityDistanceType.Max)
                 {
-                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid visibilityDistanceType ({creatureAddon.visibilityDistanceType}) defined in `creature_addon`.");
-                    creatureAddon.visibilityDistanceType = VisibilityDistanceType.Normal;
+                    Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_addon`.");
+                    creatureAddon.VisibilityDistanceType = VisibilityDistanceType.Normal;
                 }
 
                 creatureAddonStorage.Add(guid, creatureAddon);
@@ -2857,11 +2857,11 @@ namespace Game
                 modelInfo.BoundingRadius = result.Read<float>(1);
                 modelInfo.CombatReach = result.Read<float>(2);
                 modelInfo.DisplayIdOtherGender = result.Read<uint>(3);
-                modelInfo.gender = creatureDisplay.Gender;
+                modelInfo.Gender = creatureDisplay.Gender;
 
                 // Checks
-                if (modelInfo.gender == (sbyte)Gender.Unknown)
-                    modelInfo.gender = (sbyte)Gender.Male;
+                if (modelInfo.Gender == (sbyte)Gender.Unknown)
+                    modelInfo.Gender = (sbyte)Gender.Male;
 
                 if (modelInfo.DisplayIdOtherGender != 0 && !CliDB.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
                 {
@@ -2925,7 +2925,7 @@ namespace Game
                 CreatureLevelScaling creatureLevelScaling = new();
                 creatureLevelScaling.DeltaLevelMin = result.Read<short>(2);
                 creatureLevelScaling.DeltaLevelMax = result.Read<short>(3);
-                creatureLevelScaling.ContentTuningID = result.Read<uint>(4);
+                creatureLevelScaling.ContentTuningId = result.Read<uint>(4);
 
                 template.scalingStorage[difficulty] = creatureLevelScaling;
 
@@ -3817,9 +3817,9 @@ namespace Game
                 else
                 {
                     VendorItem vItem = new();
-                    vItem.item = (uint)itemid;
-                    vItem.maxcount = result.Read<uint>(2);
-                    vItem.incrtime = result.Read<uint>(3);
+                    vItem.Item = (uint)itemid;
+                    vItem.Maxcount = result.Read<uint>(2);
+                    vItem.Incrtime = result.Read<uint>(3);
                     vItem.ExtendedCost = result.Read<uint>(4);
                     vItem.Type = (ItemVendorType)result.Read<byte>(5);
                     vItem.PlayerConditionId = result.Read<uint>(7);
@@ -3869,9 +3869,9 @@ namespace Game
                 else
                 {
                     VendorItem vItem = new();
-                    vItem.item = (uint)item_id;
-                    vItem.maxcount = result.Read<uint>(1);
-                    vItem.incrtime = result.Read<uint>(2);
+                    vItem.Item = (uint)item_id;
+                    vItem.Maxcount = result.Read<uint>(1);
+                    vItem.Incrtime = result.Read<uint>(2);
                     vItem.ExtendedCost = result.Read<uint>(3);
                     vItem.Type = (ItemVendorType)result.Read<byte>(4);
                     vItem.PlayerConditionId = result.Read<uint>(6);
@@ -3957,22 +3957,22 @@ namespace Game
                 data.Id = entry;
                 data.MapId = result.Read<ushort>(2);
                 data.SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6));
-                data.displayid = result.Read<uint>(7);
-                data.equipmentId = result.Read<sbyte>(8);
+                data.Displayid = result.Read<uint>(7);
+                data.EquipmentId = result.Read<sbyte>(8);
                 data.spawntimesecs = result.Read<int>(9);
                 data.WanderDistance = result.Read<float>(10);
-                data.currentwaypoint = result.Read<uint>(11);
-                data.curhealth = result.Read<uint>(12);
-                data.curmana = result.Read<uint>(13);
-                data.movementType = result.Read<byte>(14);
+                data.Currentwaypoint = result.Read<uint>(11);
+                data.Curhealth = result.Read<uint>(12);
+                data.Curmana = result.Read<uint>(13);
+                data.MovementType = result.Read<byte>(14);
                 data.SpawnDifficulties = ParseSpawnDifficulties(result.Read<string>(15), "creature", guid, data.MapId, spawnMasks.LookupByKey(data.MapId));
                 short gameEvent = result.Read<short>(16);
                 data.poolId = result.Read<uint>(17);
-                data.npcflag = result.Read<ulong>(18);
-                data.unit_flags = result.Read<uint>(19);
-                data.unit_flags2 = result.Read<uint>(20);
-                data.unit_flags3 = result.Read<uint>(21);
-                data.dynamicflags = result.Read<uint>(22);
+                data.Npcflag = result.Read<ulong>(18);
+                data.UnitFlags = result.Read<uint>(19);
+                data.UnitFlags2 = result.Read<uint>(20);
+                data.UnitFlags3 = result.Read<uint>(21);
+                data.Dynamicflags = result.Read<uint>(22);
                 data.PhaseUseFlags = (PhaseUseFlagsValues)result.Read<byte>(23);
                 data.PhaseId = result.Read<uint>(24);
                 data.PhaseGroup = result.Read<uint>(25);
@@ -4012,12 +4012,12 @@ namespace Game
                     continue;
 
                 // -1 random, 0 no equipment,
-                if (data.equipmentId != 0)
+                if (data.EquipmentId != 0)
                 {
-                    if (GetEquipmentInfo(data.Id, data.equipmentId) == null)
+                    if (GetEquipmentInfo(data.Id, data.EquipmentId) == null)
                     {
-                        Log.outError(LogFilter.Sql, "Table `creature` have creature (Entry: {0}) with equipmentid {1} not found in table `creatureequiptemplate`, set to no equipment.", data.Id, data.equipmentId);
-                        data.equipmentId = 0;
+                        Log.outError(LogFilter.Sql, "Table `creature` have creature (Entry: {0}) with equipmentid {1} not found in table `creatureequiptemplate`, set to no equipment.", data.Id, data.EquipmentId);
+                        data.EquipmentId = 0;
                     }
                 }
 
@@ -4033,15 +4033,15 @@ namespace Game
                     Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `wander_distance`< 0, set to 0.", guid, data.Id);
                     data.WanderDistance = 0.0f;
                 }
-                else if (data.movementType == (byte)MovementGeneratorType.Random)
+                else if (data.MovementType == (byte)MovementGeneratorType.Random)
                 {
                     if (MathFunctions.fuzzyEq(data.WanderDistance, 0.0f))
                     {
                         Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `MovementType`=1 (random movement) but with `wander_distance`=0, replace by idle movement type (0).", guid, data.Id);
-                        data.movementType = (byte)MovementGeneratorType.Idle;
+                        data.MovementType = (byte)MovementGeneratorType.Idle;
                     }
                 }
-                else if (data.movementType == (byte)MovementGeneratorType.Idle)
+                else if (data.MovementType == (byte)MovementGeneratorType.Idle)
                 {
                     if (data.WanderDistance != 0.0f)
                     {
@@ -4356,7 +4356,7 @@ namespace Game
         }
         public CreatureModelInfo GetCreatureModelRandomGender(ref CreatureModel model, CreatureTemplate creatureTemplate)
         {
-            CreatureModelInfo modelInfo = GetCreatureModelInfo(model.CreatureDisplayID);
+            CreatureModelInfo modelInfo = GetCreatureModelInfo(model.CreatureDisplayId);
             if (modelInfo == null)
                 return null;
 
@@ -4365,16 +4365,16 @@ namespace Game
             {
                 CreatureModelInfo minfotmp = GetCreatureModelInfo(modelInfo.DisplayIdOtherGender);
                 if (minfotmp == null)
-                    Log.outError(LogFilter.Sql, $"Model (Entry: {model.CreatureDisplayID}) has modelidothergender {modelInfo.DisplayIdOtherGender} not found in table `creaturemodelinfo`. ");
+                    Log.outError(LogFilter.Sql, $"Model (Entry: {model.CreatureDisplayId}) has modelidothergender {modelInfo.DisplayIdOtherGender} not found in table `creaturemodelinfo`. ");
                 else
                 {
                     // DisplayID changed
-                    model.CreatureDisplayID = modelInfo.DisplayIdOtherGender;
+                    model.CreatureDisplayId = modelInfo.DisplayIdOtherGender;
                     if (creatureTemplate != null)
                     {
                         var creatureModel = creatureTemplate.Models.Find(templateModel =>
                         {
-                            return templateModel.CreatureDisplayID == modelInfo.DisplayIdOtherGender;
+                            return templateModel.CreatureDisplayId == modelInfo.DisplayIdOtherGender;
                         });
 
                         if (creatureModel != null)
@@ -4628,8 +4628,8 @@ namespace Game
                 gameObjectAddon.Flags = (GameObjectFlags)result.Read<uint>(2);
                 gameObjectAddon.Mingold = result.Read<uint>(3);
                 gameObjectAddon.Maxgold = result.Read<uint>(4);
-                gameObjectAddon.WorldEffectID = result.Read<uint>(10);
-                gameObjectAddon.AIAnimKitID = result.Read<uint>(11);
+                gameObjectAddon.WorldEffectId = result.Read<uint>(10);
+                gameObjectAddon.AiAnimKitId = result.Read<uint>(11);
 
                 for (int i = 0; i < gameObjectAddon.ArtKits.Length; ++i)
                 {
@@ -4663,16 +4663,16 @@ namespace Game
                     }
                 }
 
-                if (gameObjectAddon.WorldEffectID != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
+                if (gameObjectAddon.WorldEffectId != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
                 {
-                    Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) defined in `gameobject_template_addon`, set to 0.");
-                    gameObjectAddon.WorldEffectID = 0;
+                    Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
+                    gameObjectAddon.WorldEffectId = 0;
                 }
 
-                if (gameObjectAddon.AIAnimKitID != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
+                if (gameObjectAddon.AiAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
                 {
-                    Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AIAnimKitID}) defined in `gameobject_template_addon`, set to 0.");
-                    gameObjectAddon.AIAnimKitID = 0;
+                    Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AiAnimKitId}) defined in `gameobject_template_addon`, set to 0.");
+                    gameObjectAddon.AiAnimKitId = 0;
                 }
 
                 _gameObjectTemplateAddonStorage[entry] = gameObjectAddon;
@@ -4795,10 +4795,10 @@ namespace Game
                 data.Id = entry;
                 data.MapId = result.Read<ushort>(2);
                 data.SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6));
-                data.rotation.X = result.Read<float>(7);
-                data.rotation.Y = result.Read<float>(8);
-                data.rotation.Z = result.Read<float>(9);
-                data.rotation.W = result.Read<float>(10);
+                data.Rotation.X = result.Read<float>(7);
+                data.Rotation.Y = result.Read<float>(8);
+                data.Rotation.Z = result.Read<float>(9);
+                data.Rotation.W = result.Read<float>(10);
                 data.spawntimesecs = result.Read<int>(11);
                 data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
@@ -4814,8 +4814,8 @@ namespace Game
                     Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.Id);
                 }
 
-                data.animprogress = result.Read<uint>(12);
-                data.artKit = 0;
+                data.Animprogress = result.Read<uint>(12);
+                data.ArtKit = 0;
 
                 uint gostate = result.Read<uint>(13);
                 if (gostate >= (uint)GameObjectState.Max)
@@ -4826,7 +4826,7 @@ namespace Game
                         continue;
                     }
                 }
-                data.goState = (GameObjectState)gostate;
+                data.GoState = (GameObjectState)gostate;
 
                 data.SpawnDifficulties = ParseSpawnDifficulties(result.Read<string>(14), "gameobject", guid, data.MapId, spawnMasks.LookupByKey(data.MapId));
                 if (data.SpawnDifficulties.Empty())
@@ -4896,27 +4896,27 @@ namespace Game
 
                 data.ScriptId = GetScriptId(result.Read<string>(21));
 
-                if (data.rotation.X < -1.0f || data.rotation.X > 1.0f)
+                if (data.Rotation.X < -1.0f || data.Rotation.X > 1.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationX ({2}) value, skip", guid, data.Id, data.rotation.X);
+                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationX ({2}) value, skip", guid, data.Id, data.Rotation.X);
                     continue;
                 }
 
-                if (data.rotation.Y < -1.0f || data.rotation.Y > 1.0f)
+                if (data.Rotation.Y < -1.0f || data.Rotation.Y > 1.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationY ({2}) value, skip", guid, data.Id, data.rotation.Y);
+                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationY ({2}) value, skip", guid, data.Id, data.Rotation.Y);
                     continue;
                 }
 
-                if (data.rotation.Z < -1.0f || data.rotation.Z > 1.0f)
+                if (data.Rotation.Z < -1.0f || data.Rotation.Z > 1.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationZ ({2}) value, skip", guid, data.Id, data.rotation.Z);
+                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationZ ({2}) value, skip", guid, data.Id, data.Rotation.Z);
                     continue;
                 }
 
-                if (data.rotation.W < -1.0f || data.rotation.W > 1.0f)
+                if (data.Rotation.W < -1.0f || data.Rotation.W > 1.0f)
                 {
-                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationW ({2}) value, skip", guid, data.Id, data.rotation.W);
+                    Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationW ({2}) value, skip", guid, data.Id, data.Rotation.W);
                     continue;
                 }
 
@@ -4926,10 +4926,10 @@ namespace Game
                     continue;
                 }
 
-                if (!(Math.Abs(Quaternion.Dot(data.rotation, data.rotation) - 1) < 1e-5))
+                if (!(Math.Abs(Quaternion.Dot(data.Rotation, data.Rotation) - 1) < 1e-5))
                 {
                     Log.outError(LogFilter.Sql, $"Table `gameobject` has gameobject (GUID: {guid} Entry: {data.Id}) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only");
-                    data.rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
+                    data.Rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
                 }
 
                 if (WorldConfig.GetBoolValue(WorldCfg.CalculateGameobjectZoneAreaData))
@@ -5544,9 +5544,9 @@ namespace Game
                 PreparedStatement stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_NPC_VENDOR);
 
                 stmt.AddValue(0, entry);
-                stmt.AddValue(1, vItem.item);
-                stmt.AddValue(2, vItem.maxcount);
-                stmt.AddValue(3, vItem.incrtime);
+                stmt.AddValue(1, vItem.Item);
+                stmt.AddValue(2, vItem.Maxcount);
+                stmt.AddValue(3, vItem.Incrtime);
                 stmt.AddValue(4, vItem.ExtendedCost);
                 stmt.AddValue(5, (byte)vItem.Type);
 
@@ -5612,19 +5612,19 @@ namespace Game
                 return false;
             }
 
-            if ((vItem.Type == ItemVendorType.Item && GetItemTemplate(vItem.item) == null) ||
-                (vItem.Type == ItemVendorType.Currency && CliDB.CurrencyTypesStorage.LookupByKey(vItem.item) == null))
+            if ((vItem.Type == ItemVendorType.Item && GetItemTemplate(vItem.Item) == null) ||
+                (vItem.Type == ItemVendorType.Currency && CliDB.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
             {
                 if (player != null)
-                    player.SendSysMessage(CypherStrings.ItemNotFound, vItem.item, vItem.Type);
+                    player.SendSysMessage(CypherStrings.ItemNotFound, vItem.Item, vItem.Type);
                 else
-                    Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` for Vendor (Entry: {0}) have in item list non-existed item ({1}, type {2}), ignore", vendorentry, vItem.item, vItem.Type);
+                    Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` for Vendor (Entry: {0}) have in item list non-existed item ({1}, type {2}), ignore", vendorentry, vItem.Item, vItem.Type);
                 return false;
             }
 
             if (vItem.PlayerConditionId != 0 && !CliDB.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
             {
-                Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.item, vItem.PlayerConditionId, vendorentry);
+                Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.Item, vItem.PlayerConditionId, vendorentry);
                 return false;
             }
 
@@ -5633,26 +5633,26 @@ namespace Game
                 if (player != null)
                     player.SendSysMessage(CypherStrings.ExtendedCostNotExist, vItem.ExtendedCost);
                 else
-                    Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have Item (Entry: {0}) with wrong ExtendedCost ({1}) for vendor ({2}), ignore", vItem.item, vItem.ExtendedCost, vendorentry);
+                    Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have Item (Entry: {0}) with wrong ExtendedCost ({1}) for vendor ({2}), ignore", vItem.Item, vItem.ExtendedCost, vendorentry);
                 return false;
             }
 
             if (vItem.Type == ItemVendorType.Item) // not applicable to currencies
             {
-                if (vItem.maxcount > 0 && vItem.incrtime == 0)
+                if (vItem.Maxcount > 0 && vItem.Incrtime == 0)
                 {
                     if (player != null)
-                        player.SendSysMessage("MaxCount != 0 ({0}) but IncrTime == 0", vItem.maxcount);
+                        player.SendSysMessage("MaxCount != 0 ({0}) but IncrTime == 0", vItem.Maxcount);
                     else
-                        Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount` ({0}) for item {1} of vendor (Entry: {2}) but `incrtime`=0, ignore", vItem.maxcount, vItem.item, vendorentry);
+                        Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount` ({0}) for item {1} of vendor (Entry: {2}) but `incrtime`=0, ignore", vItem.Maxcount, vItem.Item, vendorentry);
                     return false;
                 }
-                else if (vItem.maxcount == 0 && vItem.incrtime > 0)
+                else if (vItem.Maxcount == 0 && vItem.Incrtime > 0)
                 {
                     if (player != null)
                         player.SendSysMessage("MaxCount == 0 but IncrTime<>= 0");
                     else
-                        Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount`=0 for item {0} of vendor (Entry: {0}) but `incrtime`<>0, ignore", vItem.item, vendorentry);
+                        Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount`=0 for item {0} of vendor (Entry: {0}) but `incrtime`<>0, ignore", vItem.Item, vendorentry);
                     return false;
                 }
 
@@ -5660,7 +5660,7 @@ namespace Game
                 {
                     if (Global.DB2Mgr.GetItemBonusList(bonusList) == null)
                     {
-                        Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}) with invalid bonus {1} for vendor ({2}), ignore", vItem.item, bonusList, vendorentry);
+                        Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}) with invalid bonus {1} for vendor ({2}), ignore", vItem.Item, bonusList, vendorentry);
                         return false;
                     }
                 }
@@ -5670,18 +5670,18 @@ namespace Game
             if (vItems == null)
                 return true;                                        // later checks for non-empty lists
 
-            if (vItems.FindItemCostPair(vItem.item, vItem.ExtendedCost, vItem.Type) != null)
+            if (vItems.FindItemCostPair(vItem.Item, vItem.ExtendedCost, vItem.Type) != null)
             {
                 if (player != null)
-                    player.SendSysMessage(CypherStrings.ItemAlreadyInList, vItem.item, vItem.ExtendedCost, vItem.Type);
+                    player.SendSysMessage(CypherStrings.ItemAlreadyInList, vItem.Item, vItem.ExtendedCost, vItem.Type);
                 else
-                    Log.outError(LogFilter.Sql, "Table `npcvendor` has duplicate items {0} (with extended cost {1}, type {2}) for vendor (Entry: {3}), ignoring", vItem.item, vItem.ExtendedCost, vItem.Type, vendorentry);
+                    Log.outError(LogFilter.Sql, "Table `npcvendor` has duplicate items {0} (with extended cost {1}, type {2}) for vendor (Entry: {3}), ignoring", vItem.Item, vItem.ExtendedCost, vItem.Type, vendorentry);
                 return false;
             }
 
-            if (vItem.Type == ItemVendorType.Currency && vItem.maxcount == 0)
+            if (vItem.Type == ItemVendorType.Currency && vItem.Maxcount == 0)
             {
-                Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}, type: {1}) with missing maxcount for vendor ({2}), ignore", vItem.item, vItem.Type, vendorentry);
+                Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}, type: {1}) with missing maxcount for vendor ({2}), ignore", vItem.Item, vItem.Type, vendorentry);
                 return false;
             }
 
@@ -5815,7 +5815,7 @@ namespace Game
                 }
 
                 AreaTriggerStruct at = new();
-                at.target_mapId = portLoc.Loc.GetMapId();
+                at.target_mapId = portLoc.Loc.MapId;
                 at.target_X = portLoc.Loc.X;
                 at.target_Y = portLoc.Loc.Y;
                 at.target_Z = portLoc.Loc.Z;
@@ -5869,59 +5869,59 @@ namespace Game
                 ulong requirementId = MathFunctions.MakePair64(mapid, difficulty);
 
                 AccessRequirement ar = new();
-                ar.levelMin = result.Read<byte>(2);
-                ar.levelMax = result.Read<byte>(3);
-                ar.item = result.Read<uint>(4);
-                ar.item2 = result.Read<uint>(5);
-                ar.quest_A = result.Read<uint>(6);
-                ar.quest_H = result.Read<uint>(7);
-                ar.achievement = result.Read<uint>(8);
-                ar.questFailedText = result.Read<string>(9);
+                ar.LevelMin = result.Read<byte>(2);
+                ar.LevelMax = result.Read<byte>(3);
+                ar.Item = result.Read<uint>(4);
+                ar.Item2 = result.Read<uint>(5);
+                ar.QuestA = result.Read<uint>(6);
+                ar.QuestH = result.Read<uint>(7);
+                ar.Achievement = result.Read<uint>(8);
+                ar.QuestFailedText = result.Read<string>(9);
 
-                if (ar.item != 0)
+                if (ar.Item != 0)
                 {
-                    ItemTemplate pProto = GetItemTemplate(ar.item);
+                    ItemTemplate pProto = GetItemTemplate(ar.Item);
                     if (pProto == null)
                     {
-                        Log.outError(LogFilter.Sql, "Key item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.item, mapid, difficulty);
-                        ar.item = 0;
+                        Log.outError(LogFilter.Sql, "Key item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item, mapid, difficulty);
+                        ar.Item = 0;
                     }
                 }
 
-                if (ar.item2 != 0)
+                if (ar.Item2 != 0)
                 {
-                    ItemTemplate pProto = GetItemTemplate(ar.item2);
+                    ItemTemplate pProto = GetItemTemplate(ar.Item2);
                     if (pProto == null)
                     {
-                        Log.outError(LogFilter.Sql, "Second item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.item2, mapid, difficulty);
-                        ar.item2 = 0;
+                        Log.outError(LogFilter.Sql, "Second item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item2, mapid, difficulty);
+                        ar.Item2 = 0;
                     }
                 }
 
-                if (ar.quest_A != 0)
+                if (ar.QuestA != 0)
                 {
-                    if (GetQuestTemplate(ar.quest_A) == null)
+                    if (GetQuestTemplate(ar.QuestA) == null)
                     {
-                        Log.outError(LogFilter.Sql, "Required Alliance Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.quest_A, mapid, difficulty);
-                        ar.quest_A = 0;
+                        Log.outError(LogFilter.Sql, "Required Alliance Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
+                        ar.QuestA = 0;
                     }
                 }
 
-                if (ar.quest_H != 0)
+                if (ar.QuestH != 0)
                 {
-                    if (GetQuestTemplate(ar.quest_H) == null)
+                    if (GetQuestTemplate(ar.QuestH) == null)
                     {
-                        Log.outError(LogFilter.Sql, "Required Horde Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.quest_H, mapid, difficulty);
-                        ar.quest_H = 0;
+                        Log.outError(LogFilter.Sql, "Required Horde Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
+                        ar.QuestH = 0;
                     }
                 }
 
-                if (ar.achievement != 0)
+                if (ar.Achievement != 0)
                 {
-                    if (!CliDB.AchievementStorage.ContainsKey(ar.achievement))
+                    if (!CliDB.AchievementStorage.ContainsKey(ar.Achievement))
                     {
-                        Log.outError(LogFilter.Sql, "Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.achievement, mapid, difficulty);
-                        ar.achievement = 0;
+                        Log.outError(LogFilter.Sql, "Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
+                        ar.Achievement = 0;
                     }
                 }
 
@@ -6473,28 +6473,28 @@ namespace Game
                     }
 
                     PlayerInfo info = new();
-                    info.createPosition.Loc = new WorldLocation(mapId, positionX, positionY, positionZ, orientation);
+                    info.CreatePosition.Loc = new WorldLocation(mapId, positionX, positionY, positionZ, orientation);
 
                     if (!result.IsNull(7))
                     {
-                        PlayerInfo.CreatePosition createPosition = new();
+                        PlayerInfo.CreatePositionModel createPosition = new();
 
                         createPosition.Loc = new WorldLocation(result.Read<uint>(7), result.Read<float>(8), result.Read<float>(9), result.Read<float>(10), result.Read<float>(11));
                         if (!result.IsNull(12))
                             createPosition.TransportGuid = result.Read<ulong>(12);
 
-                        info.createPositionNPE = createPosition;
+                        info.CreatePositionNpe = createPosition;
 
-                        if (!CliDB.MapStorage.ContainsKey(info.createPositionNPE.Value.Loc.GetMapId()))
+                        if (!CliDB.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
                         {
-                            Log.outError(LogFilter.Sql, $"Invalid NPE map id {info.createPositionNPE.Value.Loc.GetMapId()} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
-                            info.createPositionNPE = null;
+                            Log.outError(LogFilter.Sql, $"Invalid NPE map id {info.CreatePositionNpe.Value.Loc.MapId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+                            info.CreatePositionNpe = null;
                         }
 
-                        if (info.createPositionNPE.HasValue && info.createPositionNPE.Value.TransportGuid.HasValue && Global.TransportMgr.GetTransportSpawn(info.createPositionNPE.Value.TransportGuid.Value) == null)
+                        if (info.CreatePositionNpe.HasValue && info.CreatePositionNpe.Value.TransportGuid.HasValue && Global.TransportMgr.GetTransportSpawn(info.CreatePositionNpe.Value.TransportGuid.Value) == null)
                         {
-                            Log.outError(LogFilter.Sql, $"Invalid NPE transport spawn id {info.createPositionNPE.Value.TransportGuid.Value} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
-                            info.createPositionNPE = null; // remove entire NPE data - assume user put transport offsets into npe_position fields
+                            Log.outError(LogFilter.Sql, $"Invalid NPE transport spawn id {info.CreatePositionNpe.Value.TransportGuid.Value} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+                            info.CreatePositionNpe = null; // remove entire NPE data - assume user put transport offsets into npe_position fields
                         }
                     }
 
@@ -6502,7 +6502,7 @@ namespace Game
                     {
                         uint introMovieId = result.Read<uint>(13);
                         if (CliDB.MovieStorage.ContainsKey(introMovieId))
-                            info.introMovieId = introMovieId;
+                            info.IntroMovieId = introMovieId;
                         else
                             Log.outDebug(LogFilter.Sql, $"Invalid intro movie id {introMovieId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                     }
@@ -6511,7 +6511,7 @@ namespace Game
                     {
                         uint introSceneId = result.Read<uint>(14);
                         if (GetSceneTemplate(introSceneId) != null)
-                            info.introSceneId = introSceneId;
+                            info.IntroSceneId = introSceneId;
                         else
                             Log.outDebug(LogFilter.Sql, $"Invalid intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                     }
@@ -6520,7 +6520,7 @@ namespace Game
                     {
                         uint introSceneId = result.Read<uint>(15);
                         if (GetSceneTemplate(introSceneId) != null)
-                            info.introSceneIdNPE = introSceneId;
+                            info.IntroSceneIdNpe = introSceneId;
                         else
                             Log.outDebug(LogFilter.Sql, $"Invalid NPE intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
                     }
@@ -6560,7 +6560,7 @@ namespace Game
 
                         if (_playerInfo.TryGetValue(raceIndex, (Class)characterLoadout.ChrClassID, out var playerInfo))
                         {
-                            playerInfo.itemContext = (ItemContext)characterLoadout.ItemContext;
+                            playerInfo.ItemContext = (ItemContext)characterLoadout.ItemContext;
 
                             foreach (ItemTemplate itemTemplate in items)
                             {
@@ -6586,7 +6586,7 @@ namespace Game
                                         count = itemTemplate.GetMaxStackSize();
                                 }
 
-                                playerInfo.item.Add(new PlayerCreateInfoItem(itemTemplate.GetId(), count));
+                                playerInfo.Items.Add(new PlayerCreateInfoItem(itemTemplate.GetId(), count));
                             }
                         }
                     }
@@ -6672,7 +6672,7 @@ namespace Game
                                     if (rcInfo.ClassMask == -1 || Convert.ToBoolean((1 << ((int)classIndex - 1)) & rcInfo.ClassMask))
                                     {
                                         if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
-                                            info.skills.Add(rcInfo);
+                                            info.Skills.Add(rcInfo);
                                     }
                                 }
                             }
@@ -6723,7 +6723,7 @@ namespace Game
                                     {
                                         if (_playerInfo.TryGetValue(raceIndex, classIndex, out var playerInfo))
                                         {
-                                            playerInfo.customSpells.Add(spellId);
+                                            playerInfo.CustomSpells.Add(spellId);
                                             ++count;
                                         }
                                     }
@@ -6785,7 +6785,7 @@ namespace Game
                                     {
                                         if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
                                         {
-                                            info.castSpells[playerCreateMode].Add(spellId);
+                                            info.CastSpells[playerCreateMode].Add(spellId);
                                             ++count;
                                         }
                                     }
@@ -6827,7 +6827,7 @@ namespace Game
                         }
                         
                         if (_playerInfo.TryGetValue(currentrace, currentclass, out var info))
-                            info.action.Add(new PlayerCreateInfoAction(result.Read<byte>(2), result.Read<uint>(3), result.Read<byte>(4)));
+                            info.Actions.Add(new PlayerCreateInfoAction(result.Read<byte>(2), result.Read<uint>(3), result.Read<byte>(4)));
 
                         ++count;
                     } while (result.NextRow());
@@ -6903,7 +6903,7 @@ namespace Game
                             continue;
 
                         for (var i = 0; i < (int)Stats.Max; i++)
-                            playerInfo.levelInfo[currentlevel - 1].stats[i] = (ushort)(result.Read<ushort>(i + 2) + raceStatModifiers[race][i]);
+                            playerInfo.LevelInfo[currentlevel - 1].Stats[i] = (ushort)(result.Read<ushort>(i + 2) + raceStatModifiers[race][i]);
                     }
 
                     ++count;
@@ -6946,7 +6946,7 @@ namespace Game
                         }
 
                         // fatal error if no level 1 data
-                        if (playerInfo.levelInfo[0].stats[0] == 0)
+                        if (playerInfo.LevelInfo[0].Stats[0] == 0)
                         {
                             Log.outError(LogFilter.Sql, "Race {0} Class {1} Level 1 does not have stats data!", race, _class);
                             Environment.Exit(1);
@@ -6956,10 +6956,10 @@ namespace Game
                         // fill level gaps
                         for (var level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
                         {
-                            if (playerInfo.levelInfo[level].stats[0] == 0)
+                            if (playerInfo.LevelInfo[level].Stats[0] == 0)
                             {
                                 Log.outError(LogFilter.Sql, "Race {0} Class {1} Level {2} does not have stats data. Using stats data of level {3}.", race, _class, level + 1, level);
-                                playerInfo.levelInfo[level] = playerInfo.levelInfo[level - 1];
+                                playerInfo.LevelInfo[level] = playerInfo.LevelInfo[level - 1];
                             }
                         }
                     }
@@ -7025,13 +7025,13 @@ namespace Game
                 return;
 
             if (count > 0)
-                playerInfo.item.Add(new PlayerCreateInfoItem(itemId, (uint)count));
+                playerInfo.Items.Add(new PlayerCreateInfoItem(itemId, (uint)count));
             else
             {
                 if (count < -1)
                     Log.outError(LogFilter.Sql, "Invalid count {0} specified on item {1} be removed from original player create info (use -1)!", count, itemId);
 
-                playerInfo.item.RemoveAll(item => item.item_id == itemId);
+                playerInfo.Items.RemoveAll(item => item.ItemId == itemId);
             }
         }
 
@@ -7078,7 +7078,7 @@ namespace Game
                 return null;
 
             if (level <= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
-                return pInfo.levelInfo[level - 1];
+                return pInfo.LevelInfo[level - 1];
             else
                 return BuildPlayerLevelInfo(race, _class, level);
         }
@@ -7086,65 +7086,65 @@ namespace Game
         PlayerLevelInfo BuildPlayerLevelInfo(Race race, Class _class, uint level)
         {
             // base data (last known level)
-            var info = _playerInfo[race][_class].levelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1];
+            var info = _playerInfo[race][_class].LevelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1];
 
             for (int lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1; lvl < level; ++lvl)
             {
                 switch (_class)
                 {
                     case Class.Warrior:
-                        info.stats[0] += (lvl > 23 ? 2 : (lvl > 1 ? 1 : 0));
-                        info.stats[1] += (lvl > 23 ? 2 : (lvl > 1 ? 1 : 0));
-                        info.stats[2] += (lvl > 36 ? 1 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
-                        info.stats[3] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[0] += (lvl > 23 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[1] += (lvl > 23 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[2] += (lvl > 36 ? 1 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
+                        info.Stats[3] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
                         break;
                     case Class.Paladin:
-                        info.stats[0] += (lvl > 3 ? 1 : 0);
-                        info.stats[1] += (lvl > 33 ? 2 : (lvl > 1 ? 1 : 0));
-                        info.stats[2] += (lvl > 38 ? 1 : (lvl > 7 && (lvl % 2) == 0 ? 1 : 0));
-                        info.stats[3] += (lvl > 6 && (lvl % 2) != 0 ? 1 : 0);
+                        info.Stats[0] += (lvl > 3 ? 1 : 0);
+                        info.Stats[1] += (lvl > 33 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[2] += (lvl > 38 ? 1 : (lvl > 7 && (lvl % 2) == 0 ? 1 : 0));
+                        info.Stats[3] += (lvl > 6 && (lvl % 2) != 0 ? 1 : 0);
                         break;
                     case Class.Hunter:
-                        info.stats[0] += (lvl > 4 ? 1 : 0);
-                        info.stats[1] += (lvl > 4 ? 1 : 0);
-                        info.stats[2] += (lvl > 33 ? 2 : (lvl > 1 ? 1 : 0));
-                        info.stats[3] += (lvl > 8 && (lvl % 2) != 0 ? 1 : 0);
+                        info.Stats[0] += (lvl > 4 ? 1 : 0);
+                        info.Stats[1] += (lvl > 4 ? 1 : 0);
+                        info.Stats[2] += (lvl > 33 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[3] += (lvl > 8 && (lvl % 2) != 0 ? 1 : 0);
                         break;
                     case Class.Rogue:
-                        info.stats[0] += (lvl > 5 ? 1 : 0);
-                        info.stats[1] += (lvl > 4 ? 1 : 0);
-                        info.stats[2] += (lvl > 16 ? 2 : (lvl > 1 ? 1 : 0));
-                        info.stats[3] += (lvl > 8 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[0] += (lvl > 5 ? 1 : 0);
+                        info.Stats[1] += (lvl > 4 ? 1 : 0);
+                        info.Stats[2] += (lvl > 16 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[3] += (lvl > 8 && (lvl % 2) == 0 ? 1 : 0);
                         break;
                     case Class.Priest:
-                        info.stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[1] += (lvl > 5 ? 1 : 0);
-                        info.stats[2] += (lvl > 38 ? 1 : (lvl > 8 && (lvl % 2) != 0 ? 1 : 0));
-                        info.stats[3] += (lvl > 22 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[1] += (lvl > 5 ? 1 : 0);
+                        info.Stats[2] += (lvl > 38 ? 1 : (lvl > 8 && (lvl % 2) != 0 ? 1 : 0));
+                        info.Stats[3] += (lvl > 22 ? 2 : (lvl > 1 ? 1 : 0));
                         break;
                     case Class.Shaman:
-                        info.stats[0] += (lvl > 34 ? 1 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
-                        info.stats[1] += (lvl > 4 ? 1 : 0);
-                        info.stats[2] += (lvl > 7 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[3] += (lvl > 5 ? 1 : 0);
+                        info.Stats[0] += (lvl > 34 ? 1 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
+                        info.Stats[1] += (lvl > 4 ? 1 : 0);
+                        info.Stats[2] += (lvl > 7 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[3] += (lvl > 5 ? 1 : 0);
                         break;
                     case Class.Mage:
-                        info.stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[1] += (lvl > 5 ? 1 : 0);
-                        info.stats[2] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[3] += (lvl > 24 ? 2 : (lvl > 1 ? 1 : 0));
+                        info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[1] += (lvl > 5 ? 1 : 0);
+                        info.Stats[2] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[3] += (lvl > 24 ? 2 : (lvl > 1 ? 1 : 0));
                         break;
                     case Class.Warlock:
-                        info.stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[1] += (lvl > 38 ? 2 : (lvl > 3 ? 1 : 0));
-                        info.stats[2] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
-                        info.stats[3] += (lvl > 33 ? 2 : (lvl > 2 ? 1 : 0));
+                        info.Stats[0] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[1] += (lvl > 38 ? 2 : (lvl > 3 ? 1 : 0));
+                        info.Stats[2] += (lvl > 9 && (lvl % 2) == 0 ? 1 : 0);
+                        info.Stats[3] += (lvl > 33 ? 2 : (lvl > 2 ? 1 : 0));
                         break;
                     case Class.Druid:
-                        info.stats[0] += (lvl > 38 ? 2 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
-                        info.stats[1] += (lvl > 32 ? 2 : (lvl > 4 ? 1 : 0));
-                        info.stats[2] += (lvl > 38 ? 2 : (lvl > 8 && (lvl % 2) != 0 ? 1 : 0));
-                        info.stats[3] += (lvl > 38 ? 3 : (lvl > 4 ? 1 : 0));
+                        info.Stats[0] += (lvl > 38 ? 2 : (lvl > 6 && (lvl % 2) != 0 ? 1 : 0));
+                        info.Stats[1] += (lvl > 32 ? 2 : (lvl > 4 ? 1 : 0));
+                        info.Stats[2] += (lvl > 38 ? 2 : (lvl > 8 && (lvl % 2) != 0 ? 1 : 0));
+                        info.Stats[3] += (lvl > 38 ? 3 : (lvl > 4 ? 1 : 0));
                         break;
                 }
             }
@@ -11152,7 +11152,7 @@ namespace Game
             // minfo is not actually used but the mount_id was updated
             GetCreatureModelRandomGender(ref mountModel, mount_info);
 
-            return mountModel.CreatureDisplayID;
+            return mountModel.CreatureDisplayId;
         }
 
         public AreaTriggerStruct GetAreaTrigger(uint trigger)

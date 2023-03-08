@@ -279,7 +279,7 @@ namespace Game.BattleGrounds.Zones
                     Player p = Global.ObjAccessor.FindPlayer(pair.Key);
                     if (p)
                     {
-                        UpdateData data = new(p.Location.GetMapId());
+                        UpdateData data = new(p.Location.MapId);
                         GetBGObject(i).BuildValuesUpdateBlockForPlayer(data, p);
 
                         data.BuildPacket(out UpdateObject pkt);
@@ -420,7 +420,7 @@ namespace Game.BattleGrounds.Zones
             bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundSAScore(player.GetGUID(), player.GetBGTeam());
+                PlayerScores[player.GetGUID()] = new BattlegroundSAScore(player.GetGUID(), player.GetBgTeam());
 
             SendTransportInit(player);
 
@@ -963,7 +963,7 @@ namespace Game.BattleGrounds.Zones
         {
             if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
             {
-                UpdateData transData = new(player.Location.GetMapId());
+                UpdateData transData = new(player.Location.MapId);
                 if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatOne).BuildCreateUpdateBlockForPlayer(transData, player);
 
@@ -979,7 +979,7 @@ namespace Game.BattleGrounds.Zones
         {
             if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty() || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty())
             {
-                UpdateData transData = new(player.Location.GetMapId());
+                UpdateData transData = new(player.Location.MapId);
                 if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty())
                     GetBGObject(SAObjectTypes.BoatOne).BuildOutOfRangeUpdateBlock(transData);
                 if (!BgObjects[SAObjectTypes.BoatTwo].IsEmpty())

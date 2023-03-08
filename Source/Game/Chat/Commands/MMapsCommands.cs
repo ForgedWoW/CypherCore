@@ -17,7 +17,7 @@ namespace Game.Chat
         [Command("path", RBACPermissions.CommandMmapPath)]
         static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
         {
-            if (Global.MMapMgr.GetNavMesh(handler.GetPlayer().Location.GetMapId()) == null)
+            if (Global.MMapMgr.GetNavMesh(handler.GetPlayer().Location.MapId) == null)
             {
                 handler.SendSysMessage("NavMesh not loaded for current map.");
                 return true;
@@ -87,11 +87,11 @@ namespace Game.Chat
             int gy = (int)(32 - player.Location.Y / MapConst.SizeofGrids);
 
       
-            handler.SendSysMessage("{0:D4}{1:D2}{2:D2}.mmtile", player.Location.GetMapId(), gy, gx);
+            handler.SendSysMessage("{0:D4}{1:D2}{2:D2}.mmtile", player.Location.MapId, gy, gx);
             handler.SendSysMessage("tileloc [{0}, {1}]", gx, gy);
 
             // calculate navmesh tile location
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.MapId, player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
             Detour.dtNavMeshQuery navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, player.GetInstanceId());
             if (navmesh == null || navmeshquery == null)
@@ -143,7 +143,7 @@ namespace Game.Chat
         static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.MapId, player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
             Detour.dtNavMeshQuery navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.GetPlayer().GetInstanceId());
             if (navmesh == null || navmeshquery == null)
@@ -169,9 +169,9 @@ namespace Game.Chat
         static bool HandleMmapStatsCommand(CommandHandler handler)
         {
             Player player = handler.GetSession().GetPlayer();
-            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.GetMapId(), player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
+            uint terrainMapId = PhasingHandler.GetTerrainMapId(player.GetPhaseShift(), player.Location.MapId, player.GetMap().GetTerrain(), player.Location.X, player.Location.Y);
             handler.SendSysMessage("mmap stats:");
-            handler.SendSysMessage("  global mmap pathfinding is {0}abled", Global.DisableMgr.IsPathfindingEnabled(player.Location.GetMapId()) ? "En" : "Dis");
+            handler.SendSysMessage("  global mmap pathfinding is {0}abled", Global.DisableMgr.IsPathfindingEnabled(player.Location.MapId) ? "En" : "Dis");
             handler.SendSysMessage(" {0} maps loaded with {1} tiles overall", Global.MMapMgr.GetLoadedMapsCount(), Global.MMapMgr.GetLoadedTilesCount());
 
             Detour.dtNavMesh navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);

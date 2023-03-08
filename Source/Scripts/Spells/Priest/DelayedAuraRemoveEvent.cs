@@ -14,7 +14,7 @@ public class DelayedAuraRemoveEvent : BasicEvent
 		this._spellId = spellId;
 	}
 
-	public override bool Execute(ulong UnnamedParameter, uint UnnamedParameter2)
+	public override bool Execute(ulong etime, uint pTime)
 	{
 		_owner.RemoveAura(_spellId);
 

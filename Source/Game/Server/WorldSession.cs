@@ -123,7 +123,7 @@ namespace Game
                     bg.EventPlayerLoggedOut(GetPlayer());
 
                 // Teleport to home if the player is in an invalid instance
-                if (!_player.m_InstanceValid && !_player.IsGameMaster())
+                if (!_player.InstanceValid && !_player.IsGameMaster())
                     _player.TeleportTo(_player.GetHomebind());
 
                 Global.OutdoorPvPMgr.HandlePlayerLeaveZone(_player, _player.GetZoneId());

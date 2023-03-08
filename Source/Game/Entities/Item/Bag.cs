@@ -5,291 +5,315 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class Bag : Item
 {
-    public class Bag : Item
-    {
-        public Bag()
-        {
-            ObjectTypeMask |= TypeMask.Container;
-            ObjectTypeId = TypeId.Container;
+	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+	{
+		readonly Bag Owner;
+		readonly ObjectFieldData ObjectMask = new();
+		readonly ItemData ItemMask = new();
+		readonly ContainerData ContainerMask = new();
 
-            m_containerData = new ContainerData();
-        }
+		public ValuesUpdateForPlayerWithMaskSender(Bag owner)
+		{
+			Owner = owner;
+		}
 
-        public override void Dispose()
-        {
-            for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-            {
-                Item item = m_bagslot[i];
-                if (item)
-                {
-                    if (item.IsInWorld)
-                    {
-                        Log.outFatal(LogFilter.PlayerItems, "Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
-                            item.GetEntry(), item.GetSlot(), item.GetBagSlot(),
-                            GetEntry(), GetSlot(), GetBagSlot(), i);
-                        item.RemoveFromWorld();
-                    }
-                    m_bagslot[i].Dispose();
-                }
-            }
+		public void Invoke(Player player)
+		{
+			UpdateData udata = new(Owner.Location.MapId);
 
-            base.Dispose();
-        }
+			Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), ContainerMask.GetUpdateMask(), player);
 
-        public override void AddToWorld()
-        {
-            base.AddToWorld();
+			udata.BuildPacket(out var packet);
+			player.SendPacket(packet);
+		}
+	}
 
-            for (uint i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] != null)
-                    m_bagslot[i].AddToWorld();
-        }
+	readonly ContainerData m_containerData;
+	Item[] m_bagslot = new Item[36];
 
-        public override void RemoveFromWorld()
-        {
-            for (uint i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] != null)
-                    m_bagslot[i].RemoveFromWorld();
+	public Bag()
+	{
+		ObjectTypeMask |= TypeMask.Container;
+		ObjectTypeId = TypeId.Container;
 
-            base.RemoveFromWorld();
-        }
+		m_containerData = new ContainerData();
+	}
 
-        public override bool Create(ulong guidlow, uint itemid, ItemContext context, Player owner)
-        {
-            var itemProto = Global.ObjectMgr.GetItemTemplate(itemid);
+	public override void Dispose()
+	{
+		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
+		{
+			var item = m_bagslot[i];
 
-            if (itemProto == null || itemProto.GetContainerSlots() > ItemConst.MaxBagSize)
-                return false;
+			if (item)
+			{
+				if (item.IsInWorld)
+				{
+					Log.outFatal(LogFilter.PlayerItems,
+					             "Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
+					             item.GetEntry(),
+					             item.GetSlot(),
+					             item.GetBagSlot(),
+					             GetEntry(),
+					             GetSlot(),
+					             GetBagSlot(),
+					             i);
 
-            _Create(ObjectGuid.Create(HighGuid.Item, guidlow));
+					item.RemoveFromWorld();
+				}
 
-            _bonusData = new BonusData(itemProto);
+				m_bagslot[i].Dispose();
+			}
+		}
 
-            SetEntry(itemid);
-            SetObjectScale(1.0f);
+		base.Dispose();
+	}
 
-            if (owner)
-            {
-                SetOwnerGUID(owner.GetGUID());
-                SetContainedIn(owner.GetGUID());
-            }
+	public override void AddToWorld()
+	{
+		base.AddToWorld();
 
-            SetUpdateFieldValue(m_values.ModifyValue(m_itemData).ModifyValue(m_itemData.MaxDurability), itemProto.MaxDurability);
-            SetDurability(itemProto.MaxDurability);
-            SetCount(1);
-            SetContext(context);
+		for (uint i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] != null)
+				m_bagslot[i].AddToWorld();
+	}
 
-            // Setting the number of Slots the Container has
-            SetBagSize(itemProto.GetContainerSlots());
+	public override void RemoveFromWorld()
+	{
+		for (uint i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] != null)
+				m_bagslot[i].RemoveFromWorld();
 
-            // Cleaning 20 slots
-            for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-                SetSlot(i, ObjectGuid.Empty);
+		base.RemoveFromWorld();
+	}
 
-            m_bagslot = new Item[ItemConst.MaxBagSize];
-            return true;
-        }
+	public override bool Create(ulong guidlow, uint itemid, ItemContext context, Player owner)
+	{
+		var itemProto = Global.ObjectMgr.GetItemTemplate(itemid);
 
-        public override bool LoadFromDB(ulong guid, ObjectGuid owner_guid, SQLFields fields, uint entry)
-        {
-            if (!base.LoadFromDB(guid, owner_guid, fields, entry))
-                return false;
+		if (itemProto == null || itemProto.GetContainerSlots() > ItemConst.MaxBagSize)
+			return false;
 
-            ItemTemplate itemProto = GetTemplate(); // checked in Item.LoadFromDB
-            SetBagSize(itemProto.GetContainerSlots());
-            // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
-            for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-            {
-                SetSlot(i, ObjectGuid.Empty);
-                m_bagslot[i] = null;
-            }
-            return true;
-        }
+		Create(ObjectGuid.Create(HighGuid.Item, guidlow));
 
-        public override void DeleteFromDB(SQLTransaction trans)
-        {
-            for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
-                if (m_bagslot[i] != null)
-                    m_bagslot[i].DeleteFromDB(trans);
+		BonusData = new BonusData(itemProto);
 
-            base.DeleteFromDB(trans);
-        }
+		SetEntry(itemid);
+		SetObjectScale(1.0f);
 
-        public uint GetFreeSlots()
-        {
-            uint slots = 0;
-            for (uint i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] == null)
-                    ++slots;
+		if (owner)
+		{
+			SetOwnerGUID(owner.GetGUID());
+			SetContainedIn(owner.GetGUID());
+		}
 
-            return slots;
-        }
+		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.MaxDurability), itemProto.MaxDurability);
+		SetDurability(itemProto.MaxDurability);
+		SetCount(1);
+		SetContext(context);
 
-        public void RemoveItem(byte slot, bool update)
-        {
-            if (m_bagslot[slot] != null)
-                m_bagslot[slot].SetContainer(null);
+		// Setting the number of Slots the Container has
+		SetBagSize(itemProto.GetContainerSlots());
 
-            m_bagslot[slot] = null;
-            SetSlot(slot, ObjectGuid.Empty);
-        }
+		// Cleaning 20 slots
+		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
+			SetSlot(i, ObjectGuid.Empty);
 
-        public void StoreItem(byte slot, Item pItem, bool update)
-        {
-            if (pItem != null && pItem.GetGUID() != GetGUID())
-            {
-                m_bagslot[slot] = pItem;
-                SetSlot(slot, pItem.GetGUID());
-                pItem.SetContainedIn(GetGUID());
-                pItem.SetOwnerGUID(GetOwnerGUID());
-                pItem.SetContainer(this);
-                pItem.SetSlot(slot);
-            }
-        }
+		m_bagslot = new Item[ItemConst.MaxBagSize];
 
-        public override void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
-        {
-            base.BuildCreateUpdateBlockForPlayer(data, target);
+		return true;
+	}
 
-            for (int i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] != null)
-                    m_bagslot[i].BuildCreateUpdateBlockForPlayer(data, target);
-        }
+	public override bool LoadFromDB(ulong guid, ObjectGuid owner_guid, SQLFields fields, uint entry)
+	{
+		if (!base.LoadFromDB(guid, owner_guid, fields, entry))
+			return false;
 
-        public override void BuildValuesCreate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
+		var itemProto = GetTemplate(); // checked in Item.LoadFromDB
+		SetBagSize(itemProto.GetContainerSlots());
 
-            buffer.WriteUInt8((byte)flags);
-            m_objectData.WriteCreate(buffer, flags, this, target);
-            m_itemData.WriteCreate(buffer, flags, this, target);
-            m_containerData.WriteCreate(buffer, flags, this, target);
+		// cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
+		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
+		{
+			SetSlot(i, ObjectGuid.Empty);
+			m_bagslot[i] = null;
+		}
 
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteBytes(buffer);
-        }
+		return true;
+	}
 
-        public override void BuildValuesUpdate(WorldPacket data, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            WorldPacket buffer = new();
+	public override void DeleteFromDB(SQLTransaction trans)
+	{
+		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
+			if (m_bagslot[i] != null)
+				m_bagslot[i].DeleteFromDB(trans);
 
-            buffer.WriteUInt32(m_values.GetChangedObjectTypeMask());
-            if (m_values.HasChanged(TypeId.Object))
-                m_objectData.WriteUpdate(buffer, flags, this, target);
+		base.DeleteFromDB(trans);
+	}
 
-            if (m_values.HasChanged(TypeId.Item))
-                m_itemData.WriteUpdate(buffer, flags, this, target);
+	public uint GetFreeSlots()
+	{
+		uint slots = 0;
 
-            if (m_values.HasChanged(TypeId.Container))
-                m_containerData.WriteUpdate(buffer, flags, this, target);
+		for (uint i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] == null)
+				++slots;
 
-            data.WriteUInt32(buffer.GetSize());
-            data.WriteBytes(buffer);
-        }
+		return slots;
+	}
 
-        void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
-        {
-            UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-            UpdateMask valuesMask = new((int)TypeId.Max);
-            if (requestedObjectMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Object);
+	public void RemoveItem(byte slot, bool update)
+	{
+		if (m_bagslot[slot] != null)
+			m_bagslot[slot].SetContainer(null);
 
-            m_itemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
-            if (requestedItemMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Item);
+		m_bagslot[slot] = null;
+		SetSlot(slot, ObjectGuid.Empty);
+	}
 
-            if (requestedContainerMask.IsAnySet())
-                valuesMask.Set((int)TypeId.Container);
+	public void StoreItem(byte slot, Item pItem, bool update)
+	{
+		if (pItem != null && pItem.GetGUID() != GetGUID())
+		{
+			m_bagslot[slot] = pItem;
+			SetSlot(slot, pItem.GetGUID());
+			pItem.SetContainedIn(GetGUID());
+			pItem.SetOwnerGUID(GetOwnerGUID());
+			pItem.SetContainer(this);
+			pItem.SetSlot(slot);
+		}
+	}
 
-            WorldPacket buffer = new();
-            buffer.WriteUInt32(valuesMask.GetBlock(0));
+	public override void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
+	{
+		base.BuildCreateUpdateBlockForPlayer(data, target);
 
-            if (valuesMask[(int)TypeId.Object])
-                m_objectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+		for (var i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] != null)
+				m_bagslot[i].BuildCreateUpdateBlockForPlayer(data, target);
+	}
 
-            if (valuesMask[(int)TypeId.Item])
-                m_itemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
+	public override void BuildValuesCreate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
 
-            if (valuesMask[(int)TypeId.Container])
-                m_containerData.WriteUpdate(buffer, requestedContainerMask, true, this, target);
+		buffer.WriteUInt8((byte)flags);
+		ObjectData.WriteCreate(buffer, flags, this, target);
+		ItemData.WriteCreate(buffer, flags, this, target);
+		m_containerData.WriteCreate(buffer, flags, this, target);
 
-            WorldPacket buffer1 = new();
-            buffer1.WriteUInt8((byte)UpdateType.Values);
-            buffer1.WritePackedGuid(GetGUID());
-            buffer1.WriteUInt32(buffer.GetSize());
-            buffer1.WriteBytes(buffer.GetData());
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteBytes(buffer);
+	}
 
-            data.AddUpdateBlock(buffer1);
-        }
+	public override void BuildValuesUpdate(WorldPacket data, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		WorldPacket buffer = new();
 
-        public override void ClearUpdateMask(bool remove)
-        {
-            m_values.ClearChangesMask(m_containerData);
-            base.ClearUpdateMask(remove);
-        }
+		buffer.WriteUInt32(Values.GetChangedObjectTypeMask());
 
-        public bool IsEmpty()
-        {
-            for (var i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] != null)
-                    return false;
+		if (Values.HasChanged(TypeId.Object))
+			ObjectData.WriteUpdate(buffer, flags, this, target);
 
-            return true;
-        }
+		if (Values.HasChanged(TypeId.Item))
+			ItemData.WriteUpdate(buffer, flags, this, target);
 
-        byte GetSlotByItemGUID(ObjectGuid guid)
-        {
-            for (byte i = 0; i < GetBagSize(); ++i)
-                if (m_bagslot[i] != null)
-                    if (m_bagslot[i].GetGUID() == guid)
-                        return i;
+		if (Values.HasChanged(TypeId.Container))
+			m_containerData.WriteUpdate(buffer, flags, this, target);
 
-            return ItemConst.NullSlot;
-        }
+		data.WriteUInt32(buffer.GetSize());
+		data.WriteBytes(buffer);
+	}
 
-        public Item GetItemByPos(byte slot)
-        {
-            if (slot < GetBagSize())
-                return m_bagslot[slot];
+	public override void ClearUpdateMask(bool remove)
+	{
+		Values.ClearChangesMask(m_containerData);
+		base.ClearUpdateMask(remove);
+	}
 
-            return null;
-        }
+	public bool IsEmpty()
+	{
+		for (var i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] != null)
+				return false;
 
-        public uint GetBagSize() { return m_containerData.NumSlots; }
-        void SetBagSize(uint numSlots) { SetUpdateFieldValue(m_values.ModifyValue(m_containerData).ModifyValue(m_containerData.NumSlots), numSlots); }
+		return true;
+	}
 
-        void SetSlot(int slot, ObjectGuid guid) { SetUpdateFieldValue(ref m_values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid); }
+	public Item GetItemByPos(byte slot)
+	{
+		if (slot < GetBagSize())
+			return m_bagslot[slot];
 
-        readonly ContainerData m_containerData;
-        Item[] m_bagslot = new Item[36];
+		return null;
+	}
 
-        class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-        {
-            readonly Bag Owner;
-            readonly ObjectFieldData ObjectMask = new();
-            readonly ItemData ItemMask = new();
-            readonly ContainerData ContainerMask = new();
+	public uint GetBagSize()
+	{
+		return m_containerData.NumSlots;
+	}
 
-            public ValuesUpdateForPlayerWithMaskSender(Bag owner)
-            {
-                Owner = owner;
-            }
+	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
+	{
+		var flags = GetUpdateFieldFlagsFor(target);
+		UpdateMask valuesMask = new((int)TypeId.Max);
 
-            public void Invoke(Player player)
-            {
-                UpdateData udata = new(Owner.Location.GetMapId());
+		if (requestedObjectMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Object);
 
-                Owner.BuildValuesUpdateForPlayerWithMask(udata, ObjectMask.GetUpdateMask(), ItemMask.GetUpdateMask(), ContainerMask.GetUpdateMask(), player);
+		ItemData.FilterDisallowedFieldsMaskForFlag(requestedItemMask, flags);
 
-                udata.BuildPacket(out UpdateObject packet);
-                player.SendPacket(packet);
-            }
-        }
-    }
+		if (requestedItemMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Item);
+
+		if (requestedContainerMask.IsAnySet())
+			valuesMask.Set((int)TypeId.Container);
+
+		WorldPacket buffer = new();
+		buffer.WriteUInt32(valuesMask.GetBlock(0));
+
+		if (valuesMask[(int)TypeId.Object])
+			ObjectData.WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+		if (valuesMask[(int)TypeId.Item])
+			ItemData.WriteUpdate(buffer, requestedItemMask, true, this, target);
+
+		if (valuesMask[(int)TypeId.Container])
+			m_containerData.WriteUpdate(buffer, requestedContainerMask, true, this, target);
+
+		WorldPacket buffer1 = new();
+		buffer1.WriteUInt8((byte)UpdateType.Values);
+		buffer1.WritePackedGuid(GetGUID());
+		buffer1.WriteUInt32(buffer.GetSize());
+		buffer1.WriteBytes(buffer.GetData());
+
+		data.AddUpdateBlock(buffer1);
+	}
+
+	byte GetSlotByItemGUID(ObjectGuid guid)
+	{
+		for (byte i = 0; i < GetBagSize(); ++i)
+			if (m_bagslot[i] != null)
+				if (m_bagslot[i].GetGUID() == guid)
+					return i;
+
+		return ItemConst.NullSlot;
+	}
+
+	void SetBagSize(uint numSlots)
+	{
+		SetUpdateFieldValue(Values.ModifyValue(m_containerData).ModifyValue(m_containerData.NumSlots), numSlots);
+	}
+
+	void SetSlot(int slot, ObjectGuid guid)
+	{
+		SetUpdateFieldValue(ref Values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid);
+	}
 }

@@ -19,7 +19,7 @@ namespace Game
                 return;
 
             GetPlayer().ValidateMovementInfo(packet.Status);
-            GetPlayer().m_movementInfo = packet.Status;
+            GetPlayer().MovementInfo = packet.Status;
 
             GetPlayer().ExitVehicle();
         }
@@ -80,7 +80,7 @@ namespace Game
             if (vehicle_base.GetGUID() != packet.Status.Guid)
                 return;
 
-            vehicle_base.m_movementInfo = packet.Status;
+            vehicle_base.MovementInfo = packet.Status;
 
             if (packet.DstVehicle.IsEmpty())
                 GetPlayer().ChangeSeat(-1, packet.DstSeatIndex != 255);

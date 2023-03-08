@@ -138,7 +138,7 @@ namespace Game
             if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) != (int)TraitCombatConfigFlags.None)
                 return;
 
-            long configCount = _player.m_activePlayerData.TraitConfigs._values.Count(traitConfig =>
+            long configCount = _player.ActivePlayerData.TraitConfigs.Values.Count(traitConfig =>
             {
                 return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat
                     && ((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags & TraitCombatConfigFlags.ActiveForSpec) == TraitCombatConfigFlags.None;
@@ -149,7 +149,7 @@ namespace Game
             int findFreeLocalIdentifier()
             {
                 int index = 1;
-                while (_player.m_activePlayerData.TraitConfigs.FindIndexIf(traitConfig =>
+                while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig =>
                 {
                     return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat
                         && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization()
@@ -220,7 +220,7 @@ namespace Game
                 TraitConfigPacket newConfigState = new(traitConfig);
 
                 int freeLocalIdentifier = 1;
-                while (_player.m_activePlayerData.TraitConfigs.FindIndexIf(traitConfig =>
+                while (_player.ActivePlayerData.TraitConfigs.FindIndexIf(traitConfig =>
                 {
                     return (TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat
                         && traitConfig.ChrSpecializationID == _player.GetPrimarySpecialization()

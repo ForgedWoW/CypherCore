@@ -750,7 +750,7 @@ namespace Game
                         // We use current coords to unspawn, not spawn coords since creature can have changed grid
                         if (spawns.GetMap().IsGridLoaded(data.SpawnPoint))
                         {
-                            GameObject go = GameObject.CreateGameObjectFromDB(obj.guid, spawns.GetMap(), false);
+                            GameObject go = GameObject.CreateGameObjectFromDb(obj.guid, spawns.GetMap(), false);
                             if (go && go.IsSpawnedByDefault())
                                 if (!spawns.GetMap().AddToMap(go))
                                     go.Dispose();

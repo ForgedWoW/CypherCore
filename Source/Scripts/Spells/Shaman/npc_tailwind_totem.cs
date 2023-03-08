@@ -20,7 +20,7 @@ namespace Scripts.Spells.Shaman
 		{
 			var time = TimeSpan.FromSeconds(1);
 
-			me.m_Events.AddRepeatEventAtOffset(() =>
+			me.Events.AddRepeatEventAtOffset(() =>
 			                                   {
 				                                   me.CastSpell(me, TotemSpells.TOTEM_TAIL_WIND_EFFECT, true);
 

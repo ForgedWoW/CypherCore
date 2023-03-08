@@ -19,9 +19,9 @@ public class spell_feral_frenzy : SpellScript
 
 		_strikes = 0;
 
-		var strikeDamage = 100 / 20 + caster.m_unitData.AttackPower;
+		var strikeDamage = 100 / 20 + caster.UnitData.AttackPower;
 
-		caster.m_Events.AddRepeatEventAtOffset(() =>
+		caster.Events.AddRepeatEventAtOffset(() =>
 		                                       {
 			                                       if (caster.GetDistance2d(target) <= 5.0f)
 			                                       {
@@ -34,7 +34,7 @@ public class spell_feral_frenzy : SpellScript
 				                                       else if (this._strikes == 5)
 				                                       {
 					                                       caster.CastSpell(target, DruidSpells.FERAL_FRENZY_BLEED, true);
-					                                       var bleedDamage = 100 / 10 + caster.m_unitData.AttackPower;
+					                                       var bleedDamage = 100 / 10 + caster.UnitData.AttackPower;
 				                                       }
 			                                       }
 

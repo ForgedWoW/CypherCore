@@ -42,10 +42,10 @@ internal class spell_gen_mount_check_aura : AuraScript, IHasAuraEffects
 			if (summonedData != null)
 			{
 				if (summoner.IsFlying() &&
-				    summonedData.FlyingMountDisplayID.HasValue)
-					mountDisplayId = summonedData.FlyingMountDisplayID.Value;
-				else if (summonedData.GroundMountDisplayID.HasValue)
-					mountDisplayId = summonedData.GroundMountDisplayID.Value;
+				    summonedData.FlyingMountDisplayId.HasValue)
+					mountDisplayId = summonedData.FlyingMountDisplayId.Value;
+				else if (summonedData.GroundMountDisplayId.HasValue)
+					mountDisplayId = summonedData.GroundMountDisplayId.Value;
 			}
 		}
 

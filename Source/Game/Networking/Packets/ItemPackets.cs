@@ -867,7 +867,7 @@ namespace Game.Networking.Packets
                 ItemBonus.Context = item.GetContext();
             }
 
-            foreach (var mod in item.m_itemData.Modifiers.GetValue().Values)
+            foreach (var mod in item.ItemData.Modifiers.GetValue().Values)
                 Modifications.Values.Add(new ItemMod(mod.Value, (ItemModifier)mod.Type));
         }
 

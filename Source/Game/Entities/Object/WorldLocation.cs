@@ -5,81 +5,88 @@ using System.Collections.Generic;
 using Game.DataStorage;
 using Game.Maps;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class WorldLocation : Position
 {
-    public class WorldLocation : Position
-    {
-        uint _mapId;
-        Cell _currentCell;
-        public ObjectCellMoveState MoveState { get; set; }
+	Cell _currentCell;
 
-        public Position NewPosition { get; set; } = new();
+	public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
+	{
+		MapId = mapId;
+		Relocate(x, y, z, o);
+	}
 
-        public WorldLocation(uint mapId = 0xFFFFFFFF, float x = 0, float y = 0, float z = 0, float o = 0)
-        {
-            _mapId = mapId;
-            Relocate(x, y, z, o);
-        }
-        public WorldLocation(uint mapId, Position pos)
-        {
-            _mapId = mapId;
-            Relocate(pos);
-        }
-        public WorldLocation(WorldLocation loc)
-        {
-            _mapId = loc._mapId;
-            Relocate(loc);
-        }
-        public WorldLocation(Position pos)
-        {
-            _mapId = 0xFFFFFFFF;
-            Relocate(pos);
-        }
+	public WorldLocation(uint mapId, Position pos)
+	{
+		MapId = mapId;
+		Relocate(pos);
+	}
 
-        public void WorldRelocate(uint mapId, Position pos)
-        {
-            _mapId = mapId;
-            Relocate(pos);
-        }
-        
-        public void WorldRelocate(WorldLocation loc)
-        {
-            _mapId = loc._mapId;
-            Relocate(loc);
-        }
+	public WorldLocation(WorldLocation loc)
+	{
+		MapId = loc.MapId;
+		Relocate(loc);
+	}
 
-        public void WorldRelocate(uint mapId = 0xFFFFFFFF, float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f)
-        {
-            _mapId = mapId;
-            Relocate(x, y, z, o);
-        }
+	public WorldLocation(Position pos)
+	{
+		MapId = 0xFFFFFFFF;
+		Relocate(pos);
+	}
 
-        public uint GetMapId() { return _mapId; }
-        public void SetMapId(uint mapId) { _mapId = mapId; }
+	public ObjectCellMoveState MoveState { get; set; }
 
-        public Cell GetCurrentCell()
-        {
-            if (_currentCell == null)
-                Log.outError(LogFilter.Server, "Calling currentCell  but its null");
+	public Position NewPosition { get; set; } = new();
 
-            return _currentCell;
-        }
-        public void SetCurrentCell(Cell cell) { _currentCell = cell; }
-        public void SetNewCellPosition(float x, float y, float z, float o)
-        {
-            MoveState = ObjectCellMoveState.Active;
-            NewPosition.Relocate(x, y, z, o);
-        }
+	public uint MapId { get; set; }
 
-        public virtual string GetDebugInfo()
-        {
-            var mapEntry = CliDB.MapStorage.LookupByKey(_mapId);
-            return $"MapID: {_mapId} Map name: '{(mapEntry != null ? mapEntry.MapName[Global.WorldMgr.GetDefaultDbcLocale()] : "<not found>")}' {base.ToString()}";
-        }
-        
-        public override string ToString()
-        {
-            return $"X: {X} Y: {Y} Z: {Z} O: {Orientation} MapId: {_mapId}";
-        }
-    }
+	public void WorldRelocate(uint mapId, Position pos)
+	{
+		MapId = mapId;
+		Relocate(pos);
+	}
+
+	public void WorldRelocate(WorldLocation loc)
+	{
+		MapId = loc.MapId;
+		Relocate(loc);
+	}
+
+	public void WorldRelocate(uint mapId = 0xFFFFFFFF, float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f)
+	{
+		MapId = mapId;
+		Relocate(x, y, z, o);
+	}
+
+	public Cell GetCurrentCell()
+	{
+		if (_currentCell == null)
+			Log.outError(LogFilter.Server, "Calling currentCell  but its null");
+
+		return _currentCell;
+	}
+
+	public void SetCurrentCell(Cell cell)
+	{
+		_currentCell = cell;
+	}
+
+	public void SetNewCellPosition(float x, float y, float z, float o)
+	{
+		MoveState = ObjectCellMoveState.Active;
+		NewPosition.Relocate(x, y, z, o);
+	}
+
+	public virtual string GetDebugInfo()
+	{
+		var mapEntry = CliDB.MapStorage.LookupByKey(MapId);
+
+		return $"MapID: {MapId} Map name: '{(mapEntry != null ? mapEntry.MapName[Global.WorldMgr.GetDefaultDbcLocale()] : "<not found>")}' {base.ToString()}";
+	}
+
+	public override string ToString()
+	{
+		return $"X: {X} Y: {Y} Z: {Z} O: {Orientation} MapId: {MapId}";
+	}
 }

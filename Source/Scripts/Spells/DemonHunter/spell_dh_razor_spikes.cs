@@ -37,7 +37,7 @@ public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
 				return false;
 
 			if (caster.HasAura(DemonHunterSpells.DEMON_SPIKES_BUFF))
-				caster.m_Events.AddEventAtOffset(() => { caster.CastSpell(target, DemonHunterSpells.RAZOR_SPIKES_SLOW, true); }, TimeSpan.FromMilliseconds(750));
+				caster.Events.AddEventAtOffset(() => { caster.CastSpell(target, DemonHunterSpells.RAZOR_SPIKES_SLOW, true); }, TimeSpan.FromMilliseconds(750));
 
 			return true;
 		}

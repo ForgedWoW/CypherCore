@@ -60,8 +60,8 @@ namespace Scripts.Spells.Warlock
 				modOwner.ApplySpellMod(GetSpellInfo(), SpellModOp.PowerCost0, ref damage);
 
 			SpellNonMeleeDamage damageInfo = new(caster, caster, GetSpellInfo(), GetAura().GetSpellVisual(), GetSpellInfo().SchoolMask, GetAura().GetCastId());
-			damageInfo.periodicLog = true;
-			damageInfo.damage      = damage;
+			damageInfo.PeriodicLog = true;
+			damageInfo.Damage      = damage;
 			caster.DealSpellDamage(damageInfo, false);
 			caster.SendSpellNonMeleeDamageLog(damageInfo);
 		}

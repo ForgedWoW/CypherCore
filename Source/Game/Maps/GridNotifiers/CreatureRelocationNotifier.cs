@@ -41,7 +41,7 @@ public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPl
 		{
 			var player = objs[i];
 
-			if (!player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+			if (!player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
 				player.UpdateVisibilityOf(_creature);
 
 			NotifierHelpers.CreatureUnitRelocationWorker(_creature, player);

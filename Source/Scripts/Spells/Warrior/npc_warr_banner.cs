@@ -49,7 +49,7 @@ namespace Scripts.Spells.Warrior
 							if (!targets.HasAura(WarriorSpells.WAR_BANNER_BUFF))
 								targets.AddAura(WarriorSpells.WAR_BANNER_BUFF, targets);
 
-							targets.m_Events.AddEventAtOffset(() =>
+							targets.Events.AddEventAtOffset(() =>
 							                                  {
 								                                  if (!targets)
 									                                  return;

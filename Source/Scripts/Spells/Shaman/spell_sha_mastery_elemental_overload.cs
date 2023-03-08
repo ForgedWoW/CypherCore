@@ -75,7 +75,7 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 		var overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo().Id);
 		var originalCastId  = procInfo.GetProcSpell().m_castId;
 
-		caster.m_Events.AddEventAtOffset(() =>
+		caster.Events.AddEventAtOffset(() =>
 		                                 {
 			                                 if (targets.Targets == null)
 				                                 return;

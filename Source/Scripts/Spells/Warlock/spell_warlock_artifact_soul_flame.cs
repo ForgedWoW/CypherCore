@@ -26,7 +26,7 @@ namespace Scripts.Spells.Warlock
 				return;
 
 			var p = target.Location;
-			caster.m_Events.AddEvent(() => { caster.CastSpell(p, WarlockSpells.SOUL_FLAME_PROC, true); }, TimeSpan.FromMilliseconds(300));
+			caster.Events.AddEvent(() => { caster.CastSpell(p, WarlockSpells.SOUL_FLAME_PROC, true); }, TimeSpan.FromMilliseconds(300));
 		}
 
 		public override void Register()

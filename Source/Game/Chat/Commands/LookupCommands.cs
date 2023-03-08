@@ -606,7 +606,7 @@ namespace Game.Chat
 
                         string knownStr = target && target.HasTitle(titleInfo) ? handler.GetCypherString(CypherStrings.Known) : "";
 
-                        string activeStr = target && target.m_playerData.PlayerTitle == titleInfo.MaskID
+                        string activeStr = target && target.PlayerData.PlayerTitle == titleInfo.MaskID
                             ? handler.GetCypherString(CypherStrings.Active) : "";
 
                         string titleNameStr = string.Format(name.ConvertFormatSyntax(), targetName);
@@ -1024,7 +1024,7 @@ namespace Game.Chat
                                 if (handler.GetSession() != null)
                                 {
                                     int maxLevel = 0;
-                                    var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().m_playerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                                    var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                                     if (questLevels.HasValue)
                                         maxLevel = questLevels.Value.MaxLevel;
 
@@ -1087,7 +1087,7 @@ namespace Game.Chat
                         if (handler.GetSession() != null)
                         {
                             int maxLevel = 0;
-                            var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().m_playerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                            var questLevels = Global.DB2Mgr.GetContentTuningData(qInfo.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                             if (questLevels.HasValue)
                                 maxLevel = questLevels.Value.MaxLevel;
 
@@ -1155,7 +1155,7 @@ namespace Game.Chat
                     if (handler.GetSession())
                     {
                         int maxLevel = 0;
-                        var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.GetSession().GetPlayer().m_playerData.CtrOptions.GetValue().ContentTuningConditionMask);
+                        var questLevels = Global.DB2Mgr.GetContentTuningData(quest.ContentTuningId, handler.GetSession().GetPlayer().PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
                         if (questLevels.HasValue)
                             maxLevel = questLevels.Value.MaxLevel;
 

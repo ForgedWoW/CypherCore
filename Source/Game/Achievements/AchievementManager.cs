@@ -64,7 +64,7 @@ namespace Game.Achievements
                 return false;
             }
 
-            if (achievement.InstanceID != -1 && referencePlayer.Location.GetMapId() != achievement.InstanceID)
+            if (achievement.InstanceID != -1 && referencePlayer.Location.MapId != achievement.InstanceID)
             {
                 Log.outTrace(LogFilter.Achievement, "CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong map",
                     criteria.Id, criteria.Entry.Type, achievement.Id);
@@ -84,7 +84,7 @@ namespace Game.Achievements
                 if (referencePlayer.GetSession().HasPermission(RBACPermissions.CannotEarnRealmFirstAchievements))
                     return false;
 
-            if (achievement.CovenantID != 0 && referencePlayer.m_playerData.CovenantID != achievement.CovenantID)
+            if (achievement.CovenantID != 0 && referencePlayer.PlayerData.CovenantID != achievement.CovenantID)
             {
                 Log.outTrace(LogFilter.Achievement, $"CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Achievement {achievement.Id}) Wrong covenant");
                 return false;

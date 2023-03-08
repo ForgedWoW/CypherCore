@@ -89,11 +89,11 @@ namespace Game.Chat
 
                     if (map.IsRaid())
                     {
-                        _player.SetRaidDifficultyID(target.GetRaidDifficultyID());
-                        _player.SetLegacyRaidDifficultyID(target.GetLegacyRaidDifficultyID());
+                        _player.SetRaidDifficultyId(target.GetRaidDifficultyId());
+                        _player.SetLegacyRaidDifficultyId(target.GetLegacyRaidDifficultyId());
                     }
                     else
-                        _player.SetDungeonDifficultyID(target.GetDungeonDifficultyID());
+                        _player.SetDungeonDifficultyId(target.GetDungeonDifficultyId());
                 }
 
                 handler.SendSysMessage(CypherStrings.AppearingAt, chrNameLink);
@@ -108,7 +108,7 @@ namespace Game.Chat
                 var pos = new Position();
                 target.GetClosePoint(pos, _player.GetCombatReach(), 1.0f);
                 pos.Orientation = _player.Location.GetAbsoluteAngle(target.Location);
-                _player.TeleportTo(target.Location.GetMapId(), pos, TeleportToOptions.GMMode, target.GetInstanceId());
+                _player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(_player, target);
                 _player.UpdateObjectVisibility();
             }
@@ -331,8 +331,8 @@ namespace Game.Chat
                 return false;
 
             SpellNonMeleeDamage damageInfo = new(attacker, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(attacker), 0), spellInfo.SchoolMask);
-            damageInfo.damage = damage_;
-            Unit.DealDamageMods(damageInfo.attacker, damageInfo.target, ref damageInfo.damage, ref damageInfo.absorb);
+            damageInfo.Damage = damage_;
+            Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
             target.DealSpellDamage(damageInfo, true);
             target.SendSpellNonMeleeDamageLog(damageInfo);
             return true;
@@ -620,7 +620,7 @@ namespace Game.Chat
             Cell cell = new(cellCoord);
 
             obj.GetZoneAndAreaId(out uint zoneId, out uint areaId);
-            uint mapId = obj.Location.GetMapId();
+            uint mapId = obj.Location.MapId;
 
             MapRecord mapEntry = CliDB.MapStorage.LookupByKey(mapId);
             AreaTableRecord zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
@@ -643,7 +643,7 @@ namespace Game.Chat
 
             bool haveMap = TerrainInfo.ExistMap(mapId, gridX, gridY);
             bool haveVMap = TerrainInfo.ExistVMap(mapId, gridX, gridY);
-            bool haveMMap = (Global.DisableMgr.IsPathfindingEnabled(mapId) && Global.MMapMgr.GetNavMesh(handler.GetSession().GetPlayer().Location.GetMapId()) != null);
+            bool haveMMap = (Global.DisableMgr.IsPathfindingEnabled(mapId) && Global.MMapMgr.GetNavMesh(handler.GetSession().GetPlayer().Location.MapId) != null);
 
             if (haveVMap)
             {
@@ -1261,7 +1261,7 @@ namespace Game.Chat
                 raceid = target.GetRace();
                 classid = target.GetClass();
                 muteTime = target.GetSession().m_muteTime;
-                mapId = target.Location.GetMapId();
+                mapId = target.Location.MapId;
                 areaId = target.GetAreaId();
                 alive = target.IsAlive() ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No);
                 gender = target.GetNativeGender();
@@ -1782,7 +1782,7 @@ namespace Game.Chat
                         targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.GetLeaderGUID());
 
                     // check if far teleport is allowed
-                    if (targetGroupLeader == null || (targetGroupLeader.Location.GetMapId() != map.GetId()) || (targetGroupLeader.GetInstanceId() != map.GetInstanceId()))
+                    if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.GetId()) || (targetGroupLeader.GetInstanceId() != map.GetInstanceId()))
                     {
                         if ((targetMap.GetId() != map.GetId()) || (targetMap.GetInstanceId() != map.GetInstanceId()))
                         {
@@ -1813,7 +1813,7 @@ namespace Game.Chat
                 var pos = new Position();
                 _player.GetClosePoint(pos, target.GetCombatReach());
                 pos.Orientation = target.Location.Orientation;
-                target.TeleportTo(_player.Location.GetMapId(), pos, 0, map.GetInstanceId());
+                target.TeleportTo(_player.Location.MapId, pos, 0, map.GetInstanceId());
                 PhasingHandler.InheritPhaseShift(target, _player);
                 target.UpdateObjectVisibility();
             }
@@ -1828,7 +1828,7 @@ namespace Game.Chat
                 handler.SendSysMessage(CypherStrings.Summoning, nameLink, handler.GetCypherString(CypherStrings.Offline));
 
                 // in point where GM stay
-                Player.SavePositionInDB(new WorldLocation(_player.Location.GetMapId(), _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.GetZoneId(), targetGuid);
+                Player.SavePositionInDB(new WorldLocation(_player.Location.MapId, _player.Location.X, _player.Location.Y, _player.Location.Z, _player.Location.Orientation), _player.GetZoneId(), targetGuid);
             }
 
             return true;
@@ -2015,7 +2015,7 @@ namespace Game.Chat
                 Player caster = handler.GetSession().GetPlayer();
                 if (caster)
                 {
-                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.GetMapId(), SPELL_UNSTUCK_ID, player.GetMap().GenerateLowGuid(HighGuid.Cast));
+                    ObjectGuid castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, player.Location.MapId, SPELL_UNSTUCK_ID, player.GetMap().GenerateLowGuid(HighGuid.Cast));
                     Spell.SendCastResult(caster, spellInfo, new Networking.Packets.SpellCastVisual(SPELL_UNSTUCK_VISUAL, 0), castId, SpellCastResult.CantDoThatRightNow);
                 }
 
@@ -2197,7 +2197,7 @@ namespace Game.Chat
             {
                 foreach (var posCount in dest)
                 {
-                    Item item1 = player.GetItemByPos(posCount.pos);
+                    Item item1 = player.GetItemByPos(posCount.Pos);
                     if (item1)
                         item1.SetBinding(false);
                 }
@@ -2435,7 +2435,7 @@ namespace Game.Chat
             {
                 foreach (var itemPostCount in dest)
                 {
-                    Item item1 = player.GetItemByPos(itemPostCount.pos);
+                    Item item1 = player.GetItemByPos(itemPostCount.Pos);
                     if (item1 != null)
                         item1.SetBinding(false);
                 }

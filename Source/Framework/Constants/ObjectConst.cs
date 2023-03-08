@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+
 namespace Framework.Constants
 {
     public enum TypeId
@@ -22,6 +24,7 @@ namespace Framework.Constants
         Max = 14
     }
 
+    [Flags]
     public enum TypeMask
     {
         Object = 0x01,

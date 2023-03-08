@@ -58,13 +58,13 @@ namespace Game
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.PlayerWrongFaction);
                 return;
             }
-            if (invitingPlayer.GetInstanceId() != 0 && invitedPlayer.GetInstanceId() != 0 && invitingPlayer.GetInstanceId() != invitedPlayer.GetInstanceId() && invitingPlayer.Location.GetMapId() == invitedPlayer.Location.GetMapId())
+            if (invitingPlayer.GetInstanceId() != 0 && invitedPlayer.GetInstanceId() != 0 && invitingPlayer.GetInstanceId() != invitedPlayer.GetInstanceId() && invitingPlayer.Location.MapId == invitedPlayer.Location.MapId)
             {
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.TargetNotInInstanceS);
                 return;
             }
             // just ignore us
-            if (invitedPlayer.GetInstanceId() != 0 && invitedPlayer.GetDungeonDifficultyID() != invitingPlayer.GetDungeonDifficultyID())
+            if (invitedPlayer.GetInstanceId() != 0 && invitedPlayer.GetDungeonDifficultyId() != invitingPlayer.GetDungeonDifficultyId())
             {
                 SendPartyResult(PartyOperation.Invite, invitedPlayer.GetName(), PartyResult.IgnoringYouS);
                 return;

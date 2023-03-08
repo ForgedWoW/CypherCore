@@ -47,7 +47,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 				var caster = Global.ObjAccessor.FindPlayer(guid);
 
 				if (caster != null)
-					if (caster.m_activePlayerData.FarsightObject == dynamicObject.GetGUID())
+					if (caster.ActivePlayerData.FarsightObject == dynamicObject.GetGUID())
 						BuildPacket(caster);
 			}
 		}

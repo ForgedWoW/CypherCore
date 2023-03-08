@@ -55,7 +55,7 @@ public class spell_dh_fel_rush_damage : SpellScript, IHasSpellEffects, ISpellOnH
 	{
 		if (GetCaster() && GetHitUnit())
 		{
-			var attackPower = GetCaster().m_unitData.AttackPower / 100 * 25.3f;
+			var attackPower = GetCaster().UnitData.AttackPower / 100 * 25.3f;
 			SetHitDamage(attackPower);
 		}
 	}

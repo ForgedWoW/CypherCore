@@ -664,7 +664,7 @@ namespace Game.Chat
                 else
                 {
                     MoveUpdate moveUpdate = new();
-                    moveUpdate.Status = target.m_movementInfo;
+                    moveUpdate.Status = target.MovementInfo;
                     target.SendMessageToSet(moveUpdate, true);
                 }
 
@@ -704,7 +704,7 @@ namespace Game.Chat
                 foreach (var pair in Global.ObjectMgr.GetWorldSafeLocs())
                 {
                     var worldSafe = pair.Value;
-                    if (worldSafe.Loc.GetMapId() == player.Location.GetMapId())
+                    if (worldSafe.Loc.MapId == player.Location.MapId)
                     {
                         float dist = (worldSafe.Loc.X - x) * (worldSafe.Loc.X - x) + (worldSafe.Loc.Y - y) * (worldSafe.Loc.Y - y) + (worldSafe.Loc.Z - z) * (worldSafe.Loc.Z - z);
                         if (dist < distNearest)

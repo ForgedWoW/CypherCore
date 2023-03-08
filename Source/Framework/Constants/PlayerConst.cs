@@ -349,6 +349,7 @@ namespace Framework.Constants
         FallToVoid = 6                                 // custom case for fall without durability loss
     }
 
+    [Flags]
     public enum PlayerUnderwaterState
     {
         None = 0x00,
@@ -707,6 +708,7 @@ namespace Framework.Constants
         NoKill = 1
     }
 
+    [Flags]
     public enum HeirloomPlayerFlags
     {
         None = 0x00,

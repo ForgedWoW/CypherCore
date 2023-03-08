@@ -27,7 +27,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 			var creature = objs[i];
 
 			foreach (var visionPlayer in creature.GetSharedVisionList())
-				if (visionPlayer.seerView == creature)
+				if (visionPlayer.SeerView == creature)
 					visionPlayer.UpdateVisibilityOf(_objects);
 		}
 	}
@@ -43,7 +43,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 			{
 				var pl = caster.ToPlayer();
 
-				if (pl && pl.seerView == dynamicObject)
+				if (pl && pl.SeerView == dynamicObject)
 					pl.UpdateVisibilityOf(_objects);
 			}
 		}
@@ -58,7 +58,7 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 			player.UpdateVisibilityOf(_objects);
 
 			foreach (var visionPlayer in player.GetSharedVisionList())
-				if (visionPlayer.seerView == player)
+				if (visionPlayer.SeerView == player)
 					visionPlayer.UpdateVisibilityOf(_objects);
 		}
 	}

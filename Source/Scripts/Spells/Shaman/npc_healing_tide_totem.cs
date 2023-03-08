@@ -20,7 +20,7 @@ namespace Scripts.Spells.Shaman
 		{
 			var time = TimeSpan.FromMilliseconds(1900);
 
-			me.m_Events.AddRepeatEventAtOffset(() =>
+			me.Events.AddRepeatEventAtOffset(() =>
 			                                   {
 				                                   me.CastSpell(me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
 

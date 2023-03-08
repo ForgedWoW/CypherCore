@@ -5,85 +5,85 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Achievements;
 using Game.DataStorage;
-using Game.Guilds;
-using Game.Scenarios;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public partial class Player
 {
-    public partial class Player
-    {
-        public void ResetAchievements()
-        {
-            m_achievementSys.Reset();
-        }
+	public void ResetAchievements()
+	{
+		_AchievementSys.Reset();
+	}
 
-        public void SendRespondInspectAchievements(Player player)
-        {
-            m_achievementSys.SendAchievementInfo(player);
-        }
+	public void SendRespondInspectAchievements(Player player)
+	{
+		_AchievementSys.SendAchievementInfo(player);
+	}
 
-        public uint GetAchievementPoints()
-        {
-            return m_achievementSys.GetAchievementPoints();
-        }
+	public uint GetAchievementPoints()
+	{
+		return _AchievementSys.GetAchievementPoints();
+	}
 
-        public ICollection<uint> GetCompletedAchievementIds()
-        {
-            return m_achievementSys.GetCompletedAchievementIds();
-        }
-        
-        public bool HasAchieved(uint achievementId)
-        {
-            return m_achievementSys.HasAchieved(achievementId);
-        }
-        public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
-        {
-            m_achievementSys.StartCriteriaTimer(startEvent, entry, timeLost);
-        }
+	public ICollection<uint> GetCompletedAchievementIds()
+	{
+		return _AchievementSys.GetCompletedAchievementIds();
+	}
 
-        public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
-        {
-            m_achievementSys.RemoveCriteriaTimer(startEvent, entry);
-        }
+	public bool HasAchieved(uint achievementId)
+	{
+		return _AchievementSys.HasAchieved(achievementId);
+	}
 
-        public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete = false)
-        {
-            m_achievementSys.ResetCriteria(failEvent, failAsset, evenIfCriteriaComplete);
-            m_questObjectiveCriteriaMgr.ResetCriteria(failEvent, failAsset, evenIfCriteriaComplete);
-        }
+	public void StartCriteriaTimer(CriteriaStartEvent startEvent, uint entry, uint timeLost = 0)
+	{
+		_AchievementSys.StartCriteriaTimer(startEvent, entry, timeLost);
+	}
 
-        public void UpdateCriteria(CriteriaType type, double miscValue1, double miscValue2 = 0, double miscValue3 = 0, WorldObject refe = null)
-        {
-            UpdateCriteria(type, (ulong)miscValue1, (ulong)miscValue2, (ulong)miscValue3, refe);
-        }
+	public void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint entry)
+	{
+		_AchievementSys.RemoveCriteriaTimer(startEvent, entry);
+	}
 
-        public void UpdateCriteria(CriteriaType type, ulong miscValue1 = 0, ulong miscValue2 = 0, ulong miscValue3 = 0, WorldObject refe = null)
-        {
-            m_achievementSys.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
-            m_questObjectiveCriteriaMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+	public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete = false)
+	{
+		_AchievementSys.ResetCriteria(failEvent, failAsset, evenIfCriteriaComplete);
+		_questObjectiveCriteriaManager.ResetCriteria(failEvent, failAsset, evenIfCriteriaComplete);
+	}
 
-            // Update only individual achievement criteria here, otherwise we may get multiple updates
-            // from a single boss kill
-            if (CriteriaManager.IsGroupCriteriaType(type))
-                return;
+	public void UpdateCriteria(CriteriaType type, double miscValue1, double miscValue2 = 0, double miscValue3 = 0, WorldObject refe = null)
+	{
+		UpdateCriteria(type, (ulong)miscValue1, (ulong)miscValue2, (ulong)miscValue3, refe);
+	}
 
-            Scenario scenario = GetScenario();
-            if (scenario != null)
-                scenario.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+	public void UpdateCriteria(CriteriaType type, ulong miscValue1 = 0, ulong miscValue2 = 0, ulong miscValue3 = 0, WorldObject refe = null)
+	{
+		_AchievementSys.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+		_questObjectiveCriteriaManager.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
 
-            Guild guild = Global.GuildMgr.GetGuildById(GetGuildId());
-            if (guild)
-                guild.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
-        }
+		// Update only individual achievement criteria here, otherwise we may get multiple updates
+		// from a single boss kill
+		if (CriteriaManager.IsGroupCriteriaType(type))
+			return;
 
-        public void CompletedAchievement(AchievementRecord entry)
-        {
-            m_achievementSys.CompletedAchievement(entry, this);
-        }
+		var scenario = GetScenario();
 
-        public bool ModifierTreeSatisfied(uint modifierTreeId)
-        {
-            return m_achievementSys.ModifierTreeSatisfied(modifierTreeId);
-        }
-    }
+		if (scenario != null)
+			scenario.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+
+		var guild = Global.GuildMgr.GetGuildById(GetGuildId());
+
+		if (guild)
+			guild.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
+	}
+
+	public void CompletedAchievement(AchievementRecord entry)
+	{
+		_AchievementSys.CompletedAchievement(entry, this);
+	}
+
+	public bool ModifierTreeSatisfied(uint modifierTreeId)
+	{
+		return _AchievementSys.ModifierTreeSatisfied(modifierTreeId);
+	}
 }

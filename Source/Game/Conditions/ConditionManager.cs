@@ -642,7 +642,7 @@ namespace Game
             var pMenuItemBounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(cond.SourceGroup);
             foreach (var gossipMenuItem in pMenuItemBounds)
             {
-                if (gossipMenuItem.MenuID == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
+                if (gossipMenuItem.MenuId == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
                 {
                     gossipMenuItem.Conditions.Add(cond);
                     return true;
@@ -1922,13 +1922,13 @@ namespace Game
             switch (status)
             {
                 case PlayerConditionLfgStatus.InLFGDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()) ? 1 : 0u;
+                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.MapId, player.GetMap().GetDifficultyID()) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()) &&
+                    return Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.MapId, player.GetMap().GetDifficultyID()) &&
                         Global.LFGMgr.SelectedRandomLfgDungeon(player.GetGUID()) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
                 {
-                    if (!Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.GetMapId(), player.GetMap().GetDifficultyID()))
+                    if (!Global.LFGMgr.InLfgDungeonMap(player.GetGUID(), player.Location.MapId, player.GetMap().GetDifficultyID()))
                         return 0;
 
                     uint selectedRandomDungeon = Global.LFGMgr.GetSelectedRandomDungeon(player.GetGUID());
@@ -1964,7 +1964,7 @@ namespace Game
 
         public static bool IsPlayerMeetingCondition(Player player, PlayerConditionRecord condition)
         {
-            ContentTuningLevels? levels = Global.DB2Mgr.GetContentTuningData(condition.ContentTuningID, player.m_playerData.CtrOptions.GetValue().ContentTuningConditionMask);
+            ContentTuningLevels? levels = Global.DB2Mgr.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
             if (levels.HasValue)
             {
                 byte minLevel = (byte)(condition.Flags.HasAnyFlag(0x800) ? levels.Value.MinLevelWithDelta : levels.Value.MinLevel);
@@ -2105,7 +2105,7 @@ namespace Game
             {
                 byte team;
                 if (player.GetMap().IsBattlegroundOrArena())
-                    team = player.m_playerData.ArenaFaction;
+                    team = player.PlayerData.ArenaFaction;
                 else
                     team = (byte)player.GetTeamId();
 
@@ -2113,10 +2113,10 @@ namespace Game
                     return false;
             }
 
-            if (condition.PvpMedal != 0 && !Convert.ToBoolean((1 << (condition.PvpMedal - 1)) & player.m_activePlayerData.PvpMedals))
+            if (condition.PvpMedal != 0 && !Convert.ToBoolean((1 << (condition.PvpMedal - 1)) & player.ActivePlayerData.PvpMedals))
                 return false;
 
-            if (condition.LifetimeMaxPVPRank != 0 && player.m_activePlayerData.LifetimeMaxRank != condition.LifetimeMaxPVPRank)
+            if (condition.LifetimeMaxPVPRank != 0 && player.ActivePlayerData.LifetimeMaxRank != condition.LifetimeMaxPVPRank)
                 return false;
 
             if (condition.MovementFlags[0] != 0 && !Convert.ToBoolean((uint)player.GetUnitMovementFlags() & condition.MovementFlags[0]))
@@ -2172,7 +2172,7 @@ namespace Game
                 {
                     uint questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(condition.PrevQuestID[i]);
                     if (questBit != 0)
-                        results[i] = (player.m_activePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) != 0;
+                        results[i] = (player.ActivePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) != 0;
                 }
 
                 if (!PlayerConditionLogic(condition.PrevQuestLogic, results))
@@ -2266,7 +2266,7 @@ namespace Game
                 {
                     AreaTableRecord area = CliDB.AreaTableStorage.LookupByKey(condition.Explored[i]);
                     if (area != null)
-                        if (area.AreaBit != -1 && !Convert.ToBoolean(player.m_activePlayerData.ExploredZones[area.AreaBit / ActivePlayerData.ExploredZonesBits] & (1ul << ((int)area.AreaBit % ActivePlayerData.ExploredZonesBits))))
+                        if (area.AreaBit != -1 && !Convert.ToBoolean(player.ActivePlayerData.ExploredZones[area.AreaBit / ActivePlayerData.ExploredZonesBits] & (1ul << ((int)area.AreaBit % ActivePlayerData.ExploredZonesBits))))
                             return false;
                 }
             }
@@ -2405,33 +2405,33 @@ namespace Game
                 }
             }
 
-            if (condition.MinAvgItemLevel != 0 && Math.Floor(player.m_playerData.AvgItemLevel[0]) < condition.MinAvgItemLevel)
+            if (condition.MinAvgItemLevel != 0 && Math.Floor(player.PlayerData.AvgItemLevel[0]) < condition.MinAvgItemLevel)
                 return false;
 
-            if (condition.MaxAvgItemLevel != 0 && Math.Floor(player.m_playerData.AvgItemLevel[0]) > condition.MaxAvgItemLevel)
+            if (condition.MaxAvgItemLevel != 0 && Math.Floor(player.PlayerData.AvgItemLevel[0]) > condition.MaxAvgItemLevel)
                 return false;
 
-            if (condition.MinAvgEquippedItemLevel != 0 && Math.Floor(player.m_playerData.AvgItemLevel[1]) < condition.MinAvgEquippedItemLevel)
+            if (condition.MinAvgEquippedItemLevel != 0 && Math.Floor(player.PlayerData.AvgItemLevel[1]) < condition.MinAvgEquippedItemLevel)
                 return false;
 
-            if (condition.MaxAvgEquippedItemLevel != 0 && Math.Floor(player.m_playerData.AvgItemLevel[1]) > condition.MaxAvgEquippedItemLevel)
+            if (condition.MaxAvgEquippedItemLevel != 0 && Math.Floor(player.PlayerData.AvgItemLevel[1]) > condition.MaxAvgEquippedItemLevel)
                 return false;
 
             if (condition.ModifierTreeID != 0 && !player.ModifierTreeSatisfied(condition.ModifierTreeID))
                 return false;
 
-            if (condition.CovenantID != 0 && player.m_playerData.CovenantID != condition.CovenantID)
+            if (condition.CovenantID != 0 && player.PlayerData.CovenantID != condition.CovenantID)
                 return false;
 
             if (condition.TraitNodeEntryID.Any(traitNodeEntryId => traitNodeEntryId != 0))
             {
                 var getTraitNodeEntryRank = ushort? (int traitNodeEntryId) =>
                 {
-                    foreach (var traitConfig in player.m_activePlayerData.TraitConfigs)
+                    foreach (var traitConfig in player.ActivePlayerData.TraitConfigs)
                     {
                         if ((TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat)
                         {
-                            if (player.m_activePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
+                            if (player.ActivePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
                                 || !((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
                                 continue;
                         }
@@ -2708,13 +2708,13 @@ namespace Game
                 case UnitConditionVariable.HasCritter:
                     return unit.GetCritterGUID().IsEmpty() ? 0 : 1;
                 case UnitConditionVariable.HasTotemInSlot1:
-                    return unit.m_SummonSlot[(int)SummonSlot.Totem].IsEmpty() ? 0 : 1;
+                    return unit.SummonSlot[(int)SummonSlot.Totem].IsEmpty() ? 0 : 1;
                 case UnitConditionVariable.HasTotemInSlot2:
-                    return unit.m_SummonSlot[(int)SummonSlot.Totem2].IsEmpty() ? 0 : 1;
+                    return unit.SummonSlot[(int)SummonSlot.Totem2].IsEmpty() ? 0 : 1;
                 case UnitConditionVariable.HasTotemInSlot3:
-                    return unit.m_SummonSlot[(int)SummonSlot.Totem3].IsEmpty() ? 0 : 1;
+                    return unit.SummonSlot[(int)SummonSlot.Totem3].IsEmpty() ? 0 : 1;
                 case UnitConditionVariable.HasTotemInSlot4:
-                    return unit.m_SummonSlot[(int)SummonSlot.Totem4].IsEmpty() ? 0 : 1;
+                    return unit.SummonSlot[(int)SummonSlot.Totem4].IsEmpty() ? 0 : 1;
                 case UnitConditionVariable.HasTotemInSlot5:
                     break;
                 case UnitConditionVariable.Creature:

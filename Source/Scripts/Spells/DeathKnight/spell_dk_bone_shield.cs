@@ -50,7 +50,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 			var thisPlayer = target.ToPlayer();
 
 			if (thisPlayer != null)
-				if (RandomHelper.randChance(thisPlayer.m_activePlayerData.SpellCritPercentage))
+				if (RandomHelper.randChance(thisPlayer.ActivePlayerData.SpellCritPercentage))
 					absorbPerc += aurEff.GetAmount();
 		}
 

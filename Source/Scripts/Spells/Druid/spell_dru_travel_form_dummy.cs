@@ -27,7 +27,7 @@ namespace Scripts.Spells.Druid
 
 			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, GetCastDifficulty());
 
-			return spellInfo.CheckLocation(player.Location.GetMapId(), player.GetZoneId(), player.GetAreaId(), player);
+			return spellInfo.CheckLocation(player.Location.MapId, player.GetZoneId(), player.GetAreaId(), player);
 		}
 	}
 }

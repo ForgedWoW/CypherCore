@@ -37,7 +37,7 @@ namespace Scripts.Pets
                         summon.UnSummon(TimeSpan.FromSeconds(avatar.GetEffect(0).Amount));
                 }
 
-                creature.m_Events.AddRepeatEventAtOffset(() =>
+                creature.Events.AddRepeatEventAtOffset(() =>
                 {
                     _owner.ModifyPower(PowerType.SoulShards, 1);
                     return _tickTime;

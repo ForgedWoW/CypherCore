@@ -47,7 +47,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 			// Send packet to all who are sharing the creature's vision
 			if (creature.HasSharedVision())
 				foreach (var visionPlayer in creature.GetSharedVisionList())
-					if (visionPlayer.seerView == creature)
+					if (visionPlayer.SeerView == creature)
 						SendPacket(visionPlayer);
 		}
 	}
@@ -71,7 +71,7 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 			{
 				var player = caster.ToPlayer();
 
-				if (player && player.seerView == dynamicObject)
+				if (player && player.SeerView == dynamicObject)
 					SendPacket(player);
 			}
 		}
@@ -94,10 +94,10 @@ public class MessageDistDeliverer<T> : IGridNotifierPlayer, IGridNotifierDynamic
 			// Send packet to all who are sharing the player's vision
 			if (player.HasSharedVision())
 				foreach (var visionPlayer in player.GetSharedVisionList())
-					if (visionPlayer.seerView == player)
+					if (visionPlayer.SeerView == player)
 						SendPacket(visionPlayer);
 
-			if (player.seerView == player || player.GetVehicle() != null)
+			if (player.SeerView == player || player.GetVehicle() != null)
 				SendPacket(player);
 		}
 	}

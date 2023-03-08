@@ -33,7 +33,7 @@ namespace Game
                 return;
             }
 
-            if (dest.Count == 1 && dest[0].pos == item.GetPos())
+            if (dest.Count == 1 && dest[0].Pos == item.GetPos())
             {
                 GetPlayer().SendEquipError(InventoryResult.CantSwap, item);
                 return;
@@ -184,7 +184,7 @@ namespace Game
                     break;
                 }
 
-                if (dest.Count == 1 && dest[0].pos == item.GetPos())
+                if (dest.Count == 1 && dest[0].Pos == item.GetPos())
                 {
                     _player.SendEquipError(InventoryResult.CantSwap, item);
                     continue;
@@ -224,7 +224,7 @@ namespace Game
                 return;
             }
 
-            if (dest.Count == 1 && dest[0].pos == item.GetPos())
+            if (dest.Count == 1 && dest[0].Pos == item.GetPos())
             {
                 _player.SendEquipError(InventoryResult.CantSwap, item);
                 return;

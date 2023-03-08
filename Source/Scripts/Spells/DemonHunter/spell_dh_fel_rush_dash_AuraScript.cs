@@ -21,7 +21,7 @@ public class spell_dh_fel_rush_dash_AuraScript : AuraScript, IHasAuraEffects
 		var caster = GetCaster();
 
 		if (caster != null)
-			caster.m_Events
+			caster.Events
 			      .AddEventAtOffset(() =>
 			                        {
 				                        if (!caster.HasAura(DemonHunterSpells.FEL_RUSH_AIR))

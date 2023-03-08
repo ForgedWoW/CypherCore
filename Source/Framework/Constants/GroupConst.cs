@@ -65,6 +65,7 @@ namespace Framework.Constants
         MaskBgRaid = FakeRaid | Raid
     }
 
+    [Flags]
     public enum GroupUpdateFlags
     {
         None = 0x00,       // nothing

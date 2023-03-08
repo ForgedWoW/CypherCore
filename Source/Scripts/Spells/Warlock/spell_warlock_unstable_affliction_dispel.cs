@@ -55,13 +55,13 @@ namespace Scripts.Spells.Warlock
 					caster.VariableStorage.Set("_uaLockout", 0);
 
 
-					caster.m_Events.AddEventAtOffset(() => { caster.VariableStorage.Remove("_uaLockout"); }, TimeSpan.FromMilliseconds(100));
+					caster.Events.AddEventAtOffset(() => { caster.VariableStorage.Remove("_uaLockout"); }, TimeSpan.FromMilliseconds(100));
 				}
 
 			// When Unstable Affliction expires, it has a 6% chance to reapply itself.
 			if (GetTargetApplication() != null && GetTargetApplication().GetRemoveMode() == AuraRemoveMode.Expire)
 				if (RandomHelper.randChance(caster.GetAuraEffectAmount(WarlockSpells.FATAL_ECHOES, 0)))
-					caster.m_Events.AddEventAtOffset(() => { caster.CastSpell(target, GetSpellInfo().Id, true); }, TimeSpan.FromMilliseconds(100));
+					caster.Events.AddEventAtOffset(() => { caster.CastSpell(target, GetSpellInfo().Id, true); }, TimeSpan.FromMilliseconds(100));
 		}
 
 		public override void Register()

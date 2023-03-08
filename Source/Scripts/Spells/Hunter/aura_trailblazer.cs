@@ -46,7 +46,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
 		}
 		else
 		{
-			caster.m_Events.ScheduleAbortOnFirstMatchingEvent(e =>
+			caster.Events.ScheduleAbortOnFirstMatchingEvent(e =>
 			{
 				if (e is DelayedCastEvent dce)
 					return dce.SpellId == HunterSpells.TRAILBLAZER_BUFF;
@@ -56,7 +56,7 @@ public class aura_trailblazer : AuraScript, IHasAuraEffects
 			    
 		}
 
-		caster.m_Events.AddEventAtOffset(_event, _ts);
+		caster.Events.AddEventAtOffset(_event, _ts);
 	}
 
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)

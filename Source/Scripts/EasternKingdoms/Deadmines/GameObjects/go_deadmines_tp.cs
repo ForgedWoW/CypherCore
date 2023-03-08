@@ -32,13 +32,13 @@ namespace Scripts.EasternKingdoms.Deadmines.GameObjects
             switch (action)
             {
                 case GossipAction.GOSSIP_ACTION_INFO_DEF:
-                    player.TeleportTo(player.Location.GetMapId(), -305.32f, -491.29f, 49.23f, 3.14f);
+                    player.TeleportTo(player.Location.MapId, -305.32f, -491.29f, 49.23f, 3.14f);
                     break;
                 case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
-                    player.TeleportTo(player.Location.GetMapId(), -201.09f, -606.04f, 19.30f, 3.14f);
+                    player.TeleportTo(player.Location.MapId, -201.09f, -606.04f, 19.30f, 3.14f);
                     break;
                 case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
-                    player.TeleportTo(player.Location.GetMapId(), -129.91f, -788.89f, 17.34f, 3.14f);
+                    player.TeleportTo(player.Location.MapId, -129.91f, -788.89f, 17.34f, 3.14f);
                     break;
             }
             return true;

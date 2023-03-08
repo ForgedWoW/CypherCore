@@ -133,7 +133,7 @@ namespace Game.Networking.Packets
             }
 
             byte i = 0;
-            foreach (SocketedGem gemData in item.m_itemData.Gems)
+            foreach (SocketedGem gemData in item.ItemData.Gems)
             {
                 if (gemData.ItemId != 0)
                 {
@@ -225,7 +225,7 @@ namespace Game.Networking.Packets
             Race = (byte)player.GetRace();
             ClassID = (byte)player.GetClass();
 
-            foreach (var customization in player.m_playerData.Customizations)
+            foreach (var customization in player.PlayerData.Customizations)
                 Customizations.Add(customization);
 
             for (byte i = 0; i < EquipmentSlot.End; ++i)

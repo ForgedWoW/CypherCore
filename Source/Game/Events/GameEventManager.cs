@@ -780,9 +780,9 @@ namespace Game
                             entry = data.Id;
 
                         VendorItem vItem = new();
-                        vItem.item = result.Read<uint>(2);
-                        vItem.maxcount = result.Read<uint>(3);
-                        vItem.incrtime = result.Read<uint>(4);
+                        vItem.Item = result.Read<uint>(2);
+                        vItem.Maxcount = result.Read<uint>(3);
+                        vItem.Incrtime = result.Read<uint>(4);
                         vItem.ExtendedCost = result.Read<uint>(5);
                         vItem.Type = (ItemVendorType)result.Read<byte>(6);
                         vItem.PlayerConditionId = result.Read<uint>(8);
@@ -1146,7 +1146,7 @@ namespace Game
                 if (activate)
                     Global.ObjectMgr.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
                 else
-                    Global.ObjectMgr.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.item, npcEventVendor.Value.Type, false);
+                    Global.ObjectMgr.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
             }
         }
 
@@ -1202,7 +1202,7 @@ namespace Game
                         // We use current coords to unspawn, not spawn coords since creature can have changed grid
                         if (map.IsGridLoaded(data.SpawnPoint))
                         {
-                            GameObject go = GameObject.CreateGameObjectFromDB(guid, map, false);
+                            GameObject go = GameObject.CreateGameObjectFromDb(guid, map, false);
                             // @todo find out when it is add to map
                             if (go)
                             {
@@ -1363,15 +1363,15 @@ namespace Game
                 CreatureData data2 = Global.ObjectMgr.NewOrExistCreatureData(tuple.Item1);
                 if (activate)
                 {
-                    tuple.Item2.modelid_prev = data2.displayid;
-                    tuple.Item2.equipement_id_prev = (byte)data2.equipmentId;
-                    data2.displayid = tuple.Item2.modelid;
-                    data2.equipmentId = (sbyte)tuple.Item2.equipment_id;
+                    tuple.Item2.modelid_prev = data2.Displayid;
+                    tuple.Item2.equipement_id_prev = (byte)data2.EquipmentId;
+                    data2.Displayid = tuple.Item2.modelid;
+                    data2.EquipmentId = (sbyte)tuple.Item2.equipment_id;
                 }
                 else
                 {
-                    data2.displayid = tuple.Item2.modelid_prev;
-                    data2.equipmentId = (sbyte)tuple.Item2.equipement_id_prev;
+                    data2.Displayid = tuple.Item2.modelid_prev;
+                    data2.EquipmentId = (sbyte)tuple.Item2.equipement_id_prev;
                 }
             }
         }

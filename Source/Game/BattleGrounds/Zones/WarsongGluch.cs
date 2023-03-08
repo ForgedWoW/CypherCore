@@ -189,7 +189,7 @@ namespace Game.BattleGrounds.Zones
             bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundWGScore(player.GetGUID(), player.GetBGTeam());
+                PlayerScores[player.GetGUID()] = new BattlegroundWGScore(player.GetGUID(), player.GetBgTeam());
         }
 
         void RespawnFlag(Team Team, bool captured)

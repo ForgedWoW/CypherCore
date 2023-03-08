@@ -108,21 +108,21 @@ namespace Game.Chat
             if (!uint.TryParse(pfactionid, out uint factionid))
             {
                 uint _factionid = target.GetFaction();
-                uint _flag = target.m_unitData.Flags;
-                ulong _npcflag = (ulong)target.m_unitData.NpcFlags[0] << 32 | target.m_unitData.NpcFlags[1];
-                uint _dyflag = target.m_objectData.DynamicFlags;
+                uint _flag = target.UnitData.Flags;
+                ulong _npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
+                uint _dyflag = target.ObjectData.DynamicFlags;
                 handler.SendSysMessage(CypherStrings.CurrentFaction, target.GetGUID().ToString(), _factionid, _flag, _npcflag, _dyflag);
                 return true;
             }
 
             if (!uint.TryParse(args.NextString(), out uint flag))
-                flag = target.m_unitData.Flags;
+                flag = target.UnitData.Flags;
 
             if (!ulong.TryParse(args.NextString(), out ulong npcflag))
-                npcflag = (ulong)target.m_unitData.NpcFlags[0] << 32 | target.m_unitData.NpcFlags[1];
+                npcflag = (ulong)target.UnitData.NpcFlags[0] << 32 | target.UnitData.NpcFlags[1];
 
             if (!uint.TryParse(args.NextString(), out uint dyflag))
-                dyflag = target.m_objectData.DynamicFlags;
+                dyflag = target.ObjectData.DynamicFlags;
 
             if (!CliDB.FactionTemplateStorage.ContainsKey(factionid))
             {
@@ -461,7 +461,7 @@ namespace Game.Chat
             if (visibleMapId != 0)
             {
                 MapRecord visibleMap = CliDB.MapStorage.LookupByKey(visibleMapId);
-                if (visibleMap == null || visibleMap.ParentMapID != target.Location.GetMapId())
+                if (visibleMap == null || visibleMap.ParentMapID != target.Location.MapId)
                 {
                     handler.SendSysMessage(CypherStrings.PhaseNotfound);
                     return false;

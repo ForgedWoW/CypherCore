@@ -40,7 +40,7 @@ namespace Game
             }
 
             // find taxi node
-            uint nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), player.GetTeam());
+            uint nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, player.GetTeam());
 
             TaxiNodeStatusPkt data = new();
             data.Unit = guid;
@@ -48,7 +48,7 @@ namespace Game
             if (nearest == 0)
                 data.Status = TaxiNodeStatus.None;
             else if (unit.GetReactionTo(player) >= ReputationRank.Neutral)
-                data.Status = player.m_taxi.IsTaximaskNodeKnown(nearest) ? TaxiNodeStatus.Learned : TaxiNodeStatus.Unlearned;
+                data.Status = player.Taxi.IsTaximaskNodeKnown(nearest) ? TaxiNodeStatus.Learned : TaxiNodeStatus.Unlearned;
             else
                 data.Status = TaxiNodeStatus.NotEligible;
 
@@ -81,7 +81,7 @@ namespace Game
         public void SendTaxiMenu(Creature unit)
         {
             // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, GetPlayer().GetTeam());
             if (curloc == 0)
                 return;
 
@@ -96,7 +96,7 @@ namespace Game
 
             data.WindowInfo = windowInfo;
 
-            GetPlayer().m_taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
+            GetPlayer().Taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
 
             byte[] reachableNodes = new byte[CliDB.TaxiNodesMask.Length];
             TaxiPathGraph.GetReachableNodesMask(CliDB.TaxiNodesStorage.LookupByKey(curloc), reachableNodes);
@@ -127,12 +127,12 @@ namespace Game
         public bool SendLearnNewTaxiNode(Creature unit)
         {
             // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, GetPlayer().GetTeam());
 
             if (curloc == 0)
                 return true;
 
-            if (GetPlayer().m_taxi.SetTaximaskNode(curloc))
+            if (GetPlayer().Taxi.SetTaximaskNode(curloc))
             {
                 SendPacket(new NewTaxiPath());
 
@@ -149,7 +149,7 @@ namespace Game
 
         public void SendDiscoverNewTaxiNode(uint nodeid)
         {
-            if (GetPlayer().m_taxi.SetTaximaskNode(nodeid))
+            if (GetPlayer().Taxi.SetTaximaskNode(nodeid))
                 SendPacket(new NewTaxiPath());
         }
 
@@ -164,7 +164,7 @@ namespace Game
                 return;
             }
 
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.GetMapId(), GetPlayer().GetTeam());
+            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, GetPlayer().GetTeam());
             if (curloc == 0)
                 return;
 
@@ -175,7 +175,7 @@ namespace Game
 
             if (!GetPlayer().IsTaxiCheater())
             {
-                if (!GetPlayer().m_taxi.IsTaximaskNodeKnown(curloc) || !GetPlayer().m_taxi.IsTaximaskNodeKnown(activateTaxi.Node))
+                if (!GetPlayer().Taxi.IsTaximaskNodeKnown(curloc) || !GetPlayer().Taxi.IsTaximaskNodeKnown(activateTaxi.Node))
                 {
                     SendActivateTaxiReply(ActivateTaxiReply.NotVisited);
                     return;
@@ -224,7 +224,7 @@ namespace Game
             FlightPathMovementGenerator flight = GetPlayer().GetMotionMaster().GetCurrentMovementGenerator() as FlightPathMovementGenerator;
             if (flight != null)
             {
-                if (GetPlayer().m_taxi.RequestEarlyLanding())
+                if (GetPlayer().Taxi.RequestEarlyLanding())
                 {
                     flight.LoadPath(GetPlayer(), (uint)flight.GetPath()[(int)flight.GetCurrentNode()].NodeIndex);
                     flight.Reset(GetPlayer());

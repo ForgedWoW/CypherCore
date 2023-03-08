@@ -26,7 +26,7 @@ public class spell_dk_defile_aura : AuraScript, IHasAuraEffects
 
 		var oneSec = TimeSpan.FromSeconds(1);
 
-		caster.m_Events.AddRepeatEventAtOffset(() =>
+		caster.Events.AddRepeatEventAtOffset(() =>
 		                                       {
 			                                       if (target == null || caster == null)
 				                                       return default;

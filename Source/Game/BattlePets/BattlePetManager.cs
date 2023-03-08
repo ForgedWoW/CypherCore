@@ -18,6 +18,7 @@ namespace Game.BattlePets
         public BattlePetMgr(WorldSession owner)
         {
             _owner = owner;
+
             for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
             {
                 BattlePetSlot slot = new();
@@ -169,7 +170,7 @@ namespace Game.BattlePets
                 {
                     CreatureModel creatureModel = creatureTemplate.GetRandomValidModel();
                     if (creatureModel != null)
-                        return creatureModel.CreatureDisplayID;
+                        return creatureModel.CreatureDisplayId;
                 }
             }
 
@@ -233,7 +234,7 @@ namespace Game.BattlePets
                         {
                             pet.DeclinedName = new();
                             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                                pet.DeclinedName.name[i] = petsResult.Read<string>(12 + i);
+                                pet.DeclinedName.Name[i] = petsResult.Read<string>(12 + i);
                         }
 
                         if (!ownerGuid.IsEmpty())
@@ -309,7 +310,7 @@ namespace Game.BattlePets
                             stmt.AddValue(0, pair.Key);
 
                             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                                stmt.AddValue(i + 1, pair.Value.DeclinedName.name[i]);
+                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
 
                             trans.Append(stmt);
                         }
@@ -340,7 +341,7 @@ namespace Game.BattlePets
                             stmt.AddValue(0, pair.Key);
 
                             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                                stmt.AddValue(i + 1, pair.Value.DeclinedName.name[i]);
+                                stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
 
                             trans.Append(stmt);
                         }

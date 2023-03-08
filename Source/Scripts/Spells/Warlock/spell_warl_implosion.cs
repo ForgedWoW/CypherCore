@@ -39,7 +39,7 @@ namespace Scripts.Spells.Warlock
 					imp.SendUpdateToPlayer(caster.ToPlayer());
 					var casterGuid = caster.GetGUID();
 
-					imp.m_Events.AddEventAtOffset(() =>
+					imp.Events.AddEventAtOffset(() =>
 					                       {
 						                       imp.CastSpell(imp, WarlockSpells.IMPLOSION_DAMAGE, new CastSpellExtraArgs(SpellValueMod.BasePoint0, (int)GetEffectInfo(1).Amplitude).SetOriginalCaster(casterGuid).SetTriggerFlags(TriggerCastFlags.FullMask));
 						                       imp.DisappearAndDie();

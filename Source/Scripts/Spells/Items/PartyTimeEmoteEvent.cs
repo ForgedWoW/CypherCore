@@ -17,7 +17,7 @@ internal class PartyTimeEmoteEvent : BasicEvent
 		_player = player;
 	}
 
-	public override bool Execute(ulong time, uint diff)
+	public override bool Execute(ulong etime, uint pTime)
 	{
 		if (!_player.HasAura(ItemSpellIds.PartyTime))
 			return true;
@@ -27,7 +27,7 @@ internal class PartyTimeEmoteEvent : BasicEvent
 		else
 			_player.HandleEmoteCommand(RandomHelper.RAND(Emote.OneshotApplaud, Emote.OneshotDancespecial, Emote.OneshotLaugh, Emote.OneshotCheer, Emote.OneshotChicken));
 
-		_player.m_Events.AddEventAtOffset(this, TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
+		_player.Events.AddEventAtOffset(this, TimeSpan.FromSeconds(RandomHelper.RAND(5, 10, 15)));
 
 		return false; // do not delete re-added event in EventProcessor::Update
 	}

@@ -20,19 +20,19 @@ public class spell_monk_zen_flight_check : SpellScript, ISpellCheckCast
 				return SpellCastResult.NotInBattleground;
 
 			// In Kalimdor or Eastern Kingdom with Flight Master's License
-			if (!_player.HasSpell(90267) && (_player.Location.GetMapId() == 1 || _player.Location.GetMapId() == 0))
+			if (!_player.HasSpell(90267) && (_player.Location.MapId == 1 || _player.Location.MapId == 0))
 				return SpellCastResult.NotHere;
 
 			// In Pandaria with Wisdom of the Four Winds
-			if (!_player.HasSpell(115913) && (_player.Location.GetMapId() == 870))
+			if (!_player.HasSpell(115913) && (_player.Location.MapId == 870))
 				return SpellCastResult.NotHere;
 
 			// Legion, Broken Isles
-			if (_player.Location.GetMapId() == 1220)
+			if (_player.Location.MapId == 1220)
 				return SpellCastResult.NotHere;
 
 			// In BfA Content not yet
-			if (_player.Location.GetMapId() == 1642 || _player.Location.GetMapId() == 1643)
+			if (_player.Location.MapId == 1642 || _player.Location.MapId == 1643)
 				return SpellCastResult.NotHere;
 		}
 

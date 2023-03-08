@@ -35,7 +35,7 @@ namespace Scripts.Spells.Warlock
 
 		private void HandleDummy(int effIndex)
 		{
-			SetHitDamage(GetHitDamage() + MathFunctions.CalculatePct(GetHitDamage(), GetCaster().ToPlayer().m_activePlayerData.SpellCritPercentage));
+			SetHitDamage(GetHitDamage() + MathFunctions.CalculatePct(GetHitDamage(), GetCaster().ToPlayer().ActivePlayerData.SpellCritPercentage));
 		}
 
 		public void OnHit()
@@ -92,8 +92,8 @@ namespace Scripts.Spells.Warlock
                 foreach (var creature in targets)
                 {
                     var spell = new SpellNonMeleeDamage(p, creature, spellInfo, new SpellCastVisual(spellInfo.GetSpellVisual(p), 0), SpellSchoolMask.Shadow);
-                    spell.damage = dmg;
-                    spell.cleanDamage = spell.damage;
+                    spell.Damage = dmg;
+                    spell.CleanDamage = spell.Damage;
                     p.DealSpellDamage(spell, false);
                     p.SendSpellNonMeleeDamageLog(spell);
                 }

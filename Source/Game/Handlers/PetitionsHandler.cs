@@ -113,8 +113,8 @@ namespace Game
         {
             ServerPetitionShowSignatures signaturesPacket = new();
             signaturesPacket.Item = petition.PetitionGuid;
-            signaturesPacket.Owner = petition.ownerGuid;
-            signaturesPacket.OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(petition.ownerGuid));
+            signaturesPacket.Owner = petition.OwnerGuid;
+            signaturesPacket.OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(petition.OwnerGuid));
             signaturesPacket.PetitionID = (int)petition.PetitionGuid.GetCounter();
 
             foreach (var signature in petition.Signatures)
@@ -152,7 +152,7 @@ namespace Game
 
             PetitionInfo petitionInfo = new();
             petitionInfo.PetitionID = (int)petitionGuid.GetCounter();
-            petitionInfo.Petitioner = petition.ownerGuid;
+            petitionInfo.Petitioner = petition.OwnerGuid;
             petitionInfo.MinSignatures = reqSignatures;
             petitionInfo.MaxSignatures = reqSignatures;
             petitionInfo.Title = petition.PetitionName;
@@ -207,7 +207,7 @@ namespace Game
                 return;
             }
 
-            ObjectGuid ownerGuid = petition.ownerGuid;
+            ObjectGuid ownerGuid = petition.OwnerGuid;
             int signs = petition.Signatures.Count;
 
             if (ownerGuid == GetPlayer().GetGUID())
@@ -348,7 +348,7 @@ namespace Game
             string name = petition.PetitionName; // we need a copy, Guild::AddMember invalidates petition
 
             // Only the petition owner can turn in the petition
-            if (GetPlayer().GetGUID() != petition.ownerGuid)
+            if (GetPlayer().GetGUID() != petition.OwnerGuid)
                 return;
 
             TurnInPetitionResult resultPacket = new();

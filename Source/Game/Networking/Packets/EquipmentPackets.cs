@@ -36,7 +36,7 @@ namespace Game.Networking.Packets
             {
                 _worldPacket.WriteInt32((int)equipSet.Type);
                 _worldPacket.WriteUInt64(equipSet.Guid);
-                _worldPacket.WriteUInt32(equipSet.SetID);
+                _worldPacket.WriteUInt32(equipSet.SetId);
                 _worldPacket.WriteUInt32(equipSet.IgnoreMask);
 
                 for (int i = 0; i < EquipmentSlot.End; ++i)
@@ -48,9 +48,9 @@ namespace Game.Networking.Packets
                 foreach (var id in equipSet.Enchants)
                     _worldPacket.WriteInt32(id);
 
-                _worldPacket.WriteInt32(equipSet.SecondaryShoulderApparanceID);
+                _worldPacket.WriteInt32(equipSet.SecondaryShoulderApparanceId);
                 _worldPacket.WriteInt32(equipSet.SecondaryShoulderSlot);
-                _worldPacket.WriteInt32(equipSet.SecondaryWeaponAppearanceID);
+                _worldPacket.WriteInt32(equipSet.SecondaryWeaponAppearanceId);
                 _worldPacket.WriteInt32(equipSet.SecondaryWeaponSlot);
 
                 _worldPacket.WriteBit(equipSet.AssignedSpecIndex != -1);
@@ -79,7 +79,7 @@ namespace Game.Networking.Packets
         {
             Set.Type = (EquipmentSetInfo.EquipmentSetType)_worldPacket.ReadInt32();
             Set.Guid = _worldPacket.ReadUInt64();
-            Set.SetID = _worldPacket.ReadUInt32();
+            Set.SetId = _worldPacket.ReadUInt32();
             Set.IgnoreMask = _worldPacket.ReadUInt32();
 
             for (byte i = 0; i < EquipmentSlot.End; ++i)
@@ -91,9 +91,9 @@ namespace Game.Networking.Packets
             Set.Enchants[0] = _worldPacket.ReadInt32();
             Set.Enchants[1] = _worldPacket.ReadInt32();
 
-            Set.SecondaryShoulderApparanceID = _worldPacket.ReadInt32();
+            Set.SecondaryShoulderApparanceId = _worldPacket.ReadInt32();
             Set.SecondaryShoulderSlot = _worldPacket.ReadInt32();
-            Set.SecondaryWeaponAppearanceID = _worldPacket.ReadInt32();
+            Set.SecondaryWeaponAppearanceId = _worldPacket.ReadInt32();
             Set.SecondaryWeaponSlot = _worldPacket.ReadInt32();
 
             bool hasSpecIndex = _worldPacket.HasBit();

@@ -307,7 +307,7 @@ namespace Game
                             if (spellFlags.HasFlag(DisableFlags.SpellMap))
                             {
                                 List<uint> mapIds = data.param0;
-                                if (mapIds.Contains(refe.Location.GetMapId()))
+                                if (mapIds.Contains(refe.Location.MapId))
                                     return true;                                        // Spell is disabled on current map
 
                                 if (!spellFlags.HasFlag(DisableFlags.SpellArea))
@@ -345,7 +345,7 @@ namespace Game
                         if (mapEntry.IsDungeon())
                         {
                             DisableFlags disabledModes = (DisableFlags)data.flags;
-                            Difficulty targetDifficulty = player.GetDifficultyID(mapEntry);
+                            Difficulty targetDifficulty = player.GetDifficultyId(mapEntry);
                             Global.DB2Mgr.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
                             switch (targetDifficulty)
                             {

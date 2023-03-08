@@ -762,15 +762,15 @@ namespace Game.AI
                 else
                     me.SetWalk(!_run);
 
-                if (!me.LastCharmerGUID.IsEmpty())
+                if (!me.LastCharmerGuid.IsEmpty())
                 {
                     if (!me.HasReactState(ReactStates.Passive))
                     {
-                        Unit lastCharmer = Global.ObjAccessor.GetUnit(me, me.LastCharmerGUID);
+                        Unit lastCharmer = Global.ObjAccessor.GetUnit(me, me.LastCharmerGuid);
                         if (lastCharmer != null)
                             me.EngageWithTarget(lastCharmer);
                     }
-                    me.LastCharmerGUID.Clear();
+                    me.LastCharmerGuid.Clear();
 
                     if (!me.IsInCombat())
                         EnterEvadeMode(EvadeReason.NoHostiles);

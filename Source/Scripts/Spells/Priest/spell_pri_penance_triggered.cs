@@ -40,7 +40,7 @@ public class spell_pri_penance_triggered : AuraScript, IHasAuraEffects
 		var caster = GetCaster();
 
 		if (caster != null) // Penance has travel time we need to delay the aura remove a little bit...
-			caster.m_Events.AddEventAtOffset(new DelayedAuraRemoveEvent(caster, (uint)PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER), TimeSpan.FromSeconds(1));
+			caster.Events.AddEventAtOffset(new DelayedAuraRemoveEvent(caster, (uint)PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER), TimeSpan.FromSeconds(1));
 	}
 
 	public override void Register()

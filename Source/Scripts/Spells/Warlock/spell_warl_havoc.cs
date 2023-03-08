@@ -39,8 +39,8 @@ namespace Scripts.Spells.Warlock
 						{
 							var dmg   = procInfo.GetDamageInfo().GetDamage();
 							var spell = new SpellNonMeleeDamage(caster, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellVisual(caster), 0), SpellSchoolMask.Shadow);
-							spell.damage      = dmg;
-							spell.cleanDamage = spell.damage;
+							spell.Damage      = dmg;
+							spell.CleanDamage = spell.Damage;
 							caster.DealSpellDamage(spell, false);
 							caster.SendSpellNonMeleeDamageLog(spell);
 						}

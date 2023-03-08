@@ -22,7 +22,7 @@ public class spell_dk_bloodworms : SpellScript, IHasSpellEffects
 		var caster = GetCaster();
 
 		if (caster != null)
-			foreach (var itr in caster.m_Controlled)
+			foreach (var itr in caster.Controlled)
 			{
 				var unit = ObjectAccessor.Instance.GetUnit(caster, itr.GetGUID());
 

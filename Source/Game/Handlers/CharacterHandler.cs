@@ -589,7 +589,7 @@ namespace Game
                     if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
                         newChar.SetCinematic(1);                          // not show intro
 
-                    newChar.atLoginFlags = AtLoginFlags.FirstLogin;               // First login
+                    newChar.LoginFlags = AtLoginFlags.FirstLogin;               // First login
 
                     SQLTransaction characterTransaction = new();
                     SQLTransaction loginTransaction = new();
@@ -798,7 +798,7 @@ namespace Game
             pCurrChar.SendDungeonDifficulty();
 
             LoginVerifyWorld loginVerifyWorld = new();
-            loginVerifyWorld.MapID = (int)pCurrChar.Location.GetMapId();
+            loginVerifyWorld.MapID = (int)pCurrChar.Location.MapId;
             loginVerifyWorld.Pos = pCurrChar.Location;
             SendPacket(loginVerifyWorld);
 
@@ -860,18 +860,18 @@ namespace Game
                     switch (pCurrChar.GetCreateMode())
                     {
                         case PlayerCreateMode.Normal:
-                            if (playerInfo.introMovieId.HasValue)
-                                pCurrChar.SendMovieStart(playerInfo.introMovieId.Value);
-                            else if (playerInfo.introSceneId.HasValue)
-                                pCurrChar.GetSceneMgr().PlayScene(playerInfo.introSceneId.Value);
+                            if (playerInfo.IntroMovieId.HasValue)
+                                pCurrChar.SendMovieStart(playerInfo.IntroMovieId.Value);
+                            else if (playerInfo.IntroSceneId.HasValue)
+                                pCurrChar.GetSceneMgr().PlayScene(playerInfo.IntroSceneId.Value);
                             else if (CliDB.ChrClassesStorage.TryGetValue((uint)pCurrChar.GetClass(), out ChrClassesRecord chrClassesRecord) && chrClassesRecord.CinematicSequenceID != 0)
                                 pCurrChar.SendCinematicStart(chrClassesRecord.CinematicSequenceID);
                             else if (CliDB.ChrRacesStorage.TryGetValue((uint)pCurrChar.GetRace(), out ChrRacesRecord chrRacesRecord) && chrRacesRecord.CinematicSequenceID != 0)
                                 pCurrChar.SendCinematicStart(chrRacesRecord.CinematicSequenceID);
                             break;
                         case PlayerCreateMode.NPE:
-                            if (playerInfo.introSceneIdNPE.HasValue)
-                                pCurrChar.GetSceneMgr().PlayScene(playerInfo.introSceneIdNPE.Value);
+                            if (playerInfo.IntroSceneIdNpe.HasValue)
+                                pCurrChar.GetSceneMgr().PlayScene(playerInfo.IntroSceneIdNpe.Value);
                             break;
                         default:
                             break;
@@ -881,7 +881,7 @@ namespace Game
 
             if (!pCurrChar.GetMap().AddPlayerToMap(pCurrChar))
             {
-                var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.Location.GetMapId());
+                var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.Location.MapId);
                 if (at != null)
                     pCurrChar.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, pCurrChar.Location.Orientation);
                 else
@@ -991,7 +991,7 @@ namespace Game
                 pCurrChar.RemoveAtLoginFlag(AtLoginFlags.FirstLogin);
 
                 PlayerInfo info = Global.ObjectMgr.GetPlayerInfo(pCurrChar.GetRace(), pCurrChar.GetClass());
-                foreach (var spellId in info.castSpells[(int)pCurrChar.GetCreateMode()])
+                foreach (var spellId in info.CastSpells[(int)pCurrChar.GetCreateMode()])
                     pCurrChar.CastSpell(pCurrChar, spellId, new CastSpellExtraArgs(true));
 
                 // start with every map explored
@@ -1348,20 +1348,20 @@ namespace Game
 
             for (int i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
             {
-                string declinedName = packet.DeclinedNames.name[i];
+                string declinedName = packet.DeclinedNames.Name[i];
                 if (!ObjectManager.NormalizePlayerName(ref declinedName))
                 {
                     SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
                     return;
                 }
-                packet.DeclinedNames.name[i] = declinedName;
+                packet.DeclinedNames.Name[i] = declinedName;
             }
 
             for (int i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
             {
-                string declinedName = packet.DeclinedNames.name[i];
+                string declinedName = packet.DeclinedNames.Name[i];
                 CharacterDatabase.EscapeString(ref declinedName);
-                packet.DeclinedNames.name[i] = declinedName;
+                packet.DeclinedNames.Name[i] = declinedName;
             }
 
             SQLTransaction trans = new();
@@ -1374,7 +1374,7 @@ namespace Game
             stmt.AddValue(0, packet.Player.GetCounter());
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                stmt.AddValue(i + 1, packet.DeclinedNames.name[i]);
+                stmt.AddValue(i + 1, packet.DeclinedNames.Name[i]);
 
             trans.Append(stmt);
 
@@ -1549,7 +1549,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.SaveEquipmentSet)]
         void HandleEquipmentSetSave(SaveEquipmentSet saveEquipmentSet)
         {
-            if (saveEquipmentSet.Set.SetID >= ItemConst.MaxEquipmentSetIndex) // client set slots amount
+            if (saveEquipmentSet.Set.SetId >= ItemConst.MaxEquipmentSetIndex) // client set slots amount
                 return;
 
             if (saveEquipmentSet.Set.Type > EquipmentSetInfo.EquipmentSetType.Transmog)
@@ -2008,7 +2008,7 @@ namespace Game
                         zoneId = 1637;
                     }
 
-                    stmt.AddValue(1, loc.GetMapId());
+                    stmt.AddValue(1, loc.MapId);
                     stmt.AddValue(2, zoneId);
                     stmt.AddValue(3, loc.X);
                     stmt.AddValue(4, loc.Y);
@@ -2236,7 +2236,7 @@ namespace Game
         void HandleOpeningCinematic(OpeningCinematic packet)
         {
             // Only players that has not yet gained any experience can use this
-            if (GetPlayer().m_activePlayerData.XP != 0)
+            if (GetPlayer().ActivePlayerData.XP != 0)
                 return;
 
             ChrClassesRecord classEntry = CliDB.ChrClassesStorage.LookupByKey(GetPlayer().GetClass());

@@ -17,6 +17,6 @@ public class spell_demon_hunter_rain_from_above : SpellScript, ISpellAfterCast
 		if (caster == null || !caster.ToPlayer())
 			return;
 
-		caster.m_Events.AddEventAtOffset(() => { caster.CastSpell(caster, DemonHunterSpells.RAIN_FROM_ABOVE_SLOWFALL); }, TimeSpan.FromMilliseconds(1750));
+		caster.Events.AddEventAtOffset(() => { caster.CastSpell(caster, DemonHunterSpells.RAIN_FROM_ABOVE_SLOWFALL); }, TimeSpan.FromMilliseconds(1750));
 	}
 }

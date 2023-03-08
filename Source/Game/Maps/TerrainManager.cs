@@ -83,7 +83,7 @@ public class TerrainManager : Singleton<TerrainManager>
 
 	public uint GetAreaId(PhaseShift phaseShift, WorldLocation loc)
 	{
-		return GetAreaId(phaseShift, loc.GetMapId(), loc);
+		return GetAreaId(phaseShift, loc.MapId, loc);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, uint mapid, float x, float y, float z)
@@ -103,7 +103,7 @@ public class TerrainManager : Singleton<TerrainManager>
 
 	public uint GetZoneId(PhaseShift phaseShift, WorldLocation loc)
 	{
-		return GetZoneId(phaseShift, loc.GetMapId(), loc);
+		return GetZoneId(phaseShift, loc.MapId, loc);
 	}
 
 	public uint GetZoneId(PhaseShift phaseShift, uint mapId, float x, float y, float z)
@@ -123,7 +123,7 @@ public class TerrainManager : Singleton<TerrainManager>
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, WorldLocation loc)
 	{
-		GetZoneAndAreaId(phaseShift, out zoneid, out areaid, loc.GetMapId(), loc);
+		GetZoneAndAreaId(phaseShift, out zoneid, out areaid, loc.MapId, loc);
 	}
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, uint mapid, float x, float y, float z)

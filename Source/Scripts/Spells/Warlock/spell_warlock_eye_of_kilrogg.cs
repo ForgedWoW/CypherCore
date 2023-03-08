@@ -25,7 +25,7 @@ namespace Scripts.Spells.Warlock
 				return;
 
 			if (caster.ToPlayer().GetPet())
-				caster.m_Events.AddEventAtOffset(() => { caster.ToPlayer().PetSpellInitialize(); }, TimeSpan.FromMilliseconds(250));
+				caster.Events.AddEventAtOffset(() => { caster.ToPlayer().PetSpellInitialize(); }, TimeSpan.FromMilliseconds(250));
 		}
 
 		public override void Register()

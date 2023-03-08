@@ -51,7 +51,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 						break;
 					default:
 					{
-						switch (player.Location.GetMapId())
+						switch (player.Location.MapId)
 						{
 							case 0: // Eastern Kingdoms
 								player.CastSpell(target, DireBeastSpells.DIRE_BEAST_EASTERN_KINGDOMS, true);

@@ -302,7 +302,7 @@ namespace Game.Achievements
                         SetCriteriaProgress(criteria, referencePlayer.GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
                         break;
                     case CriteriaType.HonorableKills:
-                        SetCriteriaProgress(criteria, referencePlayer.m_activePlayerData.LifetimeHonorableKills, referencePlayer);
+                        SetCriteriaProgress(criteria, referencePlayer.ActivePlayerData.LifetimeHonorableKills, referencePlayer);
                         break;
                     case CriteriaType.MostMoneyOwned:
                         SetCriteriaProgress(criteria, referencePlayer.GetMoney(), referencePlayer, ProgressType.Highest);
@@ -977,7 +977,7 @@ namespace Game.Achievements
                 case CriteriaType.WinBattleground:
                 case CriteriaType.ParticipateInBattleground:
                 case CriteriaType.DieOnMap:
-                    if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.Location.GetMapId())
+                    if (miscValue1 == 0 || criteria.Entry.Asset != referencePlayer.Location.MapId)
                         return false;
                     break;
                 case CriteriaType.KillCreature:
@@ -1010,7 +1010,7 @@ namespace Game.Achievements
                     if (miscValue1 == 0)
                         return false;
 
-                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.GetMapId(), referencePlayer.GetInstanceId());
+                    Map map = referencePlayer.IsInWorld ? referencePlayer.GetMap() : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.GetInstanceId());
                     if (!map || !map.IsDungeon())
                         return false;
 
@@ -1098,7 +1098,7 @@ namespace Game.Achievements
                             continue;
 
                         ulong mask = 1ul << (int)((uint)area.AreaBit % ActivePlayerData.ExploredZonesBits);
-                        if (Convert.ToBoolean(referencePlayer.m_activePlayerData.ExploredZones[playerIndexOffset] & mask))
+                        if (Convert.ToBoolean(referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & mask))
                         {
                             matchFound = true;
                             break;
@@ -1256,7 +1256,7 @@ namespace Game.Achievements
             {
                 case ModifierTreeType.PlayerInebriationLevelEqualOrGreaterThan: // 1
                 {
-                    uint inebriation = (uint)Math.Min(Math.Max(referencePlayer.GetDrunkValue(), referencePlayer.m_playerData.FakeInebriation), 100);
+                    uint inebriation = (uint)Math.Min(Math.Max(referencePlayer.GetDrunkValue(), referencePlayer.PlayerData.FakeInebriation), 100);
                     if (inebriation < reqValue)
                         return false;
                     break;
@@ -1420,7 +1420,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerMap: // 32
-                    if (referencePlayer.Location.GetMapId() != reqValue)
+                    if (referencePlayer.Location.MapId != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.ClientVersionEqualOrLessThan: // 33
@@ -1575,7 +1575,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerBattlegroundRatingEqualOrGreaterThan: // 64
-                    if (referencePlayer.GetRBGPersonalRating() < reqValue)
+                    if (referencePlayer.GetRbgPersonalRating() < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.ResearchProjectRarity: // 65 NYI
@@ -1812,7 +1812,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerHasCompletedQuest: // 110
                     uint questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(reqValue);
                     if (questBit != 0)
-                        if ((referencePlayer.m_activePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) == 0)
+                        if ((referencePlayer.ActivePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) == 0)
                             return false;
                     break;
                 case ModifierTreeType.PlayerIsReadyToTurnInQuest: // 111
@@ -1847,7 +1847,7 @@ namespace Game.Achievements
                     if (playerIndexOffset >= PlayerConst.ExploredZonesSize)
                         break;
 
-                    if ((referencePlayer.m_activePlayerData.ExploredZones[playerIndexOffset] & (1ul << (areaTable.AreaBit % ActivePlayerData.ExploredZonesBits))) == 0)
+                    if ((referencePlayer.ActivePlayerData.ExploredZones[playerIndexOffset] & (1ul << (areaTable.AreaBit % ActivePlayerData.ExploredZonesBits))) == 0)
                         return false;
                     break;
                 }
@@ -2628,7 +2628,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerHasRestriction: // 203
                 {
-                    int restrictionIndex = referencePlayer.m_activePlayerData.CharacterRestrictions.FindIndexIf(restriction => restriction.Type == reqValue);
+                    int restrictionIndex = referencePlayer.ActivePlayerData.CharacterRestrictions.FindIndexIf(restriction => restriction.Type == reqValue);
                     if (restrictionIndex < 0)
                         return false;
                     break;
@@ -2695,7 +2695,7 @@ namespace Game.Achievements
                     if (group != null)
                     {
                         for (var itr = group.GetFirstMember(); itr != null; itr = itr.Next())
-                            if (itr.GetSource() != referencePlayer && referencePlayer.m_playerData.VirtualPlayerRealm == itr.GetSource().m_playerData.VirtualPlayerRealm)
+                            if (itr.GetSource() != referencePlayer && referencePlayer.PlayerData.VirtualPlayerRealm == itr.GetSource().PlayerData.VirtualPlayerRealm)
                                 ++memberCount;
                     }
 
@@ -2812,7 +2812,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.PlayerMainhandWeaponType: // 232
                 {
-                    var visibleItem = referencePlayer.m_playerData.VisibleItems[EquipmentSlot.MainHand];
+                    var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.MainHand];
                     uint itemSubclass = (uint)ItemSubClassWeapon.Fist;
                     ItemTemplate itemTemplate = Global.ObjectMgr.GetItemTemplate(visibleItem.ItemID);
                     if (itemTemplate != null)
@@ -2837,7 +2837,7 @@ namespace Game.Achievements
                 }
                 case ModifierTreeType.PlayerOffhandWeaponType: // 233
                 {
-                    var visibleItem = referencePlayer.m_playerData.VisibleItems[EquipmentSlot.OffHand];
+                    var visibleItem = referencePlayer.PlayerData.VisibleItems[EquipmentSlot.OffHand];
                     uint itemSubclass = (uint)ItemSubClassWeapon.Fist;
                     ItemTemplate itemTemplate = Global.ObjectMgr.GetItemTemplate(visibleItem.ItemID);
                     if (itemTemplate != null)
@@ -3070,7 +3070,7 @@ namespace Game.Achievements
                         AzeriteItem azeriteItem = heartOfAzeroth.ToAzeriteItem();
                         if (azeriteItem != null)
                         {
-                            foreach (UnlockedAzeriteEssence essence in azeriteItem.m_azeriteItemData.UnlockedEssences)
+                            foreach (UnlockedAzeriteEssence essence in azeriteItem.AzeriteItemData.UnlockedEssences)
                                 if (essence.AzeriteEssenceID == reqValue && essence.Rank < secondaryAsset)
                                     return true;
                         }
@@ -3085,7 +3085,7 @@ namespace Game.Achievements
                         AzeriteItem azeriteItem = heartOfAzeroth.ToAzeriteItem();
                         if (azeriteItem != null)
                         {
-                            foreach (UnlockedAzeriteEssence essence in azeriteItem.m_azeriteItemData.UnlockedEssences)
+                            foreach (UnlockedAzeriteEssence essence in azeriteItem.AzeriteItemData.UnlockedEssences)
                                 if (essence.AzeriteEssenceID == reqValue && essence.Rank == secondaryAsset)
                                     return true;
                         }
@@ -3100,7 +3100,7 @@ namespace Game.Achievements
                         AzeriteItem azeriteItem = heartOfAzeroth.ToAzeriteItem();
                         if (azeriteItem != null)
                         {
-                            foreach (UnlockedAzeriteEssence essence in azeriteItem.m_azeriteItemData.UnlockedEssences)
+                            foreach (UnlockedAzeriteEssence essence in azeriteItem.AzeriteItemData.UnlockedEssences)
                                 if (essence.AzeriteEssenceID == reqValue && essence.Rank > secondaryAsset)
                                     return true;
                         }
@@ -3143,7 +3143,7 @@ namespace Game.Achievements
                             SelectedAzeriteEssences selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
                             if (selectedEssences != null)
                             {
-                                foreach (UnlockedAzeriteEssence essence in azeriteItem.m_azeriteItemData.UnlockedEssences)
+                                foreach (UnlockedAzeriteEssence essence in azeriteItem.AzeriteItemData.UnlockedEssences)
                                     if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank < secondaryAsset)
                                         return true;
                             }
@@ -3162,7 +3162,7 @@ namespace Game.Achievements
                             SelectedAzeriteEssences selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
                             if (selectedEssences != null)
                             {
-                                foreach (UnlockedAzeriteEssence essence in azeriteItem.m_azeriteItemData.UnlockedEssences)
+                                foreach (UnlockedAzeriteEssence essence in azeriteItem.AzeriteItemData.UnlockedEssences)
                                     if (essence.AzeriteEssenceID == selectedEssences.AzeriteEssenceID[(int)reqValue] && essence.Rank > secondaryAsset)
                                         return true;
                             }
@@ -3229,7 +3229,7 @@ namespace Game.Achievements
                 case ModifierTreeType.TargetLevelWithinOrAboveLevelRange: // 275 NYI
                     return false;
                 case ModifierTreeType.MaxJailersTowerLevelEqualOrGreaterThan: // 276
-                    if (referencePlayer.m_activePlayerData.JailersTowerLevelMax < reqValue)
+                    if (referencePlayer.ActivePlayerData.JailersTowerLevelMax < reqValue)
                         return false;
                     break;
                 case ModifierTreeType.GroupedWithRaFRecruit: // 277
@@ -3279,7 +3279,7 @@ namespace Game.Achievements
                 case ModifierTreeType.JailersTowerActiveFloorDifficultyEqualOrGreaterThan: // 287 NYI
                     return false;
                 case ModifierTreeType.PlayerCovenant: // 288
-                    if (referencePlayer.m_playerData.CovenantID != reqValue)
+                    if (referencePlayer.PlayerData.CovenantID != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.HasTimeEventPassed: // 289
@@ -3312,7 +3312,7 @@ namespace Game.Achievements
                 case ModifierTreeType.GarrisonHasPermanentTalent: // 290 NYI
                     return false;
                 case ModifierTreeType.HasActiveSoulbind: // 291
-                    if (referencePlayer.m_playerData.SoulbindID != reqValue)
+                    if (referencePlayer.PlayerData.SoulbindID != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.HasMemorizedSpell: // 292 NYI
@@ -3347,11 +3347,11 @@ namespace Game.Achievements
                     return false;
                 }
                 case ModifierTreeType.PlayerIsInChromieTime: // 300
-                    if (referencePlayer.m_activePlayerData.UiChromieTimeExpansionID != reqValue)
+                    if (referencePlayer.ActivePlayerData.UiChromieTimeExpansionID != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerIsInAnyChromieTime: // 301
-                    if (referencePlayer.m_activePlayerData.UiChromieTimeExpansionID == 0)
+                    if (referencePlayer.ActivePlayerData.UiChromieTimeExpansionID == 0)
                         return false;
                     break;
                 case ModifierTreeType.ItemIsAzeriteArmor: // 302
@@ -3361,14 +3361,14 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerHasRuneforgePower: // 303
                 {
                     int block = (int)reqValue / 32;
-                    if (block >= referencePlayer.m_activePlayerData.RuneforgePowers.Size())
+                    if (block >= referencePlayer.ActivePlayerData.RuneforgePowers.Size())
                         return false;
 
                     uint bit = reqValue % 32;
-                    return (referencePlayer.m_activePlayerData.RuneforgePowers[block] & (1u << (int)bit)) != 0;
+                    return (referencePlayer.ActivePlayerData.RuneforgePowers[block] & (1u << (int)bit)) != 0;
                 }
                 case ModifierTreeType.PlayerInChromieTimeForScaling: // 304
-                    if ((referencePlayer.m_playerData.CtrOptions._value.ContentTuningConditionMask & 1) == 0)
+                    if ((referencePlayer.PlayerData.CtrOptions.Value.ContentTuningConditionMask & 1) == 0)
                         return false;
                     break;
                 case ModifierTreeType.IsRaFRecruit: // 305
@@ -3424,13 +3424,13 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerHasWeeklyRewardsAvailable: // 313
-                    if (referencePlayer.m_activePlayerData.WeeklyRewardsPeriodSinceOrigin == 0)
+                    if (referencePlayer.ActivePlayerData.WeeklyRewardsPeriodSinceOrigin == 0)
                         return false;
                     break;
                 case ModifierTreeType.TargetCovenant: // 314
                     if (!refe || !refe.IsPlayer())
                         return false;
-                    if (refe.ToPlayer().m_playerData.CovenantID != reqValue)
+                    if (refe.ToPlayer().PlayerData.CovenantID != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasTBCCollectorsEdition: // 315
@@ -3445,7 +3445,7 @@ namespace Game.Achievements
                     return false;
                 case ModifierTreeType.PlayerHasCustomizationChoice: // 323
                 {
-                    int customizationChoiceIndex = referencePlayer.m_playerData.Customizations.FindIndexIf(choice =>
+                    int customizationChoiceIndex = referencePlayer.PlayerData.Customizations.FindIndexIf(choice =>
                     {
                         return choice.ChrCustomizationChoiceID == reqValue;
                     });
@@ -3545,11 +3545,11 @@ namespace Game.Achievements
                 {
                     bool hasTraitNodeEntry()
                     {
-                        foreach (var traitConfig in referencePlayer.m_activePlayerData.TraitConfigs)
+                        foreach (var traitConfig in referencePlayer.ActivePlayerData.TraitConfigs)
                         {
                             if ((TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat)
                             {
-                                if (referencePlayer.m_activePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
+                                if (referencePlayer.ActivePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
                                     || !((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
                                     continue;
                             }
@@ -3568,11 +3568,11 @@ namespace Game.Achievements
                 {
                     var traitNodeEntryRank = new Func<short?>(() =>
                     {
-                        foreach (var traitConfig in referencePlayer.m_activePlayerData.TraitConfigs)
+                        foreach (var traitConfig in referencePlayer.ActivePlayerData.TraitConfigs)
                         {
                             if ((TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat)
                             {
-                                if (referencePlayer.m_activePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
+                                if (referencePlayer.ActivePlayerData.ActiveCombatTraitConfigID != traitConfig.ID
                                     || !((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
                                     continue;
                             }
@@ -3588,11 +3588,11 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerDaysSinceLogout: // 344
-                    if (GameTime.GetGameTime() - referencePlayer.m_playerData.LogoutTime < reqValue * Time.Day)
+                    if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasPerksProgramPendingReward: // 350
-                    if (!referencePlayer.m_activePlayerData.HasPerksProgramPendingReward)
+                    if (!referencePlayer.ActivePlayerData.HasPerksProgramPendingReward)
                         return false;
                     break;
                 case ModifierTreeType.PlayerCanUseItem: // 351
@@ -3605,7 +3605,7 @@ namespace Game.Achievements
                 case ModifierTreeType.PlayerHasAtLeastProfPathRanks: // 355
                 {
                     uint ranks = 0;
-                    foreach (TraitConfig traitConfig in referencePlayer.m_activePlayerData.TraitConfigs)
+                    foreach (TraitConfig traitConfig in referencePlayer.ActivePlayerData.TraitConfigs)
                     {
                         if ((TraitConfigType)(int)traitConfig.Type != TraitConfigType.Profession)
                             continue;
@@ -4557,7 +4557,7 @@ namespace Game.Achievements
                     return itemTemplate.GetBaseItemLevel() >= EquippedItem.ItemLevel && (uint)itemTemplate.GetQuality() >= EquippedItem.ItemQuality;
                 }
                 case CriteriaDataType.MapId:
-                    return source.Location.GetMapId() == MapId.Id;
+                    return source.Location.MapId == MapId.Id;
                 case CriteriaDataType.SKnownTitle:
                 {
                     CharTitlesRecord titleInfo = CliDB.CharTitlesStorage.LookupByKey(KnownTitle.Id);

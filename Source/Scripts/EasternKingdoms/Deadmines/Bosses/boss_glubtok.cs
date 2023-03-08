@@ -223,7 +223,7 @@ namespace Scripts.EasternKingdoms.Deadmines.Bosses
                 pos.Z = me.Location.Z + RandomHelper.FRand(4.0f, 23.0f);
 
                 me.GetNearPoint2D(me, out pos.X, out pos.Y, 25.0f, angle);
-                Global.VMapMgr.GetObjectHitPos(me.Location.GetMapId(), me.Location.X, me.Location.Y, me.Location.Z + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
+                Global.VMapMgr.GetObjectHitPos(me.Location.MapId, me.Location.X, me.Location.Y, me.Location.Z + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
 
                 if (me.Location.GetExactDist2d(pos.X, pos.Y) >= 7.5f)
                 {

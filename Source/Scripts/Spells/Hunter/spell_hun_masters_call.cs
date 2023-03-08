@@ -36,7 +36,7 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 
 		// Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
 		var result   = SpellCastResult.SpellCastOk;
-		var unitflag = (UnitFlags)(uint)pet.m_unitData.Flags;
+		var unitflag = (UnitFlags)(uint)pet.UnitData.Flags;
 
 		if (!pet.GetCharmerGUID().IsEmpty())
 			result = SpellCastResult.Charmed;

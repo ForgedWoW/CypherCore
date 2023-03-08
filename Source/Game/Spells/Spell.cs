@@ -87,7 +87,7 @@ namespace Game.Spells
             if (IsIgnoringCooldowns())
                 m_castFlagsEx |= SpellCastFlagsEx.IgnoreCooldown;
 
-            m_castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, m_caster.Location.GetMapId(), m_spellInfo.Id, m_caster.GetMap().GenerateLowGuid(HighGuid.Cast));
+            m_castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, m_caster.Location.MapId, m_spellInfo.Id, m_caster.GetMap().GenerateLowGuid(HighGuid.Cast));
             m_originalCastId = originalCastId;
             m_SpellVisual.SpellXSpellVisualID = caster.GetCastSpellXSpellVisualId(m_spellInfo);
 
@@ -124,7 +124,7 @@ namespace Game.Spells
             }
 
             if (m_caster && m_caster.GetTypeId() == TypeId.Player)
-                Cypher.Assert(m_caster.ToPlayer().m_spellModTakingSpell != this);
+                Cypher.Assert(m_caster.ToPlayer().SpellModTakingSpell != this);
         }
 
         public void InitExplicitTargets(SpellCastTargets targets)
@@ -347,7 +347,7 @@ namespace Game.Spells
         public void RecalculateDelayMomentForDst()
         {
             m_delayMoment = CalculateDelayMomentForDst(0.0f);
-            m_caster.m_Events.ModifyEventTime(_spellEvent, TimeSpan.FromMilliseconds(GetDelayStart() + m_delayMoment));
+            m_caster.Events.ModifyEventTime(_spellEvent, TimeSpan.FromMilliseconds(GetDelayStart() + m_delayMoment));
         }
 
         void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, ref uint processedEffectMask)
@@ -488,7 +488,7 @@ namespace Game.Spells
             {
                 case Targets.UnitChannelTarget:
                 {
-                    foreach (ObjectGuid channelTarget in m_originalCaster.m_unitData.ChannelObjects)
+                    foreach (ObjectGuid channelTarget in m_originalCaster.UnitData.ChannelObjects)
                     {
                         WorldObject target = Global.ObjAccessor.GetUnit(m_caster, channelTarget);
                         CallScriptObjectTargetSelectHandlers(ref target, spellEffectInfo.EffectIndex, targetType);
@@ -507,7 +507,7 @@ namespace Game.Spells
                         m_targets.SetDst(channeledSpell.m_targets);
                     else
                     {
-                        List<ObjectGuid> channelObjects = m_originalCaster.m_unitData.ChannelObjects;
+                        List<ObjectGuid> channelObjects = m_originalCaster.UnitData.ChannelObjects;
                         WorldObject target = !channelObjects.Empty() ? Global.ObjAccessor.GetWorldObject(m_caster, channelObjects[0]) : null;
                         if (target != null)
                         {
@@ -905,7 +905,7 @@ namespace Game.Spells
                         // @todo fix this check
                         if (m_spellInfo.HasEffect(SpellEffectName.TeleportUnits) || m_spellInfo.HasEffect(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen) || m_spellInfo.HasEffect(SpellEffectName.Bind))
                             dest = new SpellDestination(st.target_X, st.target_Y, st.target_Z, st.target_Orientation, st.target_mapId);
-                        else if (st.target_mapId == m_caster.Location.GetMapId())
+                        else if (st.target_mapId == m_caster.Location.MapId)
                             dest = new SpellDestination(st.target_X, st.target_Y, st.target_Z, st.target_Orientation);
                     }
                     else
@@ -960,7 +960,7 @@ namespace Game.Spells
                     float angle = targetType.CalcDirectionAngle();
                     if (targetType.GetTarget() == Targets.DestCasterMovementDirection)
                     {
-                        switch (m_caster.m_movementInfo.GetMovementFlags() & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight))
+                        switch (m_caster.MovementInfo.GetMovementFlags() & (MovementFlag.Forward | MovementFlag.Backward | MovementFlag.StrafeLeft | MovementFlag.StrafeRight))
                         {
                             case MovementFlag.None:
                             case MovementFlag.Forward:
@@ -1880,7 +1880,7 @@ namespace Game.Spells
                 targetInfo.ReflectResult = unitCaster.SpellHitResult(unitCaster, m_spellInfo, false); // can't reflect twice
 
                 // Proc spell reflect aura when missile hits the original target
-                target.m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), target.m_Events.CalculateTime(TimeSpan.FromMilliseconds(targetInfo.TimeDelay)));
+                target.Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), target.Events.CalculateTime(TimeSpan.FromMilliseconds(targetInfo.TimeDelay)));
 
                 // Increase time interval for reflected spells by 1.5
                 targetInfo.TimeDelay += targetInfo.TimeDelay >> 1;
@@ -2239,7 +2239,7 @@ namespace Game.Spells
 
                                         // if there is no periodic effect
                                         if (hitInfo.AuraDuration == 0)
-                                            hitInfo.AuraDuration = (int)(origDuration * m_originalCaster.m_unitData.ModCastingSpeed);
+                                            hitInfo.AuraDuration = (int)(origDuration * m_originalCaster.UnitData.ModCastingSpeed);
                                     }
                                 }
                             }
@@ -2425,7 +2425,7 @@ namespace Game.Spells
 
             // create and add update event for this spell
             _spellEvent = new SpellEvent(this);
-            m_caster.m_Events.AddEvent(_spellEvent, m_caster.m_Events.CalculateTime(TimeSpan.FromMilliseconds(1)));
+            m_caster.Events.AddEvent(_spellEvent, m_caster.Events.CalculateTime(TimeSpan.FromMilliseconds(1)));
 
             // check disables
             if (Global.DisableMgr.IsDisabledFor(DisableType.Spell, m_spellInfo.Id, m_caster))
@@ -2632,7 +2632,7 @@ namespace Game.Spells
             Spell lastSpellMod = null;
             if (modOwner)
             {
-                lastSpellMod = modOwner.m_spellModTakingSpell;
+                lastSpellMod = modOwner.SpellModTakingSpell;
                 if (lastSpellMod)
                     modOwner.SetSpellModTakingSpell(lastSpellMod, false);
             }
@@ -2674,7 +2674,7 @@ namespace Game.Spells
                     Unit target = m_targets.GetUnitTarget();
                     if (target != null)
                     {
-                        foreach (Unit controlled in playerCaster.m_Controlled)
+                        foreach (Unit controlled in playerCaster.Controlled)
                         {
                             Creature cControlled = controlled.ToCreature();
                             if (cControlled != null)
@@ -3438,7 +3438,7 @@ namespace Game.Spells
                 Unit charm = unitCaster.GetCharmed();
                 if (charm != null)
                     if (charm.IsTypeId(TypeId.Unit) && charm.ToCreature().HasUnitTypeMask(UnitTypeMask.Puppet)
-                        && charm.m_unitData.CreatedBySpell == m_spellInfo.Id)
+                        && charm.UnitData.CreatedBySpell == m_spellInfo.Id)
                         ((Puppet)charm).UnSummon();
             }
 
@@ -3462,7 +3462,7 @@ namespace Game.Spells
             if (unitCaster.IsTypeId(TypeId.Unit) && unitCaster.ToCreature().IsSummon())
             {
                 // Unsummon statue
-                uint spell = unitCaster.m_unitData.CreatedBySpell;
+                uint spell = unitCaster.UnitData.CreatedBySpell;
                 SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spell, GetCastDifficulty());
                 if (spellInfo != null && spellInfo.IconFileDataId == 134230)
                 {
@@ -4337,9 +4337,9 @@ namespace Game.Spells
 
             Creature creatureCaster = unitCaster.ToCreature();
             if (creatureCaster != null)
-                if (unitCaster.m_unitData.ChannelObjects.Size() == 1 && unitCaster.m_unitData.ChannelObjects[0].IsUnit())
+                if (unitCaster.UnitData.ChannelObjects.Size() == 1 && unitCaster.UnitData.ChannelObjects[0].IsUnit())
                     if (!creatureCaster.HasSpellFocus(this))
-                        creatureCaster.SetSpellFocus(this, Global.ObjAccessor.GetWorldObject(creatureCaster, unitCaster.m_unitData.ChannelObjects[0]));
+                        creatureCaster.SetSpellFocus(this, Global.ObjAccessor.GetWorldObject(creatureCaster, unitCaster.UnitData.ChannelObjects[0]));
 
             unitCaster.SetChannelSpellId(m_spellInfo.Id);
             unitCaster.SetChannelVisual(m_SpellVisual);
@@ -4396,7 +4396,7 @@ namespace Game.Spells
 
             foreach (ItemEffectRecord itemEffect in m_CastItem.GetEffects())
             {
-                if (itemEffect.LegacySlotIndex >= m_CastItem.m_itemData.SpellCharges.GetSize())
+                if (itemEffect.LegacySlotIndex >= m_CastItem.ItemData.SpellCharges.GetSize())
                     continue;
 
                 // item has limited charges
@@ -4576,7 +4576,7 @@ namespace Game.Spells
                 {
                     foreach (ItemEffectRecord itemEffect in m_CastItem.GetEffects())
                     {
-                        if (itemEffect.LegacySlotIndex >= m_CastItem.m_itemData.SpellCharges.GetSize())
+                        if (itemEffect.LegacySlotIndex >= m_CastItem.ItemData.SpellCharges.GetSize())
                             continue;
 
                         // CastItem will be used up and does not count as reagent
@@ -5011,7 +5011,7 @@ namespace Game.Spells
             {
                 m_caster.GetZoneAndAreaId(out uint zone, out uint area);
 
-                SpellCastResult locRes = m_spellInfo.CheckLocation(m_caster.Location.GetMapId(), zone, area, m_caster.ToPlayer());
+                SpellCastResult locRes = m_spellInfo.CheckLocation(m_caster.Location.MapId, zone, area, m_caster.ToPlayer());
                 if (locRes != SpellCastResult.SpellCastOk)
                     return locRes;
             }
@@ -5945,7 +5945,7 @@ namespace Game.Spells
             // Check whether the cast should be prevented by any state you might have.
             SpellCastResult result = SpellCastResult.SpellCastOk;
             // Get unit state
-            UnitFlags unitflag = (UnitFlags)(uint)unitCaster.m_unitData.Flags;
+            UnitFlags unitflag = (UnitFlags)(uint)unitCaster.UnitData.Flags;
 
             // this check should only be done when player does cast directly
             // (ie not when it's called from a script) Breaks for example PlayerAI when charmed
@@ -6383,7 +6383,7 @@ namespace Game.Spells
                     return SpellCastResult.ItemNotReady;
 
                 foreach (ItemEffectRecord itemEffect in m_CastItem.GetEffects())
-                    if (itemEffect.LegacySlotIndex < m_CastItem.m_itemData.SpellCharges.GetSize() && itemEffect.Charges != 0)
+                    if (itemEffect.LegacySlotIndex < m_CastItem.ItemData.SpellCharges.GetSize() && itemEffect.Charges != 0)
                         if (m_CastItem.GetSpellCharges(itemEffect.LegacySlotIndex) == 0)
                             return SpellCastResult.NoChargesRemain;
 
@@ -6490,7 +6490,7 @@ namespace Game.Spells
 
                             foreach (ItemEffectRecord itemEffect in m_CastItem.GetEffects())
                             {
-                                if (itemEffect.LegacySlotIndex >= m_CastItem.m_itemData.SpellCharges.GetSize())
+                                if (itemEffect.LegacySlotIndex >= m_CastItem.ItemData.SpellCharges.GetSize())
                                     continue;
 
                                 // CastItem will be used up and does not count as reagent
@@ -6843,7 +6843,7 @@ namespace Game.Spells
                         if (item != null)
                         {
                             foreach (ItemEffectRecord itemEffect in item.GetEffects())
-                                if (itemEffect.LegacySlotIndex <= item.m_itemData.SpellCharges.GetSize() && itemEffect.Charges != 0 && item.GetSpellCharges(itemEffect.LegacySlotIndex) == itemEffect.Charges)
+                                if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize() && itemEffect.Charges != 0 && item.GetSpellCharges(itemEffect.LegacySlotIndex) == itemEffect.Charges)
                                     return SpellCastResult.ItemAtMaxCharges;
                         }
                         break;
@@ -8012,7 +8012,7 @@ namespace Game.Spells
                 // Apply haste rating
                 if (gcd > MinGCD && (m_spellInfo.StartRecoveryCategory == 133 && !isMeleeOrRangedSpell))
                 {
-                    gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * m_caster.ToUnit().m_unitData.ModSpellHaste);
+                    gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * m_caster.ToUnit().UnitData.ModSpellHaste);
                     int intGcd = (int)gcd.TotalMilliseconds;
                     MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
                     gcd = TimeSpan.FromMilliseconds(intGcd);
@@ -8020,7 +8020,7 @@ namespace Game.Spells
 
                 if (gcd > MinGCD && m_caster.ToUnit().HasAuraTypeWithAffectMask(AuraType.ModGlobalCooldownByHasteRegen, m_spellInfo))
                 {
-                    gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * m_caster.ToUnit().m_unitData.ModHasteRegen);
+                    gcd = TimeSpan.FromMilliseconds(gcd.TotalMilliseconds * m_caster.ToUnit().UnitData.ModHasteRegen);
                     int intGcd = (int)gcd.TotalMilliseconds;
                     MathFunctions.RoundToInterval(ref intGcd, 750, 1500);
                     gcd = TimeSpan.FromMilliseconds(intGcd);
@@ -8496,7 +8496,7 @@ namespace Game.Spells
         {
             Position.Relocate(x, y, z, orientation);
             TransportGUID = ObjectGuid.Empty;
-            Position.SetMapId(mapId);
+            Position.            MapId = mapId;
         }
 
         public SpellDestination(Position pos) : this()
@@ -8797,14 +8797,14 @@ namespace Game.Spells
                         var p = caster.ToPlayer();
 
                         if (p != null)
-                            Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.GetClass(), d => d.OnDamage(p, spell.unitTarget, ref damageInfo.damage, spell.m_spellInfo));
+                            Global.ScriptMgr.ForEach<IPlayerOnDealDamage>(p.GetClass(), d => d.OnDamage(p, spell.unitTarget, ref damageInfo.Damage, spell.m_spellInfo));
                         
-                        Unit.DealDamageMods(damageInfo.attacker, damageInfo.target, ref damageInfo.damage, ref damageInfo.absorb);
+                        Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 
                         hitMask |= Unit.CreateProcHitMask(damageInfo, MissCondition);
                         procVictim.Or(ProcFlags.TakeAnyDamage);
 
-                        spell.m_damage = (int)damageInfo.damage;
+                        spell.m_damage = (int)damageInfo.Damage;
 
                         caster.DealSpellDamage(damageInfo, true);
 
@@ -9351,11 +9351,11 @@ namespace Game.Spells
             m_Spell = spell;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             // update spell if it is not finished
             if (m_Spell.GetState() != SpellState.Finished)
-                m_Spell.Update(p_time);
+                m_Spell.Update(pTime);
 
             // check spell state to process
             switch (m_Spell.GetState())
@@ -9377,12 +9377,12 @@ namespace Game.Spells
                     if (m_Spell.GetDelayStart() != 0)
                     {
                         // run the spell handler and think about what we can do next
-                        ulong t_offset = e_time - m_Spell.GetDelayStart();
+                        ulong t_offset = etime - m_Spell.GetDelayStart();
                         ulong n_offset = m_Spell.HandleDelayed(t_offset);
                         if (n_offset != 0)
                         {
                             // re-add us to the queue
-                            m_Spell.GetCaster().m_Events.AddEvent(this, TimeSpan.FromMilliseconds(m_Spell.GetDelayStart() + n_offset), false);
+                            m_Spell.GetCaster().Events.AddEvent(this, TimeSpan.FromMilliseconds(m_Spell.GetDelayStart() + n_offset), false);
                             return false;                       // event not complete
                         }
                         // event complete
@@ -9391,7 +9391,7 @@ namespace Game.Spells
                     else
                     {
                         // delaying had just started, record the moment
-                        m_Spell.SetDelayStart(e_time);
+                        m_Spell.SetDelayStart(etime);
                         // handle effects on caster if the spell has travel time but also affects the caster in some way
                         ulong n_offset = m_Spell.HandleDelayed(0);
                         if (m_Spell.m_spellInfo.LaunchDelay != 0)
@@ -9400,7 +9400,7 @@ namespace Game.Spells
                             Cypher.Assert(n_offset == m_Spell.GetDelayMoment());
 
                         // re-plan the event for the delay moment
-                        m_Spell.GetCaster().m_Events.AddEvent(this, TimeSpan.FromMilliseconds(e_time + n_offset), false);
+                        m_Spell.GetCaster().Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + n_offset), false);
                         return false;                               // event not complete
                     }
                     break;
@@ -9414,7 +9414,7 @@ namespace Game.Spells
             }
 
             // spell processing not complete, plan event on the next update interval
-            m_Spell.GetCaster().m_Events.AddEvent(this, TimeSpan.FromMilliseconds(e_time + 1), false);
+            m_Spell.GetCaster().Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + 1), false);
             return false;                                           // event not complete
         }
 
@@ -9443,7 +9443,7 @@ namespace Game.Spells
             _casterGuid = casterGuid;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             Unit caster = Global.ObjAccessor.GetUnit(_victim, _casterGuid);
             if (!caster)

@@ -129,8 +129,8 @@ namespace Game.Loots
             }
 
             // Mark the item if it has loot so it won't be generated again on open
-            item.loot = loot;
-            item.m_lootGenerated = true;
+            item.Loot = loot;
+            item.LootGenerated = true;
             return true;
         }
 

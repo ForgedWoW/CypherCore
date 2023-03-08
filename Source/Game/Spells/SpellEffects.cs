@@ -121,10 +121,10 @@ namespace Game.Spells
                 Unit.CalcAbsorbResist(damageInfo);
 
                 SpellNonMeleeDamage log = new(unitCaster, unitTarget, m_spellInfo, m_SpellVisual, m_spellInfo.GetSchoolMask(), m_castId);
-                log.damage = damageInfo.GetDamage();
-                log.originalDamage = damage;
-                log.absorb = damageInfo.GetAbsorb();
-                log.resist = damageInfo.GetResist();
+                log.Damage = damageInfo.GetDamage();
+                log.OriginalDamage = damage;
+                log.Absorb = damageInfo.GetAbsorb();
+                log.Resist = damageInfo.GetResist();
 
                 if (unitCaster != null)
                     unitCaster.SendSpellNonMeleeDamageLog(log);
@@ -299,7 +299,7 @@ namespace Game.Spells
             var value = damage;
             var itemLevel = m_castItemLevel;
 
-            m_caster.m_Events.AddEventAtOffset(() =>
+            m_caster.Events.AddEventAtOffset(() =>
             {
                 targets.Update(caster); // refresh pointers stored in targets
 
@@ -572,8 +572,8 @@ namespace Game.Spells
 
             // Init dest coordinates
             WorldLocation targetDest = new(destTarget);
-            if (targetDest.GetMapId() == 0xFFFFFFFF)
-                targetDest.SetMapId(unitTarget.Location.GetMapId());
+            if (targetDest.MapId == 0xFFFFFFFF)
+                targetDest.                MapId = unitTarget.Location.MapId;
 
             if (targetDest.Orientation == 0 && m_targets.GetUnitTarget())
                 targetDest.                Orientation = m_targets.GetUnitTarget().Location.Orientation;
@@ -587,7 +587,7 @@ namespace Game.Spells
                     player.SendPacket(new CustomLoadScreen(m_spellInfo.Id, customLoadingScreenId));
             }
 
-            if (targetDest.GetMapId() == unitTarget.Location.GetMapId())
+            if (targetDest.MapId == unitTarget.Location.MapId)
                 unitTarget.NearTeleportTo(targetDest, unitTarget == m_caster);
             else if (player != null)
                 player.TeleportTo(targetDest, unitTarget == m_caster ? TeleportToOptions.Spell : 0);
@@ -616,8 +616,8 @@ namespace Game.Spells
 
             // Init dest coordinates
             WorldLocation targetDest = new(destTarget);
-            if (targetDest.GetMapId() == 0xFFFFFFFF)
-                targetDest.SetMapId(unitTarget.Location.GetMapId());
+            if (targetDest.MapId == 0xFFFFFFFF)
+                targetDest.                MapId = unitTarget.Location.MapId;
 
             if (targetDest.Orientation == 0 && m_targets.GetUnitTarget())
                 targetDest.                Orientation = m_targets.GetUnitTarget().Location.Orientation;
@@ -629,7 +629,7 @@ namespace Game.Spells
                     playerTarget.SendPacket(new SpellVisualLoadScreen(effectInfo.MiscValueB, effectInfo.MiscValue));
             }
 
-            unitTarget.m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TeleportToOptions.Spell : 0, m_spellInfo.Id), TimeSpan.FromMilliseconds(effectInfo.MiscValue));
+            unitTarget.Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TeleportToOptions.Spell : 0, m_spellInfo.Id), TimeSpan.FromMilliseconds(effectInfo.MiscValue));
         }
 
         [SpellEffectHandler(SpellEffectName.ApplyAura)]
@@ -1316,9 +1316,9 @@ namespace Game.Spells
                 if (m_CastItem.GetEnchantmentId(j) != 0)
                     pNewItem.SetEnchantment(j, m_CastItem.GetEnchantmentId(j), m_CastItem.GetEnchantmentDuration(j), (uint)m_CastItem.GetEnchantmentCharges(j));
 
-            if (m_CastItem.m_itemData.Durability < m_CastItem.m_itemData.MaxDurability)
+            if (m_CastItem.ItemData.Durability < m_CastItem.ItemData.MaxDurability)
             {
-                double lossPercent = 1 - m_CastItem.m_itemData.Durability / m_CastItem.m_itemData.MaxDurability;
+                double lossPercent = 1 - m_CastItem.ItemData.Durability / m_CastItem.ItemData.MaxDurability;
                 player.DurabilityLoss(pNewItem, lossPercent);
             }
 
@@ -1816,25 +1816,25 @@ namespace Game.Spells
             {
                 creature.StartPickPocketRefillTimer();
 
-                creature._loot = new Loot(creature.GetMap(), creature.GetGUID(), LootType.Pickpocketing, null);
+                creature.Loot = new Loot(creature.GetMap(), creature.GetGUID(), LootType.Pickpocketing, null);
                 uint lootid = creature.GetCreatureTemplate().PickPocketId;
                 if (lootid != 0)
-                    creature._loot.FillLoot(lootid, LootStorage.Pickpocketing, player, true);
+                    creature.Loot.FillLoot(lootid, LootStorage.Pickpocketing, player, true);
 
                 // Generate extra money for pick pocket loot
                 var a = RandomHelper.URand(0, creature.GetLevel() / 2);
                 var b = RandomHelper.URand(0, player.GetLevel() / 2);
-                creature._loot.gold = (uint)(10 * (a + b) * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
+                creature.Loot.gold = (uint)(10 * (a + b) * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
             }
-            else if (creature._loot != null)
+            else if (creature.Loot != null)
             {
-                if (creature._loot.loot_type == LootType.Pickpocketing && creature._loot.IsLooted())
-                    player.SendLootError(creature._loot.GetGUID(), creature.GetGUID(), LootError.AlreadPickPocketed);
+                if (creature.Loot.loot_type == LootType.Pickpocketing && creature.Loot.IsLooted())
+                    player.SendLootError(creature.Loot.GetGUID(), creature.GetGUID(), LootError.AlreadPickPocketed);
 
                 return;
             }
 
-            player.SendLoot(creature._loot);
+            player.SendLoot(creature.Loot);
         }
 
         [SpellEffectHandler(SpellEffectName.AddFarsight)]
@@ -2822,7 +2822,7 @@ namespace Game.Spells
             Player target = unitTarget.ToPlayer();
 
             // caster or target already have requested duel
-            if (caster.duel != null || target.duel != null || target.GetSocial() == null || target.GetSocial().HasIgnore(caster.GetGUID(), caster.GetSession().GetAccountGUID()))
+            if (caster.Duel != null || target.Duel != null || target.GetSocial() == null || target.GetSocial().HasIgnore(caster.GetGUID(), caster.GetSession().GetAccountGUID()))
                 return;
 
             // Players can only fight a duel in zones with this flag
@@ -2880,8 +2880,8 @@ namespace Game.Spells
 
             // create duel-info
             bool isMounted = (GetSpellInfo().Id == 62875);
-            caster.duel = new(target, caster, isMounted);
-            target.duel = new(caster, caster, isMounted);
+            caster.Duel = new(target, caster, isMounted);
+            target.Duel = new(caster, caster, isMounted);
 
             caster.SetDuelArbiter(go.GetGUID());
             target.SetDuelArbiter(go.GetGUID());
@@ -2903,7 +2903,7 @@ namespace Game.Spells
                 return;
 
             Log.outDebug(LogFilter.Spells, "Spell Effect: Stuck");
-            Log.outInfo(LogFilter.Spells, "Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GetGUID().ToString(), player.Location.GetMapId(), player.Location.X, player.Location.Y, player.Location.Z);
+            Log.outInfo(LogFilter.Spells, "Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GetGUID().ToString(), player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z);
 
             if (player.IsInFlight())
                 return;
@@ -3069,9 +3069,9 @@ namespace Game.Spells
             if (caster != null)
             {
                 caster.UpdateCraftSkill(m_spellInfo);
-                itemTarget.loot = new Loot(caster.GetMap(), itemTarget.GetGUID(), LootType.Disenchanting, null);
-                itemTarget.loot.FillLoot(itemTarget.GetDisenchantLoot(caster).Id, LootStorage.Disenchant, caster, true);
-                caster.SendLoot(itemTarget.loot);
+                itemTarget.Loot = new Loot(caster.GetMap(), itemTarget.GetGUID(), LootType.Disenchanting, null);
+                itemTarget.Loot.FillLoot(itemTarget.GetDisenchantLoot(caster).Id, LootStorage.Disenchant, caster, true);
+                caster.SendLoot(itemTarget.Loot);
             }
 
             // item will be removed at disenchanting end
@@ -3171,7 +3171,7 @@ namespace Game.Spells
                 return;
 
             byte slot = (byte)(effectInfo.Effect - SpellEffectName.SummonObjectSlot1);
-            ObjectGuid guid = unitCaster.m_ObjectSlot[slot];
+            ObjectGuid guid = unitCaster.ObjectSlot[slot];
             if (!guid.IsEmpty())
             {
                 GameObject obj = unitCaster.GetMap().GetGameObject(guid);
@@ -3182,7 +3182,7 @@ namespace Game.Spells
                         obj.SetSpellId(0);
                     unitCaster.RemoveGameObject(obj, true);
                 }
-                unitCaster.m_ObjectSlot[slot].Clear();
+                unitCaster.ObjectSlot[slot].Clear();
             }
 
             Position pos = new Position();
@@ -3215,7 +3215,7 @@ namespace Game.Spells
 
             map.AddToMap(go);
 
-            unitCaster.m_ObjectSlot[slot] = go.GetGUID();
+            unitCaster.ObjectSlot[slot] = go.GetGUID();
         }
 
         [SpellEffectHandler(SpellEffectName.Resurrect)]
@@ -3443,7 +3443,7 @@ namespace Game.Spells
             creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
             creature.SetDynamicFlag(UnitDynFlags.Lootable);
             Loot loot = new(creature.GetMap(), creature.GetGUID(), LootType.Skinning, null);
-            creature.m_personalLoot[player.GetGUID()] = loot;
+            creature.PersonalLoot[player.GetGUID()] = loot;
             loot.FillLoot(creature.GetCreatureTemplate().SkinLootId, LootStorage.Skinning, player, true);
             player.SendLoot(loot);
 
@@ -3666,7 +3666,7 @@ namespace Game.Spells
 
                     if (quest.HasFlag(QuestFlags.Pvp))
                     {
-                        player.pvpInfo.IsHostile = player.pvpInfo.IsInHostileArea || player.HasPvPForcingQuest();
+                        player.PvpInfo.IsHostile = player.PvpInfo.IsInHostileArea || player.HasPvPForcingQuest();
                         player.UpdatePvPState();
                     }
                 }
@@ -3773,7 +3773,7 @@ namespace Game.Spells
             if (!group || (group.IsRaidGroup() && !group.IsLeader(player.GetGUID()) && !group.IsAssistant(player.GetGUID())))
                 return;
 
-            group.AddRaidMarker((byte)damage, player.Location.GetMapId(), destTarget.X, destTarget.Y, destTarget.Z);
+            group.AddRaidMarker((byte)damage, player.Location.MapId, destTarget.X, destTarget.Y, destTarget.Z);
         }
 
         [SpellEffectHandler(SpellEffectName.DispelMechanic)]
@@ -3887,13 +3887,13 @@ namespace Game.Spells
             int mana = 0;
             for (byte slot = (int)SummonSlot.Totem; slot < SharedConst.MaxTotemSlot; ++slot)
             {
-                if (unitCaster.m_SummonSlot[slot].IsEmpty())
+                if (unitCaster.SummonSlot[slot].IsEmpty())
                     continue;
 
-                Creature totem = unitCaster.GetMap().GetCreature(unitCaster.m_SummonSlot[slot]);
+                Creature totem = unitCaster.GetMap().GetCreature(unitCaster.SummonSlot[slot]);
                 if (totem != null && totem.IsTotem())
                 {
-                    uint spell_id = totem.m_unitData.CreatedBySpell;
+                    uint spell_id = totem.UnitData.CreatedBySpell;
                     SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, GetCastDifficulty());
                     if (spellInfo != null)
                     {
@@ -4142,9 +4142,9 @@ namespace Game.Spells
                 player.UpdateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
             }
 
-            itemTarget.loot = new Loot(player.GetMap(), itemTarget.GetGUID(), LootType.Prospecting, null);
-            itemTarget.loot.FillLoot(itemTarget.GetEntry(), LootStorage.Prospecting, player, true);
-            player.SendLoot(itemTarget.loot);
+            itemTarget.Loot = new Loot(player.GetMap(), itemTarget.GetGUID(), LootType.Prospecting, null);
+            itemTarget.Loot.FillLoot(itemTarget.GetEntry(), LootStorage.Prospecting, player, true);
+            player.SendLoot(itemTarget.Loot);
         }
 
         [SpellEffectHandler(SpellEffectName.Milling)]
@@ -4170,9 +4170,9 @@ namespace Game.Spells
                 player.UpdateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
             }
 
-            itemTarget.loot = new Loot(player.GetMap(), itemTarget.GetGUID(), LootType.Milling, null);
-            itemTarget.loot.FillLoot(itemTarget.GetEntry(), LootStorage.Milling, player, true);
-            player.SendLoot(itemTarget.loot);
+            itemTarget.Loot = new Loot(player.GetMap(), itemTarget.GetGUID(), LootType.Milling, null);
+            itemTarget.Loot.FillLoot(itemTarget.GetEntry(), LootStorage.Milling, player, true);
+            player.SendLoot(itemTarget.Loot);
         }
 
         [SpellEffectHandler(SpellEffectName.Skill)]
@@ -4561,7 +4561,7 @@ namespace Game.Spells
 
                 if (summon.GetEntry() == 27893)
                 {
-                    VisibleItem weapon = m_caster.ToPlayer().m_playerData.VisibleItems[EquipmentSlot.MainHand];
+                    VisibleItem weapon = m_caster.ToPlayer().PlayerData.VisibleItems[EquipmentSlot.MainHand];
                     if (weapon.ItemID != 0)
                     {
                         summon.SetDisplayId(11686);
@@ -4760,7 +4760,7 @@ namespace Game.Spells
             if (item != null)
             {
                 foreach (ItemEffectRecord itemEffect in item.GetEffects())
-                    if (itemEffect.LegacySlotIndex <= item.m_itemData.SpellCharges.GetSize())
+                    if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize())
                         item.SetSpellCharges(itemEffect.LegacySlotIndex, itemEffect.Charges);
 
                 item.SetState(ItemUpdateState.Changed, player);
@@ -4789,7 +4789,7 @@ namespace Game.Spells
             else
             {
                 homeLoc.Relocate(player.Location);
-                homeLoc.SetMapId(player.Location.GetMapId());
+                homeLoc.                MapId = player.Location.MapId;
             }
 
             player.SetHomebind(homeLoc, areaId);
@@ -5446,7 +5446,7 @@ namespace Game.Spells
             packet.OriginalHonor = (int)damage;
 
             Player playerTarget = unitTarget.ToPlayer();
-            playerTarget.AddHonorXP((uint)damage);
+            playerTarget.AddHonorXp((uint)damage);
             playerTarget.SendPacket(packet);
         }
 
@@ -5820,7 +5820,7 @@ namespace Game.Spells
                 }
             }
 
-            item._bonusData = new BonusData(item.GetTemplate());
+            item.BonusData = new BonusData(item.GetTemplate());
 
             foreach (var newBonus in NewBonusTre)
             {
@@ -5909,9 +5909,9 @@ namespace Game.Spells
             _spellId = spellId;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
-            if (_targetDest.GetMapId() == _target.Location.GetMapId())
+            if (_targetDest.MapId == _target.Location.MapId)
                 _target.NearTeleportTo(_targetDest, (_options & TeleportToOptions.Spell) != 0);
             else
             {

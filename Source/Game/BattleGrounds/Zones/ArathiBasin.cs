@@ -214,7 +214,7 @@ namespace Game.BattleGrounds.Zones
             bool isInBattleground = IsPlayerInBattleground(player.GetGUID());
             base.AddPlayer(player);
             if (!isInBattleground)
-                PlayerScores[player.GetGUID()] = new BattlegroundABScore(player.GetGUID(), player.GetBGTeam());
+                PlayerScores[player.GetGUID()] = new BattlegroundABScore(player.GetGUID(), player.GetBgTeam());
         }
 
         public override void RemovePlayer(Player Player, ObjectGuid guid, Team team)

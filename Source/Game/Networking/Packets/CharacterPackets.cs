@@ -1061,7 +1061,7 @@ namespace Game.Networking.Packets
                 stringLengths[i] = _worldPacket.ReadBits<byte>(7);
 
             for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; ++i)
-                DeclinedNames.name[i] = _worldPacket.ReadString(stringLengths[i]);
+                DeclinedNames.Name[i] = _worldPacket.ReadString(stringLengths[i]);
         }
 
         public ObjectGuid Player;

@@ -342,7 +342,7 @@ namespace Game.Chat
             if (toInstance)
             {
                 Player groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.GetLeaderGUID());
-                if (!groupLeader || (groupLeader.Location.GetMapId() != gmMap.GetId()) || (groupLeader.GetInstanceId() != gmMap.GetInstanceId()))
+                if (!groupLeader || (groupLeader.Location.MapId != gmMap.GetId()) || (groupLeader.GetInstanceId() != gmMap.GetInstanceId()))
                 {
                     handler.SendSysMessage(CypherStrings.PartialGroupSummon);
                     onlyLocalSummon = true;
@@ -395,7 +395,7 @@ namespace Game.Chat
                 var pos = new Position();
                 gmPlayer.GetClosePoint(pos, player.GetCombatReach());
                 pos.Orientation = player.Location.Orientation;
-                player.TeleportTo(gmPlayer.Location.GetMapId(), pos, 0, gmPlayer.GetInstanceId());
+                player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.GetInstanceId());
             }
 
             return true;

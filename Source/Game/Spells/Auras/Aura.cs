@@ -819,7 +819,7 @@ namespace Game.Spells
                 int duration = m_spellInfo.GetMaxDuration();
                 // Calculate duration of periodics affected by haste.
                 if (m_spellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
-                    duration = (int)(duration * caster.m_unitData.ModCastingSpeed);
+                    duration = (int)(duration * caster.UnitData.ModCastingSpeed);
 
                 SetMaxDuration(duration);
                 SetDuration(duration);
@@ -912,7 +912,7 @@ namespace Game.Spells
                 return;
 
             m_dropEvent = new ChargeDropEvent(this, removeMode);
-            owner.m_Events.AddEvent(m_dropEvent, owner.m_Events.CalculateTime(TimeSpan.FromMilliseconds(delay)));
+            owner.Events.AddEvent(m_dropEvent, owner.Events.CalculateTime(TimeSpan.FromMilliseconds(delay)));
         }
 
         public void SetStackAmount(byte stackAmount)
@@ -3002,7 +3002,7 @@ namespace Game.Spells
             _mode = mode;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             // _base is always valid (look in Aura._Remove())
             _base.ModChargesDelayed(-1, _mode);

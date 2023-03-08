@@ -30,7 +30,7 @@ namespace Scripts.Spells.Warlock
 			if (player == null)
 				return;
 
-			foreach (var unit in player.m_Controlled)
+			foreach (var unit in player.Controlled)
 				player.CastSpell(unit, WarlockSpells.THE_EXPANDABLES_BUFF, true);
 		}
 

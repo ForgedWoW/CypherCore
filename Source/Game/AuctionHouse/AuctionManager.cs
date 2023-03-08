@@ -1624,7 +1624,7 @@ namespace Game
 
             // all (not optional<>)
             auctionItem.Count = (int)GetTotalItemCount();
-            auctionItem.Flags = Items[0].m_itemData.DynamicFlags;
+            auctionItem.Flags = Items[0].ItemData.DynamicFlags;
             auctionItem.AuctionID = Id;
             auctionItem.Owner = Owner;
 
@@ -1649,9 +1649,9 @@ namespace Game
                     auctionItem.Enchantments.Add(new ItemEnchantData(enchantId, Items[0].GetEnchantmentDuration(enchantmentSlot), Items[0].GetEnchantmentCharges(enchantmentSlot), (byte)enchantmentSlot));
                 }
 
-                for (byte i = 0; i < Items[0].m_itemData.Gems.Size(); ++i)
+                for (byte i = 0; i < Items[0].ItemData.Gems.Size(); ++i)
                 {
-                    SocketedGem gemData = Items[0].m_itemData.Gems[i];
+                    SocketedGem gemData = Items[0].ItemData.Gems[i];
                     if (gemData.ItemId != 0)
                     {
                         ItemGemData gem = new();
@@ -1695,8 +1695,8 @@ namespace Game
                 auctionItem.AuctionBucketKey = new(AuctionsBucketKey.ForItem(Items[0]));
 
             // all
-            if (!Items[0].m_itemData.Creator._value.IsEmpty())
-                auctionItem.Creator = Items[0].m_itemData.Creator;
+            if (!Items[0].ItemData.Creator.Value.IsEmpty())
+                auctionItem.Creator = Items[0].ItemData.Creator;
         }
 
         public static ulong CalculateMinIncrement(ulong bidAmount)

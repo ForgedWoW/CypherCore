@@ -35,7 +35,7 @@ namespace Scripts.Spells.Paladin
                 dmg += dmg / 5;
                 SetHitDamage(dmg); //damage is increased by 20%
 
-                double mastery = player.m_activePlayerData.Mastery;
+                double mastery = player.ActivePlayerData.Mastery;
 
                 double reduction = ((-25 - mastery / 2.0f) * 120.0f) / 100.0f; //damage reduction is increased by 20%
                 player.CastSpell(player, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS_PROC, (int)reduction);

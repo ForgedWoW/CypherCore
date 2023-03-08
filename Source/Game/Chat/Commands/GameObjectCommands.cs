@@ -161,7 +161,7 @@ namespace Game.Chat
 
             if (spawnData != null)
             {
-                spawnData.rotation.toEulerAnglesZYX(out float yaw, out float pitch, out float roll);
+                spawnData.Rotation.toEulerAnglesZYX(out float yaw, out float pitch, out float roll);
                 handler.SendSysMessage(CypherStrings.SpawninfoSpawnidLocation, spawnData.SpawnId, spawnData.SpawnPoint.X, spawnData.SpawnPoint.Y, spawnData.SpawnPoint.Z);
                 handler.SendSysMessage(CypherStrings.SpawninfoRotation, yaw, pitch, roll);
             }
@@ -199,9 +199,9 @@ namespace Game.Chat
             if (xyz != null)
             {
                 pos = new Position(xyz[0], xyz[1], xyz[2]);
-                if (!GridDefines.IsValidMapCoord(obj.Location.GetMapId(), pos))
+                if (!GridDefines.IsValidMapCoord(obj.Location.MapId, pos))
                 {
-                    handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, obj.Location.GetMapId());
+                    handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, obj.Location.MapId);
                     return false;
                 }
             }
@@ -227,7 +227,7 @@ namespace Game.Chat
             // however it entirely skips parsing that block and only uses already known location
             obj.Delete();
 
-            obj = GameObject.CreateGameObjectFromDB(guidLow, map);
+            obj = GameObject.CreateGameObjectFromDb(guidLow, map);
             if (!obj)
                 return false;
 
@@ -248,7 +248,7 @@ namespace Game.Chat
             stmt.AddValue(0, player.Location.X);
             stmt.AddValue(1, player.Location.Y);
             stmt.AddValue(2, player.Location.Z);
-            stmt.AddValue(3, player.Location.GetMapId());
+            stmt.AddValue(3, player.Location.MapId);
             stmt.AddValue(4, player.Location.X);
             stmt.AddValue(5, player.Location.Y);
             stmt.AddValue(6, player.Location.Z);
@@ -334,13 +334,13 @@ namespace Game.Chat
             {
                 if (uint.TryParse(objectIdStr, out uint objectId))
                     result = DB.World.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - '{0}', 2) + POW(position_y - '{1}', 2) + POW(position_z - '{2}', 2)) AS order_ FROM gameobject WHERE map = '{3}' AND id = '{4}' ORDER BY order_ ASC LIMIT 1",
-                    player.Location.X, player.Location.Y, player.Location.Z, player.Location.GetMapId(), objectId);
+                    player.Location.X, player.Location.Y, player.Location.Z, player.Location.MapId, objectId);
                 else
                 {
                     result = DB.World.Query(
                         "SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ " +
                         "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {3} AND name LIKE CONCAT('%%', '{4}', '%%') ORDER BY order_ ASC LIMIT 1",
-                        player.Location.X, player.Location.Y, player.Location.Z, player.Location.GetMapId(), objectIdStr);
+                        player.Location.X, player.Location.Y, player.Location.Z, player.Location.MapId, objectIdStr);
                 }
             }
             else
@@ -369,7 +369,7 @@ namespace Game.Chat
                     "(POW(position_x - {0}, 2) + POW(position_y - {1}, 2) + POW(position_z - {2}, 2)) AS order_ FROM gameobject " +
                     "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{3}' {4} ORDER BY order_ ASC LIMIT 10",
                     handler.GetSession().GetPlayer().Location.X, handler.GetSession().GetPlayer().Location.Y, handler.GetSession().GetPlayer().Location.Z,
-                    handler.GetSession().GetPlayer().Location.GetMapId(), eventFilter.ToString());
+                    handler.GetSession().GetPlayer().Location.                    MapId, eventFilter.ToString());
             }
 
             if (result.IsEmpty())
@@ -458,7 +458,7 @@ namespace Game.Chat
             // however it entirely skips parsing that block and only uses already known location
             obj.Delete();
 
-            obj = GameObject.CreateGameObjectFromDB(guidLow, map);
+            obj = GameObject.CreateGameObjectFromDb(guidLow, map);
             if (!obj)
                 return false;
 
@@ -508,7 +508,7 @@ namespace Game.Chat
                 ulong spawnId = obj.GetSpawnId();
 
                 // this will generate a new guid if the object is in an instance
-                obj = GameObject.CreateGameObjectFromDB(spawnId, map);
+                obj = GameObject.CreateGameObjectFromDb(spawnId, map);
                 if (!obj)
                     return false;
 

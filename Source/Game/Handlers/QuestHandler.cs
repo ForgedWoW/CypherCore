@@ -398,7 +398,7 @@ namespace Game
 
                         if (quest.HasFlag(QuestFlags.Pvp))
                         {
-                            _player.pvpInfo.IsHostile = _player.pvpInfo.IsInHostileArea || _player.HasPvPForcingQuest();
+                            _player.PvpInfo.IsHostile = _player.PvpInfo.IsInHostileArea || _player.HasPvPForcingQuest();
                             _player.UpdatePvPState();
                         }
                     }
@@ -758,7 +758,7 @@ namespace Game
                     _player.UpdateSkillPro((uint)reward.SkillLineId, 1000, reward.SkillPointCount);
 
                 if (reward.HonorPointCount != 0)
-                    _player.AddHonorXP(reward.HonorPointCount);
+                    _player.AddHonorXp(reward.HonorPointCount);
 
                 if (reward.Money != 0)
                     _player.ModifyMoney((long)reward.Money, false);

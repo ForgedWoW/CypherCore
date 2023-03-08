@@ -41,7 +41,7 @@ public class BattlegroundMap : Map
 
 	public override bool AddPlayerToMap(Player player, bool initPlayer = true)
 	{
-		player.m_InstanceValid = true;
+		player.InstanceValid = true;
 
 		return base.AddPlayerToMap(player, initPlayer);
 	}

@@ -300,7 +300,7 @@ namespace Scripts.EasternKingdoms.MagistersTerrace.FelbloodKaelthas
                     {
                         DoCast(unitTarget, MiscConst.GravityLapseTeleportSpells[_gravityLapseTargetCount], new CastSpellExtraArgs(true));
 
-                        target.m_Events.AddEventAtOffset(() =>
+                        target.Events.AddEventAtOffset(() =>
                                                         {
                                                             target.CastSpell(target, DungeonMode(SpellIds.GravityLapse, SpellIds.HGravityLapse));
                                                             target.CastSpell(target, SpellIds.GravityLapseFly);

@@ -171,7 +171,7 @@ namespace Scripts.EasternKingdoms.BlackrockMountain.BlackwingLair.VictorNefarius
         {
             Initialize();
 
-            if (me.Location.GetMapId() == 469)
+            if (me.Location.MapId == 469)
             {
                 if (!me.FindNearestCreature(BWLCreatureIds.Nefarian, 1000.0f, true))
                     _Reset();

@@ -249,7 +249,7 @@ public class TransportManager : Singleton<TransportManager>
 		trans.SetMap(map);
 
 		if (instanceMap != null)
-			trans.m_zoneScript = instanceMap.GetInstanceScript();
+			trans.ZoneScript = instanceMap.GetInstanceScript();
 
 		// Passengers will be loaded once a player is near
 

@@ -26,7 +26,7 @@ namespace Scripts.Spells.Druid
 				_count = count;
 			}
 
-			public override bool Execute(ulong e_time, uint p_time)
+			public override bool Execute(ulong etime, uint pTime)
 			{
 				spell_dru_eclipse_common.SetSpellCount(_owner, DruidSpellIds.EclipseSolarSpellCnt, _count);
 				spell_dru_eclipse_common.SetSpellCount(_owner, DruidSpellIds.EclipseLunarSpellCnt, _count);
@@ -70,7 +70,7 @@ namespace Scripts.Spells.Druid
 		private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 		{
 			// counters are applied with a delay
-			GetTarget().m_Events.AddEventAtOffset(new InitializeEclipseCountersEvent(GetTarget(), (uint)aurEff.GetAmount()), TimeSpan.FromSeconds(1));
+			GetTarget().Events.AddEventAtOffset(new InitializeEclipseCountersEvent(GetTarget(), (uint)aurEff.GetAmount()), TimeSpan.FromSeconds(1));
 		}
 
 		private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)

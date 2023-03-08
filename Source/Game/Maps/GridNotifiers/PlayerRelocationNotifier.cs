@@ -19,7 +19,7 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
 	{
 		Visit(objs.Cast<WorldObject>().ToList());
 
-		var relocated_for_ai = (Player == Player.seerView);
+		var relocated_for_ai = (Player == Player.SeerView);
 
 		for (var i = 0; i < objs.Count; ++i)
 		{
@@ -44,7 +44,7 @@ public class PlayerRelocationNotifier : VisibleNotifier, IGridNotifierPlayer, IG
 
 			Player.UpdateVisibilityOf(player, Data, VisibleNow);
 
-			if (player.seerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
+			if (player.SeerView.IsNeedNotify(NotifyFlags.VisibilityChanged))
 				continue;
 
 			player.UpdateVisibilityOf(Player);

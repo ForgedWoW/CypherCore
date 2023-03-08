@@ -23,7 +23,7 @@ public class spell_hun_throwing_axes : SpellScript, ISpellOnCast
 		var throwCount = GetSpellInfo().GetEffect(0).BasePoints;
 
 		for (byte i = 0; i < throwCount; ++i)
-			caster.m_Events.AddEventAtOffset(() =>
+			caster.Events.AddEventAtOffset(() =>
 			                                 {
 				                                 if (caster != null)
 				                                 {

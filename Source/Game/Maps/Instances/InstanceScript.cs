@@ -544,7 +544,7 @@ public class InstanceScript : ZoneScript
 
 		for (var i = 0; i < SharedConst.MaxSummonSlot; ++i)
 		{
-			var summonGUID = player.m_SummonSlot[i];
+			var summonGUID = player.SummonSlot[i];
 
 			if (!summonGUID.IsEmpty())
 			{
@@ -558,9 +558,9 @@ public class InstanceScript : ZoneScript
 		if (!includeControlled)
 			return;
 
-		for (var i = 0; i < player.m_Controlled.Count; ++i)
+		for (var i = 0; i < player.Controlled.Count; ++i)
 		{
-			var controlled = player.m_Controlled[i];
+			var controlled = player.Controlled[i];
 
 			if (controlled != null)
 				if (controlled.IsInWorld && controlled.IsCreature())
@@ -586,7 +586,7 @@ public class InstanceScript : ZoneScript
 
 		for (var i = 0; i < SharedConst.MaxSummonSlot; ++i)
 		{
-			var summonGUID = player.m_SummonSlot[i];
+			var summonGUID = player.SummonSlot[i];
 
 			if (!summonGUID.IsEmpty())
 			{
@@ -600,9 +600,9 @@ public class InstanceScript : ZoneScript
 		if (!includeControlled)
 			return;
 
-		for (var i = 0; i < player.m_Controlled.Count; ++i)
+		for (var i = 0; i < player.Controlled.Count; ++i)
 		{
-			var controlled = player.m_Controlled[i];
+			var controlled = player.Controlled[i];
 
 			if (controlled != null)
 				if (controlled.IsInWorld && controlled.IsCreature())

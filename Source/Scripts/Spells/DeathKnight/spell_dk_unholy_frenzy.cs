@@ -24,7 +24,7 @@ public class spell_dk_unholy_frenzy : AuraScript, IHasAuraEffects
 		if (target == null || caster == null)
 			return;
 
-		caster.m_Events.AddRepeatEventAtOffset(() =>
+		caster.Events.AddRepeatEventAtOffset(() =>
 		                                       {
 			                                       if (target == null || caster == null)
 				                                       return default;

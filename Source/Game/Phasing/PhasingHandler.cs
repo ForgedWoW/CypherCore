@@ -45,9 +45,9 @@ namespace Game
 
         public static void ForAllControlled(Unit unit, Action<Unit> func)
         {
-            for (var i = 0; i < unit.m_Controlled.Count; ++i)
+            for (var i = 0; i < unit.Controlled.Count; ++i)
             {
-                Unit controlled = unit.m_Controlled[i];
+                Unit controlled = unit.Controlled[i];
                 if (controlled.GetTypeId() != TypeId.Player
                     && controlled.GetVehicle() == null)                   // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
                     func(controlled);
@@ -55,9 +55,9 @@ namespace Game
 
             for (byte i = 0; i < SharedConst.MaxSummonSlot; ++i)
             {
-                if (!unit.m_SummonSlot[i].IsEmpty())
+                if (!unit.SummonSlot[i].IsEmpty())
                 {
-                    Creature summon = unit.GetMap().GetCreature(unit.m_SummonSlot[i]);
+                    Creature summon = unit.GetMap().GetCreature(unit.SummonSlot[i]);
                     if (summon)
                         func(summon);
                 }
@@ -266,14 +266,14 @@ namespace Game
             {
                 if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
                 {
-                    if (mapId == obj.Location.GetMapId())
+                    if (mapId == obj.Location.MapId)
                         phaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
 
                     // ui map is visible on all maps
                     foreach (uint uiMapPhaseId in visibleMapInfo.UiMapPhaseIDs)
                         phaseShift.AddUiMapPhaseId(uiMapPhaseId);
                 }
-                else if(mapId == obj.Location.GetMapId())
+                else if(mapId == obj.Location.MapId)
                     suppressedPhaseShift.AddVisibleMapId(visibleMapInfo.Id, visibleMapInfo);
             }
 
@@ -693,7 +693,7 @@ namespace Game
 
         public void VisitControlledOf(Unit unit, Action<Unit> func)
         {
-            foreach (Unit controlled in unit.m_Controlled)
+            foreach (Unit controlled in unit.Controlled)
             {
                 // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
                 if (!controlled.IsPlayer() && controlled.GetVehicle() == null)
@@ -701,7 +701,7 @@ namespace Game
                         func(controlled);
             }
 
-            foreach (ObjectGuid summonGuid in unit.m_SummonSlot)
+            foreach (ObjectGuid summonGuid in unit.SummonSlot)
             {
                 if (!summonGuid.IsEmpty())
                 {

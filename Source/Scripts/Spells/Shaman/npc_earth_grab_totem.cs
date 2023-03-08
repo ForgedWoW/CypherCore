@@ -23,7 +23,7 @@ namespace Scripts.Spells.Shaman
 		{
 			var time = TimeSpan.FromSeconds(2);
 
-			me.m_Events.AddRepeatEventAtOffset(() =>
+			me.Events.AddRepeatEventAtOffset(() =>
 			                                   {
 				                                   var unitList = new List<Unit>();
 				                                   me.GetAttackableUnitListInRange(unitList, 10.0f);

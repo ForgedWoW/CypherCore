@@ -2996,7 +2996,7 @@ namespace Game.Spells
             }
 
             if (power.PowerType == PowerType.Mana)
-                powerCost = (int)((double)powerCost * (1.0f + unitCaster.m_unitData.ManaCostMultiplier));
+                powerCost = (int)((double)powerCost * (1.0f + unitCaster.UnitData.ManaCostMultiplier));
 
             // power cost cannot become negative if initially positive
             if (initiallyNegative != (powerCost < 0))
@@ -3050,10 +3050,10 @@ namespace Game.Spells
 
         double CalcPPMHasteMod(SpellProcsPerMinuteModRecord mod, Unit caster)
         {
-            double haste = caster.m_unitData.ModHaste;
-            double rangedHaste = caster.m_unitData.ModRangedHaste;
-            double spellHaste = caster.m_unitData.ModSpellHaste;
-            double regenHaste = caster.m_unitData.ModHasteRegen;
+            double haste = caster.UnitData.ModHaste;
+            double rangedHaste = caster.UnitData.ModRangedHaste;
+            double spellHaste = caster.UnitData.ModSpellHaste;
+            double regenHaste = caster.UnitData.ModHasteRegen;
 
             switch (mod.Param)
             {
@@ -3080,9 +3080,9 @@ namespace Game.Spells
             if (player == null)
                 return 0.0f;
 
-            double crit = player.m_activePlayerData.CritPercentage;
-            double rangedCrit = player.m_activePlayerData.RangedCritPercentage;
-            double spellCrit = player.m_activePlayerData.SpellCritPercentage;
+            double crit = player.ActivePlayerData.CritPercentage;
+            double rangedCrit = player.ActivePlayerData.RangedCritPercentage;
+            double spellCrit = player.ActivePlayerData.SpellCritPercentage;
 
             switch (mod.Param)
             {

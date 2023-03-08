@@ -23,7 +23,7 @@ internal class CometStormEvent : BasicEvent
 		_dest           = dest;
 	}
 
-	public override bool Execute(ulong time, uint diff)
+	public override bool Execute(ulong etime, uint pTime)
 	{
 		Position destPosition = new(_dest.X + RandomHelper.FRand(-3.0f, 3.0f), _dest.Y + RandomHelper.FRand(-3.0f, 3.0f), _dest.Z);
 		_caster.CastSpell(destPosition, MageSpells.CometStormVisual, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress).SetOriginalCastId(_originalCastId));
@@ -32,7 +32,7 @@ internal class CometStormEvent : BasicEvent
 		if (_count >= 7)
 			return true;
 
-		_caster.m_Events.AddEvent(this, TimeSpan.FromMilliseconds(time) + RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
+		_caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime) + RandomHelper.RandTime(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(275)));
 
 		return false;
 	}

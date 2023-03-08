@@ -56,7 +56,7 @@ public class GridDefines
 
 	public static bool IsValidMapCoord(WorldLocation loc)
 	{
-		return IsValidMapCoord(loc.GetMapId(), loc);
+		return IsValidMapCoord(loc.MapId, loc);
 	}
 
 	public static float NormalizeMapCoord(float c)

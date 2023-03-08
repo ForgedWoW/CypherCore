@@ -305,7 +305,7 @@ namespace Game
 
                 if (loot.IsLooted())
                 {
-                    corpse.loot = null;
+                    corpse.Loot = null;
                     corpse.RemoveCorpseDynamicFlag(CorpseDynFlags.Lootable);
                 }
             }
@@ -320,8 +320,8 @@ namespace Game
                 // destroy only 5 items from stack in case prospecting and milling
                 if (loot.loot_type == LootType.Prospecting || loot.loot_type == LootType.Milling)
                 {
-                    pItem.m_lootGenerated = false;
-                    pItem.loot = null;
+                    pItem.LootGenerated = false;
+                    pItem.Loot = null;
 
                     uint count = pItem.GetCount();
 
@@ -367,7 +367,7 @@ namespace Game
                 }
 
                 // force dynflag update to update looter and lootable info
-                creature.m_values.ModifyValue(creature.m_objectData).ModifyValue(creature.m_objectData.DynamicFlags);
+                creature.Values.ModifyValue(creature.ObjectData).ModifyValue(creature.ObjectData.DynamicFlags);
                 creature.ForceUpdateFieldChange();
             }
         }

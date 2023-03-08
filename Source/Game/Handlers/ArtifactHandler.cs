@@ -30,7 +30,7 @@ namespace Game
             if (cost != null)
                 xpCost = (ulong)(currentArtifactTier == PlayerConst.MaxArtifactTier ? cost.XP2 : cost.XP);
 
-            if (xpCost > artifact.m_itemData.ArtifactXP)
+            if (xpCost > artifact.ItemData.ArtifactXP)
                 return;
 
             if (artifactAddPower.PowerChoices.Empty())
@@ -97,7 +97,7 @@ namespace Game
             {
                 _player.ApplyArtifactPowerRank(artifact, artifactPowerRank, true);
 
-                foreach (ArtifactPower power in artifact.m_itemData.ArtifactPowers)
+                foreach (ArtifactPower power in artifact.ItemData.ArtifactPowers)
                 {
                     ArtifactPowerRecord scaledArtifactPowerEntry = CliDB.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
                     if (!scaledArtifactPowerEntry.Flags.HasAnyFlag(ArtifactPowerFlag.ScalesWithNumPowers))
@@ -114,7 +114,7 @@ namespace Game
                 }
             }
 
-            artifact.SetArtifactXP(artifact.m_itemData.ArtifactXP - xpCost);
+            artifact.SetArtifactXP(artifact.ItemData.ArtifactXP - xpCost);
             artifact.SetState(ItemUpdateState.Changed, _player);
 
             uint totalPurchasedArtifactPower = artifact.GetTotalPurchasedArtifactPowers();
@@ -204,10 +204,10 @@ namespace Game
             if (cost != null)
                 xpCost = (ulong)(artifact.GetModifier(ItemModifier.ArtifactTier) == 1 ? cost.XP2 : cost.XP);
 
-            if (xpCost > artifact.m_itemData.ArtifactXP)
+            if (xpCost > artifact.ItemData.ArtifactXP)
                 return;
 
-            ulong newAmount = artifact.m_itemData.ArtifactXP - xpCost;
+            ulong newAmount = artifact.ItemData.ArtifactXP - xpCost;
             for (uint i = 0; i <= artifact.GetTotalPurchasedArtifactPowers(); ++i)
             {
                 GtArtifactLevelXPRecord cost1 = CliDB.ArtifactLevelXPGameTable.GetRow(i);
@@ -215,7 +215,7 @@ namespace Game
                     newAmount += (ulong)(artifact.GetModifier(ItemModifier.ArtifactTier) == 1 ? cost1.XP2 : cost1.XP);
             }
 
-            foreach (ArtifactPower artifactPower in artifact.m_itemData.ArtifactPowers)
+            foreach (ArtifactPower artifactPower in artifact.ItemData.ArtifactPowers)
             {
                 byte oldPurchasedRank = artifactPower.PurchasedRank;
                 if (oldPurchasedRank == 0)
@@ -231,7 +231,7 @@ namespace Game
                 }
             }
 
-            foreach (ArtifactPower power in artifact.m_itemData.ArtifactPowers)
+            foreach (ArtifactPower power in artifact.ItemData.ArtifactPowers)
             {
                 ArtifactPowerRecord scaledArtifactPowerEntry = CliDB.ArtifactPowerStorage.LookupByKey(power.ArtifactPowerId);
                 if (!scaledArtifactPowerEntry.Flags.HasAnyFlag(ArtifactPowerFlag.ScalesWithNumPowers))

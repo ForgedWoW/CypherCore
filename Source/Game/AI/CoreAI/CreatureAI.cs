@@ -40,16 +40,16 @@ namespace Game.AI
 
         public override void OnCharmed(bool isNew)
         {
-            if (isNew && !me.IsCharmed() && !me.LastCharmerGUID.IsEmpty())
+            if (isNew && !me.IsCharmed() && !me.LastCharmerGuid.IsEmpty())
             {
                 if (!me.HasReactState(ReactStates.Passive))
                 {
-                    Unit lastCharmer = Global.ObjAccessor.GetUnit(me, me.LastCharmerGUID);
+                    Unit lastCharmer = Global.ObjAccessor.GetUnit(me, me.LastCharmerGuid);
                     if (lastCharmer != null)
                         me.EngageWithTarget(lastCharmer);
                 }
 
-                me.LastCharmerGUID.Clear();
+                me.LastCharmerGuid.Clear();
             }
 
             base.OnCharmed(isNew);
@@ -78,7 +78,7 @@ namespace Game.AI
                         continue;
 
                     creature.EngageWithTarget(player);
-                    foreach (Unit pet in player.m_Controlled)
+                    foreach (Unit pet in player.Controlled)
                         creature.EngageWithTarget(pet);
 
                     Unit vehicle = player.GetVehicleBase();
@@ -179,7 +179,7 @@ namespace Game.AI
                 if (summon != null)
                 {
                     // Only apply this to specific types of summons
-                    if (!summon.GetVehicle() && ShouldFollowOnSpawn(summon.m_Properties) && summon.CanFollowOwner())
+                    if (!summon.GetVehicle() && ShouldFollowOnSpawn(summon.SummonPropertiesRecord) && summon.CanFollowOwner())
                     {
                         Unit owner = summon.GetCharmerOrOwner();
                         if (owner != null)

@@ -2002,7 +2002,7 @@ namespace Scripts.World.NpcSpecial
                               };
 
             who.GetMotionMaster().LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
-            who.m_Events.AddEvent(new CastFoodSpell(who, ChairSpells[who.GetEntry()]), who.m_Events.CalculateTime(TimeSpan.FromSeconds(1)));
+            who.Events.AddEvent(new CastFoodSpell(who, ChairSpells[who.GetEntry()]), who.Events.CalculateTime(TimeSpan.FromSeconds(1)));
             Creature creature = who.ToCreature();
 
             if (creature)
@@ -2044,7 +2044,7 @@ namespace Scripts.World.NpcSpecial
             _spellId = spellId;
         }
 
-        public override bool Execute(ulong execTime, uint diff)
+        public override bool Execute(ulong etime, uint pTime)
         {
             _owner.CastSpell(_owner, _spellId, true);
 

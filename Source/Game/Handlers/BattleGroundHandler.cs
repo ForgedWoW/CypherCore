@@ -32,7 +32,7 @@ namespace Game
 
             BattlegroundTypeId bgTypeId = Global.BattlegroundMgr.GetBattleMasterBG(unit.GetEntry());
 
-            if (!GetPlayer().GetBGAccessByLevel(bgTypeId))
+            if (!GetPlayer().GetBgAccessByLevel(bgTypeId))
             {
                 // temp, must be gossip message...
                 SendNotification(CypherStrings.YourBgLevelReqError);
@@ -368,7 +368,7 @@ namespace Game
                 // set the destination instance id
                 GetPlayer().SetBattlegroundId(bg.GetInstanceID(), bgTypeId);
                 // set the destination team
-                GetPlayer().SetBGTeam(ginfo.Team);
+                GetPlayer().SetBgTeam(ginfo.Team);
 
                 Global.BattlegroundMgr.SendToBattleground(GetPlayer(), ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
                 Log.outDebug(LogFilter.Battleground, $"Battleground: player {_player.GetName()} ({_player.GetGUID()}) joined battle for bg {bg.GetInstanceID()}, bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");

@@ -73,13 +73,13 @@ namespace Game
             if (pet.IsTypeId(TypeId.Player) && !(flag == ActiveStates.Command && spellid == (uint)CommandStates.Attack))
                 return;
 
-            if (GetPlayer().m_Controlled.Count == 1)
+            if (GetPlayer().Controlled.Count == 1)
                 HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.ActionPosition.X, packet.ActionPosition.Y, packet.ActionPosition.Z);
             else
             {
                 //If a pet is dismissed, m_Controlled will change
                 List<Unit> controlled = new();
-                foreach (var unit in GetPlayer().m_Controlled)
+                foreach (var unit in GetPlayer().Controlled)
                     if (unit.GetEntry() == pet.GetEntry() && unit.IsAlive())
                         controlled.Add(unit);
 
@@ -404,7 +404,7 @@ namespace Game
             if (unit)
             {
                 response.Allow = true;
-                response.Timestamp = unit.m_unitData.PetNameTimestamp;
+                response.Timestamp = unit.UnitData.PetNameTimestamp;
                 response.Name = unit.GetName();
 
                 Pet pet = unit.ToPet();
@@ -464,7 +464,7 @@ namespace Game
             }
 
             List<Unit> pets = new();
-            foreach (Unit controlled in _player.m_Controlled)
+            foreach (Unit controlled in _player.Controlled)
                 if (controlled.GetEntry() == pet.GetEntry() && controlled.IsAlive())
                     pets.Add(controlled);
 
@@ -491,7 +491,7 @@ namespace Game
                                 ((Pet)petControlled).ToggleAutocast(spellInfo, true);
                             else
                             {
-                                foreach (var unit in GetPlayer().m_Controlled)
+                                foreach (var unit in GetPlayer().Controlled)
                                     if (unit.GetEntry() == petControlled.GetEntry())
                                         unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, true);
                             }
@@ -503,7 +503,7 @@ namespace Game
                                 petControlled.ToPet().ToggleAutocast(spellInfo, false);
                             else
                             {
-                                foreach (var unit in GetPlayer().m_Controlled)
+                                foreach (var unit in GetPlayer().Controlled)
                                     if (unit.GetEntry() == petControlled.GetEntry())
                                         unit.GetCharmInfo().ToggleCreatureAutocast(spellInfo, false);
                             }
@@ -563,7 +563,7 @@ namespace Game
                 stmt.AddValue(1, GetPlayer().GetGUID().ToString());
 
                 for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                    stmt.AddValue(i + 1, packet.RenameData.DeclinedNames.name[i]);
+                    stmt.AddValue(i + 1, packet.RenameData.DeclinedNames.Name[i]);
 
                 trans.Append(stmt);
             }
@@ -618,7 +618,7 @@ namespace Game
             }
 
             List<Unit> pets = new();
-            foreach (Unit controlled in _player.m_Controlled)
+            foreach (Unit controlled in _player.Controlled)
                 if (controlled.GetEntry() == pet.GetEntry() && controlled.IsAlive())
                     pets.Add(controlled);
 
@@ -741,7 +741,7 @@ namespace Game
             petNameInvalid.Result = error;
             petNameInvalid.RenameData.NewName = name;
             for (int i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-                petNameInvalid.RenameData.DeclinedNames.name[i] = declinedName.name[i];
+                petNameInvalid.RenameData.DeclinedNames.Name[i] = declinedName.Name[i];
 
             SendPacket(petNameInvalid);
         }

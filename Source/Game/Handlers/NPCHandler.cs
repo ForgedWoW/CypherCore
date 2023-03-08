@@ -621,11 +621,11 @@ namespace Game
 
                 if (vendorItem.Type == ItemVendorType.Item)
                 {
-                    ItemTemplate itemTemplate = Global.ObjectMgr.GetItemTemplate(vendorItem.item);
+                    ItemTemplate itemTemplate = Global.ObjectMgr.GetItemTemplate(vendorItem.Item);
                     if (itemTemplate == null)
                         continue;
 
-                    int leftInStock = vendorItem.maxcount == 0 ? -1 : (int)vendor.GetVendorItemCurrentCount(vendorItem);
+                    int leftInStock = vendorItem.Maxcount == 0 ? -1 : (int)vendor.GetVendorItemCurrentCount(vendorItem);
                     if (!GetPlayer().IsGameMaster())
                     {
                         if (!Convert.ToBoolean(itemTemplate.GetAllowableClass() & GetPlayer().GetClassMask()) && itemTemplate.GetBonding() == ItemBondingType.OnAcquire)
@@ -639,9 +639,9 @@ namespace Game
                             continue;
                     }
 
-                    if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(vendor.GetEntry(), vendorItem.item, _player, vendor))
+                    if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(vendor.GetEntry(), vendorItem.Item, _player, vendor))
                     {
-                        Log.outDebug(LogFilter.Condition, "SendListInventory: conditions not met for creature entry {0} item {1}", vendor.GetEntry(), vendorItem.item);
+                        Log.outDebug(LogFilter.Condition, "SendListInventory: conditions not met for creature entry {0} item {1}", vendor.GetEntry(), vendorItem.Item);
                         continue;
                     }
 
@@ -662,7 +662,7 @@ namespace Game
                     item.DoNotFilterOnVendor = vendorItem.IgnoreFiltering;
                     item.Refundable = itemTemplate.HasFlag(ItemFlags.ItemPurchaseRecord) && vendorItem.ExtendedCost != 0 && itemTemplate.GetMaxStackSize() == 1;
 
-                    item.Item.ItemID = vendorItem.item;
+                    item.Item.ItemID = vendorItem.Item;
                     if (!vendorItem.BonusListIDs.Empty())
                     {
                         item.Item.ItemBonus = new();
@@ -673,7 +673,7 @@ namespace Game
                 }
                 else if (vendorItem.Type == ItemVendorType.Currency)
                 {
-                    CurrencyTypesRecord currencyTemplate = CliDB.CurrencyTypesStorage.LookupByKey(vendorItem.item);
+                    CurrencyTypesRecord currencyTemplate = CliDB.CurrencyTypesStorage.LookupByKey(vendorItem.Item);
                     if (currencyTemplate == null)
                         continue;
 
@@ -682,9 +682,9 @@ namespace Game
 
                     item.MuID = (int)slot + 1; // client expects counting to start at 1
                     item.ExtendedCostID = (int)vendorItem.ExtendedCost;
-                    item.Item.ItemID = vendorItem.item;
+                    item.Item.ItemID = vendorItem.Item;
                     item.Type = (int)vendorItem.Type;
-                    item.StackCount = (int)vendorItem.maxcount;
+                    item.StackCount = (int)vendorItem.Maxcount;
                     item.DoNotFilterOnVendor = vendorItem.IgnoreFiltering;
 
                     packet.Items.Add(item);

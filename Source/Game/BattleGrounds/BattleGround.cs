@@ -162,7 +162,7 @@ namespace Game.BattleGrounds
                             continue;
 
                         Position pos = player.Location;
-                        WorldSafeLocsEntry startPos = GetTeamStartPosition(GetTeamIndexByTeamId(player.GetBGTeam()));
+                        WorldSafeLocsEntry startPos = GetTeamStartPosition(GetTeamIndexByTeamId(player.GetBgTeam()));
                         if (pos.GetExactDistSq(startPos.Loc) > maxDist)
                         {
                             Log.outDebug(LogFilter.Battleground, $"Battleground: Sending {player.GetName()} back to start location (map: {GetMapId()}) (possible exploit)");
@@ -417,7 +417,7 @@ namespace Game.BattleGrounds
                         if (player)
                         {
                             // Correctly display EnemyUnitFrame
-                            player.SetArenaFaction((byte)player.GetBGTeam());
+                            player.SetArenaFaction((byte)player.GetBgTeam());
 
                             player.RemoveAura(BattlegroundConst.SpellArenaPreparation);
                             player.ResetAllPowers();
@@ -764,16 +764,16 @@ namespace Game.BattleGrounds
                         // TODO: lose honor xp
                     }
 
-                    player.UpdateCriteria(CriteriaType.WinBattleground, player.Location.GetMapId());
+                    player.UpdateCriteria(CriteriaType.WinBattleground, player.Location.MapId);
                     if (!guildAwarded)
                     {
                         guildAwarded = true;
-                        uint guildId = GetBgMap().GetOwnerGuildId(player.GetBGTeam());
+                        uint guildId = GetBgMap().GetOwnerGuildId(player.GetBgTeam());
                         if (guildId != 0)
                         {
                             Guild guild = Global.GuildMgr.GetGuildById(guildId);
                             if (guild)
-                                guild.UpdateCriteria(CriteriaType.WinBattleground, player.Location.GetMapId(), 0, 0, null, player);
+                                guild.UpdateCriteria(CriteriaType.WinBattleground, player.Location.MapId, 0, 0, null, player);
                         }
                     }
                 }
@@ -790,7 +790,7 @@ namespace Game.BattleGrounds
 
                 player.SendPacket(pvpMatchComplete);
 
-                player.UpdateCriteria(CriteriaType.ParticipateInBattleground, player.Location.GetMapId());
+                player.UpdateCriteria(CriteriaType.ParticipateInBattleground, player.Location.MapId);
             }
         }
 
@@ -908,7 +908,7 @@ namespace Game.BattleGrounds
                 // Do next only if found in Battleground
                 player.SetBattlegroundId(0, BattlegroundTypeId.None);  // We're not in BG.
                 // reset destination bg team
-                player.SetBGTeam(0);
+                player.SetBgTeam(0);
 
                 // remove all criterias on bg leave
                 player.ResetCriteria(CriteriaFailEvent.LeaveBattleground, GetMapId(), true);
@@ -964,7 +964,7 @@ namespace Game.BattleGrounds
 
         public void TeleportPlayerToExploitLocation(Player player)
         {
-            WorldSafeLocsEntry loc = GetExploitTeleportLocation(player.GetBGTeam());
+            WorldSafeLocsEntry loc = GetExploitTeleportLocation(player.GetBgTeam());
             if (loc != null)
                 player.TeleportTo(loc.Loc);
         }
@@ -978,7 +978,7 @@ namespace Game.BattleGrounds
             // score struct must be created in inherited class
 
             ObjectGuid guid = player.GetGUID();
-            Team team = player.GetBGTeam();
+            Team team = player.GetBgTeam();
 
             BattlegroundPlayer bp = new();
             bp.OfflineRemoveTime = 0;
@@ -1021,7 +1021,7 @@ namespace Game.BattleGrounds
                 pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds;
                 pvpMatchInitialize.StartTime = GameTime.GetGameTime() - pvpMatchInitialize.Duration;
             }
-            pvpMatchInitialize.ArenaFaction = (byte)(player.GetBGTeam() == Team.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
+            pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == Team.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
             pvpMatchInitialize.BattlemasterListID = (uint)GetTypeID();
             pvpMatchInitialize.Registered = false;
             pvpMatchInitialize.AffectsRating = IsRated();
@@ -1154,8 +1154,8 @@ namespace Game.BattleGrounds
 
                 // 1 player is logging out, if it is the last alive, then end arena!
                 if (IsArena() && player.IsAlive())
-                    if (GetAlivePlayersCountByTeam(player.GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player.GetBGTeam())) != 0)
-                        EndBattleground(GetOtherTeam(player.GetBGTeam()));
+                    if (GetAlivePlayersCountByTeam(player.GetBgTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player.GetBgTeam())) != 0)
+                        EndBattleground(GetOtherTeam(player.GetBgTeam()));
             }
         }
 
@@ -1865,7 +1865,7 @@ namespace Game.BattleGrounds
         public virtual void HandleAreaTrigger(Player player, uint trigger, bool entered)
         {
             Log.outDebug(LogFilter.Battleground, "Unhandled AreaTrigger {0} in Battleground {1}. Player coords (x: {2}, y: {3}, z: {4})",
-                           trigger, player.Location.GetMapId(), player.Location.X, player.Location.Y, player.Location.Z);
+                           trigger, player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z);
         }
 
         public virtual bool SetupBattleground()

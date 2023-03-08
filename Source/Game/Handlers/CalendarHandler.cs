@@ -524,7 +524,7 @@ namespace Game
         void HandleSetSavedInstanceExtend(SetSavedInstanceExtend setSavedInstanceExtend)
         {
             // cannot modify locks currently in use
-            if (_player.Location.GetMapId() == setSavedInstanceExtend.MapID)
+            if (_player.Location.MapId == setSavedInstanceExtend.MapID)
                 return;
 
             var expiryTimes = Global.InstanceLockMgr.UpdateInstanceLockExtensionForPlayer(_player.GetGUID(), new MapDb2Entries((uint)setSavedInstanceExtend.MapID, (Difficulty)setSavedInstanceExtend.DifficultyID), setSavedInstanceExtend.Extend);

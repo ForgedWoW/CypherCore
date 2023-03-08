@@ -20,7 +20,7 @@ namespace Game.Spells.Events
             CastFlags = args;
         }
 
-        public override bool Execute(ulong e_time, uint p_time)
+        public override bool Execute(ulong etime, uint pTime)
         {
             Trigger.CastSpell(Target, SpellId, CastFlags);
             return true;

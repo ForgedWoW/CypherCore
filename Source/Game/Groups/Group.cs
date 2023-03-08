@@ -114,9 +114,9 @@ namespace Game.Groups
 
             if (!IsBGGroup() && !IsBFGroup())
             {
-                m_dungeonDifficulty = leader.GetDungeonDifficultyID();
-                m_raidDifficulty = leader.GetRaidDifficultyID();
-                m_legacyRaidDifficulty = leader.GetLegacyRaidDifficultyID();
+                m_dungeonDifficulty = leader.GetDungeonDifficultyId();
+                m_raidDifficulty = leader.GetRaidDifficultyId();
+                m_legacyRaidDifficulty = leader.GetLegacyRaidDifficultyId();
 
                 m_dbStoreId = Global.GroupMgr.GenerateNewGroupDbStoreId();
 
@@ -184,9 +184,9 @@ namespace Game.Groups
             if (m_groupFlags.HasAnyFlag(GroupFlags.Raid))
                 _initRaidSubGroupsCounter();
 
-            m_dungeonDifficulty = Player.CheckLoadedDungeonDifficultyID((Difficulty)field.Read<byte>(13));
-            m_raidDifficulty = Player.CheckLoadedRaidDifficultyID((Difficulty)field.Read<byte>(14));
-            m_legacyRaidDifficulty = Player.CheckLoadedLegacyRaidDifficultyID((Difficulty)field.Read<byte>(15));
+            m_dungeonDifficulty = Player.CheckLoadedDungeonDifficultyId((Difficulty)field.Read<byte>(13));
+            m_raidDifficulty = Player.CheckLoadedRaidDifficultyId((Difficulty)field.Read<byte>(14));
+            m_legacyRaidDifficulty = Player.CheckLoadedLegacyRaidDifficultyId((Difficulty)field.Read<byte>(15));
 
             m_masterLooterGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(16));
 
@@ -417,7 +417,7 @@ namespace Game.Groups
             player.ResetGroupUpdateSequenceIfNeeded(this);
 
             // if the same group invites the player back, cancel the homebind timer
-            player.m_InstanceValid = player.CheckInstanceValidity(false);
+            player.InstanceValid = player.CheckInstanceValidity(false);
 
             if (!IsRaidGroup())                                      // reset targetIcons for non-raid-groups
             {
@@ -445,19 +445,19 @@ namespace Game.Groups
 
             if (!IsLeader(player.GetGUID()) && !IsBGGroup() && !IsBFGroup())
             {
-                if (player.GetDungeonDifficultyID() != GetDungeonDifficultyID())
+                if (player.GetDungeonDifficultyId() != GetDungeonDifficultyID())
                 {
-                    player.SetDungeonDifficultyID(GetDungeonDifficultyID());
+                    player.SetDungeonDifficultyId(GetDungeonDifficultyID());
                     player.SendDungeonDifficulty();
                 }
-                if (player.GetRaidDifficultyID() != GetRaidDifficultyID())
+                if (player.GetRaidDifficultyId() != GetRaidDifficultyID())
                 {
-                    player.SetRaidDifficultyID(GetRaidDifficultyID());
+                    player.SetRaidDifficultyId(GetRaidDifficultyID());
                     player.SendRaidDifficulty(false);
                 }
-                if (player.GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
+                if (player.GetLegacyRaidDifficultyId() != GetLegacyRaidDifficultyID())
                 {
-                    player.SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
+                    player.SetLegacyRaidDifficultyId(GetLegacyRaidDifficultyID());
                     player.SendRaidDifficulty(true);
                 }
             }
@@ -474,7 +474,7 @@ namespace Game.Groups
 
             {
                 // Broadcast new player group member fields to rest of the group
-                UpdateData groupData = new(player.Location.GetMapId());
+                UpdateData groupData = new(player.Location.MapId);
 
                 // Broadcast group members' fields to player
                 for (GroupReference refe = GetFirstMember(); refe != null; refe = refe.Next())
@@ -490,7 +490,7 @@ namespace Game.Groups
 
                         if (existingMember.HaveAtClient(player))
                         {
-                            UpdateData newData = new(player.Location.GetMapId());
+                            UpdateData newData = new(player.Location.MapId);
                             player.BuildValuesUpdateBlockForPlayerWithFlag(newData, UpdateFieldFlag.PartyMember, existingMember);
                             if (newData.HasData())
                             {
@@ -603,7 +603,7 @@ namespace Game.Groups
                 {
                     Player leader = Global.ObjAccessor.FindPlayer(GetLeaderGUID());
                     uint mapId = Global.LFGMgr.GetDungeonMapId(GetGUID());
-                    if (mapId == 0 || leader == null || (leader.IsAlive() && leader.Location.GetMapId() != mapId))
+                    if (mapId == 0 || leader == null || (leader.IsAlive() && leader.Location.MapId != mapId))
                     {
                         Disband();
                         return false;
@@ -1256,7 +1256,7 @@ namespace Game.Groups
                 if (player.GetSession() == null)
                     continue;
 
-                player.SetDungeonDifficultyID(difficulty);
+                player.SetDungeonDifficultyId(difficulty);
                 player.SendDungeonDifficulty();
             }
         }
@@ -1280,7 +1280,7 @@ namespace Game.Groups
                 if (player.GetSession() == null)
                     continue;
 
-                player.SetRaidDifficultyID(difficulty);
+                player.SetRaidDifficultyId(difficulty);
                 player.SendRaidDifficulty(false);
             }
         }
@@ -1304,7 +1304,7 @@ namespace Game.Groups
                 if (player.GetSession() == null)
                     continue;
 
-                player.SetLegacyRaidDifficultyID(difficulty);
+                player.SetLegacyRaidDifficultyId(difficulty);
                 player.SendRaidDifficulty(true);
             }
         }
@@ -1362,8 +1362,8 @@ namespace Game.Groups
 
         void _homebindIfInstance(Player player)
         {
-            if (player && !player.IsGameMaster() && CliDB.MapStorage.LookupByKey(player.Location.GetMapId()).IsDungeon())
-                player.m_InstanceValid = false;
+            if (player && !player.IsGameMaster() && CliDB.MapStorage.LookupByKey(player.Location.MapId).IsDungeon())
+                player.InstanceValid = false;
         }
 
         public void BroadcastGroupUpdate()
@@ -1375,8 +1375,8 @@ namespace Game.Groups
                 Player pp = Global.ObjAccessor.FindPlayer(member.guid);
                 if (pp && pp.IsInWorld)
                 {
-                    pp.m_values.ModifyValue(pp.m_unitData).ModifyValue(pp.m_unitData.PvpFlags);
-                    pp.m_values.ModifyValue(pp.m_unitData).ModifyValue(pp.m_unitData.FactionTemplate);
+                    pp.Values.ModifyValue(pp.UnitData).ModifyValue(pp.UnitData.PvpFlags);
+                    pp.Values.ModifyValue(pp.UnitData).ModifyValue(pp.UnitData.FactionTemplate);
                     pp.ForceUpdateFieldChange();
                     Log.outDebug(LogFilter.Server, "-- Forced group value update for '{0}'", pp.GetName());
                 }

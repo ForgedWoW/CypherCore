@@ -9,767 +9,745 @@ using System.Numerics;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.ITransport;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class Transport : GameObject, ITransport
 {
-    public interface ITransport
-    {
-        ObjectGuid GetTransportGUID();
+	readonly TimeTracker _positionChangeTimer = new();
+	readonly HashSet<WorldObject> _passengers = new();
+	readonly HashSet<WorldObject> _staticPassengers = new();
 
-        // This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(Position pos);
+	TransportTemplate _transportInfo;
 
-        // This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(Position pos);
+	TransportMovementState _movementState;
+	BitArray _eventsToTrigger;
+	int _currentPathLeg;
+	uint? _requestStopTimestamp;
+	uint _pathProgress;
 
-        float GetTransportOrientation();
+	bool _delayedAddModel;
 
-        void AddPassenger(WorldObject passenger);
+	public Transport()
+	{
+		_updateFlag.ServerTime = true;
+		_updateFlag.Stationary = true;
+		_updateFlag.Rotation = true;
+	}
 
-        ITransport RemovePassenger(WorldObject passenger);
+	public void AddPassenger(WorldObject passenger)
+	{
+		if (!IsInWorld)
+			return;
 
-        public static void UpdatePassengerPosition(ITransport transport, Map map, WorldObject passenger, Position pos, bool setHomePosition)
-        {
-            // transport teleported but passenger not yet (can happen for players)
-            if (passenger.GetMap() != map)
-                return;
-
-            // Do not use Unit::UpdatePosition here, we don't want to remove auras
-            // as if regular movement occurred
-            switch (passenger.GetTypeId())
-            {
-                case TypeId.Unit:
-                {
-                    Creature creature = passenger.ToCreature();
-                    map.CreatureRelocation(creature, pos, false);
-                    if (setHomePosition)
-                    {
-                        pos = creature.GetTransportHomePosition();
-                        transport.CalculatePassengerPosition(pos);
-                        creature.SetHomePosition(pos);
-                    }
-                    break;
-                }
-                case TypeId.Player:
-                    //relocate only passengers in world and skip any player that might be still logging in/teleporting
-                    if (passenger.IsInWorld && !passenger.ToPlayer().IsBeingTeleported())
-                    {
-                        map.PlayerRelocation(passenger.ToPlayer(), pos);
-                        passenger.ToPlayer().SetFallInformation(0, passenger.Location.Z);
-                    }
-                    break;
-                case TypeId.GameObject:
-                    map.GameObjectRelocation(passenger.ToGameObject(), pos, false);
-                    passenger.ToGameObject().RelocateStationaryPosition(pos);
-                    break;
-                case TypeId.DynamicObject:
-                    map.DynamicObjectRelocation(passenger.ToDynamicObject(), pos);
-                    break;
-                case TypeId.AreaTrigger:
-                    map.AreaTriggerRelocation(passenger.ToAreaTrigger(), pos);
-                    break;
-                default:
-                    break;
-            }
-
-            Unit unit = passenger.ToUnit();
-            if (unit != null)
-            {
-                Vehicle vehicle = unit.GetVehicleKit();
-                if (vehicle != null)
-                    vehicle.RelocatePassengers();
-            }
-        }
-
-        static void CalculatePassengerPosition(Position pos, float transX, float transY, float transZ, float transO)
-        {
-            float inx = pos.X, iny = pos.Y, inz = pos.Z;
-            pos.Orientation = Position.NormalizeOrientation(transO + pos.Orientation);
-
-            pos.X = transX + inx * MathF.Cos(transO) - iny * MathF.Sin(transO);
-            pos.Y = transY + iny * MathF.Cos(transO) + inx * MathF.Sin(transO);
-            pos.Z = transZ + inz;
-        }
-
-        static void CalculatePassengerOffset(Position pos, float transX, float transY, float transZ, float transO)
-        {
-            pos.Orientation = Position.NormalizeOrientation(pos.Orientation - transO);
-
-            pos.Z -= transZ;
-            pos.Y -= transY;    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-            pos.X -= transX;    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-            float inx = pos.X, iny = pos.Y;
-            pos.Y = (iny - inx * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-            pos.X = (inx + iny * MathF.Tan(transO)) / (MathF.Cos(transO) + MathF.Sin(transO) * MathF.Tan(transO));
-        }   
-
-        int GetMapIdForSpawning();
-    }
-
-    public class Transport : GameObject, ITransport
-    {
-        public Transport()
-        {
-            m_updateFlag.ServerTime = true;
-            m_updateFlag.Stationary = true;
-            m_updateFlag.Rotation = true;
-        }
-
-        public override void Dispose()
-        {
-            Cypher.Assert(_passengers.Empty());
-            UnloadStaticPassengers();
-            base.Dispose();
-        }
-
-        public bool Create(ulong guidlow, uint entry, float x, float y, float z, float ang)
-        {
-            Location.Relocate(x, y, z, ang);
-
-            if (!Location.IsPositionValid())
-            {
-                Log.outError(LogFilter.Transport, $"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
-                return false;
-            }
-
-            _Create(ObjectGuid.Create(HighGuid.Transport, guidlow));
-
-            GameObjectTemplate goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
-
-            if (goinfo == null)
-            {
-                Log.outError(LogFilter.Sql, $"Transport not created: entry in `gameobject_template` not found, entry: {entry}");
-                return false;
-            }
-
-            m_goInfo = goinfo;
-            m_goTemplateAddon = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
-
-            TransportTemplate tInfo = Global.TransportMgr.GetTransportTemplate(entry);
-            if (tInfo == null)
-            {
-                Log.outError(LogFilter.Sql, "Transport {0} (name: {1}) will not be created, missing `transport_template` entry.", entry, goinfo.name);
-                return false;
-            }
-
-            _transportInfo = tInfo;
-            _eventsToTrigger = new(tInfo.Events.Count, true);
-
-            GameObjectOverride goOverride = GetGameObjectOverride();
-            if (goOverride != null)
-            {
-                SetFaction(goOverride.Faction);
-                ReplaceAllFlags(goOverride.Flags);
-            }
-
-            _pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.GetMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
-            SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
-            SetObjectScale(goinfo.size);
-            SetPeriod(tInfo.TotalPathTime);
-            SetEntry(goinfo.entry);
-            SetDisplayId(goinfo.displayId);
-            SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
-            SetGoType(GameObjectTypes.MapObjTransport);
-            SetGoAnimProgress(255);
-            SetUpdateFieldValue(m_values.ModifyValue(m_gameObjectData).ModifyValue(m_gameObjectData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
-            SetName(goinfo.name);
-            SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
-            SetParentRotation(Quaternion.Identity);
-
-            var position = _transportInfo.ComputePosition(_pathProgress, out _, out int legIndex);
-            if (position != null)
-            {
-                Location.Relocate(position.X, position.Y, position.Z, position.Orientation);
-                _currentPathLeg = legIndex;
-            }
-
-            CreateModel();
-            return true;
-        }
-
-        public override void CleanupsBeforeDelete(bool finalCleanup)
-        {
-            UnloadStaticPassengers();
-            while (!_passengers.Empty())
-            {
-                WorldObject obj = _passengers.FirstOrDefault();
-                RemovePassenger(obj);
-            }
-
-            base.CleanupsBeforeDelete(finalCleanup);
-        }
-
-        public override void Update(uint diff)
-        {
-            TimeSpan positionUpdateDelay = TimeSpan.FromMilliseconds(200);
-
-            if (GetAI() != null)
-                GetAI().UpdateAI(diff);
-            else if (!AIM_Initialize())
-                Log.outError(LogFilter.Transport, "Could not initialize GameObjectAI for Transport");
-
-            Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), GetScriptId());
-
-            _positionChangeTimer.Update(diff);
-
-            uint cycleId = _pathProgress / GetTransportPeriod();
-            if (GetGoInfo().MoTransport.allowstopping == 0)
-                _pathProgress = GameTime.GetGameTimeMS();
-            else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
-                _pathProgress += diff;
-            else
-                _pathProgress = _requestStopTimestamp.Value;
-
-            if (_pathProgress / GetTransportPeriod() != cycleId)
-            {
-                // reset cycle
-                _eventsToTrigger.SetAll(true);
-            }
-
-            SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
-
-            uint timer = _pathProgress % GetTransportPeriod();
-
-            int eventToTriggerIndex = -1;
-            for (var i = 0; i < _eventsToTrigger.Count; i++)
-            {
-                if (_eventsToTrigger.Get(i))
-                {
-                    eventToTriggerIndex = i;
-                    break;
-                }
-            }
-
-            if (eventToTriggerIndex != -1)
-            {
-                while (eventToTriggerIndex < _transportInfo.Events.Count && _transportInfo.Events[eventToTriggerIndex].Timestamp < timer)
-                {
-                    TransportPathLeg leg = _transportInfo.GetLegForTime(_transportInfo.Events[eventToTriggerIndex].Timestamp);
-                    if (leg != null)
-                        if (leg.MapId == Location.GetMapId())
-                            GameEvents.Trigger(_transportInfo.Events[eventToTriggerIndex].EventId, this, this);
-
-                    _eventsToTrigger.Set(eventToTriggerIndex, false);
-                    ++eventToTriggerIndex;
-                }
-            }
-
-            Position newPosition = _transportInfo.ComputePosition(timer, out TransportMovementState moveState, out int legIndex);
-            if (newPosition != null)
-            {
-                bool justStopped = _movementState == TransportMovementState.Moving && moveState != TransportMovementState.Moving;
-                _movementState = moveState;
-
-                if (justStopped)
-                {
-                    if (_requestStopTimestamp != 0 && GetGoState() != GameObjectState.Ready)
-                    {
-                        SetGoState(GameObjectState.Ready);
-                        SetDynamicFlag(GameObjectDynamicLowFlags.Stopped);
-                    }
-                }
-
-                if (legIndex != _currentPathLeg)
-                {
-                    uint oldMapId = _transportInfo.PathLegs[_currentPathLeg].MapId;
-                    _currentPathLeg = legIndex;
-                    TeleportTransport(oldMapId, _transportInfo.PathLegs[legIndex].MapId, newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
-                    return;
-                }
-
-                // set position
-                if (_positionChangeTimer.Passed() && GetExpectedMapId() == Location.GetMapId())
-                {
-                    _positionChangeTimer.Reset(positionUpdateDelay);
-                    if (_movementState == TransportMovementState.Moving || justStopped)
-                        UpdatePosition(newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
-                    else
-                    {
-                        /* There are four possible scenarios that trigger loading/unloading passengers:
-                          1. transport moves from inactive to active grid
-                          2. the grid that transport is currently in becomes active
-                          3. transport moves from active to inactive grid
-                          4. the grid that transport is currently in unloads
-                        */
-                        bool gridActive = GetMap().IsGridLoaded(Location.X, Location.Y);
-
-                        if (_staticPassengers.Empty() && gridActive) // 2.
-                            LoadStaticPassengers();
-                        else if (!_staticPassengers.Empty() && !gridActive)
-                            // 4. - if transports stopped on grid edge, some passengers can remain in active grids
-                            //      unload all static passengers otherwise passengers won't load correctly when the grid that transport is currently in becomes active
-                            UnloadStaticPassengers();
-                    }
-                }
-            }
-
-            // Add model to map after we are fully done with moving maps
-            if (_delayedAddModel)
-            {
-                _delayedAddModel = false;
-                if (m_model != null)
-                    GetMap().InsertGameObjectModel(m_model);
-            }
-        }
-
-        public void AddPassenger(WorldObject passenger)
-        {
-            if (!IsInWorld)
-                return;
-
+        lock (_staticPassengers)
             if (_passengers.Add(passenger))
-            {
-                passenger.SetTransport(this);
-                passenger.m_movementInfo.transport.guid = GetGUID();
+			{
+				passenger.SetTransport(this);
+				passenger.MovementInfo.Transport.Guid = GetGUID();
 
-                Player player = passenger.ToPlayer();
-                if (player)
-                    Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), GetScriptId());
-            }
-        }
+				var player = passenger.ToPlayer();
 
-        public ITransport RemovePassenger(WorldObject passenger)
-        {
+				if (player)
+					Global.ScriptMgr.RunScript<ITransportOnAddPassenger>(p => p.OnAddPassenger(this, player), GetScriptId());
+			}
+	}
+
+	public ITransport RemovePassenger(WorldObject passenger)
+	{
+        lock (_staticPassengers)
             if (_passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
-            {
-                passenger.SetTransport(null);
-                passenger.m_movementInfo.transport.Reset();
-                Log.outDebug(LogFilter.Transport, "Object {0} removed from transport {1}.", passenger.GetName(), GetName());
+			{
+				passenger.SetTransport(null);
+				passenger.MovementInfo.Transport.Reset();
+				Log.outDebug(LogFilter.Transport, "Object {0} removed from transport {1}.", passenger.GetName(), GetName());
 
-                Player plr = passenger.ToPlayer();
-                if (plr != null)
-                {
-                    Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), GetScriptId());
-                    plr.SetFallInformation(0, plr.Location.Z);
-                }
-            }
+				var plr = passenger.ToPlayer();
 
-            return this;
-        }
+				if (plr != null)
+				{
+					Global.ScriptMgr.RunScript<ITransportOnRemovePassenger>(p => p.OnRemovePassenger(this, plr), GetScriptId());
+					plr.SetFallInformation(0, plr.Location.Z);
+				}
+			}
 
-        public Creature CreateNPCPassenger(ulong guid, CreatureData data)
-        {
-            Map map = GetMap();
-            if (map.GetCreatureRespawnTime(guid) != 0)
-                return null;
+		return this;
+	}
 
-            Creature creature = Creature.CreateCreatureFromDB(guid, map, false, true);
-            if (!creature)
-                return null;
+	public void CalculatePassengerPosition(Position pos)
+	{
+		ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
+	}
 
-            var spawn = data.SpawnPoint.Copy();
+	public void CalculatePassengerOffset(Position pos)
+	{
+		ITransport.CalculatePassengerOffset(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
+	}
 
-            creature.SetTransport(this);
-            creature.m_movementInfo.transport.guid = GetGUID();
-            creature.m_movementInfo.transport.pos.Relocate(spawn);
-            creature.m_movementInfo.transport.seat = -1;
-            CalculatePassengerPosition(spawn);
-            creature.Location.Relocate(spawn);
-            creature.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
-            creature.SetTransportHomePosition(creature.m_movementInfo.transport.pos);
+	public int GetMapIdForSpawning()
+	{
+		return GetGoInfo().MoTransport.SpawnMap;
+	}
 
-            // @HACK - transport models are not added to map's dynamic LoS calculations
-            //         because the current GameObjectModel cannot be moved without recreating
-            creature.AddUnitState(UnitState.IgnorePathfinding);
+	public ObjectGuid GetTransportGUID()
+	{
+		return GetGUID();
+	}
 
-            if (!creature.Location.IsPositionValid())
-            {
-                Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GetGUID().ToString(), creature.GetEntry(), creature.Location.X, creature.Location.Y);
-                return null;
-            }
+	public float GetTransportOrientation()
+	{
+		return Location.Orientation;
+	}
 
-            PhasingHandler.InitDbPhaseShift(creature.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(creature.GetPhaseShift(), data.terrainSwapMap);
+	public override void Dispose()
+	{
+		Cypher.Assert(_passengers.Empty());
+		UnloadStaticPassengers();
+		base.Dispose();
+	}
 
-            if (!map.AddToMap(creature))
-                return null;
+	public bool Create(ulong guidlow, uint entry, float x, float y, float z, float ang)
+	{
+		Location.Relocate(x, y, z, ang);
 
+		if (!Location.IsPositionValid())
+		{
+			Log.outError(LogFilter.Transport, $"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
+
+			return false;
+		}
+
+		Create(ObjectGuid.Create(HighGuid.Transport, guidlow));
+
+		var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+
+		if (goinfo == null)
+		{
+			Log.outError(LogFilter.Sql, $"Transport not created: entry in `gameobject_template` not found, entry: {entry}");
+
+			return false;
+		}
+
+		GoInfo = goinfo;
+		GoTemplateAddon = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+
+		var tInfo = Global.TransportMgr.GetTransportTemplate(entry);
+
+		if (tInfo == null)
+		{
+			Log.outError(LogFilter.Sql, "Transport {0} (name: {1}) will not be created, missing `transport_template` entry.", entry, goinfo.name);
+
+			return false;
+		}
+
+		_transportInfo = tInfo;
+		_eventsToTrigger = new BitArray(tInfo.Events.Count, true);
+
+		var goOverride = GetGameObjectOverride();
+
+		if (goOverride != null)
+		{
+			SetFaction(goOverride.Faction);
+			ReplaceAllFlags(goOverride.Flags);
+		}
+
+		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.GetMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
+		SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
+		SetObjectScale(goinfo.size);
+		SetPeriod(tInfo.TotalPathTime);
+		SetEntry(goinfo.entry);
+		SetDisplayId(goinfo.displayId);
+		SetGoState(goinfo.MoTransport.allowstopping == 0 ? GameObjectState.Ready : GameObjectState.Active);
+		SetGoType(GameObjectTypes.MapObjTransport);
+		SetGoAnimProgress(255);
+		SetUpdateFieldValue(Values.ModifyValue(GameObjectData).ModifyValue(GameObjectData.SpawnTrackingStateAnimID), Global.DB2Mgr.GetEmptyAnimStateID());
+		SetName(goinfo.name);
+		SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
+		SetParentRotation(Quaternion.Identity);
+
+		var position = _transportInfo.ComputePosition(_pathProgress, out _, out var legIndex);
+
+		if (position != null)
+		{
+			Location.Relocate(position.X, position.Y, position.Z, position.Orientation);
+			_currentPathLeg = legIndex;
+		}
+
+		CreateModel();
+
+		return true;
+	}
+
+	public override void CleanupsBeforeDelete(bool finalCleanup)
+	{
+		UnloadStaticPassengers();
+
+		while (!_passengers.Empty())
+		{
+			var obj = _passengers.FirstOrDefault();
+			RemovePassenger(obj);
+		}
+
+		base.CleanupsBeforeDelete(finalCleanup);
+	}
+
+	public override void Update(uint diff)
+	{
+		var positionUpdateDelay = TimeSpan.FromMilliseconds(200);
+
+		if (GetAI() != null)
+			GetAI().UpdateAI(diff);
+		else if (!AIM_Initialize())
+			Log.outError(LogFilter.Transport, "Could not initialize GameObjectAI for Transport");
+
+		Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), GetScriptId());
+
+		_positionChangeTimer.Update(diff);
+
+		var cycleId = _pathProgress / GetTransportPeriod();
+
+		if (GetGoInfo().MoTransport.allowstopping == 0)
+			_pathProgress = GameTime.GetGameTimeMS();
+		else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
+			_pathProgress += diff;
+		else
+			_pathProgress = _requestStopTimestamp.Value;
+
+		if (_pathProgress / GetTransportPeriod() != cycleId)
+			// reset cycle
+			_eventsToTrigger.SetAll(true);
+
+		SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
+
+		var timer = _pathProgress % GetTransportPeriod();
+
+		var eventToTriggerIndex = -1;
+
+		for (var i = 0; i < _eventsToTrigger.Count; i++)
+			if (_eventsToTrigger.Get(i))
+			{
+				eventToTriggerIndex = i;
+
+				break;
+			}
+
+		if (eventToTriggerIndex != -1)
+			while (eventToTriggerIndex < _transportInfo.Events.Count && _transportInfo.Events[eventToTriggerIndex].Timestamp < timer)
+			{
+				var leg = _transportInfo.GetLegForTime(_transportInfo.Events[eventToTriggerIndex].Timestamp);
+
+				if (leg != null)
+					if (leg.MapId == Location.MapId)
+						GameEvents.Trigger(_transportInfo.Events[eventToTriggerIndex].EventId, this, this);
+
+				_eventsToTrigger.Set(eventToTriggerIndex, false);
+				++eventToTriggerIndex;
+			}
+
+		var newPosition = _transportInfo.ComputePosition(timer, out var moveState, out var legIndex);
+
+		if (newPosition != null)
+		{
+			var justStopped = _movementState == TransportMovementState.Moving && moveState != TransportMovementState.Moving;
+			_movementState = moveState;
+
+			if (justStopped)
+				if (_requestStopTimestamp != 0 && GetGoState() != GameObjectState.Ready)
+				{
+					SetGoState(GameObjectState.Ready);
+					SetDynamicFlag(GameObjectDynamicLowFlags.Stopped);
+				}
+
+			if (legIndex != _currentPathLeg)
+			{
+				var oldMapId = _transportInfo.PathLegs[_currentPathLeg].MapId;
+				_currentPathLeg = legIndex;
+				TeleportTransport(oldMapId, _transportInfo.PathLegs[legIndex].MapId, newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
+
+				return;
+			}
+
+			// set position
+			if (_positionChangeTimer.Passed() && GetExpectedMapId() == Location.MapId)
+			{
+				_positionChangeTimer.Reset(positionUpdateDelay);
+
+				if (_movementState == TransportMovementState.Moving || justStopped)
+				{
+					UpdatePosition(newPosition.X, newPosition.Y, newPosition.Z, newPosition.Orientation);
+				}
+				else
+				{
+					/* There are four possible scenarios that trigger loading/unloading passengers:
+					  1. transport moves from inactive to active grid
+					  2. the grid that transport is currently in becomes active
+					  3. transport moves from active to inactive grid
+					  4. the grid that transport is currently in unloads
+					*/
+					var gridActive = GetMap().IsGridLoaded(Location.X, Location.Y);
+
+                    lock (_staticPassengers)
+                        if (_staticPassengers.Empty() && gridActive) // 2.
+							LoadStaticPassengers();
+						else if (!_staticPassengers.Empty() && !gridActive)
+							// 4. - if transports stopped on grid edge, some passengers can remain in active grids
+							//      unload all static passengers otherwise passengers won't load correctly when the grid that transport is currently in becomes active
+							UnloadStaticPassengers();
+				}
+			}
+		}
+
+		// Add model to map after we are fully done with moving maps
+		if (_delayedAddModel)
+		{
+			_delayedAddModel = false;
+
+			if (Model != null)
+				GetMap().InsertGameObjectModel(Model);
+		}
+	}
+
+	public Creature CreateNPCPassenger(ulong guid, CreatureData data)
+	{
+		var map = GetMap();
+
+		if (map.GetCreatureRespawnTime(guid) != 0)
+			return null;
+
+		var creature = Creature.CreateCreatureFromDB(guid, map, false, true);
+
+		if (!creature)
+			return null;
+
+		var spawn = data.SpawnPoint.Copy();
+
+		creature.SetTransport(this);
+		creature.MovementInfo.Transport.Guid = GetGUID();
+		creature.MovementInfo.Transport.Pos.Relocate(spawn);
+		creature.MovementInfo.Transport.Seat = -1;
+		CalculatePassengerPosition(spawn);
+		creature.Location.Relocate(spawn);
+		creature.SetHomePosition(creature.Location.X, creature.Location.Y, creature.Location.Z, creature.Location.Orientation);
+		creature.SetTransportHomePosition(creature.MovementInfo.Transport.Pos);
+
+		// @HACK - transport models are not added to map's dynamic LoS calculations
+		//         because the current GameObjectModel cannot be moved without recreating
+		creature.AddUnitState(UnitState.IgnorePathfinding);
+
+		if (!creature.Location.IsPositionValid())
+		{
+			Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GetGUID().ToString(), creature.GetEntry(), creature.Location.X, creature.Location.Y);
+
+			return null;
+		}
+
+		PhasingHandler.InitDbPhaseShift(creature.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+		PhasingHandler.InitDbVisibleMapId(creature.GetPhaseShift(), data.terrainSwapMap);
+
+		if (!map.AddToMap(creature))
+			return null;
+
+        lock (_staticPassengers)
             _staticPassengers.Add(creature);
-            Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), GetScriptId());
-            return creature;
-        }
 
-        GameObject CreateGOPassenger(ulong guid, GameObjectData data)
-        {
-            Map map = GetMap();
-            if (map.GetGORespawnTime(guid) != 0)
-                return null;
+		Global.ScriptMgr.RunScript<ITransportOnAddCreaturePassenger>(p => p.OnAddCreaturePassenger(this, creature), GetScriptId());
 
-            GameObject go = CreateGameObjectFromDB(guid, map, false);
-            if (!go)
-                return null;
+		return creature;
+	}
 
-            var spawn = data.SpawnPoint.Copy();
+	public TempSummon SummonPassenger(uint entry, Position pos, TempSummonType summonType, SummonPropertiesRecord properties = null, uint duration = 0, Unit summoner = null, uint spellId = 0, uint vehId = 0)
+	{
+		var map = GetMap();
 
-            go.SetTransport(this);
-            go.m_movementInfo.transport.guid = GetGUID();
-            go.m_movementInfo.transport.pos.Relocate(spawn);
-            go.m_movementInfo.transport.seat = -1;
-            CalculatePassengerPosition(spawn);
-            go.Location.Relocate(spawn);
-            go.RelocateStationaryPosition(spawn);
+		if (map == null)
+			return null;
 
-            if (!go.Location.IsPositionValid())
-            {
-                Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GetGUID().ToString(), go.GetEntry(), go.Location.X, go.Location.Y);
-                return null;
-            }
+		var mask = UnitTypeMask.Summon;
 
-            PhasingHandler.InitDbPhaseShift(go.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
-            PhasingHandler.InitDbVisibleMapId(go.GetPhaseShift(), data.terrainSwapMap);
+		if (properties != null)
+			switch (properties.Control)
+			{
+				case SummonCategory.Pet:
+					mask = UnitTypeMask.Guardian;
 
-            if (!map.AddToMap(go))
-                return null;
+					break;
+				case SummonCategory.Puppet:
+					mask = UnitTypeMask.Puppet;
 
-            _staticPassengers.Add(go);
-            return go;
-        }
+					break;
+				case SummonCategory.Vehicle:
+					mask = UnitTypeMask.Minion;
 
-        public TempSummon SummonPassenger(uint entry, Position pos, TempSummonType summonType, SummonPropertiesRecord properties = null, uint duration = 0, Unit summoner = null, uint spellId = 0, uint vehId = 0)
-        {
-            Map map = GetMap();
-            if (map == null)
-                return null;
+					break;
+				case SummonCategory.Wild:
+				case SummonCategory.Ally:
+				case SummonCategory.Unk:
+				{
+					switch (properties.Title)
+					{
+						case SummonTitle.Minion:
+						case SummonTitle.Guardian:
+						case SummonTitle.Runeblade:
+							mask = UnitTypeMask.Guardian;
 
-            UnitTypeMask mask = UnitTypeMask.Summon;
-            if (properties != null)
-            {
-                switch (properties.Control)
-                {
-                    case SummonCategory.Pet:
-                        mask = UnitTypeMask.Guardian;
-                        break;
-                    case SummonCategory.Puppet:
-                        mask = UnitTypeMask.Puppet;
-                        break;
-                    case SummonCategory.Vehicle:
-                        mask = UnitTypeMask.Minion;
-                        break;
-                    case SummonCategory.Wild:
-                    case SummonCategory.Ally:
-                    case SummonCategory.Unk:
-                    {
-                        switch (properties.Title)
-                        {
-                            case SummonTitle.Minion:
-                            case SummonTitle.Guardian:
-                            case SummonTitle.Runeblade:
-                                mask = UnitTypeMask.Guardian;
-                                break;
-                            case SummonTitle.Totem:
-                            case SummonTitle.LightWell:
-                                mask = UnitTypeMask.Totem;
-                                break;
-                            case SummonTitle.Vehicle:
-                            case SummonTitle.Mount:
-                                mask = UnitTypeMask.Summon;
-                                break;
-                            case SummonTitle.Companion:
-                                mask = UnitTypeMask.Minion;
-                                break;
-                            default:
-                                if (properties.GetFlags().HasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup)) // Mirror Image, Summon Gargoyle
-                                    mask = UnitTypeMask.Guardian;
-                                break;
-                        }
-                        break;
-                    }
-                    default:
-                        return null;
-                }
-            }
+							break;
+						case SummonTitle.Totem:
+						case SummonTitle.LightWell:
+							mask = UnitTypeMask.Totem;
 
-            TempSummon summon = null;
-            switch (mask)
-            {
-                case UnitTypeMask.Summon:
-                    summon = new TempSummon(properties, summoner, false);
-                    break;
-                case UnitTypeMask.Guardian:
-                    summon = new Guardian(properties, summoner, false);
-                    break;
-                case UnitTypeMask.Puppet:
-                    summon = new Puppet(properties, summoner);
-                    break;
-                case UnitTypeMask.Totem:
-                    summon = new Totem(properties, summoner);
-                    break;
-                case UnitTypeMask.Minion:
-                    summon = new Minion(properties, summoner, false);
-                    break;
-            }
+							break;
+						case SummonTitle.Vehicle:
+						case SummonTitle.Mount:
+							mask = UnitTypeMask.Summon;
 
-            var newPos = pos.Copy();
-            CalculatePassengerPosition(newPos);
+							break;
+						case SummonTitle.Companion:
+							mask = UnitTypeMask.Minion;
 
-            if (!summon.Create(map.GenerateLowGuid(HighGuid.Creature), map, entry, newPos, null, vehId))
-                return null;
+							break;
+						default:
+							if (properties.GetFlags().HasFlag(SummonPropertiesFlags.JoinSummonerSpawnGroup)) // Mirror Image, Summon Gargoyle
+								mask = UnitTypeMask.Guardian;
 
-            WorldObject phaseShiftOwner = this;
-            if (summoner != null && !(properties != null && properties.GetFlags().HasFlag(SummonPropertiesFlags.IgnoreSummonerPhase)))
-                phaseShiftOwner = summoner;
+							break;
+					}
 
-            if (phaseShiftOwner != null)
-                PhasingHandler.InheritPhaseShift(summon, phaseShiftOwner);
+					break;
+				}
+				default:
+					return null;
+			}
 
-            summon.SetCreatedBySpell(spellId);
+		TempSummon summon = null;
 
-            summon.SetTransport(this);
-            summon.m_movementInfo.transport.guid = GetGUID();
-            summon.m_movementInfo.transport.pos.Relocate(pos);
-            summon.Location.Relocate(newPos);
-            summon.SetHomePosition(newPos);
-            summon.SetTransportHomePosition(pos);
+		switch (mask)
+		{
+			case UnitTypeMask.Summon:
+				summon = new TempSummon(properties, summoner, false);
 
-            // @HACK - transport models are not added to map's dynamic LoS calculations
-            //         because the current GameObjectModel cannot be moved without recreating
-            summon.AddUnitState(UnitState.IgnorePathfinding);
+				break;
+			case UnitTypeMask.Guardian:
+				summon = new Guardian(properties, summoner, false);
 
-            summon.InitStats(duration);
+				break;
+			case UnitTypeMask.Puppet:
+				summon = new Puppet(properties, summoner);
 
-            if (!map.AddToMap(summon))
-                return null;
+				break;
+			case UnitTypeMask.Totem:
+				summon = new Totem(properties, summoner);
 
+				break;
+			case UnitTypeMask.Minion:
+				summon = new Minion(properties, summoner, false);
+
+				break;
+		}
+
+		var newPos = pos.Copy();
+		CalculatePassengerPosition(newPos);
+
+		if (!summon.Create(map.GenerateLowGuid(HighGuid.Creature), map, entry, newPos, null, vehId))
+			return null;
+
+		WorldObject phaseShiftOwner = this;
+
+		if (summoner != null && !(properties != null && properties.GetFlags().HasFlag(SummonPropertiesFlags.IgnoreSummonerPhase)))
+			phaseShiftOwner = summoner;
+
+		if (phaseShiftOwner != null)
+			PhasingHandler.InheritPhaseShift(summon, phaseShiftOwner);
+
+		summon.SetCreatedBySpell(spellId);
+
+		summon.SetTransport(this);
+		summon.MovementInfo.Transport.Guid = GetGUID();
+		summon.MovementInfo.Transport.Pos.Relocate(pos);
+		summon.Location.Relocate(newPos);
+		summon.SetHomePosition(newPos);
+		summon.SetTransportHomePosition(pos);
+
+		// @HACK - transport models are not added to map's dynamic LoS calculations
+		//         because the current GameObjectModel cannot be moved without recreating
+		summon.AddUnitState(UnitState.IgnorePathfinding);
+
+		summon.InitStats(duration);
+
+		if (!map.AddToMap(summon))
+			return null;
+
+        lock (_staticPassengers)
             _staticPassengers.Add(summon);
 
-            summon.InitSummon();
-            summon.SetTempSummonType(summonType);
+		summon.InitSummon();
+		summon.SetTempSummonType(summonType);
 
-            return summon;
-        }
+		return summon;
+	}
 
-        public void CalculatePassengerPosition(Position pos)
-        {
-            ITransport.CalculatePassengerPosition(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
-        }
+	public void UpdatePosition(float x, float y, float z, float o)
+	{
+		Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.MapId, x, y, z), GetScriptId());
 
-        public void CalculatePassengerOffset(Position pos)
-        {
-            ITransport.CalculatePassengerOffset(pos, Location.X, Location.Y, Location.Z, GetTransportOrientation());
-        }
+		var newActive = GetMap().IsGridLoaded(x, y);
+		Cell oldCell = new(Location.X, Location.Y);
 
-        public int GetMapIdForSpawning()
-        {
-            return GetGoInfo().MoTransport.SpawnMap;
-        }
+		Location.Relocate(x, y, z, o);
+		StationaryPosition.Orientation = o;
+		UpdateModelPosition();
 
-        public void UpdatePosition(float x, float y, float z, float o)
-        {
-            Global.ScriptMgr.RunScript<ITransportOnRelocate>(p => p.OnRelocate(this, Location.GetMapId(), x, y, z), GetScriptId());
+		UpdatePassengerPositions(_passengers);
 
-            bool newActive = GetMap().IsGridLoaded(x, y);
-            Cell oldCell = new(Location.X, Location.Y);
-
-            Location.Relocate(x, y, z, o);
-            StationaryPosition.Orientation = o;
-            UpdateModelPosition();
-
-            UpdatePassengerPositions(_passengers);
-
-            /* There are four possible scenarios that trigger loading/unloading passengers:
-             1. transport moves from inactive to active grid
-             2. the grid that transport is currently in becomes active
-             3. transport moves from active to inactive grid
-             4. the grid that transport is currently in unloads
-             */
+        /* There are four possible scenarios that trigger loading/unloading passengers:
+		 1. transport moves from inactive to active grid
+		 2. the grid that transport is currently in becomes active
+		 3. transport moves from active to inactive grid
+		 4. the grid that transport is currently in unloads
+		 */
+        lock (_staticPassengers)
             if (_staticPassengers.Empty() && newActive) // 1. and 2.
-                LoadStaticPassengers();
-            else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(Location.X, Location.Y))) // 3.
-                UnloadStaticPassengers();
-            else
-                UpdatePassengerPositions(_staticPassengers);
-            // 4. is handed by grid unload
-        }
+				LoadStaticPassengers();
+			else if (!_staticPassengers.Empty() && !newActive && oldCell.DiffGrid(new Cell(Location.X, Location.Y))) // 3.
+				UnloadStaticPassengers();
+			else
+				UpdatePassengerPositions(_staticPassengers);
+		// 4. is handed by grid unload
+	}
 
-        void LoadStaticPassengers()
-        {
-            uint mapId = (uint)GetGoInfo().MoTransport.SpawnMap;
-            var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, GetMap().GetDifficultyID());
-            if (cells == null)
-                return;
-            foreach (var cell in cells)
-            {
-                // Creatures on transport
-                foreach (var npc in cell.Value.creatures)
-                    CreateNPCPassenger(npc, Global.ObjectMgr.GetCreatureData(npc));
+	public void EnableMovement(bool enabled)
+	{
+		if (GetGoInfo().MoTransport.allowstopping == 0)
+			return;
 
-                // GameObjects on transport
-                foreach (var go in cell.Value.gameobjects)
-                    CreateGOPassenger(go, Global.ObjectMgr.GetGameObjectData(go));
-            }
-        }
+		if (!enabled)
+		{
+			_requestStopTimestamp = (_pathProgress / GetTransportPeriod()) * GetTransportPeriod() + _transportInfo.GetNextPauseWaypointTimestamp(_pathProgress);
+		}
+		else
+		{
+			_requestStopTimestamp = null;
+			SetGoState(GameObjectState.Active);
+			RemoveDynamicFlag(GameObjectDynamicLowFlags.Stopped);
+		}
+	}
 
-        void UnloadStaticPassengers()
-        {
-            while (!_staticPassengers.Empty())
-            {
-                WorldObject obj = _staticPassengers.First();
-                obj.AddObjectToRemoveList();   // also removes from _staticPassengers
-            }
-        }
+	public void SetDelayedAddModelToMap()
+	{
+		_delayedAddModel = true;
+	}
 
-        public void EnableMovement(bool enabled)
-        {
-            if (GetGoInfo().MoTransport.allowstopping == 0)
-                return;
+	public override void BuildUpdate(Dictionary<Player, UpdateData> data_map)
+	{
+		var players = GetMap().GetPlayers();
 
-            if (!enabled)
-            {
-                _requestStopTimestamp = (_pathProgress / GetTransportPeriod()) * GetTransportPeriod() + _transportInfo.GetNextPauseWaypointTimestamp(_pathProgress);
-            }
-            else
-            {
-                _requestStopTimestamp = null;
-                SetGoState(GameObjectState.Active);
-                RemoveDynamicFlag(GameObjectDynamicLowFlags.Stopped);
-            }
-        }
+		if (players.Empty())
+			return;
 
-        public void SetDelayedAddModelToMap() { _delayedAddModel = true; }
+		foreach (var playerReference in players)
+			if (playerReference.InSamePhase(this))
+				BuildFieldsUpdate(playerReference, data_map);
 
-        bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
-        {
-            if (oldMapId != newMapId)
-            {
-                UnloadStaticPassengers();
-                TeleportPassengersAndHideTransport(newMapId, x, y, z, o);
-                return true;
-            }
-            else
-            {
-                UpdatePosition(x, y, z, o);
+		ClearUpdateMask(true);
+	}
 
-                // Teleport players, they need to know it
-                foreach (var obj in _passengers)
-                {
-                    if (obj.IsTypeId(TypeId.Player))
-                    {
-                        // will be relocated in UpdatePosition of the vehicle
-                        Unit veh = obj.ToUnit().GetVehicleBase();
-                        if (veh)
-                            if (veh.GetTransport() == this)
-                                continue;
+	public uint GetExpectedMapId()
+	{
+		return _transportInfo.PathLegs[_currentPathLeg].MapId;
+	}
 
-                        var pos =  obj.m_movementInfo.transport.pos.Copy();
-                        ITransport.CalculatePassengerPosition(pos, x, y, z, o);
+	public HashSet<WorldObject> GetPassengers()
+	{
+		return _passengers;
+	}
 
-                        obj.ToUnit().NearTeleportTo(pos);
-                    }
-                }
+	public uint GetTransportPeriod()
+	{
+		return GameObjectData.Level;
+	}
 
-                return false;
-            }
-        }
+	public void SetPeriod(uint period)
+	{
+		SetLevel(period);
+	}
 
-        void TeleportPassengersAndHideTransport(uint newMapid, float x, float y, float z, float o)
-        {
-            if (newMapid == Location.GetMapId())
-            {
-                AddToWorld();
+	public uint GetTimer()
+	{
+		return _pathProgress;
+	}
 
-                foreach (var player in GetMap().GetPlayers())
-                {
-                    if (player.GetTransport() != this && player.InSamePhase(this))
-                    {
-                        UpdateData data = new(GetMap().GetId());
-                        BuildCreateUpdateBlockForPlayer(data, player);
-                        player.m_visibleTransports.Add(GetGUID());
-                        data.BuildPacket(out UpdateObject packet);
-                        player.SendPacket(packet);
-                    }
-                }
-            }
-            else
-            {
-                UpdateData data = new(GetMap().GetId());
-                BuildOutOfRangeUpdateBlock(data);
+	GameObject CreateGOPassenger(ulong guid, GameObjectData data)
+	{
+		var map = GetMap();
 
-                data.BuildPacket(out UpdateObject packet);
-                foreach (var player in GetMap().GetPlayers())
-                {
-                    if (player.GetTransport() != this && player.m_visibleTransports.Contains(GetGUID()))
-                    {
-                        player.SendPacket(packet);
-                        player.m_visibleTransports.Remove(GetGUID());
-                    }
-                }
+		if (map.GetGORespawnTime(guid) != 0)
+			return null;
 
-                RemoveFromWorld();
-            }
+		var go = CreateGameObjectFromDb(guid, map, false);
 
-            List<WorldObject> passengersToTeleport = new(_passengers);
-            foreach (WorldObject obj in passengersToTeleport)
-            {
-                var newPos = obj.m_movementInfo.transport.pos.Copy();
-                ITransport.CalculatePassengerPosition(newPos, x, y, z, o);
+		if (!go)
+			return null;
 
-                switch (obj.GetTypeId())
-                {
-                    case TypeId.Player:
-                        if (!obj.ToPlayer().TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))
-                            RemovePassenger(obj);
-                        break;
-                    case TypeId.DynamicObject:
-                    case TypeId.AreaTrigger:
-                        obj.AddObjectToRemoveList();
-                        break;
-                    default:
-                        RemovePassenger(obj);
-                        break;
-                }
-            }
-        }
+		var spawn = data.SpawnPoint.Copy();
 
-        void UpdatePassengerPositions(HashSet<WorldObject> passengers)
-        {
-            foreach (WorldObject passenger in passengers)
-            {
-                var pos = passenger.m_movementInfo.transport.pos.Copy();
-                CalculatePassengerPosition(pos);
-                ITransport.UpdatePassengerPosition(this, GetMap(), passenger, pos, true);
-            }
-        }
+		go.SetTransport(this);
+		go.MovementInfo.Transport.Guid = GetGUID();
+		go.MovementInfo.Transport.Pos.Relocate(spawn);
+		go.MovementInfo.Transport.Seat = -1;
+		CalculatePassengerPosition(spawn);
+		go.Location.Relocate(spawn);
+		go.RelocateStationaryPosition(spawn);
 
-        public override void BuildUpdate(Dictionary<Player, UpdateData> data_map)
-        {
-            var players = GetMap().GetPlayers();
-            if (players.Empty())
-                return;
+		if (!go.Location.IsPositionValid())
+		{
+			Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GetGUID().ToString(), go.GetEntry(), go.Location.X, go.Location.Y);
 
-            foreach (var playerReference in players)
-                if (playerReference.InSamePhase(this))
-                    BuildFieldsUpdate(playerReference, data_map);
+			return null;
+		}
 
-            ClearUpdateMask(true);
-        }
+		PhasingHandler.InitDbPhaseShift(go.GetPhaseShift(), data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
+		PhasingHandler.InitDbVisibleMapId(go.GetPhaseShift(), data.terrainSwapMap);
 
-        public uint GetExpectedMapId()
-        {
-            return _transportInfo.PathLegs[_currentPathLeg].MapId;
-        }
-        
-        public HashSet<WorldObject> GetPassengers() { return _passengers; }
+		if (!map.AddToMap(go))
+			return null;
 
-        public ObjectGuid GetTransportGUID() { return GetGUID(); }
-        public float GetTransportOrientation() { return Location.Orientation; }
+        lock (_staticPassengers)
+            _staticPassengers.Add(go);
 
-        public uint GetTransportPeriod() { return m_gameObjectData.Level; }
-        public void SetPeriod(uint period) { SetLevel(period); }
-        public uint GetTimer() { return _pathProgress; }
+		return go;
+	}
 
-        TransportTemplate _transportInfo;
+	void LoadStaticPassengers()
+	{
+		var mapId = (uint)GetGoInfo().MoTransport.SpawnMap;
+		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, GetMap().GetDifficultyID());
 
-        TransportMovementState _movementState;
-        BitArray _eventsToTrigger;
-        int _currentPathLeg;
-        uint? _requestStopTimestamp;
-        uint _pathProgress;
-        readonly TimeTracker _positionChangeTimer = new();
-        readonly HashSet<WorldObject> _passengers = new();
-        readonly HashSet<WorldObject> _staticPassengers = new();
+		if (cells == null)
+			return;
 
-        bool _delayedAddModel;
-    }
+		foreach (var cell in cells)
+		{
+			// Creatures on transport
+			foreach (var npc in cell.Value.creatures)
+				CreateNPCPassenger(npc, Global.ObjectMgr.GetCreatureData(npc));
+
+			// GameObjects on transport
+			foreach (var go in cell.Value.gameobjects)
+				CreateGOPassenger(go, Global.ObjectMgr.GetGameObjectData(go));
+		}
+	}
+
+	void UnloadStaticPassengers()
+	{
+		lock (_staticPassengers)
+			while (!_staticPassengers.Empty())
+			{
+				var obj = _staticPassengers.First();
+				obj.AddObjectToRemoveList(); // also removes from _staticPassengers
+			}
+	}
+
+	bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
+	{
+		if (oldMapId != newMapId)
+		{
+			UnloadStaticPassengers();
+			TeleportPassengersAndHideTransport(newMapId, x, y, z, o);
+
+			return true;
+		}
+		else
+		{
+			UpdatePosition(x, y, z, o);
+
+			// Teleport players, they need to know it
+			foreach (var obj in _passengers)
+				if (obj.IsTypeId(TypeId.Player))
+				{
+					// will be relocated in UpdatePosition of the vehicle
+					var veh = obj.ToUnit().GetVehicleBase();
+
+					if (veh)
+						if (veh.GetTransport() == this)
+							continue;
+
+					var pos = obj.MovementInfo.Transport.Pos.Copy();
+					ITransport.CalculatePassengerPosition(pos, x, y, z, o);
+
+					obj.ToUnit().NearTeleportTo(pos);
+				}
+
+			return false;
+		}
+	}
+
+	void TeleportPassengersAndHideTransport(uint newMapid, float x, float y, float z, float o)
+	{
+		if (newMapid == Location.MapId)
+		{
+			AddToWorld();
+
+			foreach (var player in GetMap().GetPlayers())
+				if (player.GetTransport() != this && player.InSamePhase(this))
+				{
+					UpdateData data = new(GetMap().GetId());
+					BuildCreateUpdateBlockForPlayer(data, player);
+					player.VisibleTransports.Add(GetGUID());
+					data.BuildPacket(out var packet);
+					player.SendPacket(packet);
+				}
+		}
+		else
+		{
+			UpdateData data = new(GetMap().GetId());
+			BuildOutOfRangeUpdateBlock(data);
+
+			data.BuildPacket(out var packet);
+
+			foreach (var player in GetMap().GetPlayers())
+				if (player.GetTransport() != this && player.VisibleTransports.Contains(GetGUID()))
+				{
+					player.SendPacket(packet);
+					player.VisibleTransports.Remove(GetGUID());
+				}
+
+			RemoveFromWorld();
+		}
+
+		List<WorldObject> passengersToTeleport = new(_passengers);
+
+		foreach (var obj in passengersToTeleport)
+		{
+			var newPos = obj.MovementInfo.Transport.Pos.Copy();
+			ITransport.CalculatePassengerPosition(newPos, x, y, z, o);
+
+			switch (obj.GetTypeId())
+			{
+				case TypeId.Player:
+					if (!obj.ToPlayer().TeleportTo(newMapid, newPos, TeleportToOptions.NotLeaveTransport))
+						RemovePassenger(obj);
+
+					break;
+				case TypeId.DynamicObject:
+				case TypeId.AreaTrigger:
+					obj.AddObjectToRemoveList();
+
+					break;
+				default:
+					RemovePassenger(obj);
+
+					break;
+			}
+		}
+	}
+
+	void UpdatePassengerPositions(HashSet<WorldObject> passengers)
+	{
+		foreach (var passenger in passengers)
+		{
+			var pos = passenger.MovementInfo.Transport.Pos.Copy();
+			CalculatePassengerPosition(pos);
+			ITransport.UpdatePassengerPosition(this, GetMap(), passenger, pos, true);
+		}
+	}
 }

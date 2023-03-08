@@ -3,73 +3,56 @@
 
 using System.Collections.Generic;
 
-namespace Game.Entities
+namespace Game.Entities;
+
+public class SmoothPhasing
 {
-    public class SmoothPhasing
-    {
-        SmoothPhasingInfo smoothPhasingInfoSingle;
-        readonly Dictionary<ObjectGuid, SmoothPhasingInfo> smoothPhasingInfoViewerDependent = new();
+	readonly Dictionary<ObjectGuid, SmoothPhasingInfo> _smoothPhasingInfoViewerDependent = new();
+	SmoothPhasingInfo _smoothPhasingInfoSingle;
 
-        public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
-        {
-            smoothPhasingInfoViewerDependent[seer] = info;
-        }
+	public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
+	{
+		_smoothPhasingInfoViewerDependent[seer] = info;
+	}
 
-        public void ClearViewerDependentInfo(ObjectGuid seer)
-        {
-            smoothPhasingInfoViewerDependent.Remove(seer);
-        }
+	public void ClearViewerDependentInfo(ObjectGuid seer)
+	{
+		_smoothPhasingInfoViewerDependent.Remove(seer);
+	}
 
-        public void SetSingleInfo(SmoothPhasingInfo info)
-        {
-            smoothPhasingInfoSingle = info;
-        }
+	public void SetSingleInfo(SmoothPhasingInfo info)
+	{
+		_smoothPhasingInfoSingle = info;
+	}
 
-        public bool IsReplacing(ObjectGuid guid)
-        {
-            return smoothPhasingInfoSingle != null && smoothPhasingInfoSingle.ReplaceObject == guid;
-        }
+	public bool IsReplacing(ObjectGuid guid)
+	{
+		return _smoothPhasingInfoSingle != null && _smoothPhasingInfoSingle.ReplaceObject == guid;
+	}
 
-        public bool IsBeingReplacedForSeer(ObjectGuid seer)
-        {
-            SmoothPhasingInfo smoothPhasingInfo = smoothPhasingInfoViewerDependent.LookupByKey(seer);
-            if (smoothPhasingInfo != null)
-                return !smoothPhasingInfo.Disabled;
+	public bool IsBeingReplacedForSeer(ObjectGuid seer)
+	{
+		var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
 
-            return false;
-        }
+		if (smoothPhasingInfo != null)
+			return !smoothPhasingInfo.Disabled;
 
-        public SmoothPhasingInfo GetInfoForSeer(ObjectGuid seer)
-        {
-            if (smoothPhasingInfoViewerDependent.TryGetValue(seer, out SmoothPhasingInfo value))
-                return value;
+		return false;
+	}
 
-            return smoothPhasingInfoSingle;
-        }
+	public SmoothPhasingInfo GetInfoForSeer(ObjectGuid seer)
+	{
+		if (_smoothPhasingInfoViewerDependent.TryGetValue(seer, out var value))
+			return value;
 
-        public void DisableReplacementForSeer(ObjectGuid seer)
-        {
-            SmoothPhasingInfo smoothPhasingInfo = smoothPhasingInfoViewerDependent.LookupByKey(seer);
-            if (smoothPhasingInfo != null)
-                smoothPhasingInfo.Disabled = true;
-        }
-    }
+		return _smoothPhasingInfoSingle;
+	}
 
-    public class SmoothPhasingInfo
-    {
-        // Fields visible on client
-        public ObjectGuid? ReplaceObject;
-        public bool ReplaceActive = true;
-        public bool StopAnimKits = true;
+	public void DisableReplacementForSeer(ObjectGuid seer)
+	{
+		var smoothPhasingInfo = _smoothPhasingInfoViewerDependent.LookupByKey(seer);
 
-        // Serverside fields
-        public bool Disabled = false;
-
-        public SmoothPhasingInfo(ObjectGuid replaceObject, bool replaceActive, bool stopAnimKits)
-        {
-            ReplaceObject = replaceObject;
-            ReplaceActive = replaceActive;
-            StopAnimKits = stopAnimKits;
-        }
-    }
+		if (smoothPhasingInfo != null)
+			smoothPhasingInfo.Disabled = true;
+	}
 }
