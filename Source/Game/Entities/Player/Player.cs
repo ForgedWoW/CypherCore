@@ -42,7 +42,21 @@ public partial class Player : Unit
 
 	public bool IsAdvancedCombatLoggingEnabled => _advancedCombatLoggingEnabled;
 
-	public PetStable PetStable
+    public override float ObjectScale 
+	{ 
+		get => base.ObjectScale;
+		set
+		{
+			base.ObjectScale = value;
+
+            BoundingRadius = value * SharedConst.DefaultPlayerBoundingRadius;
+			SetCombatReach(value * SharedConst.DefaultPlayerCombatReach);
+			if (IsInWorld)
+				SendMovementSetCollisionHeight(CollisionHeight, UpdateCollisionHeightReason.Scale);
+		}
+	}
+
+    public PetStable PetStable
 	{
 		get
 		{
