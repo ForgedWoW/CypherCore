@@ -29,7 +29,7 @@ public partial class Unit
 
 	public bool IsPetInCombat => HasUnitFlag(UnitFlags.PetInCombat);
 
-	public bool CanHaveThreatList => _threatManager.CanHaveThreatList();
+	public bool CanHaveThreatList => _threatManager.CanHaveThreatList;
 
 	public ObjectGuid Target => UnitData.Target;
 
@@ -312,7 +312,7 @@ public partial class Unit
 
 		List<CombatReference> refsToEnd = new();
 
-		foreach (var pair in _combatManager.GetPvECombatRefs())
+		foreach (var pair in _combatManager.PvECombatRefs)
 			if (pair.Value.GetOther(this).GetFactionTemplateEntry().Faction == factionId)
 				refsToEnd.Add(pair.Value);
 
@@ -548,16 +548,16 @@ public partial class Unit
 		var owner = CharmerOrOwner;
 
 		if (mgr.HasPvPCombat())
-			return mgr.GetPvPCombatRefs().First().Value.GetOther(this);
+			return mgr.PvPCombatRefs.First().Value.GetOther(this);
 
 		if (owner && (owner.GetCombatManager().HasPvPCombat()))
-			return owner.GetCombatManager().GetPvPCombatRefs().First().Value.GetOther(owner);
+			return owner.GetCombatManager().PvPCombatRefs.First().Value.GetOther(owner);
 
 		if (mgr.HasPvECombat())
-			return mgr.GetPvECombatRefs().First().Value.GetOther(this);
+			return mgr.PvECombatRefs.First().Value.GetOther(this);
 
 		if (owner && (owner.GetCombatManager().HasPvECombat()))
-			return owner.GetCombatManager().GetPvECombatRefs().First().Value.GetOther(owner);
+			return owner.GetCombatManager().PvECombatRefs.First().Value.GetOther(owner);
 
 		return null;
 	}

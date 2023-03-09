@@ -1,198 +1,223 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Entities;
 using Game.Maps;
 
-namespace Game.Chat
+namespace Game.Chat;
+
+[CommandGroup("instance")]
+class InstanceCommands
 {
-    [CommandGroup("instance")]
-    class InstanceCommands
-    {
-        [Command("getbossstate", RBACPermissions.CommandInstanceGetBossState)]
-        static bool HandleInstanceGetBossStateCommand(CommandHandler handler, uint encounterId, PlayerIdentifier player)
-        {
-            // Character name must be provided when using this from console.
-            if (player == null || handler.GetSession() == null)
-            {
-                handler.SendSysMessage(CypherStrings.CmdSyntax);
-                return false;
-            }
+	[Command("getbossstate", RBACPermissions.CommandInstanceGetBossState)]
+	static bool HandleInstanceGetBossStateCommand(CommandHandler handler, uint encounterId, PlayerIdentifier player)
+	{
+		// Character name must be provided when using this from console.
+		if (player == null || handler.Session == null)
+		{
+			handler.SendSysMessage(CypherStrings.CmdSyntax);
 
-            if (player == null)
-                player = PlayerIdentifier.FromSelf(handler);
+			return false;
+		}
 
-            if (player.IsConnected())
-            {
-                handler.SendSysMessage(CypherStrings.PlayerNotFound);
-                return false;
-            }
+		if (player == null)
+			player = PlayerIdentifier.FromSelf(handler);
 
-            InstanceMap map = player.GetConnectedPlayer().Map.ToInstanceMap;
-            if (map == null)
-            {
-                handler.SendSysMessage(CypherStrings.NotDungeon);
-                return false;
-            }
+		if (player.IsConnected())
+		{
+			handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-            if (map.GetInstanceScript() == null)
-            {
-                handler.SendSysMessage(CypherStrings.NoInstanceData);
-                return false;
-            }
+			return false;
+		}
 
-            if (encounterId > map.GetInstanceScript().GetEncounterCount())
-            {
-                handler.SendSysMessage(CypherStrings.BadValue);
-                return false;
-            }
+		var map = player.GetConnectedPlayer().Map.ToInstanceMap;
 
-            EncounterState state = map.GetInstanceScript().GetBossState(encounterId);
-            handler.SendSysMessage(CypherStrings.CommandInstGetBossState, encounterId, state);
-            return true;
-        }
+		if (map == null)
+		{
+			handler.SendSysMessage(CypherStrings.NotDungeon);
 
-        [Command("listbinds", RBACPermissions.CommandInstanceListbinds)]
-        static bool HandleInstanceListBindsCommand(CommandHandler handler)
-        {
-            Player player = handler.GetSelectedPlayer();
-            if (player == null)
-                player = handler.GetSession().Player;
+			return false;
+		}
 
-            DateTime now = GameTime.GetDateAndTime();
-            var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
-            foreach (InstanceLock instanceLock in instanceLocks)
-            {
-                MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-                string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
-                handler.SendSysMessage(CypherStrings.CommandListBindInfo,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
-                    entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                    instanceLock.GetInstanceId(),
-                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
-                    timeleft);
-            }
+		if (map.InstanceScript == null)
+		{
+			handler.SendSysMessage(CypherStrings.NoInstanceData);
 
-            handler.SendSysMessage(CypherStrings.CommandListBindPlayerBinds, instanceLocks.Count);
-            return true;
-        }
+			return false;
+		}
 
-        [Command("setbossstate", RBACPermissions.CommandInstanceSetBossState)]
-        static bool HandleInstanceSetBossStateCommand(CommandHandler handler, uint encounterId, EncounterState state, PlayerIdentifier player)
-        {
-            // Character name must be provided when using this from console.
-            if (player == null || handler.GetSession() == null)
-            {
-                handler.SendSysMessage(CypherStrings.CmdSyntax);
-                return false;
-            }
+		if (encounterId > map.InstanceScript.GetEncounterCount())
+		{
+			handler.SendSysMessage(CypherStrings.BadValue);
 
-            if (player == null)
-                player = PlayerIdentifier.FromSelf(handler);
+			return false;
+		}
 
-            if (!player.IsConnected())
-            {
-                handler.SendSysMessage(CypherStrings.PlayerNotFound);
-                return false;
-            }
+		var state = map.InstanceScript.GetBossState(encounterId);
+		handler.SendSysMessage(CypherStrings.CommandInstGetBossState, encounterId, state);
 
-            InstanceMap map = player.GetConnectedPlayer().Map.ToInstanceMap;
-            if (map == null)
-            {
-                handler.SendSysMessage(CypherStrings.NotDungeon);
-                return false;
-            }
+		return true;
+	}
 
-            if (map.GetInstanceScript() == null)
-            {
-                handler.SendSysMessage(CypherStrings.NoInstanceData);
-                return false;
-            }
+	[Command("listbinds", RBACPermissions.CommandInstanceListbinds)]
+	static bool HandleInstanceListBindsCommand(CommandHandler handler)
+	{
+		var player = handler.SelectedPlayer;
 
-            // Reject improper values.
-            if (encounterId > map.GetInstanceScript().GetEncounterCount())
-            {
-                handler.SendSysMessage(CypherStrings.BadValue);
-                return false;
-            }
+		if (player == null)
+			player = handler.Session.Player;
 
-            map.GetInstanceScript().SetBossState(encounterId, state);
-            handler.SendSysMessage(CypherStrings.CommandInstSetBossState, encounterId, state);
-            return true;
-        }
+		var now = GameTime.GetDateAndTime();
+		var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
 
-        [Command("stats", RBACPermissions.CommandInstanceStats, true)]
-        static bool HandleInstanceStatsCommand(CommandHandler handler)
-        {
-            handler.SendSysMessage("instances loaded: {0}", Global.MapMgr.GetNumInstances());
-            handler.SendSysMessage("players in instances: {0}", Global.MapMgr.GetNumPlayersInInstances());
+		foreach (var instanceLock in instanceLocks)
+		{
+			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
-            InstanceLocksStatistics statistics = Global.InstanceLockMgr.GetStatistics();
+			handler.SendSysMessage(CypherStrings.CommandListBindInfo,
+									entries.Map.Id,
+									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.MapDifficulty.DifficultyID,
+									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									instanceLock.GetInstanceId(),
+									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
+									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+									timeleft);
+		}
 
-            handler.SendSysMessage(CypherStrings.CommandInstStatSaves, statistics.InstanceCount);
-            handler.SendSysMessage(CypherStrings.CommandInstStatPlayersbound, statistics.PlayerCount);
+		handler.SendSysMessage(CypherStrings.CommandListBindPlayerBinds, instanceLocks.Count);
 
-            return true;
-        }
+		return true;
+	}
 
-        [Command("unbind", RBACPermissions.CommandInstanceUnbind)]
-        static bool HandleInstanceUnbindCommand(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object mapArg, uint? difficultyArg)
-        {
-            Player player = handler.GetSelectedPlayer();
-            if (player == null)
-                player = handler.GetSession().Player;
+	[Command("setbossstate", RBACPermissions.CommandInstanceSetBossState)]
+	static bool HandleInstanceSetBossStateCommand(CommandHandler handler, uint encounterId, EncounterState state, PlayerIdentifier player)
+	{
+		// Character name must be provided when using this from console.
+		if (player == null || handler.Session == null)
+		{
+			handler.SendSysMessage(CypherStrings.CmdSyntax);
 
-            uint? mapId = null;
-            Difficulty? difficulty = null;
+			return false;
+		}
 
-            if (mapArg is uint)
-                mapId = (uint)mapArg;
+		if (player == null)
+			player = PlayerIdentifier.FromSelf(handler);
 
-            if (difficultyArg.HasValue && CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
-                difficulty = (Difficulty)difficultyArg;
+		if (!player.IsConnected())
+		{
+			handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
-            List<InstanceLock> locksReset = new();
-            List<InstanceLock> locksNotReset = new();
+			return false;
+		}
 
-            Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
+		var map = player.GetConnectedPlayer().Map.ToInstanceMap;
 
-            DateTime now = GameTime.GetDateAndTime();
-            foreach (InstanceLock instanceLock in locksReset)
-            {
-                MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-                string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
-                handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
-                    entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                    instanceLock.GetInstanceId(),
-                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
-                    timeleft);
-            }
+		if (map == null)
+		{
+			handler.SendSysMessage(CypherStrings.NotDungeon);
 
-            handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbound, locksReset.Count);
+			return false;
+		}
 
-            foreach (InstanceLock instanceLock in locksNotReset)
-            {
-                MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-                string timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
-                handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
-                    entries.Map.Id, entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
-                    entries.MapDifficulty.DifficultyID, CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
-                    instanceLock.GetInstanceId(),
-                    handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
-                    handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
-                    timeleft);
-            }
+		if (map.InstanceScript == null)
+		{
+			handler.SendSysMessage(CypherStrings.NoInstanceData);
 
-            player.SendRaidInfo();
+			return false;
+		}
 
-            return true;
-        }
-    }
+		// Reject improper values.
+		if (encounterId > map.InstanceScript.GetEncounterCount())
+		{
+			handler.SendSysMessage(CypherStrings.BadValue);
+
+			return false;
+		}
+
+		map.InstanceScript.SetBossState(encounterId, state);
+		handler.SendSysMessage(CypherStrings.CommandInstSetBossState, encounterId, state);
+
+		return true;
+	}
+
+	[Command("stats", RBACPermissions.CommandInstanceStats, true)]
+	static bool HandleInstanceStatsCommand(CommandHandler handler)
+	{
+		handler.SendSysMessage("instances loaded: {0}", Global.MapMgr.GetNumInstances());
+		handler.SendSysMessage("players in instances: {0}", Global.MapMgr.GetNumPlayersInInstances());
+
+		var statistics = Global.InstanceLockMgr.GetStatistics();
+
+		handler.SendSysMessage(CypherStrings.CommandInstStatSaves, statistics.InstanceCount);
+		handler.SendSysMessage(CypherStrings.CommandInstStatPlayersbound, statistics.PlayerCount);
+
+		return true;
+	}
+
+	[Command("unbind", RBACPermissions.CommandInstanceUnbind)]
+	static bool HandleInstanceUnbindCommand(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object mapArg, uint? difficultyArg)
+	{
+		var player = handler.SelectedPlayer;
+
+		if (player == null)
+			player = handler.Session.Player;
+
+		uint? mapId = null;
+		Difficulty? difficulty = null;
+
+		if (mapArg is uint)
+			mapId = (uint)mapArg;
+
+		if (difficultyArg.HasValue && CliDB.DifficultyStorage.ContainsKey(difficultyArg.Value))
+			difficulty = (Difficulty)difficultyArg;
+
+		List<InstanceLock> locksReset = new();
+		List<InstanceLock> locksNotReset = new();
+
+		Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
+
+		var now = GameTime.GetDateAndTime();
+
+		foreach (var instanceLock in locksReset)
+		{
+			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+
+			handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
+									entries.Map.Id,
+									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.MapDifficulty.DifficultyID,
+									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									instanceLock.GetInstanceId(),
+									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
+									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+									timeleft);
+		}
+
+		handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbound, locksReset.Count);
+
+		foreach (var instanceLock in locksNotReset)
+		{
+			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
+			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+
+			handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
+									entries.Map.Id,
+									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.MapDifficulty.DifficultyID,
+									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
+									instanceLock.GetInstanceId(),
+									handler.GetCypherString(instanceLock.IsExpired() ? CypherStrings.Yes : CypherStrings.No),
+									handler.GetCypherString(instanceLock.IsExtended() ? CypherStrings.Yes : CypherStrings.No),
+									timeleft);
+		}
+
+		player.SendRaidInfo();
+
+		return true;
+	}
 }

@@ -112,7 +112,7 @@ public class TerrainInfo
 
 	public static bool ExistVMap(uint mapid, int gx, int gy)
 	{
-		if (Global.VMapMgr.IsMapLoadingEnabled())
+		if (Global.VMapMgr.IsMapLoadingEnabled)
 		{
 			var result = Global.VMapMgr.ExistsMap(mapid, gx, gy);
 			var name = VMapManager.GetMapFileName(mapid); //, gx, gy);
@@ -210,7 +210,7 @@ public class TerrainInfo
 
 	public void LoadVMap(int gx, int gy)
 	{
-		if (!Global.VMapMgr.IsMapLoadingEnabled())
+		if (!Global.VMapMgr.IsMapLoadingEnabled)
 			return;
 
 		// x and y are swapped !!
@@ -350,38 +350,38 @@ public class TerrainInfo
 		if (gridMapHeight > MapConst.InvalidHeight && MathFunctions.fuzzyGe(z, gridMapHeight - MapConst.GroundHeightTolerance))
 			data.FloorZ = gridMapHeight;
 
-		if (vmapData.floorZ > MapConst.InvalidHeight &&
-			MathFunctions.fuzzyGe(z, vmapData.floorZ - MapConst.GroundHeightTolerance) &&
-			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapData.floorZ > gridMapHeight))
+		if (vmapData.FloorZ > MapConst.InvalidHeight &&
+			MathFunctions.fuzzyGe(z, vmapData.FloorZ - MapConst.GroundHeightTolerance) &&
+			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || vmapData.FloorZ > gridMapHeight))
 		{
-			data.FloorZ = vmapData.floorZ;
+			data.FloorZ = vmapData.FloorZ;
 			wmoData = vmapData;
 		}
 
 		// NOTE: Objects will not detect a case when a wmo providing area/liquid despawns from under them
 		// but this is fine as these kind of objects are not meant to be spawned and despawned a lot
 		// example: Lich King platform
-		if (dynData.floorZ > MapConst.InvalidHeight &&
-			MathFunctions.fuzzyGe(z, dynData.floorZ - MapConst.GroundHeightTolerance) &&
-			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || dynData.floorZ > gridMapHeight) &&
-			(MathFunctions.fuzzyLt(z, vmapData.floorZ - MapConst.GroundHeightTolerance) || dynData.floorZ > vmapData.floorZ))
+		if (dynData.FloorZ > MapConst.InvalidHeight &&
+			MathFunctions.fuzzyGe(z, dynData.FloorZ - MapConst.GroundHeightTolerance) &&
+			(MathFunctions.fuzzyLt(z, gridMapHeight - MapConst.GroundHeightTolerance) || dynData.FloorZ > gridMapHeight) &&
+			(MathFunctions.fuzzyLt(z, vmapData.FloorZ - MapConst.GroundHeightTolerance) || dynData.FloorZ > vmapData.FloorZ))
 		{
-			data.FloorZ = dynData.floorZ;
+			data.FloorZ = dynData.FloorZ;
 			wmoData = dynData;
 		}
 
 		if (wmoData != null)
 		{
-			if (wmoData.areaInfo.HasValue)
+			if (wmoData.AreaInfo.HasValue)
 			{
-				data.AreaInfo = new PositionFullTerrainStatus.AreaInfoModel(wmoData.areaInfo.Value.AdtId, wmoData.areaInfo.Value.RootId, wmoData.areaInfo.Value.GroupId, wmoData.areaInfo.Value.MogpFlags);
+				data.AreaInfo = new PositionFullTerrainStatus.AreaInfoModel(wmoData.AreaInfo.Value.AdtId, wmoData.AreaInfo.Value.RootId, wmoData.AreaInfo.Value.GroupId, wmoData.AreaInfo.Value.MogpFlags);
 				// wmo found
-				var wmoEntry = Global.DB2Mgr.GetWMOAreaTable(wmoData.areaInfo.Value.RootId, wmoData.areaInfo.Value.AdtId, wmoData.areaInfo.Value.GroupId);
+				var wmoEntry = Global.DB2Mgr.GetWMOAreaTable(wmoData.AreaInfo.Value.RootId, wmoData.AreaInfo.Value.AdtId, wmoData.AreaInfo.Value.GroupId);
 
 				if (wmoEntry == null)
-					wmoEntry = Global.DB2Mgr.GetWMOAreaTable(wmoData.areaInfo.Value.RootId, wmoData.areaInfo.Value.AdtId, -1);
+					wmoEntry = Global.DB2Mgr.GetWMOAreaTable(wmoData.AreaInfo.Value.RootId, wmoData.AreaInfo.Value.AdtId, -1);
 
-				data.Outdoors = (wmoData.areaInfo.Value.MogpFlags & 0x8) != 0;
+				data.Outdoors = (wmoData.AreaInfo.Value.MogpFlags & 0x8) != 0;
 
 				if (wmoEntry != null)
 				{
@@ -396,7 +396,7 @@ public class TerrainInfo
 				if (data.AreaId == 0)
 					data.AreaId = gridAreaId;
 
-				useGridLiquid = !IsInWMOInterior(wmoData.areaInfo.Value.MogpFlags);
+				useGridLiquid = !IsInWMOInterior(wmoData.AreaInfo.Value.MogpFlags);
 			}
 		}
 		else
@@ -417,9 +417,9 @@ public class TerrainInfo
 		// liquid processing
 		data.LiquidStatus = ZLiquidStatus.NoWater;
 
-		if (wmoData != null && wmoData.liquidInfo.HasValue && wmoData.liquidInfo.Value.Level > wmoData.floorZ)
+		if (wmoData != null && wmoData.LiquidInfo.HasValue && wmoData.LiquidInfo.Value.Level > wmoData.FloorZ)
 		{
-			var liquidType = wmoData.liquidInfo.Value.LiquidType;
+			var liquidType = wmoData.LiquidInfo.Value.LiquidType;
 
 			if (GetId() == 530 && liquidType == 2) // gotta love hacks
 				liquidType = 15;
@@ -452,12 +452,12 @@ public class TerrainInfo
 			}
 
 			data.LiquidInfo = new LiquidData();
-			data.LiquidInfo.level = wmoData.liquidInfo.Value.Level;
-			data.LiquidInfo.depth_level = wmoData.floorZ;
+			data.LiquidInfo.level = wmoData.LiquidInfo.Value.Level;
+			data.LiquidInfo.depth_level = wmoData.FloorZ;
 			data.LiquidInfo.entry = liquidType;
 			data.LiquidInfo.type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
 
-			var delta = wmoData.liquidInfo.Value.Level - z;
+			var delta = wmoData.LiquidInfo.Value.Level - z;
 
 			if (delta > collisionHeight)
 				data.LiquidStatus = ZLiquidStatus.UnderWater;
@@ -475,7 +475,7 @@ public class TerrainInfo
 			LiquidData gridMapLiquid = new();
 			var gridMapStatus = gmap.GetLiquidStatus(x, y, z, reqLiquidType, gridMapLiquid, collisionHeight);
 
-			if (gridMapStatus != ZLiquidStatus.NoWater && (wmoData == null || gridMapLiquid.level > wmoData.floorZ))
+			if (gridMapStatus != ZLiquidStatus.NoWater && (wmoData == null || gridMapLiquid.level > wmoData.FloorZ))
 			{
 				if (GetId() == 530 && gridMapLiquid.entry == 2)
 					gridMapLiquid.entry = 15;
@@ -777,7 +777,7 @@ public class TerrainInfo
 		var vmapHeight = MapConst.VMAPInvalidHeightValue;
 
 		if (checkVMap)
-			if (Global.VMapMgr.IsHeightCalcEnabled())
+			if (Global.VMapMgr.IsHeightCalcEnabled)
 				vmapHeight = Global.VMapMgr.GetHeight(terrainMapId, x, y, z, maxSearchDist);
 
 		// mapHeight set for any above raw ground Z or <= INVALID_HEIGHT

@@ -58,7 +58,7 @@ public class VisibleNotifier : IGridNotifierWorldObject
 							Player.UpdateVisibilityOf(obj.AsPlayer, Data, VisibleNow);
 
 							if (!obj.IsNeedNotify(NotifyFlags.VisibilityChanged))
-								obj.								AsPlayer.UpdateVisibilityOf(Player);
+								obj.AsPlayer.UpdateVisibilityOf(Player);
 
 							break;
 						case TypeId.Unit:

@@ -3,130 +3,154 @@
 
 using Framework.Constants;
 
-namespace Game.Chat
+namespace Game.Chat;
+
+[CommandGroup("event")]
+class EventCommands
 {
-    [CommandGroup("event")]
-    class EventCommands
-    {
-        [Command("info", RBACPermissions.CommandEventInfo, true)]
-        static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
-        {
-            var events = Global.GameEventMgr.GetEventMap();
-            if (eventId >= events.Length)
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+	[Command("info", RBACPermissions.CommandEventInfo, true)]
+	static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
+	{
+		var events = Global.GameEventMgr.GetEventMap();
 
-            GameEventData eventData = events[eventId];
-            if (!eventData.IsValid())
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+		if (eventId >= events.Length)
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
 
-            var activeEvents = Global.GameEventMgr.GetActiveEventList();
-            bool active = activeEvents.Contains(eventId);
-            string activeStr = active ? Global.ObjectMgr.GetCypherString(CypherStrings.Active) : "";
+			return false;
+		}
 
-            string startTimeStr = Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
-            string endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
+		var eventData = events[eventId];
 
-            uint delay = Global.GameEventMgr.NextCheck(eventId);
-            long nextTime = GameTime.GetGameTime() + delay;
-            string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
+		if (!eventData.IsValid())
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
 
-            string occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
-            string lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
+			return false;
+		}
 
-            handler.SendSysMessage(CypherStrings.EventInfo, eventId, eventData.description, activeStr,
-                startTimeStr, endTimeStr, occurenceStr, lengthStr, nextStr);
-            return true;
-        }
+		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var active = activeEvents.Contains(eventId);
+		var activeStr = active ? Global.ObjectMgr.GetCypherString(CypherStrings.Active) : "";
 
-        [Command("activelist", RBACPermissions.CommandEventActivelist, true)]
-        static bool HandleEventActiveListCommand(CommandHandler handler)
-        {
-            uint counter = 0;
+		var startTimeStr = Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
+		var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
-            var events = Global.GameEventMgr.GetEventMap();
-            var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		var delay = Global.GameEventMgr.NextCheck(eventId);
+		var nextTime = GameTime.GetGameTime() + delay;
+		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
 
-            string active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
+		var occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
+		var lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
 
-            foreach (var eventId in activeEvents)
-            {
-                GameEventData eventData = events[eventId];
+		handler.SendSysMessage(CypherStrings.EventInfo,
+								eventId,
+								eventData.description,
+								activeStr,
+								startTimeStr,
+								endTimeStr,
+								occurenceStr,
+								lengthStr,
+								nextStr);
 
-                if (handler.GetSession() != null)
-                    handler.SendSysMessage(CypherStrings.EventEntryListChat, eventId, eventId, eventData.description, active);
-                else
-                    handler.SendSysMessage(CypherStrings.EventEntryListConsole, eventId, eventData.description, active);
+		return true;
+	}
 
-                ++counter;
-            }
+	[Command("activelist", RBACPermissions.CommandEventActivelist, true)]
+	static bool HandleEventActiveListCommand(CommandHandler handler)
+	{
+		uint counter = 0;
 
-            if (counter == 0)
-                handler.SendSysMessage(CypherStrings.Noeventfound);
+		var events = Global.GameEventMgr.GetEventMap();
+		var activeEvents = Global.GameEventMgr.GetActiveEventList();
 
-            return true;
-        }
+		var active = Global.ObjectMgr.GetCypherString(CypherStrings.Active);
 
-        [Command("start", RBACPermissions.CommandEventStart, true)]
-        static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
-        {
-            var events = Global.GameEventMgr.GetEventMap();
-            if (eventId < 1 || eventId >= events.Length)
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+		foreach (var eventId in activeEvents)
+		{
+			var eventData = events[eventId];
 
-            GameEventData eventData = events[eventId];
-            if (!eventData.IsValid())
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+			if (handler.Session != null)
+				handler.SendSysMessage(CypherStrings.EventEntryListChat, eventId, eventId, eventData.description, active);
+			else
+				handler.SendSysMessage(CypherStrings.EventEntryListConsole, eventId, eventData.description, active);
 
-            var activeEvents = Global.GameEventMgr.GetActiveEventList();
-            if (activeEvents.Contains(eventId))
-            {
-                handler.SendSysMessage(CypherStrings.EventAlreadyActive, eventId);
-                return false;
-            }
+			++counter;
+		}
 
-            Global.GameEventMgr.StartEvent(eventId, true);
-            return true;
-        }
+		if (counter == 0)
+			handler.SendSysMessage(CypherStrings.Noeventfound);
 
-        [Command("stop", RBACPermissions.CommandEventStop, true)]
-        static bool HandleEventStopCommand(CommandHandler handler, ushort eventId)
-        {
-            var events = Global.GameEventMgr.GetEventMap();
-            if (eventId < 1 || eventId >= events.Length)
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+		return true;
+	}
 
-            GameEventData eventData = events[eventId];
-            if (!eventData.IsValid())
-            {
-                handler.SendSysMessage(CypherStrings.EventNotExist);
-                return false;
-            }
+	[Command("start", RBACPermissions.CommandEventStart, true)]
+	static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
+	{
+		var events = Global.GameEventMgr.GetEventMap();
 
-            var activeEvents = Global.GameEventMgr.GetActiveEventList();
+		if (eventId < 1 || eventId >= events.Length)
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
 
-            if (!activeEvents.Contains(eventId))
-            {
-                handler.SendSysMessage(CypherStrings.EventNotActive, eventId);
-                return false;
-            }
+			return false;
+		}
 
-            Global.GameEventMgr.StopEvent(eventId, true);
-            return true;
-        }
-    }
+		var eventData = events[eventId];
+
+		if (!eventData.IsValid())
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
+
+			return false;
+		}
+
+		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+
+		if (activeEvents.Contains(eventId))
+		{
+			handler.SendSysMessage(CypherStrings.EventAlreadyActive, eventId);
+
+			return false;
+		}
+
+		Global.GameEventMgr.StartEvent(eventId, true);
+
+		return true;
+	}
+
+	[Command("stop", RBACPermissions.CommandEventStop, true)]
+	static bool HandleEventStopCommand(CommandHandler handler, ushort eventId)
+	{
+		var events = Global.GameEventMgr.GetEventMap();
+
+		if (eventId < 1 || eventId >= events.Length)
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
+
+			return false;
+		}
+
+		var eventData = events[eventId];
+
+		if (!eventData.IsValid())
+		{
+			handler.SendSysMessage(CypherStrings.EventNotExist);
+
+			return false;
+		}
+
+		var activeEvents = Global.GameEventMgr.GetActiveEventList();
+
+		if (!activeEvents.Contains(eventId))
+		{
+			handler.SendSysMessage(CypherStrings.EventNotActive, eventId);
+
+			return false;
+		}
+
+		Global.GameEventMgr.StopEvent(eventId, true);
+
+		return true;
+	}
 }

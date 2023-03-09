@@ -818,7 +818,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
 							{
 								var InMeleeRange = false;
 
-								foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
+								foreach (var pair in me.GetCombatManager().PvECombatRefs)
 									if (pair.Value.GetOther(me).IsWithinMeleeRange(me))
 									{
 										InMeleeRange = true;
@@ -873,7 +873,7 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
 							{
 								var InMeleeRange = false;
 
-								foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
+								foreach (var pair in me.GetCombatManager().PvECombatRefs)
 									if (pair.Value.GetOther(me).IsWithinMeleeRange(me))
 									{
 										InMeleeRange = true;

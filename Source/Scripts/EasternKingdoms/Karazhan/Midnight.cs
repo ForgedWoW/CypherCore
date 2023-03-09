@@ -169,9 +169,9 @@ internal class boss_attumen : BossAI
 									Unit target = null;
 									List<Unit> targetList = new();
 
-									foreach (var refe in me.GetThreatManager().GetSortedThreatList())
+									foreach (var refe in me.GetThreatManager().SortedThreatList)
 									{
-										target = refe.GetVictim();
+										target = refe.Victim;
 
 										if (target &&
 											!target.IsWithinDist(me, 8.00f, false) &&

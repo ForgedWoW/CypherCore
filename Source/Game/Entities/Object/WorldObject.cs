@@ -89,7 +89,7 @@ public abstract class WorldObject : IDisposable
 				var instanceMap = Map.ToInstanceMap;
 
 				if (instanceMap != null)
-					return instanceMap.GetInstanceScenario();
+					return instanceMap.InstanceScenario;
 			}
 
 			return null;
@@ -343,7 +343,7 @@ public abstract class WorldObject : IDisposable
 		{
 			var map = Map;
 
-			return map.IsDungeon ? ((InstanceMap)map).GetInstanceScript() : null;
+			return map.IsDungeon ? ((InstanceMap)map).InstanceScript : null;
 		}
 	}
 
@@ -1767,7 +1767,7 @@ public abstract class WorldObject : IDisposable
 			var instanceMap = map.ToInstanceMap;
 
 			if (instanceMap != null)
-				return (ZoneScript)instanceMap.GetInstanceScript();
+				return (ZoneScript)instanceMap.InstanceScript;
 
 			var bgMap = map.ToBattlegroundMap;
 

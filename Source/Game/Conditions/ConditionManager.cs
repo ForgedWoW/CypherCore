@@ -2632,7 +2632,7 @@ namespace Game
                 case UnitConditionVariable.HasHarmfulAuraWithPeriodicDamage:
                     return unit.HasAuraType(AuraType.PeriodicDamage) ? 1 : 0;
                 case UnitConditionVariable.NumberOfEnemies:
-                    return unit.GetThreatManager().GetThreatListSize();
+                    return unit.GetThreatManager().ThreatListSize;
                 case UnitConditionVariable.NumberOfFriends:
                     break;
                 case UnitConditionVariable.ThreatPhysicalPct:

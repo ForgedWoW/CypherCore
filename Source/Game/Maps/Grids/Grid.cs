@@ -122,7 +122,7 @@ public class Grid
 									"Grid[{0}, {1}] on map {2} moved to IDLE state",
 									GetX(),
 									GetY(),
-									map.									Id);
+									map.Id);
 					}
 					else
 					{
@@ -139,7 +139,7 @@ public class Grid
 							"Grid[{0}, {1}] on map {2} moved to REMOVAL state",
 							GetX(),
 							GetY(),
-							map.							Id);
+							map.Id);
 
 				break;
 			case GridState.Removal:
@@ -154,7 +154,7 @@ public class Grid
 										"Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
 										GetX(),
 										GetY(),
-										map.										Id);
+										map.Id);
 
 							map.ResetGridExpiry(this);
 						}

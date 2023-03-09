@@ -623,7 +623,7 @@ public class InstanceScript : ZoneScript
 	{
 		Log.outError(LogFilter.Server,
 					"Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
-					Instance.					Id,
+					Instance.Id,
 					criteria_id);
 
 		return false;
@@ -932,14 +932,14 @@ public class InstanceScript : ZoneScript
 				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.IsInCombat)
-					minion.					AI.EnterEvadeMode();
+					minion.AI.EnterEvadeMode();
 
 				break;
 			case EncounterState.InProgress:
 				if (!minion.IsAlive)
 					minion.Respawn();
 				else if (minion.Victim == null)
-					minion.					AI.DoZoneInCombat();
+					minion.AI.DoZoneInCombat();
 
 				break;
 			default:
@@ -965,7 +965,7 @@ public class InstanceScript : ZoneScript
 			if (((1 << (int)GetBossState(info.BossStateId)) & info.BossStates) == 0)
 				continue;
 
-			if (((Instance.GetTeamIdInInstance() == TeamIds.Alliance) && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || ((Instance.GetTeamIdInInstance() == TeamIds.Horde) && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
+			if (((Instance.TeamIdInInstance == TeamIds.Alliance) && info.Flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly)) || ((Instance.TeamIdInInstance == TeamIds.Horde) && info.Flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly)))
 				continue;
 
 			if (info.Flags.HasAnyFlag(InstanceSpawnGroupFlags.BlockSpawn))
@@ -1088,8 +1088,8 @@ public class InstanceScript : ZoneScript
 
 					Log.outDebug(LogFilter.Lfg,
 								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
-								Instance.								MapName,
-								Instance.								InstanceId,
+								Instance.MapName,
+								Instance.InstanceId,
 								encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
 								dungeonId);
 

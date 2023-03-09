@@ -1008,7 +1008,7 @@ public partial class Player
 		}
 
 		// Unlock battle pet system if it's enabled in bnet account
-		if (Session.BattlePetMgr.IsBattlePetSystemEnabled())
+		if (Session.BattlePetMgr.IsBattlePetSystemEnabled)
 			LearnSpell(SharedConst.SpellBattlePetTraining, false);
 
 		_AchievementSys.CheckAllAchievementCriteria(this);

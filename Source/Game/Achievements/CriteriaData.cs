@@ -432,7 +432,7 @@ public class CriteriaData
 								CriteriaDataType.InstanceScript, criteriaId, map.Id);
 					return false;
 				}
-				InstanceScript instance = ((InstanceMap)map).GetInstanceScript();
+				InstanceScript instance = ((InstanceMap)map).InstanceScript;
 				if (instance == null)
 				{
 					Log.outError(LogFilter.Achievement, "Achievement system call criteria_data_INSTANCE_SCRIPT ({0}) for achievement criteria {1} for map {2} but map does not have a instance script",

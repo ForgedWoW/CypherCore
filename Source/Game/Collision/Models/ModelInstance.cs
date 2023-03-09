@@ -2,202 +2,158 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.IO;
 using System.Numerics;
 using Framework.Constants;
 using Framework.GameMath;
 
-namespace Game.Collision
+namespace Game.Collision;
+
+public class ModelInstance : ModelMinimalData
 {
-    public enum ModelFlags
-    {
-        M2 = 1,
-        HasBound = 1 << 1,
-        ParentSpawn = 1 << 2
-    }
+	readonly Matrix4x4 _iInvRot;
+	readonly float _iInvScale;
+	WorldModel _iModel;
 
-    public class ModelMinimalData
-    {
-        public byte flags;
-        public byte adtId;
-        public uint Id;
-        public Vector3 iPos;
-        public float iScale;
-        public AxisAlignedBox iBound;
-        public string name;
-    }
+	public ModelInstance()
+	{
+		_iInvScale = 0.0f;
+		_iModel = null;
+	}
 
-    public class ModelSpawn : ModelMinimalData
-    {
-        public Vector3 iRot;
+	public ModelInstance(ModelSpawn spawn, WorldModel model)
+	{
+		Flags = spawn.Flags;
+		AdtId = spawn.AdtId;
+		Id = spawn.Id;
+		IPos = spawn.IPos;
+		IScale = spawn.IScale;
+		IBound = spawn.IBound;
+		Name = spawn.Name;
 
-        public ModelSpawn() { }
+		_iModel = model;
 
-        public ModelSpawn(ModelSpawn spawn)
-        {
-            flags = spawn.flags;
-            adtId = spawn.adtId;
-            Id = spawn.Id;
-            iPos = spawn.iPos;
-            iRot = spawn.iRot;
-            iScale = spawn.iScale;
-            iBound = spawn.iBound;
-            name = spawn.name;
-        }
+		Extensions.fromEulerAnglesZYX(MathFunctions.PI * spawn.IRot.Y / 180.0f, MathFunctions.PI * spawn.IRot.X / 180.0f, MathFunctions.PI * spawn.IRot.Z / 180.0f).Inverse(out _iInvRot);
 
-        public static bool ReadFromFile(BinaryReader reader, out ModelSpawn spawn)
-        {
-            spawn = new ModelSpawn();
+		_iInvScale = 1.0f / IScale;
+	}
 
-            spawn.flags = reader.ReadByte();
-            spawn.adtId = reader.ReadByte();
-            spawn.Id = reader.ReadUInt32();
-            spawn.iPos = reader.Read<Vector3>();
-            spawn.iRot = reader.Read<Vector3>();
-            spawn.iScale = reader.ReadSingle();
+	public bool IntersectRay(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
+	{
+		if (_iModel == null)
+			return false;
 
-            bool has_bound = Convert.ToBoolean(spawn.flags & (uint)ModelFlags.HasBound);
-            if (has_bound) // only WMOs have bound in MPQ, only available after computation
-            {
-                Vector3 bLow = reader.Read<Vector3>();
-                Vector3 bHigh = reader.Read<Vector3>();
-                spawn.iBound = new AxisAlignedBox(bLow, bHigh);
-            }
+		var time = pRay.intersectionTime(IBound);
 
-            uint nameLen = reader.ReadUInt32();
-            spawn.name = reader.ReadString((int)nameLen);
-            return true;
-        }
-    }
+		if (float.IsInfinity(time))
+			return false;
 
-    public class ModelInstance : ModelMinimalData
-    {
-        Matrix4x4 iInvRot;
-        readonly float iInvScale;
-        WorldModel iModel;
+		// child bounds are defined in object space:
+		var p = _iInvRot.Multiply(pRay.Origin - IPos) * _iInvScale;
+		var modRay = new Ray(p, _iInvRot.Multiply(pRay.Direction));
+		var distance = pMaxDist * _iInvScale;
+		var hit = _iModel.IntersectRay(modRay, ref distance, pStopAtFirstHit, ignoreFlags);
 
-        public ModelInstance()
-        {
-            iInvScale = 0.0f;
-            iModel = null;
-        }
+		if (hit)
+		{
+			distance *= IScale;
+			pMaxDist = distance;
+		}
 
-        public ModelInstance(ModelSpawn spawn, WorldModel model)
-        {
-            flags = spawn.flags;
-            adtId = spawn.adtId;
-            Id = spawn.Id;
-            iPos = spawn.iPos;
-            iScale = spawn.iScale;
-            iBound = spawn.iBound;
-            name = spawn.name;
+		return hit;
+	}
 
-            iModel = model;
+	public void IntersectPoint(Vector3 p, AreaInfo info)
+	{
+		if (_iModel == null)
+			return;
 
-            Extensions.fromEulerAnglesZYX(MathFunctions.PI * spawn.iRot.Y / 180.0f, MathFunctions.PI * spawn.iRot.X / 180.0f, MathFunctions.PI * spawn.iRot.Z / 180.0f).Inverse(out iInvRot);
+		// M2 files don't contain area info, only WMO files
+		if (Convert.ToBoolean(Flags & (uint)ModelFlags.M2))
+			return;
 
-            iInvScale = 1.0f / iScale;
-        }
+		if (!IBound.contains(p))
+			return;
 
-        public bool IntersectRay(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
-        {
-            if (iModel == null)
-                return false;
+		// child bounds are defined in object space:
+		var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
+		var zDirModel = _iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
 
-            float time = pRay.intersectionTime(iBound);
-            if (float.IsInfinity(time))
-                return false;
+		if (_iModel.IntersectPoint(pModel, zDirModel, out var zDist, info))
+		{
+			var modelGround = pModel + zDist * zDirModel;
+			// Transform back to world space. Note that:
+			// Mat * vec == vec * Mat.transpose()
+			// and for rotation matrices: Mat.inverse() == Mat.transpose()
+			var world_Z = (_iInvRot.Multiply(modelGround) * IScale + IPos).Z;
 
-            // child bounds are defined in object space:
-            Vector3 p = iInvRot.Multiply(pRay.Origin - iPos) * iInvScale;
-            Ray modRay = new Ray(p, iInvRot.Multiply(pRay.Direction));
-            float distance = pMaxDist * iInvScale;
-            bool hit = iModel.IntersectRay(modRay, ref distance, pStopAtFirstHit, ignoreFlags);
-            if (hit)
-            {
-                distance *= iScale;
-                pMaxDist = distance;
-            }
-            return hit;
-        }
+			if (info.GroundZ < world_Z)
+			{
+				info.GroundZ = world_Z;
+				info.AdtId = AdtId;
+			}
+		}
+	}
 
-        public void IntersectPoint(Vector3 p, AreaInfo info)
-        {
-            if (iModel == null)
-                return;
+	public bool GetLiquidLevel(Vector3 p, LocationInfo info, ref float liqHeight)
+	{
+		// child bounds are defined in object space:
+		var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
 
-            // M2 files don't contain area info, only WMO files
-            if (Convert.ToBoolean(flags & (uint)ModelFlags.M2))
-                return;
-            if (!iBound.contains(p))
-                return;
-            // child bounds are defined in object space:
-            Vector3 pModel = iInvRot.Multiply(p - iPos) * iInvScale;
-            Vector3 zDirModel = iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
-            if (iModel.IntersectPoint(pModel, zDirModel, out float zDist, info))
-            {
-                Vector3 modelGround = pModel + zDist * zDirModel;
-                // Transform back to world space. Note that:
-                // Mat * vec == vec * Mat.transpose()
-                // and for rotation matrices: Mat.inverse() == Mat.transpose()
-                float world_Z = (iInvRot.Multiply(modelGround) * iScale + iPos).Z;
-                if (info.ground_Z < world_Z)
-                {
-                    info.ground_Z = world_Z;
-                    info.adtId = adtId;
-                }
-            }
-        }
+		//Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+		if (info.HitModel.GetLiquidLevel(pModel, out var zDist))
+		{
+			// calculate world height (zDist in model coords):
+			// assume WMO not tilted (wouldn't make much sense anyway)
+			liqHeight = zDist * IScale + IPos.Z;
 
-        public bool GetLiquidLevel(Vector3 p, LocationInfo info, ref float liqHeight)
-        {
-            // child bounds are defined in object space:
-            Vector3 pModel = iInvRot.Multiply(p - iPos) * iInvScale;
-            //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
-            if (info.hitModel.GetLiquidLevel(pModel, out float zDist))
-            {
-                // calculate world height (zDist in model coords):
-                // assume WMO not tilted (wouldn't make much sense anyway)
-                liqHeight = zDist * iScale + iPos.Z;
-                return true;
-            }
-            return false;
-        }
+			return true;
+		}
 
-        public bool GetLocationInfo(Vector3 p, LocationInfo info)
-        {
-            if (iModel == null)
-                return false;
+		return false;
+	}
 
-            // M2 files don't contain area info, only WMO files
-            if (Convert.ToBoolean(flags & (uint)ModelFlags.M2))
-                return false;
-            if (!iBound.contains(p))
-                return false;
-            // child bounds are defined in object space:
-            Vector3 pModel = iInvRot.Multiply(p - iPos) * iInvScale;
-            Vector3 zDirModel = iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
+	public bool GetLocationInfo(Vector3 p, LocationInfo info)
+	{
+		if (_iModel == null)
+			return false;
 
-            GroupLocationInfo groupInfo = new();
-            if (iModel.GetLocationInfo(pModel, zDirModel, out float zDist, groupInfo))
-            {
-                Vector3 modelGround = pModel + zDist * zDirModel;
-                // Transform back to world space. Note that:
-                // Mat * vec == vec * Mat.transpose()
-                // and for rotation matrices: Mat.inverse() == Mat.transpose()
-                float world_Z = (iInvRot.Multiply(modelGround * iScale) + iPos).Z;
-                if (info.ground_Z < world_Z) // hm...could it be handled automatically with zDist at intersection?
-                {
-                    info.rootId = groupInfo.rootId;
-                    info.hitModel = groupInfo.hitModel;
-                    info.ground_Z = world_Z;
-                    info.hitInstance = this;
-                    return true;
-                }
-            }
-            return false;
-        }
+		// M2 files don't contain area info, only WMO files
+		if (Convert.ToBoolean(Flags & (uint)ModelFlags.M2))
+			return false;
 
-        public void SetUnloaded() { iModel = null; }
-    }
+		if (!IBound.contains(p))
+			return false;
+
+		// child bounds are defined in object space:
+		var pModel = _iInvRot.Multiply(p - IPos) * _iInvScale;
+		var zDirModel = _iInvRot.Multiply(new Vector3(0.0f, 0.0f, -1.0f));
+
+		GroupLocationInfo groupInfo = new();
+
+		if (_iModel.GetLocationInfo(pModel, zDirModel, out var zDist, groupInfo))
+		{
+			var modelGround = pModel + zDist * zDirModel;
+			// Transform back to world space. Note that:
+			// Mat * vec == vec * Mat.transpose()
+			// and for rotation matrices: Mat.inverse() == Mat.transpose()
+			var worldZ = (_iInvRot.Multiply(modelGround * IScale) + IPos).Z;
+
+			if (info.GroundZ < worldZ) // hm...could it be handled automatically with zDist at intersection?
+			{
+				info.RootId = groupInfo.RootId;
+				info.HitModel = groupInfo.HitModel;
+				info.GroundZ = worldZ;
+				info.HitInstance = this;
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void SetUnloaded()
+	{
+		_iModel = null;
+	}
 }

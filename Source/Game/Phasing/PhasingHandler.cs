@@ -494,8 +494,8 @@ public class PhasingHandler
 		if (!phaseShift.Phases.Empty())
 		{
 			StringBuilder phases = new();
-			var cosmetic = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.GetSessionDbcLocale());
-			var personal = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.GetSessionDbcLocale());
+			var cosmetic = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.SessionDbcLocale);
+			var personal = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.SessionDbcLocale);
 
 			foreach (var pair in phaseShift.Phases)
 			{

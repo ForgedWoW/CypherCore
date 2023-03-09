@@ -132,8 +132,8 @@ public class VehicleJoinEvent : BasicEvent
 
 		Passenger.MotionMaster.LaunchMoveSpline(initializer, EventId.VehicleBoard, MovementGeneratorPriority.Highest);
 
-		foreach (var (_, threatRef) in Passenger.GetThreatManager().GetThreatenedByMeList())
-			threatRef.GetOwner().GetThreatManager().AddThreat(Target.GetBase(), threatRef.GetThreat(), null, true, true);
+		foreach (var (_, threatRef) in Passenger.GetThreatManager().ThreatenedByMeList)
+			threatRef.Owner.GetThreatManager().AddThreat(Target.GetBase(), threatRef.Threat, null, true, true);
 
 		var creature = Target.GetBase().AsCreature;
 

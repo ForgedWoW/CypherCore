@@ -3353,11 +3353,11 @@ public partial class Unit : WorldObject
 			{
 				List<CombatReference> toEnd = new();
 
-				foreach (var pair in _combatManager.GetPvECombatRefs())
+				foreach (var pair in _combatManager.PvECombatRefs)
 					if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
 						toEnd.Add(pair.Value);
 
-				foreach (var pair in _combatManager.GetPvPCombatRefs())
+				foreach (var pair in _combatManager.PvPCombatRefs)
 					if (pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
 						toEnd.Add(pair.Value);
 
@@ -3392,11 +3392,11 @@ public partial class Unit : WorldObject
 			{
 				List<CombatReference> toEnd = new();
 
-				foreach (var pair in _combatManager.GetPvECombatRefs())
+				foreach (var pair in _combatManager.PvECombatRefs)
 					if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
 						toEnd.Add(pair.Value);
 
-				foreach (var pair in _combatManager.GetPvPCombatRefs())
+				foreach (var pair in _combatManager.PvPCombatRefs)
 					if (!pair.Value.GetOther(this).HasUnitFlag(UnitFlags.PlayerControlled))
 						toEnd.Add(pair.Value);
 

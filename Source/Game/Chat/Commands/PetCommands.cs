@@ -3,160 +3,180 @@
 
 using Framework.Constants;
 using Game.Entities;
-using Game.Spells;
 
-namespace Game.Chat
+namespace Game.Chat;
+
+[CommandGroup("pet")]
+class PetCommands
 {
-    [CommandGroup("pet")]
-    class PetCommands
-    {
-        [Command("create", RBACPermissions.CommandPetCreate)]
-        static bool HandlePetCreateCommand(CommandHandler handler)
-        {
-            Player player = handler.GetSession().Player;
-            Creature creatureTarget = handler.GetSelectedCreature();
+	[Command("create", RBACPermissions.CommandPetCreate)]
+	static bool HandlePetCreateCommand(CommandHandler handler)
+	{
+		var player = handler.Session.Player;
+		var creatureTarget = handler.SelectedCreature;
 
-            if (!creatureTarget || creatureTarget.IsPet || creatureTarget.IsTypeId(TypeId.Player))
-            {
-                handler.SendSysMessage(CypherStrings.SelectCreature);
-                return false;
-            }
+		if (!creatureTarget || creatureTarget.IsPet || creatureTarget.IsTypeId(TypeId.Player))
+		{
+			handler.SendSysMessage(CypherStrings.SelectCreature);
 
-            CreatureTemplate creatureTemplate = creatureTarget.CreatureTemplate;
-            // Creatures with family CreatureFamily.None crashes the server
-            if (creatureTemplate.Family == CreatureFamily.None)
-            {
-                handler.SendSysMessage("This creature cannot be tamed. (Family id: 0).");
-                return false;
-            }
+			return false;
+		}
 
-            if (!player.PetGUID.IsEmpty)
-            {
-                handler.SendSysMessage("You already have a pet");
-                return false;
-            }
+		var creatureTemplate = creatureTarget.CreatureTemplate;
 
-            // Everything looks OK, create new pet
-            Pet pet = player.CreateTamedPetFrom(creatureTarget);
+		// Creatures with family CreatureFamily.None crashes the server
+		if (creatureTemplate.Family == CreatureFamily.None)
+		{
+			handler.SendSysMessage("This creature cannot be tamed. (Family id: 0).");
 
-            // "kill" original creature
-            creatureTarget.DespawnOrUnsummon();
+			return false;
+		}
 
-            // prepare visual effect for levelup
-            pet.SetLevel(player.Level - 1);
+		if (!player.PetGUID.IsEmpty)
+		{
+			handler.SendSysMessage("You already have a pet");
 
-            // add to world
-            pet.
-            // add to world
-            Map.AddToMap(pet.AsCreature);
+			return false;
+		}
 
-            // visual effect for levelup
-            pet.SetLevel(player.Level);
+		// Everything looks OK, create new pet
+		var pet = player.CreateTamedPetFrom(creatureTarget);
 
-            // caster have pet now
-            player.SetMinion(pet, true);
+		// "kill" original creature
+		creatureTarget.DespawnOrUnsummon();
 
-            pet.SavePetToDB(PetSaveMode.AsCurrent);
-            player.PetSpellInitialize();
+		// prepare visual effect for levelup
+		pet.SetLevel(player.Level - 1);
 
-            return true;
-        }
+		// add to world
+		pet.
+			// add to world
+			Map.AddToMap(pet.AsCreature);
 
-        [Command("learn", RBACPermissions.CommandPetLearn)]
-        static bool HandlePetLearnCommand(CommandHandler handler, uint spellId)
-        {
-            Pet pet = GetSelectedPlayerPetOrOwn(handler);
-            if (!pet)
-            {
-                handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
-                return false;
-            }
+		// visual effect for levelup
+		pet.SetLevel(player.Level);
 
-            if (spellId == 0 || !Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
-                return false;
+		// caster have pet now
+		player.SetMinion(pet, true);
 
-            // Check if pet already has it
-            if (pet.HasSpell(spellId))
-            {
-                handler.SendSysMessage("Pet already has spell: {0}", spellId);
-                return false;
-            }
+		pet.SavePetToDB(PetSaveMode.AsCurrent);
+		player.PetSpellInitialize();
 
-            // Check if spell is valid
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
-            if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo))
-            {
-                handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellId);
-                return false;
-            }
+		return true;
+	}
 
-            pet.LearnSpell(spellId);
+	[Command("learn", RBACPermissions.CommandPetLearn)]
+	static bool HandlePetLearnCommand(CommandHandler handler, uint spellId)
+	{
+		var pet = GetSelectedPlayerPetOrOwn(handler);
 
-            handler.SendSysMessage("Pet has learned spell {0}", spellId);
-            return true;
-        }
+		if (!pet)
+		{
+			handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
 
-        [Command("unlearn", RBACPermissions.CommandPetUnlearn)]
-        static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
-        {
-            Pet pet = GetSelectedPlayerPetOrOwn(handler);
-            if (!pet)
-            {
-                handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
-                return false;
-            }
+			return false;
+		}
 
-            if (pet.HasSpell(spellId))
-                pet.RemoveSpell(spellId, false);
-            else
-                handler.SendSysMessage("Pet doesn't have that spell");
+		if (spellId == 0 || !Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
+			return false;
 
-            return true;
-        }
+		// Check if pet already has it
+		if (pet.HasSpell(spellId))
+		{
+			handler.SendSysMessage("Pet already has spell: {0}", spellId);
 
-        [Command("level", RBACPermissions.CommandPetLevel)]
-        static bool HandlePetLevelCommand(CommandHandler handler, int level)
-        {
-            Pet pet = GetSelectedPlayerPetOrOwn(handler);
-            Player owner = pet ? pet.GetOwner() : null;
-            if (!pet || !owner)
-            {
-                handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
-                return false;
-            }
+			return false;
+		}
 
-            if (level == 0)
-                level = (int)(owner.Level - pet.Level);
-            if (level == 0 || level < -SharedConst.StrongMaxLevel || level > SharedConst.StrongMaxLevel)
-            {
-                handler.SendSysMessage(CypherStrings.BadValue);
-                return false;
-            }
+		// Check if spell is valid
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
-            int newLevel = (int)pet.Level + level;
-            if (newLevel < 1)
-                newLevel = 1;
-            else if (newLevel > owner.Level)
-                newLevel = (int)owner.Level;
+		if (spellInfo == null || !Global.SpellMgr.IsSpellValid(spellInfo))
+		{
+			handler.SendSysMessage(CypherStrings.CommandSpellBroken, spellId);
 
-            pet.GivePetLevel(newLevel);
-            return true;
-        }
+			return false;
+		}
 
-        static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
-        {
-            Unit target = handler.GetSelectedUnit();
-            if (target)
-            {
-                if (target.IsTypeId(TypeId.Player))
-                    return target.AsPlayer.CurrentPet;
-                if (target.IsPet)
-                    return target.AsPet;
-                return null;
-            }
+		pet.LearnSpell(spellId);
 
-            Player player = handler.GetSession().Player;
-            return player ? player.CurrentPet : null;
-        }
-    }
+		handler.SendSysMessage("Pet has learned spell {0}", spellId);
+
+		return true;
+	}
+
+	[Command("unlearn", RBACPermissions.CommandPetUnlearn)]
+	static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
+	{
+		var pet = GetSelectedPlayerPetOrOwn(handler);
+
+		if (!pet)
+		{
+			handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
+
+			return false;
+		}
+
+		if (pet.HasSpell(spellId))
+			pet.RemoveSpell(spellId, false);
+		else
+			handler.SendSysMessage("Pet doesn't have that spell");
+
+		return true;
+	}
+
+	[Command("level", RBACPermissions.CommandPetLevel)]
+	static bool HandlePetLevelCommand(CommandHandler handler, int level)
+	{
+		var pet = GetSelectedPlayerPetOrOwn(handler);
+		var owner = pet ? pet.GetOwner() : null;
+
+		if (!pet || !owner)
+		{
+			handler.SendSysMessage(CypherStrings.SelectPlayerOrPet);
+
+			return false;
+		}
+
+		if (level == 0)
+			level = (int)(owner.Level - pet.Level);
+
+		if (level == 0 || level < -SharedConst.StrongMaxLevel || level > SharedConst.StrongMaxLevel)
+		{
+			handler.SendSysMessage(CypherStrings.BadValue);
+
+			return false;
+		}
+
+		var newLevel = (int)pet.Level + level;
+
+		if (newLevel < 1)
+			newLevel = 1;
+		else if (newLevel > owner.Level)
+			newLevel = (int)owner.Level;
+
+		pet.GivePetLevel(newLevel);
+
+		return true;
+	}
+
+	static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
+	{
+		var target = handler.SelectedUnit;
+
+		if (target)
+		{
+			if (target.IsTypeId(TypeId.Player))
+				return target.AsPlayer.CurrentPet;
+
+			if (target.IsPet)
+				return target.AsPet;
+
+			return null;
+		}
+
+		var player = handler.Session.Player;
+
+		return player ? player.CurrentPet : null;
+	}
 }

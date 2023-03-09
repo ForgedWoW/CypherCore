@@ -34,14 +34,14 @@ namespace Game
             NPCInteractionOpenResult npcInteraction = new();
             npcInteraction.Npc = guid;
             npcInteraction.InteractionType = PlayerInteractionType.BlackMarketAuctioneer;
-            npcInteraction.Success = Global.BlackMarketMgr.IsEnabled();
+            npcInteraction.Success = Global.BlackMarketMgr.IsEnabled;
             SendPacket(npcInteraction);
         }
 
         [WorldPacketHandler(ClientOpcodes.BlackMarketRequestItems)]
         void HandleBlackMarketRequestItems(BlackMarketRequestItems blackMarketRequestItems)
         {
-            if (!Global.BlackMarketMgr.IsEnabled())
+            if (!Global.BlackMarketMgr.IsEnabled)
                 return;
 
             Creature unit = Player.GetNPCIfCanInteractWith(blackMarketRequestItems.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
@@ -59,7 +59,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.BlackMarketBidOnItem)]
         void HandleBlackMarketBidOnItem(BlackMarketBidOnItem blackMarketBidOnItem)
         {
-            if (!Global.BlackMarketMgr.IsEnabled())
+            if (!Global.BlackMarketMgr.IsEnabled)
                 return;
 
             Player player = Player;
@@ -78,7 +78,7 @@ namespace Game
                 return;
             }
 
-            if (entry.GetBidder() == player.GUID.Counter)
+            if (entry.Bidder == player.GUID.Counter)
             {
                 Log.outDebug(LogFilter.Network, "WORLD: HandleBlackMarketBidOnItem - {0} (name: {1}) tried to place a bid on an item he already bid on. (MarketId: {2}).", player.GUID.ToString(), player.GetName(), blackMarketBidOnItem.MarketID);
                 SendBlackMarketBidOnItemResult(BlackMarketError.AlreadyBid, blackMarketBidOnItem.MarketID, blackMarketBidOnItem.Item);
@@ -131,7 +131,7 @@ namespace Game
         {
             BlackMarketWon packet = new();
 
-            packet.MarketID = entry.GetMarketId();
+            packet.MarketID = entry.MarketId;
             packet.Item = new ItemInstance(item);
 
             SendPacket(packet);

@@ -28,7 +28,7 @@ namespace Game.AI
             _me = unit;
             _dist = dist;
             _playerOnly = playerOnly;
-            _exception = !withTank ? unit.GetThreatManager().GetLastVictim() : null;
+            _exception = !withTank ? unit.GetThreatManager().LastVictim : null;
             _aura = aura;
         }
 
@@ -172,7 +172,7 @@ namespace Game.AI
             if (_playerOnly && !target.IsTypeId(TypeId.Player))
                 return false;
 
-            Unit currentVictim = _source.GetThreatManager().GetCurrentVictim();
+            Unit currentVictim = _source.GetThreatManager().CurrentVictim;
             if (currentVictim != null)
                 return target != currentVictim;
 

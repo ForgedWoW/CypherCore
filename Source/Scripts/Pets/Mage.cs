@@ -148,7 +148,7 @@ namespace Scripts.Pets
 					// select pvp Target
 					double minDistance = 0.0f;
 
-					foreach (var pair in mgr.GetPvPCombatRefs())
+					foreach (var pair in mgr.PvPCombatRefs)
 					{
 						var target = pair.Value.GetOther(owner);
 
@@ -174,7 +174,7 @@ namespace Scripts.Pets
 					// select pve Target
 					double maxThreat = 0.0f;
 
-					foreach (var pair in mgr.GetPvECombatRefs())
+					foreach (var pair in mgr.PvECombatRefs)
 					{
 						var target = pair.Value.GetOther(owner);
 

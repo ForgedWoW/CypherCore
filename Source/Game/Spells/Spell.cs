@@ -1631,7 +1631,7 @@ public partial class Spell : IDisposable
 					return SpellCastResult.DontReport;
 		}
 
-		if (_caster.IsTypeId(TypeId.Player) && Global.VMapMgr.IsLineOfSightCalcEnabled())
+		if (_caster.IsTypeId(TypeId.Player) && Global.VMapMgr.IsLineOfSightCalcEnabled)
 		{
 			if (SpellInfo.HasAttribute(SpellAttr0.OnlyOutdoors) && !_caster.IsOutdoors)
 				return SpellCastResult.OnlyOutdoors;
@@ -2440,7 +2440,7 @@ public partial class Spell : IDisposable
 					{
 						var mapId = map.Id;
 						var difficulty = map.DifficultyID;
-						var mapLock = map.GetInstanceLock();
+						var mapLock = map.InstanceLock;
 
 						if (mapLock != null)
 							if (Global.InstanceLockMgr.CanJoinInstanceLock(target.GUID, new MapDb2Entries(mapId, difficulty), mapLock) != TransferAbortReason.None)
@@ -2608,7 +2608,7 @@ public partial class Spell : IDisposable
 
 					var battlePetMgr = playerCaster.Session.BattlePetMgr;
 
-					if (!battlePetMgr.HasJournalLock())
+					if (!battlePetMgr.HasJournalLock)
 						return SpellCastResult.CantDoThatRightNow;
 
 					var creature = Targets.UnitTarget.AsCreature;

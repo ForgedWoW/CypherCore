@@ -31,7 +31,7 @@ public class MapManager : Singleton<MapManager>
 	MapManager()
 	{
 		_gridCleanUpDelay = WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean);
-		_timer.		Interval = WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate);
+		_timer.Interval = WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate);
 	}
 
 	public void Initialize()
@@ -131,7 +131,7 @@ public class MapManager : Singleton<MapManager>
 				map = FindMap_i(mapId, newInstanceId);
 
 				// is is also possible that instance id is already in use by another group for boss-based locks
-				if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.GetInstanceLock() != instanceLock)
+				if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
 				{
 					newInstanceId = GenerateInstanceId();
 					instanceLock.SetInstanceId(newInstanceId);
@@ -216,7 +216,7 @@ public class MapManager : Singleton<MapManager>
 			var map = FindMap(mapId, newInstanceId);
 
 			// is is possible that instance id is already in use by another group for boss-based locks
-			if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.GetInstanceLock() != instanceLock)
+			if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
 				return 0;
 
 			return newInstanceId;
@@ -267,8 +267,7 @@ public class MapManager : Singleton<MapManager>
 			foreach (var map in kvp.Values)
 				map.DelayedUpdate(time);
 
-		_timer.
-		Current = 0;
+		_timer.Current = 0;
 	}
 
 	public bool IsValidMAP(uint mapId)
@@ -399,8 +398,7 @@ public class MapManager : Singleton<MapManager>
 		if (t < MapConst.MinMapUpdateDelay)
 			t = MapConst.MinMapUpdateDelay;
 
-		_timer.
-		Interval = t;
+		_timer.Interval = t;
 		_timer.Reset();
 	}
 

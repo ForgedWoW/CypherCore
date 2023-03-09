@@ -2655,7 +2655,7 @@ public partial class Spell
 
 		var mgr = UnitTarget.GetThreatManager();
 
-		if (mgr.GetCurrentVictim() == unitCaster)
+		if (mgr.CurrentVictim == unitCaster)
 		{
 			SendCastResult(SpellCastResult.DontReport);
 
@@ -3176,7 +3176,7 @@ public partial class Spell
 			UnitTarget.CombatStop(false, false);
 		else
 			// in dungeons (or for nonplayers), reset this unit on all enemies' threat lists
-			foreach (var pair in UnitTarget.GetThreatManager().GetThreatenedByMeList())
+			foreach (var pair in UnitTarget.GetThreatManager().ThreatenedByMeList)
 				pair.Value.ScaleThreat(0.0f);
 
 		// makes spells cast before this time fizzle

@@ -484,12 +484,12 @@ internal class boss_malchezaar : ScriptedAI
 		if (info == null)
 			return;
 
-		var tank = me.GetThreatManager().GetCurrentVictim();
+		var tank = me.GetThreatManager().CurrentVictim;
 		List<Unit> targets = new();
 
-		foreach (var refe in me.GetThreatManager().GetSortedThreatList())
+		foreach (var refe in me.GetThreatManager().SortedThreatList)
 		{
-			var target = refe.GetVictim();
+			var target = refe.Victim;
 
 			if (target != tank &&
 				target.IsAlive &&

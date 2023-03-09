@@ -50,7 +50,7 @@ internal class npc_training_dummy : NullCreatureAI
 			if (_combatTimer[key] <= TimeSpan.Zero)
 			{
 				// The Attacker has not dealt any Damage to the dummy for over 5 seconds. End combat.
-				var pveRefs = me.GetCombatManager().GetPvECombatRefs();
+				var pveRefs = me.GetCombatManager().PvECombatRefs;
 				var it = pveRefs.LookupByKey(key);
 
 				it?.EndCombat();

@@ -14,11 +14,11 @@ public class RespawnDo : IDoWork<WorldObject>
 		switch (obj.TypeId)
 		{
 			case TypeId.Unit:
-				obj.				AsCreature.Respawn();
+				obj.AsCreature.Respawn();
 
 				break;
 			case TypeId.GameObject:
-				obj.				AsGameObject.Respawn();
+				obj.AsGameObject.Respawn();
 
 				break;
 		}

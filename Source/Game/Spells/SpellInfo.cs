@@ -1370,7 +1370,7 @@ public class SpellInfo
 
 				if (iMap)
 				{
-					var instance = iMap.GetInstanceScript();
+					var instance = iMap.InstanceScript;
 
 					if (instance != null)
 						if (instance.GetCombatResurrectionCharges() == 0 && instance.IsEncounterInProgress())

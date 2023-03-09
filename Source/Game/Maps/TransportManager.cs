@@ -192,7 +192,7 @@ public class TransportManager : Singleton<TransportManager>
 
 		if (instanceMap != null)
 		{
-			var instance = instanceMap.GetInstanceScript();
+			var instance = instanceMap.InstanceScript;
 
 			if (instance != null)
 				entry = instance.GetGameObjectEntry(0, entry);
@@ -245,11 +245,11 @@ public class TransportManager : Singleton<TransportManager>
 
 		// use preset map for instances (need to know which instance)
 		trans.
-		// use preset map for instances (need to know which instance)
-		Map = map;
+			// use preset map for instances (need to know which instance)
+			Map = map;
 
 		if (instanceMap != null)
-			trans.ZoneScript = instanceMap.GetInstanceScript();
+			trans.ZoneScript = instanceMap.InstanceScript;
 
 		// Passengers will be loaded once a player is near
 

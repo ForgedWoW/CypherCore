@@ -23,7 +23,7 @@ namespace Game
         {
             BattlePetMgr.SendJournalLockStatus();
 
-            if (BattlePetMgr.HasJournalLock())
+            if (BattlePetMgr.HasJournalLock)
                 BattlePetMgr.SendJournal();
         }
 
@@ -96,7 +96,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.BattlePetSetFlags)]
         void HandleBattlePetSetFlags(BattlePetSetFlags battlePetSetFlags)
         {
-            if (!BattlePetMgr.HasJournalLock())
+            if (!BattlePetMgr.HasJournalLock)
                 return;
 
             var pet = BattlePetMgr.GetPet(battlePetSetFlags.PetGuid);

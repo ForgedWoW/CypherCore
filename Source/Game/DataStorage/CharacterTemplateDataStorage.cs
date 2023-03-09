@@ -5,109 +5,86 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 
-namespace Game.DataStorage
+namespace Game.DataStorage;
+
+public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
 {
-    public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
-    {
-        CharacterTemplateDataStorage() { }
+	readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
+	CharacterTemplateDataStorage() { }
 
-        public void LoadCharacterTemplates()
-        {
-            uint oldMSTime = Time.MSTime;
-            _characterTemplateStore.Clear();
+	public void LoadCharacterTemplates()
+	{
+		var oldMSTime = Time.MSTime;
+		_characterTemplateStore.Clear();
 
-            MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();
-            SQLResult classesResult = DB.World.Query("SELECT TemplateId, FactionGroup, Class FROM character_template_class");
-            if (!classesResult.IsEmpty())
-            {
-                do
-                {
-                    uint templateId = classesResult.Read<uint>(0);
-                    FactionMasks factionGroup = (FactionMasks)classesResult.Read<byte>(1);
-                    byte classID = classesResult.Read<byte>(2);
+		MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();
+		var classesResult = DB.World.Query("SELECT TemplateId, FactionGroup, Class FROM character_template_class");
 
-                    if (!((factionGroup & (FactionMasks.Player | FactionMasks.Alliance)) == (FactionMasks.Player | FactionMasks.Alliance)) &&
-                        !((factionGroup & (FactionMasks.Player | FactionMasks.Horde)) == (FactionMasks.Player | FactionMasks.Horde)))
-                    {
-                        Log.outError(LogFilter.Sql, "Faction group {0} defined for character template {1} in `character_template_class` is invalid. Skipped.", factionGroup, templateId);
-                        continue;
-                    }
+		if (!classesResult.IsEmpty())
+			do
+			{
+				var templateId = classesResult.Read<uint>(0);
+				var factionGroup = (FactionMasks)classesResult.Read<byte>(1);
+				var classID = classesResult.Read<byte>(2);
 
-                    if (!CliDB.ChrClassesStorage.ContainsKey(classID))
-                    {
-                        Log.outError(LogFilter.Sql, "Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
-                        continue;
-                    }
+				if (!((factionGroup & (FactionMasks.Player | FactionMasks.Alliance)) == (FactionMasks.Player | FactionMasks.Alliance)) &&
+					!((factionGroup & (FactionMasks.Player | FactionMasks.Horde)) == (FactionMasks.Player | FactionMasks.Horde)))
+				{
+					Log.outError(LogFilter.Sql, "Faction group {0} defined for character template {1} in `character_template_class` is invalid. Skipped.", factionGroup, templateId);
 
-                    characterTemplateClasses.Add(templateId, new CharacterTemplateClass(factionGroup, classID));
-                }
-                while (classesResult.NextRow());
-            }
-            else
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character template classes. DB table `character_template_class` is empty.");
-            }
+					continue;
+				}
 
-            SQLResult templates = DB.World.Query("SELECT Id, Name, Description, Level FROM character_template");
-            if (templates.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character templates. DB table `character_template` is empty.");
-                return;
-            }
+				if (!CliDB.ChrClassesStorage.ContainsKey(classID))
+				{
+					Log.outError(LogFilter.Sql, "Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
 
-            do
-            {
-                CharacterTemplate templ = new();
-                templ.TemplateSetId = templates.Read<uint>(0);
-                templ.Name = templates.Read<string>(1);
-                templ.Description = templates.Read<string>(2);
-                templ.Level = templates.Read<byte>(3);
-                templ.Classes = characterTemplateClasses[templ.TemplateSetId];
+					continue;
+				}
 
-                if (templ.Classes.Empty())
-                {
-                    Log.outError(LogFilter.Sql, "Character template {0} does not have any classes defined in `character_template_class`. Skipped.", templ.TemplateSetId);
-                    continue;
-                }
+				characterTemplateClasses.Add(templateId, new CharacterTemplateClass(factionGroup, classID));
+			} while (classesResult.NextRow());
+		else
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character template classes. DB table `character_template_class` is empty.");
 
-                _characterTemplateStore[templ.TemplateSetId] = templ;
-            }
-            while (templates.NextRow());
+		var templates = DB.World.Query("SELECT Id, Name, Description, Level FROM character_template");
 
-            Log.outInfo(LogFilter.ServerLoading, "Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
-        }
+		if (templates.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character templates. DB table `character_template` is empty.");
 
-        public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()
-        {
-            return _characterTemplateStore;
-        }
+			return;
+		}
 
-        public CharacterTemplate GetCharacterTemplate(uint templateId)
-        {
-            return _characterTemplateStore.LookupByKey(templateId);
-        }
+		do
+		{
+			CharacterTemplate templ = new();
+			templ.TemplateSetId = templates.Read<uint>(0);
+			templ.Name = templates.Read<string>(1);
+			templ.Description = templates.Read<string>(2);
+			templ.Level = templates.Read<byte>(3);
+			templ.Classes = characterTemplateClasses[templ.TemplateSetId];
 
-        readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
-    }
+			if (templ.Classes.Empty())
+			{
+				Log.outError(LogFilter.Sql, "Character template {0} does not have any classes defined in `character_template_class`. Skipped.", templ.TemplateSetId);
 
-    public struct CharacterTemplateClass
-    {
-        public CharacterTemplateClass(FactionMasks factionGroup, byte classID)
-        {
-            FactionGroup = factionGroup;
-            ClassID = classID;
-        }
+				continue;
+			}
 
-        public FactionMasks FactionGroup;
-        public byte ClassID;
-    }
+			_characterTemplateStore[templ.TemplateSetId] = templ;
+		} while (templates.NextRow());
 
-    public class CharacterTemplate
-    {
-        public uint TemplateSetId;
-        public List<CharacterTemplateClass> Classes;
-        public string Name;
-        public string Description;
-        public byte Level;
-    }
+		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+	}
+
+	public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()
+	{
+		return _characterTemplateStore;
+	}
+
+	public CharacterTemplate GetCharacterTemplate(uint templateId)
+	{
+		return _characterTemplateStore.LookupByKey(templateId);
+	}
 }

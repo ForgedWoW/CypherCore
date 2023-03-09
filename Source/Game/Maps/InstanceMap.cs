@@ -21,6 +21,43 @@ public class InstanceMap : Map
 	InstanceScenario _scenario;
 	DateTime? _instanceExpireEvent;
 
+	public uint MaxPlayers
+	{
+		get
+		{
+			var mapDiff = MapDifficulty;
+
+			if (mapDiff != null && mapDiff.MaxPlayers != 0)
+				return mapDiff.MaxPlayers;
+
+			return Entry.MaxPlayers;
+		}
+	}
+
+	public int TeamIdInInstance
+	{
+		get
+		{
+			if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceAlliance, this) != 0)
+				return TeamIds.Alliance;
+
+			if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceHorde, this) != 0)
+				return TeamIds.Horde;
+
+			return TeamIds.Neutral;
+		}
+	}
+
+	public TeamFaction TeamInInstance => TeamIdInInstance == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde;
+
+	public uint ScriptId => _scriptId;
+
+	public InstanceScript InstanceScript => _data;
+
+	public InstanceScenario InstanceScenario => _scenario;
+
+	public InstanceLock InstanceLock => _instanceLock;
+
 	public InstanceMap(uint id, long expiry, uint InstanceId, Difficulty spawnMode, int instanceTeam, InstanceLock instanceLock) : base(id, expiry, InstanceId, spawnMode)
 	{
 		_instanceLock = instanceLock;
@@ -64,7 +101,7 @@ public class InstanceMap : Map
 			return base.CannotEnter(player);
 
 		// cannot enter if the instance is full (player cap), GMs don't count
-		var maxPlayers = GetMaxPlayers();
+		var maxPlayers = MaxPlayers;
 
 		if (GetPlayersCountExceptGMs() >= maxPlayers)
 		{
@@ -74,7 +111,7 @@ public class InstanceMap : Map
 		}
 
 		// cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
-		if (!player.IsLoading && IsRaid && GetInstanceScript() != null && GetInstanceScript().IsEncounterInProgress())
+		if (!player.IsLoading && IsRaid && InstanceScript != null && InstanceScript.IsEncounterInProgress())
 			return new TransferAbortParams(TransferAbortReason.ZoneInCombat);
 
 		if (_instanceLock != null)
@@ -110,7 +147,7 @@ public class InstanceMap : Map
 					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
 					pendingRaidLock.Extending = playerLock != null && playerLock.IsExtended();
 					pendingRaidLock.WarningOnly = entries.Map.IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-					player.					Session.SendPacket(pendingRaidLock);
+					player.Session.SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
 						player.SetPendingBind(InstanceId, 60000);
@@ -185,7 +222,7 @@ public class InstanceMap : Map
 		if (mInstance != null)
 		{
 			_scriptId = mInstance.ScriptId;
-			_data = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), GetScriptId(), null);
+			_data = Global.ScriptMgr.RunScriptRet<IInstanceMapGetInstanceScript, InstanceScript>(p => p.GetInstanceScript(this), ScriptId, null);
 		}
 
 		if (_data == null)
@@ -335,7 +372,7 @@ public class InstanceMap : Map
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-																				player.																				GUID,
+																				player.GUID,
 																				entries,
 																				new InstanceLockUpdateEvent(InstanceId,
 																											_data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
@@ -349,8 +386,7 @@ public class InstanceMap : Map
 					data.Gm = player.IsGameMaster;
 					player.SendPacket(data);
 
-					player.
-					Session.SendCalendarRaidLockoutAdded(newLock);
+					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
 			}
 
@@ -386,7 +422,7 @@ public class InstanceMap : Map
 				var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
-																				player.																				GUID,
+																				player.GUID,
 																				entries,
 																				new InstanceLockUpdateEvent(InstanceId,
 																											_data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
@@ -400,8 +436,7 @@ public class InstanceMap : Map
 					data.Gm = player.IsGameMaster;
 					player.SendPacket(data);
 
-					player.
-					Session.SendCalendarRaidLockoutAdded(newLock);
+					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
 			}
 
@@ -428,65 +463,18 @@ public class InstanceMap : Map
 			data.Gm = player.IsGameMaster;
 			player.SendPacket(data);
 
-			player.
-			Session.SendCalendarRaidLockoutAdded(newLock);
+			player.Session.SendCalendarRaidLockoutAdded(newLock);
 		}
-	}
-
-	public uint GetMaxPlayers()
-	{
-		var mapDiff = MapDifficulty;
-
-		if (mapDiff != null && mapDiff.MaxPlayers != 0)
-			return mapDiff.MaxPlayers;
-
-		return Entry.MaxPlayers;
-	}
-
-	public int GetTeamIdInInstance()
-	{
-		if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceAlliance, this) != 0)
-			return TeamIds.Alliance;
-
-		if (Global.WorldStateMgr.GetValue(WorldStates.TeamInInstanceHorde, this) != 0)
-			return TeamIds.Horde;
-
-		return TeamIds.Neutral;
-	}
-
-	public TeamFaction GetTeamInInstance()
-	{
-		return GetTeamIdInInstance() == TeamIds.Alliance ? TeamFaction.Alliance : TeamFaction.Horde;
-	}
-
-	public uint GetScriptId()
-	{
-		return _scriptId;
 	}
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nScriptId: {GetScriptId()} ScriptName: {GetScriptName()}";
-	}
-
-	public InstanceScript GetInstanceScript()
-	{
-		return _data;
-	}
-
-	public InstanceScenario GetInstanceScenario()
-	{
-		return _scenario;
+		return $"{base.GetDebugInfo()}\nScriptId: {ScriptId} ScriptName: {GetScriptName()}";
 	}
 
 	public void SetInstanceScenario(InstanceScenario scenario)
 	{
 		_scenario = scenario;
-	}
-
-	public InstanceLock GetInstanceLock()
-	{
-		return _instanceLock;
 	}
 
 	~InstanceMap()

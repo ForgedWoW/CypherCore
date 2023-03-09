@@ -1956,7 +1956,7 @@ public class AuraEffect
 					if (unit.GetCurrentSpell(i) != null && unit.GetCurrentSpell(i).Targets.UnitTargetGUID == target.GUID)
 						unit.InterruptSpell(i, false);
 
-			foreach (var pair in target.GetThreatManager().GetThreatenedByMeList())
+			foreach (var pair in target.GetThreatManager().ThreatenedByMeList)
 				pair.Value.ScaleThreat(0.0f);
 
 			if (target.Map.IsDungeon) // feign death does not remove combat in dungeons

@@ -6,361 +6,331 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Collision
+namespace Game.Collision;
+
+public class VMapManager : Singleton<VMapManager>
 {
-    public enum VMAPLoadResult
-    {
-        Error,
-        OK,
-        Ignored
-    }
+	public static string VMapPath = Global.WorldMgr.DataPath + "/vmaps/";
 
-    public enum LoadResult
-    {
-        Success,
-        FileNotFound,
-        VersionMismatch,
-        ReadFromFileFailed,
-        DisabledInConfig
-    }
+	readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
+	readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();
+	readonly Dictionary<uint, uint> _parentMapData = new();
+	readonly object _loadedModelFilesLock = new();
+	bool _enableLineOfSightCalc;
+	bool _enableHeightCalc;
 
-    public class VMapManager : Singleton<VMapManager>
-    {
-        VMapManager() { }
+	public bool IsLineOfSightCalcEnabled => _enableLineOfSightCalc;
 
-        public static string VMapPath = Global.WorldMgr.DataPath + "/vmaps/";
+	public bool IsHeightCalcEnabled => _enableHeightCalc;
 
-        public void Initialize(MultiMap<uint, uint> mapData)
-        {
-            foreach (var pair in mapData.KeyValueList)
-                iParentMapData[pair.Value] = pair.Key;
-        }
+	public bool IsMapLoadingEnabled => _enableLineOfSightCalc || _enableHeightCalc;
+	VMapManager() { }
 
-        public LoadResult LoadMap(uint mapId, int x, int y)
-        {
-            if (!IsMapLoadingEnabled())
-                return LoadResult.DisabledInConfig;
+	public void Initialize(MultiMap<uint, uint> mapData)
+	{
+		foreach (var pair in mapData.KeyValueList)
+			_parentMapData[pair.Value] = pair.Key;
+	}
 
-            var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-            if (instanceTree == null)
-            {
-                string filename = VMapPath + GetMapFileName(mapId);
-                StaticMapTree newTree = new(mapId);
-                LoadResult treeInitResult = newTree.InitMap(filename);
-                if (treeInitResult != LoadResult.Success)
-                    return treeInitResult;
+	public LoadResult LoadMap(uint mapId, int x, int y)
+	{
+		if (!IsMapLoadingEnabled)
+			return LoadResult.DisabledInConfig;
 
-                iInstanceMapTrees.Add(mapId, newTree);
+		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-                instanceTree = newTree;
-            }
+		if (instanceTree == null)
+		{
+			var filename = VMapPath + GetMapFileName(mapId);
+			StaticMapTree newTree = new(mapId);
+			var treeInitResult = newTree.InitMap(filename);
 
-            return instanceTree.LoadMapTile(x, y, this);
-        }
+			if (treeInitResult != LoadResult.Success)
+				return treeInitResult;
 
-        public void UnloadMap(uint mapId, int x, int y)
-        {
-            var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-            if (instanceTree != null)
-            {
-                instanceTree.UnloadMapTile(x, y, this);
-                if (instanceTree.NumLoadedTiles() == 0)
-                {
-                    iInstanceMapTrees.Remove(mapId);
-                }
-            }
-        }
+			_instanceMapTrees.Add(mapId, newTree);
 
-        public void UnloadMap(uint mapId)
-        {
-            var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-            if (instanceTree != null)
-            {
-                instanceTree.UnloadMap(this);
-                if (instanceTree.NumLoadedTiles() == 0)
-                {
-                    iInstanceMapTrees.Remove(mapId);
-                }
-            }
-        }
+			instanceTree = newTree;
+		}
 
-        public bool IsInLineOfSight(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags)
-        {
-            if (!IsLineOfSightCalcEnabled() || Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
-                return true;
+		return instanceTree.LoadMapTile(x, y, this);
+	}
 
-            var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-            if (instanceTree != null)
-            {
-                Vector3 pos1 = ConvertPositionToInternalRep(x1, y1, z1);
-                Vector3 pos2 = ConvertPositionToInternalRep(x2, y2, z2);
-                if (pos1 != pos2)
-                    return instanceTree.IsInLineOfSight(pos1, pos2, ignoreFlags);
-            }
+	public void UnloadMap(uint mapId, int x, int y)
+	{
+		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-            return true;
-        }
+		if (instanceTree != null)
+		{
+			instanceTree.UnloadMapTile(x, y, this);
 
-        public bool GetObjectHitPos(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, out float rx, out float ry, out float rz, float modifyDist)
-        {
-            if (IsLineOfSightCalcEnabled() && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
-            {
-                var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-                if (instanceTree != null)
-                {
-                    Vector3 pos1 = ConvertPositionToInternalRep(x1, y1, z1);
-                    Vector3 pos2 = ConvertPositionToInternalRep(x2, y2, z2);
-                    bool result = instanceTree.GetObjectHitPos(pos1, pos2, out Vector3 resultPos, modifyDist);
-                    resultPos = ConvertPositionToInternalRep(resultPos.X, resultPos.Y, resultPos.Z);
-                    rx = resultPos.X;
-                    ry = resultPos.Y;
-                    rz = resultPos.Z;
-                    return result;
-                }
-            }
+			if (instanceTree.NumLoadedTiles() == 0)
+				_instanceMapTrees.Remove(mapId);
+		}
+	}
 
-            rx = x2;
-            ry = y2;
-            rz = z2;
+	public void UnloadMap(uint mapId)
+	{
+		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-            return false;
-        }
+		if (instanceTree != null)
+		{
+			instanceTree.UnloadMap(this);
 
-        public float GetHeight(uint mapId, float x, float y, float z, float maxSearchDist)
-        {
-            if (IsHeightCalcEnabled() && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
-            {
-                var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-                if (instanceTree != null)
-                {
-                    Vector3 pos = ConvertPositionToInternalRep(x, y, z);
-                    float height = instanceTree.GetHeight(pos, maxSearchDist);
-                    if (float.IsInfinity(height))
-                        height = MapConst.VMAPInvalidHeightValue; // No height
+			if (instanceTree.NumLoadedTiles() == 0)
+				_instanceMapTrees.Remove(mapId);
+		}
+	}
 
-                    return height;
-                }
-            }
+	public bool IsInLineOfSight(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags)
+	{
+		if (!IsLineOfSightCalcEnabled || Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
+			return true;
 
-            return MapConst.VMAPInvalidHeightValue;
-        }
+		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-        public bool GetAreaInfo(uint mapId, float x, float y, ref float z, out uint flags, out int adtId, out int rootId, out int groupId)
-        {
-            flags = 0;
-            adtId = 0;
-            rootId = 0;
-            groupId = 0;
-            if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
-            {
-                var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-                if (instanceTree != null)
-                {
-                    Vector3 pos = ConvertPositionToInternalRep(x, y, z);
-                    bool result = instanceTree.GetAreaInfo(ref pos, out flags, out adtId, out rootId, out groupId);
-                    // z is not touched by convertPositionToInternalRep(), so just copy
-                    z = pos.Z;
-                    return result;
-                }
-            }
+		if (instanceTree != null)
+		{
+			var pos1 = ConvertPositionToInternalRep(x1, y1, z1);
+			var pos2 = ConvertPositionToInternalRep(x2, y2, z2);
 
-            return false;
-        }
+			if (pos1 != pos2)
+				return instanceTree.IsInLineOfSight(pos1, pos2, ignoreFlags);
+		}
 
-        public bool GetLiquidLevel(uint mapId, float x, float y, float z, uint reqLiquidType, ref float level, ref float floor, ref uint type, ref uint mogpFlags)
-        {
-            if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
-            {
-                var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-                if (instanceTree != null)
-                {
-                    LocationInfo info = new();
-                    Vector3 pos = ConvertPositionToInternalRep(x, y, z);
-                    if (instanceTree.GetLocationInfo(pos, info))
-                    {
-                        floor = info.ground_Z;
-                        Cypher.Assert(floor < float.MaxValue);
-                        type = info.hitModel.GetLiquidType();  // entry from LiquidType.dbc
-                        mogpFlags = info.hitModel.GetMogpFlags();
-                        if (reqLiquidType != 0 && !Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(type) & reqLiquidType))
-                            return false;
-                        if (info.hitInstance.GetLiquidLevel(pos, info, ref level))
-                            return true;
-                    }
-                }
-            }
-            return false;
-        }
+		return true;
+	}
 
-        public AreaAndLiquidData GetAreaAndLiquidData(uint mapId, float x, float y, float z, uint reqLiquidType)
-        {
-            var data = new AreaAndLiquidData();
+	public bool GetObjectHitPos(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, out float rx, out float ry, out float rz, float modifyDist)
+	{
+		if (IsLineOfSightCalcEnabled && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
+		{
+			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-            if (Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
-            {
-                data.floorZ = z;
-                if (GetAreaInfo(mapId, x, y, ref data.floorZ, out uint flags, out int adtId, out int rootId, out int groupId))
-                    data.areaInfo = new(adtId, rootId, groupId, flags);
-                return data;
-            }
-            var instanceTree = iInstanceMapTrees.LookupByKey(mapId);
-            if (instanceTree != null)
-            {
-                LocationInfo info = new();
-                Vector3 pos = ConvertPositionToInternalRep(x, y, z);
-                if (instanceTree.GetLocationInfo(pos, info))
-                {
-                    data.floorZ = info.ground_Z;
-                    uint liquidType = info.hitModel.GetLiquidType();
-                    float liquidLevel = 0;
-                    if (reqLiquidType == 0 || Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(liquidType) & reqLiquidType))
-                        if (info.hitInstance.GetLiquidLevel(pos, info, ref liquidLevel))
-                            data.liquidInfo = new(liquidType, liquidLevel);
+			if (instanceTree != null)
+			{
+				var pos1 = ConvertPositionToInternalRep(x1, y1, z1);
+				var pos2 = ConvertPositionToInternalRep(x2, y2, z2);
+				var result = instanceTree.GetObjectHitPos(pos1, pos2, out var resultPos, modifyDist);
+				resultPos = ConvertPositionToInternalRep(resultPos.X, resultPos.Y, resultPos.Z);
+				rx = resultPos.X;
+				ry = resultPos.Y;
+				rz = resultPos.Z;
 
-                    if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
-                        data.areaInfo = new(info.hitInstance.adtId, info.rootId, (int)info.hitModel.GetWmoID(), info.hitModel.GetMogpFlags());
-                }
-            }
+				return result;
+			}
+		}
 
-            return data;
-        }
+		rx = x2;
+		ry = y2;
+		rz = z2;
 
-        public WorldModel AcquireModelInstance(string filename, uint flags = 0)
-        {
-            lock (LoadedModelFilesLock)
-            {
-                filename = filename.TrimEnd('\0');
-                var model = iLoadedModelFiles.LookupByKey(filename);
-                if (model == null)
-                {
-                    model = new ManagedModel();
-                    if (!model.GetModel().ReadFile(VMapPath + filename))
-                    {
-                        Log.outError(LogFilter.Server, "VMapManager: could not load '{0}'", filename);
-                        return null;
-                    }
+		return false;
+	}
 
-                    Log.outDebug(LogFilter.Maps, "VMapManager: loading file '{0}'", filename);
-                    model.GetModel().Flags = flags;
+	public float GetHeight(uint mapId, float x, float y, float z, float maxSearchDist)
+	{
+		if (IsHeightCalcEnabled && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
+		{
+			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-                    iLoadedModelFiles.Add(filename, model);
-                }
-                model.IncRefCount();
-                return model.GetModel();
-            }
-        }
+			if (instanceTree != null)
+			{
+				var pos = ConvertPositionToInternalRep(x, y, z);
+				var height = instanceTree.GetHeight(pos, maxSearchDist);
 
-        public void ReleaseModelInstance(string filename)
-        {
-            lock (LoadedModelFilesLock)
-            {
-                filename = filename.TrimEnd('\0');
-                var model = iLoadedModelFiles.LookupByKey(filename);
-                if (model == null)
-                {
-                    Log.outError(LogFilter.Server, "VMapManager: trying to unload non-loaded file '{0}'", filename);
-                    return;
-                }
-                if (model.DecRefCount() == 0)
-                {
-                    Log.outDebug(LogFilter.Maps, "VMapManager: unloading file '{0}'", filename);
-                    iLoadedModelFiles.Remove(filename);
-                }
-            }
-        }
+				if (float.IsInfinity(height))
+					height = MapConst.VMAPInvalidHeightValue; // No height
 
-        public LoadResult ExistsMap(uint mapId, int x, int y)
-        {
-            return StaticMapTree.CanLoadMap(VMapPath, mapId, x, y, this);
-        }
+				return height;
+			}
+		}
 
-        public int GetParentMapId(uint mapId)
-        {
-            if (iParentMapData.ContainsKey(mapId))
-                return (int)iParentMapData[mapId];
+		return MapConst.VMAPInvalidHeightValue;
+	}
 
-            return -1;
-        }
+	public bool GetAreaInfo(uint mapId, float x, float y, ref float z, out uint flags, out int adtId, out int rootId, out int groupId)
+	{
+		flags = 0;
+		adtId = 0;
+		rootId = 0;
+		groupId = 0;
 
-        Vector3 ConvertPositionToInternalRep(float x, float y, float z)
-        {
-            Vector3 pos = new();
-            float mid = 0.5f * 64.0f * 533.33333333f;
-            pos.X = mid - x;
-            pos.Y = mid - y;
-            pos.Z = z;
+		if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
+		{
+			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-            return pos;
-        }
+			if (instanceTree != null)
+			{
+				var pos = ConvertPositionToInternalRep(x, y, z);
+				var result = instanceTree.GetAreaInfo(ref pos, out flags, out adtId, out rootId, out groupId);
+				// z is not touched by convertPositionToInternalRep(), so just copy
+				z = pos.Z;
 
-        public static string GetMapFileName(uint mapId)
-        {
-            return $"{mapId:D4}.vmtree";
-        }
+				return result;
+			}
+		}
 
-        public void SetEnableLineOfSightCalc(bool pVal) { _enableLineOfSightCalc = pVal; }
-        public void SetEnableHeightCalc(bool pVal) { _enableHeightCalc = pVal; }
+		return false;
+	}
 
-        public bool IsLineOfSightCalcEnabled() { return _enableLineOfSightCalc; }
-        public bool IsHeightCalcEnabled() { return _enableHeightCalc; }
-        public bool IsMapLoadingEnabled() { return _enableLineOfSightCalc || _enableHeightCalc; }
+	public bool GetLiquidLevel(uint mapId, float x, float y, float z, uint reqLiquidType, ref float level, ref float floor, ref uint type, ref uint mogpFlags)
+	{
+		if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+		{
+			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
-        readonly Dictionary<string, ManagedModel> iLoadedModelFiles = new();
-        readonly Dictionary<uint, StaticMapTree> iInstanceMapTrees = new();
-        readonly Dictionary<uint, uint> iParentMapData = new();
-        bool _enableLineOfSightCalc;
-        bool _enableHeightCalc;
-        readonly object LoadedModelFilesLock = new();
-    }
+			if (instanceTree != null)
+			{
+				LocationInfo info = new();
+				var pos = ConvertPositionToInternalRep(x, y, z);
 
-    public class ManagedModel
-    {
-        public ManagedModel()
-        {
-            iModel = new();
-            iRefCount = 0;
-        }
+				if (instanceTree.GetLocationInfo(pos, info))
+				{
+					floor = info.GroundZ;
+					Cypher.Assert(floor < float.MaxValue);
+					type = info.HitModel.GetLiquidType(); // entry from LiquidType.dbc
+					mogpFlags = info.HitModel.GetMogpFlags();
 
-        public void SetModel(WorldModel model) { iModel = model; }
-        public WorldModel GetModel() { return iModel; }
-        public void IncRefCount() { ++iRefCount; }
-        public int DecRefCount() { return --iRefCount; }
+					if (reqLiquidType != 0 && !Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(type) & reqLiquidType))
+						return false;
 
-        WorldModel iModel;
-        int iRefCount;
-    }
+					if (info.HitInstance.GetLiquidLevel(pos, info, ref level))
+						return true;
+				}
+			}
+		}
 
-    public class AreaAndLiquidData
-    {
-        public struct AreaInfo
-        {
-            public int AdtId;
-            public int RootId;
-            public int GroupId;
-            public uint MogpFlags;
+		return false;
+	}
 
-            public AreaInfo(int adtId, int rootId, int groupId, uint flags)
-            {
-                AdtId = adtId;
-                RootId = rootId;
-                GroupId = groupId;
-                MogpFlags = flags;
-            }
-        }
-        public struct LiquidInfo
-        {
-            public uint LiquidType;
-            public float Level;
+	public AreaAndLiquidData GetAreaAndLiquidData(uint mapId, float x, float y, float z, uint reqLiquidType)
+	{
+		var data = new AreaAndLiquidData();
 
-            public LiquidInfo(uint type, float level)
-            {
-                LiquidType = type;
-                Level = level;
-            }
-        }
+		if (Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+		{
+			data.FloorZ = z;
 
-        public float floorZ = MapConst.VMAPInvalidHeightValue;
-        public AreaInfo? areaInfo;
-        public LiquidInfo? liquidInfo;
-    }
+			if (GetAreaInfo(mapId, x, y, ref data.FloorZ, out var flags, out var adtId, out var rootId, out var groupId))
+				data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(adtId, rootId, groupId, flags);
+
+			return data;
+		}
+
+		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
+
+		if (instanceTree != null)
+		{
+			LocationInfo info = new();
+			var pos = ConvertPositionToInternalRep(x, y, z);
+
+			if (instanceTree.GetLocationInfo(pos, info))
+			{
+				data.FloorZ = info.GroundZ;
+				var liquidType = info.HitModel.GetLiquidType();
+				float liquidLevel = 0;
+
+				if (reqLiquidType == 0 || Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(liquidType) & reqLiquidType))
+					if (info.HitInstance.GetLiquidLevel(pos, info, ref liquidLevel))
+						data.LiquidInfo = new AreaAndLiquidData.LiquidInfoModel(liquidType, liquidLevel);
+
+				if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+					data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(info.HitInstance.AdtId, info.RootId, (int)info.HitModel.GetWmoID(), info.HitModel.GetMogpFlags());
+			}
+		}
+
+		return data;
+	}
+
+	public WorldModel AcquireModelInstance(string filename, uint flags = 0)
+	{
+		lock (_loadedModelFilesLock)
+		{
+			filename = filename.TrimEnd('\0');
+			var model = _loadedModelFiles.LookupByKey(filename);
+
+			if (model == null)
+			{
+				model = new ManagedModel();
+
+				if (!model.GetModel().ReadFile(VMapPath + filename))
+				{
+					Log.outError(LogFilter.Server, "VMapManager: could not load '{0}'", filename);
+
+					return null;
+				}
+
+				Log.outDebug(LogFilter.Maps, "VMapManager: loading file '{0}'", filename);
+				model.GetModel().Flags = flags;
+
+				_loadedModelFiles.Add(filename, model);
+			}
+
+			model.IncRefCount();
+
+			return model.GetModel();
+		}
+	}
+
+	public void ReleaseModelInstance(string filename)
+	{
+		lock (_loadedModelFilesLock)
+		{
+			filename = filename.TrimEnd('\0');
+			var model = _loadedModelFiles.LookupByKey(filename);
+
+			if (model == null)
+			{
+				Log.outError(LogFilter.Server, "VMapManager: trying to unload non-loaded file '{0}'", filename);
+
+				return;
+			}
+
+			if (model.DecRefCount() == 0)
+			{
+				Log.outDebug(LogFilter.Maps, "VMapManager: unloading file '{0}'", filename);
+				_loadedModelFiles.Remove(filename);
+			}
+		}
+	}
+
+	public LoadResult ExistsMap(uint mapId, int x, int y)
+	{
+		return StaticMapTree.CanLoadMap(VMapPath, mapId, x, y, this);
+	}
+
+	public int GetParentMapId(uint mapId)
+	{
+		if (_parentMapData.ContainsKey(mapId))
+			return (int)_parentMapData[mapId];
+
+		return -1;
+	}
+
+	public static string GetMapFileName(uint mapId)
+	{
+		return $"{mapId:D4}.vmtree";
+	}
+
+	public void SetEnableLineOfSightCalc(bool pVal)
+	{
+		_enableLineOfSightCalc = pVal;
+	}
+
+	public void SetEnableHeightCalc(bool pVal)
+	{
+		_enableHeightCalc = pVal;
+	}
+
+	Vector3 ConvertPositionToInternalRep(float x, float y, float z)
+	{
+		Vector3 pos = new();
+		var mid = 0.5f * 64.0f * 533.33333333f;
+		pos.X = mid - x;
+		pos.Y = mid - y;
+		pos.Z = z;
+
+		return pos;
+	}
 }

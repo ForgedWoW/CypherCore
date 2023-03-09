@@ -560,12 +560,12 @@ internal class boss_aran : ScriptedAI
 		List<Unit> targets = new();
 
 		//store the threat list in a different container
-		foreach (var refe in me.GetThreatManager().GetSortedThreatList())
+		foreach (var refe in me.GetThreatManager().SortedThreatList)
 		{
-			var target = refe.GetVictim();
+			var target = refe.Victim;
 
-			if (refe.GetVictim().IsPlayer &&
-				refe.GetVictim().IsAlive)
+			if (refe.Victim.IsPlayer &&
+				refe.Victim.IsAlive)
 				targets.Add(target);
 		}
 

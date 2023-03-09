@@ -391,7 +391,7 @@ namespace Game.AI
                     foreach (var refe in _me.GetThreatManager().GetModifiableThreatList())
                     {
                         refe.ModifyThreatByPercent(Math.Max(-100, (int)(e.Action.threatPCT.threatINC - e.Action.threatPCT.threatDEC)));
-                        Log.outDebug(LogFilter.ScriptsAi, $"SmartScript.ProcessAction: SMART_ACTION_THREAT_ALL_PCT: Creature {_me.GUID} modify threat for {refe.GetVictim().GUID}, value {e.Action.threatPCT.threatINC - e.Action.threatPCT.threatDEC}");
+                        Log.outDebug(LogFilter.ScriptsAi, $"SmartScript.ProcessAction: SMART_ACTION_THREAT_ALL_PCT: Creature {_me.GUID} modify threat for {refe.Victim.GUID}, value {e.Action.threatPCT.threatINC - e.Action.threatPCT.threatDEC}");
                     }
                     break;
                 }
@@ -2968,9 +2968,9 @@ namespace Game.AI
                 {
                     if (_me != null && _me.CanHaveThreatList)
                     {
-                        foreach (var refe in _me.GetThreatManager().GetSortedThreatList())
-                            if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.GetVictim(), e.Target.threatList.maxDist))
-                                targets.Add(refe.GetVictim());
+                        foreach (var refe in _me.GetThreatManager().SortedThreatList)
+                            if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.Victim, e.Target.threatList.maxDist))
+                                targets.Add(refe.Victim);
                     }
                     break;
                 }

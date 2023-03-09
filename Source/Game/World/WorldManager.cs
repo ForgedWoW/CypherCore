@@ -1903,7 +1903,7 @@ public class WorldManager : Singleton<WorldManager>
 	public bool IsBattlePetJournalLockAcquired(ObjectGuid battlenetAccountGuid)
 	{
 		foreach (var sessionForBnet in _sessionsByBnetGuid.LookupByKey(battlenetAccountGuid))
-			if (sessionForBnet.BattlePetMgr.HasJournalLock())
+			if (sessionForBnet.BattlePetMgr.HasJournalLock)
 				return true;
 
 		return false;

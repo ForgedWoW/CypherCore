@@ -36,7 +36,7 @@ namespace Game
                 inviteInfo.Moderator = invite.Rank;
                 CalendarEvent calendarEvent = Global.CalendarMgr.GetEvent(invite.EventId);
                 if (calendarEvent != null)
-                    inviteInfo.InviteType = (byte)(calendarEvent.IsGuildEvent() && calendarEvent.GuildId == _player.GuildId ? 1 : 0);
+                    inviteInfo.InviteType = (byte)(calendarEvent.IsGuildEvent && calendarEvent.GuildId == _player.GuildId ? 1 : 0);
 
                 packet.Invites.Add(inviteInfo);
             }
@@ -106,7 +106,7 @@ namespace Game
             }
 
             // If the event is a guild event, check if the player is in a guild
-            if (CalendarEvent.IsGuildEvent(calendarAddEvent.EventInfo.Flags) || CalendarEvent.IsGuildAnnouncement(calendarAddEvent.EventInfo.Flags))
+            if (CalendarEvent.ModifyIsGuildEventFlags(calendarAddEvent.EventInfo.Flags) || CalendarEvent.ModifyIsGuildAnnouncementFlags(calendarAddEvent.EventInfo.Flags))
             {
                 if (_player.GuildId == 0)
                 {
@@ -116,7 +116,7 @@ namespace Game
             }
 
             // Check if the player reached the max number of events allowed to create
-            if (CalendarEvent.IsGuildEvent(calendarAddEvent.EventInfo.Flags) || CalendarEvent.IsGuildAnnouncement(calendarAddEvent.EventInfo.Flags))
+            if (CalendarEvent.ModifyIsGuildEventFlags(calendarAddEvent.EventInfo.Flags) || CalendarEvent.ModifyIsGuildAnnouncementFlags(calendarAddEvent.EventInfo.Flags))
             {
                 if (Global.CalendarMgr.GetGuildEvents(_player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
                 {
@@ -143,10 +143,10 @@ namespace Game
             CalendarEvent calendarEvent = new(Global.CalendarMgr.GetFreeEventId(), guid, 0, (CalendarEventType)calendarAddEvent.EventInfo.EventType, calendarAddEvent.EventInfo.TextureID,
                 calendarAddEvent.EventInfo.Time, (CalendarFlags)calendarAddEvent.EventInfo.Flags, calendarAddEvent.EventInfo.Title, calendarAddEvent.EventInfo.Description, 0);
 
-            if (calendarEvent.IsGuildEvent() || calendarEvent.IsGuildAnnouncement())
+            if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
                 calendarEvent.GuildId = _player.GuildId;
 
-            if (calendarEvent.IsGuildAnnouncement())
+            if (calendarEvent.IsGuildAnnouncement)
             {
                 CalendarInvite invite = new(0, calendarEvent.EventId, ObjectGuid.Empty, guid, SharedConst.CalendarDefaultResponseTime, CalendarInviteStatus.NotSignedUp, CalendarModerationRank.Player, "");
                 // WARNING: By passing pointer to a local variable, the underlying method(s) must NOT perform any kind
@@ -232,7 +232,7 @@ namespace Game
             if (oldEvent != null)
             {
                 // Ensure that the player has access to the event
-                if (oldEvent.IsGuildEvent() || oldEvent.IsGuildAnnouncement())
+                if (oldEvent.IsGuildEvent || oldEvent.IsGuildAnnouncement)
                 {
                     if (oldEvent.GuildId != _player.GuildId)
                     {
@@ -250,7 +250,7 @@ namespace Game
                 }
 
                 // Check if the player reached the max number of events allowed to create
-                if (oldEvent.IsGuildEvent() || oldEvent.IsGuildAnnouncement())
+                if (oldEvent.IsGuildEvent || oldEvent.IsGuildAnnouncement)
                 {
                     if (Global.CalendarMgr.GetGuildEvents(_player.GuildId).Count >= SharedConst.CalendarMaxGuildEvents)
                     {
@@ -358,7 +358,7 @@ namespace Game
                 CalendarEvent calendarEvent = Global.CalendarMgr.GetEvent(calendarInvite.EventID);
                 if (calendarEvent != null)
                 {
-                    if (calendarEvent.IsGuildEvent() && calendarEvent.GuildId == inviteeGuildId)
+                    if (calendarEvent.IsGuildEvent && calendarEvent.GuildId == inviteeGuildId)
                     {
                         // we can't invite guild members to guild events
                         Global.CalendarMgr.SendCalendarCommandResult(playerGuid, CalendarError.NoGuildInvites);
@@ -392,7 +392,7 @@ namespace Game
             CalendarEvent calendarEvent = Global.CalendarMgr.GetEvent(calendarEventSignUp.EventID);
             if (calendarEvent != null)
             {
-                if (calendarEvent.IsGuildEvent() && calendarEvent.GuildId != Player.GuildId)
+                if (calendarEvent.IsGuildEvent && calendarEvent.GuildId != Player.GuildId)
                 {
                     Global.CalendarMgr.SendCalendarCommandResult(guid, CalendarError.GuildPlayerNotInGuild);
                     return;
@@ -416,7 +416,7 @@ namespace Game
             if (calendarEvent != null)
             {
                 // i think we still should be able to remove self from locked events
-                if (calendarRSVP.Status != CalendarInviteStatus.Removed && calendarEvent.IsLocked())
+                if (calendarRSVP.Status != CalendarInviteStatus.Removed && calendarEvent.IsLocked)
                 {
                     Global.CalendarMgr.SendCalendarCommandResult(guid, CalendarError.EventLocked);
                     return;

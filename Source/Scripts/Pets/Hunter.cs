@@ -81,11 +81,11 @@ namespace Scripts.Pets
 							targets.Add(enemy);
 					}
 
-					foreach (var pair in summoner.GetCombatManager().GetPvPCombatRefs())
+					foreach (var pair in summoner.GetCombatManager().PvPCombatRefs)
 						addTargetIfValid(pair.Value);
 
 					if (targets.Empty())
-						foreach (var pair in summoner.GetCombatManager().GetPvECombatRefs())
+						foreach (var pair in summoner.GetCombatManager().PvECombatRefs)
 							addTargetIfValid(pair.Value);
 
 					foreach (var target in targets)

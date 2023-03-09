@@ -42,7 +42,7 @@ public class InstanceScenario : Scenario
 
 	void LoadInstanceData()
 	{
-		var instanceScript = _map.GetInstanceScript();
+		var instanceScript = _map.InstanceScript;
 
 		if (instanceScript == null)
 			return;

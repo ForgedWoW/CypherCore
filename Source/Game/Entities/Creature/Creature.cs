@@ -1188,7 +1188,7 @@ public partial class Creature : Unit
 
 		if (CanHaveThreatList)
 		{
-			target = GetThreatManager().GetCurrentVictim();
+			target = GetThreatManager().CurrentVictim;
 		}
 		else if (!HasReactState(ReactStates.Passive))
 		{
@@ -2420,7 +2420,7 @@ public partial class Creature : Unit
 		if (radius <= 0.0f || !IsEngaged || !IsAlive || IsPet || IsCharmed)
 			return;
 
-		var target = GetThreatManager().GetCurrentVictim();
+		var target = GetThreatManager().CurrentVictim;
 
 		if (target == null)
 			target = GetThreatManager().GetAnyTarget();

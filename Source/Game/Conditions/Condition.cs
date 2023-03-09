@@ -40,7 +40,7 @@ namespace Game.Conditions
                 {
                     if (map.IsDungeon)
                     {
-                        InstanceScript instance = ((InstanceMap)map).GetInstanceScript();
+                        InstanceScript instance = ((InstanceMap)map).InstanceScript;
                         if (instance != null)
                         {
                             switch ((InstanceInfo)ConditionValue3)
@@ -90,7 +90,7 @@ namespace Game.Conditions
                     InstanceMap instanceMap = map.ToInstanceMap;
                     if (instanceMap != null)
                     {
-                        Scenario scenario = instanceMap.GetInstanceScenario();
+                        Scenario scenario = instanceMap.InstanceScenario;
                         if (scenario != null)
                         {
                             ScenarioStepRecord step = scenario.GetStep();

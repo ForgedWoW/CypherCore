@@ -565,7 +565,7 @@ namespace Game.AI
 
         public void TeleportCheaters()
         {
-            foreach (var pair in me.GetCombatManager().GetPvECombatRefs())
+            foreach (var pair in me.GetCombatManager().PvECombatRefs)
             {
                 Unit target = pair.Value.GetOther(me);
                 if (target.IsControlledByPlayer && !IsInBoundary(target.Location))

@@ -128,10 +128,10 @@ namespace Game.AI
         {
             ThreatManager mgr = GetThreatManager();
             // shortcut: if we ignore the first <offset> elements, and there are at most <offset> elements, then we ignore ALL elements
-            if (mgr.GetThreatListSize() <= offset)
+            if (mgr.ThreatListSize <= offset)
                 return null;
 
-            List<Unit> targetList = SelectTargetList((uint)mgr.GetThreatListSize(), targetType, offset, selector);
+            List<Unit> targetList = SelectTargetList((uint)mgr.ThreatListSize, targetType, offset, selector);
 
             // maybe nothing fulfills the predicate
             if (targetList.Empty())
@@ -171,31 +171,31 @@ namespace Game.AI
 
             ThreatManager mgr = GetThreatManager();
             // shortcut: we're gonna ignore the first <offset> elements, and there's at most <offset> elements, so we ignore them all - nothing to do here
-            if (mgr.GetThreatListSize() <= offset)
+            if (mgr.ThreatListSize <= offset)
                 return targetList;
 
             if (targetType == SelectTargetMethod.MaxDistance || targetType == SelectTargetMethod.MinDistance)
             {
-                foreach (ThreatReference refe in mgr.GetSortedThreatList())
+                foreach (ThreatReference refe in mgr.SortedThreatList)
                 {
-                    if (!refe.IsOnline())
+                    if (!refe.IsOnline)
                         continue;
 
-                    targetList.Add(refe.GetVictim());
+                    targetList.Add(refe.Victim);
                 }
             }
             else
             {
-                Unit currentVictim = mgr.GetCurrentVictim();
+                Unit currentVictim = mgr.CurrentVictim;
                 if (currentVictim != null)
                     targetList.Add(currentVictim);
 
-                foreach (ThreatReference refe in mgr.GetSortedThreatList())
+                foreach (ThreatReference refe in mgr.SortedThreatList)
                 {
-                    if (!refe.IsOnline())
+                    if (!refe.IsOnline)
                         continue;
 
-                    Unit thisTarget = refe.GetVictim();
+                    Unit thisTarget = refe.Victim;
                     if (thisTarget != currentVictim)
                         targetList.Add(thisTarget);
                 }

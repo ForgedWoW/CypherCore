@@ -364,7 +364,7 @@ namespace Game
                             InstanceMap instanceMap = map.ToInstanceMap;
                             if (instanceMap)
                             {
-                                InstanceScript instanceScript = instanceMap.GetInstanceScript();
+                                InstanceScript instanceScript = instanceMap.InstanceScript;
                                 if (instanceScript != null)
                                     entranceLocation = Global.ObjectMgr.GetWorldSafeLoc(instanceScript.GetEntranceLocation());
                             }

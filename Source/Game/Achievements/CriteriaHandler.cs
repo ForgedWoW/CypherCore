@@ -1012,7 +1012,7 @@ namespace Game.Achievements
                         return false;
 
                     //FIXME: work only for instances where max == min for players
-                    if (map.ToInstanceMap.GetMaxPlayers() != criteria.Entry.Asset)
+                    if (map.ToInstanceMap.MaxPlayers != criteria.Entry.Asset)
                         return false;
                     break;
                 }
@@ -1425,7 +1425,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.BattlePetTeamLevel: // 34
-                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.Slots)
                         if (slot.Pet.Level < reqValue)
                             return false;
                     break;
@@ -1719,7 +1719,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerHasBattlePetJournalLock: // 93
-                    if (!referencePlayer.Session.BattlePetMgr.HasJournalLock())
+                    if (!referencePlayer.Session.BattlePetMgr.HasJournalLock)
                         return false;
                     break;
                 case ModifierTreeType.FriendshipRepReactionIsMet: // 94
@@ -1896,7 +1896,7 @@ namespace Game.Achievements
                     Unit unitRef = refe.AsUnit;
                     if (unitRef == null || !unitRef.CanHaveThreatList)
                         return false;
-                    if (unitRef.GetThreatManager().GetThreatListSize() >= reqValue)
+                    if (unitRef.GetThreatManager().ThreatListSize >= reqValue)
                         return false;
                     break;
                 }
@@ -2291,7 +2291,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithSpeciesEqualOrGreaterThan: // 151
                 {
                     uint count = 0;
-                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.Slots)
                         if (slot.Pet.Species == secondaryAsset)
                             ++count;
 
@@ -2302,7 +2302,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithTypeEqualOrGreaterThan: // 152
                 {
                     uint count = 0;
-                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.GetSlots())
+                    foreach (BattlePetSlot slot in referencePlayer.Session.BattlePetMgr.Slots)
                     {
                         BattlePetSpeciesRecord species = CliDB.BattlePetSpeciesStorage.LookupByKey(slot.Pet.Species);
                         if (species != null)
@@ -2320,7 +2320,7 @@ namespace Game.Achievements
                 case ModifierTreeType.BattlePetTeamWithAliveEqualOrGreaterThan: // 155
                 {
                     uint count = 0;
-                    foreach (var slot in referencePlayer.Session.BattlePetMgr.GetSlots())
+                    foreach (var slot in referencePlayer.Session.BattlePetMgr.Slots)
                         if (slot.Pet.Health > 0)
                             ++count;
 

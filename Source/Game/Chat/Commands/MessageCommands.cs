@@ -1,206 +1,149 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 using Game.Networking.Packets;
 
-namespace Game.Chat
+namespace Game.Chat;
+
+class MessageCommands
 {
-    class MessageCommands
-    {
-        [CommandNonGroup("nameannounce", RBACPermissions.CommandNameannounce, true)]
-        static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+	[CommandNonGroup("nameannounce", RBACPermissions.CommandNameannounce, true)]
+	static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-            string name = "Console";
-            WorldSession session = handler.GetSession();
-            if (session)
-                name = session.Player.GetName();
+		var name = "Console";
+		var session = handler.Session;
 
-            Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
-            return true;
-        }
+		if (session)
+			name = session.Player.GetName();
 
-        [CommandNonGroup("gmnameannounce", RBACPermissions.CommandGmnameannounce, true)]
-        static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+		Global.WorldMgr.SendWorldText(CypherStrings.AnnounceColor, name, message);
 
-            string name = "Console";
-            WorldSession session = handler.GetSession();
-            if (session)
-                name = session.Player.GetName();
+		return true;
+	}
 
-            Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
-            return true;
-        }
+	[CommandNonGroup("gmnameannounce", RBACPermissions.CommandGmnameannounce, true)]
+	static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-        [CommandNonGroup("announce", RBACPermissions.CommandAnnounce, true)]
-        static bool HandleAnnounceCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+		var name = "Console";
+		var session = handler.Session;
 
-            Global.WorldMgr.SendServerMessage(ServerMessageType.String, handler.GetParsedString(CypherStrings.Systemmessage, message));
-            return true;
-        }
+		if (session)
+			name = session.Player.GetName();
 
-        [CommandNonGroup("gmannounce", RBACPermissions.CommandGmannounce, true)]
-        static bool HandleGMAnnounceCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+		Global.WorldMgr.SendGMText(CypherStrings.AnnounceColor, name, message);
 
-            Global.WorldMgr.SendGMText(CypherStrings.GmBroadcast, message);
-            return true;
-        }
+		return true;
+	}
 
-        [CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
-        static bool HandleNotifyCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+	[CommandNonGroup("announce", RBACPermissions.CommandAnnounce, true)]
+	static bool HandleAnnounceCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-            string str = handler.GetCypherString(CypherStrings.GlobalNotify);
-            str += message;
+		Global.WorldMgr.SendServerMessage(ServerMessageType.String, handler.GetParsedString(CypherStrings.Systemmessage, message));
 
-            Global.WorldMgr.SendGlobalMessage(new PrintNotification(str));
+		return true;
+	}
 
-            return true;
-        }
+	[CommandNonGroup("gmannounce", RBACPermissions.CommandGmannounce, true)]
+	static bool HandleGMAnnounceCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-        [CommandNonGroup("gmnotify", RBACPermissions.CommandGmnotify, true)]
-        static bool HandleGMNotifyCommand(CommandHandler handler, Tail message)
-        {
-            if (message.IsEmpty())
-                return false;
+		Global.WorldMgr.SendGMText(CypherStrings.GmBroadcast, message);
 
-            string str = handler.GetCypherString(CypherStrings.GmNotify);
-            str += message;
+		return true;
+	}
 
-            Global.WorldMgr.SendGlobalGMMessage(new PrintNotification(str));
+	[CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
+	static bool HandleNotifyCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-            return true;
-        }
+		var str = handler.GetCypherString(CypherStrings.GlobalNotify);
+		str += message;
 
-        [CommandNonGroup("whispers", RBACPermissions.CommandWhispers)]
-        static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
-        {
-            if (!operationArg.HasValue)
-            {
-                handler.SendSysMessage(CypherStrings.CommandWhisperaccepting, handler.GetSession().Player.IsAcceptWhispers ? handler.GetCypherString(CypherStrings.On) : handler.GetCypherString(CypherStrings.Off));
-                return true;
-            }
+		Global.WorldMgr.SendGlobalMessage(new PrintNotification(str));
 
-            if (operationArg.HasValue)
-            {
-                handler.GetSession().                Player.SetAcceptWhispers(true);
-                handler.SendSysMessage(CypherStrings.CommandWhisperon);
-                return true;
-            }
-            else
-            {
-                // Remove all players from the Gamemaster's whisper whitelist
-                handler.GetSession().                // Remove all players from the Gamemaster's whisper whitelist
-                Player.ClearWhisperWhiteList();
-                handler.GetSession().                Player.SetAcceptWhispers(false);
-                handler.SendSysMessage(CypherStrings.CommandWhisperoff);
-                return true;
-            }
+		return true;
+	}
 
-            //todo fix me
-            /*if (operationArg->holds_alternative < EXACT_SEQUENCE("remove") > ())
-            {
-                if (!playerNameArg)
-                    return false;
+	[CommandNonGroup("gmnotify", RBACPermissions.CommandGmnotify, true)]
+	static bool HandleGMNotifyCommand(CommandHandler handler, Tail message)
+	{
+		if (message.IsEmpty())
+			return false;
 
-                if (normalizePlayerName(*playerNameArg))
-                {
-                    if (Player * player = ObjectAccessor::FindPlayerByName(*playerNameArg))
-                    {
-                        handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
-                        handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, playerNameArg->c_str());
-                        return true;
-                    }
-                    else
-                    {
-                        handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, playerNameArg->c_str());
-                        handler->SetSentErrorMessage(true);
-                        return false;
-                    }
-                }
-            }
-            handler.SendSysMessage(CypherStrings.UseBol);
-            return false;*/
-        }        
-    }
+		var str = handler.GetCypherString(CypherStrings.GmNotify);
+		str += message;
 
-    [CommandGroup("channel")]
-    class ChannelCommands
-    {
-        [CommandGroup("set")]
-        class ChannelSetCommands
-        {
-            [Command("ownership", RBACPermissions.CommandChannelSetOwnership)]
-            static bool HandleChannelSetOwnership(CommandHandler handler, string channelName, bool grantOwnership)
-            {
-                uint channelId = 0;
-                foreach (var channelEntry in CliDB.ChatChannelsStorage.Values)
-                {
-                    if (channelEntry.Name[handler.GetSessionDbcLocale()].Equals(channelName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        channelId = channelEntry.Id;
-                        break;
-                    }
-                }
+		Global.WorldMgr.SendGlobalGMMessage(new PrintNotification(str));
 
-                AreaTableRecord zoneEntry = null;
-                foreach (var entry in CliDB.AreaTableStorage.Values)
-                {
-                    if (entry.AreaName[handler.GetSessionDbcLocale()].Equals(channelName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        zoneEntry = entry;
-                        break;
-                    }
-                }
+		return true;
+	}
 
-                Player player = handler.GetSession().Player;
-                Channel channel = null;
+	[CommandNonGroup("whispers", RBACPermissions.CommandWhispers)]
+	static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
+	{
+		if (!operationArg.HasValue)
+		{
+			handler.SendSysMessage(CypherStrings.CommandWhisperaccepting, handler.Session.Player.IsAcceptWhispers ? handler.GetCypherString(CypherStrings.On) : handler.GetCypherString(CypherStrings.Off));
 
-                ChannelManager cMgr = ChannelManager.ForTeam(player.Team);
-                if (cMgr != null)
-                    channel = cMgr.GetChannel(channelId, channelName, player, false, zoneEntry);
+			return true;
+		}
 
-                if (grantOwnership)
-                {
-                    if (channel != null)
-                        channel.SetOwnership(true);
-                    PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
-                    stmt.AddValue(0, 1);
-                    stmt.AddValue(1, channelName);
-                    DB.Characters.Execute(stmt);
-                    handler.SendSysMessage(CypherStrings.ChannelEnableOwnership, channelName);
-                }
-                else
-                {
-                    if (channel != null)
-                        channel.SetOwnership(false);
-                    PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
-                    stmt.AddValue(0, 0);
-                    stmt.AddValue(1, channelName);
-                    DB.Characters.Execute(stmt);
-                    handler.SendSysMessage(CypherStrings.ChannelDisableOwnership, channelName);
-                }
+		if (operationArg.HasValue)
+		{
+			handler.Session.Player.SetAcceptWhispers(true);
+			handler.SendSysMessage(CypherStrings.CommandWhisperon);
 
-                return true;
-            }
-        }
-    }
+			return true;
+		}
+		else
+		{
+			// Remove all players from the Gamemaster's whisper whitelist
+			handler.Session. // Remove all players from the Gamemaster's whisper whitelist
+					Player.ClearWhisperWhiteList();
+
+			handler.Session.Player.SetAcceptWhispers(false);
+			handler.SendSysMessage(CypherStrings.CommandWhisperoff);
+
+			return true;
+		}
+
+		//todo fix me
+		/*if (operationArg->holds_alternative < EXACT_SEQUENCE("remove") > ())
+		{
+			if (!playerNameArg)
+				return false;
+
+			if (normalizePlayerName(*playerNameArg))
+			{
+				if (Player * player = ObjectAccessor::FindPlayerByName(*playerNameArg))
+				{
+					handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
+					handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, playerNameArg->c_str());
+					return true;
+				}
+				else
+				{
+					handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, playerNameArg->c_str());
+					handler->SetSentErrorMessage(true);
+					return false;
+				}
+			}
+		}
+		handler.SendSysMessage(CypherStrings.UseBol);
+		return false;*/
+	}
 }
