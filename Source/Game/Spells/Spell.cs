@@ -3249,7 +3249,7 @@ public partial class Spell : IDisposable
 
 	public void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo damageInfo, ref double resistAmount, ref double absorbAmount)
 	{
-		foreach (var script in GetSpellScripts<ISpellCheckCast>())
+		foreach (var script in GetSpellScripts<ISpellCalculateResistAbsorb>())
 		{
 			script._PrepareScriptCall(SpellScriptHookType.OnResistAbsorbCalculation);
 
