@@ -216,7 +216,9 @@ internal struct WarlockSpells
 	public const uint NETHER_WARD = 91711;
 	public const uint NIGHTFALL = 108558;
 	public const uint NIGHTFALL_BUFF = 264571;
-	public const uint NPC_WARLOCK_DEMONIC_GATEWAY_GREEN = 59262;
+    public const uint NIGHTMARE = 386648;
+    public const uint NIGHTMARE_DEBUFF = 386649;
+    public const uint NPC_WARLOCK_DEMONIC_GATEWAY_GREEN = 59262;
 	public const uint NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE = 59271;
 	public const uint NPC_WARLOCK_PET_FELGUARD = 17252;
 	public const uint NPC_WARLOCK_PET_FEL_HUNTER = 417;

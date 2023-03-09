@@ -497,41 +497,44 @@ public partial class Unit
 
 	public void SetHealth(long val)
 	{
-		if (DeathState == DeathState.JustDied || DeathState == DeathState.Corpse)
+		lock (_healthLock)
 		{
-			val = 0;
-		}
-		else if (IsTypeId(TypeId.Player) && DeathState == DeathState.Dead)
-		{
-			val = 1;
-		}
-		else
-		{
-			var maxHealth = MaxHealth;
+			if (DeathState == DeathState.JustDied || DeathState == DeathState.Corpse)
+			{
+				val = 0;
+			}
+			else if (IsTypeId(TypeId.Player) && DeathState == DeathState.Dead)
+			{
+				val = 1;
+			}
+			else
+			{
+				var maxHealth = MaxHealth;
 
-			if (maxHealth < val)
-				val = maxHealth;
-		}
+				if (maxHealth < val)
+					val = maxHealth;
+			}
 
-		var oldVal = Health;
-		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Health), val);
+			var oldVal = Health;
+			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Health), val);
 
-		TriggerOnHealthChangeAuras(oldVal, val);
+			TriggerOnHealthChangeAuras(oldVal, val);
 
-		// group update
-		var player = AsPlayer;
+			// group update
+			var player = AsPlayer;
 
-		if (player)
-		{
-			if (player.Group)
-				player.SetGroupUpdateFlag(GroupUpdateFlags.CurHp);
-		}
-		else if (IsPet)
-		{
-			var pet = AsCreature.AsPet;
+			if (player)
+			{
+				if (player.Group)
+					player.SetGroupUpdateFlag(GroupUpdateFlags.CurHp);
+			}
+			else if (IsPet)
+			{
+				var pet = AsCreature.AsPet;
 
-			if (pet.IsControlled())
-				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.CurHp);
+				if (pet.IsControlled())
+					pet.SetGroupUpdateFlag(GroupUpdatePetFlags.CurHp);
+			}
 		}
 	}
 

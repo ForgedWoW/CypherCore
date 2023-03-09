@@ -39,7 +39,7 @@ public class spell_dh_reverse_magic : SpellScript, ISpellOnCast
 				if (aura == null)
 					continue;
 
-				var caster = aura.GetCaster();
+				var caster = aura.Caster;
 
 				if (caster == null || caster.GUID == unit.GUID)
 					continue;

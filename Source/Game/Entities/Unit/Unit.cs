@@ -25,6 +25,7 @@ namespace Game.Entities;
 public partial class Unit : WorldObject
 {
 	static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
+	private object _healthLock = new object();
 
 	public bool IsInDisallowedMountForm => IsDisallowedMountForm(TransformSpell, ShapeshiftForm, DisplayId);
 
@@ -1895,7 +1896,7 @@ public partial class Unit : WorldObject
 			(!IsTypeId(TypeId.Player) || !AsPlayer.Session.PlayerLoading))
 			return null;
 
-		var caster = aura.GetCaster();
+		var caster = aura.Caster;
 
 		AuraApplication aurApp = new(this, caster, aura, effMask);
 		_appliedAuras.Add(aurApp);
@@ -3243,28 +3244,30 @@ public partial class Unit : WorldObject
 		if (dVal == 0)
 			return 0;
 
-		var curHealth = (long)Health;
-
-		var val = dVal + curHealth;
-
-		if (val <= 0)
+		lock (_healthLock)
 		{
-			SetHealth(0);
+			var curHealth = Health;
 
-			return -curHealth;
-		}
+			var val = dVal + curHealth;
 
-		var maxHealth = (long)MaxHealth;
+			if (val <= 0)
+			{
+				SetHealth(0);
+				return -curHealth;
+			}
 
-		if (val < maxHealth)
-		{
-			SetHealth((ulong)val);
-			gain = val - curHealth;
-		}
-		else if (curHealth != maxHealth)
-		{
-			SetHealth((ulong)maxHealth);
-			gain = maxHealth - curHealth;
+			var maxHealth = MaxHealth;
+
+			if (val < maxHealth)
+			{
+				SetHealth(val);
+				gain = val - curHealth;
+			}
+			else if (curHealth != maxHealth)
+			{
+				SetHealth(maxHealth);
+				gain = maxHealth - curHealth;
+			}
 		}
 
 		if (dVal < 0)
@@ -3294,14 +3297,14 @@ public partial class Unit : WorldObject
 		if (dVal == 0)
 			return 0;
 
-		var curHealth = (long)Health;
+		var curHealth = Health;
 
 		var val = dVal + curHealth;
 
 		if (val <= 0)
 			return -curHealth;
 
-		var maxHealth = (long)MaxHealth;
+		var maxHealth = MaxHealth;
 
 		if (val < maxHealth)
 			gain = dVal;

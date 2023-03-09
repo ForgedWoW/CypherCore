@@ -140,7 +140,7 @@ namespace Scripts.Pets
 				PreventDefaultAction();
 
 				List<TempSummon> minionList = new();
-				UnitOwner.GetAllMinionsByEntry(minionList, CreatureIds.LichPet);
+				OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.LichPet);
 
 				foreach (Creature minion in minionList)
 					if (minion.IsAIEnabled)

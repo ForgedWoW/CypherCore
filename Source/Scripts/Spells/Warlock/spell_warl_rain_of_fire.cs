@@ -16,7 +16,7 @@ internal class spell_warl_rain_of_fire : AuraScript, IHasAuraEffects, IAuraOnRem
 	readonly List<Unit> _auraUnits = new();
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void AuraRemoved()
+	public void AuraRemoved(AuraRemoveMode removeMode)
 	{
 		foreach (var unit in _auraUnits)
 			if (unit != null && unit.IsAlive)

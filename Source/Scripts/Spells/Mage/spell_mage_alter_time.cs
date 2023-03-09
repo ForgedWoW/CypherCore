@@ -33,7 +33,7 @@ public class spell_mage_alter_time : SpellScript, IHasSpellEffects
 		if (alterTime != null)
 		{
 			// Check if the target has moved a long distance
-			if (target.GetDistance(alterTime.GetCaster()) > 50.0f)
+			if (target.GetDistance(alterTime.Caster) > 50.0f)
 			{
 				target.RemoveAura(MageSpells.ALTER_TIME);
 
@@ -50,7 +50,7 @@ public class spell_mage_alter_time : SpellScript, IHasSpellEffects
 
 			// Return the target to their location and health from when the spell was first cast
 			target.SetHealth(alterTime.GetEffect(0).Amount);
-			target.NearTeleportTo(alterTime.GetCaster().Location.X, alterTime.GetCaster().Location.Y, alterTime.GetCaster().Location.Z, alterTime.GetCaster().Location.Orientation);
+			target.NearTeleportTo(alterTime.Caster.Location.X, alterTime.Caster.Location.Y, alterTime.Caster.Location.Z, alterTime.Caster.Location.Orientation);
 			target.RemoveAura(MageSpells.ALTER_TIME);
 		}
 		else

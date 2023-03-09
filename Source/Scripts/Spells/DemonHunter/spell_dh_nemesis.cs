@@ -30,7 +30,7 @@ public class spell_dh_nemesis : AuraScript, IHasAuraEffects
 		var target = TargetApplication.Target;
 		var type = target.CreatureType;
 		var dur = TargetApplication.Base.Duration;
-		var caster = Aura.GetCaster();
+		var caster = Aura.Caster;
 
 		if (caster == null || target == null)
 			return;

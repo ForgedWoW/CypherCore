@@ -40,7 +40,7 @@ internal class spell_gen_war_mode_enlisted : AuraScript, IHasAuraEffects
 
 	private void CalcWarModeBonus(AuraEffect aurEff, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		var target = UnitOwner.AsPlayer;
+		var target = OwnerAsUnit.AsPlayer;
 
 		if (target == null)
 			return;

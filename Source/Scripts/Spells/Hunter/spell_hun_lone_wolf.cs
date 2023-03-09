@@ -21,10 +21,10 @@ public class spell_hun_lone_wolf : AuraScript, IHasAuraEffects, IAuraOnUpdate
 
 	public void AuraOnUpdate(uint diff)
 	{
-		if (!UnitOwner)
+		if (!OwnerAsUnit)
 			return;
 
-		var player = UnitOwner.AsPlayer;
+		var player = OwnerAsUnit.AsPlayer;
 
 		if (player == null)
 			return;

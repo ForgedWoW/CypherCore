@@ -31,13 +31,13 @@ internal class spell_gen_animal_blood : AuraScript, IHasAuraEffects
 		// Remove all Auras with spell Id 46221, except the one currently being applied
 		Aura aur;
 
-		while ((aur = UnitOwner.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, 0, Aura)) != null)
-			UnitOwner.RemoveOwnedAura(aur);
+		while ((aur = OwnerAsUnit.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, 0, Aura)) != null)
+			OwnerAsUnit.RemoveOwnedAura(aur);
 	}
 
 	private void OnRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var owner = UnitOwner;
+		var owner = OwnerAsUnit;
 
 		if (owner)
 			owner.CastSpell(owner, GenericSpellIds.SpawnBloodPool, true);

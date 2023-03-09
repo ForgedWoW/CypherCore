@@ -26,7 +26,7 @@ internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraChe
 
 		if (caster)
 		{
-			var target = UnitOwner;
+			var target = OwnerAsUnit;
 
 			if (target)
 			{

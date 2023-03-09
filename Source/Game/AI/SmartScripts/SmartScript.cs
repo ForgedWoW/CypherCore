@@ -105,24 +105,29 @@ public class SmartScript
 		// Allow only a fixed number of nested ProcessEventsFor calls
 		if (_nestedEventsCounter > MaxNestedEvents)
 			Log.outWarn(LogFilter.ScriptsAi, $"SmartScript::ProcessEventsFor: reached the limit of max allowed nested ProcessEventsFor() calls with event {e}, skipping!\n{GetBaseObject().GetDebugInfo()}");
-		else
-			lock (_events)
-			{
-				foreach (var Event in _events)
-				{
-					var eventType = Event.GetEventType();
+		else if (_nestedEventsCounter == 1)
+			lock (_events) // only lock on the first event to prevent deadlock.
+                Process(e, unit, var0, var1, bvar, spell, gob, varString);
+        else
+            Process(e, unit, var0, var1, bvar, spell, gob, varString);
 
-					if (eventType == SmartEvents.Link) //special handling
-						continue;
+        --_nestedEventsCounter;
 
-					if (eventType == e)
-						if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
-							ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
-				}
-			}
+        void Process(SmartEvents e, Unit unit, uint var0, uint var1, bool bvar, SpellInfo spell, GameObject gob, string varString)
+        {
+            foreach (var Event in _events)
+            {
+                var eventType = Event.GetEventType();
 
-		--_nestedEventsCounter;
-	}
+                if (eventType == SmartEvents.Link) //special handling
+                    continue;
+
+                if (eventType == e)
+                    if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
+                        ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
+            }
+        }
+    }
 
 	public bool CheckTimer(SmartScriptHolder e)
 	{

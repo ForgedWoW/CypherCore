@@ -57,7 +57,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		if (caster == null || unit == null)
 			return;
 
-		if (unit.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA) && unit.GetAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA).GetCaster() == caster)
+		if (unit.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA) && unit.GetAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA).Caster == caster)
 			unit.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
 	}
 

@@ -65,7 +65,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		if (!caster.AsPlayer)
 			return;
 
-		if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).GetCaster() == caster)
+		if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
 			unit.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
 	}
 
@@ -83,7 +83,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
-			if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).GetCaster() == caster)
+			if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
 				target.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
 		}
 	}

@@ -92,11 +92,22 @@ public class Aura
 		set => _castItemLevel = value;
 	}
 
-	public SpellCastVisual SpellVisual => _spellCastVisual;
+    public Unit Caster
+    {
+        get
+        {
+            if (_owner.GUID == _casterGuid)
+                return OwnerAsUnit;
+
+            return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
+        }
+    }
+
+    public SpellCastVisual SpellVisual => _spellCastVisual;
 
 	public WorldObject Owner => _owner;
 
-	public Unit UnitOwner => _owner.AsUnit;
+	public Unit OwnerAsUnit => _owner.AsUnit;
 
 	public DynamicObject DynobjOwner => _owner.AsDynamicObject;
 
@@ -211,15 +222,7 @@ public class Aura
 		_DeleteRemovedApplications();
 	}
 
-	public Unit GetCaster()
-	{
-		if (_owner.GUID == _casterGuid)
-			return UnitOwner;
-
-		return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
-	}
-
-	public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
+    public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
 		Cypher.Assert(target != null);
 		Cypher.Assert(auraApp != null);
@@ -289,7 +292,9 @@ public class Aura
 			_chargeDropEvent.ScheduleAbort();
 			_chargeDropEvent = null;
 		}
-	}
+
+        ForEachAuraScript<IAuraOnRemove>(a => a.AuraRemoved(removeMode));
+    }
 
 	public void UpdateTargetMap(Unit caster, bool apply = true)
 	{
@@ -462,7 +467,7 @@ public class Aura
 	{
 		Cypher.Assert(owner == _owner);
 
-		var caster = GetCaster();
+		var caster = Caster;
 		// Apply spellmods for channeled auras
 		// used for example when triggered spell of spell:10 is modded
 		Spell modSpell = null;
@@ -538,7 +543,7 @@ public class Aura
 	{
 		if (withMods)
 		{
-			var caster = GetCaster();
+			var caster = Caster;
 
 			if (caster)
 			{
@@ -571,7 +576,7 @@ public class Aura
 
 	public void RefreshDuration(bool withMods = false)
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (withMods && caster)
 		{
@@ -658,7 +663,7 @@ public class Aura
 	public void SetStackAmount(byte stackAmount)
 	{
 		_stackAmount = stackAmount;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		var applications = GetApplicationList();
 
@@ -684,7 +689,7 @@ public class Aura
 	public uint CalcMaxStackAmount()
 	{
 		var maxStackAmount = _spellInfo.StackAmount;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -832,7 +837,7 @@ public class Aura
 	public void UnregisterSingleTarget()
 	{
 		Cypher.Assert(_isSingleTarget);
-		var caster = GetCaster();
+		var caster = Caster;
 		Cypher.Assert(caster != null);
 		caster.		SingleCastAuras.Remove(this);
 		IsSingleTarget = false;
@@ -845,7 +850,7 @@ public class Aura
 		var resistChance = 0;
 
 		// Apply dispel mod from aura caster
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -884,7 +889,7 @@ public class Aura
 		_procCharges = (byte)charges;
 		_isUsingCharges = _procCharges != 0;
 		_stackAmount = stackamount;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		foreach (var effect in AuraEffects)
 		{
@@ -926,7 +931,7 @@ public class Aura
 	public void RecalculateAmountOfEffects()
 	{
 		Cypher.Assert(!IsRemoved);
-		var caster = GetCaster();
+		var caster = Caster;
 
 		foreach (var effect in AuraEffects)
 			if (!IsRemoved)
@@ -1383,7 +1388,7 @@ public class Aura
 	{
 		// cooldowns should be added to the whole aura (see 51698 area aura)
 		var procCooldown = (int)procEntry.Cooldown;
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{
@@ -1684,18 +1689,18 @@ public class Aura
 
 	public virtual void Remove(AuraRemoveMode removeMode = AuraRemoveMode.Default)
 	{
-		ForEachAuraScript<IAuraOnRemove>(a => a.Remove());
+		ForEachAuraScript<IAuraOnRemove>(a => a.AuraRemoved(removeMode));
 	}
 
 	public void _RegisterForTargets()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		UpdateTargetMap(caster, false);
 	}
 
 	public void ApplyForTargets()
 	{
-		var caster = GetCaster();
+		var caster = Caster;
 		UpdateTargetMap(caster, true);
 	}
 
@@ -1711,12 +1716,12 @@ public class Aura
 
 	public int CalcMaxDuration()
 	{
-		return CalcMaxDuration(GetCaster());
+		return CalcMaxDuration(Caster);
 	}
 
 	public byte CalcMaxCharges()
 	{
-		return CalcMaxCharges(GetCaster());
+		return CalcMaxCharges(Caster);
 	}
 
 	public bool DropCharge(AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -1956,7 +1961,7 @@ public class Aura
 	WorldObject GetWorldObjectCaster()
 	{
 		if (CasterGuid.IsUnit)
-			return GetCaster();
+			return Caster;
 
 		return Global.ObjAccessor.GetWorldObject(Owner, CasterGuid);
 	}
@@ -2043,7 +2048,7 @@ public class Aura
 		}
 
 		RefreshDuration();
-		var caster = GetCaster();
+		var caster = Caster;
 
 		foreach (var aurEff in AuraEffects)
 			aurEff.Value.CalculatePeriodic(caster, resetPeriodicTimer, false);
@@ -2084,7 +2089,7 @@ public class Aura
 		double chance = procEntry.Chance;
 		// calculate chances depending on unit with caster's data
 		// so talents modifying chances and judgements will have properly calculated proc chance
-		var caster = GetCaster();
+		var caster = Caster;
 
 		if (caster != null)
 		{

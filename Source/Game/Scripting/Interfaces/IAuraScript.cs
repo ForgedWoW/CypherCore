@@ -28,7 +28,7 @@ public interface IAuraScript : IBaseSpellScript
 	Unit Target { get; }
 
 	AuraApplication TargetApplication { get; }
-	Unit UnitOwner { get; }
+	Unit OwnerAsUnit { get; }
 	bool IsExpired { get; }
 
 	AuraEffect GetEffect(byte effIndex);

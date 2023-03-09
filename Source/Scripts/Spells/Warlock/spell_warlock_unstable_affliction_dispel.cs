@@ -44,7 +44,7 @@ public class spell_warlock_unstable_affliction_dispel : AuraScript, IHasAuraEffe
 	private void HandleRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
 		var caster = Caster;
-		var target = UnitOwner;
+		var target = OwnerAsUnit;
 
 		if (caster == null || target == null || !caster.AsPlayer)
 			return;

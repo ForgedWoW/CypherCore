@@ -17,7 +17,7 @@ internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return UnitOwner.GetPower(PowerType.Mana) != 0;
+		return OwnerAsUnit.GetPower(PowerType.Mana) != 0;
 	}
 
 	public override void Register()
@@ -30,11 +30,11 @@ internal class spell_gen_replenishment_AuraScript : AuraScript, IHasAuraEffects
 		switch (SpellInfo.Id)
 		{
 			case GenericSpellIds.Replenishment:
-				amount.Value = (UnitOwner.GetMaxPower(PowerType.Mana) * 0.002f);
+				amount.Value = (OwnerAsUnit.GetMaxPower(PowerType.Mana) * 0.002f);
 
 				break;
 			case GenericSpellIds.InfiniteReplenishment:
-				amount.Value = (UnitOwner.GetMaxPower(PowerType.Mana) * 0.0025f);
+				amount.Value = (OwnerAsUnit.GetMaxPower(PowerType.Mana) * 0.0025f);
 
 				break;
 			default:

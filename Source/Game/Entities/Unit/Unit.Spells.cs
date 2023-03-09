@@ -2943,7 +2943,7 @@ public partial class Unit
 
 		foreach (var aura in aurasToUpdateTargets)
 		{
-			aura.UpdateTargetMap(aura.GetCaster());
+			aura.UpdateTargetMap(aura.Caster);
 
 			// Fully remove the aura if all effects were removed
 			if (!aura.IsPassive && aura.Owner == this && aura.GetApplicationOfTarget(GUID) == null)
@@ -2959,7 +2959,7 @@ public partial class Unit
 			Dictionary<int, double> baseDamage = new();
 			uint effMask = 0;
 			uint recalculateMask = 0;
-			var caster = aura.GetCaster();
+			var caster = aura.Caster;
 
 			foreach (var effect in aura.AuraEffects)
 			{
@@ -3072,7 +3072,7 @@ public partial class Unit
 			}
 			else
 			{
-				var caster = aura.GetCaster();
+				var caster = aura.Caster;
 
 				if (!caster || !caster.InSamePhase(this))
 					RemoveOwnedAura(aura.Id, aura);
@@ -3083,7 +3083,7 @@ public partial class Unit
 		{
 			var aura = _scAuras[i];
 
-			if (aura.UnitOwner != this && (!onPhaseChange || !aura.UnitOwner.InSamePhase(this)))
+			if (aura.OwnerAsUnit != this && (!onPhaseChange || !aura.OwnerAsUnit.InSamePhase(this)))
 				aura.Remove();
 		}
 	}
@@ -3536,7 +3536,7 @@ public partial class Unit
 
 		++_removedAurasCount;
 
-		var caster = aura.GetCaster();
+		var caster = aura.Caster;
 
 		if (aura.SpellInfo.HasAnyAuraInterruptFlag)
 		{
@@ -3813,7 +3813,7 @@ public partial class Unit
 		if (aura.SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing) && !IsSitState)
 			SetStandState(UnitStandStateType.Sit);
 
-		var caster = aura.GetCaster();
+		var caster = aura.Caster;
 
 		if (aurApp.HasRemoveMode)
 			return;

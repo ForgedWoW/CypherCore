@@ -29,6 +29,6 @@ internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
 		// Final heal only on duration end
 		if (TargetApplication.RemoveMode == AuraRemoveMode.Expire ||
 			TargetApplication.RemoveMode == AuraRemoveMode.EnemySpell)
-			Caster.CastSpell(UnitOwner, DruidSpellIds.LifebloomFinalHeal, true);
+			Caster.CastSpell(OwnerAsUnit, DruidSpellIds.LifebloomFinalHeal, true);
 	}
 }

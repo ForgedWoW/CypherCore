@@ -22,7 +22,7 @@ public class spell_warlock_soul_link : AuraScript, IHasAuraEffects
 
 	private double HandleSplit(AuraEffect UnnamedParameter, DamageInfo UnnamedParameter2, double splitAmount)
 	{
-		var pet = UnitOwner;
+		var pet = OwnerAsUnit;
 
 		if (pet == null)
 			return splitAmount;

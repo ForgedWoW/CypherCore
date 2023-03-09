@@ -35,7 +35,7 @@ public class AuraEffect
 	bool _canBeRecalculated;
 	bool _isPeriodic;
 
-	public Unit Caster => _auraBase.GetCaster();
+	public Unit Caster => _auraBase.Caster;
 
 	public ObjectGuid CasterGuid => _auraBase.CasterGuid;
 
@@ -106,7 +106,7 @@ public class AuraEffect
 				if (_spellInfo.ProcFlags == null)
 					break;
 
-				amount = (int)(Base.UnitOwner.CountPctFromMaxHealth(10));
+				amount = (int)(Base.OwnerAsUnit.CountPctFromMaxHealth(10));
 
 				break;
 			case AuraType.SchoolAbsorb:
@@ -121,7 +121,7 @@ public class AuraEffect
 				if (mountEntry != null)
 					mountType = mountEntry.MountTypeID;
 
-				var mountCapability = Base.UnitOwner.GetMountCapability(mountType);
+				var mountCapability = Base.OwnerAsUnit.GetMountCapability(mountType);
 
 				if (mountCapability != null)
 					amount = (int)mountCapability.Id;
@@ -140,7 +140,7 @@ public class AuraEffect
 
 		if (SpellInfo.HasAttribute(SpellAttr10.RollingPeriodic))
 		{
-			var periodicAuras = Base.UnitOwner.GetAuraEffectsByType(AuraType);
+			var periodicAuras = Base.OwnerAsUnit.GetAuraEffectsByType(AuraType);
 
 			amount = periodicAuras.Aggregate(0d,
 											(val, aurEff) =>
@@ -165,11 +165,11 @@ public class AuraEffect
 			{
 				case AuraType.PeriodicDamage:
 				case AuraType.PeriodicLeech:
-					_estimatedAmount = caster.SpellDamageBonusDone(Base.UnitOwner, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+					_estimatedAmount = caster.SpellDamageBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
 
 					break;
 				case AuraType.PeriodicHeal:
-					_estimatedAmount = caster.SpellHealingBonusDone(Base.UnitOwner, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
+					_estimatedAmount = caster.SpellHealingBonusDone(Base.OwnerAsUnit, SpellInfo, amount, DamageEffectType.DOT, GetSpellEffectInfo(), stackAmountForBonuses);
 
 					break;
 				default:

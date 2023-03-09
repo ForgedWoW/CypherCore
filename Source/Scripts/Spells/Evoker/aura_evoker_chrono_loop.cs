@@ -19,9 +19,9 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 	Position _pos;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void AuraRemoved()
+	public void AuraRemoved(AuraRemoveMode removeMode)
 	{
-		var unit = UnitOwner;
+		var unit = OwnerAsUnit;
 
 		if (!unit.IsAlive)
 			return;
@@ -43,7 +43,7 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 
 	private void AuraApplied(AuraEffect aurEff, AuraEffectHandleModes handleModes)
 	{
-		var unit = UnitOwner;
+		var unit = OwnerAsUnit;
 		_health = unit.Health;
 		_mapId = unit.Location.MapId;
 		_pos = new Position(unit.Location);

@@ -102,7 +102,7 @@ public class AuraApplicationCollection
 			if (!castId.IsEmpty)
 				_byCastId.Add(castId, auraApp.Guid);
 
-			var caster = aura.GetCaster();
+			var caster = aura.Caster;
 
 			if (caster != null)
 				_isPlayer.Add(caster.IsPlayer, auraApp.Guid);
@@ -139,10 +139,10 @@ public class AuraApplicationCollection
 			removed = _auras.Remove(auraApp.Guid);
 			_aurasBySpellId.Remove(aura.Id, auraApp.Guid);
 
-			var caster = aura.GetCaster();
+			var caster = aura.Caster;
 
 			if (caster != null)
-				_isPlayer.Remove(aura.GetCaster().IsPlayer, auraApp.Guid);
+				_isPlayer.Remove(aura.Caster.IsPlayer, auraApp.Guid);
 
 			_deminishGroup.Remove(si.DiminishingReturnsGroupForSpell, auraApp.Guid);
 			_casterAuraState.Remove(si.CasterAuraState, auraApp.Guid);

@@ -1980,7 +1980,7 @@ public partial class Spell
 			{
 				var successAura = successList.Find(dispelAura =>
 				{
-					if (dispelAura.GetAura().Id == dispelableAura.GetAura().Id && dispelAura.GetAura().GetCaster() == dispelableAura.GetAura().GetCaster())
+					if (dispelAura.GetAura().Id == dispelableAura.GetAura().Id && dispelAura.GetAura().Caster == dispelableAura.GetAura().Caster)
 						return true;
 
 					return false;

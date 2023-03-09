@@ -35,7 +35,7 @@ public class spell_pal_ardent_defender : AuraScript, IHasAuraEffects
 		absorbPct = SpellInfo.GetEffect(0).CalcValue();
 		healPct = SpellInfo.GetEffect(1).CalcValue();
 
-		return UnitOwner.IsPlayer;
+		return OwnerAsUnit.IsPlayer;
 	}
 
 	public void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)

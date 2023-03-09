@@ -23,7 +23,7 @@ public class spell_dh_artifact_anguish : AuraScript, IHasAuraEffects
 	private void OnRemove(AuraEffect UnnamedParameter, AuraEffectHandleModes UnnamedParameter2)
 	{
 		var caster = Caster;
-		var target = UnitOwner;
+		var target = OwnerAsUnit;
 
 		if (caster == null || target == null)
 			return;

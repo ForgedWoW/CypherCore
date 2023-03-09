@@ -29,7 +29,7 @@ public class spell_rog_garrote_AuraScript : AuraScript, IHasAuraEffects
 		if (TargetApplication.RemoveMode != AuraRemoveMode.Death)
 			return;
 
-		var caster = Aura.GetCaster();
+		var caster = Aura.Caster;
 
 		if (caster == null)
 			return;

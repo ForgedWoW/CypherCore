@@ -60,7 +60,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		if (unit.IsTotem)
 			return;
 
-		if (unit.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && unit.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).GetCaster() == caster)
+		if (unit.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && unit.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).Caster == caster)
 			unit.RemoveAura(SpellsUsed.EARTHEN_SHIELD_ABSORB);
 	}
 
@@ -77,7 +77,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 
 			if (target != null)
 				if (!target.IsTotem)
-					if (target.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && target.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).GetCaster() == caster)
+					if (target.HasAura(SpellsUsed.EARTHEN_SHIELD_ABSORB) && target.GetAura(SpellsUsed.EARTHEN_SHIELD_ABSORB).Caster == caster)
 						target.RemoveAura(SpellsUsed.EARTHEN_SHIELD_ABSORB);
 		}
 	}

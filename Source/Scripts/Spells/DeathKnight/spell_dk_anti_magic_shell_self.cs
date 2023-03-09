@@ -32,7 +32,7 @@ public class spell_dk_anti_magic_shell_self : AuraScript, IHasAuraEffects
 
 	private void CalculateAmount(AuraEffect UnnamedParameter, BoxedValue<double> amount, BoxedValue<bool> canBeRecalculated)
 	{
-		amount.Value = UnitOwner.CountPctFromMaxHealth(40);
+		amount.Value = OwnerAsUnit.CountPctFromMaxHealth(40);
 	}
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)

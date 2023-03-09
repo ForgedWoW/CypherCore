@@ -387,7 +387,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void HandleApply(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var owner = UnitOwner;
+		var owner = OwnerAsUnit;
 		var otherFactionRace = GetReplacementRace(owner.Race, owner.Class);
 
 		if (otherFactionRace == Race.None)
@@ -404,7 +404,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void HandleRemove(AuraEffect aurEff, AuraEffectHandleModes mode)
 	{
-		var owner = UnitOwner;
+		var owner = OwnerAsUnit;
 		var otherFactionRace = GetReplacementRace(owner.Race, owner.Class);
 
 		if (otherFactionRace == Race.None)
@@ -415,7 +415,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 
 	private void UpdateRacials(Race oldRace, Race newRace)
 	{
-		var player = UnitOwner.AsPlayer;
+		var player = OwnerAsUnit.AsPlayer;
 
 		if (player == null)
 			return;

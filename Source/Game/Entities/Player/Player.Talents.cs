@@ -297,7 +297,7 @@ public partial class Player
 		var scAuras = SingleCastAuras.ToList();
 
 		foreach (var aura in scAuras)
-			if (aura.UnitOwner != this)
+			if (aura.OwnerAsUnit != this)
 				aura.Remove();
 
 		// Let client clear his current Actions

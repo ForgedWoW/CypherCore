@@ -58,7 +58,7 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 			return;
 
 		var aura = Aura;
-		var caster = aura.GetCaster();
+		var caster = aura.Caster;
 
 		if (!caster)
 			return;

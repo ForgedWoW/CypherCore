@@ -344,7 +344,7 @@ internal class spell_brewfest_barker_bunny : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return UnitOwner.IsTypeId(TypeId.Player);
+		return OwnerAsUnit.IsTypeId(TypeId.Player);
 	}
 
 	public override void Register()

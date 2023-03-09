@@ -24,7 +24,7 @@ public class spell_warlock_essence_drain : AuraScript, IHasAuraEffects
 	private void PeriodicTick(AuraEffect UnnamedParameter)
 	{
 		var caster = Caster;
-		var target = UnitOwner;
+		var target = OwnerAsUnit;
 
 		if (caster == null || target == null)
 			return;

@@ -33,7 +33,7 @@ internal class spell_ethereal_pet_aura : AuraScript, IAuraCheckProc, IHasAuraEff
 		PreventDefaultAction();
 
 		List<TempSummon> minionList = new();
-		UnitOwner.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
+		OwnerAsUnit.GetAllMinionsByEntry(minionList, CreatureIds.EtherealSoulTrader);
 
 		foreach (Creature minion in minionList)
 			if (minion.IsAIEnabled)

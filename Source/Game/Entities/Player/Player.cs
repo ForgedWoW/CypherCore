@@ -3762,7 +3762,7 @@ public partial class Player : Unit
 		// set health/powers (0- will be set in caller)
 		if (restore_percent > 0.0f)
 		{
-			SetHealth((ulong)(MaxHealth * restore_percent));
+			SetHealth(MaxHealth * restore_percent);
 			SetPower(PowerType.Mana, (int)(GetMaxPower(PowerType.Mana) * restore_percent));
 			SetPower(PowerType.Rage, 0);
 			SetPower(PowerType.Energy, (int)(GetMaxPower(PowerType.Energy) * restore_percent));

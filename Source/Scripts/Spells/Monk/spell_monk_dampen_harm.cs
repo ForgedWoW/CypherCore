@@ -21,7 +21,7 @@ public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 	{
 		healthPct = SpellInfo.GetEffect(0).CalcValue(Caster);
 
-		return UnitOwner.AsPlayer;
+		return OwnerAsUnit.AsPlayer;
 	}
 
 	public override void Register()

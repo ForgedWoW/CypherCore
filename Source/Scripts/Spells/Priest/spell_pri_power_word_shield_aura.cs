@@ -61,8 +61,8 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 				var mastery = caster.GetAuraEffect(PriestSpells.MASTERY_GRACE, 0);
 
 				if (mastery != null)
-					if (UnitOwner.HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
-						UnitOwner.HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
+					if (OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED) ||
+						OwnerAsUnit.HasAura(PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY))
 						MathFunctions.AddPct(ref amountF, mastery.Amount);
 			}
 

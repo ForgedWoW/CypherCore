@@ -58,7 +58,7 @@ internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
 		if (!RandomHelper.randChance(chance))
 			return;
 
-		var caster = UnitOwner;
+		var caster = OwnerAsUnit;
 		caster.CastSpell(caster, triggeredSpellId, true);
 	}
 }

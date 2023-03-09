@@ -2251,7 +2251,7 @@ public class SpellInfo
 					});
 
 					foreach (var aura in aurasToUpdateTargets)
-						aura.UpdateTargetMap(aura.GetCaster());
+						aura.UpdateTargetMap(aura.Caster);
 				}
 			}
 		}

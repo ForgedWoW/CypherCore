@@ -3084,7 +3084,7 @@ public abstract class WorldObject : IDisposable
 
 		foreach (var aurEff in magnetAuras)
 		{
-			var magnet = aurEff.Base.GetCaster();
+			var magnet = aurEff.Base.Caster;
 
 			if (magnet != null)
 				if (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && IsValidAttackTarget(magnet, spellInfo))

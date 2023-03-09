@@ -81,7 +81,7 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 					0, 1, 2
 				})
 		{
-			var sinOfTheMany = UnitOwner.GetAuraEffect(PriestSpells.SINS_OF_THE_MANY, effectIndex);
+			var sinOfTheMany = OwnerAsUnit.GetAuraEffect(PriestSpells.SINS_OF_THE_MANY, effectIndex);
 
 			sinOfTheMany?.ChangeAmount((int)damageByStack[Math.Min(_appliedAtonements.Count, damageByStack.Length - 1)]);
 		}

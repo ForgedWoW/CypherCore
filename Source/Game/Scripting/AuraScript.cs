@@ -29,14 +29,14 @@ public class AuraScript : BaseSpellScript, IAuraScript
 	public ObjectGuid CasterGUID => _aura.CasterGuid;
 
 	// returns unit which casted the aura or null if not avalible (caster logged out for example)
-	public Unit Caster => _aura.GetCaster();
+	public Unit Caster => _aura.Caster;
 
 	// returns gameobject which cast the aura or NULL if not available
 	public GameObject GObjCaster
 	{
 		get
 		{
-			WorldObject caster = _aura.GetCaster();
+			WorldObject caster = _aura.Caster;
 
 			if (caster != null)
 				return caster.AsGameObject;
@@ -49,7 +49,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 	public WorldObject Owner => _aura.Owner;
 
 	// returns owner if it's unit or unit derived object, null otherwise (only for persistent area Auras null is returned)
-	public Unit UnitOwner => _aura.UnitOwner;
+	public Unit OwnerAsUnit => _aura.OwnerAsUnit;
 
 	// returns aura object of script
 	public Aura Aura => _aura;
@@ -260,7 +260,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
 	public bool TryGetCasterAsPlayer(out Player player)
 	{
-		var caster = _aura.GetCaster();
+		var caster = _aura.Caster;
 
 		if (caster.TryGetAsPlayer(out player))
 			return true;

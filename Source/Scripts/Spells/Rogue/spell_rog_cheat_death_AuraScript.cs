@@ -23,7 +23,7 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 
 	public override bool Load()
 	{
-		return UnitOwner.TypeId == TypeId.Player;
+		return OwnerAsUnit.TypeId == TypeId.Player;
 	}
 
 	public override void Register()

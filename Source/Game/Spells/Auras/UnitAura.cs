@@ -19,7 +19,7 @@ public class UnitAura : Aura
 		_mAuraDrGroup = DiminishingGroup.None;
 		LoadScripts();
 		_InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
-		UnitOwner._AddAura(this, createInfo.Caster);
+		OwnerAsUnit._AddAura(this, createInfo.Caster);
 	}
 
 	public override void _ApplyForTarget(Unit target, Unit caster, AuraApplication aurApp)
@@ -45,7 +45,7 @@ public class UnitAura : Aura
 		if (IsRemoved)
 			return;
 
-		UnitOwner.RemoveOwnedAura(this, removeMode);
+		OwnerAsUnit.RemoveOwnedAura(this, removeMode);
 		base.Remove(removeMode);
 	}
 
@@ -54,16 +54,16 @@ public class UnitAura : Aura
 		var refe = caster;
 
 		if (refe == null)
-			refe = UnitOwner;
+			refe = OwnerAsUnit;
 
 		// add non area aura targets
 		// static applications go through spell system first, so we assume they meet conditions
 		foreach (var targetPair in _staticApplications)
 		{
-			var target = Global.ObjAccessor.GetUnit(UnitOwner, targetPair.Key);
+			var target = Global.ObjAccessor.GetUnit(OwnerAsUnit, targetPair.Key);
 
-			if (target == null && targetPair.Key == UnitOwner.GUID)
-				target = UnitOwner;
+			if (target == null && targetPair.Key == OwnerAsUnit.GUID)
+				target = OwnerAsUnit;
 
 			if (target)
 				targets.Add(target, targetPair.Value);
@@ -79,10 +79,10 @@ public class UnitAura : Aura
 				continue;
 
 			// skip area update if owner is not in world!
-			if (!UnitOwner.IsInWorld)
+			if (!OwnerAsUnit.IsInWorld)
 				continue;
 
-			if (UnitOwner.HasUnitState(UnitState.Isolated))
+			if (OwnerAsUnit.HasUnitState(UnitState.Isolated))
 				continue;
 
 			List<Unit> units = new();
@@ -114,17 +114,17 @@ public class UnitAura : Aura
 
 					break;
 				case SpellEffectName.ApplyAreaAuraPet:
-					if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(UnitOwner, refe, condList))
-						units.Add(UnitOwner);
+					if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
+						units.Add(OwnerAsUnit);
 
 					goto case SpellEffectName.ApplyAreaAuraOwner;
 				/* fallthrough */
 				case SpellEffectName.ApplyAreaAuraOwner:
 				{
-					var owner = UnitOwner.CharmerOrOwner;
+					var owner = OwnerAsUnit.CharmerOrOwner;
 
 					if (owner != null)
-						if (UnitOwner.IsWithinDistInMap(owner, radius))
+						if (OwnerAsUnit.IsWithinDistInMap(owner, radius))
 							if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(owner, refe, condList))
 								units.Add(owner);
 
@@ -132,7 +132,7 @@ public class UnitAura : Aura
 				}
 				case SpellEffectName.ApplyAuraOnPet:
 				{
-					var pet = Global.ObjAccessor.GetUnit(UnitOwner, UnitOwner.PetGUID);
+					var pet = Global.ObjAccessor.GetUnit(OwnerAsUnit, OwnerAsUnit.PetGUID);
 
 					if (pet != null)
 						if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(pet, refe, condList))
@@ -142,8 +142,8 @@ public class UnitAura : Aura
 				}
 				case SpellEffectName.ApplyAreaAuraSummons:
 				{
-					if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(UnitOwner, refe, condList))
-						units.Add(UnitOwner);
+					if (condList == null || Global.ConditionMgr.IsObjectMeetToConditions(OwnerAsUnit, refe, condList))
+						units.Add(OwnerAsUnit);
 
 					selectionType = SpellTargetCheckTypes.Summoned;
 
@@ -153,12 +153,12 @@ public class UnitAura : Aura
 
 			if (selectionType != SpellTargetCheckTypes.Default)
 			{
-				WorldObjectSpellAreaTargetCheck check = new(radius, UnitOwner.Location, refe, UnitOwner, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
-				UnitListSearcher searcher = new(UnitOwner, units, check, GridType.All);
-				Cell.VisitGrid(UnitOwner, searcher, radius + extraSearchRadius);
+				WorldObjectSpellAreaTargetCheck check = new(radius, OwnerAsUnit.Location, refe, OwnerAsUnit, SpellInfo, selectionType, condList, SpellTargetObjectTypes.Unit);
+				UnitListSearcher searcher = new(OwnerAsUnit, units, check, GridType.All);
+				Cell.VisitGrid(OwnerAsUnit, searcher, radius + extraSearchRadius);
 
 				// by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-				units.RemoveAll(unit => !unit.IsSelfOrInSameMap(UnitOwner));
+				units.RemoveAll(unit => !unit.IsSelfOrInSameMap(OwnerAsUnit));
 			}
 
 			foreach (var unit in units)
