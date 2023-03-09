@@ -14,13 +14,13 @@ public class at_monk_chi_burst : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit target)
 	{
-		if (!at.GetCaster())
+		if (!At.GetCaster())
 			return;
 
-		if (at.GetCaster().IsValidAssistTarget(target))
-			at.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_HEAL, true);
+		if (At.GetCaster().IsValidAssistTarget(target))
+			At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_HEAL, true);
 
-		if (at.GetCaster().IsValidAttackTarget(target))
-			at.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_DAMAGE, true);
+		if (At.GetCaster().IsValidAttackTarget(target))
+			At.GetCaster().CastSpell(target, MonkSpells.CHI_BURST_DAMAGE, true);
 	}
 }

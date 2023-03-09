@@ -37,7 +37,7 @@ public class npc_oaf_lackey : ScriptedAI
 
 		if (HealthBelowPct(35) && !below)
 		{
-			DoCast(me, boss_vanessa_vancleef.Spells.ENRAGE);
+			DoCast(Me, boss_vanessa_vancleef.Spells.ENRAGE);
 			below = true;
 		}
 

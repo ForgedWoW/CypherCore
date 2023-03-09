@@ -20,13 +20,13 @@ namespace Scripts.Pets
 
 			public npc_pet_warlock_wild_imp(Creature creature) : base(creature)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
-				if (me.OwnerUnit)
+				if (Me.OwnerUnit)
 				{
-					me.SetLevel(owner.Level);
-					me.SetMaxHealth(owner.MaxHealth / 3);
-					me.SetHealth(owner.Health / 3);
+					Me.SetLevel(owner.Level);
+					Me.SetMaxHealth(owner.MaxHealth / 3);
+					Me.SetHealth(owner.Health / 3);
 
 					if (owner.IsPlayer)
 					{
@@ -52,7 +52,7 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint UnnamedParameter)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return;
@@ -68,11 +68,11 @@ namespace Scripts.Pets
 					return;
 				}
 
-				var newTarget = ObjectAccessor.Instance.GetUnit(me, newtargetGUID);
+				var newTarget = ObjectAccessor.Instance.GetUnit(Me, newtargetGUID);
 
-				if (ObjectAccessor.Instance.GetUnit(me, newtargetGUID))
+				if (ObjectAccessor.Instance.GetUnit(Me, newtargetGUID))
 					if (target != newTarget &&
-						me.IsValidAttackTarget(newTarget))
+						Me.IsValidAttackTarget(newTarget))
 						target = newTarget;
 
 				CastSpellOnTarget(owner, target);
@@ -80,7 +80,7 @@ namespace Scripts.Pets
 
 			public override void OnDespawn()
 			{
-				var caster = me.OwnerUnit;
+				var caster = Me.OwnerUnit;
 
 				if (caster == null) return;
 
@@ -90,18 +90,18 @@ namespace Scripts.Pets
 
 			private Unit GetTarget()
 			{
-				return ObjectAccessor.Instance.GetUnit(me, _targetGUID);
+				return ObjectAccessor.Instance.GetUnit(Me, _targetGUID);
 			}
 
 			private void CastSpellOnTarget(Unit owner, Unit target)
 			{
 				if (target != null &&
-					me.IsValidAttackTarget(target) &&
-					!me.HasUnitState(UnitState.Casting) &&
-					!me.VariableStorage.GetValue("controlled", false))
+					Me.IsValidAttackTarget(target) &&
+					!Me.HasUnitState(UnitState.Casting) &&
+					!Me.VariableStorage.GetValue("controlled", false))
 				{
 					_targetGUID = target.GUID;
-					me.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GUID));
+					Me.CastSpell(target, WarlockSpells.FEL_FIREBOLT, new CastSpellExtraArgs(TriggerCastFlags.IgnorePowerAndReagentCost).SetOriginalCaster(owner.GUID));
 				}
 			}
 		}

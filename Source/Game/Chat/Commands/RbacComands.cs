@@ -15,11 +15,11 @@ class RbacComands
 	{
 		if (!permId.HasValue)
 		{
-			var permissions = Global.AccountMgr.GetRBACPermissionList();
+			var permissions = Global.AccountMgr.RBACPermissionList;
 			handler.SendSysMessage(CypherStrings.RbacListPermissionsHeader);
 
 			foreach (var (_, permission) in permissions)
-				handler.SendSysMessage(CypherStrings.RbacListElement, permission.GetId(), permission.GetName());
+				handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
 		}
 		else
 		{
@@ -33,15 +33,15 @@ class RbacComands
 			}
 
 			handler.SendSysMessage(CypherStrings.RbacListPermissionsHeader);
-			handler.SendSysMessage(CypherStrings.RbacListElement, permission.GetId(), permission.GetName());
+			handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
 			handler.SendSysMessage(CypherStrings.RbacListPermsLinkedHeader);
 
-			foreach (var linkedPerm in permission.GetLinkedPermissions())
+			foreach (var linkedPerm in permission.LinkedPermissions)
 			{
 				var rbacPermission = Global.AccountMgr.GetRBACPermission(linkedPerm);
 
 				if (rbacPermission != null)
-					handler.SendSysMessage(CypherStrings.RbacListElement, rbacPermission.GetId(), rbacPermission.GetName());
+					handler.SendSysMessage(CypherStrings.RbacListElement, rbacPermission.Id, rbacPermission.Name);
 			}
 		}
 
@@ -95,28 +95,28 @@ class RbacComands
 				case RBACCommandResult.CantAddAlreadyAdded:
 					handler.SendSysMessage(CypherStrings.RbacPermDeniedInList,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.InGrantedList:
 					handler.SendSysMessage(CypherStrings.RbacPermDeniedInGrantedList,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.OK:
 					handler.SendSysMessage(CypherStrings.RbacPermDenied,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.IdDoesNotExists:
@@ -155,28 +155,28 @@ class RbacComands
 				case RBACCommandResult.CantAddAlreadyAdded:
 					handler.SendSysMessage(CypherStrings.RbacPermGrantedInList,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.InDeniedList:
 					handler.SendSysMessage(CypherStrings.RbacPermGrantedInDeniedList,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.OK:
 					handler.SendSysMessage(CypherStrings.RbacPermGranted,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.IdDoesNotExists:
@@ -201,8 +201,8 @@ class RbacComands
 
 			var data = GetRBACData(account);
 
-			handler.SendSysMessage(CypherStrings.RbacListHeaderGranted, data.rbac.GetId(), data.rbac.GetName());
-			var granted = data.rbac.GetGrantedPermissions();
+			handler.SendSysMessage(CypherStrings.RbacListHeaderGranted, data.rbac.Id, data.rbac.Name);
+			var granted = data.rbac.GrantedPermissions;
 
 			if (granted.Empty())
 				handler.SendSysMessage(CypherStrings.RbacListEmpty);
@@ -210,11 +210,11 @@ class RbacComands
 				foreach (var id in granted)
 				{
 					var permission = Global.AccountMgr.GetRBACPermission(id);
-					handler.SendSysMessage(CypherStrings.RbacListElement, permission.GetId(), permission.GetName());
+					handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
 				}
 
-			handler.SendSysMessage(CypherStrings.RbacListHeaderDenied, data.rbac.GetId(), data.rbac.GetName());
-			var denied = data.rbac.GetDeniedPermissions();
+			handler.SendSysMessage(CypherStrings.RbacListHeaderDenied, data.rbac.Id, data.rbac.Name);
+			var denied = data.rbac.DeniedPermissions;
 
 			if (denied.Empty())
 				handler.SendSysMessage(CypherStrings.RbacListEmpty);
@@ -222,10 +222,10 @@ class RbacComands
 				foreach (var id in denied)
 				{
 					var permission = Global.AccountMgr.GetRBACPermission(id);
-					handler.SendSysMessage(CypherStrings.RbacListElement, permission.GetId(), permission.GetName());
+					handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
 				}
 
-			handler.SendSysMessage(CypherStrings.RbacListHeaderBySecLevel, data.rbac.GetId(), data.rbac.GetName(), data.rbac.GetSecurityLevel());
+			handler.SendSysMessage(CypherStrings.RbacListHeaderBySecLevel, data.rbac.Id, data.rbac.Name, data.rbac.GetSecurityLevel());
 			var defaultPermissions = Global.AccountMgr.GetRBACDefaultPermissions(data.rbac.GetSecurityLevel());
 
 			if (defaultPermissions.Empty())
@@ -234,7 +234,7 @@ class RbacComands
 				foreach (var id in defaultPermissions)
 				{
 					var permission = Global.AccountMgr.GetRBACPermission(id);
-					handler.SendSysMessage(CypherStrings.RbacListElement, permission.GetId(), permission.GetName());
+					handler.SendSysMessage(CypherStrings.RbacListElement, permission.Id, permission.Name);
 				}
 
 			return true;
@@ -265,19 +265,19 @@ class RbacComands
 				case RBACCommandResult.CantRevokeNotInList:
 					handler.SendSysMessage(CypherStrings.RbacPermRevokedNotInList,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.OK:
 					handler.SendSysMessage(CypherStrings.RbacPermRevoked,
 											permId,
-											permission.GetName(),
+											permission.Name,
 											realmId.Value,
-											data.rbac.GetId(),
-											data.rbac.GetName());
+											data.rbac.Id,
+											data.rbac.Name);
 
 					break;
 				case RBACCommandResult.IdDoesNotExists:

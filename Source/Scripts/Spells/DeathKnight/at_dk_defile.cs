@@ -14,12 +14,12 @@ public class at_dk_defile : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		at.GetCaster().CastSpell(at.Location, DeathKnightSpells.SUMMON_DEFILE, true);
+		At.GetCaster().CastSpell(At.Location, DeathKnightSpells.SUMMON_DEFILE, true);
 	}
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			caster.CastSpell(unit, DeathKnightSpells.DEFILE_DUMMY, true);

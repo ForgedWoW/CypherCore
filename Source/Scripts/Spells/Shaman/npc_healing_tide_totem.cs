@@ -18,9 +18,9 @@ public class npc_healing_tide_totem : ScriptedAI
 	{
 		var time = TimeSpan.FromMilliseconds(1900);
 
-		me.Events.AddRepeatEventAtOffset(() =>
+		Me.Events.AddRepeatEventAtOffset(() =>
 										{
-											me.CastSpell(me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
+											Me.CastSpell(Me, TotemSpells.TOTEM_HEALING_TIDE_EFFECT, true);
 
 											return time;
 										},

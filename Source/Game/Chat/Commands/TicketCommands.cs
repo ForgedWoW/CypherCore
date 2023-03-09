@@ -38,7 +38,7 @@ class TicketCommands
 
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
-		if (ticket == null || ticket.IsClosed())
+		if (ticket == null || ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
 
@@ -59,7 +59,7 @@ class TicketCommands
 		// If already assigned, leave
 		if (ticket.IsAssignedTo(targetGuid))
 		{
-			handler.SendSysMessage(CypherStrings.CommandTicketassignerrorB, ticket.GetId());
+			handler.SendSysMessage(CypherStrings.CommandTicketassignerrorB, ticket.Id);
 
 			return true;
 		}
@@ -70,7 +70,7 @@ class TicketCommands
 
 		if (player && ticket.IsAssignedNotTo(player.GUID))
 		{
-			handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.GetId());
+			handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
 
 			return true;
 		}
@@ -89,7 +89,7 @@ class TicketCommands
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
-		if (ticket == null || ticket.IsClosed())
+		if (ticket == null || ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
 
@@ -102,7 +102,7 @@ class TicketCommands
 
 		if (player && ticket.IsAssignedNotTo(player.GUID))
 		{
-			handler.SendSysMessage(CypherStrings.CommandTicketcannotclose, ticket.GetId());
+			handler.SendSysMessage(CypherStrings.CommandTicketcannotclose, ticket.Id);
 
 			return true;
 		}
@@ -114,7 +114,7 @@ class TicketCommands
 		else
 			closedByGuid.SetRawValue(0, ulong.MaxValue);
 
-		Global.SupportMgr.CloseTicket<T>(ticket.GetId(), closedByGuid);
+		Global.SupportMgr.CloseTicket<T>(ticket.Id, closedByGuid);
 
 		var msg = ticket.FormatViewMessageString(handler, player ? player.GetName() : "Console", null, null, null);
 		handler.SendGlobalGMSysMessage(msg);
@@ -136,7 +136,7 @@ class TicketCommands
 
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
-		if (ticket == null || ticket.IsClosed())
+		if (ticket == null || ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
 
@@ -149,7 +149,7 @@ class TicketCommands
 
 		if (player && ticket.IsAssignedNotTo(player.GUID))
 		{
-			handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.GetId());
+			handler.SendSysMessage(CypherStrings.CommandTicketalreadyassigned, ticket.Id);
 
 			return true;
 		}
@@ -158,7 +158,7 @@ class TicketCommands
 		ticket.SaveToDB();
 		Global.SupportMgr.UpdateLastChange();
 
-		var msg = ticket.FormatViewMessageString(handler, null, ticket.GetAssignedToName(), null, null);
+		var msg = ticket.FormatViewMessageString(handler, null, ticket.AssignedToName, null, null);
 		msg += string.Format(handler.GetCypherString(CypherStrings.CommandTicketlistaddcomment), player ? player.GetName() : "Console", comment);
 		handler.SendGlobalGMSysMessage(msg);
 
@@ -176,7 +176,7 @@ class TicketCommands
 			return true;
 		}
 
-		if (!ticket.IsClosed())
+		if (!ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketclosefirst);
 
@@ -186,7 +186,7 @@ class TicketCommands
 		var msg = ticket.FormatViewMessageString(handler, null, null, null, handler.Session != null ? handler.Session.Player.GetName() : "Console");
 		handler.SendGlobalGMSysMessage(msg);
 
-		Global.SupportMgr.RemoveTicket<T>(ticket.GetId());
+		Global.SupportMgr.RemoveTicket<T>(ticket.Id);
 
 		return true;
 	}
@@ -219,7 +219,7 @@ class TicketCommands
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
-		if (ticket == null || ticket.IsClosed())
+		if (ticket == null || ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
 
@@ -227,16 +227,16 @@ class TicketCommands
 		}
 
 		// Ticket must be assigned
-		if (!ticket.IsAssigned())
+		if (!ticket.IsAssigned)
 		{
-			handler.SendSysMessage(CypherStrings.CommandTicketnotassigned, ticket.GetId());
+			handler.SendSysMessage(CypherStrings.CommandTicketnotassigned, ticket.Id);
 
 			return true;
 		}
 
 		// Get security level of player, whom this ticket is assigned to
 		AccountTypes security;
-		var assignedPlayer = ticket.GetAssignedPlayer();
+		var assignedPlayer = ticket.AssignedPlayer;
 
 		if (assignedPlayer && assignedPlayer.IsInWorld)
 		{
@@ -244,7 +244,7 @@ class TicketCommands
 		}
 		else
 		{
-			var guid = ticket.GetAssignedToGUID();
+			var guid = ticket.AssignedToGUID;
 			var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
 			security = Global.AccountMgr.GetSecurity(accountId, (int)Global.WorldMgr.Realm.Id.Index);
 		}
@@ -260,7 +260,7 @@ class TicketCommands
 			return true;
 		}
 
-		var assignedTo = ticket.GetAssignedToName(); // copy assignedto name because we need it after the ticket has been unnassigned
+		var assignedTo = ticket.AssignedToName; // copy assignedto name because we need it after the ticket has been unnassigned
 
 		ticket.SetUnassigned();
 		ticket.SaveToDB();
@@ -274,7 +274,7 @@ class TicketCommands
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
-		if (ticket == null || ticket.IsClosed())
+		if (ticket == null || ticket.IsClosed)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTicketnotexist);
 

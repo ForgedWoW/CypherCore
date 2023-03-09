@@ -5,61 +5,63 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
 
-namespace Game.AI
+namespace Game.AI;
+
+public class TotemAI : NullCreatureAI
 {
-    public class TotemAI : NullCreatureAI
-    {
-        ObjectGuid _victimGuid;
+	ObjectGuid _victimGuid;
 
-        public TotemAI(Creature creature) : base(creature)
-        {
-            Cypher.Assert(creature.IsTotem, $"TotemAI: AI assigned to a no-totem creature ({creature.GUID})!");
-            _victimGuid = ObjectGuid.Empty;
-        }
+	public TotemAI(Creature creature) : base(creature)
+	{
+		Cypher.Assert(creature.IsTotem, $"TotemAI: AI assigned to a no-totem creature ({creature.GUID})!");
+		_victimGuid = ObjectGuid.Empty;
+	}
 
-        public override void UpdateAI(uint diff)
-        {
-            if (me.ToTotem().GetTotemType() != TotemType.Active)
-                return;
+	public override void UpdateAI(uint diff)
+	{
+		if (Me.ToTotem().GetTotemType() != TotemType.Active)
+			return;
 
-            if (!me.IsAlive || me.IsNonMeleeSpellCast(false))
-                return;
+		if (!Me.IsAlive || Me.IsNonMeleeSpellCast(false))
+			return;
 
-            // Search spell
-            var spellInfo = Global.SpellMgr.GetSpellInfo(me.ToTotem().GetSpell(), me.Map.DifficultyID);
-            if (spellInfo == null)
-                return;
+		// Search spell
+		var spellInfo = Global.SpellMgr.GetSpellInfo(Me.ToTotem().GetSpell(), Me.Map.DifficultyID);
 
-            // Get spell range
-            float max_range = spellInfo.GetMaxRange(false);
+		if (spellInfo == null)
+			return;
 
-            // SpellModOp.Range not applied in this place just because not existence range mods for attacking totems
+		// Get spell range
+		var max_range = spellInfo.GetMaxRange(false);
 
-            Unit victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(me, _victimGuid) : null;
+		// SpellModOp.Range not applied in this place just because not existence range mods for attacking totems
 
-            // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-            if (victim == null || !victim.IsTargetableForAttack() || !me.IsWithinDistInMap(victim, max_range) || me.IsFriendlyTo(victim) || !me.CanSeeOrDetect(victim))
-            {
-                float extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
-                var u_check = new NearestAttackableUnitInObjectRangeCheck(me, me.CharmerOrOwnerOrSelf, max_range);
-                var checker = new UnitLastSearcher(me, u_check, GridType.All);
-                Cell.VisitGrid(me, checker, max_range + extraSearchRadius);
-                victim = checker.GetTarget();
-            }
+		var victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(Me, _victimGuid) : null;
 
-            // If have target
-            if (victim != null)
-            {
-                // remember
-                _victimGuid = victim.GUID;
+		// Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
+		if (victim == null || !victim.IsTargetableForAttack() || !Me.IsWithinDistInMap(victim, max_range) || Me.IsFriendlyTo(victim) || !Me.CanSeeOrDetect(victim))
+		{
+			var extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
+			var u_check = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, max_range);
+			var checker = new UnitLastSearcher(Me, u_check, GridType.All);
+			Cell.VisitGrid(Me, checker, max_range + extraSearchRadius);
+			victim = checker.GetTarget();
+		}
 
-                // attack
-                me.CastSpell(victim, me.ToTotem().GetSpell());
-            }
-            else
-                _victimGuid.Clear();
-        }
+		// If have target
+		if (victim != null)
+		{
+			// remember
+			_victimGuid = victim.GUID;
 
-        public override void AttackStart(Unit victim) { }
-    }
+			// attack
+			Me.CastSpell(victim, Me.ToTotem().GetSpell());
+		}
+		else
+		{
+			_victimGuid.Clear();
+		}
+	}
+
+	public override void AttackStart(Unit victim) { }
 }

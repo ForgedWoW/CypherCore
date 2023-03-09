@@ -17,16 +17,16 @@ public class npc_lightning_orbs : NullCreatureAI
 	public override void Reset()
 	{
 		TurnTimer = 100;
-		var vehicle = me.VehicleKit1;
+		var vehicle = Me.VehicleKit1;
 
 		if (vehicle != null)
 			for (sbyte i = 0; i < 8; i++)
 				if (vehicle.HasEmptySeat(i))
 				{
-					Creature pas = me.SummonCreature(49521, me.Location.X, me.Location.Y, me.Location.Z);
+					Creature pas = Me.SummonCreature(49521, Me.Location.X, Me.Location.Y, Me.Location.Z);
 
 					if (pas != null)
-						pas.EnterVehicle(me, i);
+						pas.EnterVehicle(Me, i);
 				}
 	}
 
@@ -34,7 +34,7 @@ public class npc_lightning_orbs : NullCreatureAI
 	{
 		if (TurnTimer <= diff)
 		{
-			me.SetFacingTo(me.Location.Orientation + 0.05233f);
+			Me.SetFacingTo(Me.Location.Orientation + 0.05233f);
 			TurnTimer = 100;
 		}
 		else

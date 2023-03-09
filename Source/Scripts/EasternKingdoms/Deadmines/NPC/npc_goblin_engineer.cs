@@ -20,12 +20,12 @@ public class npc_goblin_engineer : ScriptedAI
 
 	public override void Reset()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
-		if (me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
-			me.AddAura(78087, me);
+		if (Me.FindNearestGameObject(DMGameObjects.GO_HEAVY_DOOR, 20.0f))
+			Me.AddAura(78087, Me);
 		else
-			me.AddAura(57626, me);
+			Me.AddAura(57626, Me);
 	}
 }

@@ -74,7 +74,7 @@ internal class boss_gloomrel : ScriptedAI
 		{
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
 				player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 11);
-				player.SendGossipMenu(2606, me.GUID);
+				player.SendGossipMenu(2606, Me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 11:
@@ -84,7 +84,7 @@ internal class boss_gloomrel : ScriptedAI
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
 				player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTeach3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 22);
-				player.SendGossipMenu(2604, me.GUID);
+				player.SendGossipMenu(2604, Me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 22:
@@ -109,7 +109,7 @@ internal class boss_gloomrel : ScriptedAI
 			player.GetSkillValue(SkillType.Mining) >= MiscConst.DataSkillpointMin)
 			player.AddGossipItem(GossipOptionNpc.None, MiscConst.GossipItemTribute, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
+		player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
 
 		return true;
 	}
@@ -131,27 +131,27 @@ internal class boss_doomrel : ScriptedAI
 	{
 		Initialize();
 
-		me.Faction = (uint)FactionTemplates.Friendly;
+		Me.Faction = (uint)FactionTemplates.Friendly;
 
 		// was set before event start, so set again
-		me.SetImmuneToPC(true);
+		Me.SetImmuneToPC(true);
 
 		if (_instance.GetData(DataTypes.DataGhostkill) >= 7)
-			me.ReplaceAllNpcFlags(NPCFlags.None);
+			Me.ReplaceAllNpcFlags(NPCFlags.None);
 		else
-			me.ReplaceAllNpcFlags(NPCFlags.Gossip);
+			Me.ReplaceAllNpcFlags(NPCFlags.Gossip);
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.Shadowboltvolley);
 								task.Repeat(TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(18),
+		Scheduler.Schedule(TimeSpan.FromSeconds(18),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
@@ -162,17 +162,17 @@ internal class boss_doomrel : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Curseofweakness);
 								task.Repeat(TimeSpan.FromSeconds(45));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(16),
+		Scheduler.Schedule(TimeSpan.FromSeconds(16),
 							task =>
 							{
-								DoCast(me, SpellIds.Demonarmor);
+								DoCast(Me, SpellIds.Demonarmor);
 								task.Repeat(TimeSpan.FromMinutes(5));
 							});
 	}
@@ -204,7 +204,7 @@ internal class boss_doomrel : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
@@ -217,18 +217,18 @@ internal class boss_doomrel : ScriptedAI
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 1:
 				player.InitGossipMenu(TextIds.GossipSelectDoomrel);
 				player.AddGossipItem(TextIds.GossipSelectDoomrel, TextIds.GossipMenuIdContinue, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
-				player.SendGossipMenu(2605, me.GUID);
+				player.SendGossipMenu(2605, Me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INFO_DEF + 2:
 				player.CloseGossipMenu();
 
 				//start event here
-				me. //start event here
+				Me. //start event here
 					Faction = (int)FactionTemplates.DarkIronDwarves;
 
-				me.SetImmuneToPC(false);
-				me.AI.AttackStart(player);
+				Me.SetImmuneToPC(false);
+				Me.AI.AttackStart(player);
 
 				_instance.SetGuidData(DataTypes.DataEvenstarter, player.GUID);
 
@@ -242,7 +242,7 @@ internal class boss_doomrel : ScriptedAI
 	{
 		player.InitGossipMenu(TextIds.GossipMenuChallenge);
 		player.AddGossipItem(TextIds.GossipMenuChallenge, TextIds.GossipMenuIdChallenge, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-		player.SendGossipMenu(2601, me.GUID);
+		player.SendGossipMenu(2601, Me.GUID);
 
 		return true;
 	}

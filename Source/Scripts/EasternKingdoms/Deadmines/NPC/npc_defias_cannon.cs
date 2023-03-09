@@ -39,21 +39,21 @@ public class npc_defias_cannon : ScriptedAI
 		Phase = 0;
 		CannonBlast_Timer = DMData.DATA_CANNON_BLAST_TIMER;
 
-		if (!me)
+		if (!Me)
 			return;
 
-		if (!ObjectAccessor.GetCreature(me, TargetGUID))
+		if (!ObjectAccessor.GetCreature(Me, TargetGUID))
 			GetCreature();
 	}
 
 	public bool GetSupporter()
 	{
-		var supporter = me.FindNearestCreature(DMCreatures.NPC_OGRE_HENCHMAN, 7.0f, true);
+		var supporter = Me.FindNearestCreature(DMCreatures.NPC_OGRE_HENCHMAN, 7.0f, true);
 
 		if (supporter != null)
 			return true;
 
-		supporter = me.FindNearestCreature(DMCreatures.NPC_DEFIAS_PIRATE, 5.0f, true);
+		supporter = Me.FindNearestCreature(DMCreatures.NPC_DEFIAS_PIRATE, 5.0f, true);
 
 		if (supporter != null)
 			return true;
@@ -65,7 +65,7 @@ public class npc_defias_cannon : ScriptedAI
 
 	public void GetCreature()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		//for (byte i = 0; i <= 7; i++)
@@ -80,7 +80,7 @@ public class npc_defias_cannon : ScriptedAI
 
 	public override void UpdateAI(uint uiDiff)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		if (Phase == 0)
@@ -89,15 +89,15 @@ public class npc_defias_cannon : ScriptedAI
 			{
 				if (!GetSupporter())
 				{
-					me.RemoveUnitFlag(UnitFlags.Uninteractible);
+					Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 					Phase++;
 				}
 				else
 				{
-					var target = ObjectAccessor.GetCreature(me, TargetGUID);
+					var target = ObjectAccessor.GetCreature(Me, TargetGUID);
 
 					if (target != null)
-						me.CastSpell(target, DMSpells.CANNONBALL);
+						Me.CastSpell(target, DMSpells.CANNONBALL);
 				}
 
 				CannonBlast_Timer = (uint)RandomHelper.IRand(3000, 5000);

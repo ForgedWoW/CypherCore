@@ -31,35 +31,35 @@ public class boss_captain_cookie : BossAI
 
 	public boss_captain_cookie(Creature pCreature) : base(pCreature, DMData.DATA_COOKIE)
 	{
-		me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Grip, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Stun, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Fear, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Root, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Freeze, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Polymorph, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Horror, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Sapped, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Charm, true);
-		me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Disoriented, true);
-		me.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModConfuse, true);
-		me.SetActive(true);
+		Me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Grip, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Stun, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Fear, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Root, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Freeze, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Polymorph, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Horror, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Sapped, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Charm, true);
+		Me.ApplySpellImmune(0, SpellImmunity.Mechanic, Mechanics.Disoriented, true);
+		Me.ApplySpellImmune(0, SpellImmunity.State, AuraType.ModConfuse, true);
+		Me.SetActive(true);
 	}
 
 	public override void Reset()
 	{
 		_Reset();
-		me.ReactState = ReactStates.Aggressive;
+		Me.ReactState = ReactStates.Aggressive;
 		DoCast(eSpell.WHO_IS_THAT);
-		me.SetUnitFlag(UnitFlags.Uninteractible);
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
 	}
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (instance.GetBossState(DMData.DATA_RIPSNARL) != EncounterState.Done)
+		if (Instance.GetBossState(DMData.DATA_RIPSNARL) != EncounterState.Done)
 			return;
 
-		if (me.GetDistance(who) > 5.0f)
+		if (Me.GetDistance(who) > 5.0f)
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -67,22 +67,22 @@ public class boss_captain_cookie : BossAI
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		me.RemoveAura(eSpell.WHO_IS_THAT);
-		me.RemoveUnitFlag(UnitFlags.Uninteractible);
-		me.AttackStop();
-		me.ReactState = ReactStates.Passive;
+		Me.RemoveAura(eSpell.WHO_IS_THAT);
+		Me.RemoveUnitFlag(UnitFlags.Uninteractible);
+		Me.AttackStop();
+		Me.ReactState = ReactStates.Passive;
 
-		_events.ScheduleEvent(BossEvents.EVENT_MOVE, TimeSpan.FromMilliseconds(1000));
+		Events.ScheduleEvent(BossEvents.EVENT_MOVE, TimeSpan.FromMilliseconds(1000));
 
 		DoZoneInCombat();
-		instance.SetBossState(DMData.DATA_COOKIE, EncounterState.InProgress);
+		Instance.SetBossState(DMData.DATA_COOKIE, EncounterState.InProgress);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint data)
 	{
 		if (type == MovementGeneratorType.Point)
 			if (data == POINT_MOVE)
-				_events.ScheduleEvent(BossEvents.EVENT_CAULDRON_1, TimeSpan.FromMilliseconds(2000));
+				Events.ScheduleEvent(BossEvents.EVENT_CAULDRON_1, TimeSpan.FromMilliseconds(2000));
 	}
 
 	public override void JustDied(Unit killer)
@@ -90,7 +90,7 @@ public class boss_captain_cookie : BossAI
 		base.JustDied(killer);
 
 		if (IsHeroic())
-			me.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NotePos);
+			Me.SummonCreature(DMCreatures.NPC_VANESSA_NOTE, NotePos);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -98,39 +98,39 @@ public class boss_captain_cookie : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case BossEvents.EVENT_MOVE:
-					me.MotionMaster.MovePoint(POINT_MOVE, MovePos);
+					Me.MotionMaster.MovePoint(POINT_MOVE, MovePos);
 
 					break;
 				case BossEvents.EVENT_CAULDRON_1:
-					me.CastSpell(CookiesPos[0].X, CookiesPos[0].Y, CookiesPos[0].Z, eSpell.CAULDRON, true);
-					_events.ScheduleEvent(BossEvents.EVENT_CAULDRON_2, TimeSpan.FromMilliseconds(2000));
+					Me.CastSpell(CookiesPos[0].X, CookiesPos[0].Y, CookiesPos[0].Z, eSpell.CAULDRON, true);
+					Events.ScheduleEvent(BossEvents.EVENT_CAULDRON_2, TimeSpan.FromMilliseconds(2000));
 
 					break;
 				case BossEvents.EVENT_CAULDRON_2:
 				{
-					var pCauldron = me.FindNearestCreature(Adds.NPC_CAULDRON, 20.0f);
+					var pCauldron = Me.FindNearestCreature(Adds.NPC_CAULDRON, 20.0f);
 
 					if (pCauldron != null)
-						me.MotionMaster.MoveJump(pCauldron.Location, 5, 10);
+						Me.MotionMaster.MoveJump(pCauldron.Location, 5, 10);
 
-					_events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(3000));
+					Events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(3000));
 
 					break;
 				}
 				case BossEvents.EVENT_THROW_FOOD:
 					DoCastAOE(ThrowFoodSpells[RandomHelper.URand(0, 11)]);
-					_events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(4000));
+					Events.ScheduleEvent(BossEvents.EVENT_THROW_FOOD, TimeSpan.FromMilliseconds(4000));
 
 					break;
 			}

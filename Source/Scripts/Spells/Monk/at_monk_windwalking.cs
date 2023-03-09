@@ -14,7 +14,7 @@ public class at_monk_windwalking : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -32,7 +32,7 @@ public class at_monk_windwalking : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -54,7 +54,7 @@ public class at_monk_windwalking : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -62,7 +62,7 @@ public class at_monk_windwalking : AreaTriggerAI
 		if (!caster.AsPlayer)
 			return;
 
-		foreach (var guid in at.InsideUnits)
+		foreach (var guid in At.InsideUnits)
 		{
 			var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 

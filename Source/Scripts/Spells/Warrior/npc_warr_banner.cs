@@ -22,21 +22,21 @@ public class npc_warr_banner : ScriptedAI
 	public override void IsSummonedBy(WorldObject summoner)
 	{
 		base.IsSummonedBy(summoner);
-		me.ReactState = Framework.Constants.ReactStates.Passive;
+		Me.ReactState = Framework.Constants.ReactStates.Passive;
 	}
 
 	public override void UpdateAI(uint diff)
 	{
 		if (_timer <= diff)
 		{
-			var owner = me.OwnerUnit;
+			var owner = Me.OwnerUnit;
 
 			if (owner != null)
 			{
-				me.SetLevel(owner.Level);
+				Me.SetLevel(owner.Level);
 				var allies = new List<Unit>();
 
-				me.GetFriendlyUnitListInRange(allies, 30.0f, true);
+				Me.GetFriendlyUnitListInRange(allies, 30.0f, true);
 
 				foreach (var targets in allies)
 					if (targets.IsFriendlyTo(owner) && targets.IsPlayer)

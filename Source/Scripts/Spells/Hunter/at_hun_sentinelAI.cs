@@ -29,16 +29,16 @@ public class at_hun_sentinelAI : AreaTriggerAI
 		if (timeInterval < 6000)
 			return;
 
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
 			var targetList = new List<Unit>();
 			var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-			var l_Check = new AnyUnitInObjectRangeCheck(at, radius);
-			var l_Searcher = new UnitListSearcher(at, targetList, l_Check, GridType.All);
-			Cell.VisitGrid(at, l_Searcher, radius);
+			var l_Check = new AnyUnitInObjectRangeCheck(At, radius);
+			var l_Searcher = new UnitListSearcher(At, targetList, l_Check, GridType.All);
+			Cell.VisitGrid(At, l_Searcher, radius);
 
 			foreach (var l_Unit in targetList)
 
@@ -53,16 +53,16 @@ public class at_hun_sentinelAI : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
 			var targetList = new List<Unit>();
 			var radius = Global.SpellMgr.GetSpellInfo(HunterSpells.SENTINEL, Difficulty.None).GetEffect(0).CalcRadius(caster);
 
-			var l_Check = new AnyUnitInObjectRangeCheck(at, radius);
-			var l_Searcher = new UnitListSearcher(at, targetList, l_Check, GridType.All);
-			Cell.VisitGrid(at, l_Searcher, radius);
+			var l_Check = new AnyUnitInObjectRangeCheck(At, radius);
+			var l_Searcher = new UnitListSearcher(At, targetList, l_Check, GridType.All);
+			Cell.VisitGrid(At, l_Searcher, radius);
 
 			foreach (var l_Unit in targetList)
 				if (l_Unit != caster && caster.IsValidAttackTarget(l_Unit))

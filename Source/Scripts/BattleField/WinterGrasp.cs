@@ -1749,6 +1749,6 @@ internal class npc_wg_give_promotion_credit : ScriptedAI
 		if (wintergrasp == null)
 			return;
 
-		wintergrasp.HandlePromotion(killer.AsPlayer, me);
+		wintergrasp.HandlePromotion(killer.AsPlayer, Me);
 	}
 }

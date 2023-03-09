@@ -35,14 +35,14 @@ internal class boss_drekthar : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -50,7 +50,7 @@ internal class boss_drekthar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(18));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -58,21 +58,21 @@ internal class boss_drekthar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Knockdown);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Frenzy);
 								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							TimeSpan.FromSeconds(30),
 							task =>
 							{
@@ -89,7 +89,7 @@ internal class boss_drekthar : ScriptedAI
 
 	public override bool CheckInRoom()
 	{
-		if (me.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
+		if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
 		{
 			EnterEvadeMode();
 			Talk(TextIds.SayEvade);
@@ -106,6 +106,6 @@ internal class boss_drekthar : ScriptedAI
 			!CheckInRoom())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

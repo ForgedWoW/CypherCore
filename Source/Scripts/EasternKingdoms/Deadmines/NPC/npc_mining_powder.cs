@@ -23,7 +23,7 @@ public class npc_mining_powder : ScriptedAI
 			return;
 
 		_damaged = true;
-		me.CastSpell(me, DMSpells.EXPLODE);
-		me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100));
+		Me.CastSpell(Me, DMSpells.EXPLODE);
+		Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(100));
 	}
 }

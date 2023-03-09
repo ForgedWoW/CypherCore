@@ -21,23 +21,23 @@ internal class boss_ambassador_flamelash : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								DoCastVictim(SpellIds.Fireblast);
 								task.Repeat(TimeSpan.FromSeconds(7));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(24),
+		Scheduler.Schedule(TimeSpan.FromSeconds(24),
 							task =>
 							{
 								for (uint i = 0; i < 4; ++i)
-									SummonSpirit(me.Victim);
+									SummonSpirit(Me.Victim);
 
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
@@ -48,7 +48,7 @@ internal class boss_ambassador_flamelash : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void SummonSpirit(Unit victim)

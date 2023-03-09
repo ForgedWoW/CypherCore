@@ -195,39 +195,39 @@ internal class boss_chromaggus : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(0),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(0),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
 																			// Remove old vulnerabilty spell
 																			if (CurrentVurln_Spell != 0)
-																				me.RemoveAura(CurrentVurln_Spell);
+																				Me.RemoveAura(CurrentVurln_Spell);
 
 																			// Cast new random vulnerabilty on self
 																			var spell = RandomHelper.RAND(SpellIds.FireVulnerability, SpellIds.FrostVulnerability, SpellIds.ShadowVulnerability, SpellIds.NatureVulnerability, SpellIds.ArcaneVulnerability);
-																			DoCast(me, spell);
+																			DoCast(Me, spell);
 																			CurrentVurln_Spell = spell;
 																			Talk(TextIds.EmoteShimmer);
 																			task.Repeat(TimeSpan.FromSeconds(45));
 																		}));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								DoCastVictim(Breath1_Spell);
 								task.Repeat(TimeSpan.FromSeconds(60));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(60),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(60),
 							task =>
 							{
 								DoCastVictim(Breath2_Spell);
 								task.Repeat(TimeSpan.FromSeconds(60));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								var players = me.Map.Players;
+								var players = Me.Map.Players;
 
 								foreach (var player in players)
 									if (player)
@@ -245,10 +245,10 @@ internal class boss_chromaggus : BossAI
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
-								DoCast(me, SpellIds.Frenzy);
+								DoCast(Me, SpellIds.Frenzy);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 							});
 	}
@@ -258,13 +258,13 @@ internal class boss_chromaggus : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		SchedulerProtected.Update(diff);
 
 		// Enrage if not already enraged and below 20%
 		if (!Enraged &&
 			HealthBelowPct(20))
 		{
-			DoCast(me, SpellIds.Enrage);
+			DoCast(Me, SpellIds.Enrage);
 			Enraged = true;
 		}
 
@@ -306,8 +306,8 @@ internal class go_chromaggus_lever : GameObjectAI
 				_instance.HandleGameObject(ObjectGuid.Empty, true, go);
 		}
 
-		me.SetFlag(GameObjectFlags.NotSelectable | GameObjectFlags.InUse);
-		me.SetGoState(GameObjectState.Active);
+		Me.SetFlag(GameObjectFlags.NotSelectable | GameObjectFlags.InUse);
+		Me.SetGoState(GameObjectState.Active);
 
 		return true;
 	}

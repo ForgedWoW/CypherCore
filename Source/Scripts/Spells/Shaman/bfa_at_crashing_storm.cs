@@ -33,7 +33,7 @@ public class bfa_at_crashing_storm : AreaTriggerAI
 
 	public void CheckPlayers()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{

@@ -19,7 +19,7 @@ public class npc_enraged_worgen_dm : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var Vanessa = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
 		if (Vanessa != null)
 		{

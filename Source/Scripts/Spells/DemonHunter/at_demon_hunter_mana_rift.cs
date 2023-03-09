@@ -16,7 +16,7 @@ public class at_demon_hunter_mana_rift : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -26,7 +26,7 @@ public class at_demon_hunter_mana_rift : AreaTriggerAI
 		if (spellProto == null)
 			return;
 
-		if (at.IsRemoved)
+		if (At.IsRemoved)
 			if (caster.IsValidAttackTarget(unit))
 			{
 				var hpBp = unit.CountPctFromMaxHealth(spellProto.GetEffect(1).BasePoints);

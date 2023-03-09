@@ -15,6 +15,6 @@ public class npc_grounding_totem : ScriptedAI
 
 	public override void Reset()
 	{
-		me.CastSpell(me, TotemSpells.TOTEM_GROUDING_TOTEM_EFFECT, true);
+		Me.CastSpell(Me, TotemSpells.TOTEM_GROUDING_TOTEM_EFFECT, true);
 	}
 }

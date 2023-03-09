@@ -29,9 +29,9 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				_scheduler.CancelAll();
+				Scheduler.CancelAll();
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(0),
+				Scheduler.Schedule(TimeSpan.FromSeconds(0),
 									task =>
 									{
 										DoCastVictim(SpellIds.AngeredEarth);
@@ -44,7 +44,7 @@ namespace Scripts.Pets
 				if (!UpdateVictim())
 					return;
 
-				_scheduler.Update(diff);
+				Scheduler.Update(diff);
 
 				DoMeleeAttackIfReady();
 			}
@@ -57,9 +57,9 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				_scheduler.CancelAll();
+				Scheduler.CancelAll();
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(5),
+				Scheduler.Schedule(TimeSpan.FromSeconds(5),
 									TimeSpan.FromSeconds(20),
 									task =>
 									{
@@ -67,7 +67,7 @@ namespace Scripts.Pets
 										task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
 									});
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(5),
+				Scheduler.Schedule(TimeSpan.FromSeconds(5),
 									TimeSpan.FromSeconds(20),
 									task =>
 									{
@@ -75,7 +75,7 @@ namespace Scripts.Pets
 										task.Repeat(TimeSpan.FromSeconds(2));
 									});
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(0),
+				Scheduler.Schedule(TimeSpan.FromSeconds(0),
 									task =>
 									{
 										DoCastVictim(SpellIds.FireBlast);
@@ -88,9 +88,9 @@ namespace Scripts.Pets
 				if (!UpdateVictim())
 					return;
 
-				_scheduler.Update(diff);
+				Scheduler.Update(diff);
 
-				if (me.HasUnitState(UnitState.Casting))
+				if (Me.HasUnitState(UnitState.Casting))
 					return;
 
 				DoMeleeAttackIfReady();

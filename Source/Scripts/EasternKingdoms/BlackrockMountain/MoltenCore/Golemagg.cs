@@ -37,14 +37,14 @@ internal class boss_golemagg : BossAI
 	public override void Reset()
 	{
 		base.Reset();
-		DoCast(me, SpellIds.Magmasplash, new CastSpellExtraArgs(true));
+		DoCast(Me, SpellIds.Magmasplash, new CastSpellExtraArgs(true));
 	}
 
 	public override void JustEngagedWith(Unit victim)
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0);
@@ -59,12 +59,12 @@ internal class boss_golemagg : BossAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		if (!HealthBelowPct(10) ||
-			me.HasAura(SpellIds.Enrage))
+			Me.HasAura(SpellIds.Enrage))
 			return;
 
-		DoCast(me, SpellIds.Enrage, new CastSpellExtraArgs(true));
+		DoCast(Me, SpellIds.Enrage, new CastSpellExtraArgs(true));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								DoCastVictim(SpellIds.Earthquake);
@@ -77,7 +77,7 @@ internal class boss_golemagg : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -93,12 +93,12 @@ internal class npc_core_rager : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task => // These times are probably wrong
 							{
 								DoCastVictim(SpellIds.Mangle);
@@ -112,14 +112,14 @@ internal class npc_core_rager : ScriptedAI
 			_instance == null)
 			return;
 
-		var pGolemagg = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.GolemaggTheIncinerator));
+		var pGolemagg = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.GolemaggTheIncinerator));
 
 		if (pGolemagg)
 			if (pGolemagg.IsAlive)
 			{
-				me.AddAura(SpellIds.GolemaggTrust, me);
+				Me.AddAura(SpellIds.GolemaggTrust, Me);
 				Talk(TextIds.EmoteLowhp);
-				me.SetFullHealth();
+				Me.SetFullHealth();
 			}
 	}
 
@@ -128,6 +128,6 @@ internal class npc_core_rager : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

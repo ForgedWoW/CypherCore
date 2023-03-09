@@ -30,14 +30,14 @@ internal class boss_thebeast : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Flamebreak);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
@@ -48,7 +48,7 @@ internal class boss_thebeast : BossAI
 								task.Repeat(TimeSpan.FromSeconds(8));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(23),
+		Scheduler.Schedule(TimeSpan.FromSeconds(23),
 							task =>
 							{
 								DoCastVictim(SpellIds.Terrifyingroar);
@@ -66,6 +66,6 @@ internal class boss_thebeast : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

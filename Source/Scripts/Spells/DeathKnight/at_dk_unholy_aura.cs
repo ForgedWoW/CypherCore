@@ -14,7 +14,7 @@ public class at_dk_unholy_aura : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (!unit.IsFriendlyTo(caster))

@@ -46,28 +46,28 @@ internal class boss_overlord_wyrmthalak : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Blastwave);
 								task.Repeat(TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								DoCastVictim(SpellIds.Shout);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(7));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Knockaway);
@@ -92,12 +92,12 @@ internal class boss_overlord_wyrmthalak : BossAI
 
 			if (target)
 			{
-				Creature warlord = me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation1, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+				Creature warlord = Me.SummonCreature(MiscConst.NpcSpirestoneWarlord, MiscConst.SummonLocation1, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
 				if (warlord)
 					warlord.AI.AttackStart(target);
 
-				Creature berserker = me.SummonCreature(MiscConst.NpcSmolderthornBerserker, MiscConst.SummonLocation2, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+				Creature berserker = Me.SummonCreature(MiscConst.NpcSmolderthornBerserker, MiscConst.SummonLocation2, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 
 				if (berserker)
 					berserker.AI.AttackStart(target);
@@ -106,7 +106,7 @@ internal class boss_overlord_wyrmthalak : BossAI
 			}
 		}
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()

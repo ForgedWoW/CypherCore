@@ -425,7 +425,7 @@ internal class npc_air_force_bots : NullCreatureAI
 		{
 			var guid = _toAttack[i];
 
-			var target = Global.ObjAccessor.GetUnit(me, guid);
+			var target = Global.ObjAccessor.GetUnit(Me, guid);
 
 			if (!target)
 				continue;
@@ -453,15 +453,15 @@ internal class npc_air_force_bots : NullCreatureAI
 			return;
 
 		// check if they're in range
-		if (!who.IsWithinDistInMap(me, (_spawn.spawnType == SpawnType.AlarmBot) ? Misc.RangeAlarmbot : Misc.RangeTripwire))
+		if (!who.IsWithinDistInMap(Me, (_spawn.spawnType == SpawnType.AlarmBot) ? Misc.RangeAlarmbot : Misc.RangeTripwire))
 			return;
 
 		// check if they're hostile
-		if (!(me.IsHostileTo(who) || who.IsHostileTo(me)))
+		if (!(Me.IsHostileTo(who) || who.IsHostileTo(Me)))
 			return;
 
 		// check if they're a valid attack Target
-		if (!me.IsValidAttackTarget(who))
+		if (!Me.IsValidAttackTarget(who))
 			return;
 
 		if ((_spawn.spawnType == SpawnType.Tripwire) &&
@@ -488,10 +488,10 @@ internal class npc_air_force_bots : NullCreatureAI
 
 	private Creature GetOrSummonGuard()
 	{
-		var guard = ObjectAccessor.GetCreature(me, _myGuard);
+		var guard = ObjectAccessor.GetCreature(Me, _myGuard);
 
 		if (guard == null &&
-			(guard = me.SummonCreature(_spawn.otherEntry, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5))))
+			(guard = Me.SummonCreature(_spawn.otherEntry, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5))))
 			_myGuard = guard.GUID;
 
 		return guard;
@@ -511,8 +511,8 @@ internal class npc_chicken_cluck : ScriptedAI
 	public override void Reset()
 	{
 		Initialize();
-		me.Faction = Misc.FactionChicken;
-		me.RemoveNpcFlag(NPCFlags.QuestGiver);
+		Me.Faction = Misc.FactionChicken;
+		Me.RemoveNpcFlag(NPCFlags.QuestGiver);
 	}
 
 	public override void JustEngagedWith(Unit who) { }
@@ -520,7 +520,7 @@ internal class npc_chicken_cluck : ScriptedAI
 	public override void UpdateAI(uint diff)
 	{
 		// Reset flags after a certain Time has passed so that the next player has to start the 'event' again
-		if (me.HasNpcFlag(NPCFlags.QuestGiver))
+		if (Me.HasNpcFlag(NPCFlags.QuestGiver))
 		{
 			if (ResetFlagTimer <= diff)
 			{
@@ -546,8 +546,8 @@ internal class npc_chicken_cluck : ScriptedAI
 				if (player.GetQuestStatus(QuestConst.Cluck) == QuestStatus.None &&
 					RandomHelper.Rand32() % 30 == 1)
 				{
-					me.SetNpcFlag(NPCFlags.QuestGiver);
-					me.Faction = Misc.FactionFriendly;
+					Me.SetNpcFlag(NPCFlags.QuestGiver);
+					Me.Faction = Misc.FactionFriendly;
 					Talk(player.Team == TeamFaction.Horde ? TextIds.EmoteHelloH : TextIds.EmoteHelloA);
 				}
 
@@ -555,8 +555,8 @@ internal class npc_chicken_cluck : ScriptedAI
 			case TextEmotes.Cheer:
 				if (player.GetQuestStatus(QuestConst.Cluck) == QuestStatus.Complete)
 				{
-					me.SetNpcFlag(NPCFlags.QuestGiver);
-					me.Faction = Misc.FactionFriendly;
+					Me.SetNpcFlag(NPCFlags.QuestGiver);
+					Me.Faction = Misc.FactionFriendly;
 					Talk(TextIds.EmoteCluck);
 				}
 
@@ -591,49 +591,49 @@ internal class npc_dancing_flames : ScriptedAI
 	{
 		DoCastSelf(SpellIds.SummonBrazier, new CastSpellExtraArgs(true));
 		DoCastSelf(SpellIds.BrazierDance, new CastSpellExtraArgs(false));
-		me.EmoteState = Emote.StateDance;
-		me.Location.Relocate(me.Location.X, me.Location.Y, me.Location.Z + 1.05f);
+		Me.EmoteState = Emote.StateDance;
+		Me.Location.Relocate(Me.Location.X, Me.Location.Y, Me.Location.Z + 1.05f);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void ReceiveEmote(Player player, TextEmotes emote)
 	{
-		if (me.IsWithinLOS(player.Location.X, player.Location.Y, player.Location.Z) &&
-			me.IsWithinDistInMap(player, 30.0f))
+		if (Me.IsWithinLOS(player.Location.X, player.Location.Y, player.Location.Z) &&
+			Me.IsWithinDistInMap(player, 30.0f))
 		{
 			// She responds to emotes not instantly but ~1500ms later
 			// If you first /bow, then /wave before dancing flames bow back, it doesnt bow at all and only does wave
 			// If you're performing emotes too fast, she will not respond to them
 			// Means she just replaces currently scheduled event with new after receiving new Emote
-			_scheduler.CancelAll();
+			Scheduler.CancelAll();
 
 			switch (emote)
 			{
 				case TextEmotes.Kiss:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => me.HandleEmoteCommand(Emote.OneshotShy));
+					Scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => Me.HandleEmoteCommand(Emote.OneshotShy));
 
 					break;
 				case TextEmotes.Wave:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => me.HandleEmoteCommand(Emote.OneshotWave));
+					Scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => Me.HandleEmoteCommand(Emote.OneshotWave));
 
 					break;
 				case TextEmotes.Bow:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => me.HandleEmoteCommand(Emote.OneshotBow));
+					Scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => Me.HandleEmoteCommand(Emote.OneshotBow));
 
 					break;
 				case TextEmotes.Joke:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => me.HandleEmoteCommand(Emote.OneshotLaugh));
+					Scheduler.Schedule(TimeSpan.FromMilliseconds(1500), context => Me.HandleEmoteCommand(Emote.OneshotLaugh));
 
 					break;
 				case TextEmotes.Dance:
 					if (!player.HasAura(SpellIds.FierySeduction))
 					{
 						DoCast(player, SpellIds.FierySeduction, new CastSpellExtraArgs(true));
-						me.SetFacingTo(me.Location.GetAbsoluteAngle(player.Location));
+						Me.SetFacingTo(Me.Location.GetAbsoluteAngle(player.Location));
 					}
 
 					break;
@@ -658,7 +658,7 @@ internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
 	{
 		if (_targetTimer < diff)
 		{
-			var target = Global.ObjAccessor.GetUnit(me, DoSearchForTargets(_lastTargetGUID));
+			var target = Global.ObjAccessor.GetUnit(Me, DoSearchForTargets(_lastTargetGUID));
 
 			if (target)
 				target.CastSpell(target, SpellIds.TargetIndicator, true);
@@ -673,7 +673,7 @@ internal class npc_torch_tossing_target_bunny_controller : ScriptedAI
 
 	private ObjectGuid DoSearchForTargets(ObjectGuid lastTargetGUID)
 	{
-		var targets = me.GetCreatureListWithEntryInGrid(CreatureIds.TorchTossingTargetBunny, 60.0f);
+		var targets = Me.GetCreatureListWithEntryInGrid(CreatureIds.TorchTossingTargetBunny, 60.0f);
 		targets.RemoveAll(creature => creature.GUID == lastTargetGUID);
 
 		if (!targets.Empty())
@@ -701,9 +701,9 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 	{
 		Initialize();
 
-		_scheduler.SetValidator(() => running);
+		Scheduler.SetValidator(() => running);
 
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(1),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
 							task =>
 							{
 								if (checkNearbyPlayers())
@@ -713,10 +713,10 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 									return;
 								}
 
-								var go = me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
+								var go = Me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
 
 								if (go)
-									me.CastSpell(go, SpellIds.RedFireRing, true);
+									Me.CastSpell(go, SpellIds.RedFireRing, true);
 
 								task.Schedule(TimeSpan.FromSeconds(5),
 											task1 =>
@@ -728,10 +728,10 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 													return;
 												}
 
-												go = me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
+												go = Me.FindNearestGameObject(GameobjectIds.RibbonPole, 10.0f);
 
 												if (go)
-													me.CastSpell(go, SpellIds.BlueFireRing, true);
+													Me.CastSpell(go, SpellIds.BlueFireRing, true);
 
 												task.Repeat(TimeSpan.FromSeconds(5));
 											});
@@ -753,12 +753,12 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 		if (!running)
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	private void Initialize()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 		running = false;
 	}
 
@@ -767,8 +767,8 @@ internal class npc_midsummer_bunny_pole : ScriptedAI
 		// Returns true if no nearby player has aura "Test Ribbon Pole Channel".
 		List<Unit> players = new();
 		var check = new UnitAuraCheck<Player>(true, SpellIds.RibbonDanceCosmetic);
-		var searcher = new PlayerListSearcher(me, players, check);
-		Cell.VisitGrid(me, searcher, 10.0f);
+		var searcher = new PlayerListSearcher(Me, players, check);
+		Cell.VisitGrid(Me, searcher, 10.0f);
 
 		return players.Empty();
 	}
@@ -798,7 +798,7 @@ internal class npc_doctor : ScriptedAI
 	public override void Reset()
 	{
 		Initialize();
-		me.RemoveUnitFlag(UnitFlags.Uninteractible);
+		Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 	}
 
 	public void BeginEvent(Player player)
@@ -810,7 +810,7 @@ internal class npc_doctor : ScriptedAI
 		PatientDiedCount = 0;
 		PatientSavedCount = 0;
 
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case CreatureIds.DoctorAlliance:
 				foreach (var coord in Misc.DoctorAllianceCoords)
@@ -825,12 +825,12 @@ internal class npc_doctor : ScriptedAI
 		}
 
 		Event = true;
-		me.SetUnitFlag(UnitFlags.Uninteractible);
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
 	}
 
 	public void PatientDied(Position point)
 	{
-		var player = Global.ObjAccessor.GetPlayer(me, PlayerGUID);
+		var player = Global.ObjAccessor.GetPlayer(Me, PlayerGUID);
 
 		if (player && ((player.GetQuestStatus(6624) == QuestStatus.Incomplete) || (player.GetQuestStatus(6622) == QuestStatus.Incomplete)))
 		{
@@ -870,7 +870,7 @@ internal class npc_doctor : ScriptedAI
 					if (!Patients.Empty())
 						foreach (var guid in Patients)
 						{
-							var patient = ObjectAccessor.GetCreature(me, guid);
+							var patient = ObjectAccessor.GetCreature(Me, guid);
 
 							if (patient)
 								patient.SetDeathState(DeathState.JustDied);
@@ -908,7 +908,7 @@ internal class npc_doctor : ScriptedAI
 
 				uint patientEntry;
 
-				switch (me.Entry)
+				switch (Me.Entry)
 				{
 					case CreatureIds.DoctorAlliance:
 						patientEntry = Misc.AllianceSoldierId[RandomHelper.Rand32() % 3];
@@ -926,7 +926,7 @@ internal class npc_doctor : ScriptedAI
 
 				var index = RandomHelper.IRand(0, Coordinates.Count - 1);
 
-				Creature Patient = me.SummonCreature(patientEntry, Coordinates[index], TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
+				Creature Patient = Me.SummonCreature(patientEntry, Coordinates[index], TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
 
 				if (Patient)
 				{
@@ -934,7 +934,7 @@ internal class npc_doctor : ScriptedAI
 					Patient.SetUnitFlag(UnitFlags.PlayerControlled);
 
 					Patients.Add(Patient.GUID);
-					((npc_injured_patient)Patient.AI).DoctorGUID = me.GUID;
+					((npc_injured_patient)Patient.AI).DoctorGUID = Me.GUID;
 					((npc_injured_patient)Patient.AI).Coord = Coordinates[index];
 
 					Coordinates.RemoveAt(index);
@@ -992,32 +992,32 @@ public class npc_injured_patient : ScriptedAI
 		Initialize();
 
 		//no select
-		me.RemoveUnitFlag(UnitFlags.Uninteractible);
+		Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 
 		//no regen health
-		me.SetUnitFlag(UnitFlags.InCombat);
+		Me.SetUnitFlag(UnitFlags.InCombat);
 
 		//to make them lay with face down
-		me.SetStandState(UnitStandStateType.Dead);
+		Me.SetStandState(UnitStandStateType.Dead);
 
-		var mobId = me.Entry;
+		var mobId = Me.Entry;
 
 		switch (mobId)
 		{
 			//lower max health
 			case 12923:
 			case 12938: //Injured Soldier
-				me.SetHealth(me.CountPctFromMaxHealth(75));
+				Me.SetHealth(Me.CountPctFromMaxHealth(75));
 
 				break;
 			case 12924:
 			case 12936: //Badly injured Soldier
-				me.SetHealth(me.CountPctFromMaxHealth(50));
+				Me.SetHealth(Me.CountPctFromMaxHealth(50));
 
 				break;
 			case 12925:
 			case 12937: //Critically injured Soldier
-				me.SetHealth(me.CountPctFromMaxHealth(25));
+				Me.SetHealth(Me.CountPctFromMaxHealth(25));
 
 				break;
 		}
@@ -1030,7 +1030,7 @@ public class npc_injured_patient : ScriptedAI
 		var player = caster.AsPlayer;
 
 		if (!player ||
-			!me.IsAlive ||
+			!Me.IsAlive ||
 			spellInfo.Id != 20804)
 			return;
 
@@ -1038,38 +1038,38 @@ public class npc_injured_patient : ScriptedAI
 			player.GetQuestStatus(6622) == QuestStatus.Incomplete)
 			if (!DoctorGUID.IsEmpty)
 			{
-				var doctor = ObjectAccessor.GetCreature(me, DoctorGUID);
+				var doctor = ObjectAccessor.GetCreature(Me, DoctorGUID);
 
 				if (doctor)
-					((npc_doctor)doctor.AI).PatientSaved(me, player, Coord);
+					((npc_doctor)doctor.AI).PatientSaved(Me, player, Coord);
 			}
 
 		//make not selectable
-		me.SetUnitFlag(UnitFlags.Uninteractible);
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
 
 		//regen health
-		me.RemoveUnitFlag(UnitFlags.InCombat);
+		Me.RemoveUnitFlag(UnitFlags.InCombat);
 
 		//stand up
-		me.SetStandState(UnitStandStateType.Stand);
+		Me.SetStandState(UnitStandStateType.Stand);
 
 		Talk(TextIds.SayDoc);
 
-		var mobId = me.Entry;
-		me.SetWalk(false);
+		var mobId = Me.Entry;
+		Me.SetWalk(false);
 
 		switch (mobId)
 		{
 			case 12923:
 			case 12924:
 			case 12925:
-				me.MotionMaster.MovePoint(0, Misc.DoctorHordeRunTo);
+				Me.MotionMaster.MovePoint(0, Misc.DoctorHordeRunTo);
 
 				break;
 			case 12936:
 			case 12937:
 			case 12938:
-				me.MotionMaster.MovePoint(0, Misc.DoctorAllianceRunTo);
+				Me.MotionMaster.MovePoint(0, Misc.DoctorAllianceRunTo);
 
 				break;
 		}
@@ -1078,21 +1078,21 @@ public class npc_injured_patient : ScriptedAI
 	public override void UpdateAI(uint diff)
 	{
 		//lower HP on every world tick makes it a useful counter, not officlone though
-		if (me.IsAlive &&
-			me.			Health > 6)
-			me.ModifyHealth(-5);
+		if (Me.IsAlive &&
+			Me.			Health > 6)
+			Me.ModifyHealth(-5);
 
-		if (me.IsAlive &&
-			me.			Health <= 6)
+		if (Me.IsAlive &&
+			Me.			Health <= 6)
 		{
-			me.RemoveUnitFlag(UnitFlags.InCombat);
-			me.SetUnitFlag(UnitFlags.Uninteractible);
-			me.SetDeathState(DeathState.JustDied);
-			me.SetUnitFlag3(UnitFlags3.FakeDead);
+			Me.RemoveUnitFlag(UnitFlags.InCombat);
+			Me.SetUnitFlag(UnitFlags.Uninteractible);
+			Me.SetDeathState(DeathState.JustDied);
+			Me.SetUnitFlag3(UnitFlags3.FakeDead);
 
 			if (!DoctorGUID.IsEmpty)
 			{
-				var doctor = ObjectAccessor.GetCreature((me), DoctorGUID);
+				var doctor = ObjectAccessor.GetCreature((Me), DoctorGUID);
 
 				if (doctor)
 					((npc_doctor)doctor.AI).PatientDied(Coord);
@@ -1120,7 +1120,7 @@ internal class npc_garments_of_quests : EscortAI
 
 	public npc_garments_of_quests(Creature creature) : base(creature)
 	{
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case CreatureIds.Shaya:
 				quest = QuestConst.Moon;
@@ -1157,9 +1157,9 @@ internal class npc_garments_of_quests : EscortAI
 
 		Initialize();
 
-		me.SetStandState(UnitStandStateType.Kneel);
+		Me.SetStandState(UnitStandStateType.Kneel);
 		// expect database to have RegenHealth=0
-		me.SetHealth(me.CountPctFromMaxHealth(70));
+		Me.SetHealth(Me.CountPctFromMaxHealth(70));
 	}
 
 	public override void JustEngagedWith(Unit who) { }
@@ -1170,7 +1170,7 @@ internal class npc_garments_of_quests : EscortAI
 			spellInfo.Id == SpellIds.FortitudeR1)
 		{
 			//not while in combat
-			if (me.IsInCombat)
+			if (Me.IsInCombat)
 				return;
 
 			//nothing to be done now
@@ -1195,7 +1195,7 @@ internal class npc_garments_of_quests : EscortAI
 							spellInfo.Id == SpellIds.LesserHealR2)
 					{
 						CasterGUID = player.GUID;
-						me.SetStandState(UnitStandStateType.Stand);
+						Me.SetStandState(UnitStandStateType.Stand);
 						Talk(TextIds.SayHealed, player);
 						IsHealed = true;
 					}
@@ -1203,7 +1203,7 @@ internal class npc_garments_of_quests : EscortAI
 
 				// give quest credit, not expect any special quest objectives
 				if (CanRun)
-					player.TalkedToCreature(me.Entry, me.GUID);
+					player.TalkedToCreature(Me.Entry, Me.GUID);
 			}
 		}
 	}
@@ -1212,15 +1212,15 @@ internal class npc_garments_of_quests : EscortAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (CanRun && !me.IsInCombat)
+		if (CanRun && !Me.IsInCombat)
 		{
 			if (RunAwayTimer <= diff)
 			{
-				var unit = Global.ObjAccessor.GetUnit(me, CasterGUID);
+				var unit = Global.ObjAccessor.GetUnit(Me, CasterGUID);
 
 				if (unit)
 				{
-					switch (me.Entry)
+					switch (Me.Entry)
 					{
 						case CreatureIds.Shaya:
 						case CreatureIds.Roberts:
@@ -1266,7 +1266,7 @@ internal class npc_guardian : ScriptedAI
 
 	public override void Reset()
 	{
-		me.SetUnitFlag(UnitFlags.NonAttackable);
+		Me.SetUnitFlag(UnitFlags.NonAttackable);
 	}
 
 	public override void JustEngagedWith(Unit who) { }
@@ -1276,10 +1276,10 @@ internal class npc_guardian : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		if (me.IsAttackReady())
+		if (Me.IsAttackReady())
 		{
 			DoCastVictim(SpellIds.Deathtouch, new CastSpellExtraArgs(true));
-			me.ResetAttackTimer();
+			Me.ResetAttackTimer();
 		}
 	}
 }
@@ -1298,14 +1298,14 @@ internal class npc_steam_tonk : ScriptedAI
 		if (apply)
 		{
 			// Initialize the Action bar without the melee attack command
-			me.InitCharmInfo();
-			me.GetCharmInfo().InitEmptyActionBar(false);
+			Me.InitCharmInfo();
+			Me.GetCharmInfo().InitEmptyActionBar(false);
 
-			me.ReactState = ReactStates.Passive;
+			Me.ReactState = ReactStates.Passive;
 		}
 		else
 		{
-			me.ReactState = ReactStates.Aggressive;
+			Me.ReactState = ReactStates.Aggressive;
 		}
 	}
 }
@@ -1321,7 +1321,7 @@ internal class npc_brewfest_reveler : ScriptedAI
 			return;
 
 		if (emote == TextEmotes.Dance)
-			me.CastSpell(player, SpellIds.BrewfestToast, false);
+			Me.CastSpell(player, SpellIds.BrewfestToast, false);
 	}
 }
 
@@ -1339,16 +1339,16 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(2),
 							fillListTask =>
 							{
-								var creatureList = me.GetCreatureListWithEntryInGrid(CreatureIds.BrewfestReveler, 5.0f);
+								var creatureList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BrewfestReveler, 5.0f);
 
 								foreach (var creature in creatureList)
-									if (creature != me)
+									if (creature != Me)
 										_revelerGuids.Add(creature.GUID);
 
 								fillListTask.Schedule(TimeSpan.FromSeconds(1),
@@ -1358,21 +1358,21 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
 														// Turn to random brewfest reveler within set range
 														if (!_revelerGuids.Empty())
 														{
-															var creature = ObjectAccessor.GetCreature(me, _revelerGuids.SelectRandom());
+															var creature = ObjectAccessor.GetCreature(Me, _revelerGuids.SelectRandom());
 
 															if (creature != null)
-																me.SetFacingToObject(creature);
+																Me.SetFacingToObject(creature);
 														}
 
-														_scheduler.Schedule(TimeSpan.FromSeconds(2),
+														Scheduler.Schedule(TimeSpan.FromSeconds(2),
 																			TimeSpan.FromSeconds(6),
 																			emoteTask =>
 																			{
 																				var nextTask = (TaskContext task) =>
 																				{
 																					// If dancing stop before next random State
-																					if (me.EmoteState == Emote.StateDance)
-																						me.EmoteState = Emote.OneshotNone;
+																					if (Me.EmoteState == Emote.StateDance)
+																						Me.EmoteState = Emote.OneshotNone;
 
 																					// Random EVENT_EMOTE or EVENT_FACETO
 																					if (RandomHelper.randChance(50))
@@ -1384,13 +1384,13 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
 																				// Play random Emote or dance
 																				if (RandomHelper.randChance(50))
 																				{
-																					me.HandleEmoteCommand(BrewfestRandomEmote.SelectRandom());
-																					_scheduler.Schedule(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6), nextTask);
+																					Me.HandleEmoteCommand(BrewfestRandomEmote.SelectRandom());
+																					Scheduler.Schedule(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6), nextTask);
 																				}
 																				else
 																				{
-																					me.EmoteState = Emote.StateDance;
-																					_scheduler.Schedule(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(12), nextTask);
+																					Me.EmoteState = Emote.StateDance;
+																					Scheduler.Schedule(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(12), nextTask);
 																				}
 																			});
 													});
@@ -1404,14 +1404,14 @@ internal class npc_brewfest_reveler_2 : ScriptedAI
 			return;
 
 		if (emote == TextEmotes.Dance)
-			me.CastSpell(player, SpellIds.BrewfestToast, false);
+			Me.CastSpell(player, SpellIds.BrewfestToast, false);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
 		UpdateVictim();
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -1434,8 +1434,8 @@ internal class npc_wormhole : PassiveAI
 	{
 		player.InitGossipMenu(GossipMenus.MenuIdWormhole);
 
-		if (me.IsSummon)
-			if (player == me.ToTempSummon().GetSummoner())
+		if (Me.IsSummon)
+			if (player == Me.ToTempSummon().GetSummoner())
 			{
 				player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 				player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
@@ -1446,7 +1446,7 @@ internal class npc_wormhole : PassiveAI
 				if (_showUnderground)
 					player.AddGossipItem(GossipMenus.MenuIdWormhole, GossipMenus.OptionIdWormhole6, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 6);
 
-				player.SendGossipMenu(TextIds.Wormhole, me.GUID);
+				player.SendGossipMenu(TextIds.Wormhole, Me.GUID);
 			}
 
 		return true;
@@ -1518,10 +1518,10 @@ internal class npc_spring_rabbit : ScriptedAI
 	public override void Reset()
 	{
 		Initialize();
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (owner)
-			me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
+			Me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 	}
 
 	public override void JustEngagedWith(Unit who) { }
@@ -1529,7 +1529,7 @@ internal class npc_spring_rabbit : ScriptedAI
 	public override void DoAction(int param)
 	{
 		inLove = true;
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (owner)
 			owner.CastSpell(owner, SpellIds.SpringFling, true);
@@ -1541,7 +1541,7 @@ internal class npc_spring_rabbit : ScriptedAI
 		{
 			if (jumpTimer <= diff)
 			{
-				var rabbit = Global.ObjAccessor.GetUnit(me, rabbitGUID);
+				var rabbit = Global.ObjAccessor.GetUnit(Me, rabbitGUID);
 
 				if (rabbit)
 					DoCast(rabbit, SpellIds.SpringRabbitJump);
@@ -1567,15 +1567,15 @@ internal class npc_spring_rabbit : ScriptedAI
 		{
 			if (searchTimer <= diff)
 			{
-				var rabbit = me.FindNearestCreature(CreatureIds.SpringRabbit, 10.0f);
+				var rabbit = Me.FindNearestCreature(CreatureIds.SpringRabbit, 10.0f);
 
 				if (rabbit)
 				{
-					if (rabbit == me ||
+					if (rabbit == Me ||
 						rabbit.HasAura(SpellIds.SpringRabbitInLove))
 						return;
 
-					me.AddAura(SpellIds.SpringRabbitInLove, me);
+					Me.AddAura(SpellIds.SpringRabbitInLove, Me);
 					DoAction(1);
 					rabbit.AddAura(SpellIds.SpringRabbitInLove, rabbit);
 					rabbit.AI.DoAction(1);
@@ -1618,20 +1618,20 @@ internal class npc_imp_in_a_ball : ScriptedAI
 		{
 			summonerGUID = summoner.GUID;
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(3),
+			Scheduler.Schedule(TimeSpan.FromSeconds(3),
 								task =>
 								{
-									var owner = Global.ObjAccessor.GetPlayer(me, summonerGUID);
+									var owner = Global.ObjAccessor.GetPlayer(Me, summonerGUID);
 
 									if (owner)
-										Global.CreatureTextMgr.SendChat(me, 0, owner, owner.Group ? ChatMsg.MonsterParty : ChatMsg.MonsterWhisper, Language.Addon, CreatureTextRange.Normal);
+										Global.CreatureTextMgr.SendChat(Me, 0, owner, owner.Group ? ChatMsg.MonsterParty : ChatMsg.MonsterWhisper, Language.Addon, CreatureTextRange.Normal);
 								});
 		}
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -1670,14 +1670,14 @@ internal class npc_train_wrecker : NullCreatureAI
 			}
 			else
 			{
-				var target = me.FindNearestGameObject(GameobjectIds.ToyTrain, 15.0f);
+				var target = Me.FindNearestGameObject(GameobjectIds.ToyTrain, 15.0f);
 
 				if (target)
 				{
 					_isSearching = false;
 					_target = target.GUID;
-					me.SetWalk(true);
-					me.MotionMaster.MovePoint(TrainWrecker.MoveidChase, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(me.Location)));
+					Me.SetWalk(true);
+					Me.MotionMaster.MovePoint(TrainWrecker.MoveidChase, target.GetNearPosition(3.0f, target.Location.GetAbsoluteAngle(Me.Location)));
 				}
 				else
 				{
@@ -1694,7 +1694,7 @@ internal class npc_train_wrecker : NullCreatureAI
 					var target = VerifyTarget();
 
 					if (target)
-						me.MotionMaster.MoveJump(target.Location, 5.0f, 10.0f, TrainWrecker.MoveidJump);
+						Me.MotionMaster.MoveJump(target.Location, 5.0f, 10.0f, TrainWrecker.MoveidJump);
 
 					_nextAction = 0;
 				}
@@ -1706,8 +1706,8 @@ internal class npc_train_wrecker : NullCreatureAI
 
 					if (target)
 					{
-						me.SetFacingTo(target.Location.Orientation);
-						me.HandleEmoteCommand(Emote.OneshotAttack1h);
+						Me.SetFacingTo(target.Location.Orientation);
+						Me.HandleEmoteCommand(Emote.OneshotAttack1h);
 						_timer = (uint)(1.5 * Time.InMilliseconds);
 						_nextAction = TrainWrecker.EventDoWreck;
 					}
@@ -1731,7 +1731,7 @@ internal class npc_train_wrecker : NullCreatureAI
 
 					if (target)
 					{
-						me.CastSpell(target, SpellIds.WreckTrain, false);
+						Me.CastSpell(target, SpellIds.WreckTrain, false);
 						_timer = 2 * Time.InMilliseconds;
 						_nextAction = TrainWrecker.EventDoDance;
 					}
@@ -1750,9 +1750,9 @@ internal class npc_train_wrecker : NullCreatureAI
 						break;
 					}
 
-					me.UpdateEntry(CreatureIds.ExultingWindUpTrainWrecker);
-					me.EmoteState = Emote.OneshotDance;
-					me.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
+					Me.UpdateEntry(CreatureIds.ExultingWindUpTrainWrecker);
+					Me.EmoteState = Emote.OneshotDance;
+					Me.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
 					_nextAction = 0;
 
 					break;
@@ -1772,13 +1772,13 @@ internal class npc_train_wrecker : NullCreatureAI
 
 	private GameObject VerifyTarget()
 	{
-		var target = ObjectAccessor.GetGameObject(me, _target);
+		var target = ObjectAccessor.GetGameObject(Me, _target);
 
 		if (target)
 			return target;
 
-		me.HandleEmoteCommand(Emote.OneshotRude);
-		me.DespawnOrUnsummon(TimeSpan.FromSeconds(3));
+		Me.HandleEmoteCommand(Emote.OneshotRude);
+		Me.DespawnOrUnsummon(TimeSpan.FromSeconds(3));
 
 		return null;
 	}
@@ -1791,7 +1791,7 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
 	public override void Reset()
 	{
-		var owner = me.OwnerUnit?.AsPlayer;
+		var owner = Me.OwnerUnit?.AsPlayer;
 
 		if (owner != null)
 		{
@@ -1799,22 +1799,22 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
 			if (ownerTired != null)
 			{
-				var squireTired = me.AddAura(IsArgentSquire() ? SpellIds.AuraTiredS : SpellIds.AuraTiredG, me);
+				var squireTired = Me.AddAura(IsArgentSquire() ? SpellIds.AuraTiredS : SpellIds.AuraTiredG, Me);
 
 				squireTired?.SetDuration(ownerTired.Duration);
 			}
 
 			if (owner.HasAchieved(Misc.AchievementPonyUp) &&
-				!me.HasAura(SpellIds.AuraTiredS) &&
-				!me.HasAura(SpellIds.AuraTiredG))
+				!Me.HasAura(SpellIds.AuraTiredS) &&
+				!Me.HasAura(SpellIds.AuraTiredG))
 			{
-				me.SetNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox | NPCFlags.Vendor);
+				Me.SetNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox | NPCFlags.Vendor);
 
 				return;
 			}
 		}
 
-		me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox | NPCFlags.Vendor);
+		Me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox | NPCFlags.Vendor);
 	}
 
 	public override bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
@@ -1823,10 +1823,10 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 		{
 			case GossipMenus.OptionIdBank:
 			{
-				me.RemoveNpcFlag(NPCFlags.Mailbox | NPCFlags.Vendor);
+				Me.RemoveNpcFlag(NPCFlags.Mailbox | NPCFlags.Vendor);
 				var _bankAura = IsArgentSquire() ? SpellIds.AuraBankS : SpellIds.AuraBankG;
 
-				if (!me.HasAura(_bankAura))
+				if (!Me.HasAura(_bankAura))
 					DoCastSelf(_bankAura);
 
 				if (!player.HasAura(SpellIds.TiredPlayer))
@@ -1836,10 +1836,10 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 			}
 			case GossipMenus.OptionIdShop:
 			{
-				me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox);
+				Me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Mailbox);
 				var _shopAura = IsArgentSquire() ? SpellIds.AuraShopS : SpellIds.AuraShopG;
 
-				if (!me.HasAura(_shopAura))
+				if (!Me.HasAura(_shopAura))
 					DoCastSelf(_shopAura);
 
 				if (!player.HasAura(SpellIds.TiredPlayer))
@@ -1849,11 +1849,11 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 			}
 			case GossipMenus.OptionIdMail:
 			{
-				me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Vendor);
+				Me.RemoveNpcFlag(NPCFlags.Banker | NPCFlags.Vendor);
 
 				var _mailAura = IsArgentSquire() ? SpellIds.AuraPostmanS : SpellIds.AuraPostmanG;
 
-				if (!me.HasAura(_mailAura))
+				if (!Me.HasAura(_mailAura))
 					DoCastSelf(_mailAura);
 
 				if (!player.HasAura(SpellIds.TiredPlayer))
@@ -1883,7 +1883,7 @@ internal class npc_argent_squire_gruntling : ScriptedAI
 
 	private bool IsArgentSquire()
 	{
-		return me.Entry == CreatureIds.ArgentSquire;
+		return Me.Entry == CreatureIds.ArgentSquire;
 	}
 }
 
@@ -1983,17 +1983,17 @@ internal class npc_gen_void_zone : ScriptedAI
 
 	public override void InitializeAI()
 	{
-		me.ReactState = ReactStates.Passive;
+		Me.ReactState = ReactStates.Passive;
 	}
 
 	public override void JustAppeared()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(2), task => { DoCastSelf(SpellIds.Consumption); });
+		Scheduler.Schedule(TimeSpan.FromSeconds(2), task => { DoCastSelf(SpellIds.Consumption); });
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 

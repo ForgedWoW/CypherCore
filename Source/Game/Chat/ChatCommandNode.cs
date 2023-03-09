@@ -300,7 +300,7 @@ public class ChatCommandNode
 		if (Global.AccountMgr.IsPlayerAccount(session.Security))
 			return;
 
-		if (Global.AccountMgr.GetRBACPermission((uint)RBACPermissions.RolePlayer).GetLinkedPermissions().Contains(permission))
+		if (Global.AccountMgr.GetRBACPermission((uint)RBACPermissions.RolePlayer).LinkedPermissions.Contains(permission))
 			return;
 
 		var player = session.Player;

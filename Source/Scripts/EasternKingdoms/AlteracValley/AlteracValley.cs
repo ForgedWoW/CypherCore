@@ -58,9 +58,9 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 	{
 		Initialize();
 
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							TimeSpan.FromSeconds(12),
 							task =>
 							{
@@ -68,7 +68,7 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(11),
 							task =>
 							{
@@ -76,35 +76,35 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								DoCast(me, SpellIds.DemoralizingShout);
+								DoCast(Me, SpellIds.DemoralizingShout);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
-								DoCast(me, SpellIds.Whirlwind);
+								DoCast(Me, SpellIds.Whirlwind);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
-								DoCast(me, SpellIds.Enrage);
+								DoCast(Me, SpellIds.Enrage);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			var _homePosition = me.HomePosition;
+																			var _homePosition = Me.HomePosition;
 
-																			if (me.GetDistance2d(_homePosition.X, _homePosition.Y) > 50.0f)
+																			if (Me.GetDistance2d(_homePosition.X, _homePosition.Y) > 50.0f)
 																			{
 																				base.EnterEvadeMode();
 
@@ -126,8 +126,8 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 		if (!_hasAura)
 		{
 			for (byte i = 0; i < _auraPairs.Length; ++i)
-				if (_auraPairs[i].npcEntry == me.Entry)
-					DoCast(me, _auraPairs[i].spellId);
+				if (_auraPairs[i].npcEntry == Me.Entry)
+					DoCast(Me, _auraPairs[i].spellId);
 
 			_hasAura = true;
 		}
@@ -135,9 +135,9 @@ internal class npc_av_marshal_or_warmaster : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
 		DoMeleeAttackIfReady();

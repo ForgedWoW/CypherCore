@@ -4,58 +4,59 @@
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.AI
+namespace Game.AI;
+
+public class GuardAI : ScriptedAI
 {
-    public class GuardAI : ScriptedAI
-    {
-        public GuardAI(Creature creature) : base(creature) { }
+	public GuardAI(Creature creature) : base(creature) { }
 
-        public override void UpdateAI(uint diff)
-        {
-            if (!UpdateVictim())
-                return;
+	public override void UpdateAI(uint diff)
+	{
+		if (!UpdateVictim())
+			return;
 
-            DoMeleeAttackIfReady();
-        }
+		DoMeleeAttackIfReady();
+	}
 
-        public override bool CanSeeAlways(WorldObject obj)
-        {
-            Unit unit = obj.AsUnit;
-            if (unit != null)
-                if (unit.IsControlledByPlayer && me.IsEngagedBy(unit))
-                    return true;
+	public override bool CanSeeAlways(WorldObject obj)
+	{
+		var unit = obj.AsUnit;
 
-            return false;
-        }
+		if (unit != null)
+			if (unit.IsControlledByPlayer && Me.IsEngagedBy(unit))
+				return true;
 
-        public override void EnterEvadeMode(EvadeReason why)
-        {
-            if (!me.IsAlive)
-            {
-                me.                MotionMaster.MoveIdle();
-                me.CombatStop(true);
-                EngagementOver();
-                return;
-            }
+		return false;
+	}
 
-            Log.outTrace(LogFilter.ScriptsAi, $"GuardAI::EnterEvadeMode: {me.GUID} enters evade mode.");
+	public override void EnterEvadeMode(EvadeReason why)
+	{
+		if (!Me.IsAlive)
+		{
+			Me.MotionMaster.MoveIdle();
+			Me.CombatStop(true);
+			EngagementOver();
 
-            me.RemoveAllAuras();
-            me.CombatStop(true);
-            EngagementOver();
+			return;
+		}
 
-            me.
-            MotionMaster.MoveTargetedHome();
-        }
+		Log.outTrace(LogFilter.ScriptsAi, $"GuardAI::EnterEvadeMode: {Me.GUID} enters evade mode.");
 
-        public override void JustDied(Unit killer)
-        {
-            if (killer != null)
-            {
-                Player player = killer.CharmerOrOwnerPlayerOrPlayerItself;
-                if (player != null)
-                    me.SendZoneUnderAttackMessage(player);
-            }
-        }
-    }
+		Me.RemoveAllAuras();
+		Me.CombatStop(true);
+		EngagementOver();
+
+		Me.MotionMaster.MoveTargetedHome();
+	}
+
+	public override void JustDied(Unit killer)
+	{
+		if (killer != null)
+		{
+			var player = killer.CharmerOrOwnerPlayerOrPlayerItself;
+
+			if (player != null)
+				Me.SendZoneUnderAttackMessage(player);
+		}
+	}
 }

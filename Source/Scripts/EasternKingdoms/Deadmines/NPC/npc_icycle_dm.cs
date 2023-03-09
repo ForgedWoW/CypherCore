@@ -15,9 +15,9 @@ public class npc_icycle_dm : NullCreatureAI
 
 	public npc_icycle_dm(Creature creature) : base(creature)
 	{
-		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable | UnitFlags.Pacified);
-		me.ReactState = ReactStates.Passive;
-		me.SetDisplayId(28470);
+		Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable | UnitFlags.Pacified);
+		Me.ReactState = ReactStates.Passive;
+		Me.SetDisplayId(28470);
 	}
 
 	public override void Reset()
@@ -29,8 +29,8 @@ public class npc_icycle_dm : NullCreatureAI
 	{
 		if (HitTimer <= diff)
 		{
-			DoCast(me, 92201);
-			DoCast(me, 62453);
+			DoCast(Me, 92201);
+			DoCast(Me, 62453);
 		}
 		else
 		{

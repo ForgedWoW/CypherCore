@@ -14,12 +14,12 @@ public class at_dru_lunar_beam : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		at.SetPeriodicProcTimer(1000);
+		At.SetPeriodicProcTimer(1000);
 	}
 
 	public override void OnPeriodicProc()
 	{
-		if (at.GetCaster())
-			at.GetCaster().CastSpell(at.Location, DruidSpells.LUNAR_BEAM_DAMAGE_HEAL, true);
+		if (At.GetCaster())
+			At.GetCaster().CastSpell(At.Location, DruidSpells.LUNAR_BEAM_DAMAGE_HEAL, true);
 	}
 }

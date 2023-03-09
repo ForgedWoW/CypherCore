@@ -22,12 +22,12 @@ public class npc_helix_crew : PassiveAI
 	public override void Reset()
 	{
 		ThrowBombTimer = 3000;
-		DoCast(me, 18373);
+		DoCast(Me, 18373);
 
-		var victim = me.FindNearestPlayer(80.0f);
+		var victim = Me.FindNearestPlayer(80.0f);
 
 		if (victim != null)
-			me.Attack(victim, false);
+			Me.Attack(victim, false);
 	}
 
 	public override void UpdateAI(uint diff)

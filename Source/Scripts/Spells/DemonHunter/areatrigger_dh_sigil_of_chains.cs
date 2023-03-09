@@ -15,12 +15,12 @@ internal class areatrigger_dh_sigil_of_chains : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
-			caster.CastSpell(at.Location, DemonHunterSpells.SigilOfChainsVisual, new CastSpellExtraArgs());
-			caster.CastSpell(at.Location, DemonHunterSpells.SigilOfChainsTargetSelect, new CastSpellExtraArgs());
+			caster.CastSpell(At.Location, DemonHunterSpells.SigilOfChainsVisual, new CastSpellExtraArgs());
+			caster.CastSpell(At.Location, DemonHunterSpells.SigilOfChainsTargetSelect, new CastSpellExtraArgs());
 		}
 	}
 }

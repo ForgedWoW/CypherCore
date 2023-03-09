@@ -14,7 +14,7 @@ public class at_demon_hunter_demonic_trample : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;

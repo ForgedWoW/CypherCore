@@ -33,17 +33,17 @@ internal class npc_innkeeper : ScriptedAI
 			!player.HasAura(SpellIds.TrickOrTreated))
 			player.AddGossipItem(Gossip.MenuEventId, 0, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
-		if (me.IsQuestGiver)
-			player.PrepareQuestMenu(me.GUID);
+		if (Me.IsQuestGiver)
+			player.PrepareQuestMenu(Me.GUID);
 
-		if (me.IsVendor)
+		if (Me.IsVendor)
 			player.AddGossipItem(Gossip.MenuId, 2, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_TRADE);
 
-		if (me.IsInnkeeper)
+		if (Me.IsInnkeeper)
 			player.AddGossipItem(Gossip.MenuId, 1, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INN);
 
-		player.TalkedToCreature(me.Entry, me.GUID);
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
+		player.TalkedToCreature(Me.Entry, Me.GUID);
+		player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
 
 		return true;
 	}
@@ -140,11 +140,11 @@ internal class npc_innkeeper : ScriptedAI
 		switch (action)
 		{
 			case GossipAction.GOSSIP_ACTION_TRADE:
-				player.Session.SendListInventory(me.GUID);
+				player.Session.SendListInventory(Me.GUID);
 
 				break;
 			case GossipAction.GOSSIP_ACTION_INN:
-				player.SetBindPoint(me.GUID);
+				player.SetBindPoint(Me.GUID);
 
 				break;
 		}

@@ -48,9 +48,9 @@ public class npc_magma_pull : ScriptedAI
 			if (Pullplayers)
 			{
 				var players = new List<Unit>();
-				var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-				var searcher = new PlayerListSearcher(me, players, checker);
-				Cell.VisitGrid(me, searcher, 150f);
+				var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+				var searcher = new PlayerListSearcher(Me, players, checker);
+				Cell.VisitGrid(Me, searcher, 150f);
 
 				foreach (var item in players)
 				{
@@ -58,17 +58,17 @@ public class npc_magma_pull : ScriptedAI
 					item.NearTeleportTo(-205.7569f, -579.0972f, 42.98623f, 2.3f);
 				}
 
-				me.Whisper(boss_vanessa_vancleef.VANESSA_NIGHTMARE_6, PlayerGUID, true);
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
+				Me.Whisper(boss_vanessa_vancleef.VANESSA_NIGHTMARE_6, PlayerGUID, true);
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
 
-				if (!me.FindNearestPlayer(50))
+				if (!Me.FindNearestPlayer(50))
 					Pullplayers = false;
 			}
 
 			if (Csummon)
 			{
-				me.SummonCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, VanessaNightmare1, TempSummonType.ManualDespawn);
-				me.SummonCreature(DMCreatures.NPC_GLUBTOK_NIGHTMARE, GlubtokNightmare1, TempSummonType.ManualDespawn);
+				Me.SummonCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, VanessaNightmare1, TempSummonType.ManualDespawn);
+				Me.SummonCreature(DMCreatures.NPC_GLUBTOK_NIGHTMARE, GlubtokNightmare1, TempSummonType.ManualDespawn);
 				Csummon = false;
 			}
 		}

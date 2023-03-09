@@ -17,7 +17,7 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 
 	public override void OnInitialize()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -34,7 +34,7 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 			splinePoints.Add(new Vector3(posX, posY, caster.Location.Z));
 			splinePoints.Add(new Vector3(target.Location.X, target.Location.Y, target.Location.Z));
 
-			at.InitSplines(splinePoints, 1000);
+			At.InitSplines(splinePoints, 1000);
 		}
 		else
 		{
@@ -44,11 +44,11 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		caster.CastSpell(at, DemonHunterSpells.INNER_DEMONS_DAMAGE, true);
+		caster.CastSpell(At, DemonHunterSpells.INNER_DEMONS_DAMAGE, true);
 	}
 }

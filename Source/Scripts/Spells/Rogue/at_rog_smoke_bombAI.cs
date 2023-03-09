@@ -14,7 +14,7 @@ public class at_rog_smoke_bombAI : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -28,7 +28,7 @@ public class at_rog_smoke_bombAI : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;

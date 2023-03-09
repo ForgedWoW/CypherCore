@@ -27,15 +27,15 @@ public class npc_sticky_bomb : NullCreatureAI
 		_phase = 1;
 		_uiTimer = 500;
 
-		if (!me)
+		if (!Me)
 			return;
 
-		DoCast(me, eSpels.CHEST_BOMB);
+		DoCast(Me, eSpels.CHEST_BOMB);
 	}
 
 	public override void UpdateAI(uint uiDiff)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		if (_uiTimer < uiDiff)
@@ -43,37 +43,37 @@ public class npc_sticky_bomb : NullCreatureAI
 			switch (_phase)
 			{
 				case 1:
-					DoCast(me, eSpels.ARMING_VISUAL_YELLOW);
+					DoCast(Me, eSpels.ARMING_VISUAL_YELLOW);
 					_uiTimer = 700;
 
 					break;
 
 				case 2:
-					DoCast(me, eSpels.ARMING_VISUAL_ORANGE);
+					DoCast(Me, eSpels.ARMING_VISUAL_ORANGE);
 					_uiTimer = 600;
 
 					break;
 
 				case 3:
-					DoCast(me, eSpels.ARMING_VISUAL_RED);
+					DoCast(Me, eSpels.ARMING_VISUAL_RED);
 					_uiTimer = 500;
 
 					break;
 
 				case 4:
-					DoCast(me, eSpels.BOMB_ARMED_STATE);
+					DoCast(Me, eSpels.BOMB_ARMED_STATE);
 					_uiTimer = 400;
 
 					break;
 
 				case 5:
-					DoCast(me, me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
+					DoCast(Me, Me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
 					_uiTimer = 300;
 
 					break;
 
 				case 6:
-					me.DespawnOrUnsummon();
+					Me.DespawnOrUnsummon();
 
 					break;
 			}

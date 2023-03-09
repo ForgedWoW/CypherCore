@@ -18,13 +18,13 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
 
-		foreach (var itr in at.InsideUnits)
+		foreach (var itr in At.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
@@ -36,7 +36,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -52,7 +52,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -63,12 +63,12 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		foreach (var itr in at.InsideUnits)
+		foreach (var itr in At.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 

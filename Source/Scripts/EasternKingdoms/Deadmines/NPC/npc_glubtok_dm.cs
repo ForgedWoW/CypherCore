@@ -23,31 +23,31 @@ public class npc_glubtok_dm : BossAI
 	{
 		_Reset();
 		FlagResetTimer = 10000;
-		_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(11000, 15000)));
+		Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(11000, 15000)));
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
 		base.JustEnteredCombat(who);
-		_events.RescheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(6000, 8000)));
+		Events.RescheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(6000, 8000)));
 
-		_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
+		Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		var players = new List<Unit>();
 
-		var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-		var searcher = new PlayerListSearcher(me, players, checker);
-		Cell.VisitGrid(me, searcher, 150f);
+		var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+		var searcher = new PlayerListSearcher(Me, players, checker);
+		Cell.VisitGrid(Me, searcher, 150f);
 
 		foreach (var item in players)
 			item.AddAura(boss_vanessa_vancleef.Spells.EFFECT_1, item);
 
-		me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
+		Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
 
-		var Vanessa = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
 		if (Vanessa != null)
 		{
@@ -64,33 +64,33 @@ public class npc_glubtok_dm : BossAI
 	{
 		if (FlagResetTimer <= diff)
 		{
-			me.SetVisible(true);
-			me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
+			Me.SetVisible(true);
+			Me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
 		}
 		else
 		{
 			FlagResetTimer -= diff;
 		}
 
-		_events.Update(diff);
+		Events.Update(diff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE:
-					var pPlayer = me.FindNearestPlayer(200.0f, true);
+					var pPlayer = Me.FindNearestPlayer(200.0f, true);
 
 					if (pPlayer != null)
 						DoCast(pPlayer, boss_vanessa_vancleef.Spells.ICYCLE);
 
-					_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(6000, 8000)));
+					Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_ICYCLE_AOE, TimeSpan.FromMilliseconds(RandomHelper.URand(6000, 8000)));
 
 					break;
 				case boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE:
 					DoCastVictim(boss_vanessa_vancleef.Spells.SPIRIT_STRIKE);
-					_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
+					Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
 
 					break;
 			}

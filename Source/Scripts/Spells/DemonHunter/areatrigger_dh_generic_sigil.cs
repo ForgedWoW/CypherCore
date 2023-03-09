@@ -22,8 +22,8 @@ internal class areatrigger_dh_generic_sigil : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
-		caster?.CastSpell(at.Location, _trigger, new CastSpellExtraArgs());
+		caster?.CastSpell(At.Location, _trigger, new CastSpellExtraArgs());
 	}
 }

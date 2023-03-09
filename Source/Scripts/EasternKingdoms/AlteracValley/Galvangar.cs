@@ -36,14 +36,14 @@ internal class boss_galvangar : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(9),
 							task =>
 							{
@@ -51,7 +51,7 @@ internal class boss_galvangar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							TimeSpan.FromSeconds(19),
 							task =>
 							{
@@ -59,7 +59,7 @@ internal class boss_galvangar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							TimeSpan.FromSeconds(13),
 							task =>
 							{
@@ -67,7 +67,7 @@ internal class boss_galvangar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -75,7 +75,7 @@ internal class boss_galvangar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -92,7 +92,7 @@ internal class boss_galvangar : ScriptedAI
 
 	public override bool CheckInRoom()
 	{
-		if (me.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
+		if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
 		{
 			EnterEvadeMode();
 			Talk(TextIds.SayEvade);
@@ -109,6 +109,6 @@ internal class boss_galvangar : ScriptedAI
 			!CheckInRoom())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

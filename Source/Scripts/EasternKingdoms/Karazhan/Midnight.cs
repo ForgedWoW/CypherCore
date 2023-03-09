@@ -68,17 +68,17 @@ internal class boss_attumen : BossAI
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
-		var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
+		var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
 		if (midnight)
 			_DespawnAtEvade(TimeSpan.FromSeconds(10), midnight);
 
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void ScheduleTasks()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							TimeSpan.FromSeconds(25),
 							task =>
 							{
@@ -86,7 +86,7 @@ internal class boss_attumen : BossAI
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(25),
+		Scheduler.Schedule(TimeSpan.FromSeconds(25),
 							TimeSpan.FromSeconds(45),
 							task =>
 							{
@@ -98,7 +98,7 @@ internal class boss_attumen : BossAI
 								task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(45));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							TimeSpan.FromSeconds(60),
 							task =>
 							{
@@ -110,16 +110,16 @@ internal class boss_attumen : BossAI
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Attumen does not die until he mounts Midnight, let health fall to 1 and prevent further Damage.
-		if (damage >= me.Health &&
+		if (damage >= Me.Health &&
 			_phase != Phases.Mounted)
-			damage = (uint)(me.Health - 1);
+			damage = (uint)(Me.Health - 1);
 
 		if (_phase == Phases.AttumenEngages &&
-			me.HealthBelowPctDamaged(25, damage))
+			Me.HealthBelowPctDamaged(25, damage))
 		{
 			_phase = Phases.None;
 
-			var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
+			var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
 			if (midnight)
 				midnight.AI.DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
@@ -135,14 +135,14 @@ internal class boss_attumen : BossAI
 	{
 		if (summon.Entry == CreatureIds.AttumenMounted)
 		{
-			var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
+			var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
 			if (midnight)
 			{
-				if (midnight.Health > me.Health)
+				if (midnight.Health > Me.Health)
 					summon.SetHealth(midnight.Health);
 				else
-					summon.SetHealth(me.Health);
+					summon.SetHealth(Me.Health);
 
 				summon.AI.DoZoneInCombat();
 				summon.AI.SetGUID(_midnightGUID, (int)CreatureIds.Midnight);
@@ -162,20 +162,20 @@ internal class boss_attumen : BossAI
 			_phase = Phases.Mounted;
 			DoCastSelf(SpellIds.SpawnSmoke);
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(10),
+			Scheduler.Schedule(TimeSpan.FromSeconds(10),
 								TimeSpan.FromSeconds(25),
 								task =>
 								{
 									Unit target = null;
 									List<Unit> targetList = new();
 
-									foreach (var refe in me.GetThreatManager().SortedThreatList)
+									foreach (var refe in Me.GetThreatManager().SortedThreatList)
 									{
 										target = refe.Victim;
 
 										if (target &&
-											!target.IsWithinDist(me, 8.00f, false) &&
-											target.IsWithinDist(me, 25.0f, false))
+											!target.IsWithinDist(Me, 8.00f, false) &&
+											target.IsWithinDist(Me, 25.0f, false))
 											targetList.Add(target);
 
 										target = null;
@@ -188,7 +188,7 @@ internal class boss_attumen : BossAI
 									task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
 								});
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(25),
+			Scheduler.Schedule(TimeSpan.FromSeconds(25),
 								TimeSpan.FromSeconds(35),
 								task =>
 								{
@@ -201,7 +201,7 @@ internal class boss_attumen : BossAI
 	public override void JustDied(Unit killer)
 	{
 		Talk(TextIds.SayDeath);
-		var midnight = Global.ObjAccessor.GetUnit(me, _midnightGUID);
+		var midnight = Global.ObjAccessor.GetUnit(Me, _midnightGUID);
 
 		if (midnight)
 			midnight.KillSelf();
@@ -221,7 +221,7 @@ internal class boss_attumen : BossAI
 			_phase != Phases.None)
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
@@ -231,43 +231,43 @@ internal class boss_attumen : BossAI
 
 		if (spellInfo.Id == SpellIds.Mount)
 		{
-			var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
+			var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
 			if (midnight)
 			{
 				_phase = Phases.None;
-				_scheduler.CancelAll();
+				Scheduler.CancelAll();
 
 				midnight.AttackStop();
 				midnight.RemoveAllAttackers();
 				midnight.ReactState = ReactStates.Passive;
-				midnight.MotionMaster.MoveFollow(me, 2.0f, 0.0f);
+				midnight.MotionMaster.MoveFollow(Me, 2.0f, 0.0f);
 				midnight.AI.Talk(TextIds.EmoteMountUp);
 
-				me.AttackStop();
-				me.RemoveAllAttackers();
-				me.ReactState = ReactStates.Passive;
-				me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
+				Me.AttackStop();
+				Me.RemoveAllAttackers();
+				Me.ReactState = ReactStates.Passive;
+				Me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
 				Talk(TextIds.SayMount);
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									task =>
 									{
-										var midnight = ObjectAccessor.GetCreature(me, _midnightGUID);
+										var midnight = ObjectAccessor.GetCreature(Me, _midnightGUID);
 
 										if (midnight)
 										{
-											if (me.IsWithinDist2d(midnight.Location, 5.0f))
+											if (Me.IsWithinDist2d(midnight.Location, 5.0f))
 											{
 												DoCastAOE(SpellIds.SummonAttumenMounted);
-												me.SetVisible(false);
-												me.MotionMaster.Clear();
+												Me.SetVisible(false);
+												Me.MotionMaster.Clear();
 												midnight.SetVisible(false);
 											}
 											else
 											{
-												midnight.MotionMaster.MoveFollow(me, 2.0f, 0.0f);
-												me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
+												midnight.MotionMaster.MoveFollow(Me, 2.0f, 0.0f);
+												Me.MotionMaster.MoveFollow(midnight, 2.0f, 0.0f);
 												task.Repeat();
 											}
 										}
@@ -298,25 +298,25 @@ internal class boss_midnight : BossAI
 	{
 		Initialize();
 		base.Reset();
-		me.SetVisible(true);
-		me.ReactState = ReactStates.Defensive;
+		Me.SetVisible(true);
+		Me.ReactState = ReactStates.Defensive;
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Midnight never dies, let health fall to 1 and prevent further Damage.
-		if (damage >= me.Health)
-			damage = (uint)(me.Health - 1);
+		if (damage >= Me.Health)
+			damage = (uint)(Me.Health - 1);
 
 		if (_phase == Phases.None &&
-			me.HealthBelowPctDamaged(95, damage))
+			Me.HealthBelowPctDamaged(95, damage))
 		{
 			_phase = Phases.AttumenEngages;
 			Talk(TextIds.EmoteCallAttumen);
 			DoCastAOE(SpellIds.SummonAttumen);
 		}
 		else if (_phase == Phases.AttumenEngages &&
-				me.HealthBelowPctDamaged(25, damage))
+				Me.HealthBelowPctDamaged(25, damage))
 		{
 			_phase = Phases.Mounted;
 			DoCastAOE(SpellIds.Mount, new CastSpellExtraArgs(true));
@@ -328,8 +328,8 @@ internal class boss_midnight : BossAI
 		if (summon.Entry == CreatureIds.AttumenUnmounted)
 		{
 			_attumenGUID = summon.GUID;
-			summon.AI.SetGUID(me.GUID, (int)CreatureIds.Midnight);
-			summon.AI.AttackStart(me.Victim);
+			summon.AI.SetGUID(Me.GUID, (int)CreatureIds.Midnight);
+			summon.AI.AttackStart(Me.Victim);
 			summon.AI.Talk(TextIds.SayAppear);
 		}
 
@@ -340,7 +340,7 @@ internal class boss_midnight : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							TimeSpan.FromSeconds(25),
 							task =>
 							{
@@ -358,7 +358,7 @@ internal class boss_midnight : BossAI
 	{
 		if (_phase == Phases.AttumenEngages)
 		{
-			var unit = Global.ObjAccessor.GetUnit(me, _attumenGUID);
+			var unit = Global.ObjAccessor.GetUnit(Me, _attumenGUID);
 
 			if (unit)
 				Talk(TextIds.SayMidnightKill, unit);
@@ -371,7 +371,7 @@ internal class boss_midnight : BossAI
 			_phase == Phases.Mounted)
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()

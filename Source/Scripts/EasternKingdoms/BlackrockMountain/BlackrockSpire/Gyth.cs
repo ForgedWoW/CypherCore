@@ -40,10 +40,10 @@ internal class boss_gyth : BossAI
 	{
 		Initialize();
 
-		if (instance.GetBossState(DataTypes.Gyth) == EncounterState.InProgress)
+		if (Instance.GetBossState(DataTypes.Gyth) == EncounterState.InProgress)
 		{
-			instance.SetBossState(DataTypes.Gyth, EncounterState.Done);
-			me.DespawnOrUnsummon();
+			Instance.SetBossState(DataTypes.Gyth, EncounterState.Done);
+			Me.DespawnOrUnsummon();
 		}
 	}
 
@@ -51,33 +51,33 @@ internal class boss_gyth : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(16),
 							task =>
 							{
-								DoCast(me, SpellIds.CorrosiveAcid);
+								DoCast(Me, SpellIds.CorrosiveAcid);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(16),
 							task =>
 							{
-								DoCast(me, SpellIds.Freeze);
+								DoCast(Me, SpellIds.Freeze);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(16),
 							task =>
 							{
-								DoCast(me, SpellIds.Flamebreath);
+								DoCast(Me, SpellIds.Flamebreath);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							TimeSpan.FromSeconds(18),
 							task =>
 							{
@@ -88,7 +88,7 @@ internal class boss_gyth : BossAI
 
 	public override void JustDied(Unit killer)
 	{
-		instance.SetBossState(DataTypes.Gyth, EncounterState.Done);
+		Instance.SetBossState(DataTypes.Gyth, EncounterState.Done);
 	}
 
 	public override void SetData(uint type, uint data)
@@ -96,21 +96,21 @@ internal class boss_gyth : BossAI
 		switch (data)
 		{
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									task =>
 									{
-										me.AddAura(SpellIds.RendMounts, me);
-										var portcullis = me.FindNearestGameObject(GameObjectsIds.DrPortcullis, 40.0f);
+										Me.AddAura(SpellIds.RendMounts, Me);
+										var portcullis = Me.FindNearestGameObject(GameObjectsIds.DrPortcullis, 40.0f);
 
 										if (portcullis)
 											portcullis.UseDoorOrButton();
 
-										var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
+										var victor = Me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
 
 										if (victor)
 											victor.AI.SetData(1, 1);
 
-										task.Schedule(TimeSpan.FromSeconds(2), summonTask2 => { me.MotionMaster.MovePath(MiscConst.GythPath1, false); });
+										task.Schedule(TimeSpan.FromSeconds(2), summonTask2 => { Me.MotionMaster.MovePath(MiscConst.GythPath1, false); });
 									});
 
 				break;
@@ -124,12 +124,12 @@ internal class boss_gyth : BossAI
 		if (!SummonedRend &&
 			HealthBelowPct(5))
 		{
-			DoCast(me, SpellIds.SummonRend);
-			me.RemoveAura(SpellIds.RendMounts);
+			DoCast(Me, SpellIds.SummonRend);
+			Me.RemoveAura(SpellIds.RendMounts);
 			SummonedRend = true;
 		}
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()

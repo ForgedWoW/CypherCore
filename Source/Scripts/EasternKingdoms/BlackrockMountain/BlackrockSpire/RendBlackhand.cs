@@ -158,21 +158,21 @@ internal class boss_rend_blackhand : BossAI
 	public override void JustEngagedWith(Unit who)
 	{
 		base.JustEngagedWith(who);
-		_events.ScheduleEvent(EventIds.Whirlwind, TimeSpan.FromSeconds(13), TimeSpan.FromSeconds(15));
-		_events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(17));
-		_events.ScheduleEvent(EventIds.MortalStrike, TimeSpan.FromSeconds(17), TimeSpan.FromSeconds(19));
+		Events.ScheduleEvent(EventIds.Whirlwind, TimeSpan.FromSeconds(13), TimeSpan.FromSeconds(15));
+		Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(17));
+		Events.ScheduleEvent(EventIds.MortalStrike, TimeSpan.FromSeconds(17), TimeSpan.FromSeconds(19));
 	}
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		me.SetImmuneToPC(false);
+		Me.SetImmuneToPC(false);
 		DoZoneInCombat();
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
-		var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
+		var victor = Me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 75.0f, true);
 
 		victor?.AI.SetData(1, 2);
 	}
@@ -185,18 +185,18 @@ internal class boss_rend_blackhand : BossAI
 			{
 				gythEvent = true;
 
-				var victor = me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 5.0f, true);
+				var victor = Me.FindNearestCreature(CreaturesIds.LordVictorNefarius, 5.0f, true);
 
 				if (victor != null)
 					victorGUID = victor.GUID;
 
-				var portcullis = me.FindNearestGameObject(GameObjectsIds.DrPortcullis, 50.0f);
+				var portcullis = Me.FindNearestGameObject(GameObjectsIds.DrPortcullis, 50.0f);
 
 				if (portcullis != null)
 					portcullisGUID = portcullis.GUID;
 
-				_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-				_events.ScheduleEvent(EventIds.Start1, TimeSpan.FromSeconds(1));
+				Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+				Events.ScheduleEvent(EventIds.Start1, TimeSpan.FromSeconds(1));
 			}
 	}
 
@@ -206,16 +206,16 @@ internal class boss_rend_blackhand : BossAI
 			switch (id)
 			{
 				case 5:
-					_events.ScheduleEvent(EventIds.Teleport1, TimeSpan.FromSeconds(2));
+					Events.ScheduleEvent(EventIds.Teleport1, TimeSpan.FromSeconds(2));
 
 					break;
 				case 11:
-					var gyth = me.FindNearestCreature(CreaturesIds.Gyth, 10.0f, true);
+					var gyth = Me.FindNearestCreature(CreaturesIds.Gyth, 10.0f, true);
 
 					if (gyth)
 						gyth.AI.SetData(1, 1);
 
-					me.DespawnOrUnsummon(TimeSpan.FromSeconds(1), TimeSpan.FromDays(7));
+					Me.DespawnOrUnsummon(TimeSpan.FromSeconds(1), TimeSpan.FromDays(7));
 
 					break;
 			}
@@ -225,52 +225,52 @@ internal class boss_rend_blackhand : BossAI
 	{
 		if (gythEvent)
 		{
-			_events.Update(diff);
+			Events.Update(diff);
 
-			_events.ExecuteEvents(eventId =>
+			Events.ExecuteEvents(eventId =>
 			{
 				switch (eventId)
 				{
 					case EventIds.Start1:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius0);
 
-						_events.ScheduleEvent(EventIds.Start2, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Start2, TimeSpan.FromSeconds(4));
 
 						break;
 					}
 					case EventIds.Start2:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.HandleEmoteCommand(Emote.OneshotPoint);
 
-						_events.ScheduleEvent(EventIds.Start3, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Start3, TimeSpan.FromSeconds(4));
 
 						break;
 					}
 					case EventIds.Start3:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius1);
 
-						_events.ScheduleEvent(EventIds.Wave1, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.TurnToRend, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.WavesText1, TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.Wave1, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.TurnToRend, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.WavesText1, TimeSpan.FromSeconds(20));
 
 						break;
 					}
 					case EventIds.TurnToRend:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						if (victor != null)
 						{
-							victor.SetFacingToObject(me);
+							victor.SetFacingToObject(Me);
 							victor.HandleEmoteCommand(Emote.OneshotTalk);
 						}
 
@@ -278,7 +278,7 @@ internal class boss_rend_blackhand : BossAI
 					}
 					case EventIds.TurnToPlayer:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						if (victor != null)
 						{
@@ -292,154 +292,154 @@ internal class boss_rend_blackhand : BossAI
 					}
 					case EventIds.TurnToFacing1:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.SetFacingTo(1.518436f);
 
 						break;
 					}
 					case EventIds.TurnToFacing2:
-						me.SetFacingTo(1.658063f);
+						Me.SetFacingTo(1.658063f);
 
 						break;
 					case EventIds.TurnToFacing3:
-						me.SetFacingTo(1.500983f);
+						Me.SetFacingTo(1.500983f);
 
 						break;
 					case EventIds.WavesEmote1:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.HandleEmoteCommand(Emote.OneshotQuestion);
 
 						break;
 					}
 					case EventIds.WavesEmote2:
-						me.HandleEmoteCommand(Emote.OneshotRoar);
+						Me.HandleEmoteCommand(Emote.OneshotRoar);
 
 						break;
 					case EventIds.WavesText1:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius2);
 
-						me.HandleEmoteCommand(Emote.OneshotTalk);
-						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.WavesEmote1, TimeSpan.FromSeconds(5));
-						_events.ScheduleEvent(EventIds.Wave2, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.WavesText2, TimeSpan.FromSeconds(20));
+						Me.HandleEmoteCommand(Emote.OneshotTalk);
+						Events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.WavesEmote1, TimeSpan.FromSeconds(5));
+						Events.ScheduleEvent(EventIds.Wave2, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.WavesText2, TimeSpan.FromSeconds(20));
 
 						break;
 					}
 					case EventIds.WavesText2:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius3);
 
-						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.Wave3, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.WavesText3, TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Wave3, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.WavesText3, TimeSpan.FromSeconds(20));
 
 						break;
 					}
 					case EventIds.WavesText3:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius4);
 
-						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.Wave4, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.WavesText4, TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Wave4, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.WavesText4, TimeSpan.FromSeconds(20));
 
 						break;
 					}
 					case EventIds.WavesText4:
 						Talk(TextIds.SayBlackhand1);
-						_events.ScheduleEvent(EventIds.WavesEmote2, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.TurnToFacing3, TimeSpan.FromSeconds(8));
-						_events.ScheduleEvent(EventIds.Wave5, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.WavesText5, TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.WavesEmote2, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.TurnToFacing3, TimeSpan.FromSeconds(8));
+						Events.ScheduleEvent(EventIds.Wave5, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.WavesText5, TimeSpan.FromSeconds(20));
 
 						break;
 					case EventIds.WavesText5:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius5);
 
-						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.Wave6, TimeSpan.FromSeconds(2));
-						_events.ScheduleEvent(EventIds.WavesCompleteText1, TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Wave6, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.WavesCompleteText1, TimeSpan.FromSeconds(20));
 
 						break;
 					}
 					case EventIds.WavesCompleteText1:
 					{
-						_events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						Events.ScheduleEvent(EventIds.TurnToPlayer, TimeSpan.FromSeconds(0));
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius6);
 
-						_events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
-						_events.ScheduleEvent(EventIds.WavesCompleteText2, TimeSpan.FromSeconds(13));
+						Events.ScheduleEvent(EventIds.TurnToFacing1, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.WavesCompleteText2, TimeSpan.FromSeconds(13));
 
 						break;
 					}
 					case EventIds.WavesCompleteText2:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius7);
 
 						Talk(TextIds.SayBlackhand2);
-						_events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));
-						_events.ScheduleEvent(EventIds.WavesCompleteText3, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));
+						Events.ScheduleEvent(EventIds.WavesCompleteText3, TimeSpan.FromSeconds(4));
 
 						break;
 					}
 					case EventIds.WavesCompleteText3:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.AI.Talk(TextIds.SayNefarius8);
 
-						_events.ScheduleEvent(EventIds.PathNefarius, TimeSpan.FromSeconds(1));
-						_events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));
+						Events.ScheduleEvent(EventIds.PathNefarius, TimeSpan.FromSeconds(1));
+						Events.ScheduleEvent(EventIds.PathRend, TimeSpan.FromSeconds(1));
 
 						break;
 					}
 					case EventIds.PathNefarius:
 					{
-						var victor = ObjectAccessor.GetCreature(me, victorGUID);
+						var victor = ObjectAccessor.GetCreature(Me, victorGUID);
 
 						victor?.MotionMaster.MovePath(MiscConst.NefariusPath1, true);
 
 						break;
 					}
 					case EventIds.PathRend:
-						me.MotionMaster.MovePath(MiscConst.RendPath1, false);
+						Me.MotionMaster.MovePath(MiscConst.RendPath1, false);
 
 						break;
 					case EventIds.Teleport1:
-						me.NearTeleportTo(194.2993f, -474.0814f, 121.4505f, -0.01225555f);
-						_events.ScheduleEvent(EventIds.Teleport2, TimeSpan.FromSeconds(50));
+						Me.NearTeleportTo(194.2993f, -474.0814f, 121.4505f, -0.01225555f);
+						Events.ScheduleEvent(EventIds.Teleport2, TimeSpan.FromSeconds(50));
 
 						break;
 					case EventIds.Teleport2:
-						me.NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
-						me.SummonCreature(CreaturesIds.Gyth, 211.762f, -397.5885f, 111.1817f, 4.747295f);
+						Me.NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
+						Me.SummonCreature(CreaturesIds.Gyth, 211.762f, -397.5885f, 111.1817f, 4.747295f);
 
 						break;
 					case EventIds.Wave1:
 					{
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -449,7 +449,7 @@ internal class boss_rend_blackhand : BossAI
 					case EventIds.Wave2:
 					{
 						// spawn wave
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -459,7 +459,7 @@ internal class boss_rend_blackhand : BossAI
 					case EventIds.Wave3:
 					{
 						// spawn wave
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -469,7 +469,7 @@ internal class boss_rend_blackhand : BossAI
 					case EventIds.Wave4:
 					{
 						// spawn wave
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -479,7 +479,7 @@ internal class boss_rend_blackhand : BossAI
 					case EventIds.Wave5:
 					{
 						// spawn wave
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -489,7 +489,7 @@ internal class boss_rend_blackhand : BossAI
 					case EventIds.Wave6:
 					{
 						// spawn wave
-						var portcullis = ObjectAccessor.GetGameObject(me, portcullisGUID);
+						var portcullis = ObjectAccessor.GetGameObject(Me, portcullisGUID);
 
 						portcullis?.UseDoorOrButton();
 
@@ -505,33 +505,33 @@ internal class boss_rend_blackhand : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
 				case EventIds.Whirlwind:
 					DoCast(SpellIds.Whirlwind);
-					_events.ScheduleEvent(EventIds.Whirlwind, TimeSpan.FromSeconds(13), TimeSpan.FromSeconds(18));
+					Events.ScheduleEvent(EventIds.Whirlwind, TimeSpan.FromSeconds(13), TimeSpan.FromSeconds(18));
 
 					break;
 				case EventIds.Cleave:
 					DoCastVictim(SpellIds.Cleave);
-					_events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(14));
+					Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(14));
 
 					break;
 				case EventIds.MortalStrike:
 					DoCastVictim(SpellIds.MortalStrike);
-					_events.ScheduleEvent(EventIds.MortalStrike, TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
+					Events.ScheduleEvent(EventIds.MortalStrike, TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
 
 					break;
 			}
 
-			if (me.HasUnitState(UnitState.Casting))
+			if (Me.HasUnitState(UnitState.Casting))
 				return;
 		});
 

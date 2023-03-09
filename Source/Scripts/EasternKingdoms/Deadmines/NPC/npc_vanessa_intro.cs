@@ -24,16 +24,16 @@ public class npc_vanessa_introAI : BossAI
 
 	public override void Reset()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		EventStarted = true;
 		Phase = 0;
 		PongTimer = 2000;
 
-		me.AddAura(boss_vanessa_vancleef.Spells.SITTING, me);
-		me.SetSpeed(UnitMoveType.Walk, 1.0f);
-		me.AddUnitMovementFlag(MovementFlag.Walking);
+		Me.AddAura(boss_vanessa_vancleef.Spells.SITTING, Me);
+		Me.SetSpeed(UnitMoveType.Walk, 1.0f);
+		Me.AddUnitMovementFlag(MovementFlag.Walking);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -44,35 +44,35 @@ public class npc_vanessa_introAI : BossAI
 				switch (Phase)
 				{
 					case 0:
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_1, null, true);
-						me.RemoveAura(boss_vanessa_vancleef.Spells.SITTING);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_1, null, true);
+						Me.RemoveAura(boss_vanessa_vancleef.Spells.SITTING);
 						PongTimer = 2000;
 						Phase++;
 
 						break;
 					case 1:
-						me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
-						me.Say(boss_vanessa_vancleef.VANESSA_SAY_1, Language.Universal);
+						Me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+						Me.Say(boss_vanessa_vancleef.VANESSA_SAY_1, Language.Universal);
 						PongTimer = 6000;
 						Phase++;
 
 						break;
 					case 2:
-						me.MotionMaster.MovePoint(0, -65.41f, -838.43f, 41.10f);
-						me.Say(boss_vanessa_vancleef.VANESSA_SAY_2, Language.Universal);
+						Me.MotionMaster.MovePoint(0, -65.41f, -838.43f, 41.10f);
+						Me.Say(boss_vanessa_vancleef.VANESSA_SAY_2, Language.Universal);
 						PongTimer = 8000;
 						Phase++;
 
 						break;
 					case 3:
-						me.Say(boss_vanessa_vancleef.VANESSA_SAY_3, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_SAY_3, Language.Universal);
 						PongTimer = 4000;
 						Phase++;
 
 						break;
 					case 4:
-						me.Say(boss_vanessa_vancleef.VANESSA_SAY_4, Language.Universal);
-						me.SetFacingTo(1.57f);
+						Me.Say(boss_vanessa_vancleef.VANESSA_SAY_4, Language.Universal);
+						Me.SetFacingTo(1.57f);
 						PongTimer = 3000;
 						Phase++;
 
@@ -81,12 +81,12 @@ public class npc_vanessa_introAI : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.NOXIOUS_CONCOCTION, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.NOXIOUS_CONCOCTION, true);
 
 						PongTimer = 2000;
 						Phase++;
@@ -94,7 +94,7 @@ public class npc_vanessa_introAI : BossAI
 
 						break;
 					case 6:
-						me.Say(boss_vanessa_vancleef.VANESSA_SAY_5, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_SAY_5, Language.Universal);
 						PongTimer = 4000;
 						Phase++;
 
@@ -103,22 +103,22 @@ public class npc_vanessa_introAI : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
-						var controller_achi = me.FindNearestCreature(boss_vanessa_vancleef.eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
+						var controller_achi = Me.FindNearestCreature(boss_vanessa_vancleef.eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
 
 						if (controller_achi != null)
 							controller_achi.AI.SetData(0, boss_vanessa_vancleef.eAchievementMisc.START_TIMER_ACHIEVEMENT);
 
 						foreach (var item in players)
 						{
-							me.CastSpell(item, DMSharedSpells.NIGHTMARE_ELIXIR, true);
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.BLACKOUT, true);
+							Me.CastSpell(item, DMSharedSpells.NIGHTMARE_ELIXIR, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.BLACKOUT, true);
 						}
 
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_2, null, true);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_2, null, true);
 						PongTimer = 4100;
 						Phase++;
 					}
@@ -128,12 +128,12 @@ public class npc_vanessa_introAI : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.BLACKOUT, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.BLACKOUT, true);
 
 						// me.SummonCreature(DMCreatures.NPC_TRAP_BUNNY, -65.93f, -820.33f, 40.98f, 0, TempSummonType.ManualDespawn);
 						PongTimer = 4000;
@@ -143,7 +143,7 @@ public class npc_vanessa_introAI : BossAI
 						break;
 					case 9:
 					{
-						me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
+						Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));
 					}
 
 						break;

@@ -42,14 +42,14 @@ internal class boss_balinda : ScriptedAI
 
 	public boss_balinda(Creature creature) : base(creature)
 	{
-		summons = new SummonList(me);
+		summons = new SummonList(Me);
 		Initialize();
 	}
 
 	public override void Reset()
 	{
 		Initialize();
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 		summons.DespawnAll();
 	}
 
@@ -57,7 +57,7 @@ internal class boss_balinda : ScriptedAI
 	{
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(15),
 							task =>
 							{
@@ -65,28 +65,28 @@ internal class boss_balinda : ScriptedAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.ConeOfCold);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								DoCastVictim(SpellIds.Fireball);
 								task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(9));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								DoCastVictim(SpellIds.Frostbolt);
 								task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								if (summons.Empty())
@@ -95,19 +95,19 @@ internal class boss_balinda : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(50));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			if (me.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
+																			if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
 																			{
 																				base.EnterEvadeMode();
 																				Talk(TextIds.SayEvade);
 																			}
 
-																			var elemental = ObjectAccessor.GetCreature(me, WaterElementalGUID);
+																			var elemental = ObjectAccessor.GetCreature(Me, WaterElementalGUID);
 
 																			if (elemental != null)
-																				if (elemental.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
+																				if (elemental.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
 																					elemental.AI.EnterEvadeMode();
 
 																			task.Repeat();
@@ -117,7 +117,7 @@ internal class boss_balinda : ScriptedAI
 	public override void JustSummoned(Creature summoned)
 	{
 		summoned.AI.AttackStart(SelectTarget(SelectTargetMethod.Random, 0, 50, true));
-		summoned.Faction = me.Faction;
+		summoned.Faction = Me.Faction;
 		WaterElementalGUID = summoned.GUID;
 		summons.Summon(summoned);
 	}
@@ -140,7 +140,7 @@ internal class boss_balinda : ScriptedAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.HealthBelowPctDamaged(40, damage) &&
+		if (Me.HealthBelowPctDamaged(40, damage) &&
 			!HasCastIceblock)
 		{
 			DoCast(SpellIds.Iceblock);
@@ -153,7 +153,7 @@ internal class boss_balinda : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()

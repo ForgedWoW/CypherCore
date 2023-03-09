@@ -36,11 +36,11 @@ public class npc_mining_monkey : ScriptedAI
 	{
 		base.DamageTaken(attacker, ref damage, damageType, spellInfo);
 
-		if (!me)
+		if (!Me)
 			return;
 
 		if (Phase == 1)
-			if (me.Health - damage <= me.MaxHealth * 0.15)
+			if (Me.Health - damage <= Me.MaxHealth * 0.15)
 				Phase++;
 	}
 
@@ -48,30 +48,30 @@ public class npc_mining_monkey : ScriptedAI
 	{
 		base.JustEnteredCombat(who);
 
-		if (!me)
+		if (!Me)
 			return;
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me || me.AI != null || !UpdateVictim())
+		if (!Me || Me.AI != null || !UpdateVictim())
 			return;
 
 		switch (Phase)
 		{
 			case 1:
-				var victim = me.Victim;
+				var victim = Me.Victim;
 
 				if (victim != null)
 				{
-					if (me.IsInRange(victim, 0, 35.0f, true))
+					if (Me.IsInRange(victim, 0, 35.0f, true))
 					{
-						me.SetUnitFlag(UnitFlags.Pacified);
-						me.SetUnitFlag(UnitFlags.Stunned);
+						Me.SetUnitFlag(UnitFlags.Pacified);
+						Me.SetUnitFlag(UnitFlags.Stunned);
 
 						if (UiTimer <= diff)
 						{
-							me.CastSpell(victim, IsHeroic() ? DMSpells.THROW_H : DMSpells.THROW);
+							Me.CastSpell(victim, IsHeroic() ? DMSpells.THROW_H : DMSpells.THROW);
 							UiTimer = 2000;
 						}
 						else
@@ -81,20 +81,20 @@ public class npc_mining_monkey : ScriptedAI
 					}
 					else
 					{
-						me.RemoveUnitFlag(UnitFlags.Pacified);
-						me.RemoveUnitFlag(UnitFlags.Stunned);
+						Me.RemoveUnitFlag(UnitFlags.Pacified);
+						Me.RemoveUnitFlag(UnitFlags.Stunned);
 					}
 				}
 
 				break;
 			case 2:
 				Talk(0);
-				me.RemoveUnitFlag(UnitFlags.Uninteractible);
+				Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 				Phase++;
 
 				break;
 			default:
-				me.DoFleeToGetAssistance();
+				Me.DoFleeToGetAssistance();
 
 				break;
 		}

@@ -62,7 +62,7 @@ internal class boss_selin_fireheart : BossAI
 
 	public override void Reset()
 	{
-		var crystals = me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
+		var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
 
 		foreach (var creature in crystals)
 			creature.Respawn(true);
@@ -77,10 +77,10 @@ internal class boss_selin_fireheart : BossAI
 		switch (action)
 		{
 			case MiscConst.ActionSwitchPhase:
-				_events.SetPhase(PhaseIds.Normal);
-				_events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
-				AttackStart(me.Victim);
-				me.MotionMaster.MoveChase(me.Victim);
+				Events.SetPhase(PhaseIds.Normal);
+				Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
+				AttackStart(Me.Victim);
+				Me.MotionMaster.MoveChase(Me.Victim);
 
 				break;
 			default:
@@ -93,8 +93,8 @@ internal class boss_selin_fireheart : BossAI
 		Talk(TextIds.SayAggro);
 		base.JustEngagedWith(who);
 
-		_events.SetPhase(PhaseIds.Normal);
-		_events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromMilliseconds(2100), 0, PhaseIds.Normal);
+		Events.SetPhase(PhaseIds.Normal);
+		Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromMilliseconds(2100), 0, PhaseIds.Normal);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -108,14 +108,14 @@ internal class boss_selin_fireheart : BossAI
 		if (type == MovementGeneratorType.Point &&
 			id == 1)
 		{
-			var CrystalChosen = Global.ObjAccessor.GetUnit(me, CrystalGUID);
+			var CrystalChosen = Global.ObjAccessor.GetUnit(Me, CrystalGUID);
 
 			if (CrystalChosen != null &&
 				CrystalChosen.IsAlive)
 			{
 				CrystalChosen.RemoveUnitFlag(UnitFlags.Uninteractible);
-				CrystalChosen.CastSpell(me, SpellIds.ManaRage, true);
-				_events.ScheduleEvent(EventIds.Empower, TimeSpan.FromSeconds(10), PhaseIds.Drain);
+				CrystalChosen.CastSpell(Me, SpellIds.ManaRage, true);
+				Events.ScheduleEvent(EventIds.Empower, TimeSpan.FromSeconds(10), PhaseIds.Drain);
 			}
 		}
 	}
@@ -133,18 +133,18 @@ internal class boss_selin_fireheart : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
 				case EventIds.FelExplosion:
 					DoCastAOE(SpellIds.FelExplosion);
-					_events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.FelExplosion, TimeSpan.FromSeconds(2), 0, PhaseIds.Normal);
 
 					break;
 				case EventIds.DrainCrystal:
@@ -159,7 +159,7 @@ internal class boss_selin_fireheart : BossAI
 					if (target != null)
 						DoCast(target, SpellIds.DrainMana);
 
-					_events.ScheduleEvent(EventIds.DrainMana, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.DrainMana, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
 
 					break;
 				}
@@ -170,7 +170,7 @@ internal class boss_selin_fireheart : BossAI
 					if (target != null)
 						DoCast(target, SpellIds.DrainLife);
 
-					_events.ScheduleEvent(EventIds.DrainLife, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.DrainLife, TimeSpan.FromSeconds(10), 0, PhaseIds.Normal);
 
 					break;
 				}
@@ -178,15 +178,15 @@ internal class boss_selin_fireheart : BossAI
 				{
 					Talk(TextIds.SayEmpowered);
 
-					var CrystalChosen = ObjectAccessor.GetCreature(me, CrystalGUID);
+					var CrystalChosen = ObjectAccessor.GetCreature(Me, CrystalGUID);
 
 					if (CrystalChosen && CrystalChosen.IsAlive)
 						CrystalChosen.KillSelf();
 
 					CrystalGUID.Clear();
 
-					me.MotionMaster.Clear();
-					me.MotionMaster.MoveChase(me.Victim);
+					Me.MotionMaster.Clear();
+					Me.MotionMaster.MoveChase(Me.Victim);
 
 					break;
 				}
@@ -194,26 +194,26 @@ internal class boss_selin_fireheart : BossAI
 					break;
 			}
 
-			if (me.HasUnitState(UnitState.Casting))
+			if (Me.HasUnitState(UnitState.Casting))
 				return;
 		});
 
-		if (me.GetPowerPct(PowerType.Mana) < 10.0f)
-			if (_events.IsInPhase(PhaseIds.Normal) &&
+		if (Me.GetPowerPct(PowerType.Mana) < 10.0f)
+			if (Events.IsInPhase(PhaseIds.Normal) &&
 				!_scheduledEvents)
 			{
 				_scheduledEvents = true;
 				var timer = RandomHelper.RandTime(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(7));
-				_events.ScheduleEvent(EventIds.DrainLife, timer, 0, PhaseIds.Normal);
+				Events.ScheduleEvent(EventIds.DrainLife, timer, 0, PhaseIds.Normal);
 
 				if (IsHeroic())
 				{
-					_events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15), 0, PhaseIds.Normal);
-					_events.ScheduleEvent(EventIds.DrainMana, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.DrainMana, timer + TimeSpan.FromSeconds(5), 0, PhaseIds.Normal);
 				}
 				else
 				{
-					_events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25), 0, PhaseIds.Normal);
+					Events.ScheduleEvent(EventIds.DrainCrystal, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25), 0, PhaseIds.Normal);
 				}
 			}
 
@@ -222,7 +222,7 @@ internal class boss_selin_fireheart : BossAI
 
 	private void SelectNearestCrystal()
 	{
-		var crystal = me.FindNearestCreature(CreatureIds.FelCrystal, 250.0f);
+		var crystal = Me.FindNearestCreature(CreatureIds.FelCrystal, 250.0f);
 
 		if (crystal)
 		{
@@ -232,17 +232,17 @@ internal class boss_selin_fireheart : BossAI
 			DoCast(crystal, SpellIds.FelCrystalDummy);
 			CrystalGUID = crystal.GUID;
 			var pos = new Position();
-			crystal.GetClosePoint(pos, me.CombatReach, SharedConst.ContactDistance);
+			crystal.GetClosePoint(pos, Me.CombatReach, SharedConst.ContactDistance);
 
-			_events.SetPhase(PhaseIds.Drain);
-			me.SetWalk(false);
-			me.MotionMaster.MovePoint(1, pos);
+			Events.SetPhase(PhaseIds.Drain);
+			Me.SetWalk(false);
+			Me.MotionMaster.MovePoint(1, pos);
 		}
 	}
 
 	private void ShatterRemainingCrystals()
 	{
-		var crystals = me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
+		var crystals = Me.GetCreatureListWithEntryInGrid(CreatureIds.FelCrystal, 250.0f);
 
 		foreach (var crystal in crystals)
 			crystal.KillSelf();
@@ -256,7 +256,7 @@ internal class npc_fel_crystal : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var instance = me.InstanceScript;
+		var instance = Me.InstanceScript;
 
 		if (instance != null)
 		{

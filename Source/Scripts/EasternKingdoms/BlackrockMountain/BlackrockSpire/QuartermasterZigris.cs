@@ -30,14 +30,14 @@ internal class quartermaster_zigris : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								DoCastVictim(SpellIds.Shoot);
 								task.Repeat(TimeSpan.FromMilliseconds(500));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(16),
+		Scheduler.Schedule(TimeSpan.FromSeconds(16),
 							task =>
 							{
 								DoCastVictim(SpellIds.Stunbomb);
@@ -55,6 +55,6 @@ internal class quartermaster_zigris : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

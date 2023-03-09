@@ -19,14 +19,14 @@ namespace Scripts.Spells.Priest;
 internal class areatrigger_pri_divine_star : AreaTriggerAI
 {
 	private readonly List<ObjectGuid> _affectedUnits = new();
-	private readonly TaskScheduler _scheduler = new();
+	private readonly TaskScheduler Scheduler = new();
 	private Position _casterCurrentPosition = new();
 
 	public areatrigger_pri_divine_star(AreaTrigger areatrigger) : base(areatrigger) { }
 
 	public override void OnInitialize()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
@@ -36,26 +36,26 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 			var divineStarXOffSet = 24.0f;
 
 			var destPos = _casterCurrentPosition;
-			at.MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
+			At.MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
 
-			PathGenerator firstPath = new(at);
+			PathGenerator firstPath = new(At);
 			firstPath.CalculatePath(destPos, false);
 
 			var endPoint = firstPath.GetPath().Last();
 
 			// Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
-			at.InitSplines(firstPath.GetPath().ToList(), (uint)(at.GetDistance(endPoint.X, endPoint.Y, endPoint.Z) * 41.67f));
+			At.InitSplines(firstPath.GetPath().ToList(), (uint)(At.GetDistance(endPoint.X, endPoint.Y, endPoint.Z) * 41.67f));
 		}
 	}
 
 	public override void OnUpdate(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (!_affectedUnits.Contains(unit.GUID))
@@ -72,7 +72,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 	public override void OnUnitExit(Unit unit)
 	{
 		// Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (!_affectedUnits.Contains(unit.GUID))
@@ -88,12 +88,12 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 
 	public override void OnDestinationReached()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		if (at.GetDistance(_casterCurrentPosition) > 0.05f)
+		if (At.GetDistance(_casterCurrentPosition) > 0.05f)
 		{
 			_affectedUnits.Clear();
 
@@ -101,16 +101,16 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 		}
 		else
 		{
-			at.Remove();
+			At.Remove();
 		}
 	}
 
 	private void ReturnToCaster()
 	{
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(0),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(0),
 							task =>
 							{
-								var caster = at.GetCaster();
+								var caster = At.GetCaster();
 
 								if (caster != null)
 								{
@@ -118,12 +118,12 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 
 									List<Vector3> returnSplinePoints = new();
 
-									returnSplinePoints.Add(at.Location);
-									returnSplinePoints.Add(at.Location);
+									returnSplinePoints.Add(At.Location);
+									returnSplinePoints.Add(At.Location);
 									returnSplinePoints.Add(caster.Location);
 									returnSplinePoints.Add(caster.Location);
 
-									at.InitSplines(returnSplinePoints, (uint)at.GetDistance(caster) / 24 * 1000);
+									At.InitSplines(returnSplinePoints, (uint)At.GetDistance(caster) / 24 * 1000);
 
 									task.Repeat(TimeSpan.FromMilliseconds(250));
 								}

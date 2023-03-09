@@ -8,365 +8,458 @@ using Framework.Database;
 using Game.Chat;
 using Game.Entities;
 
-namespace Game.SupportSystem
+namespace Game.SupportSystem;
+
+public class SupportManager : Singleton<SupportManager>
 {
-    public class SupportManager : Singleton<SupportManager>
-    {
-        SupportManager() { }
+	readonly Dictionary<uint, BugTicket> _bugTicketList = new();
+	readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
+	readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
 
-        public void Initialize()
-        {
-            SetSupportSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportEnabled));
-            SetTicketSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled));
-            SetBugSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled));
-            SetComplaintSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled));
-            SetSuggestionSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled));
-        }
+	bool _supportSystemStatus;
+	bool _ticketSystemStatus;
+	bool _bugSystemStatus;
+	bool _complaintSystemStatus;
+	bool _suggestionSystemStatus;
+	uint _lastBugId;
+	uint _lastComplaintId;
+	uint _lastSuggestionId;
+	uint _openBugTicketCount;
+	uint _openComplaintTicketCount;
+	uint _openSuggestionTicketCount;
+	ulong _lastChange;
+	SupportManager() { }
 
-        public T GetTicket<T>(uint Id) where T : Ticket
-        {
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    return _bugTicketList.LookupByKey(Id) as T;
-                case "ComplaintTicket":
-                    return _complaintTicketList.LookupByKey(Id) as T;
-                case "SuggestionTicket":
-                    return _suggestionTicketList.LookupByKey(Id) as T;
-            }
+	public void Initialize()
+	{
+		SetSupportSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportEnabled));
+		SetTicketSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled));
+		SetBugSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled));
+		SetComplaintSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled));
+		SetSuggestionSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled));
+	}
 
-            return default;
-        }
+	public T GetTicket<T>(uint Id) where T : Ticket
+	{
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				return _bugTicketList.LookupByKey(Id) as T;
+			case "ComplaintTicket":
+				return _complaintTicketList.LookupByKey(Id) as T;
+			case "SuggestionTicket":
+				return _suggestionTicketList.LookupByKey(Id) as T;
+		}
 
-        public uint GetOpenTicketCount<T>() where T : Ticket
-        {
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    return _openBugTicketCount;
-                case "ComplaintTicket":
-                    return _openComplaintTicketCount;
-                case "SuggestionTicket":
-                    return _openSuggestionTicketCount;
-            }
-            return 0;
-        }
+		return default;
+	}
 
-        public void LoadBugTickets()
-        {
-            uint oldMSTime = Time.MSTime;
-            _bugTicketList.Clear();
+	public uint GetOpenTicketCount<T>() where T : Ticket
+	{
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				return _openBugTicketCount;
+			case "ComplaintTicket":
+				return _openComplaintTicketCount;
+			case "SuggestionTicket":
+				return _openSuggestionTicketCount;
+		}
 
-            _lastBugId = 0;
-            _openBugTicketCount = 0;
+		return 0;
+	}
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
-            SQLResult result = DB.Characters.Query(stmt);
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM bugs. DB table `gm_bug` is empty!");
-                return;
-            }
+	public void LoadBugTickets()
+	{
+		var oldMSTime = Time.MSTime;
+		_bugTicketList.Clear();
 
-            uint count = 0;
-            do
-            {
-                BugTicket bug = new();
-                bug.LoadFromDB(result.GetFields());
+		_lastBugId = 0;
+		_openBugTicketCount = 0;
 
-                if (!bug.IsClosed())
-                    ++_openBugTicketCount;
+		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
+		var result = DB.Characters.Query(stmt);
 
-                uint id = bug.GetId();
-                if (_lastBugId < id)
-                    _lastBugId = id;
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM bugs. DB table `gm_bug` is empty!");
 
-                _bugTicketList[id] = bug;
-                ++count;
-            } while (result.NextRow());
+			return;
+		}
 
-            Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM bugs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-        }
+		uint count = 0;
 
-        public void LoadComplaintTickets()
-        {
-            uint oldMSTime = Time.MSTime;
-            _complaintTicketList.Clear();
+		do
+		{
+			BugTicket bug = new();
+			bug.LoadFromDB(result.GetFields());
 
-            _lastComplaintId = 0;
-            _openComplaintTicketCount = 0;
+			if (!bug.IsClosed)
+				++_openBugTicketCount;
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
-            SQLResult result = DB.Characters.Query(stmt);
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM complaints. DB table `gm_complaint` is empty!");
-                return;
-            }
+			var id = bug.Id;
 
-            uint count = 0;
-            PreparedStatement chatLogStmt;
-            SQLResult chatLogResult;
-            do
-            {
-                ComplaintTicket complaint = new();
-                complaint.LoadFromDB(result.GetFields());
+			if (_lastBugId < id)
+				_lastBugId = id;
 
-                if (!complaint.IsClosed())
-                    ++_openComplaintTicketCount;
+			_bugTicketList[id] = bug;
+			++count;
+		} while (result.NextRow());
 
-                uint id = complaint.GetId();
-                if (_lastComplaintId < id)
-                    _lastComplaintId = id;
+		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM bugs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+	}
 
-                chatLogStmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
-                chatLogStmt.AddValue(0, id);
-                chatLogResult = DB.Characters.Query(stmt);
+	public void LoadComplaintTickets()
+	{
+		var oldMSTime = Time.MSTime;
+		_complaintTicketList.Clear();
 
-                if (!chatLogResult.IsEmpty())
-                {
-                    do
-                    {
-                        complaint.LoadChatLineFromDB(chatLogResult.GetFields());
-                    } while (chatLogResult.NextRow());
-                }
+		_lastComplaintId = 0;
+		_openComplaintTicketCount = 0;
 
-                _complaintTicketList[id] = complaint;
-                ++count;
-            } while (result.NextRow());
+		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
+		var result = DB.Characters.Query(stmt);
 
-            Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM complaints in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-        }
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM complaints. DB table `gm_complaint` is empty!");
 
-        public void LoadSuggestionTickets()
-        {
-            uint oldMSTime = Time.MSTime;
-            _suggestionTicketList.Clear();
+			return;
+		}
 
-            _lastSuggestionId = 0;
-            _openSuggestionTicketCount = 0;
+		uint count = 0;
+		PreparedStatement chatLogStmt;
+		SQLResult chatLogResult;
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
-            SQLResult result = DB.Characters.Query(stmt);
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM suggestions. DB table `gm_suggestion` is empty!");
-                return;
-            }
+		do
+		{
+			ComplaintTicket complaint = new();
+			complaint.LoadFromDB(result.GetFields());
 
-            uint count = 0;
-            do
-            {
-                SuggestionTicket suggestion = new();
-                suggestion.LoadFromDB(result.GetFields());
+			if (!complaint.IsClosed)
+				++_openComplaintTicketCount;
 
-                if (!suggestion.IsClosed())
-                    ++_openSuggestionTicketCount;
+			var id = complaint.Id;
 
-                uint id = suggestion.GetId();
-                if (_lastSuggestionId < id)
-                    _lastSuggestionId = id;
+			if (_lastComplaintId < id)
+				_lastComplaintId = id;
 
-                _suggestionTicketList[id] = suggestion;
-                ++count;
-            } while (result.NextRow());
+			chatLogStmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
+			chatLogStmt.AddValue(0, id);
+			chatLogResult = DB.Characters.Query(stmt);
 
-            Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
-        }
+			if (!chatLogResult.IsEmpty())
+				do
+				{
+					complaint.LoadChatLineFromDB(chatLogResult.GetFields());
+				} while (chatLogResult.NextRow());
 
-        public void AddTicket<T>(T ticket)where T : Ticket
-        {
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    _bugTicketList[ticket.GetId()] = ticket as BugTicket;
-                    if (!ticket.IsClosed())
-                        ++_openBugTicketCount;
-                    break;
-                case "ComplaintTicket":
-                    _complaintTicketList[ticket.GetId()] = ticket as ComplaintTicket;
-                    if (!ticket.IsClosed())
-                        ++_openComplaintTicketCount;
-                    break;
-                case "SuggestionTicket":
-                    _suggestionTicketList[ticket.GetId()] = ticket as SuggestionTicket;
-                    if (!ticket.IsClosed())
-                        ++_openSuggestionTicketCount;
-                    break;
-            }
+			_complaintTicketList[id] = complaint;
+			++count;
+		} while (result.NextRow());
 
-            ticket.SaveToDB();
-        }
+		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM complaints in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+	}
 
-        public void RemoveTicket<T>(uint ticketId) where T : Ticket
-        {
-            T ticket = GetTicket<T>(ticketId);
-            if (ticket != null)
-            {
-                ticket.DeleteFromDB();
+	public void LoadSuggestionTickets()
+	{
+		var oldMSTime = Time.MSTime;
+		_suggestionTicketList.Clear();
 
-                switch (typeof(T).Name)
-                {
-                    case "BugTicket":
-                        _bugTicketList.Remove(ticketId);
-                        break;
-                    case "ComplaintTicket":
-                        _complaintTicketList.Remove(ticketId);
-                        break;
-                    case "SuggestionTicket":
-                        _suggestionTicketList.Remove(ticketId);
-                        break;
-                }
-            }
-        }
+		_lastSuggestionId = 0;
+		_openSuggestionTicketCount = 0;
 
-        public void CloseTicket<T>(uint ticketId, ObjectGuid closedBy) where T : Ticket
-        {
-            T ticket = GetTicket<T>(ticketId);
-            if (ticket != null)
-            {
-                ticket.SetClosedBy(closedBy);
-                if (!closedBy.IsEmpty)
-                {
-                    switch (typeof(T).Name)
-                    {
-                        case "BugTicket":
-                            --_openBugTicketCount;
-                            break;
-                        case "ComplaintTicket":
-                            --_openComplaintTicketCount;
-                            break;
-                        case "SuggestionTicket":
-                            --_openSuggestionTicketCount;
-                            break;
-                    }
-                }
-                ticket.SaveToDB();
-            }
-        }
+		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
+		var result = DB.Characters.Query(stmt);
 
-        public void ResetTickets<T>() where T : Ticket
-        {
-            PreparedStatement stmt;
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    _bugTicketList.Clear();
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM suggestions. DB table `gm_suggestion` is empty!");
 
-                    _lastBugId = 0;
+			return;
+		}
 
-                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
-                    DB.Characters.Execute(stmt);
-                    break;
-                case "ComplaintTicket":
-                    _complaintTicketList.Clear();
+		uint count = 0;
 
-                    _lastComplaintId = 0;
+		do
+		{
+			SuggestionTicket suggestion = new();
+			suggestion.LoadFromDB(result.GetFields());
 
-                    SQLTransaction trans = new();
-                    trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
-                    trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
-                    DB.Characters.CommitTransaction(trans);
-                    break;
-                case "SuggestionTicket":
-                    _suggestionTicketList.Clear();
+			if (!suggestion.IsClosed)
+				++_openSuggestionTicketCount;
 
-                    _lastSuggestionId = 0;
+			var id = suggestion.Id;
 
-                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
-                    DB.Characters.Execute(stmt);
-                    break;
-            }
+			if (_lastSuggestionId < id)
+				_lastSuggestionId = id;
 
+			_suggestionTicketList[id] = suggestion;
+			++count;
+		} while (result.NextRow());
 
-        }
+		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+	}
 
-        public void ShowList<T>(CommandHandler handler) where T : Ticket
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketshowlist);
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    foreach (var ticket in _bugTicketList.Values)
-                        if (!ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-                case "ComplaintTicket":
-                    foreach (var ticket in _complaintTicketList.Values)
-                        if (!ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-                case "SuggestionTicket":
-                    foreach (var ticket in _suggestionTicketList.Values)
-                        if (!ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-            }
-        }
+	public void AddTicket<T>(T ticket) where T : Ticket
+	{
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				_bugTicketList[ticket.Id] = ticket as BugTicket;
 
-        public void ShowClosedList<T>(CommandHandler handler) where T : Ticket
-        {
-            handler.SendSysMessage(CypherStrings.CommandTicketshowclosedlist);
-            switch (typeof(T).Name)
-            {
-                case "BugTicket":
-                    foreach (var ticket in _bugTicketList.Values)
-                        if (ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-                case "ComplaintTicket":
-                    foreach (var ticket in _complaintTicketList.Values)
-                        if (ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-                case "SuggestionTicket":
-                    foreach (var ticket in _suggestionTicketList.Values)
-                        if (ticket.IsClosed())
-                            handler.SendSysMessage(ticket.FormatViewMessageString(handler));
-                    break;
-            }
-        }
+				if (!ticket.IsClosed)
+					++_openBugTicketCount;
 
-        long GetAge(ulong t) { return (GameTime.GetGameTime() - (long)t) / Time.Day; }
+				break;
+			case "ComplaintTicket":
+				_complaintTicketList[ticket.Id] = ticket as ComplaintTicket;
 
-        IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)
-        {
-            return _complaintTicketList.Where(ticket => ticket.Value.GetPlayerGuid() == playerGuid);
-        }
+				if (!ticket.IsClosed)
+					++_openComplaintTicketCount;
 
-        public bool GetSupportSystemStatus() { return _supportSystemStatus; }
-        public bool GetTicketSystemStatus() { return _supportSystemStatus && _ticketSystemStatus; }
-        public bool GetBugSystemStatus() { return _supportSystemStatus && _bugSystemStatus; }
-        public bool GetComplaintSystemStatus() { return _supportSystemStatus && _complaintSystemStatus; }
-        public bool GetSuggestionSystemStatus() { return _supportSystemStatus && _suggestionSystemStatus; }
-        public ulong GetLastChange() { return _lastChange; }
+				break;
+			case "SuggestionTicket":
+				_suggestionTicketList[ticket.Id] = ticket as SuggestionTicket;
 
-        public void SetSupportSystemStatus(bool status) { _supportSystemStatus = status; }
-        public void SetTicketSystemStatus(bool status) { _ticketSystemStatus = status; }
-        public void SetBugSystemStatus(bool status) { _bugSystemStatus = status; }
-        public void SetComplaintSystemStatus(bool status) { _complaintSystemStatus = status; }
-        public void SetSuggestionSystemStatus(bool status) { _suggestionSystemStatus = status; }
+				if (!ticket.IsClosed)
+					++_openSuggestionTicketCount;
 
-        public void UpdateLastChange() { _lastChange = (ulong)GameTime.GetGameTime(); }
+				break;
+		}
 
-        public uint GenerateBugId() { return ++_lastBugId; }
-        public uint GenerateComplaintId() { return ++_lastComplaintId; }
-        public uint GenerateSuggestionId() { return ++_lastSuggestionId; }
+		ticket.SaveToDB();
+	}
 
-        bool _supportSystemStatus;
-        bool _ticketSystemStatus;
-        bool _bugSystemStatus;
-        bool _complaintSystemStatus;
-        bool _suggestionSystemStatus;
-        readonly Dictionary<uint, BugTicket> _bugTicketList = new();
-        readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
-        readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
-        uint _lastBugId;
-        uint _lastComplaintId;
-        uint _lastSuggestionId;
-        uint _openBugTicketCount;
-        uint _openComplaintTicketCount;
-        uint _openSuggestionTicketCount;
-        ulong _lastChange;
-    }
+	public void RemoveTicket<T>(uint ticketId) where T : Ticket
+	{
+		var ticket = GetTicket<T>(ticketId);
+
+		if (ticket != null)
+		{
+			ticket.DeleteFromDB();
+
+			switch (typeof(T).Name)
+			{
+				case "BugTicket":
+					_bugTicketList.Remove(ticketId);
+
+					break;
+				case "ComplaintTicket":
+					_complaintTicketList.Remove(ticketId);
+
+					break;
+				case "SuggestionTicket":
+					_suggestionTicketList.Remove(ticketId);
+
+					break;
+			}
+		}
+	}
+
+	public void CloseTicket<T>(uint ticketId, ObjectGuid closedBy) where T : Ticket
+	{
+		var ticket = GetTicket<T>(ticketId);
+
+		if (ticket != null)
+		{
+			ticket.SetClosedBy(closedBy);
+
+			if (!closedBy.IsEmpty)
+				switch (typeof(T).Name)
+				{
+					case "BugTicket":
+						--_openBugTicketCount;
+
+						break;
+					case "ComplaintTicket":
+						--_openComplaintTicketCount;
+
+						break;
+					case "SuggestionTicket":
+						--_openSuggestionTicketCount;
+
+						break;
+				}
+
+			ticket.SaveToDB();
+		}
+	}
+
+	public void ResetTickets<T>() where T : Ticket
+	{
+		PreparedStatement stmt;
+
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				_bugTicketList.Clear();
+
+				_lastBugId = 0;
+
+				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
+				DB.Characters.Execute(stmt);
+
+				break;
+			case "ComplaintTicket":
+				_complaintTicketList.Clear();
+
+				_lastComplaintId = 0;
+
+				SQLTransaction trans = new();
+				trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
+				trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
+				DB.Characters.CommitTransaction(trans);
+
+				break;
+			case "SuggestionTicket":
+				_suggestionTicketList.Clear();
+
+				_lastSuggestionId = 0;
+
+				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
+				DB.Characters.Execute(stmt);
+
+				break;
+		}
+	}
+
+	public void ShowList<T>(CommandHandler handler) where T : Ticket
+	{
+		handler.SendSysMessage(CypherStrings.CommandTicketshowlist);
+
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				foreach (var ticket in _bugTicketList.Values)
+					if (!ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+			case "ComplaintTicket":
+				foreach (var ticket in _complaintTicketList.Values)
+					if (!ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+			case "SuggestionTicket":
+				foreach (var ticket in _suggestionTicketList.Values)
+					if (!ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+		}
+	}
+
+	public void ShowClosedList<T>(CommandHandler handler) where T : Ticket
+	{
+		handler.SendSysMessage(CypherStrings.CommandTicketshowclosedlist);
+
+		switch (typeof(T).Name)
+		{
+			case "BugTicket":
+				foreach (var ticket in _bugTicketList.Values)
+					if (ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+			case "ComplaintTicket":
+				foreach (var ticket in _complaintTicketList.Values)
+					if (ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+			case "SuggestionTicket":
+				foreach (var ticket in _suggestionTicketList.Values)
+					if (ticket.IsClosed)
+						handler.SendSysMessage(ticket.FormatViewMessageString(handler));
+
+				break;
+		}
+	}
+
+	public bool GetSupportSystemStatus()
+	{
+		return _supportSystemStatus;
+	}
+
+	public bool GetTicketSystemStatus()
+	{
+		return _supportSystemStatus && _ticketSystemStatus;
+	}
+
+	public bool GetBugSystemStatus()
+	{
+		return _supportSystemStatus && _bugSystemStatus;
+	}
+
+	public bool GetComplaintSystemStatus()
+	{
+		return _supportSystemStatus && _complaintSystemStatus;
+	}
+
+	public bool GetSuggestionSystemStatus()
+	{
+		return _supportSystemStatus && _suggestionSystemStatus;
+	}
+
+	public ulong GetLastChange()
+	{
+		return _lastChange;
+	}
+
+	public void SetSupportSystemStatus(bool status)
+	{
+		_supportSystemStatus = status;
+	}
+
+	public void SetTicketSystemStatus(bool status)
+	{
+		_ticketSystemStatus = status;
+	}
+
+	public void SetBugSystemStatus(bool status)
+	{
+		_bugSystemStatus = status;
+	}
+
+	public void SetComplaintSystemStatus(bool status)
+	{
+		_complaintSystemStatus = status;
+	}
+
+	public void SetSuggestionSystemStatus(bool status)
+	{
+		_suggestionSystemStatus = status;
+	}
+
+	public void UpdateLastChange()
+	{
+		_lastChange = (ulong)GameTime.GetGameTime();
+	}
+
+	public uint GenerateBugId()
+	{
+		return ++_lastBugId;
+	}
+
+	public uint GenerateComplaintId()
+	{
+		return ++_lastComplaintId;
+	}
+
+	public uint GenerateSuggestionId()
+	{
+		return ++_lastSuggestionId;
+	}
+
+	long GetAge(ulong t)
+	{
+		return (GameTime.GetGameTime() - (long)t) / Time.Day;
+	}
+
+	IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)
+	{
+		return _complaintTicketList.Where(ticket => ticket.Value.PlayerGuid == playerGuid);
+	}
 }

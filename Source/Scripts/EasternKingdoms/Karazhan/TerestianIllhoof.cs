@@ -49,10 +49,10 @@ internal class boss_terestian : BossAI
 	public override void Reset()
 	{
 		EntryCheckPredicate pred = new(MiscConst.NpcFiendishPortal);
-		summons.DoAction(MiscConst.ActionDespawnImps, pred);
+		Summons.DoAction(MiscConst.ActionDespawnImps, pred);
 		_Reset();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.MaxThreat, 0);
@@ -63,14 +63,14 @@ internal class boss_terestian : BossAI
 								task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			me.RemoveAura(SpellIds.BrokenPact);
+																			Me.RemoveAura(SpellIds.BrokenPact);
 																			DoCastAOE(SpellIds.SummonImp, new CastSpellExtraArgs(true));
 																		}));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
@@ -85,15 +85,15 @@ internal class boss_terestian : BossAI
 								task.Repeat(TimeSpan.FromSeconds(42));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								Talk(TextIds.SaySummonPortal);
 								DoCastAOE(SpellIds.FiendishPortal1);
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastAOE(SpellIds.FiendishPortal2, new CastSpellExtraArgs(true)); });
-		_scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true)); });
+		Scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastAOE(SpellIds.FiendishPortal2, new CastSpellExtraArgs(true)); });
+		Scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true)); });
 	}
 
 	public override void JustEngagedWith(Unit who)
@@ -105,10 +105,10 @@ internal class boss_terestian : BossAI
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 	{
 		if (spellInfo.Id == SpellIds.BrokenPact)
-			_scheduler.Schedule(TimeSpan.FromSeconds(32),
+			Scheduler.Schedule(TimeSpan.FromSeconds(32),
 								(Action<Framework.Dynamic.TaskContext>)(task =>
 																			{
-																				me.RemoveAura(SpellIds.BrokenPact);
+																				Me.RemoveAura(SpellIds.BrokenPact);
 																				DoCastAOE(SpellIds.SummonImp, new CastSpellExtraArgs(true));
 																			}));
 	}
@@ -123,13 +123,13 @@ internal class boss_terestian : BossAI
 	{
 		Talk(TextIds.SayDeath);
 		EntryCheckPredicate pred = new(MiscConst.NpcFiendishPortal);
-		summons.DoAction(MiscConst.ActionDespawnImps, pred);
+		Summons.DoAction(MiscConst.ActionDespawnImps, pred);
 		_JustDied();
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -140,7 +140,7 @@ internal class npc_kilrek : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.AmplifyFlames);
@@ -151,7 +151,7 @@ internal class npc_kilrek : ScriptedAI
 	public override void JustDied(Unit killer)
 	{
 		DoCastAOE(SpellIds.BrokenPact, new CastSpellExtraArgs(true));
-		me.DespawnOrUnsummon(TimeSpan.FromSeconds(15));
+		Me.DespawnOrUnsummon(TimeSpan.FromSeconds(15));
 	}
 
 	public override void UpdateAI(uint diff)
@@ -159,7 +159,7 @@ internal class npc_kilrek : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => { DoMeleeAttackIfReady(); });
+		Scheduler.Update(diff, () => { DoMeleeAttackIfReady(); });
 	}
 }
 
@@ -178,7 +178,7 @@ internal class npc_demon_chain : PassiveAI
 
 	public override void JustDied(Unit killer)
 	{
-		var sacrifice = Global.ObjAccessor.GetUnit(me, _sacrificeGUID);
+		var sacrifice = Global.ObjAccessor.GetUnit(Me, _sacrificeGUID);
 
 		if (sacrifice)
 			sacrifice.RemoveAura(SpellIds.Sacrifice);
@@ -192,12 +192,12 @@ internal class npc_fiendish_portal : PassiveAI
 
 	public npc_fiendish_portal(Creature creature) : base(creature)
 	{
-		_summons = new SummonList(me);
+		_summons = new SummonList(Me);
 	}
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(2400),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(2400),
 							TimeSpan.FromSeconds(8),
 							task =>
 							{
@@ -220,7 +220,7 @@ internal class npc_fiendish_portal : PassiveAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -231,14 +231,14 @@ internal class npc_fiendish_imp : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								DoCastVictim(SpellIds.Firebolt);
 								task.Repeat(TimeSpan.FromMilliseconds(2400));
 							});
 
-		me.ApplySpellImmune(0, SpellImmunity.School, SpellSchoolMask.Fire, true);
+		Me.ApplySpellImmune(0, SpellImmunity.School, SpellSchoolMask.Fire, true);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -246,6 +246,6 @@ internal class npc_fiendish_imp : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

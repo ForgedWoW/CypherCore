@@ -40,7 +40,7 @@ internal class boss_ascendant_lord_obsidius : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							ScheduleTasks =>
 							{
 								DoCastVictim(SpellIds.ManaTap, new CastSpellExtraArgs(true));
@@ -67,6 +67,6 @@ internal class boss_ascendant_lord_obsidius : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

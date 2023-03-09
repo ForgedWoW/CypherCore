@@ -32,17 +32,17 @@ internal class boss_garr : BossAI
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(25),
+		Scheduler.Schedule(TimeSpan.FromSeconds(25),
 							task =>
 							{
-								DoCast(me, SpellIds.AntimagicPulse);
+								DoCast(Me, SpellIds.AntimagicPulse);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
-								DoCast(me, SpellIds.MagmaShackles);
+								DoCast(Me, SpellIds.MagmaShackles);
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(12));
 							});
 	}
@@ -52,7 +52,7 @@ internal class boss_garr : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -63,7 +63,7 @@ internal class npc_firesworn : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
@@ -73,14 +73,14 @@ internal class npc_firesworn : ScriptedAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		var health10pct = me.CountPctFromMaxHealth(10);
-		var health = me.Health;
+		var health10pct = Me.CountPctFromMaxHealth(10);
+		var health = Me.Health;
 
 		if (health - damage < health10pct)
 		{
 			damage = 0;
 			DoCastVictim(SpellIds.Eruption);
-			me.DespawnOrUnsummon();
+			Me.DespawnOrUnsummon();
 		}
 	}
 
@@ -89,13 +89,13 @@ internal class npc_firesworn : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void ScheduleTasks()
 	{
 		// Timers for this are probably wrong
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0);
@@ -108,13 +108,13 @@ internal class npc_firesworn : ScriptedAI
 
 		// Separation Anxiety - Periodically check if Garr is nearby
 		// ...and enrage if he is not.
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			if (!me.FindNearestCreature(MCCreatureIds.Garr, 20.0f))
+																			if (!Me.FindNearestCreature(MCCreatureIds.Garr, 20.0f))
 																				DoCastSelf(SpellIds.SeparationAnxiety);
-																			else if (me.HasAura(SpellIds.SeparationAnxiety))
-																				me.RemoveAura(SpellIds.SeparationAnxiety);
+																			else if (Me.HasAura(SpellIds.SeparationAnxiety))
+																				Me.RemoveAura(SpellIds.SeparationAnxiety);
 
 																			task.Repeat();
 																		}));

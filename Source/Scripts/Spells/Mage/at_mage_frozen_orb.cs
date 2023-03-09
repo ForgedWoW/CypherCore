@@ -20,20 +20,20 @@ public class at_mage_frozen_orb : AreaTriggerAI
 
 	public override void OnInitialize()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
 		var pos = caster.Location;
 
-		at.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
-		at.SetDestination(pos, 4000);
+		At.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+		At.SetDestination(pos, 4000);
 	}
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || !caster.IsPlayer)
 			return;
@@ -41,7 +41,7 @@ public class at_mage_frozen_orb : AreaTriggerAI
 		if (damageInterval <= diff)
 		{
 			if (!procDone)
-				foreach (var guid in at.InsideUnits)
+				foreach (var guid in At.InsideUnits)
 				{
 					var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 
@@ -60,7 +60,7 @@ public class at_mage_frozen_orb : AreaTriggerAI
 						}
 				}
 
-			caster.CastSpell(at.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
+			caster.CastSpell(At.Location, MageSpells.FROZEN_ORB_DAMAGE, true);
 			damageInterval = 500;
 		}
 		else

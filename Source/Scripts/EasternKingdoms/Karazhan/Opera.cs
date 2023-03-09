@@ -211,19 +211,19 @@ internal class boss_dorothee : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		Talk(TextIds.SayDorotheeDeath);
 
-		MiscConst.SummonCroneIfReady(instance, me);
+		MiscConst.SummonCroneIfReady(instance, Me);
 	}
 
 	public override void AttackStart(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.AttackStart(who);
@@ -231,7 +231,7 @@ internal class boss_dorothee : ScriptedAI
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -243,7 +243,7 @@ internal class boss_dorothee : ScriptedAI
 		{
 			if (AggroTimer <= diff)
 			{
-				me.RemoveUnitFlag(UnitFlags.NonAttackable);
+				Me.RemoveUnitFlag(UnitFlags.NonAttackable);
 				AggroTimer = 0;
 			}
 			else
@@ -299,13 +299,13 @@ internal class boss_dorothee : ScriptedAI
 
 	private void SummonTito()
 	{
-		Creature pTito = me.SummonCreature(CreatureIds.Tito, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+		Creature pTito = Me.SummonCreature(CreatureIds.Tito, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
 		if (pTito)
 		{
 			Talk(TextIds.SayDorotheeSummon);
-			pTito.GetAI<npc_tito>().DorotheeGUID = me.GUID;
-			pTito.AI.AttackStart(me.Victim);
+			pTito.GetAI<npc_tito>().DorotheeGUID = Me.GUID;
+			pTito.AI.AttackStart(Me.Victim);
 			SummonedTito = true;
 			TitoDied = false;
 		}
@@ -334,7 +334,7 @@ internal class npc_tito : ScriptedAI
 	{
 		if (!DorotheeGUID.IsEmpty)
 		{
-			var Dorothee = ObjectAccessor.GetCreature(me, DorotheeGUID);
+			var Dorothee = ObjectAccessor.GetCreature(Me, DorotheeGUID);
 
 			if (Dorothee && Dorothee.IsAlive)
 			{
@@ -390,7 +390,7 @@ internal class boss_strawman : ScriptedAI
 
 	public override void AttackStart(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.AttackStart(who);
@@ -398,7 +398,7 @@ internal class boss_strawman : ScriptedAI
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -411,21 +411,21 @@ internal class boss_strawman : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 	{
 		if ((spellInfo.SchoolMask == SpellSchoolMask.Fire) &&
 			((RandomHelper.Rand32() % 10) == 0))
-			DoCast(me, SpellIds.BurningStraw, new CastSpellExtraArgs(true));
+			DoCast(Me, SpellIds.BurningStraw, new CastSpellExtraArgs(true));
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		Talk(TextIds.SayStrawmanDeath);
 
-		MiscConst.SummonCroneIfReady(instance, me);
+		MiscConst.SummonCroneIfReady(instance, Me);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -439,7 +439,7 @@ internal class boss_strawman : ScriptedAI
 		{
 			if (AggroTimer <= diff)
 			{
-				me.RemoveUnitFlag(UnitFlags.NonAttackable);
+				Me.RemoveUnitFlag(UnitFlags.NonAttackable);
 				AggroTimer = 0;
 			}
 			else
@@ -514,12 +514,12 @@ internal class boss_tinhead : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void AttackStart(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.AttackStart(who);
@@ -527,7 +527,7 @@ internal class boss_tinhead : ScriptedAI
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -537,7 +537,7 @@ internal class boss_tinhead : ScriptedAI
 	{
 		Talk(TextIds.SayTinheadDeath);
 
-		MiscConst.SummonCroneIfReady(instance, me);
+		MiscConst.SummonCroneIfReady(instance, Me);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -551,7 +551,7 @@ internal class boss_tinhead : ScriptedAI
 		{
 			if (AggroTimer <= diff)
 			{
-				me.RemoveUnitFlag(UnitFlags.NonAttackable);
+				Me.RemoveUnitFlag(UnitFlags.NonAttackable);
 				AggroTimer = 0;
 			}
 			else
@@ -579,7 +579,7 @@ internal class boss_tinhead : ScriptedAI
 			{
 				++RustCount;
 				Talk(TextIds.EmoteRust);
-				DoCast(me, SpellIds.Rust);
+				DoCast(Me, SpellIds.Rust);
 				RustTimer = 6000;
 			}
 			else
@@ -624,7 +624,7 @@ internal class boss_roar : ScriptedAI
 	public override void MoveInLineOfSight(Unit who)
 
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -632,7 +632,7 @@ internal class boss_roar : ScriptedAI
 
 	public override void AttackStart(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.AttackStart(who);
@@ -645,14 +645,14 @@ internal class boss_roar : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		Talk(TextIds.SayRoarDeath);
 
-		MiscConst.SummonCroneIfReady(instance, me);
+		MiscConst.SummonCroneIfReady(instance, Me);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -666,7 +666,7 @@ internal class boss_roar : ScriptedAI
 		{
 			if (AggroTimer <= diff)
 			{
-				me.RemoveUnitFlag(UnitFlags.NonAttackable);
+				Me.RemoveUnitFlag(UnitFlags.NonAttackable);
 				AggroTimer = 0;
 			}
 			else
@@ -741,7 +741,7 @@ internal class boss_crone : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -799,8 +799,8 @@ internal class boss_crone : ScriptedAI
 		// Anyway, I digress.
 		// @todo This line below is obviously a hack. Duh. I'm just coming in here to hackfix the encounter to actually be completable.
 		// It needs a rewrite. Badly. Please, take good care of it.
-		me.RemoveUnitFlag(UnitFlags.NonAttackable);
-		me.SetImmuneToPC(false);
+		Me.RemoveUnitFlag(UnitFlags.NonAttackable);
+		Me.SetImmuneToPC(false);
 		CycloneTimer = 30000;
 		ChainLightningTimer = 10000;
 	}
@@ -827,13 +827,13 @@ internal class npc_cyclone : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me.HasAura(SpellIds.Knockback))
-			DoCast(me, SpellIds.Knockback, new CastSpellExtraArgs(true));
+		if (!Me.HasAura(SpellIds.Knockback))
+			DoCast(Me, SpellIds.Knockback, new CastSpellExtraArgs(true));
 
 		if (MoveTimer <= diff)
 		{
-			var pos = me.GetRandomNearPosition(10);
-			me.MotionMaster.MovePoint(0, pos);
+			var pos = Me.GetRandomNearPosition(10);
+			Me.MotionMaster.MovePoint(0, pos);
 			MoveTimer = RandomHelper.URand(5000, 8000);
 		}
 		else
@@ -860,12 +860,12 @@ internal class npc_grandmother : ScriptedAI
 		{
 			player.CloseGossipMenu();
 
-			Creature pBigBadWolf = me.SummonCreature(CreatureIds.BigBadWolf, me.Location.X, me.Location.Y, me.Location.Z, me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+			Creature pBigBadWolf = Me.SummonCreature(CreatureIds.BigBadWolf, Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.Orientation, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
 			if (pBigBadWolf)
 				pBigBadWolf.AI.AttackStart(player);
 
-			me.DespawnOrUnsummon();
+			Me.DespawnOrUnsummon();
 		}
 
 		return false;
@@ -908,12 +908,12 @@ internal class boss_bigbadwolf : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		DoPlaySoundToSet(me, MiscConst.SoundWolfDeath);
+		DoPlaySoundToSet(Me, MiscConst.SoundWolfDeath);
 		instance.SetBossState(DataTypes.OperaPerformance, EncounterState.Done);
 	}
 
@@ -949,7 +949,7 @@ internal class boss_bigbadwolf : ScriptedAI
 			{
 				IsChasing = false;
 
-				var target = Global.ObjAccessor.GetUnit(me, HoodGUID);
+				var target = Global.ObjAccessor.GetUnit(Me, HoodGUID);
 
 				if (target)
 				{
@@ -1047,7 +1047,7 @@ internal class boss_julianne : ScriptedAI
 
 		if (IsFakingDeath)
 		{
-			MiscConst.Resurrect(me);
+			MiscConst.Resurrect(Me);
 			IsFakingDeath = false;
 		}
 	}
@@ -1056,7 +1056,7 @@ internal class boss_julianne : ScriptedAI
 
 	public override void AttackStart(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.AttackStart(who);
@@ -1064,7 +1064,7 @@ internal class boss_julianne : ScriptedAI
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -1072,7 +1072,7 @@ internal class boss_julianne : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
@@ -1086,7 +1086,7 @@ internal class boss_julianne : ScriptedAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage < me.Health)
+		if (damage < Me.Health)
 			return;
 
 		//anything below only used if incoming Damage will kill
@@ -1099,8 +1099,8 @@ internal class boss_julianne : ScriptedAI
 			if (IsFakingDeath)
 				return;
 
-			me.InterruptNonMeleeSpells(true);
-			DoCast(me, SpellIds.DrinkPoison);
+			Me.InterruptNonMeleeSpells(true);
+			DoCast(Me, SpellIds.DrinkPoison);
 
 			IsFakingDeath = true;
 
@@ -1121,7 +1121,7 @@ internal class boss_julianne : ScriptedAI
 			//if this is true then we have to kill romulo too
 			if (RomuloDead)
 			{
-				var Romulo = ObjectAccessor.GetCreature(me, RomuloGUID);
+				var Romulo = ObjectAccessor.GetCreature(Me, RomuloGUID);
 
 				if (Romulo)
 				{
@@ -1136,11 +1136,11 @@ internal class boss_julianne : ScriptedAI
 			}
 
 			//if not already returned, then romulo is alive and we can pretend die
-			var Romulo1 = (ObjectAccessor.GetCreature((me), RomuloGUID));
+			var Romulo1 = (ObjectAccessor.GetCreature((Me), RomuloGUID));
 
 			if (Romulo1)
 			{
-				MiscConst.PretendToDie(me);
+				MiscConst.PretendToDie(Me);
 				IsFakingDeath = true;
 				Romulo1.GetAI<boss_romulo>().ResurrectTimer = 10000;
 				Romulo1.GetAI<boss_romulo>().JulianneDead = true;
@@ -1184,8 +1184,8 @@ internal class boss_julianne : ScriptedAI
 			if (AggroYellTimer <= diff)
 			{
 				Talk(TextIds.SayJulianneAggro);
-				me.RemoveUnitFlag(UnitFlags.NonAttackable);
-				me.Faction = (uint)FactionTemplates.Monster2;
+				Me.RemoveUnitFlag(UnitFlags.NonAttackable);
+				Me.Faction = (uint)FactionTemplates.Monster2;
 				AggroYellTimer = 0;
 			}
 			else
@@ -1199,7 +1199,7 @@ internal class boss_julianne : ScriptedAI
 			//will do this TimeSpan.FromSeconds(2s)ecs after spell hit. this is Time to display visual as expected
 			if (DrinkPoisonTimer <= diff)
 			{
-				MiscConst.PretendToDie(me);
+				MiscConst.PretendToDie(Me);
 				Phase = RAJPhase.Romulo;
 				SummonRomuloTimer = 10000;
 				DrinkPoisonTimer = 0;
@@ -1215,12 +1215,12 @@ internal class boss_julianne : ScriptedAI
 		{
 			if (SummonRomuloTimer <= diff)
 			{
-				Creature pRomulo = me.SummonCreature(CreatureIds.Romulo, MiscConst.RomuloX, MiscConst.RomuloY, me.Location.Z, 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
+				Creature pRomulo = Me.SummonCreature(CreatureIds.Romulo, MiscConst.RomuloX, MiscConst.RomuloY, Me.Location.Z, 0, TempSummonType.TimedOrDeadDespawn, TimeSpan.FromHours(2));
 
 				if (pRomulo)
 				{
 					RomuloGUID = pRomulo.GUID;
-					pRomulo.GetAI<boss_romulo>().JulianneGUID = me.GUID;
+					pRomulo.GetAI<boss_romulo>().JulianneGUID = Me.GUID;
 					pRomulo.GetAI<boss_romulo>().Phase = RAJPhase.Romulo;
 					DoZoneInCombat(pRomulo);
 
@@ -1239,12 +1239,12 @@ internal class boss_julianne : ScriptedAI
 		{
 			if (ResurrectSelfTimer <= diff)
 			{
-				MiscConst.Resurrect(me);
+				MiscConst.Resurrect(Me);
 				Phase = RAJPhase.Both;
 				IsFakingDeath = false;
 
-				if (me.Victim)
-					AttackStart(me.Victim);
+				if (Me.Victim)
+					AttackStart(Me.Victim);
 
 				ResurrectSelfTimer = 0;
 				ResurrectTimer = 1000;
@@ -1262,7 +1262,7 @@ internal class boss_julianne : ScriptedAI
 		{
 			if (ResurrectTimer <= diff)
 			{
-				var Romulo = ObjectAccessor.GetCreature(me, RomuloGUID);
+				var Romulo = ObjectAccessor.GetCreature(Me, RomuloGUID);
 
 				if (Romulo && Romulo.GetAI<boss_romulo>().IsFakingDeath)
 				{
@@ -1295,7 +1295,7 @@ internal class boss_julianne : ScriptedAI
 
 		if (DevotionTimer <= diff)
 		{
-			DoCast(me, SpellIds.Devotion);
+			DoCast(Me, SpellIds.Devotion);
 			DevotionTimer = RandomHelper.URand(15000, 45000);
 		}
 		else
@@ -1317,7 +1317,7 @@ internal class boss_julianne : ScriptedAI
 		{
 			if (RandomHelper.URand(0, 1) != 0 && SummonedRomulo)
 			{
-				var Romulo = (ObjectAccessor.GetCreature((me), RomuloGUID));
+				var Romulo = (ObjectAccessor.GetCreature((Me), RomuloGUID));
 
 				if (Romulo &&
 					Romulo.IsAlive &&
@@ -1326,7 +1326,7 @@ internal class boss_julianne : ScriptedAI
 			}
 			else
 			{
-				DoCast(me, SpellIds.EternalAffection);
+				DoCast(Me, SpellIds.EternalAffection);
 			}
 
 			EternalAffectionTimer = RandomHelper.URand(45000, 60000);
@@ -1385,12 +1385,12 @@ internal class boss_romulo : ScriptedAI
 
 	public override void JustReachedHome()
 	{
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage < me.Health)
+		if (damage < Me.Health)
 			return;
 
 		//anything below only used if incoming Damage will kill
@@ -1398,11 +1398,11 @@ internal class boss_romulo : ScriptedAI
 		if (Phase == RAJPhase.Romulo)
 		{
 			Talk(TextIds.SayRomuloDeath);
-			MiscConst.PretendToDie(me);
+			MiscConst.PretendToDie(Me);
 			IsFakingDeath = true;
 			Phase = RAJPhase.Both;
 
-			var Julianne = ObjectAccessor.GetCreature(me, JulianneGUID);
+			var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
 			if (Julianne)
 			{
@@ -1419,7 +1419,7 @@ internal class boss_romulo : ScriptedAI
 		{
 			if (JulianneDead)
 			{
-				var Julianne = ObjectAccessor.GetCreature(me, JulianneGUID);
+				var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
 				if (Julianne)
 				{
@@ -1433,11 +1433,11 @@ internal class boss_romulo : ScriptedAI
 				return;
 			}
 
-			var Julianne1 = ObjectAccessor.GetCreature(me, JulianneGUID);
+			var Julianne1 = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
 			if (Julianne1)
 			{
-				MiscConst.PretendToDie(me);
+				MiscConst.PretendToDie(Me);
 				IsFakingDeath = true;
 				Julianne1.GetAI<boss_julianne>().ResurrectTimer = 10000;
 				Julianne1.GetAI<boss_julianne>().RomuloDead = true;
@@ -1456,7 +1456,7 @@ internal class boss_romulo : ScriptedAI
 
 		if (!JulianneGUID.IsEmpty)
 		{
-			var Julianne = ObjectAccessor.GetCreature(me, JulianneGUID);
+			var Julianne = ObjectAccessor.GetCreature(Me, JulianneGUID);
 
 			if (Julianne && Julianne.Victim)
 			{
@@ -1468,7 +1468,7 @@ internal class boss_romulo : ScriptedAI
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.HasUnitFlag(UnitFlags.NonAttackable))
+		if (Me.HasUnitFlag(UnitFlags.NonAttackable))
 			return;
 
 		base.MoveInLineOfSight(who);
@@ -1494,7 +1494,7 @@ internal class boss_romulo : ScriptedAI
 		{
 			if (ResurrectTimer <= diff)
 			{
-				var Julianne = (ObjectAccessor.GetCreature((me), JulianneGUID));
+				var Julianne = (ObjectAccessor.GetCreature((Me), JulianneGUID));
 
 				if (Julianne && Julianne.GetAI<boss_julianne>().IsFakingDeath)
 				{
@@ -1515,7 +1515,7 @@ internal class boss_romulo : ScriptedAI
 		{
 			var target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
-			if (target && !me.Location.HasInArc(MathF.PI, target.Location))
+			if (target && !Me.Location.HasInArc(MathF.PI, target.Location))
 			{
 				DoCast(target, SpellIds.BackwardLunge);
 				BackwardLungeTimer = RandomHelper.URand(15000, 30000);
@@ -1528,7 +1528,7 @@ internal class boss_romulo : ScriptedAI
 
 		if (DaringTimer <= diff)
 		{
-			DoCast(me, SpellIds.Daring);
+			DoCast(Me, SpellIds.Daring);
 			DaringTimer = RandomHelper.URand(20000, 40000);
 		}
 		else

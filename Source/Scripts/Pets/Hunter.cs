@@ -37,15 +37,15 @@ namespace Scripts.Pets
 
 			public override void JustAppeared()
 			{
-				_isViper = me.Entry == CreatureIds.Viper ? true : false;
+				_isViper = Me.Entry == CreatureIds.Viper ? true : false;
 
-				me.SetMaxHealth((uint)(107 * (me.Level - 40) * 0.025f));
+				Me.SetMaxHealth((uint)(107 * (Me.Level - 40) * 0.025f));
 				// Add delta to make them not all hit the same Time
-				me.SetBaseAttackTime(WeaponAttackType.BaseAttack, me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.InMilliseconds);
+				Me.SetBaseAttackTime(WeaponAttackType.BaseAttack, Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) + RandomHelper.URand(0, 6) * Time.InMilliseconds);
 
 				if (!_isViper &&
-					!me.HasAura(SpellIds.DeadlyPoisonPassive))
-					DoCast(me, SpellIds.DeadlyPoisonPassive, new CastSpellExtraArgs(true));
+					!Me.HasAura(SpellIds.DeadlyPoisonPassive))
+					DoCast(Me, SpellIds.DeadlyPoisonPassive, new CastSpellExtraArgs(true));
 			}
 
 			// Redefined for random Target selection:
@@ -53,22 +53,22 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint diff)
 			{
-				if (me.Victim &&
-					me.Victim.HasBreakableByDamageCrowdControlAura())
+				if (Me.Victim &&
+					Me.Victim.HasBreakableByDamageCrowdControlAura())
 				{
 					// don't break cc
-					me.GetThreatManager().ClearFixate();
-					me.InterruptNonMeleeSpells(false);
-					me.AttackStop();
+					Me.GetThreatManager().ClearFixate();
+					Me.InterruptNonMeleeSpells(false);
+					Me.AttackStop();
 
 					return;
 				}
 
-				if (me.IsSummon &&
-					!me.GetThreatManager().GetFixateTarget())
+				if (Me.IsSummon &&
+					!Me.GetThreatManager().GetFixateTarget())
 				{
 					// find new Target
-					var summoner = me.ToTempSummon().GetSummonerUnit();
+					var summoner = Me.ToTempSummon().GetSummonerUnit();
 					List<Unit> targets = new();
 
 					void addTargetIfValid(CombatReference refe)
@@ -76,8 +76,8 @@ namespace Scripts.Pets
 						var enemy = refe.GetOther(summoner);
 
 						if (!enemy.HasBreakableByDamageCrowdControlAura() &&
-							me.CanCreatureAttack(enemy) &&
-							me.IsWithinDistInMap(enemy, (float)me.GetAttackDistance(enemy)))
+							Me.CanCreatureAttack(enemy) &&
+							Me.IsWithinDistInMap(enemy, (float)Me.GetAttackDistance(enemy)))
 							targets.Add(enemy);
 					}
 
@@ -89,12 +89,12 @@ namespace Scripts.Pets
 							addTargetIfValid(pair.Value);
 
 					foreach (var target in targets)
-						me.EngageWithTarget(target);
+						Me.EngageWithTarget(target);
 
 					if (!targets.Empty())
 					{
 						var target = targets.SelectRandom();
-						me.GetThreatManager().FixateTarget(target);
+						Me.GetThreatManager().FixateTarget(target);
 					}
 				}
 

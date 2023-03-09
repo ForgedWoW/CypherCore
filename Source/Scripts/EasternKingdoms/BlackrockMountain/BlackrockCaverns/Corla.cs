@@ -39,22 +39,22 @@ internal class boss_corla : BossAI
 		_Reset();
 		combatPhase = false;
 
-		_scheduler.SetValidator(() => !combatPhase);
+		Scheduler.SetValidator(() => !combatPhase);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							drainTask =>
 							{
-								DoCast(me, SpellIds.DrainEssense);
+								DoCast(Me, SpellIds.DrainEssense);
 
 								drainTask.Schedule(TimeSpan.FromSeconds(15),
 													stopDrainTask =>
 													{
-														me.InterruptSpell(CurrentSpellTypes.Channeled);
+														Me.InterruptSpell(CurrentSpellTypes.Channeled);
 
 														stopDrainTask.Schedule(TimeSpan.FromSeconds(2),
 																				evolutionTask =>
 																				{
-																					DoCast(me, SpellIds.Evolution);
+																					DoCast(Me, SpellIds.Evolution);
 																					drainTask.Repeat(TimeSpan.FromSeconds(2));
 																				});
 													});
@@ -65,7 +65,7 @@ internal class boss_corla : BossAI
 	{
 		base.JustEngagedWith(who);
 		Talk(TextIds.YellAggro);
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 		combatPhase = true;
 	}
 
@@ -83,7 +83,7 @@ internal class boss_corla : BossAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		DoMeleeAttackIfReady();
 	}

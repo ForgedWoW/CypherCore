@@ -32,28 +32,28 @@ internal class boss_general_angerforge : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		phase = Phases.One;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.Mightyblow);
 								task.Repeat(TimeSpan.FromSeconds(18));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Hamstring);
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(16),
+		Scheduler.Schedule(TimeSpan.FromSeconds(16),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
@@ -63,23 +63,23 @@ internal class boss_general_angerforge : ScriptedAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.HealthBelowPctDamaged(20, damage) &&
+		if (Me.HealthBelowPctDamaged(20, damage) &&
 			phase == Phases.One)
 		{
 			phase = Phases.Two;
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(0),
+			Scheduler.Schedule(TimeSpan.FromSeconds(0),
 								task =>
 								{
 									for (byte i = 0; i < 2; ++i)
-										SummonMedic(me.Victim);
+										SummonMedic(Me.Victim);
 								});
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(0),
+			Scheduler.Schedule(TimeSpan.FromSeconds(0),
 								task =>
 								{
 									for (byte i = 0; i < 3; ++i)
-										SummonAdd(me.Victim);
+										SummonAdd(Me.Victim);
 
 									task.Repeat(TimeSpan.FromSeconds(25));
 								});
@@ -91,7 +91,7 @@ internal class boss_general_angerforge : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void SummonAdd(Unit victim)

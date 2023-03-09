@@ -36,15 +36,15 @@ public class boss_admiral_ripsnarl : BossAI
 
 	public override void Reset()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		_Reset();
-		summons.DespawnAll();
-		_events.Reset();
+		Summons.DespawnAll();
+		Events.Reset();
 		_vaporCount = 0;
-		me.SetFullHealth();
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Me.SetFullHealth();
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 		RemoveAuraFromMap();
 		SetFog(false);
 
@@ -58,18 +58,18 @@ public class boss_admiral_ripsnarl : BossAI
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustEnteredCombat(who);
 		Talk(Says.SAY_AGGRO);
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
 
-		_events.ScheduleEvent(BossEvents.EVENT_THIRST_FOR_BLOOD, TimeSpan.FromMilliseconds(0));
-		_events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(10000));
+		Events.ScheduleEvent(BossEvents.EVENT_THIRST_FOR_BLOOD, TimeSpan.FromMilliseconds(0));
+		Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(10000));
 
 		if (IsHeroic())
-			_events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
+			Events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public override void JustSummoned(Creature summoned)
@@ -77,12 +77,12 @@ public class boss_admiral_ripsnarl : BossAI
 		if (summoned.AI != null)
 			summoned.AI.AttackStart(SelectTarget(SelectTargetMethod.Random));
 
-		summons.Summon(summoned);
+		Summons.Summon(summoned);
 	}
 
 	public override void JustReachedHome()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustReachedHome();
@@ -92,21 +92,21 @@ public class boss_admiral_ripsnarl : BossAI
 
 	public override void SummonedCreatureDespawn(Creature summon)
 	{
-		summons.Despawn(summon);
+		Summons.Despawn(summon);
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustDied(killer);
-		summons.DespawnAll();
+		Summons.DespawnAll();
 		Talk(Says.SAY_DEATH);
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 		RemoveAuraFromMap();
 		RemoveFog();
-		me.SummonCreature(DMCreatures.NPC_CAPTAIN_COOKIE, CookieSpawn);
+		Me.SummonCreature(DMCreatures.NPC_CAPTAIN_COOKIE, CookieSpawn);
 	}
 
 	public override void SetData(uint uiI, uint uiValue)
@@ -117,7 +117,7 @@ public class boss_admiral_ripsnarl : BossAI
 
 			if (_numberCastCoalesce >= 3)
 			{
-				var map = me.Map;
+				var map = Me.Map;
 				var its_frost_damage = Global.AchievementMgr.GetAchievementByReferencedId(eAchievementMisc.ACHIEVEMENT_ITS_FROST_DAMAGE).FirstOrDefault();
 
 				if (map != null && map.IsDungeon && map.DifficultyID == Difficulty.Heroic)
@@ -127,7 +127,7 @@ public class boss_admiral_ripsnarl : BossAI
 					if (!players.Empty())
 						foreach (var player in map.Players)
 							if (player != null)
-								if (player.GetDistance(me) < 300.0f)
+								if (player.GetDistance(Me) < 300.0f)
 									player.CompletedAchievement(its_frost_damage);
 				}
 			}
@@ -139,12 +139,12 @@ public class boss_admiral_ripsnarl : BossAI
 		_vaporCount++;
 
 		if (_vaporCount == 4)
-			_events.ScheduleEvent(BossEvents.EVENT_SHOW_UP, TimeSpan.FromMilliseconds(1000));
+			Events.ScheduleEvent(BossEvents.EVENT_SHOW_UP, TimeSpan.FromMilliseconds(1000));
 	}
 
 	public void SetFog(bool apply)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		_phase = AdmiralPhases.PHASE_FOG;
@@ -157,9 +157,9 @@ public class boss_admiral_ripsnarl : BossAI
 		_phase = AdmiralPhases.PHASE_NORMAL;
 		var players = new List<Unit>();
 
-		var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-		var searcher = new PlayerListSearcher(me, players, checker);
-		Cell.VisitGrid(me, searcher, 150f);
+		var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+		var searcher = new PlayerListSearcher(Me, players, checker);
+		Cell.VisitGrid(Me, searcher, 150f);
 
 		foreach (var item in players)
 			item.RemoveAura(eSpells.FOG_AURA);
@@ -167,7 +167,7 @@ public class boss_admiral_ripsnarl : BossAI
 
 	public void RemoveAuraFromMap()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		SetFog(false);
@@ -176,12 +176,12 @@ public class boss_admiral_ripsnarl : BossAI
 	public void SummonFinalVapors()
 	{
 		for (byte i = 0; i < 3; ++i)
-			me.SummonCreature(DMCreatures.NPC_VAPOR, VaporFinalSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+			Me.SummonCreature(DMCreatures.NPC_VAPOR, VaporFinalSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public override void UpdateAI(uint uiDiff)
 	{
-		if (!me || instance != null)
+		if (!Me || Instance != null)
 			return;
 
 		if (!UpdateVictim())
@@ -189,30 +189,30 @@ public class boss_admiral_ripsnarl : BossAI
 
 		DoMeleeAttackIfReady();
 
-		_events.Update(uiDiff);
+		Events.Update(uiDiff);
 
-		if (me.HealthPct < 75 && !_below_75)
+		if (Me.HealthPct < 75 && !_below_75)
 		{
 			Talk(Says.SAY_FOG_1);
 
 			SetFog(true);
-			_events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(1000));
-			_events.ScheduleEvent(BossEvents.EVENT_UPDATE_FOG, TimeSpan.FromMilliseconds(100));
+			Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(1000));
+			Events.ScheduleEvent(BossEvents.EVENT_UPDATE_FOG, TimeSpan.FromMilliseconds(100));
 			_below_75 = true;
 		}
-		else if (me.HealthPct < 50 && !_below_50)
+		else if (Me.HealthPct < 50 && !_below_50)
 		{
 			Talk(Says.SAY_FOG_1);
-			_events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
+			Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
 			_below_50 = true;
 		}
-		else if (me.HealthPct < 25 && !_below_25)
+		else if (Me.HealthPct < 25 && !_below_25)
 		{
 			Talk(Says.SAY_FOG_1);
-			_events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
+			Events.ScheduleEvent(BossEvents.EVENT_PHASE_TWO, TimeSpan.FromMilliseconds(500));
 			_below_25 = true;
 		}
-		else if (me.HealthPct < 10 && !_below_10)
+		else if (Me.HealthPct < 10 && !_below_10)
 		{
 			if (IsHeroic())
 			{
@@ -223,22 +223,22 @@ public class boss_admiral_ripsnarl : BossAI
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 		{
 			switch (eventId)
 			{
 				case BossEvents.EVENT_SWIPE:
-					var victim = me.Victim;
+					var victim = Me.Victim;
 
 					if (victim != null)
-						me.CastSpell(victim, IsHeroic() ? eSpells.SWIPE_H : eSpells.SWIPE);
+						Me.CastSpell(victim, IsHeroic() ? eSpells.SWIPE_H : eSpells.SWIPE);
 
-					_events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(3000));
+					Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(3000));
 
 					break;
 
 				case BossEvents.EVENT_UPDATE_FOG:
-					instance.DoCastSpellOnPlayers(eSpells.FOG_AURA);
+					Instance.DoCastSpellOnPlayers(eSpells.FOG_AURA);
 
 					break;
 
@@ -248,21 +248,21 @@ public class boss_admiral_ripsnarl : BossAI
 					if (target != null)
 						DoCast(target, eSpells.GO_FOR_THE_THROAT);
 
-					_events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
+					Events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(10000));
 
 					break;
 
 				case BossEvents.EVENT_THIRST_FOR_BLOOD:
-					DoCast(me, eSpells.THIRST_FOR_BLOOD);
+					DoCast(Me, eSpells.THIRST_FOR_BLOOD);
 
 					break;
 
 				case BossEvents.EVENT_PHASE_TWO:
-					_events.CancelEvent(BossEvents.EVENT_GO_FOR_THROAT);
-					_events.CancelEvent(BossEvents.EVENT_SWIPE);
-					me.RemoveAura(eSpells.THIRST_FOR_BLOOD);
-					me.SetVisible(false);
-					_events.ScheduleEvent(BossEvents.EVENT_FLEE_TO_FROG, TimeSpan.FromMilliseconds(100));
+					Events.CancelEvent(BossEvents.EVENT_GO_FOR_THROAT);
+					Events.CancelEvent(BossEvents.EVENT_SWIPE);
+					Me.RemoveAura(eSpells.THIRST_FOR_BLOOD);
+					Me.SetVisible(false);
+					Events.ScheduleEvent(BossEvents.EVENT_FLEE_TO_FROG, TimeSpan.FromMilliseconds(100));
 
 					if (_vaporCount > 0)
 					{
@@ -270,33 +270,33 @@ public class boss_admiral_ripsnarl : BossAI
 					}
 					else
 					{
-						var victim2 = me.Victim;
+						var victim2 = Me.Victim;
 
 						if (victim2 != null)
 						{
 							Talk(Says.SAY_1);
-							me.CastSpell(victim2, eSpells.GO_FOR_THE_THROAT);
+							Me.CastSpell(victim2, eSpells.GO_FOR_THE_THROAT);
 						}
 					}
 
 					break;
 
 				case BossEvents.EVENT_FLEE_TO_FROG:
-					me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.Pacified);
-					me.DoFleeToGetAssistance();
+					Me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.Pacified);
+					Me.DoFleeToGetAssistance();
 					Talk(Says.SAY_AUUUU);
-					_events.RescheduleEvent(BossEvents.EVENT_SUMMON_VAPOR, TimeSpan.FromMilliseconds(1000));
-					_events.ScheduleEvent(BossEvents.EVENT_SHOW_UP, TimeSpan.FromMilliseconds(25000));
+					Events.RescheduleEvent(BossEvents.EVENT_SUMMON_VAPOR, TimeSpan.FromMilliseconds(1000));
+					Events.ScheduleEvent(BossEvents.EVENT_SHOW_UP, TimeSpan.FromMilliseconds(25000));
 
 					break;
 
 				case BossEvents.EVENT_SHOW_UP:
-					me.SetVisible(true);
+					Me.SetVisible(true);
 					_vaporCount = 0;
-					me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.Pacified);
-					_events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(1000));
-					_events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(3000));
-					_events.ScheduleEvent(BossEvents.EVENT_THIRST_FOR_BLOOD, TimeSpan.FromMilliseconds(0));
+					Me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.Pacified);
+					Events.ScheduleEvent(BossEvents.EVENT_SWIPE, TimeSpan.FromMilliseconds(1000));
+					Events.ScheduleEvent(BossEvents.EVENT_GO_FOR_THROAT, TimeSpan.FromMilliseconds(3000));
+					Events.ScheduleEvent(BossEvents.EVENT_THIRST_FOR_BLOOD, TimeSpan.FromMilliseconds(0));
 
 					break;
 
@@ -306,15 +306,15 @@ public class boss_admiral_ripsnarl : BossAI
 						var target1 = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
 						if (target1 != null)
-							me.CastSpell(target1, eSpells.SUMMON_VAPOR);
+							Me.CastSpell(target1, eSpells.SUMMON_VAPOR);
 					}
 
-					_events.RescheduleEvent(BossEvents.EVENT_SUMMON_VAPOR, TimeSpan.FromMilliseconds(3500));
+					Events.RescheduleEvent(BossEvents.EVENT_SUMMON_VAPOR, TimeSpan.FromMilliseconds(3500));
 
 					break;
 			}
 
-			eventId = _events.ExecuteEvent();
+			eventId = Events.ExecuteEvent();
 		}
 	}
 

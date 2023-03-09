@@ -38,13 +38,13 @@ public class npc_skyfury_totem : ScriptedAI
 	{
 		m_uiBuffTimer = (uint)TotemData.DELAY;
 
-		if (!me)
+		if (!Me)
 			return;
 
 		var targets = new List<Unit>();
-		var check = new AnyFriendlyUnitInObjectRangeCheck(me, me, TotemData.RANGE);
-		var searcher = new UnitListSearcher(me, targets, check, Framework.Constants.GridType.All);
-		Cell.VisitGrid(me, searcher, TotemData.RANGE);
+		var check = new AnyFriendlyUnitInObjectRangeCheck(Me, Me, TotemData.RANGE);
+		var searcher = new UnitListSearcher(Me, targets, check, Framework.Constants.GridType.All);
+		Cell.VisitGrid(Me, searcher, TotemData.RANGE);
 
 		foreach (var itr in targets)
 		{
@@ -53,7 +53,7 @@ public class npc_skyfury_totem : ScriptedAI
 
 			if (!itr.HasAura(TotemSpells.TOTEM_SKYFURY_EFFECT))
 			{
-				me.CastSpell(itr, TotemSpells.TOTEM_SKYFURY_EFFECT, true);
+				Me.CastSpell(itr, TotemSpells.TOTEM_SKYFURY_EFFECT, true);
 				var aura = itr.GetAura(TotemSpells.TOTEM_SKYFURY_EFFECT);
 
 				if (aura != null)

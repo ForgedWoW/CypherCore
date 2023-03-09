@@ -31,20 +31,20 @@ internal class boss_draganthaurissan : ScriptedAI
 
 	public boss_draganthaurissan(Creature creature) : base(creature)
 	{
-		_instance = me.InstanceScript;
+		_instance = Me.InstanceScript;
 	}
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		Talk(TextIds.SayAggro);
-		me.CallForHelp(166.0f);
+		Me.CallForHelp(166.0f);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0);
@@ -55,7 +55,7 @@ internal class boss_draganthaurissan : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(5));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(25),
+		Scheduler.Schedule(TimeSpan.FromSeconds(25),
 							task =>
 							{
 								DoCastVictim(SpellIds.Avatarofflame);
@@ -71,7 +71,7 @@ internal class boss_draganthaurissan : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var moira = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.DataMoira));
+		var moira = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.DataMoira));
 
 		if (moira)
 		{
@@ -86,6 +86,6 @@ internal class boss_draganthaurissan : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

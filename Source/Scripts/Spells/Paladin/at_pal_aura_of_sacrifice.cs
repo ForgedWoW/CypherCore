@@ -14,12 +14,12 @@ public class at_pal_aura_of_sacrifice : AreaTriggerAI
 {
 	public at_pal_aura_of_sacrifice(AreaTrigger areatrigger) : base(areatrigger)
 	{
-		at.SetPeriodicProcTimer(1000);
+		At.SetPeriodicProcTimer(1000);
 	}
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (unit.IsPlayer && caster.IsPlayer && caster != unit)

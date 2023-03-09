@@ -16,7 +16,7 @@ public class npc_feral_spirit : ScriptedAI
 
 	public override void DamageDealt(Unit UnnamedParameter, ref double damage, DamageEffectType UnnamedParameter3)
 	{
-		var tempSum = me.ToTempSummon();
+		var tempSum = Me.ToTempSummon();
 
 		if (tempSum != null)
 		{

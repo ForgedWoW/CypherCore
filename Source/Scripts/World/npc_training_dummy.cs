@@ -50,7 +50,7 @@ internal class npc_training_dummy : NullCreatureAI
 			if (_combatTimer[key] <= TimeSpan.Zero)
 			{
 				// The Attacker has not dealt any Damage to the dummy for over 5 seconds. End combat.
-				var pveRefs = me.GetCombatManager().PvECombatRefs;
+				var pveRefs = Me.GetCombatManager().PvECombatRefs;
 				var it = pveRefs.LookupByKey(key);
 
 				it?.EndCombat();
@@ -62,9 +62,9 @@ internal class npc_training_dummy : NullCreatureAI
 
 	public override void Reset()
 	{
-		me.SetControlled(true, UnitState.Stunned);
-		me.SetControlled(true, UnitState.Root);
-		me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
+		Me.SetControlled(true, UnitState.Stunned);
+		Me.SetControlled(true, UnitState.Root);
+		Me.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
 		base.Reset();
 	}
 }

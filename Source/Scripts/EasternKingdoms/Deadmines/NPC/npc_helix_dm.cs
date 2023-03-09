@@ -28,16 +28,16 @@ public class npc_helix_dm : BossAI
 	{
 		_Reset();
 		FlagResetTimer = 15000;
-		instance.SetData(DMData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.NotStarted);
+		Instance.SetData(DMData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.NotStarted);
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
 		base.JustEnteredCombat(who);
-		_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
-		_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(2000));
+		Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
+		Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(2000));
 
-		me.SummonCreature(DMCreatures.NPC_MAIN_SPIDER, NightmareSpidersSpawn[3], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+		Me.SummonCreature(DMCreatures.NPC_MAIN_SPIDER, NightmareSpidersSpawn[3], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public override void JustSummoned(Creature summoned)
@@ -48,29 +48,29 @@ public class npc_helix_dm : BossAI
 			case DMCreatures.NPC_MAIN_SPIDER:
 			case DMCreatures.NPC_CHATTERING_HORROR:
 			{
-				summoned.AI.AttackStart(me.Victim);
+				summoned.AI.AttackStart(Me.Victim);
 
 				break;
 			}
 		}
 
-		summons.Summon(summoned);
+		Summons.Summon(summoned);
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		var players = new List<Unit>();
 
-		var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-		var searcher = new PlayerListSearcher(me, players, checker);
-		Cell.VisitGrid(me, searcher, 150f);
+		var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+		var searcher = new PlayerListSearcher(Me, players, checker);
+		Cell.VisitGrid(Me, searcher, 150f);
 
 		foreach (var item in players)
 			item.AddAura(boss_vanessa_vancleef.Spells.EFFECT_1, item);
 
-		me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
+		Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
 
-		var Vanessa = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
 		if (Vanessa != null)
 		{
@@ -86,31 +86,31 @@ public class npc_helix_dm : BossAI
 	public void SummonSpiders()
 	{
 		for (byte i = 0; i < 3; ++i)
-			me.SummonCreature(DMCreatures.NPC_NIGHTMARE_SPIDER, NightmareSpidersSpawn[i], TempSummonType.ManualDespawn);
+			Me.SummonCreature(DMCreatures.NPC_NIGHTMARE_SPIDER, NightmareSpidersSpawn[i], TempSummonType.ManualDespawn);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
 		if (FlagResetTimer <= diff)
-			me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
+			Me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
 		else
 			FlagResetTimer -= diff;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE:
 					DoCastVictim(boss_vanessa_vancleef.Spells.SPIRIT_STRIKE);
-					_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
+					Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
 
 					break;
 				case boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS:
 					SummonSpiders();
-					_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(RandomHelper.URand(3000, 4000)));
+					Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIDERS, TimeSpan.FromMilliseconds(RandomHelper.URand(3000, 4000)));
 
 					break;
 			}

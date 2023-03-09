@@ -29,9 +29,9 @@ public class npc_defias_shadowguard : ScriptedAI
 		WhirlingBladesTimer = 6400;
 		ShadowstepTimer = 6000;
 		Below = false;
-		me.SetPower(PowerType.Energy, 100);
-		me.SetMaxPower(PowerType.Energy, 100);
-		me.SetPowerType(PowerType.Energy);
+		Me.SetPower(PowerType.Energy, 100);
+		Me.SetMaxPower(PowerType.Energy, 100);
+		Me.SetPowerType(PowerType.Energy);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -48,7 +48,7 @@ public class npc_defias_shadowguard : ScriptedAI
 
 		if (WhirlingBladesTimer <= diff)
 		{
-			DoCast(me, boss_vanessa_vancleef.Spells.BLADES);
+			DoCast(Me, boss_vanessa_vancleef.Spells.BLADES);
 			WhirlingBladesTimer = RandomHelper.URand(6400, 8200);
 		}
 		else
@@ -58,7 +58,7 @@ public class npc_defias_shadowguard : ScriptedAI
 
 		if (HealthBelowPct(35) && !Below)
 		{
-			DoCast(me, boss_vanessa_vancleef.Spells.EVASION);
+			DoCast(Me, boss_vanessa_vancleef.Spells.EVASION);
 			Below = true;
 		}
 

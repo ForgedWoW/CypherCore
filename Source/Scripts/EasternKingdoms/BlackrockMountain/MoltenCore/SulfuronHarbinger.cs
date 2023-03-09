@@ -34,21 +34,21 @@ internal class boss_sulfuron : BossAI
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								DoCast(me, SpellIds.DarkStrike);
+								DoCast(Me, SpellIds.DarkStrike);
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(18));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								DoCastVictim(SpellIds.DemoralizingShout);
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(13),
+		Scheduler.Schedule(TimeSpan.FromSeconds(13),
 							task =>
 							{
 								var healers = DoFindFriendlyMissingBuff(45.0f, SpellIds.Inspire);
@@ -56,18 +56,18 @@ internal class boss_sulfuron : BossAI
 								if (!healers.Empty())
 									DoCast(healers.SelectRandom(), SpellIds.Inspire);
 
-								DoCast(me, SpellIds.Inspire);
+								DoCast(Me, SpellIds.Inspire);
 								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(26));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Knockdown);
 								task.Repeat(TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
@@ -84,7 +84,7 @@ internal class boss_sulfuron : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -95,19 +95,19 @@ internal class npc_flamewaker_priest : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit victim)
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							TimeSpan.FromSeconds(30),
 							task =>
 							{
@@ -119,7 +119,7 @@ internal class npc_flamewaker_priest : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.Shadowwordpain);
@@ -130,7 +130,7 @@ internal class npc_flamewaker_priest : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(18), TimeSpan.FromSeconds(26));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.Immolate);
@@ -147,6 +147,6 @@ internal class npc_flamewaker_priest : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

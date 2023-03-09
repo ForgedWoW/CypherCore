@@ -25,27 +25,27 @@ internal class boss_moira_bronzebeard : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		//_scheduler.Schedule(EventHeal, TimeSpan.FromSeconds(12s)); // not used atm // These times are probably wrong
-		_scheduler.Schedule(TimeSpan.FromSeconds(16),
+		//Scheduler.Schedule(EventHeal, TimeSpan.FromSeconds(12s)); // not used atm // These times are probably wrong
+		Scheduler.Schedule(TimeSpan.FromSeconds(16),
 							task =>
 							{
 								DoCastVictim(SpellIds.Mindblast);
 								task.Repeat(TimeSpan.FromSeconds(14));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								DoCastVictim(SpellIds.Shadowwordpain);
 								task.Repeat(TimeSpan.FromSeconds(18));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.Smite);
@@ -58,6 +58,6 @@ internal class boss_moira_bronzebeard : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }

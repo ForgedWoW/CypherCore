@@ -24,7 +24,7 @@ internal class boss_firemaw : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -32,18 +32,18 @@ internal class boss_firemaw : BossAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								DoCastVictim(SpellIds.Wingbuffet);
 
-								if (GetThreat(me.Victim) != 0)
-									ModifyThreatByPercent(me.Victim, -75);
+								if (GetThreat(Me.Victim) != 0)
+									ModifyThreatByPercent(Me.Victim, -75);
 
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Flamebuffet);
@@ -56,6 +56,6 @@ internal class boss_firemaw : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

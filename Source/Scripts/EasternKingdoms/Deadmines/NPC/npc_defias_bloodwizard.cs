@@ -36,7 +36,7 @@ public class npc_defias_bloodwizard : ScriptedAI
 
 		if (BloodWashTimer <= diff)
 		{
-			var Enforcer = me.FindNearestCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, 100.0f, true);
+			var Enforcer = Me.FindNearestCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, 100.0f, true);
 
 			if (Enforcer != null)
 				DoCast(Enforcer, boss_vanessa_vancleef.Spells.BLOODWASH);

@@ -25,19 +25,19 @@ public class npc_defias_watcher : ScriptedAI
 
 	public override void Reset()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
-		me.SetPower(PowerType.Energy, 100);
-		me.SetMaxPower(PowerType.Energy, 100);
-		me.SetPowerType(PowerType.Energy);
+		Me.SetPower(PowerType.Energy, 100);
+		Me.SetMaxPower(PowerType.Energy, 100);
+		Me.SetPowerType(PowerType.Energy);
 
 		if (Status == true)
 		{
-			if (!me.HasAura(eSpell.ON_FIRE))
-				me.AddAura(eSpell.ON_FIRE, me);
+			if (!Me.HasAura(eSpell.ON_FIRE))
+				Me.AddAura(eSpell.ON_FIRE, Me);
 
-			me.Faction = 35;
+			Me.Faction = 35;
 		}
 	}
 
@@ -45,7 +45,7 @@ public class npc_defias_watcher : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		if (!me || Status == true)
+		if (!Me || Status == true)
 			return;
 
 		Energizing();
@@ -54,25 +54,25 @@ public class npc_defias_watcher : ScriptedAI
 	public void Energizing()
 	{
 		Status = true;
-		me.SetHealth(15);
-		me.SetRegenerateHealth(false);
-		me.Faction = 35;
-		me.AddAura(eSpell.ON_FIRE, me);
-		me.CastSpell(me, eSpell.ON_FIRE);
-		me.SetInCombatWithZone();
+		Me.SetHealth(15);
+		Me.SetRegenerateHealth(false);
+		Me.Faction = 35;
+		Me.AddAura(eSpell.ON_FIRE, Me);
+		Me.CastSpell(Me, eSpell.ON_FIRE);
+		Me.SetInCombatWithZone();
 
-		var reaper = me.FindNearestCreature(DMCreatures.NPC_FOE_REAPER_5000, 200.0f);
+		var reaper = Me.FindNearestCreature(DMCreatures.NPC_FOE_REAPER_5000, 200.0f);
 
 		if (reaper != null)
-			me.CastSpell(reaper, eSpell.ENERGIZE);
+			Me.CastSpell(reaper, eSpell.ENERGIZE);
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (!me || damage <= 0 || Status == true)
+		if (!Me || damage <= 0 || Status == true)
 			return;
 
-		if (me.Health - damage <= me.MaxHealth * 0.10)
+		if (Me.Health - damage <= Me.MaxHealth * 0.10)
 		{
 			damage = 0;
 			Energizing();

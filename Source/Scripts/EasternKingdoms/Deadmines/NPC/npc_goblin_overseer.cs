@@ -42,7 +42,7 @@ public class npc_goblin_overseer : ScriptedAI
 
 		if (HealthBelowPct(50) && !_threat)
 		{
-			DoCast(me, boss_vanessa_vancleef.Spells.THREATENING);
+			DoCast(Me, boss_vanessa_vancleef.Spells.THREATENING);
 			_threat = true;
 		}
 

@@ -50,36 +50,36 @@ internal class boss_occuthar : BossAI
 
 	public boss_occuthar(Creature creature) : base(creature, DataTypes.Occuthar)
 	{
-		_vehicle = me.VehicleKit1;
+		_vehicle = Me.VehicleKit1;
 		Cypher.Assert(_vehicle != null);
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		base.JustEngagedWith(who);
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
-		_events.ScheduleEvent(EventIds.SearingShadows, TimeSpan.FromSeconds(8));
-		_events.ScheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
-		_events.ScheduleEvent(EventIds.EyesOfOccuthar, TimeSpan.FromSeconds(30));
-		_events.ScheduleEvent(EventIds.Berserk, TimeSpan.FromMinutes(5));
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
+		Events.ScheduleEvent(EventIds.SearingShadows, TimeSpan.FromSeconds(8));
+		Events.ScheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
+		Events.ScheduleEvent(EventIds.EyesOfOccuthar, TimeSpan.FromSeconds(30));
+		Events.ScheduleEvent(EventIds.Berserk, TimeSpan.FromMinutes(5));
 	}
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
 		base.EnterEvadeMode(why);
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 		_DespawnAtEvade();
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 	}
 
 	public override void JustSummoned(Creature summon)
 	{
-		summons.Summon(summon);
+		Summons.Summon(summon);
 
 		if (summon.Entry == CreatureIds.FocusFireDummy)
 		{
@@ -100,33 +100,33 @@ internal class boss_occuthar : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
 				case EventIds.SearingShadows:
 					DoCastAOE(SpellIds.SearingShadows);
-					_events.ScheduleEvent(EventIds.SearingShadows, TimeSpan.FromSeconds(25));
+					Events.ScheduleEvent(EventIds.SearingShadows, TimeSpan.FromSeconds(25));
 
 					break;
 				case EventIds.FocusedFire:
 					DoCastAOE(SpellIds.FocusedFireTrigger, new CastSpellExtraArgs(true));
-					_events.ScheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
+					Events.ScheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
 
 					break;
 				case EventIds.EyesOfOccuthar:
 					DoCastAOE(SpellIds.EyesOfOccuthar);
-					_events.RescheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
-					_events.ScheduleEvent(EventIds.EyesOfOccuthar, TimeSpan.FromSeconds(60));
+					Events.RescheduleEvent(EventIds.FocusedFire, TimeSpan.FromSeconds(15));
+					Events.ScheduleEvent(EventIds.EyesOfOccuthar, TimeSpan.FromSeconds(60));
 
 					break;
 				case EventIds.Berserk:
-					DoCast(me, SpellIds.Berserk, new CastSpellExtraArgs(true));
+					DoCast(Me, SpellIds.Berserk, new CastSpellExtraArgs(true));
 
 					break;
 				default:
@@ -152,27 +152,27 @@ internal class npc_eyestalk : ScriptedAI
 	public override void IsSummonedBy(WorldObject summoner)
 	{
 		// player is the spellcaster so register summon manually
-		var occuthar = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.Occuthar));
+		var occuthar = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.Occuthar));
 
-		occuthar?.AI.JustSummoned(me);
+		occuthar?.AI.JustSummoned(Me);
 	}
 
 	public override void Reset()
 	{
-		_events.Reset();
-		_events.ScheduleEvent(EventIds.FocusedFireFirstDamage, TimeSpan.FromSeconds(0));
+		Events.Reset();
+		Events.ScheduleEvent(EventIds.FocusedFireFirstDamage, TimeSpan.FromSeconds(0));
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (_events.ExecuteEvent() == EventIds.FocusedFireFirstDamage)
+		if (Events.ExecuteEvent() == EventIds.FocusedFireFirstDamage)
 		{
 			DoCastAOE(SpellIds.FocusedFireFirstDamage);
 
 			if (++_damageCount < 2)
-				_events.ScheduleEvent(EventIds.FocusedFireFirstDamage, TimeSpan.FromSeconds(1));
+				Events.ScheduleEvent(EventIds.FocusedFireFirstDamage, TimeSpan.FromSeconds(1));
 		}
 	}
 

@@ -39,7 +39,7 @@ internal class boss_beauty : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							TimeSpan.FromSeconds(10),
 							task =>
 							{
@@ -47,7 +47,7 @@ internal class boss_beauty : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(16),
+		Scheduler.Schedule(TimeSpan.FromSeconds(16),
 							TimeSpan.FromSeconds(19),
 							task =>
 							{
@@ -55,21 +55,21 @@ internal class boss_beauty : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(18),
+		Scheduler.Schedule(TimeSpan.FromSeconds(18),
 							TimeSpan.FromSeconds(22),
 							task =>
 							{
-								DoCast(me, SpellIds.Flamebreak);
+								DoCast(Me, SpellIds.Flamebreak);
 								task.Repeat();
 							});
 
-		DoPlaySoundToSet(me, SoundIds.Aggro);
+		DoPlaySoundToSet(Me, SoundIds.Aggro);
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
-		DoPlaySoundToSet(me, SoundIds.Death);
+		DoPlaySoundToSet(Me, SoundIds.Death);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -77,6 +77,6 @@ internal class boss_beauty : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -14,7 +14,7 @@ public class at_pri_angelic_feather : AreaTriggerAI
 
 	public override void OnInitialize()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
@@ -27,14 +27,14 @@ public class at_pri_angelic_feather : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (caster.IsFriendlyTo(unit) && unit.IsPlayer)
 			{
 				// If target already has aura, increase duration to max 130% of initial duration
 				caster.CastSpell(unit, PriestSpells.ANGELIC_FEATHER_AURA, true);
-				at.SetDuration(0);
+				At.SetDuration(0);
 			}
 	}
 }

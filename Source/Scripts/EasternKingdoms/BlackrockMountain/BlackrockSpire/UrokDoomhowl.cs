@@ -35,7 +35,7 @@ internal class boss_urok_doomhowl : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(17),
+		Scheduler.Schedule(TimeSpan.FromSeconds(17),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -43,7 +43,7 @@ internal class boss_urok_doomhowl : BossAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(12),
 							task =>
 							{
@@ -64,6 +64,6 @@ internal class boss_urok_doomhowl : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -36,18 +36,18 @@ internal class boss_magmus : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		var instance = me.InstanceScript;
+		var instance = Me.InstanceScript;
 
 		instance?.SetData(DataTypes.TypeIronHall, (uint)EncounterState.InProgress);
 
 		phase = Phases.One;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Fieryburst);
@@ -57,12 +57,12 @@ internal class boss_magmus : ScriptedAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.HealthBelowPctDamaged(50, damage) &&
+		if (Me.HealthBelowPctDamaged(50, damage) &&
 			phase == Phases.One)
 		{
 			phase = Phases.Two;
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(0),
+			Scheduler.Schedule(TimeSpan.FromSeconds(0),
 								task =>
 								{
 									DoCastVictim(SpellIds.Warstomp);
@@ -76,12 +76,12 @@ internal class boss_magmus : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		var instance = me.InstanceScript;
+		var instance = Me.InstanceScript;
 
 		if (instance != null)
 		{
@@ -99,13 +99,13 @@ internal class npc_ironhand_guardian : ScriptedAI
 
 	public npc_ironhand_guardian(Creature creature) : base(creature)
 	{
-		_instance = me.InstanceScript;
+		_instance = Me.InstanceScript;
 		_active = false;
 	}
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void UpdateAI(uint diff)
@@ -116,7 +116,7 @@ internal class npc_ironhand_guardian : ScriptedAI
 				return;
 
 			// Once the boss is engaged, the guardians will stay activated until the next instance reset
-			_scheduler.Schedule(TimeSpan.FromSeconds(0),
+			Scheduler.Schedule(TimeSpan.FromSeconds(0),
 								TimeSpan.FromSeconds(10),
 								task =>
 								{
@@ -127,6 +127,6 @@ internal class npc_ironhand_guardian : ScriptedAI
 			_active = true;
 		}
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }

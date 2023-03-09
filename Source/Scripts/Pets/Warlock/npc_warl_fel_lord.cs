@@ -16,7 +16,7 @@ namespace Scripts.Pets
 		{
 			public npc_warl_fel_lord(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				creature.SetLevel(owner.Level);
@@ -37,14 +37,14 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return;
 
-				me.SetMaxHealth(owner.MaxHealth);
-				me.SetHealth(me.MaxHealth);
-				me.SetControlled(true, UnitState.Root);
+				Me.SetMaxHealth(owner.MaxHealth);
+				Me.SetHealth(Me.MaxHealth);
+				Me.SetControlled(true, UnitState.Root);
 			}
 
 			//public override void UpdateAI(uint UnnamedParameter)

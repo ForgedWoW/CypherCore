@@ -113,19 +113,19 @@ internal class boss_coren_direbrew : BossAI
 	public override void Reset()
 	{
 		_Reset();
-		me.SetImmuneToPC(true);
-		me.Faction = (uint)FactionTemplates.Friendly;
+		Me.SetImmuneToPC(true);
+		Me.Faction = (uint)FactionTemplates.Friendly;
 		phase = DirebrewPhases.All;
-		_scheduler.CancelAll();
+		SchedulerProtected.CancelAll();
 
 		for (byte i = 0; i < MiscConst.MaxAntagonists; ++i)
-			me.SummonCreature(CreatureIds.Antagonist, MiscConst.AntagonistPos[i], TempSummonType.DeadDespawn);
+			Me.SummonCreature(CreatureIds.Antagonist, MiscConst.AntagonistPos[i], TempSummonType.DeadDespawn);
 	}
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
 		_EnterEvadeMode();
-		summons.DespawnAll();
+		Summons.DespawnAll();
 		_DespawnAtEvade(TimeSpan.FromSeconds(10));
 	}
 
@@ -137,7 +137,7 @@ internal class boss_coren_direbrew : BossAI
 
 		phase = DirebrewPhases.Intro;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(6),
 							introTask1 =>
 							{
 								Talk(TextIds.SayIntro1);
@@ -146,14 +146,14 @@ internal class boss_coren_direbrew : BossAI
 													introTask2 =>
 													{
 														EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-														summons.DoAction(ActionIds.AntagonistSay1, pred);
+														Summons.DoAction(ActionIds.AntagonistSay1, pred);
 
 														introTask2.Schedule(TimeSpan.FromSeconds(3),
 																			introlTask3 =>
 																			{
 																				Talk(TextIds.SayIntro2);
 																				EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-																				summons.DoAction(ActionIds.AntagonistSay2, pred);
+																				Summons.DoAction(ActionIds.AntagonistSay2, pred);
 																			});
 													});
 							});
@@ -167,23 +167,23 @@ internal class boss_coren_direbrew : BossAI
 		{
 			phase = DirebrewPhases.One;
 			//events.SetPhase(PhaseOne);
-			me.SetImmuneToPC(false);
-			me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
+			Me.SetImmuneToPC(false);
+			Me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 			DoZoneInCombat();
 
 			EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-			summons.DoAction(ActionIds.AntagonistHostile, pred);
+			Summons.DoAction(ActionIds.AntagonistHostile, pred);
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(15),
+			SchedulerProtected.Schedule(TimeSpan.FromSeconds(15),
 								task =>
 								{
 									CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 									args.AddSpellMod(SpellValueMod.MaxTargets, 1);
-									me.CastSpell((WorldObject)null, SpellIds.MoleMachineTargetPicker, args);
+									Me.CastSpell((WorldObject)null, SpellIds.MoleMachineTargetPicker, args);
 									task.Repeat();
 								});
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(20),
+			SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
 								task =>
 								{
 									DoCastSelf(SpellIds.DirebrewDisarmPreCast, new CastSpellExtraArgs(true));
@@ -194,13 +194,13 @@ internal class boss_coren_direbrew : BossAI
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.HealthBelowPctDamaged(66, damage) &&
+		if (Me.HealthBelowPctDamaged(66, damage) &&
 			phase == DirebrewPhases.One)
 		{
 			phase = DirebrewPhases.Two;
 			SummonSister(CreatureIds.IlsaDirebrew);
 		}
-		else if (me.HealthBelowPctDamaged(33, damage) &&
+		else if (Me.HealthBelowPctDamaged(33, damage) &&
 				phase == DirebrewPhases.Two)
 		{
 			phase = DirebrewPhases.Three;
@@ -211,16 +211,16 @@ internal class boss_coren_direbrew : BossAI
 	public override void SummonedCreatureDies(Creature summon, Unit killer)
 	{
 		if (summon.Entry == CreatureIds.IlsaDirebrew)
-			_scheduler.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.IlsaDirebrew); });
+			SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.IlsaDirebrew); });
 		else if (summon.Entry == CreatureIds.UrsulaDirebrew)
-			_scheduler.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.UrsulaDirebrew); });
+			SchedulerProtected.Schedule(TimeSpan.FromSeconds(1), task => { SummonSister(CreatureIds.UrsulaDirebrew); });
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
 
-		var players = me.Map.Players;
+		var players = Me.Map.Players;
 
 		if (!players.Empty())
 		{
@@ -228,7 +228,7 @@ internal class boss_coren_direbrew : BossAI
 
 			if (group)
 				if (group.IsLFGGroup)
-					Global.LFGMgr.FinishDungeon(group.GUID, 287, me.Map);
+					Global.LFGMgr.FinishDungeon(group.GUID, 287, Me.Map);
 		}
 	}
 
@@ -238,12 +238,12 @@ internal class boss_coren_direbrew : BossAI
 			phase != DirebrewPhases.Intro)
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		SchedulerProtected.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void SummonSister(uint entry)
 	{
-		Creature sister = me.SummonCreature(entry, me.Location, TempSummonType.DeadDespawn);
+		Creature sister = Me.SummonCreature(entry, Me.Location, TempSummonType.DeadDespawn);
 
 		if (sister)
 			DoZoneInCombat(sister);
@@ -274,14 +274,14 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
 	{
 		DoCastSelf(SpellIds.PortToCoren);
 
-		if (me.Entry == CreatureIds.UrsulaDirebrew)
+		if (Me.Entry == CreatureIds.UrsulaDirebrew)
 			DoCastSelf(SpellIds.BarreledControlAura);
 		else
 			DoCastSelf(SpellIds.SendMugControlAura);
 
-		_scheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting));
+		SchedulerProtected.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
 							mugChuck =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, false, true, -(int)SpellIds.HasDarkBrewmaidensBrew);
@@ -295,7 +295,7 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		SchedulerProtected.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -310,16 +310,16 @@ internal class npc_direbrew_minion : ScriptedAI
 
 	public override void Reset()
 	{
-		me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
+		Me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 		DoZoneInCombat();
 	}
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		var coren = ObjectAccessor.GetCreature(me, _instance.GetGuidData(DataTypes.DataCoren));
+		var coren = ObjectAccessor.GetCreature(Me, _instance.GetGuidData(DataTypes.DataCoren));
 
 		if (coren)
-			coren.AI.JustSummoned(me);
+			coren.AI.JustSummoned(Me);
 	}
 }
 
@@ -340,8 +340,8 @@ internal class npc_direbrew_antagonist : ScriptedAI
 
 				break;
 			case ActionIds.AntagonistHostile:
-				me.SetImmuneToPC(false);
-				me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
+				Me.SetImmuneToPC(false);
+				Me.Faction = (uint)FactionTemplates.GoblinDarkIronBarPatron;
 				DoZoneInCombat();
 
 				break;
@@ -363,19 +363,19 @@ internal class go_direbrew_mole_machine : GameObjectAI
 
 	public override void Reset()
 	{
-		me.SetLootState(LootState.Ready);
+		Me.SetLootState(LootState.Ready);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							context =>
 							{
-								me.UseDoorOrButton(10000);
-								me.CastSpell(null, SpellIds.MoleMachineEmerge, true);
+								Me.UseDoorOrButton(10000);
+								Me.CastSpell(null, SpellIds.MoleMachineEmerge, true);
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							context =>
 							{
-								var trap = me.LinkedTrap;
+								var trap = Me.LinkedTrap;
 
 								if (trap)
 								{
@@ -387,7 +387,7 @@ internal class go_direbrew_mole_machine : GameObjectAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 

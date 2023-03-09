@@ -43,7 +43,7 @@ public class npc_defias_envokerAI : ScriptedAI
 		{
 			if (IsHeroic())
 			{
-				DoCast(me, boss_vanessa_vancleef.Spells.SHIELD);
+				DoCast(Me, boss_vanessa_vancleef.Spells.SHIELD);
 				ShieldTimer = RandomHelper.URand(18000, 20000);
 			}
 		}

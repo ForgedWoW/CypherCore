@@ -31,17 +31,17 @@ internal class boss_mother_smolderweb : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
-								DoCast(me, SpellIds.Crystalize);
+								DoCast(Me, SpellIds.Crystalize);
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								DoCast(me, SpellIds.Mothersmilk);
+								DoCast(Me, SpellIds.Mothersmilk);
 								task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromMilliseconds(12500));
 							});
 	}
@@ -53,8 +53,8 @@ internal class boss_mother_smolderweb : BossAI
 
 	public override void DamageTaken(Unit done_by, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.Health <= damage)
-			DoCast(me, SpellIds.SummonSpireSpiderling, new CastSpellExtraArgs(true));
+		if (Me.Health <= damage)
+			DoCast(Me, SpellIds.SummonSpireSpiderling, new CastSpellExtraArgs(true));
 	}
 
 	public override void UpdateAI(uint diff)
@@ -62,6 +62,6 @@ internal class boss_mother_smolderweb : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

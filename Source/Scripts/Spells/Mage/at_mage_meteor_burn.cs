@@ -15,7 +15,7 @@ public class at_mage_meteor_burn : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -29,7 +29,7 @@ public class at_mage_meteor_burn : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;

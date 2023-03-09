@@ -257,7 +257,7 @@ internal class go_gilded_brazier : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GoType == GameObjectTypes.Goober)
+		if (Me.GoType == GameObjectTypes.Goober)
 			if (player.GetQuestStatus(QuestIds.TheFirstTrial) == QuestStatus.Incomplete)
 			{
 				Creature Stillblade = player.SummonCreature(CreatureIds.Stillblade, 8106.11f, -7542.06f, 151.775f, 3.02598f, TempSummonType.DeadDespawn, TimeSpan.FromMinutes(1));
@@ -278,7 +278,7 @@ internal class go_tablet_of_the_seven : GameObjectAI
 	/// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GoType != GameObjectTypes.QuestGiver)
+		if (Me.GoType != GameObjectTypes.QuestGiver)
 			return true;
 
 		if (player.GetQuestStatus(4296) == QuestStatus.Incomplete)
@@ -295,10 +295,10 @@ internal class go_ethereum_prison : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		me.UseDoorOrButton();
+		Me.UseDoorOrButton();
 		var Random = (int)(RandomHelper.Rand32() % (CreatureIds.PrisonEntry.Length / sizeof(uint)));
 
-		Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[Random], me.Location.X, me.Location.Y, me.Location.Z, me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+		Creature creature = player.SummonCreature(CreatureIds.PrisonEntry[Random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
 		if (creature)
 			if (!creature.IsHostileTo(player))
@@ -355,10 +355,10 @@ internal class go_ethereum_stasis : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		me.UseDoorOrButton();
+		Me.UseDoorOrButton();
 		var Random = (int)(RandomHelper.Rand32() % CreatureIds.StasisEntry.Length / sizeof(uint));
 
-		player.SummonCreature(CreatureIds.StasisEntry[Random], me.Location.X, me.Location.Y, me.Location.Z, me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
+		player.SummonCreature(CreatureIds.StasisEntry[Random], Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.GetAbsoluteAngle(player.Location), TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
 		return false;
 	}
@@ -371,8 +371,8 @@ internal class go_resonite_cask : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GoType == GameObjectTypes.Goober)
-			me.SummonCreature(CreatureIds.Goggeroc, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5));
+		if (Me.GoType == GameObjectTypes.Goober)
+			Me.SummonCreature(CreatureIds.Goggeroc, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromMinutes(5));
 
 		return false;
 	}
@@ -435,7 +435,7 @@ internal class go_blood_filled_orb : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.GoType == GameObjectTypes.Goober)
+		if (Me.GoType == GameObjectTypes.Goober)
 			player.SummonCreature(CreatureIds.Zelemar, -369.746f, 166.759f, -21.50f, 5.235f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(30));
 
 		return true;
@@ -449,7 +449,7 @@ internal class go_soulwell : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (!owner ||
 			!owner.IsTypeId(TypeId.Player) ||
@@ -474,11 +474,11 @@ internal class go_amberpine_outhouse : GameObjectAI
 			status == QuestStatus.Rewarded)
 		{
 			player.AddGossipItem(GossipOptionNpc.None, GossipConst.GossipUseOuthouse, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
-			player.SendGossipMenu(GossipConst.GossipOuthouseVacant, me.GUID);
+			player.SendGossipMenu(GossipConst.GossipOuthouseVacant, Me.GUID);
 		}
 		else
 		{
-			player.SendGossipMenu(GossipConst.GossipOuthouseInuse, me.GUID);
+			player.SendGossipMenu(GossipConst.GossipOuthouseInuse, Me.GUID);
 		}
 
 		return true;
@@ -497,13 +497,13 @@ internal class go_amberpine_outhouse : GameObjectAI
 			if (target)
 			{
 				target.AI.SetData(1, (uint)player.NativeGender);
-				me.CastSpell(target, SpellIds.IndisposedIii);
+				Me.CastSpell(target, SpellIds.IndisposedIii);
 			}
 
-			me.CastSpell(player, SpellIds.Indisposed);
+			Me.CastSpell(player, SpellIds.Indisposed);
 
 			if (player.HasItemCount(ItemIds.AnderholsSliderCider))
-				me.CastSpell(player, SpellIds.CreateAmberseeds);
+				Me.CastSpell(player, SpellIds.CreateAmberseeds);
 
 			return true;
 		}
@@ -524,7 +524,7 @@ internal class go_massive_seaforium_charge : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		me.SetLootState(LootState.JustDeactivated);
+		Me.SetLootState(LootState.JustDeactivated);
 
 		return true;
 	}
@@ -537,17 +537,17 @@ internal class go_veil_skith_cage : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		me.UseDoorOrButton();
+		Me.UseDoorOrButton();
 
 		if (player.GetQuestStatus(QuestIds.MissingFriends) == QuestStatus.Incomplete)
 		{
-			var childrenList = me.GetCreatureListWithEntryInGrid(CreatureIds.CaptiveChild, SharedConst.InteractionDistance);
+			var childrenList = Me.GetCreatureListWithEntryInGrid(CreatureIds.CaptiveChild, SharedConst.InteractionDistance);
 
 			foreach (var creature in childrenList)
 			{
 				player.KilledMonsterCredit(CreatureIds.CaptiveChild, creature.GUID);
 				creature.DespawnOrUnsummon(TimeSpan.FromSeconds(5));
-				creature.MotionMaster.MovePoint(1, me.Location.X + 5, me.Location.Y, me.Location.Z);
+				creature.MotionMaster.MovePoint(1, Me.Location.X + 5, Me.Location.Y, Me.Location.Z);
 				creature.AI.Talk(TextIds.SayFree0);
 				creature.MotionMaster.Clear();
 			}
@@ -578,7 +578,7 @@ internal class go_midsummer_ribbon_pole : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		var creature = me.FindNearestCreature(CreatureIds.PoleRibbonBunny, 10.0f);
+		var creature = Me.FindNearestCreature(CreatureIds.PoleRibbonBunny, 10.0f);
 
 		if (creature)
 		{
@@ -598,7 +598,7 @@ internal class go_brewfest_music : GameObjectAI
 
 	public go_brewfest_music(GameObject go) : base(go)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								if (Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest)) // Check if Brewfest is active
@@ -608,12 +608,12 @@ internal class go_brewfest_music : GameObjectAI
 								}
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								if (Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest)) // Check if Brewfest is active
 								{
-									switch (me.Area)
+									switch (Me.Area)
 									{
 										case AreaIds.Silvermoon:
 										case AreaIds.Undercity:
@@ -623,17 +623,17 @@ internal class go_brewfest_music : GameObjectAI
 											switch (rnd)
 											{
 												case 0:
-													me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
 													musicTime = Misc.EventBrewfestgoblin01Time;
 
 													break;
 												case 1:
-													me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
 													musicTime = Misc.EventBrewfestgoblin02Time;
 
 													break;
 												default:
-													me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
 													musicTime = Misc.EventBrewfestgoblin03Time;
 
 													break;
@@ -648,17 +648,17 @@ internal class go_brewfest_music : GameObjectAI
 											switch (rnd)
 											{
 												case 0:
-													me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
 													musicTime = Misc.EventBrewfestdwarf01Time;
 
 													break;
 												case 1:
-													me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
 													musicTime = Misc.EventBrewfestdwarf02Time;
 
 													break;
 												default:
-													me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
+													Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
 													musicTime = Misc.EventBrewfestdwarf03Time;
 
 													break;
@@ -666,24 +666,24 @@ internal class go_brewfest_music : GameObjectAI
 
 											break;
 										case AreaIds.Shattrath:
-											var playersNearby = me.GetPlayerListInGrid(me.VisibilityRange);
+											var playersNearby = Me.GetPlayerListInGrid(Me.VisibilityRange);
 
 											foreach (Player player in playersNearby)
 												if (player.TeamId == TeamIds.Horde)
 													switch (rnd)
 													{
 														case 0:
-															me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin01);
 															musicTime = Misc.EventBrewfestgoblin01Time;
 
 															break;
 														case 1:
-															me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin02);
 															musicTime = Misc.EventBrewfestgoblin02Time;
 
 															break;
 														default:
-															me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestgoblin03);
 															musicTime = Misc.EventBrewfestgoblin03Time;
 
 															break;
@@ -692,17 +692,17 @@ internal class go_brewfest_music : GameObjectAI
 													switch (rnd)
 													{
 														case 0:
-															me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf01);
 															musicTime = Misc.EventBrewfestdwarf01Time;
 
 															break;
 														case 1:
-															me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf02);
 															musicTime = Misc.EventBrewfestdwarf02Time;
 
 															break;
 														default:
-															me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
+															Me.PlayDirectMusic(SoundIds.EventBrewfestdwarf03);
 															musicTime = Misc.EventBrewfestdwarf03Time;
 
 															break;
@@ -718,7 +718,7 @@ internal class go_brewfest_music : GameObjectAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -727,19 +727,19 @@ internal class go_midsummer_music : GameObjectAI
 {
 	public go_midsummer_music(GameObject go) : base(go)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								if (!Global.GameEventMgr.IsHolidayActive(HolidayIds.MidsummerFireFestival))
 									return;
 
-								var playersNearby = me.GetPlayerListInGrid(me.Map.VisibilityRange);
+								var playersNearby = Me.GetPlayerListInGrid(Me.Map.VisibilityRange);
 
 								foreach (Player player in playersNearby)
 									if (player.Team == TeamFaction.Horde)
-										me.PlayDirectMusic(12325, player);
+										Me.PlayDirectMusic(12325, player);
 									else
-										me.PlayDirectMusic(12319, player);
+										Me.PlayDirectMusic(12319, player);
 
 								task.Repeat(TimeSpan.FromSeconds(5)); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
 							});
@@ -747,7 +747,7 @@ internal class go_midsummer_music : GameObjectAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -756,12 +756,12 @@ internal class go_darkmoon_faire_music : GameObjectAI
 {
 	public go_darkmoon_faire_music(GameObject go) : base(go)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								if (Global.GameEventMgr.IsHolidayActive(HolidayIds.DarkmoonFaire))
 								{
-									me.PlayDirectMusic(8440);
+									Me.PlayDirectMusic(8440);
 									task.Repeat(TimeSpan.FromSeconds(5)); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
 								}
 							});
@@ -769,7 +769,7 @@ internal class go_darkmoon_faire_music : GameObjectAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -778,20 +778,20 @@ internal class go_pirate_day_music : GameObjectAI
 {
 	public go_pirate_day_music(GameObject go) : base(go)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								if (!Global.GameEventMgr.IsHolidayActive(HolidayIds.PiratesDay))
 									return;
 
-								me.PlayDirectMusic(12845);
+								Me.PlayDirectMusic(12845);
 								task.Repeat(TimeSpan.FromSeconds(5)); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
 							});
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 
@@ -804,9 +804,9 @@ internal class go_bells : GameObjectAI
 
 	public override void InitializeAI()
 	{
-		var zoneId = me.Zone;
+		var zoneId = Me.Zone;
 
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case GameObjectIds.HordeBell:
 			{
@@ -872,12 +872,12 @@ internal class go_bells : GameObjectAI
 				_rings = 1;
 
 			for (var i = 0; i < _rings; ++i)
-				_scheduler.Schedule(TimeSpan.FromSeconds(i * 4 + 1), task => me.PlayDirectSound(_soundId));
+				Scheduler.Schedule(TimeSpan.FromSeconds(i * 4 + 1), task => Me.PlayDirectSound(_soundId));
 		}
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }

@@ -30,12 +30,12 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
 
 		while (_refreshTimer <= TimeSpan.Zero)
 		{
-			var caster = at.GetCaster();
+			var caster = At.GetCaster();
 
 			if (caster != null)
 			{
-				caster.CastSpell(at.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
-				caster.CastSpell(at.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
+				caster.CastSpell(At.Location, PaladinSpells.AshenHallowHeal, new CastSpellExtraArgs());
+				caster.CastSpell(At.Location, PaladinSpells.AshenHallowDamage, new CastSpellExtraArgs());
 			}
 
 			RefreshPeriod();
@@ -46,19 +46,19 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		if (unit.GUID == at.CasterGuid)
+		if (unit.GUID == At.CasterGuid)
 			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
 	}
 
 	public override void OnUnitExit(Unit unit)
 	{
-		if (unit.GUID == at.CasterGuid)
+		if (unit.GUID == At.CasterGuid)
 			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
 	}
 
 	private void RefreshPeriod()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{

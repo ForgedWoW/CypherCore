@@ -102,7 +102,7 @@ internal class boss_felblood_kaelthas : BossAI
 		base.JustEngagedWith(who);
 		_phase = Phase.One;
 
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(1),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
 							groupFireBall,
 							task =>
 							{
@@ -110,7 +110,7 @@ internal class boss_felblood_kaelthas : BossAI
 								task.Repeat(TimeSpan.FromSeconds(2.5));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(44),
+		Scheduler.Schedule(TimeSpan.FromSeconds(44),
 							task =>
 							{
 								Talk(TextIds.SayFlameStrike);
@@ -122,7 +122,7 @@ internal class boss_felblood_kaelthas : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								Talk(TextIds.SaySummonPhoenix);
@@ -131,7 +131,7 @@ internal class boss_felblood_kaelthas : BossAI
 							});
 
 		if (IsHeroic())
-			_scheduler.Schedule(TimeSpan.FromMinutes(1) + TimeSpan.FromSeconds(1),
+			Scheduler.Schedule(TimeSpan.FromMinutes(1) + TimeSpan.FromSeconds(1),
 								task =>
 								{
 									Talk(TextIds.SayAnnouncePyroblast);
@@ -161,57 +161,57 @@ internal class boss_felblood_kaelthas : BossAI
 	public override void JustDied(Unit killer)
 	{
 		// No _JustDied() here because otherwise we would reset the events which will trigger the death sequence twice.
-		instance.SetBossState(DataTypes.KaelthasSunstrider, EncounterState.Done);
+		Instance.SetBossState(DataTypes.KaelthasSunstrider, EncounterState.Done);
 	}
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
 		DoCastAOE(SpellIds.ClearFlight, new CastSpellExtraArgs(true));
 		_EnterEvadeMode();
-		summons.DespawnAll();
+		Summons.DespawnAll();
 		_DespawnAtEvade();
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
 		// Checking for lethal Damage first so we trigger the outro phase without triggering phase two in case of oneshot attacks
-		if (damage >= me.Health &&
+		if (damage >= Me.Health &&
 			_phase != Phase.Outro)
 		{
-			me.AttackStop();
-			me.ReactState = ReactStates.Passive;
-			me.InterruptNonMeleeSpells(true);
-			me.RemoveAura(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
-			summons.DespawnAll();
+			Me.AttackStop();
+			Me.ReactState = ReactStates.Passive;
+			Me.InterruptNonMeleeSpells(true);
+			Me.RemoveAura(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
+			Summons.DespawnAll();
 			DoCastAOE(SpellIds.ClearFlight);
 			Talk(TextIds.SayDeath);
 
 			_phase = Phase.Outro;
-			_scheduler.CancelAll();
+			Scheduler.CancelAll();
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(1), task => { DoCastSelf(SpellIds.EmoteTalkExclamation); });
-			_scheduler.Schedule(TimeSpan.FromSeconds(3.8), task => { DoCastSelf(SpellIds.EmotePoint); });
-			_scheduler.Schedule(TimeSpan.FromSeconds(7.4), task => { DoCastSelf(SpellIds.EmoteRoar); });
-			_scheduler.Schedule(TimeSpan.FromSeconds(10), task => { DoCastSelf(SpellIds.EmoteRoar); });
-			_scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastSelf(SpellIds.QuiteSuicide); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(1), task => { DoCastSelf(SpellIds.EmoteTalkExclamation); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(3.8), task => { DoCastSelf(SpellIds.EmotePoint); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(7.4), task => { DoCastSelf(SpellIds.EmoteRoar); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(10), task => { DoCastSelf(SpellIds.EmoteRoar); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(11), task => { DoCastSelf(SpellIds.QuiteSuicide); });
 		}
 
 		// Phase two checks. Skip phase two if we are in the outro already
-		if (me.HealthBelowPctDamaged(50, damage) &&
+		if (Me.HealthBelowPctDamaged(50, damage) &&
 			_phase != Phase.Two &&
 			_phase != Phase.Outro)
 		{
 			_phase = Phase.Two;
-			_scheduler.CancelAll();
+			Scheduler.CancelAll();
 
-			_scheduler.Schedule(TimeSpan.FromMilliseconds(1),
+			Scheduler.Schedule(TimeSpan.FromMilliseconds(1),
 								task =>
 								{
 									Talk(_firstGravityLapse ? TextIds.SayGravityLapse1 : TextIds.SayGravityLapse2);
 									_firstGravityLapse = false;
-									me.ReactState = ReactStates.Passive;
-									me.AttackStop();
-									me.MotionMaster.Clear();
+									Me.ReactState = ReactStates.Passive;
+									Me.AttackStop();
+									Me.MotionMaster.Clear();
 
 									task.Schedule(TimeSpan.FromSeconds(1),
 												_ =>
@@ -224,22 +224,22 @@ internal class boss_felblood_kaelthas : BossAI
 																	_gravityLapseTargetCount = 0;
 																	DoCastAOE(SpellIds.GravityLapseInitial);
 
-																	_scheduler.Schedule(TimeSpan.FromSeconds(4),
+																	Scheduler.Schedule(TimeSpan.FromSeconds(4),
 																						_ =>
 																						{
 																							for (byte i = 0; i < 3; i++)
 																								DoCastSelf(SpellIds.SummonArcaneSphere, new CastSpellExtraArgs(true));
 																						});
 
-																	_scheduler.Schedule(TimeSpan.FromSeconds(5), _ => { DoCastAOE(SpellIds.GravityLapseBeamVisualPeriodic); });
+																	Scheduler.Schedule(TimeSpan.FromSeconds(5), _ => { DoCastAOE(SpellIds.GravityLapseBeamVisualPeriodic); });
 
-																	_scheduler.Schedule(TimeSpan.FromSeconds(35),
+																	Scheduler.Schedule(TimeSpan.FromSeconds(35),
 																						_ =>
 																						{
 																							Talk(TextIds.SayPowerFeedback);
 																							DoCastAOE(SpellIds.ClearFlight);
 																							DoCastSelf(DungeonMode(SpellIds.PowerFeedback, SpellIds.HPowerFeedback));
-																							summons.DespawnEntry(CreatureIds.ArcaneSphere);
+																							Summons.DespawnEntry(CreatureIds.ArcaneSphere);
 																							task.Repeat(TimeSpan.FromSeconds(11));
 																						});
 																});
@@ -248,9 +248,9 @@ internal class boss_felblood_kaelthas : BossAI
 		}
 
 		// Kael'thas may only kill himself via Quite Suicide
-		if (damage >= me.Health &&
-			attacker != me)
-			damage = (uint)(me.Health - 1);
+		if (damage >= Me.Health &&
+			attacker != Me)
+			damage = (uint)(Me.Health - 1);
 	}
 
 	public override void SetData(uint type, uint data)
@@ -261,28 +261,28 @@ internal class boss_felblood_kaelthas : BossAI
 			if (_phase != Phase.Intro)
 				return;
 
-			me.SetImmuneToPC(true);
+			Me.SetImmuneToPC(true);
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(6),
+			Scheduler.Schedule(TimeSpan.FromSeconds(6),
 								task =>
 								{
 									Talk(TextIds.SayIntro1);
-									me.EmoteState = Emote.StateTalk;
+									Me.EmoteState = Emote.StateTalk;
 
-									_scheduler.Schedule(TimeSpan.FromSeconds(20.6),
+									Scheduler.Schedule(TimeSpan.FromSeconds(20.6),
 														_ =>
 														{
 															Talk(TextIds.SayIntro2);
 
-															_scheduler.Schedule(TimeSpan.FromSeconds(15) + TimeSpan.FromMilliseconds(500),
+															Scheduler.Schedule(TimeSpan.FromSeconds(15) + TimeSpan.FromMilliseconds(500),
 																				_ =>
 																				{
-																					me.EmoteState = Emote.OneshotNone;
-																					me.SetImmuneToPC(false);
+																					Me.EmoteState = Emote.OneshotNone;
+																					Me.SetImmuneToPC(false);
 																				});
 														});
 
-									_scheduler.Schedule(TimeSpan.FromSeconds(15.6), _ => me.HandleEmoteCommand(Emote.OneshotLaughNoSheathe));
+									Scheduler.Schedule(TimeSpan.FromSeconds(15.6), _ => Me.HandleEmoteCommand(Emote.OneshotLaughNoSheathe));
 								});
 		}
 	}
@@ -323,7 +323,7 @@ internal class boss_felblood_kaelthas : BossAI
 
 	public override void JustSummoned(Creature summon)
 	{
-		summons.Summon(summon);
+		Summons.Summon(summon);
 
 		switch (summon.Entry)
 		{
@@ -350,7 +350,7 @@ internal class boss_felblood_kaelthas : BossAI
 			_phase != Phase.Intro)
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	private void Initialize()
@@ -379,24 +379,24 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 		DoZoneInCombat();
 		DoCastSelf(SpellIds.Burn);
 		DoCastSelf(SpellIds.Rebirth);
-		_scheduler.Schedule(TimeSpan.FromSeconds(2), task => me.ReactState = ReactStates.Aggressive);
+		Scheduler.Schedule(TimeSpan.FromSeconds(2), task => Me.ReactState = ReactStates.Aggressive);
 	}
 
 	public override void JustEngagedWith(Unit who) { }
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (damage >= me.Health)
+		if (damage >= Me.Health)
 		{
 			if (!_isInEgg)
 			{
-				me.AttackStop();
-				me.ReactState = ReactStates.Passive;
-				me.RemoveAllAuras();
-				me.SetUnitFlag(UnitFlags.Uninteractible);
+				Me.AttackStop();
+				Me.ReactState = ReactStates.Passive;
+				Me.RemoveAllAuras();
+				Me.SetUnitFlag(UnitFlags.Uninteractible);
 				DoCastSelf(SpellIds.EmberBlast);
 				// DoCastSelf(SpellSummonPhoenixEgg); -- We do a manual summon for now. Feel free to move it to spelleffect_dbc
-				var egg = DoSummon(CreatureIds.PhoenixEgg, me.Location, TimeSpan.FromSeconds(0));
+				var egg = DoSummon(CreatureIds.PhoenixEgg, Me.Location, TimeSpan.FromSeconds(0));
 
 				if (egg)
 				{
@@ -409,15 +409,15 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 					}
 				}
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(15),
+				Scheduler.Schedule(TimeSpan.FromSeconds(15),
 									task =>
 									{
-										var egg = ObjectAccessor.GetCreature(me, _eggGUID);
+										var egg = ObjectAccessor.GetCreature(Me, _eggGUID);
 
 										if (egg)
 											egg.DespawnOrUnsummon();
 
-										me.RemoveAllAuras();
+										Me.RemoveAllAuras();
 
 										task.Schedule(TimeSpan.FromSeconds(2),
 													rebirthTask =>
@@ -430,8 +430,8 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 																				_isInEgg = false;
 																				DoCastSelf(SpellIds.FullHeal);
 																				DoCastSelf(SpellIds.Burn);
-																				me.RemoveUnitFlag(UnitFlags.Uninteractible);
-																				engageTask.Schedule(TimeSpan.FromSeconds(2), task => me.ReactState = ReactStates.Aggressive);
+																				Me.RemoveUnitFlag(UnitFlags.Uninteractible);
+																				engageTask.Schedule(TimeSpan.FromSeconds(2), task => Me.ReactState = ReactStates.Aggressive);
 																			});
 													});
 									});
@@ -439,14 +439,14 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 				_isInEgg = true;
 			}
 
-			damage = (uint)(me.Health - 1);
+			damage = (uint)(Me.Health - 1);
 		}
 	}
 
 	public override void SummonedCreatureDies(Creature summon, Unit killer)
 	{
 		// Egg has been destroyed within 15 seconds so we lose the phoenix.
-		me.DespawnOrUnsummon();
+		Me.DespawnOrUnsummon();
 	}
 
 	public override void UpdateAI(uint diff)
@@ -454,12 +454,12 @@ internal class npc_felblood_kaelthas_phoenix : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
-		me.ReactState = ReactStates.Passive;
+		Me.ReactState = ReactStates.Passive;
 		_isInEgg = false;
 	}
 }

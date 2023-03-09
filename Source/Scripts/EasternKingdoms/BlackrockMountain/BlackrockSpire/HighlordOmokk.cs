@@ -28,14 +28,14 @@ internal class boss_highlord_omokk : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Frenzy);
 								task.Repeat(TimeSpan.FromMinutes(1));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(18),
+		Scheduler.Schedule(TimeSpan.FromSeconds(18),
 							task =>
 							{
 								DoCastVictim(SpellIds.KnockAway);
@@ -53,6 +53,6 @@ internal class boss_highlord_omokk : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -175,7 +175,7 @@ internal class boss_priestess_delrissa : BossAI
 	//this mean she at some point evaded
 	public override void JustReachedHome()
 	{
-		instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Fail);
+		Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Fail);
 	}
 
 	public override void JustEngagedWith(Unit who)
@@ -184,13 +184,13 @@ internal class boss_priestess_delrissa : BossAI
 
 		foreach (var lackeyGuid in _auiLackeyGUID)
 		{
-			var pAdd = Global.ObjAccessor.GetUnit(me, lackeyGuid);
+			var pAdd = Global.ObjAccessor.GetUnit(Me, lackeyGuid);
 
 			if (pAdd && !pAdd.IsEngaged)
 				AddThreat(who, 0.0f, pAdd);
 		}
 
-		instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.InProgress);
+		Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.InProgress);
 	}
 
 	public override void KilledUnit(Unit victim)
@@ -208,10 +208,10 @@ internal class boss_priestess_delrissa : BossAI
 	{
 		Talk(TextIds.SayDeath);
 
-		if (instance.GetData(DataTypes.DelrissaDeathCount) == MiscConst.MaxActiveLackey)
-			instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Done);
+		if (Instance.GetData(DataTypes.DelrissaDeathCount) == MiscConst.MaxActiveLackey)
+			Instance.SetBossState(DataTypes.PriestessDelrissa, EncounterState.Done);
 		else
-			me.RemoveDynamicFlag(UnitDynFlags.Lootable);
+			Me.RemoveDynamicFlag(UnitDynFlags.Lootable);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -219,22 +219,22 @@ internal class boss_priestess_delrissa : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
 		PlayersKilled = 0;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
-								var health = me.Health;
-								Unit target = me;
+								var health = Me.Health;
+								Unit target = Me;
 
 								for (byte i = 0; i < _auiLackeyGUID.Length; ++i)
 								{
-									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[i]);
+									var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[i]);
 
 									if (pAdd != null &&
 										pAdd.IsAlive &&
@@ -246,14 +246,14 @@ internal class boss_priestess_delrissa : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								Unit target = me;
+								Unit target = Me;
 
 								if (RandomHelper.URand(0, 1) != 0)
 								{
-									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+									var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 									if (pAdd != null &&
 										pAdd.IsAlive)
@@ -264,14 +264,14 @@ internal class boss_priestess_delrissa : BossAI
 								task.Repeat(TimeSpan.FromSeconds(5));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								Unit target = me;
+								Unit target = Me;
 
 								if (RandomHelper.URand(0, 1) != 0)
 								{
-									var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+									var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 									if (pAdd != null &&
 										pAdd.IsAlive &&
@@ -283,7 +283,7 @@ internal class boss_priestess_delrissa : BossAI
 								task.Repeat(TimeSpan.FromSeconds(7.5));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
@@ -294,7 +294,7 @@ internal class boss_priestess_delrissa : BossAI
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7.5),
 							task =>
 							{
 								Unit target = null;
@@ -307,11 +307,11 @@ internal class boss_priestess_delrissa : BossAI
 								{
 									if (RandomHelper.URand(0, 1) != 0)
 									{
-										target = me;
+										target = Me;
 									}
 									else
 									{
-										var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
+										var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[RandomHelper.Rand32() % _auiLackeyGUID.Length]);
 
 										if (pAdd != null &&
 											pAdd.IsAlive)
@@ -325,12 +325,12 @@ internal class boss_priestess_delrissa : BossAI
 								task.Repeat(TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								var homePos = me.HomePosition;
+								var homePos = Me.HomePosition;
 
-								if (me.Location.Z >= homePos.Z + 10)
+								if (Me.Location.Z >= homePos.Z + 10)
 								{
 									EnterEvadeMode();
 
@@ -344,7 +344,7 @@ internal class boss_priestess_delrissa : BossAI
 	private void InitializeLackeys()
 	{
 		//can be called if Creature are dead, so avoid
-		if (!me.IsAlive)
+		if (!Me.IsAlive)
 			return;
 
 		byte j = 0;
@@ -362,7 +362,7 @@ internal class boss_priestess_delrissa : BossAI
 			//summon all the remaining in vector
 			foreach (var guid in LackeyEntryList)
 			{
-				Creature pAdd = me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
+				Creature pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
 
 				if (pAdd != null)
 					_auiLackeyGUID[j] = pAdd.GUID;
@@ -374,12 +374,12 @@ internal class boss_priestess_delrissa : BossAI
 		{
 			foreach (var guid in LackeyEntryList)
 			{
-				var pAdd = Global.ObjAccessor.GetUnit(me, _auiLackeyGUID[j]);
+				var pAdd = Global.ObjAccessor.GetUnit(Me, _auiLackeyGUID[j]);
 
 				//object already removed, not exist
 				if (!pAdd)
 				{
-					pAdd = me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
+					pAdd = Me.SummonCreature(guid, MiscConst.LackeyLocations[j][0], MiscConst.LackeyLocations[j][1], MiscConst.fZLocation, MiscConst.fOrientation, TempSummonType.CorpseDespawn);
 
 					if (pAdd != null)
 						_auiLackeyGUID[j] = pAdd.GUID;
@@ -424,11 +424,11 @@ internal class boss_priestess_lackey_common : ScriptedAI
 
 		foreach (var guid in _auiLackeyGUIDs)
 		{
-			var pAdd = Global.ObjAccessor.GetUnit(me, guid);
+			var pAdd = Global.ObjAccessor.GetUnit(Me, guid);
 
 			if (pAdd != null &&
 				!pAdd.IsEngaged &&
-				pAdd != me)
+				pAdd != Me)
 				AddThreat(who, 0.0f, pAdd);
 		}
 
@@ -481,11 +481,11 @@ internal class boss_priestess_lackey_common : ScriptedAI
 		if (!UsedPotion &&
 			HealthBelowPct(25))
 		{
-			DoCast(me, SpellIds.HealingPotion);
+			DoCast(Me, SpellIds.HealingPotion);
 			UsedPotion = true;
 		}
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	private void Initialize()
@@ -496,7 +496,7 @@ internal class boss_priestess_lackey_common : ScriptedAI
 		// For later development, some alternative threat system should be made
 		// We do not know what this system is based upon, but one theory is class (healers=high threat, dps=medium, etc)
 		// We reset their threat frequently as an alternative until such a system exist
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -529,7 +529,7 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 	public override void Reset()
 	{
 		Initialize();
-		me.SetVisible(true);
+		Me.SetVisible(true);
 
 		base.Reset();
 	}
@@ -541,7 +541,7 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		if (!InVanish)
 			DoMeleeAttackIfReady();
@@ -549,24 +549,24 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(5.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5.5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Gouge);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task =>
 							{
 								DoCastVictim(SpellIds.Kick);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								DoCast(me, SpellIds.Vanish);
+								DoCast(Me, SpellIds.Vanish);
 
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
 
@@ -585,7 +585,7 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 												{
 													DoCastVictim(SpellIds.Backstab, new CastSpellExtraArgs(true));
 													DoCastVictim(SpellIds.KidneyShot, new CastSpellExtraArgs(true));
-													me.SetVisible(true); // ...? Hacklike
+													Me.SetVisible(true); // ...? Hacklike
 													InVanish = false;
 												}
 
@@ -593,7 +593,7 @@ internal class boss_kagani_nightstrike : boss_priestess_lackey_common
 											});
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Eviscerate);
@@ -622,7 +622,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 
 	public override void JustEngagedWith(Unit who)
 	{
-		DoCast(me, SpellIds.SummonImp);
+		DoCast(Me, SpellIds.SummonImp);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -632,26 +632,26 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Immolate);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								DoCastVictim(SpellIds.ShadowBolt);
 								task.Repeat(TimeSpan.FromSeconds(5));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
@@ -662,7 +662,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
@@ -673,7 +673,7 @@ internal class boss_ellris_duskhallow : boss_priestess_lackey_common
 								task.Repeat(TimeSpan.FromSeconds(13));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
@@ -709,19 +709,19 @@ internal class boss_eramas_brightblaze : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Knockdown);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4.5),
 							task =>
 							{
 								DoCastVictim(SpellIds.SnapKick);
@@ -758,18 +758,18 @@ internal class boss_yazzai : boss_priestess_lackey_common
 		if (HealthBelowPct(35) &&
 			!HasIceBlocked)
 		{
-			DoCast(me, SpellIds.IceBlock);
+			DoCast(Me, SpellIds.IceBlock);
 			HasIceBlocked = true;
 		}
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
 		HasIceBlocked = false;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0);
@@ -781,7 +781,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
 								}
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
@@ -792,34 +792,34 @@ internal class boss_yazzai : boss_priestess_lackey_common
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.IceLance);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.ConeOfCold);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								DoCastVictim(SpellIds.Frostbolt);
 								task.Repeat(TimeSpan.FromSeconds(8));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var InMeleeRange = false;
 
-								foreach (var pair in me.GetCombatManager().PvECombatRefs)
-									if (pair.Value.GetOther(me).IsWithinMeleeRange(me))
+								foreach (var pair in Me.GetCombatManager().PvECombatRefs)
+									if (pair.Value.GetOther(Me).IsWithinMeleeRange(Me))
 									{
 										InMeleeRange = true;
 
@@ -828,7 +828,7 @@ internal class boss_yazzai : boss_priestess_lackey_common
 
 								//if anybody is in melee range than escape by blink
 								if (InMeleeRange)
-									DoCast(me, SpellIds.Blink);
+									DoCast(Me, SpellIds.Blink);
 
 								task.Repeat();
 							});
@@ -853,7 +853,7 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
 
 	public override void JustEngagedWith(Unit who)
 	{
-		DoCast(me, SpellIds.BattleShout);
+		DoCast(Me, SpellIds.BattleShout);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -863,18 +863,18 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(500),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(500),
 							task =>
 							{
 								var InMeleeRange = false;
 
-								foreach (var pair in me.GetCombatManager().PvECombatRefs)
-									if (pair.Value.GetOther(me).IsWithinMeleeRange(me))
+								foreach (var pair in Me.GetCombatManager().PvECombatRefs)
+									if (pair.Value.GetOther(Me).IsWithinMeleeRange(Me))
 									{
 										InMeleeRange = true;
 
@@ -893,35 +893,35 @@ internal class boss_warlord_salaris : boss_priestess_lackey_common
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Disarm);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.PiercingHowl);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(18),
+		Scheduler.Schedule(TimeSpan.FromSeconds(18),
 							task =>
 							{
 								DoCastVictim(SpellIds.FrighteningShout);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4.5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Hamstring);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.MortalStrike);
@@ -947,10 +947,10 @@ internal class boss_garaxxas : boss_priestess_lackey_common
 	{
 		Initialize();
 
-		var pPet = Global.ObjAccessor.GetUnit(me, _uiPetGUID);
+		var pPet = Global.ObjAccessor.GetUnit(Me, _uiPetGUID);
 
 		if (!pPet)
-			me.SummonCreature(CreatureIds.Sliver, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.CorpseDespawn);
+			Me.SummonCreature(CreatureIds.Sliver, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.CorpseDespawn);
 
 		base.Reset();
 	}
@@ -967,54 +967,54 @@ internal class boss_garaxxas : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		if (me.IsWithinDistInMap(me.Victim, SharedConst.AttackDistance))
+		if (Me.IsWithinDistInMap(Me.Victim, SharedConst.AttackDistance))
 			_meleeScheduler.Update(diff, () => DoMeleeAttackIfReady());
 		else
-			_scheduler.Update(diff);
+			Scheduler.Update(diff);
 	}
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.AimedShot);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2.5),
 							task =>
 							{
 								DoCastVictim(SpellIds.Shoot);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.ConcussiveShot);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.MultiShot);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								DoCastVictim(SpellIds.WingClip);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								//attempt find go summoned from spell (cast by me)
-								var go = me.GetGameObject(SpellIds.FreezingTrap);
+								var go = Me.GetGameObject(SpellIds.FreezingTrap);
 
 								//if we have a go, we need to wait (only one trap at a Time)
 								if (go)
@@ -1056,29 +1056,29 @@ internal class boss_apoko : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
 		Totem_Amount = 1;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								DoCast(me, RandomHelper.RAND(SpellIds.WindfuryTotem, SpellIds.FireNovaTotem, SpellIds.EarthbindTotem));
+								DoCast(Me, RandomHelper.RAND(SpellIds.WindfuryTotem, SpellIds.FireNovaTotem, SpellIds.EarthbindTotem));
 								++Totem_Amount;
 								task.Repeat(TimeSpan.FromMilliseconds(Totem_Amount * 2000));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								DoCast(me, SpellIds.WarStomp);
+								DoCast(Me, SpellIds.WarStomp);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var unit = SelectTarget(SelectTargetMethod.Random, 0);
@@ -1089,14 +1089,14 @@ internal class boss_apoko : boss_priestess_lackey_common
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								DoCast(me, SpellIds.LesserHealingWave);
+								DoCast(Me, SpellIds.LesserHealingWave);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task =>
 							{
 								DoCastVictim(SpellIds.FrostShock);
@@ -1128,31 +1128,31 @@ internal class boss_zelfan : boss_priestess_lackey_common
 
 		base.UpdateAI(diff);
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.GoblinDragonGun);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task =>
 							{
 								DoCastVictim(SpellIds.RocketLaunch);
 								task.Repeat(TimeSpan.FromSeconds(9));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								foreach (var guid in _auiLackeyGUIDs)
 								{
-									var pAdd = Global.ObjAccessor.GetUnit(me, guid);
+									var pAdd = Global.ObjAccessor.GetUnit(Me, guid);
 
 									if (pAdd != null &&
 										pAdd.										IsPolymorphed)
@@ -1166,14 +1166,14 @@ internal class boss_zelfan : boss_priestess_lackey_common
 								task.Repeat(TimeSpan.FromSeconds(2));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								DoCast(me, SpellIds.HighExplosiveSheep);
+								DoCast(Me, SpellIds.HighExplosiveSheep);
 								task.Repeat(TimeSpan.FromSeconds(65));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								DoCastVictim(SpellIds.FelIronBomb);

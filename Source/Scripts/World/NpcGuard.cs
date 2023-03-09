@@ -40,24 +40,24 @@ internal class npc_guard_generic : GuardAI
 
 	public npc_guard_generic(Creature creature) : base(creature)
 	{
-		_scheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting) && !me.IsInEvadeMode && me.IsAlive);
+		Scheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting) && !Me.IsInEvadeMode && Me.IsAlive);
 		_combatScheduler = new TaskScheduler();
-		_combatScheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting));
+		_combatScheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
 	}
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 		_combatScheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								// Find a spell that targets friendly and applies an aura (these are generally buffs)
-								var spellInfo = SelectSpell(me, 0, 0, SelectTargetType.AnyFriend, 0, 0, SelectEffect.Aura);
+								var spellInfo = SelectSpell(Me, 0, 0, SelectTargetType.AnyFriend, 0, 0, SelectEffect.Aura);
 
 								if (spellInfo != null)
-									DoCast(me, spellInfo.Id);
+									DoCast(Me, spellInfo.Id);
 
 								task.Repeat(TimeSpan.FromMinutes(10));
 							});
@@ -65,7 +65,7 @@ internal class npc_guard_generic : GuardAI
 
 	public override void ReceiveEmote(Player player, TextEmotes textEmote)
 	{
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case CreatureIds.StormwindCityGuard:
 			case CreatureIds.StormwindCityPatroller:
@@ -75,7 +75,7 @@ internal class npc_guard_generic : GuardAI
 				return;
 		}
 
-		if (!me.IsFriendlyTo(player))
+		if (!Me.IsFriendlyTo(player))
 			return;
 
 		DoReplyToTextEmote(textEmote);
@@ -83,16 +83,16 @@ internal class npc_guard_generic : GuardAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		if (me.Entry == CreatureIds.CenarionHoldInfantry)
+		if (Me.Entry == CreatureIds.CenarionHoldInfantry)
 			Talk(TextIds.SayGuardSilAggro, who);
 
 		_combatScheduler.Schedule(TimeSpan.FromSeconds(1),
 								task =>
 								{
-									var victim = me.Victim;
+									var victim = Me.Victim;
 
-									if (!me.IsAttackReady() ||
-										!me.IsWithinMeleeRange(victim))
+									if (!Me.IsAttackReady() ||
+										!Me.IsWithinMeleeRange(victim))
 									{
 										task.Repeat();
 
@@ -101,11 +101,11 @@ internal class npc_guard_generic : GuardAI
 
 									if (RandomHelper.randChance(20))
 									{
-										var spellInfo = SelectSpell(me.Victim, 0, 0, SelectTargetType.AnyEnemy, 0, SharedConst.NominalMeleeRange, SelectEffect.DontCare);
+										var spellInfo = SelectSpell(Me.Victim, 0, 0, SelectTargetType.AnyEnemy, 0, SharedConst.NominalMeleeRange, SelectEffect.DontCare);
 
 										if (spellInfo != null)
 										{
-											me.ResetAttackTimer();
+											Me.ResetAttackTimer();
 											DoCastVictim(spellInfo.Id);
 											task.Repeat();
 
@@ -113,8 +113,8 @@ internal class npc_guard_generic : GuardAI
 										}
 									}
 
-									me.AttackerStateUpdate(victim);
-									me.ResetAttackTimer();
+									Me.AttackerStateUpdate(victim);
+									Me.ResetAttackTimer();
 									task.Repeat();
 								});
 
@@ -125,21 +125,21 @@ internal class npc_guard_generic : GuardAI
 									SpellInfo spellInfo = null;
 
 									// Select a healing spell if less than 30% hp and Only 33% of the Time
-									if (me.HealthBelowPct(30) &&
+									if (Me.HealthBelowPct(30) &&
 										RandomHelper.randChance(33))
-										spellInfo = SelectSpell(me, 0, 0, SelectTargetType.AnyFriend, 0, 0, SelectEffect.Healing);
+										spellInfo = SelectSpell(Me, 0, 0, SelectTargetType.AnyFriend, 0, 0, SelectEffect.Healing);
 
 									// No healing spell available, check if we can cast a ranged spell
 									if (spellInfo != null)
 										healing = true;
 									else
-										spellInfo = SelectSpell(me.Victim, 0, 0, SelectTargetType.AnyEnemy, SharedConst.NominalMeleeRange, 0, SelectEffect.DontCare);
+										spellInfo = SelectSpell(Me.Victim, 0, 0, SelectTargetType.AnyEnemy, SharedConst.NominalMeleeRange, 0, SelectEffect.DontCare);
 
 									// Found a spell
 									if (spellInfo != null)
 									{
 										if (healing)
-											DoCast(me, spellInfo.Id);
+											DoCast(Me, spellInfo.Id);
 										else
 											DoCastVictim(spellInfo.Id);
 
@@ -154,7 +154,7 @@ internal class npc_guard_generic : GuardAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		if (!UpdateVictim())
 			return;
@@ -167,24 +167,24 @@ internal class npc_guard_generic : GuardAI
 		switch (emote)
 		{
 			case TextEmotes.Kiss:
-				me.HandleEmoteCommand(Emote.OneshotBow);
+				Me.HandleEmoteCommand(Emote.OneshotBow);
 
 				break;
 			case TextEmotes.Wave:
-				me.HandleEmoteCommand(Emote.OneshotWave);
+				Me.HandleEmoteCommand(Emote.OneshotWave);
 
 				break;
 			case TextEmotes.Salute:
-				me.HandleEmoteCommand(Emote.OneshotSalute);
+				Me.HandleEmoteCommand(Emote.OneshotSalute);
 
 				break;
 			case TextEmotes.Shy:
-				me.HandleEmoteCommand(Emote.OneshotFlex);
+				Me.HandleEmoteCommand(Emote.OneshotFlex);
 
 				break;
 			case TextEmotes.Rude:
 			case TextEmotes.Chicken:
-				me.HandleEmoteCommand(Emote.OneshotPoint);
+				Me.HandleEmoteCommand(Emote.OneshotPoint);
 
 				break;
 			default:
@@ -198,12 +198,12 @@ internal class npc_guard_shattrath_faction : GuardAI
 {
 	public npc_guard_shattrath_faction(Creature creature) : base(creature)
 	{
-		_scheduler.SetValidator(() => !me.HasUnitState(UnitState.Casting));
+		Scheduler.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
 	}
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
@@ -216,25 +216,25 @@ internal class npc_guard_shattrath_faction : GuardAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, DoMeleeAttackIfReady);
+		Scheduler.Update(diff, DoMeleeAttackIfReady);
 	}
 
 	private void ScheduleVanish()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								var temp = me.Victim;
+								var temp = Me.Victim;
 
 								if (temp && temp.IsTypeId(TypeId.Player))
 								{
-									DoCast(temp, me.Entry == CreatureIds.AldorVindicator ? SpellIds.BanishedShattrathS : SpellIds.BanishedShattrathA);
+									DoCast(temp, Me.Entry == CreatureIds.AldorVindicator ? SpellIds.BanishedShattrathS : SpellIds.BanishedShattrathA);
 									var playerGUID = temp.GUID;
 
 									task.Schedule(TimeSpan.FromSeconds(9),
 												task =>
 												{
-													var temp = Global.ObjAccessor.GetUnit(me, playerGUID);
+													var temp = Global.ObjAccessor.GetUnit(Me, playerGUID);
 
 													if (temp)
 													{

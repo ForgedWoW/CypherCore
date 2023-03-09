@@ -34,11 +34,11 @@ public class go_heavy_door : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me == null || player == null)
+		if (Me == null || player == null)
 			return false;
 
-		MoveNearCreature(me, 48439, 50);
-		MoveNearCreature(me, 48280, 50);
+		MoveNearCreature(Me, 48439, 50);
+		MoveNearCreature(Me, 48280, 50);
 
 		return true;
 	}

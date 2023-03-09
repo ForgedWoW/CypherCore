@@ -27,9 +27,9 @@ public class boss_glubtok : BossAI
 
 	public boss_glubtok(Creature creature) : base(creature, DMData.DATA_GLUBTOK)
 	{
-		me.SetCanDualWield(true);
+		Me.SetCanDualWield(true);
 		//me.DisableMovementFlagUpdate(true);
-		_platter = me.SummonCreature(Creatures.NPC_GLUBTOK_MAIN_PLATTER, Phase2Pos.X, Phase2Pos.Y, Phase2Pos.Z + 2.0f);
+		_platter = Me.SummonCreature(Creatures.NPC_GLUBTOK_MAIN_PLATTER, Phase2Pos.X, Phase2Pos.Y, Phase2Pos.Z + 2.0f);
 		_platter.SetActive(true);
 	}
 
@@ -40,14 +40,14 @@ public class boss_glubtok : BossAI
 		_phase2 = false;
 		_dying = false;
 		_transitionDone = false;
-		me.ReactState = ReactStates.Aggressive;
-		me.SetDisableGravity(false);
-		me.SetCanFly(false);
+		Me.ReactState = ReactStates.Aggressive;
+		Me.SetDisableGravity(false);
+		Me.SetCanFly(false);
 
-		me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.ImmuneToPc);
+		Me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.ImmuneToPc);
 		// me.RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-		me.RemoveUnitFlag2(UnitFlags2.FeignDeath);
-		me.ClearUnitState(UnitState.CannotTurn);
+		Me.RemoveUnitFlag2(UnitFlags2.FeignDeath);
+		Me.ClearUnitState(UnitState.CannotTurn);
 
 		_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 	}
@@ -57,7 +57,7 @@ public class boss_glubtok : BossAI
 		base.JustEnteredCombat(who);
 
 		Talk((uint)Texts.SAY_AGGRO);
-		_events.ScheduleEvent(BossEvents.EVENT_ELEMENTAL_FISTS, TimeSpan.FromMilliseconds(5000));
+		Events.ScheduleEvent(BossEvents.EVENT_ELEMENTAL_FISTS, TimeSpan.FromMilliseconds(5000));
 	}
 
 	public override void JustDied(Unit killer)
@@ -68,20 +68,20 @@ public class boss_glubtok : BossAI
 
 	public override void KilledUnit(Unit victim)
 	{
-		if (victim != me)
+		if (victim != Me)
 			Talk(Texts.SAY_KILL);
 	}
 
 	public override void EnterEvadeMode(EvadeReason why = EvadeReason.Other)
 	{
-		me.ClearUnitState(UnitState.CannotTurn);
+		Me.ClearUnitState(UnitState.CannotTurn);
 		_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 		base.EnterEvadeMode(why);
 	}
 
 	public override void JustSummoned(Creature summon)
 	{
-		if (!me.IsInCombat)
+		if (!Me.IsInCombat)
 		{
 			summon.DespawnOrUnsummon();
 
@@ -89,36 +89,36 @@ public class boss_glubtok : BossAI
 		}
 
 		base.JustSummoned(summon);
-		summon.AI.AttackStart(me.Victim);
+		summon.AI.AttackStart(Me.Victim);
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (!_phase2 && me.HealthBelowPctDamaged(50, damage) && !me.HasUnitState(UnitState.Casting))
+		if (!_phase2 && Me.HealthBelowPctDamaged(50, damage) && !Me.HasUnitState(UnitState.Casting))
 		{
 			_phase2 = true;
-			_events.Reset();
-			me.ReactState = ReactStates.Passive;
-			me.AttackStop();
-			me.MotionMaster.Clear();
-			me.NearTeleportTo(Phase2Pos);
+			Events.Reset();
+			Me.ReactState = ReactStates.Passive;
+			Me.AttackStop();
+			Me.MotionMaster.Clear();
+			Me.NearTeleportTo(Phase2Pos);
 			DoCast(Spells.TELEPORT_VISUAL);
 			ResetThreatList();
-			_events.ScheduleEvent(BossEvents.EVENT_TRANSITION_SAY_1, TimeSpan.FromMilliseconds(4000));
-			_events.ScheduleEvent(BossEvents.EVENT_TRANSITION_SAY_2, TimeSpan.FromMilliseconds(6000));
-			_events.ScheduleEvent(BossEvents.EVENT_TRANSITION_CAST, TimeSpan.FromMilliseconds(8000));
+			Events.ScheduleEvent(BossEvents.EVENT_TRANSITION_SAY_1, TimeSpan.FromMilliseconds(4000));
+			Events.ScheduleEvent(BossEvents.EVENT_TRANSITION_SAY_2, TimeSpan.FromMilliseconds(6000));
+			Events.ScheduleEvent(BossEvents.EVENT_TRANSITION_CAST, TimeSpan.FromMilliseconds(8000));
 		}
 
-		if (me.HealthBelowPctDamaged(1, damage))
+		if (Me.HealthBelowPctDamaged(1, damage))
 			if (!_dying && _transitionDone)
 			{
 				_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
-				_events.Reset();
-				DoCast(me, Spells.ARCANE_OVERLOAD_INITIAL, new CastSpellExtraArgs(true));
+				Events.Reset();
+				DoCast(Me, Spells.ARCANE_OVERLOAD_INITIAL, new CastSpellExtraArgs(true));
 				SummonBeams();
 				Talk(Texts.SAY_DEATH);
 				_dying = true;
-				_events.ScheduleEvent(BossEvents.EVENT_FALL_GROUND, TimeSpan.FromMilliseconds(5000));
+				Events.ScheduleEvent(BossEvents.EVENT_FALL_GROUND, TimeSpan.FromMilliseconds(5000));
 			}
 	}
 
@@ -130,16 +130,16 @@ public class boss_glubtok : BossAI
 		for (byte i = 0; i < 8; ++i)
 		{
 			if (left)
-				angle = me.Location.Orientation - (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 3.0f, (float)Math.PI / 6.0f);
+				angle = Me.Location.Orientation - (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 3.0f, (float)Math.PI / 6.0f);
 			else
-				angle = me.Location.Orientation + (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 6.0f, (float)Math.PI / 3.0f);
+				angle = Me.Location.Orientation + (float)Math.PI / 2 + RandomHelper.FRand((float)-Math.PI / 6.0f, (float)Math.PI / 3.0f);
 
-			pos.Z = me.Location.Z + RandomHelper.FRand(4.0f, 23.0f);
+			pos.Z = Me.Location.Z + RandomHelper.FRand(4.0f, 23.0f);
 
-			me.GetNearPoint2D(me, out pos.X, out pos.Y, 25.0f, angle);
-			Global.VMapMgr.GetObjectHitPos(me.Location.MapId, me.Location.X, me.Location.Y, me.Location.Z + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
+			Me.GetNearPoint2D(Me, out pos.X, out pos.Y, 25.0f, angle);
+			Global.VMapMgr.GetObjectHitPos(Me.Location.MapId, Me.Location.X, Me.Location.Y, Me.Location.Z + 0.5f, pos.X, pos.Y, pos.Z + 0.5f, out pos.X, out pos.Y, out pos.Z, -1.5f);
 
-			if (me.Location.GetExactDist2d(pos.X, pos.Y) >= 7.5f)
+			if (Me.Location.GetExactDist2d(pos.X, pos.Y) >= 7.5f)
 				break;
 		}
 
@@ -170,11 +170,11 @@ public class boss_glubtok : BossAI
 				spellID = Spells.ARCANE_FROST_BEAM;
 			}
 
-			Creature dummy = me.SummonCreature(Creatures.NPC_BEAM_BUNNY, pos1.X, pos1.Y, pos1.Z, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(7000));
+			Creature dummy = Me.SummonCreature(Creatures.NPC_BEAM_BUNNY, pos1.X, pos1.Y, pos1.Z, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(7000));
 
 			if (dummy != null)
 			{
-				dummy.CastSpell(me, spellID, true);
+				dummy.CastSpell(Me, spellID, true);
 				dummy.ClearUnitState(UnitState.Casting);
 				var init = new MoveSplineInit(dummy);
 				init.Path().Add(pos1);
@@ -195,17 +195,17 @@ public class boss_glubtok : BossAI
 
 		if (id == (uint)Points.POINT_FALL_GROUND)
 		{
-			me.SetUnitFlag(UnitFlags.ImmuneToPc);
+			Me.SetUnitFlag(UnitFlags.ImmuneToPc);
 			DoCast(Spells.FEIGN_DEATH);
-			me.CastWithDelay(TimeSpan.FromMilliseconds(2000), me, Spells.ARCANE_OVERLOAD_SUICIDE, true);
-			me.CastWithDelay(TimeSpan.FromMilliseconds(1000), me, Spells.ARCANE_OVERLOAD_BOOM, true);
+			Me.CastWithDelay(TimeSpan.FromMilliseconds(2000), Me, Spells.ARCANE_OVERLOAD_SUICIDE, true);
+			Me.CastWithDelay(TimeSpan.FromMilliseconds(1000), Me, Spells.ARCANE_OVERLOAD_BOOM, true);
 		}
 	}
 
 
 	public override void AttackStart(Unit victim)
 	{
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			AttackStartNoMove(victim);
 		else
 			base.AttackStart(victim);
@@ -216,12 +216,12 @@ public class boss_glubtok : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting) && !me.GetCurrentSpell(CurrentSpellTypes.Channeled))
+		if (Me.HasUnitState(UnitState.Casting) && !Me.GetCurrentSpell(CurrentSpellTypes.Channeled))
 			return;
 
-		var eventId = _events.ExecuteEvent();
+		var eventId = Events.ExecuteEvent();
 
 		if (eventId != 0)
 			switch (eventId)
@@ -238,10 +238,10 @@ public class boss_glubtok : BossAI
 						Talk(Texts.SAY_FISTS_OF_FLAME);
 					}
 
-					me.ReactState = ReactStates.Aggressive;
-					AttackStart(me.SelectVictim());
+					Me.ReactState = ReactStates.Aggressive;
+					AttackStart(Me.SelectVictim());
 					_lastElement = !_lastElement;
-					_events.ScheduleEvent(BossEvents.EVENT_BLINK, TimeSpan.FromMilliseconds(12000));
+					Events.ScheduleEvent(BossEvents.EVENT_BLINK, TimeSpan.FromMilliseconds(12000));
 
 					break;
 				case BossEvents.EVENT_BLINK:
@@ -250,15 +250,15 @@ public class boss_glubtok : BossAI
 					if (random != null)
 					{
 						DoCast(random, Spells.BLINK);
-						me.ReactState = ReactStates.Passive;
-						me.AttackStop();
-						me.SetFacingToObject(random);
+						Me.ReactState = ReactStates.Passive;
+						Me.AttackStop();
+						Me.SetFacingToObject(random);
 
 						if (IsHeroic())
 							ResetThreatList();
 					}
 
-					_events.ScheduleEvent(BossEvents.EVENT_ELEMENTAL_FISTS, TimeSpan.FromMilliseconds(1000));
+					Events.ScheduleEvent(BossEvents.EVENT_ELEMENTAL_FISTS, TimeSpan.FromMilliseconds(1000));
 
 					break;
 				case BossEvents.EVENT_TRANSITION_SAY_1:
@@ -271,16 +271,16 @@ public class boss_glubtok : BossAI
 					break;
 				case BossEvents.EVENT_TRANSITION_CAST:
 				{
-					me.AddUnitState(UnitState.CannotTurn);
+					Me.AddUnitState(UnitState.CannotTurn);
 					Talk(Texts.SAY_ARCANE_POWER);
 					DoCast(Spells.ARCANE_POWER);
 					SummonBeams();
 
-					var init = new MoveSplineInit(me);
-					init.MoveTo(me.Location.X, me.Location.Y, me.Location.Z + 2.0f);
+					var init = new MoveSplineInit(Me);
+					init.MoveTo(Me.Location.X, Me.Location.Y, Me.Location.Z + 2.0f);
 					init.SetVelocity(1.5f);
 					init.Launch();
-					me.SetDisableGravity(true);
+					Me.SetDisableGravity(true);
 
 					_transitionDone = true;
 
@@ -288,16 +288,16 @@ public class boss_glubtok : BossAI
 					{
 						_platter.AI.DoAction(Actions.ACTION_STOP_FIREWALL);
 						_platter.AI.DoAction(Actions.ACTION_START_FIREWALL);
-						_events.ScheduleEvent(BossEvents.EVENT_SAY_FIREWALL, TimeSpan.FromMilliseconds(3500));
+						Events.ScheduleEvent(BossEvents.EVENT_SAY_FIREWALL, TimeSpan.FromMilliseconds(3500));
 					}
 
-					_events.ScheduleEvent(BossEvents.EVENT_SUMMON_BLOSSOM, TimeSpan.FromMilliseconds(4000));
+					Events.ScheduleEvent(BossEvents.EVENT_SUMMON_BLOSSOM, TimeSpan.FromMilliseconds(4000));
 
 					break;
 				}
 				case BossEvents.EVENT_SUMMON_BLOSSOM:
 				{
-					_events.ScheduleEvent(BossEvents.EVENT_SUMMON_BLOSSOM, TimeSpan.FromMilliseconds(RandomHelper.URand(0, 2500)));
+					Events.ScheduleEvent(BossEvents.EVENT_SUMMON_BLOSSOM, TimeSpan.FromMilliseconds(RandomHelper.URand(0, 2500)));
 
 					uint targetEntry = 0;
 					uint targetSpellID = 0;
@@ -316,7 +316,7 @@ public class boss_glubtok : BossAI
 						indicatorSpellID = (uint)Spells.FIRE_BLOSSOM_VISUAL;
 					}
 
-					var cList = me.GetCreatureListWithEntryInGrid(targetEntry, 100.0f);
+					var cList = Me.GetCreatureListWithEntryInGrid(targetEntry, 100.0f);
 
 					cList.RemoveIf(new UnitAuraCheck<Creature>(true, indicatorSpellID));
 
@@ -329,7 +329,7 @@ public class boss_glubtok : BossAI
 					if (target == null)
 					{
 						target.CastSpell(target, indicatorSpellID, true);
-						me.CastSpell(target, targetSpellID);
+						Me.CastSpell(target, targetSpellID);
 					}
 
 					break;
@@ -339,8 +339,8 @@ public class boss_glubtok : BossAI
 
 					break;
 				case BossEvents.EVENT_FALL_GROUND:
-					me.ClearUnitState(UnitState.CannotTurn);
-					me.MotionMaster.MoveFall(Points.POINT_FALL_GROUND);
+					Me.ClearUnitState(UnitState.CannotTurn);
+					Me.MotionMaster.MoveFall(Points.POINT_FALL_GROUND);
 
 					break;
 			}

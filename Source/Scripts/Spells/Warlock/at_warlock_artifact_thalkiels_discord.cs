@@ -16,21 +16,21 @@ public class at_warlock_artifact_thalkiels_discord : AreaTriggerAI
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		var timer = at.VariableStorage.GetValue<int>("_timer", 0) + diff;
+		var timer = At.VariableStorage.GetValue<int>("_timer", 0) + diff;
 
 		if (timer >= 1300)
 		{
-			at.VariableStorage.Set<int>("_timer", 0);
-			caster.CastSpell(at, WarlockSpells.THALKIES_DISCORD_DAMAGE, true);
+			At.VariableStorage.Set<int>("_timer", 0);
+			caster.CastSpell(At, WarlockSpells.THALKIES_DISCORD_DAMAGE, true);
 		}
 		else
 		{
-			at.VariableStorage.Set("_timer", timer);
+			At.VariableStorage.Set("_timer", timer);
 		}
 	}
 }

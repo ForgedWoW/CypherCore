@@ -20,7 +20,7 @@ namespace Scripts.Pets
 
 			public npc_warlock_blasphemy(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				_owner = owner;
@@ -51,7 +51,7 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint UnnamedParameter)
 			{
-				if (!me.HasAura(WarlockSpells.IMMOLATION))
+				if (!Me.HasAura(WarlockSpells.IMMOLATION))
 					DoCast(WarlockSpells.IMMOLATION);
 
 

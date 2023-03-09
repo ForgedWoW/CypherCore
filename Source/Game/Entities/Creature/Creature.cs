@@ -61,7 +61,7 @@ public partial class Creature : Unit
 			var ai = AI;
 
 			if (ai != null)
-				return ai.IsEngaged();
+				return ai.IsEngaged;
 
 			return false;
 		}

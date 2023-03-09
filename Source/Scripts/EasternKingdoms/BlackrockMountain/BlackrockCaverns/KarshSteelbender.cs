@@ -40,7 +40,7 @@ internal class boss_karsh_steelbender : BossAI
 		base.JustEngagedWith(who);
 		Talk(TextIds.YellAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
@@ -65,6 +65,6 @@ internal class boss_karsh_steelbender : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -28,12 +28,12 @@ namespace Scripts.Pets
 
 			public override void EnterEvadeMode(EvadeReason why)
 			{
-				if (!me.IsAlive)
+				if (!Me.IsAlive)
 					return;
 
-				me.CombatStop(true);
+				Me.CombatStop(true);
 				EngagementOver();
-				me.ResetPlayerDamageReq();
+				Me.ResetPlayerDamageReq();
 			}
 		}
 

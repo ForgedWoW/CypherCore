@@ -14,14 +14,14 @@ public class npc_captain_cookie_cauldron : ScriptedAI
 {
 	public npc_captain_cookie_cauldron(Creature pCreature) : base(pCreature)
 	{
-		me.ReactState = ReactStates.Passive;
-		me.SetUnitFlag(UnitFlags.Uninteractible);
+		Me.ReactState = ReactStates.Passive;
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
 	}
 
 	public override void Reset()
 	{
-		DoCast(me, eSpell.CAULDRON_VISUAL, new Game.Spells.CastSpellExtraArgs(true));
-		DoCast(me, eSpell.CAULDRON_FIRE);
-		me.SetUnitFlag(UnitFlags.Stunned);
+		DoCast(Me, eSpell.CAULDRON_VISUAL, new Game.Spells.CastSpellExtraArgs(true));
+		DoCast(Me, eSpell.CAULDRON_FIRE);
+		Me.SetUnitFlag(UnitFlags.Stunned);
 	}
 }

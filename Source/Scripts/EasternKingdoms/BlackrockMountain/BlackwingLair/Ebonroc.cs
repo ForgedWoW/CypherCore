@@ -24,7 +24,7 @@ internal class boss_ebonroc : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -32,14 +32,14 @@ internal class boss_ebonroc : BossAI
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								DoCastVictim(SpellIds.Wingbuffet);
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(10),
 							task =>
 							{
@@ -53,6 +53,6 @@ internal class boss_ebonroc : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

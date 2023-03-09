@@ -49,7 +49,7 @@ public class go_deadmines_tp : GameObjectAI
 		if (player.HasAura(DMSharedSpells.NIGHTMARE_ELIXIR))
 			return false;
 
-		var instance = me.InstanceScript;
+		var instance = Me.InstanceScript;
 
 		if (instance == null)
 			return false;
@@ -63,7 +63,7 @@ public class go_deadmines_tp : GameObjectAI
 		if (instance.GetBossState(DMData.DATA_RIPSNARL) == EncounterState.Done)
 			player.AddGossipItem(GossipOptionNpc.None, GOSSIP_BOSS_3, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 2);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
+		player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
 
 		return true;
 	}

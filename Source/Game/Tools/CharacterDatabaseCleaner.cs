@@ -7,148 +7,152 @@ using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Spells;
 
-namespace Game
+namespace Game;
+
+class CharacterDatabaseCleaner
 {
-    class CharacterDatabaseCleaner
-    {
-        public static void CleanDatabase()
-        {
-            // config to disable
-            if (!WorldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
-                return;
+	public static void CleanDatabase()
+	{
+		// config to disable
+		if (!WorldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
+			return;
 
-            Log.outInfo(LogFilter.Server, "Cleaning character database...");
+		Log.outInfo(LogFilter.Server, "Cleaning character database...");
 
-            uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
-            CleaningFlags flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
+		var flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
 
-            // clean up
-            if (flags.HasAnyFlag(CleaningFlags.AchievementProgress))
-                CleanCharacterAchievementProgress();
+		// clean up
+		if (flags.HasAnyFlag(CleaningFlags.AchievementProgress))
+			CleanCharacterAchievementProgress();
 
-            if (flags.HasAnyFlag(CleaningFlags.Skills))
-                CleanCharacterSkills();
+		if (flags.HasAnyFlag(CleaningFlags.Skills))
+			CleanCharacterSkills();
 
-            if (flags.HasAnyFlag(CleaningFlags.Spells))
-                CleanCharacterSpell();
+		if (flags.HasAnyFlag(CleaningFlags.Spells))
+			CleanCharacterSpell();
 
-            if (flags.HasAnyFlag(CleaningFlags.Talents))
-                CleanCharacterTalent();
+		if (flags.HasAnyFlag(CleaningFlags.Talents))
+			CleanCharacterTalent();
 
-            if (flags.HasAnyFlag(CleaningFlags.Queststatus))
-                CleanCharacterQuestStatus();
+		if (flags.HasAnyFlag(CleaningFlags.Queststatus))
+			CleanCharacterQuestStatus();
 
-            // NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
-            // you need to define them at least once in worldstates.
-            flags &= (CleaningFlags)WorldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
-            Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
+		// NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
+		// you need to define them at least once in worldstates.
+		flags &= (CleaningFlags)WorldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
+		Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
 
-            Global.WorldMgr.
-            CleaningFlags = flags;
+		Global.WorldMgr.CleaningFlags = flags;
 
-            Log.outInfo(LogFilter.ServerLoading, "Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
-        }
+		Log.outInfo(LogFilter.ServerLoading, "Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+	}
 
-        delegate bool CheckFor(uint id);
+	static void CheckUnique(string column, string table, CheckFor check)
+	{
+		var result = DB.Characters.Query("SELECT DISTINCT {0} FROM {1}", column, table);
 
-        static void CheckUnique(string column, string table, CheckFor check)
-        {
-            SQLResult result = DB.Characters.Query("SELECT DISTINCT {0} FROM {1}", column, table);
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.Sql, "Table {0} is empty.", table);
-                return;
-            }
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.Sql, "Table {0} is empty.", table);
 
-            bool found = false;
-            StringBuilder ss = new();
-            do
-            {
-                uint id = result.Read<uint>(0);
-                if (!check(id))
-                {
-                    if (!found)
-                    {
-                        ss.AppendFormat("DELETE FROM {0} WHERE {1} IN(", table, column);
-                        found = true;
-                    }
-                    else
-                        ss.Append(',');
+			return;
+		}
 
-                    ss.Append(id);
-                }
-            }
-            while (result.NextRow());
+		var found = false;
+		StringBuilder ss = new();
 
-            if (found)
-            {
-                ss.Append(')');
-                DB.Characters.Execute(ss.ToString());
-            }
-        }
+		do
+		{
+			var id = result.Read<uint>(0);
 
-        static bool AchievementProgressCheck(uint criteria)
-        {
-            return Global.CriteriaMgr.GetCriteria(criteria) != null;
-        }
+			if (!check(id))
+			{
+				if (!found)
+				{
+					ss.AppendFormat("DELETE FROM {0} WHERE {1} IN(", table, column);
+					found = true;
+				}
+				else
+				{
+					ss.Append(',');
+				}
 
-        static void CleanCharacterAchievementProgress()
-        {
-            CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
-        }
+				ss.Append(id);
+			}
+		} while (result.NextRow());
 
-        static bool SkillCheck(uint skill)
-        {
-            return CliDB.SkillLineStorage.ContainsKey(skill);
-        }
+		if (found)
+		{
+			ss.Append(')');
+			DB.Characters.Execute(ss.ToString());
+		}
+	}
 
-        static void CleanCharacterSkills()
-        {
-            CheckUnique("skill", "character_skills", SkillCheck);
-        }
+	static bool AchievementProgressCheck(uint criteria)
+	{
+		return Global.CriteriaMgr.GetCriteria(criteria) != null;
+	}
 
-        static bool SpellCheck(uint spell_id)
-        {
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, Difficulty.None);
-            return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
-        }
+	static void CleanCharacterAchievementProgress()
+	{
+		CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
+	}
 
-        static void CleanCharacterSpell()
-        {
-            CheckUnique("spell", "character_spell", SpellCheck);
-        }
+	static bool SkillCheck(uint skill)
+	{
+		return CliDB.SkillLineStorage.ContainsKey(skill);
+	}
 
-        static bool TalentCheck(uint talent_id)
-        {
-            TalentRecord talentInfo = CliDB.TalentStorage.LookupByKey(talent_id);
-            if (talentInfo == null)
-                return false;
+	static void CleanCharacterSkills()
+	{
+		CheckUnique("skill", "character_skills", SkillCheck);
+	}
 
-            return CliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
-        }
+	static bool SpellCheck(uint spell_id)
+	{
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, Difficulty.None);
 
-        static void CleanCharacterTalent()
-        {
-            DB.Characters.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
-            CheckUnique("talentId", "character_talent", TalentCheck);
-        }
+		return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
+	}
 
-        static void CleanCharacterQuestStatus()
-        {
-            DB.Characters.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
-        }
-    }
+	static void CleanCharacterSpell()
+	{
+		CheckUnique("spell", "character_spell", SpellCheck);
+	}
 
-    [Flags]
-    public enum CleaningFlags
-    {
-        AchievementProgress = 0x1,
-        Skills = 0x2,
-        Spells = 0x4,
-        Talents = 0x8,
-        Queststatus = 0x10
-    }
+	static bool TalentCheck(uint talent_id)
+	{
+		var talentInfo = CliDB.TalentStorage.LookupByKey(talent_id);
+
+		if (talentInfo == null)
+			return false;
+
+		return CliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
+	}
+
+	static void CleanCharacterTalent()
+	{
+		DB.Characters.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
+		CheckUnique("talentId", "character_talent", TalentCheck);
+	}
+
+	static void CleanCharacterQuestStatus()
+	{
+		DB.Characters.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
+	}
+
+	delegate bool CheckFor(uint id);
+}
+
+[Flags]
+public enum CleaningFlags
+{
+	AchievementProgress = 0x1,
+	Skills = 0x2,
+	Spells = 0x4,
+	Talents = 0x8,
+	Queststatus = 0x10
 }

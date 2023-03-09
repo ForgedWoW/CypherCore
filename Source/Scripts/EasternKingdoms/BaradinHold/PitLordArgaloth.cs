@@ -29,9 +29,9 @@ internal class boss_pit_lord_argaloth : BossAI
 	public override void JustEngagedWith(Unit who)
 	{
 		base.JustEngagedWith(who);
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -39,7 +39,7 @@ internal class boss_pit_lord_argaloth : BossAI
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							TimeSpan.FromSeconds(25),
 							task =>
 							{
@@ -47,26 +47,26 @@ internal class boss_pit_lord_argaloth : BossAI
 								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(5), task => { DoCast(me, SpellIds.Berserk, new CastSpellExtraArgs(true)); });
+		Scheduler.Schedule(TimeSpan.FromMinutes(5), task => { DoCast(Me, SpellIds.Berserk, new CastSpellExtraArgs(true)); });
 	}
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 		_DespawnAtEvade();
 	}
 
 	public override void DamageTaken(Unit attacker, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
 	{
-		if (me.HealthBelowPctDamaged(33, damage) ||
-			me.HealthBelowPctDamaged(66, damage))
+		if (Me.HealthBelowPctDamaged(33, damage) ||
+			Me.HealthBelowPctDamaged(66, damage))
 			DoCastAOE(SpellIds.FelFirestorm);
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -74,7 +74,7 @@ internal class boss_pit_lord_argaloth : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 

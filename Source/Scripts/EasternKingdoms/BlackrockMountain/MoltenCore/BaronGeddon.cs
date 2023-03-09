@@ -35,14 +35,14 @@ internal class boss_baron_geddon : BossAI
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(45),
+		Scheduler.Schedule(TimeSpan.FromSeconds(45),
 							task =>
 							{
-								DoCast(me, SpellIds.Inferno);
+								DoCast(Me, SpellIds.Inferno);
 								task.Repeat(TimeSpan.FromSeconds(45));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.IgniteMana);
@@ -53,7 +53,7 @@ internal class boss_baron_geddon : BossAI
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(35),
+		Scheduler.Schedule(TimeSpan.FromSeconds(35),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
@@ -70,19 +70,19 @@ internal class boss_baron_geddon : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		// If we are <2% hp cast Armageddon
 		if (!HealthAbovePct(2))
 		{
-			me.InterruptNonMeleeSpells(true);
-			DoCast(me, SpellIds.Armageddon);
+			Me.InterruptNonMeleeSpells(true);
+			DoCast(Me, SpellIds.Armageddon);
 			Talk(TextIds.EmoteService);
 
 			return;
 		}
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
 		DoMeleeAttackIfReady();

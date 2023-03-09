@@ -70,7 +70,7 @@ internal class boss_vexallus : BossAI
 		Talk(TextIds.SayAggro);
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
@@ -81,7 +81,7 @@ internal class boss_vexallus : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 20.0f, true);
@@ -100,7 +100,7 @@ internal class boss_vexallus : BossAI
 		if (temp)
 			summoned.MotionMaster.MoveFollow(temp, 0, 0);
 
-		summons.Summon(summoned);
+		Summons.Summon(summoned);
 	}
 
 	public override void DamageTaken(Unit who, ref double damage, DamageEffectType damageType, SpellInfo spellInfo = null)
@@ -115,9 +115,9 @@ internal class boss_vexallus : BossAI
 			if (_intervalHealthAmount == MiscConst.IntervalSwitch)
 			{
 				_enraged = true;
-				_scheduler.CancelAll();
+				Scheduler.CancelAll();
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(1.2),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1.2),
 									task =>
 									{
 										DoCastVictim(SpellIds.Overload);
@@ -136,12 +136,12 @@ internal class boss_vexallus : BossAI
 
 			if (IsHeroic())
 			{
-				DoCast(me, SpellIds.HSummonPureEnergy1);
-				DoCast(me, SpellIds.HSummonPureEnergy2);
+				DoCast(Me, SpellIds.HSummonPureEnergy1);
+				DoCast(Me, SpellIds.HSummonPureEnergy2);
 			}
 			else
 			{
-				DoCast(me, SpellIds.SummonPureEnergy);
+				DoCast(Me, SpellIds.SummonPureEnergy);
 			}
 		}
 	}
@@ -151,7 +151,7 @@ internal class boss_vexallus : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -160,7 +160,7 @@ internal class npc_pure_energy : ScriptedAI
 {
 	public npc_pure_energy(Creature creature) : base(creature)
 	{
-		me.SetDisplayFromModel(1);
+		Me.SetDisplayFromModel(1);
 	}
 
 	public override void JustDied(Unit killer)
@@ -168,6 +168,6 @@ internal class npc_pure_energy : ScriptedAI
 		if (killer)
 			killer.CastSpell(killer, SpellIds.EnergyFeedback, true);
 
-		me.RemoveAura(SpellIds.PureEnergyPassive);
+		Me.RemoveAura(SpellIds.PureEnergyPassive);
 	}
 }

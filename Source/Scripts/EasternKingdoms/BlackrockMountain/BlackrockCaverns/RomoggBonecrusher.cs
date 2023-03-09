@@ -42,7 +42,7 @@ internal class boss_romogg_bonecrusher : BossAI
 {
 	public boss_romogg_bonecrusher(Creature creature) : base(creature, DataTypes.RomoggBonecrusher)
 	{
-		me.SummonCreature(CreatureIds.RazTheCrazed, MiscConst.SummonPos, TempSummonType.ManualDespawn, TimeSpan.FromSeconds(200));
+		Me.SummonCreature(CreatureIds.RazTheCrazed, MiscConst.SummonPos, TempSummonType.ManualDespawn, TimeSpan.FromSeconds(200));
 	}
 
 	public override void Reset()
@@ -55,7 +55,7 @@ internal class boss_romogg_bonecrusher : BossAI
 		_JustDied();
 		Talk(TextIds.YellDeath);
 
-		var raz = instance.GetCreature(DataTypes.RazTheCrazed);
+		var raz = Instance.GetCreature(DataTypes.RazTheCrazed);
 
 		if (raz)
 			raz.AI.SetData(MiscConst.TypeRaz, MiscConst.DataRomoggDead);
@@ -71,23 +71,23 @@ internal class boss_romogg_bonecrusher : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(22),
+		Scheduler.Schedule(TimeSpan.FromSeconds(22),
 							TimeSpan.FromSeconds(32),
 							task =>
 							{
 								Talk(TextIds.YellSkullcracker);
-								DoCast(me, SpellIds.ChainsOfWoe);
+								DoCast(Me, SpellIds.ChainsOfWoe);
 								task.Repeat(TimeSpan.FromSeconds(22), TimeSpan.FromSeconds(32));
 
-								_scheduler.Schedule(TimeSpan.FromSeconds(3),
+								Scheduler.Schedule(TimeSpan.FromSeconds(3),
 													skullCrackerTask =>
 													{
 														Talk(TextIds.EmoteSkullcracker);
-														DoCast(me, SpellIds.Skullcracker);
+														DoCast(Me, SpellIds.Skullcracker);
 													});
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(26),
+		Scheduler.Schedule(TimeSpan.FromSeconds(26),
 							TimeSpan.FromSeconds(32),
 							task =>
 							{
@@ -95,16 +95,16 @@ internal class boss_romogg_bonecrusher : BossAI
 								task.Repeat(TimeSpan.FromSeconds(26), TimeSpan.FromSeconds(32));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(45),
+		Scheduler.Schedule(TimeSpan.FromSeconds(45),
 							task =>
 							{
-								DoCast(me, SpellIds.Quake);
+								DoCast(Me, SpellIds.Quake);
 								task.Repeat(TimeSpan.FromSeconds(32), TimeSpan.FromSeconds(40));
 							});
 
 		Talk(TextIds.YellAggro);
 		Talk(TextIds.EmoteCallForHelp);
-		DoCast(me, SpellIds.CallForHelp);
+		DoCast(Me, SpellIds.CallForHelp);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -112,6 +112,6 @@ internal class boss_romogg_bonecrusher : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

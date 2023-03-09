@@ -25,14 +25,14 @@ internal class boss_gehennas : BossAI
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.GehennasCurse);
 								task.Repeat(TimeSpan.FromSeconds(22), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0);
@@ -43,7 +43,7 @@ internal class boss_gehennas : BossAI
 								task.Repeat(TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 1);
@@ -60,6 +60,6 @@ internal class boss_gehennas : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -823,8 +823,8 @@ public partial class WorldSession : IDisposable
 
 		Log.outDebug(LogFilter.Rbac,
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
-					_rbacData.GetId(),
-					_rbacData.GetName(),
+					_rbacData.Id,
+					_rbacData.Name,
 					Global.WorldMgr.					Realm.Id.Index);
 
 		return hasPermission;
@@ -834,8 +834,8 @@ public partial class WorldSession : IDisposable
 	{
 		Log.outDebug(LogFilter.Rbac,
 					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
-					_rbacData.GetId(),
-					_rbacData.GetName(),
+					_rbacData.Id,
+					_rbacData.Name,
 					Global.WorldMgr.					Realm.Id.Index);
 
 		_rbacData = null;

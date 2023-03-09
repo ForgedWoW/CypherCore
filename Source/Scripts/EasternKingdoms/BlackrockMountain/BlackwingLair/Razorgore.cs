@@ -62,7 +62,7 @@ internal class boss_razorgore : BossAI
 		_Reset();
 
 		Initialize();
-		instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
+		Instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
 	}
 
 	public override void JustDied(Unit killer)
@@ -70,7 +70,7 @@ internal class boss_razorgore : BossAI
 		_JustDied();
 		Talk(TextIds.SayDeath);
 
-		instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
+		Instance.SetData(BWLMisc.DataEggEvent, (uint)EncounterState.NotStarted);
 	}
 
 	public override void DoAction(int action)
@@ -91,7 +91,7 @@ internal class boss_razorgore : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize()
@@ -101,28 +101,28 @@ internal class boss_razorgore : BossAI
 
 	private void DoChangePhase()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(35),
+		Scheduler.Schedule(TimeSpan.FromSeconds(35),
 							task =>
 							{
 								DoCastVictim(SpellIds.Warstomp);
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7),
 							task =>
 							{
 								DoCastVictim(SpellIds.Fireballvolley);
 								task.Repeat(TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Conflagration);
@@ -130,8 +130,8 @@ internal class boss_razorgore : BossAI
 							});
 
 		secondPhase = true;
-		me.RemoveAllAuras();
-		me.SetFullHealth();
+		Me.RemoveAllAuras();
+		Me.SetFullHealth();
 	}
 }
 

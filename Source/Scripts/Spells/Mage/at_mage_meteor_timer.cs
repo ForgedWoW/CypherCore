@@ -17,12 +17,12 @@ public class at_mage_meteor_timer : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+		var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
 		if (tempSumm != null)
 		{
@@ -35,12 +35,12 @@ public class at_mage_meteor_timer : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
+		var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(5));
 
 		if (tempSumm != null)
 		{

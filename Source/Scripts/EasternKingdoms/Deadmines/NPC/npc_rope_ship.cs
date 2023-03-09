@@ -14,13 +14,13 @@ public class npc_rope_ship : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.IsSummon)
+		if (Me.IsSummon)
 		{
-			var summoner = me.ToTempSummon().GetSummoner();
+			var summoner = Me.ToTempSummon().GetSummoner();
 
 			if (summoner != null)
 				if (summoner)
-					me.CastSpell(summoner, 43785, true);
+					Me.CastSpell(summoner, 43785, true);
 		}
 	}
 }

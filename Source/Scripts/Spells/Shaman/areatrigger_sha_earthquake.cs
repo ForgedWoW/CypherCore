@@ -26,7 +26,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
@@ -43,12 +43,12 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 
 		while (_refreshTimer <= TimeSpan.Zero)
 		{
-			var caster = at.GetCaster();
+			var caster = At.GetCaster();
 
-			caster?.CastSpell(at.Location,
+			caster?.CastSpell(At.Location,
 							ShamanSpells.EarthquakeTick,
 							new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-								.SetOriginalCaster(at.GUID));
+								.SetOriginalCaster(At.GUID));
 
 			_refreshTimer += _period;
 		}

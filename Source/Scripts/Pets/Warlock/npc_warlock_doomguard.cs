@@ -26,7 +26,7 @@ namespace Scripts.Pets
 
 			public npc_warlock_doomguard(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				creature.SetLevel(owner.Level);
@@ -47,29 +47,29 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				me.Class = Class.Rogue;
-				me.SetPowerType(PowerType.Energy);
-				me.SetMaxPower(PowerType.Energy, 200);
-				me.SetPower(PowerType.Energy, 200);
+				Me.Class = Class.Rogue;
+				Me.SetPowerType(PowerType.Energy);
+				Me.SetMaxPower(PowerType.Energy, 200);
+				Me.SetPower(PowerType.Energy, 200);
 
 				events.Reset();
 				events.ScheduleEvent(1, TimeSpan.FromSeconds(3));
 
-				me.SetControlled(true, UnitState.Root);
+				Me.SetControlled(true, UnitState.Root);
 				maxDistance = SpellManager.Instance.GetSpellInfo(WarlockSpells.PET_DOOMBOLT, Difficulty.None).RangeEntry.RangeMax[0];
 			}
 
 			public override void UpdateAI(uint diff)
 			{
 				UpdateVictim();
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
-				if (me.OwnerUnit)
+				if (Me.OwnerUnit)
 				{
 					var victim = owner.Victim;
 
 					if (owner.Victim)
-						me.Attack(victim, false);
+						Me.Attack(victim, false);
 				}
 
 				events.Update(diff);
@@ -81,16 +81,16 @@ namespace Scripts.Pets
 					switch (eventId)
 					{
 						case 1:
-							if (!me.Victim)
+							if (!Me.Victim)
 							{
-								me.SetControlled(false, UnitState.Root);
+								Me.SetControlled(false, UnitState.Root);
 								events.ScheduleEvent(eventId, TimeSpan.FromSeconds(1));
 
 								return;
 							}
 
-							me.SetControlled(true, UnitState.Root);
-							me.CastSpell(me.Victim, WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(me.OwnerGUID));
+							Me.SetControlled(true, UnitState.Root);
+							Me.CastSpell(Me.Victim, WarlockSpells.PET_DOOMBOLT, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(Me.OwnerGUID));
 							events.ScheduleEvent(eventId, TimeSpan.FromSeconds(3));
 
 							break;

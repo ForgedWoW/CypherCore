@@ -48,7 +48,7 @@ public class npc_defias_enforcer : ScriptedAI
 
 		if (RecklessnessTimer <= diff)
 		{
-			DoCast(me, boss_vanessa_vancleef.Spells.BLOODBATH);
+			DoCast(Me, boss_vanessa_vancleef.Spells.BLOODBATH);
 			RecklessnessTimer = 20000;
 		}
 		else

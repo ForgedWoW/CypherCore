@@ -14,8 +14,8 @@ public class at_monk_ring_of_peace : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit target)
 	{
-		if (at.GetCaster())
-			if (at.GetCaster().IsValidAttackTarget(target))
+		if (At.GetCaster())
+			if (At.GetCaster().IsValidAttackTarget(target))
 				target.CastSpell(target, MonkSpells.RING_OF_PEACE_KNOCKBACK, true);
 	}
 }

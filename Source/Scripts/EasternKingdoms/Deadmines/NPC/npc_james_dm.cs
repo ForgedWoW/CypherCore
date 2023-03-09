@@ -14,7 +14,7 @@ public class npc_james_dm : ScriptedAI
 
 	public override void JustDied(Unit killer)
 	{
-		var Vanessa = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
 		if (Vanessa != null)
 		{
@@ -27,15 +27,15 @@ public class npc_james_dm : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me.VehicleKit1)
+		if (!Me.VehicleKit1)
 			return;
 
-		var Calissa = me.VehicleKit1.GetPassenger(0);
+		var Calissa = Me.VehicleKit1.GetPassenger(0);
 
 		if (Calissa != null)
 		{
-			Calissa.SetInCombatWith(me, true);
-			Calissa.GetThreatManager().AddThreat(me, 100000.0f);
+			Calissa.SetInCombatWith(Me, true);
+			Calissa.GetThreatManager().AddThreat(Me, 100000.0f);
 			DoZoneInCombat();
 		}
 	}

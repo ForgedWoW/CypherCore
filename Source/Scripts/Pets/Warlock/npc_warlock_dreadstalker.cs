@@ -19,7 +19,7 @@ namespace Scripts.Pets
 
 			public npc_warlock_dreadstalker(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				creature.SetLevel(owner.Level);
@@ -40,16 +40,16 @@ namespace Scripts.Pets
 			{
 				if (firstTick)
 				{
-					var owner = me.OwnerUnit;
+					var owner = Me.OwnerUnit;
 
-					if (!me.OwnerUnit ||
-						!me.OwnerUnit.AsPlayer)
+					if (!Me.OwnerUnit ||
+						!Me.OwnerUnit.AsPlayer)
 						return;
 
 					var target = owner.AsPlayer.SelectedUnit;
 
 					if (target)
-						me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
+						Me.CastSpell(target, WarlockSpells.DREADSTALKER_CHARGE, true);
 
 					firstTick = false;
 				}

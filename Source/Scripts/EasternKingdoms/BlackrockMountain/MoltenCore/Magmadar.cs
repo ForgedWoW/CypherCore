@@ -31,29 +31,29 @@ internal class boss_magmadar : BossAI
 	public override void Reset()
 	{
 		base.Reset();
-		DoCast(me, SpellIds.MagmaSpit, new CastSpellExtraArgs(true));
+		DoCast(Me, SpellIds.MagmaSpit, new CastSpellExtraArgs(true));
 	}
 
 	public override void JustEngagedWith(Unit victim)
 	{
 		base.JustEngagedWith(victim);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								Talk(TextIds.EmoteFrenzy);
-								DoCast(me, SpellIds.Frenzy);
+								DoCast(Me, SpellIds.Frenzy);
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Panic);
 								task.Repeat(TimeSpan.FromSeconds(35));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true, true, -(int)SpellIds.LavaBomb);
@@ -70,6 +70,6 @@ internal class boss_magmadar : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

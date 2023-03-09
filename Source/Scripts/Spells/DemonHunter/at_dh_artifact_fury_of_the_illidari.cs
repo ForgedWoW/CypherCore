@@ -21,7 +21,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -39,7 +39,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 
 	public override void OnRemove()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || !caster.AsPlayer)
 			return;
@@ -51,10 +51,10 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 		// caster->VariableStorage.Set<int32>("Spells.RageOfTheIllidariDamage", 0);
 
 		// Cannot cast custom spell on position...
-		var target = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(1));
+		var target = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(1));
 
 		if (target != null)
-			caster.CastSpell(at, DemonHunterSpells.RAGE_OF_THE_ILLIDARI_VISUAL, true);
+			caster.CastSpell(At, DemonHunterSpells.RAGE_OF_THE_ILLIDARI_VISUAL, true);
 		//  caster->m_Events.AddEventAtOffset(() =>
 		// {
 		//caster->CastCustomSpell(RAGE_OF_THE_ILLIDARI_DAMAGE, SpellValueMod.BasePoint0, rageOfTheIllidari, target, TriggerCastFlags.FullMask);

@@ -25,10 +25,10 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerAI
 
 		if (_refreshTimer <= 0)
 		{
-			var caster = at.GetCaster();
+			var caster = At.GetCaster();
 
 			if (caster != null)
-				foreach (var guid in at.InsideUnits)
+				foreach (var guid in At.InsideUnits)
 				{
 					var unit = Global.ObjAccessor.GetUnit(caster, guid);
 
@@ -47,7 +47,7 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{

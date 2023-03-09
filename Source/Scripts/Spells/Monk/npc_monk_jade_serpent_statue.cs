@@ -15,7 +15,7 @@ public class npc_monk_jade_serpent_statue : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (owner != null)
 		{
@@ -29,8 +29,8 @@ public class npc_monk_jade_serpent_statue : ScriptedAI
 				}
 				else
 				{
-					if (player.GetPrimarySpecialization() != TalentSpecialization.MonkMistweaver && me.IsInWorld)
-						me.DespawnOrUnsummon();
+					if (player.GetPrimarySpecialization() != TalentSpecialization.MonkMistweaver && Me.IsInWorld)
+						Me.DespawnOrUnsummon();
 				}
 			}
 		}

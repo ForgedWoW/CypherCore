@@ -19,37 +19,37 @@ public class npc_mechanical_dm : ScriptedAI
 
 	public override void Reset()
 	{
-		_events.Reset();
+		Events.Reset();
 	}
 
 	public override void MoveInLineOfSight(Unit who)
 	{
-		if (me.IsWithinDistInMap(who, 10) && me.IsWithinLOSInMap(who))
+		if (Me.IsWithinDistInMap(who, 10) && Me.IsWithinLOSInMap(who))
 			JustEnteredCombat(who);
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
 		DoZoneInCombat();
-		me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
-		me.RemoveAura(DMSharedSpells.OFFLINE);
-		_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
+		Me.RemoveUnitFlag(UnitFlags.NonAttackable | UnitFlags.ImmuneToPc | UnitFlags.ImmuneToNpc);
+		Me.RemoveAura(DMSharedSpells.OFFLINE);
+		Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(6000));
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		var players = new List<Unit>();
 
-		var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-		var searcher = new PlayerListSearcher(me, players, checker);
-		Cell.VisitGrid(me, searcher, 150f);
+		var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+		var searcher = new PlayerListSearcher(Me, players, checker);
+		Cell.VisitGrid(Me, searcher, 150f);
 
 		foreach (var item in players)
 			item.AddAura(boss_vanessa_vancleef.Spells.EFFECT_1, item);
 
-		me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
+		Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_14, null, true);
 
-		var Vanessa = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
+		var Vanessa = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NIGHTMARE, 500, true);
 
 		if (Vanessa != null)
 		{
@@ -62,16 +62,16 @@ public class npc_mechanical_dm : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_events.Update(diff);
+		Events.Update(diff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE:
 					DoCastVictim(boss_vanessa_vancleef.Spells.SPIRIT_STRIKE);
-					_events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
+					Events.ScheduleEvent(boss_vanessa_vancleef.BossEvents.EVENT_SPIRIT_STRIKE, TimeSpan.FromMilliseconds(RandomHelper.URand(5000, 7000)));
 
 					break;
 			}

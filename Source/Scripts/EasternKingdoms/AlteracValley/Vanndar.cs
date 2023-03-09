@@ -34,33 +34,33 @@ internal class boss_vanndar : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								DoCastVictim(SpellIds.Avatar);
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(20));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								DoCastVictim(SpellIds.Thunderclap);
 								task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Stormbolt);
 								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							TimeSpan.FromSeconds(30),
 							task =>
 							{
@@ -68,10 +68,10 @@ internal class boss_vanndar : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							(Action<Framework.Dynamic.TaskContext>)(task =>
 																		{
-																			if (me.GetDistance2d(me.HomePosition.X, me.HomePosition.Y) > 50)
+																			if (Me.GetDistance2d(Me.HomePosition.X, Me.HomePosition.Y) > 50)
 																			{
 																				base.EnterEvadeMode();
 																				Talk(TextIds.YellEvade);
@@ -88,6 +88,6 @@ internal class boss_vanndar : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

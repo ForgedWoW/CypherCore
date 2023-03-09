@@ -17,7 +17,7 @@ public class npc_pal_lights_hammer : ScriptedAI
 
 	public override void Reset()
 	{
-		me.CastSpell(me, PaladinSpells.LightHammerCosmetic, true);
-		me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
+		Me.CastSpell(Me, PaladinSpells.LightHammerCosmetic, true);
+		Me.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Uninteractible | UnitFlags.RemoveClientControl);
 	}
 }

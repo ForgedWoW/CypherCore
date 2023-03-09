@@ -14,7 +14,7 @@ public class at_mage_arcane_orb : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (caster.IsValidAttackTarget(unit))

@@ -41,7 +41,7 @@ internal class boss_halycon : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(17),
+		Scheduler.Schedule(TimeSpan.FromSeconds(17),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -49,12 +49,12 @@ internal class boss_halycon : BossAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(12), task => { DoCast(me, SpellIds.Thrash); });
+		Scheduler.Schedule(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(12), task => { DoCast(Me, SpellIds.Thrash); });
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		me.SummonCreature(CreaturesIds.GizrulTheSlavener, SummonLocation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
+		Me.SummonCreature(CreaturesIds.GizrulTheSlavener, SummonLocation, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(5));
 		Talk(TextIds.EmoteDeath);
 	}
 
@@ -63,7 +63,7 @@ internal class boss_halycon : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void Initialize() { }

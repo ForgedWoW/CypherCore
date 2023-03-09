@@ -32,14 +32,14 @@ internal class boss_gizrul_the_slavener : BossAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		me.MotionMaster.MovePath(PathIds.Gizrul, false);
+		Me.MotionMaster.MovePath(PathIds.Gizrul, false);
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(17),
+		Scheduler.Schedule(TimeSpan.FromSeconds(17),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -47,11 +47,11 @@ internal class boss_gizrul_the_slavener : BossAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(12),
 							task =>
 							{
-								DoCast(me, SpellIds.InfectedBite);
+								DoCast(Me, SpellIds.InfectedBite);
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
 							});
 	}
@@ -66,6 +66,6 @@ internal class boss_gizrul_the_slavener : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

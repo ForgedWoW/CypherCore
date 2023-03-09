@@ -31,7 +31,7 @@ public class npc_deadmines_bird : ScriptedAI
 
 	public override void UpdateAI(uint uiDiff)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		if (!UpdateVictim())
@@ -39,10 +39,10 @@ public class npc_deadmines_bird : ScriptedAI
 
 		if (UiTimerEyeGouge <= uiDiff)
 		{
-			var victim = me.Victim;
+			var victim = Me.Victim;
 
 			if (victim != null)
-				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
+				Me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_GOUGE_H : DMSpells.EYE_GOUGE);
 
 			UiTimerEyeGouge = RandomHelper.URand(9000, 12000);
 
@@ -55,10 +55,10 @@ public class npc_deadmines_bird : ScriptedAI
 
 		if (IiTimerEyePeck <= uiDiff)
 		{
-			var victim = me.Victim;
+			var victim = Me.Victim;
 
 			if (victim != null)
-				me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);
+				Me.CastSpell(victim, IsHeroic() ? DMSpells.EYE_PECK_H : DMSpells.EYE_PECK);
 
 			IiTimerEyePeck = RandomHelper.URand(16000, 19000);
 

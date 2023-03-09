@@ -92,34 +92,34 @@ internal class boss_moroes : BossAI
 	{
 		Initialize();
 
-		if (me.IsAlive)
+		if (Me.IsAlive)
 			SpawnAdds();
 
-		instance.SetBossState(DataTypes.Moroes, EncounterState.NotStarted);
+		Instance.SetBossState(DataTypes.Moroes, EncounterState.NotStarted);
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							MiscConst.GroupNonEnrage,
 							task =>
 							{
 								for (byte i = 0; i < 4; ++i)
 									if (!AddGUID[i].IsEmpty)
 									{
-										var temp = ObjectAccessor.GetCreature(me, AddGUID[i]);
+										var temp = ObjectAccessor.GetCreature(Me, AddGUID[i]);
 
 										if (temp && temp.IsAlive)
 											if (!temp.Victim)
-												temp.AI.AttackStart(me.Victim);
+												temp.AI.AttackStart(Me.Victim);
 									}
 
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(23),
+		Scheduler.Schedule(TimeSpan.FromSeconds(23),
 							MiscConst.GroupNonEnrage,
 							task =>
 							{
@@ -127,11 +127,11 @@ internal class boss_moroes : BossAI
 								task.Repeat(TimeSpan.FromSeconds(40));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							MiscConst.GroupNonEnrage,
 							task =>
 							{
-								DoCast(me, SpellIds.Vanish);
+								DoCast(Me, SpellIds.Vanish);
 								InVanish = true;
 
 								task.Schedule(TimeSpan.FromSeconds(5),
@@ -150,7 +150,7 @@ internal class boss_moroes : BossAI
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(35),
+		Scheduler.Schedule(TimeSpan.FromSeconds(35),
 							MiscConst.GroupNonEnrage,
 							task =>
 							{
@@ -180,7 +180,7 @@ internal class boss_moroes : BossAI
 		DeSpawnAdds();
 
 		//remove aura from spell Garrote when Moroes dies
-		instance.DoRemoveAurasDueToSpellOnPlayers(SpellIds.Garrote);
+		Instance.DoRemoveAurasDueToSpellOnPlayers(SpellIds.Garrote);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -191,12 +191,12 @@ internal class boss_moroes : BossAI
 		if (!Enrage &&
 			HealthBelowPct(30))
 		{
-			DoCast(me, SpellIds.Frenzy);
+			DoCast(Me, SpellIds.Frenzy);
 			Enrage = true;
-			_scheduler.CancelGroup(MiscConst.GroupNonEnrage);
+			Scheduler.CancelGroup(MiscConst.GroupNonEnrage);
 		}
 
-		_scheduler.Update(diff,
+		Scheduler.Update(diff,
 						() =>
 						{
 							if (!InVanish)
@@ -221,7 +221,7 @@ internal class boss_moroes : BossAI
 
 			for (var i = 0; i < 4; ++i)
 			{
-				Creature creature = me.SummonCreature(AddList[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
+				Creature creature = Me.SummonCreature(AddList[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
 
 				if (creature)
 				{
@@ -234,7 +234,7 @@ internal class boss_moroes : BossAI
 		{
 			for (byte i = 0; i < 4; ++i)
 			{
-				Creature creature = me.SummonCreature(AddId[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
+				Creature creature = Me.SummonCreature(AddId[i], MiscConst.Locations[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(10));
 
 				if (creature)
 					AddGUID[i] = creature.GUID;
@@ -256,7 +256,7 @@ internal class boss_moroes : BossAI
 		for (byte i = 0; i < 4; ++i)
 			if (!AddGUID[i].IsEmpty)
 			{
-				var temp = ObjectAccessor.GetCreature(me, AddGUID[i]);
+				var temp = ObjectAccessor.GetCreature(Me, AddGUID[i]);
 
 				if (temp)
 					temp.DespawnOrUnsummon();
@@ -268,11 +268,11 @@ internal class boss_moroes : BossAI
 		for (byte i = 0; i < 4; ++i)
 			if (!AddGUID[i].IsEmpty)
 			{
-				var temp = ObjectAccessor.GetCreature((me), AddGUID[i]);
+				var temp = ObjectAccessor.GetCreature((Me), AddGUID[i]);
 
 				if (temp && temp.IsAlive)
 				{
-					temp.AI.AttackStart(me.Victim);
+					temp.AI.AttackStart(Me.Victim);
 					DoZoneInCombat(temp);
 				}
 				else
@@ -300,7 +300,7 @@ internal class boss_moroes_guest : ScriptedAI
 
 	public void AcquireGUID()
 	{
-		var Moroes = ObjectAccessor.GetCreature(me, instance.GetGuidData(DataTypes.Moroes));
+		var Moroes = ObjectAccessor.GetCreature(Me, instance.GetGuidData(DataTypes.Moroes));
 
 		if (Moroes)
 			for (byte i = 0; i < 4; ++i)
@@ -318,13 +318,13 @@ internal class boss_moroes_guest : ScriptedAI
 
 		if (!TempGUID.IsEmpty)
 		{
-			var unit = Global.ObjAccessor.GetUnit(me, TempGUID);
+			var unit = Global.ObjAccessor.GetUnit(Me, TempGUID);
 
 			if (unit && unit.IsAlive)
 				return unit;
 		}
 
-		return me;
+		return Me;
 	}
 
 	public override void UpdateAI(uint diff)
@@ -354,7 +354,7 @@ internal class boss_baroness_dorothea_millstipe : boss_moroes_guest
 	{
 		Initialize();
 
-		DoCast(me, SpellIds.Shadowform, new CastSpellExtraArgs(true));
+		DoCast(Me, SpellIds.Shadowform, new CastSpellExtraArgs(true));
 
 		base.Reset();
 	}
@@ -445,7 +445,7 @@ internal class boss_baron_rafe_dreuger : boss_moroes_guest
 
 		if (SealOfCommand_Timer <= diff)
 		{
-			DoCast(me, SpellIds.Sealofcommand);
+			DoCast(Me, SpellIds.Sealofcommand);
 			SealOfCommand_Timer = 32000;
 			JudgementOfCommand_Timer = 29000;
 		}
@@ -516,7 +516,7 @@ internal class boss_lady_catriona_von_indi : boss_moroes_guest
 
 		if (PowerWordShield_Timer <= diff)
 		{
-			DoCast(me, SpellIds.Pwshield);
+			DoCast(Me, SpellIds.Pwshield);
 			PowerWordShield_Timer = 15000;
 		}
 		else
@@ -603,7 +603,7 @@ internal class boss_lady_keira_berrybuck : boss_moroes_guest
 
 		if (DivineShield_Timer <= diff)
 		{
-			DoCast(me, SpellIds.Divineshield);
+			DoCast(Me, SpellIds.Divineshield);
 			DivineShield_Timer = 31000;
 		}
 		else
@@ -709,7 +709,7 @@ internal class boss_lord_robin_daris : boss_moroes_guest
 
 		if (WhirlWind_Timer <= diff)
 		{
-			DoCast(me, SpellIds.Whirlwind);
+			DoCast(Me, SpellIds.Whirlwind);
 			WhirlWind_Timer = 21000;
 		}
 		else
@@ -787,7 +787,7 @@ internal class boss_lord_crispin_ference : boss_moroes_guest
 
 		if (ShieldWall_Timer <= diff)
 		{
-			DoCast(me, SpellIds.Shieldwall);
+			DoCast(Me, SpellIds.Shieldwall);
 			ShieldWall_Timer = 21000;
 		}
 		else

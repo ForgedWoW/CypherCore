@@ -47,42 +47,42 @@ internal class boss_broodlord : BossAI
 		base.JustEngagedWith(who);
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(7));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Blastwave);
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Mortalstrike);
 								task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								DoCastVictim(SpellIds.Knockback);
 
-								if (GetThreat(me.Victim) != 0)
-									ModifyThreatByPercent(me.Victim, -50);
+								if (GetThreat(Me.Victim) != 0)
+									ModifyThreatByPercent(Me.Victim, -50);
 
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
-								if (me.GetDistance(me.HomePosition) > 150.0f)
+								if (Me.GetDistance(Me.HomePosition) > 150.0f)
 								{
 									Talk(TextIds.SayLeash);
 									EnterEvadeMode(EvadeReason.Boundary);
@@ -96,7 +96,7 @@ internal class boss_broodlord : BossAI
 	{
 		_JustDied();
 
-		var _goList = me.GetGameObjectListWithEntryInGrid(BWLGameObjectIds.SuppressionDevice, 200.0f);
+		var _goList = Me.GetGameObjectListWithEntryInGrid(BWLGameObjectIds.SuppressionDevice, 200.0f);
 
 		foreach (var go in _goList)
 			go.			AI.DoAction(ActionIds.Deactivate);
@@ -107,7 +107,7 @@ internal class boss_broodlord : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		SchedulerProtected.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -132,25 +132,25 @@ internal class go_suppression_device : GameObjectAI
 			return;
 		}
 
-		_events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
+		Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_events.Update(diff);
+		Events.Update(diff);
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
 				case EventIds.SuppressionCast:
-					if (me.GoState == GameObjectState.Ready)
+					if (Me.GoState == GameObjectState.Ready)
 					{
-						me.CastSpell(null, SpellIds.SuppressionAura, true);
-						me.SendCustomAnim(0);
+						Me.CastSpell(null, SpellIds.SuppressionAura, true);
+						Me.SendCustomAnim(0);
 					}
 
-					_events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(5));
+					Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(5));
 
 					break;
 				case EventIds.SuppressionReset:
@@ -167,12 +167,12 @@ internal class go_suppression_device : GameObjectAI
 		{
 			case LootState.Activated:
 				Deactivate();
-				_events.CancelEvent(EventIds.SuppressionCast);
-				_events.ScheduleEvent(EventIds.SuppressionReset, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(120));
+				Events.CancelEvent(EventIds.SuppressionCast);
+				Events.ScheduleEvent(EventIds.SuppressionReset, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(120));
 
 				break;
 			case LootState.JustDeactivated: // This case prevents the Gameobject despawn by Disarm Trap
-				me.SetLootState(LootState.Ready);
+				Me.SetLootState(LootState.Ready);
 
 				break;
 		}
@@ -183,7 +183,7 @@ internal class go_suppression_device : GameObjectAI
 		if (action == ActionIds.Deactivate)
 		{
 			Deactivate();
-			_events.CancelEvent(EventIds.SuppressionReset);
+			Events.CancelEvent(EventIds.SuppressionReset);
 		}
 	}
 
@@ -194,12 +194,12 @@ internal class go_suppression_device : GameObjectAI
 
 		_active = true;
 
-		if (me.GoState == GameObjectState.Active)
-			me.SetGoState(GameObjectState.Ready);
+		if (Me.GoState == GameObjectState.Active)
+			Me.SetGoState(GameObjectState.Ready);
 
-		me.SetLootState(LootState.Ready);
-		me.RemoveFlag(GameObjectFlags.NotSelectable);
-		_events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0));
+		Me.SetLootState(LootState.Ready);
+		Me.RemoveFlag(GameObjectFlags.NotSelectable);
+		Events.ScheduleEvent(EventIds.SuppressionCast, TimeSpan.FromSeconds(0));
 	}
 
 	private void Deactivate()
@@ -208,8 +208,8 @@ internal class go_suppression_device : GameObjectAI
 			return;
 
 		_active = false;
-		me.SetGoState(GameObjectState.Active);
-		me.SetFlag(GameObjectFlags.NotSelectable);
-		_events.CancelEvent(EventIds.SuppressionCast);
+		Me.SetGoState(GameObjectState.Active);
+		Me.SetFlag(GameObjectFlags.NotSelectable);
+		Events.CancelEvent(EventIds.SuppressionCast);
 	}
 }

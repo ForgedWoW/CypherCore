@@ -16,7 +16,7 @@ internal class areatrigger_pri_angelic_feather : AreaTriggerAI
 	// Called when the AreaTrigger has just been initialized, just before added to map
 	public override void OnInitialize()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster)
 		{
@@ -29,14 +29,14 @@ internal class areatrigger_pri_angelic_feather : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster)
 			if (caster.IsFriendlyTo(unit))
 			{
 				// If Target already has aura, increase duration to max 130% of initial duration
 				caster.CastSpell(unit, PriestSpells.ANGELIC_FEATHER_AURA, true);
-				at.SetDuration(0);
+				At.SetDuration(0);
 			}
 	}
 }

@@ -14,7 +14,7 @@ public class at_dk_death_and_decay : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (unit.GUID == caster.GUID)
@@ -24,7 +24,7 @@ public class at_dk_death_and_decay : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		if (at.GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
+		if (At.GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
 			unit.RemoveAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, Game.Spells.AuraRemoveMode.Cancel);
 	}
 }

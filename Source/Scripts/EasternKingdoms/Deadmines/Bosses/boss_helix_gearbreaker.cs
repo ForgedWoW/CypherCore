@@ -35,95 +35,95 @@ public class boss_helix_gearbreaker : BossAI
 	{
 		_Reset();
 
-		if (!me)
+		if (!Me)
 			return;
 
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
-		me.ReactState = ReactStates.Aggressive;
-		me.SetUnitFlag(UnitFlags.Uninteractible);
-		summons.DespawnAll();
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
+		Me.ReactState = ReactStates.Aggressive;
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
+		Summons.DespawnAll();
 		OafSupport();
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustEnteredCombat(who);
 		Talk(5);
-		me.SetInCombatWithZone();
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
-		_events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+		Me.SetInCombatWithZone();
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
+		Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
 		if (IsHeroic())
 		{
 			SummonCrew();
-			_events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(0));
+			Events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(0));
 		}
 	}
 
 	public void OafSupport()
 	{
-		_oaf = me.VehicleCreatureBase;
+		_oaf = Me.VehicleCreatureBase;
 
 		if (_oaf == null)
 		{
-			_oaf = me.FindNearestCreature(DMCreatures.NPC_OAF, 30.0f);
+			_oaf = Me.FindNearestCreature(DMCreatures.NPC_OAF, 30.0f);
 
 			if (_oaf != null && _oaf.IsAlive)
 			{
-				me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
+				Me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
 			}
 			else
 			{
-				_oaf = me.SummonCreature(DMCreatures.NPC_OAF, me.HomePosition);
+				_oaf = Me.SummonCreature(DMCreatures.NPC_OAF, Me.HomePosition);
 
 				if (_oaf != null && _oaf.IsAlive)
-					me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
+					Me.CastSpell(_oaf, eSpels.RIDE_VEHICLE_HARDCODED);
 			}
 		}
 	}
 
 	public override void JustSummoned(Creature summoned)
 	{
-		summons.Summon(summoned);
+		Summons.Summon(summoned);
 	}
 
 	public void SummonCrew()
 	{
 		for (byte i = 0; i < 4; ++i)
-			me.SummonCreature(DMCreatures.NPC_HELIX_CREW, CrewSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+			Me.SummonCreature(DMCreatures.NPC_HELIX_CREW, CrewSpawn[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustDied(killer);
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 		Talk(0);
-		summons.DespawnAll();
+		Summons.DespawnAll();
 	}
 
 	public override void JustReachedHome()
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		base.JustReachedHome();
 		Talk(1);
-		instance.SetBossState(DMData.DATA_HELIX, EncounterState.Fail);
+		Instance.SetBossState(DMData.DATA_HELIX, EncounterState.Fail);
 	}
 
 	public void OafDead()
 	{
-		_events.ScheduleEvent(HelOaf_Events.EVENT_NO_OAF, TimeSpan.FromMilliseconds(100));
-		_events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+		Events.ScheduleEvent(HelOaf_Events.EVENT_NO_OAF, TimeSpan.FromMilliseconds(100));
+		Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
 		if (IsHeroic())
-			_events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(5000));
+			Events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(5000));
 	}
 
 	public override void UpdateAI(uint uiDiff)
@@ -131,25 +131,25 @@ public class boss_helix_gearbreaker : BossAI
 		if (!UpdateVictim())
 			return;
 
-		if (!me)
+		if (!Me)
 			return;
 
 		DoMeleeAttackIfReady();
 
-		_events.Update(uiDiff);
+		Events.Update(uiDiff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case HelOaf_Events.EVENT_THROW_BOMB:
 					var target = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
 					if (target != null)
-						me.CastSpell(target, eSpels.THROW_BOMB, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle | TriggerCastFlags.IgnoreCasterAurastate));
+						Me.CastSpell(target, eSpels.THROW_BOMB, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCasterMountedOrOnVehicle | TriggerCastFlags.IgnoreCasterAurastate));
 
-					_events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
 					break;
 				case HelOaf_Events.EVENT_CHEST_BOMB:
@@ -157,30 +157,30 @@ public class boss_helix_gearbreaker : BossAI
 
 					if (target1 != null)
 					{
-						me.TextEmote(CHEST_BOMB, target1, true);
-						me.AddAura(eSpels.CHEST_BOMB, target1);
+						Me.TextEmote(CHEST_BOMB, target1, true);
+						Me.AddAura(eSpels.CHEST_BOMB, target1);
 					}
 
-					_events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(11000));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_CHEST_BOMB, TimeSpan.FromMilliseconds(11000));
 
 					break;
 				case HelOaf_Events.EVENT_NO_OAF:
-					me.RemoveUnitFlag(UnitFlags.Uninteractible);
-					me.RemoveAura(eSpels.OAFQUARD);
+					Me.RemoveUnitFlag(UnitFlags.Uninteractible);
+					Me.RemoveAura(eSpels.OAFQUARD);
 					Talk(2);
-					_events.RescheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
+					Events.RescheduleEvent(HelOaf_Events.EVENT_THROW_BOMB, TimeSpan.FromMilliseconds(3000));
 
 					break;
 				case HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF:
 					var players = new List<Unit>();
-					var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-					var searcher = new PlayerListSearcher(me, players, checker);
-					Cell.VisitGrid(me, searcher, 150f);
+					var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+					var searcher = new PlayerListSearcher(Me, players, checker);
+					Cell.VisitGrid(Me, searcher, 150f);
 
 					foreach (var item in players)
-						me.CastSpell(item, eSpels.HELIX_RIDE, true);
+						Me.CastSpell(item, eSpels.HELIX_RIDE, true);
 
-					_events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(60000));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_ACHIEVEVEMENT_BUFF, TimeSpan.FromMilliseconds(60000));
 
 					break;
 			}

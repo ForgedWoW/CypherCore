@@ -15,6 +15,6 @@ public class npc_earthen_shield_totem : ScriptedAI
 
 	public override void Reset()
 	{
-		me.CastSpell(me, ShamanSpells.AT_EARTHEN_SHIELD_TOTEM, true);
+		Me.CastSpell(Me, ShamanSpells.AT_EARTHEN_SHIELD_TOTEM, true);
 	}
 }

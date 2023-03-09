@@ -30,20 +30,20 @@ namespace Scripts.Pets
 			public override void InitializeAI()
 			{
 				base.InitializeAI();
-				var ownerGuid = me.OwnerGUID;
+				var ownerGuid = Me.OwnerGUID;
 
 				if (ownerGuid.IsEmpty)
 					return;
 
 				// Find victim of Summon Gargoyle spell
 				List<Unit> targets = new();
-				var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(me, me, 30.0f, target => target.HasAura(SpellIds.SummonGargoyle1, ownerGuid));
-				var searcher = new UnitListSearcher(me, targets, u_check, GridType.All);
-				Cell.VisitGrid(me, searcher, 30.0f);
+				var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(Me, Me, 30.0f, target => target.HasAura(SpellIds.SummonGargoyle1, ownerGuid));
+				var searcher = new UnitListSearcher(Me, targets, u_check, GridType.All);
+				Cell.VisitGrid(Me, searcher, 30.0f);
 
 				foreach (var target in targets)
 				{
-					me.Attack(target, false);
+					Me.Attack(target, false);
 
 					break;
 				}
@@ -52,7 +52,7 @@ namespace Scripts.Pets
 			public override void JustDied(Unit killer)
 			{
 				// Stop Feeding Gargoyle when it dies
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner)
 					owner.RemoveAura(SpellIds.SummonGargoyle2);
@@ -62,35 +62,35 @@ namespace Scripts.Pets
 			public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 			{
 				if (spellInfo.Id != SpellIds.DismissGargoyle ||
-					!me.IsAlive)
+					!Me.IsAlive)
 					return;
 
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (!owner ||
 					owner != caster)
 					return;
 
 				// Stop Fighting
-				me.SetUnitFlag(UnitFlags.NonAttackable);
+				Me.SetUnitFlag(UnitFlags.NonAttackable);
 
 				// Sanctuary
-				me.CastSpell(me, SpellIds.Sanctuary, true);
-				me.ReactState = ReactStates.Passive;
+				Me.CastSpell(Me, SpellIds.Sanctuary, true);
+				Me.ReactState = ReactStates.Passive;
 
 				//! HACK: Creature's can't have MOVEMENTFLAG_FLYING
 				// Fly Away
-				me.SetCanFly(true);
-				me.SetSpeedRate(UnitMoveType.Flight, 0.75f);
-				me.SetSpeedRate(UnitMoveType.Run, 0.75f);
-				var x = me.Location.X + 20 * (float)Math.Cos(me.Location.Orientation);
-				var y = me.Location.Y + 20 * (float)Math.Sin(me.Location.Orientation);
-				var z = me.Location.Z + 40;
-				me.MotionMaster.Clear();
-				me.MotionMaster.MovePoint(0, x, y, z);
+				Me.SetCanFly(true);
+				Me.SetSpeedRate(UnitMoveType.Flight, 0.75f);
+				Me.SetSpeedRate(UnitMoveType.Run, 0.75f);
+				var x = Me.Location.X + 20 * (float)Math.Cos(Me.Location.Orientation);
+				var y = Me.Location.Y + 20 * (float)Math.Sin(Me.Location.Orientation);
+				var z = Me.Location.Z + 40;
+				Me.MotionMaster.Clear();
+				Me.MotionMaster.MovePoint(0, x, y, z);
 
 				// Despawn as soon as possible
-				me.DespawnOrUnsummon(TimeSpan.FromSeconds(4));
+				Me.DespawnOrUnsummon(TimeSpan.FromSeconds(4));
 			}
 		}
 
@@ -104,7 +104,7 @@ namespace Scripts.Pets
 				if (!target)
 					return false;
 
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner && !target.IsInCombatWith(owner))
 					return false;

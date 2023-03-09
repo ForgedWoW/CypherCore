@@ -52,7 +52,7 @@ internal class boss_vaelastrasz : BossAI
 	{
 		_Reset();
 
-		me.SetStandState(UnitStandStateType.Dead);
+		Me.SetStandState(UnitStandStateType.Dead);
 		Initialize();
 	}
 
@@ -60,43 +60,43 @@ internal class boss_vaelastrasz : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		DoCast(me, SpellIds.Essenceofthered);
-		me.SetHealth(me.CountPctFromMaxHealth(30));
+		DoCast(Me, SpellIds.Essenceofthered);
+		Me.SetHealth(Me.CountPctFromMaxHealth(30));
 		// now drop Damage requirement to be able to take loot
-		me.ResetPlayerDamageReq();
+		Me.ResetPlayerDamageReq();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								DoCastVictim(SpellIds.Flamebreath);
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(14));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Firenova);
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(11),
+		Scheduler.Schedule(TimeSpan.FromSeconds(11),
 							task =>
 							{
 								//Only cast if we are behind
-								if (!me.Location.HasInArc(MathF.PI, me.Victim.Location))
-									DoCast(me.Victim, SpellIds.Tailswipe);
+								if (!Me.Location.HasInArc(MathF.PI, Me.Victim.Location))
+									DoCast(Me.Victim, SpellIds.Tailswipe);
 
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								//selects a random Target that isn't the current victim and is a mana user (selects mana users) but not pets
@@ -104,16 +104,16 @@ internal class boss_vaelastrasz : BossAI
 								var target = SelectTarget(SelectTargetMethod.Random, 1, u => { return u && !u.IsPet && u.DisplayPowerType == PowerType.Mana && !u.HasAura(SpellIds.Burningadrenaline); });
 
 								if (target != null)
-									me.CastSpell(target, SpellIds.Burningadrenaline, true);
+									Me.CastSpell(target, SpellIds.Burningadrenaline, true);
 
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(45),
+		Scheduler.Schedule(TimeSpan.FromSeconds(45),
 							task =>
 							{
 								//Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
-								me.CastSpell(me.Victim, SpellIds.Burningadrenaline, true);
+								Me.CastSpell(Me.Victim, SpellIds.Burningadrenaline, true);
 								task.Repeat(TimeSpan.FromSeconds(45));
 							});
 	}
@@ -128,12 +128,12 @@ internal class boss_vaelastrasz : BossAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		if (!UpdateVictim())
 			return;
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
 		// Yell if hp lower than 15%
@@ -168,32 +168,32 @@ internal class boss_vaelastrasz : BossAI
 	private void BeginSpeech(Unit target)
 	{
 		PlayerGUID = target.GUID;
-		me.RemoveNpcFlag(NPCFlags.Gossip);
+		Me.RemoveNpcFlag(NPCFlags.Gossip);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								Talk(TextIds.SayLine1);
-								me.SetStandState(UnitStandStateType.Stand);
-								me.HandleEmoteCommand(Emote.OneshotTalk);
+								Me.SetStandState(UnitStandStateType.Stand);
+								Me.HandleEmoteCommand(Emote.OneshotTalk);
 
 								task.Schedule(TimeSpan.FromSeconds(12),
 											speechTask2 =>
 											{
 												Talk(TextIds.SayLine2);
-												me.HandleEmoteCommand(Emote.OneshotTalk);
+												Me.HandleEmoteCommand(Emote.OneshotTalk);
 
 												speechTask2.Schedule(TimeSpan.FromSeconds(12),
 																	speechTask3 =>
 																	{
 																		Talk(TextIds.SayLine3);
-																		me.HandleEmoteCommand(Emote.OneshotTalk);
+																		Me.HandleEmoteCommand(Emote.OneshotTalk);
 
 																		speechTask3.Schedule(TimeSpan.FromSeconds(16),
 																							speechTask4 =>
 																							{
-																								me.Faction = (uint)FactionTemplates.DragonflightBlack;
-																								var player = Global.ObjAccessor.GetPlayer(me, PlayerGUID);
+																								Me.Faction = (uint)FactionTemplates.DragonflightBlack;
+																								var player = Global.ObjAccessor.GetPlayer(Me, PlayerGUID);
 
 																								if (player)
 																									AttackStart(player);

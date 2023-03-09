@@ -24,7 +24,7 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -32,14 +32,14 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 		if (!caster.AsPlayer)
 			return;
 
-		foreach (var itr in at.InsideUnits)
+		foreach (var itr in At.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
 			if (!caster.IsFriendlyTo(target))
 			{
 				caster.CastSpell(target, UsedSpells.FREEZING_TRAP_STUN, true);
-				at.Remove();
+				At.Remove();
 
 				return;
 			}
@@ -48,7 +48,7 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -59,7 +59,7 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 		if (!caster.IsFriendlyTo(unit))
 		{
 			caster.CastSpell(unit, UsedSpells.FREEZING_TRAP_STUN, true);
-			at.Remove();
+			At.Remove();
 
 			return;
 		}

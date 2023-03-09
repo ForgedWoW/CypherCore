@@ -92,15 +92,15 @@ internal class boss_alizabal : BossAI
 	{
 		base.JustEngagedWith(who);
 		Talk(TextIds.SayAggro);
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
-		_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(10));
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
+		Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(10));
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		_JustDied();
 		Talk(TextIds.SayDeath);
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
 	}
 
 	public override void KilledUnit(Unit who)
@@ -111,8 +111,8 @@ internal class boss_alizabal : BossAI
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
-		me.MotionMaster.MoveTargetedHome();
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
+		Me.MotionMaster.MoveTargetedHome();
 		_DespawnAtEvade();
 	}
 
@@ -136,7 +136,7 @@ internal class boss_alizabal : BossAI
 		switch (pointId)
 		{
 			case PointIds.Storm:
-				_events.ScheduleEvent(EventIds.CastStorm, TimeSpan.FromMilliseconds(1));
+				Events.ScheduleEvent(EventIds.CastStorm, TimeSpan.FromMilliseconds(1));
 
 				break;
 		}
@@ -147,9 +147,9 @@ internal class boss_alizabal : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
@@ -170,11 +170,11 @@ internal class boss_alizabal : BossAI
 								}
 
 								_skewer = true;
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
 							}
 							else if (!_hate)
 							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(me));
+								var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(Me));
 
 								if (target)
 								{
@@ -183,23 +183,23 @@ internal class boss_alizabal : BossAI
 								}
 
 								_hate = true;
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
 							}
 							else if (_hate && _skewer)
 							{
 								Talk(TextIds.SayBladeStorm);
 								DoCastAOE(SpellIds.BladeDanceDummy);
 								DoCastAOE(SpellIds.BladeDance);
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
-								_events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
-								_events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
+								Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
+								Events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
 							}
 
 							break;
 						case 1:
 							if (!_hate)
 							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(me));
+								var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(Me));
 
 								if (target)
 								{
@@ -208,7 +208,7 @@ internal class boss_alizabal : BossAI
 								}
 
 								_hate = true;
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
 							}
 							else if (!_skewer)
 							{
@@ -222,16 +222,16 @@ internal class boss_alizabal : BossAI
 								}
 
 								_skewer = true;
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(10));
 							}
 							else if (_hate && _skewer)
 							{
 								Talk(TextIds.SayBladeStorm);
 								DoCastAOE(SpellIds.BladeDanceDummy);
 								DoCastAOE(SpellIds.BladeDance);
-								_events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
-								_events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
-								_events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
+								Events.ScheduleEvent(EventIds.RandomCast, TimeSpan.FromSeconds(21));
+								Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
+								Events.ScheduleEvent(EventIds.StopStorm, TimeSpan.FromSeconds(13));
 							}
 
 							break;
@@ -241,23 +241,23 @@ internal class boss_alizabal : BossAI
 				}
 				case EventIds.MoveStorm:
 				{
-					me.SetSpeedRate(UnitMoveType.Run, 4.0f);
-					me.SetSpeedRate(UnitMoveType.Walk, 4.0f);
-					var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(me));
+					Me.SetSpeedRate(UnitMoveType.Run, 4.0f);
+					Me.SetSpeedRate(UnitMoveType.Walk, 4.0f);
+					var target = SelectTarget(SelectTargetMethod.Random, 0, new NonTankTargetSelector(Me));
 
 					if (target)
-						me.MotionMaster.MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
+						Me.MotionMaster.MovePoint(PointIds.Storm, target.Location.X, target.Location.Y, target.Location.Z);
 
-					_events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
+					Events.ScheduleEvent(EventIds.MoveStorm, TimeSpan.FromMilliseconds(4050));
 
 					break;
 				}
 				case EventIds.StopStorm:
-					me.RemoveAura(SpellIds.BladeDance);
-					me.RemoveAura(SpellIds.BladeDanceDummy);
-					me.SetSpeedRate(UnitMoveType.Walk, 1.0f);
-					me.SetSpeedRate(UnitMoveType.Run, 1.14f);
-					me.MotionMaster.MoveChase(me.Victim);
+					Me.RemoveAura(SpellIds.BladeDance);
+					Me.RemoveAura(SpellIds.BladeDanceDummy);
+					Me.SetSpeedRate(UnitMoveType.Walk, 1.0f);
+					Me.SetSpeedRate(UnitMoveType.Run, 1.14f);
+					Me.MotionMaster.MoveChase(Me.Victim);
 					_hate = false;
 					_skewer = false;
 

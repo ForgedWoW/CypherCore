@@ -15,6 +15,6 @@ public class npc_ancestral_protection_totem : ScriptedAI
 
 	public override void Reset()
 	{
-		me.CastSpell(me, TotemSpells.TOTEM_ANCESTRAL_PROTECTION_AT, true);
+		Me.CastSpell(Me, TotemSpells.TOTEM_ANCESTRAL_PROTECTION_AT, true);
 	}
 }

@@ -22,7 +22,7 @@ public class npc_note : NullCreatureAI
 		if (player != null)
 			player.AddGossipItem(GossipOptionNpc.None, boss_vanessa_vancleef.INTRUDER_SAY, GossipSender.GOSSIP_SENDER_MAIN, GossipAction.GOSSIP_ACTION_INFO_DEF + 1);
 
-		player.SendGossipMenu(player.GetGossipTextId(me), me.GUID);
+		player.SendGossipMenu(player.GetGossipTextId(Me), Me.GUID);
 
 		return true;
 	}
@@ -33,9 +33,9 @@ public class npc_note : NullCreatureAI
 
 		if (action == GossipAction.GOSSIP_ACTION_INFO_DEF + 1)
 		{
-			me.SummonCreature(DMCreatures.NPC_VANESSA_VANCLEEF, VanessaSpawn, TempSummonType.ManualDespawn);
-			me.TextEmote(boss_vanessa_vancleef.TEXT_INFO, null, true);
-			me.DespawnOrUnsummon();
+			Me.SummonCreature(DMCreatures.NPC_VANESSA_VANCLEEF, VanessaSpawn, TempSummonType.ManualDespawn);
+			Me.TextEmote(boss_vanessa_vancleef.TEXT_INFO, null, true);
+			Me.DespawnOrUnsummon();
 			player.CloseGossipMenu();
 		}
 

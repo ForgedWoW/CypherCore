@@ -19,7 +19,7 @@ public class at_mage_rune_of_power : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 			if (unit.GUID == caster.GUID)

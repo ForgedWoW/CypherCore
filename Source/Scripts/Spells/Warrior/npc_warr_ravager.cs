@@ -18,11 +18,11 @@ public class npc_warr_ravager : ScriptedAI
 
 	public override void IsSummonedBy(WorldObject summoner)
 	{
-		me.SetDisplayId(RAVAGER_DISPLAYID);
-		me.CastSpell(me, RAVAGER_VISUAL, true);
-		me.ReactState = ReactStates.Passive;
-		me.AddUnitState(UnitState.Root);
-		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.CanSwim | UnitFlags.PlayerControlled);
+		Me.SetDisplayId(RAVAGER_DISPLAYID);
+		Me.CastSpell(Me, RAVAGER_VISUAL, true);
+		Me.ReactState = ReactStates.Passive;
+		Me.AddUnitState(UnitState.Root);
+		Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.CanSwim | UnitFlags.PlayerControlled);
 
 		if (summoner == null || !summoner.IsPlayer)
 			return;
@@ -38,11 +38,11 @@ public class npc_warr_ravager : ScriptedAI
 				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
 				if (l_Proto != null)
-					me.SetVirtualItem(0, l_Proto.GetId());
+					Me.SetVirtualItem(0, l_Proto.GetId());
 			}
 			else
 			{
-				me.SetVirtualItem(0, item.GetTemplate().GetId());
+				Me.SetVirtualItem(0, item.GetTemplate().GetId());
 			}
 
 			item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
@@ -52,11 +52,11 @@ public class npc_warr_ravager : ScriptedAI
 				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
 				if (l_Proto != null)
-					me.SetVirtualItem(2, l_Proto.GetId());
+					Me.SetVirtualItem(2, l_Proto.GetId());
 			}
 			else
 			{
-				me.SetVirtualItem(2, item.GetTemplate().GetId());
+				Me.SetVirtualItem(2, item.GetTemplate().GetId());
 			}
 		}
 	}

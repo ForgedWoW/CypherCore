@@ -49,28 +49,28 @@ internal class boss_pyroguard_emberseer : BossAI
 
 	public override void Reset()
 	{
-		me.SetUnitFlag(UnitFlags.Uninteractible);
-		me.SetImmuneToPC(true);
-		_scheduler.CancelAll();
+		Me.SetUnitFlag(UnitFlags.Uninteractible);
+		Me.SetImmuneToPC(true);
+		Scheduler.CancelAll();
 		// Apply Auras on spawn and reset
 		// DoCast(me, SpellFireShieldTrigger); // Need to find this in old Dbc if possible
-		me.RemoveAura(SpellIds.EmberseerFullStrength);
-		me.RemoveAura(SpellIds.EmberseerGrowing);
-		me.RemoveAura(SpellIds.EmberseerGrowingTrigger);
+		Me.RemoveAura(SpellIds.EmberseerFullStrength);
+		Me.RemoveAura(SpellIds.EmberseerGrowing);
+		Me.RemoveAura(SpellIds.EmberseerGrowingTrigger);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							task =>
 							{
-								instance.SetData(DataTypes.BlackhandIncarcerator, 1);
-								instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.NotStarted);
+								Instance.SetData(DataTypes.BlackhandIncarcerator, 1);
+								Instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.NotStarted);
 							});
 
 		// Hack for missing trigger spell
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
 								// #### Spell isn't doing any Damage ??? ####
-								DoCast(me, SpellIds.FireShield);
+								DoCast(Me, SpellIds.FireShield);
 								task.Repeat(TimeSpan.FromSeconds(3));
 							});
 	}
@@ -80,12 +80,12 @@ internal class boss_pyroguard_emberseer : BossAI
 		switch (data)
 		{
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(5),
+				Scheduler.Schedule(TimeSpan.FromSeconds(5),
 									task =>
 									{
 										// As of Patch 3.0.8 only one person needs to channel the altar
 										var _hasAura = false;
-										var players = me.Map.Players;
+										var players = Me.Map.Players;
 
 										foreach (var player in players)
 											if (player != null &&
@@ -102,7 +102,7 @@ internal class boss_pyroguard_emberseer : BossAI
 														preFlightTask1 =>
 														{
 															// Set data on all Blackhand Incarcerators
-															var creatureList = me.GetCreatureListWithEntryInGrid(CreaturesIds.BlackhandIncarcerator, 35.0f);
+															var creatureList = Me.GetCreatureListWithEntryInGrid(CreaturesIds.BlackhandIncarcerator, 35.0f);
 
 															foreach (var creature in creatureList)
 																if (creature)
@@ -112,18 +112,18 @@ internal class boss_pyroguard_emberseer : BossAI
 																	DoZoneInCombat(creature);
 																}
 
-															me.RemoveAura(SpellIds.EncagedEmberseer);
+															Me.RemoveAura(SpellIds.EncagedEmberseer);
 
 															preFlightTask1.Schedule(TimeSpan.FromSeconds(32),
 																					preFlightTask2 =>
 																					{
-																						me.CastSpell(me, SpellIds.FreezeAnim);
-																						me.CastSpell(me, SpellIds.EmberseerGrowing);
+																						Me.CastSpell(Me, SpellIds.FreezeAnim);
+																						Me.CastSpell(Me, SpellIds.EmberseerGrowing);
 																						Talk(TextIds.EmoteOneStack);
 																					});
 														});
 
-											instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.InProgress);
+											Instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.InProgress);
 										}
 									});
 
@@ -136,21 +136,21 @@ internal class boss_pyroguard_emberseer : BossAI
 	public override void JustEngagedWith(Unit who)
 	{
 		// ### Todo Check combat timing ###
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
-								DoCast(me, SpellIds.Firenova);
+								DoCast(Me, SpellIds.Firenova);
 								task.Repeat(TimeSpan.FromSeconds(6));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							task =>
 							{
-								DoCast(me, SpellIds.Flamebuffet);
+								DoCast(Me, SpellIds.Flamebuffet);
 								task.Repeat(TimeSpan.FromSeconds(14));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(14),
+		Scheduler.Schedule(TimeSpan.FromSeconds(14),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
@@ -167,39 +167,39 @@ internal class boss_pyroguard_emberseer : BossAI
 		// Activate all the runes
 		UpdateRunes(GameObjectState.Ready);
 		// Complete encounter
-		instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.Done);
+		Instance.SetBossState(DataTypes.PyrogaurdEmberseer, EncounterState.Done);
 	}
 
 	public override void SpellHit(WorldObject caster, SpellInfo spellInfo)
 	{
 		if (spellInfo.Id == SpellIds.EncageEmberseer)
-			if (me.GetAuraCount(SpellIds.EncagedEmberseer) == 0)
+			if (Me.GetAuraCount(SpellIds.EncagedEmberseer) == 0)
 			{
-				me.CastSpell(me, SpellIds.EncagedEmberseer);
+				Me.CastSpell(Me, SpellIds.EncagedEmberseer);
 				Reset();
 			}
 
 		if (spellInfo.Id == SpellIds.EmberseerGrowingTrigger)
 		{
-			if (me.GetAuraCount(SpellIds.EmberseerGrowingTrigger) == 10)
+			if (Me.GetAuraCount(SpellIds.EmberseerGrowingTrigger) == 10)
 				Talk(TextIds.EmoteTenStack);
 
-			if (me.GetAuraCount(SpellIds.EmberseerGrowingTrigger) == 20)
+			if (Me.GetAuraCount(SpellIds.EmberseerGrowingTrigger) == 20)
 			{
-				me.RemoveAura(SpellIds.FreezeAnim);
-				me.CastSpell(me, SpellIds.EmberseerFullStrength);
+				Me.RemoveAura(SpellIds.FreezeAnim);
+				Me.CastSpell(Me, SpellIds.EmberseerFullStrength);
 				Talk(TextIds.EmoteFreeOfBonds);
 				Talk(TextIds.YellFreeOfBonds);
-				me.RemoveUnitFlag(UnitFlags.Uninteractible);
-				me.SetImmuneToPC(false);
-				_scheduler.Schedule(TimeSpan.FromSeconds(2), task => { AttackStart(me.SelectNearestPlayer(30.0f)); });
+				Me.RemoveUnitFlag(UnitFlags.Uninteractible);
+				Me.SetImmuneToPC(false);
+				Scheduler.Schedule(TimeSpan.FromSeconds(2), task => { AttackStart(Me.SelectNearestPlayer(30.0f)); });
 			}
 		}
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		if (!UpdateVictim())
 			return;
@@ -210,37 +210,37 @@ internal class boss_pyroguard_emberseer : BossAI
 	private void UpdateRunes(GameObjectState state)
 	{
 		// update all runes
-		var rune1 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune1));
+		var rune1 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune1));
 
 		if (rune1)
 			rune1.SetGoState(state);
 
-		var rune2 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune2));
+		var rune2 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune2));
 
 		if (rune2)
 			rune2.SetGoState(state);
 
-		var rune3 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune3));
+		var rune3 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune3));
 
 		if (rune3)
 			rune3.SetGoState(state);
 
-		var rune4 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune4));
+		var rune4 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune4));
 
 		if (rune4)
 			rune4.SetGoState(state);
 
-		var rune5 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune5));
+		var rune5 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune5));
 
 		if (rune5)
 			rune5.SetGoState(state);
 
-		var rune6 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune6));
+		var rune6 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune6));
 
 		if (rune6)
 			rune6.SetGoState(state);
 
-		var rune7 = ObjectAccessor.GetGameObject(me, instance.GetGuidData(GameObjectsIds.EmberseerRune7));
+		var rune7 = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(GameObjectsIds.EmberseerRune7));
 
 		if (rune7)
 			rune7.SetGoState(state);
@@ -260,13 +260,13 @@ internal class npc_blackhand_incarcerator : ScriptedAI
 	public override void JustEngagedWith(Unit who)
 	{
 		// Had to do this because CallForHelp will ignore any npcs without Los
-		var creatureList = me.GetCreatureListWithEntryInGrid(CreaturesIds.BlackhandIncarcerator, 60.0f);
+		var creatureList = Me.GetCreatureListWithEntryInGrid(CreaturesIds.BlackhandIncarcerator, 60.0f);
 
 		foreach (var creature in creatureList)
 			if (creature)
 				DoZoneInCombat(creature); // GetAI().AttackStart(me.GetVictim());
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(16),
 							task =>
 							{
@@ -274,7 +274,7 @@ internal class npc_blackhand_incarcerator : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(23));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
@@ -287,7 +287,7 @@ internal class npc_blackhand_incarcerator : ScriptedAI
 	{
 		DoCast(SpellIds.EncageEmberseer);
 
-		me.SetImmuneToAll(true);
+		Me.SetImmuneToAll(true);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -295,6 +295,6 @@ internal class npc_blackhand_incarcerator : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

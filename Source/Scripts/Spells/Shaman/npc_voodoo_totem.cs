@@ -16,6 +16,6 @@ public class npc_voodoo_totem : ScriptedAI
 
 	public override void Reset()
 	{
-		me.CastSpell(null, TotemSpells.TOTEM_VOODOO_AT, true);
+		Me.CastSpell(null, TotemSpells.TOTEM_VOODOO_AT, true);
 	}
 }

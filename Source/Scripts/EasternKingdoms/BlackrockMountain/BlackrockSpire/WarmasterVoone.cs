@@ -32,42 +32,42 @@ internal class boss_warmaster_voone : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.Snapkick);
 								task.Repeat(TimeSpan.FromSeconds(6));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(14),
+		Scheduler.Schedule(TimeSpan.FromSeconds(14),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								DoCastVictim(SpellIds.Uppercut);
 								task.Repeat(TimeSpan.FromSeconds(14));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.Mortalstrike);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(32),
+		Scheduler.Schedule(TimeSpan.FromSeconds(32),
 							task =>
 							{
 								DoCastVictim(SpellIds.Pummel);
 								task.Repeat(TimeSpan.FromSeconds(16));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(1),
+		Scheduler.Schedule(TimeSpan.FromSeconds(1),
 							task =>
 							{
 								DoCastVictim(SpellIds.Throwaxe);
@@ -85,6 +85,6 @@ internal class boss_warmaster_voone : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

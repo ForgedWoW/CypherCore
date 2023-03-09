@@ -18,9 +18,9 @@ public class npc_liquid_magma_totem : ScriptedAI
 	{
 		var time = TimeSpan.FromSeconds(15);
 
-		me.Events.AddRepeatEventAtOffset(() =>
+		Me.Events.AddRepeatEventAtOffset(() =>
 										{
-											me.CastSpell(me, TotemSpells.TOTEM_LIQUID_MAGMA_EFFECT, true);
+											Me.CastSpell(Me, TotemSpells.TOTEM_LIQUID_MAGMA_EFFECT, true);
 
 											return time;
 										},

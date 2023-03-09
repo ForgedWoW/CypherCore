@@ -38,16 +38,16 @@ internal class boss_lord_valthalak : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							TimeSpan.FromSeconds(8),
 							1,
 							task =>
 							{
-								DoCast(me, SpellIds.SummonSpectralAssassin);
+								DoCast(Me, SpellIds.SummonSpectralAssassin);
 								task.Repeat(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(9),
+		Scheduler.Schedule(TimeSpan.FromSeconds(9),
 							TimeSpan.FromSeconds(18),
 							task =>
 							{
@@ -58,7 +58,7 @@ internal class boss_lord_valthalak : BossAI
 
 	public override void JustDied(Unit killer)
 	{
-		instance.SetBossState(DataTypes.LordValthalak, EncounterState.Done);
+		Instance.SetBossState(DataTypes.LordValthalak, EncounterState.Done);
 	}
 
 	public override void UpdateAI(uint diff)
@@ -66,25 +66,25 @@ internal class boss_lord_valthalak : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
 		if (!frenzy40)
 			if (HealthBelowPct(40))
 			{
-				DoCast(me, SpellIds.Frenzy);
-				_scheduler.CancelGroup(1);
+				DoCast(Me, SpellIds.Frenzy);
+				Scheduler.CancelGroup(1);
 				frenzy40 = true;
 			}
 
 		if (!frenzy15)
 			if (HealthBelowPct(15))
 			{
-				DoCast(me, SpellIds.Frenzy);
+				DoCast(Me, SpellIds.Frenzy);
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(7),
+				Scheduler.Schedule(TimeSpan.FromSeconds(7),
 									TimeSpan.FromSeconds(14),
 									task =>
 									{

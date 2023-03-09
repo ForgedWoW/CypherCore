@@ -20,10 +20,10 @@ public class at_dru_starfall : AreaTriggerAI
 
 	public override void OnPeriodicProc()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
-			foreach (var objguid in at.InsideUnits)
+			foreach (var objguid in At.InsideUnits)
 			{
 				var unit = ObjectAccessor.Instance.GetUnit(caster, objguid);
 

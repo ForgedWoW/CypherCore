@@ -51,28 +51,28 @@ internal class boss_majordomo : BossAI
 		base.JustEngagedWith(who);
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
-								DoCast(me, SpellIds.MagicReflection);
+								DoCast(Me, SpellIds.MagicReflection);
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
-								DoCast(me, SpellIds.DamageReflection);
+								DoCast(Me, SpellIds.DamageReflection);
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
 								DoCastVictim(SpellIds.BlastWave);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(20),
+		Scheduler.Schedule(TimeSpan.FromSeconds(20),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 1);
@@ -86,37 +86,37 @@ internal class boss_majordomo : BossAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
-		if (instance.GetBossState(DataTypes.MajordomoExecutus) != EncounterState.Done)
+		if (Instance.GetBossState(DataTypes.MajordomoExecutus) != EncounterState.Done)
 		{
 			if (!UpdateVictim())
 				return;
 
-			if (!me.FindNearestCreature(MCCreatureIds.FlamewakerHealer, 100.0f) &&
-				!me.FindNearestCreature(MCCreatureIds.FlamewakerElite, 100.0f))
+			if (!Me.FindNearestCreature(MCCreatureIds.FlamewakerHealer, 100.0f) &&
+				!Me.FindNearestCreature(MCCreatureIds.FlamewakerElite, 100.0f))
 			{
-				instance.UpdateEncounterStateForKilledCreature(me.Entry, me);
-				me.Faction = (uint)FactionTemplates.Friendly;
+				Instance.UpdateEncounterStateForKilledCreature(Me.Entry, Me);
+				Me.Faction = (uint)FactionTemplates.Friendly;
 				EnterEvadeMode();
 				Talk(TextIds.SayDefeat);
 				_JustDied();
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(32),
+				Scheduler.Schedule(TimeSpan.FromSeconds(32),
 									(Action<Framework.Dynamic.TaskContext>)(task =>
 																				{
-																					me.NearTeleportTo(MCMiscConst.RagnarosTelePos.X, MCMiscConst.RagnarosTelePos.Y, MCMiscConst.RagnarosTelePos.Z, MCMiscConst.RagnarosTelePos.Orientation);
-																					me.SetNpcFlag(NPCFlags.Gossip);
+																					Me.NearTeleportTo(MCMiscConst.RagnarosTelePos.X, MCMiscConst.RagnarosTelePos.Y, MCMiscConst.RagnarosTelePos.Z, MCMiscConst.RagnarosTelePos.Orientation);
+																					Me.SetNpcFlag(NPCFlags.Gossip);
 																				}));
 
 				return;
 			}
 
-			if (me.HasUnitState(UnitState.Casting))
+			if (Me.HasUnitState(UnitState.Casting))
 				return;
 
 			if (HealthBelowPct(50))
-				DoCast(me, SpellIds.AegisOfRagnaros, new CastSpellExtraArgs(true));
+				DoCast(Me, SpellIds.AegisOfRagnaros, new CastSpellExtraArgs(true));
 
 			DoMeleeAttackIfReady();
 		}
@@ -126,16 +126,16 @@ internal class boss_majordomo : BossAI
 	{
 		if (action == ActionIds.StartRagnaros)
 		{
-			me.RemoveNpcFlag(NPCFlags.Gossip);
+			Me.RemoveNpcFlag(NPCFlags.Gossip);
 			Talk(TextIds.SaySummonMaj);
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(8), task => { instance.Instance.SummonCreature(MCCreatureIds.Ragnaros, MCMiscConst.RagnarosSummonPos); });
-			_scheduler.Schedule(TimeSpan.FromSeconds(24), task => { Talk(TextIds.SayArrival2Maj); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(8), task => { Instance.Instance.SummonCreature(MCCreatureIds.Ragnaros, MCMiscConst.RagnarosSummonPos); });
+			Scheduler.Schedule(TimeSpan.FromSeconds(24), task => { Talk(TextIds.SayArrival2Maj); });
 		}
 		else if (action == ActionIds.StartRagnarosAlt)
 		{
-			me.Faction = (uint)FactionTemplates.Friendly;
-			me.SetNpcFlag(NPCFlags.Gossip);
+			Me.Faction = (uint)FactionTemplates.Friendly;
+			Me.SetNpcFlag(NPCFlags.Gossip);
 		}
 	}
 

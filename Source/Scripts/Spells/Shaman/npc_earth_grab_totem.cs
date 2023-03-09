@@ -21,10 +21,10 @@ public class npc_earth_grab_totem : ScriptedAI
 	{
 		var time = TimeSpan.FromSeconds(2);
 
-		me.Events.AddRepeatEventAtOffset(() =>
+		Me.Events.AddRepeatEventAtOffset(() =>
 										{
 											var unitList = new List<Unit>();
-											me.GetAttackableUnitListInRange(unitList, 10.0f);
+											Me.GetAttackableUnitListInRange(unitList, 10.0f);
 
 											foreach (var target in unitList)
 											{
@@ -34,11 +34,11 @@ public class npc_earth_grab_totem : ScriptedAI
 												if (!alreadyRooted.Contains(target.GUID))
 												{
 													alreadyRooted.Add(target.GUID);
-													me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
+													Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_ROOT_EFFECT, true);
 												}
 												else
 												{
-													me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
+													Me.CastSpell(target, TotemSpells.TOTEM_EARTH_GRAB_SLOW_EFFECT, true);
 												}
 											}
 

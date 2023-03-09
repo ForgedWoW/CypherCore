@@ -67,7 +67,7 @@ internal class boss_curator : BossAI
 		base.JustEngagedWith(who);
 		Talk(TextIds.SayAggro);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.MaxThreat, 1);
@@ -78,7 +78,7 @@ internal class boss_curator : BossAI
 								task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							MiscConst.GroupAstralFlare,
 							task =>
 							{
@@ -87,16 +87,16 @@ internal class boss_curator : BossAI
 
 								DoCastSelf(RandomHelper.RAND(SpellIds.SummonAstralFlareNe, SpellIds.SummonAstralFlareNw, SpellIds.SummonAstralFlareSe, SpellIds.SummonAstralFlareSw), new CastSpellExtraArgs(true));
 
-								var mana = (me.GetMaxPower(PowerType.Mana) / 10);
+								var mana = (Me.GetMaxPower(PowerType.Mana) / 10);
 
 								if (mana != 0)
 								{
-									me.ModifyPower(PowerType.Mana, -mana);
+									Me.ModifyPower(PowerType.Mana, -mana);
 
-									if (me.GetPower(PowerType.Mana) * 100 / me.GetMaxPower(PowerType.Mana) < 10)
+									if (Me.GetPower(PowerType.Mana) * 100 / Me.GetMaxPower(PowerType.Mana) < 10)
 									{
 										Talk(TextIds.SayEvocate);
-										me.InterruptNonMeleeSpells(false);
+										Me.InterruptNonMeleeSpells(false);
 										DoCastSelf(SpellIds.Evocation);
 									}
 								}
@@ -104,7 +104,7 @@ internal class boss_curator : BossAI
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(12),
+		Scheduler.Schedule(TimeSpan.FromMinutes(12),
 							ScheduleTasks =>
 							{
 								Talk(TextIds.SayEnrage);
@@ -118,14 +118,14 @@ internal class boss_curator : BossAI
 			!_infused)
 		{
 			_infused = true;
-			_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => DoCastSelf(SpellIds.ArcaneInfusion, new CastSpellExtraArgs(true)));
-			_scheduler.CancelGroup(MiscConst.GroupAstralFlare);
+			Scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => DoCastSelf(SpellIds.ArcaneInfusion, new CastSpellExtraArgs(true)));
+			Scheduler.CancelGroup(MiscConst.GroupAstralFlare);
 		}
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }
 
@@ -134,22 +134,22 @@ internal class npc_curator_astral_flare : ScriptedAI
 {
 	public npc_curator_astral_flare(Creature creature) : base(creature)
 	{
-		me.ReactState = ReactStates.Passive;
+		Me.ReactState = ReactStates.Passive;
 	}
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
-								me.ReactState = ReactStates.Aggressive;
-								me.RemoveUnitFlag(UnitFlags.Uninteractible);
+								Me.ReactState = ReactStates.Aggressive;
+								Me.RemoveUnitFlag(UnitFlags.Uninteractible);
 								DoZoneInCombat();
 							});
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }

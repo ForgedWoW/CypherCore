@@ -16,7 +16,7 @@ internal class areatrigger_pal_consecration : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null)
 		{
@@ -34,9 +34,9 @@ internal class areatrigger_pal_consecration : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		if (at.CasterGuid == unit.GUID)
-			unit.RemoveAurasDueToSpell(PaladinSpells.ConsecrationProtectionAura, at.CasterGuid);
+		if (At.CasterGuid == unit.GUID)
+			unit.RemoveAurasDueToSpell(PaladinSpells.ConsecrationProtectionAura, At.CasterGuid);
 
-		unit.RemoveAurasDueToSpell(PaladinSpells.ConsecratedGroundSlow, at.CasterGuid);
+		unit.RemoveAurasDueToSpell(PaladinSpells.ConsecratedGroundSlow, At.CasterGuid);
 	}
 }

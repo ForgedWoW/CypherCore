@@ -23,7 +23,7 @@ public class at_mage_flame_patch : AreaTriggerAI
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -36,7 +36,7 @@ public class at_mage_flame_patch : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		caster.CastSpell(at.Location, MageSpells.FLAME_PATCH_AOE_DMG, true);
+		caster.CastSpell(At.Location, MageSpells.FLAME_PATCH_AOE_DMG, true);
 
 		timeInterval -= 1000;
 	}

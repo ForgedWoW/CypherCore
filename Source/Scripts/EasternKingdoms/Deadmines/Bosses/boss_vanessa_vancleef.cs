@@ -80,36 +80,36 @@ public class boss_vanessa_vancleef : BossAI
 		Killed = false;
 		_Reset();
 		RemoveAurasTimer = 0;
-		me.ReactState = ReactStates.Passive;
+		Me.ReactState = ReactStates.Passive;
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		var controller_achi = me.FindNearestCreature(eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
+		var controller_achi = Me.FindNearestCreature(eAchievementMisc.NPC_ACHIEVEMENT_CONTROLLER, 300.0f);
 
 		if (controller_achi != null)
 			controller_achi.AI.SetData(0, eAchievementMisc.ACHIEVEMENT_READY_GET);
 
-		_events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(12000));
-		_events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(10000));
-		_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(9000));
-		_events.ScheduleEvent(BossEvents.EVENT_BACKSLASH, TimeSpan.FromMilliseconds(15000));
+		Events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(12000));
+		Events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(10000));
+		Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(9000));
+		Events.ScheduleEvent(BossEvents.EVENT_BACKSLASH, TimeSpan.FromMilliseconds(15000));
 
-		me.MotionMaster.MoveJump(new Position(-65.585f, -820.742f, 41.022f), 10.0f, 5.0f);
-		me.ReactState = ReactStates.Aggressive;
-		me.Yell(COMBAT_START, Language.Universal);
+		Me.MotionMaster.MoveJump(new Position(-65.585f, -820.742f, 41.022f), 10.0f, 5.0f);
+		Me.ReactState = ReactStates.Aggressive;
+		Me.Yell(COMBAT_START, Language.Universal);
 
 		DoZoneInCombat();
 		base.JustEnteredCombat(who);
-		instance.SendEncounterUnit(EncounterFrameType.Engage, me);
+		Instance.SendEncounterUnit(EncounterFrameType.Engage, Me);
 	}
 
 	public override void JustDied(Unit killer)
 	{
 		base.JustDied(killer);
-		instance.SendEncounterUnit(EncounterFrameType.Disengage, me);
-		summons.DespawnAll();
-		summons.DespawnAll();
+		Instance.SendEncounterUnit(EncounterFrameType.Disengage, Me);
+		Summons.DespawnAll();
+		Summons.DespawnAll();
 	}
 
 	public override void JustSummoned(Creature summon)
@@ -117,13 +117,13 @@ public class boss_vanessa_vancleef : BossAI
 		switch (summon.Entry)
 		{
 			case DMCreatures.NPC_ROPE:
-				summons.Summon(summon);
+				Summons.Summon(summon);
 				summon.SummonCreature(DMCreatures.NPC_ROPE_ANCHOR, summon.Location.X, summon.Location.Y, summon.Location.Z + 40.0f, 0, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(10000));
 
 				break;
 		}
 
-		summons.Summon(summon);
+		Summons.Summon(summon);
 	}
 
 	public override void SummonedCreatureDespawn(Creature summon)
@@ -131,18 +131,18 @@ public class boss_vanessa_vancleef : BossAI
 		switch (summon.Entry)
 		{
 			case DMCreatures.NPC_ROPE:
-				summons.Despawn(summon);
+				Summons.Despawn(summon);
 
 				break;
 		}
 
-		summons.Despawn(summon);
+		Summons.Despawn(summon);
 	}
 
 	public override void MovementInform(MovementGeneratorType UnnamedParameter, uint id)
 	{
 		if (id == 0)
-			DoCast(me, 18373);
+			DoCast(Me, 18373);
 	}
 
 	public void FieryBoom()
@@ -178,35 +178,35 @@ public class boss_vanessa_vancleef : BossAI
 		if (player != null)
 			PlayerGUID = player;
 
-		if (me.Health <= damage)
+		if (Me.Health <= damage)
 		{
-			damage = (uint)me.Health - 1;
+			damage = (uint)Me.Health - 1;
 
 			if (!Killed)
 			{
-				_events.ScheduleEvent(BossEvents.EVENT_FINAL_TIMER, TimeSpan.FromMilliseconds(5000));
-				me.TextEmote(HUGH_BOMB, PlayerGUID, true);
-				me.RemoveAllAuras();
-				me.AttackStop();
-				me.ClearAllReactives();
-				me.CastSpell(me, 18373, true);
+				Events.ScheduleEvent(BossEvents.EVENT_FINAL_TIMER, TimeSpan.FromMilliseconds(5000));
+				Me.TextEmote(HUGH_BOMB, PlayerGUID, true);
+				Me.RemoveAllAuras();
+				Me.AttackStop();
+				Me.ClearAllReactives();
+				Me.CastSpell(Me, 18373, true);
 			}
 
 			Killed = true;
 		}
-		else if (me.HealthBelowPctDamaged(25, damage))
+		else if (Me.HealthBelowPctDamaged(25, damage))
 		{
-			_events.ScheduleEvent(BossEvents.EVENT_VENGEANCE, TimeSpan.FromMilliseconds(4000));
+			Events.ScheduleEvent(BossEvents.EVENT_VENGEANCE, TimeSpan.FromMilliseconds(4000));
 		}
 
-		if (!Under2 && me.HealthBelowPctDamaged(26, damage))
+		if (!Under2 && Me.HealthBelowPctDamaged(26, damage))
 		{
-			_events.ScheduleEvent(BossEvents.EVENT_DISSAPEAR, TimeSpan.FromMilliseconds(1000));
+			Events.ScheduleEvent(BossEvents.EVENT_DISSAPEAR, TimeSpan.FromMilliseconds(1000));
 			Under2 = true;
 		}
-		else if (!Under && me.HealthBelowPctDamaged(51, damage))
+		else if (!Under && Me.HealthBelowPctDamaged(51, damage))
 		{
-			_events.ScheduleEvent(BossEvents.EVENT_DISSAPEAR, TimeSpan.FromMilliseconds(1000));
+			Events.ScheduleEvent(BossEvents.EVENT_DISSAPEAR, TimeSpan.FromMilliseconds(1000));
 			Under = true;
 		}
 	}
@@ -230,16 +230,16 @@ public class boss_vanessa_vancleef : BossAI
 	public void SummonRopes()
 	{
 		for (byte i = 0; i < 5; ++i)
-			me.SummonCreature(DMCreatures.NPC_ROPE, RopeSpawn[i], TempSummonType.ManualDespawn);
+			Me.SummonCreature(DMCreatures.NPC_ROPE, RopeSpawn[i], TempSummonType.ManualDespawn);
 	}
 
 	public void RopeReady()
 	{
-		me.Whisper(VANESSA_DETONATE, Language.Universal, PlayerGUID, true);
+		Me.Whisper(VANESSA_DETONATE, Language.Universal, PlayerGUID, true);
 
-		foreach (var guid in summons)
+		foreach (var guid in Summons)
 		{
-			var rope = ObjectAccessor.GetCreature(me, guid);
+			var rope = ObjectAccessor.GetCreature(Me, guid);
 
 			if (rope != null)
 				if (rope.IsAlive)
@@ -255,48 +255,48 @@ public class boss_vanessa_vancleef : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case BossEvents.EVENT_DEFLECTION:
 					if (HealthAbovePct(25))
 					{
-						DoCast(me, Spells.DEFLECTION);
-						_events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(50000));
+						DoCast(Me, Spells.DEFLECTION);
+						Events.ScheduleEvent(BossEvents.EVENT_DEFLECTION, TimeSpan.FromMilliseconds(50000));
 					}
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_1:
-					if ((me.Health * 100) / me.MaxHealth > 50)
+					if ((Me.Health * 100) / Me.MaxHealth > 50)
 					{
-						me.SummonCreature(DMCreatures.NPC_DEFIAS_ENFORCER, Shadowspawn[1], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
-						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_2, TimeSpan.FromMilliseconds(15000));
+						Me.SummonCreature(DMCreatures.NPC_DEFIAS_ENFORCER, Shadowspawn[1], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+						Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_2, TimeSpan.FromMilliseconds(15000));
 					}
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_2:
-					if ((me.Health * 100) / me.MaxHealth > 50)
+					if ((Me.Health * 100) / Me.MaxHealth > 50)
 					{
-						me.SummonCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, Shadowspawn[0], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
-						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_3, TimeSpan.FromMilliseconds(15000));
+						Me.SummonCreature(DMCreatures.NPC_DEFIAS_SHADOWGUARD, Shadowspawn[0], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+						Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_3, TimeSpan.FromMilliseconds(15000));
 					}
 
 					break;
 				case BossEvents.EVENT_SUMMON_ADD_3:
-					if ((me.Health * 100) / me.MaxHealth > 50)
+					if ((Me.Health * 100) / Me.MaxHealth > 50)
 					{
-						me.SummonCreature(DMCreatures.NPC_DEFIAS_BLOODWIZARD, Shadowspawn[2], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
-						_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(15000));
+						Me.SummonCreature(DMCreatures.NPC_DEFIAS_BLOODWIZARD, Shadowspawn[2], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+						Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ADD_1, TimeSpan.FromMilliseconds(15000));
 					}
 
 					break;
 				case BossEvents.EVENT_DEADLY_BLADES:
-					DoCast(me, Spells.DEADLY_BLADES);
-					_events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(35000));
+					DoCast(Me, Spells.DEADLY_BLADES);
+					Events.ScheduleEvent(BossEvents.EVENT_DEADLY_BLADES, TimeSpan.FromMilliseconds(35000));
 
 					break;
 				case BossEvents.EVENT_BACKSLASH:
@@ -305,45 +305,45 @@ public class boss_vanessa_vancleef : BossAI
 					if (target != null)
 						DoCast(target, Spells.BACKSLASH);
 
-					_events.ScheduleEvent(BossEvents.EVENT_BACKSLASH, TimeSpan.FromMilliseconds(17000));
+					Events.ScheduleEvent(BossEvents.EVENT_BACKSLASH, TimeSpan.FromMilliseconds(17000));
 
 					break;
 				case BossEvents.EVENT_VENGEANCE:
-					me.AddAura(Spells.VENGEANCE, me);
+					Me.AddAura(Spells.VENGEANCE, Me);
 
 					break;
 
 				case BossEvents.EVENT_DISSAPEAR:
-					me.Yell(FOOLS_BOMB);
-					me.RemoveAllAuras();
-					me.MotionMaster.MovePoint(0, -52.31f, -820.18f, 51.91f);
-					me.SetVisible(false);
-					summons.DespawnAll();
-					_events.ScheduleEvent(BossEvents.EVENT_SUMMON_ROPE, TimeSpan.FromMilliseconds(2000));
+					Me.Yell(FOOLS_BOMB);
+					Me.RemoveAllAuras();
+					Me.MotionMaster.MovePoint(0, -52.31f, -820.18f, 51.91f);
+					Me.SetVisible(false);
+					Summons.DespawnAll();
+					Events.ScheduleEvent(BossEvents.EVENT_SUMMON_ROPE, TimeSpan.FromMilliseconds(2000));
 
 					break;
 				case BossEvents.EVENT_SUMMON_ROPE:
 					SummonRopes();
-					_events.ScheduleEvent(BossEvents.EVENT_ROPE_READY, TimeSpan.FromMilliseconds(1000));
+					Events.ScheduleEvent(BossEvents.EVENT_ROPE_READY, TimeSpan.FromMilliseconds(1000));
 
 					break;
 				case BossEvents.EVENT_ROPE_READY:
 					RopeReady();
-					_events.CancelEvent(BossEvents.EVENT_SHADOWGUARD);
-					_events.ScheduleEvent(BossEvents.EVENT_FIRE_BOOM, TimeSpan.FromMilliseconds(3000));
+					Events.CancelEvent(BossEvents.EVENT_SHADOWGUARD);
+					Events.ScheduleEvent(BossEvents.EVENT_FIRE_BOOM, TimeSpan.FromMilliseconds(3000));
 
 					break;
 				case BossEvents.EVENT_FIRE_BOOM:
 					FieryBoom();
-					_events.ScheduleEvent(BossEvents.EVENT_CLEAR_SHIP, TimeSpan.FromMilliseconds(2500));
+					Events.ScheduleEvent(BossEvents.EVENT_CLEAR_SHIP, TimeSpan.FromMilliseconds(2500));
 
 					break;
 				case BossEvents.EVENT_CLEAR_SHIP:
 					RemoveFiresFromShip();
-					me.SetVisible(true);
-					me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
-					me.RemoveAllAuras();
-					_events.ScheduleEvent(BossEvents.EVENT_SHADOWGUARD, TimeSpan.FromMilliseconds(27000));
+					Me.SetVisible(true);
+					Me.MotionMaster.MoveJump(-65.93f, -820.33f, 40.98f, 10.0f, 8.0f);
+					Me.RemoveAllAuras();
+					Events.ScheduleEvent(BossEvents.EVENT_SHADOWGUARD, TimeSpan.FromMilliseconds(27000));
 
 					//Creature bunny = me.FindNearestCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, 150.0f, true);
 					//if (bunny != null)
@@ -352,10 +352,10 @@ public class boss_vanessa_vancleef : BossAI
 					//}
 					break;
 				case BossEvents.EVENT_FINAL_TIMER:
-					me.CastSpell(me, Spells.POWDER_EXP, true);
-					me.AttackStop();
-					me.ClearAllReactives();
-					Unit.Kill(me, me, false);
+					Me.CastSpell(Me, Spells.POWDER_EXP, true);
+					Me.AttackStop();
+					Me.ClearAllReactives();
+					Unit.Kill(Me, Me, false);
 
 					return;
 			}

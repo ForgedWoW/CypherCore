@@ -22,12 +22,12 @@ public class at_mage_blizzard : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		at.SetDuration(8000);
+		At.SetDuration(8000);
 	}
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -40,7 +40,7 @@ public class at_mage_blizzard : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		var tempSumm = caster.SummonCreature(12999, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
+		var tempSumm = caster.SummonCreature(12999, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(8100));
 
 		{
 			tempSumm.Faction = caster.Faction;

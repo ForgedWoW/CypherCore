@@ -88,9 +88,9 @@ internal class boss_nightbane : BossAI
 	{
 		_Reset();
 		_flyCount = 0;
-		me.SetDisableGravity(true);
+		Me.SetDisableGravity(true);
 		HandleTerraceDoors(true);
-		var urn = ObjectAccessor.GetGameObject(me, instance.GetGuidData(DataTypes.GoBlackenedUrn));
+		var urn = ObjectAccessor.GetGameObject(Me, Instance.GetGuidData(DataTypes.GoBlackenedUrn));
 
 		if (urn)
 			urn.RemoveFlag(GameObjectFlags.InUse);
@@ -98,7 +98,7 @@ internal class boss_nightbane : BossAI
 
 	public override void EnterEvadeMode(EvadeReason why)
 	{
-		me.SetDisableGravity(true);
+		Me.SetDisableGravity(true);
 		base.EnterEvadeMode(why);
 	}
 
@@ -119,10 +119,10 @@ internal class boss_nightbane : BossAI
 		{
 			Talk(TextIds.EmoteSummon);
 			phase = NightbanePhases.Intro;
-			me.SetActive(true);
-			me.SetFarVisible(true);
-			me.RemoveUnitFlag(UnitFlags.Uninteractible);
-			me.MotionMaster.MoveAlongSplineChain(PointIds.IntroStart, SplineChainIds.IntroStart, false);
+			Me.SetActive(true);
+			Me.SetFarVisible(true);
+			Me.RemoveUnitFlag(UnitFlags.Uninteractible);
+			Me.MotionMaster.MoveAlongSplineChain(PointIds.IntroStart, SplineChainIds.IntroStart, false);
 			HandleTerraceDoors(false);
 		}
 	}
@@ -138,8 +138,8 @@ internal class boss_nightbane : BossAI
 	{
 		if (phase == NightbanePhases.Fly)
 		{
-			if (damage >= me.Health)
-				damage = (uint)(me.Health - 1);
+			if (damage >= Me.Health)
+				damage = (uint)(Me.Health - 1);
 
 			return;
 		}
@@ -160,41 +160,41 @@ internal class boss_nightbane : BossAI
 			switch (pointId)
 			{
 				case PointIds.IntroStart:
-					me.SetStandState(UnitStandStateType.Stand);
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.IntroEnd, SplineChainIds.IntroEnd, false); });
+					Me.SetStandState(UnitStandStateType.Stand);
+					SchedulerProtected.Schedule(TimeSpan.FromMilliseconds(1), task => { Me.MotionMaster.MoveAlongSplineChain(PointIds.IntroEnd, SplineChainIds.IntroEnd, false); });
 
 					break;
 				case PointIds.IntroEnd:
-					_scheduler.Schedule(TimeSpan.FromSeconds(2), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.IntroLanding, SplineChainIds.IntroLanding, false); });
+					SchedulerProtected.Schedule(TimeSpan.FromSeconds(2), task => { Me.MotionMaster.MoveAlongSplineChain(PointIds.IntroLanding, SplineChainIds.IntroLanding, false); });
 
 					break;
 				case PointIds.IntroLanding:
-					me.SetDisableGravity(false);
-					me.HandleEmoteCommand(Emote.OneshotLand);
+					Me.SetDisableGravity(false);
+					Me.HandleEmoteCommand(Emote.OneshotLand);
 
-					_scheduler.Schedule(TimeSpan.FromSeconds(3),
+					SchedulerProtected.Schedule(TimeSpan.FromSeconds(3),
 										task =>
 										{
-											me.SetImmuneToPC(false);
+											Me.SetImmuneToPC(false);
 											DoZoneInCombat();
 										});
 
 					break;
 				case PointIds.PhaseTwoLanding:
 					phase = NightbanePhases.Ground;
-					me.SetDisableGravity(false);
-					me.HandleEmoteCommand(Emote.OneshotLand);
+					Me.SetDisableGravity(false);
+					Me.HandleEmoteCommand(Emote.OneshotLand);
 
-					_scheduler.Schedule(TimeSpan.FromSeconds(3),
+					SchedulerProtected.Schedule(TimeSpan.FromSeconds(3),
 										task =>
 										{
 											SetupGroundPhase();
-											me.ReactState = ReactStates.Aggressive;
+											Me.ReactState = ReactStates.Aggressive;
 										});
 
 					break;
 				case PointIds.PhaseTwoEnd:
-					_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoLanding, SplineChainIds.SecondLanding, false); });
+					SchedulerProtected.Schedule(TimeSpan.FromMilliseconds(1), task => { Me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoLanding, SplineChainIds.SecondLanding, false); });
 
 					break;
 				default:
@@ -205,23 +205,23 @@ internal class boss_nightbane : BossAI
 		{
 			if (pointId == PointIds.PhaseTwoFly)
 			{
-				_scheduler.Schedule(TimeSpan.FromSeconds(33),
+				SchedulerProtected.Schedule(TimeSpan.FromSeconds(33),
 									MiscConst.GroupFly,
 									task =>
 									{
-										_scheduler.CancelGroup(MiscConst.GroupFly);
+										SchedulerProtected.CancelGroup(MiscConst.GroupFly);
 
-										_scheduler.Schedule(TimeSpan.FromSeconds(2),
+										SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
 															MiscConst.GroupGround,
 															landTask =>
 															{
 																Talk(TextIds.YellLandPhase);
-																me.SetDisableGravity(true);
-																me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
+																Me.SetDisableGravity(true);
+																Me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
 															});
 									});
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(2),
+				SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
 									MiscConst.GroupFly,
 									task =>
 									{
@@ -236,13 +236,13 @@ internal class boss_nightbane : BossAI
 
 														if (target)
 														{
-															me.SetFacingToObject(target);
+															Me.SetFacingToObject(target);
 															DoCast(target, SpellIds.RainOfBones);
 														}
 													});
 									});
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(21),
+				SchedulerProtected.Schedule(TimeSpan.FromSeconds(21),
 									MiscConst.GroupFly,
 									task =>
 									{
@@ -254,7 +254,7 @@ internal class boss_nightbane : BossAI
 										task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(7));
 									});
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(17),
+				SchedulerProtected.Schedule(TimeSpan.FromSeconds(17),
 									MiscConst.GroupFly,
 									task =>
 									{
@@ -268,7 +268,7 @@ internal class boss_nightbane : BossAI
 			}
 			else if (pointId == PointIds.PhaseTwoPreFly)
 			{
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(1), task => { me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true); });
+				SchedulerProtected.Schedule(TimeSpan.FromMilliseconds(1), task => { Me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true); });
 			}
 		}
 	}
@@ -279,14 +279,14 @@ internal class boss_nightbane : BossAI
 			phase != NightbanePhases.Intro)
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		SchedulerProtected.Update(diff, () => DoMeleeAttackIfReady());
 	}
 
 	private void SetupGroundPhase()
 	{
 		phase = NightbanePhases.Ground;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(0),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(0),
 							TimeSpan.FromSeconds(15),
 							MiscConst.GroupGround,
 							task =>
@@ -295,7 +295,7 @@ internal class boss_nightbane : BossAI
 								task.Repeat(TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(4),
 							TimeSpan.FromSeconds(23),
 							MiscConst.GroupGround,
 							task =>
@@ -303,15 +303,15 @@ internal class boss_nightbane : BossAI
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
 								if (target)
-									if (!me.Location.HasInArc(MathF.PI, target.Location))
+									if (!Me.Location.HasInArc(MathF.PI, target.Location))
 										DoCast(target, SpellIds.TailSweep);
 
 								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(48), MiscConst.GroupGround, task => { DoCastAOE(SpellIds.BellowingRoar); });
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(48), MiscConst.GroupGround, task => { DoCastAOE(SpellIds.BellowingRoar); });
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(12),
 							TimeSpan.FromSeconds(18),
 							MiscConst.GroupGround,
 							task =>
@@ -324,7 +324,7 @@ internal class boss_nightbane : BossAI
 								task.Repeat(TimeSpan.FromSeconds(18), TimeSpan.FromSeconds(21));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(26),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(26),
 							TimeSpan.FromSeconds(30),
 							MiscConst.GroupGround,
 							task =>
@@ -333,7 +333,7 @@ internal class boss_nightbane : BossAI
 								task.Repeat(TimeSpan.FromSeconds(28), TimeSpan.FromSeconds(40));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(82),
+		SchedulerProtected.Schedule(TimeSpan.FromSeconds(82),
 							MiscConst.GroupGround,
 							task =>
 							{
@@ -346,27 +346,27 @@ internal class boss_nightbane : BossAI
 
 	private void HandleTerraceDoors(bool open)
 	{
-		instance.HandleGameObject(instance.GetGuidData(DataTypes.MastersTerraceDoor1), open);
-		instance.HandleGameObject(instance.GetGuidData(DataTypes.MastersTerraceDoor2), open);
+		Instance.HandleGameObject(Instance.GetGuidData(DataTypes.MastersTerraceDoor1), open);
+		Instance.HandleGameObject(Instance.GetGuidData(DataTypes.MastersTerraceDoor2), open);
 	}
 
 	private void StartPhaseFly()
 	{
 		++_flyCount;
 		Talk(TextIds.YellFlyPhase);
-		_scheduler.CancelGroup(MiscConst.GroupGround);
-		me.InterruptNonMeleeSpells(false);
-		me.HandleEmoteCommand(Emote.OneshotLiftoff);
-		me.SetDisableGravity(true);
-		me.ReactState = ReactStates.Passive;
-		me.AttackStop();
+		SchedulerProtected.CancelGroup(MiscConst.GroupGround);
+		Me.InterruptNonMeleeSpells(false);
+		Me.HandleEmoteCommand(Emote.OneshotLiftoff);
+		Me.SetDisableGravity(true);
+		Me.ReactState = ReactStates.Passive;
+		Me.AttackStop();
 
-		if (me.GetDistance(MiscConst.FlyPositionLeft) < me.GetDistance(MiscConst.FlyPosition))
-			me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionLeft, true);
-		else if (me.GetDistance(MiscConst.FlyPositionRight) < me.GetDistance(MiscConst.FlyPosition))
-			me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionRight, true);
+		if (Me.GetDistance(MiscConst.FlyPositionLeft) < Me.GetDistance(MiscConst.FlyPosition))
+			Me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionLeft, true);
+		else if (Me.GetDistance(MiscConst.FlyPositionRight) < Me.GetDistance(MiscConst.FlyPosition))
+			Me.MotionMaster.MovePoint(PointIds.PhaseTwoPreFly, MiscConst.FlyPositionRight, true);
 		else
-			me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true);
+			Me.MotionMaster.MovePoint(PointIds.PhaseTwoFly, MiscConst.FlyPosition, true);
 	}
 }
 
@@ -404,18 +404,18 @@ internal class go_blackened_urn : GameObjectAI
 
 	public override bool OnGossipHello(Player player)
 	{
-		if (me.HasFlag(GameObjectFlags.InUse))
+		if (Me.HasFlag(GameObjectFlags.InUse))
 			return false;
 
 		if (instance.GetBossState(DataTypes.Nightbane) == EncounterState.Done ||
 			instance.GetBossState(DataTypes.Nightbane) == EncounterState.InProgress)
 			return false;
 
-		var nightbane = ObjectAccessor.GetCreature(me, instance.GetGuidData(DataTypes.Nightbane));
+		var nightbane = ObjectAccessor.GetCreature(Me, instance.GetGuidData(DataTypes.Nightbane));
 
 		if (nightbane)
 		{
-			me.SetFlag(GameObjectFlags.InUse);
+			Me.SetFlag(GameObjectFlags.InUse);
 			nightbane.AI.DoAction(MiscConst.ActionSummon);
 		}
 

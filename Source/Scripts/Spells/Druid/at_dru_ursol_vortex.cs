@@ -16,7 +16,7 @@ public class at_dru_ursol_vortex : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit target)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster != null && caster.IsInCombatWith(target))
 			caster.CastSpell(target, DruidSpells.URSOL_VORTEX_DEBUFF, true);
@@ -26,10 +26,10 @@ public class at_dru_ursol_vortex : AreaTriggerAI
 	{
 		target.RemoveAura(DruidSpells.URSOL_VORTEX_DEBUFF);
 
-		if (!_hasPull && target.IsValidAttackTarget(at.GetCaster()))
+		if (!_hasPull && target.IsValidAttackTarget(At.GetCaster()))
 		{
 			_hasPull = true;
-			target.CastSpell(at.Location, DruidSpells.URSOL_VORTEX_PULL, true);
+			target.CastSpell(At.Location, DruidSpells.URSOL_VORTEX_PULL, true);
 		}
 	}
 }

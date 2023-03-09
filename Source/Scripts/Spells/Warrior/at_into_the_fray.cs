@@ -17,17 +17,17 @@ public class at_into_the_fray : AreaTriggerAI
 
 	public override void OnUpdate(uint diff)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-		var timer = at.VariableStorage.GetValue<uint>("_timer", 0) + diff;
+		var timer = At.VariableStorage.GetValue<uint>("_timer", 0) + diff;
 
 		if (timer >= 250)
 		{
-			at.VariableStorage.Set<int>("_timer", 0);
-			var count = (uint)(at.InsideUnits.Count - 1);
+			At.VariableStorage.Set<int>("_timer", 0);
+			var count = (uint)(At.InsideUnits.Count - 1);
 
 			if (count != 0)
 			{
@@ -46,7 +46,7 @@ public class at_into_the_fray : AreaTriggerAI
 		}
 		else
 		{
-			at.VariableStorage.Set("_timer", timer);
+			At.VariableStorage.Set("_timer", timer);
 		}
 	}
 }

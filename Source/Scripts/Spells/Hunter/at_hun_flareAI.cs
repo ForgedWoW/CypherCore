@@ -17,7 +17,7 @@ public class at_hun_flareAI : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -25,7 +25,7 @@ public class at_hun_flareAI : AreaTriggerAI
 		if (caster.TypeId != TypeId.Player)
 			return;
 
-		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 		if (tempSumm == null)
 		{

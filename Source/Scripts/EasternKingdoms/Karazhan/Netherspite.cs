@@ -145,8 +145,8 @@ internal class boss_netherspite : ScriptedAI
 		if (!Berserk &&
 			NetherInfusionTimer <= diff)
 		{
-			me.AddAura(SpellIds.NetherInfusion, me);
-			DoCast(me, SpellIds.NetherspiteRoar);
+			Me.AddAura(SpellIds.NetherInfusion, Me);
+			DoCast(Me, SpellIds.NetherspiteRoar);
 			Berserk = true;
 		}
 		else
@@ -170,8 +170,8 @@ internal class boss_netherspite : ScriptedAI
 			// Empowerment & Nether Burn
 			if (EmpowermentTimer <= diff)
 			{
-				DoCast(me, SpellIds.Empowerment);
-				me.AddAura(SpellIds.NetherburnAura, me);
+				DoCast(Me, SpellIds.Empowerment);
+				Me.AddAura(SpellIds.NetherburnAura, Me);
 				EmpowermentTimer = 90000;
 			}
 			else
@@ -181,7 +181,7 @@ internal class boss_netherspite : ScriptedAI
 
 			if (PhaseTimer <= diff)
 			{
-				if (!me.IsNonMeleeSpellCast(false))
+				if (!Me.IsNonMeleeSpellCast(false))
 				{
 					SwitchToBanishPhase();
 
@@ -212,7 +212,7 @@ internal class boss_netherspite : ScriptedAI
 
 			if (PhaseTimer <= diff)
 			{
-				if (!me.IsNonMeleeSpellCast(false))
+				if (!Me.IsNonMeleeSpellCast(false))
 				{
 					SwitchToPortalPhase();
 
@@ -275,7 +275,7 @@ internal class boss_netherspite : ScriptedAI
 
 		for (var i = 0; i < 3; ++i)
 		{
-			Creature portal = me.SummonCreature(MiscConst.PortalID[i], MiscConst.PortalCoord[pos[i]].X, MiscConst.PortalCoord[pos[i]].Y, MiscConst.PortalCoord[pos[i]].Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
+			Creature portal = Me.SummonCreature(MiscConst.PortalID[i], MiscConst.PortalCoord[pos[i]].X, MiscConst.PortalCoord[pos[i]].Y, MiscConst.PortalCoord[pos[i]].Z, 0, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(1));
 
 			if (portal)
 			{
@@ -289,12 +289,12 @@ internal class boss_netherspite : ScriptedAI
 	{
 		for (var i = 0; i < 3; ++i)
 		{
-			var portal = ObjectAccessor.GetCreature(me, PortalGUID[i]);
+			var portal = ObjectAccessor.GetCreature(Me, PortalGUID[i]);
 
 			if (portal)
 				portal.DisappearAndDie();
 
-			var portal1 = ObjectAccessor.GetCreature(me, BeamerGUID[i]);
+			var portal1 = ObjectAccessor.GetCreature(Me, BeamerGUID[i]);
 
 			if (portal1)
 				portal1.DisappearAndDie();
@@ -308,16 +308,16 @@ internal class boss_netherspite : ScriptedAI
 	{
 		for (var j = 0; j < 3; ++j) // j = color
 		{
-			var portal = ObjectAccessor.GetCreature(me, PortalGUID[j]);
+			var portal = ObjectAccessor.GetCreature(Me, PortalGUID[j]);
 
 			if (portal)
 			{
 				// the one who's been cast upon before
 				var current = Global.ObjAccessor.GetUnit(portal, BeamTarget[j]);
 				// temporary store for the best suitable beam reciever
-				Unit target = me;
+				Unit target = Me;
 
-				var players = me.Map.Players;
+				var players = Me.Map.Players;
 
 				// get the best suitable Target
 				foreach (var player in players)
@@ -331,7 +331,7 @@ internal class boss_netherspite : ScriptedAI
 						!player.HasAura(MiscConst.PlayerBuff[(j + 1) % 3]) // not on another beam
 						&&
 						!player.HasAura(MiscConst.PlayerBuff[(j + 2) % 3]) &&
-						IsBetween(me, player, portal)) // on the beam
+						IsBetween(Me, player, portal)) // on the beam
 						target = player;
 
 				// buff the Target
@@ -368,7 +368,7 @@ internal class boss_netherspite : ScriptedAI
 
 				// aggro Target if Red Beam
 				if (j == (int)Portals.Red &&
-					me.Victim != target &&
+					Me.Victim != target &&
 					target.IsPlayer)
 					AddThreat(target, 100000.0f);
 			}
@@ -377,8 +377,8 @@ internal class boss_netherspite : ScriptedAI
 
 	private void SwitchToPortalPhase()
 	{
-		me.RemoveAura(SpellIds.BanishRoot);
-		me.RemoveAura(SpellIds.BanishVisual);
+		Me.RemoveAura(SpellIds.BanishRoot);
+		Me.RemoveAura(SpellIds.BanishVisual);
 		SummonPortals();
 		PhaseTimer = 60000;
 		PortalPhase = true;
@@ -389,22 +389,22 @@ internal class boss_netherspite : ScriptedAI
 
 	private void SwitchToBanishPhase()
 	{
-		me.RemoveAura(SpellIds.Empowerment);
-		me.RemoveAura(SpellIds.NetherburnAura);
-		DoCast(me, SpellIds.BanishVisual, new CastSpellExtraArgs(true));
-		DoCast(me, SpellIds.BanishRoot, new CastSpellExtraArgs(true));
+		Me.RemoveAura(SpellIds.Empowerment);
+		Me.RemoveAura(SpellIds.NetherburnAura);
+		DoCast(Me, SpellIds.BanishVisual, new CastSpellExtraArgs(true));
+		DoCast(Me, SpellIds.BanishRoot, new CastSpellExtraArgs(true));
 		DestroyPortals();
 		PhaseTimer = 30000;
 		PortalPhase = false;
 		Talk(TextIds.EmotePhaseBanish);
 
 		for (byte i = 0; i < 3; ++i)
-			me.RemoveAura(MiscConst.NetherBuff[i]);
+			Me.RemoveAura(MiscConst.NetherBuff[i]);
 	}
 
 	private void HandleDoors(bool open) // Massive Door switcher
 	{
-		var Door = ObjectAccessor.GetGameObject(me, instance.GetGuidData(DataTypes.GoMassiveDoor));
+		var Door = ObjectAccessor.GetGameObject(Me, instance.GetGuidData(DataTypes.GoMassiveDoor));
 
 		if (Door)
 			Door.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);

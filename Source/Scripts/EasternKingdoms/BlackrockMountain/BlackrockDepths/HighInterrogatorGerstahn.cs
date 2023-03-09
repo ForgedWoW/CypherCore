@@ -24,12 +24,12 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
@@ -40,7 +40,7 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(7));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(14),
+		Scheduler.Schedule(TimeSpan.FromSeconds(14),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100.0f, true);
@@ -51,17 +51,17 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(32),
+		Scheduler.Schedule(TimeSpan.FromSeconds(32),
 							task =>
 							{
 								DoCastVictim(SpellIds.Psychicscream);
 								task.Repeat(TimeSpan.FromSeconds(30));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
-								DoCast(me, SpellIds.Shadowshield);
+								DoCast(Me, SpellIds.Shadowshield);
 								task.Repeat(TimeSpan.FromSeconds(25));
 							});
 	}
@@ -71,6 +71,6 @@ internal class boss_high_interrogator_gerstahn : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

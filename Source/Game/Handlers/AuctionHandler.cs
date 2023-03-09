@@ -328,7 +328,7 @@ namespace Game
             AuctionHouseObject auctionHouse = Global.AuctionHouseMgr.GetAuctionsMap(creature.Faction);
 
             AuctionPosting auction = auctionHouse.GetAuction(placeBid.AuctionID);
-            if (auction == null || auction.IsCommodity())
+            if (auction == null || auction.IsCommodity)
             {
                 SendAuctionCommandResult(placeBid.AuctionID, AuctionCommand.PlaceBid, AuctionResult.ItemNotFound, throttle.DelayUntilNext);
                 return;
@@ -484,7 +484,7 @@ namespace Game
             }
 
             // client bug - instead of removing auction in the UI, it only substracts 1 from visible count
-            uint auctionIdForClient = auction.IsCommodity() ? 0 : auction.Id;
+            uint auctionIdForClient = auction.IsCommodity ? 0 : auction.Id;
 
             // Now remove the auction
             player.SaveInventoryAndGoldToDB(trans);

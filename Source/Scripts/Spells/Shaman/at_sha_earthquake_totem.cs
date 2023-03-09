@@ -25,7 +25,7 @@ public class at_sha_earthquake_totem : AreaTriggerAI
 
 	public override void OnUpdate(uint p_Time)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -39,7 +39,7 @@ public class at_sha_earthquake_totem : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(200));
+		var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromMilliseconds(200));
 
 		if (tempSumm != null)
 		{

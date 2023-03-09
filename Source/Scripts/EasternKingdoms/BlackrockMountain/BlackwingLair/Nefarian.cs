@@ -170,16 +170,16 @@ internal class boss_victor_nefarius : BossAI
 	{
 		Initialize();
 
-		if (me.Location.MapId == 469)
+		if (Me.Location.MapId == 469)
 		{
-			if (!me.FindNearestCreature(BWLCreatureIds.Nefarian, 1000.0f, true))
+			if (!Me.FindNearestCreature(BWLCreatureIds.Nefarian, 1000.0f, true))
 				_Reset();
 
-			me.SetVisible(true);
-			me.SetNpcFlag(NPCFlags.Gossip);
-			me.Faction = (uint)FactionTemplates.Friendly;
-			me.SetStandState(UnitStandStateType.SitHighChair);
-			me.RemoveAura(SpellIds.NefariansBarrier);
+			Me.SetVisible(true);
+			Me.SetNpcFlag(NPCFlags.Gossip);
+			Me.Faction = (uint)FactionTemplates.Friendly;
+			Me.SetStandState(UnitStandStateType.SitHighChair);
+			Me.RemoveAura(SpellIds.NefariansBarrier);
 		}
 	}
 
@@ -206,75 +206,75 @@ internal class boss_victor_nefarius : BossAI
 		if (type == 1 &&
 			data == 1)
 		{
-			me.StopMoving();
-			_events.ScheduleEvent(EventIds.Path2, TimeSpan.FromSeconds(9));
+			Me.StopMoving();
+			Events.ScheduleEvent(EventIds.Path2, TimeSpan.FromSeconds(9));
 		}
 
 		if (type == 1 &&
 			data == 2)
-			_events.ScheduleEvent(EventIds.Success1, TimeSpan.FromSeconds(5));
+			Events.ScheduleEvent(EventIds.Success1, TimeSpan.FromSeconds(5));
 	}
 
 	public override void UpdateAI(uint diff)
 	{
 		if (!UpdateVictim())
 		{
-			_events.Update(diff);
+			Events.Update(diff);
 
-			_events.ExecuteEvents(eventId =>
+			Events.ExecuteEvents(eventId =>
 			{
 				switch (eventId)
 				{
 					case EventIds.Path2:
-						me.MotionMaster.MovePath(MiscConst.NefariusPath2, false);
-						_events.ScheduleEvent(EventIds.Chaos1, TimeSpan.FromSeconds(7));
+						Me.MotionMaster.MovePath(MiscConst.NefariusPath2, false);
+						Events.ScheduleEvent(EventIds.Chaos1, TimeSpan.FromSeconds(7));
 
 						break;
 					case EventIds.Chaos1:
-						var gyth = me.FindNearestCreature(CreatureIds.Gyth, 75.0f, true);
+						var gyth = Me.FindNearestCreature(CreatureIds.Gyth, 75.0f, true);
 
 						if (gyth)
 						{
-							me.SetFacingToObject(gyth);
+							Me.SetFacingToObject(gyth);
 							Talk(TextIds.SayChaosSpell);
 						}
 
-						_events.ScheduleEvent(EventIds.Chaos2, TimeSpan.FromSeconds(2));
+						Events.ScheduleEvent(EventIds.Chaos2, TimeSpan.FromSeconds(2));
 
 						break;
 					case EventIds.Chaos2:
 						DoCast(SpellIds.ChromaticChaos);
-						me.SetFacingTo(1.570796f);
+						Me.SetFacingTo(1.570796f);
 
 						break;
 					case EventIds.Success1:
-						Unit player = me.SelectNearestPlayer(60.0f);
+						Unit player = Me.SelectNearestPlayer(60.0f);
 
 						if (player)
 						{
-							me.SetFacingToObject(player);
+							Me.SetFacingToObject(player);
 							Talk(TextIds.SaySuccess);
-							var portcullis1 = me.FindNearestGameObject(GameObjectIds.PortcullisActive, 65.0f);
+							var portcullis1 = Me.FindNearestGameObject(GameObjectIds.PortcullisActive, 65.0f);
 
 							if (portcullis1)
 								portcullis1.SetGoState(GameObjectState.Active);
 
-							var portcullis2 = me.FindNearestGameObject(GameObjectIds.PortcullisTobossrooms, 80.0f);
+							var portcullis2 = Me.FindNearestGameObject(GameObjectIds.PortcullisTobossrooms, 80.0f);
 
 							if (portcullis2)
 								portcullis2.SetGoState(GameObjectState.Active);
 						}
 
-						_events.ScheduleEvent(EventIds.Success2, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.Success2, TimeSpan.FromSeconds(4));
 
 						break;
 					case EventIds.Success2:
-						DoCast(me, SpellIds.VaelastraszzSpawn);
-						me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
+						DoCast(Me, SpellIds.VaelastraszzSpawn);
+						Me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
 
 						break;
 					case EventIds.Path3:
-						me.MotionMaster.MovePath(MiscConst.NefariusPath3, false);
+						Me.MotionMaster.MovePath(MiscConst.NefariusPath3, false);
 
 						break;
 					default:
@@ -289,12 +289,12 @@ internal class boss_victor_nefarius : BossAI
 		if (UpdateVictim() &&
 			SpawnedAdds <= 42)
 		{
-			_events.Update(diff);
+			Events.Update(diff);
 
-			if (me.HasUnitState(UnitState.Casting))
+			if (Me.HasUnitState(UnitState.Casting))
 				return;
 
-			_events.ExecuteEvents(eventId =>
+			Events.ExecuteEvents(eventId =>
 			{
 				switch (eventId)
 				{
@@ -315,7 +315,7 @@ internal class boss_victor_nefarius : BossAI
 						}
 
 						ResetThreatList();
-						_events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
+						Events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
 
 						break;
 					case EventIds.Fear:
@@ -325,7 +325,7 @@ internal class boss_victor_nefarius : BossAI
 						if (target)
 							DoCast(target, SpellIds.Fear);
 
-						_events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
+						Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 
 						break;
 					}
@@ -336,7 +336,7 @@ internal class boss_victor_nefarius : BossAI
 						if (target)
 							DoCast(target, SpellIds.ShadowCommand);
 
-						_events.ScheduleEvent(EventIds.MindControl, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+						Events.ScheduleEvent(EventIds.MindControl, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 
 						break;
 					}
@@ -350,17 +350,17 @@ internal class boss_victor_nefarius : BossAI
 							else
 								CreatureID = MiscConst.Entry[RandomHelper.URand(0, 4)];
 
-							Creature dragon = me.SummonCreature(CreatureID, MiscConst.DrakeSpawnLoc[i]);
+							Creature dragon = Me.SummonCreature(CreatureID, MiscConst.DrakeSpawnLoc[i]);
 
 							if (dragon)
 							{
 								dragon.Faction = (uint)FactionTemplates.DragonflightBlack;
-								dragon.AI.AttackStart(me.Victim);
+								dragon.AI.AttackStart(Me.Victim);
 							}
 
 							if (++SpawnedAdds >= 42)
 							{
-								Creature nefarian = me.SummonCreature(BWLCreatureIds.Nefarian, MiscConst.NefarianLoc[0]);
+								Creature nefarian = Me.SummonCreature(BWLCreatureIds.Nefarian, MiscConst.NefarianLoc[0]);
 
 								if (nefarian)
 								{
@@ -372,21 +372,21 @@ internal class boss_victor_nefarius : BossAI
 									nefarian.MotionMaster.MovePoint(1, MiscConst.NefarianLoc[1]);
 								}
 
-								_events.CancelEvent(EventIds.MindControl);
-								_events.CancelEvent(EventIds.Fear);
-								_events.CancelEvent(EventIds.ShadowBolt);
-								me.SetVisible(false);
+								Events.CancelEvent(EventIds.MindControl);
+								Events.CancelEvent(EventIds.Fear);
+								Events.CancelEvent(EventIds.ShadowBolt);
+								Me.SetVisible(false);
 
 								return;
 							}
 						}
 
-						_events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(4));
+						Events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(4));
 
 						break;
 				}
 
-				if (me.HasUnitState(UnitState.Casting))
+				if (Me.HasUnitState(UnitState.Casting))
 					return;
 			});
 		}
@@ -416,16 +416,16 @@ internal class boss_victor_nefarius : BossAI
 
 		Talk(TextIds.SayGamesbegin2);
 
-		me.Faction = (uint)FactionTemplates.DragonflightBlack;
-		me.RemoveNpcFlag(NPCFlags.Gossip);
-		DoCast(me, SpellIds.NefariansBarrier);
-		me.SetStandState(UnitStandStateType.Stand);
-		me.SetImmuneToPC(false);
+		Me.Faction = (uint)FactionTemplates.DragonflightBlack;
+		Me.RemoveNpcFlag(NPCFlags.Gossip);
+		DoCast(Me, SpellIds.NefariansBarrier);
+		Me.SetStandState(UnitStandStateType.Stand);
+		Me.SetImmuneToPC(false);
 		AttackStart(target);
-		_events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
-		_events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
+		Events.ScheduleEvent(EventIds.ShadowBolt, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10));
+		Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20));
 		//_events.ScheduleEvent(EventIds.MindControl, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
-		_events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(10));
+		Events.ScheduleEvent(EventIds.SpawnAdd, TimeSpan.FromSeconds(10));
 	}
 }
 
@@ -453,12 +453,12 @@ internal class boss_nefarian : BossAI
 
 	public override void JustEngagedWith(Unit who)
 	{
-		_events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
-		_events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
-		_events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
-		_events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
+		Events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
+		Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+		Events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+		Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
 		//_events.ScheduleEvent(EventIds.Taillash, TimeSpan.FromSeconds(10));
-		_events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+		Events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 		Talk(TextIds.SayRandom);
 	}
 
@@ -485,8 +485,8 @@ internal class boss_nefarian : BossAI
 		{
 			DoZoneInCombat();
 
-			if (me.Victim)
-				AttackStart(me.Victim);
+			if (Me.Victim)
+				AttackStart(Me.Victim);
 		}
 	}
 
@@ -494,9 +494,9 @@ internal class boss_nefarian : BossAI
 	{
 		if (canDespawn && DespawnTimer <= diff)
 		{
-			instance.SetBossState(DataTypes.Nefarian, EncounterState.Fail);
+			Instance.SetBossState(DataTypes.Nefarian, EncounterState.Fail);
 
-			var constructList = me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
+			var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
 
 			foreach (var creature in constructList)
 				creature.DespawnOrUnsummon();
@@ -512,39 +512,39 @@ internal class boss_nefarian : BossAI
 		if (canDespawn)
 			canDespawn = false;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
-		_events.ExecuteEvents(eventId =>
+		Events.ExecuteEvents(eventId =>
 		{
 			switch (eventId)
 			{
 				case EventIds.Shadowflame:
 					DoCastVictim(SpellIds.Shadowflame);
-					_events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
+					Events.ScheduleEvent(EventIds.Shadowflame, TimeSpan.FromSeconds(12));
 
 					break;
 				case EventIds.Fear:
 					DoCastVictim(SpellIds.Bellowingroar);
-					_events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+					Events.ScheduleEvent(EventIds.Fear, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
 
 					break;
 				case EventIds.Veilofshadow:
 					DoCastVictim(SpellIds.Veilofshadow);
-					_events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+					Events.ScheduleEvent(EventIds.Veilofshadow, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
 
 					break;
 				case EventIds.Cleave:
 					DoCastVictim(SpellIds.Cleave);
-					_events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
+					Events.ScheduleEvent(EventIds.Cleave, TimeSpan.FromSeconds(7));
 
 					break;
 				case EventIds.Taillash:
 					// Cast Nyi since we need a better check for behind Target
 					DoCastVictim(SpellIds.Taillash);
-					_events.ScheduleEvent(EventIds.Taillash, TimeSpan.FromSeconds(10));
+					Events.ScheduleEvent(EventIds.Taillash, TimeSpan.FromSeconds(10));
 
 					break;
 				case EventIds.Classcall:
@@ -555,12 +555,12 @@ internal class boss_nefarian : BossAI
 						{
 							case Class.Mage:
 								Talk(TextIds.SayMage);
-								DoCast(me, SpellIds.Mage);
+								DoCast(Me, SpellIds.Mage);
 
 								break;
 							case Class.Warrior:
 								Talk(TextIds.SayWarrior);
-								DoCast(me, SpellIds.Warrior);
+								DoCast(Me, SpellIds.Warrior);
 
 								break;
 							case Class.Druid:
@@ -570,49 +570,49 @@ internal class boss_nefarian : BossAI
 								break;
 							case Class.Priest:
 								Talk(TextIds.SayPriest);
-								DoCast(me, SpellIds.Priest);
+								DoCast(Me, SpellIds.Priest);
 
 								break;
 							case Class.Paladin:
 								Talk(TextIds.SayPaladin);
-								DoCast(me, SpellIds.Paladin);
+								DoCast(Me, SpellIds.Paladin);
 
 								break;
 							case Class.Shaman:
 								Talk(TextIds.SayShaman);
-								DoCast(me, SpellIds.Shaman);
+								DoCast(Me, SpellIds.Shaman);
 
 								break;
 							case Class.Warlock:
 								Talk(TextIds.SayWarlock);
-								DoCast(me, SpellIds.Warlock);
+								DoCast(Me, SpellIds.Warlock);
 
 								break;
 							case Class.Hunter:
 								Talk(TextIds.SayHunter);
-								DoCast(me, SpellIds.Hunter);
+								DoCast(Me, SpellIds.Hunter);
 
 								break;
 							case Class.Rogue:
 								Talk(TextIds.SayRogue);
-								DoCast(me, SpellIds.Rogue);
+								DoCast(Me, SpellIds.Rogue);
 
 								break;
 							case Class.Deathknight:
 								Talk(TextIds.SayDeathKnight);
-								DoCast(me, SpellIds.DeathKnight);
+								DoCast(Me, SpellIds.DeathKnight);
 
 								break;
 							default:
 								break;
 						}
 
-					_events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
+					Events.ScheduleEvent(EventIds.Classcall, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(35));
 
 					break;
 			}
 
-			if (me.HasUnitState(UnitState.Casting))
+			if (Me.HasUnitState(UnitState.Casting))
 				return;
 		});
 
@@ -620,7 +620,7 @@ internal class boss_nefarian : BossAI
 		if (!Phase3 &&
 			HealthBelowPct(20))
 		{
-			var constructList = me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
+			var constructList = Me.GetCreatureListWithEntryInGrid(CreatureIds.BoneConstruct, 500.0f);
 
 			foreach (var creature in constructList)
 				if (creature != null &&

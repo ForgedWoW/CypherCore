@@ -31,14 +31,14 @@ internal class boss_shadow_hunter_voshgajin : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							task =>
 							{
 								DoCastVictim(SpellIds.Curseofblood);
 								task.Repeat(TimeSpan.FromSeconds(45));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
@@ -49,7 +49,7 @@ internal class boss_shadow_hunter_voshgajin : BossAI
 								task.Repeat(TimeSpan.FromSeconds(15));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(14),
+		Scheduler.Schedule(TimeSpan.FromSeconds(14),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
@@ -67,6 +67,6 @@ internal class boss_shadow_hunter_voshgajin : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

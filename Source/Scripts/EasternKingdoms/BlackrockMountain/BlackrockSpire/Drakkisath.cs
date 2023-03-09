@@ -30,28 +30,28 @@ internal class boss_drakkisath : BossAI
 	{
 		base.JustEngagedWith(who);
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(6),
+		Scheduler.Schedule(TimeSpan.FromSeconds(6),
 							task =>
 							{
 								DoCastVictim(SpellIds.Firenova);
 								task.Repeat(TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								DoCastVictim(SpellIds.Cleave);
 								task.Repeat(TimeSpan.FromSeconds(8));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							task =>
 							{
 								DoCastVictim(SpellIds.Confliguration);
 								task.Repeat(TimeSpan.FromSeconds(18));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(17),
+		Scheduler.Schedule(TimeSpan.FromSeconds(17),
 							task =>
 							{
 								DoCastVictim(SpellIds.Thunderclap);
@@ -69,6 +69,6 @@ internal class boss_drakkisath : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -31,12 +31,12 @@ namespace Scripts.Pets
 			{
 				if (firstTick)
 				{
-					me.CastSpell(me, WarlockSpells.DEMONIC_GATEWAY_VISUAL, true);
+					Me.CastSpell(Me, WarlockSpells.DEMONIC_GATEWAY_VISUAL, true);
 
-					me.SetUnitFlag(UnitFlags.NonAttackable);
-					me.SetNpcFlag(NPCFlags.SpellClick);
-					me.ReactState = ReactStates.Passive;
-					me.SetControlled(true, UnitState.Root);
+					Me.SetUnitFlag(UnitFlags.NonAttackable);
+					Me.SetNpcFlag(NPCFlags.SpellClick);
+					Me.ReactState = ReactStates.Passive;
+					Me.SetControlled(true, UnitState.Root);
 
 					firstTick = false;
 				}
@@ -59,14 +59,14 @@ namespace Scripts.Pets
 
 			public void TeleportTarget(Unit target, bool allowAnywhere)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return;
 
 				// only if Target stepped through the portal
 				if (!allowAnywhere &&
-					me.GetDistance2d(target) > 1.0f)
+					Me.GetDistance2d(target) > 1.0f)
 					return;
 
 				// check if Target wasn't recently teleported
@@ -81,14 +81,14 @@ namespace Scripts.Pets
 				if (!target.CanFreeMove())
 					return;
 
-				var otherGateway = me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE : WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN;
-				var teleportSpell = me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.DEMONIC_GATEWAY_JUMP_GREEN : WarlockSpells.DEMONIC_GATEWAY_JUMP_PURPLE;
+				var otherGateway = Me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_PURPLE : WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN;
+				var teleportSpell = Me.Entry == WarlockSpells.NPC_WARLOCK_DEMONIC_GATEWAY_GREEN ? WarlockSpells.DEMONIC_GATEWAY_JUMP_GREEN : WarlockSpells.DEMONIC_GATEWAY_JUMP_PURPLE;
 
-				var gateways = me.GetCreatureListWithEntryInGrid(otherGateway, 100.0f);
+				var gateways = Me.GetCreatureListWithEntryInGrid(otherGateway, 100.0f);
 
 				foreach (var gateway in gateways)
 				{
-					if (gateway.OwnerGUID != me.OwnerGUID)
+					if (gateway.OwnerGUID != Me.OwnerGUID)
 						continue;
 
 					target.SetFacingToUnit(gateway);

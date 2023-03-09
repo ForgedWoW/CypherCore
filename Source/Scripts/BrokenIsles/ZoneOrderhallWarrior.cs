@@ -85,13 +85,13 @@ internal class npc_danica_the_reclaimer : ScriptedAI
 		if (!summoner.IsPlayer)
 			return;
 
-		me.RemoveNpcFlag(NPCFlags.Gossip);
+		Me.RemoveNpcFlag(NPCFlags.Gossip);
 		_summonerGuid = summoner.GUID;
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(2),
+		Scheduler.Schedule(TimeSpan.FromSeconds(2),
 							context =>
 							{
-								me.MotionMaster.MoveSmoothPath(0, DanicaPath01, DanicaPath01.Length, false, true);
+								Me.MotionMaster.MoveSmoothPath(0, DanicaPath01, DanicaPath01.Length, false, true);
 								Talk(1, summoner);
 							});
 	}
@@ -101,21 +101,21 @@ internal class npc_danica_the_reclaimer : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				_scheduler.Schedule(TimeSpan.FromSeconds(10),
+				Scheduler.Schedule(TimeSpan.FromSeconds(10),
 									context =>
 									{
 										var player = Global.ObjAccessor.FindConnectedPlayer(_summonerGuid);
-										me.MotionMaster.MoveSmoothPath(1, DanicaPath02, DanicaPath02.Length, false, true);
+										Me.MotionMaster.MoveSmoothPath(1, DanicaPath02, DanicaPath02.Length, false, true);
 										Talk(2, player);
 									});
 
 				break;
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(10),
+				Scheduler.Schedule(TimeSpan.FromSeconds(10),
 									context =>
 									{
 										var player = Global.ObjAccessor.FindConnectedPlayer(_summonerGuid);
-										me.MotionMaster.MoveSmoothPath(2, DanicaPath03, DanicaPath03.Length, false, true);
+										Me.MotionMaster.MoveSmoothPath(2, DanicaPath03, DanicaPath03.Length, false, true);
 										Talk(3, player);
 
 										if (player)
@@ -124,7 +124,7 @@ internal class npc_danica_the_reclaimer : ScriptedAI
 
 				break;
 			case 2:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -134,7 +134,7 @@ internal class npc_danica_the_reclaimer : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	// Should be some other way to do this...
@@ -164,12 +164,12 @@ internal class npc_feasting_valarjar : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(30),
 							context =>
 							{
@@ -177,28 +177,28 @@ internal class npc_feasting_valarjar : ScriptedAI
 
 								if (emoteID == Emote.OneshotEatNoSheathe)
 								{
-									me.SetVirtualItem(0, RandomHelper.URand(0, 1) == 1 ? ItemIds.MonsterItemMuttonWithBite : ItemIds.MonsterItemTankardWooden);
+									Me.SetVirtualItem(0, RandomHelper.URand(0, 1) == 1 ? ItemIds.MonsterItemMuttonWithBite : ItemIds.MonsterItemTankardWooden);
 
-									_scheduler.Schedule(TimeSpan.FromSeconds(1),
+									Scheduler.Schedule(TimeSpan.FromSeconds(1),
 														context =>
 														{
-															me.SetVirtualItem(0, 0);
+															Me.SetVirtualItem(0, 0);
 
 															if (RandomHelper.randChance(85))
 																DoCastSelf(SpellIds.EmoteBelch);
 														});
 								}
 
-								me.HandleEmoteCommand(emoteID);
+								Me.HandleEmoteCommand(emoteID);
 								context.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(5),
+		Scheduler.Schedule(TimeSpan.FromMinutes(5),
 							TimeSpan.FromMinutes(20),
 							context =>
 							{
-								var direction = me.Location.Orientation + MathF.PI;
-								me.MotionMaster.MovePoint(0, me.GetFirstCollisionPosition(5.0f, direction));
+								var direction = Me.Location.Orientation + MathF.PI;
+								Me.MotionMaster.MovePoint(0, Me.GetFirstCollisionPosition(5.0f, direction));
 							});
 	}
 
@@ -207,7 +207,7 @@ internal class npc_feasting_valarjar : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -238,12 +238,12 @@ internal class npc_incoming_valarjar_aspirant_1 : ScriptedAI
 
 	public override void Reset()
 	{
-		me.MotionMaster.MoveSmoothPath(0, IncommingValarjarAspirantPath01, IncommingValarjarAspirantPath01.Length, true);
+		Me.MotionMaster.MoveSmoothPath(0, IncommingValarjarAspirantPath01, IncommingValarjarAspirantPath01.Length, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -251,23 +251,23 @@ internal class npc_incoming_valarjar_aspirant_1 : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { Me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { me.MotionMaster.MoveSmoothPath(1, IncommingValarjarAspirantPath02, IncommingValarjarAspirantPath02.Length, true); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { Me.MotionMaster.MoveSmoothPath(1, IncommingValarjarAspirantPath02, IncommingValarjarAspirantPath02.Length, true); });
 
 				break;
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									TimeSpan.FromSeconds(3),
 									context =>
 									{
-										me.PlayOneShotAnimKitId(1431);
-										_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { me.MotionMaster.MoveSmoothPath(2, IncommingValarjarAspirantPath03, IncommingValarjarAspirantPath03.Length); });
+										Me.PlayOneShotAnimKitId(1431);
+										Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { Me.MotionMaster.MoveSmoothPath(2, IncommingValarjarAspirantPath03, IncommingValarjarAspirantPath03.Length); });
 									});
 
 				break;
 			case 2:
-				me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+				Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
 				break;
 			default:
@@ -298,12 +298,12 @@ internal class npc_incoming_valarjar_aspirant_2 : ScriptedAI
 
 	public override void Reset()
 	{
-		me.MotionMaster.MoveSmoothPath(0, IncommingValarjarAspirantPath01, IncommingValarjarAspirantPath01.Length, true);
+		Me.MotionMaster.MoveSmoothPath(0, IncommingValarjarAspirantPath01, IncommingValarjarAspirantPath01.Length, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -311,23 +311,23 @@ internal class npc_incoming_valarjar_aspirant_2 : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { Me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { me.MotionMaster.MoveSmoothPath(1, IncommingValarjarAspirantPath02, IncommingValarjarAspirantPath02.Length, true); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { Me.MotionMaster.MoveSmoothPath(1, IncommingValarjarAspirantPath02, IncommingValarjarAspirantPath02.Length, true); });
 
 				break;
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									TimeSpan.FromSeconds(3),
 									context =>
 									{
-										me.PlayOneShotAnimKitId(1431);
-										_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { me.MotionMaster.MoveSmoothPath(2, IncommingValarjarAspirantPath03, IncommingValarjarAspirantPath03.Length); });
+										Me.PlayOneShotAnimKitId(1431);
+										Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { Me.MotionMaster.MoveSmoothPath(2, IncommingValarjarAspirantPath03, IncommingValarjarAspirantPath03.Length); });
 									});
 
 				break;
 			case 2:
-				me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+				Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
 				break;
 			default:
@@ -358,12 +358,12 @@ internal class npc_leaving_valarjar_1 : ScriptedAI
 
 	public override void Reset()
 	{
-		me.MotionMaster.MoveSmoothPath(0, PathLeavingValarjar01, PathLeavingValarjar01.Length, true);
+		Me.MotionMaster.MoveSmoothPath(0, PathLeavingValarjar01, PathLeavingValarjar01.Length, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -371,23 +371,23 @@ internal class npc_leaving_valarjar_1 : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { Me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { me.MotionMaster.MoveSmoothPath(1, PathLeavingValarjar02, PathLeavingValarjar02.Length, true); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { Me.MotionMaster.MoveSmoothPath(1, PathLeavingValarjar02, PathLeavingValarjar02.Length, true); });
 
 				break;
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									TimeSpan.FromSeconds(3),
 									context =>
 									{
-										me.PlayOneShotAnimKitId(1431);
-										_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { me.MotionMaster.MoveSmoothPath(2, PathLeavingValarjar03, PathLeavingValarjar03.Length); });
+										Me.PlayOneShotAnimKitId(1431);
+										Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { Me.MotionMaster.MoveSmoothPath(2, PathLeavingValarjar03, PathLeavingValarjar03.Length); });
 									});
 
 				break;
 			case 2:
-				me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+				Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
 				break;
 			default:
@@ -418,12 +418,12 @@ internal class npc_leaving_valarjar_2 : ScriptedAI
 
 	public override void Reset()
 	{
-		me.MotionMaster.MoveSmoothPath(0, PathLeavingValarjar01, PathLeavingValarjar01.Length, true);
+		Me.MotionMaster.MoveSmoothPath(0, PathLeavingValarjar01, PathLeavingValarjar01.Length, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -431,23 +431,23 @@ internal class npc_leaving_valarjar_2 : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(6), context => { Me.HandleEmoteCommand(EmoteIds.PayingRespectToOdynRandomEmotes.SelectRandom()); });
 
-				_scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { me.MotionMaster.MoveSmoothPath(1, PathLeavingValarjar02, PathLeavingValarjar02.Length, true); });
+				Scheduler.Schedule(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(15), context => { Me.MotionMaster.MoveSmoothPath(1, PathLeavingValarjar02, PathLeavingValarjar02.Length, true); });
 
 				break;
 			case 1:
-				_scheduler.Schedule(TimeSpan.FromSeconds(1),
+				Scheduler.Schedule(TimeSpan.FromSeconds(1),
 									TimeSpan.FromSeconds(3),
 									context =>
 									{
-										me.PlayOneShotAnimKitId(1431);
-										_scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { me.MotionMaster.MoveSmoothPath(2, PathLeavingValarjar03, PathLeavingValarjar03.Length); });
+										Me.PlayOneShotAnimKitId(1431);
+										Scheduler.Schedule(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(10), context => { Me.MotionMaster.MoveSmoothPath(2, PathLeavingValarjar03, PathLeavingValarjar03.Length); });
 									});
 
 				break;
 			case 2:
-				me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
+				Me.DespawnOrUnsummon(TimeSpan.FromSeconds(2));
 
 				break;
 			default:
@@ -469,7 +469,7 @@ internal class npc_odyn : ScriptedAI
 
 		if (player)
 			if (player.GetQuestStatus(QuestIds.OdynAndTheValarjar) == QuestStatus.Incomplete)
-				if (player.Location.IsInDist(me.Location, 60.0f))
+				if (player.Location.IsInDist(Me.Location, 60.0f))
 				{
 					player.KilledMonsterCredit(CreatureIds.KillCreditArrivedAtOdyn); // SpellWarriorOrderFormationScene does not has this credit.
 					player.CastSpell(player, SpellIds.WarriorOrderFormationScene);
@@ -489,25 +489,25 @@ internal class npc_spectating_valarjar : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(5),
 							TimeSpan.FromSeconds(30),
 							context =>
 							{
-								me.HandleEmoteCommand(_randomEmotes.SelectRandom());
+								Me.HandleEmoteCommand(_randomEmotes.SelectRandom());
 								context.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(5),
+		Scheduler.Schedule(TimeSpan.FromMinutes(5),
 							TimeSpan.FromMinutes(20),
 							context =>
 							{
-								var direction = me.Location.Orientation + MathF.PI;
-								me.MotionMaster.MovePoint(0, me.GetFirstCollisionPosition(5.0f, direction));
+								var direction = Me.Location.Orientation + MathF.PI;
+								Me.MotionMaster.MovePoint(0, Me.GetFirstCollisionPosition(5.0f, direction));
 							});
 	}
 
@@ -516,7 +516,7 @@ internal class npc_spectating_valarjar : ScriptedAI
 		switch (id)
 		{
 			case 0:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -537,15 +537,15 @@ internal class npc_valkyr_of_odyn_1 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -553,7 +553,7 @@ internal class npc_valkyr_of_odyn_1 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -562,22 +562,22 @@ internal class npc_valkyr_of_odyn_1 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -598,15 +598,15 @@ internal class npc_valkyr_of_odyn_2 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -614,7 +614,7 @@ internal class npc_valkyr_of_odyn_2 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -623,22 +623,22 @@ internal class npc_valkyr_of_odyn_2 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -659,15 +659,15 @@ internal class npc_valkyr_of_odyn_3 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -675,7 +675,7 @@ internal class npc_valkyr_of_odyn_3 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -684,22 +684,22 @@ internal class npc_valkyr_of_odyn_3 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -720,15 +720,15 @@ internal class npc_valkyr_of_odyn_4 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -736,7 +736,7 @@ internal class npc_valkyr_of_odyn_4 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -745,22 +745,22 @@ internal class npc_valkyr_of_odyn_4 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -781,15 +781,15 @@ internal class npc_valkyr_of_odyn_5 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -797,7 +797,7 @@ internal class npc_valkyr_of_odyn_5 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -806,22 +806,22 @@ internal class npc_valkyr_of_odyn_5 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -842,15 +842,15 @@ internal class npc_valkyr_of_odyn_6 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -858,7 +858,7 @@ internal class npc_valkyr_of_odyn_6 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -867,22 +867,22 @@ internal class npc_valkyr_of_odyn_6 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -903,15 +903,15 @@ internal class npc_valkyr_of_odyn_7 : ScriptedAI
 
 	public override void Reset()
 	{
-		if (me.Location.Z >= 100.0f)
-			_scheduler.Schedule(TimeSpan.FromSeconds(3), context => { me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
+		if (Me.Location.Z >= 100.0f)
+			Scheduler.Schedule(TimeSpan.FromSeconds(3), context => { Me.MotionMaster.MoveSmoothPath(2, Path, Path.Length, false, true); });
 		else
-			me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
+			Me.MotionMaster.MoveSmoothPath(1, Path, Path.Length, false, true);
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -919,7 +919,7 @@ internal class npc_valkyr_of_odyn_7 : ScriptedAI
 		switch (id)
 		{
 			case 2:
-				_scheduler.Schedule(TimeSpan.FromMilliseconds(250),
+				Scheduler.Schedule(TimeSpan.FromMilliseconds(250),
 									context =>
 									{
 										/*
@@ -928,22 +928,22 @@ internal class npc_valkyr_of_odyn_7 : ScriptedAI
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-										me. /*
+										Me. /*
 										* (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
 										* (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
 										* 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
 										* Also the MoveTime is not correct but I don't know how to set it here.
 										*/
-											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, me.Location.Orientation), me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
+											MotionMaster.MoveJump(new Position(1107.84f, 7222.57f, 38.9725f, Me.Location.Orientation), Me.GetSpeed(UnitMoveType.Run), (float)(MotionMaster.gravity * 1.4125f), 3);
 									});
 
 				break;
 			case 1:
-				me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
+				Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(500));
 
 				break;
 			case 3:
-				me.DespawnOrUnsummon();
+				Me.DespawnOrUnsummon();
 
 				break;
 			default:
@@ -964,27 +964,27 @@ internal class npc_weapon_inspector_valarjar : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							TimeSpan.FromSeconds(20),
 							context =>
 							{
-								me.SetAIAnimKitId(0);
+								Me.SetAIAnimKitId(0);
 								var weapons = _randomWeapons.SelectRandom();
-								me.SetVirtualItem(0, weapons.Item1);
-								me.SetVirtualItem(1, weapons.Item2);
+								Me.SetVirtualItem(0, weapons.Item1);
+								Me.SetVirtualItem(1, weapons.Item2);
 
 								context.Schedule(TimeSpan.FromSeconds(8),
 												TimeSpan.FromSeconds(10),
 												context =>
 												{
-													me.SetVirtualItem(0, 0);
-													me.SetVirtualItem(1, 0);
-													context.Schedule(TimeSpan.FromSeconds(10), context => { me.SetAIAnimKitId(1583); });
+													Me.SetVirtualItem(0, 0);
+													Me.SetVirtualItem(1, 0);
+													context.Schedule(TimeSpan.FromSeconds(10), context => { Me.SetAIAnimKitId(1583); });
 												});
 
 								context.Repeat(TimeSpan.FromSeconds(30));

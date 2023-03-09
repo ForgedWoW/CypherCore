@@ -51,7 +51,7 @@ internal class boss_maiden_of_virtue : BossAI
 
 		DoCastSelf(SpellIds.Holyground, new CastSpellExtraArgs(true));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(33),
+		Scheduler.Schedule(TimeSpan.FromSeconds(33),
 							TimeSpan.FromSeconds(45),
 							task =>
 							{
@@ -60,7 +60,7 @@ internal class boss_maiden_of_virtue : BossAI
 								task.Repeat(TimeSpan.FromSeconds(35));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							task =>
 							{
 								var target = SelectTarget(SelectTargetMethod.Random, 0, 50, true);
@@ -71,7 +71,7 @@ internal class boss_maiden_of_virtue : BossAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(19));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(15),
+		Scheduler.Schedule(TimeSpan.FromSeconds(15),
 							TimeSpan.FromSeconds(25),
 							task =>
 							{
@@ -83,7 +83,7 @@ internal class boss_maiden_of_virtue : BossAI
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(25));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true)); });
+		Scheduler.Schedule(TimeSpan.FromMinutes(10), task => { DoCastSelf(SpellIds.Berserk, new CastSpellExtraArgs(true)); });
 	}
 
 	public override void UpdateAI(uint diff)
@@ -91,6 +91,6 @@ internal class boss_maiden_of_virtue : BossAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff, () => DoMeleeAttackIfReady());
+		Scheduler.Update(diff, () => DoMeleeAttackIfReady());
 	}
 }

@@ -26,7 +26,7 @@ public class at_hun_caltropsAI : AreaTriggerAI
 
 	public override void OnUpdate(uint p_Time)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -40,7 +40,7 @@ public class at_hun_caltropsAI : AreaTriggerAI
 		if (timeInterval < 1000)
 			return;
 
-		foreach (var guid in at.InsideUnits)
+		foreach (var guid in At.InsideUnits)
 		{
 			var unit = ObjectAccessor.Instance.GetUnit(caster, guid);
 

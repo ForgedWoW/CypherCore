@@ -57,7 +57,7 @@ public class npc_vanessa_nightmare : BossAI
 
 	public override void Reset()
 	{
-		me.Say(boss_vanessa_vancleef.VANESSA_GLUB_1, Language.Universal);
+		Me.Say(boss_vanessa_vancleef.VANESSA_GLUB_1, Language.Universal);
 		Nightmare = true;
 		ShiftToTwo = false;
 		ShiftToThree = false;
@@ -66,8 +66,8 @@ public class npc_vanessa_nightmare : BossAI
 		WorgenCount = 0;
 		Phase = 0;
 		NightmareTimer = 3500;
-		summons.DespawnAll();
-		me.SetSpeed(UnitMoveType.Run, 5.0f);
+		Summons.DespawnAll();
+		Me.SetSpeed(UnitMoveType.Run, 5.0f);
 	}
 
 	public void NightmarePass()
@@ -76,7 +76,7 @@ public class npc_vanessa_nightmare : BossAI
 
 		if (NightmareCount == 1)
 		{
-			summons.DespawnAll();
+			Summons.DespawnAll();
 			ShiftToTwo = true;
 			Phase = 4;
 			NightmareTimer = 3500;
@@ -84,7 +84,7 @@ public class npc_vanessa_nightmare : BossAI
 
 		if (NightmareCount == 2)
 		{
-			summons.DespawnAll();
+			Summons.DespawnAll();
 			ShiftToThree = true;
 			Phase = 9;
 			NightmareTimer = 3500;
@@ -92,7 +92,7 @@ public class npc_vanessa_nightmare : BossAI
 
 		if (NightmareCount == 3)
 		{
-			summons.DespawnAll();
+			Summons.DespawnAll();
 			ShiftToFour = true;
 			Phase = 13;
 			NightmareTimer = 3500;
@@ -115,12 +115,12 @@ public class npc_vanessa_nightmare : BossAI
 
 	public override void JustSummoned(Creature summoned)
 	{
-		summons.Summon(summoned);
+		Summons.Summon(summoned);
 	}
 
 	public override void SummonedCreatureDespawn(Creature summon)
 	{
-		summons.Despawn(summon);
+		Summons.Despawn(summon);
 	}
 
 	public void SummonAllFires()
@@ -139,7 +139,7 @@ public class npc_vanessa_nightmare : BossAI
 	{
 		for (byte i = 0; i < 7; ++i)
 		{
-			Creature sSp = me.SummonCreature(DMCreatures.NPC_SPARK, ElectricSpark[i], TempSummonType.ManualDespawn);
+			Creature sSp = Me.SummonCreature(DMCreatures.NPC_SPARK, ElectricSpark[i], TempSummonType.ManualDespawn);
 
 			if (sSp != null)
 				sSp.SetUnitFlag(UnitFlags.NonAttackable | UnitFlags.Pacified | UnitFlags.Uninteractible);
@@ -149,13 +149,13 @@ public class npc_vanessa_nightmare : BossAI
 	public void SummonWorgen_1()
 	{
 		for (byte i = 0; i < 3; ++i)
-			me.SummonCreature(DMCreatures.NPC_ENRAGED_WORGEN, EnragedWorgen_1[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+			Me.SummonCreature(DMCreatures.NPC_ENRAGED_WORGEN, EnragedWorgen_1[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public void SummonWorgen_2()
 	{
 		for (byte i = 0; i < 3; ++i)
-			me.SummonCreature(DMCreatures.NPC_ENRAGED_WORGEN, EnragedWorgen_2[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
+			Me.SummonCreature(DMCreatures.NPC_ENRAGED_WORGEN, EnragedWorgen_2[i], TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(10000));
 	}
 
 	public override void UpdateAI(uint diff)
@@ -167,14 +167,14 @@ public class npc_vanessa_nightmare : BossAI
 				{
 					case 0:
 						SummonAllFires();
-						me.Say(boss_vanessa_vancleef.VANESSA_GLUB_2, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_GLUB_2, Language.Universal);
 						NightmareTimer = 3000;
 						Phase++;
 
 						break;
 					case 1:
 					{
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_3, null, true);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_3, null, true);
 						NightmareTimer = 4000;
 						Phase++;
 					}
@@ -182,7 +182,7 @@ public class npc_vanessa_nightmare : BossAI
 						break;
 					case 2:
 					{
-						var Glubtok = me.FindNearestCreature(DMCreatures.NPC_GLUBTOK_NIGHTMARE, 200.0f, true);
+						var Glubtok = Me.FindNearestCreature(DMCreatures.NPC_GLUBTOK_NIGHTMARE, 200.0f, true);
 
 						if (Glubtok != null)
 						{
@@ -190,7 +190,7 @@ public class npc_vanessa_nightmare : BossAI
 							Glubtok.MotionMaster.MoveCharge(-174.85f, -579.76f, 19.31f, 10.0f);
 						}
 
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_4, null, true);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_4, null, true);
 						NightmareTimer = 2000;
 						Phase++;
 					}
@@ -198,8 +198,8 @@ public class npc_vanessa_nightmare : BossAI
 						break;
 					case 3:
 						Nightmare = false;
-						me.SetVisible(false);
-						me.MotionMaster.MovePoint(0, -178.85f, -585.76f, 19.31f);
+						Me.SetVisible(false);
+						Me.MotionMaster.MovePoint(0, -178.85f, -585.76f, 19.31f);
 
 						break;
 				}
@@ -213,35 +213,35 @@ public class npc_vanessa_nightmare : BossAI
 				switch (Phase)
 				{
 					case 4:
-						me.SetVisible(true);
-						me.Say(boss_vanessa_vancleef.VANESSA_HELIX_1, Language.Universal);
-						me.SummonCreature(DMCreatures.NPC_HELIX_NIGHTMARE, -174.85f, -579.76f, 19.31f, 3.14f, TempSummonType.ManualDespawn);
+						Me.SetVisible(true);
+						Me.Say(boss_vanessa_vancleef.VANESSA_HELIX_1, Language.Universal);
+						Me.SummonCreature(DMCreatures.NPC_HELIX_NIGHTMARE, -174.85f, -579.76f, 19.31f, 3.14f, TempSummonType.ManualDespawn);
 						NightmareTimer = 3000;
 						Phase++;
 
 						break;
 					case 5:
-						me.Say(boss_vanessa_vancleef.VANESSA_HELIX_2, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_HELIX_2, Language.Universal);
 						NightmareTimer = 10000;
 						Phase++;
 
 						break;
 					case 6:
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_5, null, true);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_5, null, true);
 						NightmareTimer = 1000;
 						Phase++;
 
 						break;
 					case 7:
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_7, null, true);
-						me.SetVisible(false);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_7, null, true);
+						Me.SetVisible(false);
 						NightmareTimer = 2000;
 						Phase++;
 
 						break;
 					case 8:
 						ShiftToTwo = false;
-						me.MotionMaster.MovePoint(1, -150.96f, -579.99f, 19.31f);
+						Me.MotionMaster.MovePoint(1, -150.96f, -579.99f, 19.31f);
 
 						break;
 					default:
@@ -259,31 +259,31 @@ public class npc_vanessa_nightmare : BossAI
 					case 9:
 					{
 						SummonSparks();
-						me.SetVisible(true);
-						instance.SetData(DMData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.Done);
-						me.Say(boss_vanessa_vancleef.VANESSA_MECHANICAL_1, Language.Universal);
-						me.SummonCreature(DMCreatures.NPC_MECHANICAL_NIGHTMARE, -101.4549f, -663.6493f, 7.505813f, 1.85f, TempSummonType.ManualDespawn);
+						Me.SetVisible(true);
+						Instance.SetData(DMData.DATA_NIGHTMARE_HELIX, (uint)EncounterState.Done);
+						Me.Say(boss_vanessa_vancleef.VANESSA_MECHANICAL_1, Language.Universal);
+						Me.SummonCreature(DMCreatures.NPC_MECHANICAL_NIGHTMARE, -101.4549f, -663.6493f, 7.505813f, 1.85f, TempSummonType.ManualDespawn);
 						NightmareTimer = 4000;
 						Phase++;
 					}
 
 						break;
 					case 10:
-						me.Say(boss_vanessa_vancleef.VANESSA_MECHANICAL_2, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_MECHANICAL_2, Language.Universal);
 						NightmareTimer = 3000;
 						Phase++;
 
 						break;
 					case 11:
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_8, null, true);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_8, null, true);
 						NightmareTimer = 3000;
 						Phase++;
 
 						break;
 					case 12:
 						ShiftToThree = false;
-						me.SetVisible(false);
-						me.MotionMaster.MovePoint(2, -96.46f, -660.42f, 7.41f);
+						Me.SetVisible(false);
+						Me.MotionMaster.MovePoint(2, -96.46f, -660.42f, 7.41f);
 
 						break;
 				}
@@ -297,21 +297,21 @@ public class npc_vanessa_nightmare : BossAI
 				switch (Phase)
 				{
 					case 13:
-						me.SetVisible(true);
-						me.Say(boss_vanessa_vancleef.VANESSA_RIPSNARL_1, Language.Universal);
+						Me.SetVisible(true);
+						Me.Say(boss_vanessa_vancleef.VANESSA_RIPSNARL_1, Language.Universal);
 						NightmareTimer = 4000;
 						Phase++;
 
 						break;
 					case 14:
-						me.Say(boss_vanessa_vancleef.VANESSA_RIPSNARL_2, Language.Universal);
+						Me.Say(boss_vanessa_vancleef.VANESSA_RIPSNARL_2, Language.Universal);
 						NightmareTimer = 6000;
 						Phase++;
 
 						break;
 					case 15:
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_9, null, true);
-						instance.SetData(DMData.DATA_NIGHTMARE_MECHANICAL, (uint)EncounterState.Done);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_9, null, true);
+						Instance.SetData(DMData.DATA_NIGHTMARE_MECHANICAL, (uint)EncounterState.Done);
 						NightmareTimer = 2000;
 						Phase++;
 
@@ -320,19 +320,19 @@ public class npc_vanessa_nightmare : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
 
-						me.SummonCreature(DMCreatures.NPC_EMME_HARRINGTON, FamilySpawn[0], TempSummonType.ManualDespawn);
-						me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_10, null, true);
+						Me.SummonCreature(DMCreatures.NPC_EMME_HARRINGTON, FamilySpawn[0], TempSummonType.ManualDespawn);
+						Me.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_10, null, true);
 						SummonWorgen_1();
 
-						me.SetVisible(false);
-						me.MotionMaster.MovePoint(3, -103.72f, -724.06f, 8.47f);
+						Me.SetVisible(false);
+						Me.MotionMaster.MovePoint(3, -103.72f, -724.06f, 8.47f);
 						Phase++;
 						NightmareTimer = 1000;
 					}
@@ -344,20 +344,20 @@ public class npc_vanessa_nightmare : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
 						{
 							item.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_11, null, true);
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
 						}
 
-						me.SummonCreature(DMCreatures.NPC_ERIK_HARRINGTON, FamilySpawn[1], TempSummonType.ManualDespawn);
+						Me.SummonCreature(DMCreatures.NPC_ERIK_HARRINGTON, FamilySpawn[1], TempSummonType.ManualDespawn);
 						SummonWorgen_2();
 
-						me.MotionMaster.MovePoint(4, 2.56f, -776.13f, 9.52f);
+						Me.MotionMaster.MovePoint(4, 2.56f, -776.13f, 9.52f);
 						Phase++;
 						NightmareTimer = 3000;
 					}
@@ -369,18 +369,18 @@ public class npc_vanessa_nightmare : BossAI
 					{
 						var players = new List<Unit>();
 
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
 						{
-							me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
+							Me.CastSpell(item, boss_vanessa_vancleef.Spells.SPRINT, true);
 							item.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_12, null, true);
 						}
 
-						me.MotionMaster.MovePoint(5, -83.16319f, -774.9636f, 26.90351f);
-						me.SummonCreature(DMCreatures.NPC_JAMES_HARRINGTON, FamilySpawn[3], TempSummonType.ManualDespawn);
+						Me.MotionMaster.MovePoint(5, -83.16319f, -774.9636f, 26.90351f);
+						Me.SummonCreature(DMCreatures.NPC_JAMES_HARRINGTON, FamilySpawn[3], TempSummonType.ManualDespawn);
 						NightmareTimer = 5000;
 						Phase++;
 					}
@@ -396,9 +396,9 @@ public class npc_vanessa_nightmare : BossAI
 					case 23:
 					{
 						var players = new List<Unit>();
-						var checker = new AnyPlayerInObjectRangeCheck(me, 150.0f);
-						var searcher = new PlayerListSearcher(me, players, checker);
-						Cell.VisitGrid(me, searcher, 150f);
+						var checker = new AnyPlayerInObjectRangeCheck(Me, 150.0f);
+						var searcher = new PlayerListSearcher(Me, players, checker);
+						Cell.VisitGrid(Me, searcher, 150f);
 
 						foreach (var item in players)
 						{
@@ -407,8 +407,8 @@ public class npc_vanessa_nightmare : BossAI
 							item.TextEmote(boss_vanessa_vancleef.VANESSA_NIGHTMARE_13, null, true);
 						}
 
-						me.SummonCreature(DMCreatures.NPC_VANESSA_BOSS, -79.44965f, -819.8351f, 39.89838f, 0.01745329f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(120000));
-						var note = me.FindNearestCreature(DMCreatures.NPC_VANESSA_NOTE, 300.0f);
+						Me.SummonCreature(DMCreatures.NPC_VANESSA_BOSS, -79.44965f, -819.8351f, 39.89838f, 0.01745329f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromMilliseconds(120000));
+						var note = Me.FindNearestCreature(DMCreatures.NPC_VANESSA_NOTE, 300.0f);
 
 						if (note != null)
 							note.DespawnOrUnsummon(TimeSpan.FromMilliseconds(3000));

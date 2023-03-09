@@ -19,19 +19,19 @@ public class npc_mirror_imageAI : CasterAI
 		if (owner == null || !owner.IsPlayer)
 			return;
 
-		if (!me.HasUnitState(UnitState.Follow))
+		if (!Me.HasUnitState(UnitState.Follow))
 		{
-			me.MotionMaster.Clear();
-			me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
+			Me.MotionMaster.Clear();
+			Me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, Me.FollowAngle, MovementSlot.Active);
 		}
 
 		// me->SetMaxPower(me->GetPowerType(), owner->GetMaxPower(me->GetPowerType()));
-		me.SetFullPower(me.DisplayPowerType);
-		me.SetMaxHealth(owner.AsUnit.MaxHealth);
-		me.SetHealth(owner.AsUnit.Health);
-		me.ReactState = ReactStates.Defensive;
+		Me.SetFullPower(Me.DisplayPowerType);
+		Me.SetMaxHealth(owner.AsUnit.MaxHealth);
+		Me.SetHealth(owner.AsUnit.Health);
+		Me.ReactState = ReactStates.Defensive;
 
-		me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);
+		Me.CastSpell(owner, eSpells.INHERIT_MASTER_THREAT, true);
 
 		// here mirror image casts on summoner spell (not present in client dbc) 49866
 		// here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
@@ -39,16 +39,16 @@ public class npc_mirror_imageAI : CasterAI
 		for (uint attackType = 0; attackType < (int)WeaponAttackType.Max; ++attackType)
 		{
 			var attackTypeEnum = (WeaponAttackType)attackType;
-			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MaxDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MaxDamage));
-			me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MinDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MinDamage));
+			Me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MaxDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MaxDamage));
+			Me.SetBaseWeaponDamage(attackTypeEnum, WeaponDamageRange.MinDamage, owner.AsUnit.GetWeaponDamageRange(attackTypeEnum, WeaponDamageRange.MinDamage));
 		}
 
-		me.UpdateAttackPowerAndDamage();
+		Me.UpdateAttackPowerAndDamage();
 	}
 
 	public override void JustEngagedWith(Unit who)
 	{
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (owner == null)
 			return;
@@ -74,36 +74,36 @@ public class npc_mirror_imageAI : CasterAI
 				break;
 		}
 
-		_events.ScheduleEvent(spellId, TimeSpan.Zero); ///< Schedule cast
+		Events.ScheduleEvent(spellId, TimeSpan.Zero); ///< Schedule cast
 
-		me. ///< Schedule cast
+		Me. ///< Schedule cast
 			MotionMaster.Clear();
 	}
 
 	public override void EnterEvadeMode(EvadeReason UnnamedParameter)
 	{
-		if (me.IsInEvadeMode || !me.IsAlive)
+		if (Me.IsInEvadeMode || !Me.IsAlive)
 			return;
 
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
-		me.CombatStop(true);
+		Me.CombatStop(true);
 
-		if (owner != null && !me.HasUnitState(UnitState.Follow))
+		if (owner != null && !Me.HasUnitState(UnitState.Follow))
 		{
-			me.MotionMaster.Clear();
-			me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, me.FollowAngle, MovementSlot.Active);
+			Me.MotionMaster.Clear();
+			Me.MotionMaster.MoveFollow(owner.AsUnit, SharedConst.PetFollowDist, Me.FollowAngle, MovementSlot.Active);
 		}
 	}
 
 	public override void Reset()
 	{
-		var owner = me.OwnerUnit;
+		var owner = Me.OwnerUnit;
 
 		if (owner != null)
 		{
-			owner.CastSpell(me, eSpells.INITIALIZE_IMAGES, true);
-			owner.CastSpell(me, eSpells.CLONE_CASTER, true);
+			owner.CastSpell(Me, eSpells.INITIALIZE_IMAGES, true);
+			owner.CastSpell(Me, eSpells.CLONE_CASTER, true);
 		}
 	}
 
@@ -116,57 +116,57 @@ public class npc_mirror_imageAI : CasterAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_events.Update(diff);
+		Events.Update(diff);
 
-		var l_Victim = me.Victim;
+		var l_Victim = Me.Victim;
 
 		if (l_Victim != null)
 		{
 			if (CanAIAttack(l_Victim))
 			{
 				/// If not already casting, cast! ("I'm a cast machine")
-				if (!me.HasUnitState(UnitState.Casting))
+				if (!Me.HasUnitState(UnitState.Casting))
 				{
-					var spellId = _events.ExecuteEvent();
+					var spellId = Events.ExecuteEvent();
 
-					if (_events.ExecuteEvent() != 0)
+					if (Events.ExecuteEvent() != 0)
 					{
 						DoCast(spellId);
-						var castTime = me.GetCurrentSpellCastTime(spellId);
-						_events.ScheduleEvent(spellId, TimeSpan.FromSeconds(5), Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None).ProcCooldown);
+						var castTime = Me.GetCurrentSpellCastTime(spellId);
+						Events.ScheduleEvent(spellId, TimeSpan.FromSeconds(5), Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None).ProcCooldown);
 					}
 				}
 			}
 			else
 			{
 				/// My victim has changed state, I shouldn't attack it anymore
-				if (me.HasUnitState(UnitState.Casting))
-					me.CastStop();
+				if (Me.HasUnitState(UnitState.Casting))
+					Me.CastStop();
 
-				me.AI.EnterEvadeMode();
+				Me.AI.EnterEvadeMode();
 			}
 		}
 		else
 		{
 			/// Let's choose a new target
-			var target = me.SelectVictim();
+			var target = Me.SelectVictim();
 
 			if (target == null)
 			{
 				/// No target? Let's see if our owner has a better target for us
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner != null)
 				{
 					var ownerVictim = owner.Victim;
 
-					if (ownerVictim != null && me.CanCreatureAttack(ownerVictim))
+					if (ownerVictim != null && Me.CanCreatureAttack(ownerVictim))
 						target = ownerVictim;
 				}
 			}
 
 			if (target != null)
-				me.AI.AttackStart(target);
+				Me.AI.AttackStart(target);
 		}
 	}
 

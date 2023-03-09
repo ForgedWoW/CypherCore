@@ -92,35 +92,35 @@ internal class emerald_dragonAI : WorldBossAI
 	public override void Reset()
 	{
 		base.Reset();
-		me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-		me.ReactState = ReactStates.Aggressive;
-		DoCast(me, SpellIds.MarkOfNatureAura, new CastSpellExtraArgs(true));
+		Me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
+		Me.ReactState = ReactStates.Aggressive;
+		DoCast(Me, SpellIds.MarkOfNatureAura, new CastSpellExtraArgs(true));
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(4),
+		Scheduler.Schedule(TimeSpan.FromSeconds(4),
 							task =>
 							{
 								// Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
-								DoCast(me, SpellIds.TailSweep);
+								DoCast(Me, SpellIds.TailSweep);
 								task.Repeat(TimeSpan.FromSeconds(2));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(7.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(7.5),
 							TimeSpan.FromSeconds(15),
 							task =>
 							{
 								// Noxious Breath is cast on random intervals, no less than 7.5 seconds between
-								DoCast(me, SpellIds.NoxiousBreath);
+								DoCast(Me, SpellIds.NoxiousBreath);
 								task.Repeat();
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12.5),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12.5),
 							TimeSpan.FromSeconds(20),
 							task =>
 							{
 								// Seeping Fog appears only as "pairs", and only ONE pair at any given Time!
 								// Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random Time" (30 seconds at max)
-								DoCast(me, SpellIds.SeepingFogLeft, new CastSpellExtraArgs(true));
-								DoCast(me, SpellIds.SeepingFogRight, new CastSpellExtraArgs(true));
+								DoCast(Me, SpellIds.SeepingFogLeft, new CastSpellExtraArgs(true));
+								DoCast(Me, SpellIds.SeepingFogRight, new CastSpellExtraArgs(true));
 								task.Repeat(TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(2.5));
 							});
 	}
@@ -137,10 +137,10 @@ internal class emerald_dragonAI : WorldBossAI
 		if (!UpdateVictim())
 			return;
 
-		if (me.HasUnitState(UnitState.Casting))
+		if (Me.HasUnitState(UnitState.Casting))
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		var target = SelectTarget(SelectTargetMethod.MaxThreat, 0, -50.0f, true);
 
@@ -179,19 +179,19 @@ internal class npc_dream_fog : ScriptedAI
 			if (target)
 			{
 				_roamTimer = RandomHelper.URand(15000, 30000);
-				me.MotionMaster.Clear();
-				me.MotionMaster.MoveChase(target, 0.2f);
+				Me.MotionMaster.Clear();
+				Me.MotionMaster.MoveChase(target, 0.2f);
 			}
 			else
 			{
 				_roamTimer = 2500;
-				me.MotionMaster.Clear();
-				me.MotionMaster.MoveRandom(25.0f);
+				Me.MotionMaster.Clear();
+				Me.MotionMaster.MoveRandom(25.0f);
 			}
 
 			// Seeping fog movement is slow enough for a player to be able to walk backwards and still outpace it
-			me.SetWalk(true);
-			me.SetSpeedRate(UnitMoveType.Walk, 0.75f);
+			Me.SetWalk(true);
+			Me.SetSpeedRate(UnitMoveType.Walk, 0.75f);
 		}
 		else
 		{
@@ -220,7 +220,7 @@ internal class boss_ysondre : emerald_dragonAI
 		Initialize();
 		base.Reset();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.LightningWave);
@@ -242,7 +242,7 @@ internal class boss_ysondre : emerald_dragonAI
 			Talk(TextIds.SayYsondreSummonDruids);
 
 			for (byte i = 0; i < 10; ++i)
-				DoCast(me, SpellIds.SummonDruidSpirits, new CastSpellExtraArgs(true));
+				DoCast(Me, SpellIds.SummonDruidSpirits, new CastSpellExtraArgs(true));
 
 			++_stage;
 		}
@@ -269,10 +269,10 @@ internal class boss_lethon : emerald_dragonAI
 		Initialize();
 		base.Reset();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(10),
+		Scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								me.CastSpell((Unit)null, SpellIds.ShadowBoltWhirl, false);
+								Me.CastSpell((Unit)null, SpellIds.ShadowBoltWhirl, false);
 								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
 							});
 	}
@@ -288,7 +288,7 @@ internal class boss_lethon : emerald_dragonAI
 		if (!HealthAbovePct(100 - 25 * _stage))
 		{
 			Talk(TextIds.SayLethonDrawSpirit);
-			DoCast(me, SpellIds.DrawSpirit);
+			DoCast(Me, SpellIds.DrawSpirit);
 			++_stage;
 		}
 	}
@@ -299,7 +299,7 @@ internal class boss_lethon : emerald_dragonAI
 			target.IsPlayer)
 		{
 			Position targetPos = target.Location;
-			me.SummonCreature(CreatureIds.SpiritShade, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
+			Me.SummonCreature(CreatureIds.SpiritShade, targetPos, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(50));
 		}
 	}
 
@@ -324,7 +324,7 @@ internal class npc_spirit_shade : PassiveAI
 			return;
 
 		_summonerGuid = summoner.GUID;
-		me.MotionMaster.MoveFollow(unitSummoner, 0.0f, 0.0f);
+		Me.MotionMaster.MoveFollow(unitSummoner, 0.0f, 0.0f);
 	}
 
 	public override void MovementInform(MovementGeneratorType moveType, uint data)
@@ -332,8 +332,8 @@ internal class npc_spirit_shade : PassiveAI
 		if (moveType == MovementGeneratorType.Follow &&
 			data == _summonerGuid.Counter)
 		{
-			me.CastSpell((Unit)null, SpellIds.DarkOffering, false);
-			me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
+			Me.CastSpell((Unit)null, SpellIds.DarkOffering, false);
+			Me.DespawnOrUnsummon(TimeSpan.FromSeconds(1));
 		}
 	}
 }
@@ -353,7 +353,7 @@ internal class boss_emeriss : emerald_dragonAI
 		Initialize();
 		base.Reset();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCastVictim(SpellIds.VolatileInfection);
@@ -380,7 +380,7 @@ internal class boss_emeriss : emerald_dragonAI
 		if (!HealthAbovePct(100 - 25 * _stage))
 		{
 			Talk(TextIds.SayEmerissCastCorruption);
-			DoCast(me, SpellIds.CorruptionOfEarth, new CastSpellExtraArgs(true));
+			DoCast(Me, SpellIds.CorruptionOfEarth, new CastSpellExtraArgs(true));
 			++_stage;
 		}
 	}
@@ -406,19 +406,19 @@ internal class boss_taerar : emerald_dragonAI
 
 	public override void Reset()
 	{
-		me.RemoveAura(SpellIds.Shade);
+		Me.RemoveAura(SpellIds.Shade);
 
 		Initialize();
 		base.Reset();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(12),
+		Scheduler.Schedule(TimeSpan.FromSeconds(12),
 							task =>
 							{
 								DoCast(SpellIds.ArcaneBlast);
 								task.Repeat(TimeSpan.FromSeconds(7), TimeSpan.FromSeconds(12));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(30),
+		Scheduler.Schedule(TimeSpan.FromSeconds(30),
 							task =>
 							{
 								DoCast(SpellIds.BellowingRoar);
@@ -447,7 +447,7 @@ internal class boss_taerar : emerald_dragonAI
 			_banished = true;
 			_banishedTimer = 60000;
 
-			me.InterruptNonMeleeSpells(false);
+			Me.InterruptNonMeleeSpells(false);
 			DoStopAttack();
 
 			Talk(TextIds.SayTaerarSummonShades);
@@ -458,8 +458,8 @@ internal class boss_taerar : emerald_dragonAI
 			_shades += (byte)SpellIds.TaerarShadeSpells.Length;
 
 			DoCast(SpellIds.Shade);
-			me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-			me.ReactState = ReactStates.Passive;
+			Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
+			Me.ReactState = ReactStates.Passive;
 
 			++_stage;
 		}
@@ -467,7 +467,7 @@ internal class boss_taerar : emerald_dragonAI
 
 	public override void UpdateAI(uint diff)
 	{
-		if (!me.IsInCombat)
+		if (!Me.IsInCombat)
 			return;
 
 		if (_banished)
@@ -478,9 +478,9 @@ internal class boss_taerar : emerald_dragonAI
 			{
 				_banished = false;
 
-				me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-				me.RemoveAura(SpellIds.Shade);
-				me.ReactState = ReactStates.Aggressive;
+				Me.RemoveUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
+				Me.RemoveAura(SpellIds.Shade);
+				Me.ReactState = ReactStates.Aggressive;
 			}
 			// _banishtimer has not expired, and we still have active shades:
 			else
@@ -488,8 +488,8 @@ internal class boss_taerar : emerald_dragonAI
 				_banishedTimer -= diff;
 			}
 
-			// Update the _scheduler before we return (handled under emerald_dragonAI.UpdateAI(diff); if we're not inside this check)
-			_scheduler.Update(diff);
+			// Update the Scheduler before we return (handled under emerald_dragonAI.UpdateAI(diff); if we're not inside this check)
+			Scheduler.Update(diff);
 
 			return;
 		}

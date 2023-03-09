@@ -27,7 +27,7 @@ public class npc_vapor : ScriptedAI
 
 	public override void Reset()
 	{
-		_events.Reset();
+		Events.Reset();
 		_form_1 = false;
 		_form_2 = false;
 		_form_3 = false;
@@ -35,16 +35,16 @@ public class npc_vapor : ScriptedAI
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
 		if (IsHeroic())
-			me.AddAura(eSpells.CONDENSATION, me);
+			Me.AddAura(eSpells.CONDENSATION, Me);
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		var Ripsnarl = me.FindNearestCreature(DMCreatures.NPC_ADMIRAL_RIPSNARL, 250, true);
+		var Ripsnarl = Me.FindNearestCreature(DMCreatures.NPC_ADMIRAL_RIPSNARL, 250, true);
 
 		if (Ripsnarl != null)
 		{
@@ -60,46 +60,46 @@ public class npc_vapor : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_events.Update(diff);
+		Events.Update(diff);
 
-		if (me.HasAura(eSpells.CONDENSE) && !_form_1)
+		if (Me.HasAura(eSpells.CONDENSE) && !_form_1)
 		{
-			_events.ScheduleEvent(VaporEvents.EVENT_CONDENSING_VAPOR, TimeSpan.FromMilliseconds(2000));
+			Events.ScheduleEvent(VaporEvents.EVENT_CONDENSING_VAPOR, TimeSpan.FromMilliseconds(2000));
 			_form_1 = true;
 		}
-		else if (me.HasAura(eSpells.CONDENSE_2) && !_form_2)
+		else if (Me.HasAura(eSpells.CONDENSE_2) && !_form_2)
 		{
-			me.SetDisplayId(25654);
-			_events.CancelEvent(VaporEvents.EVENT_CONDENSING_VAPOR);
-			_events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(2000));
+			Me.SetDisplayId(25654);
+			Events.CancelEvent(VaporEvents.EVENT_CONDENSING_VAPOR);
+			Events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(2000));
 			_form_2 = true;
 		}
-		else if (me.HasAura(eSpells.CONDENSE_3) && !_form_3)
+		else if (Me.HasAura(eSpells.CONDENSE_3) && !_form_3)
 		{
-			me.SetDisplayId(36455);
-			_events.CancelEvent(VaporEvents.EVENT_SWIRLING_VAPOR);
-			_events.ScheduleEvent(VaporEvents.EVENT_FREEZING_VAPOR, TimeSpan.FromMilliseconds(2000));
+			Me.SetDisplayId(36455);
+			Events.CancelEvent(VaporEvents.EVENT_SWIRLING_VAPOR);
+			Events.ScheduleEvent(VaporEvents.EVENT_FREEZING_VAPOR, TimeSpan.FromMilliseconds(2000));
 			_form_3 = true;
 		}
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case VaporEvents.EVENT_CONDENSING_VAPOR:
 					DoCastVictim(eSpells.CONDENSING_VAPOR);
-					_events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(3500));
+					Events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(3500));
 
 					break;
 				case VaporEvents.EVENT_SWIRLING_VAPOR:
 					DoCastVictim(eSpells.SWIRLING_VAPOR);
-					_events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(3500));
+					Events.ScheduleEvent(VaporEvents.EVENT_SWIRLING_VAPOR, TimeSpan.FromMilliseconds(3500));
 
 					break;
 				case VaporEvents.EVENT_FREEZING_VAPOR:
 					DoCastVictim(eSpells.FREEZING_VAPOR);
-					_events.ScheduleEvent(VaporEvents.EVENT_COALESCE, TimeSpan.FromMilliseconds(5000));
+					Events.ScheduleEvent(VaporEvents.EVENT_COALESCE, TimeSpan.FromMilliseconds(5000));
 
 					break;
 				case VaporEvents.EVENT_COALESCE:

@@ -16,12 +16,12 @@ public class at_dh_darkness : AreaTriggerAI
 
 	public override void OnInitialize()
 	{
-		at.SetDuration(8000);
+		At.SetDuration(8000);
 	}
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -40,7 +40,7 @@ public class at_dh_darkness : AreaTriggerAI
 
 	public override void OnUnitExit(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;

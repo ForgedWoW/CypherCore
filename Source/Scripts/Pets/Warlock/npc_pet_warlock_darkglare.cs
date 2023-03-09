@@ -18,7 +18,7 @@ namespace Scripts.Pets
 		{
 			public npc_pet_warlock_darkglare(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				creature.SetLevel(owner.Level);
@@ -40,17 +40,17 @@ namespace Scripts.Pets
 
 			public override void UpdateAI(uint UnnamedParameter)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return;
 
-				var target = me.GetAttackerForHelper();
+				var target = Me.GetAttackerForHelper();
 
 				if (target != null)
 				{
 					target.RemoveAura(WarlockSpells.DOOM, owner.GUID);
-					me.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GUID));
+					Me.CastSpell(target, WarlockSpells.EYE_LASER, new CastSpellExtraArgs(TriggerCastFlags.None).SetOriginalCaster(owner.GUID));
 				}
 			}
 		}

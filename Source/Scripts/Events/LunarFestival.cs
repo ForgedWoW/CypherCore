@@ -116,7 +116,7 @@ internal class npc_firework : ScriptedAI
 		if (launcher)
 		{
 			launcher.SendCustomAnim(MiscConst.AnimGoLaunchFirework);
-			me.Location.Orientation = launcher.Location.Orientation + MathF.PI / 2;
+			Me.Location.Orientation = launcher.Location.Orientation + MathF.PI / 2;
 		}
 		else
 		{
@@ -126,45 +126,45 @@ internal class npc_firework : ScriptedAI
 		if (isCluster())
 		{
 			// Check if we are near Elune'ara lake south, if so try to summon Omen or a minion
-			if (me.Zone == MiscConst.ZoneMoonglade)
-				if (!me.FindNearestCreature(CreatureIds.Omen, 100.0f) &&
-					me.GetDistance2d(MiscConst.OmenSummonPos.X, MiscConst.OmenSummonPos.Y) <= 100.0f)
+			if (Me.Zone == MiscConst.ZoneMoonglade)
+				if (!Me.FindNearestCreature(CreatureIds.Omen, 100.0f) &&
+					Me.GetDistance2d(MiscConst.OmenSummonPos.X, MiscConst.OmenSummonPos.Y) <= 100.0f)
 					switch (RandomHelper.URand(0, 9))
 					{
 						case 0:
 						case 1:
 						case 2:
 						case 3:
-							Creature minion = me.SummonCreature(CreatureIds.MinionOfOmen, me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
+							Creature minion = Me.SummonCreature(CreatureIds.MinionOfOmen, Me.Location.X + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Y + RandomHelper.FRand(-5.0f, 5.0f), Me.Location.Z, 0.0f, TempSummonType.CorpseTimedDespawn, TimeSpan.FromSeconds(20));
 
 							if (minion)
-								minion.AI.AttackStart(me.SelectNearestPlayer(20.0f));
+								minion.AI.AttackStart(Me.SelectNearestPlayer(20.0f));
 
 							break;
 						case 9:
-							me.SummonCreature(CreatureIds.Omen, MiscConst.OmenSummonPos);
+							Me.SummonCreature(CreatureIds.Omen, MiscConst.OmenSummonPos);
 
 							break;
 					}
 
-			if (me.Entry == CreatureIds.ClusterElune)
+			if (Me.Entry == CreatureIds.ClusterElune)
 				DoCast(SpellIds.LunarFortune);
 
 			var displacement = 0.7f;
 
 			for (byte i = 0; i < 4; i++)
-				me.SummonGameObject(GetFireworkGameObjectId(), me.Location.X + (i % 2 == 0 ? displacement : -displacement), me.Location.Y + (i > 1 ? displacement : -displacement), me.Location.Z + 4.0f, me.Location.Orientation, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(me.Location.Orientation, 0.0f, 0.0f)), TimeSpan.FromSeconds(1));
+				Me.SummonGameObject(GetFireworkGameObjectId(), Me.Location.X + (i % 2 == 0 ? displacement : -displacement), Me.Location.Y + (i > 1 ? displacement : -displacement), Me.Location.Z + 4.0f, Me.Location.Orientation, Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(Me.Location.Orientation, 0.0f, 0.0f)), TimeSpan.FromSeconds(1));
 		}
 		else
 			//me.CastSpell(me, GetFireworkSpell(me.GetEntry()), true);
 		{
-			me.CastSpell(me.Location, GetFireworkSpell(me.Entry), new CastSpellExtraArgs(true));
+			Me.CastSpell(Me.Location, GetFireworkSpell(Me.Entry), new CastSpellExtraArgs(true));
 		}
 	}
 
 	private bool isCluster()
 	{
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case CreatureIds.FireworkBlue:
 			case CreatureIds.FireworkGreen:
@@ -203,10 +203,10 @@ internal class npc_firework : ScriptedAI
 
 		if (isCluster())
 		{
-			var launcher1 = GetClosestGameObjectWithEntry(me, GameObjectIds.ClusterLauncher1, 0.5f);
-			var launcher2 = GetClosestGameObjectWithEntry(me, GameObjectIds.ClusterLauncher2, 0.5f);
-			var launcher3 = GetClosestGameObjectWithEntry(me, GameObjectIds.ClusterLauncher3, 0.5f);
-			var launcher4 = GetClosestGameObjectWithEntry(me, GameObjectIds.ClusterLauncher4, 0.5f);
+			var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher1, 0.5f);
+			var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher2, 0.5f);
+			var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher3, 0.5f);
+			var launcher4 = GetClosestGameObjectWithEntry(Me, GameObjectIds.ClusterLauncher4, 0.5f);
 
 			if (launcher1)
 				launcher = launcher1;
@@ -219,9 +219,9 @@ internal class npc_firework : ScriptedAI
 		}
 		else
 		{
-			var launcher1 = GetClosestGameObjectWithEntry(me, GameObjectIds.FireworkLauncher1, 0.5f);
-			var launcher2 = GetClosestGameObjectWithEntry(me, GameObjectIds.FireworkLauncher2, 0.5f);
-			var launcher3 = GetClosestGameObjectWithEntry(me, GameObjectIds.FireworkLauncher3, 0.5f);
+			var launcher1 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher1, 0.5f);
+			var launcher2 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher2, 0.5f);
+			var launcher3 = GetClosestGameObjectWithEntry(Me, GameObjectIds.FireworkLauncher3, 0.5f);
 
 			if (launcher1)
 				launcher = launcher1;
@@ -271,7 +271,7 @@ internal class npc_firework : ScriptedAI
 	{
 		uint spellId = 0;
 
-		switch (me.Entry)
+		switch (Me.Entry)
 		{
 			case CreatureIds.ClusterBlue:
 				spellId = GetFireworkSpell(CreatureIds.FireworkBlue);
@@ -342,8 +342,8 @@ internal class npc_omen : ScriptedAI
 {
 	public npc_omen(Creature creature) : base(creature)
 	{
-		me.SetImmuneToPC(true);
-		me.MotionMaster.MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
+		Me.SetImmuneToPC(true);
+		Me.MotionMaster.MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint pointId)
@@ -353,9 +353,9 @@ internal class npc_omen : ScriptedAI
 
 		if (pointId == 1)
 		{
-			me.SetHomePosition(me.Location.X, me.Location.Y, me.Location.Z, me.Location.Orientation);
-			me.SetImmuneToPC(false);
-			var player = me.SelectNearestPlayer(40.0f);
+			Me.SetHomePosition(Me.Location.X, Me.Location.Y, Me.Location.Z, Me.Location.Orientation);
+			Me.SetImmuneToPC(false);
+			var player = Me.SelectNearestPlayer(40.0f);
 
 			if (player)
 				AttackStart(player);
@@ -364,9 +364,9 @@ internal class npc_omen : ScriptedAI
 
 	public override void JustEngagedWith(Unit attacker)
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(3),
+		Scheduler.Schedule(TimeSpan.FromSeconds(3),
 							TimeSpan.FromSeconds(5),
 							task =>
 							{
@@ -374,7 +374,7 @@ internal class npc_omen : ScriptedAI
 								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10));
 							});
 
-		_scheduler.Schedule(TimeSpan.FromSeconds(8),
+		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(10),
 							1,
 							task =>
@@ -397,10 +397,10 @@ internal class npc_omen : ScriptedAI
 	{
 		if (spellInfo.Id == SpellIds.EluneCandle)
 		{
-			if (me.HasAura(SpellIds.OmenStarfall))
-				me.RemoveAura(SpellIds.OmenStarfall);
+			if (Me.HasAura(SpellIds.OmenStarfall))
+				Me.RemoveAura(SpellIds.OmenStarfall);
 
-			_scheduler.RescheduleGroup(1, TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
+			Scheduler.RescheduleGroup(1, TimeSpan.FromSeconds(14), TimeSpan.FromSeconds(16));
 		}
 	}
 
@@ -409,7 +409,7 @@ internal class npc_omen : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 
 		DoMeleeAttackIfReady();
 	}
@@ -422,33 +422,33 @@ internal class npc_giant_spotlight : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.CancelAll();
+		Scheduler.CancelAll();
 
-		_scheduler.Schedule(TimeSpan.FromMinutes(5),
+		Scheduler.Schedule(TimeSpan.FromMinutes(5),
 							task =>
 							{
-								var trap = me.FindNearestGameObject(GameObjectIds.EluneTrap1, 5.0f);
+								var trap = Me.FindNearestGameObject(GameObjectIds.EluneTrap1, 5.0f);
 
 								if (trap)
 									trap.RemoveFromWorld();
 
-								trap = me.FindNearestGameObject(GameObjectIds.EluneTrap2, 5.0f);
+								trap = Me.FindNearestGameObject(GameObjectIds.EluneTrap2, 5.0f);
 
 								if (trap)
 									trap.RemoveFromWorld();
 
-								var omen = me.FindNearestCreature(CreatureIds.Omen, 5.0f, false);
+								var omen = Me.FindNearestCreature(CreatureIds.Omen, 5.0f, false);
 
 								if (omen)
 									omen.DespawnOrUnsummon();
 
-								me.DespawnOrUnsummon();
+								Me.DespawnOrUnsummon();
 							});
 	}
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
 

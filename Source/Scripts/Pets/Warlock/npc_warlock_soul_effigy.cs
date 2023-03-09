@@ -17,7 +17,7 @@ namespace Scripts.Pets
 		{
 			public npc_warlock_soul_effigy(Creature creature) : base(creature)
 			{
-				if (!me.TryGetOwner(out Player owner))
+				if (!Me.TryGetOwner(out Player owner))
 					return;
 
 				creature.SetLevel(owner.Level);
@@ -27,8 +27,8 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				me.SetControlled(true, UnitState.Root);
-				me.CastSpell(me, WarlockSpells.SOUL_EFFIGY_AURA, true);
+				Me.SetControlled(true, UnitState.Root);
+				Me.CastSpell(Me, WarlockSpells.SOUL_EFFIGY_AURA, true);
 			}
 
 			public override void UpdateAI(uint UnnamedParameter) { }

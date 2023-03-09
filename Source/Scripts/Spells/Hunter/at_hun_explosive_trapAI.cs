@@ -27,7 +27,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 	public override void OnCreate()
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -35,13 +35,13 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 		if (!caster.AsPlayer)
 			return;
 
-		foreach (var itr in at.InsideUnits)
+		foreach (var itr in At.InsideUnits)
 		{
 			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
 
 			if (!caster.IsFriendlyTo(target))
 			{
-				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+				var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 				if (tempSumm != null)
 				{
@@ -49,7 +49,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 					tempSumm.SetSummonerGUID(caster.GUID);
 					PhasingHandler.InheritPhaseShift(tempSumm, caster);
 					caster.CastSpell(tempSumm, UsedSpells.EXPLOSIVE_TRAP_DAMAGE, true);
-					at.Remove();
+					At.Remove();
 				}
 			}
 		}
@@ -57,7 +57,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 	public override void OnUnitEnter(Unit unit)
 	{
-		var caster = at.GetCaster();
+		var caster = At.GetCaster();
 
 		if (caster == null || unit == null)
 			return;
@@ -67,7 +67,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 
 		if (!caster.IsFriendlyTo(unit))
 		{
-			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, at.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
+			var tempSumm = caster.SummonCreature(SharedConst.WorldTrigger, At.Location, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(200));
 
 			if (tempSumm != null)
 			{
@@ -75,7 +75,7 @@ public class at_hun_explosive_trapAI : AreaTriggerAI
 				tempSumm.SetSummonerGUID(caster.GUID);
 				PhasingHandler.InheritPhaseShift(tempSumm, caster);
 				caster.CastSpell(tempSumm, UsedSpells.EXPLOSIVE_TRAP_DAMAGE, true);
-				at.Remove();
+				At.Remove();
 			}
 		}
 	}

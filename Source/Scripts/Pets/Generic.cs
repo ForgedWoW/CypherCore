@@ -53,7 +53,7 @@ namespace Scripts.Pets
 
 			public override void OnDespawn()
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner != null)
 					DoCast(owner, SpellIds.EtherealPetRemoveAura);
@@ -63,7 +63,7 @@ namespace Scripts.Pets
 			{
 				Talk(TextIds.SaySoulTraderInto);
 
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner != null)
 					DoCast(owner, SpellIds.EtherealOnSummon);

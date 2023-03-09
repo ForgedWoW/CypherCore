@@ -36,7 +36,7 @@ namespace Scripts.Pets
 
 			public override void InitializeAI()
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return;
@@ -44,16 +44,16 @@ namespace Scripts.Pets
 				// here mirror image casts on summoner spell (not present in client dbc) 49866
 				// here should be Auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcast by mirror images (Stats related?)
 				// Clone Me!
-				owner.CastSpell(me, SpellIds.CloneMe, true);
+				owner.CastSpell(Me, SpellIds.CloneMe, true);
 			}
 
 			public override void UpdateAI(uint diff)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 				{
-					me.DespawnOrUnsummon();
+					Me.DespawnOrUnsummon();
 
 					return;
 				}
@@ -69,7 +69,7 @@ namespace Scripts.Pets
 				if (!UpdateVictim())
 					return;
 
-				if (me.HasUnitState(UnitState.Casting))
+				if (Me.HasUnitState(UnitState.Casting))
 					return;
 
 				if (_fireBlastTimer == 0)
@@ -85,11 +85,11 @@ namespace Scripts.Pets
 
 			public override bool CanAIAttack(Unit who)
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				return owner &&
 						who.IsAlive &&
-						me.IsValidAttackTarget(who) &&
+						Me.IsValidAttackTarget(who) &&
 						!who.HasBreakableByDamageCrowdControlAura() &&
 						who.IsInCombatWith(owner) &&
 						CanAIAttack(who);
@@ -98,18 +98,18 @@ namespace Scripts.Pets
 			// Do not reload Creature templates on evade mode enter - prevent visual lost
 			public override void EnterEvadeMode(EvadeReason why)
 			{
-				if (me.IsInEvadeMode ||
-					!me.IsAlive)
+				if (Me.IsInEvadeMode ||
+					!Me.IsAlive)
 					return;
 
-				var owner = me.CharmerOrOwner;
+				var owner = Me.CharmerOrOwner;
 
-				me.CombatStop(true);
+				Me.CombatStop(true);
 
-				if (owner && !me.HasUnitState(UnitState.Follow))
+				if (owner && !Me.HasUnitState(UnitState.Follow))
 				{
-					me.MotionMaster.Clear();
-					me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, me.FollowAngle);
+					Me.MotionMaster.Clear();
+					Me.MotionMaster.MoveFollow(owner, SharedConst.PetFollowDist, Me.FollowAngle);
 				}
 			}
 
@@ -117,27 +117,27 @@ namespace Scripts.Pets
 			// we prioritize between things that are in combat with owner based on the owner's threat to them
 			private new bool UpdateVictim()
 			{
-				var owner = me.OwnerUnit;
+				var owner = Me.OwnerUnit;
 
 				if (owner == null)
 					return false;
 
-				if (!me.HasUnitState(UnitState.Casting) &&
-					!me.IsInCombat &&
+				if (!Me.HasUnitState(UnitState.Casting) &&
+					!Me.IsInCombat &&
 					!owner.IsInCombat)
 					return false;
 
-				var currentTarget = me.Victim;
+				var currentTarget = Me.Victim;
 
 				if (currentTarget && !CanAIAttack(currentTarget))
 				{
-					me.InterruptNonMeleeSpells(true); // do not finish casting on invalid targets
-					me.AttackStop();
+					Me.InterruptNonMeleeSpells(true); // do not finish casting on invalid targets
+					Me.AttackStop();
 					currentTarget = null;
 				}
 
 				// don't reselect if we're currently casting anyway
-				if (currentTarget && me.HasUnitState(UnitState.Casting))
+				if (currentTarget && Me.HasUnitState(UnitState.Casting))
 					return true;
 
 				Unit selectedTarget = null;
@@ -198,7 +198,7 @@ namespace Scripts.Pets
 					return false;
 				}
 
-				if (selectedTarget != me.Victim)
+				if (selectedTarget != Me.Victim)
 					AttackStartCaster(selectedTarget, CHASE_DISTANCE);
 
 				return true;

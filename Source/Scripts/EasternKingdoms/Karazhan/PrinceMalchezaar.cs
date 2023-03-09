@@ -72,12 +72,12 @@ internal class netherspite_infernal : ScriptedAI
 
 	public override void UpdateAI(uint diff)
 	{
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 
 	public override void KilledUnit(Unit who)
 	{
-		var unit = Global.ObjAccessor.GetUnit(me, Malchezaar);
+		var unit = Global.ObjAccessor.GetUnit(Me, Malchezaar);
 
 		if (unit)
 		{
@@ -92,18 +92,18 @@ internal class netherspite_infernal : ScriptedAI
 	{
 		if (spellInfo.Id == SpellIds.InfernalRelay)
 		{
-			me.SetDisplayId(me.NativeDisplayId);
-			me.SetUnitFlag(UnitFlags.Uninteractible);
+			Me.SetDisplayId(Me.NativeDisplayId);
+			Me.SetUnitFlag(UnitFlags.Uninteractible);
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(4), task => DoCast(me, SpellIds.Hellfire));
+			Scheduler.Schedule(TimeSpan.FromSeconds(4), task => DoCast(Me, SpellIds.Hellfire));
 
-			_scheduler.Schedule(TimeSpan.FromSeconds(170),
+			Scheduler.Schedule(TimeSpan.FromSeconds(170),
 								task =>
 								{
-									var pMalchezaar = ObjectAccessor.GetCreature(me, Malchezaar);
+									var pMalchezaar = ObjectAccessor.GetCreature(Me, Malchezaar);
 
 									if (pMalchezaar && pMalchezaar.IsAlive)
-										pMalchezaar.GetAI<boss_malchezaar>().Cleanup(me, Point);
+										pMalchezaar.GetAI<boss_malchezaar>().Cleanup(Me, Point);
 								});
 		}
 	}
@@ -210,35 +210,35 @@ internal class boss_malchezaar : ScriptedAI
 			EnfeebleResetTimer -= diff;
 		}
 
-		if (me.HasUnitState(UnitState.Stunned)) // While shifting to phase 2 malchezaar stuns himself
+		if (Me.HasUnitState(UnitState.Stunned)) // While shifting to phase 2 malchezaar stuns himself
 			return;
 
-		if (me.Victim &&
-			me.Target != me.Victim.GUID)
-			me.SetTarget(me.Victim.GUID);
+		if (Me.Victim &&
+			Me.Target != Me.Victim.GUID)
+			Me.SetTarget(Me.Victim.GUID);
 
 		if (phase == 1)
 		{
 			if (HealthBelowPct(60))
 			{
-				me.InterruptNonMeleeSpells(false);
+				Me.InterruptNonMeleeSpells(false);
 
 				phase = 2;
 
 				//animation
-				DoCast(me, SpellIds.EquipAxes);
+				DoCast(Me, SpellIds.EquipAxes);
 
 				//text
 				Talk(TextIds.SayAxeToss1);
 
 				//passive thrash aura
-				DoCast(me, SpellIds.ThrashAura, new CastSpellExtraArgs(true));
+				DoCast(Me, SpellIds.ThrashAura, new CastSpellExtraArgs(true));
 
 				//models
 				SetEquipmentSlots(false, MiscConst.EquipIdAxe, MiscConst.EquipIdAxe);
 
-				me.SetBaseAttackTime(WeaponAttackType.OffAttack, (me.GetBaseAttackTime(WeaponAttackType.BaseAttack) * 150) / 100);
-				me.SetCanDualWield(true);
+				Me.SetBaseAttackTime(WeaponAttackType.OffAttack, (Me.GetBaseAttackTime(WeaponAttackType.BaseAttack) * 150) / 100);
+				Me.SetCanDualWield(true);
 			}
 		}
 		else if (phase == 2)
@@ -252,7 +252,7 @@ internal class boss_malchezaar : ScriptedAI
 				ClearWeapons();
 
 				//remove thrash
-				me.RemoveAura(SpellIds.ThrashAura);
+				Me.RemoveAura(SpellIds.ThrashAura);
 
 				Talk(TextIds.SayAxeToss2);
 
@@ -260,12 +260,12 @@ internal class boss_malchezaar : ScriptedAI
 
 				for (byte i = 0; i < 2; ++i)
 				{
-					Creature axe = me.SummonCreature(MiscConst.MalchezarsAxe, me.Location.X, me.Location.Y, me.Location.Z, 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
+					Creature axe = Me.SummonCreature(MiscConst.MalchezarsAxe, Me.Location.X, Me.Location.Y, Me.Location.Z, 0, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(1));
 
 					if (axe)
 					{
 						axe.SetUnitFlag(UnitFlags.Uninteractible);
-						axe.Faction = me.Faction;
+						axe.Faction = Me.Faction;
 						axes[i] = axe.GUID;
 
 						if (target)
@@ -313,7 +313,7 @@ internal class boss_malchezaar : ScriptedAI
 				if (target)
 					for (byte i = 0; i < 2; ++i)
 					{
-						var axe = Global.ObjAccessor.GetUnit(me, axes[i]);
+						var axe = Global.ObjAccessor.GetUnit(Me, axes[i]);
 
 						if (axe)
 						{
@@ -372,7 +372,7 @@ internal class boss_malchezaar : ScriptedAI
 				Unit target;
 
 				if (phase == 1)
-					target = me.Victim; // the tank
+					target = Me.Victim; // the tank
 				else                    // anyone but the tank
 					target = SelectTarget(SelectTargetMethod.Random, 1, 100, true);
 
@@ -446,7 +446,7 @@ internal class boss_malchezaar : ScriptedAI
 		//Infernal Cleanup
 		foreach (var guid in infernals)
 		{
-			var pInfernal = Global.ObjAccessor.GetUnit(me, guid);
+			var pInfernal = Global.ObjAccessor.GetUnit(Me, guid);
 
 			if (pInfernal && pInfernal.IsAlive)
 			{
@@ -462,7 +462,7 @@ internal class boss_malchezaar : ScriptedAI
 	{
 		for (byte i = 0; i < 2; ++i)
 		{
-			var axe = Global.ObjAccessor.GetUnit(me, axes[i]);
+			var axe = Global.ObjAccessor.GetUnit(Me, axes[i]);
 
 			if (axe && axe.IsAlive)
 				axe.KillSelf();
@@ -474,7 +474,7 @@ internal class boss_malchezaar : ScriptedAI
 	private void ClearWeapons()
 	{
 		SetEquipmentSlots(false, 0, 0);
-		me.SetCanDualWield(false);
+		Me.SetCanDualWield(false);
 	}
 
 	private void EnfeebleHealthEffect()
@@ -484,10 +484,10 @@ internal class boss_malchezaar : ScriptedAI
 		if (info == null)
 			return;
 
-		var tank = me.GetThreatManager().CurrentVictim;
+		var tank = Me.GetThreatManager().CurrentVictim;
 		List<Unit> targets = new();
 
-		foreach (var refe in me.GetThreatManager().SortedThreatList)
+		foreach (var refe in Me.GetThreatManager().SortedThreatList)
 		{
 			var target = refe.Victim;
 
@@ -513,7 +513,7 @@ internal class boss_malchezaar : ScriptedAI
 				enfeeble_health[i] = target.Health;
 
 				CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-				args.OriginalCaster = me.GUID;
+				args.OriginalCaster = Me.GUID;
 				target.CastSpell(target, SpellIds.Enfeeble, args);
 				target.SetHealth(1);
 			}
@@ -526,7 +526,7 @@ internal class boss_malchezaar : ScriptedAI
 	{
 		for (byte i = 0; i < 5; ++i)
 		{
-			var target = Global.ObjAccessor.GetUnit(me, enfeeble_targets[i]);
+			var target = Global.ObjAccessor.GetUnit(Me, enfeeble_targets[i]);
 
 			if (target && target.IsAlive)
 				target.SetHealth(enfeeble_health[i]);
@@ -541,10 +541,10 @@ internal class boss_malchezaar : ScriptedAI
 		var point = Vector2.Zero;
 		Position pos = null;
 
-		if ((me.Location.MapId != 532) ||
+		if ((Me.Location.MapId != 532) ||
 			positions.Empty())
 		{
-			pos = me.GetRandomNearPosition(60);
+			pos = Me.GetRandomNearPosition(60);
 		}
 		else
 		{
@@ -552,17 +552,17 @@ internal class boss_malchezaar : ScriptedAI
 			pos.Relocate(point.X, point.Y, 275.5f, RandomHelper.FRand(0.0f, (MathF.PI * 2)));
 		}
 
-		Creature infernal = me.SummonCreature(MiscConst.NetherspiteInfernal, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(3));
+		Creature infernal = Me.SummonCreature(MiscConst.NetherspiteInfernal, pos, TempSummonType.TimedDespawn, TimeSpan.FromMinutes(3));
 
 		if (infernal)
 		{
 			infernal.SetDisplayId(MiscConst.InfernalModelInvisible);
-			infernal.Faction = me.Faction;
+			infernal.Faction = Me.Faction;
 
 			if (point != Vector2.Zero)
 				infernal.GetAI<netherspite_infernal>().Point = point;
 
-			infernal.GetAI<netherspite_infernal>().Malchezaar = me.GUID;
+			infernal.GetAI<netherspite_infernal>().Malchezaar = Me.GUID;
 
 			infernals.Add(infernal.GUID);
 			DoCast(infernal, SpellIds.InfernalRelay);
@@ -573,23 +573,23 @@ internal class boss_malchezaar : ScriptedAI
 
 	private void DoMeleeAttacksIfReady()
 	{
-		if (me.IsWithinMeleeRange(me.Victim) &&
-			!me.IsNonMeleeSpellCast(false))
+		if (Me.IsWithinMeleeRange(Me.Victim) &&
+			!Me.IsNonMeleeSpellCast(false))
 		{
 			//Check for base attack
-			if (me.IsAttackReady() &&
-				me.Victim)
+			if (Me.IsAttackReady() &&
+				Me.Victim)
 			{
-				me.AttackerStateUpdate(me.Victim);
-				me.ResetAttackTimer();
+				Me.AttackerStateUpdate(Me.Victim);
+				Me.ResetAttackTimer();
 			}
 
 			//Check for offhand attack
-			if (me.IsAttackReady(WeaponAttackType.OffAttack) &&
-				me.Victim)
+			if (Me.IsAttackReady(WeaponAttackType.OffAttack) &&
+				Me.Victim)
 			{
-				me.AttackerStateUpdate(me.Victim, WeaponAttackType.OffAttack);
-				me.ResetAttackTimer(WeaponAttackType.OffAttack);
+				Me.AttackerStateUpdate(Me.Victim, WeaponAttackType.OffAttack);
+				Me.ResetAttackTimer(WeaponAttackType.OffAttack);
 			}
 		}
 	}

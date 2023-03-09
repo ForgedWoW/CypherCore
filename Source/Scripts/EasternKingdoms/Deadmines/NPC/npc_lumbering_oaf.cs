@@ -21,30 +21,30 @@ public class npc_lumbering_oafAI : ScriptedAI
 
 	public npc_lumbering_oafAI(Creature pCreature) : base(pCreature)
 	{
-		_vehicle = me.VehicleKit1;
+		_vehicle = Me.VehicleKit1;
 		_instance = pCreature.InstanceScript;
 		_summons = new SummonList(pCreature);
 	}
 
 	public override void Reset()
 	{
-		if (!me || _vehicle == null)
+		if (!Me || _vehicle == null)
 			return;
 
-		_events.Reset();
+		Events.Reset();
 	}
 
 	public override void JustEnteredCombat(Unit who)
 	{
-		if (!me)
+		if (!Me)
 			return;
 
-		_events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(5000));
+		Events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(5000));
 	}
 
 	public override void JustDied(Unit killer)
 	{
-		var Helix = me.FindNearestCreature(DMCreatures.NPC_HELIX_GEARBREAKER, 200, true);
+		var Helix = Me.FindNearestCreature(DMCreatures.NPC_HELIX_GEARBREAKER, 200, true);
 
 		if (Helix != null)
 		{
@@ -60,7 +60,7 @@ public class npc_lumbering_oafAI : ScriptedAI
 		Talk(0);
 		Talk(1);
 		// _bunny = me.SummonCreature(DMCreatures.NPC_GENERAL_PURPOSE_BUNNY_JMF, OafPos[1].Location.X, OafPos[1].Location.Y, OafPos[1].Location.Z);
-		me.SetInCombatWithZone();
+		Me.SetInCombatWithZone();
 	}
 
 	public override void MovementInform(MovementGeneratorType type, uint id)
@@ -107,19 +107,19 @@ public class npc_lumbering_oafAI : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		if (!me || _vehicle == null)
+		if (!Me || _vehicle == null)
 			return;
 
-		_events.Update(uiDiff);
+		Events.Update(uiDiff);
 
 		uint eventId;
 
-		while ((eventId = _events.ExecuteEvent()) != 0)
+		while ((eventId = Events.ExecuteEvent()) != 0)
 			switch (eventId)
 			{
 				case HelOaf_Events.EVENT_OAFQUARD:
 					SummonBunny();
-					_events.ScheduleEvent(HelOaf_Events.EVENT_MOUNT_PLAYER, TimeSpan.FromMilliseconds(500));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_MOUNT_PLAYER, TimeSpan.FromMilliseconds(500));
 
 					break;
 
@@ -127,16 +127,16 @@ public class npc_lumbering_oafAI : ScriptedAI
 					var target = SelectTarget(SelectTargetMethod.Random, 0, 150, true);
 
 					if (target != null)
-						target.CastSpell(me, eSpels.RIDE_VEHICLE_HARDCODED);
+						target.CastSpell(Me, eSpels.RIDE_VEHICLE_HARDCODED);
 
-					_events.ScheduleEvent(HelOaf_Events.EVENT_MOVE_TO_POINT, TimeSpan.FromMilliseconds(500));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_MOVE_TO_POINT, TimeSpan.FromMilliseconds(500));
 
 					break;
 
 				case HelOaf_Events.EVENT_MOVE_TO_POINT:
-					me.SetSpeed(UnitMoveType.Run, 5.0f);
-					me.MotionMaster.MovePoint(0, -289.809f, -527.215f, 49.8021f);
-					_events.ScheduleEvent(HelOaf_Events.EVEMT_CHARGE, TimeSpan.FromMilliseconds(2000));
+					Me.SetSpeed(UnitMoveType.Run, 5.0f);
+					Me.MotionMaster.MovePoint(0, -289.809f, -527.215f, 49.8021f);
+					Events.ScheduleEvent(HelOaf_Events.EVEMT_CHARGE, TimeSpan.FromMilliseconds(2000));
 
 					break;
 
@@ -150,12 +150,12 @@ public class npc_lumbering_oafAI : ScriptedAI
 					//        _bunny.SetUnitFlag(UnitFlags.Uninteractible);
 					//    }
 					//}
-					_events.ScheduleEvent(HelOaf_Events.EVENT_FINISH, TimeSpan.FromMilliseconds(1500));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_FINISH, TimeSpan.FromMilliseconds(1500));
 
 					break;
 
 				case HelOaf_Events.EVENT_FINISH:
-					_events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(17000));
+					Events.ScheduleEvent(HelOaf_Events.EVENT_OAFQUARD, TimeSpan.FromMilliseconds(17000));
 
 					break;
 			}

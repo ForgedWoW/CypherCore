@@ -15,13 +15,13 @@ public class npc_dk_defile : ScriptedAI
 	public npc_dk_defile(Creature creature) : base(creature)
 	{
 		SetCombatMovement(false);
-		me.ReactState = ReactStates.Passive;
-		me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
-		me.AddUnitState(UnitState.Root);
+		Me.ReactState = ReactStates.Passive;
+		Me.SetUnitFlag(UnitFlags.Uninteractible | UnitFlags.NonAttackable);
+		Me.AddUnitState(UnitState.Root);
 	}
 
 	public override void Reset()
 	{
-		me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(11));
+		Me.DespawnOrUnsummon(TimeSpan.FromMilliseconds(11));
 	}
 }

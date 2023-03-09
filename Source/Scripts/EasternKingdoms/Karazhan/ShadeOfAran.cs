@@ -183,20 +183,20 @@ internal class boss_aran : ScriptedAI
 		}
 
 		if (!Drinking &&
-			me.GetMaxPower(PowerType.Mana) != 0 &&
-			me.GetPowerPct(PowerType.Mana) < 20.0f)
+			Me.GetMaxPower(PowerType.Mana) != 0 &&
+			Me.GetPowerPct(PowerType.Mana) < 20.0f)
 		{
 			Drinking = true;
-			me.InterruptNonMeleeSpells(false);
+			Me.InterruptNonMeleeSpells(false);
 
 			Talk(TextIds.SayDrink);
 
 			if (!DrinkInturrupted)
 			{
-				DoCast(me, SpellIds.MassPoly, new CastSpellExtraArgs(true));
-				DoCast(me, SpellIds.Conjure, new CastSpellExtraArgs(false));
-				DoCast(me, SpellIds.Drink, new CastSpellExtraArgs(false));
-				me.SetStandState(UnitStandStateType.Sit);
+				DoCast(Me, SpellIds.MassPoly, new CastSpellExtraArgs(true));
+				DoCast(Me, SpellIds.Conjure, new CastSpellExtraArgs(false));
+				DoCast(Me, SpellIds.Drink, new CastSpellExtraArgs(false));
+				Me.SetStandState(UnitStandStateType.Sit);
 				DrinkInterruptTimer = 10000;
 			}
 		}
@@ -205,10 +205,10 @@ internal class boss_aran : ScriptedAI
 		if (Drinking && DrinkInturrupted)
 		{
 			Drinking = false;
-			me.RemoveAura(SpellIds.Drink);
-			me.SetStandState(UnitStandStateType.Stand);
-			me.SetPower(PowerType.Mana, me.GetMaxPower(PowerType.Mana) - 32000);
-			DoCast(me, SpellIds.Potion, new CastSpellExtraArgs(false));
+			Me.RemoveAura(SpellIds.Drink);
+			Me.SetStandState(UnitStandStateType.Stand);
+			Me.SetPower(PowerType.Mana, Me.GetMaxPower(PowerType.Mana) - 32000);
+			DoCast(Me, SpellIds.Potion, new CastSpellExtraArgs(false));
 		}
 
 		//Drink Interrupt Timer
@@ -220,9 +220,9 @@ internal class boss_aran : ScriptedAI
 			}
 			else
 			{
-				me.SetStandState(UnitStandStateType.Stand);
-				DoCast(me, SpellIds.Potion, new CastSpellExtraArgs(true));
-				DoCast(me, SpellIds.AoePyroblast, new CastSpellExtraArgs(false));
+				Me.SetStandState(UnitStandStateType.Stand);
+				DoCast(Me, SpellIds.Potion, new CastSpellExtraArgs(true));
+				DoCast(Me, SpellIds.AoePyroblast, new CastSpellExtraArgs(false));
 				DrinkInturrupted = true;
 				Drinking = false;
 			}
@@ -235,7 +235,7 @@ internal class boss_aran : ScriptedAI
 		//Normal casts
 		if (NormalCastTimer <= diff)
 		{
-			if (!me.IsNonMeleeSpellCast(false))
+			if (!Me.IsNonMeleeSpellCast(false))
 			{
 				var target = SelectTarget(SelectTargetMethod.Random, 0, 100, true);
 
@@ -284,7 +284,7 @@ internal class boss_aran : ScriptedAI
 			switch (RandomHelper.URand(0, 1))
 			{
 				case 0:
-					DoCast(me, SpellIds.AoeCs);
+					DoCast(Me, SpellIds.AoeCs);
 
 					break;
 				case 1:
@@ -338,10 +338,10 @@ internal class boss_aran : ScriptedAI
 				case SuperSpell.Ae:
 					Talk(TextIds.SayExplosion);
 
-					DoCast(me, SpellIds.BlinkCenter, new CastSpellExtraArgs(true));
-					DoCast(me, SpellIds.Playerpull, new CastSpellExtraArgs(true));
-					DoCast(me, SpellIds.Massslow, new CastSpellExtraArgs(true));
-					DoCast(me, SpellIds.Aexplosion, new CastSpellExtraArgs(false));
+					DoCast(Me, SpellIds.BlinkCenter, new CastSpellExtraArgs(true));
+					DoCast(Me, SpellIds.Playerpull, new CastSpellExtraArgs(true));
+					DoCast(Me, SpellIds.Massslow, new CastSpellExtraArgs(true));
+					DoCast(Me, SpellIds.Aexplosion, new CastSpellExtraArgs(false));
 
 					break;
 
@@ -362,11 +362,11 @@ internal class boss_aran : ScriptedAI
 				case SuperSpell.Blizzard:
 					Talk(TextIds.SayBlizzard);
 
-					Creature pSpawn = me.SummonCreature(CreatureIds.AranBlizzard, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(25));
+					Creature pSpawn = Me.SummonCreature(CreatureIds.AranBlizzard, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(25));
 
 					if (pSpawn)
 					{
-						pSpawn.Faction = me.Faction;
+						pSpawn.Faction = Me.Faction;
 						pSpawn.CastSpell(pSpawn, SpellIds.CircularBlizzard, false);
 					}
 
@@ -387,12 +387,12 @@ internal class boss_aran : ScriptedAI
 
 			for (uint i = 0; i < 4; ++i)
 			{
-				Creature unit = me.SummonCreature(CreatureIds.WaterElemental, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(90));
+				Creature unit = Me.SummonCreature(CreatureIds.WaterElemental, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawn, TimeSpan.FromSeconds(90));
 
 				if (unit)
 				{
-					unit.Attack(me.Victim, true);
-					unit.Faction = me.Faction;
+					unit.Attack(Me.Victim, true);
+					unit.Faction = Me.Faction;
 				}
 			}
 
@@ -403,12 +403,12 @@ internal class boss_aran : ScriptedAI
 		{
 			for (uint i = 0; i < 5; ++i)
 			{
-				Creature unit = me.SummonCreature(CreatureIds.ShadowOfAran, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
+				Creature unit = Me.SummonCreature(CreatureIds.ShadowOfAran, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType.TimedDespawnOutOfCombat, TimeSpan.FromSeconds(5));
 
 				if (unit)
 				{
-					unit.Attack(me.Victim, true);
-					unit.Faction = me.Faction;
+					unit.Attack(Me.Victim, true);
+					unit.Faction = Me.Faction;
 				}
 			}
 
@@ -435,14 +435,14 @@ internal class boss_aran : ScriptedAI
 					if (FlameWreathTarget[i].IsEmpty)
 						continue;
 
-					var unit = Global.ObjAccessor.GetUnit(me, FlameWreathTarget[i]);
+					var unit = Global.ObjAccessor.GetUnit(Me, FlameWreathTarget[i]);
 
 					if (unit && !unit.IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
 					{
 						unit.CastSpell(unit,
 										20476,
 										new CastSpellExtraArgs(TriggerCastFlags.FullMask)
-											.SetOriginalCaster(me.GUID));
+											.SetOriginalCaster(Me.GUID));
 
 						unit.CastSpell(unit, 11027, true);
 						FlameWreathTarget[i].Clear();
@@ -475,11 +475,11 @@ internal class boss_aran : ScriptedAI
 	{
 		//We only care about interrupt effects and only if they are durring a spell currently being cast
 		if (!spellInfo.HasEffect(SpellEffectName.InterruptCast) ||
-			!me.IsNonMeleeSpellCast(false))
+			!Me.IsNonMeleeSpellCast(false))
 			return;
 
 		//Interrupt effect
-		me.InterruptNonMeleeSpells(false);
+		Me.InterruptNonMeleeSpells(false);
 
 		//Normally we would set the cooldown equal to the spell duration
 		//but we do not have access to the DurationStore
@@ -506,8 +506,8 @@ internal class boss_aran : ScriptedAI
 		base.MoveInLineOfSight(who);
 
 		if (SeenAtiesh ||
-			me.IsInCombat ||
-			me.GetDistance2d(who) > me.GetAttackDistance(who) + 10.0f)
+			Me.IsInCombat ||
+			Me.GetDistance2d(who) > Me.GetAttackDistance(who) + 10.0f)
 			return;
 
 		var player = who.AsPlayer;
@@ -522,9 +522,9 @@ internal class boss_aran : ScriptedAI
 
 			SeenAtiesh = true;
 			Talk(TextIds.SayAtiesh);
-			me.SetFacingTo(me.Location.GetAbsoluteAngle(player.Location));
-			me.ClearUnitState(UnitState.Moving);
-			me.MotionMaster.MoveDistract(7 * Time.InMilliseconds, me.Location.GetAbsoluteAngle(who.Location));
+			Me.SetFacingTo(Me.Location.GetAbsoluteAngle(player.Location));
+			Me.ClearUnitState(UnitState.Moving);
+			Me.MotionMaster.MoveDistract(7 * Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
 
 			break;
 		}
@@ -560,7 +560,7 @@ internal class boss_aran : ScriptedAI
 		List<Unit> targets = new();
 
 		//store the threat list in a different container
-		foreach (var refe in me.GetThreatManager().SortedThreatList)
+		foreach (var refe in Me.GetThreatManager().SortedThreatList)
 		{
 			var target = refe.Victim;
 
@@ -603,7 +603,7 @@ internal class water_elemental : ScriptedAI
 
 	public override void Reset()
 	{
-		_scheduler.Schedule(TimeSpan.FromMilliseconds(2000 + (RandomHelper.Rand32() % 3000)),
+		Scheduler.Schedule(TimeSpan.FromMilliseconds(2000 + (RandomHelper.Rand32() % 3000)),
 							task =>
 							{
 								DoCastVictim(SpellIds.Waterbolt);
@@ -618,6 +618,6 @@ internal class water_elemental : ScriptedAI
 		if (!UpdateVictim())
 			return;
 
-		_scheduler.Update(diff);
+		Scheduler.Update(diff);
 	}
 }
