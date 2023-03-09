@@ -326,7 +326,24 @@ public partial class Unit : WorldObject
 
 	public bool IsFFAPvP => HasPvpFlag(UnitPVPStateFlags.FFAPvp);
 
-	public UnitPetFlags PetFlags => (UnitPetFlags)(byte)UnitData.PetFlags;
+    public override float ObjectScale
+    {
+        get => base.ObjectScale;
+        set
+        {
+            var minfo = Global.ObjectMgr.GetCreatureModelInfo(DisplayId);
+
+            if (minfo != null)
+            {
+                BoundingRadius = (IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale;
+                SetCombatReach((IsPet ? SharedConst.DefaultPlayerCombatReach : minfo.CombatReach) * ObjectScale);
+            }
+
+            base.ObjectScale = value;
+        }
+    }
+
+    public UnitPetFlags PetFlags => (UnitPetFlags)(byte)UnitData.PetFlags;
 
 	public ShapeShiftForm ShapeshiftForm
 	{

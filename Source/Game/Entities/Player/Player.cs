@@ -509,6 +509,8 @@ public partial class Player : Unit
 		_groupUpdateTimer = new TimeTracker(5000);
 
 		ApplyCustomConfigs();
+
+		ObjectScale = 1;
 	}
 
 	public override void Dispose()
