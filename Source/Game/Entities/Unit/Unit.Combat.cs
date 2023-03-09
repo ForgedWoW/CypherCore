@@ -23,7 +23,7 @@ public partial class Unit
 	// - when the creature has no targets left, but the AI has not yet ceased engaged logic
 	public virtual bool IsEngaged => IsInCombat;
 
-	public override float CombatReach => UnitData.CombatReach;
+	public override float CombatReach => (float)UnitData.CombatReach;
 
 	public bool IsInCombat => HasUnitFlag(UnitFlags.InCombat);
 
@@ -564,7 +564,10 @@ public partial class Unit
 
 	public void SetCombatReach(float combatReach)
 	{
-		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
+        if (combatReach > 0.1f)
+            combatReach = SharedConst.DefaultPlayerCombatReach;
+
+        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
 	}
 
 	public void ResetAttackTimer(WeaponAttackType type = WeaponAttackType.BaseAttack)

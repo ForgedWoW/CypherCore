@@ -75,6 +75,10 @@ namespace Game.Movement
 
             bool mutualChase = IsMutualChase(owner, target);
             float hitboxSum = owner.CombatReach + target.CombatReach;
+
+            if (SharedConst.MinHitboxSum > hitboxSum)
+                hitboxSum = SharedConst.MinHitboxSum;
+
             float minRange = _range.HasValue ? _range.Value.MinRange + hitboxSum : SharedConst.ContactDistance;
             float minTarget = (_range.HasValue ? _range.Value.MinTolerance : 0.0f) + hitboxSum;
             float maxRange = _range.HasValue ? _range.Value.MaxRange + hitboxSum : owner.GetMeleeRange(target); // melee range already includes hitboxes

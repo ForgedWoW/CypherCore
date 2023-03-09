@@ -128,7 +128,7 @@ public abstract class WorldObject : IDisposable
 		set => _dbPhase = value;
 	}
 
-	public virtual float CombatReach => 0.0f;
+	public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
 
 	public uint InstanceId1 => InstanceId;
 
@@ -3887,41 +3887,42 @@ public abstract class WorldObject : IDisposable
 
 	public void GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
 	{
-		var x = pos.X;
-		var y = pos.Y;
-		var z = pos.Z;
-		GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
-		z = Location.Z;
-		z = (searcher ?? this).UpdateAllowedPositionZ(x, y, z);
+        var x = pos.X;
+        var y = pos.Y;
+        GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
+        pos.Z = Location.Z;
+        pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+		pos.X = x;
+		pos.Y = y;
 
 		// if detection disabled, return first point
 		if (!WorldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
 			return;
 
 		// return if the point is already in LoS
-		if (IsWithinLOS(x, y, z))
+		if (IsWithinLOS(pos.X, pos.Y, pos.Z))
 			return;
 
 		// remember first point
-		var first_x = x;
-		var first_y = y;
-		var first_z = z;
+		var first_x = pos.X;
+		var first_y = pos.Y;
 
 		// loop in a circle to look for a point in LoS using small steps
 		for (var angle = MathFunctions.PI / 8; angle < Math.PI * 2; angle += MathFunctions.PI / 8)
 		{
 			GetNearPoint2D(searcher, out x, out y, distance2d, absAngle + angle);
-			z = Location.Z;
-			z = (searcher ?? this).UpdateAllowedPositionZ(x, y, z);
+            pos.Z = Location.Z;
+            pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+			pos.X = x;
+			pos.Y = y;
 
-			if (IsWithinLOS(x, y, z))
+            if (IsWithinLOS(pos.X, pos.Y, pos.Z))
 				return;
 		}
 
 		// still not in LoS, give up and return first position found
 		pos.X = first_x;
 		pos.Y = first_y;
-		pos.Z = first_z;
 	}
 
 	public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)

@@ -1410,7 +1410,7 @@ namespace Game.AI
                         var pos = target.Location.Copy();
                         if (e.Action.moveToPos.contactDistance > 0)
                             target.GetContactPoint(_me, pos, e.Action.moveToPos.contactDistance);
-                        _me.                        MotionMaster.MovePoint(e.Action.moveToPos.pointId, pos.X + e.Target.x, pos.Y + e.Target.y, pos.Z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
+                        _me.MotionMaster.MovePoint(e.Action.moveToPos.pointId, pos.X + e.Target.x, pos.Y + e.Target.y, pos.Z + e.Target.z, e.Action.moveToPos.disablePathfinding == 0);
                     }
                     break;
                 }
