@@ -187,7 +187,7 @@ namespace WorldServer
             if (halfMaxCoreStuckTime == 0)
                 halfMaxCoreStuckTime = uint.MaxValue;
 
-#if DEBUG
+#if DEBUG || DEBUGMETRIC
             MeteredMetric meteredMetric = new MeteredMetric("Update Loop", 1000, false);
 #endif
             while (!Global.WorldMgr.IsStopped)
@@ -205,11 +205,11 @@ namespace WorldServer
                     Thread.Sleep(TimeSpan.FromMilliseconds(sleepTime));
                     continue;
                 }
-#if DEBUG
+#if DEBUG || DEBUGMETRIC
                 meteredMetric.StartMark();
 #endif
                 Global.WorldMgr.Update(diff);
-#if DEBUG
+#if DEBUG || DEBUGMETRIC
                 meteredMetric.StopMark();
 #endif
                 realPrevTime = realCurrTime;

@@ -383,7 +383,8 @@ public class CliDB
 		Log.outInfo(LogFilter.ServerLoading, $"DB2  TableHash");
 
 		foreach (var kvp in DB2Manager.Instance.Storage)
-			Log.outInfo(LogFilter.ServerLoading, $"{kvp.Value.GetName()}    {kvp.Key}");
+			if (kvp.Value != null)
+				Log.outInfo(LogFilter.ServerLoading, $"{kvp.Value.GetName()}    {kvp.Key}");
 #endif
 		foreach (var entry in TaxiPathStorage.Values)
 			TaxiPathSetBySource.Add(entry.FromTaxiNode, entry.ToTaxiNode, new TaxiPathBySourceAndDestination(entry.Id, entry.Cost));
