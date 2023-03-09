@@ -1,12 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\default.props"/>
+    <PropertyGroup>
+      <Configurations>Debug;Release;DebugMetric</Configurations>
+    </PropertyGroup>
+    <Import Project="..\..\default.props" />
 
     <ItemGroup>
-        <ProjectReference Include="..\Game\Game.csproj"/>
+        <ProjectReference Include="..\Game\Game.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Spells\DemonHunter\"/>
+        <Folder Include="Spells\DemonHunter\" />
     </ItemGroup>
 
 </Project>

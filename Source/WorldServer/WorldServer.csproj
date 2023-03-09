@@ -4,6 +4,7 @@
 	<OutputType>Exe</OutputType>
     <ApplicationIcon>Forged Icon.ico</ApplicationIcon>
     <StartupObject>WorldServer.Server</StartupObject>
+    <Configurations>Debug;Release;DebugMetric</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Forged Icon.ico" />

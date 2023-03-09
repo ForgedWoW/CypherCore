@@ -9,6 +9,7 @@ using System.Numerics;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Metrics;
 using Framework.Threading;
 using Game.Collision;
 using Game.DataStorage;
@@ -62,6 +63,10 @@ public class Map : IDisposable
 	private readonly MultiPersonalPhaseTracker _multiPersonalPhaseTracker = new();
 	private readonly Dictionary<int, int> _worldStateValues = new();
 	private readonly List<WorldObject> _activeNonPlayers = new();
+#if DEBUGMETRIC
+	private readonly MetricFactory _metricFactory = new MetricFactory(500, true);
+#endif
+
 	private long _gridExpiry;
 	private uint _respawnCheckTimer;
 	private SpawnedPoolData _poolData;
@@ -563,10 +568,18 @@ public class Map : IDisposable
 
 	public virtual void Update(uint diff)
 	{
-		_dynamicTree.Update(diff);
+#if DEBUGMETRIC
+        _metricFactory.Meter("_dynamicTree Update").StartMark();
+#endif
 
-		// update worldsessions for existing players
-		for (var i = 0; i < ActivePlayers.Count; ++i)
+        _dynamicTree.Update(diff);
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("_dynamicTree Update").StartMark();
+#endif
+
+        // update worldsessions for existing players
+        for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
 			var player = ActivePlayers[i];
 
@@ -590,13 +603,23 @@ public class Map : IDisposable
 			_respawnCheckTimer -= diff;
 		}
 
-		_threadManager.Wait();
-		// update active cells around players and active objects
-		ResetMarkedCells();
+#if DEBUGMETRIC
+        _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StartMark();
+#endif
+        _threadManager.Wait();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StartMark();
+#endif
+        // update active cells around players and active objects
+        ResetMarkedCells();
 
 		var update = new UpdaterNotifier(diff, GridType.All, _threadManager);
 
-		for (var i = 0; i < ActivePlayers.Count; ++i)
+#if DEBUGMETRIC
+        _metricFactory.Meter("Load UpdaterNotifier").StartMark();
+#endif
+        for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
 			var player = ActivePlayers[i];
 
@@ -678,14 +701,24 @@ public class Map : IDisposable
 				continue;
 
 			VisitNearbyCellsOf(obj, update);
-		}
+        }
 
-		// all the visits are queued in the thread manager, we wait to gather all the world objects that need
-		// updating. Also guarntees objects only get updated once.
-		_threadManager.Wait();
-		update.ExecuteUpdate();
+#if DEBUGMETRIC
+        _metricFactory.Meter("Load UpdaterNotifier").StopMark();
 
-		for (var i = 0; i < _transports.Count; ++i)
+        // all the visits are queued in the thread manager, we wait to gather all the world objects that need
+        // updating. Also guarntees objects only get updated once.
+
+        _metricFactory.Meter("VisitNearbyCellsOf Update").StartMark();
+#endif
+        _threadManager.Wait();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("VisitNearbyCellsOf Update").StopMark();
+#endif
+        update.ExecuteUpdate();
+
+        for (var i = 0; i < _transports.Count; ++i)
 		{
 			var transport = _transports[i];
 
@@ -695,8 +728,15 @@ public class Map : IDisposable
 			_threadManager.Schedule(() => transport.Update(diff));
 		}
 
-		_threadManager.Wait();
-		_threadManager.Schedule(SendObjectUpdates);
+#if DEBUGMETRIC
+        _metricFactory.Meter("UpdaterNotifier Update").StartMark();
+#endif
+        _threadManager.Wait();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("UpdaterNotifier Update").StopMark();
+#endif
+        _threadManager.Schedule(SendObjectUpdates);
 
 		// Process necessary scripts
 		if (!_scriptSchedule.Empty())
@@ -719,16 +759,54 @@ public class Map : IDisposable
 		// update phase shift objects
 		_threadManager.Schedule(() => MultiPersonalPhaseTracker.Update(this, diff));
 
-		MoveAllCreaturesInMoveList();
-		MoveAllGameObjectsInMoveList();
-		MoveAllAreaTriggersInMoveList();
+#if DEBUGMETRIC
+        _metricFactory.Meter("MoveAllCreaturesInMoveList Update").StartMark();
+#endif
+        MoveAllCreaturesInMoveList();
 
-		if (!ActivePlayers.Empty() || !_activeNonPlayers.Empty())
-			ProcessRelocationNotifies(diff);
+#if DEBUGMETRIC
+        _metricFactory.Meter("MoveAllCreaturesInMoveList Update").StopMark();
+        _metricFactory.Meter("MoveAllGameObjectsInMoveList Update").StartMark();
+#endif
 
-		OnMapUpdate(this, diff);
+        MoveAllGameObjectsInMoveList();
 
-		_threadManager.Wait();
+#if DEBUGMETRIC
+        _metricFactory.Meter("MoveAllGameObjectsInMoveList Update").StopMark();
+        _metricFactory.Meter("MoveAllAreaTriggersInMoveList Update").StartMark();
+#endif
+        MoveAllAreaTriggersInMoveList();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("MoveAllAreaTriggersInMoveList Update").StopMark();
+#endif
+
+        if (!ActivePlayers.Empty() || !_activeNonPlayers.Empty())
+        {
+#if DEBUGMETRIC
+            _metricFactory.Meter("ProcessRelocationNotifies Update").StartMark();
+#endif
+            ProcessRelocationNotifies(diff);
+
+#if DEBUGMETRIC
+            _metricFactory.Meter("ProcessRelocationNotifies Update").StopMark();
+#endif
+        }
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("OnMapUpdate Update").StartMark();
+#endif
+        OnMapUpdate(this, diff);
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("OnMapUpdate Update").StopMark();
+        _metricFactory.Meter("SendObjectUpdates Update").StartMark();
+#endif
+        _threadManager.Wait();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("SendObjectUpdates Update").StopMark();
+#endif
 	}
 
 	public virtual void RemovePlayerFromMap(Player player, bool remove)
@@ -3078,91 +3156,105 @@ public class Map : IDisposable
 
 		foreach (var x in xKeys)
 		{
-			foreach (var y in GridYKeys(x))
+			_threadManager.Schedule(() =>
 			{
-				var grid = GetGrid(x, y);
-
-				if (grid == null)
-					continue;
-
-				if (grid.GetGridState() != GridState.Active)
-					continue;
-
-				grid.GetGridInfoRef().GetRelocationTimer().TUpdate((int)diff);
-
-				if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
-					continue;
-
-				var gx = grid.GetX();
-				var gy = grid.GetY();
-
-				var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells, cell_min.Y_Coord + MapConst.MaxCells);
-
-				for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+				foreach (var y in GridYKeys(x))
 				{
-					for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+					var grid = GetGrid(x, y);
+
+					if (grid == null)
+						continue;
+
+					if (grid.GetGridState() != GridState.Active)
+						continue;
+
+					grid.GetGridInfoRef().GetRelocationTimer().TUpdate((int)diff);
+
+					if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+						continue;
+
+					var gx = grid.GetX();
+					var gy = grid.GetY();
+
+					var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+					var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells, cell_min.Y_Coord + MapConst.MaxCells);
+
+				
+					for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
 					{
-						var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
+						for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+						{
+							var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
 
-						if (!IsCellMarked(cell_id))
-							continue;
+							if (!IsCellMarked(cell_id))
+								continue;
 
-						var pair = new CellCoord(xx, yy);
-						var cell = new Cell(pair);
-						cell.SetNoCreate();
+							_threadManager.Schedule(() =>
+							{
+								var pair = new CellCoord(xx, yy);
+								var cell = new Cell(pair);
+								cell.SetNoCreate();
 
-						var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
+								var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
 
-						Visit(cell, cell_relocation);
+								Visit(cell, cell_relocation);
+							});
+						}
 					}
 				}
-			}
+			});
 		}
 
-		var reset = new ResetNotifier(GridType.All);
+		_threadManager.Wait();
+        var reset = new ResetNotifier(GridType.All);
 
 		foreach (var x in xKeys)
 		{
-			foreach (var y in GridYKeys(x))
+			_threadManager.Schedule(() =>
 			{
-				var grid = GetGrid(x, y);
-
-				if (grid == null)
-					continue;
-
-				if (grid.GetGridState() != GridState.Active)
-					continue;
-
-				if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
-					continue;
-
-				grid.GetGridInfoRef().GetRelocationTimer().TReset((int)diff, VisibilityNotifyPeriod);
-
-				var gx = grid.GetX();
-				var gy = grid.GetY();
-
-				var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-
-				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-											cell_min.Y_Coord + MapConst.MaxCells);
-
-				for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+				foreach (var y in GridYKeys(x))
 				{
-					for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+					var grid = GetGrid(x, y);
+
+					if (grid == null)
+						continue;
+
+					if (grid.GetGridState() != GridState.Active)
+						continue;
+
+					if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+						continue;
+
+					grid.GetGridInfoRef().GetRelocationTimer().TReset((int)diff, VisibilityNotifyPeriod);
+
+					var gx = grid.GetX();
+					var gy = grid.GetY();
+
+					var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+
+					var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
+												cell_min.Y_Coord + MapConst.MaxCells);
+
+					_threadManager.Schedule(() =>
 					{
-						var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
+						for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+						{
+							for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+							{
+								var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
 
-						if (!IsCellMarked(cell_id))
-							continue;
+								if (!IsCellMarked(cell_id))
+									continue;
 
-						var pair = new CellCoord(xx, yy);
-						var cell = new Cell(pair);
-						cell.SetNoCreate();
-						Visit(cell, reset);
-					}
+								var pair = new CellCoord(xx, yy);
+								var cell = new Cell(pair);
+								cell.SetNoCreate();
+								Visit(cell, reset);
+							}
+						}
+					});
 				}
-			}
+			});
 		}
 	}
 

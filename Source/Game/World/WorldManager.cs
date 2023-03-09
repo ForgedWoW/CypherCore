@@ -100,6 +100,143 @@ public class WorldManager : Singleton<WorldManager>
 	uint _warnDiff;
 	long _warnShutdownTime;
 
+	uint _maxSkill = 0;
+
+	public bool IsClosed => _isClosed;
+
+	public List<string> Motd => _motd;
+
+	public List<WorldSession> AllSessions => _sessions.Values.ToList();
+
+	public int ActiveAndQueuedSessionCount => _sessions.Count;
+
+	public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
+
+	public int QueuedSessionCount => _queuedPlayer.Count;
+
+	// Get the maximum number of parallel sessions on the server since last reboot
+	public uint MaxQueuedSessionCount => _maxQueuedSessionCount;
+
+	public uint MaxActiveSessionCount => _maxActiveSessionCount;
+
+	public uint PlayerCount => _playerCount;
+
+	public uint MaxPlayerCount => _maxPlayerCount;
+
+	public AccountTypes PlayerSecurityLimit
+	{
+		get => _allowedSecurityLevel;
+		set
+		{
+			var sec = value < AccountTypes.Console ? value : AccountTypes.Player;
+			var update = sec > _allowedSecurityLevel;
+			_allowedSecurityLevel = sec;
+
+			if (update)
+				KickAllLess(_allowedSecurityLevel);
+		}
+	}
+
+	public uint PlayerAmountLimit
+	{
+		get => _playerLimit;
+		set => _playerLimit = value;
+	}
+
+	/// Get the path where data (dbc, maps) are stored on disk
+	public string DataPath
+	{
+		get => _dataPath;
+		set => _dataPath = value;
+	}
+
+	public long NextDailyQuestsResetTime
+	{
+		get => _nextDailyQuestReset;
+		set => _nextDailyQuestReset = value;
+	}
+
+	public long NextWeeklyQuestsResetTime
+	{
+		get => _nextWeeklyQuestReset;
+		set => _nextWeeklyQuestReset = value;
+	}
+
+	public long NextMonthlyQuestsResetTime
+	{
+		get => _nextMonthlyQuestReset;
+		set => _nextMonthlyQuestReset = value;
+	}
+
+	public uint ConfigMaxSkillValue
+	{
+		get
+		{
+			if (_maxSkill == 0)
+			{
+				var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+
+				_maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
+			}
+
+			return _maxSkill;
+		}
+	}
+
+	public bool IsShuttingDown => _shutdownTimer > 0;
+
+	public uint ShutDownTimeLeft => _shutdownTimer;
+
+	public int ExitCode => (int)_exitCode;
+
+	public bool IsPvPRealm
+	{
+		get
+		{
+			var realmtype = (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
+
+			return (realmtype == RealmType.PVP || realmtype == RealmType.RPPVP || realmtype == RealmType.FFAPVP);
+		}
+	}
+
+	public bool IsFFAPvPRealm => WorldConfig.GetIntValue(WorldCfg.GameType) == (int)RealmType.FFAPVP;
+
+	public Locale DefaultDbcLocale => _defaultDbcLocale;
+
+	public Realm Realm => _realm;
+
+	public RealmId RealmId => _realm.Id;
+
+	public uint VirtualRealmAddress => _realm.Id.GetAddress();
+
+	public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
+
+	public float MaxVisibleDistanceInInstances => _maxVisibleDistanceInInstances;
+
+	public float MaxVisibleDistanceInBG => _maxVisibleDistanceInBg;
+
+	public float MaxVisibleDistanceInArenas => _maxVisibleDistanceInArenas;
+
+	public int VisibilityNotifyPeriodOnContinents => _visibilityNotifyPeriodOnContinents;
+
+	public int VisibilityNotifyPeriodInInstances => _visibilityNotifyPeriodInInstances;
+
+	public int VisibilityNotifyPeriodInBG => _visibilityNotifyPeriodInBg;
+
+	public int VisibilityNotifyPeriodInArenas => _visibilityNotifyPeriodInArenas;
+
+	public CleaningFlags CleaningFlags
+	{
+		get => _cleaningFlags;
+		set => _cleaningFlags = value;
+	}
+
+	public bool IsGuidWarning => _guidWarn;
+
+	public bool IsGuidAlert => _guidAlert;
+
+	public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
+
 	WorldManager()
 	{
 		foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
@@ -130,9 +267,7 @@ public class WorldManager : Singleton<WorldManager>
 		return null;
 	}
 
-    public bool IsClosed => _isClosed;
-
-    public void SetClosed(bool val)
+	public void SetClosed(bool val)
 	{
 		_isClosed = val;
 		Global.ScriptMgr.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
@@ -148,7 +283,7 @@ public class WorldManager : Singleton<WorldManager>
 			PlayerSecurityLimit = (AccountTypes)result.Read<byte>(0);
 	}
 
-    public void SetMotd(string motd)
+	public void SetMotd(string motd)
 	{
 		Global.ScriptMgr.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
 
@@ -156,9 +291,7 @@ public class WorldManager : Singleton<WorldManager>
 		_motd.AddRange(motd.Split('@'));
 	}
 
-    public List<string> Motd => _motd;
-
-    public void TriggerGuidWarning()
+	public void TriggerGuidWarning()
 	{
 		// Lock this only to prevent multiple maps triggering at the same time
 		lock (_guidAlertLock)
@@ -831,37 +964,42 @@ public class WorldManager : Singleton<WorldManager>
 
 		DB.Login.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
 
-		_timers[WorldTimers.Auctions].
-		Interval = Time.Minute * Time.InMilliseconds;
-		_timers[WorldTimers.AuctionsPending].		Interval = 250;
+		_timers[WorldTimers.Auctions].Interval = Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.AuctionsPending].Interval = 250;
 
 		//Update "uptime" table based on configuration entry in minutes.
-		_timers[WorldTimers.UpTime].
-		//Update "uptime" table based on configuration entry in minutes.
-		Interval = 10 * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.UpTime]
+			.
+			//Update "uptime" table based on configuration entry in minutes.
+			Interval = 10 * Time.Minute * Time.InMilliseconds;
+
 		//erase corpses every 20 minutes
-		_timers[WorldTimers.Corpses].		//erase corpses every 20 minutes
-		Interval = 20 * Time.Minute * Time.InMilliseconds;
-		_timers[WorldTimers.CleanDB].		Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
-		_timers[WorldTimers.AutoBroadcast].		Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
-		// check for chars to delete every day
-		_timers[WorldTimers.DeleteChars].		// check for chars to delete every day
-		Interval = Time.Day * Time.InMilliseconds;
-		// for AhBot
-		_timers[WorldTimers.AhBot].		// for AhBot
-		Interval = WorldConfig.GetIntValue(WorldCfg.AhbotUpdateInterval) * Time.InMilliseconds; // every 20 sec
-		_timers[WorldTimers.GuildSave].		Interval = WorldConfig.GetIntValue(WorldCfg.GuildSaveInterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.Corpses]
+			. //erase corpses every 20 minutes
+			Interval = 20 * Time.Minute * Time.InMilliseconds;
 
-		_timers[WorldTimers.Blackmarket].
-		Interval = 10 * Time.InMilliseconds;
+		_timers[WorldTimers.CleanDB].Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.AutoBroadcast].Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
+
+		// check for chars to delete every day
+		_timers[WorldTimers.DeleteChars]
+			. // check for chars to delete every day
+			Interval = Time.Day * Time.InMilliseconds;
+
+		// for AhBot
+		_timers[WorldTimers.AhBot]
+			.                                                                                       // for AhBot
+			Interval = WorldConfig.GetIntValue(WorldCfg.AhbotUpdateInterval) * Time.InMilliseconds; // every 20 sec
+
+		_timers[WorldTimers.GuildSave].Interval = WorldConfig.GetIntValue(WorldCfg.GuildSaveInterval) * Time.Minute * Time.InMilliseconds;
+
+		_timers[WorldTimers.Blackmarket].Interval = 10 * Time.InMilliseconds;
 
 		_blackmarketTimer = 0;
 
-		_timers[WorldTimers.WhoList].
-		Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
+		_timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
 
-		_timers[WorldTimers.ChannelSave].
-		Interval = WorldConfig.GetIntValue(WorldCfg.PreserveCustomChannelInterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.ChannelSave].Interval = WorldConfig.GetIntValue(WorldCfg.PreserveCustomChannelInterval) * Time.Minute * Time.InMilliseconds;
 
 		//to set mailtimer to return mails every day between 4 and 5 am
 		//mailtimer is increased when updating auctions
@@ -880,7 +1018,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		Log.outInfo(LogFilter.ServerLoading, "Starting Game Event system...");
 		var nextGameEvent = Global.GameEventMgr.StartSystem();
-		_timers[WorldTimers.Events].		Interval = nextGameEvent; //depend on next event
+		_timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
 
 		// Delete all characters which have been deleted X days before
 		Player.DeleteOldCharacters();
@@ -990,18 +1128,14 @@ public class WorldManager : Singleton<WorldManager>
 			Global.MapMgr.SetMapUpdateInterval(WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate));
 			Global.MapMgr.SetGridCleanUpDelay(WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean));
 
-			_timers[WorldTimers.UpTime].
-			Interval = WorldConfig.GetIntValue(WorldCfg.UptimeUpdate) * Time.Minute * Time.InMilliseconds;
+			_timers[WorldTimers.UpTime].Interval = WorldConfig.GetIntValue(WorldCfg.UptimeUpdate) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.UpTime].Reset();
 
-			_timers[WorldTimers.CleanDB].
-			Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
+			_timers[WorldTimers.CleanDB].Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.CleanDB].Reset();
 
 
-			_timers[WorldTimers.AutoBroadcast].
-
-			Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
+			_timers[WorldTimers.AutoBroadcast].Interval = WorldConfig.GetIntValue(WorldCfg.AutoBroadcastInterval);
 			_timers[WorldTimers.AutoBroadcast].Reset();
 		}
 
@@ -1157,7 +1291,7 @@ public class WorldManager : Singleton<WorldManager>
 			if (_timers[i].Current >= 0)
 				_timers[i].Update(diff);
 			else
-				_timers[i].				Current = 0;
+				_timers[i].Current = 0;
 
 		// Update Who List Storage
 		if (_timers[WorldTimers.WhoList].Passed)
@@ -1323,7 +1457,7 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			_timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
 			var nextGameEvent = Global.GameEventMgr.Update();
-			_timers[WorldTimers.Events].			Interval = nextGameEvent;
+			_timers[WorldTimers.Events].Interval = nextGameEvent;
 			_timers[WorldTimers.Events].Reset();
 		}
 
@@ -1351,7 +1485,7 @@ public class WorldManager : Singleton<WorldManager>
 	{
 		_timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
 		var nextGameEvent = Global.GameEventMgr.Update();
-		_timers[WorldTimers.Events].		Interval = nextGameEvent;
+		_timers[WorldTimers.Events].Interval = nextGameEvent;
 		_timers[WorldTimers.Events].Reset();
 	}
 
@@ -1431,7 +1565,7 @@ public class WorldManager : Singleton<WorldManager>
 			if (session != null &&
 				session.Player &&
 				session.Player.IsInWorld &&
-				session.Player.				Zone == zone &&
+				session.Player.Zone == zone &&
 				session != self &&
 				(team == 0 || (uint)session.Player.Team == team))
 			{
@@ -1933,24 +2067,7 @@ public class WorldManager : Singleton<WorldManager>
 			session.InvalidateRBACData();
 	}
 
-    public List<WorldSession> AllSessions => _sessions.Values.ToList();
-
-    public int ActiveAndQueuedSessionCount => _sessions.Count;
-
-    public int ActiveSessionCount => _sessions.Count - _queuedPlayer.Count;
-
-    public int QueuedSessionCount => _queuedPlayer.Count;
-
-    // Get the maximum number of parallel sessions on the server since last reboot
-    public uint MaxQueuedSessionCount => _maxQueuedSessionCount;
-
-    public uint MaxActiveSessionCount => _maxActiveSessionCount;
-
-    public uint PlayerCount => _playerCount;
-
-    public uint MaxPlayerCount => _maxPlayerCount;
-
-    public void IncreasePlayerCount()
+	public void IncreasePlayerCount()
 	{
 		_playerCount++;
 		_maxPlayerCount = Math.Max(_maxPlayerCount, _playerCount);
@@ -1961,71 +2078,13 @@ public class WorldManager : Singleton<WorldManager>
 		_playerCount--;
 	}
 
-    public AccountTypes PlayerSecurityLimit
-    {
-        get => _allowedSecurityLevel;
-        set
-        {
-            var sec = value < AccountTypes.Console ? value : AccountTypes.Player;
-            var update = sec > _allowedSecurityLevel;
-            _allowedSecurityLevel = sec;
-
-            if (update)
-                KickAllLess(_allowedSecurityLevel);
-        }
-    }
-
-    public uint PlayerAmountLimit { get => _playerLimit; set => _playerLimit = value; }
-
-    /// Get the path where data (dbc, maps) are stored on disk
-    public string DataPath { get => _dataPath; set => _dataPath = value; }
-    public long NextDailyQuestsResetTime { get => _nextDailyQuestReset; set => _nextDailyQuestReset = value; }
-    public long NextWeeklyQuestsResetTime { get => _nextWeeklyQuestReset; set => _nextWeeklyQuestReset = value; }
-    public long NextMonthlyQuestsResetTime { get => _nextMonthlyQuestReset; set => _nextMonthlyQuestReset = value; }
-
-    uint _maxSkill = 0;
-    public uint ConfigMaxSkillValue
-    {
-        get
-        {
-            if (_maxSkill == 0)
-            {
-                var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
-
-                _maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
-            }
-
-            return _maxSkill;
-        }
-    }
-
-    public bool IsShuttingDown => _shutdownTimer > 0;
-
-    public uint ShutDownTimeLeft => _shutdownTimer;
-
-    public int ExitCode => (int)_exitCode;
-
-    public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
+	public void StopNow(ShutdownExitCode exitcode = ShutdownExitCode.Error)
 	{
 		IsStopped = true;
 		_exitCode = exitcode;
 	}
 
-    public bool IsPvPRealm
-    {
-        get
-        {
-            var realmtype = (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
-
-            return (realmtype == RealmType.PVP || realmtype == RealmType.RPPVP || realmtype == RealmType.FFAPVP);
-        }
-    }
-
-    public bool IsFFAPvPRealm => WorldConfig.GetIntValue(WorldCfg.GameType) == (int)RealmType.FFAPVP;
-
-    public Locale DefaultDbcLocale => _defaultDbcLocale;
-
-    public bool LoadRealmInfo()
+	public bool LoadRealmInfo()
 	{
 		var result = DB.Login.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = {0}", _realm.Id.Index);
 
@@ -2049,34 +2108,12 @@ public class WorldManager : Singleton<WorldManager>
 		return true;
 	}
 
-    public Realm Realm => _realm;
-
-    public RealmId RealmId => _realm.Id;
-
-    public void RemoveOldCorpses()
+	public void RemoveOldCorpses()
 	{
 		_timers[WorldTimers.Corpses].Current = _timers[WorldTimers.Corpses].Interval;
 	}
 
-    public uint VirtualRealmAddress => _realm.Id.GetAddress();
-
-    public float MaxVisibleDistanceOnContinents => _maxVisibleDistanceOnContinents;
-
-    public float MaxVisibleDistanceInInstances => _maxVisibleDistanceInInstances;
-
-    public float MaxVisibleDistanceInBG => _maxVisibleDistanceInBg;
-
-    public float MaxVisibleDistanceInArenas => _maxVisibleDistanceInArenas;
-
-    public int VisibilityNotifyPeriodOnContinents => _visibilityNotifyPeriodOnContinents;
-
-    public int VisibilityNotifyPeriodInInstances => _visibilityNotifyPeriodInInstances;
-
-    public int VisibilityNotifyPeriodInBG => _visibilityNotifyPeriodInBg;
-
-    public int VisibilityNotifyPeriodInArenas => _visibilityNotifyPeriodInArenas;
-
-    public Locale GetAvailableDbcLocale(Locale locale)
+	public Locale GetAvailableDbcLocale(Locale locale)
 	{
 		if (_availableDbcLocaleMask[(int)locale])
 			return locale;
@@ -2084,15 +2121,7 @@ public class WorldManager : Singleton<WorldManager>
 			return _defaultDbcLocale;
 	}
 
-    public CleaningFlags CleaningFlags { get => _cleaningFlags; set => _cleaningFlags = value; }
-
-    public bool IsGuidWarning => _guidWarn;
-
-    public bool IsGuidAlert => _guidAlert;
-
-    public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
-
-    void DoGuidWarningRestart()
+	void DoGuidWarningRestart()
 	{
 		if (_shutdownTimer != 0)
 			return;
