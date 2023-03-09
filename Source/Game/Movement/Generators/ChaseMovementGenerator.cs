@@ -76,8 +76,8 @@ namespace Game.Movement
             bool mutualChase = IsMutualChase(owner, target);
             float hitboxSum = owner.CombatReach + target.CombatReach;
 
-            if (SharedConst.MinHitboxSum > hitboxSum)
-                hitboxSum = SharedConst.MinHitboxSum;
+            if (SharedConst.DefaultPlayerCombatReach > hitboxSum)
+                hitboxSum = SharedConst.DefaultPlayerCombatReach;
 
             float minRange = _range.HasValue ? _range.Value.MinRange + hitboxSum : SharedConst.ContactDistance;
             float minTarget = (_range.HasValue ? _range.Value.MinTolerance : 0.0f) + hitboxSum;

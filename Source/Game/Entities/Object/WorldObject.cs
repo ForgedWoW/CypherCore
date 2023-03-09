@@ -155,7 +155,7 @@ public abstract class WorldObject : IDisposable
 		set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
 	}
 
-	public float ObjectScale
+	public virtual float ObjectScale
 	{
 		get => ObjectData.Scale;
 		set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), value);

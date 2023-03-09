@@ -184,7 +184,24 @@ public partial class Creature : Unit
 
 	public virtual byte PetAutoSpellSize => 4;
 
-	public override float NativeObjectScale => CreatureTemplate.Scale;
+    public override float ObjectScale 
+	{ 
+		get => base.ObjectScale;
+        set
+		{
+            var minfo = Global.ObjectMgr.GetCreatureModelInfo(DisplayId);
+
+            if (minfo != null)
+            {
+                BoundingRadius = (IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale;
+                SetCombatReach((IsPet ? SharedConst.DefaultPlayerCombatReach : minfo.CombatReach) * ObjectScale);
+            }
+
+            base.ObjectScale = value;
+		}
+	}
+
+    public override float NativeObjectScale => CreatureTemplate.Scale;
 
 	public uint CorpseDelay => _corpseDelay;
 
