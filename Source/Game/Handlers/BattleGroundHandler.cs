@@ -665,7 +665,7 @@ namespace Game
         }
 
         [WorldPacketHandler(ClientOpcodes.BattlemasterJoinSkirmish)]
-        public void HandleJoinSkirmish(JoinSkirmish packet)
+        void HandleJoinSkirmish(JoinSkirmish packet)
         {
             Player player = Player;
             if (player == null)
@@ -769,11 +769,15 @@ namespace Game
 
                 if (grp == null)
                 {
+                    BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                    Player.Session.SendPacket(battlefieldStatuss);
                     return;
                 }
 
                 if (grp.LeaderGUID != player.GUID)
                 {
+                    BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
+                    Player.Session.SendPacket(battlefieldStatuss);
                     return;
                 }
 
@@ -800,7 +804,7 @@ namespace Game
                     if (err != default)
                     {
                         BattlegroundManager.Instance.BuildBattlegroundStatusFailed(out var battlefieldStatuss, bgQueueTypeId, _player, 0, GroupJoinBattlegroundResult.LfgCantUseBattleground);
-                        member.                        Session.SendPacket(battlefieldStatuss);
+                        member.Session.SendPacket(battlefieldStatuss);
                         continue;
                     }
 

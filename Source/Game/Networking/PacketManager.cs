@@ -18,7 +18,7 @@ public static class PacketManager
 
 		foreach (var type in currentAsm.GetTypes())
 		{
-			foreach (var methodInfo in type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic))
+			foreach (var methodInfo in type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
 			{
 				foreach (var msgAttr in methodInfo.GetCustomAttributes<WorldPacketHandlerAttribute>())
 				{

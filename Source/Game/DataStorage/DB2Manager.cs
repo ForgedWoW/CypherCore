@@ -2307,7 +2307,8 @@ public class DB2Manager : Singleton<DB2Manager>
 
 	public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
 	{
-		_storage[tableHash] = store;
+		lock (_storage)
+			_storage[tableHash] = store;
 	}
 
 	static CurveInterpolationMode DetermineCurveType(CurveRecord curve, List<CurvePointRecord> points)
