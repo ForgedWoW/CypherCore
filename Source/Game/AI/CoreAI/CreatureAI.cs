@@ -61,16 +61,16 @@ namespace Game.AI
                 creature = me;
 
             Map map = creature.Map;
-            if (!map.IsDungeon()) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
+            if (!map.IsDungeon) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
             {
                 Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.AsCreature.Entry : 0);
                 return;
             }
 
-            if (!map.HavePlayers())
+            if (!map.HavePlayers)
                 return;
 
-            foreach (var player in map.GetPlayers())
+            foreach (var player in map.Players)
             {
                 if (player != null)
                 {

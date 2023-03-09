@@ -26,13 +26,13 @@ public class MultiPersonalPhaseTracker
 			if (!phaseRef.Value.IsPersonal())
 				continue;
 
-			if (!Global.ObjectMgr.HasPersonalSpawns(map.GetId(), map.GetDifficultyID(), phaseRef.Key))
+			if (!Global.ObjectMgr.HasPersonalSpawns(map.Id, map.DifficultyID, phaseRef.Key))
 				continue;
 
 			if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Key))
 				continue;
 
-			Log.outDebug(LogFilter.Maps, $"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.GetId()} instance {map.GetInstanceId()}");
+			Log.outDebug(LogFilter.Maps, $"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
 
 			loader.Load(phaseRef.Key);
 

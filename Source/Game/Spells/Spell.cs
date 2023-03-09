@@ -1857,7 +1857,7 @@ public partial class Spell : IDisposable
 
 		// Spell casted only on Battleground
 		if (SpellInfo.HasAttribute(SpellAttr3.OnlyBattlegrounds))
-			if (!_caster.Map.IsBattleground())
+			if (!_caster.Map.IsBattleground)
 				return SpellCastResult.OnlyBattlegrounds;
 
 		// do not allow spells to be cast in arenas or rated Battlegrounds
@@ -2434,12 +2434,12 @@ public partial class Spell : IDisposable
 						return SpellCastResult.SummonPending;
 
 					// check if our map is dungeon
-					var map = _caster.Map.ToInstanceMap();
+					var map = _caster.Map.ToInstanceMap;
 
 					if (map != null)
 					{
-						var mapId = map.GetId();
-						var difficulty = map.GetDifficultyID();
+						var mapId = map.Id;
+						var difficulty = map.DifficultyID;
 						var mapLock = map.GetInstanceLock();
 
 						if (mapLock != null)
@@ -3087,7 +3087,7 @@ public partial class Spell : IDisposable
 
 	public Difficulty GetCastDifficulty()
 	{
-		return _caster.Map.GetDifficultyID();
+		return _caster.Map.DifficultyID;
 	}
 
 	public bool IsPositive()

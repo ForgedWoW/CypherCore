@@ -1922,13 +1922,13 @@ namespace Game
             switch (status)
             {
                 case PlayerConditionLfgStatus.InLFGDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()) ? 1 : 0u;
+                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGRandomDungeon:
-                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()) &&
+                    return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) &&
                         Global.LFGMgr.SelectedRandomLfgDungeon(player.GUID) ? 1 : 0u;
                 case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
                 {
-                    if (!Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.GetDifficultyID()))
+                    if (!Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID))
                         return 0;
 
                     uint selectedRandomDungeon = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID);
@@ -2104,7 +2104,7 @@ namespace Game
             if (condition.CurrentPvpFaction != 0)
             {
                 byte team;
-                if (player.Map.IsBattlegroundOrArena())
+                if (player.Map.IsBattlegroundOrArena)
                     team = player.PlayerData.ArenaFaction;
                 else
                     team = (byte)player.TeamId;
@@ -2875,7 +2875,7 @@ namespace Game
                     int currentHour = GameTime.GetDateAndTime().Hour + 1;
                     return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
                 case WorldStateExpressionFunctions.OldDifficultyId:
-                    var difficulty = CliDB.DifficultyStorage.LookupByKey(player.Map.GetDifficultyID());
+                    var difficulty = CliDB.DifficultyStorage.LookupByKey(player.Map.DifficultyID);
                     if (difficulty != null)
                         return difficulty.OldEnumValue;
 
@@ -2893,7 +2893,7 @@ namespace Game
 
                     return (int)(now - raidOrigin) / Time.Week;
                 case WorldStateExpressionFunctions.DifficultyId:
-                    return (int)player.Map.GetDifficultyID();
+                    return (int)player.Map.DifficultyID;
                 case WorldStateExpressionFunctions.WarModeActive:
                     return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
                 case WorldStateExpressionFunctions.WorldStateExpression:

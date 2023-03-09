@@ -19,8 +19,8 @@ public class BattlegroundMap : Map
 
 	public override void InitVisibilityDistance()
 	{
-		VisibleDistance = IsBattleArena() ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
-		VisibilityNotifyPeriod = IsBattleArena() ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
+		VisibleDistance = IsBattleArena ? Global.WorldMgr.MaxVisibleDistanceInArenas : Global.WorldMgr.MaxVisibleDistanceInBG;
+		VisibilityNotifyPeriod = IsBattleArena ? Global.WorldMgr.VisibilityNotifyPeriodInArenas : Global.WorldMgr.VisibilityNotifyPeriodInBG;
 	}
 
 	public override TransferAbortParams CannotEnter(Player player)
@@ -33,7 +33,7 @@ public class BattlegroundMap : Map
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
-		if (player.BattlegroundId != GetInstanceId())
+		if (player.BattlegroundId != InstanceId)
 			return new TransferAbortParams(TransferAbortReason.LockedToDifferentInstance);
 
 		return base.CannotEnter(player);
@@ -51,8 +51,8 @@ public class BattlegroundMap : Map
 		Log.outInfo(LogFilter.Maps,
 					"MAP: Removing player '{0}' from bg '{1}' of map '{2}' before relocating to another map",
 					player.GetName(),
-					GetInstanceId(),
-					GetMapName());
+					InstanceId,
+					MapName);
 
 		base.RemovePlayerFromMap(player, remove);
 	}
@@ -64,7 +64,7 @@ public class BattlegroundMap : Map
 
 	public override void RemoveAllPlayers()
 	{
-		if (HavePlayers())
+		if (HavePlayers)
 			foreach (var player in ActivePlayers)
 				if (!player.IsBeingTeleportedFar)
 					player.TeleportTo(player.BattlegroundEntryPoint);

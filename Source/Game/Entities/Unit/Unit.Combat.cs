@@ -132,14 +132,14 @@ public partial class Unit
 
 		var map = Map;
 
-		if (!map.IsDungeon())
+		if (!map.IsDungeon)
 		{
-			Log.outError(LogFilter.Unit, $"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.GetEntry()}) that isn't an instance.");
+			Log.outError(LogFilter.Unit, $"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.Entry}) that isn't an instance.");
 
 			return;
 		}
 
-		var players = map.GetPlayers();
+		var players = map.Players;
 
 		foreach (var player in players)
 		{
@@ -873,7 +873,7 @@ public partial class Unit
 				if (instance != null)
 					dungeonEncounter = instance.GetBossDungeonEncounter(creature);
 
-				if (creature.Map.IsDungeon())
+				if (creature.Map.IsDungeon)
 				{
 					if (dungeonEncounter != null)
 					{

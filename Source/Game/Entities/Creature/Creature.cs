@@ -355,10 +355,10 @@ public partial class Creature : Unit
 		// Register the creature for guid lookup
 		if (!IsInWorld)
 		{
-			Map.GetObjectsStore().Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 
 			if (SpawnId != 0)
-				Map.GetCreatureBySpawnIdStore().Add(SpawnId, this);
+				Map.				CreatureBySpawnIdStore.Add(SpawnId, this);
 
 			base.AddToWorld();
 			SearchFormation();
@@ -385,9 +385,10 @@ public partial class Creature : Unit
 			base.RemoveFromWorld();
 
 			if (SpawnId != 0)
-				Map.GetCreatureBySpawnIdStore().Remove(SpawnId, this);
+				Map.				CreatureBySpawnIdStore.Remove(SpawnId, this);
 
-			Map.GetObjectsStore().Remove(GUID);
+			Map.
+			ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -509,7 +510,7 @@ public partial class Creature : Unit
 
 		// get difficulty 1 mode entry
 		CreatureTemplate cInfo = null;
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(Map.GetDifficultyID());
+		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(Map.DifficultyID);
 
 		while (cInfo == null && difficultyEntry != null)
 		{
@@ -859,7 +860,7 @@ public partial class Creature : Unit
 				}
 
 				// if periodic combat pulse is enabled and we are both in combat and in a dungeon, do this now
-				if (_combatPulseDelay > 0 && IsEngaged && Map.IsDungeon())
+				if (_combatPulseDelay > 0 && IsEngaged && Map.IsDungeon)
 				{
 					if (diff > _combatPulseTime)
 						_combatPulseTime = 0;
@@ -868,7 +869,7 @@ public partial class Creature : Unit
 
 					if (_combatPulseTime == 0)
 					{
-						var players = Map.GetPlayers();
+						var players = Map.Players;
 
 						foreach (var player in players)
 						{
@@ -909,7 +910,7 @@ public partial class Creature : Unit
 						{
 							// regenerate health if cannot reach the target and the setting is set to do so.
 							// this allows to disable the health regen of raid bosses if pathfinding has issues for whatever reason
-							if (WorldConfig.GetBoolValue(WorldCfg.RegenHpCannotReachTargetInRaid) || !Map.IsRaid())
+							if (WorldConfig.GetBoolValue(WorldCfg.RegenHpCannotReachTargetInRaid) || !Map.IsRaid)
 							{
 								RegenerateHealth();
 								Log.outDebug(LogFilter.Unit, $"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
@@ -929,7 +930,7 @@ public partial class Creature : Unit
 					RegenTimer = SharedConst.CreatureRegenInterval;
 				}
 
-				if (CanNotReachTarget && !IsInEvadeMode && !Map.IsRaid())
+				if (CanNotReachTarget && !IsInEvadeMode && !Map.IsRaid)
 				{
 					_cannotReachTimer += diff;
 
@@ -1127,7 +1128,7 @@ public partial class Creature : Unit
 
 		cinfo = CreatureTemplate; // might be different than initially requested
 
-		if (cinfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss) && map.IsDungeon())
+		if (cinfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss) && map.IsDungeon)
 			_respawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
 
 		switch (cinfo.Rank)
@@ -1488,7 +1489,7 @@ public partial class Creature : Unit
 
 			if (group != null)
 				for (var itr = group.FirstMember; itr != null; itr = itr.Next())
-					if (Map.IsRaid() || group.SameSubGroup(player, itr.Source))
+					if (Map.IsRaid || group.SameSubGroup(player, itr.Source))
 						_tapList.Add(itr.Source.GUID);
 		}
 
@@ -1908,7 +1909,7 @@ public partial class Creature : Unit
 												// despawn all active creatures, and remove their respawns
 												List<Creature> toUnload = new();
 
-												foreach (var creature in map.GetCreatureBySpawnIdStore().LookupByKey(spawnId))
+												foreach (var creature in map.CreatureBySpawnIdStore.LookupByKey(spawnId))
 													toUnload.Add(creature);
 
 												foreach (var creature in toUnload)
@@ -2218,7 +2219,7 @@ public partial class Creature : Unit
 				var poolid = CreatureData != null ? CreatureData.poolId : 0;
 
 				if (poolid != 0)
-					Global.PoolMgr.UpdatePool<Creature>(Map.GetPoolData(), poolid, SpawnId);
+					Global.PoolMgr.UpdatePool<Creature>(Map.PoolData, poolid, SpawnId);
 			}
 
 			UpdateObjectVisibility();
@@ -2561,7 +2562,7 @@ public partial class Creature : Unit
 
 		if (!CharmerOrOwnerGUID.IsPlayer)
 		{
-			if (Map.IsDungeon())
+			if (Map.IsDungeon)
 				return true;
 
 			// don't check distance to home position if recently damaged, this should include taunt auras
@@ -2570,7 +2571,7 @@ public partial class Creature : Unit
 		}
 
 		// Map visibility range, but no more than 2*cell size
-		var dist = Math.Min(Map.GetVisibilityRange(), MapConst.SizeofCells * 2);
+		var dist = Math.Min(Map.VisibilityRange, MapConst.SizeofCells * 2);
 
 		var unit = CharmerOrOwner;
 
@@ -2638,7 +2639,7 @@ public partial class Creature : Unit
 		if (creatureAddon.Auras != null)
 			foreach (var id in creatureAddon.Auras)
 			{
-				var AdditionalSpellInfo = Global.SpellMgr.GetSpellInfo(id, Map.GetDifficultyID());
+				var AdditionalSpellInfo = Global.SpellMgr.GetSpellInfo(id, Map.DifficultyID);
 
 				if (AdditionalSpellInfo == null)
 				{
@@ -2775,7 +2776,7 @@ public partial class Creature : Unit
 
 	public void ApplyLevelScaling()
 	{
-		var scaling = CreatureTemplate.GetLevelScaling(Map.GetDifficultyID());
+		var scaling = CreatureTemplate.GetLevelScaling(Map.DifficultyID);
 		var levels = Global.DB2Mgr.GetContentTuningData(scaling.ContentTuningId, 0);
 
 		if (levels.HasValue)
@@ -2813,7 +2814,7 @@ public partial class Creature : Unit
 	public float GetBaseDamageForLevel(uint level)
 	{
 		var cInfo = CreatureTemplate;
-		var scaling = cInfo.GetLevelScaling(Map.GetDifficultyID());
+		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
 
 		return Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
 	}
@@ -3036,7 +3037,7 @@ public partial class Creature : Unit
 			if (spellID == 0)
 				continue;
 
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Map.GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellID, Map.DifficultyID);
 
 			if (spellInfo != null)
 				if (spellInfo.RecoveryTime1 == 0 && spellInfo.RangeEntry.Id != 1 /*Self*/ && spellInfo.RangeEntry.Id != 2 /*Combat Range*/ && spellInfo.GetMaxRange() > range)
@@ -3303,7 +3304,7 @@ public partial class Creature : Unit
 		{
 			// If an alive instance of this spawnId is already found, skip creation
 			// If only dead instance(s) exist, despawn them and spawn a new (maybe also dead) version
-			var creatureBounds = map.GetCreatureBySpawnIdStore().LookupByKey(spawnId);
+			var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(spawnId);
 			List<Creature> despawnList = new();
 
 			foreach (var creature in creatureBounds)
@@ -3631,7 +3632,7 @@ public partial class Creature : Unit
 	ulong GetMaxHealthByLevel(uint level)
 	{
 		var cInfo = CreatureTemplate;
-		var scaling = cInfo.GetLevelScaling(Map.GetDifficultyID());
+		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
 		var baseHealth = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
 
 		return (ulong)(baseHealth * cInfo.ModHealth * cInfo.ModHealthExtra);
@@ -3640,7 +3641,7 @@ public partial class Creature : Unit
 	float GetBaseArmorForLevel(uint level)
 	{
 		var cInfo = CreatureTemplate;
-		var scaling = cInfo.GetLevelScaling(Map.GetDifficultyID());
+		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
 		var baseArmor = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
 
 		return baseArmor * cInfo.ModArmor;

@@ -733,7 +733,7 @@ internal class go_midsummer_music : GameObjectAI
 								if (!Global.GameEventMgr.IsHolidayActive(HolidayIds.MidsummerFireFestival))
 									return;
 
-								var playersNearby = me.GetPlayerListInGrid(me.Map.GetVisibilityRange());
+								var playersNearby = me.GetPlayerListInGrid(me.Map.VisibilityRange);
 
 								foreach (Player player in playersNearby)
 									if (player.Team == TeamFaction.Horde)

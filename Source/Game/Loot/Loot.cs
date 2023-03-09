@@ -268,7 +268,7 @@ namespace Game.Loots
 
                 StartLootRoll startLootRoll = new();
                 startLootRoll.LootObj = m_loot.GetGUID();
-                startLootRoll.MapID = (int)m_map.GetId();
+                startLootRoll.MapID = (int)m_map.Id;
                 startLootRoll.RollTime = (uint)LOOT_ROLL_TIMEOUT.TotalMilliseconds;
                 startLootRoll.Method = m_loot.GetLootMethod();
                 startLootRoll.ValidRolls = m_voteMask;
@@ -646,7 +646,7 @@ namespace Game.Loots
         public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group)
         {
             loot_type = type;
-            _guid = map ? ObjectGuid.Create(HighGuid.LootObject, map.GetId(), 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
+            _guid = map ? ObjectGuid.Create(HighGuid.LootObject, map.Id, 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
             _owner = owner;
             _itemContext = ItemContext.None;
             _lootMethod = group != null ? group.LootMethod : LootMethod.FreeForAll;

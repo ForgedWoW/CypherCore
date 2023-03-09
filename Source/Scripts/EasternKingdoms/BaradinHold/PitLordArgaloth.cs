@@ -90,7 +90,7 @@ internal class spell_argaloth_consuming_darkness_SpellScript : SpellScript, IHas
 
 	private void FilterTargets(List<WorldObject> targets)
 	{
-		targets.RandomResize(Caster.Map.Is25ManRaid() ? 8 : 3u);
+		targets.RandomResize(Caster.Map.Is25ManRaid ? 8 : 3u);
 	}
 }
 

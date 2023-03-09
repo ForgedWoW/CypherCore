@@ -79,7 +79,7 @@ public class spell_hun_dire_beast : SpellScript, ISpellAfterCast, ISpellOnHit
 
 								break;
 							default:
-								if (player.Map.IsDungeon())
+								if (player.Map.IsDungeon)
 									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_DUNGEONS, true);
 								else // Default
 									player.CastSpell(target, DireBeastSpells.DIRE_BEAST_KALIMDOR, true);

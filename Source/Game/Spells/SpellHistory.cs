@@ -492,7 +492,7 @@ public class SpellHistory
 				player.SendPacket(new CooldownEvent(player != _owner, categoryEntry.SpellId));
 
 				if (startCooldown)
-					StartCooldown(Global.SpellMgr.GetSpellInfo(categoryEntry.SpellId, _owner.Map.GetDifficultyID()), itemId, spell);
+					StartCooldown(Global.SpellMgr.GetSpellInfo(categoryEntry.SpellId, _owner.Map.DifficultyID), itemId, spell);
 			}
 
 			player.SendPacket(new CooldownEvent(player != _owner, spellInfo.Id));
@@ -551,7 +551,7 @@ public class SpellHistory
 
 	public void ModifyCooldown(uint spellId, TimeSpan cooldownMod, bool withoutCategoryCooldown = false)
 	{
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.DifficultyID);
 
 		if (spellInfo != null)
 			ModifyCooldown(spellInfo, cooldownMod, withoutCategoryCooldown);
@@ -635,7 +635,7 @@ public class SpellHistory
 
 	public bool HasCooldown(uint spellId, uint itemId = 0)
 	{
-		return HasCooldown(Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.GetDifficultyID()), itemId);
+		return HasCooldown(Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.DifficultyID), itemId);
 	}
 
 	public bool HasCooldown(SpellInfo spellInfo, uint itemId = 0)
@@ -753,7 +753,7 @@ public class SpellHistory
 
 		foreach (var spellId in knownSpells)
 		{
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, _owner.Map.DifficultyID);
 
 			if (spellInfo.IsCooldownStartedOnEvent)
 				continue;

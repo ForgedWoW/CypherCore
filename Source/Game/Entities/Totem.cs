@@ -72,7 +72,7 @@ public class Totem : Minion
 		base.InitStats(duration);
 
 		// Get spell cast by totem
-		var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Map.GetDifficultyID());
+		var totemSpell = Global.SpellMgr.GetSpellInfo(GetSpell(), Map.DifficultyID);
 
 		if (totemSpell != null)
 			if (totemSpell.CalcCastTime() != 0) // If spell has cast time -> its an active totem
@@ -126,7 +126,7 @@ public class Totem : Minion
 		{
 			owner.SendAutoRepeatCancel(this);
 
-			var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Map.GetDifficultyID());
+			var spell = Global.SpellMgr.GetSpellInfo(UnitData.CreatedBySpell, Map.DifficultyID);
 
 			if (spell != null)
 				SpellHistory.SendCooldownEvent(spell, 0, null, false);

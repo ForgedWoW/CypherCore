@@ -53,7 +53,7 @@ public class InstanceMap : Map
 	{
 		if (player.Map == this)
 		{
-			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), GetId(), GetInstanceId(), GetDifficultyID());
+			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
 			Cypher.Assert(false);
 
 			return new TransferAbortParams(TransferAbortReason.Error);
@@ -68,19 +68,19 @@ public class InstanceMap : Map
 
 		if (GetPlayersCountExceptGMs() >= maxPlayers)
 		{
-			Log.outInfo(LogFilter.Maps, "MAP: Instance '{0}' of map '{1}' cannot have more than '{2}' players. Player '{3}' rejected", GetInstanceId(), GetMapName(), maxPlayers, player.GetName());
+			Log.outInfo(LogFilter.Maps, "MAP: Instance '{0}' of map '{1}' cannot have more than '{2}' players. Player '{3}' rejected", InstanceId, MapName, maxPlayers, player.GetName());
 
 			return new TransferAbortParams(TransferAbortReason.MaxPlayers);
 		}
 
 		// cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
-		if (!player.IsLoading && IsRaid() && GetInstanceScript() != null && GetInstanceScript().IsEncounterInProgress())
+		if (!player.IsLoading && IsRaid && GetInstanceScript() != null && GetInstanceScript().IsEncounterInProgress())
 			return new TransferAbortParams(TransferAbortReason.ZoneInCombat);
 
 		if (_instanceLock != null)
 		{
 			// cannot enter if player is permanent saved to a different instance id
-			var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(GetEntry(), GetMapDifficulty()), _instanceLock);
+			var lockError = Global.InstanceLockMgr.CanJoinInstanceLock(player.GUID, new MapDb2Entries(Entry, MapDifficulty), _instanceLock);
 
 			if (lockError != TransferAbortReason.None)
 				return new TransferAbortParams(lockError);
@@ -92,9 +92,9 @@ public class InstanceMap : Map
 	public override bool AddPlayerToMap(Player player, bool initPlayer = true)
 	{
 		// increase current instances (hourly limit)
-		player.AddInstanceEnterTime(GetInstanceId(), GameTime.GetGameTime());
+		player.AddInstanceEnterTime(InstanceId, GameTime.GetGameTime());
 
-		MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
+		MapDb2Entries entries = new(Entry, MapDifficulty);
 
 		if (entries.MapDifficulty.HasResetSchedule() && _instanceLock != null && _instanceLock.GetData().CompletedEncountersMask != 0)
 			if (!entries.MapDifficulty.IsUsingEncounterLocks())
@@ -113,15 +113,15 @@ public class InstanceMap : Map
 					player.					Session.SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
-						player.SetPendingBind(GetInstanceId(), 60000);
+						player.SetPendingBind(InstanceId, 60000);
 				}
 			}
 
 		Log.outInfo(LogFilter.Maps,
 					"MAP: Player '{0}' entered instance '{1}' of map '{2}'",
 					player.GetName(),
-					GetInstanceId(),
-					GetMapName());
+					InstanceId,
+					MapName);
 
 		// initialize unload state
 		UnloadTimer = 0;
@@ -154,19 +154,19 @@ public class InstanceMap : Map
 		if (_instanceExpireEvent.HasValue && _instanceExpireEvent.Value < GameTime.GetSystemTime())
 		{
 			Reset(InstanceResetMethod.Expire);
-			_instanceExpireEvent = Global.InstanceLockMgr.GetNextResetTime(new MapDb2Entries(GetEntry(), GetMapDifficulty()));
+			_instanceExpireEvent = Global.InstanceLockMgr.GetNextResetTime(new MapDb2Entries(Entry, MapDifficulty));
 		}
 	}
 
 	public override void RemovePlayerFromMap(Player player, bool remove)
 	{
-		Log.outInfo(LogFilter.Maps, "MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), GetInstanceId(), GetMapName());
+		Log.outInfo(LogFilter.Maps, "MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
 
 		if (_data != null)
 			_data.OnPlayerLeave(player);
 
 		// if last player set unload timer
-		if (UnloadTimer == 0 && GetPlayers().Count == 1)
+		if (UnloadTimer == 0 && Players.Count == 1)
 			UnloadTimer = (_instanceLock != null && _instanceLock.IsExpired()) ? 1 : (uint)Math.Max(WorldConfig.GetIntValue(WorldCfg.InstanceUnloadDelay), 1);
 
 		if (_scenario != null)
@@ -180,7 +180,7 @@ public class InstanceMap : Map
 		if (_data != null)
 			return;
 
-		var mInstance = Global.ObjectMgr.GetInstanceTemplate(GetId());
+		var mInstance = Global.ObjectMgr.GetInstanceTemplate(Id);
 
 		if (mInstance != null)
 		{
@@ -198,9 +198,9 @@ public class InstanceMap : Map
 			return;
 		}
 
-		MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
+		MapDb2Entries entries = new(Entry, MapDifficulty);
 
-		if (!entries.IsInstanceIdBound() || !IsRaid() || !entries.MapDifficulty.IsRestoringDungeonState() || _owningGroupRef.IsValid())
+		if (!entries.IsInstanceIdBound() || !IsRaid || !entries.MapDifficulty.IsRestoringDungeonState() || _owningGroupRef.IsValid())
 		{
 			_data.Create();
 
@@ -213,7 +213,7 @@ public class InstanceMap : Map
 
 		if (!lockData.Data.IsEmpty())
 		{
-			Log.outDebug(LogFilter.Maps, $"Loading instance data for `{Global.ObjectMgr.GetScriptName(_scriptId)}` with id {InstanceId}");
+			Log.outDebug(LogFilter.Maps, $"Loading instance data for `{Global.ObjectMgr.GetScriptName(_scriptId)}` with id {InstanceIdInternal}");
 			_data.Load(lockData.Data);
 		}
 		else
@@ -239,14 +239,14 @@ public class InstanceMap : Map
 		if (method != InstanceResetMethod.Expire && _instanceLock != null && _instanceLock.GetData().CompletedEncountersMask != 0)
 			return InstanceResetResult.CannotReset;
 
-		if (HavePlayers())
+		if (HavePlayers)
 		{
 			switch (method)
 			{
 				case InstanceResetMethod.Manual:
 					// notify the players to leave the instance so it can be reset
-					foreach (var player in GetPlayers())
-						player.SendResetFailedNotify(GetId());
+					foreach (var player in Players)
+						player.SendResetFailedNotify(Id);
 
 					break;
 				case InstanceResetMethod.OnChangeDifficulty:
@@ -256,24 +256,24 @@ public class InstanceMap : Map
 				{
 					RaidInstanceMessage raidInstanceMessage = new();
 					raidInstanceMessage.Type = InstanceResetWarningType.Expired;
-					raidInstanceMessage.MapID = GetId();
-					raidInstanceMessage.DifficultyID = GetDifficultyID();
+					raidInstanceMessage.MapID = Id;
+					raidInstanceMessage.DifficultyID = DifficultyID;
 					raidInstanceMessage.Write();
 
 					PendingRaidLock pendingRaidLock = new();
 					pendingRaidLock.TimeUntilLock = 60000;
 					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
 					pendingRaidLock.Extending = true;
-					pendingRaidLock.WarningOnly = GetEntry().IsFlexLocking();
+					pendingRaidLock.WarningOnly = Entry.IsFlexLocking();
 					pendingRaidLock.Write();
 
-					foreach (var player in GetPlayers())
+					foreach (var player in Players)
 					{
 						player.SendPacket(raidInstanceMessage);
 						player.SendPacket(pendingRaidLock);
 
 						if (!pendingRaidLock.WarningOnly)
-							player.SetPendingBind(GetInstanceId(), 60000);
+							player.SetPendingBind(InstanceId, 60000);
 					}
 
 					break;
@@ -304,19 +304,19 @@ public class InstanceMap : Map
 		{
 			var instanceCompletedEncounters = _instanceLock.GetData().CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter.Bit);
 
-			MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
+			MapDb2Entries entries = new(Entry, MapDifficulty);
 
 			SQLTransaction trans = new();
 
 			if (entries.IsInstanceIdBound())
 				Global.InstanceLockMgr.UpdateSharedInstanceLock(trans,
-																new InstanceLockUpdateEvent(GetInstanceId(),
+																new InstanceLockUpdateEvent(InstanceId,
 																							_data.GetSaveData(),
 																							instanceCompletedEncounters,
 																							updateSaveDataEvent.DungeonEncounter,
 																							_data.GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
 
-			foreach (var player in GetPlayers())
+			foreach (var player in Players)
 			{
 				// never instance bind GMs with GM mode enabled
 				if (player.IsGameMaster)
@@ -337,7 +337,7 @@ public class InstanceMap : Map
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
 																				player.																				GUID,
 																				entries,
-																				new InstanceLockUpdateEvent(GetInstanceId(),
+																				new InstanceLockUpdateEvent(InstanceId,
 																											_data.UpdateBossStateSaveData(oldData, updateSaveDataEvent),
 																											instanceCompletedEncounters,
 																											updateSaveDataEvent.DungeonEncounter,
@@ -364,14 +364,14 @@ public class InstanceMap : Map
 		{
 			var instanceCompletedEncounters = _instanceLock.GetData().CompletedEncountersMask;
 
-			MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
+			MapDb2Entries entries = new(Entry, MapDifficulty);
 
 			SQLTransaction trans = new();
 
 			if (entries.IsInstanceIdBound())
-				Global.InstanceLockMgr.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(GetInstanceId(), _data.GetSaveData(), instanceCompletedEncounters, null, null));
+				Global.InstanceLockMgr.UpdateSharedInstanceLock(trans, new InstanceLockUpdateEvent(InstanceId, _data.GetSaveData(), instanceCompletedEncounters, null, null));
 
-			foreach (var player in GetPlayers())
+			foreach (var player in Players)
 			{
 				// never instance bind GMs with GM mode enabled
 				if (player.IsGameMaster)
@@ -388,7 +388,7 @@ public class InstanceMap : Map
 				var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans,
 																				player.																				GUID,
 																				entries,
-																				new InstanceLockUpdateEvent(GetInstanceId(),
+																				new InstanceLockUpdateEvent(InstanceId,
 																											_data.UpdateAdditionalSaveData(oldData, updateSaveDataEvent),
 																											instanceCompletedEncounters,
 																											null,
@@ -411,14 +411,14 @@ public class InstanceMap : Map
 
 	public void CreateInstanceLockForPlayer(Player player)
 	{
-		MapDb2Entries entries = new(GetEntry(), GetMapDifficulty());
+		MapDb2Entries entries = new(Entry, MapDifficulty);
 		var playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(player.GUID, entries);
 
 		var isNewLock = playerLock == null || playerLock.GetData().CompletedEncountersMask == 0 || playerLock.IsExpired();
 
 		SQLTransaction trans = new();
 
-		var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(GetInstanceId(), _data.GetSaveData(), _instanceLock.GetData().CompletedEncountersMask, null, null));
+		var newLock = Global.InstanceLockMgr.UpdateInstanceLockForPlayer(trans, player.GUID, entries, new InstanceLockUpdateEvent(InstanceId, _data.GetSaveData(), _instanceLock.GetData().CompletedEncountersMask, null, null));
 
 		DB.Characters.CommitTransaction(trans);
 
@@ -435,12 +435,12 @@ public class InstanceMap : Map
 
 	public uint GetMaxPlayers()
 	{
-		var mapDiff = GetMapDifficulty();
+		var mapDiff = MapDifficulty;
 
 		if (mapDiff != null && mapDiff.MaxPlayers != 0)
 			return mapDiff.MaxPlayers;
 
-		return GetEntry().MaxPlayers;
+		return Entry.MaxPlayers;
 	}
 
 	public int GetTeamIdInInstance()

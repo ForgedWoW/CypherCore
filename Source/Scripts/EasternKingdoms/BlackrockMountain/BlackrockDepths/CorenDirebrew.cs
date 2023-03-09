@@ -220,7 +220,7 @@ internal class boss_coren_direbrew : BossAI
 	{
 		_JustDied();
 
-		var players = me.Map.GetPlayers();
+		var players = me.Map.Players;
 
 		if (!players.Empty())
 		{

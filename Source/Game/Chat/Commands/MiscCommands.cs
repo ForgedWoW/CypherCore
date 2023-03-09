@@ -44,7 +44,7 @@ namespace Game.Chat
                 string chrNameLink = handler.PlayerLink(targetName);
 
                 Map map = target.Map;
-                if (map.IsBattlegroundOrArena())
+                if (map.IsBattlegroundOrArena)
                 {
                     // only allow if gm mode is on
                     if (!_player.IsGameMaster)
@@ -60,10 +60,10 @@ namespace Game.Chat
                     // when porting out from the bg, it will be reset to 0
                     _player.SetBattlegroundId(target.BattlegroundId, target.BattlegroundTypeId);
                     // remember current position as entry point for return at bg end teleportation
-                    if (!_player.Map.IsBattlegroundOrArena())
+                    if (!_player.Map.IsBattlegroundOrArena)
                         _player.SetBattlegroundEntryPoint();
                 }
-                else if (map.IsDungeon())
+                else if (map.IsDungeon)
                 {
                     // we have to go to instance, and can go to player only if:
                     //   1) we are in his group (either as leader or as member)
@@ -87,7 +87,7 @@ namespace Game.Chat
                         }
                     }
 
-                    if (map.IsRaid())
+                    if (map.IsRaid)
                     {
                         _player.                        RaidDifficultyId = target.RaidDifficultyId;
                         _player.                        LegacyRaidDifficultyId = target.LegacyRaidDifficultyId;
@@ -327,7 +327,7 @@ namespace Game.Chat
             if (spellid == 0)
                 return false;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Map.GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, attacker.Map.DifficultyID);
             if (spellInfo == null)
                 return false;
 
@@ -1758,7 +1758,7 @@ namespace Game.Chat
                 }
 
                 Map map = _player.Map;
-                if (map.IsBattlegroundOrArena())
+                if (map.IsBattlegroundOrArena)
                 {
                     // only allow if gm mode is on
                     if (!_player.IsGameMaster)
@@ -1774,10 +1774,10 @@ namespace Game.Chat
                     // when porting out from the bg, it will be reset to 0
                     target.SetBattlegroundId(_player.BattlegroundId, _player.BattlegroundTypeId);
                     // remember current position as entry point for return at bg end teleportation
-                    if (!target.Map.IsBattlegroundOrArena())
+                    if (!target.Map.IsBattlegroundOrArena)
                         target.SetBattlegroundEntryPoint();
                 }
-                else if (map.IsDungeon())
+                else if (map.IsDungeon)
                 {
                     Map targetMap = target.Map;
 
@@ -1787,9 +1787,9 @@ namespace Game.Chat
                         targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
                     // check if far teleport is allowed
-                    if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.GetId()) || (targetGroupLeader.InstanceId1 != map.GetInstanceId()))
+                    if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId1 != map.InstanceId))
                     {
-                        if ((targetMap.GetId() != map.GetId()) || (targetMap.GetInstanceId() != map.GetInstanceId()))
+                        if ((targetMap.Id != map.Id) || (targetMap.InstanceId != map.InstanceId))
                         {
                             handler.SendSysMessage(CypherStrings.CannotSummonToInst);
                             return false;
@@ -1797,7 +1797,7 @@ namespace Game.Chat
                     }
 
                     // check if we're already in a different instance of the same map
-                    if ((targetMap.GetId() == map.GetId()) && (targetMap.GetInstanceId() != map.GetInstanceId()))
+                    if ((targetMap.Id == map.Id) && (targetMap.InstanceId != map.InstanceId))
                     {
                         handler.SendSysMessage(CypherStrings.CannotSummonInstInst, nameLink);
                         return false;
@@ -1818,7 +1818,7 @@ namespace Game.Chat
                 var pos = new Position();
                 _player.GetClosePoint(pos, target.CombatReach);
                 pos.Orientation = target.Location.Orientation;
-                target.TeleportTo(_player.Location.MapId, pos, 0, map.GetInstanceId());
+                target.TeleportTo(_player.Location.MapId, pos, 0, map.InstanceId);
                 PhasingHandler.InheritPhaseShift(target, _player);
                 target.UpdateObjectVisibility();
             }

@@ -265,11 +265,11 @@ namespace Game.PvP
             }
 
             Map map = Global.MapMgr.FindMap(530, 0);
-            var bounds = map.GetGameObjectBySpawnIdStore().LookupByKey(m_capturePointSpawnId);
+            var bounds = map.GameObjectBySpawnIdStore.LookupByKey(m_capturePointSpawnId);
             foreach (var go in bounds)
                 go.                GoArtKit = artkit;
 
-            bounds = map.GetGameObjectBySpawnIdStore().LookupByKey(m_flagSpawnId);
+            bounds = map.GameObjectBySpawnIdStore.LookupByKey(m_flagSpawnId);
             foreach (var go in bounds)
                 go.                GoArtKit = artkit2;
 

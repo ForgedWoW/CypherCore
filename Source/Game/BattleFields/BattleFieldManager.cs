@@ -51,7 +51,7 @@ namespace Game.BattleFields
                 if (BattlefieldIdToScriptId[i] == 0)
                     continue;
 
-                if (BattlefieldIdToMapId[i] != map.GetId())
+                if (BattlefieldIdToMapId[i] != map.Id)
                     continue;
                 
                 BattleField bf = Global.ScriptMgr.RunScriptRet<IBattlefieldGetBattlefield, BattleField>(p => p.GetBattlefield(map), BattlefieldIdToScriptId[i], null);
@@ -61,12 +61,12 @@ namespace Game.BattleFields
 
                 if (!bf.SetupBattlefield())
                 {
-                    Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.GetId()} instance id {map.GetInstanceId()} failed.");
+                    Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} failed.");
                     continue;
                 }
 
                 _battlefieldsByMap.Add(map, bf);
-                Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.GetId()} instance id {map.GetInstanceId()} succeeded.");
+                Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} succeeded.");
             }
         }
 

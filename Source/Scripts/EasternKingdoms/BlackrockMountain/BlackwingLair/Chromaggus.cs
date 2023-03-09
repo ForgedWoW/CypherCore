@@ -227,7 +227,7 @@ internal class boss_chromaggus : BossAI
 		_scheduler.Schedule(TimeSpan.FromSeconds(10),
 							task =>
 							{
-								var players = me.Map.GetPlayers();
+								var players = me.Map.Players;
 
 								foreach (var player in players)
 									if (player)

@@ -459,7 +459,7 @@ namespace Game.Chat
             }
 
             Map map = player.Map;
-            string mapName = map.GetMapName();
+            string mapName = map.MapName;
             InstanceScript instance = player.InstanceScript;
             if (instance == null)
             {
@@ -498,7 +498,7 @@ namespace Game.Chat
             }
 
             if (groupID == 0)
-                handler.SendSysMessage($"Spawn groups managed by {mapName} ({map.GetId()}):");
+                handler.SendSysMessage($"Spawn groups managed by {mapName} ({map.Id}):");
 
             foreach (var key in store.Keys)
             {
@@ -585,22 +585,22 @@ namespace Game.Chat
             // Load 1 single tile if specified, otherwise load the whole map
             if (tileX.HasValue && tileY.HasValue)
             {
-                handler.SendSysMessage($"Loading cell (mapId: {map.GetId()} tile: {tileX}, {tileY}). Current GameObjects {map.GetObjectsStore().Count(p => p.Value is GameObject)}, Creatures {map.GetObjectsStore().Count(p => p.Value is Creature)}");
+                handler.SendSysMessage($"Loading cell (mapId: {map.Id} tile: {tileX}, {tileY}). Current GameObjects {map.ObjectsStore.Count(p => p.Value is GameObject)}, Creatures {map.ObjectsStore.Count(p => p.Value is Creature)}");
 
                 // Some unit convertions to go from TileXY to GridXY to WorldXY
                 float x = (((float)(64 - 1 - tileX.Value) - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
                 float y = (((float)(64 - 1 - tileY.Value) - 0.5f - MapConst.CenterGridId) * MapConst.SizeofGrids) + (MapConst.CenterGridOffset * 2);
                 map.LoadGrid(x, y);
 
-                handler.SendSysMessage($"Cell loaded (mapId: {map.GetId()} tile: {tileX}, {tileY}) After load - GameObject {map.GetObjectsStore().Count(p => p.Value is GameObject)}, Creatures {map.GetObjectsStore().Count(p => p.Value is Creature)}");
+                handler.SendSysMessage($"Cell loaded (mapId: {map.Id} tile: {tileX}, {tileY}) After load - GameObject {map.ObjectsStore.Count(p => p.Value is GameObject)}, Creatures {map.ObjectsStore.Count(p => p.Value is Creature)}");
             }
             else
             {
-                handler.SendSysMessage($"Loading all cells (mapId: {map.GetId()}). Current GameObjects {map.GetObjectsStore().Count(p => p.Value is GameObject)}, Creatures {map.GetObjectsStore().Count(p => p.Value is Creature)}");
+                handler.SendSysMessage($"Loading all cells (mapId: {map.Id}). Current GameObjects {map.ObjectsStore.Count(p => p.Value is GameObject)}, Creatures {map.ObjectsStore.Count(p => p.Value is Creature)}");
 
                 map.LoadAllCells();
 
-                handler.SendSysMessage($"Cells loaded (mapId: {map.GetId()}) After load - GameObject {map.GetObjectsStore().Count(p => p.Value is GameObject)}, Creatures {map.GetObjectsStore().Count(p => p.Value is Creature)}");
+                handler.SendSysMessage($"Cells loaded (mapId: {map.Id}) After load - GameObject {map.ObjectsStore.Count(p => p.Value is GameObject)}, Creatures {map.ObjectsStore.Count(p => p.Value is Creature)}");
             }
             return true;
         }
@@ -729,10 +729,10 @@ namespace Game.Chat
         {
             void HandleDebugObjectCountMap(Map map)
             {
-                handler.SendSysMessage($"Map Id: {map.GetId()} Name: '{map.GetMapName()}' Instance Id: {map.GetInstanceId()} Creatures: {map.GetObjectsStore().OfType<Creature>().Count()} GameObjects: {map.GetObjectsStore().OfType<GameObject>().Count()} SetActive Objects: {map.GetActiveNonPlayersCount()}");
+                handler.SendSysMessage($"Map Id: {map.Id} Name: '{map.MapName}' Instance Id: {map.InstanceId} Creatures: {map.ObjectsStore.OfType<Creature>().Count()} GameObjects: {map.ObjectsStore.OfType<GameObject>().Count()} SetActive Objects: {map.ActiveNonPlayersCount}");
 
                 Dictionary<uint, uint> creatureIds = new();
-                foreach (var p in map.GetObjectsStore())
+                foreach (var p in map.ObjectsStore)
                 {
                     if (p.Value.IsCreature)
                     {
@@ -1416,7 +1416,7 @@ namespace Game.Chat
 
         static void HandleDebugGuidLimitsMap(CommandHandler handler, Map map)
         {
-            handler.SendSysMessage($"Map Id: {map.GetId()} Name: '{map.GetMapName()}' Instance Id: {map.GetInstanceId()} Highest Guid Creature: {map.GenerateLowGuid(HighGuid.Creature)} GameObject: {map.GetMaxLowGuid(HighGuid.GameObject)}");
+            handler.SendSysMessage($"Map Id: {map.Id} Name: '{map.MapName}' Instance Id: {map.InstanceId} Highest Guid Creature: {map.GenerateLowGuid(HighGuid.Creature)} GameObject: {map.GetMaxLowGuid(HighGuid.GameObject)}");
         }
     }
 }

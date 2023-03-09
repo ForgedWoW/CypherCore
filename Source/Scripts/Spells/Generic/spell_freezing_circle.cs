@@ -31,10 +31,10 @@ internal class spell_freezing_circle : SpellScript, IHasSpellEffects
 		uint spellId = 0;
 		var map = caster.Map;
 
-		if (map.IsDungeon())
-			spellId = map.IsHeroic() ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
+		if (map.IsDungeon)
+			spellId = map.IsHeroic ? GenericSpellIds.FreezingCirclePitOfSaronHeroic : GenericSpellIds.FreezingCirclePitOfSaronNormal;
 		else
-			spellId = map.GetId() == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
+			spellId = map.Id == Misc.MapIdBloodInTheSnowScenario ? GenericSpellIds.FreezingCircleScenario : GenericSpellIds.FreezingCircle;
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, CastDifficulty);
 

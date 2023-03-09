@@ -741,7 +741,7 @@ namespace Game.Arenas
             {
                 Player player = Global.ObjAccessor.FindPlayer(member.Guid);
                 if (player)
-                    if (player.Map.IsBattleArena())
+                    if (player.Map.IsBattleArena)
                         return true;
             }
 

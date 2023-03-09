@@ -120,12 +120,12 @@ public class boss_admiral_ripsnarl : BossAI
 				var map = me.Map;
 				var its_frost_damage = Global.AchievementMgr.GetAchievementByReferencedId(eAchievementMisc.ACHIEVEMENT_ITS_FROST_DAMAGE).FirstOrDefault();
 
-				if (map != null && map.IsDungeon() && map.GetDifficultyID() == Difficulty.Heroic)
+				if (map != null && map.IsDungeon && map.DifficultyID == Difficulty.Heroic)
 				{
-					var players = map.GetPlayers();
+					var players = map.Players;
 
 					if (!players.Empty())
-						foreach (var player in map.GetPlayers())
+						foreach (var player in map.Players)
 							if (player != null)
 								if (player.GetDistance(me) < 300.0f)
 									player.CompletedAchievement(its_frost_damage);

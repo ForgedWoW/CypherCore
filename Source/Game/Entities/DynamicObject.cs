@@ -56,7 +56,7 @@ public class DynamicObject : WorldObject
 		// Register the dynamicObject for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			Map.GetObjectsStore().Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 			base.AddToWorld();
 			BindToCaster();
 		}
@@ -79,7 +79,7 @@ public class DynamicObject : WorldObject
 
 			UnbindFromCaster();
 			base.RemoveFromWorld();
-			Map.GetObjectsStore().Remove(GUID);
+			Map.			ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -211,7 +211,7 @@ public class DynamicObject : WorldObject
 
 	public SpellInfo GetSpellInfo()
 	{
-		return Global.SpellMgr.GetSpellInfo(GetSpellId(), Map.GetDifficultyID());
+		return Global.SpellMgr.GetSpellInfo(GetSpellId(), Map.DifficultyID);
 	}
 
 	public override void BuildValuesCreate(WorldPacket data, Player target)

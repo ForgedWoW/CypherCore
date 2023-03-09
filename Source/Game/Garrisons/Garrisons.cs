@@ -742,7 +742,7 @@ namespace Game.Garrisons
 
                 if (go.GoType == GameObjectTypes.GarrisonBuilding && go.GoInfo.GarrisonBuilding.SpawnMap != 0)
                 {
-                    foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.GoInfo.GarrisonBuilding.SpawnMap, map.GetDifficultyID()))
+                    foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.GoInfo.GarrisonBuilding.SpawnMap, map.DifficultyID))
                     {
                         foreach (var spawnId in cellGuids.Value.creatures)
                         {

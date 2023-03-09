@@ -24,7 +24,7 @@ namespace Game.Movement
             _navMeshQuery = null;
             Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
-            uint mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.GetTerrain(), _source.Location.X, _source.Location.Y);
+            uint mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.Terrain, _source.Location.X, _source.Location.Y);
             if (Global.DisableMgr.IsPathfindingEnabled(_source.Location.MapId))
             {
                 _navMesh = Global.MMapMgr.GetNavMesh(mapId);

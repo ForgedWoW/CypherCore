@@ -25,7 +25,7 @@ public class FormationMgr
 
 			// With dynamic spawn the creature may have just respawned
 			// we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
-			var bounds = map.GetCreatureBySpawnIdStore().LookupByKey(creature.SpawnId);
+			var bounds = map.CreatureBySpawnIdStore.LookupByKey(creature.SpawnId);
 
 			foreach (var other in bounds)
 			{
@@ -58,7 +58,7 @@ public class FormationMgr
 			var map = member.Map;
 
 			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId1);
-			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.LeaderSpawnId), $"Not registered group {group.LeaderSpawnId} in map {map.GetId()}");
+			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.LeaderSpawnId), $"Not registered group {group.LeaderSpawnId} in map {map.Id}");
 			map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
 		}
 	}

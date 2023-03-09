@@ -41,7 +41,7 @@ class ConversationActorFillVisitor
 	{
 		Creature bestFit = null;
 
-		foreach (var creature in _map.GetCreatureBySpawnIdStore().LookupByKey(worldObject.SpawnId))
+		foreach (var creature in _map.CreatureBySpawnIdStore.LookupByKey(worldObject.SpawnId))
 		{
 			bestFit = creature;
 

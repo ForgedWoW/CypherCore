@@ -1114,7 +1114,7 @@ namespace Game
                 {
                     foreach (var spawnId in creaturesByMap[key])
                     {
-                        var creatureBounds = map.GetCreatureBySpawnIdStore().LookupByKey(spawnId);
+                        var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(spawnId);
                         foreach (var creature in creatureBounds)
                         {
                             ulong npcflag = GetNPCFlag(creature);
@@ -1233,7 +1233,7 @@ namespace Game
                 {
                     Global.MapMgr.DoForAllMapsWithMapId((uint)poolTemplate.MapId, map =>
                     {
-                        Global.PoolMgr.SpawnPool(map.GetPoolData(), id);
+                        Global.PoolMgr.SpawnPool(map.PoolData, id);
                     });
                 }
             }
@@ -1265,7 +1265,7 @@ namespace Game
                     Global.MapMgr.DoForAllMapsWithMapId(data.MapId, map =>
                     {
                         map.RemoveRespawnTime(SpawnObjectType.Creature, guid);
-                        var creatureBounds = map.GetCreatureBySpawnIdStore().LookupByKey(guid);
+                        var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(guid);
                         foreach (var creature in creatureBounds)
                             creature.AddObjectToRemoveList();
                     });
@@ -1293,7 +1293,7 @@ namespace Game
                     Global.MapMgr.DoForAllMapsWithMapId(data.MapId, map =>
                     {
                         map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
-                        var gameobjectBounds = map.GetGameObjectBySpawnIdStore().LookupByKey(guid);
+                        var gameobjectBounds = map.GameObjectBySpawnIdStore.LookupByKey(guid);
                         foreach (var go in gameobjectBounds)
                             go.AddObjectToRemoveList();
 
@@ -1314,7 +1314,7 @@ namespace Game
                 {
                     Global.MapMgr.DoForAllMapsWithMapId((uint)poolTemplate.MapId, map =>
                     {
-                        Global.PoolMgr.DespawnPool(map.GetPoolData(), poolId, true);
+                        Global.PoolMgr.DespawnPool(map.PoolData, poolId, true);
                     });
                 }
             }
@@ -1332,7 +1332,7 @@ namespace Game
                 // Update if spawned
                 Global.MapMgr.DoForAllMapsWithMapId(data.MapId, map =>
                 {
-                    var creatureBounds = map.GetCreatureBySpawnIdStore().LookupByKey(tuple.Item1);
+                    var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(tuple.Item1);
                     foreach (var creature in creatureBounds)
                     {
                         if (activate)
@@ -1584,7 +1584,7 @@ namespace Game
             {
                 GameEventAIHookWorker worker = new(event_id, activate);
     
-                worker.Visit(map.GetObjectsStore().Values.ToList());
+                worker.Visit(map.ObjectsStore.Values.ToList());
             });
         }
 

@@ -42,7 +42,7 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 
 		if (areaEntry != null &&
 			areaEntry.IsFlyable() &&
-			!caster.Map.IsDungeon())
+			!caster.Map.IsDungeon)
 			success = RandomHelper.randChance(95);
 
 		caster.CastSpell(caster, success ? ItemSpellIds.NitroBoostsSuccess : ItemSpellIds.NitroBoostsBackfire, new CastSpellExtraArgs(CastItem));

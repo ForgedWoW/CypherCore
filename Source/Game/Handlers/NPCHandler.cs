@@ -305,7 +305,7 @@ namespace Game
         void SendBindPoint(Creature npc)
         {
             // prevent set homebind to instances in any case
-            if (Player.Map.Instanceable())
+            if (Player.Map.Instanceable)
                 return;
 
             uint bindspell = 3286;

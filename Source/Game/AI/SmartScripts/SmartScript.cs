@@ -3910,11 +3910,11 @@ namespace Game.AI
             {
                 if (holder.Event.event_flags.HasAnyFlag(SmartEventFlags.DifficultyAll))//if has instance flag add only if in it
                 {
-                    if (!(obj != null && obj.Map.IsDungeon()))
+                    if (!(obj != null && obj.Map.IsDungeon))
                         continue;
 
                     // TODO: fix it for new maps and difficulties
-                    switch (obj.Map.GetDifficultyID())
+                    switch (obj.Map.DifficultyID)
                     {
                         case Difficulty.Normal:
                         case Difficulty.Raid10N:
@@ -4328,7 +4328,7 @@ namespace Game.AI
 
         GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
         {
-            var bounds = searchObject.Map.GetGameObjectBySpawnIdStore().LookupByKey(guid);
+            var bounds = searchObject.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
             if (bounds.Empty())
                 return null;
 
@@ -4337,7 +4337,7 @@ namespace Game.AI
 
         Creature FindCreatureNear(WorldObject searchObject, ulong guid)
         {
-            var bounds = searchObject.Map.GetCreatureBySpawnIdStore().LookupByKey(guid);
+            var bounds = searchObject.Map.CreatureBySpawnIdStore.LookupByKey(guid);
             if (bounds.Empty())
                 return null;
 

@@ -38,7 +38,7 @@ namespace Game.Conditions
                     break;
                 case ConditionTypes.InstanceInfo:
                 {
-                    if (map.IsDungeon())
+                    if (map.IsDungeon)
                     {
                         InstanceScript instance = ((InstanceMap)map).GetInstanceScript();
                         if (instance != null)
@@ -66,7 +66,7 @@ namespace Game.Conditions
                     break;
                 }
                 case ConditionTypes.Mapid:
-                    condMeets = map.GetId() == ConditionValue1;
+                    condMeets = map.Id == ConditionValue1;
                     break;
                 case ConditionTypes.WorldState:
                 {
@@ -82,12 +82,12 @@ namespace Game.Conditions
                 }
                 case ConditionTypes.DifficultyId:
                 {
-                    condMeets = (uint)map.GetDifficultyID() == ConditionValue1;
+                    condMeets = (uint)map.DifficultyID == ConditionValue1;
                     break;
                 }
                 case ConditionTypes.ScenarioStep:
                 {
-                    InstanceMap instanceMap = map.ToInstanceMap();
+                    InstanceMap instanceMap = map.ToInstanceMap;
                     if (instanceMap != null)
                     {
                         Scenario scenario = instanceMap.GetInstanceScenario();

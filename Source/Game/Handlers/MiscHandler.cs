@@ -344,7 +344,7 @@ namespace Game
 
                 PlayerGroup group = player.Group;
                 if (group)
-                    if (group.IsLFGGroup && player.Map.IsDungeon())
+                    if (group.IsLFGGroup && player.Map.IsDungeon)
                         teleported = player.TeleportToBGEntryPoint();
             }
 
@@ -361,7 +361,7 @@ namespace Game
                         Map map = Global.MapMgr.FindMap(at.target_mapId, targetInstanceId);
                         if (map != null)
                         {
-                            InstanceMap instanceMap = map.ToInstanceMap();
+                            InstanceMap instanceMap = map.ToInstanceMap;
                             if (instanceMap)
                             {
                                 InstanceScript instanceScript = instanceMap.GetInstanceScript();
@@ -592,7 +592,7 @@ namespace Game
         void HandleResetInstances(ResetInstances packet)
         {
             Map map = _player.Map;
-            if (map != null && map.Instanceable())
+            if (map != null && map.Instanceable)
                 return;
 
             PlayerGroup group = Player.Group;
@@ -641,7 +641,7 @@ namespace Game
 
             // cannot reset while in an instance
             Map map = Player.Map;
-            if (map && map.Instanceable())
+            if (map && map.Instanceable)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetDungeonDifficulty: player (Name: {0}, {1}) tried to reset the instance while player is inside!",
                     Player.GetName(), Player.GUID.ToString());
@@ -707,7 +707,7 @@ namespace Game
 
             // cannot reset while in an instance
             Map map = Player.Map;
-            if (map && map.Instanceable())
+            if (map && map.Instanceable)
             {
                 Log.outDebug(LogFilter.Network, "WorldSession:HandleSetRaidDifficulty: player (Name: {0}, {1} tried to reset the instance while inside!",
                     Player.GetName(), Player.GUID.ToString());

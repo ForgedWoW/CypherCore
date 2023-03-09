@@ -135,10 +135,10 @@ public class AreaTrigger : WorldObject
 		// Register the AreaTrigger for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			Map.GetObjectsStore().Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 
 			if (_spawnId != 0)
-				Map.GetAreaTriggerBySpawnIdStore().Add(_spawnId, this);
+				Map.				AreaTriggerBySpawnIdStore.Add(_spawnId, this);
 
 			base.AddToWorld();
 		}
@@ -164,9 +164,10 @@ public class AreaTrigger : WorldObject
 			base.RemoveFromWorld();
 
 			if (_spawnId != 0)
-				Map.GetAreaTriggerBySpawnIdStore().Remove(_spawnId, this);
+				Map.				AreaTriggerBySpawnIdStore.Remove(_spawnId, this);
 
-			Map.GetObjectsStore().Remove(GUID);
+			Map.
+			ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -182,7 +183,7 @@ public class AreaTrigger : WorldObject
 
 	public static ObjectGuid CreateNewMovementForceId(Map map, uint areaTriggerId)
 	{
-		return ObjectGuid.Create(HighGuid.AreaTrigger, map.GetId(), areaTriggerId, map.GenerateLowGuid(HighGuid.AreaTrigger));
+		return ObjectGuid.Create(HighGuid.AreaTrigger, map.Id, areaTriggerId, map.GenerateLowGuid(HighGuid.AreaTrigger));
 	}
 
 	public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool allowDuplicate)
@@ -923,9 +924,9 @@ public class AreaTrigger : WorldObject
 		switch (action.TargetType)
 		{
 			case AreaTriggerActionUserTypes.Friend:
-				return caster.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.GetDifficultyID()));
+				return caster.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.DifficultyID));
 			case AreaTriggerActionUserTypes.Enemy:
-				return caster.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.GetDifficultyID()));
+				return caster.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Map.DifficultyID));
 			case AreaTriggerActionUserTypes.Raid:
 				return caster.IsInRaidWith(unit);
 			case AreaTriggerActionUserTypes.Party:

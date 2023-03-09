@@ -85,7 +85,7 @@ public partial class Unit
 			if (transformId == 0)
 				return false;
 
-			var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(transformId, Map.DifficultyID);
 
 			if (spellInfo == null)
 				return false;
@@ -1035,7 +1035,7 @@ public partial class Unit
 
 				if (matches)
 				{
-					var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, Map.GetDifficultyID());
+					var info = Global.SpellMgr.GetSpellInfo((uint)auraEffect.Amount, Map.DifficultyID);
 
 					if (info != null)
 						return info;
@@ -1065,7 +1065,7 @@ public partial class Unit
 		foreach (var effect in visualOverrides)
 			if (effect.MiscValue == spellInfo.Id)
 			{
-				var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, Map.GetDifficultyID());
+				var visualSpell = Global.SpellMgr.GetSpellInfo((uint)effect.MiscValueB, Map.DifficultyID);
 
 				if (visualSpell != null)
 				{
@@ -1509,7 +1509,7 @@ public partial class Unit
 				if ((pair.Key & schoolMask) == 0)
 					continue;
 
-				var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, Map.GetDifficultyID());
+				var immuneSpellInfo = Global.SpellMgr.GetSpellInfo(pair.Value, Map.DifficultyID);
 
 				if (requireImmunityPurgesEffectAttribute)
 					if (immuneSpellInfo == null || !immuneSpellInfo.HasAttribute(SpellAttr1.ImmunityPurgesEffect))
@@ -1640,7 +1640,7 @@ public partial class Unit
 			var schoolList = _spellImmune[(int)SpellImmunity.School];
 
 			foreach (var pair in schoolList.KeyValueList)
-				if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, Map.GetDifficultyID())))
+				if (Convert.ToBoolean(pair.Key & schoolMask) && !spellInfo.CanPierceImmuneAura(Global.SpellMgr.GetSpellInfo(pair.Value, Map.DifficultyID)))
 					schoolImmunityMask |= pair.Key;
 
 			// // We need to be immune to all types
@@ -2513,7 +2513,7 @@ public partial class Unit
 		if (target == null)
 			return null;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
 
 		if (spellInfo == null)
 			return null;
@@ -2546,7 +2546,7 @@ public partial class Unit
 
 		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
-		AuraCreateInfo createInfo = new(castId, spellInfo, Map.GetDifficultyID(), effMask, target);
+		AuraCreateInfo createInfo = new(castId, spellInfo, Map.DifficultyID, effMask, target);
 		createInfo.SetCaster(this);
 
 		var aura = Aura.TryRefreshStackOrCreate(createInfo);
@@ -2584,7 +2584,7 @@ public partial class Unit
 			var target = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.TargetClicker) ? clicker : this;
 			var origCasterGUID = Convert.ToBoolean(clickInfo.castFlags & (byte)SpellClickCastFlags.OrigCasterOwner) ? OwnerGUID : clicker.GUID;
 
-			var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.Map.GetDifficultyID());
+			var spellEntry = Global.SpellMgr.GetSpellInfo(clickInfo.spellId, caster.Map.DifficultyID);
 			// if (!spellEntry) should be checked at npc_spellclick load
 
 			if (seatId > -1)
@@ -2627,7 +2627,7 @@ public partial class Unit
 
 					bp[i] = seatId;
 
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.GetDifficultyID(), SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffectMask, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetBaseAmount(bp);
 					createInfo.SetCasterGuid(origCasterGUID);
@@ -2643,7 +2643,7 @@ public partial class Unit
 				}
 				else
 				{
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.GetDifficultyID(), SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffectMask, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetCasterGuid(origCasterGUID);
 

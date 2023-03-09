@@ -45,7 +45,7 @@ public partial class Player
 			{
 				var map = Map;
 
-				return Global.LFGMgr.InLfgDungeonMap(GUID, map.GetId(), map.GetDifficultyID());
+				return Global.LFGMgr.InLfgDungeonMap(GUID, map.Id, map.DifficultyID);
 			}
 
 			return false;
@@ -215,7 +215,7 @@ public partial class Player
 		if (!player || IsAlive)
 			player = this;
 
-		if (player.Map.IsDungeon())
+		if (player.Map.IsDungeon)
 			return true;
 
 		return pRewardSource.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.GroupXpDistance);

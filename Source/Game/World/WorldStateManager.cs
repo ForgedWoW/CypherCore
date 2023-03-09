@@ -185,7 +185,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		if (worldStateTemplate == null || worldStateTemplate.MapIds.Empty())
 			return _realmWorldStateValues.LookupByKey(worldStateId);
 
-		if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.GetId()) && !worldStateTemplate.MapIds.Contains(AnyMap)))
+		if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.Id) && !worldStateTemplate.MapIds.Contains(AnyMap)))
 			return 0;
 
 		return map.GetWorldStateValue(worldStateId);
@@ -232,7 +232,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 			return;
 		}
 
-		if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.GetId()) && !worldStateTemplate.MapIds.Contains(AnyMap)))
+		if (map == null || (!worldStateTemplate.MapIds.Contains((int)map.Id) && !worldStateTemplate.MapIds.Contains(AnyMap)))
 			return;
 
 		map.SetWorldStateValue(worldStateId, value, hidden);
@@ -264,7 +264,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 	{
 		Dictionary<int, int> initialValues = new();
 
-		if (_worldStatesByMap.TryGetValue((int)map.GetId(), out var valuesTemplate))
+		if (_worldStatesByMap.TryGetValue((int)map.Id, out var valuesTemplate))
 			foreach (var (key, value) in valuesTemplate)
 				initialValues.Add(key, value);
 

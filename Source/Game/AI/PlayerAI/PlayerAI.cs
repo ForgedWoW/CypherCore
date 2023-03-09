@@ -466,7 +466,7 @@ namespace Game.AI
             if (knownRank == 0)
                 return null;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, me.Map.GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(knownRank, me.Map.DifficultyID);
             if (spellInfo == null)
                 return null;
 
@@ -588,7 +588,7 @@ namespace Game.AI
             if (rangedAttackSpell == 0)
                 return;
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, me.Map.GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(rangedAttackSpell, me.Map.DifficultyID);
             if (spellInfo == null)
                 return;
 

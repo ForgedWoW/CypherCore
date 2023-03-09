@@ -37,12 +37,12 @@ public class npc_vanessa_anchor_bunny : ScriptedAI
 			var map = me.Map;
 			var vigorous_vancleef_vindicator = Global.AchievementMgr.GetAchievementByReferencedId(boss_vanessa_vancleef.eAchievementMisc.ACHIEVEMENT_VIGOROUS_VANCLEEF_VINDICATOR).FirstOrDefault();
 
-			if (map != null && map.IsDungeon() && map.GetDifficultyID() == Difficulty.Heroic)
+			if (map != null && map.IsDungeon && map.DifficultyID == Difficulty.Heroic)
 			{
-				var players = map.GetPlayers();
+				var players = map.Players;
 
 				if (!players.Empty())
-					foreach (var player in map.GetPlayers())
+					foreach (var player in map.Players)
 						if (player != null)
 							if (player.GetDistance(me) < 200.0f)
 								player.CompletedAchievement(vigorous_vancleef_vindicator);

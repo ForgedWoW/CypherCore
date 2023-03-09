@@ -42,7 +42,7 @@ namespace Game
         public static void TriggerForPlayer(uint gameEventId, Player source)
         {
             Map map = source.Map;
-            if (map.Instanceable())
+            if (map.Instanceable)
             {
                 source.StartCriteriaTimer(CriteriaStartEvent.SendEvent, gameEventId);
                 source.ResetCriteria(CriteriaFailEvent.SendEvent, gameEventId);
@@ -50,7 +50,7 @@ namespace Game
 
             source.UpdateCriteria(CriteriaType.PlayerTriggerGameEvent, gameEventId, 0, 0, source);
 
-            if (map.IsScenario())
+            if (map.IsScenario)
                 source.UpdateCriteria(CriteriaType.AnyoneTriggerGameEventScenario, gameEventId, 0, 0, source);
         }
 

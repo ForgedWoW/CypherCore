@@ -1366,7 +1366,7 @@ public class SpellInfo
 
 			if (map)
 			{
-				var iMap = map.ToInstanceMap();
+				var iMap = map.ToInstanceMap;
 
 				if (iMap)
 				{
@@ -2785,7 +2785,7 @@ public class SpellInfo
 				}
 				case SpellProcsPerMinuteModType.Battleground:
 				{
-					if (caster.Map.IsBattlegroundOrArena())
+					if (caster.Map.IsBattlegroundOrArena)
 						ppm *= 1.0f + mod.Coeff;
 
 					break;

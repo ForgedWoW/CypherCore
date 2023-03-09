@@ -475,7 +475,7 @@ public class PoolManager : Singleton<PoolManager>
 	public SpawnedPoolData InitPoolsForMap(Map map)
 	{
 		SpawnedPoolData spawnedPoolData = new(map);
-		var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.GetId());
+		var poolIds = _autoSpawnPoolsPerMap.LookupByKey(spawnedPoolData.Map.Id);
 
 		if (poolIds != null)
 			foreach (var poolId in poolIds)

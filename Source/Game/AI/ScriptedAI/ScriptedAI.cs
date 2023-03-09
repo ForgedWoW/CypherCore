@@ -21,8 +21,8 @@ namespace Game.AI
         public ScriptedAI(Creature creature) : base(creature)
         {
             _isCombatMovementAllowed = true;
-            _isHeroic = me.Map.IsHeroic();
-            _difficulty = me.Map.GetDifficultyID();
+            _isHeroic = me.Map.IsHeroic;
+            _difficulty = me.Map.DifficultyID;
         }
 
         public void AttackStartNoMove(Unit target)
@@ -270,8 +270,8 @@ namespace Game.AI
             //Check if each spell is viable(set it to null if not)
             for (uint i = 0; i < SharedConst.MaxCreatureSpells; i++)
             {
-                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.Spells[i], me.Map.GetDifficultyID());
-                AISpellInfoType aiSpell = GetAISpellInfo(me.Spells[i], me.Map.GetDifficultyID());
+                SpellInfo tempSpell = Global.SpellMgr.GetSpellInfo(me.Spells[i], me.Map.DifficultyID);
+                AISpellInfoType aiSpell = GetAISpellInfo(me.Spells[i], me.Map.DifficultyID);
 
                 //This spell doesn't exist
                 if (tempSpell == null || aiSpell == null)
@@ -358,10 +358,10 @@ namespace Game.AI
         public void DoTeleportAll(float x, float y, float z, float o)
         {
             Map map = me.Map;
-            if (!map.IsDungeon())
+            if (!map.IsDungeon)
                 return;
 
-            var PlayerList = map.GetPlayers();
+            var PlayerList = map.Players;
             foreach (var player in PlayerList)
                 if (player.IsAlive)
                     player.TeleportTo(me.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);

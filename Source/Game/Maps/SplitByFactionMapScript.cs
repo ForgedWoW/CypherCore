@@ -14,7 +14,7 @@ class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
 
 	public void OnCreate(Map map)
 	{
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, map.GetInstanceId() == TeamIds.Alliance ? 1 : 0, false, map);
-		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, map.GetInstanceId() == TeamIds.Horde ? 1 : 0, false, map);
+		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, map.InstanceId == TeamIds.Alliance ? 1 : 0, false, map);
+		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, map.InstanceId == TeamIds.Horde ? 1 : 0, false, map);
 	}
 }

@@ -131,7 +131,7 @@ public class MapManager : Singleton<MapManager>
 				map = FindMap_i(mapId, newInstanceId);
 
 				// is is also possible that instance id is already in use by another group for boss-based locks
-				if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap().GetInstanceLock() != instanceLock)
+				if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.GetInstanceLock() != instanceLock)
 				{
 					newInstanceId = GenerateInstanceId();
 					instanceLock.SetInstanceId(newInstanceId);
@@ -170,7 +170,7 @@ public class MapManager : Singleton<MapManager>
 			}
 
 			if (map)
-				_maps.Add(map.GetId(), map.GetInstanceId(), map);
+				_maps.Add(map.Id, map.InstanceId, map);
 
 			return map;
 		}
@@ -216,7 +216,7 @@ public class MapManager : Singleton<MapManager>
 			var map = FindMap(mapId, newInstanceId);
 
 			// is is possible that instance id is already in use by another group for boss-based locks
-			if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap().GetInstanceLock() != instanceLock)
+			if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.GetInstanceLock() != instanceLock)
 				return 0;
 
 			return newInstanceId;
@@ -297,7 +297,7 @@ public class MapManager : Singleton<MapManager>
 	{
 		lock (_mapsLock)
 		{
-			return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon()));
+			return (uint)_maps.Sum(pair => pair.Value.Count(kvp => kvp.Value.IsDungeon));
 		}
 	}
 
@@ -305,7 +305,7 @@ public class MapManager : Singleton<MapManager>
 	{
 		lock (_mapsLock)
 		{
-			return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon() ? kvp.Value.GetPlayers().Count : 0));
+			return (uint)_maps.Sum(pair => pair.Value.Sum(kvp => kvp.Value.IsDungeon ? kvp.Value.Players.Count : 0));
 		}
 	}
 
@@ -498,7 +498,7 @@ public class MapManager : Singleton<MapManager>
 		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
 		var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
-		Cypher.Assert(map.IsDungeon());
+		Cypher.Assert(map.IsDungeon);
 
 		map.LoadRespawnTimes();
 		map.LoadCorpseData();
@@ -520,7 +520,7 @@ public class MapManager : Singleton<MapManager>
 		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
 		var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-		Cypher.Assert(map.IsBattlegroundOrArena());
+		Cypher.Assert(map.IsBattlegroundOrArena);
 		map.SetBG(bg);
 		bg.SetBgMap(map);
 
@@ -530,7 +530,7 @@ public class MapManager : Singleton<MapManager>
 	GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
 	{
 		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
-		Cypher.Assert(map.IsGarrison());
+		Cypher.Assert(map.IsGarrison);
 
 		return map;
 	}
@@ -539,14 +539,14 @@ public class MapManager : Singleton<MapManager>
 	{
 		map.RemoveAllPlayers();
 
-		if (map.HavePlayers())
+		if (map.HavePlayers)
 			return false;
 
 		map.UnloadAll();
 
 		// Free up the instance id and allow it to be reused for normal dungeons, bgs and arenas
-		if (map.IsBattlegroundOrArena() || (map.IsDungeon() && !map.GetMapDifficulty().HasResetSchedule()))
-			FreeInstanceId(map.GetInstanceId());
+		if (map.IsBattlegroundOrArena || (map.IsDungeon && !map.MapDifficulty.HasResetSchedule()))
+			FreeInstanceId(map.InstanceId);
 
 		// erase map
 		map.Dispose();

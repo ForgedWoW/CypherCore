@@ -718,7 +718,7 @@ public partial class Unit : WorldObject
 
 	public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
 	{
-		var transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
+		var transformSpellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
 
 		if (transformSpellInfo != null)
 			if (transformSpellInfo.HasAttribute(SpellAttr0.AllowWhileMounted))
@@ -1033,7 +1033,7 @@ public partial class Unit : WorldObject
 
 		if (gameObj.SpellId != 0)
 		{
-			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.SpellId, Map.GetDifficultyID());
+			var createBySpell = Global.SpellMgr.GetSpellInfo(gameObj.SpellId, Map.DifficultyID);
 
 			// Need disable spell use for owner
 			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)
@@ -1067,7 +1067,7 @@ public partial class Unit : WorldObject
 		{
 			RemoveAura(spellid);
 
-			var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, Map.GetDifficultyID());
+			var createBySpell = Global.SpellMgr.GetSpellInfo(spellid, Map.DifficultyID);
 
 			// Need activate spell use for owner
 			if (createBySpell != null && createBySpell.IsCooldownStartedOnEvent)

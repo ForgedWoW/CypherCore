@@ -37,7 +37,7 @@ public class InstanceScript : ZoneScript
 	public InstanceScript(InstanceMap map)
 	{
 		Instance = map;
-		_instanceSpawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(map.GetId());
+		_instanceSpawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(map.Id);
 	}
 
 	public virtual bool IsEncounterInProgress()
@@ -249,7 +249,7 @@ public class InstanceScript : ZoneScript
 			if (bossInfo.State == EncounterState.ToBeDecided) // loading
 			{
 				bossInfo.State = state;
-				Log.outDebug(LogFilter.Scripts, $"InstanceScript: Initialize boss {id} state as {state} (map {Instance.GetId()}, {Instance.GetInstanceId()}).");
+				Log.outDebug(LogFilter.Scripts, $"InstanceScript: Initialize boss {id} state as {state} (map {Instance.Id}, {Instance.InstanceId}).");
 
 				return false;
 			}
@@ -260,7 +260,7 @@ public class InstanceScript : ZoneScript
 
 				if (bossInfo.State == EncounterState.Done)
 				{
-					Log.outError(LogFilter.Maps, $"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.GetId()}, instance id {Instance.GetInstanceId()}. Blocked!");
+					Log.outError(LogFilter.Maps, $"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.Id}, instance id {Instance.InstanceId}. Blocked!");
 
 					return false;
 				}
@@ -301,7 +301,7 @@ public class InstanceScript : ZoneScript
 					case EncounterState.Done:
 						ResetCombatResurrections();
 						SendEncounterEnd();
-						dungeonEncounter = bossInfo.GetDungeonEncounterForDifficulty(Instance.GetDifficultyID());
+						dungeonEncounter = bossInfo.GetDungeonEncounterForDifficulty(Instance.DifficultyID);
 
 						if (dungeonEncounter != null)
 						{
@@ -405,7 +405,7 @@ public class InstanceScript : ZoneScript
 
 	public string UpdateBossStateSaveData(string oldData, UpdateBossStateSaveDataEvent saveEvent)
 	{
-		if (!Instance.GetMapDifficulty().IsUsingEncounterLocks())
+		if (!Instance.MapDifficulty.IsUsingEncounterLocks())
 			return GetSaveData();
 
 		InstanceScriptDataWriter writer = new(this);
@@ -417,7 +417,7 @@ public class InstanceScript : ZoneScript
 
 	public string UpdateAdditionalSaveData(string oldData, UpdateAdditionalSaveDataEvent saveEvent)
 	{
-		if (!Instance.GetMapDifficulty().IsUsingEncounterLocks())
+		if (!Instance.MapDifficulty.IsUsingEncounterLocks())
 			return GetSaveData();
 
 		InstanceScriptDataWriter writer = new(this);
@@ -429,7 +429,7 @@ public class InstanceScript : ZoneScript
 
 	public uint? GetEntranceLocationForCompletedEncounters(uint completedEncountersMask)
 	{
-		if (!Instance.GetMapDifficulty().IsUsingEncounterLocks())
+		if (!Instance.MapDifficulty.IsUsingEncounterLocks())
 			return _entranceId;
 
 		return ComputeEntranceLocationForCompletedEncounters(completedEncountersMask);
@@ -606,7 +606,7 @@ public class InstanceScript : ZoneScript
 
 	public DungeonEncounterRecord GetBossDungeonEncounter(uint id)
 	{
-		return id < _bosses.Count ? _bosses[id].GetDungeonEncounterForDifficulty(Instance.GetDifficultyID()) : null;
+		return id < _bosses.Count ? _bosses[id].GetDungeonEncounterForDifficulty(Instance.DifficultyID) : null;
 	}
 
 	public DungeonEncounterRecord GetBossDungeonEncounter(Creature creature)
@@ -623,7 +623,7 @@ public class InstanceScript : ZoneScript
 	{
 		Log.outError(LogFilter.Server,
 					"Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
-					Instance.GetId(),
+					Instance.					Id,
 					criteria_id);
 
 		return false;
@@ -716,7 +716,7 @@ public class InstanceScript : ZoneScript
 	{
 		_completedEncounters = newMask;
 
-		var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.GetId(), Instance.GetDifficultyID());
+		var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
 
 		if (encounters != null)
 			foreach (var encounter in encounters)
@@ -764,7 +764,7 @@ public class InstanceScript : ZoneScript
 	public uint GetCombatResurrectionChargeInterval()
 	{
 		uint interval = 0;
-		var playerCount = Instance.GetPlayers().Count;
+		var playerCount = Instance.Players.Count;
 
 		if (playerCount != 0)
 			interval = (uint)(90 * Time.Minute * Time.InMilliseconds / playerCount);
@@ -774,7 +774,7 @@ public class InstanceScript : ZoneScript
 
 	public bool InstanceHasScript(WorldObject obj, string scriptName)
 	{
-		var instance = obj.Map.ToInstanceMap();
+		var instance = obj.Map.ToInstanceMap;
 
 		if (instance != null)
 			return instance.GetScriptName() == scriptName;
@@ -877,27 +877,27 @@ public class InstanceScript : ZoneScript
 
 	public void OutSaveInstData()
 	{
-		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2})", Instance.GetMapName(), Instance.GetId(), Instance.GetInstanceId());
+		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2})", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutSaveInstDataComplete()
 	{
-		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2}) completed.", Instance.GetMapName(), Instance.GetId(), Instance.GetInstanceId());
+		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2}) completed.", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutLoadInstData(string input)
 	{
-		Log.outDebug(LogFilter.Scripts, "Loading Instance Data for Instance {0} (Map {1}, Instance Id {2}). Input is '{3}'", Instance.GetMapName(), Instance.GetId(), Instance.GetInstanceId(), input);
+		Log.outDebug(LogFilter.Scripts, "Loading Instance Data for Instance {0} (Map {1}, Instance Id {2}). Input is '{3}'", Instance.MapName, Instance.Id, Instance.InstanceId, input);
 	}
 
 	public void OutLoadInstDataComplete()
 	{
-		Log.outDebug(LogFilter.Scripts, "Instance Data Load for Instance {0} (Map {1}, Instance Id: {2}) is complete.", Instance.GetMapName(), Instance.GetId(), Instance.GetInstanceId());
+		Log.outDebug(LogFilter.Scripts, "Instance Data Load for Instance {0} (Map {1}, Instance Id: {2}) is complete.", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutLoadInstDataFail()
 	{
-		Log.outDebug(LogFilter.Scripts, "Unable to load Instance Data for Instance {0} (Map {1}, Instance Id: {2}).", Instance.GetMapName(), Instance.GetId(), Instance.GetInstanceId());
+		Log.outDebug(LogFilter.Scripts, "Unable to load Instance Data for Instance {0} (Map {1}, Instance Id: {2}).", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public List<InstanceSpawnGroupInfo> GetInstanceSpawnGroups()
@@ -1067,7 +1067,7 @@ public class InstanceScript : ZoneScript
 
 	void UpdateEncounterState(EncounterCreditType type, uint creditEntry, Unit source)
 	{
-		var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.GetId(), Instance.GetDifficultyID());
+		var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
 
 		if (encounters.Empty())
 			return;
@@ -1088,8 +1088,8 @@ public class InstanceScript : ZoneScript
 
 					Log.outDebug(LogFilter.Lfg,
 								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
-								Instance.GetMapName(),
-								Instance.GetInstanceId(),
+								Instance.								MapName,
+								Instance.								InstanceId,
 								encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
 								dungeonId);
 
@@ -1099,7 +1099,7 @@ public class InstanceScript : ZoneScript
 
 		if (dungeonId != 0)
 		{
-			var players = Instance.GetPlayers();
+			var players = Instance.Players;
 
 			foreach (var player in players)
 			{

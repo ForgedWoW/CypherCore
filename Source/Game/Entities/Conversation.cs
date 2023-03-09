@@ -51,7 +51,7 @@ public class Conversation : WorldObject
 		//- Register the Conversation for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			Map.GetObjectsStore().Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -62,7 +62,7 @@ public class Conversation : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			Map.GetObjectsStore().Remove(GUID);
+			Map.			ObjectsStore.Remove(GUID);
 		}
 	}
 

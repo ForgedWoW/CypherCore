@@ -64,7 +64,7 @@ namespace Game.Chat.Commands
                     // If map found, try to find active version of this creature
                     if (thisMap)
                     {
-                        var creBounds = thisMap.GetCreatureBySpawnIdStore().LookupByKey(guid);
+                        var creBounds = thisMap.CreatureBySpawnIdStore.LookupByKey(guid);
                         foreach (var creature in creBounds)
                             handler.SendSysMessage(CypherStrings.CreatureListChat, guid, guid, cInfo.Name, x, y, z, mapId, creature.GUID.ToString(), creature.IsAlive ? "*" : " ");
                         liveFound = !creBounds.Empty();
@@ -404,7 +404,7 @@ namespace Game.Chat.Commands
                     // If map found, try to find active version of this object
                     if (thisMap)
                     {
-                        var goBounds = thisMap.GetGameObjectBySpawnIdStore().LookupByKey(guid);
+                        var goBounds = thisMap.GameObjectBySpawnIdStore.LookupByKey(guid);
                         foreach (var go in goBounds)
                             handler.SendSysMessage(CypherStrings.GoListChat, guid, entry, guid, gInfo.name, x, y, z, mapId, go.GUID.ToString(), go.IsSpawned ? "*" : " ");
                         liveFound = !goBounds.Empty();
@@ -508,9 +508,9 @@ namespace Game.Chat.Commands
         {
             Player player = handler.GetSession().Player;
             Map map = player.Map;
-            uint mapId = map.GetId();
-            bool showAll = map.IsBattlegroundOrArena() || map.IsDungeon();
-            handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.GetMapName()}){(showAll ? "" : " within 5000yd")}:");
+            uint mapId = map.Id;
+            bool showAll = map.IsBattlegroundOrArena || map.IsDungeon;
+            handler.SendSysMessage($"Listing all spawn points in map {mapId} ({map.MapName}){(showAll ? "" : " within 5000yd")}:");
 
             foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
             {

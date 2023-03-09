@@ -140,7 +140,7 @@ namespace Game
                 if (!player.IsWithinDistInMap(Player, SharedConst.InteractionDistance))
                     return;
                 // Dont' allow players to enter player vehicle on arena
-                if (!_player.Map || _player.Map.IsBattleArena())
+                if (!_player.Map || _player.Map.IsBattleArena)
                     return;
 
                 Player.EnterVehicle(player);

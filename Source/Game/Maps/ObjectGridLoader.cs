@@ -21,7 +21,7 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 	public void Visit(IList<AreaTrigger> objs)
 	{
 		var cellCoord = i_cell.GetCellCoord();
-		var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(i_map.GetId(), cellCoord.GetId());
+		var areaTriggers = Global.AreaTriggerDataStorage.GetAreaTriggersForMapAndCell(i_map.Id, cellCoord.GetId());
 
 		if (areaTriggers == null || areaTriggers.Empty())
 			return;
@@ -32,7 +32,7 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 	public void Visit(IList<Creature> objs)
 	{
 		var cellCoord = i_cell.GetCellCoord();
-		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.GetId(), i_map.GetDifficultyID(), cellCoord.GetId());
+		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
 
 		if (cellguids == null || cellguids.creatures.Empty())
 			return;
@@ -43,7 +43,7 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 	public void Visit(IList<GameObject> objs)
 	{
 		var cellCoord = i_cell.GetCellCoord();
-		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.GetId(), i_map.GetDifficultyID(), cellCoord.GetId());
+		var cellguids = Global.ObjectMgr.GetCellObjectGuids(i_map.Id, i_map.DifficultyID, cellCoord.GetId());
 
 		if (cellguids == null || cellguids.gameobjects.Empty())
 			return;
@@ -73,7 +73,7 @@ class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNot
 			}
 		}
 
-		Log.outDebug(LogFilter.Maps, $"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.GetId()}");
+		Log.outDebug(LogFilter.Maps, $"{i_gameObjects} GameObjects, {i_creatures} Creatures, {i_areaTriggers} AreaTrriggers and {i_corpses} Corpses/Bones loaded for grid {i_grid.GetGridId()} on map {i_map.Id}");
 	}
 }
 

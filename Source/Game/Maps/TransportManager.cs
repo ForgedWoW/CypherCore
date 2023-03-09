@@ -188,7 +188,7 @@ public class TransportManager : Singleton<TransportManager>
 	public Transport CreateTransport(uint entry, Map map, ulong guid = 0, PhaseUseFlagsValues phaseUseFlags = 0, uint phaseId = 0, uint phaseGroupId = 0)
 	{
 		// SetZoneScript() is called after adding to map, so fetch the script using map
-		var instanceMap = map.ToInstanceMap();
+		var instanceMap = map.ToInstanceMap;
 
 		if (instanceMap != null)
 		{
@@ -210,9 +210,9 @@ public class TransportManager : Singleton<TransportManager>
 			return null;
 		}
 
-		if (!tInfo.MapIds.Contains(map.GetId()))
+		if (!tInfo.MapIds.Contains(map.Id))
 		{
-			Log.outError(LogFilter.Transport, $"Transport {entry} attempted creation on map it has no path for {map.GetId()}!");
+			Log.outError(LogFilter.Transport, $"Transport {entry} attempted creation on map it has no path for {map.Id}!");
 
 			return null;
 		}
@@ -260,7 +260,7 @@ public class TransportManager : Singleton<TransportManager>
 
 	public void CreateTransportsForMap(Map map)
 	{
-		var mapTransports = _transportsByMap.LookupByKey(map.GetId());
+		var mapTransports = _transportsByMap.LookupByKey(map.Id);
 
 		// no transports here
 		if (mapTransports.Empty())

@@ -20,7 +20,7 @@ public class InstanceScenario : Scenario
 		//ASSERT(_map);
 		LoadInstanceData();
 
-		var players = map.GetPlayers();
+		var players = map.Players;
 
 		foreach (var player in players)
 			SendScenarioState(player);
@@ -28,7 +28,7 @@ public class InstanceScenario : Scenario
 
 	public override string GetOwnerInfo()
 	{
-		return $"Instance ID {_map.GetInstanceId()}";
+		return $"Instance ID {_map.InstanceId}";
 	}
 
 	public override void SendPacket(ServerPacket data)
@@ -53,7 +53,7 @@ public class InstanceScenario : Scenario
 
 		if (!killCreatureCriteria.Empty())
 		{
-			var spawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(_map.GetId());
+			var spawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(_map.Id);
 
 			if (spawnGroups != null)
 			{

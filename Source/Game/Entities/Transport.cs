@@ -551,7 +551,7 @@ public class Transport : GameObject, ITransport
 
 	public override void BuildUpdate(Dictionary<Player, UpdateData> data_map)
 	{
-		var players = Map.GetPlayers();
+		var players = Map.Players;
 
 		if (players.Empty())
 			return;
@@ -634,7 +634,7 @@ public class Transport : GameObject, ITransport
 	void LoadStaticPassengers()
 	{
 		var mapId = (uint)GoInfo.MoTransport.SpawnMap;
-		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.GetDifficultyID());
+		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.DifficultyID);
 
 		if (cells == null)
 			return;
@@ -703,10 +703,10 @@ public class Transport : GameObject, ITransport
 		{
 			AddToWorld();
 
-			foreach (var player in Map.GetPlayers())
+			foreach (var player in Map.Players)
 				if (player.Transport != this && player.InSamePhase(this))
 				{
-					UpdateData data = new(Map.GetId());
+					UpdateData data = new(Map.Id);
 					BuildCreateUpdateBlockForPlayer(data, player);
 					player.VisibleTransports.Add(GUID);
 					data.BuildPacket(out var packet);
@@ -715,12 +715,12 @@ public class Transport : GameObject, ITransport
 		}
 		else
 		{
-			UpdateData data = new(Map.GetId());
+			UpdateData data = new(Map.Id);
 			BuildOutOfRangeUpdateBlock(data);
 
 			data.BuildPacket(out var packet);
 
-			foreach (var player in Map.GetPlayers())
+			foreach (var player in Map.Players)
 				if (player.Transport != this && player.VisibleTransports.Contains(GUID))
 				{
 					player.SendPacket(packet);

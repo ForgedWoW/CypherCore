@@ -296,10 +296,10 @@ namespace Game
                                 var map = refe.Map;
                                 if (map != null)
                                 {
-                                    if (spellFlags.HasFlag(DisableFlags.SpellArenas) && map.IsBattleArena())
+                                    if (spellFlags.HasFlag(DisableFlags.SpellArenas) && map.IsBattleArena)
                                         return true;                                    // Current map is Arena and this spell is disabled here
 
-                                    if (spellFlags.HasFlag(DisableFlags.SpellBattleGrounds) && map.IsBattleground())
+                                    if (spellFlags.HasFlag(DisableFlags.SpellBattleGrounds) && map.IsBattleground)
                                         return true;                                    // Current map is a Battleground and this spell is disabled here
                                 }
                             }

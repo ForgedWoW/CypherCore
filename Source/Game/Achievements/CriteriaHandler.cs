@@ -1008,11 +1008,11 @@ namespace Game.Achievements
                         return false;
 
                     Map map = referencePlayer.IsInWorld ? referencePlayer.Map : Global.MapMgr.FindMap(referencePlayer.Location.MapId, referencePlayer.InstanceId1);
-                    if (!map || !map.IsDungeon())
+                    if (!map || !map.IsDungeon)
                         return false;
 
                     //FIXME: work only for instances where max == min for players
-                    if (map.ToInstanceMap().GetMaxPlayers() != criteria.Entry.Asset)
+                    if (map.ToInstanceMap.GetMaxPlayers() != criteria.Entry.Asset)
                         return false;
                     break;
                 }
@@ -1355,7 +1355,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.LegacyDungeonDifficulty: // 20
                 {
-                    DifficultyRecord difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Map.GetDifficultyID());
+                    DifficultyRecord difficulty = CliDB.DifficultyStorage.LookupByKey(referencePlayer.Map.DifficultyID);
                     if (difficulty == null || difficulty.OldEnumValue == -1 || difficulty.OldEnumValue != reqValue)
                         return false;
                     break;
@@ -1584,7 +1584,7 @@ namespace Game.Achievements
                         return ConditionManager.IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
                     return false;
                 case ModifierTreeType.DungeonDifficulty: // 68
-                    if (referencePlayer.Map.GetDifficultyID() != (Difficulty)reqValue)
+                    if (referencePlayer.Map.DifficultyID != (Difficulty)reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerLevelEqualOrGreaterThan: // 69
@@ -1905,7 +1905,7 @@ namespace Game.Achievements
                         return false;
                     break;
                 case ModifierTreeType.PlayerMapInstanceType: // 122
-                    if ((uint)referencePlayer.Map.GetEntry().InstanceType != reqValue)
+                    if ((uint)referencePlayer.Map.Entry.InstanceType != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.PlayerInTimeWalkerInstance: // 123
@@ -2101,7 +2101,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.PlayerIsInOwnGarrison: // 138
-                    if (!referencePlayer.Map.IsGarrison() || referencePlayer.Map.GetInstanceId() != referencePlayer.GUID.Counter)
+                    if (!referencePlayer.Map.IsGarrison || referencePlayer.Map.InstanceId != referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.GarrisonShipmentOfTypeIsPending: // 139 NYI
@@ -2439,7 +2439,7 @@ namespace Game.Achievements
                     break;
                 }
                 case ModifierTreeType.InstancePlayerCountEqual: // 171
-                    if (referencePlayer.Map.GetPlayers().Count != reqValue)
+                    if (referencePlayer.Map.Players.Count != reqValue)
                         return false;
                     break;
                 case ModifierTreeType.CurrencyId: // 172
@@ -2516,7 +2516,7 @@ namespace Game.Achievements
                 case ModifierTreeType.CurrencySource: // 179 NYI
                     return false;
                 case ModifierTreeType.PlayerIsInNotOwnGarrison: // 180
-                    if (!referencePlayer.Map.IsGarrison() || referencePlayer.Map.GetInstanceId() == referencePlayer.GUID.Counter)
+                    if (!referencePlayer.Map.IsGarrison || referencePlayer.Map.InstanceId == referencePlayer.GUID.Counter)
                         return false;
                     break;
                 case ModifierTreeType.HasActiveGarrisonFollower: // 181
@@ -3259,7 +3259,7 @@ namespace Game.Achievements
                     break;
                 case ModifierTreeType.PlayerMapOrCosmeticChildMap: // 280
                 {
-                    MapRecord map = referencePlayer.Map.GetEntry();
+                    MapRecord map = referencePlayer.Map.Entry;
                     if (map.Id != reqValue && map.CosmeticParentMapID != reqValue)
                         return false;
                     break;

@@ -387,10 +387,11 @@ namespace Game.Entities
 				if (ZoneScript != null)
 					ZoneScript.OnGameObjectCreate(this);
 
-				Map.GetObjectsStore().Add(GUID, this);
+				Map.
+				ObjectsStore.Add(GUID, this);
 
 				if (_spawnId != 0)
-					Map.GetGameObjectBySpawnIdStore().Add(_spawnId, this);
+					Map.					GameObjectBySpawnIdStore.Add(_spawnId, this);
 
 				// The state can be changed after GameObject.Create but before GameObject.AddToWorld
 				var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
@@ -433,9 +434,10 @@ namespace Game.Entities
 				base.RemoveFromWorld();
 
 				if (_spawnId != 0)
-					Map.GetGameObjectBySpawnIdStore().Remove(_spawnId, this);
+					Map.					GameObjectBySpawnIdStore.Remove(_spawnId, this);
 
-				Map.GetObjectsStore().Remove(GUID);
+				Map.
+				ObjectsStore.Remove(GUID);
 			}
 		}
 
@@ -659,7 +661,7 @@ namespace Game.Entities
 								var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
 
 								if (poolid != 0)
-									Global.PoolMgr.UpdatePool<GameObject>(Map.GetPoolData(), poolid, SpawnId);
+									Global.PoolMgr.UpdatePool<GameObject>(Map.PoolData, poolid, SpawnId);
 								else
 									Map.AddToMap(this);
 							}
@@ -741,7 +743,7 @@ namespace Game.Entities
 									if (hordeCapturing)
 									{
 										GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
-										var map = Map.ToBattlegroundMap();
+										var map = Map.ToBattlegroundMap;
 
 										if (map != null)
 										{
@@ -759,7 +761,7 @@ namespace Game.Entities
 									else
 									{
 										GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
-										var map = Map.ToBattlegroundMap();
+										var map = Map.ToBattlegroundMap;
 
 										if (map != null)
 										{
@@ -1062,7 +1064,7 @@ namespace Game.Entities
 			var poolid = GameObjectData != null ? GameObjectData.poolId : 0;
 
 			if (_respawnCompatibilityMode && poolid != 0)
-				Global.PoolMgr.UpdatePool<GameObject>(Map.GetPoolData(), poolid, SpawnId);
+				Global.PoolMgr.UpdatePool<GameObject>(Map.PoolData, poolid, SpawnId);
 			else
 				AddObjectToRemoveList();
 		}
@@ -1293,7 +1295,7 @@ namespace Game.Entities
 													// despawn all active objects, and remove their respawns
 													List<GameObject> toUnload = new();
 
-													foreach (var creature in map.GetGameObjectBySpawnIdStore().LookupByKey(spawnId))
+													foreach (var creature in map.GameObjectBySpawnIdStore.LookupByKey(spawnId))
 														toUnload.Add(creature);
 
 													foreach (var obj in toUnload)
@@ -1510,7 +1512,7 @@ namespace Game.Entities
 			if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
 				return;
 
-			var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Map.GetDifficultyID());
+			var trapSpell = Global.SpellMgr.GetSpellInfo(trapInfo.Trap.spell, Map.DifficultyID);
 
 			if (trapSpell == null) // checked at load already
 				return;
@@ -2705,7 +2707,7 @@ namespace Game.Entities
 			if (spellId == 0)
 				return;
 
-			if (!Global.SpellMgr.HasSpellInfo(spellId, Map.GetDifficultyID()))
+			if (!Global.SpellMgr.HasSpellInfo(spellId, Map.DifficultyID))
 			{
 				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
 					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
@@ -2882,7 +2884,7 @@ namespace Game.Entities
 
 				if (lockEntry.LockType[i] == (byte)LockKeyType.Spell)
 				{
-					var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Map.GetDifficultyID());
+					var spell = Global.SpellMgr.GetSpellInfo((uint)lockEntry.Index[i], Map.DifficultyID);
 
 					if (spell != null)
 						return spell;
@@ -2893,7 +2895,7 @@ namespace Game.Entities
 
 				foreach (var playerSpell in player.GetSpellMap())
 				{
-					var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Map.GetDifficultyID());
+					var spell = Global.SpellMgr.GetSpellInfo(playerSpell.Key, Map.DifficultyID);
 
 					if (spell != null)
 						foreach (var effect in spell.Effects)
@@ -3469,7 +3471,7 @@ namespace Game.Entities
 
 			// only supported in battlegrounds
 			Battleground battleground = null;
-			var map = Map.ToBattlegroundMap();
+			var map = Map.ToBattlegroundMap;
 
 			if (map != null)
 			{
@@ -3799,7 +3801,7 @@ namespace Game.Entities
 
 			if (goInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", SpawnId, entry, map.GetId(), pos.X, pos.Y, pos.Z);
+				Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", SpawnId, entry, map.Id, pos.X, pos.Y, pos.Z);
 
 				return false;
 			}
@@ -3815,7 +3817,7 @@ namespace Game.Entities
 
 			if (goInfo.type != GameObjectTypes.Transport)
 			{
-				guid = ObjectGuid.Create(HighGuid.GameObject, map.GetId(), goInfo.entry, map.GenerateLowGuid(HighGuid.GameObject));
+				guid = ObjectGuid.Create(HighGuid.GameObject, map.Id, goInfo.entry, map.GenerateLowGuid(HighGuid.GameObject));
 			}
 			else
 			{
@@ -4157,7 +4159,7 @@ namespace Game.Entities
 			SetSpellVisualId(spellVisualId);
 			UpdateDynamicFlagsForNearbyPlayers();
 
-			var map = Map.ToBattlegroundMap();
+			var map = Map.ToBattlegroundMap;
 
 			if (map != null)
 			{

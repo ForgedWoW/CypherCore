@@ -85,7 +85,7 @@ internal class boss_pyroguard_emberseer : BossAI
 									{
 										// As of Patch 3.0.8 only one person needs to channel the altar
 										var _hasAura = false;
-										var players = me.Map.GetPlayers();
+										var players = me.Map.Players;
 
 										foreach (var player in players)
 											if (player != null &&

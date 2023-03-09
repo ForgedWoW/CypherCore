@@ -47,7 +47,7 @@ public class npc_captain_cookie_bad_food : ScriptedAI
 		if (pInstance.GetBossState(DMData.DATA_COOKIE) != EncounterState.InProgress)
 			return true;
 
-		pPlayer.CastSpell(pPlayer, (pPlayer.Map.IsHeroic() ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
+		pPlayer.CastSpell(pPlayer, (pPlayer.Map.IsHeroic ? eSpell.NAUSEATED_H : eSpell.NAUSEATED), true);
 
 		me.DespawnOrUnsummon();
 

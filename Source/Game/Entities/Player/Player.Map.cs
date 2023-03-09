@@ -264,9 +264,9 @@ public partial class Player
 
 	public void ConfirmPendingBind()
 	{
-		var map = Map.ToInstanceMap();
+		var map = Map.ToInstanceMap;
 
-		if (map == null || map.GetInstanceId() != _pendingBindId)
+		if (map == null || map.InstanceId != _pendingBindId)
 			return;
 
 		if (!IsGameMaster)
@@ -420,7 +420,7 @@ public partial class Player
 
 		// non-instances are always valid
 		var map = Map;
-		var instance = map?.ToInstanceMap();
+		var instance = map?.ToInstanceMap;
 
 		if (instance == null)
 			return true;
@@ -428,7 +428,7 @@ public partial class Player
 		var group = Group;
 
 		// raid instances require the player to be in a raid group to be valid
-		if (map.IsRaid() && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.GetEntry().Expansion() >= (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (map.IsRaid && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion)))
 			if (group == null || group.IsRaidGroup)
 				return false;
 
@@ -492,19 +492,19 @@ public partial class Player
 
 			if (map)
 			{
-				var instance = map.ToInstanceMap();
+				var instance = map.ToInstanceMap;
 
 				if (instance != null)
 					switch (instance.Reset(method))
 					{
 						case InstanceResetResult.Success:
-							SendResetInstanceSuccess(map.GetId());
+							SendResetInstanceSuccess(map.Id);
 							forgetInstance = true;
 
 							break;
 						case InstanceResetResult.NotEmpty:
 							if (method == InstanceResetMethod.Manual)
-								SendResetInstanceFailed(ResetFailedReason.Failed, map.GetId());
+								SendResetInstanceFailed(ResetFailedReason.Failed, map.Id);
 							else if (method == InstanceResetMethod.OnChangeDifficulty)
 								forgetInstance = true;
 
@@ -551,7 +551,7 @@ public partial class Player
 		if (dungeonEncounter == null)
 			return false;
 
-		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Map.GetEntry(), Map.GetMapDifficulty()));
+		var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(GUID, new MapDb2Entries(Map.Entry, Map.MapDifficulty));
 
 		if (instanceLock == null)
 			return false;

@@ -86,7 +86,7 @@ public abstract class WorldObject : IDisposable
 		{
 			if (IsInWorld)
 			{
-				var instanceMap = Map.ToInstanceMap();
+				var instanceMap = Map.ToInstanceMap;
 
 				if (instanceMap != null)
 					return instanceMap.GetInstanceScenario();
@@ -343,7 +343,7 @@ public abstract class WorldObject : IDisposable
 		{
 			var map = Map;
 
-			return map.IsDungeon() ? ((InstanceMap)map).GetInstanceScript() : null;
+			return map.IsDungeon ? ((InstanceMap)map).GetInstanceScript() : null;
 		}
 	}
 
@@ -354,9 +354,9 @@ public abstract class WorldObject : IDisposable
 			if (IsActiveObject)
 			{
 				if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
-					return Math.Max(SharedConst.DefaultVisibilityInstance, Map.GetVisibilityRange());
+					return Math.Max(SharedConst.DefaultVisibilityInstance, Map.VisibilityRange);
 
-				return Map.GetVisibilityRange();
+				return Map.VisibilityRange;
 			}
 
 			var thisCreature = AsCreature;
@@ -377,7 +377,7 @@ public abstract class WorldObject : IDisposable
 			else if (IsFarVisible && !IsPlayer)
 				return SharedConst.MaxVisibilityDistance;
 			else
-				return Map.GetVisibilityRange();
+				return Map.VisibilityRange;
 		}
 	}
 
@@ -393,8 +393,8 @@ public abstract class WorldObject : IDisposable
 				return;
 
 			_currMap = value;
-			Location.MapId = value.GetId();
-			InstanceId = value.GetInstanceId();
+			Location.MapId = value.Id;
+			InstanceId = value.InstanceId;
 
 			if (IsWorldObject())
 				_currMap.AddWorldObject(this);
@@ -1514,7 +1514,7 @@ public abstract class WorldObject : IDisposable
 				else if (AsPlayer.CinematicMgr.IsOnCinematic())
 					return SharedConst.DefaultVisibilityInstance;
 				else
-					return Map.GetVisibilityRange();
+					return Map.VisibilityRange;
 			}
 			else if (IsCreature)
 			{
@@ -1527,7 +1527,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		if (IsDynObject && IsActiveObject)
-			return Map.GetVisibilityRange();
+			return Map.VisibilityRange;
 
 		return 0.0f;
 	}
@@ -1764,17 +1764,17 @@ public abstract class WorldObject : IDisposable
 
 		if (map != null)
 		{
-			var instanceMap = map.ToInstanceMap();
+			var instanceMap = map.ToInstanceMap;
 
 			if (instanceMap != null)
 				return (ZoneScript)instanceMap.GetInstanceScript();
 
-			var bgMap = map.ToBattlegroundMap();
+			var bgMap = map.ToBattlegroundMap;
 
 			if (bgMap != null)
 				return (ZoneScript)bgMap.GetBG();
 
-			if (!map.IsBattlegroundOrArena())
+			if (!map.IsBattlegroundOrArena)
 			{
 				var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(map, Zone);
 
@@ -2704,7 +2704,7 @@ public abstract class WorldObject : IDisposable
 
 	public SpellCastResult CastSpell(CastSpellTargetArg targets, uint spellId, CastSpellExtraArgs args)
 	{
-		var info = Global.SpellMgr.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : Map.GetDifficultyID());
+		var info = Global.SpellMgr.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : Map.DifficultyID);
 
 		if (info == null)
 		{
@@ -3546,7 +3546,7 @@ public abstract class WorldObject : IDisposable
 	public bool IsInMap(WorldObject obj)
 	{
 		if (obj != null)
-			return IsInWorld && obj.IsInWorld && Map.GetId() == obj.Map.GetId();
+			return IsInWorld && obj.IsInWorld && Map.Id == obj.Map.Id;
 
 		return false;
 	}
@@ -4051,7 +4051,7 @@ public abstract class WorldObject : IDisposable
 		// Unit is flying, check for potential collision via vmaps
 		if (path.GetPathType().HasFlag(PathType.NotUsingPath))
 		{
-			col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(PhaseShift, Location.MapId, Map.GetTerrain(), pos.X, pos.Y),
+			col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(PhaseShift, Location.MapId, Map.Terrain, pos.X, pos.Y),
 												pos.X,
 												pos.Y,
 												pos.Z + halfHeight,

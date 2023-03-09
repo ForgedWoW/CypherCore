@@ -26,7 +26,7 @@ namespace Game.AI
                 return;
 
             // Search spell
-            var spellInfo = Global.SpellMgr.GetSpellInfo(me.ToTotem().GetSpell(), me.Map.GetDifficultyID());
+            var spellInfo = Global.SpellMgr.GetSpellInfo(me.ToTotem().GetSpell(), me.Map.DifficultyID);
             if (spellInfo == null)
                 return;
 

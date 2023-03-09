@@ -70,7 +70,7 @@ public class Map : IDisposable
 
 	protected List<Player> ActivePlayers { get; } = new();
 	internal object MapLock { get; set; } = new();
-	internal uint InstanceId { get; set; }
+	internal uint InstanceIdInternal { get; set; }
 	internal uint UnloadTimer { get; set; }
 
 	public int VisibilityNotifyPeriod { get; set; }
@@ -82,7 +82,7 @@ public class Map : IDisposable
 	{
 		_mapRecord = CliDB.MapStorage.LookupByKey(id);
 		_spawnMode = spawnmode;
-		InstanceId = instanceId;
+		InstanceIdInternal = instanceId;
 		VisibleDistance = SharedConst.DefaultVisibilityDistance;
 		VisibilityNotifyPeriod = SharedConst.DefaultVisibilityNotifyPeriod;
 		_gridExpiry = expiry;
@@ -100,7 +100,7 @@ public class Map : IDisposable
 
 		_threadManager.Schedule(() => Global.TransportMgr.CreateTransportsForMap(this));
 
-		_threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, GetId(), InstanceId));
+		_threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, Id, InstanceIdInternal));
 
 		_worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
 
@@ -133,7 +133,7 @@ public class Map : IDisposable
 		Global.OutdoorPvPMgr.DestroyOutdoorPvPForMap(this);
 		Global.BattleFieldMgr.DestroyBattlefieldsForMap(this);
 
-		Global.MMapMgr.UnloadMapInstance(GetId(), InstanceId);
+		Global.MMapMgr.UnloadMapInstance(Id, InstanceIdInternal);
 	}
 
 	public IEnumerable<uint> GridXKeys()
@@ -300,7 +300,7 @@ public class Map : IDisposable
 	public void UpdatePersonalPhasesForPlayer(Player player)
 	{
 		Cell cell = new(player.Location.X, player.Location.Y);
-		GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(player, GetGrid(cell.GetGridX(), cell.GetGridY()), this, cell);
+		MultiPersonalPhaseTracker.OnOwnerPhaseChanged(player, GetGrid(cell.GetGridX(), cell.GetGridY()), this, cell);
 	}
 
 	public int GetWorldStateValue(int worldStateId)
@@ -339,7 +339,7 @@ public class Map : IDisposable
 		updateWorldState.Hidden = hidden;
 		updateWorldState.Write();
 
-		foreach (var player in GetPlayers())
+		foreach (var player in Players)
 		{
 			if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
 			{
@@ -427,15 +427,15 @@ public class Map : IDisposable
 
 		_transports.Add(obj);
 
-		if (obj.GetExpectedMapId() == GetId())
+		if (obj.GetExpectedMapId() == Id)
 		{
 			obj.AddToWorld();
 
 			// Broadcast creation to players
-			foreach (var player in GetPlayers())
+			foreach (var player in Players)
 				if (player.Transport != obj && player.InSamePhase(obj))
 				{
-					var data = new UpdateData(GetId());
+					var data = new UpdateData(Id);
 					obj.BuildCreateUpdateBlockForPlayer(data, player);
 					player.VisibleTransports.Add(obj.GUID);
 					data.BuildPacket(out var packet);
@@ -554,7 +554,7 @@ public class Map : IDisposable
 						var unit = pair.Value.GetOther(player).AsCreature;
 
 						if (unit != null)
-							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
 								toVisit.Add(unit);
 					}
 
@@ -572,7 +572,7 @@ public class Map : IDisposable
 						var caster = aur.Base.GetCaster();
 
 						if (caster != null)
-							if (!caster.IsWithinDistInMap(player, GetVisibilityRange(), false))
+							if (!caster.IsWithinDistInMap(player, VisibilityRange, false))
 								toVisit.Add(caster);
 					});
 
@@ -589,7 +589,7 @@ public class Map : IDisposable
 						var unit = GetCreature(summonGuid);
 
 						if (unit != null)
-							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, GetVisibilityRange(), false))
+							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
 								toVisit.Add(unit);
 					}
 
@@ -645,7 +645,7 @@ public class Map : IDisposable
 		}
 
 		// update phase shift objects
-		_threadManager.Schedule(() => GetMultiPersonalPhaseTracker().Update(this, diff));
+		_threadManager.Schedule(() => MultiPersonalPhaseTracker.Update(this, diff));
 
 		MoveAllCreaturesInMoveList();
 		MoveAllGameObjectsInMoveList();
@@ -665,7 +665,7 @@ public class Map : IDisposable
 		player.UpdateZone(MapConst.InvalidZone, 0);
 		OnPlayerLeaveMap(this, player);
 
-		GetMultiPersonalPhaseTracker().MarkAllPhasesForDeletion(player.GUID);
+		MultiPersonalPhaseTracker.MarkAllPhasesForDeletion(player.GUID);
 
 		player.CombatStop();
 
@@ -693,7 +693,7 @@ public class Map : IDisposable
 		if (obj.IsActiveObject)
 			RemoveFromActive(obj);
 
-		GetMultiPersonalPhaseTracker().UnregisterTrackedObject(obj);
+		MultiPersonalPhaseTracker.UnregisterTrackedObject(obj);
 
 		if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
 			obj.UpdateObjectVisibilityOnDestroy();
@@ -713,7 +713,7 @@ public class Map : IDisposable
 		{
 			obj.RemoveFromWorld();
 
-			UpdateData data = new(GetId());
+			UpdateData data = new(Id);
 
 			if (obj.IsDestroyedObject)
 				obj.BuildDestroyUpdateBlock(data);
@@ -722,7 +722,7 @@ public class Map : IDisposable
 
 			data.BuildPacket(out var packet);
 
-			foreach (var player in GetPlayers())
+			foreach (var player in Players)
 				if (player.Transport != obj && player.VisibleTransports.Contains(obj.GUID))
 				{
 					player.SendPacket(packet);
@@ -840,8 +840,8 @@ public class Map : IDisposable
 		{
 			Log.outDebug(LogFilter.Maps,
 						"GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
-						go.						GUID.ToString(),
-						go.						Entry,
+						go.GUID.ToString(),
+						go.Entry,
 						old_cell.GetGridX(),
 						old_cell.GetGridY(),
 						old_cell.GetCellX(),
@@ -1014,7 +1014,7 @@ public class Map : IDisposable
 				return false;
 		}
 
-		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2}", x, y, GetId());
+		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2}", x, y, Id);
 
 		if (!unloadAll)
 		{
@@ -1043,7 +1043,7 @@ public class Map : IDisposable
 		RemoveAllObjectsInRemoveList();
 
 		// After removing all objects from the map, purge empty tracked phases
-		GetMultiPersonalPhaseTracker().UnloadGrid(grid);
+		MultiPersonalPhaseTracker.UnloadGrid(grid);
 
 		{
 			ObjectGridUnloader worker = new();
@@ -1062,19 +1062,19 @@ public class Map : IDisposable
 
 		_terrain.UnloadMap(gx, gy);
 
-		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2} finished", x, y, GetId());
+		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2} finished", x, y, Id);
 
 		return true;
 	}
 
 	public virtual void RemoveAllPlayers()
 	{
-		if (HavePlayers())
+		if (HavePlayers)
 			foreach (var pl in ActivePlayers)
 				if (!pl.IsBeingTeleportedFar)
 				{
 					// this is happening for bg
-					Log.outError(LogFilter.Maps, $"Map.UnloadAll: player {pl.GetName()} is still in map {GetId()} during unload, this should not happen!");
+					Log.outError(LogFilter.Maps, $"Map.UnloadAll: player {pl.GetName()} is still in map {Id} during unload, this should not happen!");
 					pl.TeleportTo(pl.Homebind);
 				}
 	}
@@ -1122,7 +1122,7 @@ public class Map : IDisposable
 
 	public void GetFullTerrainStatusForPosition(PhaseShift phaseShift, float x, float y, float z, PositionFullTerrainStatus data, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
-		_terrain.GetFullTerrainStatusForPosition(phaseShift, GetId(), x, y, z, data, reqLiquidType, collisionHeight, _dynamicTree);
+		_terrain.GetFullTerrainStatusForPosition(phaseShift, Id, x, y, z, data, reqLiquidType, collisionHeight, _dynamicTree);
 	}
 
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
@@ -1132,47 +1132,47 @@ public class Map : IDisposable
 
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
-		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out _, collisionHeight);
+		return _terrain.GetLiquidStatus(phaseShift, Id, x, y, z, reqLiquidType, out _, collisionHeight);
 	}
 
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, Position pos, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
-		return _terrain.GetLiquidStatus(phaseShift, GetId(), pos.X, pos.Y, pos.Z, reqLiquidType, out data, collisionHeight);
+		return _terrain.GetLiquidStatus(phaseShift, Id, pos.X, pos.Y, pos.Z, reqLiquidType, out data, collisionHeight);
 	}
 
 	public ZLiquidStatus GetLiquidStatus(PhaseShift phaseShift, float x, float y, float z, LiquidHeaderTypeFlags reqLiquidType, out LiquidData data, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
-		return _terrain.GetLiquidStatus(phaseShift, GetId(), x, y, z, reqLiquidType, out data, collisionHeight);
+		return _terrain.GetLiquidStatus(phaseShift, Id, x, y, z, reqLiquidType, out data, collisionHeight);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, Position pos)
 	{
-		return _terrain.GetAreaId(phaseShift, GetId(), pos.X, pos.Y, pos.Z, _dynamicTree);
+		return _terrain.GetAreaId(phaseShift, Id, pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public uint GetAreaId(PhaseShift phaseShift, float x, float y, float z)
 	{
-		return _terrain.GetAreaId(phaseShift, GetId(), x, y, z, _dynamicTree);
+		return _terrain.GetAreaId(phaseShift, Id, x, y, z, _dynamicTree);
 	}
 
 	public uint GetZoneId(PhaseShift phaseShift, Position pos)
 	{
-		return _terrain.GetZoneId(phaseShift, GetId(), pos.X, pos.Y, pos.Z, _dynamicTree);
+		return _terrain.GetZoneId(phaseShift, Id, pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public uint GetZoneId(PhaseShift phaseShift, float x, float y, float z)
 	{
-		return _terrain.GetZoneId(phaseShift, GetId(), x, y, z, _dynamicTree);
+		return _terrain.GetZoneId(phaseShift, Id, x, y, z, _dynamicTree);
 	}
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, Position pos)
 	{
-		_terrain.GetZoneAndAreaId(phaseShift, GetId(), out zoneid, out areaid, pos.X, pos.Y, pos.Z, _dynamicTree);
+		_terrain.GetZoneAndAreaId(phaseShift, Id, out zoneid, out areaid, pos.X, pos.Y, pos.Z, _dynamicTree);
 	}
 
 	public void GetZoneAndAreaId(PhaseShift phaseShift, out uint zoneid, out uint areaid, float x, float y, float z)
 	{
-		_terrain.GetZoneAndAreaId(phaseShift, GetId(), out zoneid, out areaid, x, y, z, _dynamicTree);
+		_terrain.GetZoneAndAreaId(phaseShift, Id, out zoneid, out areaid, x, y, z, _dynamicTree);
 	}
 
 	public float GetHeight(PhaseShift phaseShift, float x, float y, float z, bool vmap = true, float maxSearchDist = MapConst.DefaultHeightSearch)
@@ -1187,44 +1187,44 @@ public class Map : IDisposable
 
 	public float GetMinHeight(PhaseShift phaseShift, float x, float y)
 	{
-		return _terrain.GetMinHeight(phaseShift, GetId(), x, y);
+		return _terrain.GetMinHeight(phaseShift, Id, x, y);
 	}
 
 	public float GetGridHeight(PhaseShift phaseShift, float x, float y)
 	{
-		return _terrain.GetGridHeight(phaseShift, GetId(), x, y);
+		return _terrain.GetGridHeight(phaseShift, Id, x, y);
 	}
 
 	public float GetStaticHeight(PhaseShift phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = MapConst.DefaultHeightSearch)
 	{
-		return _terrain.GetStaticHeight(phaseShift, GetId(), x, y, z, checkVMap, maxSearchDist);
+		return _terrain.GetStaticHeight(phaseShift, Id, x, y, z, checkVMap, maxSearchDist);
 	}
 
 	public float GetWaterLevel(PhaseShift phaseShift, float x, float y)
 	{
-		return _terrain.GetWaterLevel(phaseShift, GetId(), x, y);
+		return _terrain.GetWaterLevel(phaseShift, Id, x, y);
 	}
 
 	public bool IsInWater(PhaseShift phaseShift, float x, float y, float z, out LiquidData data)
 	{
-		return _terrain.IsInWater(phaseShift, GetId(), x, y, z, out data);
+		return _terrain.IsInWater(phaseShift, Id, x, y, z, out data);
 	}
 
 	public bool IsUnderWater(PhaseShift phaseShift, float x, float y, float z)
 	{
-		return _terrain.IsUnderWater(phaseShift, GetId(), x, y, z);
+		return _terrain.IsUnderWater(phaseShift, Id, x, y, z);
 	}
 
 	public float GetWaterOrGroundLevel(PhaseShift phaseShift, float x, float y, float z, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
 		float ground = 0;
 
-		return _terrain.GetWaterOrGroundLevel(phaseShift, GetId(), x, y, z, ref ground, false, collisionHeight, _dynamicTree);
+		return _terrain.GetWaterOrGroundLevel(phaseShift, Id, x, y, z, ref ground, false, collisionHeight, _dynamicTree);
 	}
 
 	public float GetWaterOrGroundLevel(PhaseShift phaseShift, float x, float y, float z, ref float ground, bool swim = false, float collisionHeight = MapConst.DefaultCollesionHeight)
 	{
-		return _terrain.GetWaterOrGroundLevel(phaseShift, GetId(), x, y, z, ref ground, swim, collisionHeight, _dynamicTree);
+		return _terrain.GetWaterOrGroundLevel(phaseShift, Id, x, y, z, ref ground, swim, collisionHeight, _dynamicTree);
 	}
 
 	public bool IsInLineOfSight(PhaseShift phaseShift, Position position, Position position2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
@@ -1239,7 +1239,7 @@ public class Map : IDisposable
 
 	public bool IsInLineOfSight(PhaseShift phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, ModelIgnoreFlags ignoreFlags)
 	{
-		if (checks.HasAnyFlag(LineOfSightChecks.Vmap) && !Global.VMapMgr.IsInLineOfSight(PhasingHandler.GetTerrainMapId(phaseShift, GetId(), _terrain, x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
+		if (checks.HasAnyFlag(LineOfSightChecks.Vmap) && !Global.VMapMgr.IsInLineOfSight(PhasingHandler.GetTerrainMapId(phaseShift, Id, _terrain, x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
 			return false;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.CheckGobjectLos) && checks.HasAnyFlag(LineOfSightChecks.Gobject) && !_dynamicTree.IsInLineOfSight(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2), phaseShift))
@@ -1320,12 +1320,9 @@ public class Map : IDisposable
 		return null;
 	}
 
-	public string GetMapName()
-	{
-		return _mapRecord.MapName[Global.WorldMgr.DefaultDbcLocale];
-	}
+    public string MapName => _mapRecord.MapName[Global.WorldMgr.DefaultDbcLocale];
 
-	public void SendInitSelf(Player player)
+    public void SendInitSelf(Player player)
 	{
 		var data = new UpdateData(player.Location.MapId);
 
@@ -1438,7 +1435,7 @@ public class Map : IDisposable
 		Cypher.Assert(mode == 1);
 		Cypher.Assert(obj.Map == this);
 
-		if (IsBattlegroundOrArena())
+		if (IsBattlegroundOrArena)
 			return;
 
 		SpawnObjectType type;
@@ -1497,7 +1494,7 @@ public class Map : IDisposable
 
 		if (groupData == null || groupData.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to spawn non-existing (or system) spawn group {groupId}. on map {GetId()} Blocked.");
+			Log.outError(LogFilter.Maps, $"Tried to spawn non-existing (or system) spawn group {groupId}. on map {Id} Blocked.");
 
 			return false;
 		}
@@ -1543,7 +1540,7 @@ public class Map : IDisposable
 		foreach (var data in toSpawn)
 		{
 			// don't spawn if the current map difficulty is not used by the spawn
-			if (!data.SpawnDifficulties.Contains(GetDifficultyID()))
+			if (!data.SpawnDifficulties.Contains(DifficultyID))
 				continue;
 
 			// don't spawn if the grid isn't loaded (will be handled in grid loader)
@@ -1605,7 +1602,7 @@ public class Map : IDisposable
 
 		if (groupData == null || groupData.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to despawn non-existing (or system) spawn group {groupId} on map {GetId()}. Blocked.");
+			Log.outError(LogFilter.Maps, $"Tried to despawn non-existing (or system) spawn group {groupId} on map {Id}. Blocked.");
 
 			return false;
 		}
@@ -1631,7 +1628,7 @@ public class Map : IDisposable
 
 		if (data == null || data.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to set non-existing (or system) spawn group {groupId} to {(state ? "active" : "inactive")} on map {GetId()}. Blocked.");
+			Log.outError(LogFilter.Maps, $"Tried to set non-existing (or system) spawn group {groupId} to {(state ? "active" : "inactive")} on map {Id}. Blocked.");
 
 			return;
 		}
@@ -1655,7 +1652,7 @@ public class Map : IDisposable
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Maps, $"Tried to query state of non-existing spawn group {groupId} on map {GetId()}.");
+			Log.outError(LogFilter.Maps, $"Tried to query state of non-existing spawn group {groupId} on map {Id}.");
 
 			return false;
 		}
@@ -1669,7 +1666,7 @@ public class Map : IDisposable
 
 	public void UpdateSpawnGroupConditions()
 	{
-		var spawnGroups = Global.ObjectMgr.GetSpawnGroupsForMap(GetId());
+		var spawnGroups = Global.ObjectMgr.GetSpawnGroupsForMap(Id);
 
 		foreach (var spawnGroupId in spawnGroups)
 		{
@@ -1713,7 +1710,7 @@ public class Map : IDisposable
 
 		// Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
 		// This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
-		if (!IsBattlegroundOrArena())
+		if (!IsBattlegroundOrArena)
 			foreach (var xkvp in Grids)
 			{
 				foreach (var ykvp in xkvp.Value)
@@ -1727,7 +1724,7 @@ public class Map : IDisposable
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.Location.MapId == GetId() && obj.InstanceId1 == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId1 == InstanceId);
 
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
@@ -1737,7 +1734,7 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.Location.MapId == GetId() && obj.InstanceId1 == GetInstanceId());
+		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId1 == InstanceId);
 
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
@@ -1778,7 +1775,7 @@ public class Map : IDisposable
 									cell_min.Y_Coord + MapConst.MaxCells);
 
 		//we must find visible range in cells so we unload only non-visible cells...
-		var viewDist = GetVisibilityRange();
+		var viewDist = VisibilityRange;
 		var cell_range = (uint)Math.Ceiling(viewDist / MapConst.SizeofCells) + 1;
 
 		cell_min.Dec_x(cell_range);
@@ -1897,7 +1894,7 @@ public class Map : IDisposable
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Maps, $"Map {GetId()} attempt to save respawn time for nonexistant spawnid ({type},{spawnId}).");
+			Log.outError(LogFilter.Maps, $"Map {Id} attempt to save respawn time for nonexistant spawnid ({type},{spawnId}).");
 
 			return;
 		}
@@ -1931,26 +1928,26 @@ public class Map : IDisposable
 
 	public void SaveRespawnInfoDB(RespawnInfo info, SQLTransaction dbTrans = null)
 	{
-		if (Instanceable())
+		if (Instanceable)
 			return;
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_RESPAWN);
 		stmt.AddValue(0, (ushort)info.ObjectType);
 		stmt.AddValue(1, info.SpawnId);
 		stmt.AddValue(2, info.RespawnTime);
-		stmt.AddValue(3, GetId());
-		stmt.AddValue(4, GetInstanceId());
+		stmt.AddValue(3, Id);
+		stmt.AddValue(4, InstanceId);
 		DB.Characters.ExecuteOrAppend(dbTrans, stmt);
 	}
 
 	public void LoadRespawnTimes()
 	{
-		if (Instanceable())
+		if (Instanceable)
 			return;
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_RESPAWNS);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 		var result = DB.Characters.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -1984,12 +1981,12 @@ public class Map : IDisposable
 
 	public void DeleteRespawnTimesInDB()
 	{
-		if (Instanceable())
+		if (Instanceable)
 			return;
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_RESPAWNS);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 		DB.Characters.Execute(stmt);
 	}
 
@@ -2013,8 +2010,8 @@ public class Map : IDisposable
 	public void LoadCorpseData()
 	{
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSES);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 
 		//        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
 		// SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
@@ -2027,8 +2024,8 @@ public class Map : IDisposable
 		MultiMap<ulong, ChrCustomizationChoice> customizations = new();
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSE_PHASES);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 
 		//        0          1
 		// SELECT OwnerGuid, PhaseId FROM corpse_phases cp LEFT JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
@@ -2044,8 +2041,8 @@ public class Map : IDisposable
 			} while (phaseResult.NextRow());
 
 		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSE_CUSTOMIZATIONS);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 
 		//        0             1                            2
 		// SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
@@ -2092,8 +2089,8 @@ public class Map : IDisposable
 	{
 		// DELETE cp, c FROM corpse_phases cp INNER JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSES_FROM_MAP);
-		stmt.AddValue(0, GetId());
-		stmt.AddValue(1, GetInstanceId());
+		stmt.AddValue(0, Id);
+		stmt.AddValue(1, InstanceId);
 		DB.Characters.Execute(stmt);
 	}
 
@@ -2128,7 +2125,7 @@ public class Map : IDisposable
 		// create the bones only if the map and the grid is loaded at the corpse's location
 		// ignore bones creating option in case insignia
 		if ((insignia ||
-			(IsBattlegroundOrArena() ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
+			(IsBattlegroundOrArena ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
 			!IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
 		{
 			// Create bones, don't change Corpse
@@ -2240,7 +2237,7 @@ public class Map : IDisposable
 
 		_zoneDynamicInfo[zoneId].MusicId = musicId;
 
-		var players = GetPlayers();
+		var players = Players;
 
 		if (!players.Empty())
 		{
@@ -2299,7 +2296,7 @@ public class Map : IDisposable
 		info.WeatherId = weatherId;
 		info.Intensity = intensity;
 
-		var players = GetPlayers();
+		var players = Players;
 
 		if (!players.Empty())
 		{
@@ -2330,7 +2327,7 @@ public class Map : IDisposable
 			info.LightOverrides.Add(lightOverride);
 		}
 
-		var players = GetPlayers();
+		var players = Players;
 
 		if (!players.Empty())
 		{
@@ -2347,7 +2344,7 @@ public class Map : IDisposable
 
 	public void UpdateAreaDependentAuras()
 	{
-		var players = GetPlayers();
+		var players = Players;
 
 		foreach (var player in players)
 			if (player)
@@ -2360,15 +2357,12 @@ public class Map : IDisposable
 
 	public virtual string GetDebugInfo()
 	{
-		return $"Id: {GetId()} InstanceId: {GetInstanceId()} Difficulty: {GetDifficultyID()} HasPlayers: {HavePlayers()}";
+		return $"Id: {Id} InstanceId: {InstanceId} Difficulty: {DifficultyID} HasPlayers: {HavePlayers}";
 	}
 
-	public MapRecord GetEntry()
-	{
-		return _mapRecord;
-	}
+    public MapRecord Entry => _mapRecord;
 
-	public bool CanUnload(uint diff)
+    public bool CanUnload(uint diff)
 	{
 		if (UnloadTimer == 0)
 			return false;
@@ -2381,12 +2375,9 @@ public class Map : IDisposable
 		return false;
 	}
 
-	public float GetVisibilityRange()
-	{
-		return VisibleDistance;
-	}
+    public float VisibilityRange => VisibleDistance;
 
-	public bool IsRemovalGrid(float x, float y)
+    public bool IsRemovalGrid(float x, float y)
 	{
 		var p = GridDefines.ComputeGridCoord(x, y);
 
@@ -2399,39 +2390,27 @@ public class Map : IDisposable
 		grid.ResetTimeTracker((long)(_gridExpiry * factor));
 	}
 
-	public TerrainInfo GetTerrain()
-	{
-		return _terrain;
-	}
+    public TerrainInfo Terrain => _terrain;
 
-	public uint GetInstanceId()
-	{
-		return InstanceId;
-	}
+    public uint InstanceId => InstanceIdInternal;
 
-	public virtual TransferAbortParams CannotEnter(Player player)
+    public virtual TransferAbortParams CannotEnter(Player player)
 	{
 		return null;
 	}
 
-	public Difficulty GetDifficultyID()
-	{
-		return _spawnMode;
-	}
+    public Difficulty DifficultyID => _spawnMode;
 
-	public MapDifficultyRecord GetMapDifficulty()
-	{
-		return Global.DB2Mgr.GetMapDifficultyData(GetId(), GetDifficultyID());
-	}
+    public MapDifficultyRecord MapDifficulty => Global.DB2Mgr.GetMapDifficultyData(Id, DifficultyID);
 
-	public ItemContext GetDifficultyLootItemContext()
+    public ItemContext GetDifficultyLootItemContext()
 	{
-		var mapDifficulty = GetMapDifficulty();
+		var mapDifficulty = MapDifficulty;
 
 		if (mapDifficulty != null && mapDifficulty.ItemContext != 0)
 			return (ItemContext)mapDifficulty.ItemContext;
 
-		var difficulty = CliDB.DifficultyStorage.LookupByKey(GetDifficultyID());
+		var difficulty = CliDB.DifficultyStorage.LookupByKey(DifficultyID);
 
 		if (difficulty != null)
 			return (ItemContext)difficulty.ItemContext;
@@ -2439,78 +2418,45 @@ public class Map : IDisposable
 		return ItemContext.None;
 	}
 
-	public uint GetId()
-	{
-		return _mapRecord.Id;
-	}
+    public uint Id => _mapRecord.Id;
 
-	public bool Instanceable()
-	{
-		return _mapRecord != null && _mapRecord.Instanceable();
-	}
+    public bool Instanceable => _mapRecord != null && _mapRecord.Instanceable();
 
-	public bool IsDungeon()
-	{
-		return _mapRecord != null && _mapRecord.IsDungeon();
-	}
+    public bool IsDungeon => _mapRecord != null && _mapRecord.IsDungeon();
 
-	public bool IsNonRaidDungeon()
-	{
-		return _mapRecord != null && _mapRecord.IsNonRaidDungeon();
-	}
+    public bool IsNonRaidDungeon => _mapRecord != null && _mapRecord.IsNonRaidDungeon();
 
-	public bool IsRaid()
-	{
-		return _mapRecord != null && _mapRecord.IsRaid();
-	}
+    public bool IsRaid => _mapRecord != null && _mapRecord.IsRaid();
 
-	public bool IsHeroic()
-	{
-		var difficulty = CliDB.DifficultyStorage.LookupByKey(_spawnMode);
+    public bool IsHeroic
+    {
+        get
+        {
+            var difficulty = CliDB.DifficultyStorage.LookupByKey(_spawnMode);
 
-		if (difficulty != null)
-			return difficulty.Flags.HasAnyFlag(DifficultyFlags.Heroic);
+            if (difficulty != null)
+                return difficulty.Flags.HasAnyFlag(DifficultyFlags.Heroic);
 
-		return false;
-	}
+            return false;
+        }
+    }
 
-	public bool Is25ManRaid()
-	{
-		// since 25man difficulties are 1 and 3, we can check them like that
-		return IsRaid() && (_spawnMode == Difficulty.Raid25N || _spawnMode == Difficulty.Raid25HC);
-	}
+    // since 25man difficulties are 1 and 3, we can check them like that
+    public bool Is25ManRaid => IsRaid && (_spawnMode == Difficulty.Raid25N || _spawnMode == Difficulty.Raid25HC);
 
-	public bool IsBattleground()
-	{
-		return _mapRecord != null && _mapRecord.IsBattleground();
-	}
+    public bool IsBattleground => _mapRecord != null && _mapRecord.IsBattleground();
 
-	public bool IsBattleArena()
-	{
-		return _mapRecord != null && _mapRecord.IsBattleArena();
-	}
+    public bool IsBattleArena => _mapRecord != null && _mapRecord.IsBattleArena();
 
-	public bool IsBattlegroundOrArena()
-	{
-		return _mapRecord != null && _mapRecord.IsBattlegroundOrArena();
-	}
+    public bool IsBattlegroundOrArena => _mapRecord != null && _mapRecord.IsBattlegroundOrArena();
 
-	public bool IsScenario()
-	{
-		return _mapRecord != null && _mapRecord.IsScenario();
-	}
+    public bool IsScenario => _mapRecord != null && _mapRecord.IsScenario();
 
-	public bool IsGarrison()
-	{
-		return _mapRecord != null && _mapRecord.IsGarrison();
-	}
+    public bool IsGarrison => _mapRecord != null && _mapRecord.IsGarrison();
 
-	public bool HavePlayers()
-	{
-		return !ActivePlayers.Empty();
-	}
+    public bool HavePlayers => !ActivePlayers.Empty();
 
-	public void AddWorldObject(WorldObject obj)
+    public void AddWorldObject(WorldObject obj)
 	{
 		_worldObjects.Add(obj);
 	}
@@ -2522,41 +2468,23 @@ public class Map : IDisposable
 
 	public void DoOnPlayers(Action<Player> action)
 	{
-		foreach (var player in GetPlayers())
+		foreach (var player in Players)
 			action(player);
 	}
 
-	public List<Player> GetPlayers()
-	{
-		return ActivePlayers;
-	}
+    public List<Player> Players => ActivePlayers;
 
-	public int GetActiveNonPlayersCount()
-	{
-		return _activeNonPlayers.Count;
-	}
+    public int ActiveNonPlayersCount => _activeNonPlayers.Count;
 
-	public Dictionary<ObjectGuid, WorldObject> GetObjectsStore()
-	{
-		return _objectsStore;
-	}
+    public Dictionary<ObjectGuid, WorldObject> ObjectsStore => _objectsStore;
 
-	public MultiMap<ulong, Creature> GetCreatureBySpawnIdStore()
-	{
-		return _creatureBySpawnIdStore;
-	}
+    public MultiMap<ulong, Creature> CreatureBySpawnIdStore => _creatureBySpawnIdStore;
 
-	public MultiMap<ulong, GameObject> GetGameObjectBySpawnIdStore()
-	{
-		return _gameobjectBySpawnIdStore;
-	}
+    public MultiMap<ulong, GameObject> GameObjectBySpawnIdStore => _gameobjectBySpawnIdStore;
 
-	public MultiMap<ulong, AreaTrigger> GetAreaTriggerBySpawnIdStore()
-	{
-		return _areaTriggerBySpawnIdStore;
-	}
+    public MultiMap<ulong, AreaTrigger> AreaTriggerBySpawnIdStore => _areaTriggerBySpawnIdStore;
 
-	public List<Corpse> GetCorpsesInCell(uint cellId)
+    public List<Corpse> GetCorpsesInCell(uint cellId)
 	{
 		return _corpsesByCell.LookupByKey(cellId);
 	}
@@ -2566,17 +2494,11 @@ public class Map : IDisposable
 		return _corpsesByPlayer.LookupByKey(ownerGuid);
 	}
 
-	public InstanceMap ToInstanceMap()
-	{
-		return IsDungeon() ? (this as InstanceMap) : null;
-	}
+    public InstanceMap ToInstanceMap => IsDungeon ? (this as InstanceMap) : null;
 
-	public BattlegroundMap ToBattlegroundMap()
-	{
-		return IsBattlegroundOrArena() ? (this as BattlegroundMap) : null;
-	}
+    public BattlegroundMap ToBattlegroundMap => IsBattlegroundOrArena ? (this as BattlegroundMap) : null;
 
-	public void Balance()
+    public void Balance()
 	{
 		_dynamicTree.Balance();
 	}
@@ -2705,7 +2627,7 @@ public class Map : IDisposable
 
 	public Creature GetCreatureBySpawnId(ulong spawnId)
 	{
-		var bounds = GetCreatureBySpawnIdStore().LookupByKey(spawnId);
+		var bounds = CreatureBySpawnIdStore.LookupByKey(spawnId);
 
 		if (bounds.Empty())
 			return null;
@@ -2717,7 +2639,7 @@ public class Map : IDisposable
 
 	public GameObject GetGameObjectBySpawnId(ulong spawnId)
 	{
-		var bounds = GetGameObjectBySpawnIdStore().LookupByKey(spawnId);
+		var bounds = GameObjectBySpawnIdStore.LookupByKey(spawnId);
 
 		if (bounds.Empty())
 			return null;
@@ -2729,7 +2651,7 @@ public class Map : IDisposable
 
 	public AreaTrigger GetAreaTriggerBySpawnId(ulong spawnId)
 	{
-		var bounds = GetAreaTriggerBySpawnIdStore().LookupByKey(spawnId);
+		var bounds = AreaTriggerBySpawnIdStore.LookupByKey(spawnId);
 
 		if (bounds.Empty())
 			return null;
@@ -2912,7 +2834,7 @@ public class Map : IDisposable
 
 		// call MoveInLineOfSight for nearby creatures
 		AIRelocationNotifier notifier = new(summon, GridType.All);
-		Cell.VisitGrid(summon, notifier, GetVisibilityRange());
+		Cell.VisitGrid(summon, notifier, VisibilityRange);
 
 		return summon;
 	}
@@ -2949,17 +2871,11 @@ public class Map : IDisposable
 		return map != null;
 	}
 
-	public MultiPersonalPhaseTracker GetMultiPersonalPhaseTracker()
-	{
-		return _multiPersonalPhaseTracker;
-	}
+    public MultiPersonalPhaseTracker MultiPersonalPhaseTracker => _multiPersonalPhaseTracker;
 
-	public SpawnedPoolData GetPoolData()
-	{
-		return _poolData;
-	}
+    public SpawnedPoolData PoolData => _poolData;
 
-	private void SwitchGridContainers(WorldObject obj, bool on)
+    private void SwitchGridContainers(WorldObject obj, bool on)
 	{
 		if (obj.IsPermanentWorldObject)
 			return;
@@ -3032,7 +2948,7 @@ public class Map : IDisposable
 		{
 			if (GetGrid(p.X_Coord, p.Y_Coord) == null)
 			{
-				Log.outDebug(LogFilter.Maps, "Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, GetId(), InstanceId);
+				Log.outDebug(LogFilter.Maps, "Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, Id, InstanceIdInternal);
 
 				var grid = new Grid(p.X_Coord * MapConst.MaxGrids + p.Y_Coord, p.X_Coord, p.Y_Coord, _gridExpiry, WorldConfig.GetBoolValue(WorldCfg.GridUnload));
 				grid.SetGridState(GridState.Idle);
@@ -3054,7 +2970,7 @@ public class Map : IDisposable
 		var grid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
 		if (obj.IsPlayer)
-			GetMultiPersonalPhaseTracker().LoadGrid(obj.PhaseShift, grid, this, cell);
+			MultiPersonalPhaseTracker.LoadGrid(obj.PhaseShift, grid, this, cell);
 
 		// refresh grid state & timer
 		if (grid.GetGridState() != GridState.Active)
@@ -3064,7 +2980,7 @@ public class Map : IDisposable
 						obj.						GUID,
 						cell.GetGridX(),
 						cell.GetGridY(),
-						GetId());
+						Id);
 
 			ResetGridExpiry(grid, 0.1f);
 			grid.SetGridState(GridState.Active);
@@ -3082,8 +2998,8 @@ public class Map : IDisposable
 						"Loading grid[{0}, {1}] for map {2} instance {3}",
 						cell.GetGridX(),
 						cell.GetGridY(),
-						GetId(),
-						InstanceId);
+						Id,
+						InstanceIdInternal);
 
 			SetGridObjectDataLoaded(true, cell.GetGridX(), cell.GetGridY());
 
@@ -3631,12 +3547,12 @@ public class Map : IDisposable
 
 	private bool GetAreaInfo(PhaseShift phaseShift, float x, float y, float z, out uint mogpflags, out int adtId, out int rootId, out int groupId)
 	{
-		return _terrain.GetAreaInfo(phaseShift, GetId(), x, y, z, out mogpflags, out adtId, out rootId, out groupId, _dynamicTree);
+		return _terrain.GetAreaInfo(phaseShift, Id, x, y, z, out mogpflags, out adtId, out rootId, out groupId, _dynamicTree);
 	}
 
 	private void SendInitTransports(Player player)
 	{
-		var transData = new UpdateData(GetId());
+		var transData = new UpdateData(Id);
 
 		foreach (var transport in _transports)
 			if (transport.IsInWorld && transport != player.Transport && player.InSamePhase(transport))
@@ -3750,7 +3666,7 @@ public class Map : IDisposable
 
 				break;
 			default:
-				Cypher.Assert(false, $"Invalid spawn type {info.ObjectType} with spawnId {info.SpawnId} on map {GetId()}");
+				Cypher.Assert(false, $"Invalid spawn type {info.ObjectType} with spawnId {info.SpawnId} on map {Id}");
 
 				return true;
 		}
@@ -3763,7 +3679,7 @@ public class Map : IDisposable
 		}
 
 		// next, check linked respawn time
-		var thisGUID = info.ObjectType == SpawnObjectType.GameObject ? ObjectGuid.Create(HighGuid.GameObject, GetId(), info.Entry, info.SpawnId) : ObjectGuid.Create(HighGuid.Creature, GetId(), info.Entry, info.SpawnId);
+		var thisGUID = info.ObjectType == SpawnObjectType.GameObject ? ObjectGuid.Create(HighGuid.GameObject, Id, info.Entry, info.SpawnId) : ObjectGuid.Create(HighGuid.Creature, Id, info.Entry, info.SpawnId);
 		var linkedTime = GetLinkedRespawnTime(thisGUID);
 
 		if (linkedTime != 0)
@@ -3794,12 +3710,12 @@ public class Map : IDisposable
 		switch (type)
 		{
 			case SpawnObjectType.Creature:
-				foreach (var creature in GetCreatureBySpawnIdStore().LookupByKey(spawnId))
+				foreach (var creature in CreatureBySpawnIdStore.LookupByKey(spawnId))
 					toUnload.Add(creature);
 
 				break;
 			case SpawnObjectType.GameObject:
-				foreach (var obj in GetGameObjectBySpawnIdStore().LookupByKey(spawnId))
+				foreach (var obj in GameObjectBySpawnIdStore.LookupByKey(spawnId))
 					toUnload.Add(obj);
 
 				break;
@@ -3896,7 +3812,7 @@ public class Map : IDisposable
 			return;
 
 		var respawnInfo = spawnMap.LookupByKey(info.SpawnId);
-		Cypher.Assert(respawnInfo != null, $"Respawn stores inconsistent for map {GetId()}, spawnid {info.SpawnId} (type {info.ObjectType})");
+		Cypher.Assert(respawnInfo != null, $"Respawn stores inconsistent for map {Id}, spawnid {info.SpawnId} (type {info.ObjectType})");
 		spawnMap.Remove(info.SpawnId);
 
 		// respawn heap
@@ -3908,14 +3824,14 @@ public class Map : IDisposable
 
 	private void DeleteRespawnInfoFromDB(SpawnObjectType type, ulong spawnId, SQLTransaction dbTrans = null)
 	{
-		if (Instanceable())
+		if (Instanceable)
 			return;
 
 		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESPAWN);
 		stmt.AddValue(0, (ushort)type);
 		stmt.AddValue(1, spawnId);
-		stmt.AddValue(2, GetId());
-		stmt.AddValue(3, GetInstanceId());
+		stmt.AddValue(2, Id);
+		stmt.AddValue(3, InstanceId);
 		DB.Characters.ExecuteOrAppend(dbTrans, stmt);
 	}
 
@@ -3945,7 +3861,7 @@ public class Map : IDisposable
 				break;
 			}
 			default:
-				Cypher.Assert(false, $"Invalid spawn type {type} (spawnid {spawnId}) on map {GetId()}");
+				Cypher.Assert(false, $"Invalid spawn type {type} (spawnid {spawnId}) on map {Id}");
 
 				break;
 		}
@@ -3972,7 +3888,7 @@ public class Map : IDisposable
 				GetRespawnMapForType(next.ObjectType).Remove(next.SpawnId);
 
 				// step 2: tell pooling logic to do its thing
-				Global.PoolMgr.UpdatePool(GetPoolData(), poolId, next.ObjectType, next.SpawnId);
+				Global.PoolMgr.UpdatePool(PoolData, poolId, next.ObjectType, next.SpawnId);
 
 				// step 3: get rid of the actual entry
 				RemoveRespawnTime(next.ObjectType, next.SpawnId, null, true);
@@ -4025,7 +3941,7 @@ public class Map : IDisposable
 				return false;
 
 		if (spawnData.ToSpawnData().poolId != 0)
-			if (!GetPoolData().IsSpawnedObject(type, spawnId))
+			if (!PoolData.IsSpawnedObject(type, spawnId))
 				return false;
 
 		return true;
@@ -4035,7 +3951,7 @@ public class Map : IDisposable
 	{
 		var data = Global.ObjectMgr.GetSpawnGroupData(groupId);
 
-		if (data != null && (data.Flags.HasAnyFlag(SpawnGroupFlags.System) || data.MapId == GetId()))
+		if (data != null && (data.Flags.HasAnyFlag(SpawnGroupFlags.System) || data.MapId == Id))
 			return data;
 
 		return null;
@@ -4250,31 +4166,31 @@ public class Map : IDisposable
 	public static void OnCreateMap(Map map)
 	{
 		Cypher.Assert(map != null);
-		var record = map.GetEntry();
+		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
 			Global.ScriptMgr.ForEach<IMapOnCreate<Map>>(p => p.OnCreate(map));
 
 		if (record != null && record.IsDungeon())
-			Global.ScriptMgr.ForEach<IMapOnCreate<InstanceMap>>(p => p.OnCreate(map.ToInstanceMap()));
+			Global.ScriptMgr.ForEach<IMapOnCreate<InstanceMap>>(p => p.OnCreate(map.ToInstanceMap));
 
 		if (record != null && record.IsBattleground())
-			Global.ScriptMgr.ForEach<IMapOnCreate<BattlegroundMap>>(p => p.OnCreate(map.ToBattlegroundMap()));
+			Global.ScriptMgr.ForEach<IMapOnCreate<BattlegroundMap>>(p => p.OnCreate(map.ToBattlegroundMap));
 	}
 
 	public static void OnDestroyMap(Map map)
 	{
 		Cypher.Assert(map != null);
-		var record = map.GetEntry();
+		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
 			Global.ScriptMgr.ForEach<IMapOnDestroy<Map>>(p => p.OnDestroy(map));
 
 		if (record != null && record.IsDungeon())
-			Global.ScriptMgr.ForEach<IMapOnDestroy<InstanceMap>>(p => p.OnDestroy(map.ToInstanceMap()));
+			Global.ScriptMgr.ForEach<IMapOnDestroy<InstanceMap>>(p => p.OnDestroy(map.ToInstanceMap));
 
 		if (record != null && record.IsBattleground())
-			Global.ScriptMgr.ForEach<IMapOnDestroy<BattlegroundMap>>(p => p.OnDestroy(map.ToBattlegroundMap()));
+			Global.ScriptMgr.ForEach<IMapOnDestroy<BattlegroundMap>>(p => p.OnDestroy(map.ToBattlegroundMap));
 	}
 
 	public static void OnPlayerEnterMap(Map map, Player player)
@@ -4284,46 +4200,46 @@ public class Map : IDisposable
 
 		Global.ScriptMgr.ForEach<IPlayerOnMapChanged>(p => p.OnMapChanged(player));
 
-		var record = map.GetEntry();
+		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
 			Global.ScriptMgr.ForEach<IMapOnPlayerEnter<Map>>(p => p.OnPlayerEnter(map, player));
 
 		if (record != null && record.IsDungeon())
-			Global.ScriptMgr.ForEach<IMapOnPlayerEnter<InstanceMap>>(p => p.OnPlayerEnter(map.ToInstanceMap(), player));
+			Global.ScriptMgr.ForEach<IMapOnPlayerEnter<InstanceMap>>(p => p.OnPlayerEnter(map.ToInstanceMap, player));
 
 		if (record != null && record.IsBattleground())
-			Global.ScriptMgr.ForEach<IMapOnPlayerEnter<BattlegroundMap>>(p => p.OnPlayerEnter(map.ToBattlegroundMap(), player));
+			Global.ScriptMgr.ForEach<IMapOnPlayerEnter<BattlegroundMap>>(p => p.OnPlayerEnter(map.ToBattlegroundMap, player));
 	}
 
 	public static void OnPlayerLeaveMap(Map map, Player player)
 	{
 		Cypher.Assert(map != null);
-		var record = map.GetEntry();
+		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
 			Global.ScriptMgr.ForEach<IMapOnPlayerLeave<Map>>(p => p.OnPlayerLeave(map, player));
 
 		if (record != null && record.IsDungeon())
-			Global.ScriptMgr.ForEach<IMapOnPlayerLeave<InstanceMap>>(p => p.OnPlayerLeave(map.ToInstanceMap(), player));
+			Global.ScriptMgr.ForEach<IMapOnPlayerLeave<InstanceMap>>(p => p.OnPlayerLeave(map.ToInstanceMap, player));
 
 		if (record != null && record.IsBattleground())
-			Global.ScriptMgr.ForEach<IMapOnPlayerLeave<BattlegroundMap>>(p => p.OnPlayerLeave(map.ToBattlegroundMap(), player));
+			Global.ScriptMgr.ForEach<IMapOnPlayerLeave<BattlegroundMap>>(p => p.OnPlayerLeave(map.ToBattlegroundMap, player));
 	}
 
 	public static void OnMapUpdate(Map map, uint diff)
 	{
 		Cypher.Assert(map != null);
-		var record = map.GetEntry();
+		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
 			Global.ScriptMgr.ForEach<IMapOnUpdate<Map>>(p => p.OnUpdate(map, diff));
 
 		if (record != null && record.IsDungeon())
-			Global.ScriptMgr.ForEach<IMapOnUpdate<InstanceMap>>(p => p.OnUpdate(map.ToInstanceMap(), diff));
+			Global.ScriptMgr.ForEach<IMapOnUpdate<InstanceMap>>(p => p.OnUpdate(map.ToInstanceMap, diff));
 
 		if (record != null && record.IsBattleground())
-			Global.ScriptMgr.ForEach<IMapOnUpdate<BattlegroundMap>>(p => p.OnUpdate(map.ToBattlegroundMap(), diff));
+			Global.ScriptMgr.ForEach<IMapOnUpdate<BattlegroundMap>>(p => p.OnUpdate(map.ToBattlegroundMap, diff));
 	}
 
 	#endregion
@@ -4704,7 +4620,7 @@ public class Map : IDisposable
 
 	private GameObject FindGameObject(WorldObject searchObject, ulong guid)
 	{
-		var bounds = searchObject.Map.GetGameObjectBySpawnIdStore().LookupByKey(guid);
+		var bounds = searchObject.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
 		if (bounds.Empty())
 			return null;

@@ -1318,7 +1318,7 @@ namespace Game.DungeonFinding
                     }
                 }
 
-                if (!player.Map.IsDungeon())
+                if (!player.Map.IsDungeon)
                     player.SetBattlegroundEntryPoint();
 
                 player.FinishTaxiFlight();

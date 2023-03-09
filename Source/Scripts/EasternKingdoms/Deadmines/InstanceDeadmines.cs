@@ -68,7 +68,7 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 
 		public override void OnCreatureCreate(Creature creature)
 		{
-			var players = Instance.GetPlayers();
+			var players = Instance.Players;
 
 			if (!players.Empty())
 				_teamInInstance = players.First().Team;
@@ -138,7 +138,7 @@ internal class instance_deadmines : InstanceMapScript, IInstanceMapGetInstanceSc
 			{
 				case DMData.DATA_COOKIE:
 					if (state == EncounterState.Done)
-						if (Instance.IsHeroic())
+						if (Instance.IsHeroic)
 							SummonNote();
 
 					break;

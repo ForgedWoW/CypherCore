@@ -250,7 +250,7 @@ namespace Game
 
             if (player.IsInWorld)
             {
-                Log.outError(LogFilter.Network, $"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.GetId()} to new map {loc.MapId}");
+                Log.outError(LogFilter.Network, $"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
                 oldMap.RemovePlayerFromMap(player, false);
             }
 
@@ -259,7 +259,7 @@ namespace Game
             // while the player is in transit, for example the map may get full
             if (newMap == null || newMap.CannotEnter(player) != null)
             {
-                Log.outError(LogFilter.Network, $"Map {loc.MapId} could not be created for {(newMap ? newMap.GetMapName() : "Unknown")} ({player.GUID}), porting player to homebind");
+                Log.outError(LogFilter.Network, $"Map {loc.MapId} could not be created for {(newMap ? newMap.MapName : "Unknown")} ({player.GUID}), porting player to homebind");
                 player.TeleportTo(player.Homebind);
                 return;
             }
@@ -289,7 +289,7 @@ namespace Game
 
             if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
             {
-                Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.GetMapName() : "Unknown")}) because of unknown reason!");
+                Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
                 player.ResetMap();
                 player.                Map = oldMap;
                 player.TeleportTo(player.Homebind);
@@ -364,13 +364,13 @@ namespace Game
             if (mapEntry.IsDungeon())
             {
                 // check if this instance has a reset time and send it to player if so
-                MapDb2Entries entries = new(mapEntry.Id, newMap.GetDifficultyID());
+                MapDb2Entries entries = new(mapEntry.Id, newMap.DifficultyID);
                 if (entries.MapDifficulty.HasResetSchedule())
                 {
                     RaidInstanceMessage raidInstanceMessage = new();
                     raidInstanceMessage.Type = InstanceResetWarningType.Welcome;
                     raidInstanceMessage.MapID = mapEntry.Id;
-                    raidInstanceMessage.DifficultyID = newMap.GetDifficultyID();
+                    raidInstanceMessage.DifficultyID = newMap.DifficultyID;
 
                     InstanceLock playerLock = Global.InstanceLockMgr.FindActiveInstanceLock(Player.GUID, entries);
                     if (playerLock != null)

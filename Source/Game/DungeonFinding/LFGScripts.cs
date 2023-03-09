@@ -57,7 +57,7 @@ namespace Game.DungeonFinding
         {
             Map map = player.Map;
 
-            if (Global.LFGMgr.InLfgDungeonMap(player.GUID, map.GetId(), map.GetDifficultyID()))
+            if (Global.LFGMgr.InLfgDungeonMap(player.GUID, map.Id, map.DifficultyID))
             {
                 PlayerGroup group = player.Group;
                 // This function is also called when players log in
@@ -187,7 +187,7 @@ namespace Game.DungeonFinding
                 // Update internal kick cooldown of kicked
 
                 Session.SendLfgUpdateStatus(new LfgUpdateData(LfgUpdateType.LeaderUnk1), true);
-                if (isLFG && player.Map.IsDungeon())            // Teleport player out the dungeon
+                if (isLFG && player.Map.IsDungeon)            // Teleport player out the dungeon
                     Global.LFGMgr.TeleportPlayer(player, true);
             }
 

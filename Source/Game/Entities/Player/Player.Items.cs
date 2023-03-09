@@ -2551,7 +2551,7 @@ public partial class Player
 				return InventoryResult.Ok; // not in LFG group
 
 			// check if looted object is inside the lfg dungeon
-			if (!Global.LFGMgr.InLfgDungeonMap(Group.GUID, map.GetId(), map.GetDifficultyID()))
+			if (!Global.LFGMgr.InLfgDungeonMap(Group.GUID, map.Id, map.DifficultyID))
 				return InventoryResult.Ok;
 		}
 
@@ -7488,7 +7488,7 @@ public partial class Player
 	{
 		// @todo Activate pvp item levels during world pvp
 		var map = Map;
-		var pvpActivity = map.IsBattlegroundOrArena() || ((int)map.GetEntry().Flags[1]).HasAnyFlag(0x40) || HasPvpRulesEnabled();
+		var pvpActivity = map.IsBattlegroundOrArena || ((int)map.Entry.Flags[1]).HasAnyFlag(0x40) || HasPvpRulesEnabled();
 
 		if (_usePvpItemLevels != pvpActivity)
 		{

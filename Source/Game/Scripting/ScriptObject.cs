@@ -29,7 +29,7 @@ public abstract class ScriptObject : IScriptObject
 
 	public static T GetInstanceAI<T>(WorldObject obj) where T : class
 	{
-		var instance = obj.Map.ToInstanceMap();
+		var instance = obj.Map.ToInstanceMap;
 
 		if (instance != null && instance.GetInstanceScript() != null)
 			return (T)Activator.CreateInstance(typeof(T),

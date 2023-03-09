@@ -347,7 +347,7 @@ namespace Game
                 case CreatureTextRange.Area:
                     {
                         uint areaId = source.Area;
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
@@ -356,7 +356,7 @@ namespace Game
                 case CreatureTextRange.Zone:
                     {
                         uint zoneId = source.Zone;
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
@@ -364,7 +364,7 @@ namespace Game
                     }
                 case CreatureTextRange.Map:
                     {
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 pl.SendPacket(data);
@@ -500,7 +500,7 @@ namespace Game
                 case CreatureTextRange.Area:
                     {
                         uint areaId = source.Area;
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if (pl.Area == areaId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);
@@ -509,7 +509,7 @@ namespace Game
                 case CreatureTextRange.Zone:
                     {
                         uint zoneId = source.Zone;
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if (pl.Zone == zoneId && (team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);
@@ -517,7 +517,7 @@ namespace Game
                     }
                 case CreatureTextRange.Map:
                     {
-                        var players = source.Map.GetPlayers();
+                        var players = source.Map.Players;
                         foreach (var pl in players)
                             if ((team == 0 || pl.EffectiveTeam == team) && (!gmOnly || pl.IsGameMaster))
                                 localizer.Invoke(pl);

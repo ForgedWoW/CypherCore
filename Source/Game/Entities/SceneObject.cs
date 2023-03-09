@@ -43,7 +43,7 @@ public class SceneObject : WorldObject
 	{
 		if (!IsInWorld)
 		{
-			Map.GetObjectsStore().Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 			base.AddToWorld();
 		}
 	}
@@ -53,7 +53,7 @@ public class SceneObject : WorldObject
 		if (IsInWorld)
 		{
 			base.RemoveFromWorld();
-			Map.GetObjectsStore().Remove(GUID);
+			Map.			ObjectsStore.Remove(GUID);
 		}
 	}
 

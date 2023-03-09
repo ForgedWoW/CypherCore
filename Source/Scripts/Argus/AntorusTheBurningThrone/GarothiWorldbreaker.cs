@@ -876,7 +876,7 @@ internal class spell_garothi_cannon_chooser : SpellScript, IHasSpellEffects
 		else if ((lastCannonEntry == CreatureIds.Decimator && annihilator) ||
 				(annihilator && !decimator))
 		{
-			var count = (byte)(caster.Map.GetDifficultyID() == Difficulty.MythicRaid ? MiscConst.MaxTargetsSize : Math.Max(MiscConst.MinTargetsSize, Math.Ceiling((double)caster.Map.GetPlayersCountExceptGMs() / 5)));
+			var count = (byte)(caster.Map.DifficultyID == Difficulty.MythicRaid ? MiscConst.MaxTargetsSize : Math.Max(MiscConst.MinTargetsSize, Math.Ceiling((double)caster.Map.GetPlayersCountExceptGMs() / 5)));
 
 			for (byte i = 0; i < count; i++)
 			{

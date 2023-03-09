@@ -230,7 +230,7 @@ public partial class Player
 		if (!overrides.Empty())
 			foreach (var spellId in overrides)
 			{
-				var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
+				var newInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
 
 				if (newInfo != null)
 					return GetCastSpellInfo(newInfo);

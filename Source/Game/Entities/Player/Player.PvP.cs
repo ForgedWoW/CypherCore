@@ -462,7 +462,7 @@ public partial class Player
 			}
 
 			// If map is dungeon find linked graveyard
-			if (Map.IsDungeon())
+			if (Map.IsDungeon)
 			{
 				var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
 
@@ -472,7 +472,7 @@ public partial class Player
 					Log.outError(LogFilter.Player, "SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
 			}
 			// If new entry point is not BG or arena set it
-			else if (!Map.IsBattlegroundOrArena())
+			else if (!Map.IsBattlegroundOrArena)
 			{
 				_bgData.JoinPos = new WorldLocation(Location.MapId, Location.X, Location.Y, Location.Z, Location.Orientation);
 			}

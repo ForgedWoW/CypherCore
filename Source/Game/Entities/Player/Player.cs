@@ -1019,7 +1019,7 @@ public partial class Player : Unit
 		}
 
 		// not auto-free ghost from body in instances
-		if (_deathTimer > 0 && !Map.Instanceable() && !HasAuraType(AuraType.PreventResurrection))
+		if (_deathTimer > 0 && !Map.Instanceable && !HasAuraType(AuraType.PreventResurrection))
 		{
 			if (diff >= _deathTimer)
 			{
@@ -1052,7 +1052,7 @@ public partial class Player : Unit
 
 		var pet = CurrentPet;
 
-		if (pet != null && !pet.IsWithinDistInMap(this, Map.GetVisibilityRange()) && !pet.IsPossessed)
+		if (pet != null && !pet.IsWithinDistInMap(this, Map.VisibilityRange) && !pet.IsPossessed)
 			RemovePet(pet, PetSaveMode.NotInSlot, true);
 
 		if (IsAlive)
@@ -1061,7 +1061,7 @@ public partial class Player : Unit
 			{
 				_hostileReferenceCheckTimer = 15 * Time.InMilliseconds;
 
-				if (!Map.IsDungeon())
+				if (!Map.IsDungeon)
 					GetCombatManager().EndCombatBeyondRange(VisibilityRange, true);
 			}
 			else
@@ -1506,7 +1506,7 @@ public partial class Player : Unit
 		for (uint i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 		{
 			var spellId = vehicle.Spells[i];
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
 
 			if (spellInfo == null)
 				continue;
@@ -1988,9 +1988,9 @@ public partial class Player : Unit
 			// support for: Championing - http://www.wowwiki.com/Championing
 			var map = Map;
 
-			if (map.IsNonRaidDungeon())
+			if (map.IsNonRaidDungeon)
 			{
-				var dungeon = Global.DB2Mgr.GetLfgDungeon(map.GetId(), map.GetDifficultyID());
+				var dungeon = Global.DB2Mgr.GetLfgDungeon(map.Id, map.DifficultyID);
 
 				if (dungeon != null)
 				{
@@ -2142,7 +2142,7 @@ public partial class Player : Unit
 
 			if (!options.HasAnyFlag(TeleportToOptions.NotUnSummonPet))
 				//same map, only remove pet if out of range for new position
-				if (pet && !pet.IsWithinDist3d(x, y, z, Map.GetVisibilityRange()))
+				if (pet && !pet.IsWithinDist3d(x, y, z, Map.VisibilityRange))
 					UnsummonPetTemporaryIfAny();
 
 			if (!IsAlive && options.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
@@ -2191,9 +2191,9 @@ public partial class Player : Unit
 
 			// Seamless teleport can happen only if cosmetic maps match
 			if (!oldmap ||
-				(oldmap.GetEntry().CosmeticParentMapID != mapid &&
+				(oldmap.Entry.CosmeticParentMapID != mapid &&
 				Location.MapId != mEntry.CosmeticParentMapID &&
-				!((oldmap.GetEntry().CosmeticParentMapID != -1) ^ (oldmap.GetEntry().CosmeticParentMapID != mEntry.CosmeticParentMapID))))
+				!((oldmap.Entry.CosmeticParentMapID != -1) ^ (oldmap.Entry.CosmeticParentMapID != mEntry.CosmeticParentMapID))))
 				options &= ~TeleportToOptions.Seamless;
 
 			//lets reset near teleport flag if it wasn't reset during chained teleports
@@ -4106,7 +4106,7 @@ public partial class Player : Unit
 		{
 			//returning of reagents only for players, so best done here
 			var spellId = pet ? pet.UnitData.CreatedBySpell : _oldpetspell;
-			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.GetDifficultyID());
+			var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Map.DifficultyID);
 
 			if (spellInfo != null)
 				for (uint i = 0; i < SpellConst.MaxReagents; ++i)
@@ -4893,11 +4893,11 @@ public partial class Player : Unit
 
 		// SMSG_WORLD_SERVER_INFO
 		WorldServerInfo worldServerInfo = new();
-		worldServerInfo.InstanceGroupSize = Map.GetMapDifficulty().MaxPlayers; // @todo
+		worldServerInfo.InstanceGroupSize = Map.MapDifficulty.MaxPlayers; // @todo
 		worldServerInfo.IsTournamentRealm = false;                             // @todo
 		worldServerInfo.RestrictedAccountMaxLevel = null;                      // @todo
 		worldServerInfo.RestrictedAccountMaxMoney = null;                      // @todo
-		worldServerInfo.DifficultyID = (uint)Map.GetDifficultyID();
+		worldServerInfo.DifficultyID = (uint)Map.DifficultyID;
 		// worldServerInfo.XRealmPvpAlert;  // @todo
 		SendPacket(worldServerInfo);
 
@@ -5003,15 +5003,15 @@ public partial class Player : Unit
 		SendItemDurations();        // must be after add to map
 
 		// raid downscaling - send difficulty to player
-		if (Map.IsRaid())
+		if (Map.IsRaid)
 		{
-			var mapDifficulty = Map.GetDifficultyID();
+			var mapDifficulty = Map.DifficultyID;
 			var difficulty = CliDB.DifficultyStorage.LookupByKey(mapDifficulty);
 			SendRaidDifficulty((difficulty.Flags & DifficultyFlags.Legacy) != 0, (int)mapDifficulty);
 		}
-		else if (Map.IsNonRaidDungeon())
+		else if (Map.IsNonRaidDungeon)
 		{
-			SendDungeonDifficulty((int)Map.GetDifficultyID());
+			SendDungeonDifficulty((int)Map.DifficultyID);
 		}
 
 		PhasingHandler.OnMapChange(this);
@@ -7644,7 +7644,7 @@ public partial class Player : Unit
 		corpse.SetZoneScript();
 
 		// we do not need to save corpses for instances
-		if (!Map.Instanceable())
+		if (!Map.Instanceable)
 			corpse.SaveToDB();
 
 		return corpse;

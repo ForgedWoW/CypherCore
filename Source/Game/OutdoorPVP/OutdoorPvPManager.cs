@@ -55,7 +55,7 @@ namespace Game.PvP
         {
             for (OutdoorPvPTypes outdoorPvpType = OutdoorPvPTypes.HellfirePeninsula; outdoorPvpType < OutdoorPvPTypes.Max; ++outdoorPvpType)
             {
-                if (map.GetId() != m_OutdoorMapIds[(int)outdoorPvpType])
+                if (map.Id != m_OutdoorMapIds[(int)outdoorPvpType])
                     continue;
 
                 if (!m_OutdoorPvPDatas.ContainsKey(outdoorPvpType))

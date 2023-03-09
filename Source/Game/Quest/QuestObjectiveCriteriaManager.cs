@@ -262,7 +262,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		var quest = Global.ObjectMgr.GetQuestTemplate(objective.QuestID);
 
-		if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Map.GetDifficultyID()))
+		if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Map.DifficultyID))
 		{
 			Log.outTrace(LogFilter.Achievement, $"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Quest cannot be completed in raid group");
 

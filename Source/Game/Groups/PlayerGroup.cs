@@ -211,7 +211,7 @@ public class PlayerGroup
 
 			DB.Characters.Execute(stmt);
 
-			var leaderInstance = leader.Map.ToInstanceMap();
+			var leaderInstance = leader.Map.ToInstanceMap;
 
 			if (leaderInstance != null)
 				leaderInstance.TrySetOwningGroup(this);
@@ -1436,19 +1436,19 @@ public class PlayerGroup
 			switch (map.Reset(method))
 			{
 				case InstanceResetResult.Success:
-					notifyPlayer.SendResetInstanceSuccess(map.GetId());
-					_recentInstances.Remove(map.GetId());
+					notifyPlayer.SendResetInstanceSuccess(map.Id);
+					_recentInstances.Remove(map.Id);
 
 					break;
 				case InstanceResetResult.NotEmpty:
 					if (method == InstanceResetMethod.Manual)
-						notifyPlayer.SendResetInstanceFailed(ResetFailedReason.Failed, map.GetId());
+						notifyPlayer.SendResetInstanceFailed(ResetFailedReason.Failed, map.Id);
 					else if (method == InstanceResetMethod.OnChangeDifficulty)
-						_recentInstances.Remove(map.GetId()); // map might not have been reset on difficulty change but we still don't want to zone in there again
+						_recentInstances.Remove(map.Id); // map might not have been reset on difficulty change but we still don't want to zone in there again
 
 					break;
 				case InstanceResetResult.CannotReset:
-					_recentInstances.Remove(map.GetId()); // forget the instance, allows retrying different lockout with a new leader
+					_recentInstances.Remove(map.Id); // forget the instance, allows retrying different lockout with a new leader
 
 					break;
 				default:

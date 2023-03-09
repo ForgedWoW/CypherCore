@@ -241,7 +241,7 @@ internal class spell_occuthar_eyes_of_occuthar_vehicle_SpellScript : SpellScript
 {
 	public override bool Load()
 	{
-		var instance = Caster.Map.ToInstanceMap();
+		var instance = Caster.Map.ToInstanceMap;
 
 		if (instance != null)
 			return instance.GetScriptName() == nameof(instance_baradin_hold);

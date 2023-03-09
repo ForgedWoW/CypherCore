@@ -80,7 +80,7 @@ namespace Game.AI
         public SpellTargetSelector(Unit caster, uint spellId)
         {
             _caster = caster;
-            _spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Map.GetDifficultyID());
+            _spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Map.DifficultyID);
 
             Cypher.Assert(_spellInfo != null);
         }

@@ -184,26 +184,26 @@ class InstanceScriptDataReader
 
 	uint GetInstanceId()
 	{
-		return _instance.Instance.GetInstanceId();
+		return _instance.Instance.InstanceId;
 	}
 
 	uint GetMapId()
 	{
-		return _instance.Instance.GetId();
+		return _instance.Instance.Id;
 	}
 
 	string GetMapName()
 	{
-		return _instance.Instance.GetMapName();
+		return _instance.Instance.MapName;
 	}
 
 	uint GetDifficultyId()
 	{
-		return (uint)_instance.Instance.GetDifficultyID();
+		return (uint)_instance.Instance.DifficultyID;
 	}
 
 	string GetDifficultyName()
 	{
-		return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.GetDifficultyID()).Name;
+		return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
 	}
 }

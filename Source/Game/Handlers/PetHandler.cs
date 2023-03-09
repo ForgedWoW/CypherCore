@@ -62,7 +62,7 @@ namespace Game
 
             if (!pet.IsAlive)
             {
-                SpellInfo spell = (flag == ActiveStates.Enabled || flag == ActiveStates.Passive) ? Global.SpellMgr.GetSpellInfo(spellid, pet.Map.GetDifficultyID()) : null;
+                SpellInfo spell = (flag == ActiveStates.Enabled || flag == ActiveStates.Passive) ? Global.SpellMgr.GetSpellInfo(spellid, pet.Map.DifficultyID) : null;
                 if (spell == null)
                     return;
                 if (!spell.HasAttribute(SpellAttr0.AllowCastWhileDead))
@@ -270,7 +270,7 @@ namespace Game
                         unit_target = Global.ObjAccessor.GetUnit(Player, guid2);
 
                     // do not cast unknown spells
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, pet.Map.GetDifficultyID());
+                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spellid, pet.Map.DifficultyID);
                     if (spellInfo == null)
                     {
                         Log.outError(LogFilter.Network, "WORLD: unknown PET spell id {0}", spellid);
@@ -481,7 +481,7 @@ namespace Game
                 //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
                 if (!((act_state == ActiveStates.Enabled || act_state == ActiveStates.Disabled || act_state == ActiveStates.Passive) && spell_id != 0 && !petControlled.HasSpell(spell_id)))
                 {
-                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Map.GetDifficultyID());
+                    SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, petControlled.Map.DifficultyID);
                     if (spellInfo != null)
                     {
                         //sign for autocast
@@ -610,7 +610,7 @@ namespace Game
                 return;
             }
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Map.GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(packet.SpellID, pet.Map.DifficultyID);
             if (spellInfo == null)
             {
                 Log.outError(LogFilter.Network, "WorldSession.HandlePetSpellAutocast: Unknown spell id {0} used by {1}.", packet.SpellID, packet.PetGUID.ToString());
@@ -654,7 +654,7 @@ namespace Game
                 return;
             }
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(petCastSpell.Cast.SpellID, caster.Map.GetDifficultyID());
+            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(petCastSpell.Cast.SpellID, caster.Map.DifficultyID);
             if (spellInfo == null)
             {
                 Log.outError(LogFilter.Network, "WorldSession.HandlePetCastSpell: unknown spell id {0} tried to cast by {1}", petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString());

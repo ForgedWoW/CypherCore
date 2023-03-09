@@ -396,9 +396,9 @@ public class Aura
 								"Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
 								SpellInfo.Id,
 								_owner.GetName(),
-								_owner.IsInWorld ? (int)_owner.Map.GetId() : -1,
+								_owner.IsInWorld ? (int)_owner.Map.Id : -1,
 								unit.GetName(),
-								unit.IsInWorld ? (int)unit.Map.GetId() : -1);
+								unit.IsInWorld ? (int)unit.Map.Id : -1);
 
 				if (aurApp != null)
 				{

@@ -504,7 +504,7 @@ namespace Game.Chat
                     obj.SetRespawnTime(spawnTimeSecs.Value);
 
                 // fill the gameobject data and save to the db
-                obj.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
+                obj.SaveToDB(map.Id, new List<Difficulty>() { map.DifficultyID });
                 ulong spawnId = obj.SpawnId;
 
                 // this will generate a new guid if the object is in an instance

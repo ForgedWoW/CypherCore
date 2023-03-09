@@ -85,7 +85,7 @@ internal class item_only_for_flight : ScriptObjectAutoAddDBBound, IItemOnUse
 
 				break;
 			case 34475:
-				var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ArcaneCharges, player.Map.GetDifficultyID());
+				var spellInfo = Global.SpellMgr.GetSpellInfo(SpellIds.ArcaneCharges, player.Map.DifficultyID);
 
 				if (spellInfo != null)
 					Spell.SendCastResult(player, spellInfo, default, castId, SpellCastResult.NotOnGround);

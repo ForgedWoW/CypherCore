@@ -317,7 +317,7 @@ internal class boss_netherspite : ScriptedAI
 				// temporary store for the best suitable beam reciever
 				Unit target = me;
 
-				var players = me.Map.GetPlayers();
+				var players = me.Map.Players;
 
 				// get the best suitable Target
 				foreach (var player in players)

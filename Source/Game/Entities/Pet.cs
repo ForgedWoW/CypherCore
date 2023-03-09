@@ -120,7 +120,7 @@ public class Pet : Guardian
 		{
 			// Don't call the function for Creature, normal mobs + totems go in a different storage
 			base.RemoveFromWorld();
-			Map.GetObjectsStore().Remove(GUID);
+			Map.			ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class Pet : Guardian
 		if (petStable.GetCurrentPet() != null && owner.CurrentPet != null && petStable.GetCurrentPet().PetNumber == petInfo.PetNumber)
 			return false;
 
-		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Map.GetDifficultyID());
+		var spellInfo = Global.SpellMgr.GetSpellInfo(petInfo.CreatedBySpellId, owner.Map.DifficultyID);
 
 		var isTemporarySummon = spellInfo != null && spellInfo.Duration > 0;
 
@@ -413,7 +413,7 @@ public class Pet : Guardian
 					LearnPetPassives();
 					InitLevelupSpellsForLevel();
 
-					if (Map.IsBattleArena())
+					if (Map.IsBattleArena)
 						RemoveArenaAuras();
 
 					CastPetAuras(current);
@@ -663,7 +663,7 @@ public class Pet : Guardian
 				// unsummon pet that lost owner
 				var owner = GetOwner();
 
-				if (owner == null || (!IsWithinDistInMap(owner, Map.GetVisibilityRange()) && !IsPossessed) || (IsControlled() && owner.PetGUID.IsEmpty))
+				if (owner == null || (!IsWithinDistInMap(owner, Map.VisibilityRange) && !IsPossessed) || (IsControlled() && owner.PetGUID.IsEmpty))
 				{
 					Remove(PetSaveMode.NotInSlot, true);
 
@@ -1008,7 +1008,7 @@ public class Pet : Guardian
 		Map = map;
 
 		// TODO: counter should be constructed as (summon_count << 32) | petNumber
-		Create(ObjectGuid.Create(HighGuid.Pet, map.GetId(), entry, guidlow));
+		Create(ObjectGuid.Create(HighGuid.Pet, map.Id, entry, guidlow));
 
 		SpawnId = guidlow;
 		OriginalEntry = entry;

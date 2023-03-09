@@ -639,17 +639,17 @@ public partial class Player
 			areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
 			check = true;
 		}
-		else if (map.IsDungeon()) // if map is dungeon...
+		else if (map.IsDungeon) // if map is dungeon...
 		{
 			var denyReason = map.CannotEnter(this); // ... and can't enter map, then look for entry point.
 
 			if (denyReason != null)
 			{
-				SendTransferAborted(map.GetId(), denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
+				SendTransferAborted(map.Id, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
 				areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
 				check = true;
 			}
-			else if (instance_id != 0 && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.GetDifficultyID())) != null) // ... and instance is reseted then look for entrance.
+			else if (instance_id != 0 && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
 			{
 				areaTrigger = Global.ObjectMgr.GetMapEntranceTrigger(mapId);
 				check = true;
@@ -689,7 +689,7 @@ public partial class Player
 			InstanceValid = false;
 
 		if (player_at_bg)
-			map.ToBattlegroundMap().GetBG().AddPlayer(this);
+			map.			ToBattlegroundMap.GetBG().AddPlayer(this);
 
 		// randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
 		// this must help in case next save after mass player load after server startup

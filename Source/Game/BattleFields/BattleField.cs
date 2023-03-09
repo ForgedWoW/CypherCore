@@ -34,7 +34,7 @@ namespace Game.BattleFields
             m_LastResurectTimer = 30 * Time.InMilliseconds;
 
             m_Map = map;
-            m_MapId = map.GetId();
+            m_MapId = map.Id;
 
             for (byte i = 0; i < 2; ++i)
             {

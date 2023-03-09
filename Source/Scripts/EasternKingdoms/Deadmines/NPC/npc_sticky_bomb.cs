@@ -67,7 +67,7 @@ public class npc_sticky_bomb : NullCreatureAI
 					break;
 
 				case 5:
-					DoCast(me, me.Map.IsHeroic() ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
+					DoCast(me, me.Map.IsHeroic ? eSpels.STICKY_BOMB_EXPLODE_H : eSpels.STICKY_BOMB_EXPLODE);
 					_uiTimer = 300;
 
 					break;

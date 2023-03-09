@@ -557,7 +557,7 @@ public partial class Spell
 											args.OriginalCastId = originalCastId;
 											args.OriginalCastItemLevel = itemLevel;
 
-											var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Map.GetDifficultyID());
+											var triggerSpellInfo = Global.SpellMgr.GetSpellInfo(triggerSpell, caster.Map.DifficultyID);
 
 											if (!castItemGuid.IsEmpty && triggerSpellInfo.HasAttribute(SpellAttr2.RetainItemCast))
 											{
@@ -3113,7 +3113,7 @@ public partial class Spell
 								_originalCaster.CastSpell(UnitTarget, 58692, new CastSpellExtraArgs(true));
 							}
 
-							if (_originalCaster.Map.GetDifficultyID() == Difficulty.None)
+							if (_originalCaster.Map.DifficultyID == Difficulty.None)
 							{
 								_originalCaster.CastSpell(UnitTarget, 58695, new CastSpellExtraArgs(true));
 								_originalCaster.CastSpell(UnitTarget, 58696, new CastSpellExtraArgs(true));
@@ -3171,7 +3171,7 @@ public partial class Spell
 		if (UnitTarget == null)
 			return;
 
-		if (UnitTarget.IsPlayer && !UnitTarget.Map.IsDungeon())
+		if (UnitTarget.IsPlayer && !UnitTarget.Map.IsDungeon)
 			// stop all pve combat for players outside dungeons, suppress pvp combat
 			UnitTarget.CombatStop(false, false);
 		else

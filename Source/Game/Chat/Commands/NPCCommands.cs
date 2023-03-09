@@ -574,7 +574,7 @@ namespace Game.Chat
                     Creature creaturePassenger = trans.CreateNPCPassenger(guid, data);
                     if (creaturePassenger != null)
                     {
-                        creaturePassenger.SaveToDB((uint)trans.GoInfo.MoTransport.SpawnMap, new List<Difficulty>() { map.GetDifficultyID() });
+                        creaturePassenger.SaveToDB((uint)trans.GoInfo.MoTransport.SpawnMap, new List<Difficulty>() { map.DifficultyID });
                         Global.ObjectMgr.AddCreatureToGrid(data);
                     }
                     return true;
@@ -585,7 +585,7 @@ namespace Game.Chat
                     return false;
 
                 PhasingHandler.InheritPhaseShift(creature, chr);
-                creature.SaveToDB(map.GetId(), new List<Difficulty>() { map.GetDifficultyID() });
+                creature.SaveToDB(map.Id, new List<Difficulty>() { map.DifficultyID });
 
                 ulong db_guid = creature.SpawnId;
 

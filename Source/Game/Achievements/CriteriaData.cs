@@ -426,17 +426,17 @@ public class CriteriaData
 				if (!source.IsInWorld)
 					return false;
 				Map map = source.Map;
-				if (!map.IsDungeon())
+				if (!map.IsDungeon)
 				{
 					Log.outError(LogFilter.Achievement, "Achievement system call AchievementCriteriaDataType.InstanceScript ({0}) for achievement criteria {1} for non-dungeon/non-raid map {2}",
-								CriteriaDataType.InstanceScript, criteriaId, map.GetId());
+								CriteriaDataType.InstanceScript, criteriaId, map.Id);
 					return false;
 				}
 				InstanceScript instance = ((InstanceMap)map).GetInstanceScript();
 				if (instance == null)
 				{
 					Log.outError(LogFilter.Achievement, "Achievement system call criteria_data_INSTANCE_SCRIPT ({0}) for achievement criteria {1} for map {2} but map does not have a instance script",
-								CriteriaDataType.InstanceScript, criteriaId, map.GetId());
+								CriteriaDataType.InstanceScript, criteriaId, map.Id);
 					return false;
 				}
 

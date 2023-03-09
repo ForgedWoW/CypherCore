@@ -196,7 +196,7 @@ public class PoolGroup<T>
 		{
 			case "Creature":
 			{
-				var creatureBounds = spawns.Map.GetCreatureBySpawnIdStore().LookupByKey(guid);
+				var creatureBounds = spawns.Map.CreatureBySpawnIdStore.LookupByKey(guid);
 
 				for (var i = creatureBounds.Count - 1; i > 0; i--) // this gets modified.
 					if (creatureBounds.Count > i)
@@ -217,7 +217,7 @@ public class PoolGroup<T>
 			}
 			case "GameObject":
 			{
-				var gameobjectBounds = spawns.Map.GetGameObjectBySpawnIdStore().LookupByKey(guid);
+				var gameobjectBounds = spawns.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
 				foreach (var go in gameobjectBounds)
 				{
