@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Threading;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
@@ -13,6 +15,8 @@ namespace Game.PvP
 {
     public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
     {
+
+        LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
         OutdoorPvPManager() { }
 
         public void InitOutdoorPvP()
@@ -129,8 +133,9 @@ namespace Game.PvP
             if (m_UpdateTimer > 1000)
             {
                 foreach (var (_, outdoor) in m_OutdoorPvPByMap.KeyValueList)
-                    outdoor.Update(m_UpdateTimer);
+                    _threadTaskManager.Schedule(() => outdoor.Update(m_UpdateTimer));
 
+                _threadTaskManager.Wait();
                 m_UpdateTimer = 0;
             }
         }

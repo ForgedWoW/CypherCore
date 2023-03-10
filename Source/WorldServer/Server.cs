@@ -188,7 +188,7 @@ namespace WorldServer
                 halfMaxCoreStuckTime = uint.MaxValue;
 
 #if DEBUG || DEBUGMETRIC
-            MeteredMetric meteredMetric = new MeteredMetric("Update Loop", 1000, false);
+            MeteredMetric meteredMetric = new MeteredMetric("Update Loop", 1000, true);
 #endif
             while (!Global.WorldMgr.IsStopped)
             {

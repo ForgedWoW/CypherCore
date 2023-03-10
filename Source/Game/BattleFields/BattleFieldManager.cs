@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Configuration;
 using Framework.Database;
+using Framework.Threading;
 using Game.Entities;
 using Game.Maps;
 using Game.Scripting.Interfaces.IBattlefield;
@@ -12,6 +14,8 @@ namespace Game.BattleFields
 {
     public class BattleFieldManager : Singleton<BattleFieldManager>
     {
+
+        LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
         static readonly uint[] BattlefieldIdToMapId = { 0, 571, 732 };
         static readonly uint[] BattlefieldIdToZoneId = { 0, 4197, 5095 }; // imitate World_PVP_Area.db2
         static readonly uint[] BattlefieldIdToScriptId = { 0, 0, 0 };
@@ -144,8 +148,9 @@ namespace Game.BattleFields
             {
                 foreach (var (map, battlefield) in _battlefieldsByMap.KeyValueList)
                     if (battlefield.IsEnabled())
-                        battlefield.Update(_updateTimer);
+                        _threadTaskManager.Schedule(() => battlefield.Update(_updateTimer));
 
+                _threadTaskManager.Wait();
                 _updateTimer = 0;
             }
         }

@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Threading;
 using Game.Arenas;
 using Game.BattleGrounds.Zones;
 using Game.DataStorage;
@@ -16,6 +18,7 @@ namespace Game.BattleGrounds
 {
     public class BattlegroundManager : Singleton<BattlegroundManager>
     {
+        LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
         BattlegroundManager()
         {
             m_NextRatedArenaUpdate = WorldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
@@ -48,26 +51,33 @@ namespace Game.BattleGrounds
                     foreach (var pair in bgs.ToList())
                     {
                         Battleground bg = pair.Value;
-                        bg.Update(m_UpdateTimer);
 
-                        if (bg.ToBeDeleted())
+                        _threadTaskManager.Schedule(() =>
                         {
-                            bgs.Remove(pair.Key);
-                            var clients = data.m_ClientBattlegroundIds[(int)bg.GetBracketId()];
-                            if (!clients.Empty())
-                                clients.Remove(bg.GetClientInstanceID());
+                            bg.Update(m_UpdateTimer);
 
-                            bg.Dispose();
-                        }
+                            if (bg.ToBeDeleted())
+                            {
+                                bgs.Remove(pair.Key);
+                                var clients = data.m_ClientBattlegroundIds[(int)bg.GetBracketId()];
+                                if (!clients.Empty())
+                                    clients.Remove(bg.GetClientInstanceID());
+
+                                bg.Dispose();
+                            }
+                        });
                     }
                 }
 
+                _threadTaskManager.Wait();
                 m_UpdateTimer = 0;
             }
+
             // update events timer
             foreach (var pair in m_BattlegroundQueues)
-                pair.Value.UpdateEvents(diff);
+                _threadTaskManager.Schedule(() => pair.Value.UpdateEvents(diff));
 
+            _threadTaskManager.Wait();
             // update scheduled queues
             if (!m_QueueUpdateScheduler.Empty())
             {

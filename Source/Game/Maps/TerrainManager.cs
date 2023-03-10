@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Threading;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps.Grids;
@@ -14,7 +16,7 @@ public class TerrainManager : Singleton<TerrainManager>
 {
 	readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
 	readonly HashSet<uint> _keepLoaded = new();
-
+	LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 	// parent map links
 	MultiMap<uint, uint> _parentMapData = new();
 
@@ -71,8 +73,10 @@ public class TerrainManager : Singleton<TerrainManager>
 	{
 		// global garbage collection
 		foreach (var (mapId, terrain) in _terrainMaps)
-			terrain?.CleanUpGrids(diff);
-	}
+            _threadTaskManager.Schedule(() => terrain?.CleanUpGrids(diff));
+
+        _threadTaskManager.Wait();
+    }
 
 	public uint GetAreaId(PhaseShift phaseShift, uint mapid, Position pos)
 	{
