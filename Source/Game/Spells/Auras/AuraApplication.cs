@@ -108,7 +108,11 @@ public class AuraApplication
 		}
 
 		Cypher.Assert(aurEff != null);
-		Cypher.Assert(HasEffect(effIndex) == (!apply));
+		if (HasEffect(effIndex) != (!apply))
+        {
+            Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
+            return;
+		}
 		Cypher.Assert(Convert.ToBoolean((1 << effIndex) & _effectsToApply));
 		Log.outDebug(LogFilter.Spells, "AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
 

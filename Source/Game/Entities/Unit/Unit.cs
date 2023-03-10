@@ -4424,10 +4424,13 @@ public partial class Unit : WorldObject
 		foreach (var pair in toRemove)
 			RemoveOwnedAura(pair.Id, pair, AuraRemoveMode.Expire);
 
-		foreach (var aura in _visibleAurasToUpdate.ToArray())
-			aura.ClientUpdate();
+		lock (_visibleAurasToUpdate)
+		{
+			foreach (var aura in _visibleAurasToUpdate)
+				aura.ClientUpdate();
 
-		_visibleAurasToUpdate.Clear();
+			_visibleAurasToUpdate.Clear();
+		}
 
 		_DeleteRemovedAuras();
 
