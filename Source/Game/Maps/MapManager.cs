@@ -265,9 +265,10 @@ public class MapManager : Singleton<MapManager>
 
 		foreach (var kvp in _maps.Values)
 			foreach (var map in kvp.Values)
-				map.DelayedUpdate(time);
+                _updater.Schedule(() => map.DelayedUpdate(time));
 
-		_timer.Current = 0;
+        _updater.Wait();
+        _timer.Current = 0;
 	}
 
 	public bool IsValidMAP(uint mapId)
