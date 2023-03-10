@@ -10,11 +10,9 @@ using Game.Spells;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
-internal class aura_evoker_fire_breath_charged : AuraScript, IHasAuraEffects
+internal class aura_evoker_fire_breath_charged : AuraScript, IAuraOnApply
 {
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-	public void Apply(AuraEffect aura, AuraEffectHandleModes auraMode)
+	public void AuraApplied()
 	{
 		var aur = Aura;
 
@@ -33,10 +31,5 @@ internal class aura_evoker_fire_breath_charged : AuraScript, IHasAuraEffects
 
 				break;
 		}
-	}
-
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(Apply, 1, AuraType.PeriodicDamage, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));
 	}
 }

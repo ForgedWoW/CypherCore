@@ -14,7 +14,7 @@ namespace Scripts.Spells.Evoker;
 			EvokerSpells.FIRE_BREATH,
 			EvokerSpells.SPIRITBLOOM,
 			EvokerSpells.SPIRITBLOOM_2)]
-public class apell_evoker_animosity : SpellScript, ISpellAfterHit
+public class spell_evoker_animosity : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
 	{

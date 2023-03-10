@@ -1883,7 +1883,7 @@ public partial class Unit
 			gain = (uint)victim.ModifyHealth(addhealth);
 
 		// Hook for OnHeal Event
-		Global.ScriptMgr.ForEach<IUnitOnHeal>(p => p.OnHeal(healer, victim, ref gain));
+		Global.ScriptMgr.ForEach<IUnitOnHeal>(p => p.OnHeal(healInfo, ref gain));
 
 		var unit = healer;
 
