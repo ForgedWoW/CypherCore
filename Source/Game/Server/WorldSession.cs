@@ -521,7 +521,7 @@ public partial class WorldSession : IDisposable
         /// If necessary, kick the player because the client didn't send anything for too long
         /// (or they've been idling in character select)
         if (IsConnectionIdle && !HasPermission(RBACPermissions.IgnoreIdleConnection))
-            _socket[(int)ConnectionType.Realm].CloseSocket();
+            _socket[(int)ConnectionType.Realm]?.CloseSocket();
 
         WorldPacket firstDelayedPacket = null;
         uint processedPackets = 0;
