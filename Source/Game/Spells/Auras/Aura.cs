@@ -218,6 +218,10 @@ public class Aura
 		foreach (var itr in _loadedScripts.ToList())
 			itr._Unload();
 
+		if (_auraApplications.Count > 0)
+			foreach (var app in _auraApplications.Values.ToArray())
+				OwnerAsUnit?.RemoveAura(app);
+
 		Cypher.Assert(_auraApplications.Empty());
 		_DeleteRemovedApplications();
 	}

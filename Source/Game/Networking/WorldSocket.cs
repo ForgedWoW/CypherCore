@@ -11,6 +11,7 @@ using Framework.Cryptography;
 using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
+using Framework.Threading;
 using Game.Networking.Packets;
 
 namespace Game.Networking;
@@ -61,6 +62,7 @@ public class WorldSocket : SocketBase
 
 	AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 	string _ipCountry;
+	object _sendlock = new object();
 
 	public WorldSocket(Socket socket) : base(socket)
 	{
@@ -157,57 +159,60 @@ public class WorldSocket : SocketBase
 		if (!IsOpen() || _serverChallenge == null)
 			return;
 
-		try
+        // SendPacket may be called from multiple threads.
+        lock (_sendlock)
 		{
-			packet.LogPacket(_worldSession);
-			packet.WritePacketData();
-			Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
-
-			var data = packet.GetData();
-			var opcode = packet.GetOpcode();
-			PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), _connectType, false);
-
-			ByteBuffer buffer = new();
-
-			var packetSize = data.Length;
-
-			if (packetSize > 0x400 && _worldCrypt.IsInitialized)
+			try
 			{
-				buffer.WriteInt32(packetSize + 2);
-				buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
+				packet.LogPacket(_worldSession);
+				packet.WritePacketData();
+				Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
 
-				var compressedSize = CompressPacket(data, opcode, out var compressedData);
-				buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
-				buffer.WriteBytes(compressedData, compressedSize);
+				var data = packet.GetData();
+				var opcode = packet.GetOpcode();
+				PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), _connectType, false);
 
-				packetSize = (int)(compressedSize + 12);
-				opcode = ServerOpcodes.CompressedPacket;
+				ByteBuffer buffer = new();
+
+				var packetSize = data.Length;
+
+				if (packetSize > 0x400 && _worldCrypt.IsInitialized)
+				{
+					buffer.WriteInt32(packetSize + 2);
+					buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
+
+					var compressedSize = CompressPacket(data, opcode, out var compressedData);
+					buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
+					buffer.WriteBytes(compressedData, compressedSize);
+
+					packetSize = (int)(compressedSize + 12);
+					opcode = ServerOpcodes.CompressedPacket;
+
+					data = buffer.GetData();
+				}
+
+				buffer = new ByteBuffer();
+				buffer.WriteUInt16((ushort)opcode);
+				buffer.WriteBytes(data);
+				packetSize += 2 /*opcode*/;
 
 				data = buffer.GetData();
+
+				PacketHeader header = new();
+				header.Size = packetSize;
+				_worldCrypt.Encrypt(ref data, ref header.Tag);
+
+				ByteBuffer byteBuffer = new();
+				header.Write(byteBuffer);
+				byteBuffer.WriteBytes(data);
+
+				AsyncWrite(byteBuffer.GetData()); // LIES not async.
 			}
-
-			buffer = new ByteBuffer();
-			buffer.WriteUInt16((ushort)opcode);
-			buffer.WriteBytes(data);
-			packetSize += 2 /*opcode*/;
-
-			data = buffer.GetData();
-
-			PacketHeader header = new();
-			header.Size = packetSize;
-			_worldCrypt.Encrypt(ref data, ref header.Tag);
-
-			ByteBuffer byteBuffer = new();
-			header.Write(byteBuffer);
-			byteBuffer.WriteBytes(data);
-
-			AsyncWrite(byteBuffer.GetData()); // LIES not async.
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
-		catch (Exception ex)
-		{
-			Log.outException(ex);
-		}
-
 	}
 
 	public void SetWorldSession(WorldSession session)

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks.Dataflow;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -27,6 +28,7 @@ namespace Game.Maps;
 public class Map : IDisposable
 {
 	private readonly LimitedThreadTaskManager _threadManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+	private readonly ActionBlock<uint> _processRelocationQueue;
 	private readonly Dictionary<uint, Dictionary<uint, object>> _locks = new();
 	private readonly object _scriptLock = new();
 	private readonly List<Creature> _creaturesToMove = new();
@@ -167,25 +169,31 @@ public class Map : IDisposable
 		_zonePlayerCountMap.Clear();
 
 		//lets initialize visibility distance for map
-		_threadManager.Schedule(InitVisibilityDistance);
+		InitVisibilityDistance();
 		_weatherUpdateTimer = new IntervalTimer();
 		_weatherUpdateTimer.Interval = 1 * Time.InMilliseconds;
 
 		GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
-		_threadManager.Schedule(() => { _poolData = Global.PoolMgr.InitPoolsForMap(this); });
+		_poolData = Global.PoolMgr.InitPoolsForMap(this);
 
-		_threadManager.Schedule(() => Global.TransportMgr.CreateTransportsForMap(this));
+		Global.TransportMgr.CreateTransportsForMap(this);
 
-		_threadManager.Schedule(() => Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, Id, InstanceIdInternal));
+		Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, Id, InstanceIdInternal);
 
 		_worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
 
 		Global.OutdoorPvPMgr.CreateOutdoorPvPForMap(this);
 		Global.BattleFieldMgr.CreateBattlefieldsForMap(this);
+		_processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies, 
+														new ExecutionDataflowBlockOptions() 
+														{ 
+															MaxDegreeOfParallelism = 1, 
+															EnsureOrdered = true, 
+															MaxMessagesPerTask = 1 
+														});
 
-		OnCreateMap(this);
-		_threadManager.Wait();
+        OnCreateMap(this);
 	}
 
 	public void Dispose()
@@ -575,7 +583,7 @@ public class Map : IDisposable
         _dynamicTree.Update(diff);
 
 #if DEBUGMETRIC
-        _metricFactory.Meter("_dynamicTree Update").StartMark();
+        _metricFactory.Meter("_dynamicTree Update").StopMark();
 #endif
 
         // update worldsessions for existing players
@@ -608,7 +616,7 @@ public class Map : IDisposable
         _threadManager.Wait();
 
 #if DEBUGMETRIC
-        _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StartMark();
+        _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StopMark();
 #endif
         // update active cells around players and active objects
         ResetMarkedCells();
@@ -712,8 +720,13 @@ public class Map : IDisposable
 #if DEBUGMETRIC
         _metricFactory.Meter("VisitNearbyCellsOf Update").StopMark();
 #endif
-        update.ExecuteUpdate();
-
+#if DEBUGMETRIC
+        _metricFactory.Meter("update.ExecuteUpdate").StartMark();
+#endif
+		update.ExecuteUpdate();
+#if DEBUGMETRIC
+        _metricFactory.Meter("update.ExecuteUpdate").StopMark();
+#endif
         for (var i = 0; i < _transports.Count; ++i)
 		{
 			var transport = _transports[i];
@@ -725,12 +738,13 @@ public class Map : IDisposable
 		}
 
 #if DEBUGMETRIC
-        _metricFactory.Meter("UpdaterNotifier Update").StartMark();
+        _metricFactory.Meter("_transports Update").StartMark();
 #endif
         _threadManager.Wait();
 
 #if DEBUGMETRIC
-        _metricFactory.Meter("UpdaterNotifier Update").StopMark();
+        _metricFactory.Meter("_transports Update").StopMark();
+        _metricFactory.Meter("SendObjectUpdates Update").StartMark();
 #endif
         _threadManager.Schedule(SendObjectUpdates);
 
@@ -754,27 +768,18 @@ public class Map : IDisposable
 
 		// update phase shift objects
 		_threadManager.Schedule(() => MultiPersonalPhaseTracker.Update(this, diff));
-
+		_threadManager.Wait();
 #if DEBUGMETRIC
-        _metricFactory.Meter("MoveAllCreaturesInMoveList Update").StartMark();
+        _metricFactory.Meter("SendObjectUpdates Update").StopMark();
+        _metricFactory.Meter("MoveAll Update").StartMark();
 #endif
-        MoveAllCreaturesInMoveList();
+        _threadManager.Schedule(MoveAllCreaturesInMoveList);
+        _threadManager.Schedule(MoveAllGameObjectsInMoveList);
+        _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
 
+        _threadManager.Wait();
 #if DEBUGMETRIC
-        _metricFactory.Meter("MoveAllCreaturesInMoveList Update").StopMark();
-        _metricFactory.Meter("MoveAllGameObjectsInMoveList Update").StartMark();
-#endif
-
-        MoveAllGameObjectsInMoveList();
-
-#if DEBUGMETRIC
-        _metricFactory.Meter("MoveAllGameObjectsInMoveList Update").StopMark();
-        _metricFactory.Meter("MoveAllAreaTriggersInMoveList Update").StartMark();
-#endif
-        MoveAllAreaTriggersInMoveList();
-
-#if DEBUGMETRIC
-        _metricFactory.Meter("MoveAllAreaTriggersInMoveList Update").StopMark();
+        _metricFactory.Meter("MoveAll Update").StopMark();
 #endif
 
         if (!ActivePlayers.Empty() || !_activeNonPlayers.Empty())
@@ -782,7 +787,7 @@ public class Map : IDisposable
 #if DEBUGMETRIC
             _metricFactory.Meter("ProcessRelocationNotifies Update").StartMark();
 #endif
-            ProcessRelocationNotifies(diff);
+			_processRelocationQueue.Post(diff);
 
 #if DEBUGMETRIC
             _metricFactory.Meter("ProcessRelocationNotifies Update").StopMark();
@@ -796,12 +801,6 @@ public class Map : IDisposable
 
 #if DEBUGMETRIC
         _metricFactory.Meter("OnMapUpdate Update").StopMark();
-        _metricFactory.Meter("SendObjectUpdates Update").StartMark();
-#endif
-        _threadManager.Wait();
-
-#if DEBUGMETRIC
-        _metricFactory.Meter("SendObjectUpdates Update").StopMark();
 #endif
 	}
 
@@ -1164,21 +1163,21 @@ public class Map : IDisposable
 
 		if (!unloadAll)
 		{
-			// Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
-			// Must know real mob position before move
-			MoveAllCreaturesInMoveList();
-			MoveAllGameObjectsInMoveList();
-			MoveAllAreaTriggersInMoveList();
-			_threadManager.Wait();
+            // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
+            // Must know real mob position before move
+            _threadManager.Schedule(MoveAllCreaturesInMoveList);
+            _threadManager.Schedule(MoveAllGameObjectsInMoveList);
+            _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+            _threadManager.Wait();
 			// move creatures to respawn grids if this is diff.grid or to remove list
 			ObjectGridEvacuator worker = new(GridType.Grid);
 			grid.VisitAllGrids(worker);
 
-			// Finish creature moves, remove and delete all creatures with delayed remove before unload
-			MoveAllCreaturesInMoveList();
-			MoveAllGameObjectsInMoveList();
-			MoveAllAreaTriggersInMoveList();
-			_threadManager.Wait();
+            // Finish creature moves, remove and delete all creatures with delayed remove before unload
+            _threadManager.Schedule(MoveAllCreaturesInMoveList);
+            _threadManager.Schedule(MoveAllGameObjectsInMoveList);
+            _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+            _threadManager.Wait();
 		}
 
 		{
@@ -1847,26 +1846,42 @@ public class Map : IDisposable
 
 	public virtual void DelayedUpdate(uint diff)
 	{
+#if DEBUGMETRIC
+        _metricFactory.Meter("_farSpellCallbacks").StartMark();
+#endif
 		while (_farSpellCallbacks.TryDequeue(out var callback))
-			callback(this);
+            _threadManager.Schedule(() => callback(this));
 
-		RemoveAllObjectsInRemoveList();
+        _threadManager.Wait();
+#if DEBUGMETRIC
+        _metricFactory.Meter("_farSpellCallbacks").StopMark();
+        _metricFactory.Meter("RemoveAllObjectsInRemoveList").StartMark();
+#endif
 
-		// Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
-		// This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
-		if (!IsBattlegroundOrArena)
+        RemoveAllObjectsInRemoveList();
+
+#if DEBUGMETRIC
+        _metricFactory.Meter("RemoveAllObjectsInRemoveList").StopMark();
+        _metricFactory.Meter("grid?.Update").StartMark();
+#endif
+        // Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
+        // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
+        if (!IsBattlegroundOrArena)
 			foreach (var xkvp in Grids)
 			{
 				foreach (var ykvp in xkvp.Value)
 				{
 					var grid = ykvp.Value;
 
-					grid?.Update(this, diff);
+                    grid?.Update(this, diff);
 				}
 			}
-	}
+#if DEBUGMETRIC
+        _metricFactory.Meter("grid?.Update").StopMark();
+#endif
+    }
 
-	public void AddObjectToRemoveList(WorldObject obj)
+    public void AddObjectToRemoveList(WorldObject obj)
 	{
 		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId1 == InstanceId);
 
@@ -3183,22 +3198,18 @@ public class Map : IDisposable
 						if (!IsCellMarked(cell_id))
 							continue;
 
-						_threadManager.Schedule(() =>
-						{
-							var pair = new CellCoord(xx, yy);
-							var cell = new Cell(pair);
-							cell.SetNoCreate();
+						var pair = new CellCoord(xx, yy);
+						var cell = new Cell(pair);
+						cell.SetNoCreate();
 
-							var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
+						var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
 
-							Visit(cell, cell_relocation);
-						});
+						Visit(cell, cell_relocation);
 					}
 				}
 			}
 		}
 
-		_threadManager.Wait();
         var reset = new ResetNotifier(GridType.All);
 
 		foreach (var x in xKeys)
@@ -3226,24 +3237,21 @@ public class Map : IDisposable
 				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
 											cell_min.Y_Coord + MapConst.MaxCells);
 
-				_threadManager.Schedule(() =>
+				for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
 				{
-					for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
+					for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
 					{
-						for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
-						{
-							var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
+						var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
 
-							if (!IsCellMarked(cell_id))
-								continue;
+						if (!IsCellMarked(cell_id))
+							continue;
 
-							var pair = new CellCoord(xx, yy);
-							var cell = new Cell(pair);
-							cell.SetNoCreate();
-							Visit(cell, reset);
-						}
+						var pair = new CellCoord(xx, yy);
+						var cell = new Cell(pair);
+						cell.SetNoCreate();
+						Visit(cell, reset);
 					}
-				});
+				}
 			}
 		}
 	}
@@ -3367,42 +3375,37 @@ public class Map : IDisposable
 				if (!creature.IsInWorld)
 					continue;
 
-				_threadManager.Schedule(() =>
+				// do move or do move to respawn or remove creature if previous all fail
+				if (CreatureCellRelocation(creature, new Cell(creature.Location.NewPosition.X, creature.Location.NewPosition.Y)))
 				{
-					// do move or do move to respawn or remove creature if previous all fail
-					if (CreatureCellRelocation(creature, new Cell(creature.Location.NewPosition.X, creature.Location.NewPosition.Y)))
-					{
-						// update pos
-						creature.Location.Relocate(creature.Location.NewPosition);
+					// update pos
+					creature.Location.Relocate(creature.Location.NewPosition);
 
-						if (creature.IsVehicle)
-							creature.VehicleKit1.RelocatePassengers();
+					if (creature.IsVehicle)
+						creature.VehicleKit1.RelocatePassengers();
 
-						creature.UpdatePositionData();
-						creature.UpdateObjectVisibility(false);
-					}
-					else
+					creature.UpdatePositionData();
+					creature.UpdateObjectVisibility(false);
+				}
+				else
+				{
+					// if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+					// creature coordinates will be updated and notifiers send
+					if (!CreatureRespawnRelocation(creature, false))
 					{
-						// if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-						// creature coordinates will be updated and notifiers send
-						if (!CreatureRespawnRelocation(creature, false))
-						{
-							// ... or unload (if respawn grid also not loaded)
-							//This may happen when a player just logs in and a pet moves to a nearby unloaded cell
-							//To avoid this, we can load nearby cells when player log in
-							//But this check is always needed to ensure safety
-							// @todo pets will disappear if this is outside CreatureRespawnRelocation
-							//need to check why pet is frequently relocated to an unloaded cell
-							if (creature.IsPet)
-								((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
-							else
-								AddObjectToRemoveList(creature);
-						}
+						// ... or unload (if respawn grid also not loaded)
+						//This may happen when a player just logs in and a pet moves to a nearby unloaded cell
+						//To avoid this, we can load nearby cells when player log in
+						//But this check is always needed to ensure safety
+						// @todo pets will disappear if this is outside CreatureRespawnRelocation
+						//need to check why pet is frequently relocated to an unloaded cell
+						if (creature.IsPet)
+							((Pet)creature).Remove(PetSaveMode.NotInSlot, true);
+						else
+							AddObjectToRemoveList(creature);
 					}
-				});
+				}
 			}
-
-			_creaturesToMove.Clear();
 		}
 	}
 
@@ -3429,34 +3432,29 @@ public class Map : IDisposable
 				if (!go.IsInWorld)
 					continue;
 
-				_threadManager.Schedule(() =>
+				// do move or do move to respawn or remove creature if previous all fail
+				if (GameObjectCellRelocation(go, new Cell(go.Location.NewPosition.X, go.Location.NewPosition.Y)))
 				{
-					// do move or do move to respawn or remove creature if previous all fail
-					if (GameObjectCellRelocation(go, new Cell(go.Location.NewPosition.X, go.Location.NewPosition.Y)))
+					// update pos
+					go.Location.Relocate(go.Location.NewPosition);
+					go.AfterRelocation();
+				}
+				else
+				{
+					// if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
+					// GameObject coordinates will be updated and notifiers send
+					if (!GameObjectRespawnRelocation(go, false))
 					{
-						// update pos
-						go.Location.Relocate(go.Location.NewPosition);
-						go.AfterRelocation();
-					}
-					else
-					{
-						// if GameObject can't be move in new cell/grid (not loaded) move it to repawn cell/grid
-						// GameObject coordinates will be updated and notifiers send
-						if (!GameObjectRespawnRelocation(go, false))
-						{
-							// ... or unload (if respawn grid also not loaded)
-							Log.outDebug(LogFilter.Maps,
-										"GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
-										go.GUID.ToString(),
-										go.Entry);
+						// ... or unload (if respawn grid also not loaded)
+						Log.outDebug(LogFilter.Maps,
+									"GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
+									go.GUID.ToString(),
+									go.Entry);
 
-							AddObjectToRemoveList(go);
-						}
+						AddObjectToRemoveList(go);
 					}
-				});
+				}
 			}
-
-			_gameObjectsToMove.Clear();
 		}
 	}
 
@@ -3483,25 +3481,19 @@ public class Map : IDisposable
 				if (!dynObj.IsInWorld)
 					continue;
 
-
-				_threadManager.Schedule(() =>
+				// do move or do move to respawn or remove creature if previous all fail
+				if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj.Location.NewPosition.X, dynObj.Location.NewPosition.Y)))
 				{
-					// do move or do move to respawn or remove creature if previous all fail
-					if (DynamicObjectCellRelocation(dynObj, new Cell(dynObj.Location.NewPosition.X, dynObj.Location.NewPosition.Y)))
-					{
-						// update pos
-						dynObj.Location.Relocate(dynObj.Location.NewPosition);
-						dynObj.UpdatePositionData();
-						dynObj.UpdateObjectVisibility(false);
-					}
-					else
-					{
-						Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GUID.ToString());
-					}
-				});
+					// update pos
+					dynObj.Location.Relocate(dynObj.Location.NewPosition);
+					dynObj.UpdatePositionData();
+					dynObj.UpdateObjectVisibility(false);
+				}
+				else
+				{
+					Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GUID.ToString());
+				}
 			}
-
-			_dynamicObjectsToMove.Clear();
 		}
 	}
 
@@ -3528,24 +3520,19 @@ public class Map : IDisposable
 				if (!at.IsInWorld)
 					continue;
 
-				_threadManager.Schedule(() =>
+				// do move or do move to respawn or remove creature if previous all fail
+				if (AreaTriggerCellRelocation(at, new Cell(at.Location.NewPosition.X, at.Location.NewPosition.Y)))
 				{
-					// do move or do move to respawn or remove creature if previous all fail
-					if (AreaTriggerCellRelocation(at, new Cell(at.Location.NewPosition.X, at.Location.NewPosition.Y)))
-					{
-						// update pos
-						at.Location.Relocate(at.Location.NewPosition);
-						at.UpdateShape();
-						at.UpdateObjectVisibility(false);
-					}
-					else
-					{
-						Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
-					}
-				});
+					// update pos
+					at.Location.Relocate(at.Location.NewPosition);
+					at.UpdateShape();
+					at.UpdateObjectVisibility(false);
+				}
+				else
+				{
+					Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
+				}
 			}
-
-			_areaTriggersToMove.Clear();
 		}
 	}
 

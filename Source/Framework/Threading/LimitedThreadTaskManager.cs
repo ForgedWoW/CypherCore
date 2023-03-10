@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Framework.Dynamic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -13,32 +14,39 @@ namespace Framework.Threading
     public class LimitedThreadTaskManager
     {
         readonly AutoResetEvent _mapUpdateComplete = new AutoResetEvent(false);
-        readonly ConcurrentQueue<Action> _queue = new();
-        uint _workCount = 0;
-        readonly int _numThreads;
         Exception _exc = null;
+        ActionBlock<Action> _actionBlock;
+        ExecutionDataflowBlockOptions _blockOptions;
 
-        public LimitedThreadTaskManager(int numThreads)
+        public LimitedThreadTaskManager(int maxDegreeOfParallelism) : this(new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism })
         {
-            _numThreads = numThreads;
+
+        }
+
+        public LimitedThreadTaskManager(ExecutionDataflowBlockOptions blockOptions = null)
+        {
+            if (blockOptions == null)
+                blockOptions = new ExecutionDataflowBlockOptions()
+                    {
+                        MaxDegreeOfParallelism = 1
+                    };
+
+            _blockOptions = blockOptions;
+            _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
         }
 
         public void Deactivate()
         {
-            _queue.Clear();
-
-            Wait();
-
-            // ensure we are all clear and tasks exit.
-            _mapUpdateComplete.Set();
+            _actionBlock.Complete();
+            _actionBlock.Completion.Wait();
         }
 
         public void Wait()
         {
-            while (_workCount > 0)
-                _mapUpdateComplete.WaitOne();
-
+            _actionBlock.Complete();
+            _actionBlock.Completion.Wait();
             CheckForExcpetion();
+            _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
         }
 
         private void CheckForExcpetion()
@@ -50,53 +58,26 @@ namespace Framework.Threading
         public void Schedule(Action a)
         {
             CheckForExcpetion();
-
-            if (_workCount > _numThreads)
-                _queue.Enqueue(a);
-            else
-                StartNewTask(a);
+            _actionBlock.Post(a);
         }
 
-        private void StartNewTask(Action task)
+
+        public void ProcessTask(Action a)
         {
-            Interlocked.Increment(ref _workCount);
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    task();
-                }
-                catch (Exception ex)
-                {
-                    Log.outException(ex);
-                    _exc = ex;
-                }
-            }).ContinueWith(OnTaskEnded);
-        }
-
-        private void OnTaskEnded(Task task)
-        {
-            while (!TryDequeue() && _queue.Count != 0)
-                Thread.Sleep(10);
-
-            Interlocked.Decrement(ref _workCount);
-            
-            if (_workCount == 0)
-                _mapUpdateComplete.Set();
-        }
-
-        private bool TryDequeue()
-        {
-            if (_exc != null)
-                _queue.Clear();
-
-            else if (_queue.TryDequeue(out var result) && result != null)
-            {
-                StartNewTask(result);
-                return true;
+                a();
             }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+                _exc = ex;
+            }
+        }
 
-            return false;
+        public void Complete(bool success)
+        {
+            _mapUpdateComplete.Set();
         }
     }
 }

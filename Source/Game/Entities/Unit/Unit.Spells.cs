@@ -105,7 +105,14 @@ public partial class Unit
 
 	public bool CanProc => ProcDeep == 0;
 
-	public SortedSet<AuraApplication> VisibleAuras => _visibleAuras;
+	public List<AuraApplication> VisibleAuras
+	{
+		get
+		{
+			lock (_visibleAurasToUpdate)
+				return _visibleAuras.ToList();
+		}
+	}
 
 	public virtual bool HasSpell(uint spellId)
 	{
@@ -4235,16 +4242,22 @@ public partial class Unit
 
 	public void SetVisibleAura(AuraApplication aurApp)
 	{
-		_visibleAuras.Add(aurApp);
-		_visibleAurasToUpdate.Add(aurApp);
-		UpdateAuraForGroup();
+		lock (_visibleAurasToUpdate)
+		{
+			_visibleAuras.Add(aurApp);
+			_visibleAurasToUpdate.Add(aurApp);
+			UpdateAuraForGroup();
+		}
 	}
 
 	public void RemoveVisibleAura(AuraApplication aurApp)
 	{
-		_visibleAuras.Remove(aurApp);
-		_visibleAurasToUpdate.Remove(aurApp);
-		UpdateAuraForGroup();
+		lock (_visibleAurasToUpdate)
+		{
+			_visibleAuras.Remove(aurApp);
+			_visibleAurasToUpdate.Remove(aurApp);
+			UpdateAuraForGroup();
+		}
 	}
 
 	public bool HasVisibleAura(AuraApplication aurApp)
