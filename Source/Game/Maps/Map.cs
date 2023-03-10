@@ -29,7 +29,8 @@ public class Map : IDisposable
 {
 	private readonly LimitedThreadTaskManager _threadManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 	private readonly ActionBlock<uint> _processRelocationQueue;
-	private readonly Dictionary<uint, Dictionary<uint, object>> _locks = new();
+    private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
+    private readonly Dictionary<uint, Dictionary<uint, object>> _locks = new();
 	private readonly object _scriptLock = new();
 	private readonly List<Creature> _creaturesToMove = new();
 	private readonly List<GameObject> _gameObjectsToMove = new();
@@ -192,7 +193,6 @@ public class Map : IDisposable
 															EnsureOrdered = true, 
 															MaxMessagesPerTask = 1 
 														});
-
         OnCreateMap(this);
 	}
 
@@ -734,13 +734,12 @@ public class Map : IDisposable
 			if (!transport)
 				continue;
 
-			_threadManager.Schedule(() => transport.Update(diff));
+            _processTransportaionQueue.Schedule(() => transport.Update(diff));
 		}
 
 #if DEBUGMETRIC
         _metricFactory.Meter("_transports Update").StartMark();
 #endif
-        _threadManager.Wait();
 
 #if DEBUGMETRIC
         _metricFactory.Meter("_transports Update").StopMark();
