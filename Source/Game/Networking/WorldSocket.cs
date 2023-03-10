@@ -46,9 +46,6 @@ public class WorldSocket : SocketBase
 	readonly WorldCrypt _worldCrypt;
 	readonly byte[] _encryptKey;
 	readonly object _worldSessionLock = new();
-	readonly ConcurrentQueue<ServerPacket> _sendQueue = new();
-	readonly AutoResetEvent _queueTrigger = new(false);
-	readonly Task _packetThread;
 
 	ConnectionType _connectType;
 	ulong _key;
@@ -75,15 +72,12 @@ public class WorldSocket : SocketBase
 
 		_headerBuffer = new SocketBuffer(HeaderSize);
 		_packetBuffer = new SocketBuffer(0);
-		_packetThread = Task.Run(SendPacketThread);
 	}
 
 	public override void Dispose()
 	{
 		_worldSession = null;
 		_serverChallenge = null;
-		_sendQueue.Clear();
-		_queueTrigger.Set();
 		_queryProcessor = null;
 		_sessionKey = null;
 		_compressionStream = null;
@@ -163,69 +157,57 @@ public class WorldSocket : SocketBase
 		if (!IsOpen() || _serverChallenge == null)
 			return;
 
-		_sendQueue.Enqueue(packet); // no need to block the main thread.
-		_queueTrigger.Set();
-	}
-
-	public void SendPacketThread()
-	{
-		while (_serverChallenge != null)
+		try
 		{
-			_queueTrigger.WaitOne(500); // unlock every so often to check anyway because I am paranoid
+			packet.LogPacket(_worldSession);
+			packet.WritePacketData();
+			Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
 
-			while (_sendQueue.Count > 0)
-				if (_sendQueue.TryDequeue(out var packet) && packet != null)
-					try
-					{
-						packet.LogPacket(_worldSession);
-						packet.WritePacketData();
-						Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
+			var data = packet.GetData();
+			var opcode = packet.GetOpcode();
+			PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), _connectType, false);
 
-						var data = packet.GetData();
-						var opcode = packet.GetOpcode();
-						PacketLog.Write(data, (uint)opcode, GetRemoteIpAddress(), _connectType, false);
+			ByteBuffer buffer = new();
 
-						ByteBuffer buffer = new();
+			var packetSize = data.Length;
 
-						var packetSize = data.Length;
+			if (packetSize > 0x400 && _worldCrypt.IsInitialized)
+			{
+				buffer.WriteInt32(packetSize + 2);
+				buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
 
-						if (packetSize > 0x400 && _worldCrypt.IsInitialized)
-						{
-							buffer.WriteInt32(packetSize + 2);
-							buffer.WriteUInt32(ZLib.adler32(ZLib.adler32(0x9827D8F1, BitConverter.GetBytes((ushort)opcode), 2), data, (uint)packetSize));
+				var compressedSize = CompressPacket(data, opcode, out var compressedData);
+				buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
+				buffer.WriteBytes(compressedData, compressedSize);
 
-							var compressedSize = CompressPacket(data, opcode, out var compressedData);
-							buffer.WriteUInt32(ZLib.adler32(0x9827D8F1, compressedData, compressedSize));
-							buffer.WriteBytes(compressedData, compressedSize);
+				packetSize = (int)(compressedSize + 12);
+				opcode = ServerOpcodes.CompressedPacket;
 
-							packetSize = (int)(compressedSize + 12);
-							opcode = ServerOpcodes.CompressedPacket;
+				data = buffer.GetData();
+			}
 
-							data = buffer.GetData();
-						}
+			buffer = new ByteBuffer();
+			buffer.WriteUInt16((ushort)opcode);
+			buffer.WriteBytes(data);
+			packetSize += 2 /*opcode*/;
 
-						buffer = new ByteBuffer();
-						buffer.WriteUInt16((ushort)opcode);
-						buffer.WriteBytes(data);
-						packetSize += 2 /*opcode*/;
+			data = buffer.GetData();
 
-						data = buffer.GetData();
+			PacketHeader header = new();
+			header.Size = packetSize;
+			_worldCrypt.Encrypt(ref data, ref header.Tag);
 
-						PacketHeader header = new();
-						header.Size = packetSize;
-						_worldCrypt.Encrypt(ref data, ref header.Tag);
+			ByteBuffer byteBuffer = new();
+			header.Write(byteBuffer);
+			byteBuffer.WriteBytes(data);
 
-						ByteBuffer byteBuffer = new();
-						header.Write(byteBuffer);
-						byteBuffer.WriteBytes(data);
-
-						AsyncWrite(byteBuffer.GetData()); // LIES not async.
-					}
-					catch (Exception ex)
-					{
-						Log.outException(ex);
-					}
+			AsyncWrite(byteBuffer.GetData()); // LIES not async.
 		}
+		catch (Exception ex)
+		{
+			Log.outException(ex);
+		}
+
 	}
 
 	public void SetWorldSession(WorldSession session)
