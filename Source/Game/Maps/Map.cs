@@ -613,7 +613,7 @@ public class Map : IDisposable
         // update active cells around players and active objects
         ResetMarkedCells();
 
-		var update = new UpdaterNotifier(diff, GridType.All, _threadManager);
+		var update = new UpdaterNotifier(diff, GridType.All);
 
 #if DEBUGMETRIC
         _metricFactory.Meter("Load UpdaterNotifier").StartMark();
@@ -625,71 +625,68 @@ public class Map : IDisposable
 			if (!player.IsInWorld)
 				continue;
 
-			_threadManager.Schedule(() =>
+			// update players at tick
+			_threadManager.Schedule(() => player.Update(diff));
+
+            _threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+
+			// If player is using far sight or mind vision, visit that object too
+			var viewPoint = player.Viewpoint;
+
+			if (viewPoint)
+                _threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+
+			List<Unit> toVisit = new();
+
+			// Handle updates for creatures in combat with player and are more than 60 yards away
+			if (player.IsInCombat)
 			{
-				// update players at tick
-				_threadManager.Schedule(() => player.Update(diff));
-
-				VisitNearbyCellsOf(player, update);
-
-				// If player is using far sight or mind vision, visit that object too
-				var viewPoint = player.Viewpoint;
-
-				if (viewPoint)
-					VisitNearbyCellsOf(viewPoint, update);
-
-				List<Unit> toVisit = new();
-
-				// Handle updates for creatures in combat with player and are more than 60 yards away
-				if (player.IsInCombat)
+				foreach (var pair in player.GetCombatManager().PvECombatRefs)
 				{
-					foreach (var pair in player.GetCombatManager().PvECombatRefs)
-					{
-						var unit = pair.Value.GetOther(player).AsCreature;
+					var unit = pair.Value.GetOther(player).AsCreature;
 
-						if (unit != null)
-							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
-								toVisit.Add(unit);
-					}
-
-					foreach (var unit in toVisit)
-						VisitNearbyCellsOf(unit, update);
+					if (unit != null)
+						if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
+							toVisit.Add(unit);
 				}
 
-				// Update any creatures that own auras the player has applications of
-				toVisit.Clear();
-
-				player.GetAppliedAurasQuery()
-					.IsPlayer(false)
-					.ForEachResult(aur =>
-					{
-						var caster = aur.Base.Caster;
-
-						if (caster != null)
-							if (!caster.IsWithinDistInMap(player, VisibilityRange, false))
-								toVisit.Add(caster);
-					});
-
 				foreach (var unit in toVisit)
-					VisitNearbyCellsOf(unit, update);
+					_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+			}
 
-				// Update player's summons
-				toVisit.Clear();
+			// Update any creatures that own auras the player has applications of
+			toVisit.Clear();
 
-				// Totems
-				foreach (var summonGuid in player.SummonSlot)
-					if (!summonGuid.IsEmpty)
-					{
-						var unit = GetCreature(summonGuid);
+			player.GetAppliedAurasQuery()
+				.IsPlayer(false)
+				.ForEachResult(aur =>
+				{
+					var caster = aur.Base.Caster;
 
-						if (unit != null)
-							if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
-								toVisit.Add(unit);
-					}
+					if (caster != null)
+						if (!caster.IsWithinDistInMap(player, VisibilityRange, false))
+							toVisit.Add(caster);
+				});
 
-				foreach (var unit in toVisit)
-					VisitNearbyCellsOf(unit, update);
-			});
+			foreach (var unit in toVisit)
+				_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
+
+			// Update player's summons
+			toVisit.Clear();
+
+			// Totems
+			foreach (var summonGuid in player.SummonSlot)
+				if (!summonGuid.IsEmpty)
+				{
+					var unit = GetCreature(summonGuid);
+
+					if (unit != null)
+						if (unit.Location.MapId == player.Location.MapId && !unit.IsWithinDistInMap(player, VisibilityRange, false))
+							toVisit.Add(unit);
+				}
+
+			foreach (var unit in toVisit)
+				_threadManager.Schedule(() => VisitNearbyCellsOf(unit, update));
 		}
 
 		for (var i = 0; i < _activeNonPlayers.Count; ++i)
@@ -3155,30 +3152,82 @@ public class Map : IDisposable
 
 		foreach (var x in xKeys)
 		{
-			_threadManager.Schedule(() =>
+			foreach (var y in GridYKeys(x))
 			{
-				foreach (var y in GridYKeys(x))
+				var grid = GetGrid(x, y);
+
+				if (grid == null)
+					continue;
+
+				if (grid.GetGridState() != GridState.Active)
+					continue;
+
+				grid.GetGridInfoRef().GetRelocationTimer().TUpdate((int)diff);
+
+				if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+					continue;
+
+				var gx = grid.GetX();
+				var gy = grid.GetY();
+
+				var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells, cell_min.Y_Coord + MapConst.MaxCells);
+
+
+				for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
 				{
-					var grid = GetGrid(x, y);
+					for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
+					{
+						var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
 
-					if (grid == null)
-						continue;
+						if (!IsCellMarked(cell_id))
+							continue;
 
-					if (grid.GetGridState() != GridState.Active)
-						continue;
+						_threadManager.Schedule(() =>
+						{
+							var pair = new CellCoord(xx, yy);
+							var cell = new Cell(pair);
+							cell.SetNoCreate();
 
-					grid.GetGridInfoRef().GetRelocationTimer().TUpdate((int)diff);
+							var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
 
-					if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
-						continue;
+							Visit(cell, cell_relocation);
+						});
+					}
+				}
+			}
+		}
 
-					var gx = grid.GetX();
-					var gy = grid.GetY();
+		_threadManager.Wait();
+        var reset = new ResetNotifier(GridType.All);
 
-					var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-					var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells, cell_min.Y_Coord + MapConst.MaxCells);
+		foreach (var x in xKeys)
+		{
+			foreach (var y in GridYKeys(x))
+			{
+				var grid = GetGrid(x, y);
 
-				
+				if (grid == null)
+					continue;
+
+				if (grid.GetGridState() != GridState.Active)
+					continue;
+
+				if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
+					continue;
+
+				grid.GetGridInfoRef().GetRelocationTimer().TReset((int)diff, VisibilityNotifyPeriod);
+
+				var gx = grid.GetX();
+				var gy = grid.GetY();
+
+				var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
+
+				var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
+											cell_min.Y_Coord + MapConst.MaxCells);
+
+				_threadManager.Schedule(() =>
+				{
 					for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
 					{
 						for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
@@ -3188,72 +3237,14 @@ public class Map : IDisposable
 							if (!IsCellMarked(cell_id))
 								continue;
 
-							_threadManager.Schedule(() =>
-							{
-								var pair = new CellCoord(xx, yy);
-								var cell = new Cell(pair);
-								cell.SetNoCreate();
-
-								var cell_relocation = new DelayedUnitRelocation(cell, pair, this, SharedConst.MaxVisibilityDistance, GridType.All);
-
-								Visit(cell, cell_relocation);
-							});
+							var pair = new CellCoord(xx, yy);
+							var cell = new Cell(pair);
+							cell.SetNoCreate();
+							Visit(cell, reset);
 						}
 					}
-				}
-			});
-		}
-
-		_threadManager.Wait();
-        var reset = new ResetNotifier(GridType.All);
-
-		foreach (var x in xKeys)
-		{
-			_threadManager.Schedule(() =>
-			{
-				foreach (var y in GridYKeys(x))
-				{
-					var grid = GetGrid(x, y);
-
-					if (grid == null)
-						continue;
-
-					if (grid.GetGridState() != GridState.Active)
-						continue;
-
-					if (!grid.GetGridInfoRef().GetRelocationTimer().TPassed())
-						continue;
-
-					grid.GetGridInfoRef().GetRelocationTimer().TReset((int)diff, VisibilityNotifyPeriod);
-
-					var gx = grid.GetX();
-					var gy = grid.GetY();
-
-					var cell_min = new CellCoord(gx * MapConst.MaxCells, gy * MapConst.MaxCells);
-
-					var cell_max = new CellCoord(cell_min.X_Coord + MapConst.MaxCells,
-												cell_min.Y_Coord + MapConst.MaxCells);
-
-					_threadManager.Schedule(() =>
-					{
-						for (var xx = cell_min.X_Coord; xx < cell_max.X_Coord; ++xx)
-						{
-							for (var yy = cell_min.Y_Coord; yy < cell_max.Y_Coord; ++yy)
-							{
-								var cell_id = (yy * MapConst.TotalCellsPerMap) + xx;
-
-								if (!IsCellMarked(cell_id))
-									continue;
-
-								var pair = new CellCoord(xx, yy);
-								var cell = new Cell(pair);
-								cell.SetNoCreate();
-								Visit(cell, reset);
-							}
-						}
-					});
-				}
-			});
+				});
+			}
 		}
 	}
 

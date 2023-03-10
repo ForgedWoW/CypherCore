@@ -13,16 +13,14 @@ namespace Game.Maps;
 public class UpdaterNotifier : IGridNotifierWorldObject
 {
 	readonly uint _timeDiff;
-	readonly LimitedThreadTaskManager _threadManager;
 	readonly ConcurrentBag<WorldObject> _worldObjects = new();
 
 	public GridType GridType { get; set; }
 
-	public UpdaterNotifier(uint diff, GridType gridType, LimitedThreadTaskManager taskManager)
+	public UpdaterNotifier(uint diff, GridType gridType)
 	{
 		_timeDiff = diff;
 		GridType = gridType;
-		_threadManager = taskManager;
 	}
 
 	public void Visit(IList<WorldObject> objs)
@@ -42,6 +40,6 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 	public void ExecuteUpdate()
 	{
 		foreach (var obj in _worldObjects)
-			_threadManager.Schedule(() => obj.Update(_timeDiff));
+			obj.Update(_timeDiff);
 	}
 }
