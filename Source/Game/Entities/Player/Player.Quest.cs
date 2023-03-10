@@ -2935,7 +2935,8 @@ public partial class Player
 
 	public void SendQuestGiverStatusMultiple()
 	{
-		SendQuestGiverStatusMultiple(ClientGuiDs);
+        lock (ClientGuiDs)
+            SendQuestGiverStatusMultiple(ClientGuiDs);
 	}
 
 	public void SendQuestGiverStatusMultiple(List<ObjectGuid> guids)
@@ -3019,66 +3020,67 @@ public partial class Player
 
 		UpdateData udata = new(Location.MapId);
 
-		foreach (var guid in ClientGuiDs)
-			if (guid.IsGameObject)
-			{
-				var obj = ObjectAccessor.GetGameObject(this, guid);
-
-				if (obj != null)
+		lock (ClientGuiDs)
+			foreach (var guid in ClientGuiDs)
+				if (guid.IsGameObject)
 				{
-					ObjectFieldData objMask = new();
-					GameObjectFieldData goMask = new();
+					var obj = ObjectAccessor.GetGameObject(this, guid);
 
-					if (_questObjectiveStatus.ContainsKey((QuestObjectiveType.GameObject, (int)obj.Entry)))
-						objMask.MarkChanged(obj.ObjectData.DynamicFlags);
-
-					switch (obj.GoType)
-					{
-						case GameObjectTypes.QuestGiver:
-						case GameObjectTypes.Chest:
-						case GameObjectTypes.Goober:
-						case GameObjectTypes.Generic:
-						case GameObjectTypes.GatheringNode:
-							if (Global.ObjectMgr.IsGameObjectForQuests(obj.Entry))
-								objMask.MarkChanged(obj.ObjectData.DynamicFlags);
-
-							break;
-						default:
-							break;
-					}
-
-					if (objMask.GetUpdateMask().IsAnySet() || goMask.GetUpdateMask().IsAnySet())
-						obj.BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), this);
-				}
-			}
-			else if (guid.IsCreatureOrVehicle)
-			{
-				var obj = ObjectAccessor.GetCreatureOrPetOrVehicle(this, guid);
-
-				if (obj == null)
-					continue;
-
-				// check if this unit requires quest specific flags
-				if (!obj.HasNpcFlag(NPCFlags.SpellClick))
-					continue;
-
-				var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(obj.Entry);
-
-				foreach (var spellClickInfo in clickBounds)
-				{
-					var conds = Global.ConditionMgr.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.spellId);
-
-					if (conds != null)
+					if (obj != null)
 					{
 						ObjectFieldData objMask = new();
-						UnitData unitMask = new();
-						unitMask.MarkChanged(UnitData.NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
-						obj.BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), unitMask.GetUpdateMask(), this);
+						GameObjectFieldData goMask = new();
 
-						break;
+						if (_questObjectiveStatus.ContainsKey((QuestObjectiveType.GameObject, (int)obj.Entry)))
+							objMask.MarkChanged(obj.ObjectData.DynamicFlags);
+
+						switch (obj.GoType)
+						{
+							case GameObjectTypes.QuestGiver:
+							case GameObjectTypes.Chest:
+							case GameObjectTypes.Goober:
+							case GameObjectTypes.Generic:
+							case GameObjectTypes.GatheringNode:
+								if (Global.ObjectMgr.IsGameObjectForQuests(obj.Entry))
+									objMask.MarkChanged(obj.ObjectData.DynamicFlags);
+
+								break;
+							default:
+								break;
+						}
+
+						if (objMask.GetUpdateMask().IsAnySet() || goMask.GetUpdateMask().IsAnySet())
+							obj.BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), goMask.GetUpdateMask(), this);
 					}
 				}
-			}
+				else if (guid.IsCreatureOrVehicle)
+				{
+					var obj = ObjectAccessor.GetCreatureOrPetOrVehicle(this, guid);
+
+					if (obj == null)
+						continue;
+
+					// check if this unit requires quest specific flags
+					if (!obj.HasNpcFlag(NPCFlags.SpellClick))
+						continue;
+
+					var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(obj.Entry);
+
+					foreach (var spellClickInfo in clickBounds)
+					{
+						var conds = Global.ConditionMgr.GetConditionsForSpellClickEvent(obj.Entry, spellClickInfo.spellId);
+
+						if (conds != null)
+						{
+							ObjectFieldData objMask = new();
+							UnitData unitMask = new();
+							unitMask.MarkChanged(UnitData.NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
+							obj.BuildValuesUpdateForPlayerWithMask(udata, objMask.GetUpdateMask(), unitMask.GetUpdateMask(), this);
+
+							break;
+						}
+					}
+				}
 
 		udata.BuildPacket(out var packet);
 		SendPacket(packet);

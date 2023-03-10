@@ -95,7 +95,8 @@ namespace Game
 
             // Client received values update after destroying object
             // re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-            Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
+            lock (Player.ClientGuiDs)
+                Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
         }
 
         [WorldPacketHandler(ClientOpcodes.SetActionButton)]

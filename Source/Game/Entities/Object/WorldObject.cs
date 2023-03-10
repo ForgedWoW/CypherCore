@@ -3247,7 +3247,9 @@ public abstract class WorldObject : IDisposable
 				continue;
 
 			DestroyForPlayer(player);
-			player.ClientGuiDs.Remove(GUID);
+
+			lock(player.ClientGuiDs)
+				player.ClientGuiDs.Remove(GUID);
 		}
 	}
 

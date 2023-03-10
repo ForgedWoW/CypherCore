@@ -89,7 +89,8 @@ internal struct WarlockSpells
 	public const uint DEMON_SOUL_IMP = 79459;
 	public const uint DEMON_SOUL_SUCCUBUS = 79453;
 	public const uint DEMON_SOUL_VOIDWALKER = 79454;
-	public const uint DESTRUCTION_PASSIVE = 137046;
+    public const uint DESPERATE_PACT = 386619;
+    public const uint DESTRUCTION_PASSIVE = 137046;
 	public const uint DEVOURER_OF_LIFE_PROC = 215165;
 	public const uint DEVOUR_MAGIC_HEAL = 19658;
 	public const uint DIABOLIC_EMBERS = 387173;
@@ -100,8 +101,10 @@ internal struct WarlockSpells
 	public const uint DOOM_DOUBLED = 218572;
 	public const uint DOOM_ENERGIZE = 193318;
 	public const uint DOOM_SOUL_SHARD = 193318;
-	public const uint DRAIN_LIFE_HEAL = 89653;
-	public const uint DRAIN_SOUL_ENERGIZE = 205292;
+	public const uint DRAIN_LIFE = 234153;
+    public const uint DRAIN_LIFE_ENEMY_AURA = 234153;
+    public const uint DRAIN_LIFE_HEAL = 89653;
+    public const uint DRAIN_SOUL_ENERGIZE = 205292;
 	public const uint DREADSTALKER_CHARGE = 334713;
 	public const uint ERADICATION = 196412;
 	public const uint ERADICATION_DEBUFF = 196414;

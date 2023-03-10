@@ -1891,9 +1891,8 @@ public class WorldManager : Singleton<WorldManager>
 		foreach (var pair in _sessions)
 		{
 			var session = pair.Value;
-			WorldSessionFilter updater = new(session);
 
-			if (!session.Update(diff, updater)) // As interval = 0
+			if (!session.UpdateWorld(diff)) // As interval = 0
 			{
 				if (!RemoveQueuedPlayer(session) && session != null && WorldConfig.GetIntValue(WorldCfg.IntervalDisconnectTolerance) != 0)
 					_disconnects[session.AccountId] = GameTime.GetGameTime();

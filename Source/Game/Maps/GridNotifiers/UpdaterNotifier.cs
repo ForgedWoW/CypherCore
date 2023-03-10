@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Threading;
@@ -13,7 +14,7 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 {
 	readonly uint _timeDiff;
 	readonly LimitedThreadTaskManager _threadManager;
-	readonly HashSet<WorldObject> _worldObjects = new();
+	readonly ConcurrentBag<WorldObject> _worldObjects = new();
 
 	public GridType GridType { get; set; }
 

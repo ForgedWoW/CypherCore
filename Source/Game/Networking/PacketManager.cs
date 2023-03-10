@@ -61,22 +61,6 @@ public static class PacketManager
 		}
 	}
 
-	public static bool TryPeek(this ConcurrentQueue<WorldPacket> queue, out WorldPacket result, PacketFilter filter)
-	{
-		result = null;
-
-		if (queue.IsEmpty)
-			return false;
-
-		if (!queue.TryPeek(out result))
-			return false;
-
-		if (!filter.Process(result))
-			return false;
-
-		return true;
-	}
-
 	public static PacketHandler GetHandler(ClientOpcodes opcode)
 	{
 		return _clientPacketTable.LookupByKey(opcode);

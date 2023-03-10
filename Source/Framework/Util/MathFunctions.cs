@@ -132,6 +132,11 @@ public static class MathFunctions
     }
     #endregion
 
+    public static double ApplyPct(double Base, double pct)
+    {
+        return CalculatePct(Base, pct);
+    }
+
     public static double ApplyPct(ref double Base, double pct)
     {
         return Base = CalculatePct(Base, pct);

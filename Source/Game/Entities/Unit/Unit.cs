@@ -26,6 +26,7 @@ public partial class Unit : WorldObject
 {
 	static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
 	private object _healthLock = new object();
+	public object SendLock = new object();
 
 	public bool IsInDisallowedMountForm => IsDisallowedMountForm(TransformSpell, ShapeshiftForm, DisplayId);
 

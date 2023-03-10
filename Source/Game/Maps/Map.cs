@@ -586,8 +586,7 @@ public class Map : IDisposable
 			if (player.IsInWorld)
 			{
 				var session = player.Session;
-				var updater = new MapSessionFilter(session);
-				_threadManager.Schedule(() => session.Update(diff, updater));
+				_threadManager.Schedule(() => session.UpdateMap(diff));
 			}
 		}
 

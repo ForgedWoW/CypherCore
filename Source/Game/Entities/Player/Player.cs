@@ -3404,32 +3404,32 @@ public partial class Player : Unit
 			return;
 
 		UpdateData udata = new(Location.MapId);
+        lock (ClientGuiDs)
+            foreach (var guid in ClientGuiDs)
+				if (guid.IsCreatureOrVehicle)
+				{
+					var creature = Map.GetCreature(guid);
 
-		foreach (var guid in ClientGuiDs)
-			if (guid.IsCreatureOrVehicle)
-			{
-				var creature = Map.GetCreature(guid);
+					// Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
+					if (creature == null || (!creature.IsTrigger && !creature.HasAuraType(AuraType.Transform) && !creature.HasUnitFlag(UnitFlags.Uninteractible)))
+						continue;
 
-				// Update fields of triggers, transformed units or unselectable units (values dependent on GM state)
-				if (creature == null || (!creature.IsTrigger && !creature.HasAuraType(AuraType.Transform) && !creature.HasUnitFlag(UnitFlags.Uninteractible)))
-					continue;
+					creature.Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID);
+					creature.Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags);
+					creature.ForceUpdateFieldChange();
+					creature.BuildValuesUpdateBlockForPlayer(udata, this);
+				}
+				else if (guid.IsAnyTypeGameObject)
+				{
+					var go = Map.GetGameObject(guid);
 
-				creature.Values.ModifyValue(UnitData).ModifyValue(UnitData.DisplayID);
-				creature.Values.ModifyValue(UnitData).ModifyValue(UnitData.Flags);
-				creature.ForceUpdateFieldChange();
-				creature.BuildValuesUpdateBlockForPlayer(udata, this);
-			}
-			else if (guid.IsAnyTypeGameObject)
-			{
-				var go = Map.GetGameObject(guid);
+					if (go == null)
+						continue;
 
-				if (go == null)
-					continue;
-
-				go.Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags);
-				go.ForceUpdateFieldChange();
-				go.BuildValuesUpdateBlockForPlayer(udata, this);
-			}
+					go.Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags);
+					go.ForceUpdateFieldChange();
+					go.BuildValuesUpdateBlockForPlayer(udata, this);
+				}
 
 		if (!udata.HasData())
 			return;
@@ -5983,10 +5983,13 @@ public partial class Player : Unit
 
 	public bool HaveAtClient(WorldObject u)
 	{
-		var one = u.GUID == GUID;
-		var two = ClientGuiDs.Contains(u.GUID);
+		lock (ClientGuiDs)
+		{
+			var one = u.GUID == GUID;
+			var two = ClientGuiDs.Contains(u.GUID);
 
-		return one || two;
+			return one || two;
+		}
 	}
 
 	public bool HasTitle(CharTitlesRecord title)
@@ -8010,7 +8013,8 @@ public partial class Player : Unit
 				else
 					target.DestroyForPlayer(this);
 
-				ClientGuiDs.Remove(target.GUID);
+				lock (ClientGuiDs)
+					ClientGuiDs.Remove(target.GUID);
 			}
 		}
 		else
@@ -8018,7 +8022,9 @@ public partial class Player : Unit
 			if (CanSeeOrDetect(target, false, true))
 			{
 				target.SendUpdateToPlayer(this);
-				ClientGuiDs.Add(target.GUID);
+
+                lock (ClientGuiDs)
+                    ClientGuiDs.Add(target.GUID);
 
 				// target aura duration for caster show only if target exist at caster client
 				// send data at target visibility change (adding to client)
