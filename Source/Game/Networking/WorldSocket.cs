@@ -766,8 +766,15 @@ public class WorldSocket : SocketBase
 	void LoadSessionPermissionsCallback(SQLResult result)
 	{
 		// RBAC must be loaded before adding session to check for skip queue permission
-		_worldSession. // RBAC must be loaded before adding session to check for skip queue permission
-			RBACData.LoadFromDBCallback(result);
+		// RBAC must be loaded before adding session to check for skip queue permission
+
+		if (_worldSession == null)
+		{
+			SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
+            return;
+		}
+
+        _worldSession.RBACData.LoadFromDBCallback(result);
 
 		SendPacket(new EnterEncryptedMode(_encryptKey, true));
 	}

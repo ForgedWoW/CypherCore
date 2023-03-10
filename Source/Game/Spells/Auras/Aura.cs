@@ -222,8 +222,8 @@ public class Aura
 			foreach (var app in _auraApplications.Values.ToArray())
 				OwnerAsUnit?.RemoveAura(app);
 
-		Cypher.Assert(_auraApplications.Empty());
-		_DeleteRemovedApplications();
+		_auraApplications.Clear();
+        _DeleteRemovedApplications();
 	}
 
     public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)

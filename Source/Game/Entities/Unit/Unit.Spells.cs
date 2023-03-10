@@ -3232,6 +3232,9 @@ public partial class Unit
 
 	public void RemoveAura(AuraApplication aurApp, AuraRemoveMode mode = AuraRemoveMode.Default)
 	{
+		if (aurApp == null)
+			return;
+
 		// we've special situation here, RemoveAura called while during aura removal
 		// this kind of call is needed only when aura effect removal handler
 		// or event triggered by it expects to remove
