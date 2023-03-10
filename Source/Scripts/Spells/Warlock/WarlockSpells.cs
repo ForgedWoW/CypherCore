@@ -123,7 +123,8 @@ internal struct WarlockSpells
 	public const uint FEL_ARMOR_DMG_DELAY_REMAINING = 387847;
 	public const uint FEL_FIREBOLT = 104318;
 	public const uint FEL_LORD_CLEAVE = 213688;
-	public const uint FEL_SYNERGY_HEAL = 54181;
+    public const uint FEL_SYNERGY = 389367;
+    public const uint FEL_SYNERGY_HEAL = 54181;
 	public const uint FIREBOLT_BONUS = 231795;
 	public const uint FIRE_AND_BRIMSTONE = 196408;
 	public const uint FLAMESHADOW = 37379;
