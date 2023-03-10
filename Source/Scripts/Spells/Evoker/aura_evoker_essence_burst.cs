@@ -10,16 +10,8 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.ESSENCE_BURST)]
-public class aura_evoker_essence_burst : AuraScript, IAuraCheckProc, IAuraOnProc
+public class aura_evoker_essence_burst : AuraScript, IAuraOnProc
 {
-    public bool CheckProc(ProcEventInfo info)
-    {
-        if (info.ProcSpell == null || info.ProcSpell.SpellInfo == null)
-            return false;
-
-        return info.ProcSpell.SpellInfo.Id.EqualsAny(EvokerSpells.LIVING_FLAME_DAMAGE, EvokerSpells.LIVING_FLAME_HEAL);
-    }
-
     public void OnProc(ProcEventInfo info)
     {
         if (TryGetCasterAsPlayer(out var player))

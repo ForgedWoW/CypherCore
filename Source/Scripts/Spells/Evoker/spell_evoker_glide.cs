@@ -39,8 +39,7 @@ internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 
 		caster.CastSpell(caster, EvokerSpells.GLIDE_KNOCKBACK, true);
 
-		caster.
-		SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
-		caster.		SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.HOVER, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(EvokerSpells.SOAR_RACIAL, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 }
