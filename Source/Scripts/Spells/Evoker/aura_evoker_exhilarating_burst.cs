@@ -9,14 +9,12 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
-internal class aura_evoker_blast_furnace : AuraScript, IAuraOnApply
+[SpellScript(EvokerSpells.ESSENCE_BURST_AURA)]
+public class aura_evoker_exhilarating_burst : AuraScript, IAuraOnApply
 {
-	public void AuraApplied()
-	{
-		if (!Owner.AsUnit.TryGetAura(EvokerSpells.BLAST_FURNACE, out var bfAura))
-			return;
-
-		Aura.ModDuration(bfAura.GetEffect(0).Amount * 1000, true, true);
-	}
+    public void AuraApplied()
+    {
+        if (TryGetCasterAsPlayer(out var player) && player.HasSpell(EvokerSpells.EXHILERATING_BURST))
+            player.AddAura(EvokerSpells.EXHILERATING_BURST_AURA);
+    }
 }

@@ -240,9 +240,11 @@ public class Aura
 			if (_spellInfo.IsCooldownStartedOnEvent)
 			{
 				var castItem = !_castItemGuid.IsEmpty ? caster.AsPlayer.GetItemByGuid(_castItemGuid) : null;
-				caster.				SpellHistory.StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
+				caster.SpellHistory.StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
-	}
+
+        ForEachAuraScript<IAuraOnApply>(a => a.AuraApplied());
+    }
 
 	public virtual void _UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{

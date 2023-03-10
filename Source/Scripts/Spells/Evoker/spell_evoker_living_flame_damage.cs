@@ -27,9 +27,7 @@ public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 
 	private void HandleManaRestored(int effIndex)
 	{
-		var auraEffect = Caster.GetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0);
-
-		if (auraEffect != null)
+		if (Caster.TryGetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0, out var auraEffect))
 		{
 			var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.LIVING_FLAME, CastDifficulty);
 

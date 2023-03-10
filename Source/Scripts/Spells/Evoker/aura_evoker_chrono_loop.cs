@@ -12,12 +12,11 @@ using Game.Spells;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.CHRONO_LOOP)]
-public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemove
+public class aura_evoker_chrono_loop : AuraScript, IAuraOnApply, IAuraOnRemove
 {
 	long _health = 0;
 	uint _mapId = 0;
 	Position _pos;
-	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 	public void AuraRemoved(AuraRemoveMode removeMode)
 	{
@@ -32,16 +31,7 @@ public class aura_evoker_chrono_loop : AuraScript, IHasAuraEffects, IAuraOnRemov
 			unit.UpdatePosition(_pos, true);
 	}
 
-	public override void Register()
-	{
-		AuraEffects.Add(new AuraEffectApplyHandler(AuraApplied,
-													0,
-													AuraType.Dummy,
-													AuraEffectHandleModes.Real,
-													AuraScriptHookType.EffectApply));
-	}
-
-	private void AuraApplied(AuraEffect aurEff, AuraEffectHandleModes handleModes)
+	public void AuraApplied()
 	{
 		var unit = OwnerAsUnit;
 		_health = unit.Health;
