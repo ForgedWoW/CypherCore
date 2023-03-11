@@ -412,7 +412,7 @@ namespace Game
             if (!spellInfo.IsPositive || spellInfo.IsPassive)
                 return;
 
-            Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
+            Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, AuraRemoveMode.Cancel);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelGrowthAura, Processing = PacketProcessing.Inplace)]
@@ -463,7 +463,7 @@ namespace Game
                 return;
             }
 
-            pet.RemoveOwnedAura(packet.SpellID, ObjectGuid.Empty, 0, AuraRemoveMode.Cancel);
+            pet.RemoveOwnedAura(packet.SpellID, ObjectGuid.Empty, AuraRemoveMode.Cancel);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelModSpeedNoControlAuras, Processing = PacketProcessing.Inplace)]

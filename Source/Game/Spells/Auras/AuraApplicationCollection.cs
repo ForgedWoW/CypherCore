@@ -119,7 +119,7 @@ public class AuraApplicationCollection
 
 			_isPerm.Add(aura.IsPermanent, auraApp.Guid);
 
-			foreach (var eff in auraApp.EffectIndexs)
+			foreach (var eff in auraApp.EffectMask)
 				_effectIndex.Add(eff, auraApp.Guid);
 
 			_onlyIndoors.Add(si.HasAttribute(SpellAttr0.OnlyIndoors), auraApp.Guid);
@@ -188,7 +188,7 @@ public class AuraApplicationCollection
 
 			_isPerm.Remove(aura.IsPermanent, auraApp.Guid);
 
-			foreach (var eff in auraApp.EffectIndexs)
+			foreach (var eff in auraApp.EffectMask)
 				_effectIndex.Remove(eff, auraApp.Guid);
 		}
 

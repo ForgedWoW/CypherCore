@@ -29,9 +29,10 @@ public class DynObjAura : Aura
 		base.Remove(removeMode);
 	}
 
-	public override void FillTargetMap(ref Dictionary<Unit, uint> targets, Unit caster)
+	public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
 	{
-		var dynObjOwnerCaster = DynobjOwner.GetCaster();
+		var targets = new Dictionary<Unit, HashSet<int>>();
+        var dynObjOwnerCaster = DynobjOwner.GetCaster();
 		var radius = DynobjOwner.GetRadius();
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
@@ -58,10 +59,13 @@ public class DynObjAura : Aura
 			foreach (var unit in targetList)
 			{
 				if (!targets.ContainsKey(unit))
-					targets[unit] = 0;
+					targets[unit] = new HashSet<int>();
 
-				targets[unit] |= 1u << spellEffectInfo.EffectIndex;
+				targets[unit].Add(spellEffectInfo.EffectIndex);
 			}
 		}
-	}
+
+		return targets;
+
+    }
 }

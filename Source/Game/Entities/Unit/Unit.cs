@@ -1872,7 +1872,7 @@ public partial class Unit : WorldObject
 
 	// creates aura application instance and registers it in lists
 	// aura application effects are handled separately to prevent aura list corruption
-	public AuraApplication _CreateAuraApplication(Aura aura, uint effMask)
+	public AuraApplication _CreateAuraApplication(Aura aura, HashSet<int> effMask)
 	{
 		// can't apply aura on unit which is going to be deleted - to not create a memory leak
 		Cypher.Assert(!_cleanupDone);

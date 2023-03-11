@@ -31,7 +31,7 @@ internal class spell_gen_animal_blood : AuraScript, IHasAuraEffects
 		// Remove all Auras with spell Id 46221, except the one currently being applied
 		Aura aur;
 
-		while ((aur = OwnerAsUnit.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, 0, Aura)) != null)
+		while ((aur = OwnerAsUnit.GetOwnedAura(GenericSpellIds.AnimalBlood, ObjectGuid.Empty, ObjectGuid.Empty, Aura)) != null)
 			OwnerAsUnit.RemoveOwnedAura(aur);
 	}
 

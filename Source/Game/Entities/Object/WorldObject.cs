@@ -2161,7 +2161,12 @@ public abstract class WorldObject : IDisposable
 		return duration;
 	}
 
-	public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, uint effectMask)
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
+	{
+		return ModSpellDuration(spellInfo, target, duration, positive, new HashSet<int>() { effIndex });
+	}
+
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
 	{
 		// don't mod permanent auras duration
 		if (duration < 0)

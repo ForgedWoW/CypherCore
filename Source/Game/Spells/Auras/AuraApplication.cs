@@ -16,12 +16,11 @@ public class AuraApplication
 	readonly Aura _base;
 	readonly byte _slot;        // Aura slot on unit
 	AuraFlags _flags;           // Aura info flag
-	uint _effectsToApply;       // Used only at spell hit to determine which effect should be applied
+	HashSet<int> _effectsToApply = new HashSet<int>();       // Used only at spell hit to determine which effect should be applied
 	bool _needClientUpdate;
-	uint _effectMask;
+	HashSet<int> _effectMask = new();
 
 	public Guid Guid { get; } = Guid.NewGuid();
-	public HashSet<int> EffectIndexs { get; } = new();
 
 	public Unit Target => _target;
 
@@ -31,11 +30,11 @@ public class AuraApplication
 
 	public AuraFlags Flags => _flags;
 
-	public uint EffectMask => _effectMask;
+	public HashSet<int> EffectMask => _effectMask;
 
 	public bool IsPositive => _flags.HasAnyFlag(AuraFlags.Positive);
 
-	public uint EffectsToApply => _effectsToApply;
+	public HashSet<int> EffectsToApply => _effectsToApply;
 
 	public AuraRemoveMode RemoveMode { get; set; }  // Store info for know remove aura reason
 
@@ -45,7 +44,7 @@ public class AuraApplication
 
 	private bool IsSelfcasted => _flags.HasAnyFlag(AuraFlags.NoCaster);
 
-	public AuraApplication(Unit target, Unit caster, Aura aura, uint effMask)
+	public AuraApplication(Unit target, Unit caster, Aura aura, HashSet<int> effMask)
 	{
 		_target = target;
 		_base = aura;
@@ -113,37 +112,38 @@ public class AuraApplication
             Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
             return;
 		}
-		Cypher.Assert(Convert.ToBoolean((1 << effIndex) & _effectsToApply));
+		Cypher.Assert(_effectsToApply.Contains(effIndex));
 		Log.outDebug(LogFilter.Spells, "AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
 
 		if (apply)
 		{
-			Cypher.Assert(!Convert.ToBoolean(_effectMask & (1 << effIndex)));
-			_effectMask |= (uint)(1 << effIndex);
+			Cypher.Assert(!_effectMask.Contains(effIndex));
+            _effectMask.Add(effIndex);
 			aurEff.HandleEffect(this, AuraEffectHandleModes.Real, true);
-			EffectIndexs.Add(effIndex);
 		}
 		else
 		{
-			Cypher.Assert(Convert.ToBoolean(_effectMask & (1 << effIndex)));
-			_effectMask &= ~(uint)(1 << effIndex);
+			Cypher.Assert(_effectMask.Contains(effIndex));
+			_effectMask.Remove(effIndex);
 			aurEff.HandleEffect(this, AuraEffectHandleModes.Real, false);
-			EffectIndexs.Remove(effIndex);
 		}
 
 		SetNeedClientUpdate();
 	}
 
-	public void UpdateApplyEffectMask(uint newEffMask, bool canHandleNewEffects)
+	public void UpdateApplyEffectMask(HashSet<int> newEffMask, bool canHandleNewEffects)
 	{
-		if (_effectsToApply == newEffMask)
+		if (_effectsToApply.SetEquals(newEffMask))
 			return;
 
-		var removeEffMask = (_effectsToApply ^ newEffMask) & (~newEffMask);
-		var addEffMask = (_effectsToApply ^ newEffMask) & (~_effectsToApply);
+		var addEffMask = newEffMask.ToHashSet();
+		var removeEffMask = _effectsToApply.ToHashSet();
 
-		// quick check, removes application completely
-		if (removeEffMask == _effectsToApply && addEffMask == 0)
+        addEffMask.ExceptWith(_effectsToApply);
+		removeEffMask.ExceptWith(newEffMask);
+
+        // quick check, removes application completely
+        if (removeEffMask.SetEquals(_effectsToApply) && addEffMask.Count == 0)
 		{
 			_target._UnapplyAura(this, AuraRemoveMode.Default);
 
@@ -154,11 +154,11 @@ public class AuraApplication
 
 		foreach (var eff in Base.AuraEffects)
 		{
-			if (HasEffect(eff.Key) && (removeEffMask & (1 << eff.Key)) != 0)
+			if (HasEffect(eff.Key) && removeEffMask.Contains(eff.Key))
 				_HandleEffect(eff.Key, false);
 
 			if (canHandleNewEffects)
-				if ((addEffMask & (1 << eff.Key)) != 0)
+				if (addEffMask.Contains(eff.Key))
 					_HandleEffect(eff.Key, true);
 		}
 
@@ -262,10 +262,10 @@ public class AuraApplication
 
 	public bool HasEffect(int effect)
 	{
-		return Convert.ToBoolean(_effectMask & (1 << effect));
+		return _effectMask.Contains(effect);
 	}
 
-	void _InitFlags(Unit caster, uint effMask)
+	void _InitFlags(Unit caster, HashSet<int> effMask)
 	{
 		// mark as selfcasted if needed
 		_flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;
@@ -277,7 +277,7 @@ public class AuraApplication
 			var negativeFound = false;
 
 			foreach (var spellEffectInfo in Base.SpellInfo.Effects)
-				if (((1 << spellEffectInfo.EffectIndex) & effMask) != 0 && !Base.SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
+				if (effMask.Contains(spellEffectInfo.EffectIndex) && !Base.SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
 				{
 					negativeFound = true;
 
@@ -293,7 +293,7 @@ public class AuraApplication
 			var positiveFound = false;
 
 			foreach (var spellEffectInfo in Base.SpellInfo.Effects)
-				if (((1 << spellEffectInfo.EffectIndex) & effMask) != 0 && Base.SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
+				if (effMask.Contains(spellEffectInfo.EffectIndex) && Base.SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
 				{
 					positiveFound = true;
 
@@ -303,7 +303,7 @@ public class AuraApplication
 			_flags |= positiveFound ? AuraFlags.Positive : AuraFlags.Negative;
 		}
 
-		bool effectNeedsAmount(KeyValuePair<int, AuraEffect> effect) => (EffectsToApply & (1 << effect.Value.EffIndex)) != 0 && Aura.EffectTypeNeedsSendingAmount(effect.Value.AuraType);
+		bool effectNeedsAmount(KeyValuePair<int, AuraEffect> effect) => EffectsToApply.Contains(effect.Value.EffIndex) && Aura.EffectTypeNeedsSendingAmount(effect.Value.AuraType);
 
 		if (Base.SpellInfo.HasAttribute(SpellAttr8.AuraSendAmount) || Base.AuraEffects.Any(effectNeedsAmount))
 			_flags |= AuraFlags.Scalable;

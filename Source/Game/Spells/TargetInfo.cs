@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting.Interfaces.IPlayer;
@@ -153,7 +154,7 @@ public class TargetInfo : TargetInfoBase
 					for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
 					{
 						// in case of immunity, check all effects to choose correct procFlags, as none has technically hit
-						if (EffectMask != 0 && (EffectMask & (1 << i)) == 0)
+						if (!EffectMask.Contains(i))
 							continue;
 
 						if (!spell.SpellInfo.IsPositiveEffect(i))
@@ -392,13 +393,11 @@ public class TargetInfo : TargetInfoBase
 				if (aurApp != null)
 				{
 					// only apply unapplied effects (for reapply case)
-					var effMask = EffectMask & aurApp.EffectsToApply;
+					var effMask =  aurApp.EffectsToApply.ToHashSet();
 
-					for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
-						if ((effMask & (1 << i)) != 0 && aurApp.HasEffect(i))
-							effMask &= ~(1u << i);
+					effMask.ExceptWith(aurApp.EffectsToApply);
 
-					if (effMask != 0)
+					if (effMask.Count != 0)
 						_spellHitTarget._ApplyAura(aurApp, effMask);
 				}
 			}

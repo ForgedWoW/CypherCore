@@ -76,7 +76,7 @@ class SpellCommands
 			return false;
 
 		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, target.Location.MapId, spellId, target.Map.GenerateLowGuid(HighGuid.Cast));
-		AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.DifficultyID, SpellConst.MaxEffectMask, target);
+		AuraCreateInfo createInfo = new(castId, spellInfo, target.Map.DifficultyID, SpellConst.MaxEffects, target);
 		createInfo.SetCaster(target);
 
 		Aura.TryRefreshStackOrCreate(createInfo);

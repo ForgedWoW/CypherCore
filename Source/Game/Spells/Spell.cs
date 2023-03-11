@@ -126,12 +126,12 @@ public partial class Spell : IDisposable
 	// These vars are used in both delayed spell system and modified immediate spell system
 	bool _referencedFromCurrentSpell;
 	bool _executedCurrently;
-	uint _applyMultiplierMask;
+	HashSet<int> _applyMultiplierMask = new();
 	SpellEffectHandleMode _effectHandleMode;
 
 	// -------------------------------------------
 	GameObject _focusObject;
-	uint _channelTargetEffectMask; // Mask req. alive targets
+	HashSet<int> _channelTargetEffectMask = new HashSet<int>(); // Mask req. alive targets
 
 	SpellState _spellState;
 	int _timer;
@@ -369,7 +369,7 @@ public partial class Spell : IDisposable
 		// select targets for cast phase
 		SelectExplicitTargets();
 
-		uint processedAreaEffectsMask = 0;
+		HashSet<int> processedAreaEffectsMask = new HashSet<int>();
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
 		{
@@ -387,8 +387,8 @@ public partial class Spell : IDisposable
 			if (Convert.ToBoolean(implicitTargetMask & (SpellCastTargetFlags.Gameobject | SpellCastTargetFlags.GameobjectItem)))
 				Targets.SetTargetFlag(SpellCastTargetFlags.Gameobject);
 
-			SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, ref processedAreaEffectsMask);
-			SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, ref processedAreaEffectsMask);
+			SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetA, processedAreaEffectsMask);
+			SelectEffectImplicitTargets(spellEffectInfo, spellEffectInfo.TargetB, processedAreaEffectsMask);
 
 			// Select targets of effect based on effect type
 			// those are used when no valid target could be added for spell effect based on spell target type
@@ -404,7 +404,7 @@ public partial class Spell : IDisposable
 			{
 				if (SpellInfo.HasAttribute(SpellAttr1.RequireAllTargets))
 				{
-					var noTargetFound = !UniqueTargetInfo.Any(target => (target.EffectMask & 1 << spellEffectInfo.EffectIndex) != 0);
+					var noTargetFound = !UniqueTargetInfo.Any(target => target.EffectMask.Contains(spellEffectInfo.EffectIndex));
 
 					if (noTargetFound)
 					{
@@ -417,7 +417,7 @@ public partial class Spell : IDisposable
 
 				if (SpellInfo.HasAttribute(SpellAttr2.FailOnAllTargetsImmune))
 				{
-					var anyNonImmuneTargetFound = UniqueTargetInfo.Any(target => (target.EffectMask & 1 << spellEffectInfo.EffectIndex) != 0 && target.MissCondition != SpellMissInfo.Immune && target.MissCondition != SpellMissInfo.Immune2);
+					var anyNonImmuneTargetFound = UniqueTargetInfo.Any(target => target.EffectMask.Contains(spellEffectInfo.EffectIndex) && target.MissCondition != SpellMissInfo.Immune && target.MissCondition != SpellMissInfo.Immune2);
 
 					if (!anyNonImmuneTargetFound)
 					{
@@ -440,12 +440,10 @@ public partial class Spell : IDisposable
 					return;
 				}
 
-				var mask = (1u << spellEffectInfo.EffectIndex);
-
 				foreach (var ihit in UniqueTargetInfo)
-					if (Convert.ToBoolean(ihit.EffectMask & mask))
+					if (ihit.EffectMask.Contains(spellEffectInfo.EffectIndex))
 					{
-						_channelTargetEffectMask |= mask;
+						_channelTargetEffectMask.Add(spellEffectInfo.EffectIndex);
 
 						break;
 					}
@@ -517,22 +515,22 @@ public partial class Spell : IDisposable
 
 	public long GetUnitTargetCountForEffect(int effect)
 	{
-		return UniqueTargetInfo.Count(targetInfo => targetInfo.MissCondition == SpellMissInfo.None && (targetInfo.EffectMask & (1 << effect)) != 0);
+		return UniqueTargetInfo.Count(targetInfo => targetInfo.MissCondition == SpellMissInfo.None && targetInfo.EffectMask.Contains(effect));
 	}
 
 	public long GetGameObjectTargetCountForEffect(int effect)
 	{
-		return _uniqueGoTargetInfo.Count(targetInfo => (targetInfo.EffectMask & (1 << effect)) != 0);
+		return _uniqueGoTargetInfo.Count(targetInfo => targetInfo.EffectMask.Contains(effect));
 	}
 
 	public long GetItemTargetCountForEffect(int effect)
 	{
-		return _uniqueItemInfo.Count(targetInfo => (targetInfo.EffectMask & (1 << effect)) != 0);
+		return _uniqueItemInfo.Count(targetInfo => targetInfo.EffectMask.Contains(effect));
 	}
 
 	public long GetCorpseTargetCountForEffect(int effect)
 	{
-		return _uniqueCorpseTargetInfo.Count(targetInfo => (targetInfo.EffectMask & (1u << effect)) != 0);
+		return _uniqueCorpseTargetInfo.Count(targetInfo => targetInfo.EffectMask.Contains(effect));
 	}
 
 	public SpellMissInfo PreprocessSpellHit(Unit unit, TargetInfo hitInfo)
@@ -614,7 +612,7 @@ public partial class Spell : IDisposable
 			origCaster = _originalCaster;
 
 		// check immunity due to diminishing returns
-		if (Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffectMask, unit) != 0)
+		if (Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit).Count != 0)
 		{
 			foreach (var spellEffectInfo in SpellInfo.Effects)
 				hitInfo.AuraBasePoints[spellEffectInfo.EffectIndex] = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) != 0 ? SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex] : spellEffectInfo.CalcBaseValue(_originalCaster, unit, CastItemEntry, CastItemLevel);
@@ -641,7 +639,7 @@ public partial class Spell : IDisposable
 			if (origCaster == unit || !origCaster.IsFriendlyTo(unit))
 				foreach (var spellEffectInfo in SpellInfo.Effects)
 					// mod duration only for effects applying aura!
-					if ((hitInfo.EffectMask & (1 << spellEffectInfo.EffectIndex)) != 0 &&
+					if (hitInfo.EffectMask.Contains(spellEffectInfo.EffectIndex) &&
 						spellEffectInfo.IsUnitOwnedAuraEffect() &&
 						!SpellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))
 					{
@@ -663,9 +661,9 @@ public partial class Spell : IDisposable
 
 	public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
 	{
-		var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo, 1u << spellEffectInfo.EffectIndex, unit);
+		var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo, new HashSet<int>(spellEffectInfo.EffectIndex), unit);
 
-		if (aura_effmask != 0)
+		if (aura_effmask.Count != 0)
 		{
 			var caster = _caster;
 
@@ -678,7 +676,7 @@ public partial class Spell : IDisposable
 				if (hitInfo.HitAura == null)
 				{
 					var resetPeriodicTimer = (SpellInfo.StackAmount < 2) && !_triggeredCastFlags.HasFlag(TriggerCastFlags.DontResetPeriodicTimer);
-					var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffectMask, unit);
+					var allAuraEffectMask = Aura.BuildEffectMaskForOwner(SpellInfo, SpellConst.MaxEffects, unit);
 
 					AuraCreateInfo createInfo = new(CastId, SpellInfo, GetCastDifficulty(), allAuraEffectMask, unit);
 					createInfo.SetCasterGuid(caster.GUID);
@@ -706,7 +704,7 @@ public partial class Spell : IDisposable
 
 						if (!SpellValue.Duration.HasValue)
 						{
-							hitInfo.AuraDuration = caster.ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.GetEffectMask());
+							hitInfo.AuraDuration = caster.ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.AuraEffects.Keys.ToHashSet());
 
 							if (hitInfo.AuraDuration > 0)
 							{
@@ -1036,7 +1034,7 @@ public partial class Spell : IDisposable
 						var unit = _caster.GUID == ihit.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, ihit.TargetGuid);
 
 						if (unit != null)
-							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, 0, AuraRemoveMode.Cancel);
+							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
 					}
 
 				EndEmpoweredSpell();
@@ -1277,7 +1275,7 @@ public partial class Spell : IDisposable
 							var unit = _caster.GUID == target.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, target.TargetGuid);
 
 							if (unit)
-								unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, 0, AuraRemoveMode.Cancel);
+								unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
 						}
 					}
 
@@ -1941,7 +1939,7 @@ public partial class Spell : IDisposable
 		if (castResult != SpellCastResult.SpellCastOk)
 			return castResult;
 
-		uint approximateAuraEffectMask = 0;
+		HashSet<int> approximateAuraEffectMask = new HashSet<int>();
 		uint nonAuraEffectMask = 0;
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
@@ -2665,7 +2663,7 @@ public partial class Spell : IDisposable
 			}
 
 			if (spellEffectInfo.IsAura())
-				approximateAuraEffectMask |= 1u << spellEffectInfo.EffectIndex;
+				approximateAuraEffectMask.Add(spellEffectInfo.EffectIndex);
 			else if (spellEffectInfo.IsEffect())
 				nonAuraEffectMask |= 1u << spellEffectInfo.EffectIndex;
 		}
@@ -2800,7 +2798,7 @@ public partial class Spell : IDisposable
 			}
 
 			// check if target already has the same type, but more powerful aura
-			if (!SpellInfo.HasAttribute(SpellAttr4.AuraNeverBounces) && (nonAuraEffectMask == 0 || SpellInfo.HasAttribute(SpellAttr4.AuraBounceFailsSpell)) && (approximateAuraEffectMask & (1 << spellEffectInfo.EffectIndex)) != 0 && !SpellInfo.IsTargetingArea)
+			if (!SpellInfo.HasAttribute(SpellAttr4.AuraNeverBounces) && (nonAuraEffectMask == 0 || SpellInfo.HasAttribute(SpellAttr4.AuraBounceFailsSpell)) && approximateAuraEffectMask.Contains(spellEffectInfo.EffectIndex) && !SpellInfo.IsTargetingArea)
 			{
 				var target = Targets.UnitTarget;
 
@@ -3453,12 +3451,10 @@ public partial class Spell : IDisposable
 		return 0;
 	}
 
-	void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, ref uint processedEffectMask)
+	void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> processedEffectMask)
 	{
 		if (targetType.Target == 0)
 			return;
-
-		var effectMask = (1u << spellEffectInfo.EffectIndex);
 
 		// set the same target list for all effects
 		// some spells appear to need this, however this requires more research
@@ -3470,22 +3466,24 @@ public partial class Spell : IDisposable
 			case SpellTargetSelectionCategories.Line:
 			{
 				// targets for effect already selected
-				if (Convert.ToBoolean(effectMask & processedEffectMask))
+				if (processedEffectMask.Contains(spellEffectInfo.EffectIndex))
 					return;
 
-				var effects = SpellInfo.Effects;
-
+				var j = 0;
 				// choose which targets we can select at once
-				for (var j = spellEffectInfo.EffectIndex + 1; j < effects.Count; ++j)
-					if (effects[j].IsEffect() &&
-						spellEffectInfo.TargetA.Target == effects[j].TargetA.Target &&
-						spellEffectInfo.TargetB.Target == effects[j].TargetB.Target &&
-						spellEffectInfo.ImplicitTargetConditions == effects[j].ImplicitTargetConditions &&
-						spellEffectInfo.CalcRadius(_caster) == effects[j].CalcRadius(_caster) &&
+				foreach (var effect in SpellInfo.Effects)
+				{
+					if (effect.IsEffect() &&
+						spellEffectInfo.TargetA.Target == effect.TargetA.Target &&
+						spellEffectInfo.TargetB.Target == effect.TargetB.Target &&
+						spellEffectInfo.ImplicitTargetConditions == effect.ImplicitTargetConditions &&
+						spellEffectInfo.CalcRadius(_caster) == effect.CalcRadius(_caster) &&
 						CheckScriptEffectImplicitTargets(spellEffectInfo.EffectIndex, j))
-						effectMask |= 1u << j;
+						processedEffectMask.Add(j);
 
-				processedEffectMask |= effectMask;
+					j++;
+				}
+
 
 				break;
 			}
@@ -3500,15 +3498,15 @@ public partial class Spell : IDisposable
 
 				break;
 			case SpellTargetSelectionCategories.Nearby:
-				SelectImplicitNearbyTargets(spellEffectInfo, targetType, effectMask);
+				SelectImplicitNearbyTargets(spellEffectInfo, targetType, processedEffectMask);
 
 				break;
 			case SpellTargetSelectionCategories.Cone:
-				SelectImplicitConeTargets(spellEffectInfo, targetType, effectMask);
+				SelectImplicitConeTargets(spellEffectInfo, targetType, processedEffectMask);
 
 				break;
 			case SpellTargetSelectionCategories.Area:
-				SelectImplicitAreaTargets(spellEffectInfo, targetType, effectMask);
+				SelectImplicitAreaTargets(spellEffectInfo, targetType, processedEffectMask);
 
 				break;
 			case SpellTargetSelectionCategories.Traj:
@@ -3519,7 +3517,7 @@ public partial class Spell : IDisposable
 
 				break;
 			case SpellTargetSelectionCategories.Line:
-				SelectImplicitLineTargets(spellEffectInfo, targetType, effectMask);
+				SelectImplicitLineTargets(spellEffectInfo, targetType, processedEffectMask);
 
 				break;
 			case SpellTargetSelectionCategories.Default:
@@ -3623,7 +3621,7 @@ public partial class Spell : IDisposable
 					var unitTarget = target ? target.AsUnit : null;
 
 					if (unitTarget)
-						AddUnitTarget(unitTarget, 1u << spellEffectInfo.EffectIndex);
+						AddUnitTarget(unitTarget, spellEffectInfo.EffectIndex);
 					else
 						Log.outDebug(LogFilter.Spells, "SPELL: cannot find channel spell target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
 				}
@@ -3683,7 +3681,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, uint effMask)
+	void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
 		{
@@ -3866,7 +3864,7 @@ public partial class Spell : IDisposable
 		SelectImplicitChainTargets(spellEffectInfo, targetType, target, effMask);
 	}
 
-	void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, uint effMask)
+	void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		Position coneSrc = new(_caster.Location);
 		var coneAngle = SpellInfo.ConeAngle;
@@ -3932,7 +3930,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, uint effMask)
+	void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		WorldObject referer;
 
@@ -3954,7 +3952,7 @@ public partial class Spell : IDisposable
 
 				// find last added target for this effect
 				foreach (var target in UniqueTargetInfo)
-					if (Convert.ToBoolean(target.EffectMask & (1 << spellEffectInfo.EffectIndex)))
+					if (target.EffectMask.Contains(spellEffectInfo.EffectIndex))
 					{
 						referer = Global.ObjAccessor.GetUnit(_caster, target.TargetGuid);
 
@@ -4463,11 +4461,11 @@ public partial class Spell : IDisposable
 		if (target)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, checkIfValid);
+				AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, checkIfValid);
 			else if (target.IsGameObject)
-				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
 		}
 	}
 
@@ -4482,22 +4480,27 @@ public partial class Spell : IDisposable
 		if (target != null)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, true, false);
+				AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, true, false);
 			else if (target.IsGameObject)
-				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
 
-			SelectImplicitChainTargets(spellEffectInfo, targetType, target, 1u << spellEffectInfo.EffectIndex);
+			SelectImplicitChainTargets(spellEffectInfo, targetType, target, spellEffectInfo.EffectIndex);
 		}
 		// Script hook can remove object target and we would wrongly land here
 		else if (item != null)
 		{
-			AddItemTarget(item, 1u << spellEffectInfo.EffectIndex);
+			AddItemTarget(item, spellEffectInfo.EffectIndex);
 		}
 	}
 
-	void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, uint effMask)
+    void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, int effIndex)
+	{
+		SelectImplicitChainTargets(spellEffectInfo, targetType, target, new HashSet<int>() { effIndex });
+	}
+
+    void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, HashSet<int> effMask)
 	{
 		var maxTargets = spellEffectInfo.ChainTargets;
 		var modOwner = _caster.SpellModOwner;
@@ -4508,11 +4511,11 @@ public partial class Spell : IDisposable
 		if (maxTargets > 1)
 		{
 			// mark damage multipliers as used
-			for (var k = spellEffectInfo.EffectIndex; k < SpellInfo.Effects.Count; ++k)
-				if (Convert.ToBoolean(effMask & (1 << k)))
+			foreach (var eff in SpellInfo.Effects)
+				if (effMask.Contains(eff.EffectIndex))
 					_damageMultipliers[spellEffectInfo.EffectIndex] = 1.0f;
 
-			_applyMultiplierMask |= effMask;
+			_applyMultiplierMask.Union(effMask);
 
 			List<WorldObject> targets = new();
 			SearchChainTargets(targets, (uint)maxTargets - 1, target, targetType.ObjectType, targetType.CheckType, spellEffectInfo, targetType.Target == Framework.Constants.Targets.UnitChainhealAlly);
@@ -4642,7 +4645,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, uint effMask)
+	void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		List<WorldObject> targets = new();
 		var objectType = targetType.ObjectType;
@@ -4802,7 +4805,7 @@ public partial class Spell : IDisposable
 					var itemTarget = Targets.ItemTarget;
 
 					if (itemTarget != null)
-						AddItemTarget(itemTarget, (uint)(1 << spellEffectInfo.EffectIndex));
+						AddItemTarget(itemTarget, spellEffectInfo.EffectIndex);
 
 					return;
 				}
@@ -4826,11 +4829,11 @@ public partial class Spell : IDisposable
 		if (target != null)
 		{
 			if (target.IsUnit)
-				AddUnitTarget(target.AsUnit, 1u << spellEffectInfo.EffectIndex, false);
+				AddUnitTarget(target.AsUnit, spellEffectInfo.EffectIndex, false);
 			else if (target.IsGameObject)
-				AddGOTarget(target.AsGameObject, 1u << spellEffectInfo.EffectIndex);
+				AddGOTarget(target.AsGameObject, spellEffectInfo.EffectIndex);
 			else if (target.IsCorpse)
-				AddCorpseTarget(target.AsCorpse, 1u << spellEffectInfo.EffectIndex);
+				AddCorpseTarget(target.AsCorpse, spellEffectInfo.EffectIndex);
 		}
 	}
 
@@ -5052,14 +5055,21 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void AddUnitTarget(Unit target, uint effectMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+    void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
 	{
-		foreach (var spellEffectInfo in SpellInfo.Effects)
+        AddUnitTarget(target, new HashSet<int>() { effIndex}, checkIfValid, Implicit, losPosition);
+    }
+
+    void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+	{
+		var effectMask = efftMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(target, spellEffectInfo, losPosition))
-				effectMask &= ~(1u << spellEffectInfo.EffectIndex);
+				effectMask.Remove(spellEffectInfo.EffectIndex);
 
 		// no effects left
-		if (effectMask == 0)
+		if (effectMask.Count == 0)
 			return;
 
 		if (checkIfValid)
@@ -5069,7 +5079,7 @@ public partial class Spell : IDisposable
 		// Check for effect immune skip if immuned
 		foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (target.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, _caster))
-				effectMask &= ~(1u << spellEffectInfo.EffectIndex);
+				effectMask.Remove(spellEffectInfo.EffectIndex);
 
 		var targetGUID = target.GUID;
 
@@ -5079,7 +5089,7 @@ public partial class Spell : IDisposable
 		if (index != -1) // Found in list
 		{
 			// Immune effects removed from mask
-			UniqueTargetInfo[index].EffectMask |= effectMask;
+			UniqueTargetInfo[index].EffectMask.ExceptWith(effectMask);
 
 			return;
 		}
@@ -5105,7 +5115,8 @@ public partial class Spell : IDisposable
 
 			if (SpellInfo.HasAttribute(SpellAttr4.BouncyChainMissiles))
 			{
-				var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.EffectMask & effectMask) != 0);
+				var mask = effectMask.Hash();
+                var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.EffectMask.Hash() & mask) != 0);
 
 				if (previousTargetInfo != null)
 				{
@@ -5166,14 +5177,22 @@ public partial class Spell : IDisposable
 		UniqueTargetInfoOrgi.Add(targetInfo);
 	}
 
-	void AddGOTarget(GameObject go, uint effectMask)
+    void AddGOTarget(GameObject go, int effIndex)
 	{
-		foreach (var spellEffectInfo in SpellInfo.Effects)
+		AddGOTarget(go, new HashSet<int>() { effIndex });
+	}
+
+
+    void AddGOTarget(GameObject go, HashSet<int> effMask)
+	{
+		var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(go, spellEffectInfo))
-				effectMask &= ~(1u << spellEffectInfo.EffectIndex);
+				effectMask.Remove(spellEffectInfo.EffectIndex);
 
 		// no effects left
-		if (effectMask == 0)
+		if (effectMask.Count == 0)
 			return;
 
 		var targetGUID = go.GUID;
@@ -5184,7 +5203,7 @@ public partial class Spell : IDisposable
 		if (index != -1) // Found in list
 		{
 			// Add only effect mask
-			_uniqueGoTargetInfo[index].EffectMask |= effectMask;
+			_uniqueGoTargetInfo[index].EffectMask.UnionWith(effectMask);
 
 			return;
 		}
@@ -5225,14 +5244,21 @@ public partial class Spell : IDisposable
 		_uniqueGoTargetInfo.Add(target);
 	}
 
-	void AddItemTarget(Item item, uint effectMask)
+    void AddItemTarget(Item item, int effectIndex)
 	{
-		foreach (var spellEffectInfo in SpellInfo.Effects)
+		AddItemTarget(item, new HashSet<int>() { effectIndex });
+	}
+
+    void AddItemTarget(Item item, HashSet<int> effMask)
+	{
+		var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(item, spellEffectInfo))
-				effectMask &= ~(1u << spellEffectInfo.EffectIndex);
+				effectMask.Remove(spellEffectInfo.EffectIndex);
 
 		// no effects left
-		if (effectMask == 0)
+		if (effectMask.Count == 0)
 			return;
 
 		// Lookup target in already in list
@@ -5241,7 +5267,7 @@ public partial class Spell : IDisposable
 		if (index != -1) // Found in list
 		{
 			// Add only effect mask
-			_uniqueItemInfo[index].EffectMask |= effectMask;
+			_uniqueItemInfo[index].EffectMask.Union(effectMask);
 
 			return;
 		}
@@ -5255,14 +5281,22 @@ public partial class Spell : IDisposable
 		_uniqueItemInfo.Add(target);
 	}
 
-	void AddCorpseTarget(Corpse corpse, uint effectMask)
+    void AddCorpseTarget(Corpse corpse, int effIndex)
 	{
-		foreach (var spellEffectInfo in SpellInfo.Effects)
+		AddCorpseTarget(corpse, new HashSet<int>() { effIndex });
+	}
+
+
+    void AddCorpseTarget(Corpse corpse, HashSet<int> effMask)
+	{
+		var effectMask = effMask.ToHashSet();
+
+        foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (!spellEffectInfo.IsEffect())
-				effectMask &= ~(1u << spellEffectInfo.EffectIndex);
+				effectMask.Remove(spellEffectInfo.EffectIndex);
 
 		// no effects left
-		if (effectMask == 0)
+		if (effectMask.Count == 0)
 			return;
 
 		var targetGUID = corpse.GUID;
@@ -5273,7 +5307,7 @@ public partial class Spell : IDisposable
 		if (corpseTargetInfo != null) // Found in list
 		{
 			// Add only effect mask
-			corpseTargetInfo.EffectMask |= effectMask;
+			corpseTargetInfo.EffectMask.Union(effectMask);
 
 			return;
 		}
@@ -5322,21 +5356,21 @@ public partial class Spell : IDisposable
 	bool UpdateChanneledTargetList()
 	{
 		// Not need check return true
-		if (_channelTargetEffectMask == 0)
+		if (_channelTargetEffectMask.Count == 0)
 			return true;
 
 		var channelTargetEffectMask = _channelTargetEffectMask;
-		uint channelAuraMask = 0;
+		HashSet<int> channelAuraMask = new HashSet<int>();
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
-				channelAuraMask |= 1u << spellEffectInfo.EffectIndex;
+				channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
-		channelAuraMask &= channelTargetEffectMask;
+		channelAuraMask.UnionWith(channelTargetEffectMask);
 
 		float range = 0;
 
-		if (channelAuraMask != 0)
+		if (channelAuraMask.Count != 0)
 		{
 			range = SpellInfo.GetMaxRange(IsPositive());
 			var modOwner = _caster.SpellModOwner;
@@ -5349,7 +5383,7 @@ public partial class Spell : IDisposable
 		}
 
 		foreach (var targetInfo in UniqueTargetInfo)
-			if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask & targetInfo.EffectMask))
+			if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.Hash() & targetInfo.EffectMask.Hash()))
 			{
 				var unit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 
@@ -5365,7 +5399,7 @@ public partial class Spell : IDisposable
 
 				if (IsValidDeadOrAliveTarget(unit))
 				{
-					if (Convert.ToBoolean(channelAuraMask & targetInfo.EffectMask))
+					if (Convert.ToBoolean(channelAuraMask.Hash() & targetInfo.EffectMask.Hash()))
 					{
 						var aurApp = unit.GetAuraApplication(SpellInfo.Id, _originalCasterGuid);
 
@@ -5373,7 +5407,7 @@ public partial class Spell : IDisposable
 						{
 							if (_caster != unit && !_caster.IsWithinDistInMap(unit, range))
 							{
-								targetInfo.EffectMask &= ~aurApp.EffectMask;
+								targetInfo.EffectMask.ExceptWith(aurApp.EffectMask);
 								unit.RemoveAura(aurApp);
 								var unitCaster = _caster.AsUnit;
 
@@ -5394,12 +5428,12 @@ public partial class Spell : IDisposable
 						}
 					}
 
-					channelTargetEffectMask &= ~targetInfo.EffectMask; // remove from need alive mask effect that have alive target
+					channelTargetEffectMask.ExceptWith(targetInfo.EffectMask); // remove from need alive mask effect that have alive target
 				}
 			}
 
 		// is all effects from m_needAliveTargetMask have alive targets
-		return channelTargetEffectMask == 0;
+		return channelTargetEffectMask.Count == 0;
 	}
 
 	void _cast(bool skipCheck = false)
@@ -5746,7 +5780,7 @@ public partial class Spell : IDisposable
 		foreach (var spellEffectInfo in SpellInfo.Effects)
 		{
 			foreach (TargetInfoBase target in targetContainer)
-				if ((target.EffectMask & (1 << spellEffectInfo.EffectIndex)) != 0)
+				if (target.EffectMask.Contains(spellEffectInfo.EffectIndex))
 					target.DoTargetSpellHit(this, spellEffectInfo);
 		}
 
@@ -6441,7 +6475,7 @@ public partial class Spell : IDisposable
 		// m_needAliveTargetMask req for stop channelig if one target die
 		foreach (var targetInfo in UniqueTargetInfo)
 		{
-			if (targetInfo.EffectMask == 0) // No effect apply - all immuned add state
+			if (targetInfo.EffectMask.Count == 0) // No effect apply - all immuned add state
 				// possibly SPELL_MISS_IMMUNE2 for this??
 				targetInfo.MissCondition = SpellMissInfo.Immune2;
 
@@ -6450,7 +6484,7 @@ public partial class Spell : IDisposable
 				data.HitTargets.Add(targetInfo.TargetGuid);
 				data.HitStatus.Add(new SpellHitStatus(SpellMissInfo.None));
 
-				_channelTargetEffectMask |= targetInfo.EffectMask;
+				_channelTargetEffectMask.Union(targetInfo.EffectMask);
 			}
 			else // misses
 			{
@@ -6468,7 +6502,7 @@ public partial class Spell : IDisposable
 
 		// Reset m_needAliveTargetMask for non channeled spell
 		if (!SpellInfo.IsChanneled)
-			_channelTargetEffectMask = 0;
+			_channelTargetEffectMask.Clear();
 	}
 
 	void UpdateSpellCastDataAmmo(SpellAmmo ammo)
@@ -6716,8 +6750,8 @@ public partial class Spell : IDisposable
 
 		if (!Targets.HasDst)
 		{
-			uint channelAuraMask = 0;
-			var explicitTargetEffectMask = 0xFFFFFFFF;
+			HashSet<int> channelAuraMask = new HashSet<int>();
+			var explicitTargetEffectMask = SpellConst.MaxEffects;
 
 			// if there is an explicit target, only add channel objects from effects that also hit ut
 			if (!Targets.UnitTargetGUID.IsEmpty)
@@ -6729,12 +6763,14 @@ public partial class Spell : IDisposable
 			}
 
 			foreach (var spellEffectInfo in SpellInfo.Effects)
-				if (spellEffectInfo.Effect == SpellEffectName.ApplyAura && (explicitTargetEffectMask & (1u << spellEffectInfo.EffectIndex)) != 0)
-					channelAuraMask |= 1u << spellEffectInfo.EffectIndex;
+				if (spellEffectInfo.Effect == SpellEffectName.ApplyAura && explicitTargetEffectMask.Contains(spellEffectInfo.EffectIndex))
+					channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
-			foreach (var target in UniqueTargetInfo)
+			var chanMask = channelAuraMask.Hash();
+
+            foreach (var target in UniqueTargetInfo)
 			{
-				if ((target.EffectMask & channelAuraMask) == 0)
+				if ((target.EffectMask.Hash() & chanMask) == 0)
 					continue;
 
 				var requiredAttribute = target.TargetGuid != unitCaster.GUID ? SpellAttr1.IsChannelled : SpellAttr1.IsSelfChannelled;
@@ -6746,7 +6782,7 @@ public partial class Spell : IDisposable
 			}
 
 			foreach (var target in _uniqueGoTargetInfo)
-				if ((target.EffectMask & channelAuraMask) != 0)
+				if ((target.EffectMask.Hash() & chanMask) != 0)
 					unitCaster.AddChannelObject(target.TargetGUID);
 		}
 		else if (SpellInfo.HasAttribute(SpellAttr1.IsSelfChannelled))
@@ -8406,14 +8442,14 @@ public partial class Spell : IDisposable
 		{
 			double multiplier = 1.0f;
 
-			if ((_applyMultiplierMask & (1 << spellEffectInfo.EffectIndex)) != 0)
+			if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
 				multiplier = spellEffectInfo.CalcDamageMultiplier(_originalCaster, this);
 
 			foreach (var target in UniqueTargetInfo)
 			{
 				var mask = target.EffectMask;
 
-				if ((mask & (1 << spellEffectInfo.EffectIndex)) == 0)
+				if (!mask.Contains(spellEffectInfo.EffectIndex))
 					continue;
 
 				DoEffectOnLaunchTarget(target, multiplier, spellEffectInfo);
@@ -8493,7 +8529,7 @@ public partial class Spell : IDisposable
 				}
 			}
 
-		if ((_applyMultiplierMask & (1 << spellEffectInfo.EffectIndex)) != 0)
+		if (_applyMultiplierMask.Contains(spellEffectInfo.EffectIndex))
 		{
 			DamageInEffects = (int)(DamageInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);
 			HealingInEffects = (int)(HealingInEffects * _damageMultipliers[spellEffectInfo.EffectIndex]);

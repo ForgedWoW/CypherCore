@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
@@ -10,7 +11,7 @@ namespace Game.Spells;
 
 public class UnitAura : Aura
 {
-	readonly Dictionary<ObjectGuid, uint> _staticApplications = new(); // non-area auras
+	readonly Dictionary<ObjectGuid, HashSet<int>> _staticApplications = new(); // non-area auras
 
 	DiminishingGroup _mAuraDrGroup; // Diminishing
 
@@ -49,9 +50,10 @@ public class UnitAura : Aura
 		base.Remove(removeMode);
 	}
 
-	public override void FillTargetMap(ref Dictionary<Unit, uint> targets, Unit caster)
-	{
-		var refe = caster;
+	public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
+    {
+        var targets = new Dictionary<Unit, HashSet<int>>();
+        var refe = caster;
 
 		if (refe == null)
 			refe = OwnerAsUnit;
@@ -164,27 +166,31 @@ public class UnitAura : Aura
 			foreach (var unit in units)
 			{
 				if (!targets.ContainsKey(unit))
-					targets[unit] = 0;
+					targets[unit] = new HashSet<int>();
 
-				targets[unit] |= 1u << spellEffectInfo.EffectIndex;
+				targets[unit].Add(spellEffectInfo.EffectIndex);
 			}
 		}
-	}
 
-	public void AddStaticApplication(Unit target, uint effMask)
+		return targets;
+
+    }
+
+	public void AddStaticApplication(Unit target, HashSet<int> effectMask)
 	{
-		// only valid for non-area auras
-		foreach (var spellEffectInfo in SpellInfo.Effects)
-			if ((effMask & (1u << spellEffectInfo.EffectIndex)) != 0 && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
-				effMask &= ~(1u << spellEffectInfo.EffectIndex);
+		var effMask = effectMask.ToHashSet();
+        // only valid for non-area auras
+        foreach (var spellEffectInfo in SpellInfo.Effects)
+			if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
+				effMask.Remove(spellEffectInfo.EffectIndex);
 
-		if (effMask == 0)
+		if (effMask.Count == 0)
 			return;
 
 		if (!_staticApplications.ContainsKey(target.GUID))
-			_staticApplications[target.GUID] = 0;
+			_staticApplications[target.GUID] = new HashSet<int>();
 
-		_staticApplications[target.GUID] |= effMask;
+		_staticApplications[target.GUID].UnionWith(effMask);
 	}
 
 	// Allow Apply Aura Handler to modify and access m_AuraDRGroup

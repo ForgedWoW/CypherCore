@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Framework.Collections;
 
 namespace System.Collections.Generic
@@ -620,17 +621,6 @@ namespace System.Collections.Generic
             return dict.TryGetValue(key, out var list) && list.Contains(val);
         }
 
-        public static bool AddRange<T>(this HashSet<T> set, IEnumerable<T> values)
-        {
-            bool added = true;
-
-            foreach (var item in values)
-                if (!set.Add(item))
-                    added = false;
-
-            return added;
-        }
-
         public static ManyToOneLookup<TKey, TValue> ToManyToOneLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
             var manyToOne = new ManyToOneLookup<TKey, TValue>(keyComparer, valueComparer);
@@ -644,6 +634,24 @@ namespace System.Collections.Generic
             }
 
             return manyToOne;
+        }
+
+        public static HashSet<int> Fill(this HashSet<int> set, int max)
+        {
+            for (int i = 0; i <= max; i++)
+                set.Add(i);
+
+            return set;
+        }
+
+        public static int Hash(this IEnumerable<int> set)
+        {
+            var hash = 0;   
+
+            foreach (var  i in set)
+                hash |= (1 << i);
+
+            return hash;
         }
     }
 }

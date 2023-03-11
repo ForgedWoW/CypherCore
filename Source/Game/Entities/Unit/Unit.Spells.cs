@@ -2539,10 +2539,10 @@ public partial class Unit
 		if (spellInfo == null)
 			return null;
 
-		return AddAura(spellInfo, SpellConst.MaxEffectMask, target);
+		return AddAura(spellInfo, SpellConst.MaxEffects, target);
 	}
 
-	public Aura AddAura(SpellInfo spellInfo, uint effMask, Unit target)
+	public Aura AddAura(SpellInfo spellInfo, HashSet<int> effMask, Unit target)
 	{
 		if (spellInfo == null)
 			return null;
@@ -2555,14 +2555,14 @@ public partial class Unit
 
 		foreach (var spellEffectInfo in spellInfo.Effects)
 		{
-			if ((effMask & (1 << (int)spellEffectInfo.EffectIndex)) == 0)
+			if (!effMask.Contains(spellEffectInfo.EffectIndex))
 				continue;
 
 			if (target.IsImmunedToSpellEffect(spellInfo, spellEffectInfo, this))
-				effMask &= ~(1u << (int)spellEffectInfo.EffectIndex);
+				effMask.Remove(spellEffectInfo.EffectIndex);
 		}
 
-		if (effMask == 0)
+		if (effMask.Count == 0)
 			return null;
 
 		var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
@@ -2648,7 +2648,7 @@ public partial class Unit
 
 					bp[i] = seatId;
 
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffects, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetBaseAmount(bp);
 					createInfo.SetCasterGuid(origCasterGUID);
@@ -2664,7 +2664,7 @@ public partial class Unit
 				}
 				else
 				{
-					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffectMask, this);
+					AuraCreateInfo createInfo = new(ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellEntry.Id, Map.GenerateLowGuid(HighGuid.Cast)), spellEntry, Map.DifficultyID, SpellConst.MaxEffects, this);
 					createInfo.SetCaster(clicker);
 					createInfo.SetCasterGuid(origCasterGUID);
 
@@ -2686,19 +2686,14 @@ public partial class Unit
 		return GetAuraApplication(Convert.ToUInt32(spellId)).Any();
 	}
 
-	public bool HasAura<T>(T spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0) where T : struct, Enum
-	{
-		return GetAuraApplication(Convert.ToUInt32(spellId), casterGUID, itemCasterGUID, reqEffMask) != null;
-	}
-
 	public bool HasAura(uint spellId)
 	{
 		return GetAuraApplication(spellId).Any();
 	}
 
-	public bool HasAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0)
+	public bool HasAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default)
 	{
-		return GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask) != null;
+		return GetAuraApplication(spellId, casterGUID, itemCasterGUID) != null;
 	}
 
 	public bool HasAuraEffect(uint spellId, int effIndex, ObjectGuid casterGUID = default)
@@ -2978,7 +2973,7 @@ public partial class Unit
 		{
 			Dictionary<int, double> damage = new();
 			Dictionary<int, double> baseDamage = new();
-			uint effMask = 0;
+			HashSet<int> effMask = new HashSet<int>();
 			uint recalculateMask = 0;
 			var caster = aura.Caster;
 
@@ -2987,7 +2982,7 @@ public partial class Unit
 				var index = effect.Value.EffIndex;
 				baseDamage[index] = effect.Value.BaseAmount;
 				damage[index] = effect.Value.Amount;
-				effMask |= 1u << index;
+				effMask.Add(index);
 
 				if (effect.Value.CanBeRecalculated())
 					recalculateMask |= 1u << index;
@@ -3129,13 +3124,12 @@ public partial class Unit
 		aura._Remove(removeMode);
 	}
 
-	public void RemoveOwnedAura(uint spellId, ObjectGuid casterGUID = default, uint reqEffMask = 0, AuraRemoveMode removeMode = AuraRemoveMode.Default)
+	public void RemoveOwnedAura(uint spellId, ObjectGuid casterGUID = default, AuraRemoveMode removeMode = AuraRemoveMode.Default)
 	{
 		_ownedAuras.Query()
 					.HasSpellId(spellId)
 					.HasCasterGuid(casterGUID)
-					.AlsoMatches(aura => (aura.GetEffectMask() & reqEffMask) == reqEffMask)
-					.Execute(RemoveOwnedAura);
+                    .Execute(RemoveOwnedAura);
 	}
 
 	public void RemoveOwnedAura(Aura auraToRemove, AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -3603,7 +3597,7 @@ public partial class Unit
 				aurApp._HandleEffect(effect.Key, false);
 
 		// all effect mustn't be applied
-		Cypher.Assert(aurApp.EffectMask == 0);
+		Cypher.Assert(aurApp.EffectMask.Count == 0);
 
 		// Remove totem at next update if totem loses its aura
 		if (aurApp.RemoveMode == AuraRemoveMode.Expire && IsTypeId(TypeId.Unit) && IsTotem)
@@ -3708,21 +3702,12 @@ public partial class Unit
 		return _appliedAuras.Query().HasSpellId(spellId).GetResults();
 	}
 
-	public AuraApplication GetAuraApplication(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0, AuraApplication except = null)
+	public AuraApplication GetAuraApplication(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default)
 	{
 		return _appliedAuras.Query()
 							.HasSpellId(spellId)
 							.HasCasterGuid(casterGUID)
 							.HasCastItemGuid(itemCasterGUID)
-							.AlsoMatches(app =>
-							{
-								var aura = app.Base;
-
-								if (((aura.GetEffectMask() & reqEffMask) == reqEffMask) && (except == null || except != app))
-									return true;
-
-								return false;
-							})
 							.GetResults()
 							.FirstOrDefault();
 	}
@@ -3749,9 +3734,9 @@ public partial class Unit
 		return GetAura(Convert.ToUInt32(spellId));
 	}
 
-	public Aura GetAura<T>(T spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0) where T : struct, Enum
+	public Aura GetAura<T>(T spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default) where T : struct, Enum
 	{
-		return GetAura(Convert.ToUInt32(spellId), casterGUID, itemCasterGUID, reqEffMask);
+		return GetAura(Convert.ToUInt32(spellId), casterGUID, itemCasterGUID);
 	}
 
 	public bool TryGetAura(uint spellId, out Aura aura)
@@ -3768,9 +3753,9 @@ public partial class Unit
 		return aurApp?.Base;
 	}
 
-	public Aura GetAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0)
+	public Aura GetAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default)
 	{
-		var aurApp = GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask);
+		var aurApp = GetAuraApplication(spellId, casterGUID, itemCasterGUID);
 
 		return aurApp?.Base;
 	}
@@ -3794,15 +3779,21 @@ public partial class Unit
 		var aurApp = aura.GetApplicationOfTarget(GUID);
 		Cypher.Assert(aurApp != null);
 
-		if (aurApp.EffectMask == 0)
-			_ApplyAura(aurApp, (uint)(1 << effIndex));
+		if (aurApp.EffectMask.Count == 0)
+			_ApplyAura(aurApp, effIndex);
 		else
 			aurApp._HandleEffect(effIndex, true);
 	}
 
-	// handles effects of aura application
-	// should be done after registering aura in lists
-	public void _ApplyAura(AuraApplication aurApp, uint effMask)
+    public void _ApplyAura(AuraApplication aurApp, int effIndex)
+	{
+        _ApplyAura(aurApp, new HashSet<int>() { effIndex });
+
+    }
+
+    // handles effects of aura application
+    // should be done after registering aura in lists
+    public void _ApplyAura(AuraApplication aurApp, HashSet<int> effMask)
 	{
 		var aura = aurApp.Base;
 
@@ -3846,7 +3837,7 @@ public partial class Unit
 
 		// apply effects of the aura
 		foreach (var effect in aurApp.Base.AuraEffects)
-			if (Convert.ToBoolean(effMask & 1 << effect.Key) && !(aurApp.HasRemoveMode))
+			if (effMask.Contains(effect.Key) && !(aurApp.HasRemoveMode))
 				aurApp._HandleEffect(effect.Key, true);
 
 		var player = AsPlayer;
@@ -3900,28 +3891,28 @@ public partial class Unit
 		Cypher.Assert(!createInfo.CasterGuid.IsEmpty || createInfo.Caster);
 
 		// Check if these can stack anyway
-		if (createInfo.CasterGuid.IsEmpty && !createInfo.GetSpellInfo().IsStackableOnOneSlotWithDifferentCasters)
+		if (createInfo.CasterGuid.IsEmpty && !createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters)
 			createInfo.CasterGuid = createInfo.Caster.GUID;
 
 		// passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-		if (!createInfo.GetSpellInfo().IsMultiSlotAura)
+		if (!createInfo.SpellInfo.IsMultiSlotAura)
 		{
 			// check if cast item changed
 			var castItemGUID = createInfo.CastItemGuid;
 
 			// find current aura from spell and change it's stackamount, or refresh it's duration
-			var foundAura = GetOwnedAura(createInfo.GetSpellInfo().Id, createInfo.GetSpellInfo().IsStackableOnOneSlotWithDifferentCasters ? ObjectGuid.Empty : createInfo.CasterGuid, createInfo.GetSpellInfo().HasAttribute(SpellCustomAttributes.EnchantProc) ? castItemGUID : ObjectGuid.Empty, 0);
+			var foundAura = GetOwnedAura(createInfo.SpellInfo.Id, createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters ? ObjectGuid.Empty : createInfo.CasterGuid, createInfo.SpellInfo.HasAttribute(SpellCustomAttributes.EnchantProc) ? castItemGUID : ObjectGuid.Empty);
 
 			if (foundAura != null)
 			{
 				// effect masks do not match
 				// extremely rare case
 				// let's just recreate aura
-				if (createInfo.GetAuraEffectMask() != foundAura.GetEffectMask())
+				if (!createInfo.AuraEffectMask.SetEquals(foundAura.AuraEffects.Keys))
 					return null;
 
 				// update basepoints with new values - effect amount will be recalculated in ModStackAmount
-				foreach (var spellEffectInfo in createInfo.GetSpellInfo().Effects)
+				foreach (var spellEffectInfo in createInfo.SpellInfo.Effects)
 				{
 					var auraEff = foundAura.GetEffect(spellEffectInfo.EffectIndex);
 
@@ -3981,13 +3972,13 @@ public partial class Unit
 	public bool IsHighestExclusiveAura(Aura aura, bool removeOtherAuraApplications = false)
 	{
 		foreach (var aurEff in aura.AuraEffects)
-			if (!IsHighestExclusiveAuraEffect(aura.SpellInfo, aurEff.Value.AuraType, aurEff.Value.Amount, aura.GetEffectMask(), removeOtherAuraApplications))
+			if (!IsHighestExclusiveAuraEffect(aura.SpellInfo, aurEff.Value.AuraType, aurEff.Value.Amount, aura.AuraEffects.Keys.ToHashSet(), removeOtherAuraApplications))
 				return false;
 
 		return true;
 	}
 
-	public bool IsHighestExclusiveAuraEffect(SpellInfo spellInfo, AuraType auraType, double effectAmount, uint auraEffectMask, bool removeOtherAuraApplications = false)
+	public bool IsHighestExclusiveAuraEffect(SpellInfo spellInfo, AuraType auraType, double effectAmount, HashSet<int> auraEffectMask, bool removeOtherAuraApplications = false)
 	{
 		var auras = GetAuraEffectsByType(auraType);
 
@@ -3995,10 +3986,11 @@ public partial class Unit
 			if (Global.SpellMgr.CheckSpellGroupStackRules(spellInfo, existingAurEff.SpellInfo) == SpellGroupStackRule.ExclusiveHighest)
 			{
 				var diff = Math.Abs(effectAmount) - Math.Abs(existingAurEff.Amount);
-
-				if (diff == 0)
+				var effMask = auraEffectMask.Hash();
+				var baseMask = existingAurEff.Base.AuraEffects.Keys.Hash();
+                if (diff == 0)
 					foreach (var spellEff in spellInfo.Effects)
-						diff += (long)((auraEffectMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex) - (long)((existingAurEff.Base.GetEffectMask() & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex);
+						diff += (long)((effMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex) - (long)((baseMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex);
 
 				if (diff > 0)
 				{
@@ -4010,11 +4002,7 @@ public partial class Unit
 						var aurApp = existingAurEff.Base.GetApplicationOfTarget(GUID);
 
 						if (aurApp != null)
-							//bool hasMoreThanOneEffect = auraBase.HasMoreThanOneEffectForType(auraType);
-							//uint removedAuras = m_removedAurasCount;
 							RemoveAura(aurApp);
-						//if (hasMoreThanOneEffect || m_removedAurasCount > removedAuras + 1)
-						//continue;
 					}
 				}
 				else if (diff < 0)
@@ -4031,15 +4019,14 @@ public partial class Unit
 		return _ownedAuras.Query().HasSpellId(spellId).GetResults().FirstOrDefault();
 	}
 
-	public Aura GetOwnedAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, uint reqEffMask = 0, Aura except = null)
+	public Aura GetOwnedAura(uint spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID = default, Aura except = null)
 	{
 		return _ownedAuras.Query()
 						.HasSpellId(spellId)
 						.HasCasterGuid(casterGUID)
 						.AlsoMatches(aura =>
 						{
-							return ((aura.GetEffectMask() & reqEffMask) == reqEffMask) &&
-									(itemCasterGUID.IsEmpty || aura.CastItemGuid == itemCasterGUID) &&
+							return (itemCasterGUID.IsEmpty || aura.CastItemGuid == itemCasterGUID) &&
 									(except == null || except != aura);
 						})
 						.GetResults()
@@ -4350,7 +4337,7 @@ public partial class Unit
 				}
 	}
 
-	void GetProcAurasTriggeredOnEvent(List<Tuple<uint, AuraApplication>> aurasTriggeringProc, List<AuraApplication> procAuras, ProcEventInfo eventInfo)
+	void GetProcAurasTriggeredOnEvent(List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc, List<AuraApplication> procAuras, ProcEventInfo eventInfo)
 	{
 		var now = GameTime.Now();
 
@@ -4358,7 +4345,7 @@ public partial class Unit
 		{
 			var procEffectMask = aurApp.Base.GetProcEffectMask(aurApp, eventInfo, now);
 
-			if (procEffectMask != 0)
+			if (procEffectMask.Count != 0)
 			{
 				aurApp.Base.PrepareProcToTrigger(aurApp, eventInfo, now);
 				aurasTriggeringProc.Add(Tuple.Create(procEffectMask, aurApp));
@@ -4403,7 +4390,7 @@ public partial class Unit
 	{
 		// prepare data for self trigger
 		ProcEventInfo myProcEventInfo = new(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-		List<Tuple<uint, AuraApplication>> myAurasTriggeringProc = new();
+		List<Tuple<HashSet<int>, AuraApplication>> myAurasTriggeringProc = new();
 
 		if (typeMaskActor)
 		{
@@ -4427,7 +4414,7 @@ public partial class Unit
 
 		// prepare data for target trigger
 		ProcEventInfo targetProcEventInfo = new(this, actionTarget, this, typeMaskActionTarget, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
-		List<Tuple<uint, AuraApplication>> targetAurasTriggeringProc = new();
+		List<Tuple<HashSet<int>, AuraApplication>> targetAurasTriggeringProc = new();
 
 		if (typeMaskActionTarget && actionTarget)
 			actionTarget.GetProcAurasTriggeredOnEvent(targetAurasTriggeringProc, targetProcAuras, targetProcEventInfo);
@@ -4438,7 +4425,7 @@ public partial class Unit
 			actionTarget.TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
 	}
 
-	void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<uint, AuraApplication>> aurasTriggeringProc)
+	void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc)
 	{
 		var triggeringSpell = eventInfo.ProcSpell;
 		var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled();

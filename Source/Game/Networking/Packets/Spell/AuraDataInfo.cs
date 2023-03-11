@@ -13,7 +13,7 @@ public class AuraDataInfo
 	public int SpellID;
 	public SpellCastVisual Visual;
 	public AuraFlags Flags;
-	public uint ActiveFlags;
+	public HashSet<int> ActiveFlags;
 	public ushort CastLevel = 1;
 	public byte Applications = 1;
 	public int ContentTuningID;
@@ -22,8 +22,8 @@ public class AuraDataInfo
 	public int? Remaining;
 	public List<double> Points = new();
 	public List<double> EstimatedPoints = new();
-	readonly ContentTuningParams ContentTuning;
-	readonly float? TimeMod;
+	readonly ContentTuningParams _contentTuning;
+	readonly float? _timeMod;
 
 	public void Write(WorldPacket data)
 	{
@@ -32,21 +32,21 @@ public class AuraDataInfo
 
 		Visual.Write(data);
 
-		data.WriteUInt16((ushort)Flags);
-		data.WriteUInt32(ActiveFlags);
+        data.WriteUInt16((ushort)Flags);
+		data.WriteUInt32((uint)ActiveFlags.Hash());
 		data.WriteUInt16(CastLevel);
 		data.WriteUInt8(Applications);
 		data.WriteInt32(ContentTuningID);
 		data.WriteBit(CastUnit.HasValue);
 		data.WriteBit(Duration.HasValue);
 		data.WriteBit(Remaining.HasValue);
-		data.WriteBit(TimeMod.HasValue);
+		data.WriteBit(_timeMod.HasValue);
 		data.WriteBits(Points.Count, 6);
 		data.WriteBits(EstimatedPoints.Count, 6);
-		data.WriteBit(ContentTuning != null);
+		data.WriteBit(_contentTuning != null);
 
-		if (ContentTuning != null)
-			ContentTuning.Write(data);
+		if (_contentTuning != null)
+			_contentTuning.Write(data);
 
 		if (CastUnit.HasValue)
 			data.WritePackedGuid(CastUnit.Value);
@@ -57,8 +57,8 @@ public class AuraDataInfo
 		if (Remaining.HasValue)
 			data.WriteInt32(Remaining.Value);
 
-		if (TimeMod.HasValue)
-			data.WriteFloat(TimeMod.Value);
+		if (_timeMod.HasValue)
+			data.WriteFloat(_timeMod.Value);
 
 		foreach (var point in Points)
 			data.WriteFloat((float)point);

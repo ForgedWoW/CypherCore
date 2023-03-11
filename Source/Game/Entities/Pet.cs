@@ -1362,7 +1362,7 @@ public class Pet : Guardian
 				var info = effectInfo[key];
 				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
-				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask, this);
+				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeHash(), this);
 				createInfo.SetCasterGuid(casterGuid);
 				createInfo.SetBaseAmount(info.BaseAmounts);
 

@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 
@@ -17,28 +18,32 @@ public class AuraCreateInfo
 	public int CastItemLevel = -1;
 	public bool IsRefresh;
 	public bool ResetPeriodicTimer = true;
+    public HashSet<int> AuraEffectMask;
 
-	internal ObjectGuid CastId;
-	internal SpellInfo SpellInfo;
+
+    public SpellInfo SpellInfo => SpellInfoInternal;
+    public WorldObject Owner => OwnerInternal;
+
+    internal ObjectGuid CastId;
+	internal SpellInfo SpellInfoInternal;
 	internal Difficulty CastDifficulty;
-	internal uint AuraEffectMask;
-	internal WorldObject Owner;
+	internal WorldObject OwnerInternal;
 
-	internal uint TargetEffectMask;
+	internal HashSet<int> TargetEffectMask;
 
-	public AuraCreateInfo(ObjectGuid castId, SpellInfo spellInfo, Difficulty castDifficulty, uint auraEffMask, WorldObject owner)
+	public AuraCreateInfo(ObjectGuid castId, SpellInfo spellInfo, Difficulty castDifficulty, HashSet<int> auraEffMask, WorldObject owner)
 	{
 		CastId = castId;
-		SpellInfo = spellInfo;
+		SpellInfoInternal = spellInfo;
 		CastDifficulty = castDifficulty;
-		AuraEffectMask = auraEffMask;
-		Owner = owner;
+		AuraEffectMask = auraEffMask.ToHashSet();
+		OwnerInternal = owner;
 
 		Cypher.Assert(spellInfo != null);
-		Cypher.Assert(auraEffMask != 0);
+		Cypher.Assert(auraEffMask.Count != 0);
 		Cypher.Assert(owner != null);
 
-		Cypher.Assert(auraEffMask <= SpellConst.MaxEffectMask);
+		Cypher.Assert(auraEffMask.Count <= SpellConst.MaxEffects.Count);
 	}
 
 	public void SetCasterGuid(ObjectGuid guid)
@@ -68,28 +73,8 @@ public class AuraCreateInfo
 		ResetPeriodicTimer = reset;
 	}
 
-	public void SetOwnerEffectMask(uint effMask)
+	public void SetOwnerEffectMask(HashSet<int> effMask)
 	{
 		TargetEffectMask = effMask;
-	}
-
-	public void SetAuraEffectMask(uint effMask)
-	{
-		AuraEffectMask = effMask;
-	}
-
-	public SpellInfo GetSpellInfo()
-	{
-		return SpellInfo;
-	}
-
-	public uint GetAuraEffectMask()
-	{
-		return AuraEffectMask;
-	}
-
-	public WorldObject GetOwner()
-	{
-		return Owner;
 	}
 }

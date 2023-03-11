@@ -937,9 +937,12 @@ public partial class Spell
 		var aurApp = SpellAura.GetApplicationOfTarget(UnitTarget.GUID);
 
 		if (aurApp == null)
-			aurApp = UnitTarget._CreateAuraApplication(SpellAura, 1u << EffectInfo.EffectIndex);
+			aurApp = UnitTarget._CreateAuraApplication(SpellAura, new HashSet<int>() { EffectInfo.EffectIndex });
 		else
-			aurApp.UpdateApplyEffectMask(aurApp.EffectsToApply | 1u << EffectInfo.EffectIndex, false);
+		{
+			aurApp.EffectsToApply.Add(EffectInfo.EffectIndex);
+            aurApp.UpdateApplyEffectMask(aurApp.EffectsToApply, false);
+		}
 	}
 
 	[SpellEffectHandler(SpellEffectName.UnlearnSpecialization)]
@@ -1295,7 +1298,7 @@ public partial class Spell
 			return;
 		}
 
-		AuraCreateInfo createInfo = new(CastId, SpellInfo, GetCastDifficulty(), SpellConst.MaxEffectMask, dynObj);
+		AuraCreateInfo createInfo = new(CastId, SpellInfo, GetCastDifficulty(), SpellConst.MaxEffects, dynObj);
 		createInfo.SetCaster(unitCaster);
 		createInfo.SetBaseAmount(SpellValue.EffectBasePoints);
 		createInfo.SetCastItem(CastItemGuid, CastItemEntry, CastItemLevel);
@@ -2877,8 +2880,8 @@ public partial class Spell
 				if ((spell.State == SpellState.Casting || (spell.State == SpellState.Preparing && spell.CastTime > 0.0f)) && curSpellInfo.CanBeInterrupted(_caster, UnitTarget))
 				{
 					var duration = SpellInfo.Duration;
-					duration = UnitTarget.ModSpellDuration(SpellInfo, UnitTarget, duration, false, 1u << EffectInfo.EffectIndex);
-					UnitTarget.					SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
+					duration = UnitTarget.ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
+					UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
 					HitMask |= ProcFlagsHit.Interrupt;
 					SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
 					var interuptedSpell = UnitTarget.InterruptSpell(i, false, true, spell);
@@ -5977,7 +5980,7 @@ public partial class Spell
 			return false;
 
 		foreach (var spellEffectInfo in spell.SpellInfo.Effects)
-			if ((target.EffectMask & (1 << spellEffectInfo.EffectIndex)) != 0 && spellEffectInfo.IsUnitOwnedAuraEffect())
+			if (target.EffectMask.Contains(spellEffectInfo.EffectIndex) && spellEffectInfo.IsUnitOwnedAuraEffect())
 				return true;
 
 		return false;

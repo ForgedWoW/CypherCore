@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
@@ -97,7 +98,7 @@ class PartyMemberFullState : ServerPacket
 		{
 			PartyMemberAuraStates aura = new();
 			aura.SpellID = (int)aurApp.Base.Id;
-			aura.ActiveFlags = aurApp.EffectMask;
+			aura.ActiveFlags = (uint)aurApp.EffectMask.Hash();
 			aura.Flags = (byte)aurApp.Flags;
 
 			if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
@@ -130,7 +131,7 @@ class PartyMemberFullState : ServerPacket
 				PartyMemberAuraStates aura = new();
 
 				aura.SpellID = (int)aurApp.Base.Id;
-				aura.ActiveFlags = aurApp.EffectMask;
+				aura.ActiveFlags = (uint)aurApp.EffectMask.Hash();
 				aura.Flags = (byte)aurApp.Flags;
 
 				if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))

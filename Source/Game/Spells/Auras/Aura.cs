@@ -21,8 +21,10 @@ public class Aura
 	const int UPDATE_TARGET_MAP_INTERVAL = 500;
 
 	static readonly List<IAuraScript> Dummy = new();
-	static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
-	readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
+    static readonly HashSet<int> DummyHashset = new();
+    static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
+	static readonly Dictionary<Unit, HashSet<int>> DummyAuraFill = new();
+    readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
 	readonly Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new();
 	readonly SpellInfo _spellInfo;
 	readonly Difficulty _castDifficulty;
@@ -153,16 +155,16 @@ public class Aura
 
 	public Aura(AuraCreateInfo createInfo)
 	{
-		_spellInfo = createInfo.SpellInfo;
+		_spellInfo = createInfo.SpellInfoInternal;
 		_castDifficulty = createInfo.CastDifficulty;
 		_castId = createInfo.CastId;
 		_casterGuid = createInfo.CasterGuid;
 		_castItemGuid = createInfo.CastItemGuid;
 		_castItemId = createInfo.CastItemId;
 		_castItemLevel = createInfo.CastItemLevel;
-		_spellCastVisual = new SpellCastVisual(createInfo.Caster ? createInfo.Caster.GetCastSpellXSpellVisualId(createInfo.SpellInfo) : createInfo.SpellInfo.GetSpellXSpellVisualId(), 0);
+		_spellCastVisual = new SpellCastVisual(createInfo.Caster ? createInfo.Caster.GetCastSpellXSpellVisualId(createInfo.SpellInfoInternal) : createInfo.SpellInfoInternal.GetSpellXSpellVisualId(), 0);
 		_applyTime = GameTime.GetGameTime();
-		_owner = createInfo.Owner;
+		_owner = createInfo.OwnerInternal;
 		_timeCla = 0;
 		_updateTargetMapInterval = 0;
 		_casterLevel = createInfo.Caster ? createInfo.Caster.Level : _spellInfo.SpellLevel;
@@ -202,13 +204,13 @@ public class Aura
 		return null;
 	}
 
-	public void _InitEffects(uint effMask, Unit caster, Dictionary<int, double> baseAmount)
+	public void _InitEffects(HashSet<int> effMask, Unit caster, Dictionary<int, double> baseAmount)
 	{
 		// shouldn't be in constructor - functions in AuraEffect.AuraEffect use polymorphism
 		_effects = new Dictionary<int, AuraEffect>();
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
-			if ((effMask & (1 << spellEffectInfo.EffectIndex)) != 0)
+			if (effMask.Contains(spellEffectInfo.EffectIndex))
 				_effects[spellEffectInfo.EffectIndex] = new AuraEffect(this, spellEffectInfo, baseAmount != null ? baseAmount[spellEffectInfo.EffectIndex] : null, caster);
 	}
 
@@ -259,7 +261,7 @@ public class Aura
 		{
 			Log.outError(LogFilter.Spells,
 						"Aura._UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
-						target.						GUID.ToString(),
+						target.GUID.ToString(),
 						caster ? caster.GUID.ToString() : "",
 						auraApp.Base.SpellInfo.Id);
 
@@ -311,9 +313,7 @@ public class Aura
 
 		// fill up to date target list
 		//       target, effMask
-		Dictionary<Unit, uint> targets = new();
-
-		FillTargetMap(ref targets, caster);
+		Dictionary<Unit, HashSet<int>> targets = FillTargetMap(caster);
 
 		List<Unit> targetsToRemove = new();
 
@@ -338,7 +338,7 @@ public class Aura
 				// check target immunities (for existing targets)
 				foreach (var spellEffectInfo in SpellInfo.Effects)
 					if (app.Value.Target.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, caster, true))
-						existing &= ~(uint)(1 << spellEffectInfo.EffectIndex);
+						existing.Remove(spellEffectInfo.EffectIndex);
 
 				targets[app.Value.Target] = existing;
 
@@ -363,9 +363,9 @@ public class Aura
 				// check target immunities (for new targets)
 				foreach (var spellEffectInfo in SpellInfo.Effects)
 					if (unit.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, caster))
-						targets[unit] &= ~(uint)(1 << spellEffectInfo.EffectIndex);
+						targets[unit].Remove(spellEffectInfo.EffectIndex);
 
-				if (targets[unit] == 0 || unit.IsImmunedToSpell(SpellInfo, caster) || !CanBeAppliedOn(unit))
+				if (targets[unit].Count == 0 || unit.IsImmunedToSpell(SpellInfo, caster) || !CanBeAppliedOn(unit))
 					addUnit = false;
 			}
 
@@ -456,7 +456,7 @@ public class Aura
 		List<Unit> targetList = new();
 
 		foreach (var app in _auraApplications.Values)
-			if (Convert.ToBoolean(app.EffectsToApply & (1 << effIndex)) && !app.HasEffect(effIndex))
+			if (app.EffectsToApply.Contains(effIndex) && !app.HasEffect(effIndex))
 				targetList.Add(app.Target);
 
 		// apply effect to targets
@@ -958,7 +958,7 @@ public class Aura
 		var applicationList = new List<AuraApplication>();
 
 		foreach (var aurApp in _auraApplications.Values)
-			if (aurApp.EffectMask != 0)
+			if (aurApp.EffectMask.Count != 0)
 				applicationList.Add(aurApp);
 
 		return applicationList;
@@ -1450,13 +1450,13 @@ public class Aura
 				Remove();
 	}
 
-	public uint GetProcEffectMask(AuraApplication aurApp, ProcEventInfo eventInfo, DateTime now)
+	public HashSet<int> GetProcEffectMask(AuraApplication aurApp, ProcEventInfo eventInfo, DateTime now)
 	{
 		var procEntry = Global.SpellMgr.GetSpellProcEntry(SpellInfo);
 
 		// only auras with spell proc entry can trigger proc
 		if (procEntry == null)
-			return 0;
+			return DummyHashset;
 
 		// check spell triggering us
 		var spell = eventInfo.ProcSpell;
@@ -1465,21 +1465,21 @@ public class Aura
 		{
 			// Do not allow auras to proc from effect triggered from itself
 			if (spell.IsTriggeredByAura(_spellInfo))
-				return 0;
+				return DummyHashset;
 
 			// check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
 			if (!SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.TypeMask.HasFlag(ProcFlags.AutoAttackMask))
 				if (spell.IsTriggered() && !spell.SpellInfo.HasAttribute(SpellAttr3.NotAProc))
-					return 0;
+					return DummyHashset;
 
 			if (spell.CastItem != null && procEntry.AttributesMask.HasFlag(ProcAttributes.CantProcFromItemCast))
-				return 0;
+				return DummyHashset;
 
 			if (spell.SpellInfo.HasAttribute(SpellAttr4.SuppressWeaponProcs) && SpellInfo.HasAttribute(SpellAttr6.AuraIsWeaponProc))
-				return 0;
+				return DummyHashset;
 
 			if (SpellInfo.HasAttribute(SpellAttr12.OnlyProcFromClassAbilities) && !spell.SpellInfo.HasAttribute(SpellAttr13.AllowClassAbilityProcs))
-				return 0;
+				return DummyHashset;
 		}
 
 		// check don't break stealth attr present
@@ -1489,14 +1489,14 @@ public class Aura
 
 			if (eventSpellInfo != null)
 				if (eventSpellInfo.HasAttribute(SpellCustomAttributes.DontBreakStealth))
-					return 0;
+					return DummyHashset;
 		}
 
 		// check if we have charges to proc with
 		if (IsUsingCharges)
 		{
 			if (Charges == 0)
-				return 0;
+				return DummyHashset;
 
 			if (procEntry.AttributesMask.HasAnyFlag(ProcAttributes.ReqSpellmod))
 			{
@@ -1504,39 +1504,39 @@ public class Aura
 
 				if (eventSpell != null)
 					if (!eventSpell.AppliedMods.Contains(this))
-						return 0;
+						return DummyHashset;
 			}
 		}
 
 		// check proc cooldown
 		if (IsProcOnCooldown(now))
-			return 0;
+			return DummyHashset;
 
 		// do checks against db data
 
 		if (!SpellManager.CanSpellTriggerProcOnEvent(procEntry, eventInfo))
-			return 0;
+			return DummyHashset;
 
 		// do checks using conditions table
 		if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.SpellProc, Id, eventInfo.Actor, eventInfo.ActionTarget))
-			return 0;
+			return DummyHashset;
 
 		// AuraScript Hook
 		var check = CallScriptCheckProcHandlers(aurApp, eventInfo);
 
 		if (!check)
-			return 0;
+			return DummyHashset;
 
 		// At least one effect has to pass checks to proc aura
-		var procEffectMask = aurApp.EffectMask;
+		var procEffectMask = aurApp.EffectMask.ToHashSet();
 
 		foreach (var aurEff in AuraEffects)
-			if ((procEffectMask & (1u << aurEff.Key)) != 0)
+			if (procEffectMask.Contains(aurEff.Key))
 				if ((procEntry.DisableEffectsMask & (1u << aurEff.Key)) != 0 || !aurEff.Value.CheckEffectProc(aurApp, eventInfo))
-					procEffectMask &= ~(1u << aurEff.Key);
+					procEffectMask.Remove(aurEff.Key);
 
-		if (procEffectMask == 0)
-			return 0;
+		if (procEffectMask.Count == 0)
+			return DummyHashset;
 
 		// @todo
 		// do allow additional requirements for procs
@@ -1556,7 +1556,7 @@ public class Aura
 				if (SpellInfo.EquippedItemClass == ItemClass.Weapon)
 				{
 					if (target.AsPlayer.IsInFeralForm)
-						return 0;
+						return DummyHashset;
 
 					var damageInfo = eventInfo.DamageInfo;
 
@@ -1575,20 +1575,20 @@ public class Aura
 				}
 
 				if (!item || item.IsBroken() || !item.IsFitToSpellRequirements(SpellInfo))
-					return 0;
+					return DummyHashset;
 			}
 
 		if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOutdoors))
 			if (!target.IsOutdoors)
-				return 0;
+				return DummyHashset;
 
 		if (_spellInfo.HasAttribute(SpellAttr3.OnlyProcOnCaster))
 			if (target.GUID != CasterGuid)
-				return 0;
+				return DummyHashset;
 
 		if (!_spellInfo.HasAttribute(SpellAttr4.AllowProcWhileSitting))
 			if (!target.IsStandState)
-				return 0;
+				return DummyHashset;
 
 		var success = RandomHelper.randChance(CalcProcChance(procEntry, eventInfo));
 
@@ -1597,10 +1597,10 @@ public class Aura
 		if (success)
 			return procEffectMask;
 
-		return 0;
+		return DummyHashset;
 	}
 
-	public void TriggerProcOnEvent(uint procEffectMask, AuraApplication aurApp, ProcEventInfo eventInfo)
+	public void TriggerProcOnEvent(HashSet<int> procEffectMask, AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var prevented = CallScriptProcHandlers(aurApp, eventInfo);
 
@@ -1608,7 +1608,7 @@ public class Aura
 		{
 			foreach (var aurEff in AuraEffects)
 			{
-				if (!Convert.ToBoolean(procEffectMask & (1 << aurEff.Key)))
+				if (!procEffectMask.Contains(aurEff.Key))
 					continue;
 
 				// OnEffectProc / AfterEffectProc hooks handled in AuraEffect.HandleProc()
@@ -1756,16 +1756,6 @@ public class Aura
 		return false;
 	}
 
-	public uint GetEffectMask()
-	{
-		uint effMask = 0;
-
-		foreach (var aurEff in AuraEffects)
-			effMask |= (uint)(1 << aurEff.Value.EffIndex);
-
-		return effMask;
-	}
-
 	public AuraApplication GetApplicationOfTarget(ObjectGuid guid)
 	{
 		return _auraApplications.LookupByKey(guid);
@@ -1776,7 +1766,7 @@ public class Aura
 		return _auraApplications.ContainsKey(guid);
 	}
 
-	public virtual void FillTargetMap(ref Dictionary<Unit, uint> targets, Unit caster) { }
+	public virtual Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster) { return DummyAuraFill; }
 
 	public void SetLastProcAttemptTime(DateTime lastProcAttemptTime)
 	{
@@ -1803,32 +1793,32 @@ public class Aura
 	}
 
 	//Static Methods
-	public static uint BuildEffectMaskForOwner(SpellInfo spellProto, uint availableEffectMask, WorldObject owner)
+	public static HashSet<int> BuildEffectMaskForOwner(SpellInfo spellProto, HashSet<int> availableEffectMask, WorldObject owner)
 	{
 		Cypher.Assert(spellProto != null);
 		Cypher.Assert(owner != null);
-		uint effMask = 0;
+		HashSet<int> effMask = new HashSet<int>();
 
-		switch (owner.TypeId)
+        switch (owner.TypeId)
 		{
 			case TypeId.Unit:
 			case TypeId.Player:
 				foreach (var spellEffectInfo in spellProto.Effects)
-					if (spellEffectInfo.IsUnitOwnedAuraEffect())
-						effMask |= (1u << spellEffectInfo.EffectIndex);
+					if (spellEffectInfo.IsUnitOwnedAuraEffect() && availableEffectMask.Contains(spellEffectInfo.EffectIndex))
+						effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
 			case TypeId.DynamicObject:
 				foreach (var spellEffectInfo in spellProto.Effects)
-					if (spellEffectInfo.Effect == SpellEffectName.PersistentAreaAura)
-						effMask |= (1u << spellEffectInfo.EffectIndex);
+					if (spellEffectInfo.Effect == SpellEffectName.PersistentAreaAura && availableEffectMask.Contains(spellEffectInfo.EffectIndex))
+                        effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
 			default:
 				break;
 		}
 
-		return (effMask & availableEffectMask);
+		return effMask;
 	}
 
 	public static Aura TryRefreshStackOrCreate(AuraCreateInfo createInfo, bool updateEffectMask = true)
@@ -1837,18 +1827,18 @@ public class Aura
 
 		createInfo.IsRefresh = false;
 
-		createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.GetSpellInfo(), createInfo.GetAuraEffectMask(), createInfo.GetOwner());
-		createInfo.TargetEffectMask &= createInfo.AuraEffectMask;
+		createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.SpellInfo, createInfo.AuraEffectMask, createInfo.Owner);
+		createInfo.TargetEffectMask = createInfo.AuraEffectMask.ToHashSet();
 
 		var effMask = createInfo.AuraEffectMask;
 
-		if (createInfo.TargetEffectMask != 0)
+		if (createInfo.TargetEffectMask.Count != 0)
 			effMask = createInfo.TargetEffectMask;
 
-		if (effMask == 0)
+		if (effMask.Count == 0)
 			return null;
 
-		var foundAura = createInfo.GetOwner().AsUnit._TryStackingOrRefreshingExistingAura(createInfo);
+		var foundAura = createInfo.Owner.AsUnit._TryStackingOrRefreshingExistingAura(createInfo);
 
 		if (foundAura != null)
 		{
@@ -1860,7 +1850,7 @@ public class Aura
 			createInfo.IsRefresh = true;
 
 			// add owner
-			var unit = createInfo.GetOwner().AsUnit;
+			var unit = createInfo.Owner.AsUnit;
 
 			// check effmask on owner application (if existing)
 			if (updateEffectMask)
@@ -1883,12 +1873,12 @@ public class Aura
 	{
 		var effMask = createInfo.AuraEffectMask;
 
-		if (createInfo.TargetEffectMask != 0)
+		if (createInfo.TargetEffectMask.Count != 0)
 			effMask = createInfo.TargetEffectMask;
 
-		effMask = BuildEffectMaskForOwner(createInfo.GetSpellInfo(), effMask, createInfo.GetOwner());
+		effMask = BuildEffectMaskForOwner(createInfo.SpellInfo, effMask, createInfo.Owner);
 
-		if (effMask == 0)
+		if (effMask.Count == 0)
 			return null;
 
 		return Create(createInfo);
@@ -1901,10 +1891,10 @@ public class Aura
 		{
 			if (createInfo.CasterGuid.IsUnit)
 			{
-				if (createInfo.Owner.GUID == createInfo.CasterGuid)
-					createInfo.Caster = createInfo.Owner.AsUnit;
+				if (createInfo.OwnerInternal.GUID == createInfo.CasterGuid)
+					createInfo.Caster = createInfo.OwnerInternal.AsUnit;
 				else
-					createInfo.Caster = Global.ObjAccessor.GetUnit(createInfo.Owner, createInfo.CasterGuid);
+					createInfo.Caster = Global.ObjAccessor.GetUnit(createInfo.OwnerInternal, createInfo.CasterGuid);
 			}
 		}
 		else if (createInfo.Caster != null)
@@ -1913,15 +1903,15 @@ public class Aura
 		}
 
 		// check if aura can be owned by owner
-		if (createInfo.GetOwner().IsTypeMask(TypeMask.Unit))
-			if (!createInfo.GetOwner().IsInWorld || createInfo.GetOwner().AsUnit.IsDuringRemoveFromWorld)
+		if (createInfo.Owner.IsTypeMask(TypeMask.Unit))
+			if (!createInfo.Owner.IsInWorld || createInfo.Owner.AsUnit.IsDuringRemoveFromWorld)
 				// owner not in world so don't allow to own not self casted single target auras
-				if (createInfo.CasterGuid != createInfo.GetOwner().GUID && createInfo.GetSpellInfo().IsSingleTarget())
+				if (createInfo.CasterGuid != createInfo.Owner.GUID && createInfo.SpellInfo.IsSingleTarget())
 					return null;
 
 		Aura aura;
 
-		switch (createInfo.GetOwner().TypeId)
+		switch (createInfo.Owner.TypeId)
 		{
 			case TypeId.Unit:
 			case TypeId.Player:
@@ -1934,19 +1924,19 @@ public class Aura
 				// add owner
 				var effMask = createInfo.AuraEffectMask;
 
-				if (createInfo.TargetEffectMask != 0)
+				if (createInfo.TargetEffectMask.Count != 0)
 					effMask = createInfo.TargetEffectMask;
 
-				effMask = BuildEffectMaskForOwner(createInfo.GetSpellInfo(), effMask, createInfo.GetOwner());
-				Cypher.Assert(effMask != 0);
+				effMask = BuildEffectMaskForOwner(createInfo.SpellInfo, effMask, createInfo.Owner);
+				Cypher.Assert(effMask.Count != 0);
 
-				var unit = createInfo.GetOwner().AsUnit;
+				var unit = createInfo.Owner.AsUnit;
 				aura.ToUnitAura().AddStaticApplication(unit, effMask);
 
 				break;
 			case TypeId.DynamicObject:
-				createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.GetSpellInfo(), createInfo.AuraEffectMask, createInfo.GetOwner());
-				Cypher.Assert(createInfo.AuraEffectMask != 0);
+				createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.SpellInfo, createInfo.AuraEffectMask, createInfo.Owner);
+				Cypher.Assert(createInfo.AuraEffectMask.Count != 0);
 
 				aura = new DynObjAura(createInfo);
 

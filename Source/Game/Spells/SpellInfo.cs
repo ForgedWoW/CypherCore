@@ -1529,7 +1529,7 @@ public class SpellInfo
 		return mask;
 	}
 
-	public ulong GetSpellMechanicMaskByEffectMask(uint effectMask)
+	public ulong GetSpellMechanicMaskByEffectMask(HashSet<int> effectMask)
 	{
 		ulong mask = 0;
 
@@ -1537,7 +1537,7 @@ public class SpellInfo
 			mask |= 1ul << (int)Mechanic;
 
 		foreach (var effectInfo in _effects)
-			if ((effectMask & (1 << effectInfo.EffectIndex)) != 0 && effectInfo.Mechanic != 0)
+			if (effectMask.Contains(effectInfo.EffectIndex) && effectInfo.Mechanic != 0)
 				mask |= 1ul << (int)effectInfo.Mechanic;
 
 		return mask;
