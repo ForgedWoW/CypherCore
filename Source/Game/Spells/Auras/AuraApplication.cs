@@ -136,14 +136,20 @@ public class AuraApplication
 		if (_effectsToApply.SetEquals(newEffMask))
 			return;
 
-		var addEffMask = newEffMask.Hash();
-		var effectsToApply = _effectsToApply.Hash();
+		var addEffMask = newEffMask.ToMask();
+		var effectsToApply = _effectsToApply.ToMask();
 
         var removeEffMask = (effectsToApply ^ addEffMask) & (~addEffMask);
         var addMask = (effectsToApply ^ addEffMask) & (~effectsToApply);
 
-		var removeExploded = removeEffMask.ExplodeHash();
-		var addExploded = addMask.ExplodeHash();
+		var removeExploded = removeEffMask.ExplodeMask(SpellConst.MaxEffects);
+		var addExploded = addMask.ExplodeMask(SpellConst.MaxEffects);
+
+		var newEffMaskCopy = newEffMask.ToHashSet();
+		var _effectsToApplyCopy = _effectsToApply.ToHashSet();
+
+		newEffMaskCopy.SymmetricExceptWith(_effectsToApply);
+		_effectsToApplyCopy.SymmetricExceptWith(newEffMask);
 
         // quick check, removes application completely
         if (removeEffMask == effectsToApply && addEffMask == 0)

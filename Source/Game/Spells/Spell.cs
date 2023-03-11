@@ -5116,8 +5116,8 @@ public partial class Spell : IDisposable
 
 			if (SpellInfo.HasAttribute(SpellAttr4.BouncyChainMissiles))
 			{
-				var mask = removeEffect.Hash();
-                var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.Effects.Hash() & mask) != 0);
+				var mask = removeEffect.ToMask();
+                var previousTargetInfo = UniqueTargetInfo.FindLast(target => (target.Effects.ToMask() & mask) != 0);
 
 				if (previousTargetInfo != null)
 				{
@@ -5384,7 +5384,7 @@ public partial class Spell : IDisposable
 		}
 
 		foreach (var targetInfo in UniqueTargetInfo)
-			if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.Hash() & targetInfo.Effects.Hash()))
+			if (targetInfo.MissCondition == SpellMissInfo.None && Convert.ToBoolean(channelTargetEffectMask.ToMask() & targetInfo.Effects.ToMask()))
 			{
 				var unit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 
@@ -5400,7 +5400,7 @@ public partial class Spell : IDisposable
 
 				if (IsValidDeadOrAliveTarget(unit))
 				{
-					if (Convert.ToBoolean(channelAuraMask.Hash() & targetInfo.Effects.Hash()))
+					if (Convert.ToBoolean(channelAuraMask.ToMask() & targetInfo.Effects.ToMask()))
 					{
 						var aurApp = unit.GetAuraApplication(SpellInfo.Id, _originalCasterGuid);
 
@@ -6770,11 +6770,11 @@ public partial class Spell : IDisposable
 				if (spellEffectInfo.Effect == SpellEffectName.ApplyAura && explicitTargetEffectMask.Contains(spellEffectInfo.EffectIndex))
 					channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
-			var chanMask = channelAuraMask.Hash();
+			var chanMask = channelAuraMask.ToMask();
 
             foreach (var target in UniqueTargetInfo)
 			{
-				if ((target.Effects.Hash() & chanMask) == 0)
+				if ((target.Effects.ToMask() & chanMask) == 0)
 					continue;
 
 				var requiredAttribute = target.TargetGuid != unitCaster.GUID ? SpellAttr1.IsChannelled : SpellAttr1.IsSelfChannelled;
@@ -6786,7 +6786,7 @@ public partial class Spell : IDisposable
 			}
 
 			foreach (var target in _uniqueGoTargetInfo)
-				if ((target.Effects.Hash() & chanMask) != 0)
+				if ((target.Effects.ToMask() & chanMask) != 0)
 					unitCaster.AddChannelObject(target.TargetGUID);
 		}
 		else if (SpellInfo.HasAttribute(SpellAttr1.IsSelfChannelled))

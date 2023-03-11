@@ -3986,8 +3986,8 @@ public partial class Unit
 			if (Global.SpellMgr.CheckSpellGroupStackRules(spellInfo, existingAurEff.SpellInfo) == SpellGroupStackRule.ExclusiveHighest)
 			{
 				var diff = Math.Abs(effectAmount) - Math.Abs(existingAurEff.Amount);
-				var effMask = auraEffectMask.Hash();
-				var baseMask = existingAurEff.Base.AuraEffects.Keys.Hash();
+				var effMask = auraEffectMask.ToMask();
+				var baseMask = existingAurEff.Base.AuraEffects.Keys.ToMask();
                 if (diff == 0)
 					foreach (var spellEff in spellInfo.Effects)
 						diff += (long)((effMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex) - (long)((baseMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex);

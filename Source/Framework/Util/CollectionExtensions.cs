@@ -644,7 +644,7 @@ namespace System.Collections.Generic
             return set;
         }
 
-        public static int Hash(this IEnumerable<int> set)
+        public static int ToMask(this IEnumerable<int> set)
         {
             var hash = 0;   
 
