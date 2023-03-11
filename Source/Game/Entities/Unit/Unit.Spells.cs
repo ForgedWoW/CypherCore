@@ -8,6 +8,7 @@ using System.Text;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.Networking.Packets;
+using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
@@ -2426,22 +2427,29 @@ public partial class Unit
 	}
 
 	// Interrupts
-	public void InterruptNonMeleeSpells(bool withDelayed, uint spell_id = 0, bool withInstant = true)
+	public bool InterruptNonMeleeSpells(bool withDelayed, uint spell_id = 0, bool withInstant = true)
 	{
+		bool retval = false;
+
 		// generic spells are interrupted if they are not finished or delayed
 		if (GetCurrentSpell(CurrentSpellTypes.Generic) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Generic].SpellInfo.Id == spell_id))
-			InterruptSpell(CurrentSpellTypes.Generic, withDelayed, withInstant);
+			if (InterruptSpell(CurrentSpellTypes.Generic, withDelayed, withInstant))
+				retval = true;
 
-		// autorepeat spells are interrupted if they are not finished or delayed
-		if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo.Id == spell_id))
-			InterruptSpell(CurrentSpellTypes.AutoRepeat, withDelayed, withInstant);
+        // autorepeat spells are interrupted if they are not finished or delayed
+        if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo.Id == spell_id))
+			if (InterruptSpell(CurrentSpellTypes.AutoRepeat, withDelayed, withInstant))
+                retval = true;
 
-		// channeled spells are interrupted if they are not finished, even if they are delayed
-		if (GetCurrentSpell(CurrentSpellTypes.Channeled) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id == spell_id))
-			InterruptSpell(CurrentSpellTypes.Channeled, true, true);
-	}
+        // channeled spells are interrupted if they are not finished, even if they are delayed
+        if (GetCurrentSpell(CurrentSpellTypes.Channeled) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id == spell_id))
+			if (InterruptSpell(CurrentSpellTypes.Channeled, true, true))
+                retval = true;
 
-	public void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true)
+		return retval;
+    }
+
+	public Spell InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, Spell interruptingSpell = null)
 	{
 		Cypher.Assert(spellType < CurrentSpellTypes.Max);
 
@@ -2452,7 +2460,7 @@ public partial class Unit
 		{
 			// for example, do not let self-stun aura interrupt itself
 			if (!spell.IsInterruptable)
-				return;
+				return null;
 
 			// send autorepeat cancel message for autorepeat spells
 			if (spellType == CurrentSpellTypes.AutoRepeat)
@@ -2471,7 +2479,13 @@ public partial class Unit
 
 			if (IsCreature && IsAIEnabled)
 				AsCreature.AI.OnSpellFailed(spell.SpellInfo);
+
+			ScriptManager.Instance.ForEach<IUnitSpellInterrupted>(s => s.SpellInterrupted(spell, interruptingSpell))
+
+			return spell;
 		}
+
+		return null;
 	}
 
 	public void UpdateInterruptMask()

@@ -2881,7 +2881,10 @@ public partial class Spell
 					UnitTarget.					SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
 					HitMask |= ProcFlagsHit.Interrupt;
 					SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
-					UnitTarget.InterruptSpell(i, false);
+					var interuptedSpell = UnitTarget.InterruptSpell(i, false, true, spell);
+
+					if (interuptedSpell != null)
+						ForEachSpellScript<ISpellOnSucessfulInterrupt>(s => s.SucessfullyInterrupted(interuptedSpell));
 				}
 			}
 		}
