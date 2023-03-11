@@ -2480,7 +2480,7 @@ public partial class Unit
 			if (IsCreature && IsAIEnabled)
 				AsCreature.AI.OnSpellFailed(spell.SpellInfo);
 
-			ScriptManager.Instance.ForEach<IUnitSpellInterrupted>(s => s.SpellInterrupted(spell, interruptingSpell))
+			ScriptManager.Instance.ForEach<IUnitSpellInterrupted>(s => s.SpellInterrupted(spell, interruptingSpell));
 
 			return spell;
 		}
