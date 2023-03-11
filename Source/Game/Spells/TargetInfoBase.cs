@@ -7,7 +7,7 @@ namespace Game.Spells;
 
 public class TargetInfoBase
 {
-	public HashSet<int> EffectMask;
+	public HashSet<int> Effects;
 
 	public virtual void PreprocessTarget(Spell spell) { }
 	public virtual void DoTargetSpellHit(Spell spell, SpellEffectInfo spellEffectInfo) { }

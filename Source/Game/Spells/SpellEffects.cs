@@ -5980,7 +5980,7 @@ public partial class Spell
 			return false;
 
 		foreach (var spellEffectInfo in spell.SpellInfo.Effects)
-			if (target.EffectMask.Contains(spellEffectInfo.EffectIndex) && spellEffectInfo.IsUnitOwnedAuraEffect())
+			if (target.Effects.Contains(spellEffectInfo.EffectIndex) && spellEffectInfo.IsUnitOwnedAuraEffect())
 				return true;
 
 		return false;

@@ -154,7 +154,7 @@ public class TargetInfo : TargetInfoBase
 					for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
 					{
 						// in case of immunity, check all effects to choose correct procFlags, as none has technically hit
-						if (!EffectMask.Contains(i))
+						if (!Effects.Contains(i))
 							continue;
 
 						if (!spell.SpellInfo.IsPositiveEffect(i))
@@ -261,7 +261,7 @@ public class TargetInfo : TargetInfoBase
 				}
 				else
 				{
-					caster.					LastDamagedTargetGuid = spell.UnitTarget.GUID;
+					caster.LastDamagedTargetGuid = spell.UnitTarget.GUID;
 
 					// Add bonuses and fill damageInfo struct
 					caster.CalculateSpellDamageTaken(damageInfo, spell.DamageInEffects, spell.SpellInfo, spell.AttackType, IsCrit, MissCondition == SpellMissInfo.Block, spell);
@@ -395,7 +395,7 @@ public class TargetInfo : TargetInfoBase
 					// only apply unapplied effects (for reapply case)
 					var effMask =  aurApp.EffectsToApply.ToHashSet();
 
-					effMask.ExceptWith(aurApp.EffectsToApply);
+					effMask.ExceptWith(Effects);
 
 					if (effMask.Count != 0)
 						_spellHitTarget._ApplyAura(aurApp, effMask);
