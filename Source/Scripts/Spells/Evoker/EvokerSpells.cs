@@ -30,7 +30,8 @@ internal struct EvokerSpells
     public const uint DEEP_BREATH_END = 362019;
     public const uint DISINTEGRATE = 356995;
 	public const uint DRAGONRAGE = 375087;
-	public const uint DREAM_BREATH = 355936;
+    public const uint DRAGONRAGE_EFFECT = 375088;
+    public const uint DREAM_BREATH = 355936;
 	public const uint DREAM_BREATH_2 = 382614;
 	public const uint DREAM_BREATH_CHARGED = 355941;
     public const uint DREAM_PROJECTION = 377509;
@@ -63,8 +64,10 @@ internal struct EvokerSpells
 	public const uint LIVING_FLAME = 361469;
 	public const uint LIVING_FLAME_DAMAGE = 361500;
 	public const uint LIVING_FLAME_HEAL = 361509;
-	public const uint PYRE = 357211;
-	public const uint RUBY_ESSENCE_BURST = 376872;
+    public const uint PYRE = 357211;
+    public const uint PYRE_DAMAGE = 357212;
+    public const uint PYRE_MISSILE = 393568;
+    public const uint RUBY_ESSENCE_BURST = 376872;
 	public const uint SHATTERING_STAR = 370452;
 	public const uint SKYWARD_ASCENT = 367033;
 	public const uint SOAR_RACIAL = 369536;

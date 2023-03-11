@@ -117,6 +117,28 @@ namespace System.Collections.Generic
             }
         }
 
+        public static void RandomResize<T>(this IList<T> list, int size)
+        {
+            int listSize = list.Count;
+
+            while (listSize > size)
+            {
+                list.RemoveAt(RandomHelper.IRand(0, listSize));
+                --listSize;
+            }
+        }
+
+        public static void RandomResize<T>(this IList<T> list, double size)
+        {
+            int listSize = list.Count;
+
+            while (listSize > size)
+            {
+                list.RemoveAt(RandomHelper.IRand(0, listSize));
+                --listSize;
+            }
+        }
+
         public static void RandomResize<T>(this List<T> list, Predicate<T> predicate, uint size)
         {
             for (var i = 0; i < list.Count; ++i)
