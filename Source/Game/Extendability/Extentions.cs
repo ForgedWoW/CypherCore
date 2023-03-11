@@ -27,6 +27,8 @@ namespace System
             foreach (var i in SpellConst.MaxEffects)
                 if ((hash & (1 << i)) != 0)
                     newSet.Add(i);
+                else
+                    break;
 
             return newSet;
         }

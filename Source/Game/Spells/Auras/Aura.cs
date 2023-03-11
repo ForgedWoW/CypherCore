@@ -1818,7 +1818,9 @@ public class Aura
 				break;
 		}
 
-		return effMask;
+        effMask.IntersectWith(availableEffectMask);
+
+        return effMask;
 	}
 
 	public static Aura TryRefreshStackOrCreate(AuraCreateInfo createInfo, bool updateEffectMask = true)

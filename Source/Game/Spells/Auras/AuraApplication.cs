@@ -136,15 +136,18 @@ public class AuraApplication
 		if (_effectsToApply.SetEquals(newEffMask))
 			return;
 
-		var addEffMask = newEffMask.ToHashSet();
-		var removeEffMask = _effectsToApply.ToHashSet();
+		var addEffMask = newEffMask.Hash();
+		var effectsToApply = _effectsToApply.Hash();
 
-        addEffMask.ExceptWith(_effectsToApply);
-		removeEffMask.ExceptWith(newEffMask);
+        var removeEffMask = (effectsToApply ^ addEffMask) & (~addEffMask);
+        var addMask = (effectsToApply ^ addEffMask) & (~effectsToApply);
+
+		var removeExploded = removeEffMask.ExplodeHash();
+		var addExploded = addMask.ExplodeHash();
 
         // quick check, removes application completely
-        if (removeEffMask.SetEquals(_effectsToApply) && addEffMask.Count == 0)
-		{
+        if (removeEffMask == effectsToApply && addEffMask == 0)
+        {
 			_target._UnapplyAura(this, AuraRemoveMode.Default);
 
 			return;
@@ -154,11 +157,11 @@ public class AuraApplication
 
 		foreach (var eff in Base.AuraEffects)
 		{
-			if (HasEffect(eff.Key) && removeEffMask.Contains(eff.Key))
+			if (HasEffect(eff.Key) && removeExploded.Contains(eff.Key))
 				_HandleEffect(eff.Key, false);
 
 			if (canHandleNewEffects)
-				if (addEffMask.Contains(eff.Key))
+				if (addExploded.Contains(eff.Key))
 					_HandleEffect(eff.Key, true);
 		}
 

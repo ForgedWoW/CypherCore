@@ -18,7 +18,7 @@ public class AuraCreateInfo
 	public int CastItemLevel = -1;
 	public bool IsRefresh;
 	public bool ResetPeriodicTimer = true;
-    public HashSet<int> AuraEffectMask;
+    public HashSet<int> AuraEffectMask = new();
 
 
     public SpellInfo SpellInfo => SpellInfoInternal;
@@ -29,7 +29,7 @@ public class AuraCreateInfo
 	internal Difficulty CastDifficulty;
 	internal WorldObject OwnerInternal;
 
-	internal HashSet<int> TargetEffectMask;
+	internal HashSet<int> TargetEffectMask = new();
 
 	public AuraCreateInfo(ObjectGuid castId, SpellInfo spellInfo, Difficulty castDifficulty, HashSet<int> auraEffMask, WorldObject owner)
 	{
